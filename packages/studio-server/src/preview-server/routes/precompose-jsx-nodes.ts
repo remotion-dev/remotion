@@ -30,6 +30,7 @@ export const precomposeJsxNodesHandler: ApiHandler<
 		dryRun,
 		compositionFile,
 		compositionId,
+		newCompositionId,
 		metadata,
 		existingCompositionIds,
 	},
@@ -85,6 +86,7 @@ export const precomposeJsxNodesHandler: ApiHandler<
 				})),
 				compositionFile: registration.absolutePath,
 				compositionId,
+				newCompositionId,
 				metadata,
 				existingCompositionIds,
 			};

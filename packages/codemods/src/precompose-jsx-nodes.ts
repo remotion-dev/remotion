@@ -1506,6 +1506,7 @@ type PrecomposeOptions<Project extends CodemodProject> = {
 	nodes: NodeReference[];
 	compositionFile: string;
 	compositionId: string;
+	newCompositionId?: string;
 	metadata: CompositionMetadata;
 	existingCompositionIds: string[];
 };
@@ -1564,6 +1565,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	nodes,
 	compositionFile,
 	compositionId,
+	newCompositionId,
 	metadata,
 	existingCompositionIds,
 }: PrecomposeOptions<Project>) => {
@@ -1654,23 +1656,36 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 					.join('');
 	const knownIds = new Set(existingCompositionIds);
 	let name: string | null = null;
-	for (let suffix = 1; suffix < 10000; suffix++) {
-		const candidate = `${baseName}${suffix === 1 ? '' : suffix}`;
-		if (occupiedNames.has(candidate) || knownIds.has(candidate)) {
-			continue;
+	if (newCompositionId !== undefined) {
+		assertNewCompositionId({
+			project,
+			compositionFile: registrationFile,
+			compositionId: newCompositionId,
+		});
+		if (occupiedNames.has(newCompositionId) || knownIds.has(newCompositionId)) {
+			throw new Error(`Composition ID "${newCompositionId}" is already in use`);
 		}
 
-		try {
-			assertNewCompositionId({
-				project,
-				compositionFile: registrationFile,
-				compositionId: candidate,
-			});
-			name = candidate;
-			break;
-		} catch (error) {
-			if (!(error as Error).message.includes('already exists')) {
-				throw error;
+		name = newCompositionId;
+	} else {
+		for (let suffix = 1; suffix < 10000; suffix++) {
+			const candidate = `${baseName}${suffix === 1 ? '' : suffix}`;
+			if (occupiedNames.has(candidate) || knownIds.has(candidate)) {
+				continue;
+			}
+
+			try {
+				assertNewCompositionId({
+					project,
+					compositionFile: registrationFile,
+					compositionId: candidate,
+				});
+				name = candidate;
+				break;
+			} catch (error) {
+				if (!(error as Error).message.includes('already exists')) {
+					throw error;
+				}
 			}
 		}
 	}

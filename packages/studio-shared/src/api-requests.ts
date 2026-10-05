@@ -992,6 +992,7 @@ export type PrecomposeJsxNodesRequest = {
 	nodes: PrecomposeJsxNodesRequestItem[];
 	compositionFile: string;
 	compositionId: string;
+	newCompositionId?: string;
 	existingCompositionIds: string[];
 	metadata: {
 		width: number;

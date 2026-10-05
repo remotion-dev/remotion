@@ -74,6 +74,7 @@ test('precomposes the roller-skis presenter and captions without changing their 
 		nodes: [selected],
 		compositionFile: filePath,
 		compositionId: 'RollerSkiRoughCut',
+		newCompositionId: 'PresenterIntro',
 		metadata: {...metadata, durationInFrames: 12377},
 		existingCompositionIds: ['RollerSkiRoughCut'],
 	};
@@ -82,6 +83,7 @@ test('precomposes the roller-skis presenter and captions without changing their 
 		reason: null,
 	});
 	const result = precomposeJsxNodes(request);
+	expect(result.newCompositionId).toBe('PresenterIntro');
 	const after = applyCodemodChanges(project, result.changes);
 	const afterNodes = getNodes({project: after, filePath});
 	const wrapperRemapping = result.nodePathRemappings.find(
