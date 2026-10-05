@@ -23,6 +23,7 @@ export {
 
 export type DelayRenderScope = {
 	remotion_renderReady: boolean;
+	remotion_offlineMediaFetches?: number;
 	remotion_delayRenderTimeouts: {
 		[key: string]: {
 			label: string | null;
@@ -89,31 +90,53 @@ export const delayRenderInternal = ({
 				defaultTimeout) - 2000,
 		);
 		const retriesLeft = (options?.retries ?? 0) - (scope.remotion_attempt - 1);
+		let remaining = timeoutToUse;
+		let lastCheck = Date.now();
+		const isMediaExtraction =
+			label?.startsWith('Extracting frame at time ') ||
+			label?.startsWith('Extracting audio for frame ');
+		const checkTimeout = () => {
+			const now = Date.now();
+			if (
+				!environment.isClientSideRendering ||
+				!isMediaExtraction ||
+				!(scope.remotion_offlineMediaFetches! > 0)
+			) {
+				remaining -= now - lastCheck;
+			}
+			lastCheck = now;
+			if (remaining > 0) {
+				scope.remotion_delayRenderTimeouts[handle].timeout = setTimeout(
+					checkTimeout,
+					Math.min(remaining, 1000),
+				);
+				return;
+			}
+			const message = [
+				`A delayRender()`,
+				label ? `"${label}"` : null,
+				`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help.`,
+				retriesLeft > 0 ? DELAY_RENDER_RETRIES_LEFT + retriesLeft : null,
+				retriesLeft > 0 ? DELAY_RENDER_RETRY_TOKEN : null,
+				DELAY_RENDER_CALLSTACK_TOKEN,
+				called,
+			]
+				.filter(truthy)
+				.join(' ');
+
+			// in client-side rendering, don't throw (would be uncaught from setTimeout)
+			if (environment.isClientSideRendering) {
+				scope.remotion_cancelledError = getErrorStackWithMessage(
+					Error(message),
+				);
+			} else {
+				cancelRenderInternal(scope, Error(message));
+			}
+		};
 		scope.remotion_delayRenderTimeouts[handle] = {
 			label: label ?? null,
 			startTime: Date.now(),
-			timeout: setTimeout(() => {
-				const message = [
-					`A delayRender()`,
-					label ? `"${label}"` : null,
-					`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help.`,
-					retriesLeft > 0 ? DELAY_RENDER_RETRIES_LEFT + retriesLeft : null,
-					retriesLeft > 0 ? DELAY_RENDER_RETRY_TOKEN : null,
-					DELAY_RENDER_CALLSTACK_TOKEN,
-					called,
-				]
-					.filter(truthy)
-					.join(' ');
-
-				// in client-side rendering, don't throw (would be uncaught from setTimeout)
-				if (environment.isClientSideRendering) {
-					scope.remotion_cancelledError = getErrorStackWithMessage(
-						Error(message),
-					);
-				} else {
-					cancelRenderInternal(scope, Error(message));
-				}
-			}, timeoutToUse),
+			timeout: setTimeout(checkTimeout, Math.min(timeoutToUse, 1000)),
 		};
 	}
 

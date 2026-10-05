@@ -67,6 +67,7 @@ export const acquireSharedInput = ({
 		create: () => {
 			const input = new Input({
 				source: new UrlSource(src, {
+					fetchFn: Internals.fetchWithOfflineRecovery,
 					handleUnhandledError: (error) => {
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},

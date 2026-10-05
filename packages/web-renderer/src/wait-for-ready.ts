@@ -20,11 +20,18 @@ export const waitForReady = ({
 	keepalive: BackgroundKeepalive | null;
 }) => {
 	const start = performance.now();
+	let lastCheck = start;
+	let offlineTime = 0;
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	let cancelled = false;
 
 	const check = () => {
+		const now = performance.now();
+		if ((scope.remotion_offlineMediaFetches ?? 0) > 0) {
+			offlineTime += now - lastCheck;
+		}
+		lastCheck = now;
 		if (cancelled) {
 			return;
 		}
@@ -53,7 +60,7 @@ export const waitForReady = ({
 			return;
 		}
 
-		if (performance.now() - start > timeoutInMilliseconds + 3000) {
+		if (now - start - offlineTime > timeoutInMilliseconds + 3000) {
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(

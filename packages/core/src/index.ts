@@ -53,6 +53,7 @@ export type VideoConfigWithSerializedProps = Omit<
 declare global {
 	interface Window {
 		remotion_renderReady: boolean;
+		remotion_offlineMediaFetches?: number;
 		remotion_delayRenderTimeouts: {
 			[key: string]: {
 				label: string | null;
