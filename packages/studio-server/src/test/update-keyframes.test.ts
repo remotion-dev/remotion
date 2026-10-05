@@ -253,6 +253,39 @@ export const Example: React.FC = () => {
 			},
 		],
 	});
+
+	const resized = await updateSequenceKeyframes({
+		input: output,
+		nodePath: updatedNodePath,
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'move', moves: [{fromFrame: 358, toFrame: 349}]},
+			},
+		],
+		videoConfigValues: {...videoConfigValues, durationInFrames: 360},
+	});
+	expect(resized.output).toContain('[0, durationInFrames - 11]');
+	const resizedStatus = computeSequencePropsStatusFromContent({
+		fileContents: resized.output,
+		nodePath: resized.updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+	});
+	// The same edited source must still evaluate in another mounted instance.
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(resizedStatus.props, {
+			...videoConfigValues,
+			durationInFrames: 400,
+		})['style.opacity'],
+	).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 0.35},
+			{frame: 389, value: 1},
+		],
+	});
 });
 
 const colorInput = `import React from 'react';
