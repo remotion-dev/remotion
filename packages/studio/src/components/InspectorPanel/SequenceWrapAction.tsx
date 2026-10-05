@@ -1,11 +1,5 @@
 import type {NodeWrapper} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import type {
@@ -52,10 +46,7 @@ export const SequenceWrapAction: React.FC<{
 	);
 	const {sequence} = track;
 	const nodePathKey = JSON.stringify(nodePathInfo.sequenceSubscriptionKey);
-	const sequenceStack = sequence.getStack();
-	const eligibilityKey = JSON.stringify([nodePathKey, sequenceStack]);
 	const [busy, setBusy] = useState(false);
-	const [eligibleNodeKey, setEligibleNodeKey] = useState<string | null>(null);
 	const timing = useMemo(
 		() =>
 			getHtmlInCanvasWrapperTiming({
@@ -71,7 +62,6 @@ export const SequenceWrapAction: React.FC<{
 			sequences,
 		],
 	);
-	const timingIsNull = timing === null;
 	const wouldNestAtRuntime = useMemo(() => {
 		const sequencesById = new Map(
 			sequences.map((registeredSequence) => [
@@ -120,59 +110,13 @@ export const SequenceWrapAction: React.FC<{
 		return false;
 	}, [sequence.id, sequences]);
 
-	useEffect(() => {
-		if (sourceActionsDisabled || wouldNestAtRuntime || timingIsNull) {
-			setEligibleNodeKey(null);
-			return;
-		}
-
-		let cancelled = false;
-		setEligibleNodeKey(null);
-		const nodePath = JSON.parse(
-			nodePathKey,
-		) as SequenceNodePathInfo['sequenceSubscriptionKey'];
-		wrapNode({
-			fileName: nodePath.absolutePath,
-			nodePath: nodePath.nodePath,
-			wrapper: null,
-			width: null,
-			height: null,
-			timing: null,
-		})
-			.then((eligibility) => {
-				if (!cancelled) {
-					setEligibleNodeKey(
-						eligibility.success && eligibility.canWrapHtmlInCanvas
-							? eligibilityKey
-							: null,
-					);
-				}
-			})
-			.catch(() => {
-				if (!cancelled) {
-					setEligibleNodeKey(null);
-				}
-			});
-
-		return () => {
-			cancelled = true;
-		};
-	}, [
-		eligibilityKey,
-		nodePathKey,
-		sourceActionsDisabled,
-		timingIsNull,
-		wouldNestAtRuntime,
-	]);
-
 	const onWrap = useCallback(
 		async (wrapper: HtmlInCanvasWrapper) => {
 			if (
 				busy ||
 				sourceActionsDisabled ||
 				wouldNestAtRuntime ||
-				timing === null ||
-				eligibleNodeKey !== eligibilityKey
+				timing === null
 			) {
 				return;
 			}
@@ -217,7 +161,6 @@ export const SequenceWrapAction: React.FC<{
 
 				if (!eligibility.canWrapHtmlInCanvas) {
 					showNotification('HTML-in-canvas components cannot be nested.', 4000);
-					setEligibleNodeKey(null);
 					return;
 				}
 
@@ -246,8 +189,6 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
-			eligibilityKey,
-			eligibleNodeKey,
 			height,
 			nodePathKey,
 			sequence.controls?.componentName,
@@ -261,12 +202,7 @@ export const SequenceWrapAction: React.FC<{
 		],
 	);
 
-	if (
-		sourceActionsDisabled ||
-		eligibleNodeKey !== eligibilityKey ||
-		timing === null ||
-		wouldNestAtRuntime
-	) {
+	if (sourceActionsDisabled || timing === null || wouldNestAtRuntime) {
 		return null;
 	}
 
