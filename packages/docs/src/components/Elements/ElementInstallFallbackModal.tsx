@@ -108,7 +108,6 @@ export const ElementInstallFallbackModal: React.FC<{
 						posterRef={posterRef}
 						showDragHandle
 						sourceCode={sourceCode}
-						title="Install in the most recently focused Remotion Studio"
 					/>
 					{installFailureCount > 1 ? (
 						<div
