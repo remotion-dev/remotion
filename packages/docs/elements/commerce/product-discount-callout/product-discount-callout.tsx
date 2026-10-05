@@ -34,11 +34,11 @@ const ProductDiscountCalloutInner: React.FC<InteractiveTransformProps> = ({
 			style={{
 				WebkitFontSmoothing: 'antialiased',
 				fontFamily: 'Inter',
-				height: '100%',
+				height: 720,
 				isolation: 'isolate',
 				overflow: 'hidden',
 				position: 'relative',
-				width: '100%',
+				width: 720,
 				...style,
 			}}
 		>

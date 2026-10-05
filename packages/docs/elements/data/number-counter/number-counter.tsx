@@ -29,8 +29,8 @@ const NumberCounterInner: React.FC<InteractiveTransformProps> = ({style}) => {
 			name="Container"
 			style={{
 				display: 'flex',
-				width: '100%',
-				height: '100%',
+				width: 640,
+				height: 200,
 				alignItems: 'center',
 				justifyContent: 'center',
 				fontFamily: 'Inter',
