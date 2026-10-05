@@ -212,7 +212,7 @@ The following packages stop receiving releases after the 4.x line:
 
 In Remotion 4.0, audio-only renders with `codec: "aac"` accepted `.mpg` and `.mpeg` filenames, but wrote raw ADTS AAC rather than an MPEG program stream. These extensions now emit a warning in v4 and throw an error in v5.
 
-**Required action**: Change the output filename to `.aac` for raw ADTS AAC or `.m4a` for an MPEG-4 audio container. This applies to local, Lambda, and Cloud Run renders.
+**Required action**: Change the output filename to `.aac` for raw ADTS AAC or `.m4a` for an MPEG-4 audio container.
 
 ## License changes
 
