@@ -208,7 +208,7 @@ export const SequenceWrapAction: React.FC<{
 					<HtmlInCanvasIcon
 						color={color}
 						style={largeInspectorActionIconStyle}
-						viewBox="-64 -80 704 704"
+						viewBox="-48 -64 704 704"
 					/>
 				)}
 			>
