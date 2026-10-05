@@ -9,5 +9,5 @@ export const audioOscilloscopeAudio = {
 } as const satisfies ElementAsset;
 
 export const audioOscilloscopeInitialProps = {
-	audioSrc: audioOscilloscopeAudio.url,
+	src: audioOscilloscopeAudio.url,
 } satisfies ComponentProps<typeof AudioOscilloscope>;

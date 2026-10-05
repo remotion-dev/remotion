@@ -135,7 +135,7 @@ const elementImplementations = [
 		slug: 'audio/oscilloscope',
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
-			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+			src: staticFileRef(audioOscilloscopeAudio.path),
 		} as ElementInitialProps,
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
