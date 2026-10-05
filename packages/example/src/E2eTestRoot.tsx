@@ -1,6 +1,7 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {BarChart} from './BarChart';
+import {CaptionLeftEdgeTrimRepro} from './CaptionLeftEdgeTrimRepro';
 import {
 	CAPTIONS_DURATION_IN_FRAMES,
 	CAPTIONS_HEIGHT,
@@ -32,6 +33,14 @@ import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="caption-left-edge-trim-repro"
+				component={CaptionLeftEdgeTrimRepro}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={189}
+			/>
 			<Composition
 				id="sequence-playback-rate"
 				component={SequencePlaybackRateE2e}

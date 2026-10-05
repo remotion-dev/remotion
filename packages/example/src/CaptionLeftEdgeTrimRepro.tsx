@@ -42,7 +42,7 @@ const BasicCaptions = Interactive.withSchema({
 // https://github.com/remotion-dev/remotion/issues/11891
 // In Visual Mode, expand "Presenter introduction (2)" and drag the left edge
 // of its captions to the right. The captions' visible start should move.
-// Currently, the source props change but the visible start stays at frame 30.
+// The captions' timing and right edge should stay unchanged.
 export const CaptionLeftEdgeTrimRepro: React.FC = () => {
 	return (
 		<AbsoluteFill
@@ -79,6 +79,9 @@ export const CaptionLeftEdgeTrimRepro: React.FC = () => {
 							},
 						]}
 						style={{position: 'absolute', left: 100, bottom: 100}}
+						from={33}
+						durationInFrames={465}
+						trimBefore={33}
 					/>
 				</Series.Sequence>
 				<Series.Sequence name="Tail" durationInFrames={30} />
