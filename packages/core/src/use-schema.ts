@@ -18,49 +18,60 @@ import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
+import type {VideoConfigValues} from './video-config.js';
 
-export type CanUpdateSequencePropStatusStatic = {
+export type CanUpdateSequencePropStatusStatic<Numeric = number> = {
 	status: 'static';
 	codeValue: unknown;
-	keyframeDisplayOffsetAdjustment: number | null;
+	keyframeDisplayOffsetAdjustment: Numeric | null;
 	/** Multiplies the element's local frame to recover the source frame clock. */
-	keyframePlaybackRateAdjustment?: number;
+	keyframePlaybackRateAdjustment?: Numeric;
 	/** False when the source frame clock cannot be represented by the Studio. */
 	canKeyframe?: false;
 	numericExpression?: VideoConfigNumericExpression;
 };
 
-export type CanUpdateSequencePropStatusKeyframe = {
-	frame: number;
+export type CanUpdateSequencePropStatusKeyframe<Numeric = number> = {
+	frame: Numeric;
 	value: unknown;
 	frameExpression?: VideoConfigNumericExpression;
 };
 
+/** Source bindings remain independent of the configuration of a mounted instance. */
+export type VideoConfigNumericBinding =
+	| {type: 'video-config'; field: keyof VideoConfigValues}
+	| {type: 'constant'; value: number};
+
 export type VideoConfigNumericExpression =
-	| {
-			type: 'literal';
-			value: number;
-	  }
+	| {type: 'literal'; value: number}
 	| {
 			type: 'video-config-value';
 			identifier: string;
-			value: number;
+			binding: VideoConfigNumericBinding;
 	  }
 	| {
 			type: 'video-config-multiplication';
 			identifier: string;
+			binding: VideoConfigNumericBinding;
 			multiplier: number;
-			multiplicand: number;
 			factorPosition: 'left' | 'right';
-			value: number;
 	  }
 	| {
 			type: 'video-config-subtraction';
 			identifier: string;
-			minuend: number;
+			binding: VideoConfigNumericBinding;
 			subtrahend: number;
-			value: number;
+	  }
+	| {
+			type: 'binary';
+			operator: '+' | '-' | '*' | '/';
+			left: SourceNumericValue;
+			right: SourceNumericValue;
 	  };
+
+export type SourceNumericValue = number | VideoConfigNumericExpression;
+export type CanUpdateSequencePropSource =
+	CanUpdateSequencePropStatus<SourceNumericValue>;
 
 export type CanUpdateSequencePropStatusLinearEasing = {
 	type: 'linear';
@@ -131,7 +142,7 @@ export type CanUpdateSequencePropStatusComputed = {
 	status: 'computed';
 };
 
-export type CanUpdateSequencePropStatusKeyframed = {
+export type CanUpdateSequencePropStatusKeyframed<Numeric = number> = {
 	status: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	/**
@@ -140,10 +151,10 @@ export type CanUpdateSequencePropStatusKeyframed = {
 	 * This is non-zero when the useCurrentFrame() call is outside a timing
 	 * element that wraps the controlled element.
 	 */
-	keyframeDisplayOffsetAdjustment: number | null;
+	keyframeDisplayOffsetAdjustment: Numeric | null;
 	/** Defaults to 1 for statuses produced without a playback rate conversion. */
-	keyframePlaybackRateAdjustment?: number;
-	keyframes: CanUpdateSequencePropStatusKeyframe[];
+	keyframePlaybackRateAdjustment?: Numeric;
+	keyframes: CanUpdateSequencePropStatusKeyframe<Numeric>[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
 	posterize: number | undefined;
@@ -153,9 +164,9 @@ export type CanUpdateSequencePropStatusKeyframed = {
 export type CanUpdateSequencePropStatusFalse =
 	CanUpdateSequencePropStatusComputed;
 
-export type CanUpdateSequencePropStatus =
-	| CanUpdateSequencePropStatusStatic
-	| CanUpdateSequencePropStatusKeyframed
+export type CanUpdateSequencePropStatus<Numeric = number> =
+	| CanUpdateSequencePropStatusStatic<Numeric>
+	| CanUpdateSequencePropStatusKeyframed<Numeric>
 	| CanUpdateSequencePropStatusFalse;
 
 export type DragOverrideValue =

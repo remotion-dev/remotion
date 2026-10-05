@@ -27,7 +27,6 @@ import type {
 	JsxComponentIdentity,
 	LogLevel,
 	SequenceNodePath,
-	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
@@ -619,7 +618,7 @@ const getInterpolationKeyframes = (
 		}
 
 		keyframes.push({
-			frame: frameExpression.value,
+			frame: NoReactInternals.evaluateSourceNumericValue(frameExpression, null),
 			value: extractStaticValue(outputElement),
 			...(frameExpression.type === 'literal' ? {} : {frameExpression}),
 		});
@@ -767,12 +766,13 @@ const getJsxNumericAttribute = ({
 			return null;
 		}
 
-		return (
-			parseVideoConfigNumericExpression({
-				node: attribute.value.expression,
-				videoConfigValues,
-			})?.value ?? null
-		);
+		const numericExpression = parseVideoConfigNumericExpression({
+			node: attribute.value.expression,
+			videoConfigValues,
+		});
+		return numericExpression === null
+			? null
+			: NoReactInternals.evaluateSourceNumericValue(numericExpression, null);
 	}
 
 	return defaultValue;
@@ -1376,7 +1376,6 @@ export const computeSequencePropsStatusFromContent = ({
 	keys,
 	assetKeys = [],
 	effects,
-	videoConfigValues,
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
@@ -1384,7 +1383,6 @@ export const computeSequencePropsStatusFromContent = ({
 	keys: string[];
 	assetKeys?: string[];
 	effects: string[][];
-	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	try {
 		return getNodeProps({
@@ -1394,7 +1392,6 @@ export const computeSequencePropsStatusFromContent = ({
 			keys,
 			assetKeys,
 			effectKeys: effects,
-			videoConfig: videoConfigValues ?? undefined,
 		});
 	} catch (error) {
 		if (error instanceof CodemodsInternals.JsxElementIdentityMismatchError) {
@@ -1417,7 +1414,6 @@ export const computeSequencePropsStatus = ({
 	assetKeys = [],
 	effects,
 	remotionRoot,
-	videoConfigValues,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -1426,7 +1422,6 @@ export const computeSequencePropsStatus = ({
 	assetKeys?: string[];
 	effects: string[][];
 	remotionRoot: string;
-	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
@@ -1442,7 +1437,6 @@ export const computeSequencePropsStatus = ({
 		keys,
 		assetKeys,
 		effects,
-		videoConfigValues,
 	});
 };
 
@@ -1456,7 +1450,6 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 	effects,
 	remotionRoot,
 	logLevel,
-	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
@@ -1467,7 +1460,6 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	videoConfigValues: VideoConfigValues;
 }): SubscribeToSequencePropsResponse => {
 	try {
 		const {absolutePath} = resolveFileInsideProject({
@@ -1500,14 +1492,13 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 				assetKeys,
 				effects,
 				remotionRoot,
-				videoConfigValues,
 			}),
 			nodePath: {
 				absolutePath,
 				nodePath: resolvedNodePath,
 				sequenceKeys: keys,
 				effectKeys: effects,
-				videoConfigValues,
+				videoConfigValues: null,
 			},
 			success: true,
 		};

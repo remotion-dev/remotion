@@ -35,10 +35,10 @@ const updateEasing = ({
 };
 
 /** The keyframed status of a prop after an easing or settings update. */
-export const applyKeyframeSettingsToStatus = (
-	status: CanUpdateSequencePropStatusKeyframed,
+export const applyKeyframeSettingsToStatus = <Numeric>(
+	status: CanUpdateSequencePropStatusKeyframed<Numeric>,
 	settings: KeyframeSettings,
-): CanUpdateSequencePropStatusKeyframed => {
+): CanUpdateSequencePropStatusKeyframed<Numeric> => {
 	return {
 		...status,
 		...(settings.type === 'settings' && settings.clamping

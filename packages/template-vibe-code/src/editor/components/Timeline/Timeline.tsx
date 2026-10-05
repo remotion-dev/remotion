@@ -1,5 +1,7 @@
 "use client";
 
+import { Internals } from "remotion";
+
 import {
   canvasKeyframeEasingPresets,
   getCanvasSelectionItemKey,
@@ -901,11 +903,11 @@ export const Timeline: React.FC = () => {
       let blocked: string | null = null;
       if (node) {
         try {
-          const { props } = getNodeProps({
+          const props = Internals.evaluateSourcePropStatuses(getNodeProps({
             project,
             node,
             keys: ["from", "durationInFrames", "trimBefore"],
-          });
+          }).props, sequence.controls?.videoConfigValues ?? null);
           const fromStatus = props.from;
           const durationStatus = props.durationInFrames;
           const trimBeforeStatus = props.trimBefore;

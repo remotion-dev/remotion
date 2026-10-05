@@ -24,7 +24,6 @@ export const unsubscribeFromSequenceProps: ApiHandler<
 		sequenceKeys,
 		assetKeys,
 		effectKeys,
-		videoConfigValues: nodePath.videoConfigValues,
 	});
 	return Promise.resolve(undefined);
 };

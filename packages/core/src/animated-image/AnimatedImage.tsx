@@ -133,6 +133,7 @@ const AnimatedImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 
 		useImperativeHandle(canvasRef, () => {

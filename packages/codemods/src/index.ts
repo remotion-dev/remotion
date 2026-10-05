@@ -22,6 +22,7 @@ import {
 	getRootFileForProject,
 } from './internals';
 import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
+import {computeEffectPropsStatusesFromContent} from './sequence-props/can-update-effect-props';
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
@@ -170,6 +171,7 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	computeEffectPropsStatusesFromContent,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	basicCaptionsElementSource,

@@ -1,4 +1,5 @@
 import {useContext, useLayoutEffect, useRef} from 'react';
+import {evaluateSourcePropStatuses} from '../evaluate-source-expressions.js';
 import {
 	getFrameInKeyframedStatusClock,
 	resolveDragOverrideValue,
@@ -23,6 +24,7 @@ import {
 	type DragOverrideValue,
 	type PropStatuses,
 } from '../use-schema.js';
+import type {VideoConfigValues} from '../video-config.js';
 import type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
@@ -191,7 +193,10 @@ export const getEffectPropStatusesCtx = ({
 		return {type: 'cannot-update-effect', reason: effect.reason};
 	}
 
-	return {type: 'can-update-effect', props: effect.props};
+	return {
+		type: 'can-update-effect',
+		props: evaluateSourcePropStatuses(effect.props, nodePath.videoConfigValues),
+	};
 };
 
 export const getPropStatusesCtx = (
@@ -207,7 +212,7 @@ export const getPropStatusesCtx = (
 		return undefined;
 	}
 
-	return status.props;
+	return evaluateSourcePropStatuses(status.props, nodePath.videoConfigValues);
 };
 
 export type GetPropStatusesType = typeof getPropStatusesCtx;
@@ -215,9 +220,11 @@ export type GetPropStatusesType = typeof getPropStatusesCtx;
 export const useMemoizedEffects = ({
 	effects,
 	overrideId,
+	videoConfigValues,
 }: {
 	effects: readonly EffectDescriptor<unknown>[];
 	readonly overrideId: string | null;
+	videoConfigValues: VideoConfigValues | null;
 }): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
@@ -249,7 +256,7 @@ export const useMemoizedEffects = ({
 
 		const effectStatus = getEffectPropStatusesCtx({
 			propStatuses,
-			nodePath,
+			nodePath: {...nodePath, videoConfigValues},
 			effectIndex: index,
 		});
 		const propStatusOverrides =
