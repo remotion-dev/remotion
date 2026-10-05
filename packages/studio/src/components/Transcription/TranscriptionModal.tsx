@@ -16,6 +16,7 @@ import React, {
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
+import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {Checkmark} from '../../icons/Checkmark';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import {GearIcon} from '../../icons/gear';
@@ -26,10 +27,12 @@ import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {Checkbox} from '../Checkbox';
+import {ElementLibraryFrame} from '../ElementLibraryFrame';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
 import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
@@ -57,6 +60,7 @@ import {
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
+import {useSettings} from '../SettingsContext';
 import {VerticalTab} from '../Tabs/vertical';
 import {useModelCacheStatus} from '../use-model-cache-status';
 import {useStaticFiles} from '../use-static-files';
@@ -80,7 +84,7 @@ const DEFAULT_REPETITION_PENALTY = 1;
 const DEFAULT_NO_REPEAT_NGRAM_SIZE = 0;
 const MAX_CHUNK_LENGTH_IN_SECONDS = 30;
 
-type Tab = 'transcribe' | 'advanced' | 'models';
+type Tab = 'transcribe' | 'advanced' | 'models' | 'styles';
 
 type SupportState =
 	| {type: 'checking'}
@@ -702,11 +706,41 @@ const AdvancedSettings: React.FC<{
 
 export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	audioStreamIndex,
+	captionStyle,
 	displayName,
 	requestInit,
 	src,
 	target,
 }) => {
+	const [acceptedCaptionStyleId, setAcceptedCaptionStyleId] = useState<
+		string | null
+	>(null);
+	const [libraryUrl, setLibraryUrl] = useState(
+		'https://www.remotion.dev/elements/captions',
+	);
+	const {studioRuntimeConfig} = useSettings();
+	const libraryOptions: ComboboxValue[] = [
+		{
+			url: 'https://www.remotion.dev/elements/captions',
+			displayName: 'Remotion captions',
+		},
+		...(studioRuntimeConfig?.elementLibraries ?? []).filter(
+			({url}) =>
+				url !== 'https://www.remotion.dev/elements' &&
+				url !== 'https://www.remotion.dev/elements/captions',
+		),
+	].map(({url, displayName: libraryName}) => ({
+		type: 'item',
+		id: url,
+		value: url,
+		label: libraryName ?? new URL(url).host,
+		leftItem: url === libraryUrl ? <Checkmark /> : null,
+		keyHint: null,
+		quickSwitcherLabel: null,
+		subMenu: null,
+		disabled: false,
+		onClick: () => setLibraryUrl(url),
+	}));
 	const [tab, setTab] = useState<Tab>('transcribe');
 	const isModelCached = useCallback(
 		(model: WhisperWebGpuModel) => isWhisperModelCached({model}),
@@ -809,13 +843,17 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		supportState.type === 'supported' &&
 		outputValidationMessage === null &&
 		chunkValidationMessage === null &&
-		decodingValidationMessage === null;
+		decodingValidationMessage === null &&
+		(captionStyle === null || acceptedCaptionStyleId === captionStyle.id);
 	const transcribeDisabledReason =
 		supportState.type === 'checking'
 			? 'Checking WebGPU support'
 			: supportState.type === 'unsupported'
 				? supportState.message
-				: (outputValidationMessage ??
+				: ((captionStyle !== null && acceptedCaptionStyleId !== captionStyle.id
+						? 'Allow installing the selected caption style first'
+						: null) ??
+					outputValidationMessage ??
 					chunkValidationMessage ??
 					decodingValidationMessage ??
 					undefined);
@@ -838,11 +876,15 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		}
 
 		addCaptionJob({
+			captionStyle,
 			src,
 			displayName,
 			audioStreamIndex,
 			requestInit,
-			outName: target === null ? outName : 'Basic captions',
+			outName:
+				target === null
+					? outName
+					: (captionStyle?.element.displayName ?? 'Simple captions'),
 			target,
 			model: selectedModel,
 			language: modelInfo.multilingual ? selectedLanguage : null,
@@ -864,6 +906,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		addCaptionJob,
 		audioStreamIndex,
 		canTranscribe,
+		captionStyle,
 		chunkLengthInSeconds,
 		displayName,
 		doSample,
@@ -889,8 +932,61 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 
 	return (
 		<DismissableModal ariaLabel={title}>
-			<div style={transcriptionModalStyle}>
+			<div
+				style={{
+					...transcriptionModalStyle,
+					...(tab === 'styles'
+						? {height: getMaxModalHeight(850), width: getMaxModalWidth(1200)}
+						: {}),
+				}}
+			>
 				<ModalHeader title={title} />
+				{captionStyle === null ? null : (
+					<div
+						style={{
+							padding: '8px 16px',
+							maxHeight: 160,
+							overflowY: 'auto',
+							flexShrink: 0,
+						}}
+					>
+						<div style={{fontSize: 13}}>
+							{captionStyle.element.displayName} from{' '}
+							{'origin' in captionStyle.source
+								? (captionStyle.source.origin ?? 'an unverified source')
+								: 'an unverified drag-and-drop payload'}
+						</div>
+						<div style={{fontSize: 13}}>
+							Dependencies:{' '}
+							{captionStyle.element.dependencies
+								.map(({name, version}) =>
+									version === null ? name : `${name}@${version}`,
+								)
+								.join(', ') || 'None'}
+							. This style can execute arbitrary code.
+						</div>
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: 8,
+								fontSize: 13,
+							}}
+						>
+							<Checkbox
+								checked={acceptedCaptionStyleId === captionStyle.id}
+								onChange={(event) =>
+									setAcceptedCaptionStyleId(
+										event.target.checked ? captionStyle.id : null,
+									)
+								}
+								inputId="allow-caption-style"
+								name="allow-caption-style"
+							/>
+							Allow installing this style and running its code
+						</label>
+					</div>
+				)}
 				<div style={container}>
 					<div style={flexer} />
 					<Button
@@ -922,6 +1018,20 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						>
 							Transcribe
 						</VerticalTab>
+						{target === null ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'styles'}
+								onClick={() => setTab('styles')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<BrowseElementsIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Styles
+							</VerticalTab>
+						)}
 						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'models'}
@@ -996,6 +1106,43 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							validationMessage={chunkValidationMessage}
 						/>
 					</div>
+					{tab === 'styles' && target !== null ? (
+						<div
+							style={{
+								...optionsPanel,
+								flexDirection: 'column',
+								overflow: 'hidden',
+							}}
+						>
+							<div style={{padding: 16}}>
+								<div style={{fontSize: 13, marginBottom: 8}} role="status">
+									Selected style:{' '}
+									{captionStyle?.element.displayName ?? 'Simple captions'}
+								</div>
+								<Button
+									onClick={() =>
+										setSelectedModal((modal) =>
+											modal?.type === 'transcribe'
+												? {...modal, captionStyle: null}
+												: modal,
+										)
+									}
+									disabled={captionStyle === null}
+								>
+									Use Simple captions
+								</Button>
+								{libraryOptions.length > 1 ? (
+									<Combobox
+										values={libraryOptions}
+										selectedId={libraryUrl}
+										aria-label="Caption style library"
+										style={{marginTop: 8}}
+									/>
+								) : null}
+							</div>
+							<ElementLibraryFrame name="Caption styles" url={libraryUrl} />
+						</div>
+					) : null}
 					<Models
 						description={
 							'Models are downloaded automatically when needed.\nYou can also manage the browser cache here.'

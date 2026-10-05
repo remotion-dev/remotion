@@ -31,6 +31,7 @@ export const Comp = () => (
 );
 `;
 	const {output} = insertBasicCaptions({
+		element: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Video'),
 		captions,
@@ -83,6 +84,7 @@ test('uses the source whitespace and configured trailing comma style', () => {
 		'',
 	].join('\r\n');
 	const {output} = insertBasicCaptions({
+		element: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Video'),
 		captions: [

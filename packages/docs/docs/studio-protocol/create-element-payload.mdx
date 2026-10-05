@@ -117,6 +117,14 @@ With `'component-owned-sequence'`, Studio puts timing, name, and absolute positi
 
 See [Design it for composition](/elements/guidelines#design-it-for-composition) for guidance on choosing a mode and wiring the component.
 
+### isCaptionStyle?<AvailableFrom v="4.0.534" />
+
+Set to `true` to let the Element be selected in the Styles tab when generating captions for a video or audio element. The default is `false`.
+
+Caption styles must use `installationMode: 'component-owned-sequence'`, accept a `captions` prop containing [`Caption[]`](/docs/captions/caption), and expose it through [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema). Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` to support `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `premountFor`, and `postmountFor`.
+
+Studio replaces preview captions with the generated transcript and copies timing from the selected media. Other initial props are preserved. Choosing a style does not install it; Studio installs its source, dependencies, and assets after transcription, with your permission. The flag describes compatibility, not trust: an Element can execute arbitrary code.
+
 ## Return value
 
 A `StudioElementPayload`. Asset-free payloads use version `1`; payloads with assets use version `2`. Pass the returned object unchanged to a transport API instead of serializing it manually.

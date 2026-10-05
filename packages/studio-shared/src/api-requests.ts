@@ -16,10 +16,10 @@ import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
+	CanUpdateSequencePropSource,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
-	CanUpdateSequencePropSource,
 	ExtrapolateType,
 	InteractivitySchema,
 	InterpolateOutputOption,
@@ -102,6 +102,7 @@ export type InstallableElement = {
 	durationInFrames: number | null;
 	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
 	installationMode: ElementInstallationMode | null;
+	isCaptionStyle: boolean;
 	slug: string;
 	displayName: string;
 	sourceCode: string;
@@ -1176,6 +1177,10 @@ export type ElementInstallExpectedFileState =
 
 export type ElementInstallDestination =
 	| {
+			type: 'selected-media';
+			compositionFile: string;
+	  }
+	| {
 			type: 'current-composition';
 			compositionFile: string;
 			compositionId: string;
@@ -1208,8 +1213,6 @@ export type PrepareElementInstallResponse =
 
 export type InsertElementRequest = {
 	installationName: string | null;
-	compositionFile: string;
-	compositionId: string;
 	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
@@ -1217,11 +1220,23 @@ export type InsertElementRequest = {
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
-	newComposition: {
-		options: NewCompositionOptions;
-		symbolicatedStack: SymbolicatedStackFrame | null;
-	} | null;
-};
+} & (
+	| {
+			captionTarget: InsertBasicCaptionsRequest;
+			compositionFile: null;
+			compositionId: null;
+			newComposition: null;
+	  }
+	| {
+			captionTarget: null;
+			compositionFile: string;
+			compositionId: string;
+			newComposition: {
+				options: NewCompositionOptions;
+				symbolicatedStack: SymbolicatedStackFrame | null;
+			} | null;
+	  }
+);
 
 export type InsertElementFileConflict = {
 	filePath: string;

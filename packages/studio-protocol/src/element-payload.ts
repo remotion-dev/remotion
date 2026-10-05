@@ -29,6 +29,7 @@ export type CreateElementPayloadInput = {
 	readonly durationInFrames: number;
 	readonly initialProps?: ElementInitialProps | null;
 	readonly installationMode?: ElementInstallationMode;
+	readonly isCaptionStyle?: boolean;
 };
 
 export type StudioElementPayload = ElementDragData & {
@@ -94,6 +95,22 @@ const assertCreateElementPayloadInput = (
 		);
 	}
 
+	if (
+		input.isCaptionStyle !== undefined &&
+		typeof input.isCaptionStyle !== 'boolean'
+	) {
+		throw new TypeError('isCaptionStyle must be a boolean');
+	}
+
+	if (
+		input.isCaptionStyle &&
+		input.installationMode !== 'component-owned-sequence'
+	) {
+		throw new TypeError(
+			'Caption styles must use component-owned-sequence installation',
+		);
+	}
+
 	const initialProps = input.initialProps ?? null;
 	if (!isElementInitialProps(initialProps)) {
 		throw new TypeError(
@@ -128,6 +145,7 @@ export const createElementPayload = (
 		slug: input.slug,
 		sourceCode: input.sourceCode,
 		installationMode: input.installationMode ?? 'wrapped',
+		isCaptionStyle: input.isCaptionStyle,
 	});
 	const payload: StudioElementPayload = {
 		...constructed.data,

@@ -7,6 +7,7 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
@@ -72,6 +73,7 @@ export const insertElementHandler: ApiHandler<
 	input: {
 		compositionFile,
 		compositionId,
+		captionTarget,
 		element,
 		installationName,
 		expectedFileState,
@@ -89,6 +91,17 @@ export const insertElementHandler: ApiHandler<
 }) => {
 	let resolvedAssets: Array<{contents: Uint8Array; path: string}>;
 	try {
+		if (
+			captionTarget !== null &&
+			(element.isCaptionStyle !== true ||
+				element.installationMode !== 'component-owned-sequence' ||
+				newComposition !== null ||
+				compositionFile !== null ||
+				compositionId !== null)
+		) {
+			throw new Error('Invalid caption style installation target');
+		}
+
 		StudioProtocolInternals.assertElementAssets(element.assets);
 		StudioProtocolInternals.assertElementAssetReferences(element);
 		resolvedAssets = await StudioProtocolInternals.resolveElementAssets({
@@ -246,16 +259,21 @@ export const insertElementHandler: ApiHandler<
 			}
 
 			const installDestination =
-				newComposition === null
+				captionTarget !== null
 					? {
-							type: 'current-composition' as const,
-							compositionFile,
-							compositionId,
+							type: 'selected-media' as const,
+							compositionFile: captionTarget.fileName,
 						}
-					: {
-							type: 'new-composition' as const,
-							compositionFile,
-						};
+					: newComposition === null
+						? {
+								type: 'current-composition' as const,
+								compositionFile,
+								compositionId,
+							}
+						: {
+								type: 'new-composition' as const,
+								compositionFile,
+							};
 			const plan = await getElementInstallPlan({
 				installationName,
 				destination: installDestination,
@@ -366,10 +384,25 @@ export const insertElementHandler: ApiHandler<
 							position,
 						},
 			};
-			const inserted = await insertJsxElementIntoComposition({
-				...insertionInput,
-				sourceFileOverrides,
-			});
+			const inserted =
+				captionTarget === null
+					? await insertJsxElementIntoComposition({
+							...insertionInput,
+							compositionFile,
+							compositionId,
+							sourceFileOverrides,
+						})
+					: (() => {
+							const fileName = plan.safePaths.compositionFileName;
+							const oldContents = readFileSync(fileName, 'utf-8');
+							const result = CodemodsInternals.insertBasicCaptions({
+								...captionTarget,
+								input: oldContents,
+								importPath: plan.importPath,
+								element: {componentName: plan.componentName, initialProps},
+							});
+							return {...result, fileName, oldContents};
+						})();
 			if (
 				compositionCreation !== null &&
 				inserted.fileName !== compositionCreation.componentFilePath
