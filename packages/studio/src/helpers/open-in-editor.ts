@@ -14,11 +14,11 @@ import type {
 	CodePosition,
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
-import {rememberCodingAgent} from '../state/recently-used-coding-agents';
+import {codingAgentHistory, editorHistory} from '../state/recently-used-apps';
 import {getBrowserStudioOperations} from './browser-studio-operations';
 import {useSyncExternalStore} from './use-sync-external-store';
 
-export const openInEditor = (
+export const openInEditor = async (
 	stack: SymbolicatedStackFrame,
 	editorId: EditorPickerId,
 ) => {
@@ -30,7 +30,7 @@ export const openInEditor = (
 		originalScriptCode,
 	} = stack;
 
-	return callApi('/api/open-in-editor', {
+	const response = await callApi('/api/open-in-editor', {
 		editorId,
 		stack: {
 			originalFileName,
@@ -40,6 +40,11 @@ export const openInEditor = (
 			originalScriptCode,
 		},
 	});
+	if (response.success) {
+		editorHistory.remember(editorId);
+	}
+
+	return response;
 };
 
 export const openInCodingAgent = async (
@@ -51,7 +56,7 @@ export const openInCodingAgent = async (
 		prompt,
 	});
 	if (response.success) {
-		rememberCodingAgent(codingAgentId);
+		codingAgentHistory.remember(codingAgentId);
 	}
 
 	return response;

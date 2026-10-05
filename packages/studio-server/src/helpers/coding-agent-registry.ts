@@ -5,7 +5,7 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import type {DefaultCodingAgent, LogLevel} from '@remotion/renderer';
 import {defaultCodingAgentIds, RenderInternals} from '@remotion/renderer';
-import {getRunningProcesses} from './running-processes';
+import {getRunningProcesses, isAppRunning} from './running-processes';
 
 const execFilePromise = promisify(execFile);
 
@@ -448,36 +448,19 @@ export const getRunningCodingAgents = async (
 	}
 
 	return installedCodingAgents
-		.filter((agent) => {
-			if (agent.platform === 'darwin') {
-				return processes.some(({executable: processPath}) =>
-					processPath?.startsWith(`${agent.applicationPath}/Contents/MacOS/`),
-				);
-			}
-
-			const commands = codingAgentDefinitions[agent.id][agent.platform]
-				.flatMap((variant) => variant.commands)
-				.map((command) => command.replace(/\.(exe|cmd)$/i, ''));
-			const escapedCommands = commands.map((command) =>
-				command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-			);
-			const escapedPath = agent.applicationPath.replace(
-				/[.*+?^${}()|[\]\\]/g,
-				'\\$&',
-			);
-			const executable = new RegExp(
-				`^"?(?:${escapedPath}|(?:[^"\\s]*[/\\\\])?(?:${escapedCommands.join('|')})(?:\\.(?:exe|cmd|js))?)"?(?=\\s|$)`,
-				agent.platform === 'win32' ? 'i' : '',
-			);
-			return processes.some(({commandLine}) => {
-				// Node-based CLIs put the script after the interpreter path.
-				const withoutNode = (commandLine ?? '').replace(
-					/^(?:"[^"\r\n]*[/\\]node(?:\.exe)?"|(?:[^\s"]*[/\\])?node(?:\.exe)?)\s+/i,
-					'',
-				);
-				return executable.test(withoutNode);
-			});
-		})
+		.filter((agent) =>
+			isAppRunning({
+				processes,
+				executablePath: agent.applicationPath,
+				commands:
+					agent.platform === 'darwin'
+						? []
+						: codingAgentDefinitions[agent.id][agent.platform].flatMap(
+								(variant) => variant.commands,
+							),
+				platform: agent.platform,
+			}),
+		)
 		.map((agent) => agent.id);
 };
 

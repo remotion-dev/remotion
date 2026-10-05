@@ -15,10 +15,7 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	codingAgentSelectedEvent,
-	getRecentlyUsedCodingAgents,
-} from '../state/recently-used-coding-agents';
+import {appSelectedEvent} from '../state/recently-used-apps';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import {UpdateStatusProvider} from './UpdateStatusContext';
@@ -86,20 +83,10 @@ export const SettingsProvider: React.FC<{
 			error: null,
 		}));
 
-		Promise.all([
-			callApi('/api/default-editor-info', {}, controller.signal),
-			callApi('/api/remotion-skills-info', {}, controller.signal),
-		])
-			.then(([editorInfo, remotionSkillsInfo]) => {
-				const runtimeConfig = window.remotion_studioConfig;
+		callApi('/api/remotion-skills-info', {}, controller.signal)
+			.then((remotionSkillsInfo) => {
 				setSettings((currentSettings) => ({
 					...currentSettings,
-					editorInfo: {
-						...editorInfo,
-						defaultEditor: runtimeConfig
-							? runtimeConfig.defaultEditor
-							: editorInfo.defaultEditor,
-					},
 					remotionSkillsInfo,
 					error: null,
 					revision: currentSettings.revision + 1,
@@ -128,16 +115,15 @@ export const SettingsProvider: React.FC<{
 		}
 
 		let controller: AbortController | null = null;
-		const refreshCodingAgents = () => {
+		const refreshApps = () => {
 			controller?.abort();
 			const requestController = new AbortController();
 			controller = requestController;
-			callApi(
-				'/api/default-coding-agent-info',
-				{recentlyUsedCodingAgents: getRecentlyUsedCodingAgents()},
-				requestController.signal,
-			)
-				.then((codingAgentInfo) => {
+			Promise.all([
+				callApi('/api/default-coding-agent-info', {}, requestController.signal),
+				callApi('/api/default-editor-info', {}, requestController.signal),
+			])
+				.then(([codingAgentInfo, editorInfo]) => {
 					if (requestController.signal.aborted) {
 						return;
 					}
@@ -150,6 +136,12 @@ export const SettingsProvider: React.FC<{
 							defaultCodingAgent: runtimeConfig
 								? runtimeConfig.defaultCodingAgent
 								: codingAgentInfo.defaultCodingAgent,
+						},
+						editorInfo: {
+							...editorInfo,
+							defaultEditor: runtimeConfig
+								? runtimeConfig.defaultEditor
+								: editorInfo.defaultEditor,
 						},
 					}));
 				})
@@ -165,16 +157,16 @@ export const SettingsProvider: React.FC<{
 				});
 		};
 
-		refreshCodingAgents();
-		window.addEventListener('focus', refreshCodingAgents);
-		window.addEventListener(codingAgentSelectedEvent, refreshCodingAgents);
-		window.addEventListener('storage', refreshCodingAgents);
+		refreshApps();
+		window.addEventListener('focus', refreshApps);
+		window.addEventListener(appSelectedEvent, refreshApps);
+		window.addEventListener('storage', refreshApps);
 
 		return () => {
 			controller?.abort();
-			window.removeEventListener('focus', refreshCodingAgents);
-			window.removeEventListener(codingAgentSelectedEvent, refreshCodingAgents);
-			window.removeEventListener('storage', refreshCodingAgents);
+			window.removeEventListener('focus', refreshApps);
+			window.removeEventListener(appSelectedEvent, refreshApps);
+			window.removeEventListener('storage', refreshApps);
 		};
 	}, [previewServerState.type]);
 

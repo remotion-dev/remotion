@@ -16,37 +16,23 @@ import type {ApiHandler} from '../api-types';
 export const getDefaultCodingAgentInfoHandler: ApiHandler<
 	GetDefaultCodingAgentInfoRequest,
 	GetDefaultCodingAgentInfoResponse
-> = async ({getDefaultCodingAgent, input}) => {
+> = async ({getDefaultCodingAgent}) => {
 	const installedCodingAgents = await getAvailableCodingAgents();
 	const runningCodingAgents = await getRunningCodingAgents(
 		installedCodingAgents,
 	);
 	const installedTerminals = await getAvailableTerminals();
 	const installedGitClients = await getAvailableGitClients();
-	const recentlyUsedCodingAgents = input.recentlyUsedCodingAgents ?? [];
 	return {
 		defaultCodingAgent: getDefaultCodingAgent(),
-		installedCodingAgents: [...installedCodingAgents]
-			.sort((a, b) => {
-				const runningDifference =
-					Number(runningCodingAgents.includes(b.id)) -
-					Number(runningCodingAgents.includes(a.id));
-				if (runningDifference !== 0) {
-					return runningDifference;
-				}
-
-				const aIndex = recentlyUsedCodingAgents.indexOf(a.id);
-				const bIndex = recentlyUsedCodingAgents.indexOf(b.id);
-				return (
-					(aIndex === -1 ? recentlyUsedCodingAgents.length : aIndex) -
-					(bIndex === -1 ? recentlyUsedCodingAgents.length : bIndex)
-				);
-			})
-			.map(({id, name, nameWithType}) => ({
+		runningCodingAgents,
+		installedCodingAgents: installedCodingAgents.map(
+			({id, name, nameWithType}) => ({
 				id,
 				name,
 				nameWithType,
-			})),
+			}),
+		),
 		installedTerminals: installedTerminals.map(({id, name}) => ({id, name})),
 		installedGitClients: installedGitClients.map(({id, name}) => ({id, name})),
 	};

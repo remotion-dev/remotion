@@ -13,6 +13,47 @@ let processSnapshot: {
 	expiresAt: number;
 } | null = null;
 
+export const isAppRunning = ({
+	processes,
+	executablePath,
+	commands,
+	platform,
+}: {
+	processes: readonly RunningProcess[];
+	executablePath: string;
+	commands: readonly string[];
+	platform: NodeJS.Platform;
+}) => {
+	if (platform === 'darwin') {
+		const applicationPath = executablePath.split('/Contents/')[0];
+		if (applicationPath.endsWith('.app')) {
+			return processes.some(({executable}) =>
+				executable?.startsWith(`${applicationPath}/Contents/MacOS/`),
+			);
+		}
+	}
+
+	const escapedCommands = commands.map((command) =>
+		command.replace(/\.(exe|cmd)$/i, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+	);
+	const escapedPath = executablePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const executablePattern = new RegExp(
+		`^"?(?:${escapedPath}|(?:[^"\\s]*[/\\\\])?(?:${escapedCommands.join('|')})(?:\\.(?:exe|cmd|js))?)"?(?=\\s|$)`,
+		platform === 'win32' ? 'i' : '',
+	);
+	return processes.some(({executable, commandLine}) => {
+		// Node-based CLIs put the script after the interpreter path.
+		const withoutNode = (commandLine ?? '').replace(
+			/^(?:"[^"\r\n]*[/\\]node(?:\.exe)?"|(?:[^\s"]*[/\\])?node(?:\.exe)?)\s+/i,
+			'',
+		);
+		return (
+			executablePattern.test(executable ?? '') ||
+			executablePattern.test(withoutNode)
+		);
+	});
+};
+
 export const getRunningProcesses = (): Promise<
 	readonly RunningProcess[] | null
 > => {
