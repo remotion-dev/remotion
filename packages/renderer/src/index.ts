@@ -33,6 +33,7 @@ import {
 } from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange, getRealFrameRanges} from './get-frame-to-render';
+import {getMp4BrandForExtension} from './get-mp4-brand';
 import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -217,6 +218,7 @@ export const RenderInternals = {
 	SymbolicateableError,
 	getFramesToRender,
 	getExtensionOfFilename,
+	getMp4BrandForExtension,
 	getDesiredPort,
 	isPathInside,
 	execa,
