@@ -1,8 +1,11 @@
 import type {
 	EditorPickerId,
+	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {getPreferredApp} from '../helpers/get-preferred-app';
+import {codingAgentHistory, editorHistory} from '../state/recently-used-apps';
 import {useSettings} from './SettingsContext';
 
 export const canUseEditorPicker = (previewServerConnected: boolean) => {
@@ -26,39 +29,34 @@ const preferredFallbackEditorIds: EditorPickerId[] = [
 export const getPreferredEditorId = (
 	editorInfo: GetDefaultEditorInfoResponse | null,
 ): EditorPickerId | null => {
-	const configuredEditorId = editorInfo?.installedEditors.find(
-		(editor) => editor.id === editorInfo.defaultEditor,
-	)?.id;
-	if (configuredEditorId) {
-		return configuredEditorId;
-	}
-
-	const runningEditorId = editorInfo?.installedEditors.find(
-		(editor) => editor.nameWithType === window.remotion_editorName,
-	)?.id;
-	if (runningEditorId) {
-		return runningEditorId;
-	}
-
 	return (
-		editorInfo?.installedEditors
-			.slice()
-			.sort((a, b) => {
-				const aPriority = preferredFallbackEditorIds.indexOf(a.id);
-				const bPriority = preferredFallbackEditorIds.indexOf(b.id);
-				const normalizedAPriority =
-					aPriority === -1 ? Number.POSITIVE_INFINITY : aPriority;
-				const normalizedBPriority =
-					bPriority === -1 ? Number.POSITIVE_INFINITY : bPriority;
-
-				if (normalizedAPriority !== normalizedBPriority) {
-					return normalizedAPriority - normalizedBPriority;
-				}
-
-				return a.nameWithType.localeCompare(b.nameWithType);
-			})
-			.at(0)?.id ?? null
+		getPreferredApp({
+			installedApps: editorInfo?.installedEditors ?? [],
+			configuredId: editorInfo?.defaultEditor ?? null,
+			runningIds:
+				editorInfo?.runningEditors ??
+				editorInfo?.installedEditors
+					.filter(
+						(editor) => editor.nameWithType === window.remotion_editorName,
+					)
+					.map((editor) => editor.id) ??
+				[],
+			recentlyUsedIds: editorHistory.getRecentlyUsed(),
+			fallbackIds: preferredFallbackEditorIds,
+		})?.id ?? null
 	);
+};
+
+export const getPreferredCodingAgent = (
+	codingAgentInfo: GetDefaultCodingAgentInfoResponse | null,
+) => {
+	return getPreferredApp({
+		installedApps: codingAgentInfo?.installedCodingAgents ?? [],
+		configuredId: codingAgentInfo?.defaultCodingAgent ?? null,
+		runningIds: codingAgentInfo?.runningCodingAgents ?? [],
+		recentlyUsedIds: codingAgentHistory.getRecentlyUsed(),
+		fallbackIds: codingAgentInfo?.installedCodingAgents.map(({id}) => id) ?? [],
+	});
 };
 
 export const useEditorOpening = (previewServerConnected: boolean) => {
