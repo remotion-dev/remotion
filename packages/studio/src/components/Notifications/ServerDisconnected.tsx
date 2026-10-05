@@ -45,7 +45,14 @@ const inlineCode: React.CSSProperties = {
 
 const annotationButton: React.CSSProperties = {
 	backgroundColor: TRANSPARENT,
-	marginTop: 8,
+	color: WHITE,
+	display: 'inline-flex',
+	marginTop: 12,
+	textAlign: 'left',
+};
+
+const annotationButtonContent: React.CSSProperties = {
+	padding: 0,
 };
 
 let pageIsGoingToReload = false;
@@ -113,8 +120,8 @@ export const ServerDisconnected: React.FC = () => {
 				{canAnnotate && restartSkill ? (
 					<div>
 						<Button
-							size="compact"
 							style={annotationButton}
+							buttonContainerStyle={annotationButtonContent}
 							onClick={onSendToChatGPT}
 						>
 							Send to ChatGPT
