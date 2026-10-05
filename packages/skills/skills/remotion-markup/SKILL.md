@@ -356,29 +356,13 @@ These components accept `effects` directly:
 | `@remotion/rive`   | `<RemotionRiveCanvas>`                                                                                                        |
 | `@remotion/shapes` | `<Arrow>`, `<Callout>`, `<Circle>`, `<Ellipse>`, `<Heart>`, `<Pie>`, `<Polygon>`, `<Rect>`, `<Spark>`, `<Star>`, `<Triangle>` |
 
-With non-empty `effects`, `<Img>` renders through `<CanvasImage>`, and the shape
-components render through `<HtmlInCanvas>`. Shape effects therefore require
-[HTML-in-canvas support](html-in-canvas.md).
-
-HTML-in-canvas transition presentations also accept `effects` in their factory
-options: `bookFlip()`, `blurSlide()`, `crosswarp()`, `crossZoom()`, `dissolve()`,
-`dreamyZoom()`, `filmBurn()`, `linearBlur()`, `ripple()`, `swap()`, `zoomBlur()`,
-and `zoomInOut()`. Import each from
-`@remotion/transitions/<presentation-slug>`. Custom presentation factories
-created with `makeHtmlInCanvasPresentation()` from `@remotion/transitions` accept
-`effects` too. Pass the array in the presentation factory's options, rather than
-directly to `<TransitionSeries.Transition>`. These presentations also require
-HTML-in-canvas support.
-
 Ordinary HTML elements, `<Interactive.*>` DOM wrappers, `<AbsoluteFill>`, and
-`<Sequence>` do not accept `effects`. Custom components must implement effect
-processing or forward `effects` to a supported component.
+`<Sequence>` do not accept `effects` directly. To apply effects to their content,
+wrap them in `<HtmlInCanvas>` and put the `effects` prop on the wrapper.
 
 For other elements, prefer regular HTML and CSS where suitable. Consider wrapping
 a group in [`<HtmlInCanvas>`](html-in-canvas.md) when post-processing the whole
-group is appropriate and the environment supports it. Applying an effect to a
-background video leaves foreground text unaffected; applying it to a group that
-includes the text affects both. Preserve the requested scope.
+group is appropriate and the environment supports it.
 
 Read [effects.md](effects.md) before applying an effect for imports, parameters,
 and setup. It also covers reusable custom effects with `createEffect()` when no
