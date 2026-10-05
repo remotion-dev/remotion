@@ -31,6 +31,7 @@ const ProductDiscountCalloutInner: React.FC<InteractiveTransformProps> = ({
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				WebkitFontSmoothing: 'antialiased',
 				fontFamily: 'Inter',

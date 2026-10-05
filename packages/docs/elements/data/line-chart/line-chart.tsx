@@ -67,6 +67,7 @@ const LineChartInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	return (
 		<Interactive.Div
 			name="Background"
+			showInTimeline={false}
 			style={{
 				alignItems: 'center',
 				backgroundColor: '#f5f6f7',

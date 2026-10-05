@@ -93,6 +93,7 @@ const HorizontalBarChartInner: React.FC<InteractiveTransformProps> = ({
 	return (
 		<Interactive.Div
 			name="Background"
+			showInTimeline={false}
 			style={{
 				alignItems: 'center',
 				backgroundColor: '#f5f6f7',

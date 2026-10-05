@@ -22,7 +22,7 @@ const PolaroidPicturesAnimation: React.FC = () => {
 
 	return (
 		<AbsoluteFill
-			showInTimeline={false}
+			name="Polaroid drift"
 			style={{
 				color: '#2d2620',
 				scale: interpolate(frame, [58, durationInFrames - 32], [1, 1.035], {

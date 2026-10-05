@@ -19,6 +19,7 @@ const CrossedOffTextInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				display: 'flex',
 				alignItems: 'center',

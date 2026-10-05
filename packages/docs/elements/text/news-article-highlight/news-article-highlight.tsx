@@ -49,6 +49,7 @@ const NewsArticleHighlightInner: React.FC<InteractiveTransformProps> = ({
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				alignItems: 'center',
 				display: 'flex',

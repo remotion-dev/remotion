@@ -16,6 +16,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				position: 'relative',
 				width: 680,

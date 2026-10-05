@@ -19,6 +19,7 @@ const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				display: 'flex',
 				flexDirection: 'column',

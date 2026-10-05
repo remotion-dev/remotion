@@ -44,6 +44,7 @@ const OnScreenMessagesInner: React.FC<InteractiveTransformProps> = ({
 			`}</style>
 			<Interactive.Div
 				name="Container"
+				showInTimeline={false}
 				style={{
 					boxSizing: 'border-box',
 					color: '#f8fafc',

@@ -305,6 +305,7 @@ const YouTubeEndCardInner: React.FC<InteractiveTransformProps> = ({style}) => {
 		<AbsoluteFill
 			style={{backgroundColor: '#FAFAFA', color: 'black', ...style}}
 			name="Container"
+			showInTimeline={false}
 		>
 			<LeftSide />
 			<Interactive.Div

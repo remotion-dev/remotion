@@ -20,6 +20,7 @@ const CircleMarkerInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				fontSize: 80,
 				fontWeight: 700,

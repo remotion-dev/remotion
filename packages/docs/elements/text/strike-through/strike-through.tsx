@@ -21,6 +21,7 @@ const StrikeThroughTextInner: React.FC<InteractiveTransformProps> = ({
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				display: 'flex',
 				alignItems: 'center',
