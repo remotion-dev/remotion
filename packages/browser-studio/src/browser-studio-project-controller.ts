@@ -357,6 +357,7 @@ const getFileSource = ({
 
 export type BrowserStudioProjectController = {
 	applyMutation: (mutation: ProjectMutation) => SequenceNodePathMutation | null;
+	clearPendingHmrEvent: () => void;
 	deleteStaticFile: BrowserStudioOperations['deleteStaticFile'];
 	emitEvent: (event: EventSourceEvent) => void;
 	findInFile: BrowserStudioOperations['findInFile'];
@@ -694,6 +695,9 @@ export const createBrowserStudioProjectController = ({
 			} catch (error) {
 				return Promise.reject(error);
 			}
+		},
+		clearPendingHmrEvent: () => {
+			latestHmrEvent = null;
 		},
 		emitEvent: emit,
 		findInFile: (request) => {

@@ -218,6 +218,7 @@ const runBrowserCompositionEdit = (
 };
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
+	clearPendingHmrEvent: () => void;
 	emitEvent: (event: EventSourceEvent) => void;
 	resetHistory: () => void;
 };
@@ -2469,6 +2470,7 @@ export const createBrowserStudioOperations = ({
 		duplicateNodes,
 		wrapNode,
 		effects: effectOperations,
+		clearPendingHmrEvent: controller.clearPendingHmrEvent,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
 		getFileSource: controller.getFileSource,

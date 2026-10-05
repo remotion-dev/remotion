@@ -13,6 +13,7 @@ export const browserStudioVirtualFilePaths = {
 	setupSequenceStackTraces:
 		'/__remotion_browser_studio__/setup-sequence-stack-traces.ts',
 	studioPreviewEntry: '/__remotion_browser_studio__/studio-preview-entry.js',
+	studioBootstrap: '/__remotion_browser_studio__/studio-bootstrap.js',
 	jsxRuntime: '/__remotion_browser_studio__/jsx-runtime.ts',
 	jsxDevRuntime: '/__remotion_browser_studio__/jsx-dev-runtime.ts',
 	jsxImportSource: '/__remotion_browser_studio__',
@@ -45,6 +46,8 @@ if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
     return result;
   };
 }
+
+window.remotion_performReactRefresh = () => RemotionRefreshRuntime.performReactRefresh();
 `;
 
 const setupSequenceStackTraces = `import React from 'react';
@@ -152,7 +155,7 @@ globalThis.require = (id) => {
 };
 `;
 
-const studioPreviewEntry = `if (!globalThis.remotion_browserStudioVendor) {
+const studioBootstrap = `if (!globalThis.remotion_browserStudioVendor) {
   throw new Error('Browser Studio vendor bundle was not loaded');
 }
 
@@ -164,6 +167,10 @@ globalThis.remotion_browserStudioProjectHot = {
   status: () => module.hot.status(),
 };
 
+globalThis.remotion_browserStudioVendor.initializeStudioPreview();
+`;
+
+const studioPreviewEntry = `
 void globalThis.remotion_browserStudioVendor.startStudio();
 `;
 
@@ -183,6 +190,7 @@ export const getBrowserStudioVirtualFiles = (): Record<string, string> => {
 		[browserStudioVirtualFilePaths.setupSequenceStackTraces]:
 			setupSequenceStackTraces,
 		[browserStudioVirtualFilePaths.studioPreviewEntry]: studioPreviewEntry,
+		[browserStudioVirtualFilePaths.studioBootstrap]: studioBootstrap,
 		[browserStudioVirtualFilePaths.jsxRuntime]: jsxRuntime,
 		[browserStudioVirtualFilePaths.jsxDevRuntime]: jsxDevRuntime,
 		[browserStudioVirtualFilePaths.reactShim]: reactShim,

@@ -5,6 +5,16 @@ import type {PackageManager} from './package-manager';
 import type {RenderDefaults} from './render-defaults';
 import type {StudioRuntimeConfig} from './studio-runtime-config';
 
+declare global {
+	interface Window {
+		remotion_browserStudioReload: (() => void) | null;
+		remotion_studioStartup: {
+			takeErrors: () => Error[];
+			dismiss: () => void;
+		} | null;
+	}
+}
+
 export type StudioHtmlOptions = {
 	staticHash: string;
 	outputHash: string | null;
@@ -84,6 +94,66 @@ export const studioHtml = ({
 		isRelativeBundle && publicFolderExists
 			? `new URL(${JSON.stringify(publicFolderExists)}, window.location.href).pathname`
 			: JSON.stringify(publicFolderExists);
+	const startupErrorHtml =
+		mode === 'dev'
+			? `
+		<style>
+			#remotion-studio-startup-reload { appearance: none; background: transparent; border: none; border-radius: 3px; color: #a6a7a9; cursor: default; padding: 8px 16px; font: inherit; }
+			#remotion-studio-startup-reload:hover { color: white; }
+			#remotion-studio-startup-reload:focus { outline: none; box-shadow: none; }
+			#remotion-studio-startup-reload:focus-visible { box-shadow: inset 1px 1px #555, inset -1px -1px #555, inset 1px -1px #555, inset -1px 1px #555; }
+		</style>
+		<div id="remotion-studio-startup-error" role="alert" hidden style="position: fixed; inset: 0; overflow: auto; z-index: 2147483647; box-sizing: border-box; padding: 40px; background: #1f1f1f; color: white; font-family: sans-serif;">
+			<h1 style="margin-top: 0; font-size: 24px;">Studio could not start</h1>
+			<pre id="remotion-studio-startup-error-message" style="white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.5;"></pre>
+			<p>Fix the error in your project, then reload Studio.</p>
+			<button id="remotion-studio-startup-reload" type="button">Reload Studio</button>
+		</div>
+		<script>
+			(function () {
+				var errors = [];
+				var fallback = document.getElementById('remotion-studio-startup-error');
+				var message = document.getElementById('remotion-studio-startup-error-message');
+				function showError(error) {
+					var normalized = error instanceof Error ? error : new Error(String(error));
+					errors.push(normalized);
+					message.textContent = normalized.stack || normalized.message;
+					fallback.hidden = false;
+				}
+				function onError(event) {
+					if (event.target instanceof HTMLScriptElement && event.target.id === '__remotion_bundle') {
+						showError(new Error('Could not load the Studio JavaScript bundle. Check that the Studio server is running and reload the page.'));
+					} else if (event instanceof ErrorEvent) {
+						showError(event.error || new Error(event.message));
+					}
+				}
+				function onUnhandledRejection(event) {
+					showError(event.reason);
+				}
+				window.addEventListener('error', onError, true);
+				window.addEventListener('unhandledrejection', onUnhandledRejection);
+				document.getElementById('remotion-studio-startup-reload').addEventListener('click', function () {
+					if (typeof window.remotion_browserStudioReload === 'function') {
+						window.remotion_browserStudioReload();
+					} else {
+						window.location.reload();
+					}
+				});
+				window.remotion_studioStartup = {
+					takeErrors: function () {
+						return errors.splice(0);
+					},
+					dismiss: function () {
+						window.removeEventListener('error', onError, true);
+						window.removeEventListener('unhandledrejection', onUnhandledRejection);
+						errors.length = 0;
+						fallback.remove();
+						window.remotion_studioStartup = null;
+					}
+				};
+			})();
+		</script>`
+			: '';
 
 	return `
 <!DOCTYPE html>
@@ -104,6 +174,7 @@ export const studioHtml = ({
 		<title>${title}</title>
 	</head>
 	<body>
+		${startupErrorHtml}
 		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
 		<script>window.remotion_audioLatencyHint = "${audioLatencyHint}";</script>
 		<script>window.remotion_experimentalKeepAudioContextAlive = ${experimentalKeepAudioContextAlive};</script>
@@ -198,7 +269,7 @@ export const studioHtml = ({
 		<div id="menuportal-3"></div>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
-		<script${bundleScriptType === 'module' ? ' type="module"' : ''} src="${scriptUrl}"></script>
+		<script${mode === 'dev' ? ' id="__remotion_bundle"' : ''}${bundleScriptType === 'module' ? ' type="module"' : ''} src="${scriptUrl}"></script>
 	</body>
 </html>
 `.trim();

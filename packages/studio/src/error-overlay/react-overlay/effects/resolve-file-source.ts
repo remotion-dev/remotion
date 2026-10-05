@@ -20,9 +20,14 @@ export const resolveFileSource = async (
 
 		text = browserSource;
 	} else {
-		text = await (
-			await fetch(`/api/file-source?f=${encodeURIComponent(location.fileName)}`)
-		).text();
+		const response = await fetch(
+			`/api/file-source?f=${encodeURIComponent(location.fileName)}`,
+		);
+		if (!response.ok) {
+			throw new Error(`Could not load source for ${location.fileName}`);
+		}
+
+		text = await response.text();
 	}
 
 	const lines = text
