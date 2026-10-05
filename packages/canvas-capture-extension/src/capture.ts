@@ -150,6 +150,42 @@ const wrapWholePage = (): WrappedPage => {
 		content.appendChild(child);
 	}
 
+	// Plain nested canvases can be clipped at the origin during HTML-in-canvas
+	// capture. Mark them as drawable to use Chromium's nested canvas paint path.
+	const originalCanvasContent = new Map<HTMLCanvasElement, string | null>();
+	const markCanvasesDrawable = (element: Element) => {
+		const canvases = [
+			...(element instanceof HTMLCanvasElement ? [element] : []),
+			...element.querySelectorAll('canvas'),
+		];
+		for (const nestedCanvas of canvases) {
+			if (nestedCanvas.getAttribute('content') === 'drawable') {
+				continue;
+			}
+
+			if (!originalCanvasContent.has(nestedCanvas)) {
+				originalCanvasContent.set(
+					nestedCanvas,
+					nestedCanvas.getAttribute('content'),
+				);
+			}
+
+			nestedCanvas.setAttribute('content', 'drawable');
+		}
+	};
+
+	markCanvasesDrawable(content);
+	const canvasObserver = new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			for (const node of mutation.addedNodes) {
+				if (node instanceof Element) {
+					markCanvasesDrawable(node);
+				}
+			}
+		}
+	});
+	canvasObserver.observe(content, {childList: true, subtree: true});
+
 	body.appendChild(canvas);
 	canvas.appendChild(content);
 	const initialSize = getPageSize(content, minimumSize);
@@ -189,6 +225,17 @@ const wrapWholePage = (): WrappedPage => {
 			return size;
 		},
 		restore: () => {
+			canvasObserver.disconnect();
+			for (const [nestedCanvas, originalContent] of originalCanvasContent) {
+				if (originalContent === null) {
+					nestedCanvas.removeAttribute('content');
+				} else {
+					nestedCanvas.setAttribute('content', originalContent);
+				}
+			}
+
+			originalCanvasContent.clear();
+
 			while (content.firstChild) {
 				body.insertBefore(content.firstChild, canvas);
 			}
