@@ -22,10 +22,9 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
 
    The script builds with Bun and installs the complete WXT bundle in
    `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
-   Before building, it verifies that the pinned Chrome for Testing
-   `150.0.7842.0` (`r1631007`) is installed. If the browser is installed outside
-   the documented location, pass `--browser-executable <path>`. If it is missing
-   or incompatible, use `$install-canvas-capture-browser` to install it.
+   Building does not require an installed browser. To use the extension, choose
+   Chrome 157 or newer with Canvas Draw Element enabled. If no compatible browser
+   is installed, use `$install-canvas-capture-browser` to install one.
 
 3. Confirm that the installed directory contains `manifest.json`,
    `background.js`, `capture.js`, `logo.svg`, `content-scripts/receiver.js`,
@@ -38,7 +37,7 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
 2. From `packages/canvas-capture-extension`, run `bun run dev`.
 3. WXT writes the development bundle to the durable directory
    `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension Dev`,
-   launches the pinned Chrome for Testing with the Canvas Draw Element feature
+   launches Chrome for Testing with the Canvas Draw Element feature
    enabled, and loads the extension automatically.
 4. Click the extension icon to show the in-page controls. Source and manifest
    changes cause WXT to rebuild and reload the affected extension contexts.
@@ -46,9 +45,14 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
 Use the separate development directory only for `bun run dev`. Continue using
 the production install directory above for manually loaded builds.
 
-## Reload in Chrome for Testing
+To select another Chrome 157 or newer browser, set
+`CANVAS_CAPTURE_BROWSER_EXECUTABLE` to its executable path when running
+`bun run dev`. Development uses the version-neutral
+`~/Library/Application Support/Remotion Canvas Capture` profile.
 
-- Launch the pinned Chrome for Testing `150.0.7842.0` (`r1631007`) with the
+## Reload in Chrome
+
+- Launch Chrome 157 or newer with the
   dedicated Canvas Capture profile, then open `chrome://extensions` manually.
 - Enable **Developer mode** on `chrome://extensions`.
 - If **Remotion Canvas Capture** already points to the durable directory, click

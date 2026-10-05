@@ -2,10 +2,8 @@
 
 set -euo pipefail
 
-expected_version="150.0.7842.0"
-expected_revision="r1631007"
-expected_sha256="86de7ffdb70d3f41714bf5b2b6fe3ef23cbf6c924eb407343418f31b9c721f7f"
-download_url="https://storage.googleapis.com/chrome-for-testing-per-commit-public/mac-arm64/r1631007/chrome-mac-arm64.zip"
+minimum_version=157
+metadata_url="https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
 install_app="${HOME:?}/Applications/Recorder Chrome.app"
 
 usage() {
@@ -31,7 +29,7 @@ while (($# > 0)); do
 done
 
 if [[ "$(uname -s)" != "Darwin" || "$(uname -m)" != "arm64" ]]; then
-	printf '%s\n' 'Canvas Capture requires Apple Silicon macOS for this pinned browser build.' >&2
+	printf '%s\n' 'This Chrome for Testing installer requires Apple Silicon macOS.' >&2
 	exit 1
 fi
 
@@ -39,13 +37,14 @@ installed_plist="$install_app/Contents/Info.plist"
 installed_executable="$install_app/Contents/MacOS/Google Chrome for Testing"
 if [[ -e "$install_app" ]]; then
 	installed_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$installed_plist" 2>/dev/null || true)"
-	if [[ "$installed_version" == "$expected_version" && -x "$installed_executable" ]]; then
-		printf 'Chrome for Testing %s (%s) is already installed at %s\n' "$expected_version" "$expected_revision" "$install_app"
+	installed_major="${installed_version%%.*}"
+	if [[ "$installed_major" =~ ^[0-9]+$ && -x "$installed_executable" ]] && ((installed_major >= minimum_version)); then
+		printf 'Chrome for Testing %s is already installed at %s\n' "$installed_version" "$install_app"
 		exit 0
 	fi
 
 	printf 'Cannot install because an incompatible app already exists at: %s\n' "$install_app" >&2
-	printf 'Expected Chrome for Testing %s (%s), found version: %s\n' "$expected_version" "$expected_revision" "${installed_version:-unknown}" >&2
+	printf 'Expected Chrome for Testing %s or newer, found version: %s\n' "$minimum_version" "${installed_version:-unknown}" >&2
 	printf '%s\n' 'Move or remove that app after confirming it is safe to do so, then rerun this installer.' >&2
 	exit 1
 fi
@@ -58,20 +57,46 @@ cleanup() {
 }
 trap cleanup EXIT
 
+metadata_path="$temporary_dir/chrome-for-testing.json"
+curl --fail --location --silent --show-error "$metadata_url" --output "$metadata_path"
+
+download_url=""
+expected_version=""
+selected_channel=""
+for channel in Stable Beta Dev Canary; do
+	candidate_version="$(plutil -extract "channels.$channel.version" raw -o - "$metadata_path" 2>/dev/null || true)"
+	candidate_major="${candidate_version%%.*}"
+	if [[ ! "$candidate_major" =~ ^[0-9]+$ ]] || ((candidate_major < minimum_version)); then
+		continue
+	fi
+
+	index=0
+	while candidate_platform="$(plutil -extract "channels.$channel.downloads.chrome.$index.platform" raw -o - "$metadata_path" 2>/dev/null)"; do
+		if [[ "$candidate_platform" == "mac-arm64" ]]; then
+			download_url="$(plutil -extract "channels.$channel.downloads.chrome.$index.url" raw -o - "$metadata_path")"
+			expected_version="$candidate_version"
+			selected_channel="$channel"
+			break
+		fi
+		index=$((index + 1))
+	done
+
+	if [[ -n "$download_url" ]]; then
+		break
+	fi
+done
+
+if [[ -z "$download_url" ]]; then
+	printf 'No Chrome for Testing %s or newer download is available for mac-arm64.\n' "$minimum_version" >&2
+	exit 1
+fi
+
 archive_path="$temporary_dir/chrome-mac-arm64.zip"
 extracted_dir="$temporary_dir/extracted"
 source_app="$extracted_dir/chrome-mac-arm64/Google Chrome for Testing.app"
 
-printf 'Downloading Chrome for Testing %s (%s)…\n' "$expected_version" "$expected_revision"
+printf 'Downloading Chrome for Testing %s (%s)…\n' "$expected_version" "$selected_channel"
 curl --fail --location --progress-bar "$download_url" --output "$archive_path"
-
-actual_sha256="$(shasum -a 256 "$archive_path" | cut -d ' ' -f 1)"
-if [[ "$actual_sha256" != "$expected_sha256" ]]; then
-	printf '%s\n' 'The downloaded Chrome for Testing archive failed checksum verification.' >&2
-	printf 'Expected SHA-256: %s\n' "$expected_sha256" >&2
-	printf 'Found SHA-256:    %s\n' "$actual_sha256" >&2
-	exit 1
-fi
 
 mkdir -p "$extracted_dir"
 ditto -x -k "$archive_path" "$extracted_dir"
@@ -80,7 +105,7 @@ source_plist="$source_app/Contents/Info.plist"
 source_executable="$source_app/Contents/MacOS/Google Chrome for Testing"
 downloaded_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$source_plist" 2>/dev/null || true)"
 if [[ "$downloaded_version" != "$expected_version" || ! -x "$source_executable" ]]; then
-	printf '%s\n' 'The verified archive did not contain the required Chrome for Testing app.' >&2
+	printf '%s\n' 'The downloaded archive did not contain the expected Chrome for Testing app.' >&2
 	printf 'Expected version: %s\n' "$expected_version" >&2
 	printf 'Found version:    %s\n' "${downloaded_version:-unknown}" >&2
 	exit 1
@@ -95,4 +120,4 @@ if [[ "$installed_version" != "$expected_version" || ! -x "$installed_executable
 	exit 1
 fi
 
-printf 'Installed Chrome for Testing %s (%s) at %s\n' "$expected_version" "$expected_revision" "$install_app"
+printf 'Installed Chrome for Testing %s at %s\n' "$expected_version" "$install_app"

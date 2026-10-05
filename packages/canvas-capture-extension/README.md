@@ -2,11 +2,17 @@
 
 Record an area—or a whole webpage—as a high-resolution H.264 MP4 or VP9 WebM using Chromium's experimental HTML-in-canvas implementation.
 
-## Pinned browser setup on macOS
+## Browser setup on macOS
 
-Use [Chrome for Testing `150.0.7842.0` at revision `r1631007`](https://storage.googleapis.com/chrome-for-testing-per-commit-public/mac-arm64/r1631007/chrome-mac-arm64.zip) on Apple Silicon. This is the exact Chromium revision where the required HTML-in-canvas implementation is known to work. Chrome for Testing does not auto-update, and unlike an open-source Chromium build, it is built with proprietary codec support so the browser can both encode and play the H.264 MP4 produced by this extension.
+Canvas Capture requires Chrome 157 or newer on Apple Silicon, with Canvas Draw Element enabled. You can use Chrome, Chrome Canary, or Chrome for Testing as long as the browser meets this minimum. The extension also checks whether the HTML-in-canvas API and video encoding configuration are available before recording.
 
-After extracting the archive, move and rename the app to a durable location such as:
+To install a compatible Chrome for Testing build, run:
+
+```bash
+.agents/skills/install-canvas-capture-browser/scripts/install-browser.sh
+```
+
+The installer uses a compatible release from Google's Chrome for Testing channels and installs it at:
 
 ```text
 /Users/jonathanburger/Applications/Recorder Chrome.app
@@ -16,10 +22,9 @@ Launch it with a dedicated profile and the HTML-in-canvas feature enabled:
 
 ```bash
 '/Users/jonathanburger/Applications/Recorder Chrome.app/Contents/MacOS/Google Chrome for Testing' \
-  --user-data-dir='/Users/jonathanburger/Library/Application Support/Chrome for Testing Canvas Capture r1631007' \
+  --user-data-dir='/Users/jonathanburger/Library/Application Support/Remotion Canvas Capture' \
   --enable-features=CanvasDrawElement \
   --enable-blink-features=CanvasDrawElement \
-  --disable-component-update \
   --no-first-run \
   --no-default-browser-check
 ```
@@ -29,8 +34,6 @@ Load the unpacked extension from the durable installation directory:
 ```text
 /Users/jonathanburger/Applications/Remotion Canvas Capture Extension
 ```
-
-Do not replace this browser with Chrome Canary or a normal Chrome installation: those update automatically and may remove or change the experimental API. Because this browser is intentionally pinned and will not receive security updates, only use it with trusted websites.
 
 ## Development
 
@@ -44,8 +47,15 @@ bun run dev
 
 WXT starts Vite, writes the development extension to the durable
 `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension Dev`
-directory, launches the pinned Chrome for Testing with the required feature
+directory, launches Chrome for Testing with the required feature
 flags and persistent profile, and loads the extension automatically.
+
+To use another Chrome 157 or newer executable, set
+`CANVAS_CAPTURE_BROWSER_EXECUTABLE` when starting development:
+
+```bash
+CANVAS_CAPTURE_BROWSER_EXECUTABLE='/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary' bun run dev
+```
 
 Open a regular webpage and click the extension icon to show the in-page capture
 controls. WXT rebuilds and reloads the relevant extension contexts when source
@@ -56,8 +66,8 @@ extension, so its path and extension ID remain stable across worktrees.
 
 ## Build and install
 
-1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This verifies the pinned Chrome for Testing version, creates the production WXT bundle, and installs the complete unpacked extension outside the worktree. If the browser is not at the path shown above, also pass `--browser-executable <path>`.
-2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
+1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This creates the production WXT bundle and installs the complete unpacked extension outside the worktree. Building does not require an installed browser.
+2. In Chrome 157 or newer, open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
 4. Enable `chrome://flags/#canvas-draw-element` and restart Chrome if HTML-in-canvas is not already enabled.
 
