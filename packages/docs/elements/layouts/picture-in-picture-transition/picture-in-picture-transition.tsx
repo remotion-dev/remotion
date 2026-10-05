@@ -15,7 +15,7 @@ const PictureInPictureTransitionInner: React.FC<InteractiveTransformProps> = ({
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden', ...style}}>
+		<AbsoluteFill style={{overflow: 'hidden', ...style}} showInTimeline={false}>
 			<Interactive.Div
 				name="Scene B"
 				style={{
