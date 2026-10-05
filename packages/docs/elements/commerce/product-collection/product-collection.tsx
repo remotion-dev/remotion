@@ -7,7 +7,6 @@ import {
 	interpolate,
 	useCurrentFrame,
 	type InteractiveTransformProps,
-	type InteractivitySchema,
 } from 'remotion';
 
 loadFont('normal', {
@@ -17,29 +16,13 @@ loadFont('normal', {
 
 export const productCollectionDurationInFrames = 150;
 
-type ProductCardProps = Omit<InteractiveTransformProps, 'style'> & {
+type ProductCardProps = {
 	readonly count: number;
 	readonly index: number;
 	readonly label: string;
-	readonly style: React.CSSProperties | null;
 };
 
-const productCardSchema = {
-	label: {
-		type: 'text-content',
-		default: 'A',
-		description: 'Card label',
-	},
-	count: {type: 'hidden'},
-	index: {type: 'hidden'},
-} as const satisfies InteractivitySchema;
-
-const ProductCardInner: React.FC<ProductCardProps> = ({
-	count,
-	index,
-	label,
-	style,
-}) => {
+const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 	const frame = useCurrentFrame();
 	const lastProductIndex = Math.max(0, count - 1);
 	const rawScrollPosition = interpolate(
@@ -115,7 +98,6 @@ const ProductCardInner: React.FC<ProductCardProps> = ({
 		>
 			<div
 				style={{
-					...style,
 					backgroundColor: '#ffffff',
 					borderRadius: 6,
 					boxShadow: '0 2px 6px rgba(29, 29, 25, 0.12)',
@@ -168,13 +150,6 @@ const ProductCardInner: React.FC<ProductCardProps> = ({
 		</div>
 	);
 };
-
-const ProductCard = Interactive.withSchema({
-	Component: ProductCardInner,
-	componentName: '<ProductCard>',
-	schema: productCardSchema,
-	wrapInSequence: true,
-});
 
 const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
 	style,
@@ -247,27 +222,9 @@ const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
 				...style,
 			}}
 		>
-			<ProductCard
-				count={3}
-				index={0}
-				label="A"
-				name="Card A"
-				style={{translate: '0px 0px'}}
-			/>
-			<ProductCard
-				count={3}
-				index={1}
-				label="B"
-				name="Card B"
-				style={{translate: '0px 0px'}}
-			/>
-			<ProductCard
-				count={3}
-				index={2}
-				label="C"
-				name="Card C"
-				style={{translate: '0px 0px'}}
-			/>
+			<ProductCard count={3} index={0} label="A" />
+			<ProductCard count={3} index={1} label="B" />
+			<ProductCard count={3} index={2} label="C" />
 		</Interactive.Div>
 	);
 };
