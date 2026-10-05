@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useCallback, useContext, useRef} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	SERVER_DISCONNECTED_BACKGROUND,
@@ -6,6 +6,10 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from '../../helpers/colors';
+import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
+import {requestCodexAnnotation} from '../../helpers/request-codex-annotation';
+import {Button} from '../Button';
+import {useSettings} from '../SettingsContext';
 
 const container: React.CSSProperties = {
 	position: 'fixed',
@@ -31,11 +35,17 @@ const message: React.CSSProperties = {
 	borderRadius: 4,
 	boxShadow: SERVER_DISCONNECTED_SHADOW,
 	lineHeight: 1.5,
+	pointerEvents: 'auto',
 };
 
 const inlineCode: React.CSSProperties = {
 	fontSize: 16,
 	fontFamily: 'monospace',
+};
+
+const annotationButton: React.CSSProperties = {
+	backgroundColor: TRANSPARENT,
+	marginTop: 8,
 };
 
 let pageIsGoingToReload = false;
@@ -45,6 +55,36 @@ window.addEventListener('beforeunload', () => {
 
 export const ServerDisconnected: React.FC = () => {
 	const {previewServerState: ctx} = useContext(StudioServerConnectionCtx);
+	const {remotionSkillsInfo} = useSettings();
+	const annotationTarget = useRef<HTMLDivElement>(null);
+	const canAnnotate = getCodexAnnotation() !== null;
+	const isInAgent =
+		canAnnotate || remotionSkillsInfo?.studioServerStartedByAgent;
+	const restartSkill = isInAgent
+		? (['remotion-studio', 'remotion-best-practices'].find((skillName) =>
+				remotionSkillsInfo?.skills.some(
+					({name, installedInProject, installedGlobally}) =>
+						name === skillName && (installedInProject || installedGlobally),
+				),
+			) ?? null)
+		: null;
+	const restartCommand = restartSkill
+		? `/${restartSkill}`
+		: window.remotion_studioServerCommand;
+	const onSendToChatGPT = useCallback(() => {
+		if (restartSkill === null) {
+			return;
+		}
+
+		requestCodexAnnotation({
+			target: annotationTarget.current,
+			initialComment: `$${restartSkill} Restart the Remotion Studio server.`,
+			metadata: {
+				action: 'Restart Studio server',
+				skill: restartSkill,
+			},
+		});
+	}, [restartSkill]);
 	const fav = document.getElementById('__remotion_favicon') as HTMLLinkElement;
 
 	if (ctx.type !== 'disconnected') {
@@ -63,19 +103,27 @@ export const ServerDisconnected: React.FC = () => {
 
 	return (
 		<div style={container} className="css-reset">
-			<div style={message}>
+			<div ref={annotationTarget} style={message} role="alert">
 				The studio server has disconnected. <br />
-				{window.remotion_studioServerCommand ? (
+				{restartCommand ? (
 					<span>
-						Run{' '}
-						<code style={inlineCode}>
-							{window.remotion_studioServerCommand}
-						</code>{' '}
-						to run it again.
+						Run <code style={inlineCode}>{restartCommand}</code> to run it
+						again.
 					</span>
 				) : (
 					<span>Fast refresh will not work.</span>
 				)}
+				{canAnnotate && restartSkill ? (
+					<div>
+						<Button
+							size="compact"
+							style={annotationButton}
+							onClick={onSendToChatGPT}
+						>
+							Send to ChatGPT
+						</Button>
+					</div>
+				) : null}
 			</div>
 		</div>
 	);
