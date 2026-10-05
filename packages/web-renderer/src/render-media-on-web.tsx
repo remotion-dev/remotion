@@ -89,6 +89,24 @@ type MandatoryRenderMediaOnWebOptions<
 
 const MAX_RECENT_FRAME_TIMINGS = 150;
 
+const isSafari27OrLater = () => {
+	if (typeof navigator === 'undefined') {
+		return false;
+	}
+
+	const {userAgent} = navigator;
+	if (
+		!userAgent.includes('AppleWebKit') ||
+		!userAgent.includes('Safari/') ||
+		/(Chrome|Chromium|CriOS|Edg|OPR|FxiOS|Firefox)\//.test(userAgent)
+	) {
+		return false;
+	}
+
+	const safariVersion = userAgent.match(/Version\/(\d+)/)?.[1];
+	return safariVersion !== undefined && Number(safariVersion) >= 27;
+};
+
 export type RenderMediaOnWebProgress = {
 	/**
 	 * @deprecated Kept for backward compatibility. Use `progress` for overall
@@ -516,7 +534,8 @@ const internalRenderMediaOnWeb = async <
 								}
 							: {}),
 						hardwareAcceleration,
-						latencyMode: 'quality',
+						latencyMode:
+							codec === 'h264' && isSafari27OrLater() ? 'realtime' : 'quality',
 						keyFrameInterval: keyframeIntervalInSeconds,
 						alpha: transparent ? 'keep' : 'discard',
 					})
