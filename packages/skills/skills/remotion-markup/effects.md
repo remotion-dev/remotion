@@ -5,7 +5,8 @@ metadata:
   tags: effects, visual-effects, webgl, canvas, video, create-effect
 ---
 
-Use this rule only when the top-level skill lists an effect that matches the requested look, or when the user asks to create a reusable custom effect.
+Read this guidance when adding an effect to a component that supports `effects`,
+or when considering canvas post-processing or a reusable custom effect.
 
 Docs: https://www.remotion.dev/docs/effects
 Custom effect docs: https://www.remotion.dev/docs/create-effect
@@ -18,7 +19,7 @@ Install the package that provides the chosen effect:
 npx remotion add @remotion/effects
 ```
 
-Effects are functions passed to the `effects` prop of canvas-based components such as `<Video>` from `@remotion/media`, `<Solid>`, `<CanvasImage>`, and `<HtmlInCanvas>`.
+Effects are functions passed to the `effects` prop of supported components such as `<Video>` from `@remotion/media`, `<Img>`, `<Solid>`, `<CanvasImage>`, and `<HtmlInCanvas>`.
 
 ```tsx
 import {Video} from '@remotion/media';
@@ -42,7 +43,7 @@ Config.setChromiumOpenGlRenderer('angle');
 
 ## Available effects
 
-`brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `paper()`, `roughenEdges()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
+See [Available effects](SKILL.md#available-effects) in the main markup skill for the built-in effect catalog.
 
 Example:
 
