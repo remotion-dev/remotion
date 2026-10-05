@@ -382,6 +382,29 @@ const getPrecompositionPlan = ({
 		throw new Error('The Remotion Sequence import is shadowed');
 	}
 
+	const selectedElement = selectedPaths[0].node as JSXElement;
+	let selectedTag = selectedElement.openingElement.name;
+	const selectedMembers: string[] = [];
+	while (selectedTag.type === 'JSXMemberExpression') {
+		selectedMembers.unshift(selectedTag.property.name);
+		selectedTag = selectedTag.object;
+	}
+
+	const selectedImport =
+		selectedTag.type === 'JSXIdentifier' &&
+		selectedPaths[0].scope.lookup(selectedTag.name)?.path.node === ast.program
+			? remotionNamespaces.has(selectedTag.name)
+				? selectedMembers.join('.')
+				: [remotionImports.get(selectedTag.name), ...selectedMembers].join('.')
+			: null;
+	const isSeriesSequence =
+		nodePaths.length === 1 && selectedImport === 'Series.Sequence';
+	const selectedSequence =
+		nodePaths.length === 1 &&
+		(selectedImport === 'Sequence' || isSeriesSequence)
+			? selectedElement
+			: null;
+
 	let ancestor = selectedPaths[0].parentPath;
 	let foundTransparentParent = false;
 	let foundReturn = false;
@@ -400,7 +423,20 @@ const getPrecompositionPlan = ({
 					ancestor.scope.lookup(name.object.name)?.path.node === ast.program &&
 					(name.property.name === 'Sequence' ||
 						name.property.name === 'AbsoluteFill'));
-			if (!transparent) {
+			// A Series inspects its direct children. Keep its Series.Sequence in
+			// place and extract only that sequence's contents.
+			const preservesSeriesChild =
+				isSeriesSequence &&
+				((name.type === 'JSXIdentifier' &&
+					remotionImports.get(name.name) === 'Series' &&
+					ancestor.scope.lookup(name.name)?.path.node === ast.program) ||
+					(name.type === 'JSXMemberExpression' &&
+						name.object.type === 'JSXIdentifier' &&
+						remotionNamespaces.has(name.object.name) &&
+						ancestor.scope.lookup(name.object.name)?.path.node ===
+							ast.program &&
+						name.property.name === 'Series'));
+			if (!transparent && !preservesSeriesChild) {
 				throw new Error('The JSX parent may depend on its direct children');
 			}
 
@@ -1121,8 +1157,14 @@ const getPrecompositionPlan = ({
 		});
 	};
 
-	for (const path of selectedPaths) {
-		scanSafePath(path);
+	if (selectedSequence) {
+		for (let index = 0; index < selectedSequence.children.length; index++) {
+			scanSafePath(selectedPaths[0].get('children', index));
+		}
+	} else {
+		for (const path of selectedPaths) {
+			scanSafePath(path);
+		}
 	}
 
 	for (let index = 0; index < pendingDerivedProps.length; index++) {
@@ -1306,14 +1348,6 @@ const getPrecompositionPlan = ({
 		}
 	}
 
-	const selectedElement = selectedPaths[0].node as JSXElement;
-	const selectedTag = selectedElement.openingElement.name;
-	const selectedSequence =
-		nodePaths.length === 1 &&
-		selectedTag.type === 'JSXIdentifier' &&
-		remotionImports.get(selectedTag.name) === 'Sequence'
-			? selectedElement
-			: null;
 	let sequenceDuration: number | null = null;
 	if (selectedSequence) {
 		if (
@@ -1328,6 +1362,7 @@ const getPrecompositionPlan = ({
 
 		let hasDuration = false;
 		let hasNonzeroFrom = false;
+		let trimBefore = 0;
 		for (const attribute of selectedSequence.openingElement.attributes) {
 			if (
 				attribute.type !== 'JSXAttribute' ||
@@ -1342,15 +1377,21 @@ const getPrecompositionPlan = ({
 					'name',
 					'from',
 					'durationInFrames',
+					'trimBefore',
 					'layout',
 					'premountFor',
 					'postmountFor',
+					...(isSeriesSequence ? ['offset'] : []),
 				].includes(key)
 			) {
 				throw new Error('The selected sequence has unsupported props');
 			}
 
-			if (key !== 'from' && key !== 'durationInFrames') {
+			if (
+				key !== 'from' &&
+				key !== 'durationInFrames' &&
+				key !== 'trimBefore'
+			) {
 				continue;
 			}
 
@@ -1365,6 +1406,8 @@ const getPrecompositionPlan = ({
 
 			if (key === 'from') {
 				hasNonzeroFrom = value !== 0;
+			} else if (key === 'trimBefore') {
+				trimBefore = value;
 			} else {
 				if (value === 0) {
 					throw new Error('The selected sequence has no duration');
@@ -1375,17 +1418,26 @@ const getPrecompositionPlan = ({
 			}
 		}
 
-		if (!hasDuration && hasNonzeroFrom) {
+		if (
+			!hasDuration &&
+			(hasNonzeroFrom || trimBefore > 0 || isSeriesSequence)
+		) {
 			throw new Error('The selected sequence duration is not explicit');
 		}
 
 		if (
-			hasNonzeroFrom &&
+			(hasNonzeroFrom || trimBefore > 0 || isSeriesSequence) &&
 			[...hookProps.values()].some((prop) => prop.kind === 'frame')
 		) {
 			throw new Error(
 				'The selected sequence captures a frame before its start',
 			);
+		}
+
+		// The parent applies the trim. The standalone composition must include
+		// that prefix so its frames and useVideoConfig() match the child clock.
+		if (sequenceDuration !== null) {
+			sequenceDuration += trimBefore;
 		}
 
 		children = [...selectedSequence.children];
@@ -1562,13 +1614,6 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		input,
 		nodePaths: nodes.map((node) => node.nodePath),
 	});
-	if (
-		sequenceDuration !== null &&
-		sequenceDuration !== metadata.durationInFrames
-	) {
-		throw new Error('The selected sequence uses a different video duration');
-	}
-
 	const captured = captureJsxNodePaths(ast);
 	const registrationAst =
 		registrationFile === filePath
