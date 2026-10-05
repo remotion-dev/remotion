@@ -1,10 +1,13 @@
-import React, {useContext} from 'react';
+import React, {useCallback, useContext, useRef} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
+import {getCodexAnnotation} from '../helpers/get-codex-annotation';
+import {requestCodexAnnotation} from '../helpers/request-codex-annotation';
 import type {ModalState} from '../state/modals';
 import {AgentPrompt} from './AgentPrompt';
+import {ModalButton} from './ModalButton';
 import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
@@ -41,6 +44,15 @@ export const WrapRefactorModal: React.FC<{readonly state: State}> = ({
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {error, remotionSkillsInfo} = useSettings();
+	const annotationTarget = useRef<HTMLDivElement>(null);
+	const markupSkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-markup',
+	);
+	const markupSkillAvailable = Boolean(
+		markupSkill?.installedInProject || markupSkill?.installedGlobally,
+	);
+	const canAnnotate =
+		!window.remotion_isReadOnlyStudio && getCodexAnnotation() !== null;
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const canSuggestAgent =
 		!isBrowserStudio &&
@@ -59,18 +71,45 @@ export const WrapRefactorModal: React.FC<{readonly state: State}> = ({
 		state.wrapper === 'HtmlInCanvasMotionBlur'
 			? '@remotion/motion-blur'
 			: 'remotion';
+	const onSendToChatGPT = useCallback(() => {
+		requestCodexAnnotation({
+			target: annotationTarget.current,
+			initialComment: markupSkillAvailable
+				? '$remotion-markup Wrap this item.'
+				: 'Wrap this item.',
+			metadata: {
+				action: 'Wrap item',
+				wrapper: state.wrapper,
+				import: wrapperImportPath,
+				...(state.displayName ? {selection: state.displayName} : {}),
+				source: location,
+			},
+		});
+	}, [
+		location,
+		markupSkillAvailable,
+		state.displayName,
+		state.wrapper,
+		wrapperImportPath,
+	]);
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
 			<ModalHeader title="Wrap item" />
-			<div style={container}>
+			<div ref={annotationTarget} style={container}>
 				<div style={text}>
 					Studio could not safely wrap this item in
 					{` <${state.wrapper}>`} with an automated code change.
 				</div>
-				{canSuggestAgent ? (
+				{canSuggestAgent || canAnnotate ? (
 					<AgentPrompt
-						action={null}
+						action={
+							canAnnotate ? (
+								<ModalButton size="compact" onClick={onSendToChatGPT}>
+									Send to ChatGPT
+								</ModalButton>
+							) : null
+						}
 						availableText="You can wrap it using an agent:"
 						promptDetails={` Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'`}
 						skillId="remotion-markup"
