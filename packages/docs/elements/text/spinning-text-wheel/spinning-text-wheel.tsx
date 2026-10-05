@@ -53,7 +53,7 @@ const SpinningTextWheelInner: React.FC<SpinningTextWheelProps> = ({
 	style,
 }) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
+	const {durationInFrames, fps} = useVideoConfig();
 	const values = items
 		.split('\n')
 		.map((item) => item.trim())
@@ -66,7 +66,7 @@ const SpinningTextWheelInner: React.FC<SpinningTextWheelProps> = ({
 			damping: 200,
 			stiffness: 200,
 		},
-		durationInFrames: 90,
+		durationInFrames: durationInFrames * 0.75,
 		durationRestThreshold: 0.0001,
 	});
 	const rotation = interpolate(progress, [0, 1], [1, 0]);

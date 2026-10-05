@@ -1,19 +1,26 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {Highlight} from '@remotion/rough-notation';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
 	weights: ['700'],
 	subsets: ['latin'],
 });
 
-export const TextMarker: React.FC = () => {
+const TextMarkerInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				fontSize: 80,
 				fontWeight: 700,
@@ -21,6 +28,7 @@ export const TextMarker: React.FC = () => {
 				color: '#171717',
 				fontFamily,
 				width: 800,
+				...style,
 			}}
 		>
 			<Interactive.Span>A truly </Interactive.Span>
@@ -55,3 +63,10 @@ export const TextMarker: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const TextMarker = Interactive.withSchema({
+	Component: TextMarkerInner,
+	componentName: '<TextMarker>',
+	schema: {},
+	wrapInSequence: true,
+});
