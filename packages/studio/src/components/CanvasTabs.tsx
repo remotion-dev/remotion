@@ -428,7 +428,7 @@ const CanvasTab: React.FC<{
 				triggerStyle={tooltipTriggerStyle}
 			>
 				<span
-					data-compname={
+					data-annotation-composition-id={
 						tab.type === 'composition' ? tab.compositionId : undefined
 					}
 					style={{...labelStyle, color: selected ? WHITE : LIGHT_TEXT}}

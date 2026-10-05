@@ -229,7 +229,7 @@ export const QuickSwitcherResult: React.FC<{
 		<div
 			key={result.id}
 			ref={ref}
-			data-compname={composition?.id}
+			data-annotation-composition-id={composition?.id}
 			style={style}
 			onClick={onSelected ?? undefined}
 		>

@@ -110,7 +110,9 @@ const ConnectedCompositionRow: React.FC<{
 					/>
 				)}
 			>
-				<span data-compname={composition.id}>{composition.id}</span>
+				<span data-annotation-composition-id={composition.id}>
+					{composition.id}
+				</span>
 			</InspectorQuickAction>
 		</ContextMenu>
 	);

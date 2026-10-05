@@ -439,11 +439,14 @@ export const getCompositionMenuItems = ({
 					id: 'annotate-composition',
 					getTarget: () =>
 						getVisibleAnnotationTarget(
-							Array.from(document.querySelectorAll('[data-compname]'))
+							Array.from(
+								document.querySelectorAll('[data-annotation-composition-id]'),
+							)
 								.reverse()
 								.filter(
 									(element) =>
-										element.getAttribute('data-compname') === composition.id,
+										element.getAttribute('data-annotation-composition-id') ===
+										composition.id,
 								),
 						),
 					initialComment: null,
