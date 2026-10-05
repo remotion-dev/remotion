@@ -28,10 +28,31 @@ directly in each clip's JSX, for example `trimBefore={4 * fps}`. Do not use a
 separate fixed `FPS` constant: Studio must be able to update each clip's source
 expression when the user trims or splits it.
 
+## Clips with synchronized captions or overlays
+
+For a clip with synchronized captions or overlays, make a shared timing group
+the editable timeline item. Keep the video and its synchronized layers inside
+one `<Sequence>` for independently positioned clips, or inside the same
+`<Series.Sequence>` or `<TransitionSeries.Sequence>` for consecutive clips.
+
+Put the clip's `trimBefore`, `durationInFrames`, and `playbackRate` on that
+shared parent, plus `from` when using an independently positioned `<Sequence>`.
+Apply the shared timing once, rather than repeating it on the children.
+Moving, trimming, changing the speed, reordering, or deleting the group then
+affects all its layers together. A shared wrapper has a purpose here even
+though the children accept timing props themselves.
+
+Keep each clip's captions in an inline array on its own `<BasicCaptions>` node,
+with timestamps relative to the original media file. Do not put a combined
+caption overlay outside the clip groups. See
+[Displaying captions alongside video content](../remotion-captions/display-captions.md#displaying-captions-alongside-video-content)
+for the complete example.
+
 ## Independently positioned clips
 
-Place every `<Video>` directly in the composition and write its timing props
-on the JSX node. Use literal frame counts when they are already known;
+For clips without synchronized captions or overlays, place each `<Video>`
+directly in the composition and write its timing props on the JSX node.
+Use literal frame counts when they are already known;
 `from={0}` may be omitted:
 
 ```tsx
@@ -72,7 +93,9 @@ overlaps are therefore allowed.
 ## Consecutive clips with `Series`
 
 Use `<Series>` when the clips should remain adjacent and do not need
-transitions:
+transitions. The example below has no synchronized captions; for captioned
+clips, put the captions inside each sequence and move the video's trim to
+that shared sequence as described above:
 
 ```tsx
 <Series>
@@ -116,7 +139,9 @@ Keep every sequence as a separate JSX node with a hardcoded `name` and
 ## Consecutive clips with transitions
 
 Use `<TransitionSeries>` when the timeline needs transitions or overlays.
-Preserve the same one-source-node-per-clip structure:
+Preserve the same one-source-node-per-clip structure. As with `<Series>`, put
+a clip's synchronized captions inside its sequence and apply shared timing
+to that parent:
 
 ```tsx
 <TransitionSeries name="Video timeline">
