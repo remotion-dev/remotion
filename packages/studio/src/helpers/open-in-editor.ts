@@ -14,6 +14,7 @@ import type {
 	CodePosition,
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
+import {rememberCodingAgent} from '../state/recently-used-coding-agents';
 import {getBrowserStudioOperations} from './browser-studio-operations';
 import {useSyncExternalStore} from './use-sync-external-store';
 
@@ -41,11 +42,19 @@ export const openInEditor = (
 	});
 };
 
-export const openInCodingAgent = (
+export const openInCodingAgent = async (
 	codingAgentId: DefaultCodingAgent,
 	prompt: string | null,
 ) => {
-	return callApi('/api/open-in-coding-agent', {codingAgentId, prompt});
+	const response = await callApi('/api/open-in-coding-agent', {
+		codingAgentId,
+		prompt,
+	});
+	if (response.success) {
+		rememberCodingAgent(codingAgentId);
+	}
+
+	return response;
 };
 
 export const openInTerminal = (

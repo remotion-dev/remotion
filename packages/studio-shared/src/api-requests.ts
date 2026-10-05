@@ -1404,7 +1404,9 @@ export type GetDefaultEditorInfoResponse = {
 	}[];
 };
 
-export type GetDefaultCodingAgentInfoRequest = {};
+export type GetDefaultCodingAgentInfoRequest = {
+	recentlyUsedCodingAgents: readonly DefaultCodingAgent[];
+};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
 	installedCodingAgents: {

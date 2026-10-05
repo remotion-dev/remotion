@@ -434,6 +434,69 @@ export const getAvailableCodingAgents = () => {
 	return availableCodingAgents;
 };
 
+export const getRunningCodingAgents = async (
+	installedCodingAgents: readonly InstalledCodingAgent[],
+): Promise<readonly DefaultCodingAgent[]> => {
+	if (installedCodingAgents.length === 0) {
+		return [];
+	}
+
+	try {
+		const {stdout} =
+			process.platform === 'win32'
+				? await execFilePromise(
+						'powershell.exe',
+						[
+							'-NoProfile',
+							'-NonInteractive',
+							'-Command',
+							'Get-CimInstance Win32_Process | ForEach-Object { $_.CommandLine }',
+						],
+						{timeout: 5000},
+					)
+				: await execFilePromise(
+						'ps',
+						['-ax', '-o', process.platform === 'darwin' ? 'comm=' : 'args='],
+						{timeout: 5000},
+					);
+		const processes = stdout.split(/\r?\n/).map((line) => line.trim());
+		return installedCodingAgents
+			.filter((agent) => {
+				if (agent.platform === 'darwin') {
+					return processes.some((processPath) =>
+						processPath.startsWith(`${agent.applicationPath}/Contents/MacOS/`),
+					);
+				}
+
+				const commands = codingAgentDefinitions[agent.id][agent.platform]
+					.flatMap((variant) => variant.commands)
+					.map((command) => command.replace(/\.(exe|cmd)$/i, ''));
+				const escapedCommands = commands.map((command) =>
+					command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+				);
+				const escapedPath = agent.applicationPath.replace(
+					/[.*+?^${}()|[\]\\]/g,
+					'\\$&',
+				);
+				const executable = new RegExp(
+					`^"?(?:${escapedPath}|(?:[^"\\s]*[/\\\\])?(?:${escapedCommands.join('|')})(?:\\.(?:exe|cmd|js))?)"?(?=\\s|$)`,
+					agent.platform === 'win32' ? 'i' : '',
+				);
+				return processes.some((commandLine) => {
+					// Node-based CLIs put the script after the interpreter path.
+					const withoutNode = commandLine.replace(
+						/^(?:"[^"\r\n]*[/\\]node(?:\.exe)?"|(?:[^\s"]*[/\\])?node(?:\.exe)?)\s+/i,
+						'',
+					);
+					return executable.test(withoutNode);
+				});
+			})
+			.map((agent) => agent.id);
+	} catch {
+		return [];
+	}
+};
+
 export const getCodingAgentLaunchCommand = ({
 	codingAgent,
 	projectPath,
