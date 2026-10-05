@@ -160,9 +160,11 @@ By default, volumes between `0` and `1` are supported, and iOS Safari always set
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
 
-Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
+This prop only applies to [`volume`](#volume) callbacks, which are no longer recommended.
 
-Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+When [`loop`](#loop) is enabled, `"repeat"` (default) resets the callback frame to `0` on each iteration, while `"extend"` keeps it increasing across iterations.
+
+It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
 
 ### `name?`<AvailableFrom v="4.0.71"/>
 
