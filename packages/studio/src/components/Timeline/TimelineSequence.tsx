@@ -6,6 +6,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -74,6 +75,7 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
+import {timelineLayerLayoutsRef} from './timeline-refs';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
@@ -301,7 +303,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly displayDurationInFrames: number;
-	readonly media: {readonly left: number; readonly width: number} | null;
 	readonly premount: {readonly left: number; readonly width: number} | null;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
 	readonly negativeStart: {
@@ -331,7 +332,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	activeTrimEdge,
 	annotationLocation,
 	displayDurationInFrames,
-	media,
 	premount,
 	postmount,
 	negativeStart,
@@ -513,8 +513,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		<div
 			ref={ref}
 			role="group"
-			data-remotion-timeline-body-left={media?.left}
-			data-remotion-timeline-body-width={media?.width}
 			{...getSequenceAnnotationAttributes({
 				sequence: s,
 				location: annotationLocation,
@@ -1325,6 +1323,20 @@ const TimelineSequenceInner: React.FC<{
 			height: '100%',
 		};
 	}, [visibleLayout]);
+	useLayoutEffect(() => {
+		if (
+			(maxMediaDuration === null && !s.loopDisplay) ||
+			visibleLayout === null
+		) {
+			return;
+		}
+
+		const layouts = timelineLayerLayoutsRef.current;
+		layouts.set(s.id, visibleLayout);
+		return () => {
+			layouts.delete(s.id);
+		};
+	}, [maxMediaDuration, s.id, s.loopDisplay, visibleLayout]);
 	const marqueeHorizontalBounds = useMemo(
 		() => ({cropLeft: visibleLayout?.cropLeft ?? 0, width}),
 		[visibleLayout?.cropLeft, width],
@@ -1595,7 +1607,6 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceCurrentFrame
 			s={s}
-			media={visibleLayout.media}
 			annotationLocation={originalLocation}
 			activeTrimEdge={activeTrimEdge}
 			displayDurationInFrames={displayDurationInFrames}

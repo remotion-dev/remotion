@@ -22,10 +22,10 @@ import {
 } from '../NewComposition/InputDragger';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {updateCompositionMetadata} from '../RenderQueue/actions';
+import {timelineDurationRef} from '../Timeline/timeline-refs';
 import {TimelineTickFormatContext} from '../Timeline/TimelineTickFormatProvider';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {InspectorDetailRow} from './common';
-import {getTimelineDurationFromDom} from './get-timeline-duration-from-dom';
 import {
 	acceptPendingCompositionMetadataValue,
 	type CompositionMetadataField,
@@ -627,9 +627,10 @@ export const CompositionMetadata: React.FC<{
 										aria-label="Choose duration preset"
 										visible={hovered}
 										values={() => {
-											const timelineEnd = getTimelineDurationFromDom({
-												durationInFrames: video.durationInFrames,
-											});
+											const timelineEnd =
+												timelineDurationRef.current?.getDuration(
+													video.durationInFrames,
+												) ?? null;
 
 											return [
 												{
