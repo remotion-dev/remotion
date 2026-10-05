@@ -108,6 +108,7 @@ export const delayRenderInternal = ({
 			) {
 				remaining -= now - lastCheck;
 			}
+
 			lastCheck = now;
 			if (remaining > 0) {
 				scope.remotion_delayRenderTimeouts[handle].timeout = setTimeout(
@@ -116,6 +117,7 @@ export const delayRenderInternal = ({
 				);
 				return;
 			}
+
 			const message = [
 				`A delayRender()`,
 				label ? `"${label}"` : null,
@@ -137,6 +139,7 @@ export const delayRenderInternal = ({
 				cancelRenderInternal(scope, Error(message));
 			}
 		};
+
 		scope.remotion_delayRenderTimeouts[handle] = {
 			label: label ?? null,
 			startTime: Date.now(),

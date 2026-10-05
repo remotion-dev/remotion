@@ -22,20 +22,25 @@ export const fetchWithOfflineRecovery = Object.assign(
 					(window.remotion_offlineMediaFetches ?? 0) + 1;
 				try {
 					await new Promise<void>((resolve, reject) => {
-						const cleanup = () => {
-							window.removeEventListener('online', onOnline);
-							init?.signal?.removeEventListener('abort', onAbort);
-						};
+						const listeners = new AbortController();
+						const cleanup = () => listeners.abort();
 						const onOnline = () => {
 							cleanup();
 							resolve();
 						};
+
 						const onAbort = () => {
 							cleanup();
 							reject(init!.signal!.reason);
 						};
-						window.addEventListener('online', onOnline);
-						init?.signal?.addEventListener('abort', onAbort, {once: true});
+
+						window.addEventListener('online', onOnline, {
+							signal: listeners.signal,
+						});
+						init?.signal?.addEventListener('abort', onAbort, {
+							once: true,
+							signal: listeners.signal,
+						});
 						if (init?.signal?.aborted) {
 							onAbort();
 						} else if (navigator.onLine !== false) {
@@ -48,5 +53,5 @@ export const fetchWithOfflineRecovery = Object.assign(
 			}
 		}
 	},
-	fetch,
+	typeof fetch === 'undefined' ? ({} as typeof fetch) : fetch,
 );

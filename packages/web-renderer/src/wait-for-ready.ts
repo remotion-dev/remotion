@@ -31,6 +31,7 @@ export const waitForReady = ({
 		if ((scope.remotion_offlineMediaFetches ?? 0) > 0) {
 			offlineTime += now - lastCheck;
 		}
+
 		lastCheck = now;
 		if (cancelled) {
 			return;
