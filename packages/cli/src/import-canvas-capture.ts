@@ -18,7 +18,6 @@ import {
 	parseCanvasCaptureData,
 	type CanvasCaptureData,
 } from '@remotion/studio-shared';
-import {ALL_FORMATS, FilePathSource, Input} from 'mediabunny';
 import {addCommand} from './add';
 
 // Internal and unstable. Keep the file import separate from the pure codemod.
@@ -82,6 +81,7 @@ export const importCanvasCapture = async ({
 		);
 	}
 
+	const {ALL_FORMATS, FilePathSource, Input} = await import('mediabunny');
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new FilePathSource(videoSource),
