@@ -25,19 +25,23 @@ const {Log} = RenderInternals;
 const execProm = util.promisify(exec);
 
 const isVsCodeDerivative = (editor: Editor) => {
-	return (
-		editor === 'code' ||
-		editor === 'code-insiders' ||
-		editor === 'Code.exe' ||
-		editor === 'vscodium' ||
-		editor === 'VSCodium.exe' ||
-		editor === 'codium' ||
-		editor === 'Code - Insiders.exe' ||
-		editor === 'cursor' ||
-		editor === 'Cursor.exe' ||
-		editor === 'windsurf' ||
-		editor === 'Windsurf.exe'
-	);
+	const editorBasename = path.basename(editor).replace(/\.(exe|cmd|bat)$/i, '');
+	return [
+		'code',
+		'Code',
+		'code-insiders',
+		'Code - Insiders',
+		'vscodium',
+		'VSCodium',
+		'codium',
+		'com.vscodium.codium',
+		'com.visualstudio.code',
+		'com.visualstudio.code.insiders',
+		'cursor',
+		'Cursor',
+		'windsurf',
+		'Windsurf',
+	].includes(editorBasename);
 };
 
 function isTerminalEditor(editor: Editor) {
@@ -280,6 +284,12 @@ function getArgumentsForLineNumber(
 		return ['--existing', fileName + ':' + lineNumber + ':' + colNumber];
 	}
 
+	if (isVsCodeDerivative(editor)) {
+		return isFolder
+			? [fileName]
+			: ['-g', fileName + ':' + lineNumber + ':' + colNumber];
+	}
+
 	switch (editorBasename) {
 		case 'atom':
 		case 'Atom':
@@ -307,21 +317,6 @@ function getArgumentsForLineNumber(
 		case 'mate':
 		case 'mine':
 			return ['--line', lineNumber, fileName];
-		case 'code':
-		case 'Code':
-		case 'code-insiders':
-		case 'Code - Insiders':
-		case 'vscodium':
-		case 'VSCodium':
-		case 'codium':
-		case 'com.vscodium.codium':
-		case 'com.visualstudio.code':
-		case 'com.visualstudio.code.insiders':
-		case 'cursor':
-		case 'Cursor':
-		case 'windsurf':
-		case 'Windsurf':
-			return ['-g', fileName + ':' + lineNumber + ':' + colNumber];
 		case 'appcode':
 		case 'clion':
 		case 'clion64':
@@ -453,21 +448,24 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export async function launchEditor({
-	colNumber,
-	editor,
-	fileName,
-	lineNumber,
-	vsCodeNewWindow,
-	logLevel,
-}: {
-	fileName: string;
-	lineNumber: number;
-	colNumber: number;
-	editor: ProcessAndCommand;
-	vsCodeNewWindow: boolean;
-	logLevel: LogLevel;
-}): Promise<boolean> {
+export async function launchEditor(
+	{
+		colNumber,
+		editor,
+		fileName,
+		lineNumber,
+		vsCodeNewWindow,
+		logLevel,
+	}: {
+		fileName: string;
+		lineNumber: number;
+		colNumber: number;
+		editor: ProcessAndCommand;
+		vsCodeNewWindow: boolean;
+		logLevel: LogLevel;
+	},
+	projectFolder: string | null = null,
+): Promise<boolean> {
 	if (!fs.existsSync(fileName)) {
 		return false;
 	}
@@ -489,6 +487,11 @@ export async function launchEditor({
 		return false;
 	}
 
+	let folderToOpen =
+		isVsCodeDerivative(editor.command) && !fs.statSync(fileName).isDirectory()
+			? projectFolder
+			: null;
+
 	if (
 		process.platform === 'linux' &&
 		fileName.startsWith('/mnt/') &&
@@ -501,6 +504,9 @@ export async function launchEditor({
 		// When a Windows editor is specified, interop functionality can
 		// handle the path translation, but only if a relative path is used.
 		fileName = path.relative('', fileName);
+		if (folderToOpen !== null) {
+			folderToOpen = path.relative('', folderToOpen);
+		}
 	}
 
 	// cmd.exe on Windows is vulnerable to RCE attacks given a file name of the
@@ -509,7 +515,10 @@ export async function launchEditor({
 	// of valid file names but should cover almost all of them in practice.
 	if (
 		process.platform === 'win32' &&
-		!WINDOWS_FILE_NAME_WHITELIST.test(fileName.trim())
+		[fileName, folderToOpen].some(
+			(target) =>
+				target !== null && !WINDOWS_FILE_NAME_WHITELIST.test(target.trim()),
+		)
 	) {
 		Log.error({indent: false, logLevel});
 		Log.error(
@@ -531,7 +540,8 @@ export async function launchEditor({
 	const shouldOpenVsCodeNewWindow =
 		isVsCodeDerivative(editor.command) && vsCodeNewWindow;
 
-	if (!shouldOpenVsCodeNewWindow) {
+	// The file URL cannot specify both a workspace folder and a source location.
+	if (!shouldOpenVsCodeNewWindow && folderToOpen === null) {
 		const result = openInEditorViaUrlScheme({
 			editor: editor.command,
 			fileName,
@@ -556,6 +566,10 @@ export async function launchEditor({
 					colNumber,
 				)
 			: [fileName];
+
+	if (folderToOpen !== null) {
+		args.unshift(folderToOpen);
+	}
 
 	if (_childProcess && isTerminalEditor(editor.command)) {
 		// There's an existing editor process already and it's attached
