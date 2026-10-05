@@ -42,8 +42,13 @@ export const isAppRunning = ({
 		platform === 'win32' ? 'i' : '',
 	);
 	return processes.some(({executable, commandLine}) => {
+		// Windows terminal launches put the app after the command interpreter.
+		const withoutCmd = (commandLine ?? '').replace(
+			/^(?:"[^"\r\n]*[/\\]cmd(?:\.exe)?"|(?:[^\s"]*[/\\])?cmd(?:\.exe)?)\s+\/[ck]\s+/i,
+			'',
+		);
 		// Node-based CLIs put the script after the interpreter path.
-		const withoutNode = (commandLine ?? '').replace(
+		const withoutNode = withoutCmd.replace(
 			/^(?:"[^"\r\n]*[/\\]node(?:\.exe)?"|(?:[^\s"]*[/\\])?node(?:\.exe)?)\s+/i,
 			'',
 		);
@@ -100,23 +105,20 @@ export const getRunningProcesses = (): Promise<
 				}
 
 				if (process.platform === 'linux') {
-					// AIX format descriptors separate the name and arguments with a tab,
-					// preserving spaces in either field while querying ps only once.
+					// Use a fixed-width name column to preserve spaces in both fields.
+					const executableWidth = 64;
 					const {stdout} = await execFilePromise(
 						'ps',
-						['-axww', '--no-headers', '-o', '%c\t%a'],
+						['-e', '-ww', '-o', `comm:${executableWidth}=`, '-o', 'args='],
 						{timeout: 5000},
 					);
 					return stdout
 						.split('\n')
 						.filter(Boolean)
-						.map((line) => {
-							const separator = line.indexOf('\t');
-							return {
-								executable: line.slice(0, separator).trim(),
-								commandLine: line.slice(separator + 1).trim(),
-							};
-						});
+						.map((line) => ({
+							executable: line.slice(0, executableWidth).trim(),
+							commandLine: line.slice(executableWidth).trim(),
+						}));
 				}
 			} catch {
 				return null;
