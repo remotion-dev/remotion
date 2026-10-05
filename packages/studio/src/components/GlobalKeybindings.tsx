@@ -1,6 +1,6 @@
 import type {StudioKeyboardShortcutAction} from '@remotion/studio-shared';
 import type React from 'react';
-import {useCallback, useContext, useEffect, useMemo} from 'react';
+import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {calculateTimeline} from '../helpers/calculate-timeline';
@@ -116,7 +116,7 @@ export const GlobalKeybindings: React.FC = () => {
 	]);
 
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const sequences = Internals.useSequenceManagerSequences();
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
@@ -124,21 +124,10 @@ export const GlobalKeybindings: React.FC = () => {
 	const {navigateToNextComposition, navigateToPreviousComposition} =
 		useCompositionNavigation();
 	const video = Internals.useVideo();
-	const timeline = useMemo(() => {
-		if (videoConfig === null) {
-			return [];
-		}
-
-		return calculateTimeline({
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-		});
-	}, [overrideIdToNodePathMappings, sequences, videoConfig]);
-
 	const selectSequenceProp = useCallback(
 		(fieldKey: string) => {
 			const {selectedItems, selectItems} = currentSelection.current;
-			if (selectedItems.length !== 1) {
+			if (videoConfig === null || selectedItems.length !== 1) {
 				return false;
 			}
 
@@ -150,6 +139,10 @@ export const GlobalKeybindings: React.FC = () => {
 			const selectedTrackKey = getTimelineSequenceSelectionKey(
 				selection.nodePathInfo,
 			);
+			const timeline = calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			});
 			const track = timeline.find(
 				(candidate) =>
 					candidate.nodePathInfo !== null &&
@@ -185,7 +178,7 @@ export const GlobalKeybindings: React.FC = () => {
 			);
 			return true;
 		},
-		[currentSelection, timeline],
+		[currentSelection, overrideIdToNodePathMappings, sequencesRef, videoConfig],
 	);
 
 	const openRenderModal = useCallback(() => {
