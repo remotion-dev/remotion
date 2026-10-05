@@ -24,10 +24,15 @@ test('SDK Canvas and vibe-code evaluate and save source expressions per instance
 	page.on('pageerror', (error) => errors.push(error.message));
 	fs.writeFileSync(
 		fixture,
-		fs.readFileSync(
-			path.join(exampleDir, 'src/SourceSubscriptionChurn.tsx'),
-			'utf8',
-		),
+		fs
+			.readFileSync(
+				path.join(exampleDir, 'src/SourceSubscriptionChurn.tsx'),
+				'utf8',
+			)
+			.replace(
+				/(<Sequence name="Trim this parent" durationInFrames=\{)\d+(\})/,
+				(_, prefix: string, suffix: string) => `${prefix}300${suffix}`,
+			),
 	);
 	fs.writeFileSync(
 		rootFile,
@@ -109,7 +114,14 @@ export const RemotionRoot = () => <Composition id="SourceSubscriptionChurn" comp
 			name: /^Expression A: from frame/,
 		});
 		await expression.scrollIntoViewIfNeeded();
-		const edge = await expression.boundingBox();
+		let edge = await expression.boundingBox();
+		await expect
+			.poll(async () => {
+				await expression.scrollIntoViewIfNeeded();
+				edge = await expression.boundingBox();
+				return edge;
+			})
+			.not.toBeNull();
 		if (!edge) throw new Error('Expected expression timeline bar');
 		await page.mouse.move(edge.x + edge.width - 2, edge.y + edge.height / 2);
 		await page.mouse.down();
