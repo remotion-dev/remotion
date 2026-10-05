@@ -41,9 +41,13 @@ const deriveCodecsFromFilename = (
 		return {possible: [], default: null};
 	}
 
+	const normalizedExtension = extension.toLowerCase();
+
 	return {
-		default: defaultCodecsForFileExtension[extension as FileExtension] ?? null,
-		possible: makeFileExtensionMap()[extension] ?? [],
+		default:
+			defaultCodecsForFileExtension[normalizedExtension as FileExtension] ??
+			null,
+		possible: makeFileExtensionMap()[normalizedExtension] ?? [],
 	};
 };
 
