@@ -196,6 +196,7 @@ export const renderFrameAndRetryTargetClose = async ({
 					throw closeError;
 				}
 			}
+
 			const newPage = await makeNewPage(frame, freePage.pageIndex);
 			pool.release(newPage);
 			Log.warn(
