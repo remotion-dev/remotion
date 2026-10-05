@@ -187,7 +187,15 @@ export const renderFrameAndRetryTargetClose = async ({
 
 		if (shouldRetryError) {
 			const pool = await poolPromise;
-			// Replace the closed page
+			// Close the timed-out page before reusing its index. In particular, only
+			// one page with index 0 may answer media frame requests as the main tab.
+			try {
+				await freePage.close();
+			} catch (closeError) {
+				if (!(closeError instanceof Error) || !isTargetClosedErr(closeError)) {
+					throw closeError;
+				}
+			}
 			const newPage = await makeNewPage(frame, freePage.pageIndex);
 			pool.release(newPage);
 			Log.warn(
