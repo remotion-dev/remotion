@@ -16,7 +16,7 @@ export const askSkills = async (): Promise<SkillsInstallation | null> => {
 		choices: [
 			{
 				title: 'Install all skills',
-				description: 'Bundled in remotion-best-practices (recommended)',
+				description: 'All skills in one bundle: remotion-best-practices',
 				value: 'recommended',
 			},
 			{
