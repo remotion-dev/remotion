@@ -1,13 +1,8 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {
-	Internals,
-	type CanUpdateSequencePropStatus,
-	type SequenceRegistrationControls,
-} from 'remotion';
+import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {AlignBottomIcon} from '../../icons/align-bottom';
 import {AlignCenterHorizontalIcon} from '../../icons/align-center-horizontal';
 import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
@@ -17,6 +12,7 @@ import {AlignTopIcon} from '../../icons/align-top';
 import {ActionTooltip} from '../ActionTooltip';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
 import {callAddSequenceKeyframe} from '../Timeline/call-add-keyframe';
@@ -84,90 +80,6 @@ const AlignmentButton: React.FC<{
 	);
 };
 
-type AlignmentDirection =
-	| 'left'
-	| 'center-h'
-	| 'right'
-	| 'top'
-	| 'center-v'
-	| 'bottom';
-type AlignmentEligibility = 'hidden' | 'enabled' | 'disabled';
-
-const AlignmentButtons = React.memo(
-	({
-		eligibility,
-		onAlign,
-	}: {
-		readonly eligibility: AlignmentEligibility;
-		readonly onAlign: (direction: AlignmentDirection) => void;
-	}) => {
-		if (eligibility === 'hidden') {
-			return null;
-		}
-
-		const alignmentDisabled = eligibility === 'disabled';
-
-		return (
-			<div style={container}>
-				<AlignmentButton
-					aria-label="Align left"
-					onClick={() => onAlign('left')}
-					Icon={AlignLeftIcon}
-					disabled={alignmentDisabled}
-				/>
-				<AlignmentButton
-					aria-label="Align center horizontally"
-					onClick={() => onAlign('center-h')}
-					Icon={AlignCenterHorizontalIcon}
-					disabled={alignmentDisabled}
-				/>
-				<AlignmentButton
-					aria-label="Align right"
-					onClick={() => onAlign('right')}
-					Icon={AlignRightIcon}
-					disabled={alignmentDisabled}
-				/>
-				<div style={verticalSpacer} />
-				<AlignmentButton
-					aria-label="Align top"
-					onClick={() => onAlign('top')}
-					Icon={AlignTopIcon}
-					disabled={alignmentDisabled}
-				/>
-				<AlignmentButton
-					aria-label="Align center vertically"
-					onClick={() => onAlign('center-v')}
-					Icon={AlignCenterVerticalIcon}
-					disabled={alignmentDisabled}
-				/>
-				<AlignmentButton
-					aria-label="Align bottom"
-					onClick={() => onAlign('bottom')}
-					Icon={AlignBottomIcon}
-					disabled={alignmentDisabled}
-				/>
-			</div>
-		);
-	},
-);
-
-const AlignmentControlsWithAnimatedSchema: React.FC<{
-	readonly controls: SequenceRegistrationControls;
-	readonly getEligibility: (
-		values: Readonly<Record<string, unknown>>,
-		frame: number,
-	) => AlignmentEligibility;
-	readonly onAlign: (direction: AlignmentDirection) => void;
-}> = ({controls, getEligibility, onAlign}) => {
-	const frame = Internals.Timeline.useTimelinePosition();
-	return (
-		<AlignmentButtons
-			eligibility={getEligibility(controls.runtimeValues.getSnapshot(), frame)}
-			onAlign={onAlign}
-		/>
-	);
-};
-
 const AlignmentControlsUnmemoized: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
@@ -190,106 +102,17 @@ const AlignmentControlsUnmemoized: React.FC<{
 		);
 	}, [canvasContent, compositions]);
 
-	const renderNodePath = track.nodePathInfo?.sequenceSubscriptionKey ?? null;
-	const renderNodePropStatuses =
-		renderNodePath === null
-			? undefined
-			: Internals.getPropStatusesCtx(propStatuses, renderNodePath);
-	const schema = track.sequence.controls?.schema ?? null;
-	const getAlignmentEligibility = useCallback(
-		(
-			runtimeValues: Readonly<Record<string, unknown>>,
-			frame: number,
-		): AlignmentEligibility => {
-			if (schema === null) {
-				return 'hidden';
-			}
-
-			// Only enum values decide which translate field is visible. Animated
-			// numeric values are read when aligning, without rendering the buttons.
-			const renderDragOverrides =
-				renderNodePath === null ? {} : (getDragOverrides(renderNodePath) ?? {});
-			const activeSchema = Internals.flattenActiveSchema(schema, (key) => {
-				const {merged} = Internals.computeEffectiveSchemaValuesDotNotation({
-					schema,
-					currentValue: Object.prototype.hasOwnProperty.call(runtimeValues, key)
-						? {[key]: runtimeValues[key]}
-						: {},
-					overrideValues: renderDragOverrides,
-					propStatus: renderNodePropStatuses,
-					frame:
-						(frame - track.keyframeDisplayOffset) * track.keyframePlaybackRate,
-				});
-				return merged[key];
-			});
-			if (activeSchema[translateFieldKey]?.type !== 'translate') {
-				return 'hidden';
-			}
-
-			return isPropStatusDraggable(renderNodePropStatuses?.[translateFieldKey])
-				? 'enabled'
-				: 'disabled';
-		},
-		[
-			getDragOverrides,
-			renderNodePath,
-			renderNodePropStatuses,
-			schema,
-			track.keyframeDisplayOffset,
-			track.keyframePlaybackRate,
-		],
-	);
-	const selectAlignmentEligibility = useCallback(
-		(values: Readonly<Record<string, unknown>>) =>
-			getAlignmentEligibility(values, getCurrentFrame()),
-		[getAlignmentEligibility],
-	);
-	const hasAnimatedSchema = useMemo(() => {
-		if (schema === null) {
-			return false;
-		}
-
-		const dragOverrides =
-			renderNodePath === null ? {} : (getDragOverrides(renderNodePath) ?? {});
-		const schemas = [schema];
-		while (schemas.length > 0) {
-			const currentSchema = schemas.pop()!;
-			for (const [key, field] of Object.entries(currentSchema)) {
-				if (field.type !== 'enum') {
-					continue;
-				}
-
-				if (
-					renderNodePropStatuses?.[key]?.status === 'keyframed' ||
-					dragOverrides[key]?.type === 'keyframed'
-				) {
-					return true;
-				}
-
-				schemas.push(...Object.values(field.variants));
-			}
-		}
-
-		return false;
-	}, [getDragOverrides, renderNodePath, renderNodePropStatuses, schema]);
-	const alignmentEligibility = useRuntimeValueSelector({
-		controls: track.sequence.controls,
-		selector: selectAlignmentEligibility,
-	});
-
 	const handleAlign = useCallback(
-		(direction: AlignmentDirection) => {
+		(
+			direction: 'left' | 'center-h' | 'right' | 'top' | 'center-v' | 'bottom',
+		) => {
 			if (
 				!isStudioInteractivityEnabled() ||
 				previewServerState.type !== 'connected' ||
 				!track.nodePathInfo ||
 				!track.sequence.controls
 			) {
-				return;
-			}
-
-			const ref = track.sequence.refForOutline?.current;
-			if (!ref) {
+				showNotification('Alignment is unavailable for this sequence.', 3000);
 				return;
 			}
 
@@ -316,10 +139,27 @@ const AlignmentControlsUnmemoized: React.FC<{
 			const propStatus = nodePropStatuses?.[translateFieldKey];
 
 			if (fieldSchema?.type !== 'translate') {
+				showNotification(
+					'This sequence does not support alignment at the current frame.',
+					3000,
+				);
 				return;
 			}
 
 			if (!isPropStatusDraggable(propStatus)) {
+				showNotification(
+					'Cannot align this sequence because its translate property is not editable.',
+					3000,
+				);
+				return;
+			}
+
+			const ref = track.sequence.refForOutline?.current;
+			if (!ref) {
+				showNotification(
+					'This sequence is not available in the preview for alignment.',
+					3000,
+				);
 				return;
 			}
 
@@ -327,16 +167,28 @@ const AlignmentControlsUnmemoized: React.FC<{
 			try {
 				elementRect = ref.getBoundingClientRect();
 			} catch {
+				showNotification(
+					'Could not measure this sequence for alignment.',
+					3000,
+				);
 				return;
 			}
 
 			const {width} = getCurrentDimensions();
 			if (!width) {
+				showNotification(
+					'Composition dimensions are unavailable for alignment.',
+					3000,
+				);
 				return;
 			}
 
 			const compositionRect = Internals.portalNode().getBoundingClientRect();
 			if (compositionRect.width === 0 || compositionRect.height === 0) {
+				showNotification(
+					'The composition preview is not ready for alignment.',
+					3000,
+				);
 				return;
 			}
 
@@ -446,17 +298,64 @@ const AlignmentControlsUnmemoized: React.FC<{
 		return null;
 	}
 
-	return hasAnimatedSchema ? (
-		<AlignmentControlsWithAnimatedSchema
-			controls={track.sequence.controls}
-			getEligibility={getAlignmentEligibility}
-			onAlign={handleAlign}
-		/>
-	) : (
-		<AlignmentButtons
-			eligibility={alignmentEligibility}
-			onAlign={handleAlign}
-		/>
+	const {schema} = track.sequence.controls;
+	// Enum variants may change eligibility with the frame. Keep the action
+	// available in that case and resolve the active schema when clicked.
+	const hasSchemaVariants = Object.values(schema).some(
+		(field) => field.type === 'enum',
+	);
+	if (!hasSchemaVariants && schema[translateFieldKey]?.type !== 'translate') {
+		return null;
+	}
+
+	const renderNodePropStatuses = Internals.getPropStatusesCtx(
+		propStatuses,
+		track.nodePathInfo.sequenceSubscriptionKey,
+	);
+	const alignmentDisabled =
+		!hasSchemaVariants &&
+		!isPropStatusDraggable(renderNodePropStatuses?.[translateFieldKey]);
+
+	return (
+		<div style={container}>
+			<AlignmentButton
+				aria-label="Align left"
+				onClick={() => handleAlign('left')}
+				Icon={AlignLeftIcon}
+				disabled={alignmentDisabled}
+			/>
+			<AlignmentButton
+				aria-label="Align center horizontally"
+				onClick={() => handleAlign('center-h')}
+				Icon={AlignCenterHorizontalIcon}
+				disabled={alignmentDisabled}
+			/>
+			<AlignmentButton
+				aria-label="Align right"
+				onClick={() => handleAlign('right')}
+				Icon={AlignRightIcon}
+				disabled={alignmentDisabled}
+			/>
+			<div style={verticalSpacer} />
+			<AlignmentButton
+				aria-label="Align top"
+				onClick={() => handleAlign('top')}
+				Icon={AlignTopIcon}
+				disabled={alignmentDisabled}
+			/>
+			<AlignmentButton
+				aria-label="Align center vertically"
+				onClick={() => handleAlign('center-v')}
+				Icon={AlignCenterVerticalIcon}
+				disabled={alignmentDisabled}
+			/>
+			<AlignmentButton
+				aria-label="Align bottom"
+				onClick={() => handleAlign('bottom')}
+				Icon={AlignBottomIcon}
+				disabled={alignmentDisabled}
+			/>
+		</div>
 	);
 };
 
