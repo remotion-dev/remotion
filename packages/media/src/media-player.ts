@@ -34,10 +34,10 @@ import type {MaxCanvasSinkFrameSize} from './video/props';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
-	| {type: 'unknown-container-format'}
+	| {type: 'unknown-container-format'; error: Error}
 	| {type: 'cannot-decode'}
 	| {type: 'cannot-decode-prores'}
-	| {type: 'network-error'}
+	| {type: 'network-error'; error: Error}
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
 
@@ -324,7 +324,7 @@ export class MediaPlayer {
 					error,
 				);
 
-				return {type: 'unknown-container-format'};
+				return {type: 'unknown-container-format', error: err};
 			}
 
 			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
@@ -490,7 +490,7 @@ export class MediaPlayer {
 					`[MediaPlayer] Network/CORS error for ${this.src}`,
 					err,
 				);
-				return {type: 'network-error'};
+				return {type: 'network-error', error: err};
 			}
 
 			Internals.Log.error(
