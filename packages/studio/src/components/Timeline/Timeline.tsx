@@ -538,7 +538,7 @@ const TimelineInner: React.FC = () => {
 			: displayRows;
 	}, [displayRows, maxTimelineTracks]);
 	const shown = useMemo(
-		() => shownRows.flatMap((row) => row.items ?? [row.track]),
+		() => shownRows.flatMap((row) => [row.track, ...(row.items ?? [])]),
 		[shownRows],
 	);
 

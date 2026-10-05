@@ -1404,6 +1404,13 @@ const TimelineSequenceInner: React.FC<{
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const isMedia = s.type === 'audio' || s.type === 'video';
+	const layerHeight =
+		s.timelineTrack?.role === 'transition' ||
+		s.timelineTrack?.role === 'overlay'
+			? 16
+			: s.timelineTrack
+				? TIMELINE_PACKED_TRACK_HEIGHT
+				: getTimelineLayerHeight(s.type);
 	const trimOutline = (() => {
 		if (
 			activeEdgeHighlight === null ||
@@ -1476,7 +1483,8 @@ const TimelineSequenceInner: React.FC<{
 							position: 'absolute',
 							left: start * frameIncrement,
 							width: leftWidth,
-							height: getTimelineLayerHeight(s.type),
+							height: layerHeight,
+							zIndex: s.timelineTrack ? 1 : undefined,
 							border: `2px solid ${WHITE}`,
 							borderRight: 0,
 							borderRadius: '2px 0 0 2px',
@@ -1491,7 +1499,8 @@ const TimelineSequenceInner: React.FC<{
 							position: 'absolute',
 							left: rightStart * frameIncrement,
 							width: rightWidth,
-							height: getTimelineLayerHeight(s.type),
+							height: layerHeight,
+							zIndex: s.timelineTrack ? 1 : undefined,
 							border: `2px solid ${WHITE}`,
 							borderLeft: 0,
 							borderRadius: '0 2px 2px 0',
@@ -1563,7 +1572,6 @@ const TimelineSequenceInner: React.FC<{
 
 	const style: React.CSSProperties = useMemo(() => {
 		const role = s.timelineTrack?.role;
-		const isEffect = role === 'transition' || role === 'overlay';
 		return {
 			background:
 				role === 'transition'
@@ -1581,11 +1589,7 @@ const TimelineSequenceInner: React.FC<{
 			borderBottomRightRadius: showRightBorderRadius ? 2 : 0,
 			position: 'absolute',
 			isolation: s.timelineTrack ? 'isolate' : undefined,
-			height: isEffect
-				? 16
-				: s.timelineTrack
-					? TIMELINE_PACKED_TRACK_HEIGHT
-					: getTimelineLayerHeight(s.type),
+			height: layerHeight,
 			top: s.timelineTrack ? 0 : undefined,
 			boxShadow: s.timelineTrack
 				? `inset 0 0 0 1px ${WHITE_ALPHA_20}`
@@ -1602,6 +1606,7 @@ const TimelineSequenceInner: React.FC<{
 		showLeftBorderRadius,
 		showRightBorderRadius,
 		visibleLayout,
+		layerHeight,
 	]);
 
 	const showRightEdgeDragHandle =

@@ -28,9 +28,22 @@ export const filterTimelineTrackContents = (
 			}
 
 			if (ancestor.timelineTrack) {
-				if (ancestor.timelineTrack.role === 'container') {
+				if (
+					ancestor.timelineTrack.role === 'track' &&
+					!ancestor.showInTimeline
+				) {
+					return [];
+				}
+
+				if (ancestor.timelineTrack.role !== 'track') {
 					hiddenAncestors += Number(ancestor.showInTimeline);
-				} else if (!track.sequence.timelineTrack) {
+				}
+
+				if (
+					ancestor.timelineTrack.role !== 'container' &&
+					ancestor.timelineTrack.role !== 'track' &&
+					!track.sequence.timelineTrack
+				) {
 					// A clip owns its internal layers. Explicit nested tracks still
 					// keep their own rows.
 					return [];
@@ -51,20 +64,22 @@ export const getTimelineDisplayRows = (
 	const groupedItems = new Map<string, TimelineTrackWithDisplayGroup[]>();
 	for (const track of tracks) {
 		const group = track.sequence.timelineTrack;
+		if (!group || group.role === 'track') {
+			continue;
+		}
+
+		const items = groupedItems.get(group.id) ?? [];
+		items.push(track);
+		groupedItems.set(group.id, items);
+	}
+
+	for (const track of tracks) {
+		const group = track.sequence.timelineTrack;
 		if (!group) {
 			rows.push({track, items: null});
-			continue;
+		} else if (group.role === 'track') {
+			rows.push({track, items: groupedItems.get(group.id) ?? []});
 		}
-
-		const existing = groupedItems.get(group.id);
-		if (existing) {
-			existing.push(track);
-			continue;
-		}
-
-		const items = [track];
-		groupedItems.set(group.id, items);
-		rows.push({track, items});
 	}
 
 	return rows;

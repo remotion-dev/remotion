@@ -122,19 +122,17 @@ export const TrackPrototype: React.FC = () => {
 					title="Series"
 					description="Three consecutive clips, 80 frames each."
 				>
-					<Track name="Series">
-						<Series>
-							<Series.Sequence name="Series A" durationInFrames={80}>
-								<Scene color="#3268a8">A</Scene>
-							</Series.Sequence>
-							<Series.Sequence name="Series B" durationInFrames={80}>
-								<Scene color="#6a4daf">B</Scene>
-							</Series.Sequence>
-							<Series.Sequence name="Series C" durationInFrames={80}>
-								<Scene color="#a34777">C</Scene>
-							</Series.Sequence>
-						</Series>
-					</Track>
+					<Series>
+						<Series.Sequence name="Series A" durationInFrames={80}>
+							<Scene color="#3268a8">A</Scene>
+						</Series.Sequence>
+						<Series.Sequence name="Series B" durationInFrames={54}>
+							<Scene color="#6a4daf">B</Scene>
+						</Series.Sequence>
+						<Series.Sequence name="Series C" durationInFrames={80}>
+							<Scene color="#a34777">C</Scene>
+						</Series.Sequence>
+					</Series>
 				</DemoCard>
 				<DemoCard
 					title="TransitionSeries"

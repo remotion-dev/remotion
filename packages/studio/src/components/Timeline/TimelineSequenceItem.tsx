@@ -96,6 +96,7 @@ import {
 	EDGE_SCROLL_VERTICAL_INCREMENT,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
+import {TIMELINE_PACKED_TRACK_HEIGHT} from './timeline-track-groups';
 import {TimelineDuplicateCount} from './TimelineDuplicateCount';
 import {
 	TimelineExpandArrowButton,
@@ -377,6 +378,7 @@ const TimelineSequenceItemInner: React.FC<{
 	numberOfHiddenDuplicates,
 	showProvisionalVisibilityToggle,
 }) => {
+	const isPackedTrack = sequence.timelineTrack?.role === 'track';
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
@@ -481,10 +483,11 @@ const TimelineSequenceItemInner: React.FC<{
 	);
 	const parentId = sequence.parent ?? null;
 	const canReorderSequence =
+		!isPackedTrack &&
 		previewInteractive &&
 		Boolean(nodePath && nodePathKey && validatedLocation?.source) &&
 		nodePathInfo?.numberOfSequencesWithThisNodePath === 1;
-	const canHandleSequenceDrag = previewInteractive;
+	const canHandleSequenceDrag = previewInteractive && !isPackedTrack;
 	const confirm = useConfirmationDialog();
 
 	const deleteDisabled = useMemo(
@@ -778,6 +781,7 @@ const TimelineSequenceItemInner: React.FC<{
 				sourceRows.some(
 					(row, index) =>
 						!row ||
+						row.track.sequence.timelineTrack?.role === 'track' ||
 						row.track.sequence.parent !== parentId ||
 						selectedNodePathInfos[index].numberOfSequencesWithThisNodePath !==
 							1 ||
@@ -1013,7 +1017,10 @@ const TimelineSequenceItemInner: React.FC<{
 			? sequence.src
 			: null;
 	const isExpanded =
-		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
+		!isPackedTrack &&
+		previewConnected &&
+		nodePathInfo !== null &&
+		getIsExpanded(nodePathInfo);
 
 	const codeHiddenStatus = propStatusesForOverride?.hidden;
 	const runtimeHidden = useRuntimeValue(sequence.controls, 'hidden');
@@ -1081,8 +1088,11 @@ const TimelineSequenceItemInner: React.FC<{
 	);
 
 	const outerHeight = useMemo(
-		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
-		[sequence.type],
+		() =>
+			(isPackedTrack
+				? TIMELINE_PACKED_TRACK_HEIGHT
+				: getTimelineLayerHeight(sequence.type)) + TIMELINE_ITEM_BORDER_BOTTOM,
+		[isPackedTrack, sequence.type],
 	);
 
 	const inner: React.CSSProperties = useMemo(() => {
@@ -1106,6 +1116,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [effectDropHovered, inner]);
 
 	const hasExpandableContent =
+		!isPackedTrack &&
 		isStudioInteractivityEnabled() &&
 		(Boolean(sequence.controls) || sequence.effects.length > 0);
 
@@ -1353,7 +1364,7 @@ const TimelineSequenceItemInner: React.FC<{
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
-					splitDisabled: !previewInteractive,
+					splitDisabled: !previewInteractive || isPackedTrack,
 					onDeleteSelectedSequences,
 					onDuplicateSelectedSequences,
 					onSplitSelectedSequences,
@@ -1492,8 +1503,10 @@ const TimelineSequenceItemInner: React.FC<{
 									subMenu: null,
 									value: 'rename-sequence',
 								},
-								...(splitMenuItem ? [splitMenuItem] : []),
-								...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+								...(!isPackedTrack && splitMenuItem ? [splitMenuItem] : []),
+								...(!isPackedTrack && freezeFrameMenuItem
+									? [freezeFrameMenuItem]
+									: []),
 							]
 						: [],
 				},
@@ -1514,6 +1527,7 @@ const TimelineSequenceItemInner: React.FC<{
 			duplicateDisabled,
 			editorInfo,
 			isProgrammaticallyDuplicated,
+			isPackedTrack,
 			keyframeDisplayOffset,
 			keyframePlaybackRate,
 			mediaSrc,

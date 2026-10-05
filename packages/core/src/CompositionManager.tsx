@@ -10,7 +10,7 @@ import type {
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 } from './runtime-value-store.js';
-import type {TimelineTrackItem} from './Track.js';
+import type {TimelineTrackItem} from './timeline-track-context.js';
 import type {VideoConfigValues} from './video-config.js';
 
 export type TComposition<

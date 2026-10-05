@@ -44,7 +44,10 @@ import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
 import {IsInsideSeriesContext} from './series/is-inside-series.js';
 import {useTimelinePosition} from './timeline-position-state.js';
-import {TimelineTrackContext, type TimelineTrackItem} from './Track.js';
+import {
+	TimelineTrackContext,
+	type TimelineTrackItem,
+} from './timeline-track-context.js';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -886,7 +889,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		</SequenceContext.Provider>
 	);
 	const sequence =
-		timelineTrack === null || timelineTrackRole === 'container' ? (
+		timelineTrack === null ||
+		timelineTrackRole === 'container' ||
+		timelineTrackRole === 'track' ? (
 			sequenceContent
 		) : (
 			<TimelineTrackContext.Provider value={null}>

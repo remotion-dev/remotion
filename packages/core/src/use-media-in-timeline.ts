@@ -14,7 +14,7 @@ import {
 } from './sequence-outline.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
-import {TimelineTrackContext} from './Track.js';
+import {TimelineTrackContext} from './timeline-track-context.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
 import {useVideoConfig} from './use-video-config.js';

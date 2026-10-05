@@ -219,6 +219,7 @@ import {
 	useTimelineContext,
 	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
+import {TimelineTrackContext} from './timeline-track-context.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -228,7 +229,6 @@ import {
 	type SetTimelineContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
-import {TimelineTrackContext} from './Track.js';
 import {truthy} from './truthy.js';
 import {useBuffering} from './use-buffering.js';
 import {useCropStyle} from './use-crop-style.js';

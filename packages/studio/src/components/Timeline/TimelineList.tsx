@@ -1,6 +1,5 @@
 import React from 'react';
 import {BACKGROUND} from '../../helpers/colors';
-import {TimelinePackedTrackName} from './TimelinePackedTrack';
 import {TimelineSequenceItem} from './TimelineSequenceItem';
 import {
 	type TimelineVirtualRow,
@@ -19,9 +18,6 @@ const TimelineListTrack: React.FC<{
 	readonly row: TimelineVirtualRow;
 }> = React.memo(({row}) => {
 	const {afterDropLineOffset, siblingIndex, track} = row;
-	if (row.items !== null) {
-		return <TimelinePackedTrackName items={row.items} />;
-	}
 
 	return (
 		<TimelineSequenceItem
@@ -36,10 +32,11 @@ const TimelineListTrack: React.FC<{
 			keyframeDisplayOffset={track.keyframeDisplayOffset}
 			keyframePlaybackRate={track.keyframePlaybackRate}
 			sequenceFrameOffset={track.sequenceFrameOffset}
-			numberOfHiddenDuplicates={Math.max(
-				0,
-				(track.displayGroup?.numberOfSequences ?? 1) - 1,
-			)}
+			numberOfHiddenDuplicates={
+				row.items !== null
+					? 0
+					: Math.max(0, (track.displayGroup?.numberOfSequences ?? 1) - 1)
+			}
 			showProvisionalVisibilityToggle={
 				track.nodePathInfo === null && track.displayGroup !== null
 			}

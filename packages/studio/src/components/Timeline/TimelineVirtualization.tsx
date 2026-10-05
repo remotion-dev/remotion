@@ -134,8 +134,9 @@ export const TimelineVirtualizationProvider: React.FC<{
 		});
 		const rootTrackIndexes = new Map<string, number>();
 		for (let index = 0; index < timeline.length; index++) {
-			for (const {nodePathInfo} of timeline[index].items ?? [
+			for (const {nodePathInfo} of [
 				timeline[index].track,
+				...(timeline[index].items ?? []),
 			]) {
 				if (nodePathInfo !== null) {
 					rootTrackIndexes.set(

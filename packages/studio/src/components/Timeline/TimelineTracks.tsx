@@ -43,7 +43,10 @@ const TimelineTracksInner: React.FC<{
 						{rows[virtualItem.index].items === null ? (
 							<TimelineTrack track={rows[virtualItem.index].track} />
 						) : (
-							<TimelinePackedTrack items={rows[virtualItem.index].items!} />
+							<TimelinePackedTrack
+								track={rows[virtualItem.index].track}
+								items={rows[virtualItem.index].items!}
+							/>
 						)}
 					</div>
 				))}

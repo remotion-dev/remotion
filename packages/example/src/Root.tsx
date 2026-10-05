@@ -314,6 +314,7 @@ import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
 import {TrackPrototype} from './TrackPrototype';
+import {TrackSequenceProps} from './TrackSequenceProps';
 import {TransitionRounding} from './TransitionRounding';
 import {WebGlTransition} from './Transitions/WebGlTransition';
 import {
@@ -3027,6 +3028,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="video-editing">
+				<Composition
+					id="track-sequence-props"
+					component={TrackSequenceProps}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
 				<Composition
 					id="track-prototype"
 					component={TrackPrototype}
