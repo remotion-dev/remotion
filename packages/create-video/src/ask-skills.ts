@@ -16,12 +16,12 @@ export const askSkills = async (): Promise<SkillsInstallation | null> => {
 		choices: [
 			{
 				title: 'Install all skills',
-				description: 'All skills in one bundle: remotion-best-practices',
+				description: 'Includes all Remotion guidance in one skill',
 				value: 'recommended',
 			},
 			{
 				title: 'Choose individual skills',
-				description: 'Select which skills to install',
+				description: 'Select the skills that fit your project',
 				value: 'choose',
 			},
 			{
