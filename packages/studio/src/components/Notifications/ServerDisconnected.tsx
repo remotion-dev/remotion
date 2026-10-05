@@ -50,13 +50,14 @@ const inlineCode: React.CSSProperties = {
 const skillCommand: React.CSSProperties = {
 	display: 'inline-flex',
 	alignItems: 'center',
-	gap: 6,
+	gap: 2,
 	verticalAlign: 'middle',
 };
 
 const skillsIcon: React.CSSProperties = {
 	height: 18,
 	width: 18,
+	transform: 'translateY(-1px)',
 };
 
 const annotationButton: React.CSSProperties = {
