@@ -41,6 +41,9 @@ export const SequenceWrapAction: React.FC<{
 	};
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const compositionId =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -130,6 +133,7 @@ export const SequenceWrapAction: React.FC<{
 			try {
 				const eligibility = await wrapNode({
 					fileName: nodePath.absolutePath,
+					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper: null,
 					width: null,
@@ -165,6 +169,7 @@ export const SequenceWrapAction: React.FC<{
 
 				const result = await wrapNode({
 					fileName: nodePath.absolutePath,
+					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper,
 					width,
@@ -182,6 +187,7 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
+			compositionId,
 			nodePathInfo.sequenceSubscriptionKey,
 			overrideIdToNodePathMappingsRef,
 			sequence.controls?.componentName,
