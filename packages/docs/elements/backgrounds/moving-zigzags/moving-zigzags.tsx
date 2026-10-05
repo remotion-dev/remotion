@@ -1,6 +1,7 @@
 import {zigzag} from '@remotion/effects/zigzag';
 import React from 'react';
 import {
+	AbsoluteFill,
 	Interactive,
 	Solid,
 	useCurrentFrame,
@@ -13,24 +14,25 @@ const MovingZigzagsInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const {durationInFrames, height, width} = useVideoConfig();
 
 	return (
-		<Solid
-			style={style}
-			color="#dff4ff"
-			width={width}
-			height={height}
-			effects={[
-				zigzag({
-					colors: ['#dff4ff', '#7cc6ff'],
-					direction: 'horizontal',
-					thickness: 40,
-					gap: 0,
-					angle: 0,
-					offset: (frame / durationInFrames) * 480,
-					amplitude: 40,
-					wavelength: 160,
-				}),
-			]}
-		/>
+		<AbsoluteFill style={style} showInTimeline={false}>
+			<Solid
+				color="#dff4ff"
+				width={width}
+				height={height}
+				effects={[
+					zigzag({
+						colors: ['#dff4ff', '#7cc6ff'],
+						direction: 'horizontal',
+						thickness: 40,
+						gap: 0,
+						angle: 0,
+						offset: (frame / durationInFrames) * 480,
+						amplitude: 40,
+						wavelength: 160,
+					}),
+				]}
+			/>
+		</AbsoluteFill>
 	);
 };
 

@@ -1,6 +1,7 @@
 import {liquidContours} from '@remotion/effects/liquid-contours';
 import React from 'react';
 import {
+	AbsoluteFill,
 	Interactive,
 	interpolate,
 	Solid,
@@ -14,19 +15,20 @@ const LiquidContoursInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const {height, width} = useVideoConfig();
 
 	return (
-		<Solid
-			style={style}
-			color="#dff4ff"
-			width={width}
-			height={height}
-			effects={[
-				liquidContours({
-					firstColor: '#dff4ff',
-					secondColor: '#7cc6ff',
-					phase: interpolate(frame, [0, 240], [3.23, 4.23]),
-				}),
-			]}
-		/>
+		<AbsoluteFill style={style} showInTimeline={false}>
+			<Solid
+				color="#dff4ff"
+				width={width}
+				height={height}
+				effects={[
+					liquidContours({
+						firstColor: '#dff4ff',
+						secondColor: '#7cc6ff',
+						phase: interpolate(frame, [0, 240], [3.23, 4.23]),
+					}),
+				]}
+			/>
+		</AbsoluteFill>
 	);
 };
 
