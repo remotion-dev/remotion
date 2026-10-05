@@ -17,6 +17,7 @@ import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
+import {CaptionLeftEdgeTrimRepro} from './CaptionLeftEdgeTrimRepro';
 import {
 	CAPTIONS_DURATION_IN_FRAMES,
 	CAPTIONS_HEIGHT,
@@ -3100,6 +3101,14 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="caption-left-edge-trim-repro"
+					component={CaptionLeftEdgeTrimRepro}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={189}
+				/>
 				<Composition
 					id="keyframe-delete-flash"
 					component={KeyframeDeleteFlash}

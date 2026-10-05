@@ -150,6 +150,7 @@ import {
 	getKeyframesForTimelineEasingDrag,
 	getTimelineSelectionsAfterEasingKeyframeDrag,
 } from '../components/Timeline/use-timeline-keyframe-drag';
+import {calculateTimeline} from '../helpers/calculate-timeline';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -2729,6 +2730,88 @@ test('Timeline left edge drag adjusts from, duration and trimBefore for selected
 		['trimBefore', 6],
 	]);
 });
+
+test.each([
+	{durationInFrames: null, from: 0, parentRate: 1, childRate: 1},
+	{durationInFrames: 465, from: 33, parentRate: 1, childRate: 1},
+	{durationInFrames: 232.5, from: 33, parentRate: 2, childRate: 0.5},
+])(
+	'left edge trimming uses the visible start of a clipped child: %j',
+	({durationInFrames, from, parentRate, childRate}) => {
+		const schema = {} satisfies InteractivitySchema;
+		const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+		const child = makeTimelineSequence({
+			schema,
+			id: 'captions',
+			parentId: 'parent',
+			from,
+			duration: (durationInFrames ?? 498 * childRate) / childRate,
+			trimBefore: from * childRate,
+			sequencePlaybackRate: childRate,
+		});
+		const sequences = [
+			makeTimelineSequence({
+				schema,
+				id: 'parent',
+				overrideId: 'parent',
+				from: 30,
+				duration: 129 / parentRate,
+				trimBefore: 369,
+				sequencePlaybackRate: parentRate,
+			}),
+			child,
+		];
+		const overrideIdsToNodePaths = {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		};
+		const targets = getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences,
+			overrideIdsToNodePaths,
+			propStatuses: makeLeftEdgePropStatuses(
+				[nodePathInfo.sequenceSubscriptionKey],
+				true,
+				true,
+				[durationInFrames ?? undefined],
+			),
+		});
+		const changes = getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 6,
+		});
+		const values = Object.fromEntries(
+			changes.map((change) => {
+				if (typeof change.value !== 'number') {
+					throw new Error('Expected numeric trim values');
+				}
+
+				return [change.fieldKey, change.value] as const;
+			}),
+		);
+		expect(values).toEqual({
+			from: 369 + 6 * parentRate,
+			durationInFrames: (129 - 6 * parentRate) * childRate,
+			trimBefore: (369 + 6 * parentRate) * childRate,
+		});
+		const tracks = calculateTimeline({
+			sequences: [
+				sequences[0],
+				{
+					...child,
+					from: values.from,
+					duration: values.durationInFrames / childRate,
+					trimBefore: values.trimBefore,
+					autoDuration: false,
+				} as TSequence,
+			],
+			overrideIdsToNodePaths,
+		});
+		expect(
+			tracks.find((track) => track.sequence.id === 'captions')?.sequence,
+		).toMatchObject({from: 36, duration: 129 / parentRate - 6});
+	},
+);
 
 test('TransitionSeries.Sequence self-trim changes its duration and trimBefore', () => {
 	const schema = {} satisfies InteractivitySchema;
