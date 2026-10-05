@@ -1340,6 +1340,8 @@ export type OpenRemotionSkillRequest = {
 	scope: 'project' | 'global';
 };
 export type GetRemotionSkillsInfoResponse = {
+	studioServerStartedByAgent: boolean;
+	studioRestartSkill: 'remotion-studio' | 'remotion-best-practices' | null;
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
 	installations: {

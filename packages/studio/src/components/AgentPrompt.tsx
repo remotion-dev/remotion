@@ -2,6 +2,7 @@ import React, {useCallback, useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLACK_ALPHA_30, BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {getSkillPrefix} from '../helpers/get-skill-prefix';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
 import {SkillsIcon} from '../icons/skills';
@@ -81,7 +82,7 @@ export const AgentPrompt: React.FC<{
 		!window.remotion_isReadOnlyStudio &&
 		previewServerState.type === 'connected' &&
 		remotionSkillsInfo !== null;
-	const skillName = `/${skillId}`;
+	const skillName = `${getSkillPrefix()}${skillId}`;
 	const prompt = `${skillName}${promptDetails}`;
 	const installCommand = 'npx remotion skills add';
 	const hasCodingAgent =
