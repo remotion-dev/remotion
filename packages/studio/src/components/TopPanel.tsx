@@ -2,7 +2,7 @@ import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {
-	SIDEBAR_RESPONSIVE_BREAKPOINT,
+	SIDEBAR_RESPONSIVE_BREAKPOINTS,
 	useResponsiveSidebarStatus,
 } from '../helpers/use-responsive-sidebar-status';
 import {RULER_WIDTH} from '../state/editor-rulers';
@@ -58,7 +58,7 @@ const TopPanelInner: React.FC<{
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
-	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT);
+	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINTS.right);
 
 	const {canvasContent} = useContext(Internals.CompositionManager);
 

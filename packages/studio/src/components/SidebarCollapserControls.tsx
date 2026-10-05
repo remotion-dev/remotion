@@ -15,7 +15,7 @@ import {
 	useKeyboardShortcutLabel,
 } from '../helpers/use-keyboard-shortcut-label';
 import {
-	SIDEBAR_RESPONSIVE_BREAKPOINT,
+	SIDEBAR_RESPONSIVE_BREAKPOINTS,
 	useResponsiveSidebarStatus,
 } from '../helpers/use-responsive-sidebar-status';
 import {SidebarContext} from '../state/sidebar';
@@ -47,7 +47,7 @@ export const SidebarCollapserControl: React.FC<{
 		sidebarCollapsedDuringDrag,
 	} = useContext(SidebarContext);
 	const keybindings = useKeybinding();
-	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT);
+	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINTS.right);
 	const leftSidebarStatus = useResponsiveSidebarStatus('left');
 	const rightSidebarStatus = useResponsiveSidebarStatus('right');
 
