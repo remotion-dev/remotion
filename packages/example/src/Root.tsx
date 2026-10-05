@@ -305,6 +305,7 @@ import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
 import {SmoothTextTransition} from './SmoothTextTransition';
+import {SourceSubscriptionChurn} from './SourceSubscriptionChurn';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
@@ -3100,6 +3101,14 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="SourceSubscriptionChurn"
+					component={SourceSubscriptionChurn}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
 				<Composition
 					id="keyframe-delete-flash"
 					component={KeyframeDeleteFlash}
