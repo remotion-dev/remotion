@@ -5,7 +5,7 @@ import {
 	SERVER_DISCONNECTED_SHADOW,
 	TRANSPARENT,
 	WHITE,
-	WHITE_ALPHA_80,
+	WHITE_ALPHA_60,
 } from '../../helpers/colors';
 import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
 import {hoverableStyle} from '../../helpers/hoverable';
@@ -53,7 +53,7 @@ const annotationButton: React.CSSProperties = {
 	...hoverableStyle({
 		idleBackground: TRANSPARENT,
 		hoverBackground: TRANSPARENT,
-		idleColor: WHITE_ALPHA_80,
+		idleColor: WHITE_ALPHA_60,
 		hoverColor: WHITE,
 	}),
 };
