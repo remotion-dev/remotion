@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Isometra',
 	importName: 'Isometra',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Isometra:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/isometra/v2/Gg82N5ofdAjvCxbehlYSlg4zLQ.woff2',
+					'https://fonts.gstatic.com/s/isometra/v3/Gg82N5ofdAjvCxbehlYSlg4zLQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/isometra/v2/Gg82N5ofdAjvCxbehlYclg4.woff2',
+					'https://fonts.gstatic.com/s/isometra/v3/Gg82N5ofdAjvCxbehlYclg4.woff2',
 			},
 		},
 	},
