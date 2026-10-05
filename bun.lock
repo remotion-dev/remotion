@@ -282,6 +282,7 @@
       "dependencies": {
         "@babel/parser": "7.24.1",
         "@remotion/bundler": "workspace:*",
+        "@remotion/codemods": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
@@ -289,6 +290,7 @@
         "@remotion/studio-server": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "dotenv": "17.3.1",
+        "mediabunny": "catalog:",
         "minimist": "1.2.6",
         "prompts": "2.4.2",
         "remotion": "workspace:*",
