@@ -1341,6 +1341,7 @@ export type OpenRemotionSkillRequest = {
 };
 export type GetRemotionSkillsInfoResponse = {
 	studioServerStartedByAgent: boolean;
+	studioRestartSkill: 'remotion-studio' | 'remotion-best-practices' | null;
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
 	installations: {

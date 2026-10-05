@@ -68,10 +68,30 @@ export const getRemotionSkillsInfo = ({
 		return Boolean(skill?.installedInProject || skill?.installedGlobally);
 	};
 
+	const restartSkillDirectories = [skillsDirectories.global];
+	let directory = path.resolve(remotionRoot);
+	while (true) {
+		restartSkillDirectories.push(path.join(directory, '.agents', 'skills'));
+		const parent = path.dirname(directory);
+		if (parent === directory || existsSync(path.join(directory, '.git'))) {
+			break;
+		}
+
+		directory = parent;
+	}
+
+	const studioRestartSkill =
+		(['remotion-studio', 'remotion-best-practices'] as const).find((name) =>
+			restartSkillDirectories.some((skillsDirectory) =>
+				existsSync(path.join(skillsDirectory, name, 'SKILL.md')),
+			),
+		) ?? null;
+
 	return {
 		studioServerStartedByAgent: Boolean(
 			process.env.CURSOR_AGENT || process.env.CLAUDECODE === '1',
 		),
+		studioRestartSkill,
 		remotionUpgradeSkillAvailable: isSkillAvailable('remotion-upgrade'),
 		remotionInteractivitySkillAvailable: isSkillAvailable(
 			'remotion-interactivity',

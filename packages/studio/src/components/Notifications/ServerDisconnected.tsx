@@ -63,12 +63,7 @@ export const ServerDisconnected: React.FC = () => {
 		('oai' in document && Boolean(document.oai)) ||
 		remotionSkillsInfo?.studioServerStartedByAgent;
 	const restartSkill = isInAgent
-		? (['remotion-studio', 'remotion-best-practices'].find((skillName) =>
-				remotionSkillsInfo?.skills.some(
-					({name, installedInProject, installedGlobally}) =>
-						name === skillName && (installedInProject || installedGlobally),
-				),
-			) ?? null)
+		? (remotionSkillsInfo?.studioRestartSkill ?? null)
 		: null;
 	const restartCommand = restartSkill
 		? `/${restartSkill}`
