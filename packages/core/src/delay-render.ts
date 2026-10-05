@@ -96,6 +96,10 @@ export const delayRenderInternal = ({
 			label?.startsWith('Extracting frame at time ') ||
 			label?.startsWith('Extracting audio for frame ');
 		const checkTimeout = () => {
+			if (!scope.remotion_delayRenderTimeouts[handle]) {
+				return;
+			}
+
 			const now = Date.now();
 			if (
 				!environment.isClientSideRendering ||
