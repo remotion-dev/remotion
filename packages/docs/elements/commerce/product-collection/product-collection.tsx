@@ -1,6 +1,7 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
 import {
+	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
@@ -151,9 +152,7 @@ const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 	);
 };
 
-const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
+const ProductCollectionAnimation: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
@@ -205,13 +204,22 @@ const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
 				),
 				width: 900,
 				willChange: 'transform, opacity',
-				...style,
 			}}
 		>
 			<ProductCard count={3} index={0} label="A" />
 			<ProductCard count={3} index={1} label="B" />
 			<ProductCard count={3} index={2} label="C" />
 		</Interactive.Div>
+	);
+};
+
+const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
+	return (
+		<AbsoluteFill style={style} showInTimeline={false}>
+			<ProductCollectionAnimation />
+		</AbsoluteFill>
 	);
 };
 

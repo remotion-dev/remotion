@@ -1,6 +1,7 @@
 import {fontFamily, loadFont} from '@remotion/google-fonts/Caveat';
 import React from 'react';
 import {
+	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
@@ -15,18 +16,15 @@ loadFont('normal', {
 	subsets: ['latin'],
 });
 
-const PolaroidPicturesInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
+const PolaroidPicturesAnimation: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
 	return (
-		<div
+		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				color: '#2d2620',
-				height: 640,
-				position: 'relative',
 				scale: interpolate(frame, [58, durationInFrames - 32], [1, 1.035], {
 					easing: Easing.inOut(Easing.quad),
 					extrapolateLeft: 'clamp',
@@ -43,9 +41,7 @@ const PolaroidPicturesInner: React.FC<InteractiveTransformProps> = ({
 						extrapolateRight: 'clamp',
 					},
 				),
-				width: 1480,
 				willChange: 'transform',
-				...style,
 			}}
 		>
 			<Interactive.Div
@@ -502,7 +498,17 @@ const PolaroidPicturesInner: React.FC<InteractiveTransformProps> = ({
 					scene C
 				</Interactive.Div>
 			</Interactive.Div>
-		</div>
+		</AbsoluteFill>
+	);
+};
+
+const PolaroidPicturesInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
+	return (
+		<AbsoluteFill style={style} showInTimeline={false}>
+			<PolaroidPicturesAnimation />
+		</AbsoluteFill>
 	);
 };
 
