@@ -1,13 +1,10 @@
-import React, {useCallback, useContext, useState} from 'react';
+import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getConnectedCompositions} from '../../helpers/get-connected-compositions';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {FilmIcon} from '../../icons/video';
 import {SetSelectedModalContext} from '../../state/modals';
-import {selectCompositionWhenReady} from '../InitialCompositionLoader';
-import {showNotification} from '../Notifications/NotificationCenter';
-import {precomposeJsxNodes} from '../precompose-jsx-nodes-api';
 import {
 	getCurrentDimensions,
 	getCurrentDuration,
@@ -35,7 +32,6 @@ export const SequencePrecomposeAction: React.FC<{
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
-	const [busy, setBusy] = useState(false);
 	const browserStudioOperations = getBrowserStudioOperations();
 	const compositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -58,12 +54,7 @@ export const SequencePrecomposeAction: React.FC<{
 			typeof browserStudioOperations.precomposeJsxNodes === 'function');
 
 	const onPrecompose = useCallback(() => {
-		if (
-			busy ||
-			!canChangeSource ||
-			hasConnectedComposition ||
-			targets.length === 0
-		) {
+		if (!canChangeSource || hasConnectedComposition || targets.length === 0) {
 			return;
 		}
 
@@ -116,29 +107,12 @@ export const SequencePrecomposeAction: React.FC<{
 			return;
 		}
 
-		setBusy(true);
-		precomposeJsxNodes({...request, nodes, dryRun: false})
-			.then((result) => {
-				if (!result.success) {
-					showNotification(result.reason, 4000);
-					return;
-				}
-
-				if (!result.canPrecompose) {
-					openRefactorModal();
-					return;
-				}
-
-				if (result.newCompositionId !== null) {
-					selectCompositionWhenReady(result.newCompositionId);
-				}
-			})
-			.catch((error) => {
-				showNotification((error as Error).message, 4000);
-			})
-			.finally(() => setBusy(false));
+		setSelectedModal({
+			type: 'precompose-name',
+			request: {...request, nodes, dryRun: false},
+			targets: modalTargets,
+		});
 	}, [
-		busy,
 		canChangeSource,
 		compositionFile,
 		compositionId,
@@ -154,7 +128,7 @@ export const SequencePrecomposeAction: React.FC<{
 
 	return (
 		<InspectorQuickAction
-			disabled={busy}
+			disabled={false}
 			onClick={onPrecompose}
 			renderIcon={(color) => <FilmIcon color={color} style={iconStyle} />}
 		>

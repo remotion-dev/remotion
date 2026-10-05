@@ -16,6 +16,7 @@ import type {
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	NodeWrapper,
+	PrecomposeJsxNodesRequest,
 	RenderDefaults,
 } from '@remotion/studio-shared';
 import type {
@@ -297,6 +298,15 @@ export type ModalState =
 				line: number;
 				column: number;
 			};
+	  }
+	| {
+			type: 'precompose-name';
+			request: PrecomposeJsxNodesRequest;
+			targets: {
+				fileName: string;
+				displayName: string | null;
+				line: number | null;
+			}[];
 	  }
 	| {
 			type: 'precompose-refactor';
