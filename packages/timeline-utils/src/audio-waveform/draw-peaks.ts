@@ -1,10 +1,20 @@
 import {parseColor} from './parse-color';
+import {getWaveformMaxima, getWaveformMaximum} from './waveform-maxima';
 
 const CLIPPING_COLOR = '#FF7F50';
 const WAVEFORM_HEIGHT_SCALE = 0.8;
 const MIN_VISIBLE_DECIBELS = -37;
 
 export type WaveformVolume = number | readonly number[];
+
+export type WaveformDrawRange = {
+	// All positions and durations use the original source's peak index units.
+	readonly sourceStart: number;
+	readonly sourceDuration: number;
+	readonly displayStart: number;
+	readonly displayDuration: number;
+	readonly loop: boolean;
+};
 
 const getVolumeAtBar = ({
 	barIndex,
@@ -37,12 +47,14 @@ export const drawBars = ({
 	canvas,
 	color,
 	peaks,
+	range,
 	volume,
 	width,
 	horizontalOffset,
 }: {
 	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
 	readonly peaks: Float32Array;
+	readonly range: WaveformDrawRange;
 	readonly color: string;
 	readonly volume: WaveformVolume;
 	readonly width: number;
@@ -74,6 +86,17 @@ export const drawBars = ({
 	const {data} = imageData;
 	const numBars = width;
 	const fullScaleHalfBar = (height * WAVEFORM_HEIGHT_SCALE) / 2;
+	const maxima = getWaveformMaxima(peaks, null);
+	const peaksPerPixel = range.displayDuration / width;
+	const loopMaximum =
+		range.loop && range.sourceDuration > 0
+			? getWaveformMaximum({
+					peaks,
+					maxima,
+					from: range.sourceStart,
+					to: range.sourceStart + range.sourceDuration,
+				})
+			: 0;
 
 	for (let x = 0; x < w; x++) {
 		// The canvas may start before its fractionally positioned container so its
@@ -86,8 +109,53 @@ export const drawBars = ({
 			),
 		);
 
-		const peakIndex = Math.floor((barIndex / numBars) * peaks.length);
-		const peak = peaks[peakIndex] || 0;
+		// Sample the exact source-time interval covered by this bitmap column.
+		// Rounding the visible source slice and stretching it across the canvas
+		// would change this mapping when a clip is trimmed or virtualized.
+		const from =
+			range.displayStart +
+			Math.max(0, Math.min(width, x - horizontalOffset)) * peaksPerPixel;
+		const to =
+			range.displayStart +
+			Math.max(0, Math.min(width, x + 1 - horizontalOffset)) * peaksPerPixel;
+		let peak = 0;
+		if (to > from && range.loop && range.sourceDuration > 0) {
+			const duration = to - from;
+			if (duration >= range.sourceDuration) {
+				// A zoomed-out column can cover many repeats. Query the loop once,
+				// without allocating or visiting every repeated source segment.
+				peak = loopMaximum;
+			} else {
+				const loopFrom =
+					((from % range.sourceDuration) + range.sourceDuration) %
+					range.sourceDuration;
+				const loopTo = loopFrom + duration;
+				peak = getWaveformMaximum({
+					peaks,
+					maxima,
+					from: range.sourceStart + loopFrom,
+					to: range.sourceStart + Math.min(range.sourceDuration, loopTo),
+				});
+				if (loopTo > range.sourceDuration) {
+					peak = Math.max(
+						peak,
+						getWaveformMaximum({
+							peaks,
+							maxima,
+							from: range.sourceStart,
+							to: range.sourceStart + loopTo - range.sourceDuration,
+						}),
+					);
+				}
+			}
+		} else if (!range.loop) {
+			peak = getWaveformMaximum({
+				peaks,
+				maxima,
+				from: range.sourceStart + Math.max(0, from),
+				to: range.sourceStart + Math.min(range.sourceDuration, to),
+			});
+		}
 
 		const barVolume = getVolumeAtBar({barIndex, numBars, volume});
 		const scaledPeak = peak * barVolume;
