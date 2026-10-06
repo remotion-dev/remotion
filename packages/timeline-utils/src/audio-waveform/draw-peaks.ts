@@ -88,6 +88,29 @@ export const drawBars = ({
 	const fullScaleHalfBar = (height * WAVEFORM_HEIGHT_SCALE) / 2;
 	const maxima = getWaveformMaxima(peaks, null);
 	const peaksPerPixel = range.displayDuration / width;
+	// Preserve the original shape when individual peaks are resolved. Fade into
+	// maxima over one to two peaks per pixel so zooming has no hard mode switch.
+	const maximumMix = Math.max(0, Math.min(1, peaksPerPixel - 1));
+	const maximumWeight = maximumMix * maximumMix * (3 - 2 * maximumMix);
+	const sourceEnd = range.sourceStart + range.sourceDuration;
+	const firstSourcePeak = Math.max(
+		0,
+		Math.floor(
+			range.sourceStart +
+				(Number.isFinite(range.sourceStart)
+					? Number.EPSILON * Math.max(1, Math.abs(range.sourceStart)) * 4
+					: 0),
+		),
+	);
+	const lastSourcePeak = Math.min(
+		peaks.length - 1,
+		Math.ceil(
+			sourceEnd -
+				(Number.isFinite(sourceEnd)
+					? Number.EPSILON * Math.max(1, Math.abs(sourceEnd)) * 4
+					: 0),
+		) - 1,
+	);
 	const loopMaximum =
 		range.loop && range.sourceDuration > 0
 			? getWaveformMaximum({
@@ -125,7 +148,7 @@ export const drawBars = ({
 				// A zoomed-out column can cover many repeats. Query the loop once,
 				// without allocating or visiting every repeated source segment.
 				peak = loopMaximum;
-			} else {
+			} else if (maximumWeight > 0) {
 				const loopFrom =
 					((from % range.sourceDuration) + range.sourceDuration) %
 					range.sourceDuration;
@@ -148,13 +171,53 @@ export const drawBars = ({
 					);
 				}
 			}
-		} else if (!range.loop) {
+		} else if (!range.loop && maximumWeight > 0) {
 			peak = getWaveformMaximum({
 				peaks,
 				maxima,
 				from: range.sourceStart + Math.max(0, from),
 				to: range.sourceStart + Math.min(range.sourceDuration, to),
 			});
+		}
+
+		if (
+			maximumWeight < 1 &&
+			to > from &&
+			(!range.loop ||
+				(range.sourceDuration > 0 && to - from < range.sourceDuration))
+		) {
+			const visibleFrom = range.loop ? from : Math.max(0, from);
+			const visibleTo = range.loop ? to : Math.min(range.sourceDuration, to);
+			let interpolatedPeak = 0;
+			if (visibleTo > visibleFrom) {
+				const center = visibleFrom + (visibleTo - visibleFrom) / 2;
+				const sourcePosition =
+					range.sourceStart +
+					(range.loop
+						? ((center % range.sourceDuration) + range.sourceDuration) %
+							range.sourceDuration
+						: center);
+				if (
+					sourcePosition >= 0 &&
+					sourcePosition < peaks.length &&
+					firstSourcePeak <= lastSourcePeak
+				) {
+					// Each stored maximum represents a bucket centered at i + 0.5.
+					// Clamp neighbors to this source segment, avoiding unrelated peaks
+					// beyond a trim or loop boundary.
+					const position = sourcePosition - 0.5;
+					const index = Math.floor(position);
+					const left =
+						peaks[Math.max(firstSourcePeak, Math.min(lastSourcePeak, index))];
+					const right =
+						peaks[
+							Math.max(firstSourcePeak, Math.min(lastSourcePeak, index + 1))
+						];
+					interpolatedPeak = left + (right - left) * (position - index);
+				}
+			}
+
+			peak = interpolatedPeak + (peak - interpolatedPeak) * maximumWeight;
 		}
 
 		const barVolume = getVolumeAtBar({barIndex, numBars, volume});
