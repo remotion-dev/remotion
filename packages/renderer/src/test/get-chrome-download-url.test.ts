@@ -13,7 +13,7 @@ test('downloads the Remotion Chromium fork by default on Apple Silicon', () => {
 			chromeMode: 'headless-shell',
 		}),
 	).toBe(
-		`https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}-v3.zip?clear`,
+		`https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}.zip?clear`,
 	);
 });
 
