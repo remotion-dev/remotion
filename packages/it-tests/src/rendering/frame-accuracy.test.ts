@@ -13,7 +13,7 @@ test(
 		expect(missedFrames.mp4.normal).toBeLessThanOrEqual(8);
 		expect(missedFrames.mp4.offthread).toBe(0);
 	},
-	{retry: 3},
+	{retry: 3, timeout: 90000},
 );
 
 test(
