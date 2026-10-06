@@ -1,11 +1,9 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {MediaPlaybackError} from 'remotion';
 import {CodingAgentButton} from '../../components/CodingAgentButton';
 import {Spacing} from '../../components/layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
-import {ModalButton} from '../../components/ModalButton';
-import {useSettings} from '../../components/SettingsContext';
 import {useEditorOpening} from '../../components/use-default-editor-info';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
@@ -13,9 +11,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_60,
 } from '../../helpers/colors';
-import {formatFileLocation} from '../../helpers/format-file-location';
 import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
-import {requestCodexAnnotation} from '../../helpers/request-codex-annotation';
 import {didUnmountReactApp} from '../react-overlay';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
@@ -98,31 +94,11 @@ export const ErrorDisplay: React.FC<{
 	symbolicationFailure,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const annotationTarget = useRef<HTMLDivElement>(null);
-	const {remotionSkillsInfo} = useSettings();
 	const canShowProjectActions = !didUnmountReactApp();
 	const canAnnotate =
 		canShowProjectActions &&
 		!window.remotion_isReadOnlyStudio &&
 		getCodexAnnotation() !== null;
-	const buildErrorLocation = getLocationFromBuildError(display.error);
-	const errorKind = calculateMetadata
-		? 'calculateMetadata'
-		: display.error instanceof MediaPlaybackError
-			? 'media playback'
-			: buildErrorLocation
-				? 'compilation'
-				: 'runtime';
-	const skillId =
-		errorKind === 'media playback'
-			? 'remotion-multimedia'
-			: errorKind === 'runtime'
-				? 'remotion-markup'
-				: null;
-	const skill = remotionSkillsInfo?.skills.find(({name}) => name === skillId);
-	const skillAvailable = Boolean(
-		skill?.installedInProject || skill?.installedGlobally,
-	);
 	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
 		useEditorOpening(previewServerState.type === 'connected');
 	const stackFrames = useMemo(() => {
@@ -180,53 +156,9 @@ export const ErrorDisplay: React.FC<{
 		return display.error.stack || header;
 	}, [display.error, message, stackFrames]);
 	const fixWithAgentPrompt = `Fix this error in my Remotion project:\n\n${errorTextForCopy}`;
-	const onSendToChatGPT = useCallback(() => {
-		const frame = stackFrames[0];
-		const location = frame?.originalFileName
-			? {
-					source: frame.originalFileName,
-					line: frame.originalLineNumber,
-					column: frame.originalColumnNumber,
-				}
-			: buildErrorLocation
-				? {
-						source: buildErrorLocation.fileName,
-						line: buildErrorLocation.lineNumber,
-						column: buildErrorLocation.columnNumber,
-					}
-				: null;
-		const source = formatFileLocation({
-			location,
-			root: window.remotion_cwd,
-		});
-		requestCodexAnnotation({
-			target: annotationTarget.current,
-			initialComment: `${skillAvailable ? `$${skillId} ` : ''}Fix this ${errorKind} error.`,
-			metadata: {
-				kind: errorKind,
-				error: display.error.name,
-				message: message.slice(0, 256),
-				...(source ? {source} : {}),
-				...(location?.column !== null && location?.column !== undefined
-					? {column: location.column}
-					: {}),
-				...(display.error instanceof MediaPlaybackError
-					? {media: display.error.src}
-					: {}),
-			},
-		});
-	}, [
-		buildErrorLocation,
-		display.error,
-		errorKind,
-		message,
-		skillAvailable,
-		skillId,
-		stackFrames,
-	]);
 
 	return (
-		<div ref={annotationTarget}>
+		<div>
 			<ErrorTitle
 				symbolicating={false}
 				name={display.error.name}
@@ -267,12 +199,6 @@ export const ErrorDisplay: React.FC<{
 						size="default"
 						style={codingAgentButton}
 					/>
-				) : null}
-				{canAnnotate ? (
-					<>
-						<ModalButton onClick={onSendToChatGPT}>Send to ChatGPT</ModalButton>
-						<div style={spacer} />
-					</>
 				) : null}
 				<CopyStackTrace errorText={errorTextForCopy} />
 				<div style={spacer} />
