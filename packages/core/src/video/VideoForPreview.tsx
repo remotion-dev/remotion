@@ -165,28 +165,25 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
 
-	const {automaticOutlineRef, registration} = useMediaInTimelineRegistration(
-		{
-			volume,
-			mediaVolume,
-			mediaType: 'video',
-			src,
-			playbackRate: props.playbackRate ?? 1,
-			displayName: name ?? null,
-			id: timelineId,
-			getStack,
-			showInTimeline,
-			premountDisplay: parentSequence?.premountDisplay ?? null,
-			postmountDisplay: parentSequence?.postmountDisplay ?? null,
-			loopDisplay: undefined,
-			loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
-			documentationLink: onlyWarnForMediaSeekingError
-				? 'https://www.remotion.dev/docs/offthreadvideo'
-				: 'https://www.remotion.dev/docs/html5-video',
-			muted: isMutedForTimeline,
-		},
-		true,
-	);
+	const {automaticOutlineRef, registration} = useMediaInTimelineRegistration({
+		volume,
+		mediaVolume,
+		mediaType: 'video',
+		src,
+		playbackRate: props.playbackRate ?? 1,
+		displayName: name ?? null,
+		id: timelineId,
+		getStack,
+		showInTimeline,
+		premountDisplay: parentSequence?.premountDisplay ?? null,
+		postmountDisplay: parentSequence?.postmountDisplay ?? null,
+		loopDisplay: undefined,
+		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
+		documentationLink: onlyWarnForMediaSeekingError
+			? 'https://www.remotion.dev/docs/offthreadvideo'
+			: 'https://www.remotion.dev/docs/html5-video',
+		muted: isMutedForTimeline,
+	});
 
 	// putting playback before useVolume
 	// because volume looks at playbackrate

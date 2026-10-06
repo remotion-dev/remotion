@@ -137,42 +137,39 @@ export type BasicMediaInTimelineReturnType = ReturnType<
 	typeof useBasicMediaInTimeline
 >;
 
-export const useMediaInTimelineRegistration = (
-	{
-		volume,
-		mediaVolume,
-		src,
-		mediaType,
-		playbackRate,
-		displayName,
-		id,
-		getStack,
-		showInTimeline,
-		premountDisplay,
-		postmountDisplay,
-		loopDisplay,
-		loopVolumeCurveBehavior,
-		documentationLink,
-		muted,
-	}: {
-		volume: VolumeProp | undefined;
-		mediaVolume: number;
-		src: string | undefined;
-		mediaType: 'audio' | 'video';
-		playbackRate: number;
-		displayName: string | null;
-		id: string;
-		getStack: () => string | null;
-		showInTimeline: boolean;
-		premountDisplay: number | null;
-		postmountDisplay: number | null;
-		loopDisplay: LoopDisplay | undefined;
-		loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
-		documentationLink: string | null;
-		muted: boolean;
-	},
-	registerOnCommit: boolean | null,
-) => {
+export const useMediaInTimelineRegistration = ({
+	volume,
+	mediaVolume,
+	src,
+	mediaType,
+	playbackRate,
+	displayName,
+	id,
+	getStack,
+	showInTimeline,
+	premountDisplay,
+	postmountDisplay,
+	loopDisplay,
+	loopVolumeCurveBehavior,
+	documentationLink,
+	muted,
+}: {
+	volume: VolumeProp | undefined;
+	mediaVolume: number;
+	src: string | undefined;
+	mediaType: 'audio' | 'video';
+	playbackRate: number;
+	displayName: string | null;
+	id: string;
+	getStack: () => string | null;
+	showInTimeline: boolean;
+	premountDisplay: number | null;
+	postmountDisplay: number | null;
+	loopDisplay: LoopDisplay | undefined;
+	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+	documentationLink: string | null;
+	muted: boolean;
+}) => {
 	const parentSequence = useContext(SequenceContext);
 	const mediaTrimBefore = useContext(Html5MediaTrimContext);
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
@@ -182,6 +179,8 @@ export const useMediaInTimelineRegistration = (
 	const loopTimeline = useContext(LoopTimelineContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const {isStudio} = useRemotionEnvironment();
+	const stack = getStack();
+	const getStackForRegistration = useCallback(() => stack, [stack]);
 	const automaticOutlineRef = useMemo(
 		() =>
 			mediaType === 'video' && (isStudio || canvasOutlinesEnabled)
@@ -298,7 +297,7 @@ export const useMediaInTimelineRegistration = (
 			loopDisplay,
 			playbackRate,
 			sequencePlaybackRate: 1,
-			getStack,
+			getStack: getStackForRegistration,
 			premountDisplay,
 			postmountDisplay,
 			controls: null,
@@ -318,7 +317,7 @@ export const useMediaInTimelineRegistration = (
 		mediaType,
 		mediaTrimBefore,
 		playbackRate,
-		getStack,
+		getStackForRegistration,
 		premountDisplay,
 		postmountDisplay,
 		loopDisplay,
@@ -335,11 +334,12 @@ export const useMediaInTimelineRegistration = (
 		getSequence:
 			registrationEnabled && showInTimeline ? getSequenceForRegistration : null,
 		id,
-		registerOnCommit,
 	});
 	return {automaticOutlineRef, registration};
 };
 
+// Outline-only helper. Internal registration consumers use the full descriptor
+// returned by useMediaInTimelineRegistration and render SequenceOrderMarker.
 export const useMediaInTimeline = (
 	props: Parameters<typeof useMediaInTimelineRegistration>[0],
-) => useMediaInTimelineRegistration(props, null).automaticOutlineRef;
+) => useMediaInTimelineRegistration(props).automaticOutlineRef;

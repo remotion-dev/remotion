@@ -757,7 +757,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				? getSequenceForRegistration
 				: null,
 		id,
-		registerOnCommit: true,
 	});
 
 	// Use an exclusive end so fractional clocks and frozen subframes remain visible.

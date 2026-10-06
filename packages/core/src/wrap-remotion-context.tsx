@@ -2,18 +2,30 @@
 // such as in React Three Fiber. All the contexts need to be passed again
 // for them to be useable
 
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {BufferingContextReact} from './buffering.js';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
+import type {TSequence} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {LogLevelContext} from './log-level-context.js';
 import {PreloadContext} from './prefetch-state.js';
+import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
+import {
+	COMMIT_REGISTRATION_ERROR_EVENT,
+	SequenceManagerOrderMarker,
+} from './sequence-order-marker.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SequenceManager,
 	SequenceManagerRefContext,
+	SequenceRegistryContext,
+	SequenceRegistryScopeContext,
+	SequenceRegistryProvider,
+	SequenceCommitRegistrationContext,
+	SequenceRegistrationContext,
+	DisableSequenceRegistrationContext,
 	VisualModePropStatusesRefContext,
 } from './SequenceManager.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
@@ -29,6 +41,22 @@ export function useRemotionContexts() {
 	const renderAssetManagerContext = React.useContext(RenderAssetManager);
 	const sequenceManagerContext = React.useContext(SequenceManager);
 	const sequenceManagerRefContext = React.useContext(SequenceManagerRefContext);
+	const sequenceRegistryContext = React.useContext(SequenceRegistryContext);
+	const sequenceRegistryScopeContext = React.useContext(
+		SequenceRegistryScopeContext,
+	);
+	const sequenceCommitRegistrationContext = React.useContext(
+		SequenceCommitRegistrationContext,
+	);
+	const sequenceRegistrationContext = React.useContext(
+		SequenceRegistrationContext,
+	);
+	const disableSequenceRegistrationContext = React.useContext(
+		DisableSequenceRegistrationContext,
+	);
+	const remotionEnvironmentContext = React.useContext(
+		RemotionEnvironmentContext,
+	);
 	const visualModePropStatusesRefContext = React.useContext(
 		VisualModePropStatusesRefContext,
 	);
@@ -47,6 +75,12 @@ export function useRemotionContexts() {
 			renderAssetManagerContext,
 			sequenceManagerContext,
 			sequenceManagerRefContext,
+			sequenceRegistryContext,
+			sequenceRegistryScopeContext,
+			sequenceCommitRegistrationContext,
+			sequenceRegistrationContext,
+			disableSequenceRegistrationContext,
+			remotionEnvironmentContext,
 			visualModePropStatusesRefContext,
 			bufferManagerContext,
 			logLevelContext,
@@ -62,6 +96,12 @@ export function useRemotionContexts() {
 			renderAssetManagerContext,
 			sequenceManagerContext,
 			sequenceManagerRefContext,
+			sequenceRegistryContext,
+			sequenceRegistryScopeContext,
+			sequenceCommitRegistrationContext,
+			sequenceRegistrationContext,
+			disableSequenceRegistrationContext,
+			remotionEnvironmentContext,
 			visualModePropStatusesRefContext,
 			bufferManagerContext,
 			logLevelContext,
@@ -73,6 +113,73 @@ export interface RemotionContextProviderProps {
 	readonly contexts: ReturnType<typeof useRemotionContexts>;
 	readonly children: React.ReactNode;
 }
+
+const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
+	contexts,
+	children,
+}) => {
+	const [scopeId] = useState(() => String(Math.random()));
+	const [observerFailed, setObserverFailed] = useState(false);
+	const registry = contexts.sequenceRegistryContext;
+	const scope = contexts.sequenceRegistryScopeContext;
+	const commitRegistrationEnabled =
+		contexts.sequenceCommitRegistrationContext && !observerFailed;
+	const {registerSequence, unregisterSequence, updateSequence} =
+		contexts.sequenceManagerContext;
+	const actions = useMemo(
+		() => ({registerSequence, unregisterSequence, updateSequence}),
+		[registerSequence, unregisterSequence, updateSequence],
+	);
+	const onCommitSequences = useCallback(
+		(sequences: readonly TSequence[], sequenceIds: readonly string[]) => {
+			scope?.onCommitSequences(scopeId, sequences, sequenceIds);
+		},
+		[scope, scopeId],
+	);
+	const useIsomorphicLayoutEffect =
+		typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+	useIsomorphicLayoutEffect(() => {
+		if (scope === null || typeof window === 'undefined') {
+			return;
+		}
+
+		let unmounted = false;
+		const onFailure = () =>
+			queueMicrotask(() => {
+				if (!unmounted) setObserverFailed(true);
+			});
+		window.addEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
+		return () => {
+			unmounted = true;
+			window.removeEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
+			scope.onCommitSequences(scopeId, [], []);
+		};
+	}, [scope, scopeId]);
+	if (registry === null || scope === null) {
+		return (
+			<SequenceManager.Provider value={contexts.sequenceManagerContext}>
+				{children}
+			</SequenceManager.Provider>
+		);
+	}
+
+	return (
+		<SequenceManagerOrderMarker
+			managerId={scopeId}
+			onCommitSequences={commitRegistrationEnabled ? onCommitSequences : null}
+		>
+			<SequenceRegistryScopeContext.Provider value={scope}>
+				<SequenceRegistryProvider registry={registry} actions={actions}>
+					<SequenceCommitRegistrationContext.Provider
+						value={commitRegistrationEnabled}
+					>
+						{children}
+					</SequenceCommitRegistrationContext.Provider>
+				</SequenceRegistryProvider>
+			</SequenceRegistryScopeContext.Provider>
+		</SequenceManagerOrderMarker>
+	);
+};
 
 export const RemotionContextProvider = (
 	props: RemotionContextProviderProps,
@@ -86,37 +193,49 @@ export const RemotionContextProvider = (
 						<SequenceManagerRefContext.Provider
 							value={contexts.sequenceManagerRefContext}
 						>
-							<SequenceManager.Provider value={contexts.sequenceManagerContext}>
-								<VisualModePropStatusesRefContext.Provider
-									value={contexts.visualModePropStatusesRefContext}
+							<RemotionEnvironmentContext.Provider
+								value={contexts.remotionEnvironmentContext}
+							>
+								<SequenceRegistrationContext.Provider
+									value={contexts.sequenceRegistrationContext}
 								>
-									<RenderAssetManager.Provider
-										value={contexts.renderAssetManagerContext}
+									<DisableSequenceRegistrationContext.Provider
+										value={contexts.disableSequenceRegistrationContext}
 									>
-										<ResolveCompositionContext.Provider
-											value={contexts.resolveCompositionContext}
-										>
-											<TimelineContext.Provider
-												value={contexts.timelineContext}
+										<ForwardedSequenceRegistry contexts={contexts}>
+											<VisualModePropStatusesRefContext.Provider
+												value={contexts.visualModePropStatusesRefContext}
 											>
-												<SetTimelineContext.Provider
-													value={contexts.setTimelineContext}
+												<RenderAssetManager.Provider
+													value={contexts.renderAssetManagerContext}
 												>
-													<SequenceContext.Provider
-														value={contexts.sequenceContext}
+													<ResolveCompositionContext.Provider
+														value={contexts.resolveCompositionContext}
 													>
-														<BufferingContextReact.Provider
-															value={contexts.bufferManagerContext}
+														<TimelineContext.Provider
+															value={contexts.timelineContext}
 														>
-															{children}
-														</BufferingContextReact.Provider>
-													</SequenceContext.Provider>
-												</SetTimelineContext.Provider>
-											</TimelineContext.Provider>
-										</ResolveCompositionContext.Provider>
-									</RenderAssetManager.Provider>
-								</VisualModePropStatusesRefContext.Provider>
-							</SequenceManager.Provider>
+															<SetTimelineContext.Provider
+																value={contexts.setTimelineContext}
+															>
+																<SequenceContext.Provider
+																	value={contexts.sequenceContext}
+																>
+																	<BufferingContextReact.Provider
+																		value={contexts.bufferManagerContext}
+																	>
+																		{children}
+																	</BufferingContextReact.Provider>
+																</SequenceContext.Provider>
+															</SetTimelineContext.Provider>
+														</TimelineContext.Provider>
+													</ResolveCompositionContext.Provider>
+												</RenderAssetManager.Provider>
+											</VisualModePropStatusesRefContext.Provider>
+										</ForwardedSequenceRegistry>
+									</DisableSequenceRegistrationContext.Provider>
+								</SequenceRegistrationContext.Provider>
+							</RemotionEnvironmentContext.Provider>
 						</SequenceManagerRefContext.Provider>
 					</CompositionManager.Provider>
 				</PreloadContext.Provider>

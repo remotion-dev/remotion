@@ -180,7 +180,10 @@ import {
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 } from './sequence-node-path.js';
-import {CommitOrderInternals} from './sequence-order-marker.js';
+import {
+	CommitOrderInternals,
+	SequenceOrderMarker,
+} from './sequence-order-marker.js';
 import {
 	SequenceOutlineContext,
 	SequenceOutlineInternals,
@@ -246,7 +249,7 @@ import {useLazyComponent} from './use-lazy-component.js';
 import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
-	useMediaInTimeline,
+	useMediaInTimelineRegistration as useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import {PixelDensityContext} from './use-pixel-density.js';
 import {usePlaying} from './use-playing.js';
@@ -329,6 +332,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	SequenceOrderMarker,
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 	AbsoluteFillElement,

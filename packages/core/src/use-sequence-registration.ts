@@ -12,18 +12,17 @@ const useIsomorphicLayoutEffect =
 export const useSequenceRegistration = ({
 	getSequence,
 	id,
-	registerOnCommit,
 }: {
 	getSequence: (() => TSequence) | null;
 	id: string;
-	registerOnCommit: boolean | null;
 }) => {
 	const {registerSequence, unregisterSequence, updateSequence} = useContext(
 		SequenceManagerActionsContext,
 	);
 	const registrationDisabled = useContext(DisableSequenceRegistrationContext);
-	const commitRegistrationEnabled =
-		useContext(SequenceCommitRegistrationContext) && registerOnCommit === true;
+	const commitRegistrationEnabled = useContext(
+		SequenceCommitRegistrationContext,
+	);
 	const getSequenceRef = useRef(getSequence);
 	useIsomorphicLayoutEffect(() => {
 		getSequenceRef.current = getSequence;

@@ -176,26 +176,23 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
 
-	const {registration} = useMediaInTimelineRegistration(
-		{
-			volume,
-			mediaVolume,
-			src,
-			mediaType: 'audio',
-			playbackRate: playbackRate ?? 1,
-			displayName: name ?? null,
-			id: timelineId,
-			getStack,
-			showInTimeline,
-			premountDisplay: sequenceContext?.premountDisplay ?? null,
-			postmountDisplay: sequenceContext?.postmountDisplay ?? null,
-			loopDisplay: undefined,
-			loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
-			documentationLink: 'https://www.remotion.dev/docs/html5-audio',
-			muted: isMutedForTimeline,
-		},
-		true,
-	);
+	const {registration} = useMediaInTimelineRegistration({
+		volume,
+		mediaVolume,
+		src,
+		mediaType: 'audio',
+		playbackRate: playbackRate ?? 1,
+		displayName: name ?? null,
+		id: timelineId,
+		getStack,
+		showInTimeline,
+		premountDisplay: sequenceContext?.premountDisplay ?? null,
+		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
+		loopDisplay: undefined,
+		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
+		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
+		muted: isMutedForTimeline,
+	});
 
 	// putting playback before useVolume
 	// because volume looks at playbackrate
