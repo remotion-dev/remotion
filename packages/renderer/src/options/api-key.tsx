@@ -13,7 +13,7 @@ export const apiKeyOption = {
 		</>
 	),
 	ssrName: 'apiKey' as const,
-	docLink: 'https://www.remotion.dev/docs/licensing',
+	docLink: 'https://www.remotion.dev/docs/options/api-key',
 	type: null as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

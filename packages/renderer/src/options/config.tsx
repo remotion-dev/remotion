@@ -7,7 +7,7 @@ export const configOption = {
 	cliFlag,
 	description: () => <>Specify a location for the Remotion config file.</>,
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config',
+	docLink: 'https://www.remotion.dev/docs/options/config',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

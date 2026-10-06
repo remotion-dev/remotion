@@ -10,11 +10,11 @@ This document explains a few factors and settings that can be used to control th
 
 ## CRF
 
-The main setting to control the quality of the video is the [Constant Rate Factor (CRF)](/docs/encoding/#controlling-quality-using-the-crf-setting).  
+The main setting to control the quality of the video is the [Constant Rate Factor (CRF)](/docs/options/crf).
 All ways to render a video in Remotion allow passing a CRF value. Allowed values depend on the codec.
 
 :::note
-If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`--video-bitrate`](/docs/cli/render#--video-bitrate) option instead.
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`--video-bitrate`](/docs/options/video-bitrate) option instead.
 :::
 
 ## Resolution (Unsharp text)
@@ -54,19 +54,19 @@ You will have a less sharp text if the video is displayed on a high-density disp
 This is because the device has a 2x pixel density, but the video is 1920x1080, which means that each pixel is 2x bigger than the device's pixel.  
 To display the font with the same sharpness as on a low-density display, you would need to render a 4K video.
 
-Use [Output Scaling](/docs/scaling) to render the video with a higher pixel density.
+Use [Output Scaling](/docs/options/scale) to render the video with a higher pixel density.
 
 ## JPEG Quality
 
 When Remotion captures video frames as screenshots, the default format is JPEG.
 The JPEG quality by default is 80 (on a scale of 0 to 100).  
-You may tweak it using the [`--jpeg-quality`](/docs/cli/render#--jpeg-quality) flag or switch to PNG as the image format using [`--image-format=png`](/docs/cli/render#--image-format) (slower).
+You may tweak it using the [`--jpeg-quality`](/docs/options/jpeg-quality) flag or switch to PNG as the image format using [`--image-format=png`](/docs/options/video-image-format) (slower).
 
 When [shared-memory capture](/docs/shared-memory-capture) is active, video frames are passed to FFmpeg without JPEG compression. The JPEG quality setting has no effect on those frames.
 
 ## Color accuracy
 
-Export your video in [`bt709`](/docs/cli/render#--color-space) for more accurate colors.
+Export your video in [`bt709`](/docs/options/color-space) for more accurate colors.
 
 :::note
 This will become the default in Remotion 5.0.
@@ -79,9 +79,9 @@ GIFs only support a 256 colors palette, which leads to a big quality loss. Embra
 
 ## Video bitrate
 
-You can use the [`--video-bitrate`](/docs/cli/render#--video-bitrate) flag to control the bitrate of the video.  
-It is mutually exclusive with [`--crf`](/docs/cli/render#--crf) option, which means you can not use both at the same time.
+You can use the [`--video-bitrate`](/docs/options/video-bitrate) flag to control the bitrate of the video.
+It is mutually exclusive with [`--crf`](/docs/options/crf) option, which means you can not use both at the same time.
 
 ## x264 Preset
 
-When exporting a H.264 video, you can use the [`--x264-preset`](/docs/cli/render#--x264-preset) flag to control the quality/speed/compression tradeoff.
+When exporting a H.264 video, you can use the [`--x264-preset`](/docs/options/x264-preset) flag to control the quality/speed/compression tradeoff.

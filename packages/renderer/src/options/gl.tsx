@@ -62,7 +62,7 @@ const cliFlag = 'gl' as const;
 
 export const glOption = {
 	cliFlag,
-	docLink: 'https://www.remotion.dev/docs/chromium-flags#--gl',
+	docLink: 'https://www.remotion.dev/docs/options/gl',
 	name: 'OpenGL renderer',
 	type: 'angle' as OpenGlRenderer | null,
 	ssrName: 'gl',

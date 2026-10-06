@@ -19,7 +19,7 @@ export const pixelFormatOption = {
 		</>
 	),
 	ssrName: 'pixelFormat' as const,
-	docLink: 'https://www.remotion.dev/docs/config#setpixelformat',
+	docLink: 'https://www.remotion.dev/docs/options/pixel-format',
 	type: DEFAULT_PIXEL_FORMAT as PixelFormat,
 	getValue: (
 		{commandLine},

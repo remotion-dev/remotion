@@ -14,7 +14,8 @@ export const disableSharedMemoryCaptureOption = {
 		</>
 	),
 	ssrName: 'disableSharedMemoryCapture',
-	docLink: 'https://www.remotion.dev/docs/shared-memory-capture#opt-out',
+	docLink:
+		'https://www.remotion.dev/docs/options/disable-shared-memory-capture',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

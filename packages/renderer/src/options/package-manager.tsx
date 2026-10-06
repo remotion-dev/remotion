@@ -19,7 +19,7 @@ export const packageManagerOption = {
 		);
 	},
 	ssrName: 'packageManager' as const,
-	docLink: 'https://www.remotion.dev/docs/cli/upgrade#--package-manager',
+	docLink: 'https://www.remotion.dev/docs/options/package-manager',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

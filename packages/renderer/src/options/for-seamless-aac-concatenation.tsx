@@ -23,7 +23,8 @@ export const forSeamlessAacConcatenationOption = {
 			yet for to concatenate the audio chunks.
 		</>
 	),
-	docLink: 'https://remotion.dev/docs/renderer',
+	docLink:
+		'https://www.remotion.dev/docs/options/for-seamless-aac-concatenation',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
 			return {

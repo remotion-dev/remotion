@@ -12,7 +12,7 @@ export const rspackOption = {
 		<>Uses Rspack instead of Webpack as the bundler for the Studio or bundle.</>
 	),
 	ssrName: null,
-	docLink: null,
+	docLink: 'https://www.remotion.dev/docs/options/rspack',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

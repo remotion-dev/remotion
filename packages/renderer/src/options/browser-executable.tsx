@@ -18,7 +18,7 @@ export const browserExecutableOption = {
 		</>
 	),
 	ssrName: 'browserExecutable' as const,
-	docLink: 'https://www.remotion.dev/docs/config#setbrowserexecutable',
+	docLink: 'https://www.remotion.dev/docs/options/browser-executable',
 	type: null as BrowserExecutable,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

@@ -15,7 +15,7 @@ export const experimentalKeepAudioContextAliveOption = {
 	),
 	ssrName: null,
 	docLink:
-		'https://www.remotion.dev/docs/config#setexperimentalkeepaudiocontextalive',
+		'https://www.remotion.dev/docs/options/experimental-keep-audio-context-alive',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

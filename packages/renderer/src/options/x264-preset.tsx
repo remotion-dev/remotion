@@ -67,7 +67,7 @@ export const x264Option = {
 		</>
 	),
 	ssrName: 'x264Preset' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media',
+	docLink: 'https://www.remotion.dev/docs/options/x264-preset',
 	type: 'fast' as X264Preset | null,
 	getValue: ({commandLine}) => {
 		const value = commandLine[cliFlag];
