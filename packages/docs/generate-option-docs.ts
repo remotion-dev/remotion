@@ -34,7 +34,7 @@ const generateOptionDocs = async () => {
 	];
 	const directory = path.join(__dirname, 'docs', 'options');
 	const files = new Map<string, string>();
-	const indexRows: string[] = [];
+	const indexItems: string[] = [];
 	const registrySource = fs.readFileSync(
 		path.join(__dirname, '../renderer/src/options/index.tsx'),
 		'utf8',
@@ -167,9 +167,8 @@ const generateOptionDocs = async () => {
 		}
 
 		files.set(`${option.id}.mdx`, sections.join('\n'));
-		const apiNames = [...new Set(usages.map((usage) => usage.name))];
-		indexRows.push(
-			`| [${option.name}](/docs/options/${option.id}) | ${supportedCommands.length > 0 ? `\`--${option.cliFlag}\`` : '—'} | ${apiNames.map((name) => `\`${name}\``).join(', ') || '—'} |`,
+		indexItems.push(
+			`- [${option.name}](/docs/options/${option.id})${supportedCommands.length > 0 ? ` (\`--${option.cliFlag}\`)` : ''}`,
 		);
 	}
 
@@ -192,9 +191,7 @@ const generateOptionDocs = async () => {
 			'',
 			'Only the CLI reads the config file. In programmatic APIs, you need to pass all options explicitly.',
 			'',
-			'| Option | CLI flag | JavaScript / config name |',
-			'| --- | --- | --- |',
-			...indexRows,
+			...indexItems,
 		].join('\n'),
 	);
 
