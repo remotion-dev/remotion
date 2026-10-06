@@ -94,23 +94,32 @@ const generateOptionDocs = async () => {
 		];
 
 		if (supportedCommands.length > 0) {
+			const flagSyntax = [
+				...new Set(
+					supportedCommands.map(
+						(command) =>
+							command.options.find((entry) =>
+								entry.optionIds.includes(option.id),
+							)!.flag,
+					),
+				),
+			];
 			sections.push(
 				'',
 				'## CLI flag',
 				'',
-				`Use \`--${option.cliFlag}\` with the following commands. Follow a command link for its syntax and examples.`,
+				'```text',
+				...flagSyntax,
+				'```',
 				'',
-				'| Command | Flag |',
-				'| --- | --- |',
+				'The following CLI commands accept this option:',
+				'',
 				...supportedCommands.map((command) => {
-					const entry = command.options.find((candidate) =>
-						candidate.optionIds.includes(option.id),
-					)!;
 					const url = command.documentation.replace(
 						/^https:\/\/(www\.)?remotion\.dev/,
 						'',
 					);
-					return `| [\`${command.binary} ${command.path.join(' ')}\`](${url}) | \`${entry.flag.replace(/\|/g, '\\|')}\` |`;
+					return `- [\`${command.binary} ${command.path.join(' ')}\`](${url})`;
 				}),
 			);
 		}
