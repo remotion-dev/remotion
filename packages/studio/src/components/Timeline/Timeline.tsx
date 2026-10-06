@@ -283,7 +283,11 @@ const TimelineTrackChildrenSyncer: React.FC<{
 		() =>
 			tracks.filter(({sequence}) => {
 				const role = sequence.timelineTrack?.role;
-				return role === 'clip' || role === 'overlay' || role === 'transition';
+				return (
+					(role === 'clip' && sequence.showInTimeline) ||
+					role === 'overlay' ||
+					role === 'transition'
+				);
 			}),
 		[tracks],
 	);

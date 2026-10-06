@@ -6,7 +6,7 @@ export type TimelineTrack = {
 };
 
 export type TimelineTrackItem = TimelineTrack & {
-	readonly role: 'track' | 'clip' | 'container' | 'transition' | 'overlay';
+	readonly role: 'track' | 'clip' | 'transition' | 'overlay';
 };
 
 export const TimelineTrackContext = createContext<TimelineTrack | null>(null);

@@ -199,8 +199,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
 	const timelineTrack = useContext(TimelineTrackContext);
-	const timelineTrackRole =
-		timelineTrackItem?.role ?? (showInTimeline ? 'clip' : 'container');
+	const timelineTrackRole = timelineTrackItem?.role ?? 'clip';
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
 	const cumulativePlaybackRate = parentPlaybackRate * playbackRate;
 	const cumulatedFrom = parentSequence
@@ -902,7 +901,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const sequence = (
 		<TimelineTrackContext.Provider
 			value={
-				timelineTrackRole === 'container' || timelineTrackRole === 'track'
+				timelineTrackRole === 'track' ||
+				(timelineTrackRole === 'clip' && !showInTimeline)
 					? timelineTrack
 					: null
 			}

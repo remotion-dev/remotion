@@ -21,7 +21,10 @@ export const filterTimelineTrackContents = (
 	const scopedDisplayGroupCounts = new Map<string, number>();
 
 	const visibleTracks = tracks.flatMap((track) => {
-		if (track.sequence.timelineTrack?.role === 'container') {
+		if (
+			track.sequence.timelineTrack?.role === 'clip' &&
+			!track.sequence.showInTimeline
+		) {
 			return [];
 		}
 
@@ -47,8 +50,8 @@ export const filterTimelineTrackContents = (
 				}
 
 				if (
-					ancestor.timelineTrack.role !== 'container' &&
-					ancestor.timelineTrack.role !== 'track'
+					ancestor.timelineTrack.role !== 'track' &&
+					(ancestor.timelineTrack.role !== 'clip' || ancestor.showInTimeline)
 				) {
 					// Nested tracks follow their containing clip too, while keeping
 					// their own packed rows whenever that clip is active.
