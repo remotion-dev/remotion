@@ -23,7 +23,7 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
    The script builds with Bun and installs the complete WXT bundle in
    `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
    Building does not require an installed browser. To use the extension, choose
-   Chrome with major version 157 or newer with Canvas Draw Element enabled. If no compatible browser
+   Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled. If no compatible browser
    is installed, use `$install-canvas-capture-browser` to install one.
 
 3. Confirm that the installed directory contains `manifest.json`,
@@ -45,14 +45,14 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
 Use the separate development directory only for `bun run dev`. Continue using
 the production install directory above for manually loaded builds.
 
-To select another Chrome with major version 157 or newer browser, set
+To select another Chrome 157.0.8080.0 or newer browser, set
 `CANVAS_CAPTURE_BROWSER_EXECUTABLE` to its executable path when running
 `bun run dev`. Development uses the version-neutral
 `~/Library/Application Support/Remotion Canvas Capture` profile.
 
 ## Reload in Chrome
 
-- Launch Chrome with major version 157 or newer with the
+- Launch Chrome 157.0.8080.0 or newer with the
   dedicated Canvas Capture profile, then open `chrome://extensions` manually.
 - Enable **Developer mode** on `chrome://extensions`.
 - If **Remotion Canvas Capture** already points to the durable directory, click

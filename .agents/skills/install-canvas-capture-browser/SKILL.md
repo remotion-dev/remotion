@@ -1,11 +1,11 @@
 ---
 name: install-canvas-capture-browser
-description: Install and verify Chrome for Testing with major version 157 or newer for the private Remotion Canvas Capture extension on Apple Silicon macOS. Use when setting up Canvas Capture or when no compatible Chrome browser is installed.
+description: Install and verify Chrome for Testing 157.0.8080.0 or newer for the private Remotion Canvas Capture extension on Apple Silicon macOS. Use when setting up Canvas Capture or when no compatible Chrome browser is installed.
 ---
 
 # Install Canvas Capture Browser
 
-Canvas Capture requires Chrome with major version 157 or newer with Canvas Draw Element enabled.
+Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled.
 Use an existing compatible Chrome browser, or install Chrome for Testing with
 the bundled script. The extension also checks the required HTML-in-canvas API
 and video encoding configuration before allowing recording.
@@ -22,10 +22,10 @@ and video encoding configuration before allowing recording.
    Stable, Beta, Dev, or Canary release from Google's Chrome for Testing metadata,
    verifies that the downloaded app matches that release, and
    installs the app at `/Users/jonathanburger/Applications/Recorder Chrome.app`.
-   It exits successfully without downloading when the major version is 157 or newer and the browser is
+   It exits successfully without downloading when the version is 157.0.8080.0 or newer and the browser is
    already installed. It does not overwrite an incompatible existing app.
 
-2. Confirm the script reports the expected installed path and a major version of at least 157.
+2. Confirm the script reports the expected installed path and a version of at least 157.0.8080.0.
 
 3. Launch it for Canvas Capture with:
 

@@ -17,7 +17,7 @@ On supported Chromium-based browsers, [`@remotion/web-renderer`](/docs/web-rende
 Use a recent version of Google Chrome or another Chromium-based browser with `chrome://flags/#canvas-draw-element` enabled. Current Chrome stable releases ship `canvas.requestPaint()` together with [`drawElementImage`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents), which is required for correct frame capture. See [Compatibility](#compatibility) for details.
 :::
 
-Enabling the option does not guarantee that this path runs. If the browser does not have HTML-in-canvas enabled, or if the composition contains an [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) in Chrome with a major version earlier than 157, it falls back to the [default frame capturing mechanism](/docs/client-side-rendering/how-it-works).
+Enabling the option does not guarantee that this path runs. If the browser does not have HTML-in-canvas enabled, or if the composition contains an [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) in a browser without nesting support, it falls back to the [default frame capturing mechanism](/docs/client-side-rendering/how-it-works).
 
 ## Enabling
 
@@ -67,7 +67,7 @@ If native capture starts but fails while capturing a frame, a warning is printed
 Not using HTML-in-canvas: drawElementImage failed (...); falling back to the built-in DOM composer.
 ```
 
-If HTML-in-canvas is unavailable, disabled, or would require a nested capture in Chrome with a major version earlier than 157, the built-in DOM composer is selected.
+If HTML-in-canvas is unavailable, disabled, or would require a nested capture in a browser without nesting support, the built-in DOM composer is selected.
 
 ## Compatibility
 
@@ -87,7 +87,7 @@ If HTML-in-canvas is unavailable, disabled, or would require a nested capture in
 
 HTML-in-canvas depends on Chromium flag `chrome://flags/#canvas-draw-element`, which must be enabled explicitly.
 
-Use a recent Chrome or Chromium version with the flag enabled for full support. Compositions containing [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) use native capture in Chrome with major version 157 or newer. Earlier versions use the built-in DOM composer.
+Use a recent Chrome or Chromium version with the flag enabled for full support. Compositions containing [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) use native capture in Chrome 157.0.8080.0 or newer. Browsers without nesting support use the built-in DOM composer.
 
 ## See also
 

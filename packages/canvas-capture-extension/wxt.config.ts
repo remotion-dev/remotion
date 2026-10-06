@@ -22,7 +22,7 @@ export default defineConfig({
 		description:
 			'Record any element on a webpage as a high-resolution MP4 or WebM.',
 		version: '0.1.0',
-		minimum_chrome_version: '157',
+		minimum_chrome_version: '157.0.8080.0',
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
 		icons: {
 			16: 'icons/icon-16.png',

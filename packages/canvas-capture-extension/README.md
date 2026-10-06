@@ -4,7 +4,7 @@ Record an area—or a whole webpage—as a high-resolution H.264 MP4 or VP9 WebM
 
 ## Browser setup on macOS
 
-Canvas Capture requires Chrome with major version 157 or newer with Canvas Draw Element enabled. You can use Chrome, Chrome Canary, or Chrome for Testing as long as the browser meets this minimum. The extension also checks whether the HTML-in-canvas API and video encoding configuration are available before recording.
+Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled. You can use Chrome, Chrome Canary, or Chrome for Testing as long as the browser meets this minimum. The extension also checks whether the HTML-in-canvas API and video encoding configuration are available before recording.
 
 To install a compatible Chrome for Testing build, run:
 
@@ -50,7 +50,7 @@ WXT starts Vite, writes the development extension to the durable
 directory, launches Chrome for Testing with the required feature
 flags and persistent profile, and loads the extension automatically.
 
-To use another Chrome with major version 157 or newer executable, set
+To use another Chrome 157.0.8080.0 or newer executable, set
 `CANVAS_CAPTURE_BROWSER_EXECUTABLE` when starting development:
 
 ```bash
@@ -67,7 +67,7 @@ extension, so its path and extension ID remain stable across worktrees.
 ## Build and install
 
 1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This creates the production WXT bundle and installs the complete unpacked extension outside the worktree. Building does not require an installed browser.
-2. In Chrome with major version 157 or newer, open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
+2. In Chrome 157.0.8080.0 or newer, open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
 4. Enable `chrome://flags/#canvas-draw-element` and restart Chrome if HTML-in-canvas is not already enabled.
 

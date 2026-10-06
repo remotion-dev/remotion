@@ -2,9 +2,30 @@
 
 set -euo pipefail
 
-minimum_version=157
+minimum_version=157.0.8080.0
 metadata_url="https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
 install_app="${HOME:?}/Applications/Recorder Chrome.app"
+
+is_compatible_version() {
+	local version="$1"
+	local version_parts minimum_parts index
+	if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+		return 1
+	fi
+
+	IFS='.' read -r -a version_parts <<< "$version"
+	IFS='.' read -r -a minimum_parts <<< "$minimum_version"
+	for index in 0 1 2 3; do
+		if ((10#${version_parts[index]} > 10#${minimum_parts[index]})); then
+			return 0
+		fi
+		if ((10#${version_parts[index]} < 10#${minimum_parts[index]})); then
+			return 1
+		fi
+	done
+
+	return 0
+}
 
 usage() {
 	printf '%s\n' 'Usage: install-browser.sh [--install-app PATH]'
@@ -37,8 +58,7 @@ installed_plist="$install_app/Contents/Info.plist"
 installed_executable="$install_app/Contents/MacOS/Google Chrome for Testing"
 if [[ -e "$install_app" ]]; then
 	installed_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$installed_plist" 2>/dev/null || true)"
-	installed_major="${installed_version%%.*}"
-	if [[ "$installed_major" =~ ^[0-9]+$ && -x "$installed_executable" ]] && ((installed_major >= minimum_version)); then
+	if [[ -x "$installed_executable" ]] && is_compatible_version "$installed_version"; then
 		printf 'Chrome for Testing %s is already installed at %s\n' "$installed_version" "$install_app"
 		exit 0
 	fi
@@ -65,8 +85,7 @@ expected_version=""
 selected_channel=""
 for channel in Stable Beta Dev Canary; do
 	candidate_version="$(plutil -extract "channels.$channel.version" raw -o - "$metadata_path" 2>/dev/null || true)"
-	candidate_major="${candidate_version%%.*}"
-	if [[ ! "$candidate_major" =~ ^[0-9]+$ ]] || ((candidate_major < minimum_version)); then
+	if ! is_compatible_version "$candidate_version"; then
 		continue
 	fi
 
