@@ -8,7 +8,6 @@ import {
 	waitFor,
 } from '@testing-library/react';
 import type {AddCaptionJobParams} from '../components/RenderQueue/caption-job-types';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
 
 const selectComboboxItem = async (
 	combobox: HTMLElement,
@@ -100,7 +99,6 @@ test('serializes transcription modal settings into caption jobs', async () => {
 	});
 
 	try {
-		const {SettingsProvider} = await import('../components/SettingsContext');
 		const {TranscriptionModal} =
 			await import('../components/Transcription/TranscriptionModal');
 		const {RenderQueueContext} =
@@ -116,56 +114,45 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		} as const;
 
 		render(
-			<StudioServerConnectionCtx.Provider
-				value={{
-					previewServerState: {type: 'init'},
-					configFileChangeRevision: 0,
-					restartRequired: false,
-					subscribeToEvent: () => () => undefined,
-				}}
+			<SetSelectedModalContext.Provider
+				value={{setSelectedModal: () => undefined}}
 			>
-				<SettingsProvider>
-					<SetSelectedModalContext.Provider
-						value={{setSelectedModal: () => undefined}}
+				<SidebarContext.Provider
+					value={{
+						rightSidebarTemporaryExpansion: false,
+						setRightSidebarTemporaryExpansion: () => undefined,
+						sidebarCollapsedDuringDrag: null,
+						sidebarCollapsedStateLeft: 'collapsed',
+						sidebarCollapsedStateRight: 'collapsed',
+						setSidebarCollapsedDuringDrag: () => undefined,
+						setSidebarCollapsedState: () => undefined,
+					}}
+				>
+					<RenderQueueContext.Provider
+						value={
+							{
+								captionJobs: [],
+								addCaptionJob: (params: AddCaptionJobParams) => {
+									submittedJobs.push(params);
+									return `caption-job-${submittedJobs.length}`;
+								},
+							} as never
+						}
 					>
-						<SidebarContext.Provider
-							value={{
-								rightSidebarTemporaryExpansion: false,
-								setRightSidebarTemporaryExpansion: () => undefined,
-								sidebarCollapsedDuringDrag: null,
-								sidebarCollapsedStateLeft: 'collapsed',
-								sidebarCollapsedStateRight: 'collapsed',
-								setSidebarCollapsedDuringDrag: () => undefined,
-								setSidebarCollapsedState: () => undefined,
-							}}
-						>
-							<RenderQueueContext.Provider
-								value={
-									{
-										captionJobs: [],
-										addCaptionJob: (params: AddCaptionJobParams) => {
-											submittedJobs.push(params);
-											return `caption-job-${submittedJobs.length}`;
-										},
-									} as never
-								}
-							>
-								<StaticFilesProvider>
-									<TranscriptionModal
-										type="transcribe"
-										captionStyle={null}
-										audioStreamIndex={2}
-										displayName="interview.wav"
-										requestInit={requestInit}
-										src="/media/interview.wav"
-										target={null}
-									/>
-								</StaticFilesProvider>
-							</RenderQueueContext.Provider>
-						</SidebarContext.Provider>
-					</SetSelectedModalContext.Provider>
-				</SettingsProvider>
-			</StudioServerConnectionCtx.Provider>,
+						<StaticFilesProvider>
+							<TranscriptionModal
+								type="transcribe"
+								captionStyle={null}
+								audioStreamIndex={2}
+								displayName="interview.wav"
+								requestInit={requestInit}
+								src="/media/interview.wav"
+								target={null}
+							/>
+						</StaticFilesProvider>
+					</RenderQueueContext.Provider>
+				</SidebarContext.Provider>
+			</SetSelectedModalContext.Provider>,
 		);
 
 		screen.getByRole('dialog', {

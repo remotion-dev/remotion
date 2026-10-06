@@ -60,7 +60,6 @@ import {
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
-import {useSettings} from '../SettingsContext';
 import {VerticalTab} from '../Tabs/vertical';
 import {useModelCacheStatus} from '../use-model-cache-status';
 import {useStaticFiles} from '../use-static-files';
@@ -715,32 +714,6 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	const [acceptedCaptionStyleId, setAcceptedCaptionStyleId] = useState<
 		string | null
 	>(null);
-	const [libraryUrl, setLibraryUrl] = useState(
-		'https://www.remotion.dev/elements/captions',
-	);
-	const {studioRuntimeConfig} = useSettings();
-	const libraryOptions: ComboboxValue[] = [
-		{
-			url: 'https://www.remotion.dev/elements/captions',
-			displayName: 'Remotion captions',
-		},
-		...(studioRuntimeConfig?.elementLibraries ?? []).filter(
-			({url}) =>
-				url !== 'https://www.remotion.dev/elements' &&
-				url !== 'https://www.remotion.dev/elements/captions',
-		),
-	].map(({url, displayName: libraryName}) => ({
-		type: 'item',
-		id: url,
-		value: url,
-		label: libraryName ?? new URL(url).host,
-		leftItem: url === libraryUrl ? <Checkmark /> : null,
-		keyHint: null,
-		quickSwitcherLabel: null,
-		subMenu: null,
-		disabled: false,
-		onClick: () => setLibraryUrl(url),
-	}));
 	const [tab, setTab] = useState<Tab>('transcribe');
 	const isModelCached = useCallback(
 		(model: WhisperWebGpuModel) => isWhisperModelCached({model}),
@@ -1131,16 +1104,11 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								>
 									Use Simple captions
 								</Button>
-								{libraryOptions.length > 1 ? (
-									<Combobox
-										values={libraryOptions}
-										selectedId={libraryUrl}
-										aria-label="Caption style library"
-										style={{marginTop: 8}}
-									/>
-								) : null}
 							</div>
-							<ElementLibraryFrame name="Caption styles" url={libraryUrl} />
+							<ElementLibraryFrame
+								name="Caption styles"
+								url="https://www.remotion.dev/elements/captions"
+							/>
 						</div>
 					) : null}
 					<Models
