@@ -21,17 +21,15 @@ git clone --depth=1 https://github.com/remotion-dev/canvas-capture.git \
 
 The repository contains a production build of Canvas Capture. You do not need to clone or build Remotion.
 
-## Choose a browser
+## Set up the browser
 
-Use Chrome, Chrome Canary, or Chrome for Testing with major version 157 or newer. Check your version at `chrome://version`.
+Open Chrome, Chrome Canary, or Chrome for Testing. Check `chrome://version` to confirm that the Chrome major version is 157 or newer.
 
-## Launch the browser
+Enable Canvas Draw Element before loading the extension:
 
-Open your chosen browser.
-
-Open `chrome://flags`, search for Canvas Draw Element, set it to Enabled and select Relaunch.
-
-The extension checks whether the required HTML-in-canvas API and video encoding configuration are available before allowing recording.
+1. Open `chrome://flags/#canvas-draw-element`.
+2. Set the flag to Enabled.
+3. Select Relaunch to restart the browser.
 
 ## Load the extension
 
