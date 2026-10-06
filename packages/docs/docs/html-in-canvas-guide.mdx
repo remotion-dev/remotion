@@ -108,7 +108,7 @@ From [`v4.0.455`](https://github.com/remotion-dev/remotion/releases/tag/v4.0.455
 
 We compiled a version of Chrome and made it the default, and enabled the flag for you.
 
-Nested `<HtmlInCanvas>` components are currently intended for preview and client-side rendering. Remotion's server-side browser is Chrome 149, so server-side rendering does not support nesting yet.
+Nested `<HtmlInCanvas>` components are supported during server-side rendering from Remotion <AvailableFrom v="4.0.534" inline />, which uses Chromium 157.
 
 If your effect uses a WebGL shader, pass [`--gl=angle`](/docs/gl-options) to make the render work:
 
@@ -144,7 +144,7 @@ This is opt-in. In Chrome versions earlier than 157, compositions containing [`<
 
 ## Nested HTML-in-canvas
 
-Nesting `<HtmlInCanvas>` components is supported for preview and client-side rendering in Chrome 157 or newer with HTML-in-canvas enabled. Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check at runtime. Older versions throw an error. Server-side rendering does not support nesting yet.
+Nesting `<HtmlInCanvas>` components is supported in Chrome 157 or newer with HTML-in-canvas enabled. Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check at runtime. Older versions throw an error. Server-side rendering supports nesting from Remotion <AvailableFrom v="4.0.534" inline />.
 
 ## See also
 

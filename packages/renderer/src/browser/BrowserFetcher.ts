@@ -27,9 +27,7 @@ import {acquireBrowserDownloadLock} from './browser-download-lock';
 import {extractZipArchive} from './extract-zip-archive';
 import {
 	getChromeDownloadUrl,
-	isAmazonLinux2023,
 	logDownloadUrl,
-	PLAYWRIGHT_CHROMIUM_VERSION,
 	type Platform,
 	TESTED_VERSION,
 } from './get-chrome-download-url';
@@ -98,8 +96,8 @@ export const getExpectedVersion = ({
 
 	// Remotion-patched builds get their own cache marker so an existing stock or
 	// older patched download of the same Chromium version is replaced once.
-	// Remotion builds include the v3 shared-memory patch; the Playwright/Chrome
-	// for Testing fallbacks are stock Chromium.
+	// Remotion builds include the v3 shared-memory patch; Google's CDN builds
+	// are stock Chromium.
 	const downloadUrl = getChromeDownloadUrl({
 		platform,
 		version: null,
@@ -110,10 +108,6 @@ export const getExpectedVersion = ({
 		downloadUrl.startsWith('https://remotion.media/')
 	) {
 		return `${TESTED_VERSION}-remotion-v3`;
-	}
-
-	if (downloadUrl.startsWith('https://playwright.azureedge.net/')) {
-		return PLAYWRIGHT_CHROMIUM_VERSION;
 	}
 
 	return TESTED_VERSION;
@@ -233,7 +227,7 @@ export const downloadBrowser = async ({
 				const chromeLinuxFolder = path.join(outputPath, subdir);
 				const chromePath = path.join(chromeLinuxFolder, 'chrome');
 
-				if (fs.existsSync(chromePath)) {
+				if (chromeMode === 'headless-shell' && fs.existsSync(chromePath)) {
 					const chromeHeadlessShellPath = path.join(
 						chromeLinuxFolder,
 						'chrome-headless-shell',
@@ -245,7 +239,9 @@ export const downloadBrowser = async ({
 				if (fs.existsSync(chromeLinuxFolder)) {
 					const targetFolder = path.join(
 						outputPath,
-						'chrome-headless-shell-' + platform,
+						(chromeMode === 'headless-shell'
+							? 'chrome-headless-shell-'
+							: 'chrome-') + platform,
 					);
 
 					if (chromeLinuxFolder !== targetFolder) {
@@ -293,20 +289,26 @@ const getExecutablePath = (chromeMode: ChromeMode) => {
 			return path.join(folderPath, 'chrome-win64', 'chrome.exe');
 		}
 		if (platform === 'linux64' || platform === 'linux-arm64') {
-			return path.join(folderPath, 'chrome-linux64', 'chrome');
+			return path.join(folderPath, `chrome-${platform}`, 'chrome');
 		}
 
 		throw new Error('unsupported platform' + (platform satisfies never));
 	}
 	if (chromeMode === 'headless-shell') {
-		return path.join(
+		const shellFolder = path.join(
 			folderPath,
 			`chrome-headless-shell-${platform}`,
+		);
+		const remotionExecutable = path.join(shellFolder, 'headless_shell');
+		if (fs.existsSync(remotionExecutable)) {
+			return remotionExecutable;
+		}
+
+		return path.join(
+			shellFolder,
 			platform === 'win64'
 				? 'chrome-headless-shell.exe'
-				: platform === 'linux-arm64' || isAmazonLinux2023()
-					? 'headless_shell'
-					: 'chrome-headless-shell',
+				: 'chrome-headless-shell',
 		);
 	}
 

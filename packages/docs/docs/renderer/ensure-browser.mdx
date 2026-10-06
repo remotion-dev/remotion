@@ -9,6 +9,8 @@ crumb: '@remotion/renderer'
 
 Ensures a browser is locally installed so a Remotion render can be executed.
 
+From Remotion v4.0.534, the default version is Chromium 157.0.8080.0 on every supported platform. See [browser versions and download sources](/docs/miscellaneous/chrome-headless-shell#version) for the platform breakdown.
+
 ```tsx twoslash title="Simple usage"
 import {ensureBrowser} from '@remotion/renderer';
 
@@ -54,6 +56,8 @@ Pass the same path to any other API that supports the `browserExecutable` option
 
 Specify a specific version of Chrome that should be used and hook into the download progress.  
 See the example below for the function signature.
+
+Passing a Chrome version downloads that version from Google's CDN, including on Linux ARM64. Pass `version: null` to use Remotion's recommended build for your platform.
 
 ```tsx twoslash title="init.ts"
 import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';

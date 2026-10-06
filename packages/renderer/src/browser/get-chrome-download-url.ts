@@ -5,10 +5,6 @@ import {Log} from '../logger';
 import type {ChromeMode} from '../options/chrome-mode';
 
 export const TESTED_VERSION = '157.0.8080.0';
-// https://github.com/microsoft/playwright/blame/e76ca6cba40c26bf22c19cf37398d2b9da9ed465/packages/playwright-core/browsers.json
-// packages/playwright-core/browsers.json
-const PLAYWRIGHT_VERSION = '1421'; // 149.0.7790.0
-export const PLAYWRIGHT_CHROMIUM_VERSION = '149.0.7790.0';
 
 export type Platform =
 	| 'linux64'
@@ -105,58 +101,38 @@ export function getChromeDownloadUrl({
 	version: string | null;
 	chromeMode: ChromeMode;
 }): string {
-	if (platform === 'linux-arm64') {
-		// Amazon Linux 2023 on arm64 needs a special build.
-		// This binary is compatible with older glibc (no 2.35 requirement).
-		if (isAmazonLinux2023() && chromeMode === 'headless-shell' && !version) {
-			return `https://remotion.media/chromium-headless-shell-amazon-linux-arm64-${TESTED_VERSION}.zip?clear`;
-		}
-
-		if (chromeMode === 'chrome-for-testing') {
-			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
-		}
-
-		if (version) {
-			return `https://playwright.azureedge.net/builds/chromium/${version}/chromium-headless-shell-linux-arm64.zip`;
-		}
-
-		// Regular arm64 binary requires glibc 2.35+
-		if (canUseRemotionMediaBinaries()) {
-			return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clear`;
-		}
-
-		// Fall back to Playwright for older glibc (non-Amazon Linux systems)
-		return `https://playwright.azureedge.net/builds/chromium/${PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
+	// Preserve explicit Playwright revision overrides on Linux ARM64. Default
+	// downloads and Chrome version overrides use Google's CDN on every platform.
+	if (platform === 'linux-arm64' && version && /^\d+$/.test(version)) {
+		const archive =
+			chromeMode === 'chrome-for-testing'
+				? 'chromium-linux-arm64'
+				: 'chromium-headless-shell-linux-arm64';
+		return `https://playwright.azureedge.net/builds/chromium/${version}/${archive}.zip`;
 	}
 
-	if (chromeMode === 'headless-shell') {
-		if (platform === 'mac-arm64' && version === null) {
+	if (chromeMode === 'headless-shell' && version === null) {
+		if (platform === 'mac-arm64') {
 			return `https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}.zip?clear`;
 		}
 
-		// Amazon Linux 2023 needs a special build.
-		// This binary is compatible with older glibc (no 2.35 requirement).
-		if (isAmazonLinux2023() && platform === 'linux64' && !version) {
-			return `https://remotion.media/chromium-headless-shell-amazon-linux-x64-${TESTED_VERSION}.zip?clear`;
-		}
-
-		if (platform === 'linux64' && version === null) {
-			if (canUseRemotionMediaBinaries()) {
-				return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clear`;
+		if (platform === 'linux64' || platform === 'linux-arm64') {
+			const architecture = platform === 'linux64' ? 'x64' : 'arm64';
+			if (isAmazonLinux2023()) {
+				return `https://remotion.media/chromium-headless-shell-amazon-linux-${architecture}-${TESTED_VERSION}.zip?clear`;
 			}
 
-			// Fall back to Google's CDN for older glibc
-			return `https://storage.googleapis.com/chrome-for-testing-public/${TESTED_VERSION}/${platform}/chrome-headless-shell-${platform}.zip`;
+			if (canUseRemotionMediaBinaries()) {
+				return `https://remotion.media/chromium-headless-shell-linux-${architecture}-${TESTED_VERSION}.zip?clear`;
+			}
 		}
-
-		return `https://storage.googleapis.com/chrome-for-testing-public/${
-			version ?? TESTED_VERSION
-		}/${platform}/chrome-headless-shell-${platform}.zip`;
 	}
 
+	const archive =
+		chromeMode === 'headless-shell' ? 'chrome-headless-shell' : 'chrome';
 	return `https://storage.googleapis.com/chrome-for-testing-public/${
 		version ?? TESTED_VERSION
-	}/${platform}/chrome-${platform}.zip`;
+	}/${platform}/${archive}-${platform}.zip`;
 }
 
 export const logDownloadUrl = ({
