@@ -41,9 +41,12 @@ const options = (
 			return {...cliOnlyOption, optionIds: []};
 		}
 
-		const rendererOption = rendererOptions.find(
-			(candidate) => candidate.cliFlag === flag,
-		);
+		const rendererOption =
+			flag === 'image-format'
+				? imageFormat === 'video'
+					? BrowserSafeApis.options.videoImageFormatOption
+					: BrowserSafeApis.options.stillImageFormatOption
+				: rendererOptions.find((candidate) => candidate.cliFlag === flag);
 		if (!rendererOption) {
 			throw new Error(`No CLI help metadata exists for --${flag}`);
 		}
@@ -59,11 +62,7 @@ const options = (
 							BrowserSafeApis.options.stillImageFormatOption.id,
 							BrowserSafeApis.options.videoImageFormatOption.id,
 						]
-					: [
-							flag === 'image-format' && imageFormat === 'video'
-								? BrowserSafeApis.options.videoImageFormatOption.id
-								: rendererOption.id,
-						],
+					: [rendererOption.id],
 		};
 	});
 };
@@ -238,46 +237,50 @@ export const cliCommandHelp = [
 		args: ' <serve-url|entry-point>? [<composition-id>] [<output-location>]',
 		description: 'Render a still frame and save it as an image.',
 		documentation: 'https://www.remotion.dev/docs/cli/still',
-		options: options([
-			'props',
-			'height',
-			'width',
-			'fps',
-			'duration',
-			'image-format',
-			'config',
-			'env-file',
-			'jpeg-quality',
-			'output',
-			'overwrite',
-			'browser-executable',
-			'scale',
-			'frame',
-			'bundle-cache',
-			'log',
-			'port',
-			'public-dir',
-			'public-path',
-			'audio-latency-hint',
-			'timeout',
-			'ignore-certificate-errors',
-			'disable-web-security',
-			'disable-headless',
-			'dark-mode',
-			'chrome-mode',
-			'gl',
-			'user-agent',
-			'media-cache-size-in-bytes',
-			'offthreadvideo-cache-size-in-bytes',
-			'offthreadvideo-video-threads',
-			'enable-multiprocess-on-linux',
-			'binaries-directory',
-			'rspack',
-			'disable-ask-ai',
-			'disable-keyboard-shortcuts',
-			'quiet',
-			'public-license-key',
-		]),
+		options: options(
+			[
+				'props',
+				'height',
+				'width',
+				'fps',
+				'duration',
+				'image-format',
+				'config',
+				'env-file',
+				'jpeg-quality',
+				'output',
+				'overwrite',
+				'browser-executable',
+				'scale',
+				'frame',
+				'bundle-cache',
+				'log',
+				'port',
+				'public-dir',
+				'public-path',
+				'audio-latency-hint',
+				'timeout',
+				'ignore-certificate-errors',
+				'disable-web-security',
+				'disable-headless',
+				'dark-mode',
+				'chrome-mode',
+				'gl',
+				'user-agent',
+				'media-cache-size-in-bytes',
+				'offthreadvideo-cache-size-in-bytes',
+				'offthreadvideo-video-threads',
+				'enable-multiprocess-on-linux',
+				'binaries-directory',
+				'rspack',
+				'disable-ask-ai',
+				'disable-keyboard-shortcuts',
+				'quiet',
+				'public-license-key',
+			],
+			{},
+			'still',
+		),
 	},
 	{
 		path: ['compositions'],

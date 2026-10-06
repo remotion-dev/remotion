@@ -119,9 +119,12 @@ const options = (
 			};
 		}
 
-		const rendererOption = rendererOptions.find(
-			(candidate) => candidate.cliFlag === flag,
-		);
+		const rendererOption =
+			flag === 'image-format'
+				? imageFormat === 'video'
+					? BrowserSafeApis.options.videoImageFormatOption
+					: BrowserSafeApis.options.stillImageFormatOption
+				: rendererOptions.find((candidate) => candidate.cliFlag === flag);
 		if (!rendererOption) {
 			throw new Error(`No Cloud Run CLI help metadata exists for --${flag}`);
 		}
@@ -131,11 +134,7 @@ const options = (
 				option: rendererOption,
 				description: descriptionOverrides[flag],
 			}),
-			optionIds: [
-				flag === 'image-format' && imageFormat === 'video'
-					? BrowserSafeApis.options.videoImageFormatOption.id
-					: rendererOption.id,
-			],
+			optionIds: [rendererOption.id],
 		};
 	});
 };
@@ -260,6 +259,7 @@ export const cloudrunCommandHelp = [
 			{
 				port: 'Set the local server port when no composition ID is passed.',
 			},
+			'still',
 		),
 	},
 	{

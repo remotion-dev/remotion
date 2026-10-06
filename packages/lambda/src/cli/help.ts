@@ -165,9 +165,12 @@ const options = (
 			return {...lambdaOption, optionIds: []};
 		}
 
-		const rendererOption = rendererOptions.find(
-			(candidate) => candidate.cliFlag === flag,
-		);
+		const rendererOption =
+			flag === 'image-format'
+				? imageFormat === 'video'
+					? BrowserSafeApis.options.videoImageFormatOption
+					: BrowserSafeApis.options.stillImageFormatOption
+				: rendererOptions.find((candidate) => candidate.cliFlag === flag);
 		if (!rendererOption) {
 			throw new Error(`No Lambda CLI help metadata exists for --${flag}`);
 		}
@@ -177,11 +180,7 @@ const options = (
 				option: rendererOption,
 				description: descriptionOverrides[flag],
 			}),
-			optionIds: [
-				flag === 'image-format' && imageFormat === 'video'
-					? BrowserSafeApis.options.videoImageFormatOption.id
-					: rendererOption.id,
-			],
+			optionIds: [rendererOption.id],
 		};
 	});
 };
@@ -329,6 +328,7 @@ export const lambdaCommandHelp = [
 			{
 				port: 'Set a custom port when selecting a composition interactively.',
 			},
+			'still',
 		),
 	},
 	{
