@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-shared-memory-chromium-patch.png
+title: Shared-memory Chromium Patch
+crumb: 'Rendering'
+---
+
+# Shared-memory Chromium Patch<AvailableFrom v="4.0.534" />
+
+Traditionally, screenshots of webpages are captured using the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/), then encoded as JPEG or PNG, the two image formats Remotion supports for video frames. Which one is used is determined by the [Video Image Format](/docs/renderer/render-media#imageformat) option.
+
+FFmpeg later decodes these images back into bitmaps before encoding the video. This compression and decompression adds work, and JPEG can reduce image quality before video encoding begins.
+
+From v4.0.534, Remotion uses a special version of Chromium to optimize rendering in some cases. Instead of compressing each image, the bitmap is shared directly with Remotion's FFmpeg binary, which encodes it into a video.
+
+## When it is used
+
+Shared-memory capture is enabled automatically when all of these conditions are met:
+
+- You are rendering an H.264 or H.265 video, including H.264 renders on [Remotion Lambda](/docs/lambda).
+- Parallel encoding is enabled: frames are rendered and encoded at the same time. This is the default for these codecs.
+- Both Chromium and FFmpeg support the patch. Remotion includes compatible binaries on the platforms listed below.
+
+The patched Chromium builds are selected by default on Apple Silicon Macs, Linux x64/ARM64 with glibc 2.35 or newer, and Amazon Linux 2023. They are also used by Lambda and Cloud Run. See [browser versions and download sources](/docs/miscellaneous/chrome-headless-shell#version) for the platform requirements.
+
+The Google CDN builds used on Intel Macs, Windows and older Linux distributions do not include the patch. [Chrome for Testing](/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead) also uses regular screenshots. Remotion automatically falls back to JPEG or PNG capture when the required support is unavailable.
+
+Stills, image sequences and video codecs other than H.264 and H.265 continue to use screenshot capture. The patch does not apply to previews or [client-side rendering](/docs/client-side-rendering).
+
+## Image format and quality
+
+When shared-memory capture is active, both `imageFormat: "jpeg"` and `imageFormat: "png"` send uncompressed bitmaps to FFmpeg. Switching between them no longer changes the image compression or capture quality.
+
+The option still controls the background:
+
+- `"jpeg"` uses an opaque black background for areas not painted by your composition.
+- `"png"` preserves transparency during capture. Follow the [transparent video guide](/docs/transparent-videos) to choose an output codec and pixel format that preserve transparency in the final video.
+
+The [`jpegQuality`](/docs/renderer/render-media#jpegquality) option has no effect on video frames captured through shared memory. When Remotion falls back to screenshots, the image format and JPEG quality options work as before.
+
+Shared-memory capture avoids the extra JPEG compression step. The final video is still compressed according to your [codec and quality settings](/docs/encoding). Overall render speed depends on your composition, encoder and machine.
+
+## Check whether it is active
+
+Render with [verbose logging](/docs/troubleshooting/debug-failed-render):
+
+```bash title="Check capture mode"
+npx remotion render MyComp --log=verbose
+```
+
+A log message beginning with `Remotion shared-memory capture uses` confirms that the patch is active. Parallel encoding can also work with regular screenshots, so the parallel encoding message alone does not confirm shared-memory capture.
+
+With [`renderMedia()`](/docs/renderer/render-media), set `logLevel: "verbose"` to see the same information.
+
+## Opt out
+
+Disable parallel encoding to use regular JPEG or PNG screenshots:
+
+```bash title="Render without shared-memory capture"
+npx remotion render MyComp --disallow-parallel-encoding
+```
+
+With [`renderMedia()`](/docs/renderer/render-media#disallowparallelencoding), set `disallowParallelEncoding: true`.
+
+For CLI and Studio renders, you can also use [`Config.setDisallowParallelEncoding()`](/docs/config#setdisallowparallelencoding):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.setDisallowParallelEncoding(true);
+```
+
+This also makes frame rendering and encoding happen in separate stages, which can reduce peak memory usage but may make rendering slower. Lambda and Cloud Run currently do not expose this option.
+
+## See also
+
+- [Chrome Headless Shell](/docs/miscellaneous/chrome-headless-shell)
+- [Quality guide](/docs/quality)
+- [Encoding guide](/docs/encoding)

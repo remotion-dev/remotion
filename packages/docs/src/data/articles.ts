@@ -7545,6 +7545,15 @@ export const articles = [
 		slug: 'shapes/triangle',
 	},
 	{
+		id: 'shared-memory-chromium-patch',
+		title: 'Shared-memory Chromium Patch',
+		relativePath: 'docs/shared-memory-chromium-patch.mdx',
+		compId: 'articles-docs-shared-memory-chromium-patch',
+		crumb: 'Rendering',
+		noAi: false,
+		slug: 'shared-memory-chromium-patch',
+	},
+	{
 		id: 'skia/enable-skia',
 		title: 'enableSkia()',
 		relativePath: 'docs/skia/enable-skia.mdx',
