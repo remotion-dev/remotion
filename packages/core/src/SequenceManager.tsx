@@ -447,9 +447,11 @@ export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {isStudio} = useRemotionEnvironment();
+	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
+	const shouldObserveCommits = isStudio || sequenceRegistrationEnabled;
 	const [sequenceManagerId] = useState(() => String(Math.random()));
 	const [commitRegistrationEnabled, setCommitRegistrationEnabled] = useState(
-		() => isStudio && isCommitRegistrationObserverAvailable(),
+		() => shouldObserveCommits && isCommitRegistrationObserverAvailable(),
 	);
 	const committedRegistrationIdsRef = useRef<ReadonlySet<string>>(new Set());
 	const pendingCommittedSequencesRef = useRef<CommittedSequenceSnapshot | null>(
@@ -880,7 +882,7 @@ export const SequenceManagerProvider: React.FC<{
 	);
 
 	useIsomorphicLayoutEffect(() => {
-		if (!isStudio) {
+		if (!shouldObserveCommits) {
 			return;
 		}
 
@@ -972,7 +974,7 @@ export const SequenceManagerProvider: React.FC<{
 				onRegistrationError,
 			);
 		};
-	}, [isStudio, sequenceManagerId]);
+	}, [shouldObserveCommits, sequenceManagerId]);
 
 	const registerSequence = useCallback((seq: TSequence) => {
 		setSequences((seqs) => {
@@ -1119,7 +1121,7 @@ export const SequenceManagerProvider: React.FC<{
 		</SequenceManagerRefContext.Provider>
 	);
 
-	return isStudio ? (
+	return shouldObserveCommits ? (
 		<SequenceManagerOrderMarker
 			managerId={sequenceManagerId}
 			onCommitSequences={commitRegistrationEnabled ? onCommitSequences : null}

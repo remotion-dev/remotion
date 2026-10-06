@@ -834,7 +834,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	if (hidden) {
-		return shouldDiscoverOutline ? (
+		return shouldDiscoverOutline || registration !== null ? (
 			<SequenceOrderMarker
 				sequenceId={id}
 				registration={registration}
@@ -876,7 +876,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		</SequenceContext.Provider>
 	);
 
-	return shouldDiscoverOutline ? (
+	return shouldDiscoverOutline || registration !== null ? (
 		<SequenceOrderMarker
 			sequenceId={id}
 			registration={registration}

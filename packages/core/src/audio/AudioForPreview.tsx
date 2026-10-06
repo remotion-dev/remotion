@@ -281,7 +281,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	}, [audioRef, src]);
 
 	if (initialShouldPreMountAudioElements) {
-		return isStudio ? (
+		return isStudio || registration !== null ? (
 			<SequenceOrderMarker
 				sequenceId={timelineId}
 				registration={registration}
@@ -301,7 +301,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		/>
 	);
 
-	return isStudio ? (
+	return isStudio || registration !== null ? (
 		<SequenceOrderMarker
 			sequenceId={timelineId}
 			registration={registration}

@@ -374,7 +374,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		/>
 	);
 
-	return isStudio || automaticOutlineRef ? (
+	return isStudio || automaticOutlineRef || registration !== null ? (
 		<SequenceOrderMarker
 			sequenceId={timelineId}
 			registration={registration}
