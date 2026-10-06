@@ -1,3 +1,4 @@
+import type {PluginOptions as DocsPluginOptions} from '@docusaurus/plugin-content-docs';
 import type {Config} from '@docusaurus/types';
 import elementSourceDependencies from './plugins/element-source-dependencies.js';
 import longContentHashes from './plugins/long-content-hashes.js';
@@ -331,6 +332,17 @@ const config: Config = {
 				docs: {
 					path: 'docs',
 					sidebarPath: './sidebars.ts',
+					sidebarItemsGenerator: ({
+						defaultSidebarItemsGenerator,
+						...args
+					}: Parameters<DocsPluginOptions['sidebarItemsGenerator']>[0]) =>
+						defaultSidebarItemsGenerator({
+							...args,
+							docs:
+								args.item.dirName === 'options'
+									? args.docs.filter((doc) => doc.id !== 'options/index')
+									: args.docs,
+						}),
 					editUrl:
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 					showLastUpdateTime: showGitLastUpdate,

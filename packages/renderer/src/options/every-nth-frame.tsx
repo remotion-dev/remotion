@@ -18,7 +18,7 @@ export const everyNthFrameOption = {
 		</>
 	),
 	ssrName: 'everyNthFrame' as const,
-	docLink: 'https://www.remotion.dev/docs/config#seteverynthframe',
+	docLink: 'https://www.remotion.dev/docs/options/every-nth-frame',
 	type: DEFAULT_EVERY_NTH_FRAME as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

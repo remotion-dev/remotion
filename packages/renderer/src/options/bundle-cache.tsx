@@ -14,7 +14,7 @@ export const bundleCacheOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setcachingenabled',
+	docLink: 'https://www.remotion.dev/docs/options/bundle-cache',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {

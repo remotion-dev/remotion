@@ -29,7 +29,7 @@ export const onBrowserDownloadOption = {
 		</>
 	),
 	ssrName: 'onBrowserDownload' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/ensure-browser',
+	docLink: 'https://www.remotion.dev/docs/options/on-browser-download',
 	type: undefined as unknown as OnBrowserDownload,
 	getValue: () => {
 		throw new Error('does not support config file');

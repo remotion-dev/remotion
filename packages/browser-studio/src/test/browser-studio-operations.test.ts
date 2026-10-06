@@ -944,6 +944,7 @@ const makeOperationsForProject = (project: VirtualProject) => {
 
 test('wraps JSX as an undoable virtual project mutation', async () => {
 	const fileName = '/project/src/Composition.tsx';
+	const compositionId = 'MyComp';
 	const initialContents = `import {AbsoluteFill} from 'remotion';
 
 export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
@@ -962,13 +963,25 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 
 	const result = await operations.wrapNode({
 		fileName,
+		compositionId,
 		nodePath,
 		wrapper: 'Sequence',
 		width: null,
 		height: null,
 		timing: null,
 	});
-	expect(result.success).toBe(true);
+	expect(result).toMatchObject({
+		success: true,
+		nodePathMutation: {
+			timelineSelection: {
+				compositionId,
+				absolutePath: fileName,
+				nodePath: getNodes({project: getProject(), filePath: fileName}).find(
+					({tagName}) => tagName === 'Sequence',
+				)?.nodePath,
+			},
+		},
+	});
 	expect(getProject().files[fileName]).toContain('<Sequence>');
 	expect(getProject().files[fileName]).toContain('<AbsoluteFill>');
 	expect(await operations.undo()).toMatchObject({success: true});

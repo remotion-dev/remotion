@@ -64,7 +64,7 @@ export const videoCodecOption = {
 		</>
 	),
 	ssrName: 'codec',
-	docLink: 'https://www.remotion.dev/docs/encoding/#choosing-a-codec',
+	docLink: 'https://www.remotion.dev/docs/options/codec',
 	type: '' as Codec,
 	getValue: (
 		{commandLine}: {commandLine: Record<string, unknown>},

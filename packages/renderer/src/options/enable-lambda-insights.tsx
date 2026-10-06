@@ -17,7 +17,7 @@ export const enableLambdaInsights = {
 		</>
 	),
 	ssrName: 'enableLambdaInsights',
-	docLink: 'https://www.remotion.dev/docs/lambda/insights',
+	docLink: 'https://www.remotion.dev/docs/options/enable-lambda-insights',
 	type: false as boolean,
 	setConfig: (value: boolean) => {
 		option = value;

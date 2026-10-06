@@ -117,7 +117,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
-import {useTimelineVirtualization} from './TimelineVirtualization';
+import {useTimelineRowsRef} from './TimelineVirtualization';
 import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
@@ -132,12 +132,6 @@ const labelContainerStyle: React.CSSProperties = {
 	flex: 1,
 	flexDirection: 'row',
 	minWidth: 0,
-};
-
-const connectedCompositionIconStyle: React.CSSProperties = {
-	flexShrink: 0,
-	height: 12,
-	width: 12,
 };
 
 const effectDropHighlight: React.CSSProperties = {
@@ -394,7 +388,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const canMutateEffects =
 		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {rows: timelineRows} = useTimelineVirtualization();
+	const timelineRowsRef = useTimelineRowsRef();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
@@ -766,7 +760,7 @@ const TimelineSequenceItemInner: React.FC<{
 				const key = Internals.makeSequencePropsSubscriptionKey(
 					info.sequenceSubscriptionKey,
 				);
-				return timelineRows.find(
+				return timelineRowsRef.current.find(
 					(row) =>
 						row.track.nodePathInfo !== null &&
 						Internals.makeSequencePropsSubscriptionKey(
@@ -988,7 +982,7 @@ const TimelineSequenceItemInner: React.FC<{
 			parentId,
 			selectedItems,
 			sequence.id,
-			timelineRows,
+			timelineRowsRef,
 			validatedLocation?.source,
 		],
 	);
@@ -1083,6 +1077,17 @@ const TimelineSequenceItemInner: React.FC<{
 	const outerHeight = useMemo(
 		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
 		[sequence.type],
+	);
+
+	const connectedCompositionIconStyle = useMemo(
+		(): React.CSSProperties => ({
+			flexShrink: 0,
+			height: 12,
+			// Center the icon on whole pixels, including in taller audio/video rows.
+			marginBottom: (outerHeight - TIMELINE_ITEM_BORDER_BOTTOM) % 2,
+			width: 12,
+		}),
+		[outerHeight],
 	);
 
 	const inner: React.CSSProperties = useMemo(() => {

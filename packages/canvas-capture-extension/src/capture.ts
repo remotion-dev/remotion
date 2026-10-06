@@ -145,9 +145,18 @@ const wrapWholePage = (): WrappedPage => {
 	content.style.position = 'absolute';
 	content.style.inset = '0';
 	content.style.display = 'block';
+	canvas.style.width = `${minimumSize.width}px`;
+	canvas.style.height = `${minimumSize.height}px`;
+	content.style.width = `${minimumSize.width}px`;
+	content.style.height = `${minimumSize.height}px`;
 
-	for (const child of [...body.childNodes]) {
-		content.appendChild(child);
+	const pageNodes = [...body.childNodes];
+	body.appendChild(canvas);
+	canvas.appendChild(content);
+	// Keep both parents connected so moveBefore() preserves scroll positions,
+	// focus, and other DOM state when moving the page into the capture subtree.
+	for (const child of pageNodes) {
+		content.moveBefore(child, null);
 	}
 
 	// Plain nested canvases can be clipped at the origin during HTML-in-canvas
@@ -186,8 +195,6 @@ const wrapWholePage = (): WrappedPage => {
 	});
 	canvasObserver.observe(content, {childList: true, subtree: true});
 
-	body.appendChild(canvas);
-	canvas.appendChild(content);
 	const initialSize = getPageSize(content, minimumSize);
 	canvas.style.width = `${initialSize.width}px`;
 	canvas.style.height = `${initialSize.height}px`;
@@ -237,7 +244,7 @@ const wrapWholePage = (): WrappedPage => {
 			originalCanvasContent.clear();
 
 			while (content.firstChild) {
-				body.insertBefore(content.firstChild, canvas);
+				body.moveBefore(content.firstChild, canvas);
 			}
 
 			canvas.remove();

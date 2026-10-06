@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
+import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -18,6 +19,7 @@ import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
 	subscribeToInsertedElementSelection,
+	type PendingInsertedElementSelection,
 } from '../../helpers/inserted-element-selection';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
@@ -325,7 +327,7 @@ const TimelineInner: React.FC = () => {
 		return next.map((track) => {
 			const oldTrack = previousTracksById.get(track.sequence.id);
 			const currentSource = currentSequencesById.get(track.sequence.id);
-			const oldNodePath = oldTrack?.nodePathInfo;
+			const oldNodePath = oldTrack?.nodePathInfo ?? null;
 			const nodePath = track.nodePathInfo;
 			const oldLoop = oldTrack?.sequence.loopDisplay;
 			const loop = track.sequence.loopDisplay;
@@ -351,12 +353,7 @@ const TimelineInner: React.FC = () => {
 				(oldNodePath === null) !== (nodePath === null) ||
 				(oldNodePath !== null &&
 					nodePath !== null &&
-					(oldNodePath?.sequenceSubscriptionKey !==
-						nodePath.sequenceSubscriptionKey ||
-						oldNodePath?.index !== nodePath.index ||
-						oldNodePath?.numberOfSequencesWithThisNodePath !==
-							nodePath.numberOfSequencesWithThisNodePath ||
-						oldNodePath?.supportsEffects !== nodePath.supportsEffects)) ||
+					!areSequenceNodePathInfosEqual(oldNodePath, nodePath)) ||
 				(oldLoop === undefined) !== (loop === undefined) ||
 				(oldLoop !== undefined &&
 					loop !== undefined &&
@@ -431,17 +428,39 @@ const TimelineInner: React.FC = () => {
 		sequences,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
 	);
-	const pendingInsertedElementSelection = useSyncExternalStore(
-		subscribeToInsertedElementSelection,
-		getInsertedElementSelection,
-		getInsertedElementSelection,
-	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
 	const pendingSelectionStart = useRef<{
-		selection: NonNullable<typeof pendingInsertedElementSelection>;
+		selection: PendingInsertedElementSelection;
 		fastRefreshes: number;
 		existingSequenceIds: Set<string>;
 	} | null>(null);
+	const selectionBaselineRef = useRef({fastRefreshes, timeline});
+	selectionBaselineRef.current = {fastRefreshes, timeline};
+	const subscribeToPendingSelection = useCallback((listener: () => void) => {
+		return subscribeToInsertedElementSelection(() => {
+			const selection = getInsertedElementSelection();
+			if (selection !== null) {
+				// Capture before React handles the notification. Fast Refresh may have
+				// already committed the inserted sequence by the next layout effect.
+				pendingSelectionStart.current = {
+					selection,
+					fastRefreshes: selectionBaselineRef.current.fastRefreshes,
+					existingSequenceIds: new Set(
+						selectionBaselineRef.current.timeline.map(
+							(track) => track.sequence.id,
+						),
+					),
+				};
+			}
+
+			listener();
+		});
+	}, []);
+	const pendingInsertedElementSelection = useSyncExternalStore(
+		subscribeToPendingSelection,
+		getInsertedElementSelection,
+		getInsertedElementSelection,
+	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	useLayoutEffect(() => {
 		if (pendingInsertedElementSelection === null) {
@@ -465,9 +484,7 @@ const TimelineInner: React.FC = () => {
 				selection: pendingInsertedElementSelection,
 				fastRefreshes,
 				existingSequenceIds: new Set(
-					timeline
-						.filter(matchesInsertedNodePath)
-						.map((track) => track.sequence.id),
+					timeline.map((track) => track.sequence.id),
 				),
 			};
 			return;

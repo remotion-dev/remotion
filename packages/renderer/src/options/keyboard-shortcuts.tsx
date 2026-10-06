@@ -12,7 +12,7 @@ export const keyboardShortcutsOption = {
 		<>Enable or disable keyboard shortcuts in the Remotion Studio.</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setkeyboardshortcutsenabled',
+	docLink: 'https://www.remotion.dev/docs/options/disable-keyboard-shortcuts',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

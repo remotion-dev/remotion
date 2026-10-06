@@ -20,6 +20,8 @@ import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
 import {evaluateVolume} from './volume-prop.js';
 
+const EMPTY_EFFECTS = [] as const;
+
 export const useBasicMediaInTimeline = ({
 	volume,
 	mediaVolume,
@@ -297,7 +299,7 @@ export const useMediaInTimeline = ({
 			premountDisplay,
 			postmountDisplay,
 			controls: null,
-			effects: [],
+			effects: EMPTY_EFFECTS,
 			refForOutline: automaticOutlineRef,
 			isInsideSeries: false,
 			frozenFrame: null,
@@ -306,7 +308,7 @@ export const useMediaInTimeline = ({
 	}, [
 		duration,
 		id,
-		parentSequence,
+		parentSequence?.id,
 		src,
 		volumes,
 		doesVolumeChange,

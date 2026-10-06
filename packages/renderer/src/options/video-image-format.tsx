@@ -20,7 +20,7 @@ export const videoImageFormatOption = {
 		</>
 	),
 	ssrName: 'imageFormat' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#imageformat',
+	docLink: 'https://www.remotion.dev/docs/options/video-image-format',
 	type: null as VideoImageFormat | null,
 	getValue: (
 		{commandLine},

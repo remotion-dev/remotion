@@ -187,7 +187,15 @@ export const renderFrameAndRetryTargetClose = async ({
 
 		if (shouldRetryError) {
 			const pool = await poolPromise;
-			// Replace the closed page
+			// Close the timed-out page before creating another main tab at index 0.
+			try {
+				await freePage.close();
+			} catch (closeError) {
+				if (!(closeError instanceof Error) || !isTargetClosedErr(closeError)) {
+					throw closeError;
+				}
+			}
+
 			const newPage = await makeNewPage(frame, freePage.pageIndex);
 			pool.release(newPage);
 			Log.warn(

@@ -44,6 +44,7 @@ export type MessageFromMainTab =
 	  }
 	| {
 			type: 'main-tab-ready';
+			mainTabId: string;
 	  };
 
 export type ExtractFrameRequest = {
@@ -69,16 +70,16 @@ export type ExtractFrameRequest = {
 
 // Send to other channels a message to let them know that the
 // tab was loaded and is ready to receive requests.
-// Emit "readiness" messages for approximately 10 seconds.
+// Keep announcing readiness so newly opened tabs can also send requests.
 const emitReadiness = (channel: BroadcastChannel) => {
-	channel.postMessage({
+	const message: MessageFromMainTab = {
 		type: 'main-tab-ready',
-	} as MessageFromMainTab);
+		mainTabId: crypto.getRandomValues(new Uint32Array(4)).join('-'),
+	};
+	channel.postMessage(message);
 
 	setInterval(() => {
-		channel.postMessage({
-			type: 'main-tab-ready',
-		} as MessageFromMainTab);
+		channel.postMessage(message);
 	}, 300);
 };
 
@@ -223,23 +224,24 @@ export const addBroadcastChannelListener = () => {
 };
 
 let mainTabIsReadyProm = null as Promise<void> | null;
+let mainTabId: string | null = null;
 
-export const waitForMainTabToBeReady = (channel: BroadcastChannel) => {
-	if (mainTabIsReadyProm) {
-		return mainTabIsReadyProm;
+export const waitForMainTabToBeReady = async (channel: BroadcastChannel) => {
+	if (!mainTabIsReadyProm) {
+		mainTabIsReadyProm = new Promise<void>((resolve) => {
+			const onMessage = (event: MessageEvent) => {
+				const data = event.data as MessageFromMainTab;
+				if (data.type === 'main-tab-ready') {
+					mainTabId = data.mainTabId;
+					resolve();
+				}
+			};
+
+			// Track replacements for requests started after the first main tab loaded.
+			channel.addEventListener('message', onMessage);
+		});
 	}
 
-	mainTabIsReadyProm = new Promise<void>((resolve) => {
-		const onMessage = (event: MessageEvent) => {
-			const data = event.data as MessageFromMainTab;
-			if (data.type === 'main-tab-ready') {
-				resolve();
-				channel.removeEventListener('message', onMessage);
-			}
-		};
-
-		channel.addEventListener('message', onMessage);
-	});
-
-	return mainTabIsReadyProm;
+	await mainTabIsReadyProm;
+	return mainTabId!;
 };

@@ -44,7 +44,7 @@ import {
 	useKeybinding,
 } from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
-import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorShowGuidesRefContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {SetSelectedModalContext} from '../state/modals';
@@ -228,7 +228,11 @@ export const Canvas: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
-	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
+	const guideStateRef = useContext(EditorShowGuidesRefContext);
+	if (guideStateRef === null) {
+		throw new Error('Canvas must be used inside ShowGuidesProvider');
+	}
+
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setCurrentAssetMetadata} = useContext(Internals.CompositionSetters);
@@ -828,6 +832,7 @@ export const Canvas: React.FC<{
 				!event.metaKey &&
 				!event.ctrlKey
 			) {
+				const {editorShowGuides, guidesList} = guideStateRef.current;
 				const snapped = snapCompositionDropPosition({
 					compositionDimensions,
 					destinationDimensions: contentDimensions,
@@ -880,9 +885,8 @@ export const Canvas: React.FC<{
 			canReceiveElementInstallRequest,
 			contentDimensions,
 			currentCompositionId,
-			editorShowGuides,
 			editorSnapping,
-			guidesList,
+			guideStateRef,
 			isAddingAsset,
 			previewSize,
 			size,
@@ -1006,6 +1010,7 @@ export const Canvas: React.FC<{
 					!event.metaKey &&
 					!event.ctrlKey
 				) {
+					const {editorShowGuides, guidesList} = guideStateRef.current;
 					dropPosition = snapCompositionDropPosition({
 						compositionDimensions: {
 							width: metadata.width,
@@ -1055,9 +1060,8 @@ export const Canvas: React.FC<{
 			config,
 			contentDimensions,
 			currentCompositionId,
-			editorShowGuides,
 			editorSnapping,
-			guidesList,
+			guideStateRef,
 			isAddingAsset,
 			previewSize,
 			size,
@@ -1311,7 +1315,7 @@ export const Canvas: React.FC<{
 						<ResetZoomButton onClick={onReset} />
 					</div>
 				)}
-				{editorShowGuides && canvasContent.type === 'composition' && (
+				{canvasContent.type === 'composition' && (
 					<EditorGuides
 						canvasSize={size}
 						contentDimensions={contentDimensions}
