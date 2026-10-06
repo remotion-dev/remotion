@@ -6,7 +6,7 @@ HTML-in-canvas implementation.
 
 ## Install
 
-Canvas Capture requires Chrome 157 or newer with Canvas Draw Element enabled on an Apple Silicon Mac.
+Canvas Capture requires Chrome with major version 157 or newer with Canvas Draw Element enabled on an Apple Silicon Mac.
 
 Follow the [Canvas Capture installation guide](https://www.remotion.dev/docs/canvas-capture/installation).
 

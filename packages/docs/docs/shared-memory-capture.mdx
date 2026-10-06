@@ -10,7 +10,7 @@ Traditionally, screenshots of webpages are captured using the [Chrome DevTools P
 
 Encoding these images is pure overhead, since FFmpeg later decodes them back into bitmaps. JPEG compression can also reduce image quality.
 
-From v4.0.534, Remotion uses a special version of Chromium to optimize rendering in some cases. Instead of compressing each image, the bitmap is shared directly with Remotion's FFmpeg binary, which encodes it into a video.
+From v4.0.534, Remotion uses a special build of Chromium 157.0.8080.0 to optimize rendering in some cases. Instead of compressing each image, the bitmap is shared directly with Remotion's FFmpeg binary, which encodes it into a video.
 
 ## When it is used
 
