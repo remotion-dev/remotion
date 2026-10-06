@@ -20,6 +20,7 @@ import type {
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	BLACK_ALPHA_22,
 	BLUE,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_BACKGROUND_COLOR,
@@ -28,6 +29,7 @@ import {
 	TIMELINE_VIDEO_GRADIENT,
 	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_15,
 	WHITE_ALPHA_20,
 } from '../../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
@@ -124,8 +126,6 @@ const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
 const PACKED_LABEL_HEIGHT = 15;
 const PACKED_LABEL_BOTTOM = 1;
-const PACKED_TRANSITION_HEIGHT =
-	TIMELINE_PACKED_TRACK_HEIGHT - PACKED_LABEL_HEIGHT - PACKED_LABEL_BOTTOM;
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -215,6 +215,7 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 
 const TimelineSequenceFn: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
+	readonly labelStartFrame: number | null;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly keyframeDisplayOffset: number;
@@ -224,6 +225,7 @@ const TimelineSequenceFn: React.FC<{
 	readonly localStart: number;
 }> = ({
 	s,
+	labelStartFrame,
 	connectedCompositions,
 	nodePathInfo,
 	keyframeDisplayOffset,
@@ -242,6 +244,7 @@ const TimelineSequenceFn: React.FC<{
 		<TimelineSequenceInner
 			windowWidth={windowWidth}
 			s={s}
+			labelStartFrame={labelStartFrame}
 			connectedCompositions={connectedCompositions}
 			nodePathInfo={nodePathInfo}
 			keyframeDisplayOffset={keyframeDisplayOffset}
@@ -310,6 +313,7 @@ const TimelineSequenceNegativeStart = React.memo(
 
 const TimelineSequenceBar: React.FC<{
 	readonly s: TSequence;
+	readonly labelOffset: number;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
@@ -318,6 +322,10 @@ const TimelineSequenceBar: React.FC<{
 		readonly width: number;
 	} | null;
 	readonly displayDurationInFrames: number;
+	readonly selectionBounds: {
+		readonly left: number;
+		readonly width: number;
+	} | null;
 	readonly premount: {readonly left: number; readonly width: number} | null;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
 	readonly negativeStart: {
@@ -325,6 +333,7 @@ const TimelineSequenceBar: React.FC<{
 		readonly width: number;
 	} | null;
 	readonly leftEdgeVisible: boolean;
+	readonly rightEdgeVisible: boolean;
 	readonly negativeStartClipped: boolean;
 	readonly style: React.CSSProperties;
 	readonly marqueeHorizontalBounds: {
@@ -344,15 +353,18 @@ const TimelineSequenceBar: React.FC<{
 	readonly onClick: React.MouseEventHandler<HTMLDivElement> | null;
 }> = ({
 	s,
+	labelOffset,
 	connectedComposition,
 	activeTrimEdge,
 	leftTrimHighlight,
 	annotationLocation,
 	displayDurationInFrames,
+	selectionBounds,
 	premount,
 	postmount,
 	negativeStart,
 	leftEdgeVisible,
+	rightEdgeVisible,
 	negativeStartClipped,
 	style,
 	marqueeHorizontalBounds,
@@ -400,14 +412,16 @@ const TimelineSequenceBar: React.FC<{
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
 		: 0;
-	const compactPremount = s.isInsideSeries && premount !== null;
-	const contentStart = compactPremount
-		? premount.left + premount.width
-		: negativeStartEnd;
 	const transitionWidth =
 		s.timelineTrack?.role === 'transition'
 			? (marqueeHorizontalBounds?.width ?? Number(style.width))
 			: null;
+	// Take the gap from the trailing painted edge, keeping the full frame-based
+	// layout and trim handles intact. Keep tiny clips visible when zoomed out.
+	const visualRightInset =
+		s.timelineTrack && transitionWidth === null && rightEdgeVisible
+			? Math.min(1, Math.max(0, Number(style.width) - negativeStartEnd - 1))
+			: 0;
 	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
 	const sequenceBackground =
 		activeTrimEdge === null ||
@@ -418,12 +432,10 @@ const TimelineSequenceBar: React.FC<{
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
-			background:
-				negativeStart || compactPremount ? TRANSPARENT : sequenceBackground,
-			pointerEvents: compactPremount ? 'none' : style.pointerEvents,
+			background: TRANSPARENT,
 			opacity: 1,
 		};
-	}, [compactPremount, negativeStart, sequenceBackground, style]);
+	}, [style]);
 
 	const premountIndicator = premount ? (
 		<div
@@ -431,19 +443,14 @@ const TimelineSequenceBar: React.FC<{
 				left: premount.left,
 				width: premount.width,
 				top: 0,
-				height: compactPremount ? 5 : '100%',
+				height: '100%',
 				background: `repeating-linear-gradient(
 								-45deg,
 								${TRANSPARENT},
 								${TRANSPARENT} 2px,
 								${WHITE_ALPHA_20} 2px,
 								${WHITE_ALPHA_20} 4px
-							)${compactPremount ? `, ${style.background ?? TRANSPARENT}` : ''}`,
-				boxShadow:
-					compactPremount && (selected || containsSelection)
-						? `inset 0 0 0 2px ${WHITE}`
-						: undefined,
-				pointerEvents: compactPremount ? 'auto' : undefined,
+							)`,
 				position: 'absolute',
 			}}
 		/>
@@ -451,7 +458,7 @@ const TimelineSequenceBar: React.FC<{
 
 	const content = (
 		<>
-			{compactPremount ? null : premountIndicator}
+			{premountIndicator}
 
 			{postmount ? (
 				<TimelineSequenceMountIndicator
@@ -474,26 +481,17 @@ const TimelineSequenceBar: React.FC<{
 						left: -(marqueeHorizontalBounds?.cropLeft ?? 0),
 						top: 0,
 						width: transitionWidth,
-						height: PACKED_TRANSITION_HEIGHT,
+						height: TIMELINE_PACKED_TRACK_HEIGHT,
 						pointerEvents: 'none',
 					}}
 				>
-					<rect
-						x={0.5}
-						y={0.5}
-						width={Math.max(0, transitionWidth - 1)}
-						height={PACKED_TRANSITION_HEIGHT - 1}
-						fill="none"
-						stroke={WHITE}
-						strokeWidth={1}
+					<polygon
+						points={`0,0 ${transitionWidth},0 0,${TIMELINE_PACKED_TRACK_HEIGHT}`}
+						fill={BLACK_ALPHA_22}
 					/>
-					<line
-						x1={0.5}
-						y1={PACKED_TRANSITION_HEIGHT - 0.5}
-						x2={Math.max(0.5, transitionWidth - 0.5)}
-						y2={0.5}
-						stroke={WHITE}
-						strokeWidth={1}
+					<polygon
+						points={`${transitionWidth},0 ${transitionWidth},${TIMELINE_PACKED_TRACK_HEIGHT} 0,${TIMELINE_PACKED_TRACK_HEIGHT}`}
+						fill={WHITE_ALPHA_15}
 					/>
 				</svg>
 			)}
@@ -502,7 +500,9 @@ const TimelineSequenceBar: React.FC<{
 				<div
 					style={{
 						position: 'absolute',
-						left: 5 + negativeStartEnd + (premount?.width ?? 0),
+						left:
+							5 +
+							Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0)),
 						right: 4,
 						bottom: PACKED_LABEL_BOTTOM,
 						display: 'flex',
@@ -591,17 +591,14 @@ const TimelineSequenceBar: React.FC<{
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
 		>
-			{compactPremount ? premountIndicator : null}
-			{negativeStart || compactPremount ? (
+			{negativeStart ? (
 				<>
-					{negativeStart ? (
-						<TimelineSequenceNegativeStart
-							left={negativeStart.left}
-							width={negativeStart.width}
-							leftEdgeVisible={leftEdgeVisible}
-							clipped={negativeStartClipped}
-						/>
-					) : null}
+					<TimelineSequenceNegativeStart
+						left={negativeStart.left}
+						width={negativeStart.width}
+						leftEdgeVisible={leftEdgeVisible}
+						clipped={negativeStartClipped}
+					/>
 					<div
 						style={{
 							background: sequenceBackground,
@@ -611,21 +608,20 @@ const TimelineSequenceBar: React.FC<{
 							borderTopRightRadius: style.borderTopRightRadius,
 							boxSizing: 'border-box',
 							height: '100%',
-							left: contentStart,
+							left: negativeStartEnd,
 							overflow: 'hidden',
-							pointerEvents: compactPremount ? 'auto' : undefined,
 							position: 'absolute',
 							top: 0,
-							width: `calc(100% - ${contentStart}px)`,
+							width: `calc(100% - ${negativeStartEnd + visualRightInset}px)`,
 						}}
 					>
 						<div
 							style={{
 								height: '100%',
-								left: -contentStart,
+								left: -negativeStartEnd,
 								position: 'absolute',
 								top: 0,
-								width: style.width,
+								width: `calc(100% + ${negativeStartEnd}px)`,
 							}}
 						>
 							{content}
@@ -637,6 +633,8 @@ const TimelineSequenceBar: React.FC<{
 					style={{
 						position: 'absolute',
 						inset: 0,
+						right: visualRightInset,
+						background: sequenceBackground,
 						overflow: 'hidden',
 						borderRadius: 'inherit',
 					}}
@@ -644,14 +642,19 @@ const TimelineSequenceBar: React.FC<{
 					{content}
 				</div>
 			)}
-			{(selected || containsSelection) &&
-			(!compactPremount || Number(style.width) > contentStart) ? (
+			{(selected || containsSelection) && selectionBounds ? (
 				<div
 					aria-hidden="true"
 					style={{
 						position: 'absolute',
 						inset: 0,
-						left: compactPremount ? contentStart : 0,
+						left: selectionBounds.left,
+						right: Math.max(
+							visualRightInset,
+							Number(style.width) -
+								selectionBounds.left -
+								selectionBounds.width,
+						),
 						borderRadius: 'inherit',
 						boxShadow: `inset 0 0 0 2px ${WHITE}`,
 						pointerEvents: 'none',
@@ -665,6 +668,7 @@ const TimelineSequenceBar: React.FC<{
 
 const TimelineSequenceInner: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
+	readonly labelStartFrame: number | null;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -675,6 +679,7 @@ const TimelineSequenceInner: React.FC<{
 	readonly localStart: number;
 }> = ({
 	s,
+	labelStartFrame,
 	connectedCompositions,
 	windowWidth,
 	nodePathInfo,
@@ -1367,7 +1372,8 @@ const TimelineSequenceInner: React.FC<{
 			maxMediaDuration: effectiveMaxMediaDuration,
 			video,
 			windowWidth,
-			premountDisplay: s.premountDisplay,
+			// Premounting does not occupy space in a packed track.
+			premountDisplay: s.timelineTrack ? null : s.premountDisplay,
 			postmountDisplay: s.postmountDisplay,
 		});
 	}, [
@@ -1468,13 +1474,11 @@ const TimelineSequenceInner: React.FC<{
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const isMedia = s.type === 'audio' || s.type === 'video';
 	const layerHeight =
-		s.timelineTrack?.role === 'transition'
-			? PACKED_TRANSITION_HEIGHT
-			: s.timelineTrack?.role === 'overlay'
-				? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM
-				: s.timelineTrack
-					? TIMELINE_PACKED_TRACK_HEIGHT
-					: getTimelineLayerHeight(s.type);
+		s.timelineTrack?.role === 'overlay'
+			? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM
+			: s.timelineTrack
+				? TIMELINE_PACKED_TRACK_HEIGHT
+				: getTimelineLayerHeight(s.type);
 	const trimOutline = (() => {
 		if (
 			activeEdgeHighlight === null ||
@@ -1713,6 +1717,14 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceBar
 			s={s}
+			labelOffset={
+				labelStartFrame === null
+					? 0
+					: Math.max(
+							0,
+							labelStartFrame * frameIncrement - visibleLayout.marginLeft,
+						)
+			}
 			connectedComposition={connectedCompositions[0] ?? null}
 			annotationLocation={originalLocation}
 			activeTrimEdge={activeTrimEdge}
@@ -1720,10 +1732,12 @@ const TimelineSequenceInner: React.FC<{
 				visibleLayout.media?.offset === 0 ? visibleLayout.media : null
 			}
 			displayDurationInFrames={displayDurationInFrames}
+			selectionBounds={visibleLayout.media}
 			premount={visibleLayout.premount}
 			postmount={visibleLayout.postmount}
 			negativeStart={visibleLayout.negativeStart}
 			leftEdgeVisible={visibleLayout.leftEdgeVisible}
+			rightEdgeVisible={visibleLayout.rightEdgeVisible}
 			negativeStartClipped={negativeStartClipped}
 			style={style}
 			marqueeHorizontalBounds={marqueeHorizontalBounds}

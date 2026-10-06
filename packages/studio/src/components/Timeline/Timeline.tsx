@@ -300,11 +300,14 @@ const TimelineTrackChildrenSyncer: React.FC<{
 			),
 		[frame, packedItems],
 	);
-	const previousActiveIds = useRef<ReadonlySet<string>>(new Set());
+	// Publish even an empty set when tracks are re-enabled after seeking.
+	const previousActiveIds = useRef<ReadonlySet<string> | null>(null);
 	useLayoutEffect(() => {
+		const previous = previousActiveIds.current;
 		if (
-			previousActiveIds.current.size === activeTrackItemIds.size &&
-			[...activeTrackItemIds].every((id) => previousActiveIds.current.has(id))
+			previous !== null &&
+			previous.size === activeTrackItemIds.size &&
+			[...activeTrackItemIds].every((id) => previous.has(id))
 		) {
 			return;
 		}
@@ -317,6 +320,9 @@ const TimelineTrackChildrenSyncer: React.FC<{
 });
 
 const TimelineInner: React.FC = () => {
+	const experimentalTracksEnabled = useContext(
+		Internals.ExperimentalTracksEnabledContext,
+	);
 	const sequences = Internals.useSequenceManagerSequences();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -612,10 +618,12 @@ const TimelineInner: React.FC = () => {
 
 	return (
 		<TimelineContextMenuArea>
-			<TimelineTrackChildrenSyncer
-				tracks={filtered}
-				onChange={setActiveTrackItemIds}
-			/>
+			{experimentalTracksEnabled ? (
+				<TimelineTrackChildrenSyncer
+					tracks={filtered}
+					onChange={setActiveTrackItemIds}
+				/>
+			) : null}
 			{sequences.map((sequence) => {
 				if (!shouldSubscribeToSequenceProps(sequence, previewInteractive)) {
 					return null;

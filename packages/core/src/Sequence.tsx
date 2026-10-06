@@ -898,16 +898,18 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			)}
 		</SequenceContext.Provider>
 	);
-	const sequence =
-		timelineTrack === null ||
-		timelineTrackRole === 'container' ||
-		timelineTrackRole === 'track' ? (
-			sequenceContent
-		) : (
-			<TimelineTrackContext.Provider value={null}>
-				{sequenceContent}
-			</TimelineTrackContext.Provider>
-		);
+	// Keep the provider mounted when track grouping changes so clip state survives.
+	const sequence = (
+		<TimelineTrackContext.Provider
+			value={
+				timelineTrackRole === 'container' || timelineTrackRole === 'track'
+					? timelineTrack
+					: null
+			}
+		>
+			{sequenceContent}
+		</TimelineTrackContext.Provider>
+	);
 
 	return shouldDiscoverOutline ? (
 		<SequenceOrderMarker

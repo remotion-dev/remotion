@@ -140,7 +140,7 @@ export const getTimelineDisplayRows = (
 					continue;
 				}
 
-				const start = item.sequence.from - (item.sequence.premountDisplay ?? 0);
+				const start = item.sequence.from;
 				const end =
 					item.sequence.from +
 					item.sequence.duration +
@@ -148,7 +148,7 @@ export const getTimelineDisplayRows = (
 				let rowIndex = 0;
 				for (let index = 0; index < auxiliaryRows.length; index++) {
 					const overlaps = auxiliaryRows[index].some(({sequence}) => {
-						const otherStart = sequence.from - (sequence.premountDisplay ?? 0);
+						const otherStart = sequence.from;
 						const otherEnd =
 							sequence.from +
 							sequence.duration +

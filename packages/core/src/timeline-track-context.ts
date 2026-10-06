@@ -10,3 +10,5 @@ export type TimelineTrackItem = TimelineTrack & {
 };
 
 export const TimelineTrackContext = createContext<TimelineTrack | null>(null);
+
+export const ExperimentalTracksEnabledContext = createContext(false);

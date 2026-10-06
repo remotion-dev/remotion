@@ -223,7 +223,10 @@ import {
 	useTimelineContext,
 	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
-import {TimelineTrackContext} from './timeline-track-context.js';
+import {
+	ExperimentalTracksEnabledContext,
+	TimelineTrackContext,
+} from './timeline-track-context.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -398,6 +401,7 @@ export const Internals = {
 	truthy,
 	SequenceContext,
 	TimelineTrackContext,
+	ExperimentalTracksEnabledContext,
 	TrackWithoutSchema,
 	PremountContext,
 	usePremounting,

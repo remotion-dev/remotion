@@ -81,6 +81,7 @@ const studioOptions = options(
 		'disable-keyboard-shortcuts',
 		'disable-canvas-tabs',
 		'disable-interactivity',
+		'experimental-tracks',
 		'allow-html-in-canvas',
 		'editor',
 		'coding-agent',

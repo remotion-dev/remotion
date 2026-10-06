@@ -1,8 +1,11 @@
-import React, {useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {sequenceSchema} from './interactivity-schema.js';
 import {SequenceWithoutSchema, type SequenceProps} from './Sequence.js';
-import {TimelineTrackContext} from './timeline-track-context.js';
+import {
+	ExperimentalTracksEnabledContext,
+	TimelineTrackContext,
+} from './timeline-track-context.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 export type TrackProps = Pick<
@@ -29,7 +32,11 @@ export const TrackWithoutSchema: React.FC<SequenceProps> = ({
 	...props
 }) => {
 	const [id] = useState(() => String(Math.random()));
-	const value = useMemo(() => ({id, name}), [id, name]);
+	const tracksEnabled = useContext(ExperimentalTracksEnabledContext);
+	const value = useMemo(
+		() => (tracksEnabled ? {id, name} : null),
+		[id, name, tracksEnabled],
+	);
 
 	return (
 		<TimelineTrackContext.Provider value={value}>

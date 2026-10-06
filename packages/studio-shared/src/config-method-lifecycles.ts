@@ -52,6 +52,7 @@ export const configMethodLifecycles = {
 	setEveryNthFrame: 'runtime',
 	setExperimentalKeepAudioContextAlive: 'reload',
 	setExperimentalRspackEnabled: 'restart',
+	setExperimentalTracksEnabled: 'runtime',
 	setForSeamlessAacConcatenation: 'runtime',
 	setForceNewStudioEnabled: 'restart',
 	setFrameRange: 'runtime',
