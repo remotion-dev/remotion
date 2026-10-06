@@ -6,12 +6,15 @@ export const canUseParallelEncoding = (codec: Codec) => {
 		return false;
 	}
 
-	// h264-ts is the chunk codec for seamless H.264 renders on Lambda. Its
-	// pre-encoded MPEG-TS file is remuxed with the audio like the others.
+	// GIF encoding uses a palette generated from the entire video.
 	return (
 		codec === 'h264' ||
 		codec === 'h264-mkv' ||
 		codec === 'h264-ts' ||
-		codec === 'h265'
+		codec === 'h265' ||
+		codec === 'vp8' ||
+		codec === 'vp9' ||
+		codec === 'av1' ||
+		codec === 'prores'
 	);
 };

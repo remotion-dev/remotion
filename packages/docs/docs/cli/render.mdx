@@ -172,6 +172,8 @@ For example only every second frame, every third frame and so on. Only works for
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
+See [parallel encoding](/docs/encoding#parallel-encoding) for supported codecs and when it is enabled.
+
 From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabled automatically based on the available memory. Set this flag if the machine runs out of memory while rendering.
 
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />

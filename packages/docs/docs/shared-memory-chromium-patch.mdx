@@ -17,8 +17,8 @@ From v4.0.534, Remotion uses a special version of Chromium to optimize rendering
 Shared-memory capture is enabled automatically when all of these conditions are met:
 
 - You use Remotion v4.0.534 or later on one of the supported platforms below.
-- You are rendering an H.264 or H.265 video, including H.264 renders on [Remotion Lambda](/docs/lambda).
-- Parallel encoding is enabled: frames are rendered and encoded at the same time. This is the default for these codecs.
+- You are rendering an H.264, H.265, VP8, VP9, AV1 or ProRes video. The codec must be [supported on your platform](/docs/encoding#choosing-a-codec).
+- [Parallel encoding](/docs/encoding#parallel-encoding) is enabled: frames are rendered and encoded at the same time. This is the default for these codecs.
 
 | Platform                    | Requirements                                                                                                                                                                |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -29,7 +29,7 @@ Shared-memory capture is enabled automatically when all of these conditions are 
 
 These requirements assume you use Remotion's [default browser](/docs/miscellaneous/chrome-headless-shell). On Windows, Intel Macs and older Linux systems, Remotion uses regular JPEG or PNG screenshots. Selecting [Chrome for Testing](/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead) also uses regular screenshots.
 
-Stills, image sequences and video codecs other than H.264 and H.265 continue to use screenshot capture. The patch does not apply to previews or [client-side rendering](/docs/client-side-rendering).
+Stills, image sequences and GIFs continue to use screenshot capture. The patch does not apply to previews or [client-side rendering](/docs/client-side-rendering).
 
 ## Image format and quality
 
