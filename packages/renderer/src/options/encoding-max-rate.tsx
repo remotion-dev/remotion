@@ -15,8 +15,7 @@ export const encodingMaxRateOption = {
 		</>
 	),
 	ssrName: 'encodingMaxRate' as const,
-	docLink:
-		'https://www.remotion.dev/docs/renderer/render-media#encodingmaxrate',
+	docLink: 'https://www.remotion.dev/docs/renderer/render-media#maxrate',
 	type: '' as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

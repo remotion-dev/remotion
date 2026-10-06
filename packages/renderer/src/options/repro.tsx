@@ -17,7 +17,7 @@ export const reproOption = {
 		</>
 	),
 	ssrName: 'repro',
-	docLink: 'https://www.remotion.dev/docs/render-media#repro',
+	docLink: 'https://www.remotion.dev/docs/renderer/render-media#repro',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

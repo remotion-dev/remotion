@@ -16,7 +16,10 @@ import {
 const packagejson = require('../../package.json');
 const rendererOptions = Object.values(BrowserSafeApis.options);
 
-type HelpOption = ReturnType<typeof CliInternals.makeCommandHelpOption>;
+type HelpOption = {
+	flag: string;
+	description: string;
+};
 export type PrintHelp = (
 	selectedPath: readonly string[],
 	logLevel: LogLevel,
@@ -154,11 +157,12 @@ const lambdaOptions: Record<string, HelpOption> = {
 const options = (
 	flags: readonly string[],
 	descriptionOverrides: Record<string, string> = {},
-): HelpOption[] => {
+	imageFormat: 'video' | 'still' | null = null,
+): (HelpOption & {optionIds: readonly string[]})[] => {
 	return flags.map((flag) => {
 		const lambdaOption = lambdaOptions[flag];
 		if (lambdaOption) {
-			return lambdaOption;
+			return {...lambdaOption, optionIds: []};
 		}
 
 		const rendererOption = rendererOptions.find(
@@ -168,14 +172,21 @@ const options = (
 			throw new Error(`No Lambda CLI help metadata exists for --${flag}`);
 		}
 
-		return CliInternals.makeCommandHelpOption({
-			option: rendererOption,
-			description: descriptionOverrides[flag],
-		});
+		return {
+			...CliInternals.makeCommandHelpOption({
+				option: rendererOption,
+				description: descriptionOverrides[flag],
+			}),
+			optionIds: [
+				flag === 'image-format' && imageFormat === 'video'
+					? BrowserSafeApis.options.videoImageFormatOption.id
+					: rendererOption.id,
+			],
+		};
 	});
 };
 
-const commandHelp = [
+export const lambdaCommandHelp = [
 	{
 		path: [],
 		args: ' <command>',
@@ -263,6 +274,7 @@ const commandHelp = [
 				'image-format': 'Video Image Format',
 				port: 'Set a custom port when selecting a composition interactively.',
 			},
+			'video',
 		),
 	},
 	{
@@ -497,7 +509,7 @@ const commandHelp = [
 export const getLambdaHelp = (selectedPath: readonly string[]) => {
 	return CliInternals.getCommandHelp({
 		binaryName: BINARY_NAME,
-		commands: commandHelp,
+		commands: lambdaCommandHelp,
 		selectedPath,
 		rootDocumentation: 'https://www.remotion.dev/docs/lambda/cli',
 	});

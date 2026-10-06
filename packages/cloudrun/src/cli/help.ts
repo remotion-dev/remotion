@@ -105,13 +105,15 @@ const cloudrunOnlyOptions = {
 const options = (
 	flags: readonly string[],
 	descriptionOverrides: Record<string, string> = {},
-) => {
+	imageFormat: 'video' | 'still' | null = null,
+): {flag: string; description: string; optionIds: readonly string[]}[] => {
 	return flags.map((flag) => {
 		const cloudrunOnlyOption =
 			cloudrunOnlyOptions[flag as keyof typeof cloudrunOnlyOptions];
 		if (cloudrunOnlyOption) {
 			return {
 				...cloudrunOnlyOption,
+				optionIds: [],
 				description:
 					descriptionOverrides[flag] ?? cloudrunOnlyOption.description,
 			};
@@ -124,10 +126,17 @@ const options = (
 			throw new Error(`No Cloud Run CLI help metadata exists for --${flag}`);
 		}
 
-		return CliInternals.makeCommandHelpOption({
-			option: rendererOption,
-			description: descriptionOverrides[flag],
-		});
+		return {
+			...CliInternals.makeCommandHelpOption({
+				option: rendererOption,
+				description: descriptionOverrides[flag],
+			}),
+			optionIds: [
+				flag === 'image-format' && imageFormat === 'video'
+					? BrowserSafeApis.options.videoImageFormatOption.id
+					: rendererOption.id,
+			],
+		};
 	});
 };
 
@@ -191,9 +200,10 @@ const renderOptions = options(
 		'image-format': 'Video Image Format',
 		port: 'Set the local server port when no composition ID is passed.',
 	},
+	'video',
 );
 
-const commandHelp = [
+export const cloudrunCommandHelp = [
 	{
 		path: [],
 		args: ' <command>',
@@ -366,7 +376,7 @@ const commandHelp = [
 export const getCloudrunHelp = (selectedPath: readonly string[]) => {
 	return CliInternals.getCommandHelp({
 		binaryName: CLOUDRUN_BINARY_NAME,
-		commands: commandHelp,
+		commands: cloudrunCommandHelp,
 		selectedPath,
 		rootDocumentation: 'https://www.remotion.dev/docs/cloudrun/cli',
 	});

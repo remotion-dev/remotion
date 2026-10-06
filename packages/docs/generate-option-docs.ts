@@ -1,0 +1,227 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import type {AnyRemotionOption} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {format} from 'oxfmt';
+// eslint-disable-next-line no-restricted-imports -- Generate from source-only CLI metadata.
+import {cliCommandHelp} from '../cli/src/print-help';
+// eslint-disable-next-line no-restricted-imports -- Generate from source-only CLI metadata.
+import {cloudrunCommandHelp} from '../cloudrun/src/cli/help';
+// eslint-disable-next-line no-restricted-imports -- Generate from source-only CLI metadata.
+import {lambdaCommandHelp} from '../lambda/src/cli/help';
+import {optionDescriptionToMarkdown} from './option-description';
+import {collectOptionReferences} from './option-references';
+
+const generateOptionDocs = async () => {
+	const check = process.argv.includes('--check');
+	const options: AnyRemotionOption<unknown>[] = Object.values(
+		BrowserSafeApis.options,
+	).sort(
+		(a, b) =>
+			a.name.localeCompare(b.name, 'en') || a.id.localeCompare(b.id, 'en'),
+	);
+	const references = collectOptionReferences(options);
+	const commands = [
+		...cliCommandHelp.map((command) => ({...command, binary: 'remotion'})),
+		...lambdaCommandHelp.map((command) => ({
+			...command,
+			binary: 'remotion lambda',
+		})),
+		...cloudrunCommandHelp.map((command) => ({
+			...command,
+			binary: 'remotion cloudrun',
+		})),
+	];
+	const directory = path.join(__dirname, 'docs', 'options');
+	const files = new Map<string, string>();
+	const indexRows: string[] = [];
+	const registrySource = fs.readFileSync(
+		path.join(__dirname, '../renderer/src/options/index.tsx'),
+		'utf8',
+	);
+	const sourceFiles = new Map(
+		Array.from(
+			registrySource.matchAll(/import \{(\w+)\} from '\.\/(.+)';/g),
+			(match) => [match[1], match[2]],
+		),
+	);
+
+	for (const option of options) {
+		if (!/^[a-z0-9-]+$/.test(option.id) || files.has(`${option.id}.mdx`)) {
+			throw new Error(`Invalid or duplicate option id: ${option.id}`);
+		}
+
+		const supportedCommands = commands.filter(
+			(command) =>
+				(!('listed' in command) || command.listed !== false) &&
+				command.options.some((entry) => entry.optionIds.includes(option.id)),
+		);
+		const usages = (references.get(option.id) ?? []).filter(
+			(reference) => !reference.cli,
+		);
+		const cliDescription = optionDescriptionToMarkdown(
+			option.description('cli'),
+		).trim();
+		const apiDescription = optionDescriptionToMarkdown(
+			option.description('ssr'),
+		).trim();
+		const registryKey = Object.entries(BrowserSafeApis.options).find(
+			([, value]) => value.id === option.id,
+		)?.[0];
+		const importName = registryKey
+			? (registrySource.match(new RegExp(`\\b${registryKey}: (\\w+),`))?.[1] ??
+				registryKey)
+			: null;
+		const sourceFile = importName ? sourceFiles.get(importName) : null;
+		if (!sourceFile) {
+			throw new Error(`No source file found for option ${option.id}`);
+		}
+
+		const sections = [
+			'---',
+			`image: /generated/articles-docs-options-${option.id}.png`,
+			`title: ${JSON.stringify(option.name)}`,
+			`sidebar_position: ${options.indexOf(option) + 1}`,
+			'crumb: Options',
+			`custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/renderer/src/options/${sourceFile}.tsx`,
+			'---',
+			'',
+			apiDescription === cliDescription || supportedCommands.length === 0
+				? apiDescription
+				: `## JavaScript API\n\n${apiDescription}\n\n## Command line\n\n${cliDescription}`,
+		];
+
+		if (supportedCommands.length > 0) {
+			sections.push(
+				'',
+				'## CLI flag',
+				'',
+				`Use \`--${option.cliFlag}\` with the following commands. Follow a command link for its syntax and examples.`,
+				'',
+				'| Command | Flag |',
+				'| --- | --- |',
+				...supportedCommands.map((command) => {
+					const entry = command.options.find((candidate) =>
+						candidate.optionIds.includes(option.id),
+					)!;
+					const url = command.documentation.replace(
+						/^https:\/\/(www\.)?remotion\.dev/,
+						'',
+					);
+					return `| [\`${command.binary} ${command.path.join(' ')}\`](${url}) | \`${entry.flag.replace(/\|/g, '\\|')}\` |`;
+				}),
+			);
+		}
+
+		if (usages.length > 0) {
+			sections.push(
+				'',
+				'## API and configuration references',
+				'',
+				'Follow a reference for the parameter name, default value, and examples in that API or configuration method.',
+				'',
+				'| Reference | Name |',
+				'| --- | --- |',
+				...usages.map((usage) => {
+					const title = usage.title.endsWith('()')
+						? `\`${usage.title}\``
+						: usage.title;
+					return `| [${title}](${usage.url}) | \`${usage.name}\`${usage.deprecated ? ' (deprecated)' : ''} |`;
+				}),
+			);
+		}
+
+		sections.push('', '## See also', '', '- [All options](/docs/options)');
+		if (option.docLink !== null) {
+			sections.push(
+				`- [${option.name} guide](${option.docLink.replace(/^https:\/\/(www\.)?remotion\.dev/, '')})`,
+			);
+		}
+
+		sections.push(
+			'',
+			'{/* Generated by generate-option-docs.ts. Edit the option definition instead. */}',
+		);
+
+		files.set(`${option.id}.mdx`, sections.join('\n'));
+		const apiNames = [...new Set(usages.map((usage) => usage.name))];
+		indexRows.push(
+			`| [${option.name}](/docs/options/${option.id}) | ${supportedCommands.length > 0 ? `\`--${option.cliFlag}\`` : '—'} | ${apiNames.map((name) => `\`${name}\``).join(', ') || '—'} |`,
+		);
+	}
+
+	files.set(
+		'index.mdx',
+		[
+			'---',
+			'image: /generated/articles-docs-options-index.png',
+			'title: Options',
+			'slug: /options',
+			'crumb: API',
+			'custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/docs/generate-option-docs.ts',
+			'---',
+			'',
+			'Reference for options shared by Remotion commands and APIs. Each page explains an option and links to the commands, API parameters, and configuration methods that document it.',
+			'',
+			'Find an option by its name, CLI flag, or JavaScript name. Options are listed alphabetically. Use the linked reference for the syntax, default, and version availability in your environment.',
+			'',
+			'CLI flags take precedence over the [configuration file](/docs/config). When calling a JavaScript API, pass options directly to the API; the configuration file does not apply.',
+			'',
+			'| Option | CLI flag | JavaScript / config name |',
+			'| --- | --- | --- |',
+			...indexRows,
+		].join('\n'),
+	);
+
+	fs.mkdirSync(directory, {recursive: true});
+	const outdated: string[] = [];
+	for (const [file, content] of files) {
+		const filePath = path.join(directory, file);
+		const formatted = await format(filePath, content, {
+			useTabs: false,
+			printWidth: 300,
+			embeddedLanguageFormatting: 'off',
+		});
+		if (formatted.errors.length > 0) {
+			throw new Error(
+				`Could not format ${file}: ${JSON.stringify(formatted.errors)}`,
+			);
+		}
+
+		if (
+			fs.existsSync(filePath) &&
+			fs.readFileSync(filePath, 'utf8') === formatted.code
+		) {
+			continue;
+		}
+
+		outdated.push(file);
+		if (!check) {
+			fs.writeFileSync(filePath, formatted.code);
+		}
+	}
+
+	for (const file of fs.readdirSync(directory)) {
+		if (file.endsWith('.mdx') && !files.has(file)) {
+			outdated.push(file);
+			if (!check) {
+				fs.unlinkSync(path.join(directory, file));
+			}
+		}
+	}
+
+	if (check && outdated.length > 0) {
+		throw new Error(
+			`Option docs are outdated: ${outdated.join(', ')}. Run bun run generate-option-docs in packages/docs.`,
+		);
+	}
+
+	console.log(
+		`${check ? 'Checked' : 'Generated'} ${options.length} option pages and the options index.`,
+	);
+};
+
+generateOptionDocs().catch((err) => {
+	console.error(err);
+	process.exitCode = 1;
+});
