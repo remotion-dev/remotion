@@ -27,7 +27,8 @@ const loadingStyle: React.CSSProperties = {
 export const ElementLibraryFrame: React.FC<{
 	readonly name: string;
 	readonly url: string;
-}> = ({name, url}) => {
+	readonly context: 'captions' | null;
+}> = ({name, url, context}) => {
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 
@@ -46,13 +47,19 @@ export const ElementLibraryFrame: React.FC<{
 		iframe.setAttribute('credentialless', '');
 		const iframeUrl = new URL(url);
 		iframeUrl.searchParams.set('remotion-studio', 'true');
+		if (context === null) {
+			iframeUrl.searchParams.delete('remotion-studio-context');
+		} else {
+			iframeUrl.searchParams.set('remotion-studio-context', context);
+		}
+
 		iframeUrl.searchParams.set('docusaurus-theme', 'dark');
 		iframe.src = iframeUrl.toString();
 
 		return () => {
 			iframe.removeEventListener('load', onLoad);
 		};
-	}, [url]);
+	}, [context, url]);
 
 	return (
 		<div style={contentStyle}>

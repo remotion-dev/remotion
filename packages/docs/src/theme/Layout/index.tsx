@@ -8,6 +8,7 @@ import {useCrawlChatSidePanel} from 'crawlchat-client';
 import React, {
 	useEffect,
 	useLayoutEffect,
+	useRef,
 	useState,
 	type ReactNode,
 } from 'react';
@@ -51,7 +52,10 @@ const LayoutWithCrawlChat = (props: Props): ReactNode => {
 };
 
 const LayoutWrapper = (props: Props): ReactNode => {
-	const {pathname} = useLocation();
+	const location = useLocation();
+	const {pathname, search} = location;
+	const history = useHistory();
+	const captionContext = useRef(false);
 	const [isStudioElementsEmbed, setIsStudioElementsEmbed] = useState(false);
 
 	useLayoutEffect(() => {
@@ -59,13 +63,36 @@ const LayoutWrapper = (props: Props): ReactNode => {
 		const isEmbedded =
 			isInsideStudio() &&
 			(pathname === '/elements' || pathname.startsWith('/elements/'));
+		const params = new URLSearchParams(search);
+		const context = params.get('remotion-studio-context');
+		if (context !== null) {
+			captionContext.current = context === 'captions';
+		}
+
+		const isCaptionPicker = isEmbedded && captionContext.current;
+		if (
+			isCaptionPicker &&
+			(context === null ||
+				params.get('remotion-studio') !== 'true' ||
+				params.get('docusaurus-theme') !== 'dark')
+		) {
+			params.set('remotion-studio', 'true');
+			params.set('remotion-studio-context', 'captions');
+			params.set('docusaurus-theme', 'dark');
+			history.replace({...location, search: `?${params}`});
+		}
+
 		document.body.classList.toggle('studio-elements-embed', isEmbedded);
+		document.body.classList.toggle('studio-caption-picker', isCaptionPicker);
 		setIsStudioElementsEmbed(isEmbedded);
 
 		return () => {
-			document.body.classList.remove('studio-elements-embed');
+			document.body.classList.remove(
+				'studio-elements-embed',
+				'studio-caption-picker',
+			);
 		};
-	}, [pathname]);
+	}, [history, location, pathname, search]);
 
 	if (isStudioElementsEmbed) {
 		return <Layout {...props} noFooter />;

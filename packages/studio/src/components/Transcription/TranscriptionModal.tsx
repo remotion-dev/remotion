@@ -16,6 +16,7 @@ import React, {
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
+import {NO_HOVER_BACKGROUND_STYLE} from '../../helpers/hoverable';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {Checkmark} from '../../icons/Checkmark';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
@@ -32,7 +33,6 @@ import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
 import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
@@ -60,6 +60,7 @@ import {
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
+import {SegmentedControl, type SegmentedControlItem} from '../SegmentedControl';
 import {useSettings} from '../SettingsContext';
 import {VerticalTab} from '../Tabs/vertical';
 import {useModelCacheStatus} from '../use-model-cache-status';
@@ -712,33 +713,27 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	src,
 	target,
 }) => {
-	const [acceptedCaptionStyleId, setAcceptedCaptionStyleId] = useState<
-		string | null
-	>(null);
 	const [libraryUrl, setLibraryUrl] = useState(
 		'https://www.remotion.dev/elements/captions',
 	);
 	const {studioRuntimeConfig} = useSettings();
-	const libraryOptions: ComboboxValue[] = [
+	const libraryOptions: SegmentedControlItem[] = [
 		{
 			url: 'https://www.remotion.dev/elements/captions',
 			displayName: 'Remotion captions',
 		},
-		...(studioRuntimeConfig?.elementLibraries ?? []).filter(
-			({url}) =>
-				url !== 'https://www.remotion.dev/elements' &&
-				url !== 'https://www.remotion.dev/elements/captions',
+		...(studioRuntimeConfig?.elementLibraries ?? []).flatMap(
+			({captionStylesUrl, displayName: libraryName}) =>
+				captionStylesUrl === null ||
+				captionStylesUrl === undefined ||
+				captionStylesUrl === 'https://www.remotion.dev/elements/captions'
+					? []
+					: [{url: captionStylesUrl, displayName: libraryName}],
 		),
 	].map(({url, displayName: libraryName}) => ({
-		type: 'item',
-		id: url,
-		value: url,
+		key: url,
 		label: libraryName ?? new URL(url).host,
-		leftItem: url === libraryUrl ? <Checkmark /> : null,
-		keyHint: null,
-		quickSwitcherLabel: null,
-		subMenu: null,
-		disabled: false,
+		selected: url === libraryUrl,
 		onClick: () => setLibraryUrl(url),
 	}));
 	const [tab, setTab] = useState<Tab>('transcribe');
@@ -843,17 +838,13 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		supportState.type === 'supported' &&
 		outputValidationMessage === null &&
 		chunkValidationMessage === null &&
-		decodingValidationMessage === null &&
-		(captionStyle === null || acceptedCaptionStyleId === captionStyle.id);
+		decodingValidationMessage === null;
 	const transcribeDisabledReason =
 		supportState.type === 'checking'
 			? 'Checking WebGPU support'
 			: supportState.type === 'unsupported'
 				? supportState.message
-				: ((captionStyle !== null && acceptedCaptionStyleId !== captionStyle.id
-						? 'Allow installing the selected caption style first'
-						: null) ??
-					outputValidationMessage ??
+				: (outputValidationMessage ??
 					chunkValidationMessage ??
 					decodingValidationMessage ??
 					undefined);
@@ -884,7 +875,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 			outName:
 				target === null
 					? outName
-					: (captionStyle?.element.displayName ?? 'Simple captions'),
+					: (captionStyle?.element.displayName ?? 'Basic Captions'),
 			target,
 			model: selectedModel,
 			language: modelInfo.multilingual ? selectedLanguage : null,
@@ -932,69 +923,104 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 
 	return (
 		<DismissableModal ariaLabel={title}>
-			<div
-				style={{
-					...transcriptionModalStyle,
-					...(tab === 'styles'
-						? {height: getMaxModalHeight(850), width: getMaxModalWidth(1200)}
-						: {}),
-				}}
-			>
+			<div style={transcriptionModalStyle}>
 				<ModalHeader title={title} />
-				{captionStyle === null ? null : (
-					<div
-						style={{
-							padding: '8px 16px',
-							maxHeight: 160,
-							overflowY: 'auto',
-							flexShrink: 0,
-						}}
-					>
-						<div style={{fontSize: 13}}>
-							{captionStyle.element.displayName} from{' '}
-							{'origin' in captionStyle.source
-								? (captionStyle.source.origin ?? 'an unverified source')
-								: 'an unverified drag-and-drop payload'}
-						</div>
-						<div style={{fontSize: 13}}>
-							Dependencies:{' '}
-							{captionStyle.element.dependencies
-								.map(({name, version}) =>
-									version === null ? name : `${name}@${version}`,
-								)
-								.join(', ') || 'None'}
-							. This style can execute arbitrary code.
-						</div>
-						<label
+				<div
+					style={{
+						...container,
+						minHeight: target === null ? 0 : 76,
+						flexShrink: 0,
+						gap: 8,
+					}}
+				>
+					{target === null || captionStyle === null ? null : (
+						<div
 							style={{
 								display: 'flex',
-								alignItems: 'center',
-								gap: 8,
-								fontSize: 13,
+								flexDirection: 'column',
+								minWidth: 0,
+								flex: 1,
 							}}
 						>
-							<Checkbox
-								checked={acceptedCaptionStyleId === captionStyle.id}
-								onChange={(event) =>
-									setAcceptedCaptionStyleId(
-										event.target.checked ? captionStyle.id : null,
-									)
-								}
-								inputId="allow-caption-style"
-								name="allow-caption-style"
-							/>
-							Allow installing this style and running its code
-						</label>
-					</div>
-				)}
-				<div style={container}>
-					<div style={flexer} />
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8,
+								}}
+							>
+								<div
+									style={{
+										fontSize: 13,
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+										whiteSpace: 'nowrap',
+									}}
+									title={captionStyle.element.displayName}
+									role="status"
+								>
+									{captionStyle.element.displayName}
+								</div>
+								<Button
+									onClick={() =>
+										setSelectedModal((modal) =>
+											modal?.type === 'transcribe'
+												? {...modal, captionStyle: null}
+												: modal,
+										)
+									}
+									size="compact"
+									style={{...NO_HOVER_BACKGROUND_STYLE, flexShrink: 0}}
+								>
+									Reset
+								</Button>
+							</div>
+							<div style={{display: 'flex', alignItems: 'center', gap: 4}}>
+								<div
+									style={{
+										fontSize: 13,
+										color: LIGHT_TEXT,
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+										whiteSpace: 'nowrap',
+									}}
+									title="Installs packages and runs code in your project."
+								>
+									Installs packages and runs code in your project.
+								</div>
+								<InfoBubble aria-label="Installation details">
+									<div style={{fontSize: 13}}>
+										Source:{' '}
+										{'origin' in captionStyle.source
+											? (captionStyle.source.origin ?? 'an unverified source')
+											: 'an unverified drag-and-drop payload'}
+									</div>
+									<div style={{fontSize: 13, overflowWrap: 'anywhere'}}>
+										Dependencies:{' '}
+										{captionStyle.element.dependencies
+											.map(({name, version}) =>
+												version === null ? name : `${name}@${version}`,
+											)
+											.join(', ') || 'None'}
+									</div>
+									<div style={{fontSize: 13}}>
+										This style can execute arbitrary code with access to your
+										files and network.
+									</div>
+								</InfoBubble>
+							</div>
+						</div>
+					)}
+					{captionStyle === null || target === null ? (
+						<div style={flexer} />
+					) : null}
 					<Button
 						onClick={onAddToQueue}
 						disabled={!canTranscribe}
 						aria-label={transcribeDisabledReason}
 						style={{
 							...buttonStyle,
+							flexShrink: 0,
 							backgroundColor: canTranscribe
 								? buttonStyle.backgroundColor
 								: BLUE_DISABLED,
@@ -1114,33 +1140,24 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								overflow: 'hidden',
 							}}
 						>
-							<div style={{padding: 16}}>
-								<div style={{fontSize: 13, marginBottom: 8}} role="status">
-									Selected style:{' '}
-									{captionStyle?.element.displayName ?? 'Simple captions'}
-								</div>
-								<Button
-									onClick={() =>
-										setSelectedModal((modal) =>
-											modal?.type === 'transcribe'
-												? {...modal, captionStyle: null}
-												: modal,
-										)
-									}
-									disabled={captionStyle === null}
+							{libraryOptions.length > 1 ? (
+								<div
+									role="group"
+									aria-label="Caption style library"
+									style={{display: 'flex', padding: '4px 16px', flexShrink: 0}}
 								>
-									Use Simple captions
-								</Button>
-								{libraryOptions.length > 1 ? (
-									<Combobox
-										values={libraryOptions}
-										selectedId={libraryUrl}
-										aria-label="Caption style library"
-										style={{marginTop: 8}}
+									<SegmentedControl
+										items={libraryOptions}
+										needsWrapping={false}
+										size="medium"
 									/>
-								) : null}
-							</div>
-							<ElementLibraryFrame name="Caption styles" url={libraryUrl} />
+								</div>
+							) : null}
+							<ElementLibraryFrame
+								name="Caption styles"
+								url={libraryUrl}
+								context="captions"
+							/>
 						</div>
 					) : null}
 					<Models

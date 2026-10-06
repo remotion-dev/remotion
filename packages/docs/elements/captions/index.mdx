@@ -9,16 +9,18 @@ import {ElementLibrary} from '@site/src/components/Elements/ElementLibrary';
 
 <ElementLibrary category="captions" />
 
+<div className="caption-library-instructions">
+
 ## How to use
 
 ### Transcribing in the Studio
 
 <Step>1</Step> Select a video or audio.<br/>
 <Step>2</Step> Click <kbd>Generate captions</kbd> in the inspector.<br/>
-<Step>3</Step> In the <kbd>Styles</kbd> tab, keep Simple captions or choose a caption Element.<br/>
-<Step>4</Step> For a selected Element, allow installing its code, then click <kbd>Generate captions</kbd>.<br/>
+<Step>3</Step> Keep the default Basic Captions style, or select a caption Element in the <kbd>Styles</kbd> tab.<br/>
+<Step>4</Step> Click <kbd>Generate captions</kbd> to transcribe and insert captions using the chosen style.<br/>
 
-Style selection is available from <AvailableFrom v="4.0.534" inline />. Simple captions works without loading the Element library.
+Style selection is available from <AvailableFrom v="4.0.534" inline />. Basic Captions works without loading the Element library.
 
 ### Importing captions into Studio<AvailableFrom v="4.0.521" />
 
@@ -32,3 +34,5 @@ Supported formats:
 - SRT
 - ElevenLabs Speech-to-Text or segmented JSON
 - OpenAI Whisper JSON transcript (verbose mode must be on)
+
+</div>

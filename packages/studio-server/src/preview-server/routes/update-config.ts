@@ -119,6 +119,24 @@ const validateUpdates = (updates: unknown): string | null => {
 				return 'Config.addElementLibrary() expects an HTTP or HTTPS URL.';
 			}
 
+			if (elementLibrary.captionStylesUrl !== undefined) {
+				try {
+					if (typeof elementLibrary.captionStylesUrl !== 'string') {
+						throw new Error('Invalid URL');
+					}
+
+					const parsedUrl = new URL(elementLibrary.captionStylesUrl);
+					if (
+						parsedUrl.protocol !== 'http:' &&
+						parsedUrl.protocol !== 'https:'
+					) {
+						throw new Error('Unsupported protocol');
+					}
+				} catch {
+					return 'Config.addElementLibrary() expects "captionStylesUrl" to be an absolute HTTP or HTTPS URL.';
+				}
+			}
+
 			if (
 				displayName !== undefined &&
 				(typeof displayName !== 'string' || displayName.trim() === '')
@@ -260,7 +278,11 @@ export const updateConfigFile = ({
 		let value = initialValue;
 		if (setter === 'addElementLibrary') {
 			const elementLibrary = initialValue as Record<string, ConfigValue>;
-			const {displayName: rawDisplayName, url} = elementLibrary;
+			const {
+				displayName: rawDisplayName,
+				url,
+				captionStylesUrl,
+			} = elementLibrary;
 			const normalizedUrl = new URL(url as string).href;
 			if (elementLibraryUrls.has(normalizedUrl)) {
 				continue;
@@ -268,10 +290,13 @@ export const updateConfigFile = ({
 
 			const displayName =
 				typeof rawDisplayName === 'string' ? rawDisplayName.trim() : null;
-			value =
-				displayName === null
-					? {url: normalizedUrl}
-					: {url: normalizedUrl, displayName};
+			value = {
+				url: normalizedUrl,
+				...(displayName === null ? {} : {displayName}),
+				...(captionStylesUrl === undefined
+					? {}
+					: {captionStylesUrl: new URL(captionStylesUrl as string).href}),
+			};
 			elementLibraryUrls.add(normalizedUrl);
 		}
 

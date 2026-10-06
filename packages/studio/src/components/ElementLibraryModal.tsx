@@ -60,7 +60,7 @@ export const ElementLibraryModal: React.FC<{
 					</ActionTooltip>
 				}
 			/>
-			<ElementLibraryFrame name={name} url={url} />
+			<ElementLibraryFrame name={name} url={url} context={null} />
 			{installState === null ? null : (
 				<ElementInstallConfirmation state={installState} />
 			)}

@@ -123,7 +123,7 @@ Set to `true` to let the Element be selected in the Styles tab when generating c
 
 Caption styles must use `installationMode: 'component-owned-sequence'`, accept a `captions` prop containing [`Caption[]`](/docs/captions/caption), and expose it through [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema). Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` to support `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `premountFor`, and `postmountFor`.
 
-Studio replaces preview captions with the generated transcript and copies timing from the selected media. Other initial props are preserved. Choosing a style does not install it; Studio installs its source, dependencies, and assets after transcription, with your permission. The flag describes compatibility, not trust: an Element can execute arbitrary code.
+Studio replaces preview captions with the generated transcript and copies timing from the selected media. Other initial props are preserved. Choosing a style does not install it; clicking Generate captions starts transcription, after which Studio installs its source, dependencies, and assets. The flag describes compatibility, not trust: an Element can execute arbitrary code.
 
 ## Return value
 

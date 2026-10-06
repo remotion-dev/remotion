@@ -16,6 +16,7 @@ import {
 export type AddElementLibraryToStudioInput = {
 	readonly url: string;
 	readonly displayName?: string;
+	readonly captionStylesUrl?: string;
 };
 
 export type AddElementLibraryToStudioErrorCode =
@@ -63,6 +64,7 @@ export type StudioProtocolAddElementLibraryRequest = {
 	readonly targetId: string;
 	readonly url: string;
 	readonly displayName: string | null;
+	readonly captionStylesUrl: string | null;
 };
 
 export type StudioProtocolIframeAddElementLibraryRequest = Omit<
@@ -77,6 +79,7 @@ const studioProtocolAddElementLibraryRequestSchema = z.object({
 	targetId: z.string().check(z.minLength(1)),
 	url: z.string(),
 	displayName: z.nullable(z.string()),
+	captionStylesUrl: z._default(z.nullable(z.string()), null),
 });
 
 const studioProtocolIframeAddElementLibraryRequestSchema = z.object({
@@ -85,6 +88,7 @@ const studioProtocolIframeAddElementLibraryRequestSchema = z.object({
 	protocolVersion: z.literal(1),
 	url: z.string(),
 	displayName: z.nullable(z.string()),
+	captionStylesUrl: z._default(z.nullable(z.string()), null),
 });
 
 const addElementLibraryToStudioResultSchema = z.union([
@@ -145,9 +149,11 @@ const failure = (
 
 export const addElementLibraryToStudioWithDependencies = async (
 	{
+		captionStylesUrl,
 		displayName,
 		url,
 	}: {
+		readonly captionStylesUrl: string | null;
 		readonly displayName: string | null;
 		readonly url: string;
 	},
@@ -180,6 +186,27 @@ export const addElementLibraryToStudioWithDependencies = async (
 			'invalid-url',
 			'The Element Library URL must be an absolute HTTP or HTTPS URL.',
 		);
+	}
+
+	let normalizedCaptionStylesUrl: string | null = null;
+	if (captionStylesUrl !== null) {
+		try {
+			if (typeof captionStylesUrl !== 'string') {
+				throw new Error('Invalid URL');
+			}
+
+			const parsedUrl = new URL(captionStylesUrl);
+			if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+				throw new Error('Unsupported protocol');
+			}
+
+			normalizedCaptionStylesUrl = parsedUrl.href;
+		} catch {
+			return failure(
+				'invalid-url',
+				'The caption styles URL must be an absolute HTTP or HTTPS URL.',
+			);
+		}
 	}
 
 	if (displayName !== null && typeof displayName !== 'string') {
@@ -261,6 +288,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 			targetId: selectedTarget.id,
 			url: normalizedUrl,
 			displayName: normalizedDisplayName,
+			captionStylesUrl: normalizedCaptionStylesUrl,
 		} satisfies StudioProtocolAddElementLibraryRequest;
 		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
@@ -359,15 +387,22 @@ const addElementLibraryToParentStudio = (
 };
 
 export const addElementLibraryToStudio = async ({
+	captionStylesUrl,
 	displayName,
 	url,
 }: AddElementLibraryToStudioInput): Promise<AddElementLibraryToStudioResult> => {
 	if (typeof url === 'string') {
 		try {
 			const parsedUrl = new URL(url);
+			const parsedCaptionStylesUrl =
+				captionStylesUrl === undefined ? null : new URL(captionStylesUrl);
 			const normalizedDisplayName = displayName?.trim() ?? null;
 			if (
 				(parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') &&
+				(parsedCaptionStylesUrl === null ||
+					(typeof captionStylesUrl === 'string' &&
+						(parsedCaptionStylesUrl.protocol === 'http:' ||
+							parsedCaptionStylesUrl.protocol === 'https:'))) &&
 				normalizedDisplayName !== ''
 			) {
 				const parentResult = await addElementLibraryToParentStudio({
@@ -376,6 +411,7 @@ export const addElementLibraryToStudio = async ({
 					protocolVersion: 1,
 					url: parsedUrl.href,
 					displayName: normalizedDisplayName,
+					captionStylesUrl: parsedCaptionStylesUrl?.href ?? null,
 				});
 				if (parentResult !== null) {
 					return parentResult;
@@ -387,7 +423,12 @@ export const addElementLibraryToStudio = async ({
 	}
 
 	return addElementLibraryToStudioWithDependencies(
-		{displayName: displayName ?? null, url},
+		{
+			captionStylesUrl:
+				captionStylesUrl === undefined ? null : captionStylesUrl,
+			displayName: displayName ?? null,
+			url,
+		},
 		{
 			fetchFn: fetch,
 			now: Date.now,

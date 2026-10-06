@@ -103,6 +103,27 @@ export const handleStudioProtocolElementLibrary = async ({
 		return;
 	}
 
+	let captionStylesUrl: string | null = null;
+	if (parsedRequest.captionStylesUrl !== null) {
+		try {
+			const parsedUrl = new URL(parsedRequest.captionStylesUrl);
+			if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+				throw new Error('Unsupported protocol');
+			}
+
+			captionStylesUrl = parsedUrl.href;
+		} catch {
+			writeStudioProtocolError({
+				code: 'invalid-url',
+				message:
+					'The caption styles URL must be an absolute HTTP or HTTPS URL.',
+				response,
+				status: 400,
+			});
+			return;
+		}
+	}
+
 	const displayName = parsedRequest.displayName?.trim() ?? null;
 	if (displayName === '') {
 		writeStudioProtocolError({
@@ -142,6 +163,7 @@ export const handleStudioProtocolElementLibrary = async ({
 
 	const delivered = liveEventsServer.sendEventToClientId(target.clientId, {
 		type: 'element-library-add-request',
+		captionStylesUrl,
 		url: normalizedUrl,
 		displayName,
 		origin: requestOrigin,

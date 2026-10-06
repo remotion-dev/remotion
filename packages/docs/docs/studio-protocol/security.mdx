@@ -23,7 +23,9 @@ Before confirming, Studio shows the requesting source, destination choice, sourc
 
 Declining the confirmation does not write source files or install packages.
 
-An Element Library request made with [`addElementLibraryToStudio()`](/docs/studio-protocol/add-element-library-to-studio) shows the requesting origin, exact Element Library URL, and requested display name. The Element Library is not loaded before confirmation. Confirming persists a [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call in `remotion.config.ts`; it does not install Element source code or dependencies. Individual Element installations still require confirmation.
+In the caption style picker, an Element request selects a style without installing it. Studio shows an installation notice with source and dependency details. Clicking <kbd>Generate captions</kbd> starts transcription and installs the chosen style afterward.
+
+An Element Library request made with [`addElementLibraryToStudio()`](/docs/studio-protocol/add-element-library-to-studio) shows the requesting origin, exact Element Library URL, and caption styles URL if provided. The Element Library is not loaded before confirmation. Confirming persists a [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call in `remotion.config.ts`; it does not install Element source code or dependencies. Individual Element installations still require confirmation.
 
 Declining or closing the Element Library confirmation does not change the config.
 

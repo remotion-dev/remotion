@@ -22,6 +22,7 @@ export type ConfigFileStudioSettings = {
 export type StudioElementLibrary = {
 	readonly displayName: string | null;
 	readonly url: string;
+	readonly captionStylesUrl?: string | null;
 };
 
 export type StudioRuntimeConfig = {

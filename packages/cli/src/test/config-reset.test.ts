@@ -117,6 +117,7 @@ test('reset config options restores defaults before reloading config', async () 
 		{
 			displayName: 'Example Elements',
 			url: 'https://example.com/elements',
+			captionStylesUrl: null,
 		},
 	]);
 	expect(ConfigInternals.getKeyboardShortcuts()).toEqual({
