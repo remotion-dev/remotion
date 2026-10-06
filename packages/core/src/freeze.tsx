@@ -72,14 +72,12 @@ export const Freeze: React.FC<FreezeProps> = ({
 
 	const relativeFrom = sequenceContext?.relativeFrom ?? 0;
 	const playbackRate = sequenceContext?.playbackRate ?? 1;
+	const {audioAndVideoTags} = timelineContext;
 
-	const timelineValue: TimelineContextValue = useMemo(() => {
-		if (!isActive) {
-			return timelineContext;
-		}
-
+	// Advancing the outer timeline must not invalidate the frozen clock.
+	const frozenTimelineValue: TimelineContextValue = useMemo(() => {
 		return {
-			...timelineContext,
+			audioAndVideoTags,
 			isPlaying: () => false,
 			isInsideFreeze: true,
 			frame: {
@@ -87,8 +85,7 @@ export const Freeze: React.FC<FreezeProps> = ({
 			},
 		};
 	}, [
-		isActive,
-		timelineContext,
+		audioAndVideoTags,
 		videoConfig.id,
 		frameToFreeze,
 		relativeFrom,
@@ -117,7 +114,9 @@ export const Freeze: React.FC<FreezeProps> = ({
 				(Boolean(isActive) && !_remotionInternalIsPremounting)
 			}
 		>
-			<TimelineContext.Provider value={timelineValue}>
+			<TimelineContext.Provider
+				value={isActive ? frozenTimelineValue : timelineContext}
+			>
 				<SequenceContext.Provider value={newSequenceContext}>
 					{children}
 				</SequenceContext.Provider>

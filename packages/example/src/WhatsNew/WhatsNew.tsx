@@ -14,11 +14,28 @@ import {SneakPeekScene} from './scenes/SneakPeek';
 import {SoundEffectsScene} from './scenes/SoundEffects';
 import {VercelScene} from './scenes/Vercel';
 
+const Score: React.FC = () => {
+	const frame = useCurrentFrame();
+
+	return (
+		<Audio
+			name="Score"
+			src={
+				'https://remotion.media/announcements/whats-new-in-remotion/cursor/music/score.wav'
+			}
+			volume={interpolate(
+				frame,
+				[0, 16, 106, 114, 204, 226, 6250, 6280, 7160, 7172, 7296, 7328],
+				[0, 0.3, 0.3, 0.55, 0.55, 0.13, 0.13, 0.17, 0.17, 0.7, 0.7, 0],
+				{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+			)}
+		/>
+	);
+};
+
 // Every scene is a whole number of beats (16 frames at 112.5 BPM), so each
 // chapter starts on a downbeat of the score.
 export const WhatsNew: React.FC = () => {
-	const frame = useCurrentFrame();
-
 	return (
 		<AbsoluteFill style={{backgroundColor: '#000'}}>
 			<TransitionSeries name="Chapters">
@@ -117,18 +134,7 @@ export const WhatsNew: React.FC = () => {
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
 
-			<Audio
-				name="Score"
-				src={
-					'https://remotion.media/announcements/whats-new-in-remotion/cursor/music/score.wav'
-				}
-				volume={interpolate(
-					frame,
-					[0, 16, 106, 114, 204, 226, 6250, 6280, 7160, 7172, 7296, 7328],
-					[0, 0.3, 0.3, 0.55, 0.55, 0.13, 0.13, 0.17, 0.17, 0.7, 0.7, 0],
-					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-				)}
-			/>
+			<Score />
 		</AbsoluteFill>
 	);
 };
