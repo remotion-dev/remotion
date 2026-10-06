@@ -4,7 +4,7 @@ Record an area—or a whole webpage—as a high-resolution H.264 MP4 or VP9 WebM
 
 ## Browser setup on macOS
 
-Canvas Capture requires Chrome with major version 157 or newer on Apple Silicon, with Canvas Draw Element enabled. You can use Chrome, Chrome Canary, or Chrome for Testing as long as the browser meets this minimum. The extension also checks whether the HTML-in-canvas API and video encoding configuration are available before recording.
+Canvas Capture requires Chrome with major version 157 or newer with Canvas Draw Element enabled. You can use Chrome, Chrome Canary, or Chrome for Testing as long as the browser meets this minimum. The extension also checks whether the HTML-in-canvas API and video encoding configuration are available before recording.
 
 To install a compatible Chrome for Testing build, run:
 
