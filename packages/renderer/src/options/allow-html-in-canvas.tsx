@@ -19,7 +19,7 @@ export const allowHtmlInCanvasOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/client-side-rendering/html-in-canvas',
+	docLink: 'https://www.remotion.dev/docs/options/allow-html-in-canvas',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== null) {

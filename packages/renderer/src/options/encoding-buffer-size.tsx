@@ -22,7 +22,7 @@ export const encodingBufferSizeOption = {
 		</>
 	),
 	ssrName: 'encodingBufferSize' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#buffersize',
+	docLink: 'https://www.remotion.dev/docs/options/buffer-size',
 	type: '' as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

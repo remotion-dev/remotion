@@ -41,7 +41,7 @@ export const enforceAudioOption = {
 		</>
 	),
 	ssrName: 'enforceAudioTrack',
-	docLink: 'https://www.remotion.dev/docs/config#setenforceaudiotrack',
+	docLink: 'https://www.remotion.dev/docs/options/enforce-audio-track',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {

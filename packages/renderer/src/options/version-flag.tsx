@@ -11,7 +11,7 @@ export const versionFlagOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/upgrade#--version',
+	docLink: 'https://www.remotion.dev/docs/options/version',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

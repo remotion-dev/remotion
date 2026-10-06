@@ -13,7 +13,7 @@ export const envFileOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/render#--env-file',
+	docLink: 'https://www.remotion.dev/docs/options/env-file',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

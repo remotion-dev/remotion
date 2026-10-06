@@ -75,7 +75,7 @@ export const colorSpaceOption = {
 			previously it would only tag the metadata of the video.
 		</>
 	),
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#colorspace',
+	docLink: 'https://www.remotion.dev/docs/options/color-space',
 	ssrName: 'colorSpace',
 	type: DEFAULT_COLOR_SPACE as ColorSpace | null,
 	getValue: ({commandLine}) => {

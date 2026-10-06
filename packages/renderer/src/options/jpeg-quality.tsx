@@ -29,7 +29,7 @@ export const jpegQualityOption = {
 		</>
 	),
 	ssrName: 'jpegQuality',
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#jpegquality',
+	docLink: 'https://www.remotion.dev/docs/options/jpeg-quality',
 	type: 0 as number,
 	setConfig: setJpegQuality,
 	getValue: ({commandLine}) => {

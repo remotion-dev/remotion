@@ -14,7 +14,7 @@ export const portOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setstudioport',
+	docLink: 'https://www.remotion.dev/docs/options/port',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

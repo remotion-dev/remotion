@@ -14,8 +14,7 @@ export const disableWebSecurityOption = {
 		</>
 	),
 	ssrName: 'disableWebSecurity' as const,
-	docLink:
-		'https://www.remotion.dev/docs/chromium-flags#--disable-web-security',
+	docLink: 'https://www.remotion.dev/docs/options/disable-web-security',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

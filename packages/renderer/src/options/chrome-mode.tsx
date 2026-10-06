@@ -33,7 +33,7 @@ export const chromeModeOption = {
 			</>
 		);
 	},
-	docLink: 'https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell',
+	docLink: 'https://www.remotion.dev/docs/options/chrome-mode',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
 			if (

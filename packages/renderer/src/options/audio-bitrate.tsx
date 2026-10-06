@@ -17,7 +17,7 @@ export const audioBitrateOption = {
 		</>
 	),
 	ssrName: 'audioBitrate',
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#audiobitrate',
+	docLink: 'https://www.remotion.dev/docs/options/audio-bitrate',
 	type: '0' as string,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {

@@ -39,8 +39,7 @@ export const numberOfGifLoopsOption = {
 		);
 	},
 	ssrName: 'numberOfGifLoops' as const,
-	docLink:
-		'https://www.remotion.dev/docs/render-as-gif#changing-the-number-of-loops',
+	docLink: 'https://www.remotion.dev/docs/options/number-of-gif-loops',
 	type: 0 as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

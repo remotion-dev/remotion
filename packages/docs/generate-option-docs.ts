@@ -160,11 +160,6 @@ const generateOptionDocs = async () => {
 		}
 
 		sections.push('', '## See also', '', '- [All options](/docs/options)');
-		if (option.docLink !== null) {
-			sections.push(
-				`- [${option.name} guide](${option.docLink.replace(/^https:\/\/(www\.)?remotion\.dev/, '')})`,
-			);
-		}
 
 		files.set(`${option.id}.mdx`, sections.join('\n'));
 		indexItems.push(

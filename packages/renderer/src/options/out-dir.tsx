@@ -17,7 +17,7 @@ export const outDirOption = {
 		);
 	},
 	ssrName: 'outDir' as const,
-	docLink: 'https://www.remotion.dev/docs/cli/bundle#--out-dir',
+	docLink: 'https://www.remotion.dev/docs/options/out-dir',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

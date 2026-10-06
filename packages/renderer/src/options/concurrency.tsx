@@ -41,7 +41,7 @@ export const concurrencyOption = {
 		</>
 	),
 	ssrName: 'concurrency' as const,
-	docLink: 'https://www.remotion.dev/docs/config#setconcurrency',
+	docLink: 'https://www.remotion.dev/docs/options/concurrency',
 	type: null as Concurrency,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

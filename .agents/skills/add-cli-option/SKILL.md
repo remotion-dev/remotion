@@ -24,7 +24,7 @@ export const myFlagOption = {
   id: cliFlag,
   description: () => <>Description shown in docs.</>,
   ssrName: null, // or 'myFlag' if used in SSR APIs
-  docLink: 'https://www.remotion.dev/docs/config#setmyflagenabled',
+  docLink: 'https://www.remotion.dev/docs/options/my-flag',
   type: false as boolean, // TypeScript type witness; defaults are resolved in getValue
   getValue: ({commandLine}) => {
     if (commandLine[cliFlag] !== undefined) {
@@ -41,6 +41,8 @@ export const myFlagOption = {
 The type in `AnyRemotionOption<T>` and `type: <value> as T` determines the option's value type. Use `boolean`, `string | null`, `number | null`, etc.
 
 The `id` must be unique and contain only lowercase letters, digits, and hyphens. It determines the `/docs/options/<id>` page and the `<Options id="..." />` value. It usually matches `cliFlag`, but shared flags can have distinct option IDs.
+
+Set `docLink` to `https://www.remotion.dev/docs/options/<id>`.
 
 For negating flags (like `--disable-ask-ai` → `askAIEnabled = false`), handle the inversion in `getValue`.
 
