@@ -195,7 +195,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		proResProfile: proResProfile ?? null,
 		x264Preset: x264Preset ?? null,
 		gopSize: gopSize ?? null,
-		...(disableSharedMemoryCapture ? {disableSharedMemoryCapture: true} : {}),
+		disableSharedMemoryCapture,
 		everyNthFrame: everyNthFrame ?? 1,
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		frameRange: frameRange ?? null,
