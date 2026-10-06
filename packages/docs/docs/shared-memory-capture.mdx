@@ -42,6 +42,8 @@ The option still controls the background:
 
 The [`jpegQuality`](/docs/renderer/render-media#jpegquality) option has no effect on video frames captured through shared memory. When Remotion falls back to screenshots, the image format and JPEG quality options work as before.
 
+In the Studio render dialog, the **Picture** tab shows **Transparent background** instead of **Image Format** and hides **JPEG Quality** when shared-memory capture is available. The transparency setting applies to captured frames; exporting a transparent video also requires a [codec and pixel format that support transparency](/docs/transparent-videos).
+
 Shared-memory capture avoids the extra JPEG compression step. The final video is still compressed according to your [codec and quality settings](/docs/encoding). Overall render speed depends on your composition, encoder and machine.
 
 ## Check whether it is active

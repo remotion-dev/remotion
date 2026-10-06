@@ -50,6 +50,7 @@ import {FilmIcon} from '../../icons/video';
 import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
+import {callApi} from '../call-api';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -480,6 +481,78 @@ const RenderModal: React.FC<
 
 		return videoCodecForVideoTab;
 	}, [videoCodecForAudioTab, renderMode, videoCodecForVideoTab]);
+
+	const sharedMemoryCaptureRequest = useMemo(
+		() => ({
+			browserExecutable:
+				renderDefaults.sharedMemoryCapture?.browserExecutable ?? null,
+			chromeMode,
+			chromiumOptions,
+		}),
+		[
+			renderDefaults.sharedMemoryCapture?.browserExecutable,
+			chromeMode,
+			chromiumOptions,
+		],
+	);
+	const sharedMemoryCaptureRequestKey = JSON.stringify(
+		sharedMemoryCaptureRequest,
+	);
+	const [sharedMemoryCaptureSupport, setSharedMemoryCaptureSupport] = useState<{
+		requestKey: string;
+		supported: boolean;
+	} | null>(null);
+	const canUseSharedMemoryCapture =
+		!readOnlyStudio &&
+		renderDefaults.sharedMemoryCapture?.disabled === false &&
+		renderMode === 'video' &&
+		!disallowParallelEncoding &&
+		BrowserSafeApis.canUseParallelEncoding(codec);
+
+	useEffect(() => {
+		if (!canUseSharedMemoryCapture) {
+			return;
+		}
+
+		const controller = new AbortController();
+		// Avoid launching a probe for every keystroke in the browser settings.
+		const timeout = setTimeout(() => {
+			callApi(
+				'/api/shared-memory-capture-support',
+				sharedMemoryCaptureRequest,
+				controller.signal,
+			)
+				.then(({supported}) => {
+					if (!controller.signal.aborted) {
+						setSharedMemoryCaptureSupport({
+							requestKey: sharedMemoryCaptureRequestKey,
+							supported,
+						});
+					}
+				})
+				.catch(() => {
+					if (!controller.signal.aborted) {
+						setSharedMemoryCaptureSupport({
+							requestKey: sharedMemoryCaptureRequestKey,
+							supported: false,
+						});
+					}
+				});
+		}, 300);
+		return () => {
+			clearTimeout(timeout);
+			controller.abort();
+		};
+	}, [
+		canUseSharedMemoryCapture,
+		sharedMemoryCaptureRequest,
+		sharedMemoryCaptureRequestKey,
+	]);
+
+	const usesSharedMemoryCapture =
+		canUseSharedMemoryCapture &&
+		sharedMemoryCaptureSupport?.requestKey === sharedMemoryCaptureRequestKey &&
+		sharedMemoryCaptureSupport.supported;
 
 	const numberOfGifLoops = useMemo(() => {
 		if (codec === 'gif' && limitNumberOfGifLoops) {
@@ -1577,6 +1650,8 @@ const RenderModal: React.FC<
 							jpegQuality={jpegQuality}
 							setJpegQuality={setJpegQuality}
 							videoImageFormat={videoImageFormat}
+							setVideoImageFormat={setVideoImageFormat}
+							usesSharedMemoryCapture={usesSharedMemoryCapture}
 							stillImageFormat={stillImageFormat}
 							compositionWidth={resolvedComposition.width}
 							compositionHeight={resolvedComposition.height}
