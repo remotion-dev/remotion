@@ -134,12 +134,6 @@ const labelContainerStyle: React.CSSProperties = {
 	minWidth: 0,
 };
 
-const connectedCompositionIconStyle: React.CSSProperties = {
-	flexShrink: 0,
-	height: 12,
-	width: 12,
-};
-
 const effectDropHighlight: React.CSSProperties = {
 	backgroundColor: TIMELINE_DROP_BLUE_ALPHA_16,
 	outline: BORDER_TIMELINE_DROP_BLUE,
@@ -1083,6 +1077,17 @@ const TimelineSequenceItemInner: React.FC<{
 	const outerHeight = useMemo(
 		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
 		[sequence.type],
+	);
+
+	const connectedCompositionIconStyle = useMemo(
+		(): React.CSSProperties => ({
+			flexShrink: 0,
+			height: 12,
+			// Center the icon on whole pixels, including in taller audio/video rows.
+			marginBottom: (outerHeight - TIMELINE_ITEM_BORDER_BOTTOM) % 2,
+			width: 12,
+		}),
+		[outerHeight],
 	);
 
 	const inner: React.CSSProperties = useMemo(() => {
