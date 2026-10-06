@@ -6,11 +6,11 @@ crumb: API
 custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/docs/generate-option-docs.ts
 ---
 
-Reference for options shared by Remotion commands and APIs. Each page explains an option and links to the commands, API parameters, and configuration methods that document it.
+A list of options that Remotion supports.
 
-Find an option by its name, CLI flag, or JavaScript name. Options are listed alphabetically. Use the linked reference for the syntax, default, and version availability in your environment.
+CLI flags override [configuration file defaults](/docs/config).
 
-CLI flags take precedence over the [configuration file](/docs/config). When calling a JavaScript API, pass options directly to the API; the configuration file does not apply.
+Only the CLI reads the config file. In programmatic APIs, you need to pass all options explicitly.
 
 | Option                                                                                        | CLI flag                                  | JavaScript / config name                                                                               |
 | --------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------ |
