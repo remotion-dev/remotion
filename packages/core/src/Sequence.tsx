@@ -332,7 +332,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	lastPlaybackRate.current = {playbackRate, frame: absoluteFrame};
+	useLayoutEffect(() => {
+		lastPlaybackRate.current = {playbackRate, frame: absoluteFrame};
+	}, [absoluteFrame, playbackRate]);
 	const videoConfig = useVideoConfig();
 	const effectiveDurationInFrames = resolveSequenceDuration({
 		durationInFrames,
@@ -520,13 +522,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
-	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
-	// and if it changes, it would lead to-remounting of the sequence.
-	const stackRef = useRef<string | null>(null);
-	stackRef.current = controls
+	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);
-	const getStack = useCallback(() => stackRef.current, []);
+	const getStack = useCallback(() => registrationStack, [registrationStack]);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
 	const currentFrame =
 		registeredFrozenFrame ??

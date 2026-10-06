@@ -469,7 +469,9 @@ export const SequenceManagerProvider: React.FC<{
 	const committedOrderIdsRef = useRef<readonly string[] | null>(null);
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const sequencesRef = useRef(sequences);
-	sequencesRef.current = sequences;
+	useIsomorphicLayoutEffect(() => {
+		sequencesRef.current = sequences;
+	}, [sequences]);
 	const [dragOverrideState, setDragOverrideState] = useState(() => ({
 		overrides: {} as DragOverrides,
 		fromKeys: new Set<string>(),
@@ -491,7 +493,9 @@ export const SequenceManagerProvider: React.FC<{
 	});
 	const [propStatuses, setPropStatusesMapState] = useState<PropStatuses>({});
 	const propStatusesRef = useRef(propStatuses);
-	propStatusesRef.current = propStatuses;
+	useIsomorphicLayoutEffect(() => {
+		propStatusesRef.current = propStatuses;
+	}, [propStatuses]);
 
 	const setDragOverridesBatch = useCallback(
 		(

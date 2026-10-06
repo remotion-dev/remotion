@@ -75,14 +75,13 @@ export const CompositionManagerProvider = ({
 
 	// CompositionManagerProvider state
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
+	useIsomorphicLayoutEffect(() => {
+		currentcompositionsRef.current = compositions;
+	}, [compositions]);
 
 	const updateCompositions = useCallback(
 		(updateComps: (comp: AnyComposition[]) => AnyComposition[]) => {
-			setCompositions((comps) => {
-				const updated = updateComps(comps);
-				currentcompositionsRef.current = updated;
-				return updated;
-			});
+			setCompositions(updateComps);
 		},
 		[],
 	);

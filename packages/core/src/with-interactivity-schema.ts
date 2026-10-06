@@ -269,17 +269,30 @@ export const withInteractivitySchema = <
 			[durationInFrames, fps, height, width],
 		);
 
-		// If the parent has passed `controls`, we should not override it.
+		// Keep parent controls intact when adding missing source information.
 		// @ts-expect-error
-		if (cleanProps.controls) {
-			// @ts-expect-error `controls` is injected by another interactive wrapper.
-			const passedControls = cleanProps.controls as SequenceControls;
-			if (getStackForControls(passedControls) === null) {
-				setStackForControls(passedControls, internalStack);
+		const passedControls = cleanProps.controls as
+			| SequenceControls
+			| null
+			| undefined;
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const resolvedPassedControls = useMemo(() => {
+			if (
+				!passedControls ||
+				getStackForControls(passedControls) !== null ||
+				internalStack === undefined
+			) {
+				return passedControls;
 			}
 
+			const controlsWithStack = {...passedControls};
+			setStackForControls(controlsWithStack, internalStack);
+			return controlsWithStack;
+		}, [internalStack, passedControls]);
+		if (resolvedPassedControls) {
 			return React.createElement(Component, {
 				...cleanProps,
+				controls: resolvedPassedControls,
 				ref,
 			} as unknown as Props & {
 				controls: SequenceControls | undefined;
@@ -343,7 +356,7 @@ export const withInteractivitySchema = <
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const controls = useMemo((): SequenceControls => {
-			return {
+			const controlsForRender = {
 				schema: schemaWithSequenceName,
 				currentRuntimeValueDotNotation,
 				runtimeValues: runtimeValueStore.store,
@@ -353,13 +366,15 @@ export const withInteractivitySchema = <
 				componentIdentity,
 				componentName,
 			};
+			setStackForControls(controlsForRender, internalStack);
+			return controlsForRender;
 		}, [
 			currentRuntimeValueDotNotation,
+			internalStack,
 			overrideId,
 			runtimeValueStore.store,
 			videoConfigValues,
 		]);
-		setStackForControls(controls, internalStack);
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks

@@ -1,10 +1,13 @@
-import {useContext, useEffect, useMemo, useRef} from 'react';
+import {useContext, useEffect, useLayoutEffect, useMemo, useRef} from 'react';
 import type {TSequence} from './CompositionManager.js';
 import {
 	DisableSequenceRegistrationContext,
 	SequenceCommitRegistrationContext,
 	SequenceManagerActionsContext,
 } from './SequenceManager.js';
+
+const useIsomorphicLayoutEffect =
+	typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 export const useSequenceRegistration = ({
 	getSequence,
@@ -22,7 +25,9 @@ export const useSequenceRegistration = ({
 	const commitRegistrationEnabled =
 		useContext(SequenceCommitRegistrationContext) && registerOnCommit === true;
 	const getSequenceRef = useRef(getSequence);
-	getSequenceRef.current = getSequence;
+	useIsomorphicLayoutEffect(() => {
+		getSequenceRef.current = getSequence;
+	}, [getSequence]);
 	const lastRegisteredGetterRef = useRef<(() => TSequence) | null>(null);
 	const registrationEnabled =
 		getSequence !== null && !registrationDisabled && !commitRegistrationEnabled;
