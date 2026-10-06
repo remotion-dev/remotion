@@ -44,6 +44,9 @@ type TimelineVirtualizationContextValue = {
 
 const TimelineVirtualizationContext =
 	createContext<TimelineVirtualizationContextValue | null>(null);
+const TimelineRowsRefContext = createContext<React.RefObject<
+	readonly TimelineVirtualRow[]
+> | null>(null);
 
 const getSelectionTrackKey = (selection: TimelineSelection): string | null => {
 	if (selection.type === 'guide') {
@@ -83,7 +86,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 	const paddingEnd =
 		TIMELINE_ITEM_BORDER_BOTTOM +
 		(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0);
-	const previousRowsRef = useRef<readonly TimelineVirtualRow[]>([]);
+	const rowsRef = useRef<readonly TimelineVirtualRow[]>([]);
 
 	const layout = useMemo(() => {
 		const siblingIndexes = new Array<number>(timeline.length);
@@ -121,7 +124,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 				const afterDropLineOffset =
 					offsets[subtreeEndIndexes[index]] - offsets[index];
 				const siblingIndex = siblingIndexes[index];
-				const previous = previousRowsRef.current[index];
+				const previous = rowsRef.current[index];
 				if (
 					previous?.track === track &&
 					previous.items === items &&
@@ -158,7 +161,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		};
 	}, [paddingStart, timeline, trackHeights]);
 	useLayoutEffect(() => {
-		previousRowsRef.current = layout.rows;
+		rowsRef.current = layout.rows;
 	}, [layout.rows]);
 
 	const selectedTrackIndexes = useMemo(() => {
@@ -362,9 +365,11 @@ export const TimelineVirtualizationProvider: React.FC<{
 	);
 
 	return (
-		<TimelineVirtualizationContext.Provider value={value}>
-			{children}
-		</TimelineVirtualizationContext.Provider>
+		<TimelineRowsRefContext.Provider value={rowsRef}>
+			<TimelineVirtualizationContext.Provider value={value}>
+				{children}
+			</TimelineVirtualizationContext.Provider>
+		</TimelineRowsRefContext.Provider>
 	);
 };
 
@@ -373,6 +378,18 @@ export const useTimelineVirtualization = () => {
 	if (context === null) {
 		throw new Error(
 			'useTimelineVirtualization must be used inside TimelineVirtualizationProvider',
+		);
+	}
+
+	return context;
+};
+
+// Event handlers can read the committed rows without subscribing to viewport changes.
+export const useTimelineRowsRef = () => {
+	const context = useContext(TimelineRowsRefContext);
+	if (context === null) {
+		throw new Error(
+			'useTimelineRowsRef must be used inside TimelineVirtualizationProvider',
 		);
 	}
 

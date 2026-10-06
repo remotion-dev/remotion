@@ -24,26 +24,6 @@ A minimum of 500MB and a maximum of 20GB is enforced.
 
 ## Customizing the cache size
 
-The rendering APIs allow you to customize the decoded media cache budget on a per-render basis. The same value determines the read cache size for each source:
+Use the [`mediaCacheSizeInBytes`](/docs/options/media-cache-size-in-bytes) option to customize the decoded media cache budget per render. The same value determines the read cache size for each source.
 
-- [`renderMedia()` → `mediaCacheSizeInBytes`](/docs/renderer/render-media#mediacachesizeinbytes)
-- [`renderStill()` → `mediaCacheSizeInBytes`](/docs/renderer/render-still#mediacachesizeinbytes)
-- [`selectComposition()` → `mediaCacheSizeInBytes`](/docs/renderer/select-composition#mediacachesizeinbytes)
-- [`renderMediaOnCloudRun()` → `mediaCacheSizeInBytes`](/docs/cloudrun/rendermediaoncloudrun#mediacachesizeinbytes)
-- [`renderStillOnCloudRun()` → `mediaCacheSizeInBytes`](/docs/cloudrun/renderstilloncloudrun#mediacachesizeinbytes)
-- [`getCompositionsOnLambda()` → `mediaCacheSizeInBytes`](/docs/lambda/getcompositionsonlambda#mediacachesizeinbytes)
-- [`renderMediaOnLambda()` → `mediaCacheSizeInBytes`](/docs/lambda/rendermediaonlambda#mediacachesizeinbytes)
-- [`renderStillOnLambda()` → `mediaCacheSizeInBytes`](/docs/lambda/renderstillonlambda#mediacachesizeinbytes)
-- [`getCompositions()` → `mediaCacheSizeInBytes`](/docs/lambda/getcompositionsonlambda#mediacachesizeinbytes)
-- [`renderFrames()` → `mediaCacheSizeInBytes`](/docs/renderer/render-frames#mediacachesizeinbytes)
-- [`npx remotion benchmark` → `--media-cache-size-in-bytes`](/docs/cli/benchmark#--media-cache-size-in-bytes)
-- [`npx remotion compositions` → `--media-cache-size-in-bytes`](/docs/cli/compositions#--media-cache-size-in-bytes)
-- [`npx remotion render` → `--media-cache-size-in-bytes`](/docs/cli/render#--media-cache-size-in-bytes)
-- [`npx remotion still` → `--media-cache-size-in-bytes`](/docs/cli/still#--media-cache-size-in-bytes)
-- [`npx remotion lambda render` → `--media-cache-size-in-bytes`](/docs/lambda/cli/render#--media-cache-size-in-bytes)
-- [`npx remotion lambda still` → `--media-cache-size-in-bytes`](/docs/lambda/cli/still#--media-cache-size-in-bytes)
-- [`npx remotion lambda compositions` → `--media-cache-size-in-bytes`](/docs/lambda/cli/compositions#--media-cache-size-in-bytes)
-- [`npx remotion cloudrun render` → `--media-cache-size-in-bytes`](/docs/cloudrun/cli/render#--media-cache-size-in-bytes)
-- [`npx remotion cloudrun still` → `--media-cache-size-in-bytes`](/docs/cloudrun/cli/still#--media-cache-size-in-bytes)
-- [`npx remotion cloudrun render` → `--media-cache-size-in-bytes`](/docs/cloudrun/cli/render#--media-cache-size-in-bytes)
-- [Remotion Studio](/docs/studio): Set the cache size under the "Advanced" tab
+In [Remotion Studio](/docs/studio), set the cache size under the "Advanced" tab.

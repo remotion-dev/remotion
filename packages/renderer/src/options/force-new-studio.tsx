@@ -14,7 +14,7 @@ export const forceNewStudioOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setforcenewstudioenabled',
+	docLink: 'https://www.remotion.dev/docs/options/force-new',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

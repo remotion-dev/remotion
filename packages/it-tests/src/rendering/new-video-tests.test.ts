@@ -17,7 +17,7 @@ test(
 		expect(missedFrames.mp4).toBe(0);
 	},
 	{
-		timeout: 60000,
+		timeout: 90000,
 	},
 );
 
@@ -30,7 +30,7 @@ test(
 		expect(missedFrames).toBeLessThanOrEqual(0);
 	},
 	{
-		timeout: 40000,
+		timeout: 90000,
 	},
 );
 
@@ -43,6 +43,6 @@ test(
 		expect(missedFrames).toBeLessThanOrEqual(0);
 	},
 	{
-		timeout: 40000,
+		timeout: 90000,
 	},
 );

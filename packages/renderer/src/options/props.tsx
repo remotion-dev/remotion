@@ -16,8 +16,7 @@ export const propsOption = {
 		</>
 	),
 	ssrName: null,
-	docLink:
-		'https://www.remotion.dev/docs/passing-props#passing-input-props-in-the-cli',
+	docLink: 'https://www.remotion.dev/docs/options/props',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

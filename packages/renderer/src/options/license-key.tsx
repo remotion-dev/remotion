@@ -14,7 +14,7 @@ export const licenseKeyOption = {
 		</>
 	),
 	ssrName: 'licenseKey' as const,
-	docLink: 'https://www.remotion.dev/docs/licensing',
+	docLink: 'https://www.remotion.dev/docs/options/license-key',
 	type: null as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

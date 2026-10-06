@@ -17,7 +17,7 @@ import type {
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
-import {Internals, useCurrentFrame} from 'remotion';
+import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLUE,
@@ -29,7 +29,6 @@ import {
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_20,
-	WHITE_ALPHA_50,
 } from '../../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {
@@ -94,6 +93,7 @@ import {
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
+import {TimelineSequenceMountIndicator} from './TimelineSequenceMountIndicator';
 import {
 	canResizeTimelineSequenceDuration,
 	getTimelineSequenceEndField,
@@ -308,7 +308,7 @@ const TimelineSequenceNegativeStart = React.memo(
 	TimelineSequenceNegativeStartInner,
 );
 
-const TimelineSequenceCurrentFrame: React.FC<{
+const TimelineSequenceBar: React.FC<{
 	readonly s: TSequence;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
@@ -397,25 +397,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		},
 		[fromCanUpdate, onMoveDragPointerDown, onSelect, selected],
 	);
-	const frame = useCurrentFrame();
-	const relativeFrame = frame - s.from;
-	const sequenceFrame =
-		relativeFrame * s.sequencePlaybackRate + sequenceFrameOffset;
-	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
-	const relativeFrameWithPostmount = relativeFrame - displayDurationInFrames;
-
-	const roundedFrame = Math.round(sequenceFrame * 100) / 100;
-
-	const isInRange =
-		relativeFrame >= 0 && relativeFrame < displayDurationInFrames;
-	const isPremounting =
-		relativeFrameWithPremount >= 0 &&
-		relativeFrameWithPremount < displayDurationInFrames &&
-		!isInRange;
-	const isPostmounting =
-		relativeFrameWithPostmount >= 0 &&
-		relativeFrameWithPostmount < (s.postmountDisplay ?? 0) &&
-		!isInRange;
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
 		: 0;
@@ -473,20 +454,13 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			{compactPremount ? null : premountIndicator}
 
 			{postmount ? (
-				<div
-					style={{
-						left: postmount.left,
-						width: postmount.width,
-						height: '100%',
-						background: `repeating-linear-gradient(
-								-45deg,
-								${TRANSPARENT},
-								${TRANSPARENT} 2px,
-								${isPostmounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 2px,
-								${isPostmounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 4px
-							)`,
-						position: 'absolute',
-					}}
+				<TimelineSequenceMountIndicator
+					from={s.from}
+					displayDurationInFrames={displayDurationInFrames}
+					mountDurationInFrames={s.postmountDisplay ?? 0}
+					mountType="postmount"
+					left={postmount.left}
+					width={postmount.width}
 				/>
 			) : null}
 
@@ -567,23 +541,14 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.type !== 'image' &&
-			s.loopDisplay === undefined &&
-			(frozenFrame !== null || isInRange || isPremounting || isPostmounting) ? (
-				<div
-					style={{
-						paddingLeft: 5 + negativeStartEnd + (premount?.width ?? 0),
-						height: '100%',
-						display: 'flex',
-						alignItems: 'center',
-					}}
-				>
-					<TimelineSequenceFrame
-						premounted={isPremounting}
-						postmounted={isPostmounting ? s.duration - 1 : null}
-						roundedFrame={roundedFrame}
-						frozenFrame={frozenFrame}
-					/>
-				</div>
+			s.loopDisplay === undefined ? (
+				<TimelineSequenceFrame
+					s={s}
+					sequenceFrameOffset={sequenceFrameOffset}
+					displayDurationInFrames={displayDurationInFrames}
+					paddingLeft={5 + negativeStartEnd + (premount?.width ?? 0)}
+					frozenFrame={frozenFrame}
+				/>
 			) : null}
 
 			{activeTrimEdge === null ||
@@ -1746,7 +1711,7 @@ const TimelineSequenceInner: React.FC<{
 		: 0;
 
 	const sequence = (
-		<TimelineSequenceCurrentFrame
+		<TimelineSequenceBar
 			s={s}
 			connectedComposition={connectedCompositions[0] ?? null}
 			annotationLocation={originalLocation}
@@ -1892,7 +1857,7 @@ const TimelineSequenceInner: React.FC<{
 					visibleWidth={visibleLayout.width}
 				/>
 			)}
-		</TimelineSequenceCurrentFrame>
+		</TimelineSequenceBar>
 	);
 
 	return (

@@ -538,6 +538,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	stackRef.current = controls
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);
+	const getStack = useCallback(() => stackRef.current, []);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
 	const currentFrame =
 		registeredFrozenFrame ??
@@ -669,7 +670,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					showInTimeline,
 					timelineOrder: null,
 					src: isMedia.src,
-					getStack: () => stackRef.current,
+					getStack,
 					getCurrentFrame,
 					refForOutline: refForOutline ?? null,
 					isInsideSeries,
@@ -700,7 +701,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				showInTimeline,
 				timelineOrder: null,
 				src: isMedia.data.src,
-				getStack: () => stackRef.current,
+				getStack,
 				getCurrentFrame,
 				startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
 				mediaFrameAtSequenceZero,
@@ -731,7 +732,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			timelineOrder: null,
 			loopDisplay: resolvedLoopDisplay,
-			getStack: () => stackRef.current,
+			getStack,
 			getCurrentFrame,
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
@@ -748,6 +749,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		timelineTrack,
 		timelineTrackRole,
 		getCurrentFrame,
+		getStack,
 		timelineClipName,
 		playbackRate,
 		parentSequence?.id,

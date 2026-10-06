@@ -20,7 +20,7 @@ export const logLevelOption = {
 			<br /> Default <code>info</code>.
 		</>
 	),
-	docLink: 'https://www.remotion.dev/docs/troubleshooting/debug-failed-render',
+	docLink: 'https://www.remotion.dev/docs/options/log',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
 			if (!isValidLogLevel(commandLine[cliFlag] as string)) {

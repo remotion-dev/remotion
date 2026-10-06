@@ -9,7 +9,7 @@ export const skipSkillsOption = {
 		<>Do not update installed Remotion Agent Skills while upgrading Remotion.</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/upgrade#--skip-skills',
+	docLink: 'https://www.remotion.dev/docs/options/skip-skills',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
 			return {
