@@ -1,6 +1,9 @@
 import type {FC, ReactNode} from 'react';
 import {createContext, useContext, useEffect, useMemo} from 'react';
-import {CompositionSetters} from './CompositionManagerContext.js';
+import {
+	CompositionCommitRegistrationContext,
+	CompositionSetters,
+} from './CompositionManagerContext.js';
 import {FolderOrderMarker, getFolderOrderId} from './sequence-order-marker.js';
 import {truthy} from './truthy.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -33,8 +36,11 @@ export const Folder: FC<{
 }> = (props) => {
 	const {name, children} = props;
 	const parent = useContext(FolderContext);
-	const {registerFolder, unregisterFolder} = useContext(CompositionSetters);
+	const compManager = useContext(CompositionSetters);
+	const {registerFolder, unregisterFolder} = compManager;
 	const environment = useRemotionEnvironment();
+	const commitRegistrationEnabled =
+		useContext(CompositionCommitRegistrationContext) === compManager;
 	const stack =
 		(props as {readonly _remotionInternalStack?: string})
 			._remotionInternalStack ?? null;
@@ -52,14 +58,26 @@ export const Folder: FC<{
 			parentName,
 		};
 	}, [name, parentName]);
+	const registration = useMemo<TFolder | null>(
+		() =>
+			commitRegistrationEnabled
+				? {name, parent: parentName, order: null, stack}
+				: null,
+		[commitRegistrationEnabled, name, parentName, stack],
+	);
 
 	useEffect(() => {
+		if (commitRegistrationEnabled) {
+			return;
+		}
+
 		registerFolder(name, parentName, stack);
 
 		return () => {
 			unregisterFolder(name, parentName);
 		};
 	}, [
+		commitRegistrationEnabled,
 		name,
 		parent.folderName,
 		parentName,
@@ -72,7 +90,10 @@ export const Folder: FC<{
 		<FolderContext.Provider value={value}>{children}</FolderContext.Provider>
 	);
 	return environment.isStudio ? (
-		<FolderOrderMarker folderId={getFolderOrderId({name, parent: parentName})}>
+		<FolderOrderMarker
+			folderId={getFolderOrderId({name, parent: parentName})}
+			registration={registration}
+		>
 			{folder}
 		</FolderOrderMarker>
 	) : (

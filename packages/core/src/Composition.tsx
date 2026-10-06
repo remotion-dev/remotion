@@ -1,5 +1,11 @@
 import type {ComponentType} from 'react';
-import React, {Suspense, useCallback, useContext, useEffect} from 'react';
+import React, {
+	Suspense,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+} from 'react';
 import {createPortal} from 'react-dom';
 import type {z} from 'zod';
 import type {AnyZodObject} from './any-zod-type.js';
@@ -10,8 +16,11 @@ import {
 import type {Codec} from './codec.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {CompositionErrorBoundary} from './CompositionErrorBoundary.js';
-import type {TComposition} from './CompositionManager.js';
-import {CompositionSetters} from './CompositionManagerContext.js';
+import type {AnyComposition, TComposition} from './CompositionManager.js';
+import {
+	CompositionCommitRegistrationContext,
+	CompositionSetters,
+} from './CompositionManagerContext.js';
 import {resolveComponentIdentity} from './enable-sequence-stack-traces.js';
 import {FolderContext} from './Folder.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
@@ -146,6 +155,8 @@ const InnerComposition = <
 	const compManager = useContext(CompositionSetters);
 
 	const {registerComposition, unregisterComposition} = compManager;
+	const commitRegistrationEnabled =
+		useContext(CompositionCommitRegistrationContext) === compManager;
 
 	const video = useVideo();
 
@@ -188,7 +199,7 @@ const InnerComposition = <
 			? resolveComponentIdentity(compProps.component)
 			: null;
 
-	useEffect(() => {
+	const getCompositionForRegistration = useCallback(() => {
 		// Ensure it's a URL safe id
 		if (!id) {
 			throw new Error('No id for composition passed.');
@@ -196,7 +207,7 @@ const InnerComposition = <
 
 		validateCompositionId(id);
 		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
-		registerComposition<Schema, Props>({
+		return {
 			durationInFrames: durationInFrames ?? undefined,
 			fps: fps ?? undefined,
 			height: height ?? undefined,
@@ -213,11 +224,7 @@ const InnerComposition = <
 			schema: schema ?? null,
 			calculateMetadata: compProps.calculateMetadata ?? null,
 			stack,
-		} as TComposition<Schema, Props>);
-
-		return () => {
-			unregisterComposition(id);
-		};
+		} as TComposition<Schema, Props>;
 	}, [
 		durationInFrames,
 		fps,
@@ -232,6 +239,25 @@ const InnerComposition = <
 		schema,
 		compProps.calculateMetadata,
 		stack,
+	]);
+	const registration = useMemo(
+		() =>
+			commitRegistrationEnabled
+				? (getCompositionForRegistration() as unknown as AnyComposition)
+				: null,
+		[commitRegistrationEnabled, getCompositionForRegistration],
+	);
+	useEffect(() => {
+		if (commitRegistrationEnabled) {
+			return;
+		}
+
+		registerComposition<Schema, Props>(getCompositionForRegistration());
+		return () => unregisterComposition(id);
+	}, [
+		commitRegistrationEnabled,
+		getCompositionForRegistration,
+		id,
 		registerComposition,
 		unregisterComposition,
 	]);
@@ -250,6 +276,14 @@ const InnerComposition = <
 	const onClear = useCallback(() => {
 		clearError();
 	}, [clearError]);
+	const wrapRegistration = (content: React.ReactNode) =>
+		environment.isStudio ? (
+			<CompositionOrderMarker compositionId={id} registration={registration}>
+				{content}
+			</CompositionOrderMarker>
+		) : (
+			content
+		);
 
 	if (
 		environment.isStudio &&
@@ -263,23 +297,25 @@ const InnerComposition = <
 			(resolved.type !== 'success' &&
 				resolved.type !== 'success-and-refreshing')
 		) {
-			return null;
+			return wrapRegistration(null);
 		}
 
-		return createPortal(
-			<CanUseRemotionHooksProvider>
-				<CompositionErrorBoundary onError={onError} onClear={onClear}>
-					<Suspense fallback={<Loading />}>
-						<Comp
-							{
-								// eslint-disable-next-line @typescript-eslint/no-explicit-any
-								...((resolved.result.props ?? {}) as any)
-							}
-						/>
-					</Suspense>
-				</CompositionErrorBoundary>
-			</CanUseRemotionHooksProvider>,
-			portalNode(),
+		return wrapRegistration(
+			createPortal(
+				<CanUseRemotionHooksProvider>
+					<CompositionErrorBoundary onError={onError} onClear={onClear}>
+						<Suspense fallback={<Loading />}>
+							<Comp
+								{
+									// eslint-disable-next-line @typescript-eslint/no-explicit-any
+									...((resolved.result.props ?? {}) as any)
+								}
+							/>
+						</Suspense>
+					</CompositionErrorBoundary>
+				</CanUseRemotionHooksProvider>,
+				portalNode(),
+			),
 		);
 	}
 
@@ -295,25 +331,27 @@ const InnerComposition = <
 			(resolved.type !== 'success' &&
 				resolved.type !== 'success-and-refreshing')
 		) {
-			return null;
+			return wrapRegistration(null);
 		}
 
-		return createPortal(
-			<CanUseRemotionHooksProvider>
-				<Suspense fallback={<Fallback />}>
-					<Comp
-						{
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-							...((resolved.result.props ?? {}) as any)
-						}
-					/>
-				</Suspense>
-			</CanUseRemotionHooksProvider>,
-			portalNode(),
+		return wrapRegistration(
+			createPortal(
+				<CanUseRemotionHooksProvider>
+					<Suspense fallback={<Fallback />}>
+						<Comp
+							{
+								// eslint-disable-next-line @typescript-eslint/no-explicit-any
+								...((resolved.result.props ?? {}) as any)
+							}
+						/>
+					</Suspense>
+				</CanUseRemotionHooksProvider>,
+				portalNode(),
+			),
 		);
 	}
 
-	return null;
+	return wrapRegistration(null);
 };
 
 /*
@@ -327,19 +365,11 @@ export const Composition = <
 	props: CompositionProps<Schema, Props>,
 ) => {
 	const {onlyRenderComposition} = useContext(CompositionSetters);
-	const environment = useRemotionEnvironment();
 
 	if (onlyRenderComposition && onlyRenderComposition !== props.id) {
 		return null;
 	}
 
 	// @ts-expect-error
-	const composition = <InnerComposition {...props} />;
-	return environment.isStudio ? (
-		<CompositionOrderMarker compositionId={props.id}>
-			{composition}
-		</CompositionOrderMarker>
-	) : (
-		composition
-	);
+	return <InnerComposition {...props} />;
 };

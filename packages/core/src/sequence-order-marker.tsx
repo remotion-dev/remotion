@@ -1,5 +1,6 @@
 import type React from 'react';
-import type {TSequence} from './CompositionManager.js';
+import type {AnyComposition, TSequence} from './CompositionManager.js';
+import type {TFolder} from './Folder.js';
 
 export const SEQUENCE_ORDER_MARKER = Symbol.for(
 	'remotion.sequence-order-marker',
@@ -70,6 +71,12 @@ export type CommittedSequenceSnapshot = {
 	readonly sequenceIds: readonly string[];
 };
 
+export type CommittedCompositionSnapshot = {
+	readonly compositions: readonly AnyComposition[];
+	readonly folders: readonly TFolder[];
+	readonly orderIds: readonly string[];
+};
+
 export const SequenceOrderMarker: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sequenceId: string;
@@ -103,6 +110,7 @@ Object.defineProperty(
 export const CompositionOrderMarker: React.FC<{
 	readonly children: React.ReactNode;
 	readonly compositionId: string;
+	readonly registration: AnyComposition | null;
 }> = ({children}) => children;
 
 Object.defineProperty(CompositionOrderMarker, COMPOSITION_ORDER_MARKER, {
@@ -112,6 +120,7 @@ Object.defineProperty(CompositionOrderMarker, COMPOSITION_ORDER_MARKER, {
 export const FolderOrderMarker: React.FC<{
 	readonly children: React.ReactNode;
 	readonly folderId: string;
+	readonly registration: TFolder | null;
 }> = ({children}) => children;
 
 Object.defineProperty(FolderOrderMarker, FOLDER_ORDER_MARKER, {
@@ -121,6 +130,9 @@ Object.defineProperty(FolderOrderMarker, FOLDER_ORDER_MARKER, {
 export const CompositionManagerOrderMarker: React.FC<{
 	readonly children: React.ReactNode;
 	readonly managerId: string;
+	readonly onCommitRegistrations:
+		| ((snapshot: CommittedCompositionSnapshot) => void)
+		| null;
 }> = ({children}) => children;
 
 Object.defineProperty(

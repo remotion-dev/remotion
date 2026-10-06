@@ -124,11 +124,20 @@ export const componentOrNullIfLazy = <Props,>(
 const TimelineSequenceObserverComponent: React.FC<{
 	readonly onTimelineSequenceChange: TimelineSequenceObserver;
 }> = ({onTimelineSequenceChange}) => {
-	const sequences = Internals.useSequenceManagerSequences();
+	const registry = React.useContext(Internals.SequenceRegistryContext);
 
-	useEffect(() => {
-		onTimelineSequenceChange(sequences);
-	}, [onTimelineSequenceChange, sequences]);
+	useLayoutEffect(() => {
+		if (registry === null) {
+			throw new Error(
+				'Timeline sequence observer requires a sequence registry',
+			);
+		}
+
+		const publish = () => onTimelineSequenceChange(registry.getSnapshot());
+		const unsubscribe = registry.subscribe(publish);
+		publish();
+		return unsubscribe;
+	}, [onTimelineSequenceChange, registry]);
 
 	return null;
 };

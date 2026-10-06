@@ -87,6 +87,11 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	canvasContent: null,
 });
 
+// Bind commit registration to these setters so custom providers keep using
+// their own registration lifecycle, even inside a managed Studio tree.
+export const CompositionCommitRegistrationContext =
+	createContext<CompositionManagerSetters | null>(null);
+
 export const CompositionSetters = createContext<CompositionManagerSetters>({
 	registerComposition: () => undefined,
 	unregisterComposition: () => undefined,

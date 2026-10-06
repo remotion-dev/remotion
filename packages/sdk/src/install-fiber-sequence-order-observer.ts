@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import type {TSequence} from 'remotion';
+import type {AnyComposition, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 
 type Fiber = {
@@ -43,6 +43,24 @@ type CommittedSequenceRegistration = {
 	) => void;
 	readonly sequences: readonly TSequence[];
 	readonly sequenceIds: readonly string[];
+};
+
+type FolderRegistration = {
+	readonly name: string;
+	readonly parent: string | null;
+	readonly order: number | null;
+	readonly stack: string | null;
+};
+
+type CommittedCompositionSnapshot = {
+	readonly compositions: readonly AnyComposition[];
+	readonly folders: readonly FolderRegistration[];
+	readonly orderIds: readonly string[];
+};
+
+type CommittedCompositionRegistration = {
+	readonly onCommit: (snapshot: CommittedCompositionSnapshot) => void;
+	readonly snapshot: CommittedCompositionSnapshot;
 };
 
 // Compare while traversing, and allocate only after the first changed entry.
@@ -99,7 +117,17 @@ export const collectCommitOrderFromFiber = (
 		string,
 		CommittedSequenceRegistration
 	> | null = null,
+	compositionRegistry: {
+		readonly registrations: Map<string, CommittedCompositionRegistration>;
+		readonly previous: ReadonlyMap<
+			string,
+			CommittedCompositionRegistration
+		> | null;
+	} | null = null,
 ) => {
+	const compositionRegistrations = compositionRegistry?.registrations ?? null;
+	const previousCompositionRegistrations =
+		compositionRegistry?.previous ?? null;
 	const outlineNodesByRef = new Map<
 		RefObject<Element | null>,
 		(Element | Text)[]
@@ -121,7 +149,22 @@ export const collectCommitOrderFromFiber = (
 	>();
 	const compositionsAndFoldersByManager = new Map<
 		string,
-		CompositionAndFolderOrderItem[]
+		{
+			readonly order: CompositionAndFolderOrderItem[];
+			readonly registration: {
+				readonly onCommit: CommittedCompositionRegistration['onCommit'];
+				readonly previous: CommittedCompositionRegistration | null;
+				readonly compositions: ReturnType<
+					typeof createCommitSnapshotCollector<AnyComposition>
+				>;
+				readonly folders: ReturnType<
+					typeof createCommitSnapshotCollector<FolderRegistration>
+				>;
+				readonly orderIds: ReturnType<
+					typeof createCommitSnapshotCollector<string>
+				>;
+			} | null;
+		}
 	>();
 
 	const visit = (
@@ -189,7 +232,33 @@ export const collectCommitOrderFromFiber = (
 			compositionManagerId !== null &&
 			!compositionsAndFoldersByManager.has(compositionManagerId)
 		) {
-			compositionsAndFoldersByManager.set(compositionManagerId, []);
+			const previous =
+				previousCompositionRegistrations?.get(compositionManagerId) ?? null;
+			const props = fiber.memoizedProps;
+			const onCommit =
+				typeof props === 'object' && props !== null
+					? Reflect.get(props, 'onCommitRegistrations')
+					: null;
+			compositionsAndFoldersByManager.set(compositionManagerId, {
+				order: [],
+				registration:
+					compositionRegistrations !== null && typeof onCommit === 'function'
+						? {
+								onCommit:
+									onCommit as CommittedCompositionRegistration['onCommit'],
+								previous,
+								compositions: createCommitSnapshotCollector(
+									previous?.snapshot.compositions ?? null,
+								),
+								folders: createCommitSnapshotCollector(
+									previous?.snapshot.folders ?? null,
+								),
+								orderIds: createCommitSnapshotCollector(
+									previous?.snapshot.orderIds ?? null,
+								),
+							}
+						: null,
+			});
 		}
 
 		if (hasFiberMarker(fiber, Internals.CommitOrderInternals.sequenceMarker)) {
@@ -234,9 +303,21 @@ export const collectCommitOrderFromFiber = (
 		) {
 			const id = getStringProp(fiber.memoizedProps, 'compositionId');
 			if (id !== null) {
-				compositionsAndFoldersByManager
-					.get(compositionManagerId)
-					?.push({type: 'composition', id});
+				const manager =
+					compositionsAndFoldersByManager.get(compositionManagerId);
+				manager?.order.push({type: 'composition', id});
+				manager?.registration?.orderIds.push(`composition:${id}`);
+				const registration =
+					typeof fiber.memoizedProps === 'object' &&
+					fiber.memoizedProps !== null
+						? (Reflect.get(
+								fiber.memoizedProps,
+								'registration',
+							) as AnyComposition | null)
+						: null;
+				if (registration) {
+					manager?.registration?.compositions.push(registration);
+				}
 			}
 		}
 
@@ -246,9 +327,21 @@ export const collectCommitOrderFromFiber = (
 		) {
 			const id = getStringProp(fiber.memoizedProps, 'folderId');
 			if (id !== null) {
-				compositionsAndFoldersByManager
-					.get(compositionManagerId)
-					?.push({type: 'folder', id});
+				const manager =
+					compositionsAndFoldersByManager.get(compositionManagerId);
+				manager?.order.push({type: 'folder', id});
+				manager?.registration?.orderIds.push(`folder:${id}`);
+				const registration =
+					typeof fiber.memoizedProps === 'object' &&
+					fiber.memoizedProps !== null
+						? (Reflect.get(
+								fiber.memoizedProps,
+								'registration',
+							) as FolderRegistration | null)
+						: null;
+				if (registration) {
+					manager?.registration?.folders.push(registration);
+				}
 			}
 		}
 
@@ -306,15 +399,37 @@ export const collectCommitOrderFromFiber = (
 		},
 	);
 
+	const compositionManagers = [...compositionsAndFoldersByManager].map(
+		([managerId, manager]) => {
+			const {registration} = manager;
+			if (registration !== null && compositionRegistrations !== null) {
+				const compositions = registration.compositions.getSnapshot();
+				const folders = registration.folders.getSnapshot();
+				const orderIds = registration.orderIds.getSnapshot();
+				const {previous} = registration;
+				compositionRegistrations.set(
+					managerId,
+					previous !== null &&
+						previous.onCommit === registration.onCommit &&
+						previous.snapshot.compositions === compositions &&
+						previous.snapshot.folders === folders &&
+						previous.snapshot.orderIds === orderIds
+						? previous
+						: {
+								onCommit: registration.onCommit,
+								snapshot: {compositions, folders, orderIds},
+							},
+				);
+			}
+
+			return {managerId, compositionAndFolderOrder: manager.order};
+		},
+	);
+
 	return {
 		outlineCount: outlineNodesByRef.size,
 		sequenceManagers,
-		compositionManagers: [...compositionsAndFoldersByManager].map(
-			([managerId, compositionAndFolderOrder]) => ({
-				managerId,
-				compositionAndFolderOrder,
-			}),
-		),
+		compositionManagers,
 	};
 };
 
@@ -335,18 +450,33 @@ export const installFiberCommitOrderObserver = (
 		FiberRoot,
 		Map<string, CommittedSequenceRegistration>
 	>();
+	const compositionRegistrationsByRoot = new WeakMap<
+		FiberRoot,
+		Map<string, CommittedCompositionRegistration>
+	>();
 
 	hook.onCommitFiberRoot = function (...args) {
 		try {
 			const [, root] = args;
 			const registrations = new Map<string, CommittedSequenceRegistration>();
 			const previousRegistrations = registrationsByRoot.get(root);
+			const compositionRegistrations = new Map<
+				string,
+				CommittedCompositionRegistration
+			>();
+			const previousCompositionRegistrations =
+				compositionRegistrationsByRoot.get(root);
 			const order = collectCommitOrderFromFiber(
 				root,
 				registrations,
 				previousRegistrations ?? null,
+				{
+					registrations: compositionRegistrations,
+					previous: previousCompositionRegistrations ?? null,
+				},
 			);
 			registrationsByRoot.set(root, registrations);
+			compositionRegistrationsByRoot.set(root, compositionRegistrations);
 			for (const [managerId, registration] of registrations) {
 				if (registration !== previousRegistrations?.get(managerId)) {
 					registration.onCommit(
@@ -360,6 +490,27 @@ export const installFiberCommitOrderObserver = (
 				for (const [managerId, registration] of previousRegistrations) {
 					if (!registrations.has(managerId)) {
 						registration.onCommit([], []);
+					}
+				}
+			}
+
+			for (const [managerId, registration] of compositionRegistrations) {
+				if (registration !== previousCompositionRegistrations?.get(managerId)) {
+					registration.onCommit(registration.snapshot);
+				}
+			}
+
+			if (previousCompositionRegistrations) {
+				for (const [
+					managerId,
+					registration,
+				] of previousCompositionRegistrations) {
+					if (!compositionRegistrations.has(managerId)) {
+						registration.onCommit({
+							compositions: [],
+							folders: [],
+							orderIds: [],
+						});
 					}
 				}
 			}
