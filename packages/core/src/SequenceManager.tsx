@@ -839,11 +839,26 @@ export const SequenceManagerProvider: React.FC<{
 				return seqs;
 			}
 
-			const next = [...seqs];
-			next[index] = {
+			const nextSequence = {
 				...seq,
 				timelineOrder: committedOrderRef.current?.get(seq.id) ?? null,
 			};
+			const previousSequence = seqs[index];
+			// A new registration getter does not necessarily change the metadata.
+			if (
+				Object.keys(previousSequence).length ===
+					Object.keys(nextSequence).length &&
+				Object.entries(nextSequence).every(
+					([key, value]) =>
+						Object.prototype.hasOwnProperty.call(previousSequence, key) &&
+						Object.is(previousSequence[key as keyof TSequence], value),
+				)
+			) {
+				return seqs;
+			}
+
+			const next = [...seqs];
+			next[index] = nextSequence;
 			return next;
 		});
 	}, []);
