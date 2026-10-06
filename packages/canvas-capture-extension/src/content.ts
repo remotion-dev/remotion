@@ -1014,7 +1014,7 @@ export const startContent = () => {
 			const closeLabel = state.recording
 				? 'Stop recording before clearing selection'
 				: state.hasCompletedRecording
-					? 'Discard recording and clear selection'
+					? 'Discard recording'
 					: state.hasTarget
 						? 'Clear selection'
 						: 'Close';
@@ -1507,13 +1507,16 @@ export const startContent = () => {
 				return;
 			}
 
-			if (selectedTarget || completedRecording) {
-				setStatus(
-					completedRecording
-						? 'Recording discarded. Choose an area or the whole page.'
-						: 'Choose an area or the whole page.',
-				);
+			if (completedRecording) {
 				completedRecording = null;
+				setStatus('Recording discarded. Ready to record again.');
+				updateHighlight();
+				updateControls();
+				return;
+			}
+
+			if (selectedTarget) {
+				setStatus('Choose an area or the whole page.');
 				selectedTarget = null;
 				encoderSupportCheckId++;
 				encoderSupport = 'unavailable';
