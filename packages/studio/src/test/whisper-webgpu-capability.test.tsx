@@ -1,6 +1,7 @@
 import {afterEach, expect, spyOn, test} from 'bun:test';
 import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {ModalsProvider} from '../components/ModalsProvider';
+import {SettingsProvider} from '../components/SettingsContext';
 import {TranscriptionModalWithOptionalWhisper} from '../components/Transcription/TranscriptionModalWithOptionalWhisper';
 import {
 	isWhisperWebGpuInstalled,
@@ -8,6 +9,7 @@ import {
 } from '../components/Transcription/whisper-webgpu-capability';
 import {VIDEO_MATTING_PACKAGE} from '../components/VideoMatting/video-matting-capability';
 import {VideoMattingModalWithOptionalPackage} from '../components/VideoMatting/VideoMattingModalWithOptionalPackage';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	TRANSFORMERS_PACKAGE,
 	withRequiredAuxiliaryPackages,
@@ -76,19 +78,30 @@ test('opens transcription after installing Whisper without restarting', async ()
 	);
 	try {
 		const {container, getByRole, getByText} = render(
-			<ModalsProvider>
-				<TranscriptionModalWithOptionalWhisper
-					state={{
-						type: 'transcribe',
-						captionStyle: null,
-						src: '/voice.wav',
-						displayName: 'voice.wav',
-						audioStreamIndex: null,
-						requestInit: null,
-						target: null,
-					}}
-				/>
-			</ModalsProvider>,
+			<StudioServerConnectionCtx.Provider
+				value={{
+					previewServerState: {type: 'init'},
+					configFileChangeRevision: 0,
+					restartRequired: false,
+					subscribeToEvent: () => () => undefined,
+				}}
+			>
+				<SettingsProvider>
+					<ModalsProvider>
+						<TranscriptionModalWithOptionalWhisper
+							state={{
+								type: 'transcribe',
+								captionStyle: null,
+								src: '/voice.wav',
+								displayName: 'voice.wav',
+								audioStreamIndex: null,
+								requestInit: null,
+								target: null,
+							}}
+						/>
+					</ModalsProvider>
+				</SettingsProvider>
+			</StudioServerConnectionCtx.Provider>,
 		);
 
 		fireEvent.click(getByRole('button', {name: 'Install packages'}));
