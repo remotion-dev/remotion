@@ -41,8 +41,31 @@ type CommittedSequenceRegistration = {
 		sequences: readonly TSequence[],
 		sequenceIds: readonly string[],
 	) => void;
-	readonly sequences: TSequence[];
-	readonly sequenceIds: string[];
+	readonly sequences: readonly TSequence[];
+	readonly sequenceIds: readonly string[];
+};
+
+// Compare while traversing, and allocate only after the first changed entry.
+const createCommitSnapshotCollector = <T>(previous: readonly T[] | null) => {
+	let count = 0;
+	let values: T[] | null = null;
+	return {
+		push: (value: T) => {
+			if (values !== null) {
+				values.push(value);
+			} else if (previous?.[count] !== value) {
+				values = previous?.slice(0, count) ?? [];
+				values.push(value);
+			}
+
+			count++;
+		},
+		getSnapshot: (): readonly T[] =>
+			values ??
+			(previous?.length === count
+				? previous
+				: (previous?.slice(0, count) ?? [])),
+	};
 };
 
 type CompositionAndFolderOrderItem =
@@ -72,12 +95,30 @@ const hasFiberMarker = (fiber: Fiber, marker: symbol) =>
 export const collectCommitOrderFromFiber = (
 	root: FiberRoot,
 	registrations: Map<string, CommittedSequenceRegistration> | null = null,
+	previousRegistrations: ReadonlyMap<
+		string,
+		CommittedSequenceRegistration
+	> | null = null,
 ) => {
 	const outlineNodesByRef = new Map<
 		RefObject<Element | null>,
 		(Element | Text)[]
 	>();
-	const sequencesByManager = new Map<string, string[]>();
+	const sequencesByManager = new Map<
+		string,
+		{
+			readonly sequenceIds: ReturnType<
+				typeof createCommitSnapshotCollector<string>
+			>;
+			readonly registration: {
+				readonly onCommit: CommittedSequenceRegistration['onCommit'];
+				readonly sequences: ReturnType<
+					typeof createCommitSnapshotCollector<TSequence>
+				>;
+				readonly previous: CommittedSequenceRegistration | null;
+			} | null;
+		}
+	>();
 	const compositionsAndFoldersByManager = new Map<
 		string,
 		CompositionAndFolderOrderItem[]
@@ -113,20 +154,27 @@ export const collectCommitOrderFromFiber = (
 			sequenceManagerId !== null &&
 			!sequencesByManager.has(sequenceManagerId)
 		) {
-			const sequenceIds: string[] = [];
-			sequencesByManager.set(sequenceManagerId, sequenceIds);
+			const previous = previousRegistrations?.get(sequenceManagerId) ?? null;
 			const props = fiber.memoizedProps;
 			const onCommit =
 				typeof props === 'object' && props !== null
 					? Reflect.get(props, 'onCommitSequences')
 					: null;
-			if (typeof onCommit === 'function') {
-				registrations?.set(sequenceManagerId, {
-					onCommit: onCommit as CommittedSequenceRegistration['onCommit'],
-					sequences: [],
-					sequenceIds,
-				});
-			}
+			sequencesByManager.set(sequenceManagerId, {
+				sequenceIds: createCommitSnapshotCollector(
+					previous?.sequenceIds ?? null,
+				),
+				registration:
+					registrations !== null && typeof onCommit === 'function'
+						? {
+								onCommit: onCommit as CommittedSequenceRegistration['onCommit'],
+								sequences: createCommitSnapshotCollector(
+									previous?.sequences ?? null,
+								),
+								previous,
+							}
+						: null,
+			});
 		}
 
 		const isCompositionManagerMarker = hasFiberMarker(
@@ -149,7 +197,8 @@ export const collectCommitOrderFromFiber = (
 			if (sequenceManagerId !== null) {
 				const sequenceId = getStringProp(fiber.memoizedProps, 'sequenceId');
 				if (sequenceId !== null) {
-					sequencesByManager.get(sequenceManagerId)?.push(sequenceId);
+					const manager = sequencesByManager.get(sequenceManagerId);
+					manager?.sequenceIds.push(sequenceId);
 					const registration =
 						typeof props === 'object' && props !== null
 							? (Reflect.get(props, 'registration') as
@@ -158,7 +207,7 @@ export const collectCommitOrderFromFiber = (
 									| undefined)
 							: null;
 					if (registration) {
-						registrations?.get(sequenceManagerId)?.sequences.push(registration);
+						manager?.registration?.sequences.push(registration);
 					}
 				}
 			}
@@ -235,11 +284,31 @@ export const collectCommitOrderFromFiber = (
 		Internals.SequenceOutlineInternals.setNodes(ref, nodes);
 	}
 
+	const sequenceManagers = [...sequencesByManager].map(
+		([managerId, manager]) => {
+			const sequenceIds = manager.sequenceIds.getSnapshot();
+			const {registration} = manager;
+			if (registration !== null && registrations !== null) {
+				const sequences = registration.sequences.getSnapshot();
+				const {previous} = registration;
+				registrations.set(
+					managerId,
+					previous !== null &&
+						previous.onCommit === registration.onCommit &&
+						previous.sequences === sequences &&
+						previous.sequenceIds === sequenceIds
+						? previous
+						: {onCommit: registration.onCommit, sequences, sequenceIds},
+				);
+			}
+
+			return {managerId, sequenceIds};
+		},
+	);
+
 	return {
 		outlineCount: outlineNodesByRef.size,
-		sequenceManagers: [...sequencesByManager].map(
-			([managerId, sequenceIds]) => ({managerId, sequenceIds}),
-		),
+		sequenceManagers,
 		compositionManagers: [...compositionsAndFoldersByManager].map(
 			([managerId, compositionAndFolderOrder]) => ({
 				managerId,
@@ -271,11 +340,20 @@ export const installFiberCommitOrderObserver = (
 		try {
 			const [, root] = args;
 			const registrations = new Map<string, CommittedSequenceRegistration>();
-			const order = collectCommitOrderFromFiber(root, registrations);
 			const previousRegistrations = registrationsByRoot.get(root);
+			const order = collectCommitOrderFromFiber(
+				root,
+				registrations,
+				previousRegistrations ?? null,
+			);
 			registrationsByRoot.set(root, registrations);
-			for (const registration of registrations.values()) {
-				registration.onCommit(registration.sequences, registration.sequenceIds);
+			for (const [managerId, registration] of registrations) {
+				if (registration !== previousRegistrations?.get(managerId)) {
+					registration.onCommit(
+						registration.sequences,
+						registration.sequenceIds,
+					);
+				}
 			}
 
 			if (previousRegistrations) {

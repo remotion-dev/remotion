@@ -454,6 +454,9 @@ export const SequenceManagerProvider: React.FC<{
 		() => shouldObserveCommits && isCommitRegistrationObserverAvailable(),
 	);
 	const committedRegistrationIdsRef = useRef<ReadonlySet<string>>(new Set());
+	const committedDescriptorsRef = useRef<ReadonlyMap<string, TSequence>>(
+		new Map(),
+	);
 	const pendingCommittedSequencesRef = useRef<CommittedSequenceSnapshot | null>(
 		null,
 	);
@@ -810,14 +813,8 @@ export const SequenceManagerProvider: React.FC<{
 				lastCommittedSequencesRef.current;
 			if (
 				previousSnapshot !== null &&
-				previousSnapshot.sequences.length === snapshot.length &&
-				previousSnapshot.sequenceIds.length === sequenceIds.length &&
-				snapshot.every(
-					(sequence, index) => sequence === previousSnapshot.sequences[index],
-				) &&
-				sequenceIds.every(
-					(id, index) => id === previousSnapshot.sequenceIds[index],
-				)
+				previousSnapshot.sequences === snapshot &&
+				previousSnapshot.sequenceIds === sequenceIds
 			) {
 				return;
 			}
@@ -841,6 +838,10 @@ export const SequenceManagerProvider: React.FC<{
 				}
 
 				const previousIds = committedRegistrationIdsRef.current;
+				const previousDescriptors = committedDescriptorsRef.current;
+				committedDescriptorsRef.current = new Map(
+					pending.sequences.map((sequence) => [sequence.id, sequence]),
+				);
 				const nextIds = new Set(
 					pending.sequences.map((sequence) => sequence.id),
 				);
@@ -854,11 +855,20 @@ export const SequenceManagerProvider: React.FC<{
 						current.map((sequence) => [sequence.id, sequence]),
 					);
 					const next = pending.sequences.map((sequence) => {
+						const previous = previousById.get(sequence.id);
+						const timelineOrder = order.get(sequence.id) ?? null;
+						if (
+							previous &&
+							previousDescriptors.get(sequence.id) === sequence &&
+							previous.timelineOrder === timelineOrder
+						) {
+							return previous;
+						}
+
 						const registeredSequence = {
 							...sequence,
-							timelineOrder: order.get(sequence.id) ?? null,
+							timelineOrder,
 						};
-						const previous = previousById.get(sequence.id);
 						return previous &&
 							areSequenceRegistrationsEqual(previous, registeredSequence)
 							? previous
@@ -920,11 +930,13 @@ export const SequenceManagerProvider: React.FC<{
 
 			const previousOrder = committedOrderIdsRef.current;
 			if (
-				previousOrder !== null &&
-				previousOrder.length === managerOrder.sequenceIds.length &&
-				previousOrder.every(
-					(sequenceId, index) => sequenceId === managerOrder.sequenceIds[index],
-				)
+				previousOrder === managerOrder.sequenceIds ||
+				(previousOrder !== null &&
+					previousOrder.length === managerOrder.sequenceIds.length &&
+					previousOrder.every(
+						(sequenceId, index) =>
+							sequenceId === managerOrder.sequenceIds[index],
+					))
 			) {
 				return;
 			}
