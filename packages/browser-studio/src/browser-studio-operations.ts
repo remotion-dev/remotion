@@ -1470,13 +1470,14 @@ export const createBrowserStudioOperations = ({
 							: {},
 				}),
 			});
-			const insertedNodePath = result.nodePathRemappings.find(
-				(remapping) => remapping.oldNodePath === null,
-			)?.newNodePath;
+			const insertedNodePath =
+				result.nodePathRemappings.find(
+					(remapping) => remapping.oldNodePath === null,
+				)?.newNodePath ?? null;
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection:
-					compositionId && insertedNodePath
+					compositionId !== null && insertedNodePath !== null
 						? {
 								compositionId,
 								absolutePath: filePath,

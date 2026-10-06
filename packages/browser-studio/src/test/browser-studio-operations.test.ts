@@ -962,6 +962,7 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 
 	const result = await operations.wrapNode({
 		fileName,
+		compositionId: null,
 		nodePath,
 		wrapper: 'Sequence',
 		width: null,

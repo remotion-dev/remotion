@@ -85,12 +85,12 @@ export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 					newJsxName,
 				}),
 			);
-			const insertedNodePath = remappings.find(
-				(remapping) => remapping.oldNodePath === null,
-			)?.newNodePath;
+			const insertedNodePath =
+				remappings.find((remapping) => remapping.oldNodePath === null)
+					?.newNodePath ?? null;
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings}],
-				compositionId && insertedNodePath
+				compositionId !== null && insertedNodePath !== null
 					? {compositionId, absolutePath, nodePath: insertedNodePath}
 					: null,
 			);

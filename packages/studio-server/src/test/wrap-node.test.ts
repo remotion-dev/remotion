@@ -44,6 +44,7 @@ export const Comp = () => {
 		const result = await wrapNodeHandler({
 			input: {
 				fileName: entryPoint,
+				compositionId: null,
 				nodePath: lineContainingToNodePath(input, '<AbsoluteFill'),
 				wrapper: 'HtmlInCanvas',
 				width: 2560,
