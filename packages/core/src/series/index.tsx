@@ -15,7 +15,8 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
-import {Sequence, SequenceWithoutSchema} from '../Sequence.js';
+import {SequenceWithoutSchema} from '../Sequence.js';
+import {TrackWithoutSchema} from '../Track.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import {flattenChildren} from './flatten-children.js';
@@ -257,14 +258,14 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 	}, [props.children]);
 
 	return (
-		<Sequence
+		<TrackWithoutSchema
 			layout="none"
-			name="<Series>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 			{...props}
+			name={props.name ?? '<Series>'}
 		>
 			<IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>
-		</Sequence>
+		</TrackWithoutSchema>
 	);
 };
 

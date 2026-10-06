@@ -687,7 +687,7 @@ const getSelectableTimelineItemsForTrack = ({
 		return [];
 	}
 
-	if (!getIsExpanded(nodePathInfo)) {
+	if (track.sequence.timelineTrack || !getIsExpanded(nodePathInfo)) {
 		return [sequenceSelection];
 	}
 
