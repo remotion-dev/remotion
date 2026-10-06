@@ -363,3 +363,25 @@ test("Should assign proper start value from interpolate's inputRange array if fi
 		),
 	).toEqual({opacity: -0.5});
 });
+
+test('Should apply easing to colors', () => {
+	expect(
+		interpolateStyles(
+			0.5,
+			[0, 1],
+			[
+				{
+					color: 'rgb(0, 0, 0)',
+					opacity: 0,
+				},
+				{
+					color: 'rgb(200, 200, 200)',
+					opacity: 200,
+				},
+			],
+			{
+				easing: Easing.in(Easing.quad),
+			},
+		),
+	).toEqual({color: 'rgba(50, 50, 50, 1)', opacity: 50});
+});

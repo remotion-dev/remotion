@@ -51,10 +51,12 @@ const interpolatedPropertyPart = ({
 			);
 		}
 
-		const interpolatedColor = interpolateColors(inputValue, inputRange, [
-			initialStylePropertyPart.color,
-			finalStylePropertyPart.color as string,
-		]);
+		const interpolatedColor = interpolateColors(
+			inputValue,
+			inputRange,
+			[initialStylePropertyPart.color, finalStylePropertyPart.color as string],
+			{easing: options.easing},
+		);
 		return `${interpolatedColor}`;
 	}
 
