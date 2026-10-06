@@ -150,19 +150,6 @@ Remotion will download a well-tested Chrome version:
 
 Upgrades may happen in a patch release and will be listed here.
 
-From Remotion v4.0.534, all automatically downloaded browsers use Chrome 157.0.8080.0. The download source depends on the platform and mode:
-
-| Platform                               | Chrome Headless Shell           | Chrome for Testing |
-| -------------------------------------- | ------------------------------- | ------------------ |
-| macOS ARM64                            | Remotion build                  | Google CDN         |
-| macOS x64                              | Google CDN                      | Google CDN         |
-| Windows x64                            | Google CDN                      | Google CDN         |
-| Linux x64 / ARM64, glibc 2.35 or newer | Remotion build                  | Google CDN         |
-| Linux x64 / ARM64, older glibc         | Google CDN                      | Google CDN         |
-| Amazon Linux 2023 x64 / ARM64          | Remotion build for Amazon Linux | Google CDN         |
-
-Google's [Chrome for Testing CDN](https://googlechromelabs.github.io/chrome-for-testing/) provides the same pinned version for platforms and modes without a Remotion build. Linux ARM64 no longer defaults to the older Playwright Chromium build.
-
 ## Shared-memory capture<AvailableFrom v="4.0.534" />
 
 Video renders with Remotion's Chrome Headless Shell builds on Apple Silicon and Linux can capture frames through shared memory when parallel encoding is available. This avoids compressing each frame as JPEG or PNG before encoding the video.
