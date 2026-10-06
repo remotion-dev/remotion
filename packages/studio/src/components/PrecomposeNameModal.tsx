@@ -29,10 +29,18 @@ export const PrecomposeNameModal: React.FC<{readonly state: State}> = ({
 }) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [newCompositionId, setNewCompositionId] = useState(() => {
-		let candidate = 'Precomposition';
+		const labelWords =
+			state.targets[0]?.displayName?.match(/[A-Za-z][A-Za-z0-9]*/g) ?? [];
+		const baseName =
+			labelWords.length === 0
+				? 'Precomposition'
+				: labelWords
+						.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+						.join('');
+		let candidate = baseName;
 		let suffix = 2;
 		while (state.request.existingCompositionIds.includes(candidate)) {
-			candidate = `Precomposition${suffix}`;
+			candidate = `${baseName}${suffix}`;
 			suffix++;
 		}
 
