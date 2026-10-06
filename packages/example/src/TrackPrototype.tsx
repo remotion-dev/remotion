@@ -20,7 +20,15 @@ const DemoCard: React.FC<{
 			<div style={{fontSize: 21, fontWeight: 600, marginBottom: 5}}>
 				{title}
 			</div>
-			<div style={{fontSize: 15, color: '#a7b0c0', marginBottom: 12}}>
+			<div
+				style={{
+					fontSize: 15,
+					lineHeight: '19px',
+					minHeight: 38,
+					color: '#a7b0c0',
+					marginBottom: 12,
+				}}
+			>
 				{description}
 			</div>
 			<div
@@ -92,7 +100,7 @@ export const TrackPrototype: React.FC = () => {
 				backgroundColor: '#101720',
 				color: 'white',
 				fontFamily: 'Arial, sans-serif',
-				padding: 48,
+				padding: 40,
 			}}
 		>
 			<div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -108,21 +116,21 @@ export const TrackPrototype: React.FC = () => {
 				</div>
 			</div>
 			<div style={{fontSize: 18, color: '#a7b0c0', marginTop: 8}}>
-				Five named tracks. Each occupies one timeline row.
+				One scene row per Track. Overlapping overlays add auxiliary rows.
 			</div>
 			<div
 				style={{
 					display: 'grid',
-					gridTemplateColumns: '1fr 1fr',
-					gap: '28px 32px',
+					gridTemplateColumns: '1fr 1fr 1fr',
+					gap: '32px 24px',
 					marginTop: 30,
 				}}
 			>
 				<DemoCard
 					title="Series"
-					description="Three consecutive clips, 80 frames each."
+					description="Automatically one row: 80 + 54 + 80 = 214 frames."
 				>
-					<Series>
+					<Series name="Series">
 						<Series.Sequence name="Series A" durationInFrames={80}>
 							<Scene color="#3268a8">A</Scene>
 						</Series.Sequence>
@@ -138,123 +146,156 @@ export const TrackPrototype: React.FC = () => {
 					title="TransitionSeries"
 					description="90-frame clips with 15-frame fades: 240 frames total."
 				>
-					<Track name="Transitions">
-						<TransitionSeries>
-							<TransitionSeries.Sequence name="Fade A" durationInFrames={90}>
-								<Scene color="#327e79">A</Scene>
-							</TransitionSeries.Sequence>
-							<TransitionSeries.Transition
-								presentation={fade()}
-								timing={linearTiming({durationInFrames: 15})}
-							/>
-							<TransitionSeries.Sequence name="Fade B" durationInFrames={90}>
-								<Scene color="#967130">B</Scene>
-							</TransitionSeries.Sequence>
-							<TransitionSeries.Transition
-								presentation={fade()}
-								timing={linearTiming({durationInFrames: 15})}
-							/>
-							<TransitionSeries.Sequence name="Fade C" durationInFrames={90}>
-								<Scene color="#a34a43">C</Scene>
-							</TransitionSeries.Sequence>
-						</TransitionSeries>
-					</Track>
+					<TransitionSeries name="Transitions">
+						<TransitionSeries.Sequence name="Fade A" durationInFrames={90}>
+							<Scene color="#327e79">A</Scene>
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Transition
+							presentation={fade()}
+							timing={linearTiming({durationInFrames: 15})}
+						/>
+						<TransitionSeries.Sequence name="Fade B" durationInFrames={90}>
+							<Scene color="#967130">B</Scene>
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Transition
+							presentation={fade()}
+							timing={linearTiming({durationInFrames: 15})}
+						/>
+						<TransitionSeries.Sequence name="Fade C" durationInFrames={90}>
+							<Scene color="#a34a43">C</Scene>
+						</TransitionSeries.Sequence>
+					</TransitionSeries>
 				</DemoCard>
 				<DemoCard
-					title="TransitionSeries.Overlay"
-					description="24-frame flashes: centered at cut 80; shifted +20 at cut 160."
+					title="Overlays sharing a row"
+					description="Frames 68–91 and 168–191 share one auxiliary row."
 				>
-					<Track name="Overlays">
-						<TransitionSeries>
-							<TransitionSeries.Sequence name="Overlay A" durationInFrames={80}>
-								<Scene color="#436582">A</Scene>
-							</TransitionSeries.Sequence>
-							<TransitionSeries.Overlay durationInFrames={24}>
-								<Flash />
-							</TransitionSeries.Overlay>
-							<TransitionSeries.Sequence name="Overlay B" durationInFrames={80}>
-								<Scene color="#774e90">B</Scene>
-							</TransitionSeries.Sequence>
-							<TransitionSeries.Overlay durationInFrames={24} offset={20}>
-								<Flash />
-							</TransitionSeries.Overlay>
-							<TransitionSeries.Sequence name="Overlay C" durationInFrames={80}>
-								<Scene color="#8f5f48">C</Scene>
-							</TransitionSeries.Sequence>
-						</TransitionSeries>
-					</Track>
+					<TransitionSeries name="Nonoverlapping overlays">
+						<TransitionSeries.Sequence name="Overlay A" durationInFrames={80}>
+							<Scene color="#436582">A</Scene>
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Overlay durationInFrames={24}>
+							<Flash />
+						</TransitionSeries.Overlay>
+						<TransitionSeries.Sequence name="Overlay B" durationInFrames={80}>
+							<Scene color="#774e90">B</Scene>
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Overlay durationInFrames={24} offset={20}>
+							<Flash />
+						</TransitionSeries.Overlay>
+						<TransitionSeries.Sequence name="Overlay C" durationInFrames={80}>
+							<Scene color="#8f5f48">C</Scene>
+						</TransitionSeries.Sequence>
+					</TransitionSeries>
+				</DemoCard>
+				<DemoCard
+					title="Overlapping overlays"
+					description="Both effects appear on frames 80–119: three timeline rows."
+				>
+					<TransitionSeries name="Overlapping overlays">
+						<TransitionSeries.Sequence name="Scene A" durationInFrames={80}>
+							<Scene color="#355c6e">A</Scene>
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Overlay durationInFrames={80}>
+							<div
+								style={{
+									position: 'absolute',
+									top: 12,
+									left: 12,
+									padding: '8px 12px',
+									borderRadius: 6,
+									backgroundColor: '#7de1c0',
+									color: '#102e24',
+									fontSize: 18,
+									fontWeight: 600,
+								}}
+							>
+								Overlay 1 · 40–119
+							</div>
+						</TransitionSeries.Overlay>
+						<TransitionSeries.Sequence
+							name="Short scene B"
+							durationInFrames={40}
+						>
+							<Scene color="#44566e">B</Scene>
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Overlay durationInFrames={80}>
+							<div
+								style={{
+									position: 'absolute',
+									bottom: 12,
+									right: 12,
+									padding: '8px 12px',
+									borderRadius: 6,
+									backgroundColor: '#f1c27a',
+									color: '#392710',
+									fontSize: 18,
+									fontWeight: 600,
+								}}
+							>
+								Overlay 2 · 80–159
+							</div>
+						</TransitionSeries.Overlay>
+						<TransitionSeries.Sequence name="Scene C" durationInFrames={120}>
+							<Scene color="#6b526e">C</Scene>
+						</TransitionSeries.Sequence>
+					</TransitionSeries>
 				</DemoCard>
 				<DemoCard
 					title="Negative offsets"
-					description="Later clips start 20 frames early and cover the previous clip."
+					description="20-frame overlaps stay on the scene row; later clips cover earlier clips."
 				>
-					<Track name="Overlapping clips">
-						<Series>
-							<Series.Sequence name="Overlap A" durationInFrames={100}>
-								<Scene color="#517345">A</Scene>
-							</Series.Sequence>
-							<Series.Sequence
-								name="Overlap B"
-								durationInFrames={100}
-								offset={-20}
-							>
-								<Scene color="#92742d">B</Scene>
-							</Series.Sequence>
-							<Series.Sequence
-								name="Overlap C"
-								durationInFrames={80}
-								offset={-20}
-							>
-								<Scene color="#a15437">C</Scene>
-							</Series.Sequence>
-						</Series>
+					<Series name="Overlapping clips">
+						<Series.Sequence name="Overlap A" durationInFrames={100}>
+							<Scene color="#517345">A</Scene>
+						</Series.Sequence>
+						<Series.Sequence
+							name="Overlap B"
+							durationInFrames={100}
+							offset={-20}
+						>
+							<Scene color="#92742d">B</Scene>
+						</Series.Sequence>
+						<Series.Sequence
+							name="Overlap C"
+							durationInFrames={80}
+							offset={-20}
+						>
+							<Scene color="#a15437">C</Scene>
+						</Series.Sequence>
+					</Series>
+				</DemoCard>
+				<DemoCard
+					title="Caption tokens"
+					description="All eight clips stay registered while one word is visible."
+				>
+					<Track name="Caption tokens">
+						<Sequence name="Every" durationInFrames={30}>
+							<Scene color="#27354a">Every</Scene>
+						</Sequence>
+						<Sequence name="caption" from={30} durationInFrames={30}>
+							<Scene color="#27354a">caption</Scene>
+						</Sequence>
+						<Sequence name="token" from={60} durationInFrames={30}>
+							<Scene color="#27354a">token</Scene>
+						</Sequence>
+						<Sequence name="stays" from={90} durationInFrames={30}>
+							<Scene color="#27354a">stays</Scene>
+						</Sequence>
+						<Sequence name="visible" from={120} durationInFrames={30}>
+							<Scene color="#27354a">visible</Scene>
+						</Sequence>
+						<Sequence name="in" from={150} durationInFrames={30}>
+							<Scene color="#27354a">in</Scene>
+						</Sequence>
+						<Sequence name="one" from={180} durationInFrames={30}>
+							<Scene color="#27354a">one</Scene>
+						</Sequence>
+						<Sequence name="track" from={210} durationInFrames={30}>
+							<Scene color="#27354a">track</Scene>
+						</Sequence>
 					</Track>
 				</DemoCard>
-			</div>
-			<div
-				style={{
-					fontSize: 18,
-					color: '#a7b0c0',
-					marginTop: 28,
-					marginBottom: 12,
-				}}
-			>
-				Tokens — all eight sequences stay registered while one word is visible.
-			</div>
-			<div
-				style={{
-					position: 'relative',
-					height: 65,
-					borderRadius: 12,
-					overflow: 'hidden',
-				}}
-			>
-				<Track name="Caption tokens">
-					<Sequence name="Every" durationInFrames={30}>
-						<Scene color="#27354a">Every</Scene>
-					</Sequence>
-					<Sequence name="caption" from={30} durationInFrames={30}>
-						<Scene color="#27354a">caption</Scene>
-					</Sequence>
-					<Sequence name="token" from={60} durationInFrames={30}>
-						<Scene color="#27354a">token</Scene>
-					</Sequence>
-					<Sequence name="stays" from={90} durationInFrames={30}>
-						<Scene color="#27354a">stays</Scene>
-					</Sequence>
-					<Sequence name="visible" from={120} durationInFrames={30}>
-						<Scene color="#27354a">visible</Scene>
-					</Sequence>
-					<Sequence name="in" from={150} durationInFrames={30}>
-						<Scene color="#27354a">in</Scene>
-					</Sequence>
-					<Sequence name="one" from={180} durationInFrames={30}>
-						<Scene color="#27354a">one</Scene>
-					</Sequence>
-					<Sequence name="track" from={210} durationInFrames={30}>
-						<Scene color="#27354a">track</Scene>
-					</Sequence>
-				</Track>
 			</div>
 		</div>
 	);

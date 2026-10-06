@@ -20,7 +20,6 @@ import type {
 import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
-	BLACK,
 	BLUE,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_BACKGROUND_COLOR,
@@ -31,7 +30,6 @@ import {
 	WHITE,
 	WHITE_ALPHA_20,
 	WHITE_ALPHA_50,
-	WARNING_COLOR,
 } from '../../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {
@@ -45,6 +43,7 @@ import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-h
 import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
 import {
 	getTimelineLayerHeight,
+	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT_AUDIO,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
@@ -52,6 +51,7 @@ import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
 import {AudioWaveform} from '../AudioWaveform';
+import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
@@ -78,7 +78,10 @@ import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
 import {timelineLayerLayoutsRef} from './timeline-refs';
-import {TIMELINE_PACKED_TRACK_HEIGHT} from './timeline-track-groups';
+import {
+	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+	TIMELINE_PACKED_TRACK_HEIGHT,
+} from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
@@ -119,6 +122,10 @@ const {
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
+const PACKED_LABEL_HEIGHT = 15;
+const PACKED_LABEL_BOTTOM = 1;
+const PACKED_TRANSITION_HEIGHT =
+	TIMELINE_PACKED_TRACK_HEIGHT - PACKED_LABEL_HEIGHT - PACKED_LABEL_BOTTOM;
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -303,6 +310,7 @@ const TimelineSequenceNegativeStart = React.memo(
 
 const TimelineSequenceCurrentFrame: React.FC<{
 	readonly s: TSequence;
+	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly leftTrimHighlight: {
@@ -336,6 +344,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly onClick: React.MouseEventHandler<HTMLDivElement> | null;
 }> = ({
 	s,
+	connectedComposition,
 	activeTrimEdge,
 	leftTrimHighlight,
 	annotationLocation,
@@ -357,8 +366,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	onPointerDownCapture,
 	onClick,
 }) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
-	const isAsset = canvasContent?.type === 'asset';
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
@@ -412,6 +419,14 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
 		: 0;
+	const compactPremount = s.isInsideSeries && premount !== null;
+	const contentStart = compactPremount
+		? premount.left + premount.width
+		: negativeStartEnd;
+	const transitionWidth =
+		s.timelineTrack?.role === 'transition'
+			? (marqueeHorizontalBounds?.width ?? Number(style.width))
+			: null;
 	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
 	const sequenceBackground =
 		activeTrimEdge === null ||
@@ -422,49 +437,40 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
-			background: negativeStart ? TRANSPARENT : sequenceBackground,
-			boxShadow: s.timelineTrack
-				? `inset 0 0 0 ${selected || containsSelection ? 2 : 1}px ${selected || containsSelection ? WHITE : WHITE_ALPHA_20}`
-				: style.boxShadow,
-			opacity:
-				activeTrimEdge !== null ||
-				selected ||
-				containsSelection ||
-				isAsset ||
-				s.timelineTrack
-					? 1
-					: 0.75,
+			background:
+				negativeStart || compactPremount ? TRANSPARENT : sequenceBackground,
+			pointerEvents: compactPremount ? 'none' : style.pointerEvents,
+			opacity: 1,
 		};
-	}, [
-		activeTrimEdge,
-		containsSelection,
-		isAsset,
-		negativeStart,
-		selected,
-		sequenceBackground,
-		style,
-		s.timelineTrack,
-	]);
+	}, [compactPremount, negativeStart, sequenceBackground, style]);
 
-	const content = (
-		<>
-			{premount ? (
-				<div
-					style={{
-						left: premount.left,
-						width: premount.width,
-						height: '100%',
-						background: `repeating-linear-gradient(
+	const premountIndicator = premount ? (
+		<div
+			style={{
+				left: premount.left,
+				width: premount.width,
+				top: 0,
+				height: compactPremount ? 5 : '100%',
+				background: `repeating-linear-gradient(
 								-45deg,
 								${TRANSPARENT},
 								${TRANSPARENT} 2px,
-								${isPremounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 2px,
-								${isPremounting ? WHITE_ALPHA_50 : WHITE_ALPHA_20} 4px
-							)`,
-						position: 'absolute',
-					}}
-				/>
-			) : null}
+								${WHITE_ALPHA_20} 2px,
+								${WHITE_ALPHA_20} 4px
+							)${compactPremount ? `, ${style.background ?? TRANSPARENT}` : ''}`,
+				boxShadow:
+					compactPremount && (selected || containsSelection)
+						? `inset 0 0 0 2px ${WHITE}`
+						: undefined,
+				pointerEvents: compactPremount ? 'auto' : undefined,
+				position: 'absolute',
+			}}
+		/>
+	) : null;
+
+	const content = (
+		<>
+			{compactPremount ? null : premountIndicator}
 
 			{postmount ? (
 				<div
@@ -486,27 +492,74 @@ const TimelineSequenceCurrentFrame: React.FC<{
 
 			{children}
 
-			{s.timelineTrack ? (
+			{transitionWidth === null ? null : (
+				<svg
+					aria-hidden="true"
+					style={{
+						position: 'absolute',
+						left: -(marqueeHorizontalBounds?.cropLeft ?? 0),
+						top: 0,
+						width: transitionWidth,
+						height: PACKED_TRANSITION_HEIGHT,
+						pointerEvents: 'none',
+					}}
+				>
+					<rect
+						x={0.5}
+						y={0.5}
+						width={Math.max(0, transitionWidth - 1)}
+						height={PACKED_TRANSITION_HEIGHT - 1}
+						fill="none"
+						stroke={WHITE}
+						strokeWidth={1}
+					/>
+					<line
+						x1={0.5}
+						y1={PACKED_TRANSITION_HEIGHT - 0.5}
+						x2={Math.max(0.5, transitionWidth - 0.5)}
+						y2={0.5}
+						stroke={WHITE}
+						strokeWidth={1}
+					/>
+				</svg>
+			)}
+
+			{s.timelineTrack && s.timelineTrack.role !== 'transition' ? (
 				<div
 					style={{
 						position: 'absolute',
 						left: 5 + negativeStartEnd + (premount?.width ?? 0),
 						right: 4,
-						bottom: 1,
-						fontSize: 11,
-						lineHeight: '15px',
-						color: s.timelineTrack.role === 'overlay' ? BLACK : WHITE,
-						whiteSpace: 'nowrap',
+						bottom: PACKED_LABEL_BOTTOM,
+						display: 'flex',
+						alignItems: 'center',
+						gap: 4,
 						overflow: 'hidden',
-						textOverflow: 'ellipsis',
 						pointerEvents: 'none',
+						userSelect: 'none',
+						WebkitUserSelect: 'none',
 					}}
 				>
-					{s.timelineTrack.role === 'transition'
-						? 'Transition'
-						: s.timelineTrack.role === 'overlay'
-							? 'Overlay'
-							: s.displayName}
+					{connectedComposition ? (
+						<CompositionOrStillIcon
+							composition={connectedComposition}
+							color={WHITE}
+							style={{flexShrink: 0, height: 12, width: 12}}
+						/>
+					) : null}
+					<span
+						style={{
+							fontSize: 11,
+							lineHeight: `${PACKED_LABEL_HEIGHT}px`,
+							color: WHITE,
+							minWidth: 0,
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+						}}
+					>
+						{s.timelineTrack.role === 'overlay' ? 'Overlay' : s.displayName}
+					</span>
 				</div>
 			) : null}
 
@@ -573,14 +626,17 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
 		>
-			{negativeStart ? (
+			{compactPremount ? premountIndicator : null}
+			{negativeStart || compactPremount ? (
 				<>
-					<TimelineSequenceNegativeStart
-						left={negativeStart.left}
-						width={negativeStart.width}
-						leftEdgeVisible={leftEdgeVisible}
-						clipped={negativeStartClipped}
-					/>
+					{negativeStart ? (
+						<TimelineSequenceNegativeStart
+							left={negativeStart.left}
+							width={negativeStart.width}
+							leftEdgeVisible={leftEdgeVisible}
+							clipped={negativeStartClipped}
+						/>
+					) : null}
 					<div
 						style={{
 							background: sequenceBackground,
@@ -590,17 +646,18 @@ const TimelineSequenceCurrentFrame: React.FC<{
 							borderTopRightRadius: style.borderTopRightRadius,
 							boxSizing: 'border-box',
 							height: '100%',
-							left: negativeStartEnd,
+							left: contentStart,
 							overflow: 'hidden',
+							pointerEvents: compactPremount ? 'auto' : undefined,
 							position: 'absolute',
 							top: 0,
-							width: `calc(100% - ${negativeStartEnd}px)`,
+							width: `calc(100% - ${contentStart}px)`,
 						}}
 					>
 						<div
 							style={{
 								height: '100%',
-								left: -negativeStartEnd,
+								left: -contentStart,
 								position: 'absolute',
 								top: 0,
 								width: style.width,
@@ -622,7 +679,21 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					{content}
 				</div>
 			)}
-			{edgeDragHandles}
+			{(selected || containsSelection) &&
+			(!compactPremount || Number(style.width) > contentStart) ? (
+				<div
+					aria-hidden="true"
+					style={{
+						position: 'absolute',
+						inset: 0,
+						left: compactPremount ? contentStart : 0,
+						borderRadius: 'inherit',
+						boxShadow: `inset 0 0 0 2px ${WHITE}`,
+						pointerEvents: 'none',
+					}}
+				/>
+			) : null}
+			<div style={{pointerEvents: 'auto'}}>{edgeDragHandles}</div>
 		</div>
 	);
 };
@@ -1432,12 +1503,13 @@ const TimelineSequenceInner: React.FC<{
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const isMedia = s.type === 'audio' || s.type === 'video';
 	const layerHeight =
-		s.timelineTrack?.role === 'transition' ||
-		s.timelineTrack?.role === 'overlay'
-			? 16
-			: s.timelineTrack
-				? TIMELINE_PACKED_TRACK_HEIGHT
-				: getTimelineLayerHeight(s.type);
+		s.timelineTrack?.role === 'transition'
+			? PACKED_TRANSITION_HEIGHT
+			: s.timelineTrack?.role === 'overlay'
+				? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM
+				: s.timelineTrack
+					? TIMELINE_PACKED_TRACK_HEIGHT
+					: getTimelineLayerHeight(s.type);
 	const trimOutline = (() => {
 		if (
 			activeEdgeHighlight === null ||
@@ -1602,14 +1674,12 @@ const TimelineSequenceInner: React.FC<{
 		return {
 			background:
 				role === 'transition'
-					? `repeating-linear-gradient(135deg, ${BLUE} 0 5px, ${WHITE_ALPHA_20} 5px 7px), ${BLUE}`
-					: role === 'overlay'
-						? WARNING_COLOR
-						: s.type === 'audio'
-							? TIMELINE_AUDIO_GRADIENT
-							: s.type === 'video'
-								? TIMELINE_VIDEO_GRADIENT
-								: BLUE,
+					? TRANSPARENT
+					: s.type === 'audio'
+						? TIMELINE_AUDIO_GRADIENT
+						: s.type === 'video'
+							? TIMELINE_VIDEO_GRADIENT
+							: BLUE,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
@@ -1618,9 +1688,6 @@ const TimelineSequenceInner: React.FC<{
 			isolation: s.timelineTrack ? 'isolate' : undefined,
 			height: layerHeight,
 			top: s.timelineTrack ? 0 : undefined,
-			boxShadow: s.timelineTrack
-				? `inset 0 0 0 1px ${WHITE_ALPHA_20}`
-				: undefined,
 			marginLeft: visibleLayout?.marginLeft ?? 0,
 			width: visibleLayout?.width ?? 0,
 			color: WHITE,
@@ -1681,6 +1748,7 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceCurrentFrame
 			s={s}
+			connectedComposition={connectedCompositions[0] ?? null}
 			annotationLocation={originalLocation}
 			activeTrimEdge={activeTrimEdge}
 			leftTrimHighlight={

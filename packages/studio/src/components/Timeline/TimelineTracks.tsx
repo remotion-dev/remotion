@@ -92,6 +92,7 @@ const TimelineTracksInner: React.FC<{
 							<TimelinePackedTrack
 								track={rows[virtualItem.index].track}
 								items={rows[virtualItem.index].items!}
+								auxiliaryRows={rows[virtualItem.index].auxiliaryRows}
 							/>
 						)}
 					</div>

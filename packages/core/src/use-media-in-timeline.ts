@@ -281,7 +281,6 @@ export const useMediaInTimeline = ({
 						timelineTrack: {
 							...timelineTrack,
 							role: 'clip' as const,
-							anchor: null,
 						},
 					}
 				: {}),

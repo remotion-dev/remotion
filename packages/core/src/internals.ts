@@ -233,6 +233,7 @@ import {
 	type SetTimelineContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
+import {TrackWithoutSchema} from './Track.js';
 import {truthy} from './truthy.js';
 import {useBuffering} from './use-buffering.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -397,6 +398,7 @@ export const Internals = {
 	truthy,
 	SequenceContext,
 	TimelineTrackContext,
+	TrackWithoutSchema,
 	PremountContext,
 	usePremounting,
 	resolveSequenceDuration,

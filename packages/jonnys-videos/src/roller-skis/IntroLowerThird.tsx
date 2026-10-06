@@ -75,6 +75,8 @@ const IntroLowerThirdContent: React.FC<IntroLowerThirdProps> = ({
 			<Interactive.Div
 				name="Presenter name"
 				style={{fontSize: 50, fontWeight: 700, color: '#111'}}
+				from={38}
+				premountFor={30}
 			>
 				{nameText}
 			</Interactive.Div>

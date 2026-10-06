@@ -15,9 +15,9 @@ import React, {
 } from 'react';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
-import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
+	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 	TIMELINE_PACKED_TRACK_HEIGHT,
 	type TimelineDisplayRow,
 } from './timeline-track-groups';
@@ -30,11 +30,9 @@ import {
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 import {useTimelineTrackHeights} from './use-timeline-height';
 
-export type TimelineVirtualRow = {
+export type TimelineVirtualRow = TimelineDisplayRow & {
 	readonly afterDropLineOffset: number;
 	readonly siblingIndex: number;
-	readonly track: TimelineTrackWithDisplayGroup;
-	readonly items: readonly TimelineTrackWithDisplayGroup[] | null;
 };
 
 type TimelineVirtualizationContextValue = {
@@ -73,7 +71,9 @@ export const TimelineVirtualizationProvider: React.FC<{
 			timeline.map((row, index) =>
 				row.items === null
 					? individualHeights[index]
-					: TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM,
+					: TIMELINE_PACKED_TRACK_HEIGHT +
+						TIMELINE_ITEM_BORDER_BOTTOM +
+						row.auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 			),
 		[individualHeights, timeline],
 	);
@@ -116,22 +116,25 @@ export const TimelineVirtualizationProvider: React.FC<{
 			offsets[index + 1] = offsets[index] + trackHeights[index];
 		}
 
-		const rows = timeline.map(({track, items}, index): TimelineVirtualRow => {
-			const afterDropLineOffset =
-				offsets[subtreeEndIndexes[index]] - offsets[index];
-			const siblingIndex = siblingIndexes[index];
-			const previous = previousRowsRef.current[index];
-			if (
-				previous?.track === track &&
-				previous.items === items &&
-				previous.afterDropLineOffset === afterDropLineOffset &&
-				previous.siblingIndex === siblingIndex
-			) {
-				return previous;
-			}
+		const rows = timeline.map(
+			({track, items, auxiliaryRows}, index): TimelineVirtualRow => {
+				const afterDropLineOffset =
+					offsets[subtreeEndIndexes[index]] - offsets[index];
+				const siblingIndex = siblingIndexes[index];
+				const previous = previousRowsRef.current[index];
+				if (
+					previous?.track === track &&
+					previous.items === items &&
+					previous.auxiliaryRows === auxiliaryRows &&
+					previous.afterDropLineOffset === afterDropLineOffset &&
+					previous.siblingIndex === siblingIndex
+				) {
+					return previous;
+				}
 
-			return {afterDropLineOffset, siblingIndex, track, items};
-		});
+				return {afterDropLineOffset, siblingIndex, track, items, auxiliaryRows};
+			},
+		);
 		const rootTrackIndexes = new Map<string, number>();
 		for (let index = 0; index < timeline.length; index++) {
 			for (const {nodePathInfo} of [
@@ -148,6 +151,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		}
 
 		return {
+			offsets,
 			rootTrackIndexes,
 			rows,
 			tracksEnd: offsets[offsets.length - 1],
@@ -245,19 +249,63 @@ export const TimelineVirtualizationProvider: React.FC<{
 			return;
 		}
 
-		const offset = virtualizer.getOffsetForIndex(index, 'auto');
-		if (offset === undefined) {
-			return;
-		}
+		const row = layout.rows[index];
+		if (row.items !== null) {
+			const scrollElement = timelineVerticalScroll.current;
+			if (
+				scrollElement === null ||
+				scrollElement.clientHeight <= paddingStart
+			) {
+				return;
+			}
 
-		if (offset[1] !== 'auto') {
-			virtualizer.scrollToIndex(index, {align: 'center'});
+			const auxiliaryIndex = row.auxiliaryRows.findIndex((items) =>
+				items.some(
+					({nodePathInfo}) =>
+						nodePathInfo !== null &&
+						getTimelineSequenceSelectionKey(nodePathInfo) === key,
+				),
+			);
+			const primaryHeight =
+				TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM;
+			const start =
+				layout.offsets[index] +
+				(auxiliaryIndex === -1
+					? 0
+					: primaryHeight +
+						auxiliaryIndex * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT);
+			const height =
+				auxiliaryIndex === -1
+					? primaryHeight
+					: TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT;
+			// A packed Track can exceed the viewport. Reveal the selected lane,
+			// allowing for the pinned time ruler, rather than centering its owner.
+			if (
+				start < scrollElement.scrollTop + paddingStart ||
+				start + height > scrollElement.scrollTop + scrollElement.clientHeight
+			) {
+				virtualizer.scrollToOffset(
+					start + height / 2 - (scrollElement.clientHeight + paddingStart) / 2,
+				);
+			}
+		} else {
+			const offset = virtualizer.getOffsetForIndex(index, 'auto');
+			if (offset === undefined) {
+				return;
+			}
+
+			if (offset[1] !== 'auto') {
+				virtualizer.scrollToIndex(index, {align: 'center'});
+			}
 		}
 
 		consumeRevealRequest(revealRequest.token);
 	}, [
 		consumeRevealRequest,
+		layout.offsets,
 		layout.rootTrackIndexes,
+		layout.rows,
+		paddingStart,
 		revealRequest,
 		selectedItems,
 		virtualizer,

@@ -102,10 +102,7 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	readonly _remotionInternalTimelineTrack?: Pick<
-		TimelineTrackItem,
-		'role' | 'anchor'
-	>;
+	readonly _remotionInternalTimelineTrack?: Pick<TimelineTrackItem, 'role'>;
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -647,7 +644,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					timelineTrack: {
 						...timelineTrack,
 						role: timelineTrackRole,
-						anchor: timelineTrackItem?.anchor ?? null,
 					},
 				}
 			: {};
@@ -751,7 +747,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		id,
 		timelineTrack,
 		timelineTrackRole,
-		timelineTrackItem?.anchor,
 		getCurrentFrame,
 		timelineClipName,
 		playbackRate,
