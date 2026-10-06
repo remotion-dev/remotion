@@ -30,10 +30,7 @@ import {roundedCaptionsInitialProps} from '../../../elements/captions/rounded-ca
 import {RoundedCaptions} from '../../../elements/captions/rounded-captions/rounded-captions';
 import {wordHighlightCaptionsInitialProps} from '../../../elements/captions/word-highlight-captions/initial-props';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
-import {
-	ProductCollection,
-	productCollectionDurationInFrames,
-} from '../../../elements/commerce/product-collection/product-collection';
+import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {Shine} from '../../../elements/commerce/shine/shine';
 import {Tear} from '../../../elements/commerce/tear/tear';
@@ -135,7 +132,7 @@ const elementImplementations = [
 		slug: 'audio/oscilloscope',
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
-			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+			src: staticFileRef(audioOscilloscopeAudio.path),
 		} as ElementInitialProps,
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
@@ -167,7 +164,7 @@ const elementImplementations = [
 		slug: 'audio/waveform-progress',
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
-			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+			src: staticFileRef(audioOscilloscopeAudio.path),
 		} as ElementInitialProps,
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
@@ -191,7 +188,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-waveform-progress-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: {audioSrc: audioOscilloscopeAudio.url} as ElementInitialProps,
+		initialProps: {src: audioOscilloscopeAudio.url} as ElementInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -199,7 +196,7 @@ const elementImplementations = [
 		slug: 'audio/mirrored-spectrum',
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
-			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+			src: staticFileRef(audioOscilloscopeAudio.path),
 		} as ElementInitialProps,
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
@@ -223,7 +220,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: {audioSrc: audioOscilloscopeAudio.url} as ElementInitialProps,
+		initialProps: {src: audioOscilloscopeAudio.url} as ElementInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -251,7 +248,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -279,7 +276,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -306,7 +303,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -333,7 +330,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -360,7 +357,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -388,7 +385,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -554,7 +551,7 @@ const elementImplementations = [
 		contributors: [],
 		description: 'Three cards which each take center once.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: productCollectionDurationInFrames,
+		durationInFrames: 150,
 		elementHeight: 1020,
 		elementWidth: 1020,
 		fps: 30,
@@ -570,7 +567,7 @@ const elementImplementations = [
 		},
 		safeArea: 30,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1080,
 	},
 	{
@@ -600,7 +597,7 @@ const elementImplementations = [
 		},
 		safeArea: 90,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1080,
 	},
 	{
@@ -625,7 +622,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -650,7 +647,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -677,7 +674,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -702,7 +699,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -735,7 +732,7 @@ const elementImplementations = [
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -761,7 +758,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -789,7 +786,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -817,7 +814,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -845,7 +842,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -932,7 +929,7 @@ const elementImplementations = [
 		},
 		safeArea: 300,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -960,7 +957,7 @@ const elementImplementations = [
 		},
 		safeArea: 300,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1015,7 +1012,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1070,7 +1067,7 @@ const elementImplementations = [
 		},
 		safeArea: 180,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1098,7 +1095,7 @@ const elementImplementations = [
 		},
 		safeArea: 220,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1129,7 +1126,7 @@ const elementImplementations = [
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1158,7 +1155,7 @@ const elementImplementations = [
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1217,7 +1214,7 @@ const elementImplementations = [
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1246,7 +1243,7 @@ const elementImplementations = [
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1273,7 +1270,7 @@ const elementImplementations = [
 		},
 		safeArea: 200,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1301,7 +1298,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1345,7 +1342,7 @@ const elementImplementations = [
 			dingSrc: youtubeSubscribeNudgeAssets.ding.url,
 			avatarSrc: youtubeSubscribeNudgeAssets.avatar.url,
 		} as ElementInitialProps,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 ] satisfies readonly (Omit<

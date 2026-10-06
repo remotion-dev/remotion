@@ -106,6 +106,7 @@ export const InspectorLocationCopy: React.FC<{
 					}}
 				>
 					<InspectorOpenInEditor
+						annotationName={name}
 						locationType={null}
 						contextForAgents={contextForAgents}
 						location={openInEditorLocation}

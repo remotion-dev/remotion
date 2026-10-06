@@ -71,14 +71,17 @@ export const openInEditorHandler: ApiHandler<
 						logLevel,
 						spawnProcess: null,
 					})
-				: await launchEditor({
-						colNumber: stack.originalColumnNumber as number,
-						editor,
-						fileName,
-						lineNumber: stack.originalLineNumber as number,
-						vsCodeNewWindow: false,
-						logLevel,
-					});
+				: await launchEditor(
+						{
+							colNumber: stack.originalColumnNumber as number,
+							editor,
+							fileName,
+							lineNumber: stack.originalLineNumber as number,
+							vsCodeNewWindow: false,
+							logLevel,
+						},
+						remotionRoot,
+					);
 
 		return {
 			success: didOpen,

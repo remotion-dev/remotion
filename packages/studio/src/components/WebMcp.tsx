@@ -294,7 +294,7 @@ export const WebMcp: FC = () => {
 	const selectComposition = useSelectComposition();
 	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
-	const sequences = Internals.useSequenceManagerSequences();
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -333,8 +333,6 @@ export const WebMcp: FC = () => {
 	currentCompositionDefinitionRef.current = currentCompositionDefinition;
 	const compositionsRef = useRef(compositions);
 	compositionsRef.current = compositions;
-	const sequencesRef = useRef(sequences);
-	sequencesRef.current = sequences;
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const foldersRef = useRef(folders);
@@ -1778,6 +1776,7 @@ export const WebMcp: FC = () => {
 		addVideoMattingJob,
 		isPlaying,
 		selectComposition,
+		sequencesRef,
 		setEditorShowGuides,
 		setGuidesList,
 		setPlaybackRate,

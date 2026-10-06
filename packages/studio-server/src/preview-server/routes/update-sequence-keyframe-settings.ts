@@ -119,7 +119,6 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			nodePath: updatedNodePath,
 			componentIdentity: null,
 			effects: [],
-			videoConfigValues: nodePath.videoConfigValues,
 		});
 		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};
 

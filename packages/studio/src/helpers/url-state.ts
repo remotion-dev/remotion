@@ -39,6 +39,11 @@ export const clearUrl = () => {
 };
 
 export const reloadUrl = () => {
+	if (window.remotion_browserStudioReload) {
+		window.remotion_browserStudioReload();
+		return;
+	}
+
 	window.location.reload();
 };
 

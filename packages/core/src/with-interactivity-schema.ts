@@ -155,8 +155,6 @@ export const mergeValues = ({
 	return merged;
 };
 
-const stackToOverrideMap: Record<string, string> = {};
-
 export type WithInteractivitySchemaOptions<
 	S extends InteractivitySchema,
 	Props extends object,
@@ -211,6 +209,9 @@ export const withInteractivitySchema = <
 	const schemaWithSequenceName = extendSchemaWithSequenceName(schema);
 	const flatSchema = getFlatSchemaWithAllKeys(schemaWithSequenceName);
 	const flatKeys = Object.keys(flatSchema);
+	// A structural edit can put a different component at the same stack.
+	// Only reuse overrides for instances of this component.
+	const stackToOverrideMap: Record<string, string> = {};
 
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const {
@@ -370,7 +371,10 @@ export const withInteractivitySchema = <
 				propStatus:
 					nodePath === null
 						? undefined
-						: getPropStatusesCtx(propStatuses, nodePath),
+						: getPropStatusesCtx(propStatuses, {
+								...nodePath,
+								videoConfigValues,
+							}),
 				frame,
 			});
 		}, [
@@ -378,6 +382,7 @@ export const withInteractivitySchema = <
 			dragOverrides,
 			nodePath,
 			propStatuses,
+			videoConfigValues,
 			frame,
 		]);
 

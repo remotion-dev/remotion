@@ -424,6 +424,35 @@ export const UpdatesSettings: React.FC = () => {
 					align="flex-start"
 				/>
 			) : null}
+			{info.skillsUpdateAvailable ? (
+				<>
+					<div style={title}>Remotion Agent Skills are out of date:</div>
+					{info.skillsUpdateDetails ? (
+						<ul
+							style={{
+								...text,
+								listStyleType: 'disc',
+								margin: 0,
+								paddingLeft: 20,
+							}}
+						>
+							{info.skillsUpdateDetails.outdatedSkills.map((skill) => (
+								<li
+									key={skill.name}
+									style={{...text, display: 'list-item', listStyleType: 'disc'}}
+								>
+									{skill.name}:{' '}
+									{skill.reason === 'missing-version'
+										? `The installed version is missing or could not be read. Update to match Remotion v${info.currentVersion}.`
+										: skill.reason === 'invalid-version'
+											? `The installed version "${skill.installedVersion}" is invalid. Update to match Remotion v${info.currentVersion}.`
+											: `Installed v${skill.installedVersion} is older than Remotion v${info.currentVersion}.`}
+								</li>
+							))}
+						</ul>
+					) : null}
+				</>
+			) : null}
 			{hasKnownBugs && info.updateAvailable ? (
 				<>
 					<div style={title}>
@@ -440,8 +469,8 @@ export const UpdatesSettings: React.FC = () => {
 				</div>
 			) : (
 				<div style={titleBeforeCommand}>
-					Your Remotion Agent Skills are out of date. Run the following{' '}
-					{updateActionType}:
+					Run the following {updateActionType} in this project to update your
+					skills:
 				</div>
 			)}
 			<div style={commandField}>

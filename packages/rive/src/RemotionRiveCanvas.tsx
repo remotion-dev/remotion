@@ -177,6 +177,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: controls?.overrideId ?? null,
+		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 
 	if (err) {

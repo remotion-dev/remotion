@@ -11,6 +11,8 @@ import {
 	WHITE,
 	WHITE_ALPHA_60,
 } from '../../helpers/colors';
+import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
+import {didUnmountReactApp} from '../react-overlay';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {CalculateMetadataErrorExplainer} from './CalculateMetadataErrorExplainer';
@@ -92,6 +94,11 @@ export const ErrorDisplay: React.FC<{
 	symbolicationFailure,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canShowProjectActions = !didUnmountReactApp();
+	const canAnnotate =
+		canShowProjectActions &&
+		!window.remotion_isReadOnlyStudio &&
+		getCodexAnnotation() !== null;
 	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
 		useEditorOpening(previewServerState.type === 'connected');
 	const stackFrames = useMemo(() => {
@@ -169,7 +176,8 @@ export const ErrorDisplay: React.FC<{
 						<div style={spacer} />
 					</>
 				) : null}
-				{stackFrames.length > 0 &&
+				{canShowProjectActions &&
+				stackFrames.length > 0 &&
 				canOpenInEditor &&
 				defaultEditorId &&
 				defaultEditorName ? (
@@ -184,12 +192,14 @@ export const ErrorDisplay: React.FC<{
 						<div style={spacer} />
 					</>
 				) : null}
-				<CodingAgentButton
-					label="Fix with"
-					prompt={fixWithAgentPrompt}
-					size="default"
-					style={codingAgentButton}
-				/>
+				{canShowProjectActions ? (
+					<CodingAgentButton
+						label="Fix with"
+						prompt={fixWithAgentPrompt}
+						size="default"
+						style={codingAgentButton}
+					/>
+				) : null}
 				<CopyStackTrace errorText={errorTextForCopy} />
 				<div style={spacer} />
 				<SearchGithubIssues
@@ -237,7 +247,11 @@ export const ErrorDisplay: React.FC<{
 								horizontalSpacing={14}
 								lineNumberWidth={lineNumberWidth}
 								defaultFunctionName={'(anonymous function)'}
-								editorId={canOpenInEditor ? defaultEditorId : null}
+								editorId={
+									canShowProjectActions && canOpenInEditor
+										? defaultEditorId
+										: null
+								}
 							/>
 						);
 					})}
@@ -257,6 +271,15 @@ export const ErrorDisplay: React.FC<{
 					) : null}
 				</>
 			)}
+			{canAnnotate && stackFrames.length > 0 && display.error.stack ? (
+				<pre
+					aria-label="Complete stack trace"
+					className={HORIZONTAL_SCROLLBAR_CLASSNAME}
+					style={rawStack}
+				>
+					{display.error.stack}
+				</pre>
+			) : null}
 		</div>
 	);
 };

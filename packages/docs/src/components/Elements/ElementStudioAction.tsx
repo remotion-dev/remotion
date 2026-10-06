@@ -16,7 +16,6 @@ export const ElementStudioAction: React.FC<{
 	readonly posterRef: RefObject<HTMLImageElement | null>;
 	readonly showDragHandle: boolean;
 	readonly sourceCode: string;
-	readonly title: string;
 }> = ({
 	buttonLabel,
 	definition,
@@ -25,7 +24,6 @@ export const ElementStudioAction: React.FC<{
 	posterRef,
 	showDragHandle,
 	sourceCode,
-	title,
 }) => {
 	const onDragStart = (event: React.DragEvent<HTMLElement>) => {
 		setStudioDragData({
@@ -50,7 +48,6 @@ export const ElementStudioAction: React.FC<{
 				onDragStart={showDragHandle ? onDragStart : undefined}
 				size="sm"
 				style={{padding: '7px 12px'}}
-				title={title}
 			>
 				{buttonLabel}
 			</BlueButton>

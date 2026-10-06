@@ -218,6 +218,7 @@ const runBrowserCompositionEdit = (
 };
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
+	clearPendingHmrEvent: () => void;
 	emitEvent: (event: EventSourceEvent) => void;
 	resetHistory: () => void;
 };
@@ -279,7 +280,10 @@ const makeSequencePropsSubscriptionKey = ({
 	JSON.stringify({
 		clientId,
 		fileName,
-		nodePath,
+		nodePath: {
+			absolutePath: nodePath.absolutePath,
+			nodePath: nodePath.nodePath,
+		},
 		sequenceKeys,
 		assetKeys,
 		effectKeys,
@@ -815,7 +819,6 @@ export const createBrowserStudioOperations = ({
 			componentIdentity: null,
 			keys: getAllSchemaKeys(mutation.schema),
 			effectKeys: [],
-			videoConfig: mutation.nodePath.videoConfigValues ?? undefined,
 		});
 		const nodePath = {
 			...mutation.nodePath,
@@ -849,7 +852,6 @@ export const createBrowserStudioOperations = ({
 			componentIdentity: null,
 			keys: [],
 			effectKeys: effects,
-			videoConfig: mutation.sequenceNodePath.videoConfigValues ?? undefined,
 		});
 
 		return (
@@ -902,7 +904,6 @@ export const createBrowserStudioOperations = ({
 				keys: request.keys,
 				assetKeys: request.assetKeys,
 				effects: request.effects,
-				videoConfigValues: request.videoConfigValues,
 			});
 		} catch {
 			return {
@@ -928,7 +929,6 @@ export const createBrowserStudioOperations = ({
 					keys: request.keys,
 					assetKeys: request.assetKeys,
 					effectKeys: request.effects,
-					videoConfig: request.videoConfigValues ?? undefined,
 				});
 				const nextEffectChain = nextStatus.effects
 					.map((effect) => (effect.canUpdate ? effect.callee : false))
@@ -1012,7 +1012,6 @@ export const createBrowserStudioOperations = ({
 			effectKeys: Array.from({length: effectIndex + 1}, (_, index) =>
 				index === effectIndex ? getAllSchemaKeys(schema) : [],
 			),
-			videoConfig: sequenceNodePath.videoConfigValues ?? undefined,
 		});
 		return (
 			status.effects[effectIndex] ?? {
@@ -1430,6 +1429,7 @@ export const createBrowserStudioOperations = ({
 
 	const wrapNode: BrowserStudioOperations['wrapNode'] = ({
 		fileName,
+		compositionId,
 		nodePath,
 		wrapper,
 		width,
@@ -1470,9 +1470,20 @@ export const createBrowserStudioOperations = ({
 							: {},
 				}),
 			});
+			const insertedNodePath =
+				result.nodePathRemappings.find(
+					(remapping) => remapping.oldNodePath === null,
+				)?.newNodePath ?? null;
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
-				timelineSelection: null,
+				timelineSelection:
+					insertedNodePath !== null
+						? {
+								compositionId,
+								absolutePath: filePath,
+								nodePath: insertedNodePath,
+							}
+						: null,
 				fileName,
 				mutate: (current) => applyCodemodChanges(current, result.changes),
 				nodePathMutationFiles: getNodePathMutationFiles(result),
@@ -2471,6 +2482,7 @@ export const createBrowserStudioOperations = ({
 		duplicateNodes,
 		wrapNode,
 		effects: effectOperations,
+		clearPendingHmrEvent: controller.clearPendingHmrEvent,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
 		getFileSource: controller.getFileSource,

@@ -15,13 +15,14 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {appSelectedEvent} from '../state/recently-used-apps';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import {UpdateStatusProvider} from './UpdateStatusContext';
 
 type SkillAction = {
 	readonly skill: string;
-	readonly type: 'installing' | 'removing';
+	readonly type: 'installing' | 'removing' | 'upgrading';
 };
 
 type SettingsContextValue = {
@@ -36,6 +37,7 @@ type SettingsContextValue = {
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
 	readonly installSkill: (skill: string) => Promise<void>;
 	readonly removeSkill: (skill: string) => Promise<void>;
+	readonly upgradeSkill: (skill: string) => Promise<void>;
 	readonly skillAction: SkillAction | null;
 	readonly skillActionError: string | null;
 };
@@ -51,7 +53,7 @@ export const SettingsProvider: React.FC<{
 	const [settings, setSettings] = useState<
 		Omit<
 			SettingsContextValue,
-			'setPublicLicenseKey' | 'installSkill' | 'removeSkill'
+			'setPublicLicenseKey' | 'installSkill' | 'removeSkill' | 'upgradeSkill'
 		>
 	>({
 		codingAgentInfo: null,
@@ -65,6 +67,7 @@ export const SettingsProvider: React.FC<{
 		skillAction: null,
 		skillActionError: null,
 	});
+	const [skillsRevision, setSkillsRevision] = useState(0);
 
 	useEffect(() => {
 		if (
@@ -80,27 +83,10 @@ export const SettingsProvider: React.FC<{
 			error: null,
 		}));
 
-		Promise.all([
-			callApi('/api/default-editor-info', {}, controller.signal),
-			callApi('/api/default-coding-agent-info', {}, controller.signal),
-			callApi('/api/remotion-skills-info', {}, controller.signal),
-		])
-			.then(([editorInfo, codingAgentInfo, remotionSkillsInfo]) => {
-				const runtimeConfig = window.remotion_studioConfig;
+		callApi('/api/remotion-skills-info', {}, controller.signal)
+			.then((remotionSkillsInfo) => {
 				setSettings((currentSettings) => ({
 					...currentSettings,
-					codingAgentInfo: {
-						...codingAgentInfo,
-						defaultCodingAgent: runtimeConfig
-							? runtimeConfig.defaultCodingAgent
-							: codingAgentInfo.defaultCodingAgent,
-					},
-					editorInfo: {
-						...editorInfo,
-						defaultEditor: runtimeConfig
-							? runtimeConfig.defaultEditor
-							: editorInfo.defaultEditor,
-					},
 					remotionSkillsInfo,
 					error: null,
 					revision: currentSettings.revision + 1,
@@ -118,6 +104,70 @@ export const SettingsProvider: React.FC<{
 			});
 
 		return () => controller.abort();
+	}, [previewServerState.type]);
+
+	useEffect(() => {
+		if (
+			previewServerState.type !== 'connected' ||
+			getBrowserStudioOperations() !== null
+		) {
+			return;
+		}
+
+		let controller: AbortController | null = null;
+		const refreshApps = () => {
+			controller?.abort();
+			const requestController = new AbortController();
+			controller = requestController;
+			Promise.all([
+				callApi('/api/default-coding-agent-info', {}, requestController.signal),
+				callApi('/api/default-editor-info', {}, requestController.signal),
+			])
+				.then(([codingAgentInfo, editorInfo]) => {
+					if (requestController.signal.aborted) {
+						return;
+					}
+
+					const runtimeConfig = window.remotion_studioConfig;
+					setSettings((currentSettings) => ({
+						...currentSettings,
+						codingAgentInfo: {
+							...codingAgentInfo,
+							defaultCodingAgent: runtimeConfig
+								? runtimeConfig.defaultCodingAgent
+								: codingAgentInfo.defaultCodingAgent,
+						},
+						editorInfo: {
+							...editorInfo,
+							defaultEditor: runtimeConfig
+								? runtimeConfig.defaultEditor
+								: editorInfo.defaultEditor,
+						},
+					}));
+				})
+				.catch((err) => {
+					if (requestController.signal.aborted) {
+						return;
+					}
+
+					setSettings((currentSettings) => ({
+						...currentSettings,
+						error: (err as Error).message,
+					}));
+				});
+		};
+
+		refreshApps();
+		window.addEventListener('focus', refreshApps);
+		window.addEventListener(appSelectedEvent, refreshApps);
+		window.addEventListener('storage', refreshApps);
+
+		return () => {
+			controller?.abort();
+			window.removeEventListener('focus', refreshApps);
+			window.removeEventListener(appSelectedEvent, refreshApps);
+			window.removeEventListener('storage', refreshApps);
+		};
 	}, [previewServerState.type]);
 
 	useEffect(() => {
@@ -162,63 +212,91 @@ export const SettingsProvider: React.FC<{
 			};
 		});
 	}, []);
-	const installSkill = useCallback(async (skill: string) => {
-		setSettings((currentSettings) => ({
-			...currentSettings,
-			skillAction: {skill, type: 'installing'},
-			skillActionError: null,
-		}));
-		try {
-			const remotionSkillsInfo = await callApi('/api/install-remotion-skill', {
-				skill,
-			});
+	const changeSkill = useCallback(
+		async (skill: string, action: 'install' | 'remove' | 'upgrade') => {
 			setSettings((currentSettings) => ({
 				...currentSettings,
-				remotionSkillsInfo,
-				skillAction: null,
-				revision: currentSettings.revision + 1,
+				skillAction: {
+					skill,
+					type:
+						action === 'install'
+							? 'installing'
+							: action === 'upgrade'
+								? 'upgrading'
+								: 'removing',
+				},
+				skillActionError: null,
 			}));
-			showNotification(`Installed ${skill}.`, 5000);
-		} catch (err) {
-			setSettings((currentSettings) => ({
-				...currentSettings,
-				skillAction: null,
-				skillActionError: (err as Error).message,
-			}));
-		}
-	}, []);
-	const removeSkill = useCallback(async (skill: string) => {
-		setSettings((currentSettings) => ({
-			...currentSettings,
-			skillAction: {skill, type: 'removing'},
-			skillActionError: null,
-		}));
-		try {
-			const remotionSkillsInfo = await callApi('/api/remove-remotion-skill', {
-				skill,
-			});
-			setSettings((currentSettings) => ({
-				...currentSettings,
-				remotionSkillsInfo,
-				skillAction: null,
-				revision: currentSettings.revision + 1,
-			}));
-			showNotification(`Removed ${skill}.`, 5000);
-		} catch (err) {
-			setSettings((currentSettings) => ({
-				...currentSettings,
-				skillAction: null,
-				skillActionError: (err as Error).message,
-			}));
-		}
-	}, []);
+			try {
+				const endpoint =
+					action === 'install'
+						? '/api/install-remotion-skill'
+						: action === 'upgrade'
+							? '/api/upgrade-remotion-skill'
+							: '/api/remove-remotion-skill';
+				const remotionSkillsInfo = await callApi(endpoint, {
+					skill,
+				});
+				setSettings((currentSettings) => ({
+					...currentSettings,
+					remotionSkillsInfo,
+					skillAction: null,
+					revision: currentSettings.revision + 1,
+				}));
+				setSkillsRevision((revision) => revision + 1);
+				const verb =
+					action === 'install'
+						? 'Installed'
+						: action === 'upgrade'
+							? 'Upgraded'
+							: 'Removed';
+				showNotification(`${verb} ${skill}.`, 5000);
+			} catch (err) {
+				const remotionSkillsInfo = await callApi(
+					'/api/remotion-skills-info',
+					{},
+				).catch(() => null);
+				setSettings((currentSettings) => ({
+					...currentSettings,
+					remotionSkillsInfo:
+						remotionSkillsInfo ?? currentSettings.remotionSkillsInfo,
+					skillAction: null,
+					skillActionError: (err as Error).message,
+				}));
+				if (remotionSkillsInfo !== null) {
+					setSkillsRevision((revision) => revision + 1);
+				}
+			}
+		},
+		[],
+	);
+	const installSkill = useCallback(
+		(skill: string) => changeSkill(skill, 'install'),
+		[changeSkill],
+	);
+	const removeSkill = useCallback(
+		(skill: string) => changeSkill(skill, 'remove'),
+		[changeSkill],
+	);
+	const upgradeSkill = useCallback(
+		(skill: string) => changeSkill(skill, 'upgrade'),
+		[changeSkill],
+	);
 	const value = useMemo<SettingsContextValue>(() => {
-		return {...settings, setPublicLicenseKey, installSkill, removeSkill};
-	}, [installSkill, removeSkill, setPublicLicenseKey, settings]);
+		return {
+			...settings,
+			setPublicLicenseKey,
+			installSkill,
+			removeSkill,
+			upgradeSkill,
+		};
+	}, [installSkill, removeSkill, setPublicLicenseKey, settings, upgradeSkill]);
 
 	return (
 		<SettingsContext.Provider value={value}>
-			<UpdateStatusProvider>{children}</UpdateStatusProvider>
+			<UpdateStatusProvider skillsRevision={skillsRevision}>
+				{children}
+			</UpdateStatusProvider>
 		</SettingsContext.Provider>
 	);
 };

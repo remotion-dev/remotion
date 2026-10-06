@@ -18,6 +18,7 @@ import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
 	subscribeToInsertedElementSelection,
+	type PendingInsertedElementSelection,
 } from '../../helpers/inserted-element-selection';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
@@ -435,17 +436,39 @@ const TimelineInner: React.FC = () => {
 		sequences,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
 	);
-	const pendingInsertedElementSelection = useSyncExternalStore(
-		subscribeToInsertedElementSelection,
-		getInsertedElementSelection,
-		getInsertedElementSelection,
-	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
 	const pendingSelectionStart = useRef<{
-		selection: NonNullable<typeof pendingInsertedElementSelection>;
+		selection: PendingInsertedElementSelection;
 		fastRefreshes: number;
 		existingSequenceIds: Set<string>;
 	} | null>(null);
+	const selectionBaselineRef = useRef({fastRefreshes, timeline});
+	selectionBaselineRef.current = {fastRefreshes, timeline};
+	const subscribeToPendingSelection = useCallback((listener: () => void) => {
+		return subscribeToInsertedElementSelection(() => {
+			const selection = getInsertedElementSelection();
+			if (selection !== null) {
+				// Capture before React handles the notification. Fast Refresh may have
+				// already committed the inserted sequence by the next layout effect.
+				pendingSelectionStart.current = {
+					selection,
+					fastRefreshes: selectionBaselineRef.current.fastRefreshes,
+					existingSequenceIds: new Set(
+						selectionBaselineRef.current.timeline.map(
+							(track) => track.sequence.id,
+						),
+					),
+				};
+			}
+
+			listener();
+		});
+	}, []);
+	const pendingInsertedElementSelection = useSyncExternalStore(
+		subscribeToPendingSelection,
+		getInsertedElementSelection,
+		getInsertedElementSelection,
+	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	useLayoutEffect(() => {
 		if (pendingInsertedElementSelection === null) {
@@ -469,9 +492,7 @@ const TimelineInner: React.FC = () => {
 				selection: pendingInsertedElementSelection,
 				fastRefreshes,
 				existingSequenceIds: new Set(
-					timeline
-						.filter(matchesInsertedNodePath)
-						.map((track) => track.sequence.id),
+					timeline.map((track) => track.sequence.id),
 				),
 			};
 			return;
@@ -559,7 +580,6 @@ const TimelineInner: React.FC = () => {
 						schema={sequence.controls.schema}
 						getStack={sequence.getStack}
 						effects={sequence.effects}
-						videoConfigValues={sequence.controls.videoConfigValues}
 					/>
 				);
 			})}

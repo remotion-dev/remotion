@@ -42,6 +42,13 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'title'> & {
 	readonly dragSensitivity?: number;
 };
 
+type TextEditing = {
+	readonly format: (value: number | string) => string;
+	readonly parse: (text: string) => number | null;
+	readonly invalidMessage: string;
+	readonly onCancel: () => void;
+};
+
 type InputDraggerValidationResult =
 	| {
 			readonly valid: true;
@@ -498,7 +505,7 @@ export const deriveInputDraggerValueDiff = ({
 
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
-	Props
+	Props & {readonly textEditing: TextEditing | null}
 > = (
 	{
 		onValueChange,
@@ -523,6 +530,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		dragDecimalPlaces,
 		dragSensitivity = 1,
 		type: _type,
+		textEditing,
 		...props
 	},
 	ref,
@@ -531,6 +539,33 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const [dragging, setDragging] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
 	const pointerDownRef = useRef(false);
+	const formattedInputValueRef = useRef<{text: string; value: number} | null>(
+		null,
+	);
+	const startEditing = useCallback(() => {
+		formattedInputValueRef.current = {
+			text:
+				textEditing?.format(value as number | string) ?? String(value ?? ''),
+			value: deriveInputDraggerDragStartValue({min: _min, value}),
+		};
+		setInputFallback(true);
+	}, [_min, textEditing, value]);
+	const parseText = useCallback(
+		(text: string) => {
+			// Preserve the exact value when a rounded display is left untouched.
+			if (
+				textEditing !== null &&
+				text === formattedInputValueRef.current?.text
+			) {
+				return formattedInputValueRef.current.value;
+			}
+
+			return textEditing === null
+				? parseInputDraggerNumber(text)
+				: textEditing.parse(text);
+		},
+		[textEditing],
+	);
 	const deriveStep = useMemo(() => {
 		return deriveInputDraggerStep({
 			min: _min,
@@ -561,21 +596,24 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 		const wasActivatedByInputDragger = consumeInputDraggerActivationRequest();
 		if (small || wasActivatedByInputDragger) {
-			setInputFallback(true);
+			startEditing();
 		}
-	}, [small]);
+	}, [small, startEditing]);
 
-	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
-		if (!getClickLock()) {
-			e.stopPropagation();
-		}
+	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
+			if (!getClickLock()) {
+				e.stopPropagation();
+			}
 
-		if (getClickLock()) {
-			return;
-		}
+			if (getClickLock()) {
+				return;
+			}
 
-		setInputFallback(true);
-	}, []);
+			startEditing();
+		},
+		[startEditing],
+	);
 
 	const onKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
@@ -585,19 +623,20 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 			e.preventDefault();
 			e.stopPropagation();
-			setInputFallback(true);
+			startEditing();
 		},
-		[],
+		[startEditing],
 	);
 
 	const onEscape = useCallback(() => {
+		textEditing?.onCancel();
 		setInputFallback(false);
-	}, []);
+	}, [textEditing]);
 
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			e.target.setCustomValidity('');
-			const parsed = parseInputDraggerNumber(e.target.value);
+			const parsed = parseText(e.target.value);
 			if (
 				parsed !== null &&
 				(!integerOnly || Number.isInteger(parsed)) &&
@@ -610,7 +649,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				onValueChange(parsed, 'input');
 			}
 		},
-		[_max, _min, integerOnly, onValueChange],
+		[_max, _min, integerOnly, onValueChange, parseText],
 	);
 
 	const onBlur = useCallback(() => {
@@ -624,11 +663,12 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		const parsed = parseText(newValue);
 		const validation = validateInputDraggerValue({
 			max: _max,
 			min: _min,
 			step: validationStep,
-			value: newValue,
+			value: parsed === null ? '' : String(parsed),
 			integerOnly,
 		});
 
@@ -638,10 +678,23 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 			setInputFallback(false);
 		} else {
-			fallbackRef.current.setCustomValidity(validation.message);
+			fallbackRef.current.setCustomValidity(
+				parsed === null && textEditing !== null
+					? textEditing.invalidMessage
+					: validation.message,
+			);
 			fallbackRef.current.reportValidity();
 		}
-	}, [_max, _min, integerOnly, onEscape, onValueChangeEnd, validationStep]);
+	}, [
+		_max,
+		_min,
+		integerOnly,
+		onEscape,
+		onValueChangeEnd,
+		parseText,
+		textEditing,
+		validationStep,
+	]);
 
 	const onInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> =
 		useCallback(
@@ -661,7 +714,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				}
 
 				e.preventDefault();
-				const parsedInputValue = parseInputDraggerNumber(e.currentTarget.value);
+				const parsedInputValue = parseText(e.currentTarget.value);
 				const currentValue =
 					parsedInputValue ??
 					deriveInputDraggerDragStartValue({
@@ -683,11 +736,25 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					return;
 				}
 
-				e.currentTarget.value = String(nextValue);
+				e.currentTarget.value =
+					textEditing?.format(nextValue) ?? String(nextValue);
+				formattedInputValueRef.current = {
+					text: e.currentTarget.value,
+					value: nextValue,
+				};
 				e.currentTarget.setCustomValidity('');
 				onValueChange(nextValue, 'input');
 			},
-			[_max, _min, deriveStep, integerOnly, onValueChange, value],
+			[
+				_max,
+				_min,
+				deriveStep,
+				integerOnly,
+				onValueChange,
+				parseText,
+				textEditing,
+				value,
+			],
 		);
 
 	const roundToStep = (val: number, stepSize: number) => {
@@ -801,7 +868,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					min={_min}
 					max={_max}
 					step={validationStep}
-					defaultValue={value}
+					defaultValue={formattedInputValueRef.current?.text ?? value}
 					status={status}
 					rightAlign={rightAlign}
 					small={small}
@@ -854,4 +921,15 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	);
 };
 
-export const InputDragger = React.forwardRef(InputDraggerForwardRefFn);
+export const InputDraggerWithTextEditing = React.forwardRef(
+	InputDraggerForwardRefFn,
+);
+
+const InputDraggerWithoutTextEditing: React.ForwardRefRenderFunction<
+	HTMLButtonElement,
+	Props
+> = (props, ref) => (
+	<InputDraggerWithTextEditing {...props} ref={ref} textEditing={null} />
+);
+
+export const InputDragger = React.forwardRef(InputDraggerWithoutTextEditing);

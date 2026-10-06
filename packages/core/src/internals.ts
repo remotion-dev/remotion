@@ -75,6 +75,10 @@ import {
 	setComponentIdentityResolver,
 	type OriginalSourceLocation,
 } from './enable-sequence-stack-traces.js';
+import {
+	evaluateSourceNumericValue,
+	evaluateSourcePropStatuses,
+} from './evaluate-source-expressions.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
 	flattenActiveSchema,
@@ -325,6 +329,8 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	evaluateSourceNumericValue,
+	evaluateSourcePropStatuses,
 	AbsoluteFillElement,
 	MaxMediaCacheSizeContext,
 	getMediabunnyInputResourceKey,
@@ -581,3 +587,9 @@ export type {
 	VisibleFieldSchema,
 	WatchRemotionStaticFilesPayload,
 };
+
+export type {
+	CanUpdateSequencePropSource,
+	SourceNumericValue,
+	VideoConfigNumericBinding,
+} from './use-schema.js';

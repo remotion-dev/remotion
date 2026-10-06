@@ -317,6 +317,14 @@ export const insertElementHandler: ApiHandler<
 
 			const shouldWriteElementFile =
 				!plan.elementFileExists || elementSourcesDiffer;
+			const initialProps = {...element.initialProps};
+			if (componentOwnsSequence && element.dimensions !== null) {
+				initialProps.style = {
+					...element.dimensions,
+					...(typeof initialProps.style === 'object' ? initialProps.style : {}),
+				};
+			}
+
 			const insertionInput = {
 				remotionRoot,
 				compositionFile,
@@ -327,9 +335,10 @@ export const insertElementHandler: ApiHandler<
 					importName: plan.componentName,
 					importPath: plan.importPath,
 					props: [
-						...Object.entries(element.initialProps ?? {}).map(
-							([name, value]) => ({name, value}),
-						),
+						...Object.entries(initialProps).map(([name, value]) => ({
+							name,
+							value,
+						})),
 						...(componentOwnsSequence && element.durationInFrames !== null
 							? [
 									{

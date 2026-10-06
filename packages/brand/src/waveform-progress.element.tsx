@@ -15,7 +15,7 @@ import {
 type AudioWaveformProgressProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
 		readonly amplitude?: number;
-		readonly audioSrc?: string;
+		readonly src?: string;
 		readonly barGap?: number;
 		readonly numberOfBars?: number;
 		readonly playedColor?: string;
@@ -24,12 +24,13 @@ type AudioWaveformProgressProps = InteractiveBaseProps &
 
 const audioWaveformProgressSchema = {
 	...Interactive.baseSchema,
-	audioSrc: {
+	src: {
 		type: 'asset',
 		assetType: 'audio',
 		default:
 			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-		description: 'Audio source',
+		description: 'Source',
+		keyframable: false,
 	},
 	playedColor: {
 		type: 'color',
@@ -75,7 +76,7 @@ const audioWaveformProgressSchema = {
 
 const AudioWaveformProgressContent: React.FC<{
 	readonly amplitude: number;
-	readonly audioSrc: string;
+	readonly src: string;
 	readonly barGap: number;
 	readonly durationInFrames: number;
 	readonly numberOfBars: number;
@@ -83,7 +84,7 @@ const AudioWaveformProgressContent: React.FC<{
 	readonly unplayedColor: string;
 }> = ({
 	amplitude,
-	audioSrc,
+	src,
 	barGap,
 	durationInFrames,
 	numberOfBars,
@@ -96,7 +97,7 @@ const AudioWaveformProgressContent: React.FC<{
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
 		fps,
 		frame: 0,
-		src: audioSrc,
+		src,
 		windowInSeconds: durationInSeconds,
 	});
 	const gradientId = `audio-waveform-progress-${useId().replaceAll(':', '')}`;
@@ -127,7 +128,7 @@ const AudioWaveformProgressContent: React.FC<{
 
 	return (
 		<>
-			<Audio showInTimeline={false} src={audioSrc} />
+			<Audio showInTimeline={false} src={src} />
 			<svg height={300} viewBox="0 0 900 300" width={900}>
 				<defs>
 					<linearGradient
@@ -173,7 +174,7 @@ const AudioWaveformProgressInner: React.FC<
 	}
 > = ({
 	amplitude = 1,
-	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	src = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 	barGap = 5,
 	controls,
 	durationInFrames = 271,
@@ -201,9 +202,9 @@ const AudioWaveformProgressInner: React.FC<
 				}}
 			>
 				<AudioWaveformProgressContent
-					key={`${audioSrc}-${durationInFrames}`}
+					key={`${src}-${durationInFrames}`}
 					amplitude={amplitude}
-					audioSrc={audioSrc}
+					src={src}
 					barGap={barGap}
 					durationInFrames={durationInFrames}
 					numberOfBars={numberOfBars}

@@ -19,6 +19,7 @@ import type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropSource,
 	ExtrapolateType,
 	InteractivitySchema,
 	InterpolateOutputOption,
@@ -456,7 +457,6 @@ export type SubscribeToSequencePropsRequest = {
 	assetKeys: string[];
 	effects: string[][];
 	clientId: string;
-	videoConfigValues: VideoConfigValues;
 };
 
 export type SubscribeToSequencePropsResponse =
@@ -574,7 +574,7 @@ export type SaveSequencePropsRequest = {
 export type SaveSequencePropsResult = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
-	props: Record<string, CanUpdateSequencePropStatus>;
+	props: Record<string, CanUpdateSequencePropSource>;
 };
 
 export type SaveSequencePropsResponse =
@@ -963,6 +963,7 @@ export type NodeWrapper =
 
 export type WrapNodeRequest = {
 	fileName: string;
+	compositionId: string;
 	nodePath: SequenceNodePath;
 	wrapper: NodeWrapper | null;
 	width: number | null;
@@ -1300,6 +1301,13 @@ export type UpdateAvailableResponse = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
+	skillsUpdateDetails: {
+		outdatedSkills: {
+			name: string;
+			installedVersion: string | null;
+			reason: 'older-version' | 'missing-version' | 'invalid-version';
+		}[];
+	} | null;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };
@@ -1325,9 +1333,24 @@ export type InstallRemotionSkillRequest = {
 export type RemoveRemotionSkillRequest = {
 	skill: string;
 };
+export type UpgradeRemotionSkillRequest = {
+	skill: string;
+};
+export type OpenRemotionSkillRequest = {
+	skill: string;
+	scope: 'project' | 'global';
+};
 export type GetRemotionSkillsInfoResponse = {
+	studioServerStartedByAgent: boolean;
+	studioRestartSkill: 'remotion-studio' | 'remotion-best-practices' | null;
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
+	installations: {
+		name: string;
+		scope: 'project' | 'global';
+		version: string | null;
+		outdated: boolean;
+	}[];
 	skills: {
 		name: string;
 		installedInProject: boolean;
@@ -1377,6 +1400,7 @@ export type GetDefaultEditorInfoRequest = {};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
+	runningEditors: readonly EditorPickerId[] | null;
 	installedEditors: {
 		id: EditorPickerId;
 		name: string;
@@ -1387,6 +1411,7 @@ export type GetDefaultEditorInfoResponse = {
 export type GetDefaultCodingAgentInfoRequest = {};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
+	runningCodingAgents: readonly DefaultCodingAgent[] | null;
 	installedCodingAgents: {
 		id: DefaultCodingAgent;
 		name: string;
@@ -1628,6 +1653,11 @@ export type ApiRoutes = {
 		RemoveRemotionSkillRequest,
 		GetRemotionSkillsInfoResponse
 	>;
+	'/api/upgrade-remotion-skill': ReqAndRes<
+		UpgradeRemotionSkillRequest,
+		GetRemotionSkillsInfoResponse
+	>;
+	'/api/open-remotion-skill': ReqAndRes<OpenRemotionSkillRequest, void>;
 	'/api/add-composition': ReqAndRes<
 		AddCompositionRequest,
 		CompositionEditResponse

@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {Codec} from './codec';
 import type {FileExtension} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
@@ -22,6 +23,16 @@ export const validateOutputFilename = <T extends Codec>({
 			`The codec "${codec}" is not supported. Supported codecs are: ${Object.keys(
 				defaultFileExtensionMap,
 			).join(', ')}`,
+		);
+	}
+
+	if (
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		codec === 'aac' &&
+		(extension.toLowerCase() === 'mpg' || extension.toLowerCase() === 'mpeg')
+	) {
+		throw new Error(
+			'AAC output with .mpg or .mpeg extensions is not supported. Use .aac for raw ADTS AAC or .m4a for an MPEG-4 audio container.',
 		);
 	}
 

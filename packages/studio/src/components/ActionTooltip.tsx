@@ -71,6 +71,8 @@ export const ActionTooltip: React.FC<{
 	const triggerRef = useRef<HTMLSpanElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	// Dismissal must also cancel a tooltip that is waiting for its hover delay.
+	const [active, setActive] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [position, setPosition] = useState<{left: number; top: number} | null>(
 		null,
@@ -95,6 +97,7 @@ export const ActionTooltip: React.FC<{
 			timer.current = null;
 		}
 
+		setActive(false);
 		setVisible(false);
 		setPosition(null);
 	}, []);
@@ -105,6 +108,7 @@ export const ActionTooltip: React.FC<{
 			timer.current = null;
 		}
 
+		setActive(true);
 		setVisible(true);
 	}, []);
 
@@ -129,12 +133,17 @@ export const ActionTooltip: React.FC<{
 				return;
 			}
 
+			setActive(true);
 			timer.current = setTimeout(show, delay);
 		},
 		[delay, show],
 	);
 
 	useEffect(() => {
+		if (!active) {
+			return;
+		}
+
 		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') {
 				hide();
@@ -155,7 +164,7 @@ export const ActionTooltip: React.FC<{
 			window.removeEventListener('resize', hide);
 			window.removeEventListener('scroll', hide, true);
 		};
-	}, [hide]);
+	}, [active, hide]);
 
 	useLayoutEffect(() => {
 		if (!visible || !triggerRef.current || !tooltipRef.current) {

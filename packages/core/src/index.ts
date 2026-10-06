@@ -71,6 +71,7 @@ declare global {
 		) => Promise<VideoConfigWithSerializedProps>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
+		remotion_outputsBase: string | null;
 		remotion_staticFiles: StaticFile[];
 		remotion_publicPath: string;
 		remotion_publicFolderExists: string | null;

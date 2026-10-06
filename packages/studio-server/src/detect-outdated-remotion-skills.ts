@@ -41,7 +41,7 @@ export const parseRemotionSkillVersion = (contents: string): string | null => {
 	);
 };
 
-const readRemotionSkill = (
+export const readRemotionSkill = (
 	skillFile: string,
 ): {installed: boolean; version: string | null} => {
 	if (!existsSync(skillFile)) {

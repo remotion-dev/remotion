@@ -1,12 +1,6 @@
 import type {NodeWrapper} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
-import {Internals, isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
+import React, {useCallback, useContext, useState} from 'react';
+import {Internals, isHtmlInCanvasSupported} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import type {
 	SequenceNodePathInfo,
@@ -17,6 +11,8 @@ import {HtmlInCanvasIcon} from '../../icons/html-in-canvas';
 import {MotionBlurIcon} from '../../icons/motion-blur';
 import {SetSelectedModalContext} from '../../state/modals';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {getCurrentDimensions} from '../Timeline/imperative-state';
 import {wrapNode} from '../wrap-node-api';
 import {
 	InspectorQuickAction,
@@ -44,138 +40,26 @@ export const SequenceWrapAction: React.FC<{
 		readonly line: number;
 	};
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
-	const {width, height} = useVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const sequences = Internals.useSequenceManagerSequences();
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {sequence} = track;
-	const nodePathKey = JSON.stringify(nodePathInfo.sequenceSubscriptionKey);
-	const sequenceStack = sequence.getStack();
-	const eligibilityKey = JSON.stringify([nodePathKey, sequenceStack]);
 	const [busy, setBusy] = useState(false);
-	const [eligibleNodeKey, setEligibleNodeKey] = useState<string | null>(null);
-	const timing = useMemo(
-		() =>
-			getHtmlInCanvasWrapperTiming({
-				tracks: calculateTimeline({
-					sequences,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				}),
-				sequenceSubscriptionKey: nodePathInfo.sequenceSubscriptionKey,
-			}),
-		[
-			nodePathInfo.sequenceSubscriptionKey,
-			overrideIdToNodePathMappings,
-			sequences,
-		],
-	);
-	const timingIsNull = timing === null;
-	const wouldNestAtRuntime = useMemo(() => {
-		const sequencesById = new Map(
-			sequences.map((registeredSequence) => [
-				registeredSequence.id,
-				registeredSequence,
-			]),
-		);
-		let ancestorId: string | null = sequence.id;
-		while (ancestorId !== null) {
-			const ancestor = sequencesById.get(ancestorId);
-			if (!ancestor) {
-				break;
-			}
-
-			if (
-				ancestor.controls?.componentIdentity &&
-				htmlInCanvasComponentIdentities.has(ancestor.controls.componentIdentity)
-			) {
-				return true;
-			}
-
-			ancestorId = ancestor.parent;
-		}
-
-		for (const registeredSequence of sequences) {
-			if (
-				!registeredSequence.controls?.componentIdentity ||
-				!htmlInCanvasComponentIdentities.has(
-					registeredSequence.controls.componentIdentity,
-				)
-			) {
-				continue;
-			}
-
-			let descendantParentId = registeredSequence.parent;
-			while (descendantParentId !== null) {
-				if (descendantParentId === sequence.id) {
-					return true;
-				}
-
-				descendantParentId =
-					sequencesById.get(descendantParentId)?.parent ?? null;
-			}
-		}
-
-		return false;
-	}, [sequence.id, sequences]);
-
-	useEffect(() => {
-		if (sourceActionsDisabled || wouldNestAtRuntime || timingIsNull) {
-			setEligibleNodeKey(null);
-			return;
-		}
-
-		let cancelled = false;
-		setEligibleNodeKey(null);
-		const nodePath = JSON.parse(
-			nodePathKey,
-		) as SequenceNodePathInfo['sequenceSubscriptionKey'];
-		wrapNode({
-			fileName: nodePath.absolutePath,
-			nodePath: nodePath.nodePath,
-			wrapper: null,
-			width: null,
-			height: null,
-			timing: null,
-		})
-			.then((eligibility) => {
-				if (!cancelled) {
-					setEligibleNodeKey(
-						eligibility.success && eligibility.canWrapHtmlInCanvas
-							? eligibilityKey
-							: null,
-					);
-				}
-			})
-			.catch(() => {
-				if (!cancelled) {
-					setEligibleNodeKey(null);
-				}
-			});
-
-		return () => {
-			cancelled = true;
-		};
-	}, [
-		eligibilityKey,
-		nodePathKey,
-		sourceActionsDisabled,
-		timingIsNull,
-		wouldNestAtRuntime,
-	]);
 
 	const onWrap = useCallback(
 		async (wrapper: HtmlInCanvasWrapper) => {
 			if (
 				busy ||
 				sourceActionsDisabled ||
-				wouldNestAtRuntime ||
-				timing === null ||
-				eligibleNodeKey !== eligibilityKey
+				canvasContent?.type !== 'composition'
 			) {
 				return;
 			}
+
+			const {compositionId} = canvasContent;
 
 			if (!isHtmlInCanvasSupported()) {
 				setSelectedModal({
@@ -186,13 +70,74 @@ export const SequenceWrapAction: React.FC<{
 				return;
 			}
 
+			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
+			const {width, height} = getCurrentDimensions();
+			const sequencesById = new Map(
+				sequences.map((registeredSequence) => [
+					registeredSequence.id,
+					registeredSequence,
+				]),
+			);
+			let ancestorId: string | null = sequence.id;
+			while (ancestorId !== null) {
+				const ancestor = sequencesById.get(ancestorId);
+				if (!ancestor) {
+					break;
+				}
+
+				if (
+					ancestor.controls?.componentIdentity &&
+					htmlInCanvasComponentIdentities.has(
+						ancestor.controls.componentIdentity,
+					)
+				) {
+					showNotification('HTML-in-canvas components cannot be nested.', 4000);
+					return;
+				}
+
+				ancestorId = ancestor.parent;
+			}
+
+			for (const registeredSequence of sequences) {
+				if (
+					!registeredSequence.controls?.componentIdentity ||
+					!htmlInCanvasComponentIdentities.has(
+						registeredSequence.controls.componentIdentity,
+					)
+				) {
+					continue;
+				}
+
+				let descendantParentId = registeredSequence.parent;
+				while (descendantParentId !== null) {
+					if (descendantParentId === sequence.id) {
+						showNotification(
+							'HTML-in-canvas components cannot be nested.',
+							4000,
+						);
+						return;
+					}
+
+					descendantParentId =
+						sequencesById.get(descendantParentId)?.parent ?? null;
+				}
+			}
+
+			const nodePath = nodePathInfo.sequenceSubscriptionKey;
+			const timing = getHtmlInCanvasWrapperTiming({
+				tracks: calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				}),
+				sequenceSubscriptionKey: nodePath,
+			});
 			setBusy(true);
-			const nodePath = JSON.parse(
-				nodePathKey,
-			) as SequenceNodePathInfo['sequenceSubscriptionKey'];
 			try {
 				const eligibility = await wrapNode({
 					fileName: nodePath.absolutePath,
+					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper: null,
 					width: null,
@@ -204,7 +149,12 @@ export const SequenceWrapAction: React.FC<{
 					return;
 				}
 
-				if (!eligibility.canWrap) {
+				if (eligibility.canWrap && !eligibility.canWrapHtmlInCanvas) {
+					showNotification('HTML-in-canvas components cannot be nested.', 4000);
+					return;
+				}
+
+				if (!eligibility.canWrap || timing === null) {
 					setSelectedModal({
 						type: 'wrap-refactor',
 						displayName:
@@ -212,12 +162,6 @@ export const SequenceWrapAction: React.FC<{
 						location: sourceLocation,
 						wrapper,
 					});
-					return;
-				}
-
-				if (!eligibility.canWrapHtmlInCanvas) {
-					showNotification('HTML-in-canvas components cannot be nested.', 4000);
-					setEligibleNodeKey(null);
 					return;
 				}
 
@@ -229,6 +173,7 @@ export const SequenceWrapAction: React.FC<{
 
 				const result = await wrapNode({
 					fileName: nodePath.absolutePath,
+					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper,
 					width,
@@ -246,27 +191,20 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
-			eligibilityKey,
-			eligibleNodeKey,
-			height,
-			nodePathKey,
+			canvasContent,
+			nodePathInfo.sequenceSubscriptionKey,
+			overrideIdToNodePathMappingsRef,
 			sequence.controls?.componentName,
 			sequence.displayName,
+			sequence.id,
+			sequencesRef,
 			setSelectedModal,
 			sourceActionsDisabled,
 			sourceLocation,
-			timing,
-			width,
-			wouldNestAtRuntime,
 		],
 	);
 
-	if (
-		sourceActionsDisabled ||
-		eligibleNodeKey !== eligibilityKey ||
-		timing === null ||
-		wouldNestAtRuntime
-	) {
+	if (sourceActionsDisabled || canvasContent?.type !== 'composition') {
 		return null;
 	}
 
@@ -280,7 +218,7 @@ export const SequenceWrapAction: React.FC<{
 					<HtmlInCanvasIcon
 						color={color}
 						style={largeInspectorActionIconStyle}
-						viewBox="-64 -80 704 704"
+						viewBox="-48 -64 704 704"
 					/>
 				)}
 			>

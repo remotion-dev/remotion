@@ -109,6 +109,7 @@ import './index.css';
 import {KeyframeMove} from './KeyframeMove';
 import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
+import {NestingCompositions} from './NestingCompositions';
 import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
@@ -795,6 +796,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<KeyframeMove />
 				<PitchCorrection />
 				<RenderOnWeb />
+				<NestingCompositions />
 			</Folder>
 
 			<Folder name="StudioAssets">

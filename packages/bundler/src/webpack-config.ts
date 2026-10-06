@@ -74,6 +74,10 @@ export const webpackConfig = async ({
 			reactScan: getReactScanEntryPoint(environment),
 			environmentSetup: require.resolve('./setup-environment'),
 			sequenceStackTraces: require.resolve('./setup-sequence-stack-traces'),
+			studioBootstrap:
+				environment === 'development'
+					? require.resolve('./setup-studio')
+					: null,
 			userDefinedComponent,
 			reactShim: require.resolve('../react-shim.js'),
 			studioRenderEntry: entry,

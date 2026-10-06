@@ -1,5 +1,7 @@
 "use client";
 
+import { Internals } from "remotion";
+
 import {
   getCanvasKeyframeSourceFrame,
   getCanvasKeyframeToggle,
@@ -52,7 +54,7 @@ import {
 } from "./fields";
 
 type VisibleField = ReturnType<typeof getVisibleFields>[number];
-type PropStatus = ReturnType<typeof getNodeProps>["props"][string];
+type PropStatus = CanUpdateSequencePropStatus;
 
 const keyframeNavButtonClass =
   "text-muted-foreground-dim hover:text-foreground disabled:hover:text-muted-foreground-dim flex h-5 w-2 items-center justify-center disabled:opacity-30";
@@ -580,21 +582,13 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
 
     let visible = getVisibleFields(schema);
     const keys = visible.map(({ key }) => key);
-    let props: ReturnType<typeof getNodeProps>["props"] | null = null;
+    let props: Record<string, CanUpdateSequencePropStatus> | null = null;
     try {
-      props = getNodeProps({
+      props = Internals.evaluateSourcePropStatuses(getNodeProps({
         project,
         node,
         keys,
-        videoConfig: composition
-          ? {
-              width: composition.width,
-              height: composition.height,
-              fps: composition.fps,
-              durationInFrames: composition.durationInFrames,
-            }
-          : undefined,
-      }).props;
+      }).props, layer.track.sequence.controls?.videoConfigValues ?? composition ?? null);
     } catch {
       return { fields: visible, statuses: null };
     }
@@ -611,11 +605,11 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
       if (variantFields.length > 0) {
         visible = [...visible, ...variantFields];
         try {
-          const extra = getNodeProps({
+          const extra = Internals.evaluateSourcePropStatuses(getNodeProps({
             project,
             node,
             keys: variantFields.map((item) => item.key),
-          }).props;
+          }).props, layer.track.sequence.controls?.videoConfigValues ?? composition ?? null);
           props = { ...props, ...extra };
         } catch {
           // Leave the variant fields without status.
@@ -624,7 +618,7 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
     }
 
     return { fields: visible, statuses: props };
-  }, [composition, node, project, schema]);
+  }, [composition, node, project, schema, layer.track.sequence.controls?.videoConfigValues]);
 
   const grouped = useMemo(() => {
     const groups = new Map<FieldGroup, VisibleField[]>();

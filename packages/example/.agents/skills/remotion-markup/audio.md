@@ -87,25 +87,23 @@ import { Audio } from "@remotion/media";
 <Audio src={staticFile("audio.mp3")} volume={0.5} />
 ```
 
-Or use a callback for dynamic volume based on the current frame:
-
 ```tsx
 import { Audio } from "@remotion/media";
-import { interpolate } from "remotion";
+import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
+const frame = useCurrentFrame();
 const { fps } = useVideoConfig();
 
 return (
   <Audio
     src={staticFile("audio.mp3")}
-    volume={(f) =>
-      interpolate(f, [0, 1 * fps], [0, 1], { extrapolateRight: "clamp" })
-    }
+    volume={interpolate(frame, [0, 1 * fps], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    })}
   />
 );
 ```
-
-The value of `f` starts at 0 when the audio begins to play, not the composition frame.
 
 ## Muting
 
@@ -150,19 +148,19 @@ import { Audio } from "@remotion/media";
 <Audio src={staticFile("audio.mp3")} loop />
 ```
 
-Use `loopVolumeCurveBehavior` to control how the frame count behaves when looping:
-
-- `"repeat"`: Frame count resets to 0 each loop (default)
-- `"extend"`: Frame count continues incrementing
-
 ```tsx
 import { Audio } from "@remotion/media";
+import { interpolate, staticFile, useCurrentFrame } from "remotion";
+
+const frame = useCurrentFrame();
 
 <Audio
   src={staticFile("audio.mp3")}
   loop
-  loopVolumeCurveBehavior="extend"
-  volume={(f) => interpolate(f, [0, 300], [1, 0])} // Fade out over multiple loops
+  volume={interpolate(frame, [0, 300], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  })}
 />
 ```
 

@@ -41,6 +41,8 @@ Selects this many source frames starting at `trimBefore`. The audio occupies `du
 
 Allows you to control the volume of the audio in it's entirety or frame by frame. Read the page on [using audio](/docs/using-audio) to learn more.
 
+The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
+
 ```tsx twoslash title="Setting a static volume"
 import {Html5Audio, staticFile} from 'remotion';
 
@@ -54,12 +56,14 @@ export const MyVideo = () => {
 ```
 
 ```tsx twoslash title="Changing the volume over time"
-import {Html5Audio, interpolate, staticFile} from 'remotion';
+import {Html5Audio, interpolate, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyVideo = () => {
+  const frame = useCurrentFrame();
+
   return (
     <>
-      <Html5Audio volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('voice.mp3')} />
+      <Html5Audio volume={interpolate(frame, [0, 30], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('voice.mp3')} />
     </>
   );
 };
@@ -69,9 +73,11 @@ By default, volumes between `0` and `1` are supported, and iOS Safari always set
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
 
-Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
+This prop only applies to [`volume`](#volume) callbacks, which are no longer recommended.
 
-Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+When [`loop`](#loop) is enabled, `"repeat"` (default) resets the callback frame to `0` on each iteration, while `"extend"` keeps it increasing across iterations.
+
+It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
 
 ### `trimBefore?`<AvailableFrom v="4.0.319"/>
 

@@ -45,6 +45,16 @@ ${
 `;
 	}
 
+	if (source === 'source-expressions') {
+		project.files['/project/src/Composition.tsx'] = await (
+			await fetch('/source-expressions.tsx')
+		).text();
+		project.files['/project/src/Root.tsx'] =
+			`import {Composition} from 'remotion';
+import {SourceSubscriptionChurn} from './Composition';
+export const RemotionRoot = () => <Composition id="SourceSubscriptionChurn" component={SourceSubscriptionChurn} durationInFrames={600} fps={30} width={1280} height={720} />;`;
+	}
+
 	const root = document.getElementById('root');
 	if (!root) {
 		throw new Error('Could not find root element');
