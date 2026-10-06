@@ -22,6 +22,7 @@ import type {
 	VideoConfigNumericExpression,
 	VideoConfigValues,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
@@ -184,11 +185,16 @@ const readSequenceTiming = ({
 		}
 
 		if (name === 'playbackRate') {
-			if (!Number.isFinite(value.value) || value.value <= 0) {
+			if (
+				!Number.isFinite(
+					NoReactInternals.evaluateSourceNumericValue(value, null),
+				) ||
+				NoReactInternals.evaluateSourceNumericValue(value, null) <= 0
+			) {
 				throw new Error('Cannot split sequence with invalid playbackRate');
 			}
 
-			playbackRate = value.value;
+			playbackRate = NoReactInternals.evaluateSourceNumericValue(value, null);
 		}
 	}
 
@@ -470,8 +476,17 @@ export const splitJsxSequences = ({
 					videoConfigValues,
 				}),
 			});
-			const from = timing.from?.value ?? 0;
-			const contentDuration = timing.durationInFrames?.value ?? Infinity;
+			const from =
+				timing.from === null
+					? 0
+					: NoReactInternals.evaluateSourceNumericValue(timing.from, null);
+			const contentDuration =
+				timing.durationInFrames === null
+					? Infinity
+					: NoReactInternals.evaluateSourceNumericValue(
+							timing.durationInFrames,
+							null,
+						);
 			const timelineDuration = contentDuration / timing.playbackRate;
 			const finiteEnd =
 				timelineDuration === Infinity ? Infinity : from + timelineDuration;
@@ -509,7 +524,12 @@ export const splitJsxSequences = ({
 					? Infinity
 					: normalizeComputedTiming(contentDuration - leftDuration);
 			const rightTrimBefore = normalizeComputedTiming(
-				(timing.trimBefore?.value ?? 0) + leftDuration,
+				(timing.trimBefore === null
+					? 0
+					: NoReactInternals.evaluateSourceNumericValue(
+							timing.trimBefore,
+							null,
+						)) + leftDuration,
 			);
 
 			setNumericAttribute({

@@ -5,6 +5,7 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import type {DefaultCodingAgent, LogLevel} from '@remotion/renderer';
 import {defaultCodingAgentIds, RenderInternals} from '@remotion/renderer';
+import {getRunningProcesses, isAppRunning} from './running-processes';
 
 const execFilePromise = promisify(execFile);
 
@@ -432,6 +433,35 @@ export const getAvailableCodingAgents = () => {
 		defaultDiscoveryContext,
 	);
 	return availableCodingAgents;
+};
+
+export const getRunningCodingAgents = async (
+	installedCodingAgents: readonly InstalledCodingAgent[],
+): Promise<readonly DefaultCodingAgent[]> => {
+	if (installedCodingAgents.length === 0) {
+		return [];
+	}
+
+	const processes = await getRunningProcesses();
+	if (processes === null) {
+		return [];
+	}
+
+	return installedCodingAgents
+		.filter((agent) =>
+			isAppRunning({
+				processes,
+				executablePath: agent.applicationPath,
+				commands:
+					agent.platform === 'darwin'
+						? []
+						: codingAgentDefinitions[agent.id][agent.platform].flatMap(
+								(variant) => variant.commands,
+							),
+				platform: agent.platform,
+			}),
+		)
+		.map((agent) => agent.id);
 };
 
 export const getCodingAgentLaunchCommand = ({

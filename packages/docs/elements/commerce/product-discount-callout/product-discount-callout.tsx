@@ -1,14 +1,22 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import {makeCallout} from '@remotion/shapes';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 loadFont('normal', {
 	subsets: ['latin'],
 	weights: ['500', '600', '700', '800'],
 });
 
-export const ProductDiscountCallout = () => {
+const ProductDiscountCalloutInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 	const discountCallout = makeCallout({
 		width: 600,
@@ -23,6 +31,7 @@ export const ProductDiscountCallout = () => {
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				WebkitFontSmoothing: 'antialiased',
 				fontFamily: 'Inter',
@@ -31,6 +40,7 @@ export const ProductDiscountCallout = () => {
 				overflow: 'hidden',
 				position: 'relative',
 				width: '100%',
+				...style,
 			}}
 		>
 			<Interactive.Div
@@ -88,3 +98,10 @@ export const ProductDiscountCallout = () => {
 		</Interactive.Div>
 	);
 };
+
+export const ProductDiscountCallout = Interactive.withSchema({
+	Component: ProductDiscountCalloutInner,
+	componentName: '<ProductDiscountCallout>',
+	schema: {},
+	wrapInSequence: true,
+});

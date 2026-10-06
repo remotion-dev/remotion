@@ -10,19 +10,20 @@ import {
 } from 'remotion';
 
 type MirroredAudioSpectrumProps = InteractiveTransformProps & {
-	readonly audioSrc?: string;
+	readonly src?: string;
 	readonly barColor?: string;
 	readonly numberOfBars?: number;
 	readonly sensitivity?: number;
 };
 
 const mirroredAudioSpectrumSchema = {
-	audioSrc: {
+	src: {
 		type: 'asset',
 		assetType: 'audio',
 		default:
 			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-		description: 'Audio source',
+		description: 'Source',
+		keyframable: false,
 	},
 	barColor: {
 		type: 'color',
@@ -51,7 +52,7 @@ const mirroredAudioSpectrumSchema = {
 } as const satisfies InteractivitySchema;
 
 const MirroredAudioSpectrumInner: React.FC<MirroredAudioSpectrumProps> = ({
-	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	src = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 	barColor = '#2563eb',
 	numberOfBars = 65,
 	sensitivity = 1.5,
@@ -62,7 +63,7 @@ const MirroredAudioSpectrumInner: React.FC<MirroredAudioSpectrumProps> = ({
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
 		fps,
 		frame,
-		src: audioSrc,
+		src,
 		windowInSeconds: 10,
 	});
 	const roundedNumberOfBars = Math.max(
@@ -99,7 +100,7 @@ const MirroredAudioSpectrumInner: React.FC<MirroredAudioSpectrumProps> = ({
 				...style,
 			}}
 		>
-			<Audio showInTimeline={false} src={audioSrc} />
+			<Audio showInTimeline={false} src={src} />
 			{frequenciesToDisplay.map((value, index) => (
 				<div
 					key={index}

@@ -1,3 +1,4 @@
+import { Internals } from "remotion";
 import {
   getCanvasSequenceNodePathInfo,
   getCanvasSequenceSourceLocation,
@@ -94,7 +95,7 @@ export const resolveSequenceNodePaths = (
       nodePath: node.nodePath,
       sequenceKeys: [],
       effectKeys: [],
-      videoConfigValues: track.sequence.controls?.videoConfigValues ?? null,
+      videoConfigValues: null,
     };
   }
 
@@ -198,7 +199,7 @@ export const getSequencePropStatuses = ({
   }
 
   try {
-    return getNodeProps({ project, node, keys: [...keys], videoConfig }).props;
+    return Internals.evaluateSourcePropStatuses(getNodeProps({ project, node, keys: [...keys] }).props, nodePathInfo.sequenceSubscriptionKey.videoConfigValues ?? videoConfig);
   } catch {
     return null;
   }

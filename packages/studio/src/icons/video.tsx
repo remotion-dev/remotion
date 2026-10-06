@@ -6,11 +6,38 @@ export const FilmIcon: React.FC<
 		readonly color: string;
 	}
 > = ({color, ...props}) => {
+	const size =
+		typeof props.style?.height === 'number' ? props.style.height : 18;
+	const sideWidth = Math.floor(size / 8);
+	const upperFrameBottom = Math.floor(size / 2) - 1;
+	const topDivider = Math.floor((2 + upperFrameBottom) / 2);
+	const bottomDivider = size - topDivider - 1;
+
 	return (
-		<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+		<svg
+			{...props}
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox={`0 0 ${size} ${size}`}
+		>
+			<rect
+				x={0.5}
+				y={1.5}
+				width={size - 1}
+				height={size - 3}
+				rx={1.5}
+				fill="none"
+				stroke={color}
+				strokeWidth={1}
+			/>
 			<path
 				fill={color}
-				d="M448 32H64C28.65 32 0 60.65 0 96v320c0 35.35 28.65 64 64 64h384c35.35 0 64-28.65 64-64V96C512 60.65 483.3 32 448 32zM384 64v176H128V64H384zM32 96c0-17.64 14.36-32 32-32h32v80H32V96zM32 176h64v64H32V176zM32 272h64v64H32V272zM64 448c-17.64 0-32-14.36-32-32v-48h64V448H64zM128 448V272h256V448H128zM480 416c0 17.64-14.36 32-32 32h-32v-80h64V416zM480 336h-64v-64h64V336zM480 240h-64v-64h64V240zM480 144h-64V64h32c17.64 0 32 14.36 32 32V144z"
+				d={`M${sideWidth + 1} 2h1v${size - 4}h-1z
+				M${size - sideWidth - 2} 2h1v${size - 4}h-1z
+				M1 ${upperFrameBottom}h${size - 2}v2H1z
+				M1 ${topDivider}h${sideWidth}v1H1z
+				M${size - sideWidth - 1} ${topDivider}h${sideWidth}v1h-${sideWidth}z
+				M1 ${bottomDivider}h${sideWidth}v1H1z
+				M${size - sideWidth - 1} ${bottomDivider}h${sideWidth}v1h-${sideWidth}z`}
 			/>
 		</svg>
 	);

@@ -5,11 +5,10 @@
 */
 
 import type {ChildProcess} from 'node:child_process';
-import child_process, {exec} from 'node:child_process';
+import child_process from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import util from 'node:util';
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  *
@@ -19,10 +18,9 @@ import util from 'node:util';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {openInEditorViaUrlScheme} from './open-in-editor-url-scheme';
+import {getRunningProcesses} from './running-processes';
 
 const {Log} = RenderInternals;
-
-const execProm = util.promisify(exec);
 
 const isVsCodeDerivative = (editor: Editor) => {
 	const editorBasename = path.basename(editor).replace(/\.(exe|cmd|bat)$/i, '');
@@ -367,27 +365,22 @@ export const findMacOsEditorsFromProcessOutput = (
 };
 
 export async function guessEditor(): Promise<ProcessAndCommand[]> {
-	// We can find out which editor is currently running by:
-	// `ps x` on macOS and Linux
-	// `Get-Process` on Windows
 	const availableEditors: ProcessAndCommand[] = [];
-	try {
+	const processes = await getRunningProcesses();
+	if (processes !== null) {
 		if (process.platform === 'darwin') {
-			const output = (await execProm('ps x')).stdout.toString();
+			const output = processes
+				.map(({executable}) => executable ?? '')
+				.join('\n');
 			return findMacOsEditorsFromProcessOutput(output);
 		}
 
 		if (process.platform === 'win32') {
-			// Some processes need elevated rights to get its executable path.
-			// Just filter them out upfront. This also saves 10-20ms on the command.
-			const output = (
-				await execProm(
-					'wmic process where "executablepath is not null" get executablepath',
-				)
-			).stdout.toString();
-			const runningProcesses = output.split('\r\n');
-			for (let i = 0; i < runningProcesses.length; i++) {
-				const processPath = runningProcesses[i].trim();
+			for (const {executable: processPath} of processes) {
+				if (processPath === null) {
+					continue;
+				}
+
 				const processName = path.basename(processPath);
 				if (COMMON_EDITORS_WIN.indexOf(processName as Editor) !== -1) {
 					availableEditors.push({
@@ -401,12 +394,9 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 		}
 
 		if (process.platform === 'linux') {
-			// --no-heading No header line
-			// x List all processes owned by you
-			// -o comm Need only names column
-			const output = (
-				await execProm('ps x --no-heading -o comm --sort=comm')
-			).stdout.toString();
+			const output = processes
+				.map(({executable}) => executable ?? '')
+				.join('\n');
 			const processNames = Object.keys(COMMON_EDITORS_LINUX);
 			for (let i = 0; i < processNames.length; i++) {
 				const processName = processNames[i];
@@ -420,8 +410,6 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 
 			return availableEditors;
 		}
-	} catch {
-		// Ignore...
 	}
 
 	// Last resort, use old skool env vars

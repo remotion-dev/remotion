@@ -292,7 +292,10 @@ export const calculateTimeline = ({
 			keyframePlaybackRate: parentPlaybackRate,
 			nodePathInfo: nodePath
 				? {
-						sequenceSubscriptionKey: nodePath,
+						sequenceSubscriptionKey: {
+							...nodePath,
+							videoConfigValues: sequence.controls?.videoConfigValues ?? null,
+						},
 						auxiliaryKeys: [],
 						index: 0,
 						numberOfSequencesWithThisNodePath: 0,

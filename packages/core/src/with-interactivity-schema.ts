@@ -370,7 +370,10 @@ export const withInteractivitySchema = <
 				propStatus:
 					nodePath === null
 						? undefined
-						: getPropStatusesCtx(propStatuses, nodePath),
+						: getPropStatusesCtx(propStatuses, {
+								...nodePath,
+								videoConfigValues,
+							}),
 				frame,
 			});
 		}, [
@@ -378,6 +381,7 @@ export const withInteractivitySchema = <
 			dragOverrides,
 			nodePath,
 			propStatuses,
+			videoConfigValues,
 			frame,
 		]);
 

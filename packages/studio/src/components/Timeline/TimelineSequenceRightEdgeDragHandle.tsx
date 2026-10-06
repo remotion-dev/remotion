@@ -1042,7 +1042,8 @@ export const getTimelineSequenceDurationDragTargets = ({
 			}
 
 			const minimumDuration = Math.max(
-				1 - originalSequence.from,
+				(track.sequence.from + 1 - track.cascadedStart) *
+					track.keyframePlaybackRate,
 				getMinimumSequenceDuration({sequence: originalSequence, sequences}),
 			);
 			const initialDuration = mediaDurationDragLimits
@@ -1106,7 +1107,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 				...(naturalDuration !== null && maximumDuration === naturalDuration
 					? {naturalDuration, initiallyExplicit: !originalSequence.autoDuration}
 					: {}),
-				// A negative start needs enough duration to retain one visible frame.
+				// Include frames hidden by ancestors and retain one visible timeline frame.
 				minimumDuration,
 				nodePath,
 				schema: controls.schema,
@@ -1288,29 +1289,43 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				typeof durationStatus.codeValue === 'number'
 					? durationStatus.codeValue
 					: runtimeValues.durationInFrames;
+			// The handle is at the visible start, which can be later than the
+			// child's own start when an ancestor clips it. Include those hidden
+			// frames in the trim so the visible edge follows the pointer.
+			const hiddenStartInParentFrames =
+				!trimBeforeOnly && positionField === 'from'
+					? (track.sequence.from - track.cascadedStart) *
+						track.keyframePlaybackRate
+					: 0;
 			targets.set(key, {
 				parentPlaybackRate: getParentSequencePlaybackRate(
 					originalSequence,
 					sequences,
 				),
 				fileName: nodePath.absolutePath,
-				initialDuration: originalSequence.autoDuration
-					? (track.sequence.from +
-							track.sequence.duration -
-							track.cascadedStart) *
-						track.keyframePlaybackRate
-					: isSeriesSequence(originalSequence) ||
-						  typeof runtimeDuration !== 'number' ||
-						  !Number.isFinite(runtimeDuration)
-						? originalSequence.duration
-						: runtimeDuration / playbackRate,
-				initialFrom: positionField === 'from' ? originalSequence.from : 0,
-				initialTrimBefore: trimBeforeOnly
-					? ownTrimBefore
-					: trimsMedia
-						? (originalSequence.trimBefore ??
-							Math.max(0, originalSequence.startMediaFrom))
-						: (originalSequence.trimBefore ?? 0),
+				initialDuration:
+					(originalSequence.autoDuration
+						? (track.sequence.from +
+								track.sequence.duration -
+								track.cascadedStart) *
+							track.keyframePlaybackRate
+						: isSeriesSequence(originalSequence) ||
+							  typeof runtimeDuration !== 'number' ||
+							  !Number.isFinite(runtimeDuration)
+							? originalSequence.duration
+							: runtimeDuration / playbackRate) - hiddenStartInParentFrames,
+				initialFrom:
+					positionField === 'from'
+						? originalSequence.from + hiddenStartInParentFrames
+						: 0,
+				initialTrimBefore:
+					(trimBeforeOnly
+						? ownTrimBefore
+						: trimsMedia
+							? (originalSequence.trimBefore ??
+								Math.max(0, originalSequence.startMediaFrom))
+							: (originalSequence.trimBefore ?? 0)) +
+					hiddenStartInParentFrames * playbackRate,
 				minimumDuration: getMinimumSequenceDuration({
 					sequence: originalSequence,
 					sequences,

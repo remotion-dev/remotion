@@ -382,7 +382,7 @@ test('track lookup survives effect key changes', () => {
 		},
 	});
 
-	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toBe(currentNodePath);
+	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toEqual(currentNodePath);
 });
 
 test('keyframe display offsets account for parent trimBefore', () => {

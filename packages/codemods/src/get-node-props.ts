@@ -1,7 +1,6 @@
 import type {
 	CanUpdateSequencePropsResponseTrue,
 	JsxComponentIdentity,
-	VideoConfigValues,
 } from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import {findProjectFile} from './internals';
@@ -20,7 +19,6 @@ export type GetNodePropsOptions = {
 	effectKeys?: string[][];
 	assetKeys?: string[];
 	componentIdentity?: JsxComponentIdentity | null;
-	videoConfig?: VideoConfigValues;
 };
 
 export type NodeProps = Pick<
@@ -35,7 +33,6 @@ export const getNodeProps = ({
 	effectKeys,
 	assetKeys,
 	componentIdentity,
-	videoConfig,
 }: GetNodePropsOptions): NodeProps => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	let effects = effectKeys;
@@ -74,7 +71,6 @@ export const getNodeProps = ({
 		assetKeys,
 		keys,
 		effects,
-		videoConfigValues: videoConfig ?? null,
 	});
 	return result;
 };

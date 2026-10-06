@@ -1,6 +1,6 @@
 import {
 	type CanUpdateSequencePropsResponse,
-	type CanUpdateSequencePropStatus,
+	type CanUpdateSequencePropSource,
 	type InteractivitySchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -28,7 +28,7 @@ export const optimisticUpdateForPropStatuses = ({
 			? undefined
 			: value;
 
-	const props: Record<string, CanUpdateSequencePropStatus> = {
+	const props: Record<string, CanUpdateSequencePropSource> = {
 		...previous.props,
 		[fieldKey]: {
 			status: 'static',

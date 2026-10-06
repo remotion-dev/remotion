@@ -19,6 +19,7 @@ import type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropSource,
 	ExtrapolateType,
 	InteractivitySchema,
 	InterpolateOutputOption,
@@ -456,7 +457,6 @@ export type SubscribeToSequencePropsRequest = {
 	assetKeys: string[];
 	effects: string[][];
 	clientId: string;
-	videoConfigValues: VideoConfigValues;
 };
 
 export type SubscribeToSequencePropsResponse =
@@ -574,7 +574,7 @@ export type SaveSequencePropsRequest = {
 export type SaveSequencePropsResult = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
-	props: Record<string, CanUpdateSequencePropStatus>;
+	props: Record<string, CanUpdateSequencePropSource>;
 };
 
 export type SaveSequencePropsResponse =
@@ -1340,6 +1340,8 @@ export type OpenRemotionSkillRequest = {
 	scope: 'project' | 'global';
 };
 export type GetRemotionSkillsInfoResponse = {
+	studioServerStartedByAgent: boolean;
+	studioRestartSkill: 'remotion-studio' | 'remotion-best-practices' | null;
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
 	installations: {
@@ -1397,6 +1399,7 @@ export type GetDefaultEditorInfoRequest = {};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
+	runningEditors: readonly EditorPickerId[] | null;
 	installedEditors: {
 		id: EditorPickerId;
 		name: string;
@@ -1407,6 +1410,7 @@ export type GetDefaultEditorInfoResponse = {
 export type GetDefaultCodingAgentInfoRequest = {};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
+	runningCodingAgents: readonly DefaultCodingAgent[] | null;
 	installedCodingAgents: {
 		id: DefaultCodingAgent;
 		name: string;

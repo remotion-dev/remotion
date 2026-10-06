@@ -15,6 +15,7 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {appSelectedEvent} from '../state/recently-used-apps';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import {UpdateStatusProvider} from './UpdateStatusContext';
@@ -82,27 +83,10 @@ export const SettingsProvider: React.FC<{
 			error: null,
 		}));
 
-		Promise.all([
-			callApi('/api/default-editor-info', {}, controller.signal),
-			callApi('/api/default-coding-agent-info', {}, controller.signal),
-			callApi('/api/remotion-skills-info', {}, controller.signal),
-		])
-			.then(([editorInfo, codingAgentInfo, remotionSkillsInfo]) => {
-				const runtimeConfig = window.remotion_studioConfig;
+		callApi('/api/remotion-skills-info', {}, controller.signal)
+			.then((remotionSkillsInfo) => {
 				setSettings((currentSettings) => ({
 					...currentSettings,
-					codingAgentInfo: {
-						...codingAgentInfo,
-						defaultCodingAgent: runtimeConfig
-							? runtimeConfig.defaultCodingAgent
-							: codingAgentInfo.defaultCodingAgent,
-					},
-					editorInfo: {
-						...editorInfo,
-						defaultEditor: runtimeConfig
-							? runtimeConfig.defaultEditor
-							: editorInfo.defaultEditor,
-					},
 					remotionSkillsInfo,
 					error: null,
 					revision: currentSettings.revision + 1,
@@ -120,6 +104,70 @@ export const SettingsProvider: React.FC<{
 			});
 
 		return () => controller.abort();
+	}, [previewServerState.type]);
+
+	useEffect(() => {
+		if (
+			previewServerState.type !== 'connected' ||
+			getBrowserStudioOperations() !== null
+		) {
+			return;
+		}
+
+		let controller: AbortController | null = null;
+		const refreshApps = () => {
+			controller?.abort();
+			const requestController = new AbortController();
+			controller = requestController;
+			Promise.all([
+				callApi('/api/default-coding-agent-info', {}, requestController.signal),
+				callApi('/api/default-editor-info', {}, requestController.signal),
+			])
+				.then(([codingAgentInfo, editorInfo]) => {
+					if (requestController.signal.aborted) {
+						return;
+					}
+
+					const runtimeConfig = window.remotion_studioConfig;
+					setSettings((currentSettings) => ({
+						...currentSettings,
+						codingAgentInfo: {
+							...codingAgentInfo,
+							defaultCodingAgent: runtimeConfig
+								? runtimeConfig.defaultCodingAgent
+								: codingAgentInfo.defaultCodingAgent,
+						},
+						editorInfo: {
+							...editorInfo,
+							defaultEditor: runtimeConfig
+								? runtimeConfig.defaultEditor
+								: editorInfo.defaultEditor,
+						},
+					}));
+				})
+				.catch((err) => {
+					if (requestController.signal.aborted) {
+						return;
+					}
+
+					setSettings((currentSettings) => ({
+						...currentSettings,
+						error: (err as Error).message,
+					}));
+				});
+		};
+
+		refreshApps();
+		window.addEventListener('focus', refreshApps);
+		window.addEventListener(appSelectedEvent, refreshApps);
+		window.addEventListener('storage', refreshApps);
+
+		return () => {
+			controller?.abort();
+			window.removeEventListener('focus', refreshApps);
+			window.removeEventListener(appSelectedEvent, refreshApps);
+			window.removeEventListener('storage', refreshApps);
+		};
 	}, [previewServerState.type]);
 
 	useEffect(() => {

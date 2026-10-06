@@ -302,6 +302,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly s: TSequence;
 	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
+	readonly leftTrimHighlight: {
+		readonly left: number;
+		readonly width: number;
+	} | null;
 	readonly displayDurationInFrames: number;
 	readonly premount: {readonly left: number; readonly width: number} | null;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
@@ -330,6 +334,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 }> = ({
 	s,
 	activeTrimEdge,
+	leftTrimHighlight,
 	annotationLocation,
 	displayDurationInFrames,
 	premount,
@@ -404,9 +409,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
 		: 0;
-	// Back the antialiased rounded edge so the layer color does not show through the glow.
+	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
 	const sequenceBackground =
-		activeTrimEdge === null
+		activeTrimEdge === null ||
+		(activeTrimEdge === 'left' && leftTrimHighlight?.left !== negativeStartEnd)
 			? style.background
 			: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, #00E500 0 2px, #00E50000 2px), ${style.background ?? TRANSPARENT}`;
 
@@ -491,16 +497,21 @@ const TimelineSequenceCurrentFrame: React.FC<{
 				</div>
 			) : null}
 
-			{activeTrimEdge === null ? null : (
+			{activeTrimEdge === null ||
+			(activeTrimEdge === 'left' && leftTrimHighlight === null) ? null : (
 				<div
 					aria-hidden="true"
 					style={{
 						position: 'absolute',
 						top: 0,
 						bottom: 0,
-						left: activeTrimEdge === 'left' ? 0 : undefined,
+						left:
+							activeTrimEdge === 'left' ? leftTrimHighlight?.left : undefined,
 						right: activeTrimEdge === 'right' ? 0 : undefined,
-						width: `min(${EDGE_DRAG_HIGHLIGHT_WIDTH}px, 100%)`,
+						width:
+							activeTrimEdge === 'left' && leftTrimHighlight
+								? Math.min(EDGE_DRAG_HIGHLIGHT_WIDTH, leftTrimHighlight.width)
+								: `min(${EDGE_DRAG_HIGHLIGHT_WIDTH}px, 100%)`,
 						pointerEvents: 'none',
 						background: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, #00E500, #00E50000)`,
 					}}
@@ -1609,6 +1620,9 @@ const TimelineSequenceInner: React.FC<{
 			s={s}
 			annotationLocation={originalLocation}
 			activeTrimEdge={activeTrimEdge}
+			leftTrimHighlight={
+				visibleLayout.media?.offset === 0 ? visibleLayout.media : null
+			}
 			displayDurationInFrames={displayDurationInFrames}
 			premount={visibleLayout.premount}
 			postmount={visibleLayout.postmount}

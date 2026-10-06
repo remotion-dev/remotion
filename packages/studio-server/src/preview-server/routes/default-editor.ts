@@ -3,7 +3,10 @@ import type {
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
 import {resolveCustomEditorExecutable} from '../../helpers/custom-editor';
-import {getAvailableEditors} from '../../helpers/editor-registry';
+import {
+	getAvailableEditors,
+	getRunningEditors,
+} from '../../helpers/editor-registry';
 import type {ApiHandler} from '../api-types';
 
 export const getDefaultEditorInfoHandler: ApiHandler<
@@ -11,6 +14,7 @@ export const getDefaultEditorInfoHandler: ApiHandler<
 	GetDefaultEditorInfoResponse
 > = async ({getDefaultEditor}) => {
 	const installedEditors = await getAvailableEditors();
+	const runningEditors = await getRunningEditors(installedEditors);
 	const configuredEditor = getDefaultEditor();
 	const customEditor =
 		configuredEditor &&
@@ -20,7 +24,10 @@ export const getDefaultEditorInfoHandler: ApiHandler<
 			: null;
 	return {
 		defaultEditor:
-			typeof configuredEditor === 'object' ? 'custom' : configuredEditor,
+			configuredEditor && typeof configuredEditor === 'object'
+				? 'custom'
+				: configuredEditor,
+		runningEditors,
 		installedEditors: [
 			...installedEditors.map(({id, name, nameWithType}) => ({
 				id,

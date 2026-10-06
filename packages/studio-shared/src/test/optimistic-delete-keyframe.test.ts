@@ -30,6 +30,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 	};
 
 	const updated = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.opacity',
 		frame: 30,
@@ -79,6 +80,7 @@ test('optimisticDeleteSequenceKeyframe preserves the left segment easing when re
 	};
 
 	const updated = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.opacity',
 		frame: 38,
@@ -118,6 +120,7 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 	};
 
 	const updated = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'width',
 		frame: 12,
@@ -153,6 +156,7 @@ test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () 
 	};
 
 	const updated = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.opacity',
 		frame: 99,
@@ -170,6 +174,7 @@ test('optimisticDeleteSequenceKeyframe is a no-op when sequence is not updateabl
 	};
 
 	const result = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.opacity',
 		frame: 0,
@@ -201,6 +206,7 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 	};
 
 	const updated = optimisticDeleteSequenceKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{fieldKey: 'width', frame: 0},
@@ -243,6 +249,7 @@ test('optimisticDeleteSequenceKeyframes uses the playhead value when deleting al
 	};
 
 	const updated = optimisticDeleteSequenceKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{
@@ -295,6 +302,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 	};
 
 	const updated = optimisticDeleteEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',
@@ -346,6 +354,7 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 	};
 
 	const updated = optimisticDeleteEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',
@@ -376,6 +385,7 @@ test('optimisticDeleteEffectKeyframe is a no-op when effect index not found', ()
 	};
 
 	const result = optimisticDeleteEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',
@@ -416,6 +426,7 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 	};
 
 	const updated = optimisticDeleteEffectKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{effectIndex: 0, fieldKey: 'amount', frame: 0},
@@ -471,6 +482,7 @@ test('optimisticDeleteEffectKeyframes uses the playhead value when deleting all 
 	};
 
 	const updated = optimisticDeleteEffectKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{

@@ -17,6 +17,7 @@ import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
+import {CaptionLeftEdgeTrimRepro} from './CaptionLeftEdgeTrimRepro';
 import {
 	CAPTIONS_DURATION_IN_FRAMES,
 	CAPTIONS_HEIGHT,
@@ -305,6 +306,7 @@ import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
 import {SmoothTextTransition} from './SmoothTextTransition';
+import {SourceSubscriptionChurn} from './SourceSubscriptionChurn';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
@@ -3100,6 +3102,22 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="SourceSubscriptionChurn"
+					component={SourceSubscriptionChurn}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
+				<Composition
+					id="caption-left-edge-trim-repro"
+					component={CaptionLeftEdgeTrimRepro}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={189}
+				/>
 				<Composition
 					id="keyframe-delete-flash"
 					component={KeyframeDeleteFlash}
