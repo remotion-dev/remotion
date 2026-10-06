@@ -90,7 +90,7 @@ export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 					?.newNodePath ?? null;
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings}],
-				compositionId !== null && insertedNodePath !== null
+				insertedNodePath !== null
 					? {compositionId, absolutePath, nodePath: insertedNodePath}
 					: null,
 			);

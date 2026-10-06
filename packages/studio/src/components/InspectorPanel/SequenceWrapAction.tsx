@@ -42,8 +42,6 @@ export const SequenceWrapAction: React.FC<{
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const compositionId =
-		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -53,9 +51,15 @@ export const SequenceWrapAction: React.FC<{
 
 	const onWrap = useCallback(
 		async (wrapper: HtmlInCanvasWrapper) => {
-			if (busy || sourceActionsDisabled) {
+			if (
+				busy ||
+				sourceActionsDisabled ||
+				canvasContent?.type !== 'composition'
+			) {
 				return;
 			}
+
+			const {compositionId} = canvasContent;
 
 			if (!isHtmlInCanvasSupported()) {
 				setSelectedModal({
@@ -187,7 +191,7 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
-			compositionId,
+			canvasContent,
 			nodePathInfo.sequenceSubscriptionKey,
 			overrideIdToNodePathMappingsRef,
 			sequence.controls?.componentName,
@@ -200,7 +204,7 @@ export const SequenceWrapAction: React.FC<{
 		],
 	);
 
-	if (sourceActionsDisabled) {
+	if (sourceActionsDisabled || canvasContent?.type !== 'composition') {
 		return null;
 	}
 

@@ -1477,7 +1477,7 @@ export const createBrowserStudioOperations = ({
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection:
-					compositionId !== null && insertedNodePath !== null
+					insertedNodePath !== null
 						? {
 								compositionId,
 								absolutePath: filePath,
