@@ -43,7 +43,7 @@ Set a lower [`concurrency`](/docs/terminology/concurrency) to open less browser 
 
 ## Disallow parallel encoding
 
-[Parallel encoding](/docs/encoding#parallel-encoding) encodes video while frames are still being rendered, so the browser and FFmpeg need memory at the same time. It is enabled by default for H.264 and H.265, and from <AvailableFrom v="4.0.534" inline /> for VP8, VP9, AV1 and ProRes. Use [`--disallow-parallel-encoding`](/docs/cli/render#--disallow-parallel-encoding) or [`disallowParallelEncoding`](/docs/renderer/render-media#disallowparallelencoding) to only start encoding once all frames are rendered. This lowers the peak memory usage, but may make rendering slower.
+[Parallel encoding](/docs/parallel-encoding) encodes video while frames are still being rendered, so the browser and FFmpeg need memory at the same time. Use [`--disallow-parallel-encoding`](/docs/cli/render#--disallow-parallel-encoding) or [`disallowParallelEncoding`](/docs/renderer/render-media#disallowparallelencoding) to only start encoding once all frames are rendered. This lowers the peak memory usage, but may make rendering slower.
 
 ## Allocate more memory to your system
 

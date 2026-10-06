@@ -1,0 +1,74 @@
+---
+image: /generated/articles-docs-parallel-encoding.png
+title: Parallel encoding
+crumb: 'Rendering'
+---
+
+# Parallel encoding
+
+With parallel encoding, Remotion encodes video frames using FFmpeg while Chromium renders the following frames. Encoding starts as soon as the first frame is available, instead of waiting for all frames to be rendered.
+
+After the frames have been encoded, Remotion combines the video and any audio into the final output file.
+
+## When it is enabled
+
+From <AvailableFrom v="4.0.534" inline />, parallel encoding is enabled by default for every [supported video codec](/docs/encoding#choosing-a-codec). H.264 and H.265 already used parallel encoding before this version.
+
+GIFs, audio-only renders, stills and image sequences do not use parallel encoding. GIF encoding needs a color palette generated from all frames before encoding can start.
+
+This applies to server-side rendering, including [Remotion Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun). [Client-side rendering](/docs/client-side-rendering) uses a different rendering pipeline.
+
+Parallel encoding is independent of [rendering concurrency](/docs/terminology/concurrency): it also works with a single browser tab. On Lambda, it runs within each render chunk.
+
+## Performance and memory
+
+Overlapping frame rendering and encoding can reduce the total render time. The benefit depends on your composition, encoder and machine.
+
+The browser and FFmpeg need memory at the same time, which can increase peak memory usage. If your render runs out of memory, [disable parallel encoding](#disable-parallel-encoding) to render all frames before starting the encoder. This may make rendering slower.
+
+From <AvailableFrom v="4.0.533" inline />, Remotion no longer disables parallel encoding automatically based on the available memory.
+
+## Shared-memory capture
+
+On [supported platforms](/docs/shared-memory-chromium-patch#when-it-is-used), parallel encoding enables [shared-memory capture](/docs/shared-memory-chromium-patch). Frames are passed directly to FFmpeg as bitmaps, avoiding the extra JPEG or PNG compression step.
+
+Parallel encoding also works with regular JPEG or PNG screenshots on other platforms. Your selected video codec and encoding settings still apply.
+
+## Check whether it is enabled
+
+Render with [verbose logging](/docs/troubleshooting/debug-failed-render):
+
+```bash title="Check parallel encoding"
+npx remotion render MyComp --log=verbose
+```
+
+Look for `Parallel encoding is enabled.` or `Parallel encoding is disabled.` in the logs. With [`renderMedia()`](/docs/renderer/render-media), set `logLevel: "verbose"` to see the same messages.
+
+Shared-memory capture has a [separate log message](/docs/shared-memory-chromium-patch#check-whether-it-is-active).
+
+## Disable parallel encoding
+
+For CLI renders, pass [`--disallow-parallel-encoding`](/docs/cli/render#--disallow-parallel-encoding):
+
+```bash title="Render frames before encoding"
+npx remotion render MyComp --disallow-parallel-encoding
+```
+
+With [`renderMedia()`](/docs/renderer/render-media#disallowparallelencoding), set `disallowParallelEncoding: true`.
+
+For CLI and Studio renders, you can also use [`Config.setDisallowParallelEncoding()`](/docs/config#setdisallowparallelencoding):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.setDisallowParallelEncoding(true);
+```
+
+Disabling parallel encoding also disables shared-memory capture. Lambda and Cloud Run currently do not expose this option.
+
+## See also
+
+- [Encoding guide](/docs/encoding)
+- [Shared-memory Chromium Patch](/docs/shared-memory-chromium-patch)
+- [Troubleshooting out-of-memory errors](/docs/troubleshooting/sigkill)
+- [Concurrency](/docs/terminology/concurrency)

@@ -5797,6 +5797,15 @@ export const articles = [
 		slug: 'bundlers',
 	},
 	{
+		id: 'parallel-encoding',
+		title: 'Parallel encoding',
+		relativePath: 'docs/parallel-encoding.mdx',
+		compId: 'articles-docs-parallel-encoding',
+		crumb: 'Rendering',
+		noAi: false,
+		slug: 'parallel-encoding',
+	},
+	{
 		id: 'parameterized-rendering',
 		title: 'Parameterized videos',
 		relativePath: 'docs/parameterized-rendering.mdx',

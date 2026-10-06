@@ -114,11 +114,7 @@ You can set a config using [`Config.setCodec()` in the config file](/docs/config
 
 ## Parallel encoding
 
-With parallel encoding, video frames are encoded while other frames are still being rendered. This is enabled by default for H.264 and H.265, and from <AvailableFrom v="4.0.534" inline /> for VP8, VP9, AV1 and ProRes. GIFs and audio-only renders do not use parallel encoding.
-
-On [supported platforms](/docs/shared-memory-chromium-patch#when-it-is-used), parallel encoding also enables [shared-memory capture](/docs/shared-memory-chromium-patch), which avoids compressing frames into JPEG or PNG images before encoding the video.
-
-The browser and FFmpeg run at the same time, which can increase peak memory usage. To render all frames before encoding, use [`--disallow-parallel-encoding`](/docs/cli/render#--disallow-parallel-encoding), set [`disallowParallelEncoding: true`](/docs/renderer/render-media#disallowparallelencoding), or call [`Config.setDisallowParallelEncoding(true)`](/docs/config#setdisallowparallelencoding).
+Remotion can encode video frames while other frames are still being rendered. See [Parallel encoding](/docs/parallel-encoding) for when it is enabled, memory usage and how to opt out.
 
 ## Controlling quality using the CRF setting
 
