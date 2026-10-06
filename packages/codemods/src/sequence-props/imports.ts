@@ -4,15 +4,7 @@ import type {
 	FunctionDeclaration,
 	ImportDeclaration,
 	ImportSpecifier,
-	Node,
 	VariableDeclaration,
-} from '@babel/types';
-import {
-	getBindingIdentifiers,
-	isCatchClause,
-	isDeclaration,
-	isFunction,
-	isImportDeclaration,
 } from '@babel/types';
 import * as recast from 'recast';
 
@@ -22,7 +14,9 @@ export const declarationBindsName = (
 	declaration: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
 	name: string,
 ) => {
-	return Object.hasOwn(getBindingIdentifiers(declaration, false, true), name);
+	return new recast.types.NodePath(
+		b.program([declaration as never]),
+	).scope.declares(name);
 };
 
 export const hasTopLevelBinding = ({ast, name}: {ast: File; name: string}) => {
@@ -328,13 +322,8 @@ export const ensureOfficialNamedImport = ({
 	const boundNames = new Set<string>();
 	recast.types.visit(ast, {
 		visitNode(path) {
-			const node = path.node as Node;
-			if (
-				(isDeclaration(node) && !isImportDeclaration(node)) ||
-				isFunction(node) ||
-				isCatchClause(node)
-			) {
-				for (const name of Object.keys(getBindingIdentifiers(node))) {
+			if (path.scope?.path === path && path.node.type !== 'Program') {
+				for (const name of Object.keys(path.scope.getBindings())) {
 					boundNames.add(name);
 				}
 			}
