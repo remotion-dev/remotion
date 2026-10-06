@@ -36,7 +36,8 @@ export const getBackgroundFill = ({
 		if (radialMatch) {
 			const parts = radialMatch[1].split(/,(?![^(]*\))/);
 			const firstPart = parts[0].trim();
-			const hasShape = /^(ellipse|circle|farthest-corner|at)\b/.test(firstPart);
+			const hasShape =
+				parseLinearGradient(`linear-gradient(${firstPart})`) === null;
 			// Handle centered gradients with the default farthest-corner extent.
 			// Other positions and explicit radii need their own geometry.
 			if (
