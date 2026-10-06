@@ -20,7 +20,7 @@ import {usePreload} from '../prefetch.js';
 import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
-import {useMediaInTimeline} from '../use-media-in-timeline.js';
+import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -165,25 +165,28 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
 
-	const automaticOutlineRef = useMediaInTimeline({
-		volume,
-		mediaVolume,
-		mediaType: 'video',
-		src,
-		playbackRate: props.playbackRate ?? 1,
-		displayName: name ?? null,
-		id: timelineId,
-		getStack,
-		showInTimeline,
-		premountDisplay: parentSequence?.premountDisplay ?? null,
-		postmountDisplay: parentSequence?.postmountDisplay ?? null,
-		loopDisplay: undefined,
-		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
-		documentationLink: onlyWarnForMediaSeekingError
-			? 'https://www.remotion.dev/docs/offthreadvideo'
-			: 'https://www.remotion.dev/docs/html5-video',
-		muted: isMutedForTimeline,
-	});
+	const {automaticOutlineRef, registration} = useMediaInTimelineRegistration(
+		{
+			volume,
+			mediaVolume,
+			mediaType: 'video',
+			src,
+			playbackRate: props.playbackRate ?? 1,
+			displayName: name ?? null,
+			id: timelineId,
+			getStack,
+			showInTimeline,
+			premountDisplay: parentSequence?.premountDisplay ?? null,
+			postmountDisplay: parentSequence?.postmountDisplay ?? null,
+			loopDisplay: undefined,
+			loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
+			documentationLink: onlyWarnForMediaSeekingError
+				? 'https://www.remotion.dev/docs/offthreadvideo'
+				: 'https://www.remotion.dev/docs/html5-video',
+			muted: isMutedForTimeline,
+		},
+		true,
+	);
 
 	// putting playback before useVolume
 	// because volume looks at playbackrate
@@ -374,6 +377,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	return isStudio || automaticOutlineRef ? (
 		<SequenceOrderMarker
 			sequenceId={timelineId}
+			registration={registration}
 			outlineChildrenRef={automaticOutlineRef}
 		>
 			{video}

@@ -752,12 +752,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		frozenMediaFrame,
 		singleChildComponent,
 	]);
-	useSequenceRegistration({
+	const registration = useSequenceRegistration({
 		getSequence:
 			env.isStudio || sequenceRegistrationEnabled
 				? getSequenceForRegistration
 				: null,
 		id,
+		registerOnCommit: true,
 	});
 
 	// Use an exclusive end so fractional clocks and frozen subframes remain visible.
@@ -836,6 +837,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		return shouldDiscoverOutline ? (
 			<SequenceOrderMarker
 				sequenceId={id}
+				registration={registration}
 				outlineChildrenRef={automaticOutlineRef}
 			>
 				{null}
@@ -877,6 +879,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	return shouldDiscoverOutline ? (
 		<SequenceOrderMarker
 			sequenceId={id}
+			registration={registration}
 			outlineChildrenRef={automaticOutlineRef}
 		>
 			{sequence}

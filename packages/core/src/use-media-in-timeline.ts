@@ -137,39 +137,42 @@ export type BasicMediaInTimelineReturnType = ReturnType<
 	typeof useBasicMediaInTimeline
 >;
 
-export const useMediaInTimeline = ({
-	volume,
-	mediaVolume,
-	src,
-	mediaType,
-	playbackRate,
-	displayName,
-	id,
-	getStack,
-	showInTimeline,
-	premountDisplay,
-	postmountDisplay,
-	loopDisplay,
-	loopVolumeCurveBehavior,
-	documentationLink,
-	muted,
-}: {
-	volume: VolumeProp | undefined;
-	mediaVolume: number;
-	src: string | undefined;
-	mediaType: 'audio' | 'video';
-	playbackRate: number;
-	displayName: string | null;
-	id: string;
-	getStack: () => string | null;
-	showInTimeline: boolean;
-	premountDisplay: number | null;
-	postmountDisplay: number | null;
-	loopDisplay: LoopDisplay | undefined;
-	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
-	documentationLink: string | null;
-	muted: boolean;
-}) => {
+export const useMediaInTimelineRegistration = (
+	{
+		volume,
+		mediaVolume,
+		src,
+		mediaType,
+		playbackRate,
+		displayName,
+		id,
+		getStack,
+		showInTimeline,
+		premountDisplay,
+		postmountDisplay,
+		loopDisplay,
+		loopVolumeCurveBehavior,
+		documentationLink,
+		muted,
+	}: {
+		volume: VolumeProp | undefined;
+		mediaVolume: number;
+		src: string | undefined;
+		mediaType: 'audio' | 'video';
+		playbackRate: number;
+		displayName: string | null;
+		id: string;
+		getStack: () => string | null;
+		showInTimeline: boolean;
+		premountDisplay: number | null;
+		postmountDisplay: number | null;
+		loopDisplay: LoopDisplay | undefined;
+		loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+		documentationLink: string | null;
+		muted: boolean;
+	},
+	registerOnCommit: boolean | null,
+) => {
 	const parentSequence = useContext(SequenceContext);
 	const mediaTrimBefore = useContext(Html5MediaTrimContext);
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
@@ -328,10 +331,15 @@ export const useMediaInTimeline = ({
 		isStudio ||
 		sequenceRegistrationEnabled ||
 		(typeof window !== 'undefined' && window.process?.env?.NODE_ENV === 'test');
-	useSequenceRegistration({
+	const registration = useSequenceRegistration({
 		getSequence:
 			registrationEnabled && showInTimeline ? getSequenceForRegistration : null,
 		id,
+		registerOnCommit,
 	});
-	return automaticOutlineRef;
+	return {automaticOutlineRef, registration};
 };
+
+export const useMediaInTimeline = (
+	props: Parameters<typeof useMediaInTimelineRegistration>[0],
+) => useMediaInTimelineRegistration(props, null).automaticOutlineRef;

@@ -2,8 +2,11 @@ import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import type {TSequence} from './CompositionManager.js';
 import {
 	COMMIT_ORDER_EVENT,
+	COMMIT_REGISTRATION_ERROR_EVENT,
+	isCommitRegistrationObserverAvailable,
 	SequenceManagerOrderMarker,
 	type CommitOrderEventDetail,
+	type CommittedSequenceSnapshot,
 } from './sequence-order-marker.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
@@ -21,6 +24,24 @@ import type {VideoConfigValues} from './video-config.js';
 
 const useIsomorphicLayoutEffect =
 	typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+
+const areSequenceRegistrationsEqual = (
+	previous: TSequence,
+	next: TSequence,
+) => {
+	const keys = Object.keys(previous);
+	return (
+		keys.length === Object.keys(next).length &&
+		keys.every(
+			(key) =>
+				Object.prototype.hasOwnProperty.call(next, key) &&
+				Object.is(
+					previous[key as keyof TSequence],
+					next[key as keyof TSequence],
+				),
+		)
+	);
+};
 
 export type SequenceManagerContext = {
 	registerSequence: (seq: TSequence) => void;
@@ -59,6 +80,7 @@ export const SequenceManagerActionsContext =
 	});
 
 export const SequenceManager = React.createContext(defaultSequenceManager);
+export const SequenceCommitRegistrationContext = React.createContext(false);
 const NativeSequenceManagerProvider = SequenceManager.Provider;
 const SequenceManagerProviderWithActions: React.FC<
 	React.ProviderProps<SequenceManagerContext>
@@ -74,7 +96,9 @@ const SequenceManagerProviderWithActions: React.FC<
 	return (
 		<SequenceManagerActionsContext.Provider value={actions}>
 			<NativeSequenceManagerProvider value={value}>
-				{children}
+				<SequenceCommitRegistrationContext.Provider value={false}>
+					{children}
+				</SequenceCommitRegistrationContext.Provider>
 			</NativeSequenceManagerProvider>
 		</SequenceManagerActionsContext.Provider>
 	);
@@ -424,6 +448,18 @@ export const SequenceManagerProvider: React.FC<{
 }> = ({children}) => {
 	const {isStudio} = useRemotionEnvironment();
 	const [sequenceManagerId] = useState(() => String(Math.random()));
+	const [commitRegistrationEnabled, setCommitRegistrationEnabled] = useState(
+		() => isStudio && isCommitRegistrationObserverAvailable(),
+	);
+	const committedRegistrationIdsRef = useRef<ReadonlySet<string>>(new Set());
+	const pendingCommittedSequencesRef = useRef<CommittedSequenceSnapshot | null>(
+		null,
+	);
+	const lastCommittedSequencesRef = useRef<CommittedSequenceSnapshot | null>(
+		null,
+	);
+	const registrationObserverFailedRef = useRef(false);
+	const registrationUnmountedRef = useRef(false);
 	const committedOrderRef = useRef<ReadonlyMap<string, number> | null>(null);
 	const committedOrderIdsRef = useRef<readonly string[] | null>(null);
 	const [sequences, setSequences] = useState<TSequence[]>([]);
@@ -758,12 +794,119 @@ export const SequenceManagerProvider: React.FC<{
 		[],
 	);
 
+	const onCommitSequences = useCallback(
+		(snapshot: readonly TSequence[], sequenceIds: readonly string[]) => {
+			if (
+				registrationObserverFailedRef.current ||
+				registrationUnmountedRef.current
+			) {
+				return;
+			}
+
+			const previousSnapshot =
+				pendingCommittedSequencesRef.current ??
+				lastCommittedSequencesRef.current;
+			if (
+				previousSnapshot !== null &&
+				previousSnapshot.sequences.length === snapshot.length &&
+				previousSnapshot.sequenceIds.length === sequenceIds.length &&
+				snapshot.every(
+					(sequence, index) => sequence === previousSnapshot.sequences[index],
+				) &&
+				sequenceIds.every(
+					(id, index) => id === previousSnapshot.sequenceIds[index],
+				)
+			) {
+				return;
+			}
+
+			const alreadyPending = pendingCommittedSequencesRef.current !== null;
+			pendingCommittedSequencesRef.current = {sequences: snapshot, sequenceIds};
+			if (alreadyPending) {
+				return;
+			}
+
+			// Publish after React finishes committing, and coalesce successive snapshots.
+			queueMicrotask(() => {
+				const pending = pendingCommittedSequencesRef.current;
+				pendingCommittedSequencesRef.current = null;
+				if (
+					pending === null ||
+					registrationObserverFailedRef.current ||
+					registrationUnmountedRef.current
+				) {
+					return;
+				}
+
+				const previousIds = committedRegistrationIdsRef.current;
+				const nextIds = new Set(
+					pending.sequences.map((sequence) => sequence.id),
+				);
+				const order = new Map(
+					pending.sequenceIds.map((id, index) => [id, index]),
+				);
+				lastCommittedSequencesRef.current = pending;
+				committedRegistrationIdsRef.current = nextIds;
+				setSequences((current) => {
+					const previousById = new Map(
+						current.map((sequence) => [sequence.id, sequence]),
+					);
+					const next = pending.sequences.map((sequence) => {
+						const registeredSequence = {
+							...sequence,
+							timelineOrder: order.get(sequence.id) ?? null,
+						};
+						const previous = previousById.get(sequence.id);
+						return previous &&
+							areSequenceRegistrationsEqual(previous, registeredSequence)
+							? previous
+							: registeredSequence;
+					});
+					// Custom imperative registrations have their own lifecycle.
+					next.push(
+						...current.filter(
+							(sequence) =>
+								!previousIds.has(sequence.id) && !nextIds.has(sequence.id),
+						),
+					);
+					return next.length === current.length &&
+						next.every((sequence, index) => sequence === current[index])
+						? current
+						: next;
+				});
+			});
+		},
+		[],
+	);
+
 	useIsomorphicLayoutEffect(() => {
 		if (!isStudio) {
 			return;
 		}
 
 		let unmounted = false;
+		registrationUnmountedRef.current = false;
+		const onRegistrationError = () => {
+			if (registrationObserverFailedRef.current) {
+				return;
+			}
+
+			registrationObserverFailedRef.current = true;
+			pendingCommittedSequencesRef.current = null;
+			queueMicrotask(() => {
+				if (unmounted) {
+					return;
+				}
+
+				const previousIds = committedRegistrationIdsRef.current;
+				committedRegistrationIdsRef.current = new Set();
+				setSequences((current) =>
+					current.filter((sequence) => !previousIds.has(sequence.id)),
+				);
+				setCommitRegistrationEnabled(false);
+			});
+		};
+
 		const onCommitOrder = (event: Event) => {
 			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
 			const managerOrder = detail.sequenceManagers.find(
@@ -815,9 +958,19 @@ export const SequenceManagerProvider: React.FC<{
 		};
 
 		window.addEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
+		window.addEventListener(
+			COMMIT_REGISTRATION_ERROR_EVENT,
+			onRegistrationError,
+		);
 		return () => {
 			unmounted = true;
+			registrationUnmountedRef.current = true;
+			pendingCommittedSequencesRef.current = null;
 			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
+			window.removeEventListener(
+				COMMIT_REGISTRATION_ERROR_EVENT,
+				onRegistrationError,
+			);
 		};
 	}, [isStudio, sequenceManagerId]);
 
@@ -839,41 +992,16 @@ export const SequenceManagerProvider: React.FC<{
 				return seqs;
 			}
 
-			const previousSequence = seqs[index];
-			const timelineOrder = committedOrderRef.current?.get(seq.id) ?? null;
-			// A new registration getter does not necessarily change the metadata.
-			let unchanged = Object.is(previousSequence.timelineOrder, timelineOrder);
-			// The manager adds timelineOrder even if the incoming object omits it.
-			let keyCount = 1;
-			if (unchanged) {
-				for (const key in seq) {
-					if (
-						key === 'timelineOrder' ||
-						!Object.prototype.hasOwnProperty.call(seq, key)
-					) {
-						continue;
-					}
-
-					keyCount++;
-					if (
-						!Object.prototype.hasOwnProperty.call(previousSequence, key) ||
-						!Object.is(
-							previousSequence[key as keyof TSequence],
-							seq[key as keyof TSequence],
-						)
-					) {
-						unchanged = false;
-						break;
-					}
-				}
-			}
-
-			if (unchanged && Object.keys(previousSequence).length === keyCount) {
+			const updatedSequence = {
+				...seq,
+				timelineOrder: committedOrderRef.current?.get(seq.id) ?? null,
+			};
+			if (areSequenceRegistrationsEqual(seqs[index], updatedSequence)) {
 				return seqs;
 			}
 
 			const next = [...seqs];
-			next[index] = {...seq, timelineOrder};
+			next[index] = updatedSequence;
 			return next;
 		});
 	}, []);
@@ -963,32 +1091,39 @@ export const SequenceManagerProvider: React.FC<{
 	const providers = (
 		<SequenceManagerRefContext.Provider value={sequencesRef}>
 			<SequenceManager.Provider value={sequenceContext}>
-				<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
-					<VisualModePropStatusesContext.Provider value={propStatusesContext}>
-						<SequenceManagerScopeProviders
-							dragOverridesSubscription={dragOverridesSubscription}
-							fromKeys={dragOverrideState.fromKeys}
-						>
-							<VisualModeDragOverridesContext.Provider
-								value={dragOverridesContext}
+				<SequenceCommitRegistrationContext.Provider
+					value={commitRegistrationEnabled}
+				>
+					<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
+						<VisualModePropStatusesContext.Provider value={propStatusesContext}>
+							<SequenceManagerScopeProviders
+								dragOverridesSubscription={dragOverridesSubscription}
+								fromKeys={dragOverrideState.fromKeys}
 							>
-								<VisualModeSettersContext.Provider value={settersContext}>
-									<VisualModeBatchSettersContext.Provider
-										value={batchSettersContext}
-									>
-										{children}
-									</VisualModeBatchSettersContext.Provider>
-								</VisualModeSettersContext.Provider>
-							</VisualModeDragOverridesContext.Provider>
-						</SequenceManagerScopeProviders>
-					</VisualModePropStatusesContext.Provider>
-				</VisualModePropStatusesRefContext.Provider>
+								<VisualModeDragOverridesContext.Provider
+									value={dragOverridesContext}
+								>
+									<VisualModeSettersContext.Provider value={settersContext}>
+										<VisualModeBatchSettersContext.Provider
+											value={batchSettersContext}
+										>
+											{children}
+										</VisualModeBatchSettersContext.Provider>
+									</VisualModeSettersContext.Provider>
+								</VisualModeDragOverridesContext.Provider>
+							</SequenceManagerScopeProviders>
+						</VisualModePropStatusesContext.Provider>
+					</VisualModePropStatusesRefContext.Provider>
+				</SequenceCommitRegistrationContext.Provider>
 			</SequenceManager.Provider>
 		</SequenceManagerRefContext.Provider>
 	);
 
 	return isStudio ? (
-		<SequenceManagerOrderMarker managerId={sequenceManagerId}>
+		<SequenceManagerOrderMarker
+			managerId={sequenceManagerId}
+			onCommitSequences={commitRegistrationEnabled ? onCommitSequences : null}
+		>
 			{providers}
 		</SequenceManagerOrderMarker>
 	) : (

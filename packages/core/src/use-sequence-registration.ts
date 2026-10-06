@@ -1,25 +1,38 @@
-import {useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect, useMemo, useRef} from 'react';
 import type {TSequence} from './CompositionManager.js';
 import {
 	DisableSequenceRegistrationContext,
+	SequenceCommitRegistrationContext,
 	SequenceManagerActionsContext,
 } from './SequenceManager.js';
 
 export const useSequenceRegistration = ({
 	getSequence,
 	id,
+	registerOnCommit,
 }: {
 	getSequence: (() => TSequence) | null;
 	id: string;
+	registerOnCommit: boolean | null;
 }) => {
 	const {registerSequence, unregisterSequence, updateSequence} = useContext(
 		SequenceManagerActionsContext,
 	);
 	const registrationDisabled = useContext(DisableSequenceRegistrationContext);
+	const commitRegistrationEnabled =
+		useContext(SequenceCommitRegistrationContext) && registerOnCommit === true;
 	const getSequenceRef = useRef(getSequence);
 	getSequenceRef.current = getSequence;
 	const lastRegisteredGetterRef = useRef<(() => TSequence) | null>(null);
-	const registrationEnabled = getSequence !== null && !registrationDisabled;
+	const registrationEnabled =
+		getSequence !== null && !registrationDisabled && !commitRegistrationEnabled;
+	const registration = useMemo(
+		() =>
+			commitRegistrationEnabled && !registrationDisabled && getSequence !== null
+				? getSequence()
+				: null,
+		[commitRegistrationEnabled, getSequence, registrationDisabled],
+	);
 
 	useEffect(() => {
 		if (!registrationEnabled) {
@@ -42,6 +55,7 @@ export const useSequenceRegistration = ({
 
 	useEffect(() => {
 		if (
+			commitRegistrationEnabled ||
 			registrationDisabled ||
 			getSequence === null ||
 			updateSequence === null ||
@@ -52,5 +66,12 @@ export const useSequenceRegistration = ({
 
 		updateSequence(getSequence());
 		lastRegisteredGetterRef.current = getSequence;
-	}, [getSequence, registrationDisabled, updateSequence]);
+	}, [
+		commitRegistrationEnabled,
+		getSequence,
+		registrationDisabled,
+		updateSequence,
+	]);
+
+	return registration;
 };

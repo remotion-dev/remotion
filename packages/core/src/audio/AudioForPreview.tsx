@@ -16,7 +16,7 @@ import {random} from '../random.js';
 import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
-import {useMediaInTimeline} from '../use-media-in-timeline.js';
+import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -176,23 +176,26 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
 
-	useMediaInTimeline({
-		volume,
-		mediaVolume,
-		src,
-		mediaType: 'audio',
-		playbackRate: playbackRate ?? 1,
-		displayName: name ?? null,
-		id: timelineId,
-		getStack,
-		showInTimeline,
-		premountDisplay: sequenceContext?.premountDisplay ?? null,
-		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
-		loopDisplay: undefined,
-		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
-		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
-		muted: isMutedForTimeline,
-	});
+	const {registration} = useMediaInTimelineRegistration(
+		{
+			volume,
+			mediaVolume,
+			src,
+			mediaType: 'audio',
+			playbackRate: playbackRate ?? 1,
+			displayName: name ?? null,
+			id: timelineId,
+			getStack,
+			showInTimeline,
+			premountDisplay: sequenceContext?.premountDisplay ?? null,
+			postmountDisplay: sequenceContext?.postmountDisplay ?? null,
+			loopDisplay: undefined,
+			loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
+			documentationLink: 'https://www.remotion.dev/docs/html5-audio',
+			muted: isMutedForTimeline,
+		},
+		true,
+	);
 
 	// putting playback before useVolume
 	// because volume looks at playbackrate
@@ -279,7 +282,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	if (initialShouldPreMountAudioElements) {
 		return isStudio ? (
-			<SequenceOrderMarker sequenceId={timelineId} outlineChildrenRef={null}>
+			<SequenceOrderMarker
+				sequenceId={timelineId}
+				registration={registration}
+				outlineChildrenRef={null}
+			>
 				{null}
 			</SequenceOrderMarker>
 		) : null;
@@ -295,7 +302,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	);
 
 	return isStudio ? (
-		<SequenceOrderMarker sequenceId={timelineId} outlineChildrenRef={null}>
+		<SequenceOrderMarker
+			sequenceId={timelineId}
+			registration={registration}
+			outlineChildrenRef={null}
+		>
 			{audio}
 		</SequenceOrderMarker>
 	) : (

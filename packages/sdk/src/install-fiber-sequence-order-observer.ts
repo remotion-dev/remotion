@@ -1,4 +1,5 @@
 import type {RefObject} from 'react';
+import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 
 type Fiber = {
@@ -33,9 +34,16 @@ type HookTarget = Window &
 		__REACT_DEVTOOLS_GLOBAL_HOOK__?: DevToolsHook;
 	};
 
-const installationMarker = Symbol.for(
-	'remotion.commit-order-observer-installed',
-);
+const {installationMarker} = Internals.CommitOrderInternals;
+
+type CommittedSequenceRegistration = {
+	readonly onCommit: (
+		sequences: readonly TSequence[],
+		sequenceIds: readonly string[],
+	) => void;
+	readonly sequences: TSequence[];
+	readonly sequenceIds: string[];
+};
 
 type CompositionAndFolderOrderItem =
 	| {readonly type: 'composition'; readonly id: string}
@@ -61,7 +69,10 @@ const getStringProp = (props: unknown, key: string): string | null => {
 const hasFiberMarker = (fiber: Fiber, marker: symbol) =>
 	hasMarker(fiber.type, marker) || hasMarker(fiber.elementType, marker);
 
-export const collectCommitOrderFromFiber = (root: FiberRoot) => {
+export const collectCommitOrderFromFiber = (
+	root: FiberRoot,
+	registrations: Map<string, CommittedSequenceRegistration> | null = null,
+) => {
 	const outlineNodesByRef = new Map<
 		RefObject<Element | null>,
 		(Element | Text)[]
@@ -102,7 +113,20 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 			sequenceManagerId !== null &&
 			!sequencesByManager.has(sequenceManagerId)
 		) {
-			sequencesByManager.set(sequenceManagerId, []);
+			const sequenceIds: string[] = [];
+			sequencesByManager.set(sequenceManagerId, sequenceIds);
+			const props = fiber.memoizedProps;
+			const onCommit =
+				typeof props === 'object' && props !== null
+					? Reflect.get(props, 'onCommitSequences')
+					: null;
+			if (typeof onCommit === 'function') {
+				registrations?.set(sequenceManagerId, {
+					onCommit: onCommit as CommittedSequenceRegistration['onCommit'],
+					sequences: [],
+					sequenceIds,
+				});
+			}
 		}
 
 		const isCompositionManagerMarker = hasFiberMarker(
@@ -121,14 +145,24 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 		}
 
 		if (hasFiberMarker(fiber, Internals.CommitOrderInternals.sequenceMarker)) {
+			const props = fiber.memoizedProps;
 			if (sequenceManagerId !== null) {
 				const sequenceId = getStringProp(fiber.memoizedProps, 'sequenceId');
 				if (sequenceId !== null) {
 					sequencesByManager.get(sequenceManagerId)?.push(sequenceId);
+					const registration =
+						typeof props === 'object' && props !== null
+							? (Reflect.get(props, 'registration') as
+									| TSequence
+									| null
+									| undefined)
+							: null;
+					if (registration) {
+						registrations?.get(sequenceManagerId)?.sequences.push(registration);
+					}
 				}
 			}
 
-			const props = fiber.memoizedProps;
 			const outlineRef =
 				typeof props === 'object' && props !== null
 					? (Reflect.get(props, 'outlineChildrenRef') as
@@ -228,10 +262,30 @@ export const installFiberCommitOrderObserver = (
 	}
 
 	const previousOnCommitFiberRoot = hook.onCommitFiberRoot;
+	const registrationsByRoot = new WeakMap<
+		FiberRoot,
+		Map<string, CommittedSequenceRegistration>
+	>();
+
 	hook.onCommitFiberRoot = function (...args) {
 		try {
 			const [, root] = args;
-			const order = collectCommitOrderFromFiber(root);
+			const registrations = new Map<string, CommittedSequenceRegistration>();
+			const order = collectCommitOrderFromFiber(root, registrations);
+			const previousRegistrations = registrationsByRoot.get(root);
+			registrationsByRoot.set(root, registrations);
+			for (const registration of registrations.values()) {
+				registration.onCommit(registration.sequences, registration.sequenceIds);
+			}
+
+			if (previousRegistrations) {
+				for (const [managerId, registration] of previousRegistrations) {
+					if (!registrations.has(managerId)) {
+						registration.onCommit([], []);
+					}
+				}
+			}
+
 			if (
 				order.outlineCount > 0 ||
 				order.sequenceManagers.length > 0 ||
@@ -248,6 +302,12 @@ export const installFiberCommitOrderObserver = (
 			}
 		} catch {
 			// Fiber is private React API. An unsupported shape must not break the host.
+			hook[Internals.CommitOrderInternals.failureMarker] = true;
+			target.dispatchEvent(
+				new CustomEvent(
+					Internals.CommitOrderInternals.registrationErrorEventName,
+				),
+			);
 		}
 
 		return previousOnCommitFiberRoot?.apply(this, args);
