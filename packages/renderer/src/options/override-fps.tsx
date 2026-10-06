@@ -10,7 +10,7 @@ export const overrideFpsOption = {
 	cliFlag,
 	description: () => <>Overrides the frames per second of the composition.</>,
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#overridefps',
+	docLink: 'https://www.remotion.dev/docs/options/fps',
 	type: null as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

@@ -31,7 +31,7 @@ export const delayRenderTimeoutInMillisecondsOption = {
 		</>
 	),
 	ssrName: 'timeoutInMilliseconds' as const,
-	docLink: 'https://www.remotion.dev/docs/timeout',
+	docLink: 'https://www.remotion.dev/docs/options/timeout',
 	type: 0 as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

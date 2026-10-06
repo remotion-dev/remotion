@@ -15,7 +15,7 @@ export const browserOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/studio#--browser',
+	docLink: 'https://www.remotion.dev/docs/options/browser',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

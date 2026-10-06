@@ -24,8 +24,7 @@ export const crfOption = {
 		</>
 	),
 	ssrName: 'crf',
-	docLink:
-		'https://www.remotion.dev/docs/encoding/#controlling-quality-using-the-crf-setting',
+	docLink: 'https://www.remotion.dev/docs/options/crf',
 	type: 0 as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

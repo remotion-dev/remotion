@@ -20,7 +20,7 @@ export const deleteAfterOption = {
 		);
 	},
 	ssrName: 'deleteAfter' as const,
-	docLink: 'https://www.remotion.dev/docs/lambda/autodelete',
+	docLink: 'https://www.remotion.dev/docs/options/delete-after',
 	type: '1-day' as DeleteAfter | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

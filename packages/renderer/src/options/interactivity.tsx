@@ -17,7 +17,7 @@ export const interactivityOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setinteractivityenabled',
+	docLink: 'https://www.remotion.dev/docs/options/disable-interactivity',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

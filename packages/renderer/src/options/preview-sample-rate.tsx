@@ -14,7 +14,7 @@ export const previewSampleRateOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setpreviewsamplerate',
+	docLink: 'https://www.remotion.dev/docs/options/preview-sample-rate',
 	type: null as number | null,
 	getValue: ({commandLine}: {commandLine: Record<string, unknown>}) => {
 		if (commandLine[cliFlag] !== undefined) {

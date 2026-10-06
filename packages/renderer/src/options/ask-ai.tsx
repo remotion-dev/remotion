@@ -15,7 +15,7 @@ export const askAIOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setaskaienabled',
+	docLink: 'https://www.remotion.dev/docs/options/disable-ask-ai',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

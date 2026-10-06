@@ -24,7 +24,7 @@ export const stillFrameOption = {
 		</>
 	),
 	ssrName: 'frame' as const,
-	docLink: 'https://www.remotion.dev/docs/cli/still#--frame',
+	docLink: 'https://www.remotion.dev/docs/options/frame',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			const frame = Number(commandLine[cliFlag]);

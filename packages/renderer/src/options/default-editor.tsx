@@ -114,7 +114,7 @@ export const defaultEditorOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/studio/open-in-editor',
+	docLink: 'https://www.remotion.dev/docs/options/editor',
 	type: null as DefaultEditor | null,
 	getValue: ({commandLine}) => {
 		const cliValue = commandLine[cliFlag];

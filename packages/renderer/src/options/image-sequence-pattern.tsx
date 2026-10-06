@@ -16,7 +16,7 @@ export const imageSequencePatternOption = {
 			extension.
 		</>
 	),
-	docLink: null,
+	docLink: 'https://www.remotion.dev/docs/options/image-sequence-pattern',
 	type: 'string' as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

@@ -64,6 +64,10 @@ export const TableOfContents: React.FC = () => {
 						Reference for the <code>remotion.config.ts</code> file
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/options">
+					<strong>Options</strong>
+					<div>Find options shared by commands, APIs, and configuration</div>
+				</TOCItem>
 			</Grid>
 			<h2>remotion</h2>
 			<p>

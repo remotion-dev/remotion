@@ -15,7 +15,7 @@ export const webhookCustomDataOption = {
 		</>
 	),
 	ssrName: 'customData' as const,
-	docLink: 'https://www.remotion.dev/docs/lambda/webhooks',
+	docLink: 'https://www.remotion.dev/docs/options/webhook-custom-data',
 	type: {} as Record<string, unknown> | null,
 	getValue: () => {
 		throw new Error('Option resolution not implemented');
