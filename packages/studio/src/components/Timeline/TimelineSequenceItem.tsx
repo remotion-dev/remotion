@@ -117,7 +117,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
-import {useTimelineVirtualization} from './TimelineVirtualization';
+import {useTimelineRowsRef} from './TimelineVirtualization';
 import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
@@ -394,7 +394,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const canMutateEffects =
 		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {rows: timelineRows} = useTimelineVirtualization();
+	const timelineRowsRef = useTimelineRowsRef();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
@@ -766,7 +766,7 @@ const TimelineSequenceItemInner: React.FC<{
 				const key = Internals.makeSequencePropsSubscriptionKey(
 					info.sequenceSubscriptionKey,
 				);
-				return timelineRows.find(
+				return timelineRowsRef.current.find(
 					(row) =>
 						row.track.nodePathInfo !== null &&
 						Internals.makeSequencePropsSubscriptionKey(
@@ -988,7 +988,7 @@ const TimelineSequenceItemInner: React.FC<{
 			parentId,
 			selectedItems,
 			sequence.id,
-			timelineRows,
+			timelineRowsRef,
 			validatedLocation?.source,
 		],
 	);

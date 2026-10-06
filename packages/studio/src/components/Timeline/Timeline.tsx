@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
+import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -326,7 +327,7 @@ const TimelineInner: React.FC = () => {
 		return next.map((track) => {
 			const oldTrack = previousTracksById.get(track.sequence.id);
 			const currentSource = currentSequencesById.get(track.sequence.id);
-			const oldNodePath = oldTrack?.nodePathInfo;
+			const oldNodePath = oldTrack?.nodePathInfo ?? null;
 			const nodePath = track.nodePathInfo;
 			const oldLoop = oldTrack?.sequence.loopDisplay;
 			const loop = track.sequence.loopDisplay;
@@ -352,12 +353,7 @@ const TimelineInner: React.FC = () => {
 				(oldNodePath === null) !== (nodePath === null) ||
 				(oldNodePath !== null &&
 					nodePath !== null &&
-					(oldNodePath?.sequenceSubscriptionKey !==
-						nodePath.sequenceSubscriptionKey ||
-						oldNodePath?.index !== nodePath.index ||
-						oldNodePath?.numberOfSequencesWithThisNodePath !==
-							nodePath.numberOfSequencesWithThisNodePath ||
-						oldNodePath?.supportsEffects !== nodePath.supportsEffects)) ||
+					!areSequenceNodePathInfosEqual(oldNodePath, nodePath)) ||
 				(oldLoop === undefined) !== (loop === undefined) ||
 				(oldLoop !== undefined &&
 					loop !== undefined &&
