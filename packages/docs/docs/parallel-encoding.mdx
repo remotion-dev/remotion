@@ -16,7 +16,7 @@ From <AvailableFrom v="4.0.534" inline />, parallel encoding is enabled by defau
 
 GIFs, audio-only renders, stills and image sequences do not use parallel encoding. GIF encoding needs a color palette generated from all frames before encoding can start.
 
-This applies to server-side rendering, including [Remotion Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun). [Client-side rendering](/docs/client-side-rendering) uses a different rendering pipeline.
+This applies to server-side rendering, including [Remotion Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun). [Client-side rendering](/docs/client-side-rendering) uses a different rendering pipeline, but also encodes while rendering.
 
 Parallel encoding is independent of [rendering concurrency](/docs/terminology/concurrency): it also works with a single browser tab. On Lambda, it runs within each render chunk.
 
