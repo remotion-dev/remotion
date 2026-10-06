@@ -963,6 +963,7 @@ export type NodeWrapper =
 
 export type WrapNodeRequest = {
 	fileName: string;
+	compositionId: string;
 	nodePath: SequenceNodePath;
 	wrapper: NodeWrapper | null;
 	width: number | null;
