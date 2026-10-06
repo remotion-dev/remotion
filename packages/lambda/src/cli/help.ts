@@ -212,6 +212,7 @@ const commandHelp = [
 				'prores-profile',
 				'x264-preset',
 				'gop',
+				'disable-shared-memory-capture',
 				'crf',
 				'pixel-format',
 				'image-format',

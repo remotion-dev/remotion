@@ -110,6 +110,7 @@ const {
 	videoCodecOption,
 	colorSpaceOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	deleteAfterOption,
 	folderExpiryOption,
 	enableCancellationOption,
@@ -569,6 +570,14 @@ declare global {
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 
 		/**
+		 * Use JPEG or PNG screenshots instead of shared-memory capture.
+		 * Parallel encoding remains enabled. Default: false.
+		 */
+		readonly setDisableSharedMemoryCapture: (
+			disableSharedMemoryCapture: boolean,
+		) => void;
+
+		/**
 		 * Disallows the renderer from doing rendering frames and encoding at the same time.
 		 * This makes the rendering process more memory-efficient, but possibly slower.
 		 * Default: false
@@ -871,6 +880,7 @@ export const Config: FlatConfig = {
 	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
 	setDisallowParallelEncoding: disallowParallelEncodingOption.setConfig,
+	setDisableSharedMemoryCapture: disableSharedMemoryCaptureOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setEnableCancellation: enableCancellationOption.setConfig,

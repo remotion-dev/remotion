@@ -103,6 +103,9 @@ export const startHandler = async <Provider extends CloudProvider>({
 				? insideFunctionSpecifics.defaultX264Preset
 				: null),
 		gopSize: params.gopSize ?? null,
+		...(params.disableSharedMemoryCapture
+			? {disableSharedMemoryCapture: true}
+			: {}),
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,

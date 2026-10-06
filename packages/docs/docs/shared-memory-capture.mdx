@@ -1,10 +1,10 @@
 ---
-image: /generated/articles-docs-shared-memory-chromium-patch.png
-title: Shared-memory Chromium Patch
+image: /generated/articles-docs-shared-memory-capture.png
+title: Shared-memory capture
 crumb: 'Rendering'
 ---
 
-# Shared-memory Chromium Patch<AvailableFrom v="4.0.534" />
+# Shared-memory capture<AvailableFrom v="4.0.534" />
 
 Traditionally, screenshots of webpages are captured using the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/), then encoded as either JPEG or PNG. Which one is used is determined by the [Video Image Format](/docs/renderer/render-media#imageformat) option.
 
@@ -58,23 +58,25 @@ With [`renderMedia()`](/docs/renderer/render-media), set `logLevel: "verbose"` t
 
 ## Opt out
 
-Disable parallel encoding to use regular JPEG or PNG screenshots:
+Set `disableSharedMemoryCapture` to use regular JPEG or PNG screenshots while keeping [parallel encoding](/docs/parallel-encoding) enabled:
 
 ```bash title="Render without shared-memory capture"
-npx remotion render MyComp --disallow-parallel-encoding
+npx remotion render MyComp --disable-shared-memory-capture
 ```
 
-With [`renderMedia()`](/docs/renderer/render-media#disallowparallelencoding), set `disallowParallelEncoding: true`.
+With [`renderMedia()`](/docs/renderer/render-media#disablesharedmemorycapture), set `disableSharedMemoryCapture: true`. The same option is available in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#disablesharedmemorycapture), [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#disablesharedmemorycapture) and [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#disablesharedmemorycapture).
 
-For CLI and Studio renders, you can also use [`Config.setDisallowParallelEncoding()`](/docs/config#setdisallowparallelencoding):
+For CLI and Studio renders, you can also use [`Config.setDisableSharedMemoryCapture()`](/docs/config#setdisablesharedmemorycapture):
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 
-Config.setDisallowParallelEncoding(true);
+Config.setDisableSharedMemoryCapture(true);
 ```
 
-This also makes frame rendering and encoding happen in separate stages, which can reduce peak memory usage but may make rendering slower. Lambda and Cloud Run currently do not expose this option.
+The default is `false`. When you opt out, the image format and JPEG quality options apply to the screenshots again. For Lambda and Cloud Run CLI renders, pass `--disable-shared-memory-capture` to the render command.
+
+[Disabling parallel encoding](/docs/parallel-encoding#disable-parallel-encoding) also disables shared-memory capture and makes frame rendering and encoding happen in separate stages. This can reduce peak memory usage but may make rendering slower.
 
 ## See also
 

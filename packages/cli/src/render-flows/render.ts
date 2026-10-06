@@ -118,6 +118,7 @@ export const renderVideoFlow = async ({
 	audioCodec,
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
+	disableSharedMemoryCapture,
 	offthreadVideoCacheSizeInBytes,
 	offthreadVideoThreads,
 	colorSpace,
@@ -191,6 +192,7 @@ export const renderVideoFlow = async ({
 	numberOfGifLoops: NumberOfGifLoops;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
+	disableSharedMemoryCapture: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	colorSpace: ColorSpace | null;
@@ -776,6 +778,7 @@ export const renderVideoFlow = async ({
 		preferLossless: false,
 		imageFormat,
 		disallowParallelEncoding,
+		disableSharedMemoryCapture,
 		onBrowserLog: null,
 		onStart: () => undefined,
 		serializedResolvedPropsWithCustomSchema:

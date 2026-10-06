@@ -267,6 +267,7 @@ const internalRenderMediaRaw = async ({
 	audioCodec,
 	concurrency,
 	disallowParallelEncoding,
+	disableSharedMemoryCapture,
 	everyNthFrame,
 	imageFormat: provisionalImageFormat,
 	indent,
@@ -475,8 +476,15 @@ const internalRenderMediaRaw = async ({
 		});
 	const actualWidth = widthEvenDimensions * scale;
 	const actualHeight = heightEvenDimensions * scale;
+	if (disableSharedMemoryCapture) {
+		Log.verbose(
+			{indent, logLevel, tag: 'renderMedia()'},
+			'Shared-memory capture is disabled by configuration.',
+		);
+	}
+
 	const remotionSharedMemorySupport =
-		preEncodedFileLocation === null
+		preEncodedFileLocation === null || disableSharedMemoryCapture
 			? null
 			: await probeRemotionSharedMemoryFfmpegSupport({
 					binariesDirectory,
@@ -1106,6 +1114,7 @@ export const renderMedia = ({
 	concurrency,
 	serveUrl,
 	disallowParallelEncoding,
+	disableSharedMemoryCapture,
 	everyNthFrame,
 	imageFormat,
 	numberOfGifLoops,
@@ -1183,6 +1192,7 @@ export const renderMedia = ({
 		concurrency: concurrency ?? null,
 		crf: crf ?? null,
 		disallowParallelEncoding: disallowParallelEncoding ?? false,
+		disableSharedMemoryCapture: disableSharedMemoryCapture ?? false,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		envVariables: envVariables ?? {},
 		everyNthFrame: everyNthFrame ?? 1,

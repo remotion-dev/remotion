@@ -7554,13 +7554,13 @@ export const articles = [
 		slug: 'shapes/triangle',
 	},
 	{
-		id: 'shared-memory-chromium-patch',
-		title: 'Shared-memory Chromium Patch',
-		relativePath: 'docs/shared-memory-chromium-patch.mdx',
-		compId: 'articles-docs-shared-memory-chromium-patch',
+		id: 'shared-memory-capture',
+		title: 'Shared-memory capture',
+		relativePath: 'docs/shared-memory-capture.mdx',
+		compId: 'articles-docs-shared-memory-capture',
 		crumb: 'Rendering',
 		noAi: false,
-		slug: 'shared-memory-chromium-patch',
+		slug: 'shared-memory-capture',
 	},
 	{
 		id: 'skia/enable-skia',

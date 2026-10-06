@@ -1297,7 +1297,7 @@ const sidebars: SidebarsConfig = {
 				'metadata',
 				'hardware-acceleration',
 				'parallel-encoding',
-				'shared-memory-chromium-patch',
+				'shared-memory-capture',
 				'webgl',
 				'hdr',
 				'sample-rate',

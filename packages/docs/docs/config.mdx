@@ -554,6 +554,20 @@ Config.setMuted(true);
 
 The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
 
+## `setDisableSharedMemoryCapture()`<AvailableFrom v="4.0.534" />
+
+<Options id="disable-shared-memory-capture" />
+
+See [Shared-memory capture](/docs/shared-memory-capture).
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDisableSharedMemoryCapture(true);
+```
+
+The [command line flag](/docs/cli/render#--disable-shared-memory-capture) `--disable-shared-memory-capture` takes precedence over this option. Pass `--disable-shared-memory-capture=false` to override a configured opt-out.
+
 ## `setDisallowParallelEncoding()`<AvailableFrom v="4.0.315" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower. Default `false`.

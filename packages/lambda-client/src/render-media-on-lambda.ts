@@ -173,6 +173,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		concurrency: options.concurrency ?? null,
 		crf: options.crf,
 		gopSize: options.gopSize ?? null,
+		disableSharedMemoryCapture: options.disableSharedMemoryCapture ?? false,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
 		envVariables: options.envVariables ?? {},
 		everyNthFrame: options.everyNthFrame ?? 1,

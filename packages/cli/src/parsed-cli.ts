@@ -14,6 +14,7 @@ const {
 	colorSpaceOption,
 	concurrencyOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	offthreadVideoCacheSizeInBytesOption,
 	encodingBufferSizeOption,
 	encodingMaxRateOption,
@@ -124,6 +125,9 @@ export type CommandLineOptions = {
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
 	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
+	[disableSharedMemoryCaptureOption.cliFlag]: TypeOfOption<
+		typeof disableSharedMemoryCaptureOption
+	> | null;
 	[disallowParallelEncodingOption.cliFlag]: TypeOfOption<
 		typeof disallowParallelEncodingOption
 	> | null;
@@ -238,6 +242,7 @@ export const BooleanFlags = [
 	beepOnFinishOption.cliFlag,
 	disableGitSourceOption.cliFlag,
 	disallowParallelEncodingOption.cliFlag,
+	disableSharedMemoryCaptureOption.cliFlag,
 	forSeamlessAacConcatenationOption.cliFlag,
 	enableCancellationOption.cliFlag,
 	reproOption.cliFlag,
@@ -266,6 +271,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[ipv4Option.cliFlag]: null,
 		[beepOnFinishOption.cliFlag]: null,
 		[disallowParallelEncodingOption.cliFlag]: null,
+		[disableSharedMemoryCaptureOption.cliFlag]: null,
 		[reproOption.cliFlag]: null,
 		[isProductionOption.cliFlag]: null,
 		[forceNewStudioOption.cliFlag]: null,

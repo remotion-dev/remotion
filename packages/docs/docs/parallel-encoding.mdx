@@ -30,9 +30,11 @@ From <AvailableFrom v="4.0.533" inline />, Remotion no longer disables parallel 
 
 ## Shared-memory capture
 
-On [supported platforms](/docs/shared-memory-chromium-patch#when-it-is-used), parallel encoding enables [shared-memory capture](/docs/shared-memory-chromium-patch). Frames are passed directly to FFmpeg as bitmaps, avoiding the extra JPEG or PNG compression step.
+On [supported platforms](/docs/shared-memory-capture#when-it-is-used), parallel encoding enables [shared-memory capture](/docs/shared-memory-capture) by default. Frames are passed directly to FFmpeg as bitmaps, avoiding the extra JPEG or PNG compression step.
 
 Parallel encoding also works with regular JPEG or PNG screenshots on other platforms. Your selected video codec and encoding settings still apply.
+
+To keep parallel encoding enabled while opting out of shared-memory capture, use [`disableSharedMemoryCapture`](/docs/shared-memory-capture#opt-out).
 
 ## Check whether it is enabled
 
@@ -44,7 +46,7 @@ npx remotion render MyComp --log=verbose
 
 Look for `Parallel encoding is enabled.` or `Parallel encoding is disabled.` in the logs. With [`renderMedia()`](/docs/renderer/render-media), set `logLevel: "verbose"` to see the same messages.
 
-Shared-memory capture has a [separate log message](/docs/shared-memory-chromium-patch#check-whether-it-is-active).
+Shared-memory capture has a [separate log message](/docs/shared-memory-capture#check-whether-it-is-active).
 
 ## Disable parallel encoding
 
@@ -69,6 +71,6 @@ Disabling parallel encoding also disables shared-memory capture. Lambda and Clou
 ## See also
 
 - [Encoding guide](/docs/encoding)
-- [Shared-memory Chromium Patch](/docs/shared-memory-chromium-patch)
+- [Shared-memory capture](/docs/shared-memory-capture)
 - [Troubleshooting out-of-memory errors](/docs/troubleshooting/sigkill)
 - [Concurrency](/docs/terminology/concurrency)

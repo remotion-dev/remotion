@@ -47,6 +47,7 @@ const {
 	scaleOption,
 	crfOption,
 	gopSizeOption,
+	disableSharedMemoryCaptureOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	mutedOption,
@@ -184,6 +185,9 @@ export const renderCommand = async ({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const crf = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gopSize = gopSizeOption.getValue({
@@ -397,6 +401,7 @@ export const renderCommand = async ({
 		imageFormat,
 		crf: crf ?? undefined,
 		gopSize,
+		disableSharedMemoryCapture,
 		envVariables,
 		pixelFormat,
 		proResProfile,

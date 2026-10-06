@@ -115,6 +115,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	disableSharedMemoryCapture,
 	maxRetries,
 	privacy,
 	logLevel,
@@ -152,9 +153,9 @@ export const makeLambdaRenderMediaPayload = async ({
 	requestHandler,
 	isProduction,
 	sampleRate,
-}: InnerRenderMediaOnLambdaInput): Promise<
-	ServerlessStartPayload<AwsProvider>
-> => {
+}: Omit<InnerRenderMediaOnLambdaInput, 'disableSharedMemoryCapture'> & {
+	disableSharedMemoryCapture?: boolean;
+}): Promise<ServerlessStartPayload<AwsProvider>> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateDownloadBehavior(downloadBehavior);
@@ -200,6 +201,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		proResProfile: proResProfile ?? null,
 		x264Preset,
 		gopSize,
+		...(disableSharedMemoryCapture ? {disableSharedMemoryCapture: true} : {}),
 		jpegQuality,
 		maxRetries,
 		privacy,
