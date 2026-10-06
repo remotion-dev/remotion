@@ -23,7 +23,7 @@ export const enableMultiprocessOnLinuxOption = {
 		</>
 	),
 	ssrName: 'chromiumOptions.enableMultiprocessOnLinux',
-	docLink: 'https://www.remotion.dev/docs/chromium-flags',
+	docLink: 'https://www.remotion.dev/docs/options/enable-multiprocess-on-linux',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

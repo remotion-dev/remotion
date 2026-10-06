@@ -116,7 +116,11 @@ export const useTimelineLayerChildren = (
 								.concat(track.sequence.id)
 								.map((id) => siblingIndices.get(id)),
 						];
-			keys.set(track.sequence.id, JSON.stringify([compositionId, identity]));
+			// Packed clips have no child-collapse control. Do not let a saved
+			// layer collapse make an explicit nested Track inaccessible.
+			if (!track.sequence.timelineTrack) {
+				keys.set(track.sequence.id, JSON.stringify([compositionId, identity]));
+			}
 		}
 
 		return {keys, parents, ancestors};

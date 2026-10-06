@@ -27,6 +27,7 @@ test('wrapping JSX writes the child on a new line with aligned indentation', asy
 
 	try {
 		const entryPoint = path.join(remotionRoot, 'NewComposition.tsx');
+		const compositionId = 'MyComp';
 		const input = `import {AbsoluteFill, HtmlInCanvas} from 'remotion';
 
 export const Comp = () => {
@@ -44,6 +45,7 @@ export const Comp = () => {
 		const result = await wrapNodeHandler({
 			input: {
 				fileName: entryPoint,
+				compositionId,
 				nodePath: lineContainingToNodePath(input, '<AbsoluteFill'),
 				wrapper: 'HtmlInCanvas',
 				width: 2560,
@@ -71,8 +73,18 @@ export const Comp = () => {
 			getDefaultEditor: () => null,
 		});
 
-		expect(result.success).toBe(true);
-		expect(readFileSync(entryPoint, 'utf-8')).toContain(
+		const output = readFileSync(entryPoint, 'utf-8');
+		expect(result).toMatchObject({
+			success: true,
+			nodePathMutation: {
+				timelineSelection: {
+					compositionId,
+					absolutePath: entryPoint,
+					nodePath: lineContainingToNodePath(output, '<HtmlInCanvas'),
+				},
+			},
+		});
+		expect(output).toContain(
 			[
 				'        <HtmlInCanvas',
 				'            width={2560}',

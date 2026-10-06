@@ -12,7 +12,6 @@ import type {
 import {
 	Internals,
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -29,7 +28,7 @@ import type {
 } from './types.js';
 import {validateDurationInFrames} from './validate.js';
 
-const {SequenceWithoutSchema} = Internals;
+const {SequenceWithoutSchema, TrackWithoutSchema} = Internals;
 
 type ResolvedTransitionSeriesTransitionProps<
 	PresentationProps extends Record<string, unknown>,
@@ -313,7 +312,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 	const childrenValue = useMemo(() => {
 		type OverlayRender = {
-			readonly cutPoint: number;
 			readonly overlayFrom: number;
 			readonly durationInFrames: number;
 			readonly overlayOffset: number;
@@ -333,6 +331,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				from={Math.round(info.overlayFrom)}
 				durationInFrames={info.durationInFrames}
 				name="<TS.Overlay>"
+				_remotionInternalTimelineTrack={{
+					role: 'overlay',
+				}}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 				controls={info.controls ?? undefined}
 				hidden={info.hidden}
@@ -493,7 +494,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						// Store overlay info to validate the other side once the next
 						// sequence has resolved its interactive props.
 						const overlayRender: OverlayRender = {
-							cutPoint,
 							overlayFrom,
 							durationInFrames: overlayProps.durationInFrames,
 							overlayOffset,
@@ -565,6 +565,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 										from={transitionFrom}
 										durationInFrames={transitionDuration}
 										name="<TS.Transition>"
+										_remotionInternalTimelineTrack={{
+											role: 'transition',
+										}}
 										_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 										controls={transitionProps.controls ?? undefined}
 										layout="none"
@@ -1012,7 +1015,7 @@ const TransitionSeriesInner: FC<SequenceProps> = (props) => {
 	}
 
 	return (
-		<Sequence
+		<TrackWithoutSchema
 			name={displayName}
 			layout={layout}
 			_remotionInternalDocumentationLink={
@@ -1024,7 +1027,7 @@ const TransitionSeriesInner: FC<SequenceProps> = (props) => {
 			controls={controls ?? undefined}
 		>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
-		</Sequence>
+		</TrackWithoutSchema>
 	);
 };
 

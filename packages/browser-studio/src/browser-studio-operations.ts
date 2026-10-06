@@ -1437,6 +1437,7 @@ export const createBrowserStudioOperations = ({
 
 	const wrapNode: BrowserStudioOperations['wrapNode'] = ({
 		fileName,
+		compositionId,
 		nodePath,
 		wrapper,
 		width,
@@ -1477,9 +1478,20 @@ export const createBrowserStudioOperations = ({
 							: {},
 				}),
 			});
+			const insertedNodePath =
+				result.nodePathRemappings.find(
+					(remapping) => remapping.oldNodePath === null,
+				)?.newNodePath ?? null;
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
-				timelineSelection: null,
+				timelineSelection:
+					insertedNodePath !== null
+						? {
+								compositionId,
+								absolutePath: filePath,
+								nodePath: insertedNodePath,
+							}
+						: null,
 				fileName,
 				mutate: (current) => applyCodemodChanges(current, result.changes),
 				nodePathMutationFiles: getNodePathMutationFiles(result),

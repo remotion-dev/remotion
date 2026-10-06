@@ -21,7 +21,7 @@ export const audioLatencyHintOption = {
 		</>
 	),
 	ssrName: 'audioLatencyHint' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media',
+	docLink: 'https://www.remotion.dev/docs/options/audio-latency-hint',
 	type: 'playback' as AudioContextLatencyCategory,
 	getValue: ({commandLine}) => {
 		const val = commandLine[cliFlag];

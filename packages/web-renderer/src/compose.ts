@@ -17,6 +17,12 @@ const getFilterFunction = (node: Node) => {
 		return NodeFilter.FILTER_REJECT;
 	}
 
+	// Canvas children are fallback/layout content. The canvas bitmap already
+	// contains their rendered output, including any <HtmlInCanvas> effects.
+	if (node.parentElement instanceof HTMLCanvasElement) {
+		return NodeFilter.FILTER_REJECT;
+	}
+
 	const computedStyle = getComputedStyle(node);
 
 	if (computedStyle.display === 'none') {

@@ -15,7 +15,7 @@ export const disallowParallelEncodingOption = {
 		</>
 	),
 	ssrName: 'disallowParallelEncoding',
-	docLink: 'https://www.remotion.dev/docs/config#setdisallowparallelencoding',
+	docLink: 'https://www.remotion.dev/docs/options/disallow-parallel-encoding',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

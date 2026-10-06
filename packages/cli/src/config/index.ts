@@ -146,6 +146,7 @@ const {
 	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
+	experimentalTracksOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -647,6 +648,11 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setKeyboardShortcuts: (shortcuts: StudioKeyboardShortcuts) => void;
 		/**
+		 * Enable experimental timeline tracks in the Remotion Studio.
+		 * @default false
+		 */
+		setExperimentalTracksEnabled: (enabled: boolean) => void;
+		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
 		 */
@@ -791,6 +797,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
+	setExperimentalTracksEnabled: experimentalTracksOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,

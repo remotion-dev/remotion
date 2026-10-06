@@ -15,8 +15,7 @@ export const webpackPollOption = {
 		</>
 	),
 	ssrName: null,
-	docLink:
-		'https://www.remotion.dev/docs/config#setwebpackpollinginmilliseconds',
+	docLink: 'https://www.remotion.dev/docs/options/webpack-poll',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			const val = commandLine[cliFlag];

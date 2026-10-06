@@ -131,6 +131,7 @@ const docusaurusBuild = lowMemoryBuild
 			args: ['docusaurus', 'build'],
 		};
 
+await run('generate option docs', 'bun', ['generate-option-docs.ts']);
 await run('copy raw docs', 'bun', ['copy-raw-docs.ts']);
 await run('fetch prompt submissions', 'bun', ['fetch-prompt-submissions.ts']);
 await run('prepare Browser Studio workspace', 'bun', [

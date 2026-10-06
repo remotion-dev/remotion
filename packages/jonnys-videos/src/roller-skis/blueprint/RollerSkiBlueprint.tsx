@@ -27,21 +27,18 @@ export const RollerSkiBlueprint: React.FC = () => {
 				src={rollerSkiAsset('blueprint/whoosh-in.wav')}
 				from={252}
 				volume={0.45}
-				premountFor={fps}
 			/>
 			<Audio
 				name="Whoosh · elevations out"
 				src={rollerSkiAsset('blueprint/whoosh-out.wav')}
 				from={354}
 				volume={0.35}
-				premountFor={fps}
 			/>
 			<Audio
 				name="Ratchet · pawl ticks and lock"
 				src={rollerSkiAsset('blueprint/ratchet.wav')}
 				from={366}
 				volume={0.7}
-				premountFor={fps}
 			/>
 			<Audio
 				name="Whoosh · hero in"

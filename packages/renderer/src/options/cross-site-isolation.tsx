@@ -16,7 +16,7 @@ export const enableCrossSiteIsolationOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setenablecrosssiteisolation',
+	docLink: 'https://www.remotion.dev/docs/options/cross-site-isolation',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

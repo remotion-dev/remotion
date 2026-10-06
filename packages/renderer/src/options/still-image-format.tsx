@@ -17,7 +17,7 @@ export const stillImageFormatOption = {
 		</>
 	),
 	ssrName: 'imageFormat' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/render-still#imageformat',
+	docLink: 'https://www.remotion.dev/docs/options/still-image-format',
 	type: null as StillImageFormat | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

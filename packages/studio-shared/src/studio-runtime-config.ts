@@ -10,6 +10,7 @@ export type ConfigFileStudioSettings = {
 	readonly audioLatencyHint: AudioContextLatencyCategory | null;
 	readonly beepOnFinish: boolean | null;
 	readonly enableCrossSiteIsolation: boolean | null;
+	readonly experimentalTracksEnabled?: boolean | null;
 	readonly interactivityEnabled: boolean | null;
 	readonly keyboardShortcutsEnabled: boolean | null;
 	readonly logLevel: LogLevel | null;
@@ -29,6 +30,7 @@ export type StudioRuntimeConfig = {
 	readonly maxTimelineTracks: number | null;
 	readonly askAIEnabled: boolean;
 	readonly elementLibraries?: readonly StudioElementLibrary[];
+	readonly experimentalTracksEnabled?: boolean;
 	readonly interactivityEnabled: boolean;
 	readonly keyboardShortcutsEnabled: boolean;
 	readonly keyboardShortcuts?: StudioKeyboardShortcuts | null;
