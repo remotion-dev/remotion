@@ -22,17 +22,22 @@ Use `--max-rate` with the following commands. Follow a command link for its synt
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--max-rate <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--max-rate <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                 | Name                          |
-| ------------------------------------------------------------------------- | ----------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#maxrate) | `maxRate`                     |
-| [Configuration file](/docs/config#setencodingmaxrate)                     | `Config.setEncodingMaxRate()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#maxrate)       | `maxRate`                     |
-| [`renderMedia()`](/docs/renderer/render-media#maxrate)                    | `maxRate`                     |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#maxrate)  | `maxRate`                     |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#maxrate)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#maxrate)
+- [`renderMedia()`](/docs/renderer/render-media#maxrate)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#maxrate)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEncodingMaxRate('5000k');
+```
 
 ## See also
 

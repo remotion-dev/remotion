@@ -18,16 +18,21 @@ Use `--prefer-lossless` with the following commands. Follow a command link for i
 | --------------------------------------------------- | ------------------- |
 | [`remotion lambda render`](/docs/lambda/cli/render) | `--prefer-lossless` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                        | Name                              |
-| -------------------------------------------------------------------------------- | --------------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#preferlossless) | `preferLossless`                  |
-| [Configuration file](/docs/config#setpreferlosslessaudio)                        | `Config.setPreferLosslessAudio()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#preferlossless)       | `preferLossless`                  |
-| [`combineChunks()`](/docs/renderer/combine-chunks#preferlossless)                | `preferLossless`                  |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#preferlossless)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#preferlossless)
+- [`combineChunks()`](/docs/renderer/combine-chunks#preferlossless)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPreferLosslessAudio(true);
+```
 
 ## See also
 

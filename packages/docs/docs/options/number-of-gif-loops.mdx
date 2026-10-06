@@ -27,18 +27,23 @@ Use `--number-of-gif-loops` with the following commands. Follow a command link f
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--number-of-gif-loops <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--number-of-gif-loops <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                          | Name                           |
-| ---------------------------------------------------------------------------------- | ------------------------------ |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#numberofgifloops) | `numberOfGifLoops`             |
-| [Configuration file](/docs/config#setnumberofgifloops)                             | `Config.setNumberOfGifLoops()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#numberofgifloops)       | `numberOfGifLoops`             |
-| [`combineChunks()`](/docs/renderer/combine-chunks#numberofgifloops)                | `numberOfGifLoops`             |
-| [`renderMedia()`](/docs/renderer/render-media#numberofgifloops)                    | `numberOfGifLoops`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#numberofgifloops)  | `numberOfGifLoops`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#numberofgifloops)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#numberofgifloops)
+- [`combineChunks()`](/docs/renderer/combine-chunks#numberofgifloops)
+- [`renderMedia()`](/docs/renderer/render-media#numberofgifloops)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#numberofgifloops)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setNumberOfGifLoops(2);
+```
 
 ## See also
 

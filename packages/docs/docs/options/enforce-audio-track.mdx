@@ -31,16 +31,21 @@ Use `--enforce-audio-track` with the following commands. Follow a command link f
 | [`remotion benchmark`](/docs/cli/benchmark)             | `--enforce-audio-track` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--enforce-audio-track` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                           | Name                            |
-| ----------------------------------------------------------------------------------- | ------------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#enforceaudiotrack) | `enforceAudioTrack`             |
-| [Configuration file](/docs/config#setenforceaudiotrack)                             | `Config.setEnforceAudioTrack()` |
-| [`renderMedia()`](/docs/renderer/render-media#enforceaudiotrack)                    | `enforceAudioTrack`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#enforceaudiotrack)  | `enforceAudioTrack`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#enforceaudiotrack)
+- [`renderMedia()`](/docs/renderer/render-media#enforceaudiotrack)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#enforceaudiotrack)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEnforceAudioTrack(true);
+```
 
 ## See also
 

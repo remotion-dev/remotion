@@ -25,15 +25,20 @@ Use `--rspack` with the following commands. Follow a command link for its syntax
 | [`remotion lambda sites create`](/docs/lambda/cli/sites/create)     | `--rspack` |
 | [`remotion cloudrun sites create`](/docs/cloudrun/cli/sites/create) | `--rspack` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                          | Name                 |
-| -------------------------------------------------- | -------------------- |
-| [`deploySite()`](/docs/cloudrun/deploysite#rspack) | `options.rspack`     |
-| [Configuration file](/docs/config#setrspack)       | `Config.setRspack()` |
-| [`deploySite()`](/docs/lambda/deploysite#rspack)   | `options.rspack`     |
+- [`deploySite()`](/docs/cloudrun/deploysite#rspack)
+- [`deploySite()`](/docs/lambda/deploysite#rspack)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setRspack(true);
+```
 
 ## See also
 

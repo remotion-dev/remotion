@@ -22,18 +22,23 @@ Use `--every-nth-frame` with the following commands. Follow a command link for i
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--every-nth-frame <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--every-nth-frame <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                       | Name                        |
-| ------------------------------------------------------------------------------- | --------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#everynthframe) | `everyNthFrame`             |
-| [Configuration file](/docs/config#seteverynthframe)                             | `Config.setEveryNthFrame()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#everynthframe)       | `everyNthFrame`             |
-| [`combineChunks()`](/docs/renderer/combine-chunks#everynthframe)                | `everyNthFrame`             |
-| [`renderFrames()`](/docs/renderer/render-frames#everynthframe)                  | `everyNthFrame`             |
-| [`renderMedia()`](/docs/renderer/render-media#everynthframe)                    | `everyNthFrame`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#everynthframe)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#everynthframe)
+- [`combineChunks()`](/docs/renderer/combine-chunks#everynthframe)
+- [`renderFrames()`](/docs/renderer/render-frames#everynthframe)
+- [`renderMedia()`](/docs/renderer/render-media#everynthframe)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEveryNthFrame(2);
+```
 
 ## See also
 

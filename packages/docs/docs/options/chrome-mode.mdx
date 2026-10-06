@@ -23,20 +23,27 @@ Use `--chrome-mode` with the following commands. Follow a command link for its s
 | [`remotion benchmark`](/docs/cli/benchmark)       | `--chrome-mode <value>` |
 | [`remotion gpu`](/docs/cli/gpu)                   | `--chrome-mode <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                             | Name                     |
-| --------------------------------------------------------------------- | ------------------------ |
-| [Configuration file](/docs/config#setchromemode)                      | `Config.setChromeMode()` |
-| [`ensureBrowser()`](/docs/renderer/ensure-browser#chromemode)         | `chromeMode`             |
-| [`getCompositions()`](/docs/renderer/get-compositions#chromemode)     | `chromeMode`             |
-| [`openBrowser()`](/docs/renderer/open-browser#chromemode)             | `chromeMode`             |
-| [`renderFrames()`](/docs/renderer/render-frames#chromemode)           | `chromeMode`             |
-| [`renderMedia()`](/docs/renderer/render-media#chromemode)             | `chromeMode`             |
-| [`renderStill()`](/docs/renderer/render-still#chromemode)             | `chromeMode`             |
-| [`selectComposition()`](/docs/renderer/select-composition#chromemode) | `chromeMode`             |
+- [`ensureBrowser()`](/docs/renderer/ensure-browser#chromemode)
+- [`getCompositions()`](/docs/renderer/get-compositions#chromemode)
+- [`openBrowser()`](/docs/renderer/open-browser#chromemode)
+- [`renderFrames()`](/docs/renderer/render-frames#chromemode)
+- [`renderMedia()`](/docs/renderer/render-media#chromemode)
+- [`renderStill()`](/docs/renderer/render-still#chromemode)
+- [`selectComposition()`](/docs/renderer/select-composition#chromemode)
+
+## Config file
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromeMode('chrome-for-testing');
+```
 
 ## See also
 

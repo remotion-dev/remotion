@@ -19,14 +19,19 @@ Use `--disallow-parallel-encoding` with the following commands. Follow a command
 | [`remotion render`](/docs/cli/render)       | `--disallow-parallel-encoding` |
 | [`remotion benchmark`](/docs/cli/benchmark) | `--disallow-parallel-encoding` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                               | Name                                   |
-| ----------------------------------------------------------------------- | -------------------------------------- |
-| [Configuration file](/docs/config#setdisallowparallelencoding)          | `Config.setDisallowParallelEncoding()` |
-| [`renderMedia()`](/docs/renderer/render-media#disallowparallelencoding) | `disallowParallelEncoding`             |
+- [`renderMedia()`](/docs/renderer/render-media#disallowparallelencoding)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDisallowParallelEncoding(true);
+```
 
 ## See also
 

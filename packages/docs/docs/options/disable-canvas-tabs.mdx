@@ -18,6 +18,14 @@ Use `--disable-canvas-tabs` with the following commands. Follow a command link f
 | ------------------------------------- | ----------------------- |
 | [`remotion studio`](/docs/cli/studio) | `--disable-canvas-tabs` |
 
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setCanvasTabsEnabled(false);
+```
+
 ## See also
 
 - [All options](/docs/options)

@@ -18,13 +18,14 @@ Use `--number-of-shared-audio-tags` with the following commands. Follow a comman
 | ------------------------------------- | --------------------------------------- |
 | [`remotion studio`](/docs/cli/studio) | `--number-of-shared-audio-tags <value>` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
 
-| Reference                                                     | Name                                  |
-| ------------------------------------------------------------- | ------------------------------------- |
-| [Configuration file](/docs/config#setnumberofsharedaudiotags) | `Config.setNumberOfSharedAudioTags()` |
+// ---cut---
+Config.setNumberOfSharedAudioTags(5);
+```
 
 ## See also
 

@@ -24,16 +24,21 @@ Use `--hardware-acceleration` with the following commands. Follow a command link
 | [`remotion render`](/docs/cli/render)       | `--hardware-acceleration <value>` |
 | [`remotion benchmark`](/docs/cli/benchmark) | `--hardware-acceleration <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                             | Name                               |
-| ------------------------------------------------------------------------------------- | ---------------------------------- |
-| [Configuration file](/docs/config#sethardwareacceleration)                            | `Config.setHardwareAcceleration()` |
-| [`renderMedia()`](/docs/renderer/render-media#hardwareacceleration)                   | `hardwareAcceleration`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#hardwareacceleration) | `hardwareAcceleration`             |
-| [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#hardwareacceleration)   | `hardwareAcceleration`             |
+- [`renderMedia()`](/docs/renderer/render-media#hardwareacceleration)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#hardwareacceleration)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#hardwareacceleration)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setHardwareAcceleration('if-possible');
+```
 
 ## See also
 

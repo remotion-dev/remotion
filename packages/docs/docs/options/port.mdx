@@ -26,6 +26,20 @@ Use `--port` with the following commands. Follow a command link for its syntax a
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--port <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)   | `--port <value>` |
 
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setStudioPort(3003);
+```
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setRendererPort(3004);
+```
+
 ## See also
 
 - [All options](/docs/options)

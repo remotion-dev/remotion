@@ -22,17 +22,22 @@ Use `--sample-rate` with the following commands. Follow a command link for its s
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--sample-rate <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--sample-rate <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                    | Name                     |
-| ---------------------------------------------------------------------------- | ------------------------ |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#samplerate) | `sampleRate`             |
-| [Configuration file](/docs/config#setsamplerate)                             | `Config.setSampleRate()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#samplerate)       | `sampleRate`             |
-| [`renderMedia()`](/docs/renderer/render-media#samplerate)                    | `sampleRate`             |
-| [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#samplerate)    | `sampleRate`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#samplerate)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#samplerate)
+- [`renderMedia()`](/docs/renderer/render-media#samplerate)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#samplerate)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setSampleRate(44100);
+```
 
 ## See also
 

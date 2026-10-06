@@ -28,16 +28,23 @@ Use `--disable-headless` with the following commands. Follow a command link for 
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render)         | `--disable-headless` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)           | `--disable-headless` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                  | Name                               |
-| ---------------------------------------------------------- | ---------------------------------- |
-| [Configuration file](/docs/config#setchromiumheadlessmode) | `Config.setChromiumHeadlessMode()` |
-| [`renderFrames()`](/docs/renderer/render-frames#headless)  | `chromiumOptions.headless`         |
-| [`renderMedia()`](/docs/renderer/render-media#headless)    | `chromiumOptions.headless`         |
-| [`renderStill()`](/docs/renderer/render-still#headless)    | `chromiumOptions.headless`         |
+- [`renderFrames()`](/docs/renderer/render-frames#headless)
+- [`renderMedia()`](/docs/renderer/render-media#headless)
+- [`renderStill()`](/docs/renderer/render-still#headless)
+
+## Config file
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumHeadlessMode(false);
+```
 
 ## See also
 

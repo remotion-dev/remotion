@@ -22,17 +22,22 @@ Use `--pixel-format` with the following commands. Follow a command link for its 
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--pixel-format <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--pixel-format <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                     | Name                      |
-| ----------------------------------------------------------------------------- | ------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#pixelformat) | `pixelFormat`             |
-| [Configuration file](/docs/config#setpixelformat)                             | `Config.setPixelFormat()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#pixelformat)       | `pixelFormat`             |
-| [`renderMedia()`](/docs/renderer/render-media#pixelformat)                    | `pixelFormat`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#pixelformat)  | `pixelFormat`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#pixelformat)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#pixelformat)
+- [`renderMedia()`](/docs/renderer/render-media#pixelformat)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#pixelformat)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPixelFormat('yuv420p');
+```
 
 ## See also
 

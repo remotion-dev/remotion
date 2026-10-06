@@ -18,15 +18,20 @@ Use `--allow-html-in-canvas` with the following commands. Follow a command link 
 | ------------------------------------- | ------------------------ |
 | [`remotion studio`](/docs/cli/studio) | `--allow-html-in-canvas` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                        | Name                                   |
-| -------------------------------------------------------------------------------- | -------------------------------------- |
-| [Configuration file](/docs/config#setallowhtmlincanvasenabled)                   | `Config.setAllowHtmlInCanvasEnabled()` |
-| [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#allowhtmlincanvas) | `allowHtmlInCanvas`                    |
-| [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#allowhtmlincanvas) | `allowHtmlInCanvas`                    |
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#allowhtmlincanvas)
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#allowhtmlincanvas)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAllowHtmlInCanvasEnabled(true);
+```
 
 ## See also
 

@@ -21,18 +21,23 @@ Use `--codec` with the following commands. Follow a command link for its syntax 
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--codec <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--codec <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                               | Name                |
-| ----------------------------------------------------------------------- | ------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#codec) | `codec`             |
-| [Configuration file](/docs/config#setcodec)                             | `Config.setCodec()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#codec)       | `codec`             |
-| [`combineChunks()`](/docs/renderer/combine-chunks#codec)                | `codec`             |
-| [`renderMedia()`](/docs/renderer/render-media#codec)                    | `codec`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#codec)  | `codec`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#codec)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#codec)
+- [`combineChunks()`](/docs/renderer/combine-chunks#codec)
+- [`renderMedia()`](/docs/renderer/render-media#codec)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#codec)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setCodec('h265');
+```
 
 ## See also
 

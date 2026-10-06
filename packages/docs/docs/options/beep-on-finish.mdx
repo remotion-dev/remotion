@@ -18,13 +18,13 @@ Use `--beep-on-finish` with the following commands. Follow a command link for it
 | ------------------------------------- | ------------------ |
 | [`remotion studio`](/docs/cli/studio) | `--beep-on-finish` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                          | Name                       |
-| -------------------------------------------------- | -------------------------- |
-| [Configuration file](/docs/config#setbeeponfinish) | `Config.setBeepOnFinish()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setBeepOnFinish(true);
+```
 
 ## See also
 

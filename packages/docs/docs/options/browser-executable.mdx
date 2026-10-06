@@ -28,20 +28,25 @@ Use `--browser-executable` with the following commands. Follow a command link fo
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--browser-executable <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)   | `--browser-executable <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                    | Name                            |
-| ---------------------------------------------------------------------------- | ------------------------------- |
-| [Configuration file](/docs/config#setbrowserexecutable)                      | `Config.setBrowserExecutable()` |
-| [`ensureBrowser()`](/docs/renderer/ensure-browser#browserexecutable)         | `browserExecutable`             |
-| [`getCompositions()`](/docs/renderer/get-compositions#browserexecutable)     | `browserExecutable`             |
-| [`openBrowser()`](/docs/renderer/open-browser#browserexecutable)             | `options.browserExecutable`     |
-| [`renderFrames()`](/docs/renderer/render-frames#browserexecutable)           | `browserExecutable`             |
-| [`renderMedia()`](/docs/renderer/render-media#browserexecutable)             | `browserExecutable`             |
-| [`renderStill()`](/docs/renderer/render-still#browserexecutable)             | `browserExecutable`             |
-| [`selectComposition()`](/docs/renderer/select-composition#browserexecutable) | `browserExecutable`             |
+- [`ensureBrowser()`](/docs/renderer/ensure-browser#browserexecutable)
+- [`getCompositions()`](/docs/renderer/get-compositions#browserexecutable)
+- [`openBrowser()`](/docs/renderer/open-browser#browserexecutable)
+- [`renderFrames()`](/docs/renderer/render-frames#browserexecutable)
+- [`renderMedia()`](/docs/renderer/render-media#browserexecutable)
+- [`renderStill()`](/docs/renderer/render-still#browserexecutable)
+- [`selectComposition()`](/docs/renderer/select-composition#browserexecutable)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setBrowserExecutable('/usr/bin/google-chrome-stable');
+```
 
 ## See also
 

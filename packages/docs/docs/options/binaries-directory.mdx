@@ -26,23 +26,28 @@ Use `--binaries-directory` with the following commands. Follow a command link fo
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--binaries-directory <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)   | `--binaries-directory <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                          | Name                            |
-| ---------------------------------------------------------------------------------- | ------------------------------- |
-| [Configuration file](/docs/config#setbinariesdirectory)                            | `Config.setBinariesDirectory()` |
-| [`combineChunks()`](/docs/renderer/combine-chunks#binariesdirectory)               | `binariesDirectory`             |
-| [`extractAudio()`](/docs/renderer/extract-audio#binariesdirectory)                 | `binariesDirectory`             |
-| [`getCompositions()`](/docs/renderer/get-compositions#binariesdirectory)           | `binariesDirectory`             |
-| [`getSilentParts()`](/docs/renderer/get-silent-parts#binariesdirectory)            | `binariesDirectory`             |
-| [`getVideoMetadata()`](/docs/renderer/get-video-metadata#binariesdirectory)        | `binariesDirectory`             |
-| [`renderFrames()`](/docs/renderer/render-frames#binariesdirectory)                 | `binariesDirectory`             |
-| [`renderMedia()`](/docs/renderer/render-media#binariesdirectory)                   | `binariesDirectory`             |
-| [`renderStill()`](/docs/renderer/render-still#binariesdirectory)                   | `binariesDirectory`             |
-| [`selectComposition()`](/docs/renderer/select-composition#binariesdirectory)       | `binariesDirectory`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#binariesdirectory) | `binariesDirectory`             |
+- [`combineChunks()`](/docs/renderer/combine-chunks#binariesdirectory)
+- [`extractAudio()`](/docs/renderer/extract-audio#binariesdirectory)
+- [`getCompositions()`](/docs/renderer/get-compositions#binariesdirectory)
+- [`getSilentParts()`](/docs/renderer/get-silent-parts#binariesdirectory)
+- [`getVideoMetadata()`](/docs/renderer/get-video-metadata#binariesdirectory)
+- [`renderFrames()`](/docs/renderer/render-frames#binariesdirectory)
+- [`renderMedia()`](/docs/renderer/render-media#binariesdirectory)
+- [`renderStill()`](/docs/renderer/render-still#binariesdirectory)
+- [`selectComposition()`](/docs/renderer/select-composition#binariesdirectory)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#binariesdirectory)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setBinariesDirectory('/path/to/custom/directory');
+```
 
 ## See also
 

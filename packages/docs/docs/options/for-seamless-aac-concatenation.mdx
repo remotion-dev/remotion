@@ -20,15 +20,20 @@ Use `--for-seamless-aac-concatenation` with the following commands. Follow a com
 | [`remotion render`](/docs/cli/render)       | `--for-seamless-aac-concatenation` |
 | [`remotion benchmark`](/docs/cli/benchmark) | `--for-seamless-aac-concatenation` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                                    | Name                                      |
-| -------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| [Configuration file](/docs/config#setforseamlessaacconcatenation)                            | `Config.setForSeamlessAacConcatenation()` |
-| [`renderMedia()`](/docs/renderer/render-media#forseamlessaacconcatenation)                   | `forSeamlessAacConcatenation`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#forseamlessaacconcatenation) | `forSeamlessAacConcatenation`             |
+- [`renderMedia()`](/docs/renderer/render-media#forseamlessaacconcatenation)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#forseamlessaacconcatenation)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setForSeamlessAacConcatenation(true);
+```
 
 ## See also
 

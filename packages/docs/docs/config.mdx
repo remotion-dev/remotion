@@ -282,6 +282,12 @@ The [`--disable-canvas-tabs`](/docs/options/disable-canvas-tabs) flag takes prec
 
 <Options id="editor" />
 
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDefaultEditor('cursor');
+```
+
 See [Opening files in a code editor](/docs/studio/open-in-editor) for built-in editor IDs, custom editor configuration, and platform support.
 
 ## `setDefaultCodingAgent()`<AvailableFrom v="4.0.506" />

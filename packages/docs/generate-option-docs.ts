@@ -115,22 +115,39 @@ const generateOptionDocs = async () => {
 			);
 		}
 
-		if (usages.length > 0) {
+		const apiReferences = [
+			...new Map(
+				usages
+					.filter((usage) => !usage.config)
+					.map((usage) => [usage.url, usage]),
+			).values(),
+		];
+		if (apiReferences.length > 0) {
 			sections.push(
 				'',
-				'## API and configuration references',
+				'## APIs that have this option',
 				'',
-				'Follow a reference for the parameter name, default value, and examples in that API or configuration method.',
+				'The following APIs accept this option:',
 				'',
-				'| Reference | Name |',
-				'| --- | --- |',
-				...usages.map((usage) => {
-					const title = usage.title.endsWith('()')
-						? `\`${usage.title}\``
-						: usage.title;
-					return `| [${title}](${usage.url}) | \`${usage.name}\`${usage.deprecated ? ' (deprecated)' : ''} |`;
-				}),
+				...apiReferences.map(
+					(usage) =>
+						`- [\`${usage.title}\`](${usage.url})${usage.deprecated ? ' (deprecated)' : ''}`,
+				),
 			);
+		}
+
+		const configReferences = usages.filter(
+			(usage) => usage.config && !usage.deprecated,
+		);
+		if (configReferences.length > 0) {
+			sections.push('', '## Config file');
+			for (const usage of configReferences) {
+				if (usage.configExample === null) {
+					throw new Error(`No config example found for ${usage.url}`);
+				}
+
+				sections.push('', usage.configExample);
+			}
 		}
 
 		sections.push('', '## See also', '', '- [All options](/docs/options)');

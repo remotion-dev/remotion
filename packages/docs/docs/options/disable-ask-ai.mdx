@@ -25,16 +25,21 @@ Use `--disable-ask-ai` with the following commands. Follow a command link for it
 | [`remotion lambda sites create`](/docs/lambda/cli/sites/create)     | `--disable-ask-ai` |
 | [`remotion cloudrun sites create`](/docs/cloudrun/cli/sites/create) | `--disable-ask-ai` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                | Name                       |
-| -------------------------------------------------------- | -------------------------- |
-| [`bundle()`](/docs/bundle#askaienabled)                  | `askAIEnabled`             |
-| [`deploySite()`](/docs/cloudrun/deploysite#askaienabled) | `options.askAIEnabled`     |
-| [Configuration file](/docs/config#setaskaienabled)       | `Config.setAskAIEnabled()` |
-| [`deploySite()`](/docs/lambda/deploysite#askaienabled)   | `options.askAIEnabled`     |
+- [`bundle()`](/docs/bundle#askaienabled)
+- [`deploySite()`](/docs/cloudrun/deploysite#askaienabled)
+- [`deploySite()`](/docs/lambda/deploysite#askaienabled)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAskAIEnabled(false);
+```
 
 ## See also
 

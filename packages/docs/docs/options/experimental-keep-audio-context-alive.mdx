@@ -18,13 +18,13 @@ Use `--experimental-keep-audio-context-alive` with the following commands. Follo
 | ------------------------------------- | ----------------------------------------- |
 | [`remotion studio`](/docs/cli/studio) | `--experimental-keep-audio-context-alive` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                                               | Name                                            |
-| ----------------------------------------------------------------------- | ----------------------------------------------- |
-| [Configuration file](/docs/config#setexperimentalkeepaudiocontextalive) | `Config.setExperimentalKeepAudioContextAlive()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalKeepAudioContextAlive(true);
+```
 
 ## See also
 

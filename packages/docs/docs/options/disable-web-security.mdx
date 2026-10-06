@@ -28,21 +28,28 @@ Use `--disable-web-security` with the following commands. Follow a command link 
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render)         | `--disable-web-security` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)           | `--disable-web-security` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                              | Name                                     |
-| -------------------------------------------------------------------------------------- | ---------------------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#disablewebsecurity)   | `chromiumOptions.disableWebSecurity`     |
-| [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#disablewebsecurity)   | `chromiumOptions.disableWebSecurity`     |
-| [Configuration file](/docs/config#setchromiumdisablewebsecurity)                       | `Config.setChromiumDisableWebSecurity()` |
-| [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#disablewebsecurity) | `chromiumOptions.disableWebSecurity`     |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#disablewebsecurity)         | `chromiumOptions.disableWebSecurity`     |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#disablewebsecurity)         | `chromiumOptions.disableWebSecurity`     |
-| [`renderFrames()`](/docs/renderer/render-frames#disablewebsecurity)                    | `chromiumOptions.disableWebSecurity`     |
-| [`renderMedia()`](/docs/renderer/render-media#disablewebsecurity)                      | `chromiumOptions.disableWebSecurity`     |
-| [`renderStill()`](/docs/renderer/render-still#disablewebsecurity)                      | `chromiumOptions.disableWebSecurity`     |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#disablewebsecurity)
+- [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#disablewebsecurity)
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#disablewebsecurity)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#disablewebsecurity)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#disablewebsecurity)
+- [`renderFrames()`](/docs/renderer/render-frames#disablewebsecurity)
+- [`renderMedia()`](/docs/renderer/render-media#disablewebsecurity)
+- [`renderStill()`](/docs/renderer/render-still#disablewebsecurity)
+
+## Config file
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumDisableWebSecurity(true);
+```
 
 ## See also
 

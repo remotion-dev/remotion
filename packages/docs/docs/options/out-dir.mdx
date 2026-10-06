@@ -18,14 +18,19 @@ Use `--out-dir` with the following commands. Follow a command link for its synta
 | ------------------------------------- | ------------------- |
 | [`remotion bundle`](/docs/cli/bundle) | `--out-dir <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                          | Name                       |
-| -------------------------------------------------- | -------------------------- |
-| [`bundle()`](/docs/bundle#outdir)                  | `outDir`                   |
-| [Configuration file](/docs/config#setbundleoutdir) | `Config.setBundleOutDir()` |
+- [`bundle()`](/docs/bundle#outdir)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setBundleOutDir('./custom-build-dir');
+```
 
 ## See also
 

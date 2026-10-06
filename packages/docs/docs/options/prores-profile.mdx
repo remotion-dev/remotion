@@ -22,17 +22,22 @@ Use `--prores-profile` with the following commands. Follow a command link for it
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--prores-profile <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--prores-profile <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                       | Name                        |
-| ------------------------------------------------------------------------------- | --------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#proresprofile) | `proResProfile`             |
-| [Configuration file](/docs/config#setproresprofile)                             | `Config.setProResProfile()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#proresprofile)       | `proResProfile`             |
-| [`renderMedia()`](/docs/renderer/render-media#proresprofile)                    | `proResProfile`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#proresprofile)  | `proResProfile`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#proresprofile)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#proresprofile)
+- [`renderMedia()`](/docs/renderer/render-media#proresprofile)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#proresprofile)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setProResProfile('4444');
+```
 
 ## See also
 

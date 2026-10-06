@@ -46,21 +46,28 @@ Use `--gl` with the following commands. Follow a command link for its syntax and
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render)         | `--gl <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)           | `--gl <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                              | Name                                 |
-| ---------------------------------------------------------------------- | ------------------------------------ |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#gl)   | `chromiumOptions.gl`                 |
-| [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#gl)   | `chromiumOptions.gl`                 |
-| [Configuration file](/docs/config#setchromiumopenglrenderer)           | `Config.setChromiumOpenGlRenderer()` |
-| [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#gl) | `chromiumOptions.gl`                 |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#gl)         | `chromiumOptions.gl`                 |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#gl)         | `chromiumOptions.gl`                 |
-| [`renderFrames()`](/docs/renderer/render-frames#gl)                    | `chromiumOptions.gl`                 |
-| [`renderMedia()`](/docs/renderer/render-media#gl)                      | `chromiumOptions.gl`                 |
-| [`renderStill()`](/docs/renderer/render-still#gl)                      | `chromiumOptions.gl`                 |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#gl)
+- [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#gl)
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#gl)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#gl)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#gl)
+- [`renderFrames()`](/docs/renderer/render-frames#gl)
+- [`renderMedia()`](/docs/renderer/render-media#gl)
+- [`renderStill()`](/docs/renderer/render-still#gl)
+
+## Config file
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumOpenGlRenderer('angle');
+```
 
 ## See also
 

@@ -22,17 +22,22 @@ Use `--image-format` with the following commands. Follow a command link for its 
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--image-format <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--image-format <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                     | Name                           |
-| ----------------------------------------------------------------------------- | ------------------------------ |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#imageformat) | `imageFormat`                  |
-| [Configuration file](/docs/config#setvideoimageformat)                        | `Config.setVideoImageFormat()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#imageformat)       | `imageFormat`                  |
-| [`renderFrames()`](/docs/renderer/render-frames#imageformat)                  | `imageFormat`                  |
-| [`renderMedia()`](/docs/renderer/render-media#imageformat)                    | `imageFormat`                  |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#imageformat)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#imageformat)
+- [`renderFrames()`](/docs/renderer/render-frames#imageformat)
+- [`renderMedia()`](/docs/renderer/render-media#imageformat)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setVideoImageFormat('png');
+```
 
 ## See also
 

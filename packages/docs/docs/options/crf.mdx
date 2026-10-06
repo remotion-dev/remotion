@@ -22,17 +22,22 @@ Use `--crf` with the following commands. Follow a command link for its syntax an
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--crf <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--crf <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                             | Name              |
-| --------------------------------------------------------------------- | ----------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#crf) | `crf`             |
-| [Configuration file](/docs/config#setcrf)                             | `Config.setCrf()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#crf)       | `crf`             |
-| [`renderMedia()`](/docs/renderer/render-media#crf)                    | `crf`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#crf)  | `crf`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#crf)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#crf)
+- [`renderMedia()`](/docs/renderer/render-media#crf)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#crf)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setCrf(16);
+```
 
 ## See also
 

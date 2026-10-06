@@ -22,17 +22,22 @@ Use `--x264-preset` with the following commands. Follow a command link for its s
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--x264-preset <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--x264-preset <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                    | Name                     |
-| ---------------------------------------------------------------------------- | ------------------------ |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#x264preset) | `x264Preset`             |
-| [Configuration file](/docs/config#setx264preset)                             | `Config.setX264Preset()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#x264preset)       | `x264Preset`             |
-| [`renderMedia()`](/docs/renderer/render-media#x264preset)                    | `x264Preset`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#x264preset)  | `x264Preset`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#x264preset)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#x264preset)
+- [`renderMedia()`](/docs/renderer/render-media#x264preset)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#x264preset)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setX264Preset('fast');
+```
 
 ## See also
 

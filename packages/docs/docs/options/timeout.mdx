@@ -28,20 +28,26 @@ Use `--timeout` with the following commands. Follow a command link for its synta
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render)         | `--timeout <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)           | `--timeout <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                                 | Name                    |
-| ----------------------------------------------------------------------------------------- | ----------------------- |
-| [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#timeoutinmilliseconds) | `timeoutInMilliseconds` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds)         | `timeoutInMilliseconds` |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)         | `timeoutInMilliseconds` |
-| [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds)              | `timeoutInMilliseconds` |
-| [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds)                    | `timeoutInMilliseconds` |
-| [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds)                      | `timeoutInMilliseconds` |
-| [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds)                      | `timeoutInMilliseconds` |
-| [`selectComposition()`](/docs/renderer/select-composition#timeoutinmilliseconds)          | `timeoutInMilliseconds` |
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#timeoutinmilliseconds)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)
+- [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds)
+- [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds)
+- [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds)
+- [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds)
+- [`selectComposition()`](/docs/renderer/select-composition#timeoutinmilliseconds)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDelayRenderTimeoutInMilliseconds(60000);
+```
 
 ## See also
 

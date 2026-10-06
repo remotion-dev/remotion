@@ -24,13 +24,13 @@ Use `--height` with the following commands. Follow a command link for its syntax
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--height <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)   | `--height <value>` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                         | Name                      |
-| ------------------------------------------------- | ------------------------- |
-| [Configuration file](/docs/config#overrideheight) | `Config.overrideHeight()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.overrideHeight(600);
+```
 
 ## See also
 

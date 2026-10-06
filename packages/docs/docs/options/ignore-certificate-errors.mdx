@@ -28,21 +28,28 @@ Use `--ignore-certificate-errors` with the following commands. Follow a command 
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render)         | `--ignore-certificate-errors` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)           | `--ignore-certificate-errors` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                                   | Name                                          |
-| ------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#ignorecertificateerrors)   | `chromiumOptions.ignoreCertificateErrors`     |
-| [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#ignorecertificateerrors)   | `chromiumOptions.ignoreCertificateErrors`     |
-| [Configuration file](/docs/config#setchromiumignorecertificateerrors)                       | `Config.setChromiumIgnoreCertificateErrors()` |
-| [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#ignorecertificateerrors) | `chromiumOptions.ignoreCertificateErrors`     |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#ignorecertificateerrors)         | `chromiumOptions.ignoreCertificateErrors`     |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#ignorecertificateerrors)         | `chromiumOptions.ignoreCertificateErrors`     |
-| [`renderFrames()`](/docs/renderer/render-frames#ignorecertificateerrors)                    | `chromiumOptions.ignoreCertificateErrors`     |
-| [`renderMedia()`](/docs/renderer/render-media#ignorecertificateerrors)                      | `chromiumOptions.ignoreCertificateErrors`     |
-| [`renderStill()`](/docs/renderer/render-still#ignorecertificateerrors)                      | `chromiumOptions.ignoreCertificateErrors`     |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#ignorecertificateerrors)
+- [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#ignorecertificateerrors)
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#ignorecertificateerrors)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#ignorecertificateerrors)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#ignorecertificateerrors)
+- [`renderFrames()`](/docs/renderer/render-frames#ignorecertificateerrors)
+- [`renderMedia()`](/docs/renderer/render-media#ignorecertificateerrors)
+- [`renderStill()`](/docs/renderer/render-still#ignorecertificateerrors)
+
+## Config file
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumIgnoreCertificateErrors(true);
+```
 
 ## See also
 

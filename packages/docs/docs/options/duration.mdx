@@ -24,13 +24,13 @@ Use `--duration` with the following commands. Follow a command link for its synt
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--duration <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)   | `--duration <value>` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                           | Name                        |
-| --------------------------------------------------- | --------------------------- |
-| [Configuration file](/docs/config#overrideduration) | `Config.overrideDuration()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.overrideDuration(300);
+```
 
 ## See also
 

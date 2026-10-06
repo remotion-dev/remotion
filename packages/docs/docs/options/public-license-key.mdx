@@ -20,13 +20,13 @@ Use `--public-license-key` with the following commands. Follow a command link fo
 | [`remotion render`](/docs/cli/render) | `--public-license-key <value>` |
 | [`remotion still`](/docs/cli/still)   | `--public-license-key <value>` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                              | Name                           |
-| ------------------------------------------------------ | ------------------------------ |
-| [Configuration file](/docs/config#setpubliclicensekey) | `Config.setPublicLicenseKey()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPublicLicenseKey('your-license-key');
+```
 
 ## See also
 

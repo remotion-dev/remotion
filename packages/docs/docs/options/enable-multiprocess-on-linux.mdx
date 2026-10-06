@@ -28,16 +28,23 @@ Use `--enable-multiprocess-on-linux` with the following commands. Follow a comma
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render)         | `--enable-multiprocess-on-linux` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)           | `--enable-multiprocess-on-linux` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                  | Name                                        |
-| -------------------------------------------------------------------------- | ------------------------------------------- |
-| [Configuration file](/docs/config#setchromiummultiprocessonlinux)          | `Config.setChromiumMultiProcessOnLinux()`   |
-| [`renderFrames()`](/docs/renderer/render-frames#enablemultiprocessonlinux) | `chromiumOptions.enableMultiProcessOnLinux` |
-| [`renderMedia()`](/docs/renderer/render-media#enablemultiprocessonlinux)   | `chromiumOptions.enableMultiProcessOnLinux` |
-| [`renderStill()`](/docs/renderer/render-still#enablemultiprocessonlinux)   | `chromiumOptions.enableMultiProcessOnLinux` |
+- [`renderFrames()`](/docs/renderer/render-frames#enablemultiprocessonlinux)
+- [`renderMedia()`](/docs/renderer/render-media#enablemultiprocessonlinux)
+- [`renderStill()`](/docs/renderer/render-still#enablemultiprocessonlinux)
+
+## Config file
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumMultiProcessOnLinux(true);
+```
 
 ## See also
 

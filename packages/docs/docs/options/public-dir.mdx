@@ -24,16 +24,21 @@ Use `--public-dir` with the following commands. Follow a command link for its sy
 | [`remotion benchmark`](/docs/cli/benchmark)                     | `--public-dir <value>` |
 | [`remotion lambda sites create`](/docs/lambda/cli/sites/create) | `--public-dir <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                             | Name                    |
-| ----------------------------------------------------- | ----------------------- |
-| [`bundle()`](/docs/bundle#publicdir)                  | `publicDir`             |
-| [`deploySite()`](/docs/cloudrun/deploysite#publicdir) | `options.publicDir`     |
-| [Configuration file](/docs/config#setpublicdir)       | `Config.setPublicDir()` |
-| [`deploySite()`](/docs/lambda/deploysite#publicdir)   | `options.publicDir`     |
+- [`bundle()`](/docs/bundle#publicdir)
+- [`deploySite()`](/docs/cloudrun/deploysite#publicdir)
+- [`deploySite()`](/docs/lambda/deploysite#publicdir)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPublicDir('./custom-public-dir');
+```
 
 ## See also
 

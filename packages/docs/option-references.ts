@@ -8,6 +8,8 @@ export type OptionReference = {
 	url: string;
 	name: string;
 	cli: boolean;
+	config: boolean;
+	configExample: string | null;
 	deprecated: boolean;
 };
 
@@ -26,6 +28,7 @@ type MarkdownNode =
 			children: MarkdownNode[];
 	  }
 	| {type: 'mdxFlowExpression' | 'mdxTextExpression'; value: string}
+	| {type: 'link'; url: string; children: MarkdownNode[]}
 	| {
 			type:
 				| 'root'
@@ -33,13 +36,16 @@ type MarkdownNode =
 				| 'emphasis'
 				| 'strong'
 				| 'delete'
-				| 'link'
 				| 'list'
 				| 'listItem'
 				| 'blockquote';
 			children: MarkdownNode[];
 	  }
-	| {type: 'code' | 'html' | 'thematicBreak' | 'break' | 'mdxjsEsm'};
+	| {
+			type: 'code';
+			position: {start: {offset: number}; end: {offset: number}};
+	  }
+	| {type: 'html' | 'thematicBreak' | 'break' | 'mdxjsEsm'};
 
 export const collectOptionReferences = (
 	options: readonly AnyRemotionOption<unknown>[],
@@ -121,6 +127,7 @@ export const collectOptionReferences = (
 		let heading: {
 			name: string;
 			url: string;
+			configExample: string | null;
 			deprecated: boolean;
 		} | null = null;
 		const parents: {depth: number; name: string}[] = [];
@@ -157,6 +164,8 @@ export const collectOptionReferences = (
 					url: currentHeading.url,
 					name,
 					cli,
+					config,
+					configExample: currentHeading.configExample,
 					deprecated: currentHeading.deprecated,
 				});
 				references.set(id, entries);
@@ -190,6 +199,31 @@ export const collectOptionReferences = (
 				}
 
 				const name = headingCode(node)?.replace(/\?$/, '') ?? null;
+				let configExample: string | null = null;
+				if (config) {
+					for (
+						let index = tree.children.indexOf(node) + 1;
+						index < tree.children.length;
+						index++
+					) {
+						const sibling = tree.children[index];
+						if (sibling.type === 'heading' && sibling.depth <= node.depth) {
+							break;
+						}
+
+						if (sibling.type === 'code') {
+							const snippet = content.slice(
+								sibling.position.start.offset,
+								sibling.position.end.offset,
+							);
+							if (/^ {0,3}(?:`{3,}|~{3,})/.test(snippet)) {
+								configExample = snippet;
+								break;
+							}
+						}
+					}
+				}
+
 				heading =
 					name === null || !inputSection
 						? null
@@ -198,6 +232,7 @@ export const collectOptionReferences = (
 									? `Config.${name}`
 									: [...parents.map((parent) => parent.name), name].join('.'),
 								url: `${docUrl}#${anchor}`,
+								configExample,
 								deprecated: source.includes('~~'),
 							};
 				// Some pages use inconsistent heading depths for sibling fields.
@@ -252,6 +287,25 @@ export const collectOptionReferences = (
 				}
 
 				return;
+			}
+
+			if (
+				config &&
+				heading !== null &&
+				!heading.deprecated &&
+				node.type === 'paragraph' &&
+				text(node).includes('flag takes precedence over this option')
+			) {
+				for (const child of node.children) {
+					if (child.type !== 'link') {
+						continue;
+					}
+
+					const id = child.url.match(/^\/docs\/options\/([a-z0-9-]+)$/)?.[1];
+					if (id && options.some((option) => option.id === id)) {
+						addReference(id, heading);
+					}
+				}
 			}
 
 			if (

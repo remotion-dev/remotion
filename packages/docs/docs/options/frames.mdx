@@ -21,19 +21,24 @@ Use `--frames` with the following commands. Follow a command link for its syntax
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--frames <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--frames <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                    | Name                     |
-| ---------------------------------------------------------------------------- | ------------------------ |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#framerange) | `frameRange`             |
-| [Configuration file](/docs/config#setframerange)                             | `Config.setFrameRange()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#framerange)       | `frameRange`             |
-| [`combineChunks()`](/docs/renderer/combine-chunks#framerange)                | `frameRange`             |
-| [`renderFrames()`](/docs/renderer/render-frames#framerange)                  | `frameRange`             |
-| [`renderMedia()`](/docs/renderer/render-media#framerange)                    | `frameRange`             |
-| [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#framerange)    | `frameRange`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#framerange)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#framerange)
+- [`combineChunks()`](/docs/renderer/combine-chunks#framerange)
+- [`renderFrames()`](/docs/renderer/render-frames#framerange)
+- [`renderMedia()`](/docs/renderer/render-media#framerange)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#framerange)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setFrameRange(90); // To render only the 91st frame
+```
 
 ## See also
 

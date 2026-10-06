@@ -18,14 +18,19 @@ Use `--enable-lambda-insights` with the following commands. Follow a command lin
 | ----------------------------------------------------------------------- | -------------------------- |
 | [`remotion lambda functions deploy`](/docs/lambda/cli/functions/deploy) | `--enable-lambda-insights` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                              | Name                         |
-| ---------------------------------------------------------------------- | ---------------------------- |
-| [Configuration file](/docs/config#setlambdainsights)                   | `Config.setLambdaInsights()` |
-| [`deployFunction()`](/docs/lambda/deployfunction#enablelambdainsights) | `enableLambdaInsights`       |
+- [`deployFunction()`](/docs/lambda/deployfunction#enablelambdainsights)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setLambdaInsights(true);
+```
 
 ## See also
 

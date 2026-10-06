@@ -18,13 +18,13 @@ Use `--runs` with the following commands. Follow a command link for its syntax a
 | ------------------------------------------- | ---------------- |
 | [`remotion benchmark`](/docs/cli/benchmark) | `--runs <value>` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                           | Name                        |
-| --------------------------------------------------- | --------------------------- |
-| [Configuration file](/docs/config#setbenchmarkruns) | `Config.setBenchmarkRuns()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setBenchmarkRuns(5);
+```
 
 ## See also
 

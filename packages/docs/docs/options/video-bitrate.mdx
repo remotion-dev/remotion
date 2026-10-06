@@ -22,20 +22,25 @@ Use `--video-bitrate` with the following commands. Follow a command link for its
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--video-bitrate <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--video-bitrate <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                                 | Name                       |
-| ----------------------------------------------------------------------------------------- | -------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#videobitrate)            | `videoBitrate`             |
-| [Configuration file](/docs/config#setvideobitrate)                                        | `Config.setVideoBitrate()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#videobitrate)                  | `videoBitrate`             |
-| [`renderMedia()`](/docs/renderer/render-media#videobitrate)                               | `videoBitrate`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#videobitrate)             | `videoBitrate`             |
-| [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web#videobitrate)        | `videoBitrate`             |
-| [`getEncodableVideoCodecs()`](/docs/web-renderer/get-encodable-video-codecs#videobitrate) | `options.videoBitrate`     |
-| [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#videobitrate)               | `videoBitrate`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#videobitrate)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#videobitrate)
+- [`renderMedia()`](/docs/renderer/render-media#videobitrate)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#videobitrate)
+- [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web#videobitrate)
+- [`getEncodableVideoCodecs()`](/docs/web-renderer/get-encodable-video-codecs#videobitrate)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#videobitrate)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setVideoBitrate('1M');
+```
 
 ## See also
 

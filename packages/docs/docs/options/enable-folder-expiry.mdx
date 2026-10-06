@@ -18,14 +18,19 @@ Use `--enable-folder-expiry` with the following commands. Follow a command link 
 | --------------------------------------------------------------- | ------------------------ |
 | [`remotion lambda sites create`](/docs/lambda/cli/sites/create) | `--enable-folder-expiry` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                  | Name                             |
-| -------------------------------------------------------------------------- | -------------------------------- |
-| [Configuration file](/docs/config#setenablefolderexpiry)                   | `Config.setEnableFolderExpiry()` |
-| [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket#enablefolderexpiry) | `enableFolderExpiry`             |
+- [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket#enablefolderexpiry)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEnableFolderExpiry(true);
+```
 
 ## See also
 

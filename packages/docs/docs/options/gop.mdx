@@ -22,17 +22,22 @@ Use `--gop` with the following commands. Follow a command link for its syntax an
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--gop <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--gop <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                 | Name                  |
-| ------------------------------------------------------------------------- | --------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#gopsize) | `gopSize`             |
-| [Configuration file](/docs/config#setgopsize)                             | `Config.setGopSize()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#gopsize)       | `gopSize`             |
-| [`renderMedia()`](/docs/renderer/render-media#gopsize)                    | `gopSize`             |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#gopsize)  | `gopSize`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#gopsize)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#gopsize)
+- [`renderMedia()`](/docs/renderer/render-media#gopsize)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#gopsize)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setGopSize(239);
+```
 
 ## See also
 

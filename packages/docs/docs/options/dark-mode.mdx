@@ -28,18 +28,24 @@ Use `--dark-mode` with the following commands. Follow a command link for its syn
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render)         | `--dark-mode` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)           | `--dark-mode` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                    | Name                           |
-| ---------------------------------------------------------------------------- | ------------------------------ |
-| [Configuration file](/docs/config#setchromiumdarkmode)                       | `Config.setChromiumDarkMode()` |
-| [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#darkmode) | `chromiumOptions.darkMode`     |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#darkmode)         | `chromiumOptions.darkMode`     |
-| [`renderFrames()`](/docs/renderer/render-frames#darkmode)                    | `chromiumOptions.darkMode`     |
-| [`renderMedia()`](/docs/renderer/render-media#darkmode)                      | `darkMode`                     |
-| [`renderStill()`](/docs/renderer/render-still#darkmode)                      | `chromiumOptions.darkMode`     |
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#darkmode)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#darkmode)
+- [`renderFrames()`](/docs/renderer/render-frames#darkmode)
+- [`renderMedia()`](/docs/renderer/render-media#darkmode)
+- [`renderStill()`](/docs/renderer/render-still#darkmode)
+
+## Config file
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+Config.setChromiumDarkMode(true);
+```
 
 ## See also
 

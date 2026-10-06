@@ -25,23 +25,28 @@ Use `--scale` with the following commands. Follow a command link for its syntax 
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--scale <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)   | `--scale <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                   | Name                |
-| --------------------------------------------------------------------------- | ------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#scale)     | `scale`             |
-| [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#scale)     | `scale`             |
-| [Configuration file](/docs/config#setscale)                                 | `Config.setScale()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#scale)           | `scale`             |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#scale)           | `scale`             |
-| [`renderFrames()`](/docs/renderer/render-frames#scale)                      | `scale`             |
-| [`renderMedia()`](/docs/renderer/render-media#scale)                        | `scale`             |
-| [`renderStill()`](/docs/renderer/render-still#scale)                        | `scale`             |
-| [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web#scale) | `scale`             |
-| [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#scale)        | `scale`             |
-| [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#scale)        | `scale`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#scale)
+- [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#scale)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#scale)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#scale)
+- [`renderFrames()`](/docs/renderer/render-frames#scale)
+- [`renderMedia()`](/docs/renderer/render-media#scale)
+- [`renderStill()`](/docs/renderer/render-still#scale)
+- [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web#scale)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#scale)
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#scale)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setScale(2);
+```
 
 ## See also
 

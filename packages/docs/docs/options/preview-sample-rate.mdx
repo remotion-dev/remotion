@@ -18,13 +18,13 @@ Use `--preview-sample-rate` with the following commands. Follow a command link f
 | ------------------------------------- | ------------------------------- |
 | [`remotion studio`](/docs/cli/studio) | `--preview-sample-rate <value>` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                               | Name                            |
-| ------------------------------------------------------- | ------------------------------- |
-| [Configuration file](/docs/config#setpreviewsamplerate) | `Config.setPreviewSampleRate()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPreviewSampleRate(44100);
+```
 
 ## See also
 

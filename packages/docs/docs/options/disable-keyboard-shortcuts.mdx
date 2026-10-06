@@ -25,16 +25,21 @@ Use `--disable-keyboard-shortcuts` with the following commands. Follow a command
 | [`remotion lambda sites create`](/docs/lambda/cli/sites/create)     | `--disable-keyboard-shortcuts` |
 | [`remotion cloudrun sites create`](/docs/cloudrun/cli/sites/create) | `--disable-keyboard-shortcuts` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                            | Name                                   |
-| -------------------------------------------------------------------- | -------------------------------------- |
-| [`bundle()`](/docs/bundle#keyboardshortcutsenabled)                  | `keyboardShortcutsEnabled`             |
-| [`deploySite()`](/docs/cloudrun/deploysite#keyboardshortcutsenabled) | `options.keyboardShortcutsEnabled`     |
-| [Configuration file](/docs/config#setkeyboardshortcutsenabled)       | `Config.setKeyboardShortcutsEnabled()` |
-| [`deploySite()`](/docs/lambda/deploysite#keyboardshortcutsenabled)   | `options.keyboardShortcutsEnabled`     |
+- [`bundle()`](/docs/bundle#keyboardshortcutsenabled)
+- [`deploySite()`](/docs/cloudrun/deploysite#keyboardshortcutsenabled)
+- [`deploySite()`](/docs/lambda/deploysite#keyboardshortcutsenabled)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setKeyboardShortcutsEnabled(false);
+```
 
 ## See also
 

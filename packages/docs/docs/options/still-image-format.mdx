@@ -21,16 +21,21 @@ Use `--image-format` with the following commands. Follow a command link for its 
 | [`remotion lambda still`](/docs/lambda/cli/still)     | `--image-format <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still) | `--image-format <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                     | Name                           |
-| ----------------------------------------------------------------------------- | ------------------------------ |
-| [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#imageformat) | `imageFormat`                  |
-| [Configuration file](/docs/config#setstillimageformat)                        | `Config.setStillImageFormat()` |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#imageformat)       | `imageFormat`                  |
-| [`renderStill()`](/docs/renderer/render-still#imageformat)                    | `imageFormat`                  |
+- [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#imageformat)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#imageformat)
+- [`renderStill()`](/docs/renderer/render-still#imageformat)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setStillImageFormat('pdf');
+```
 
 ## See also
 

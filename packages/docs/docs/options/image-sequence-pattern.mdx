@@ -18,14 +18,19 @@ Use `--image-sequence-pattern` with the following commands. Follow a command lin
 | ------------------------------------- | ---------------------------------- |
 | [`remotion render`](/docs/cli/render) | `--image-sequence-pattern <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                              | Name                               |
-| ---------------------------------------------------------------------- | ---------------------------------- |
-| [Configuration file](/docs/config#setimagesequencepattern)             | `Config.setImageSequencePattern()` |
-| [`renderFrames()`](/docs/renderer/render-frames#imagesequencepattern-) | `imageSequencePattern`             |
+- [`renderFrames()`](/docs/renderer/render-frames#imagesequencepattern-)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setImageSequencePattern('frame_[frame]_custom.[ext]');
+```
 
 ## See also
 

@@ -18,13 +18,13 @@ Use `--enable-cancellation` with the following commands. Follow a command link f
 | --------------------------------------------------- | ----------------------- |
 | [`remotion lambda render`](/docs/lambda/cli/render) | `--enable-cancellation` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                                | Name                             |
-| -------------------------------------------------------- | -------------------------------- |
-| [Configuration file](/docs/config#setenablecancellation) | `Config.setEnableCancellation()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEnableCancellation(true);
+```
 
 ## See also
 

@@ -31,36 +31,41 @@ Use `--log` with the following commands. Follow a command link for its syntax an
 | [`remotion lambda still`](/docs/lambda/cli/still)               | `--log <value>` |
 | [`remotion lambda compositions`](/docs/lambda/cli/compositions) | `--log <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                    | Name                   |
-| ---------------------------------------------------------------------------- | ---------------------- |
-| [`deploySite()`](/docs/cloudrun/deploysite#loglevel)                         | `logLevel`             |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#loglevel)   | `logLevel`             |
-| [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#loglevel)   | `logLevel`             |
-| [Configuration file](/docs/config#setloglevel)                               | `Config.setLogLevel()` |
-| [`deploySite()`](/docs/lambda/deploysite#loglevel)                           | `logLevel`             |
-| [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle#loglevel)       | `logLevel`             |
-| [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#loglevel) | `logLevel`             |
-| [`getFunctionInfo()`](/docs/lambda/getfunctioninfo#loglevel)                 | `logLevel`             |
-| [`getFunctions()`](/docs/lambda/getfunctions#loglevel)                       | `logLevel`             |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#loglevel)         | `logLevel`             |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#loglevel)         | `logLevel`             |
-| [`combineChunks()`](/docs/renderer/combine-chunks#loglevel)                  | `logLevel`             |
-| [`ensureBrowser()`](/docs/renderer/ensure-browser#loglevel)                  | `logLevel`             |
-| [`extractAudio()`](/docs/renderer/extract-audio#loglevel)                    | `logLevel`             |
-| [`getCompositions()`](/docs/renderer/get-compositions#loglevel)              | `logLevel`             |
-| [`getSilentParts()`](/docs/renderer/get-silent-parts#loglevel)               | `logLevel`             |
-| [`getVideoMetadata()`](/docs/renderer/get-video-metadata#loglevel)           | `logLevel`             |
-| [`openBrowser()`](/docs/renderer/open-browser#loglevel)                      | `options.logLevel`     |
-| [`renderFrames()`](/docs/renderer/render-frames#loglevel)                    | `logLevel`             |
-| [`renderMedia()`](/docs/renderer/render-media#loglevel)                      | `logLevel`             |
-| [`renderStill()`](/docs/renderer/render-still#loglevel)                      | `logLevel`             |
-| [`selectComposition()`](/docs/renderer/select-composition#loglevel)          | `logLevel`             |
-| [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#loglevel)      | `logLevel`             |
-| [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#loglevel)      | `logLevel`             |
+- [`deploySite()`](/docs/cloudrun/deploysite#loglevel)
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#loglevel)
+- [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#loglevel)
+- [`deploySite()`](/docs/lambda/deploysite#loglevel)
+- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle#loglevel)
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#loglevel)
+- [`getFunctionInfo()`](/docs/lambda/getfunctioninfo#loglevel)
+- [`getFunctions()`](/docs/lambda/getfunctions#loglevel)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#loglevel)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#loglevel)
+- [`combineChunks()`](/docs/renderer/combine-chunks#loglevel)
+- [`ensureBrowser()`](/docs/renderer/ensure-browser#loglevel)
+- [`extractAudio()`](/docs/renderer/extract-audio#loglevel)
+- [`getCompositions()`](/docs/renderer/get-compositions#loglevel)
+- [`getSilentParts()`](/docs/renderer/get-silent-parts#loglevel)
+- [`getVideoMetadata()`](/docs/renderer/get-video-metadata#loglevel)
+- [`openBrowser()`](/docs/renderer/open-browser#loglevel)
+- [`renderFrames()`](/docs/renderer/render-frames#loglevel)
+- [`renderMedia()`](/docs/renderer/render-media#loglevel)
+- [`renderStill()`](/docs/renderer/render-still#loglevel)
+- [`selectComposition()`](/docs/renderer/select-composition#loglevel)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#loglevel)
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#loglevel)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setLogLevel('verbose');
+```
 
 ## See also
 

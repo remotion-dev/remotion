@@ -25,20 +25,25 @@ Use `--jpeg-quality` with the following commands. Follow a command link for its 
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--jpeg-quality <value>` |
 | [`remotion cloudrun still`](/docs/cloudrun/cli/still)   | `--jpeg-quality <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                     | Name                      |
-| ----------------------------------------------------------------------------- | ------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#jpegquality) | `jpegQuality`             |
-| [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#jpegquality) | `jpegQuality`             |
-| [Configuration file](/docs/config#setjpegquality)                             | `Config.setJpegQuality()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#jpegquality)       | `jpegQuality`             |
-| [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#jpegquality)       | `jpegQuality`             |
-| [`renderFrames()`](/docs/renderer/render-frames#jpegquality)                  | `jpegQuality`             |
-| [`renderMedia()`](/docs/renderer/render-media#jpegquality)                    | `jpegQuality`             |
-| [`renderStill()`](/docs/renderer/render-still#jpegquality)                    | `jpegQuality`             |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#jpegquality)
+- [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#jpegquality)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#jpegquality)
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#jpegquality)
+- [`renderFrames()`](/docs/renderer/render-frames#jpegquality)
+- [`renderMedia()`](/docs/renderer/render-media#jpegquality)
+- [`renderStill()`](/docs/renderer/render-still#jpegquality)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setJpegQuality(90);
+```
 
 ## See also
 

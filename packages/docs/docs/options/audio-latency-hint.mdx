@@ -22,13 +22,13 @@ Use `--audio-latency-hint` with the following commands. Follow a command link fo
 | [`remotion compositions`](/docs/cli/compositions) | `--audio-latency-hint <value>` |
 | [`remotion bundle`](/docs/cli/bundle)             | `--audio-latency-hint <value>` |
 
-## API and configuration references
+## Config file
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
-
-| Reference                                              | Name                           |
-| ------------------------------------------------------ | ------------------------------ |
-| [Configuration file](/docs/config#setaudiolatencyhint) | `Config.setAudioLatencyHint()` |
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAudioLatencyHint('interactive');
+```
 
 ## See also
 

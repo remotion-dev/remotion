@@ -22,17 +22,22 @@ Use `--buffer-size` with the following commands. Follow a command link for its s
 | [`remotion lambda render`](/docs/lambda/cli/render)     | `--buffer-size <value>` |
 | [`remotion cloudrun render`](/docs/cloudrun/cli/render) | `--buffer-size <value>` |
 
-## API and configuration references
+## APIs that have this option
 
-Follow a reference for the parameter name, default value, and examples in that API or configuration method.
+The following APIs accept this option:
 
-| Reference                                                                    | Name                             |
-| ---------------------------------------------------------------------------- | -------------------------------- |
-| [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#buffersize) | `bufferSize`                     |
-| [Configuration file](/docs/config#setencodingbuffersize)                     | `Config.setEncodingBufferSize()` |
-| [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#buffersize)       | `bufferSize`                     |
-| [`renderMedia()`](/docs/renderer/render-media#buffersize)                    | `bufferSize`                     |
-| [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#buffersize)  | `bufferSize`                     |
+- [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#buffersize)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#buffersize)
+- [`renderMedia()`](/docs/renderer/render-media#buffersize)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video#buffersize)
+
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEncodingBufferSize('10000k');
+```
 
 ## See also
 
