@@ -21,10 +21,11 @@ const cliFlag = 'my-flag' as const;
 export const myFlagOption = {
   name: 'Human-readable Name',
   cliFlag,
+  id: cliFlag,
   description: () => <>Description shown in docs.</>,
   ssrName: null, // or 'myFlag' if used in SSR APIs
   docLink: 'https://www.remotion.dev/docs/config#setmyflagenabled',
-  type: false as boolean, // default value, also sets the TypeScript type
+  type: false as boolean, // TypeScript type witness; defaults are resolved in getValue
   getValue: ({commandLine}) => {
     if (commandLine[cliFlag] !== undefined) {
       return {value: commandLine[cliFlag] as boolean, source: 'cli'};
@@ -37,7 +38,9 @@ export const myFlagOption = {
 } satisfies AnyRemotionOption<boolean>;
 ```
 
-The type in `AnyRemotionOption<T>` and `type: <default> as T` determines the option's value type. Use `boolean`, `string | null`, `number | null`, etc.
+The type in `AnyRemotionOption<T>` and `type: <value> as T` determines the option's value type. Use `boolean`, `string | null`, `number | null`, etc.
+
+The `id` must be unique and contain only lowercase letters, digits, and hyphens. It determines the `/docs/options/<id>` page and the `<Options id="..." />` value. It usually matches `cliFlag`, but shared flags can have distinct option IDs.
 
 For negating flags (like `--disable-ask-ai` → `askAIEnabled = false`), handle the inversion in `getValue`.
 
@@ -90,23 +93,35 @@ If the option is consumed by Studio, read [`../studio-config-option-lifecycle/SK
 
 - Add or update the `### \`--my-flag\`` section
 - Use `<Options id="my-flag" />` as the description body (no import needed — it's globally available)
-- The `id` must match the option's `cliFlag` / `id` value
+- The `id` must match the option's `id` value
+
+**CLI help metadata**: Add the flag to each supported command's option list in `packages/cli/src/print-help.ts`, `packages/lambda/src/cli/help.ts`, or `packages/cloudrun/src/cli/help.ts`. The generated option page uses the help entries' `optionIds` to list supported commands; ensure shared flags resolve to the correct option ID.
+
+**API pages**: Document each public parameter under its own heading so the generated page can link to it.
 
 **`packages/docs/docs/config.mdx`**:
 
 - Add or update the `## \`setMyFlagEnabled()\`` section with:
   - `<Options id="my-flag" />` for the description
   - A twoslash config example
-  - A note that the CLI flag takes precedence
+  - A link to `/docs/options/<id>` noting that the CLI flag takes precedence
 
 Follow the pattern of nearby entries (e.g., `setAskAIEnabled`, `setEnableCrossSiteIsolation`).
+
+**Generated option reference**: Generate `packages/docs/docs/options/<id>.mdx` and the options index using the commands below. Edit the option definition and API/config docs rather than the generated MDX. Option pages are added to the sidebar automatically.
 
 ## 7. Build and verify
 
 ```sh
-cd packages/renderer && bun run make
-cd packages/cli && bun run make
+# From the repository root
+bun run build
+cd packages/docs
+bun run generate-option-docs
+bun run render-cards
+bun run check-option-docs
 ```
+
+Verify `/docs/options/<id>` includes the description, supported commands, and relevant API/configuration links. Commit the generated page and index, the article catalog (`packages/docs/src/data/articles.ts`), and the new social preview card.
 
 ## Reference files
 
