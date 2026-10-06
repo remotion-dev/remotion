@@ -71,11 +71,11 @@ export const SequenceManager = React.createContext(defaultSequenceManager);
 export const SequenceRegistryContext = React.createContext<RegistryStore<
 	TSequence[]
 > | null>(null);
-const EmptySequenceManagerContext = React.createContext(defaultSequenceManager);
 const SequenceManagerInitialSequencesContext = React.createContext<TSequence[]>(
 	[],
 );
 const subscribeToNoRegistry = () => () => undefined;
+const getEmptySequences = () => defaultSequenceManager.sequences;
 export const SequenceCommitRegistrationContext = React.createContext(false);
 export const SequenceRegistryScopeContext = React.createContext<{
 	readonly onCommitSequences: (
@@ -87,41 +87,10 @@ export const SequenceRegistryScopeContext = React.createContext<{
 const NativeSequenceManagerProvider = SequenceManager.Provider;
 export const useSequenceManagerSequences = (): TSequence[] => {
 	const registry = useContext(SequenceRegistryContext);
-	const legacy = useContext(
-		registry === null ? SequenceManager : EmptySequenceManagerContext,
-	);
-	const getSnapshot = useCallback(
-		() => registry?.getSnapshot() ?? legacy.sequences,
-		[legacy.sequences, registry],
-	);
 	return useSyncExternalStore(
 		registry?.subscribe ?? subscribeToNoRegistry,
-		getSnapshot,
-		getSnapshot,
-	);
-};
-
-// Keep the internal legacy context reactive without rendering the manager
-// or requiring imperative registry subscribers to wait for this React update.
-export const SequenceRegistryProvider: React.FC<{
-	readonly registry: RegistryStore<TSequence[]>;
-	readonly actions: SequenceManagerActions;
-	readonly children: React.ReactNode;
-}> = ({registry, actions, children}) => {
-	const sequences = useSyncExternalStore(
-		registry.subscribe,
-		registry.getSnapshot,
-		registry.getSnapshot,
-	);
-	const value = useMemo(() => ({...actions, sequences}), [actions, sequences]);
-	return (
-		<SequenceManagerActionsContext.Provider value={actions}>
-			<NativeSequenceManagerProvider value={value}>
-				<SequenceRegistryContext.Provider value={registry}>
-					{children}
-				</SequenceRegistryContext.Provider>
-			</NativeSequenceManagerProvider>
-		</SequenceManagerActionsContext.Provider>
+		registry?.getSnapshot ?? getEmptySequences,
+		registry?.getSnapshot ?? getEmptySequences,
 	);
 };
 
@@ -1074,6 +1043,16 @@ export const SequenceManagerProvider: React.FC<{
 			unregisterSequence,
 		};
 	}, [registerSequence, unregisterSequence, updateSequence]);
+	// Keep imperative internal reads available without subscribing a provider.
+	const sequenceManagerContext = useMemo<SequenceManagerContext>(
+		() => ({
+			...actions,
+			get sequences() {
+				return registry.getSnapshot();
+			},
+		}),
+		[actions, registry],
+	);
 	const dragOverridesSubscription = useMemo<
 		Omit<DragOverridesSubscription, 'manager'>
 	>(
@@ -1147,34 +1126,42 @@ export const SequenceManagerProvider: React.FC<{
 	const providers = (
 		<SequenceManagerRefContext.Provider value={sequencesRef}>
 			<SequenceRegistryScopeContext.Provider value={registryScope}>
-				<SequenceRegistryProvider registry={registry} actions={actions}>
-					<SequenceCommitRegistrationContext.Provider
-						value={commitRegistrationEnabled}
-					>
-						<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
-							<VisualModePropStatusesContext.Provider
-								value={propStatusesContext}
+				<NativeSequenceManagerProvider value={sequenceManagerContext}>
+					<SequenceManagerActionsContext.Provider value={actions}>
+						<SequenceRegistryContext.Provider value={registry}>
+							<SequenceCommitRegistrationContext.Provider
+								value={commitRegistrationEnabled}
 							>
-								<SequenceManagerScopeProviders
-									dragOverridesSubscription={dragOverridesSubscription}
-									fromKeys={dragOverrideState.fromKeys}
+								<VisualModePropStatusesRefContext.Provider
+									value={propStatusesRef}
 								>
-									<VisualModeDragOverridesContext.Provider
-										value={dragOverridesContext}
+									<VisualModePropStatusesContext.Provider
+										value={propStatusesContext}
 									>
-										<VisualModeSettersContext.Provider value={settersContext}>
-											<VisualModeBatchSettersContext.Provider
-												value={batchSettersContext}
+										<SequenceManagerScopeProviders
+											dragOverridesSubscription={dragOverridesSubscription}
+											fromKeys={dragOverrideState.fromKeys}
+										>
+											<VisualModeDragOverridesContext.Provider
+												value={dragOverridesContext}
 											>
-												{children}
-											</VisualModeBatchSettersContext.Provider>
-										</VisualModeSettersContext.Provider>
-									</VisualModeDragOverridesContext.Provider>
-								</SequenceManagerScopeProviders>
-							</VisualModePropStatusesContext.Provider>
-						</VisualModePropStatusesRefContext.Provider>
-					</SequenceCommitRegistrationContext.Provider>
-				</SequenceRegistryProvider>
+												<VisualModeSettersContext.Provider
+													value={settersContext}
+												>
+													<VisualModeBatchSettersContext.Provider
+														value={batchSettersContext}
+													>
+														{children}
+													</VisualModeBatchSettersContext.Provider>
+												</VisualModeSettersContext.Provider>
+											</VisualModeDragOverridesContext.Provider>
+										</SequenceManagerScopeProviders>
+									</VisualModePropStatusesContext.Provider>
+								</VisualModePropStatusesRefContext.Provider>
+							</SequenceCommitRegistrationContext.Provider>
+						</SequenceRegistryContext.Provider>
+					</SequenceManagerActionsContext.Provider>
+				</NativeSequenceManagerProvider>
 			</SequenceRegistryScopeContext.Provider>
 		</SequenceManagerRefContext.Provider>
 	);
@@ -1197,6 +1184,12 @@ const SequenceManagerProviderWithActions: React.FC<
 	React.ProviderProps<SequenceManagerContext>
 > = ({value, children}) => {
 	const [useCommittedManager] = useState(isCommitRegistrationObserverAvailable);
+	const [registry] = useState(() => createRegistryStore(value.sequences));
+	useIsomorphicLayoutEffect(() => {
+		if (!useCommittedManager) {
+			registry.setSnapshot(() => value.sequences);
+		}
+	}, [registry, useCommittedManager, value.sequences]);
 	const actions = useMemo<SequenceManagerActions>(
 		() => ({
 			registerSequence: value.registerSequence,
@@ -1218,10 +1211,12 @@ const SequenceManagerProviderWithActions: React.FC<
 	return (
 		<SequenceManagerActionsContext.Provider value={actions}>
 			<NativeSequenceManagerProvider value={value}>
-				<SequenceRegistryContext.Provider value={null}>
-					<SequenceCommitRegistrationContext.Provider value={false}>
-						{children}
-					</SequenceCommitRegistrationContext.Provider>
+				<SequenceRegistryContext.Provider value={registry}>
+					<SequenceRegistryScopeContext.Provider value={null}>
+						<SequenceCommitRegistrationContext.Provider value={false}>
+							{children}
+						</SequenceCommitRegistrationContext.Provider>
+					</SequenceRegistryScopeContext.Provider>
 				</SequenceRegistryContext.Provider>
 			</NativeSequenceManagerProvider>
 		</SequenceManagerActionsContext.Provider>

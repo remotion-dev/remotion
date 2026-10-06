@@ -18,11 +18,10 @@ import {
 } from './sequence-order-marker.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
-	SequenceManager,
+	SequenceManagerActionsContext,
 	SequenceManagerRefContext,
 	SequenceRegistryContext,
 	SequenceRegistryScopeContext,
-	SequenceRegistryProvider,
 	SequenceCommitRegistrationContext,
 	SequenceRegistrationContext,
 	DisableSequenceRegistrationContext,
@@ -47,7 +46,9 @@ export function useRemotionContexts() {
 	const preloadContext = React.useContext(PreloadContext);
 	const resolveCompositionContext = React.useContext(ResolveCompositionContext);
 	const renderAssetManagerContext = React.useContext(RenderAssetManager);
-	const sequenceManagerContext = React.useContext(SequenceManager);
+	const sequenceManagerActionsContext = React.useContext(
+		SequenceManagerActionsContext,
+	);
 	const sequenceManagerRefContext = React.useContext(SequenceManagerRefContext);
 	const sequenceRegistryContext = React.useContext(SequenceRegistryContext);
 	const sequenceRegistryScopeContext = React.useContext(
@@ -83,7 +84,7 @@ export function useRemotionContexts() {
 			preloadContext,
 			resolveCompositionContext,
 			renderAssetManagerContext,
-			sequenceManagerContext,
+			sequenceManagerActionsContext,
 			sequenceManagerRefContext,
 			sequenceRegistryContext,
 			sequenceRegistryScopeContext,
@@ -106,7 +107,7 @@ export function useRemotionContexts() {
 			preloadContext,
 			resolveCompositionContext,
 			renderAssetManagerContext,
-			sequenceManagerContext,
+			sequenceManagerActionsContext,
 			sequenceManagerRefContext,
 			sequenceRegistryContext,
 			sequenceRegistryScopeContext,
@@ -135,13 +136,10 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 	const registry = contexts.sequenceRegistryContext;
 	const scope = contexts.sequenceRegistryScopeContext;
 	const commitRegistrationEnabled =
-		contexts.sequenceCommitRegistrationContext && !observerFailed;
-	const {registerSequence, unregisterSequence, updateSequence} =
-		contexts.sequenceManagerContext;
-	const actions = useMemo(
-		() => ({registerSequence, unregisterSequence, updateSequence}),
-		[registerSequence, unregisterSequence, updateSequence],
-	);
+		contexts.sequenceCommitRegistrationContext &&
+		registry !== null &&
+		scope !== null &&
+		!observerFailed;
 	const onCommitSequences = useCallback(
 		(sequences: readonly TSequence[], sequenceIds: readonly string[]) => {
 			scope?.onCommitSequences(scopeId, sequences, sequenceIds);
@@ -167,27 +165,23 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 			scope.onCommitSequences(scopeId, [], []);
 		};
 	}, [scope, scopeId]);
-	if (registry === null || scope === null) {
-		return (
-			<SequenceManager.Provider value={contexts.sequenceManagerContext}>
-				{children}
-			</SequenceManager.Provider>
-		);
-	}
-
 	return (
 		<SequenceManagerOrderMarker
 			managerId={scopeId}
 			onCommitSequences={commitRegistrationEnabled ? onCommitSequences : null}
 		>
 			<SequenceRegistryScopeContext.Provider value={scope}>
-				<SequenceRegistryProvider registry={registry} actions={actions}>
-					<SequenceCommitRegistrationContext.Provider
-						value={commitRegistrationEnabled}
-					>
-						{children}
-					</SequenceCommitRegistrationContext.Provider>
-				</SequenceRegistryProvider>
+				<SequenceManagerActionsContext.Provider
+					value={contexts.sequenceManagerActionsContext}
+				>
+					<SequenceRegistryContext.Provider value={registry}>
+						<SequenceCommitRegistrationContext.Provider
+							value={commitRegistrationEnabled}
+						>
+							{children}
+						</SequenceCommitRegistrationContext.Provider>
+					</SequenceRegistryContext.Provider>
+				</SequenceManagerActionsContext.Provider>
 			</SequenceRegistryScopeContext.Provider>
 		</SequenceManagerOrderMarker>
 	);
