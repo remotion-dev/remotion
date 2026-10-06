@@ -6,7 +6,7 @@ crumb: 'Rendering'
 
 # Shared-memory Chromium Patch<AvailableFrom v="4.0.534" />
 
-Traditionally, screenshots of webpages are captured using the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/), then encoded as JPEG or PNG, the two image formats Remotion supports for video frames. Which one is used is determined by the [Video Image Format](/docs/renderer/render-media#imageformat) option.
+Traditionally, screenshots of webpages are captured using the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/), then encoded as either JPEG or PNG. Which one is used is determined by the [Video Image Format](/docs/renderer/render-media#imageformat) option.
 
 FFmpeg later decodes these images back into bitmaps before encoding the video. This compression and decompression adds work, and JPEG can reduce image quality before video encoding begins.
 
