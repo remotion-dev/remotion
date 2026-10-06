@@ -645,38 +645,8 @@ export const PresenterIntroduction: React.FC = () => {
 	);
 };
 
-const EndCardSequence: React.FC = () => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-
-	return (
-		<Sequence
-			name="Jonny Burger YouTube end card"
-			from={END_CARD_START}
-			durationInFrames={END_CARD_DURATION_IN_FRAMES}
-			premountFor={fps}
-		>
-			<AbsoluteFill
-				style={{
-					translate: interpolate(
-						frame,
-						[12115, 12139],
-						['1920px 0px', '0px 0px'],
-						{
-							easing: [Easing.bezier(0.22, 1, 0.36, 1)],
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-				}}
-			>
-				<YouTubeEndCard />
-			</AbsoluteFill>
-		</Sequence>
-	);
-};
-
 const RollerSkiRoughCut: React.FC = () => {
+	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
 	return (
@@ -1390,7 +1360,10 @@ const RollerSkiRoughCut: React.FC = () => {
 						objectFit="cover"
 						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
-						volume={1}
+						volume={interpolate(frame, [2697, 2896], [1, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						})}
 					/>
 					<BasicCaptions
 						name="Climbing the incline captions"
@@ -4024,7 +3997,29 @@ const RollerSkiRoughCut: React.FC = () => {
 					/>
 				</Series.Sequence>
 			</Series>
-			<EndCardSequence />
+			<Sequence
+				name="Jonny Burger YouTube end card"
+				from={END_CARD_START}
+				durationInFrames={END_CARD_DURATION_IN_FRAMES}
+				premountFor={fps}
+			>
+				<AbsoluteFill
+					style={{
+						translate: interpolate(
+							frame,
+							[12115, 12139],
+							['1920px 0px', '0px 0px'],
+							{
+								easing: [Easing.bezier(0.22, 1, 0.36, 1)],
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						),
+					}}
+				>
+					<YouTubeEndCard />
+				</AbsoluteFill>
+			</Sequence>
 			<Audio
 				name="No School Today music"
 				src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
