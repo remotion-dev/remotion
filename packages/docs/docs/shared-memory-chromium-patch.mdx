@@ -16,13 +16,18 @@ From v4.0.534, Remotion uses a special version of Chromium to optimize rendering
 
 Shared-memory capture is enabled automatically when all of these conditions are met:
 
+- You use Remotion v4.0.534 or later on one of the supported platforms below.
 - You are rendering an H.264 or H.265 video, including H.264 renders on [Remotion Lambda](/docs/lambda).
 - Parallel encoding is enabled: frames are rendered and encoded at the same time. This is the default for these codecs.
-- Both Chromium and FFmpeg support the patch. Remotion includes compatible binaries on the platforms listed below.
 
-The patched Chromium builds are selected by default on Apple Silicon Macs, Linux x64/ARM64 with glibc 2.35 or newer, and Amazon Linux 2023. They are also used by Lambda and Cloud Run. See [browser versions and download sources](/docs/miscellaneous/chrome-headless-shell#version) for the platform requirements.
+| Platform                    | Requirements                                                                                                                                                                |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| macOS                       | Apple Silicon Mac with macOS 13 or later                                                                                                                                    |
+| Linux                       | x64 or ARM64 with glibc 2.35 or later, such as [Ubuntu 22.04](https://packages.ubuntu.com/jammy/libc6) or [Debian 12](https://packages.debian.org/bookworm/libc6) and newer |
+| Amazon Linux                | Amazon Linux 2023, x64 or ARM64                                                                                                                                             |
+| Remotion Lambda / Cloud Run | Deploy a new function or service using Remotion v4.0.534 or later                                                                                                           |
 
-The Google CDN builds used on Intel Macs, Windows and older Linux distributions do not include the patch. [Chrome for Testing](/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead) also uses regular screenshots. Remotion automatically falls back to JPEG or PNG capture when the required support is unavailable.
+These requirements assume you use Remotion's [default browser](/docs/miscellaneous/chrome-headless-shell). On Windows, Intel Macs and older Linux systems, Remotion uses regular JPEG or PNG screenshots. Selecting [Chrome for Testing](/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead) also uses regular screenshots.
 
 Stills, image sequences and video codecs other than H.264 and H.265 continue to use screenshot capture. The patch does not apply to previews or [client-side rendering](/docs/client-side-rendering).
 
