@@ -26,6 +26,8 @@ Overlapping frame rendering and encoding can reduce the total render time. The b
 
 The browser and FFmpeg need memory at the same time, which can increase peak memory usage. If your render runs out of memory, [disable parallel encoding](#disable-parallel-encoding) to render all frames before starting the encoder. This may make rendering slower.
 
+From our empirical testing, we find that the added memory need is around 30-80MB for a 1080p video.
+
 From <AvailableFrom v="4.0.533" inline />, Remotion no longer disables parallel encoding automatically based on the available memory.
 
 ## Shared-memory capture
