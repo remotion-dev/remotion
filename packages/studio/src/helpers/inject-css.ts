@@ -1,6 +1,7 @@
 import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 import {
+	BACKGROUND,
 	BLACK,
 	BLUE,
 	BLUE_HOVERED,
@@ -172,6 +173,10 @@ const makeDefaultGlobalCSS = () => {
     height: 6px;
   }
 
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar-track {
+    background-color: ${BACKGROUND};
+  }
+
   @-moz-document url-prefix() {
     .__remotion-horizontal-scrollbar.__remotion-canvas-tabs {
       scrollbar-width: none;
@@ -179,6 +184,7 @@ const makeDefaultGlobalCSS = () => {
 
     .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover {
       scrollbar-width: thin;
+      scrollbar-color: ${BLACK} ${BACKGROUND};
     }
   }
 

@@ -45,6 +45,10 @@ import {
 	type TimelineTrackWithDisplayGroup,
 } from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
+import {
+	filterTimelineTrackContents,
+	getTimelineDisplayRows,
+} from './timeline-track-groups';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
 import {TimelineInOutDragHandler} from './TimelineInOutDragHandler';
@@ -270,7 +274,59 @@ const TimelineContextMenuArea: React.FC<{
 	);
 };
 
+const TimelineTrackChildrenSyncer: React.FC<{
+	readonly tracks: readonly TimelineTrackWithDisplayGroup[];
+	readonly onChange: (activeTrackItemIds: ReadonlySet<string>) => void;
+}> = React.memo(({tracks, onChange}) => {
+	const frame = Internals.Timeline.useTimelinePosition();
+	const packedItems = useMemo(
+		() =>
+			tracks.filter(({sequence}) => {
+				const role = sequence.timelineTrack?.role;
+				return (
+					(role === 'clip' && sequence.showInTimeline) ||
+					role === 'overlay' ||
+					role === 'transition'
+				);
+			}),
+		[tracks],
+	);
+	const activeTrackItemIds = useMemo(
+		() =>
+			new Set(
+				packedItems
+					.filter(
+						({sequence}) =>
+							frame >= sequence.from &&
+							frame < sequence.from + sequence.duration,
+					)
+					.map(({sequence}) => sequence.id),
+			),
+		[frame, packedItems],
+	);
+	// Publish even an empty set when tracks are re-enabled after seeking.
+	const previousActiveIds = useRef<ReadonlySet<string> | null>(null);
+	useLayoutEffect(() => {
+		const previous = previousActiveIds.current;
+		if (
+			previous !== null &&
+			previous.size === activeTrackItemIds.size &&
+			[...activeTrackItemIds].every((id) => previous.has(id))
+		) {
+			return;
+		}
+
+		previousActiveIds.current = activeTrackItemIds;
+		onChange(activeTrackItemIds);
+	}, [activeTrackItemIds, onChange]);
+
+	return null;
+});
+
 const TimelineInner: React.FC = () => {
+	const experimentalTracksEnabled = useContext(
+		Internals.ExperimentalTracksEnabledContext,
+	);
 	const sequences = Internals.useSequenceManagerSequences();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -404,13 +460,20 @@ const TimelineInner: React.FC = () => {
 			return shouldShowTrackInTimeline(t, durationInFrames);
 		});
 	}, [activeFromDragOverrideKeys, durationInFrames, timeline]);
+	const [activeTrackItemIds, setActiveTrackItemIds] = useState<
+		ReadonlySet<string>
+	>(() => new Set());
 
 	// Keep `filtered` complete so a future toggle can show every programmatic
 	// instance without recalculating the timeline or losing its instance index.
 	const collapsed = useMemo(() => {
 		const seenDisplayGroups = new Set<string>();
-		return filtered.filter((track) => {
-			if (track.displayGroup === null) {
+		return filterTimelineTrackContents(
+			filtered,
+			sequences,
+			activeTrackItemIds,
+		).filter((track) => {
+			if (track.sequence.timelineTrack || track.displayGroup === null) {
 				return true;
 			}
 
@@ -421,7 +484,7 @@ const TimelineInner: React.FC = () => {
 			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
-	}, [filtered]);
+	}, [activeTrackItemIds, filtered, sequences]);
 
 	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
 		collapsed,
@@ -541,17 +604,30 @@ const TimelineInner: React.FC = () => {
 	]);
 
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
-	const shown = useMemo(() => {
-		return maxTimelineTracks !== null &&
-			visibleTracks.length > maxTimelineTracks
-			? visibleTracks.slice(0, maxTimelineTracks)
-			: visibleTracks;
-	}, [visibleTracks, maxTimelineTracks]);
+	const displayRows = useMemo(
+		() => getTimelineDisplayRows(visibleTracks),
+		[visibleTracks],
+	);
+	const shownRows = useMemo(() => {
+		return maxTimelineTracks !== null && displayRows.length > maxTimelineTracks
+			? displayRows.slice(0, maxTimelineTracks)
+			: displayRows;
+	}, [displayRows, maxTimelineTracks]);
+	const shown = useMemo(
+		() => shownRows.flatMap((row) => [row.track, ...(row.items ?? [])]),
+		[shownRows],
+	);
 
-	const hasBeenCut = visibleTracks.length > shown.length;
+	const hasBeenCut = displayRows.length > shownRows.length;
 
 	return (
 		<TimelineContextMenuArea>
+			{experimentalTracksEnabled ? (
+				<TimelineTrackChildrenSyncer
+					tracks={filtered}
+					onChange={setActiveTrackItemIds}
+				/>
+			) : null}
 			{sequences.map((sequence) => {
 				if (!shouldSubscribeToSequenceProps(sequence, previewInteractive)) {
 					return null;
@@ -575,7 +651,7 @@ const TimelineInner: React.FC = () => {
 						<TimelineVirtualizationProvider
 							hasBeenCut={hasBeenCut}
 							isStill={isStill}
-							timeline={shown}
+							timeline={shownRows}
 						>
 							{isStudioInteractivityEnabled() ? (
 								<TimelineSelectAllKeybindings timeline={shown} />

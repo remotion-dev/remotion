@@ -33,6 +33,7 @@ import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
 import {experimentalKeepAudioContextAliveOption} from './experimental-keep-audio-context-alive';
+import {experimentalTracksOption} from './experimental-tracks';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -173,6 +174,7 @@ export const allOptions = {
 	framesOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
+	experimentalTracksOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	stillImageFormatOption,

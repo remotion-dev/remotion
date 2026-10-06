@@ -224,6 +224,10 @@ import {
 	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
 import {
+	ExperimentalTracksEnabledContext,
+	TimelineTrackContext,
+} from './timeline-track-context.js';
+import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
 	SetTimelineContext,
@@ -232,6 +236,7 @@ import {
 	type SetTimelineContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
+import {TrackWithoutSchema} from './Track.js';
 import {truthy} from './truthy.js';
 import {useBuffering} from './use-buffering.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -395,6 +400,9 @@ export const Internals = {
 	useLazyComponent,
 	truthy,
 	SequenceContext,
+	TimelineTrackContext,
+	ExperimentalTracksEnabledContext,
+	TrackWithoutSchema,
 	PremountContext,
 	usePremounting,
 	resolveSequenceDuration,
