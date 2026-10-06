@@ -10,6 +10,7 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 afterEach(cleanup);
 
 test('a trimmed Video keeps one timeline layer when native playback takes over', async () => {
+	const isPlayer = Object.getOwnPropertyDescriptor(window, 'remotion_isPlayer');
 	// Simulate an unavailable browser canvas without starting a browser or fetching media.
 	const getContext = Object.getOwnPropertyDescriptor(
 		HTMLCanvasElement.prototype,
@@ -59,6 +60,12 @@ test('a trimmed Video keeps one timeline layer when native playback takes over',
 		]);
 	} finally {
 		cleanup();
+		if (isPlayer) {
+			Object.defineProperty(window, 'remotion_isPlayer', isPlayer);
+		} else {
+			Reflect.deleteProperty(window, 'remotion_isPlayer');
+		}
+
 		if (getContext) {
 			Object.defineProperty(
 				HTMLCanvasElement.prototype,
