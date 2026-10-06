@@ -278,6 +278,20 @@ Config.setCanvasTabsEnabled(false);
 
 The [`--disable-canvas-tabs`](/docs/options/disable-canvas-tabs) flag takes precedence over this option.
 
+## `setExperimentalTracksEnabled()`<AvailableFrom v="4.0.534" />
+
+<Options id="experimental-tracks" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalTracksEnabled(true);
+```
+
+Changes apply immediately in the Studio without reloading the page.
+
+The [`--experimental-tracks`](/docs/options/experimental-tracks) flag takes precedence over this option.
+
 ## `setDefaultEditor()`<AvailableFrom v="4.0.503" />
 
 <Options id="editor" />

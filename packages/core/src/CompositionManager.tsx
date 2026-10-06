@@ -10,6 +10,7 @@ import type {
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 } from './runtime-value-store.js';
+import type {TimelineTrackItem} from './timeline-track-context.js';
 import type {VideoConfigValues} from './video-config.js';
 
 export type TComposition<
@@ -140,6 +141,7 @@ export type TSequence = {
 	parent: string | null;
 	showInTimeline: boolean;
 	timelineOrder: number | null;
+	timelineTrack?: TimelineTrackItem;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
 	/** Read the committed child clock without updating timeline metadata each frame. */

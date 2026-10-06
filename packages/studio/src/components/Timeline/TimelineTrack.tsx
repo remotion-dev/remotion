@@ -73,6 +73,7 @@ const TimelineTrackUnmemoized: React.FC<{
 				) : null}
 				<TimelineSequence
 					s={track.sequence}
+					labelStartFrame={null}
 					cascadedStart={track.cascadedStart}
 					localStart={track.localStart}
 					connectedCompositions={
