@@ -1009,6 +1009,15 @@ export const articles = [
 		slug: 'options/experimental-keep-audio-context-alive',
 	},
 	{
+		id: 'options/experimental-tracks',
+		title: 'Enable experimental timeline tracks',
+		relativePath: 'docs/options/experimental-tracks.mdx',
+		compId: 'articles-docs-options-experimental-tracks',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/experimental-tracks',
+	},
+	{
 		id: 'options/for-seamless-aac-concatenation',
 		title: 'For seamless AAC concatenation',
 		relativePath: 'docs/options/for-seamless-aac-concatenation.mdx',
