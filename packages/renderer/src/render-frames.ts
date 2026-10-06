@@ -17,7 +17,6 @@ import type {OnLog, Page} from './browser/BrowserPage';
 import {isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {defaultOnLog} from './default-on-log';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -35,10 +34,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makePage} from './make-page';
-import {
-	nextFrameToRenderState,
-	partitionedNextFrameToRenderState,
-} from './next-frame-to-render';
+import {nextFrameToRenderState} from './next-frame-to-render';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
@@ -416,24 +412,9 @@ const innerRenderFrames = async ({
 		...extraFramesToCaptureAssetsBackend,
 	];
 
-	const shouldUsePartitionedRendering = getShouldUsePartitionedRendering();
-
-	if (shouldUsePartitionedRendering) {
-		Log.info(
-			{indent, logLevel},
-			'Experimental: Using partitioned rendering (https://github.com/remotion-dev/remotion/pull/4830)',
-		);
-	}
-
-	const nextFrameToRender = shouldUsePartitionedRendering
-		? partitionedNextFrameToRenderState({
-				allFramesAndExtraFrames,
-				concurrencyOrFramesToRender,
-			})
-		: nextFrameToRenderState({
-				allFramesAndExtraFrames,
-				concurrencyOrFramesToRender,
-			});
+	const nextFrameToRender = nextFrameToRenderState({
+		allFramesAndExtraFrames,
+	});
 
 	const pattern = imageSequencePattern || `element-[frame].[ext]`;
 	const imageSequenceName = pattern

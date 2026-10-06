@@ -120,7 +120,7 @@ export const renderFrameAndRetryTargetClose = async ({
 
 	const freePage = await currentPool.acquire();
 
-	const frame = nextFrameToRender.getNextFrame(freePage.pageIndex);
+	const frame = nextFrameToRender.getNextFrame();
 
 	try {
 		await Promise.race([
@@ -155,7 +155,6 @@ export const renderFrameAndRetryTargetClose = async ({
 				outputDir,
 				stoppedSignal,
 				timeoutInMilliseconds,
-				nextFrameToRender,
 				frame,
 				page: freePage,
 				imageSequencePattern,

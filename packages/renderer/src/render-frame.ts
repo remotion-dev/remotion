@@ -6,7 +6,6 @@ import type {CountType} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
-import type {NextFrameToRender} from './next-frame-to-render';
 import type {
 	CapturedFrame,
 	RemotionSharedMemoryCapture,
@@ -87,7 +86,6 @@ export const renderFrame = ({
 				timeToRenderInMilliseconds: number,
 		  ) => void);
 	framesRenderedObj: {count: number};
-	nextFrameToRender: NextFrameToRender;
 	frame: number;
 	page: Page;
 	imageSequencePattern: string | null;
