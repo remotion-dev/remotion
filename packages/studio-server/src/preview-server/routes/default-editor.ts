@@ -13,7 +13,7 @@ export const getDefaultEditorInfoHandler: ApiHandler<
 	await getRecentlyUsedApps({
 		remotionRoot,
 		type: 'editor',
-		recentlyUsedIds: input.recentlyUsedIds ?? null,
+		recentlyUsedIds: input.recentlyUsedIds,
 	});
 	return getEditorInfo(getDefaultEditor());
 };

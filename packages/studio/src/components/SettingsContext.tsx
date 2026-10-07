@@ -123,19 +123,15 @@ export const SettingsProvider: React.FC<{
 			controller?.abort();
 			const requestController = new AbortController();
 			controller = requestController;
-			Promise.all([
-				callApi(
-					'/api/default-coding-agent-info',
-					{recentlyUsedIds: codingAgentHistory.getRecentlyUsed()},
-					requestController.signal,
-				),
-				callApi(
-					'/api/default-editor-info',
-					{recentlyUsedIds: editorHistory.getRecentlyUsed()},
-					requestController.signal,
-				),
-			])
-				.then(([codingAgentInfo, editorInfo]) => {
+			callApi(
+				'/api/app-info',
+				{
+					editor: {recentlyUsedIds: editorHistory.getRecentlyUsed()},
+					codingAgent: {recentlyUsedIds: codingAgentHistory.getRecentlyUsed()},
+				},
+				requestController.signal,
+			)
+				.then(({codingAgentInfo, editorInfo}) => {
 					if (requestController.signal.aborted) {
 						return;
 					}

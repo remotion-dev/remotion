@@ -57,7 +57,7 @@ export const getRecentlyUsedApps = ({
 			}
 		})();
 	const history = previous.then(async (ids) => {
-		if (recentlyUsedIds === null || !Array.isArray(recentlyUsedIds)) {
+		if (recentlyUsedIds === null) {
 			return ids;
 		}
 

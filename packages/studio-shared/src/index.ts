@@ -70,6 +70,8 @@ export {
 	ElementInstallSource,
 	FindInFileRequest,
 	FindInFileResponse,
+	GetAppInfoRequest,
+	GetAppInfoResponse,
 	GetDefaultCodingAgentInfoRequest,
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoRequest,
