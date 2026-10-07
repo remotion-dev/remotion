@@ -35,7 +35,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 
 	checkVersionMismatch({
 		apiName:
-			params.output.type === 'sequence'
+			params.output?.type === 'sequence'
 				? 'renderFramesOnLambda()'
 				: 'renderMediaOnLambda()',
 		insideFunctionSpecifics,

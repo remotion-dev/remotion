@@ -73,6 +73,7 @@ export const WebhookTest: React.FC = () => {
 							expectedBucketOwner: 'demo-bucket-owner',
 							outputUrl: 'https://www.example.com',
 							outputFile: 'demo-output.mp4',
+							outputSequence: null,
 							timeToFinish: 1500,
 							lambdaErrors: [],
 							costs: {
