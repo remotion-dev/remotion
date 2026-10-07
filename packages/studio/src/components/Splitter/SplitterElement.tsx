@@ -57,19 +57,13 @@ export const SplitterElement: React.FC<{
 			return;
 		}
 
-		const update = () => {
-			const panelRect = panel.getBoundingClientRect();
-			const parentRect = offsetParent.getBoundingClientRect();
-			// Keep the overlay outside the scrolling panel, while matching its
-			// actual bounds, including the divider and scrollbar widths.
-			overlay.style.left = `${panelRect.left - parentRect.left - offsetParent.clientLeft + offsetParent.scrollLeft}px`;
-			overlay.style.width = `${panelRect.width}px`;
-		};
-
-		update();
-		const observer = new ResizeObserver(update);
-		observer.observe(panel);
-		return () => observer.disconnect();
+		const panelRect = panel.getBoundingClientRect();
+		const parentRect = offsetParent.getBoundingClientRect();
+		// SplitterLayoutContext propagates the container's existing resize observer
+		// and ancestor layout changes. Keep the overlay outside the scrolling panel,
+		// while matching its actual bounds, including divider and scrollbar widths.
+		overlay.style.left = `${panelRect.left - parentRect.left - offsetParent.clientLeft + offsetParent.scrollLeft}px`;
+		overlay.style.width = `${panelRect.width}px`;
 	}, [layout, sticky, style]);
 
 	return (
