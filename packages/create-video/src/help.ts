@@ -36,9 +36,12 @@ export const getCreateVideoHelp = () => {
 				'Enable non-interactive mode. Requires a template flag and a directory, unless --tmp is used.',
 		}),
 		formatOption({
+			flag: '--tailwind',
+			description: 'Install TailwindCSS for supported templates.',
+		}),
+		formatOption({
 			flag: '--no-tailwind',
-			description:
-				'Skip automatic TailwindCSS installation for supported templates.',
+			description: 'Skip TailwindCSS installation (the default).',
 		}),
 		formatOption({
 			flag: '--tmp',
