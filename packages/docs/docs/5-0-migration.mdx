@@ -40,7 +40,7 @@ If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEsli
 ## Telemetry is now mandatory for Company License customers
 
 Previously, we had no idea how many renders our company license customers are making, leading to a lack of accountability.  
-If you upgrade to Remotion 5.0, you must [enable telemetry](/docs/telemetry) if you are a company license holder or contact Remotion to arrange a plausible delivery of render counts.  
+If you upgrade to Remotion 5.0, you must [enable telemetry](/docs/telemetry) if you are a company license holder or contact Remotion to arrange a plausible delivery of render counts.
 
 **Required action**: Pass license key to rendering APIs and in the [Remotion config file](/docs/config). If you are eligible for the free license, pass `"free-license"` as the license key.
 
@@ -174,12 +174,12 @@ loadFont('normal', {
 
 **Required action**: Ensure custom fonts are loaded before calling these APIs, or pass `validateFontIsLoaded: false` explicitly to keep the previous behavior. See [layout utils best practices](/docs/layout-utils/best-practices).
 
-## Sequences are automatically premounted
+## Default premount duration is now 2 seconds
 
-[`<Sequence>`](/docs/sequence), [`<Series.Sequence>`](/docs/series) and [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries) components now automatically [premount](/docs/player/premounting) for 1 second (`fps` frames) before they appear.
-This prevents black frames that were commonly seen when a `<Sequence>` containing heavy content (e.g. videos, images) appeared.
+The default [premount duration](/docs/player/premounting) for timed components changes from `0` to `2` seconds in the Studio and Player.
+This prepares assets before components appear. Explicit `premountFor` props continue to take precedence. Premounting does not affect rendering.
 
-**Required action**: If you don't want this behavior for a specific Sequence, opt out by passing [`premountFor={0}`](/docs/sequence#premountfor).
+**Required action**: To keep the v4 default, set [`Config.setDefaultPremountInSeconds(0)`](/docs/config#setdefaultpremountinseconds) for the Studio and [`defaultPremountInSeconds={0}`](/docs/player/player#defaultpremountinseconds) on the Player. You can also use [`--default-premount-in-seconds=0`](/docs/options/default-premount-in-seconds) or change the Studio settings. For an individual component, pass [`premountFor={0}`](/docs/sequence#premountfor).
 
 ## `<Player>` does not create shared audio tags by default
 

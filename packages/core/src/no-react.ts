@@ -26,6 +26,10 @@ export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 
 import {
+	DEFAULT_PREMOUNT_IN_SECONDS,
+	validateDefaultPremountInSeconds,
+} from './default-premount-in-seconds';
+import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_CLEAR_TOKEN,
 	DELAY_RENDER_RETRIES_LEFT,
@@ -58,6 +62,8 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
+	DEFAULT_PREMOUNT_IN_SECONDS,
+	validateDefaultPremountInSeconds,
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 	processColor,

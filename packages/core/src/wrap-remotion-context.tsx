@@ -6,6 +6,7 @@ import React, {useMemo} from 'react';
 import {BufferingContextReact} from './buffering.js';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManagerContext.js';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {LogLevelContext} from './log-level-context.js';
 import {PreloadContext} from './prefetch-state.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
@@ -27,6 +28,7 @@ export function useRemotionContexts() {
 	const timelineContext = React.useContext(TimelineContext);
 	const setTimelineContext = React.useContext(SetTimelineContext);
 	const sequenceContext = React.useContext(SequenceContext);
+	const defaultPremountInSeconds = React.useContext(DefaultPremountContext);
 	const experimentalTracksEnabled = React.useContext(
 		ExperimentalTracksEnabledContext,
 	);
@@ -49,6 +51,7 @@ export function useRemotionContexts() {
 			timelineContext,
 			setTimelineContext,
 			sequenceContext,
+			defaultPremountInSeconds,
 			experimentalTracksEnabled,
 			timelineTrackContext,
 			canUseRemotionHooksContext,
@@ -64,6 +67,7 @@ export function useRemotionContexts() {
 		[
 			compositionManagerCtx,
 			sequenceContext,
+			defaultPremountInSeconds,
 			experimentalTracksEnabled,
 			timelineTrackContext,
 			setTimelineContext,
@@ -126,7 +130,11 @@ export const RemotionContextProvider = (
 																<TimelineTrackContext.Provider
 																	value={contexts.timelineTrackContext}
 																>
-																	{children}
+																	<DefaultPremountContext.Provider
+																		value={contexts.defaultPremountInSeconds}
+																	>
+																		{children}
+																	</DefaultPremountContext.Provider>
 																</TimelineTrackContext.Provider>
 															</ExperimentalTracksEnabledContext.Provider>
 														</BufferingContextReact.Provider>

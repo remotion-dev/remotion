@@ -41,6 +41,7 @@ import {
 import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
@@ -333,6 +334,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	DefaultPremountContext,
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 	AbsoluteFillElement,
