@@ -460,6 +460,8 @@ export const internalBundle = async (
 		experimentalKeepAudioContextAlive: false,
 		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
 		studioRuntimeConfig: {
+			showPremounting: null,
+			defaultPremountInSeconds: null,
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
 			canvasTabsEnabled: true,

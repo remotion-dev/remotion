@@ -88,6 +88,8 @@ const requestWriteRoute = async ({
 		getRenderDefaults: () => ({}) as RenderDefaults,
 		getRenderQueue: () => [],
 		getStudioRuntimeConfig: () => ({
+			showPremounting: null,
+			defaultPremountInSeconds: null,
 			askAIEnabled: false,
 			bufferStateDelayInMilliseconds: null,
 			canvasTabsEnabled: true,

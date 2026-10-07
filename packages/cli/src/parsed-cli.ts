@@ -35,6 +35,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showPremountingOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
@@ -115,6 +116,9 @@ export type CommandLineOptions = {
 	[defaultPremountInSecondsOption.cliFlag]: TypeOfOption<
 		typeof defaultPremountInSecondsOption
 	>;
+	[showPremountingOption.cliFlag]: TypeOfOption<
+		typeof showPremountingOption
+	> | null;
 	[disableWebSecurityOption.cliFlag]: TypeOfOption<
 		typeof disableWebSecurityOption
 	> | null;
@@ -231,6 +235,7 @@ export type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
+	showPremountingOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
 	imageSequenceOption.cliFlag,
@@ -266,6 +271,7 @@ export const BooleanFlags = [
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
+		[showPremountingOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,
 		[bundleCacheOption.cliFlag]: null,
