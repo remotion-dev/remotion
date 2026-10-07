@@ -69,17 +69,6 @@ const parseSkipFlag = (): AwsRegion[] => {
 
 const makeLayerPublic = async () => {
 	const runtimes: Runtime[] = ['nodejs24.x'];
-	const remotionVersion =
-		process.argv
-			.slice(2)
-			.find((arg) => arg.startsWith('--remotion-version='))
-			?.slice('--remotion-version='.length) ?? VERSION;
-	if (!/^\d+\.\d+\.\d+$/.test(remotionVersion)) {
-		throw new Error(`Invalid Remotion version: ${remotionVersion}`);
-	}
-
-	console.log(`Publishing v24 layers for Remotion ${remotionVersion}`);
-
 	const layers = [
 		'fonts',
 		'chromium',
@@ -132,7 +121,7 @@ const makeLayerPublic = async () => {
 										: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 					CompatibleRuntimes: runtimes,
 					CompatibleArchitectures: ['arm64'],
-					Description: remotionVersion,
+					Description: VERSION,
 				}),
 			);
 			await LambdaClientInternals.getLambdaClient(
