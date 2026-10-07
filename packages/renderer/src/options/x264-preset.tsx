@@ -53,6 +53,7 @@ const DEFAULT_PRESET: X264Preset = 'medium' as const;
 
 export const x264Option = {
 	name: 'x264 Preset',
+	addedIn: '4.0.22',
 	cliFlag,
 	description: () => (
 		<>

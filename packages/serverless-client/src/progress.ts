@@ -98,22 +98,31 @@ export const getProgress = async <Provider extends CloudProvider>({
 			},
 			currentTime: Date.now(),
 			done: true,
-			encodingStatus: {
-				framesEncoded: totalFrameCount,
-				combinedFrames: totalFrameCount,
-				timeToCombine: overallProgress.postRenderData.timeToCombine,
-			},
+			encodingStatus:
+				overallProgress.renderMetadata.type === 'sequence'
+					? null
+					: {
+							framesEncoded: totalFrameCount,
+							combinedFrames: totalFrameCount,
+							timeToCombine: overallProgress.postRenderData.timeToCombine,
+						},
 			errors: overallProgress.postRenderData.errors,
 			fatalErrorEncountered: false,
 			lambdasInvoked: overallProgress.renderMetadata.totalChunks,
 			outputFile: overallProgress.postRenderData.outputFile,
+			outputSequence: overallProgress.postRenderData.outputSequence,
+			framesUploaded:
+				overallProgress.renderMetadata.type === 'sequence'
+					? totalFrameCount
+					: null,
 			renderId,
 			timeToFinish: overallProgress.postRenderData.timeToFinish,
 			timeToFinishChunks: overallProgress.postRenderData.timeToRenderChunks,
 			timeToRenderFrames: overallProgress.postRenderData.timeToRenderFrames,
 			overallProgress: 1,
 			retriesInfo: overallProgress.postRenderData.retriesInfo,
-			outKey: outData.key,
+			outKey:
+				overallProgress.renderMetadata.type === 'sequence' ? null : outData.key,
 			outBucket: outData.renderBucketName,
 			mostExpensiveFrameRanges:
 				overallProgress.postRenderData.mostExpensiveFrameRanges ?? null,
@@ -123,7 +132,10 @@ export const getProgress = async <Provider extends CloudProvider>({
 			estimatedBillingDurationInMilliseconds:
 				overallProgress.postRenderData.estimatedBillingDurationInMilliseconds,
 			timeToCombine: overallProgress.postRenderData.timeToCombine,
-			combinedFrames: totalFrameCount,
+			combinedFrames:
+				overallProgress.renderMetadata.type === 'sequence'
+					? 0
+					: totalFrameCount,
 			renderMetadata: overallProgress.renderMetadata,
 			timeoutTimestamp: overallProgress.timeoutTimestamp,
 			compositionValidated: overallProgress.compositionValidated,
@@ -167,6 +179,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 			renderMetadata,
 			bucket: bucketName,
 			outputFile: null,
+			outputSequence: null,
+			framesUploaded: null,
 			timeToFinish: null,
 			errors: errorExplanations,
 			fatalErrorEncountered: errorExplanations.some(
@@ -256,6 +270,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
 
 	const shouldCheckForCompletedOutput =
+		renderMetadata.type !== 'sequence' &&
 		allChunks &&
 		!errorExplanations.some((error) => error.isFatal && !error.willRetry) &&
 		(isBeyondTimeoutAndHasStitchTimeout ||
@@ -318,6 +333,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 				fatalErrorEncountered: false,
 				lambdasInvoked: renderMetadata.totalChunks,
 				outputFile: outputFile.url,
+				outputSequence: null,
+				framesUploaded: null,
 				renderId,
 				timeToFinish: now - renderMetadata.startedDate,
 				timeToFinishChunks,
@@ -363,11 +380,14 @@ export const getProgress = async <Provider extends CloudProvider>({
 		framesRendered: overallProgress.framesRendered ?? 0,
 		chunks: chunkCount,
 		done: false,
-		encodingStatus: {
-			framesEncoded: overallProgress.framesEncoded,
-			combinedFrames: overallProgress.combinedFrames,
-			timeToCombine: overallProgress.timeToCombine,
-		},
+		encodingStatus:
+			renderMetadata.type === 'sequence'
+				? null
+				: {
+						framesEncoded: overallProgress.framesEncoded,
+						combinedFrames: overallProgress.combinedFrames,
+						timeToCombine: overallProgress.timeToCombine,
+					},
 		timeToRenderFrames: overallProgress.timeToRenderFrames,
 		costs: priceFromBucket
 			? formatCostsInfo(priceFromBucket.accruedSoFar, billingCurrency)
@@ -376,11 +396,19 @@ export const getProgress = async <Provider extends CloudProvider>({
 		renderMetadata,
 		bucket: bucketName,
 		outputFile: null,
+		outputSequence: null,
+		framesUploaded:
+			renderMetadata?.type === 'sequence'
+				? overallProgress.framesUploaded
+				: null,
 		timeToFinish: null,
 		errors: allErrors,
 		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),
 		currentTime: Date.now(),
-		renderSize: 0,
+		renderSize:
+			renderMetadata.type === 'sequence'
+				? overallProgress.uploadedSizeInBytes
+				: 0,
 		lambdasInvoked: overallProgress.lambdasInvoked ?? 0,
 		cleanup,
 		timeToFinishChunks:
@@ -392,7 +420,9 @@ export const getProgress = async <Provider extends CloudProvider>({
 				: null,
 		overallProgress: getOverallProgress({
 			encoding: frameCount
-				? (overallProgress.framesEncoded ?? 0) / frameCount
+				? (renderMetadata.type === 'sequence'
+						? overallProgress.framesUploaded
+						: (overallProgress.framesEncoded ?? 0)) / frameCount
 				: 0,
 			invoking:
 				renderMetadata.estimatedRenderLambdaInvokations === 0

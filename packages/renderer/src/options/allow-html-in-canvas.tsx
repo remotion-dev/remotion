@@ -6,6 +6,7 @@ const cliFlag = 'allow-html-in-canvas' as const;
 
 export const allowHtmlInCanvasOption = {
 	name: 'Allow HTML-in-canvas for client-side rendering',
+	addedIn: '4.0.447',
 	cliFlag,
 	description: () => (
 		<>

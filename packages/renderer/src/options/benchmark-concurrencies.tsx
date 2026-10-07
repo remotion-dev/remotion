@@ -6,6 +6,7 @@ const cliFlag = 'concurrencies' as const;
 
 export const benchmarkConcurrenciesOption = {
 	name: 'Benchmark concurrencies',
+	addedIn: '3.2.28',
 	cliFlag,
 	description: () => (
 		<>

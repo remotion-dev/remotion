@@ -62,6 +62,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 	);
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			output: {type: 'media'},
 			enableCancellation: false,
 			requestHandler: null,
 			region: 'us-east-1',
@@ -121,6 +122,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			},
 			x264Preset: null,
 			gopSize: null,
+			disableSharedMemoryCapture: false,
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,

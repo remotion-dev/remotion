@@ -75,6 +75,7 @@ test('Render Media payload', async () => {
 
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			output: {type: 'media'},
 			enableCancellation: false,
 			region: 'us-east-1',
 			composition: 'react-svg',
@@ -133,6 +134,7 @@ test('Render Media payload', async () => {
 			},
 			x264Preset: null,
 			gopSize: null,
+			disableSharedMemoryCapture: false,
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,

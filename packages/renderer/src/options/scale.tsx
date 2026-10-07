@@ -14,6 +14,7 @@ const validateScale = (value: unknown) => {
 
 export const scaleOption = {
 	name: 'Scale',
+	addedIn: '2.6.7',
 	cliFlag,
 	description: () => (
 		<>

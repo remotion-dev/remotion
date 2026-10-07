@@ -6,6 +6,7 @@ const cliFlag = 'disable-web-security' as const;
 
 export const disableWebSecurityOption = {
 	name: 'Disable web security',
+	addedIn: '2.6.5',
 	cliFlag,
 	description: () => (
 		<>

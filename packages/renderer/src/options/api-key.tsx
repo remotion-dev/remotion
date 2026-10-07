@@ -6,6 +6,7 @@ const cliFlag = 'api-key' as const;
 
 export const apiKeyOption = {
 	name: 'API key',
+	addedIn: '4.0.253',
 	cliFlag,
 	description: () => (
 		<>

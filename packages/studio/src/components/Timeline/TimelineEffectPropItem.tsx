@@ -474,7 +474,7 @@ export const TimelineEffectPropItem: React.FC<{
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const style = useMemo((): React.CSSProperties => {
-		return field.typeName === 'text-content'
+		return field.typeName === 'string' || field.typeName === 'text-content'
 			? fieldRowBase
 			: {...fieldRowBase, height: field.rowHeight};
 	}, [field.rowHeight, field.typeName]);
@@ -684,6 +684,7 @@ export const TimelineEffectPropItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<TimelineFieldRowContent
 				field={field}

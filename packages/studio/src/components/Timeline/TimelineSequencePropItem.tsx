@@ -246,6 +246,7 @@ const Value: React.FC<{
 			}
 
 			const defaultValue =
+				field.fieldSchema.type === 'string' ||
 				field.fieldSchema.type === 'text-content'
 					? null
 					: field.fieldSchema.default !== undefined
@@ -855,6 +856,7 @@ export const TimelineSequencePropItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			{hidePathValue ? (
 				<TimelineFieldLabel

@@ -14,6 +14,11 @@ import type {
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {_InternalTypes, DownloadBehavior} from 'remotion';
+import type {
+	ImageSequenceOutput,
+	RendererOutput,
+	ServerlessRenderOutput,
+} from './image-sequence';
 import type {ExpensiveChunk} from './most-expensive-chunks';
 import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
@@ -114,12 +119,13 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	enableCancellation: boolean | null;
 	rendererFunctionName: string | null;
 	type: ServerlessRoutines.start;
+	output: ServerlessRenderOutput<Provider>;
 	serveUrl: string;
 	composition: string;
 	framesPerLambda: number | null;
 	concurrency: number | null;
 	inputProps: SerializedInputProps;
-	codec: ServerlessCodec;
+	codec: ServerlessCodec | null;
 	audioCodec: AudioCodec | null;
 	imageFormat: VideoImageFormat;
 	crf: number | undefined | null;
@@ -128,6 +134,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	proResProfile: _InternalTypes['ProResProfile'] | undefined | null;
 	x264Preset: X264Preset | null;
 	gopSize: number | null;
+	disableSharedMemoryCapture: boolean;
 	jpegQuality: number | undefined;
 	maxRetries: number;
 	privacy: Privacy;
@@ -178,6 +185,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		enableCancellation: boolean | null;
 		rendererFunctionName: string | null;
 		type: ServerlessRoutines.launch;
+		output: ServerlessRenderOutput<Provider>;
 		serveUrl: string;
 		composition: string;
 		framesPerFunction: number | null;
@@ -186,7 +194,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: VideoImageFormat;
-		codec: ServerlessCodec;
+		codec: ServerlessCodec | null;
 		audioCodec: AudioCodec | null;
 		crf: number | null;
 		envVariables: Record<string, string> | undefined;
@@ -194,6 +202,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		gopSize: number | null;
+		disableSharedMemoryCapture: boolean;
 		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
@@ -237,6 +246,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		enableCancellation: boolean | null;
 		concurrencyPerLambda: number;
 		type: ServerlessRoutines.renderer;
+		output: RendererOutput<Provider>;
 		serveUrl: string;
 		frameRange: [number, number];
 		chunk: number;
@@ -250,11 +260,12 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: VideoImageFormat;
-		codec: ServerlessCodec;
+		codec: ServerlessCodec | null;
 		crf: number | null;
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		gopSize: number | null;
+		disableSharedMemoryCapture: boolean;
 		pixelFormat: PixelFormat | null;
 		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;
@@ -393,7 +404,8 @@ export const artifactName = (renderId: string, name: string) =>
 
 export type PostRenderData<Provider extends CloudProvider> = {
 	cost: AfterRenderCost;
-	outputFile: string;
+	outputFile: string | null;
+	outputSequence: ImageSequenceOutput | null;
 	outputSize: number;
 	renderSize: number;
 	timeToFinish: number;
@@ -402,7 +414,7 @@ export type PostRenderData<Provider extends CloudProvider> = {
 	startTime: number;
 	endTime: number;
 	filesCleanedUp: number;
-	timeToEncode: number;
+	timeToEncode: number | null;
 	timeToCleanUp: number;
 	timeToRenderChunks: number;
 	retriesInfo: ChunkRetry[];

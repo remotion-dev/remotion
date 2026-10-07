@@ -8,6 +8,7 @@ const cliFlag = 'dark-mode' as const;
 
 export const darkModeOption = {
 	name: 'Dark Mode',
+	addedIn: '4.0.381',
 	cliFlag,
 	description: () => (
 		<>

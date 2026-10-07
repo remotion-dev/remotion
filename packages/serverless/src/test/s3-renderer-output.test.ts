@@ -73,6 +73,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 		const output = makeS3RendererOutput({
 			params: {
 				type: 'renderer',
+				output: {type: 'media'},
 				bucketName: 'bucket',
 				renderId: 'render-id',
 				chunk: 1,
@@ -126,6 +127,8 @@ test('S3 renderer output publishes media and artifacts before completion', async
 			lambdaInvoked: true,
 			renderedFrames: 10,
 			encodedFrames: 8,
+			uploadedFrames: 0,
+			uploadedSizeInBytes: 0,
 			videoKey: 'renders/render-id/transport/chunks/1/attempt-2/video',
 			audioKey: 'renders/render-id/transport/chunks/1/attempt-2/audio',
 		});

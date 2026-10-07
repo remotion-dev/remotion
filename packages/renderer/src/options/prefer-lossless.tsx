@@ -6,6 +6,7 @@ let input: boolean | null = false;
 
 export const preferLosslessAudioOption = {
 	name: 'Prefer lossless',
+	addedIn: '4.0.123',
 	cliFlag,
 	description: () => (
 		<>

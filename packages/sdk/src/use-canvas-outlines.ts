@@ -1,4 +1,3 @@
-import type {MutableRefObject, RefObject} from 'react';
 import {useEffect, useMemo, useRef} from 'react';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 import type {CanvasHoverController} from './hover';
@@ -23,19 +22,17 @@ export type CanvasOutlineRenderTarget = Omit<
 
 /** Measure and order a host's outline targets without subscribing to playback. */
 export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
-	containerRef,
+	contentRoot,
 	targets,
 	sequences,
 	hoverController,
 	freezeOrder,
-	updateOutlinesRef,
 }: {
-	readonly containerRef: RefObject<SVGSVGElement | null>;
+	readonly contentRoot: HTMLElement;
 	readonly targets: readonly Target[];
 	readonly sequences: readonly CanvasOutlineSequenceParent[];
 	readonly hoverController: CanvasHoverController;
 	readonly freezeOrder: boolean;
-	readonly updateOutlinesRef: MutableRefObject<() => void> | null;
 }) => {
 	const hover = useCanvasHover(hoverController);
 	const hoveredNodePathKey = hover?.nodePathKey ?? null;
@@ -56,9 +53,8 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 		[hoveredTimelineNodePathKey, targets],
 	);
 	const outlines = useCanvasOutlineMeasurements({
-		containerRef,
+		contentRoot,
 		targets: measurementTargets,
-		updateOutlinesRef,
 	});
 	const targetsByKey = useMemo(
 		() => new Map(targets.map((target) => [target.key, target])),
@@ -67,6 +63,9 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 
 	// Moving a captured polygon in the DOM can cancel the host's pointer session.
 	const renderingOrderRef = useRef<readonly string[]>([]);
+	// Cache stacking order alongside normalized geometry. Renderers apply zoom,
+	// so zooming and panning do not invalidate this memo or repeat the pairwise
+	// overlap checks.
 	const outlinesForRendering = useMemo(() => {
 		if (!freezeOrder || renderingOrderRef.current.length === 0) {
 			const ordered = orderCanvasOutlinesForRendering({

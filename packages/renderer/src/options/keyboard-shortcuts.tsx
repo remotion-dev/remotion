@@ -7,6 +7,7 @@ const cliFlag = 'disable-keyboard-shortcuts' as const;
 
 export const keyboardShortcutsOption = {
 	name: 'Disable or Enable keyboard shortcuts',
+	addedIn: '3.2.11',
 	cliFlag,
 	description: () => (
 		<>Enable or disable keyboard shortcuts in the Remotion Studio.</>

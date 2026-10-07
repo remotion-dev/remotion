@@ -138,7 +138,7 @@ export type BasicMediaInTimelineReturnType = ReturnType<
 	typeof useBasicMediaInTimeline
 >;
 
-export const useMediaInTimeline = ({
+export const useMediaInTimelineRegistration = ({
 	volume,
 	mediaVolume,
 	src,
@@ -181,6 +181,8 @@ export const useMediaInTimeline = ({
 	const loopTimeline = useContext(LoopTimelineContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const {isStudio} = useRemotionEnvironment();
+	const stack = getStack();
+	const getStackForRegistration = useCallback(() => stack, [stack]);
 	const automaticOutlineRef = useMemo(
 		() =>
 			mediaType === 'video' && (isStudio || canvasOutlinesEnabled)
@@ -305,7 +307,7 @@ export const useMediaInTimeline = ({
 			loopDisplay,
 			playbackRate,
 			sequencePlaybackRate: 1,
-			getStack,
+			getStack: getStackForRegistration,
 			premountDisplay,
 			postmountDisplay,
 			controls: null,
@@ -326,7 +328,7 @@ export const useMediaInTimeline = ({
 		mediaType,
 		mediaTrimBefore,
 		playbackRate,
-		getStack,
+		getStackForRegistration,
 		premountDisplay,
 		postmountDisplay,
 		loopDisplay,
@@ -339,10 +341,10 @@ export const useMediaInTimeline = ({
 		isStudio ||
 		sequenceRegistrationEnabled ||
 		(typeof window !== 'undefined' && window.process?.env?.NODE_ENV === 'test');
-	useSequenceRegistration({
+	const registration = useSequenceRegistration({
 		getSequence:
 			registrationEnabled && showInTimeline ? getSequenceForRegistration : null,
 		id,
 	});
-	return automaticOutlineRef;
+	return {automaticOutlineRef, registration};
 };

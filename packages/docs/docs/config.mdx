@@ -299,6 +299,19 @@ Changes apply immediately in the Studio without reloading the page.
 
 The [`--experimental-tracks`](/docs/options/experimental-tracks) flag takes precedence over this option.
 
+## `setDefaultPremountInSeconds()`<AvailableFrom v="4.0.535" />
+
+<Options id="default-premount-in-seconds" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDefaultPremountInSeconds(2);
+```
+
+You can also change this value in the Studio settings. Changes apply immediately after saving.
+The [`--default-premount-in-seconds`](/docs/options/default-premount-in-seconds) flag takes precedence over this option.
+
 ## `setDefaultEditor()`<AvailableFrom v="4.0.503" />
 
 <Options id="editor" />
@@ -581,9 +594,25 @@ Config.setMuted(true);
 
 The [`--muted`](/docs/options/muted) flag takes precedence over this option.
 
+## `setDisableSharedMemoryCapture()`<AvailableFrom v="4.0.534" />
+
+<Options id="disable-shared-memory-capture" />
+
+See [Shared-memory capture](/docs/shared-memory-capture).
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDisableSharedMemoryCapture(true);
+```
+
+The [`--disable-shared-memory-capture`](/docs/options/disable-shared-memory-capture) flag takes precedence over this option. Pass `--disable-shared-memory-capture=false` to override a configured opt-out.
+
 ## `setDisallowParallelEncoding()`<AvailableFrom v="4.0.315" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower. Default `false`.
+
+See [parallel encoding](/docs/parallel-encoding) for when it is enabled and how it works.
 
 From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabled automatically based on the available memory. Set this option if the machine runs out of memory while rendering.
 
@@ -827,7 +856,7 @@ Config.setProResProfile('4444');
 
 The [`--prores-profile`](/docs/options/prores-profile) flag takes precedence over this option.
 
-## `setX264Preset()`<AvailableFrom v="4.2.2" />
+## `setX264Preset()`<AvailableFrom v="4.0.22" />
 
 Set the Preset profile. This option is only valid if the codec has been set to `h264`.
 Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
@@ -1219,7 +1248,7 @@ Config.overrideFfmpegCommand(({args}) => {
 
 The function you pass must accept an object as it's only parameter which contains the following properties:
 
-- `type`: Either `"stitcher"` or `"pre-stitcher"`. For the `h264`, `h264-mkv` and `h265` codecs, Remotion uses a two-pass process for the video generation unless [parallel encoding is disallowed](#setdisallowparallelencoding). `pre-stitcher` is the encoding phase and `stitcher` is the muxing phase. If the override function is only called once with `stitcher`, then encoding and muxing is done in the same step. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+- `type`: Either `"stitcher"` or `"pre-stitcher"`. When [parallel encoding is enabled](#setdisallowparallelencoding), `pre-stitcher` encodes the video while frames are rendered, then `stitcher` muxes the encoded video and any audio into the output file. Otherwise, the function is called once with `stitcher`, which performs encoding and muxing together. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
 - `args`: An array of strings that is passed as arguments to the FFmpeg command.
 
 Your function must return a modified array of strings.

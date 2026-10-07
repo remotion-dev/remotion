@@ -8,6 +8,7 @@ const cliFlag = 'muted' as const;
 
 export const mutedOption = {
 	name: 'Muted',
+	addedIn: '3.2.1',
 	cliFlag,
 	description: () => <>The Audio of the video will be omitted.</>,
 	ssrName: 'muted',

@@ -1,5 +1,7 @@
 # pylint: disable=missing-module-docstring
 from .models import (
+    RenderFramesParams,
+    ImageSequenceOutputPrefix,
     RenderMediaParams,
     RenderMediaProgress,
     RenderMediaResponse,

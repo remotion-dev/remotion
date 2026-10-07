@@ -6,6 +6,7 @@ let currentOutDir: string | null = null;
 
 export const outDirOption = {
 	name: 'Output Directory',
+	addedIn: '4.0.426',
 	cliFlag,
 	description: () => {
 		return (

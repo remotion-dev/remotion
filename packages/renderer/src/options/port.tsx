@@ -6,6 +6,7 @@ let currentPort: number | null = null;
 
 export const portOption = {
 	name: 'Port',
+	addedIn: '2.1.3',
 	cliFlag,
 	description: () => (
 		<>

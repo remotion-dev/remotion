@@ -33,6 +33,7 @@ test(
 				'0-1',
 				'--codec',
 				'h264',
+				'--log=verbose',
 				'--scale',
 				'2',
 				outputPath,
@@ -42,7 +43,7 @@ test(
 			},
 		);
 		task.stderr?.pipe(process.stderr);
-		await task;
+		const result = await task;
 		const exists = fs.existsSync(outputPath);
 		expect(exists).toBe(true);
 
@@ -56,7 +57,10 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+		if (
+			NoReactInternals.ENABLE_V5_BREAKING_CHANGES ||
+			result.stdout.includes('-f,remotionshm')
+		) {
 			expect(data).toContain('yuv420p');
 		} else {
 			expect(data).toContain('yuvj420p');
@@ -85,6 +89,7 @@ test(
 				'0-1',
 				'--codec',
 				'h264',
+				'--log=verbose',
 				'--scale',
 				'0.1',
 				outputPath,
@@ -94,7 +99,7 @@ test(
 			},
 		);
 		task.stderr?.pipe(process.stderr);
-		await task;
+		const result = await task;
 		const exists = fs.existsSync(outputPath);
 		expect(exists).toBe(true);
 
@@ -108,7 +113,10 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+		if (
+			NoReactInternals.ENABLE_V5_BREAKING_CHANGES ||
+			result.stdout.includes('-f,remotionshm')
+		) {
 			expect(data).toContain('yuv420p');
 		} else {
 			expect(data).toContain('yuvj420p');

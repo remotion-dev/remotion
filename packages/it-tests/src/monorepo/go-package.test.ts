@@ -32,6 +32,7 @@ test(
 
 		const nativeVersion =
 			await LambdaClientInternals.makeLambdaRenderMediaPayload({
+				output: {type: 'media'},
 				enableCancellation: false,
 				region: 'us-east-1',
 				composition: 'react-svg',
@@ -78,6 +79,7 @@ test(
 				webhook: null,
 				x264Preset: null,
 				gopSize: null,
+				disableSharedMemoryCapture: false,
 				inputProps: {},
 				preferLossless: false,
 				indent: false,

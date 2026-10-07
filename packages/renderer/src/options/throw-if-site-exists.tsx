@@ -23,6 +23,7 @@ export const throwIfSiteExistsOption = {
 		};
 	},
 	name: 'Throw if site exists',
+	addedIn: '4.0.141',
 	setConfig: () => {
 		throw new Error('Not implemented');
 	},

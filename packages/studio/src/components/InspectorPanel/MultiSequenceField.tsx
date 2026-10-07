@@ -113,6 +113,7 @@ export const MultiSequenceField: React.FC<{
 						fieldKey: field.key,
 						value: nextValues[index],
 						defaultValue:
+							field.typeName === 'string' ||
 							field.typeName === 'text-content' ||
 							field.fieldSchema.default === undefined
 								? null
@@ -209,7 +210,9 @@ export const MultiSequenceField: React.FC<{
 						codeValue: mixed ? undefined : values[0],
 					}}
 					scaleLockNodePath={
-						field.typeName === 'text-content' ? null : targets[0].nodePath
+						field.typeName === 'string' || field.typeName === 'text-content'
+							? null
+							: targets[0].nodePath
 					}
 					onSave={(value, options) =>
 						save(
@@ -236,6 +239,7 @@ export const MultiSequenceField: React.FC<{
 			showSelectedBackground={false}
 			containsSelection={false}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<TimelineFieldRowContent field={field} rowDepth={0} selected={false}>
 				{content}

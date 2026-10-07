@@ -97,6 +97,7 @@ class Semantic
 		const toParse = output[5];
 		const nativeVersion =
 			await LambdaClientInternals.makeLambdaRenderMediaPayload({
+				output: {type: 'media'},
 				enableCancellation: false,
 				region: 'us-east-1',
 				composition: 'react-svg',
@@ -146,6 +147,7 @@ class Semantic
 				webhook: null,
 				x264Preset: null,
 				gopSize: null,
+				disableSharedMemoryCapture: false,
 				preferLossless: false,
 				indent: false,
 				forcePathStyle: false,

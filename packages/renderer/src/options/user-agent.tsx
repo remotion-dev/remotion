@@ -6,6 +6,7 @@ const cliFlag = 'user-agent' as const;
 
 export const userAgentOption = {
 	name: 'User agent',
+	addedIn: '3.3.83',
 	cliFlag,
 	description: () => (
 		<>

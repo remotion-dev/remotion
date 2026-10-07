@@ -1,4 +1,5 @@
 import type {Codec} from '../codec';
+import {getMp4BrandForExtension} from '../get-mp4-brand';
 import type {AnyRemotionOption} from './option';
 import {separateAudioOption} from './separate-audio';
 
@@ -149,25 +150,31 @@ export const resolveAudioCodec = ({
 	let derivedFromSeparateAudioToExtension: AudioCodec | null = null;
 
 	if (separateAudioTo) {
-		const extension = separateAudioTo.split('.').pop();
+		const extension = separateAudioTo.split('.').pop() ?? null;
 		for (const [key, value] of Object.entries(extensionMap)) {
 			if (value === extension) {
 				derivedFromSeparateAudioToExtension = key as AudioCodec;
-				if (
-					!(supportedAudioCodecs[codec] as readonly string[]).includes(
-						derivedFromSeparateAudioToExtension as string,
-					) &&
-					derivedFromSeparateAudioToExtension
-				) {
-					throw new Error(
-						`The codec is ${codec} but the audio codec derived from --${
-							separateAudioOption.cliFlag
-						} is ${derivedFromSeparateAudioToExtension}. The only supported codecs are: ${supportedAudioCodecs[
-							codec
-						].join(', ')}`,
-					);
-				}
 			}
+		}
+
+		// .m4a, .m4b and .3gp are AAC in an MP4 container
+		if (getMp4BrandForExtension(extension)) {
+			derivedFromSeparateAudioToExtension = 'aac';
+		}
+
+		if (
+			derivedFromSeparateAudioToExtension &&
+			!(supportedAudioCodecs[codec] as readonly string[]).includes(
+				derivedFromSeparateAudioToExtension,
+			)
+		) {
+			throw new Error(
+				`The codec is ${codec} but the audio codec derived from --${
+					separateAudioOption.cliFlag
+				} is ${derivedFromSeparateAudioToExtension}. The only supported codecs are: ${supportedAudioCodecs[
+					codec
+				].join(', ')}`,
+			);
 		}
 	}
 
@@ -269,6 +276,7 @@ export const audioCodecOption = {
 		`Set the format of the audio that is embedded in the video. Not all codec and audio codec combinations are supported and certain combinations require a certain file extension and container format. See the table in the docs to see possible combinations.`,
 	docLink: 'https://www.remotion.dev/docs/options/audio-codec',
 	name: 'Audio Codec',
+	addedIn: '3.3.41',
 	ssrName,
 	type: 'aac' as AudioCodec,
 	id: cliFlag,

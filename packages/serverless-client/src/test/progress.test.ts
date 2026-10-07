@@ -75,6 +75,8 @@ const progress: OverallRenderProgress<MockProvider> = {
 	errors: [],
 	fatalErrorTimestamp: null,
 	framesEncoded: 20,
+	framesUploaded: 0,
+	uploadedSizeInBytes: 0,
 	framesRendered: 20,
 	functionLaunched: startedDate,
 	lambdasInvoked: 2,
@@ -262,6 +264,8 @@ test('getProgress keeps direct render progress finite', async () => {
 		chunks: [],
 		combinedFrames: 0,
 		framesEncoded: 0,
+		framesUploaded: 0,
+		uploadedSizeInBytes: 0,
 		framesRendered: 0,
 		lambdasInvoked: 0,
 		renderMetadata: {

@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.533
+version: 4.0.534
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -194,7 +194,7 @@ import type React from "react";
 import { Interactive, type InteractivitySchema } from "remotion";
 
 type LowerThirdProps = {
-  readonly children: string;
+  readonly children: React.ReactNode;
   readonly accentColor: string;
   readonly style?: React.CSSProperties;
 };
@@ -237,7 +237,7 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
 };
 
 const lowerThirdSchema = {
-  children: { type: "text-content", default: "", description: "Text" },
+  ...Interactive.childrenSchema,
   accentColor: {
     type: "color",
     default: "#0b84f3",

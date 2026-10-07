@@ -6,6 +6,7 @@ let enableCancellation = false;
 
 export const enableCancellationOption = {
 	name: 'Enable cancellation',
+	addedIn: '4.0.515',
 	cliFlag,
 	description: () => (
 		<>

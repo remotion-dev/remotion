@@ -6,6 +6,7 @@ let currentSampleRate: number = 48000;
 
 export const sampleRateOption = {
 	name: 'Sample Rate',
+	addedIn: '4.0.448',
 	cliFlag,
 	description: () => (
 		<>

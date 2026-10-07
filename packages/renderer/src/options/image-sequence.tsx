@@ -6,6 +6,7 @@ let imageSequence = false;
 
 export const imageSequenceOption = {
 	name: 'Image Sequence',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>

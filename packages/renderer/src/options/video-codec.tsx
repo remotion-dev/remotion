@@ -55,6 +55,7 @@ const cliFlag = 'codec' as const;
 
 export const videoCodecOption = {
 	name: 'Codec',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>

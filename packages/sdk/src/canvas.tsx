@@ -6,7 +6,6 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
-	useLayoutEffect,
 	useMemo,
 } from 'react';
 import type {AnyZodObject, TSequence} from 'remotion';
@@ -76,6 +75,14 @@ const CanvasFn = <
 	}: CanvasProps<Schema, Props>,
 	ref: RefObject<PlayerRef>,
 ) => {
+	// Install before rendering the Player's sequence manager so it can use
+	// commit registration from its first render. Timeline order also needs the
+	// observer when outlines are hidden. Installation is idempotent and reads
+	// sequence descriptors only after React commits the tree.
+	if (typeof window !== 'undefined') {
+		installFiberCommitOrderObserver(window);
+	}
+
 	const internals = getCanvasControllerInternals(controller);
 	const onTimelineSequenceChange = useCallback(
 		(sequences: TSequence[]) => internals.setSequences(sequences),
@@ -107,14 +114,6 @@ const CanvasFn = <
 		return () =>
 			window.removeEventListener(Internals.REACT_REFRESH_STARTED_EVENT, commit);
 	}, [internals]);
-	// React Refresh (used by Browser Studio) or React DevTools must have
-	// registered the renderer before this commit. Install before the commit hook
-	// fires so the initial outline nodes are discovered as well.
-	useLayoutEffect(() => {
-		if (showOutlines && typeof window !== 'undefined') {
-			installFiberCommitOrderObserver(window);
-		}
-	}, [showOutlines]);
 	const overlay = useMemo(
 		() => (
 			<>

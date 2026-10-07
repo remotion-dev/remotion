@@ -110,6 +110,7 @@ const {
 	videoCodecOption,
 	colorSpaceOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	deleteAfterOption,
 	folderExpiryOption,
 	enableCancellationOption,
@@ -139,6 +140,7 @@ const {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
@@ -570,6 +572,14 @@ declare global {
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 
 		/**
+		 * Use JPEG or PNG screenshots instead of shared-memory capture.
+		 * Parallel encoding remains enabled. Default: false.
+		 */
+		readonly setDisableSharedMemoryCapture: (
+			disableSharedMemoryCapture: boolean,
+		) => void;
+
+		/**
 		 * Disallows the renderer from doing rendering frames and encoding at the same time.
 		 * This makes the rendering process more memory-efficient, but possibly slower.
 		 * Default: false
@@ -667,6 +677,11 @@ type FlatConfig = RemotionConfigObject &
 		 * Set the editor used when opening files from Remotion Studio.
 		 */
 		setDefaultEditor: (editor: DefaultEditor) => void;
+		/**
+		 * Set the default premount duration in seconds in Remotion Studio.
+		 * Default: 0 in v4, 2 in v5.
+		 */
+		setDefaultPremountInSeconds: (seconds: number) => void;
 		/**
 		 * Set the coding agent used by Remotion Studio.
 		 */
@@ -878,6 +893,7 @@ export const Config: FlatConfig = {
 	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
 	setDisallowParallelEncoding: disallowParallelEncodingOption.setConfig,
+	setDisableSharedMemoryCapture: disableSharedMemoryCaptureOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setEnableCancellation: enableCancellationOption.setConfig,
@@ -893,6 +909,7 @@ export const Config: FlatConfig = {
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
 	setDefaultEditor: defaultEditorOption.setConfig,
+	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,

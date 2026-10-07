@@ -1087,19 +1087,7 @@ export const WebMcp: FC = () => {
 						});
 						const portalNode = Internals.portalNode();
 						const portalRect = portalNode.getBoundingClientRect();
-						const metadata = currentCompositionMetadataRef.current;
-						const compositionWidth =
-							metadata?.width ?? composition.width ?? portalNode.offsetWidth;
-						const compositionHeight =
-							metadata?.height ?? composition.height ?? portalNode.offsetHeight;
-						const scaleX = portalRect.width / compositionWidth;
-						const scaleY = portalRect.height / compositionHeight;
-						if (
-							!Number.isFinite(scaleX) ||
-							scaleX === 0 ||
-							!Number.isFinite(scaleY) ||
-							scaleY === 0
-						) {
+						if (portalRect.width === 0 || portalRect.height === 0) {
 							throw new Error('The Studio canvas is not ready to be measured.');
 						}
 
@@ -1151,10 +1139,7 @@ export const WebMcp: FC = () => {
 									outline.sequence.displayName ||
 									outline.sequence.controls?.componentName ||
 									null;
-								const points = measurement.points.map((point) => ({
-									x: point.x / scaleX,
-									y: point.y / scaleY,
-								}));
+								const {points} = measurement;
 								const xValues = points.map((point) => point.x);
 								const yValues = points.map((point) => point.y);
 								const left = Math.min(...xValues);

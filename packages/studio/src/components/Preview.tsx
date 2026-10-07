@@ -381,8 +381,6 @@ const CompWhenItHasDimensions: React.FC<{
 				compositionHeight={(contentDimensions as Dimensions).height}
 				compositionWidth={(contentDimensions as Dimensions).width}
 				scale={scale}
-				translationX={previewSize.translation.x}
-				translationY={previewSize.translation.y}
 			/>
 		</div>
 	);

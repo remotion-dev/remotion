@@ -6,6 +6,7 @@ const cliFlag = 'video-bitrate' as const;
 
 export const videoBitrateOption = {
 	name: 'Video Bitrate',
+	addedIn: '3.2.32',
 	cliFlag,
 	description: () => (
 		<>

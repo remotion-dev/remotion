@@ -168,6 +168,7 @@ const renderOptions = options(
 		'prores-profile',
 		'x264-preset',
 		'gop',
+		'disable-shared-memory-capture',
 		'crf',
 		'pixel-format',
 		'every-nth-frame',

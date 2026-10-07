@@ -13,6 +13,7 @@ const cliFlag = 'buffer-size' as const;
 
 export const encodingBufferSizeOption = {
 	name: 'FFmpeg -bufsize flag',
+	addedIn: '4.0.78',
 	cliFlag,
 	description: () => (
 		<>

@@ -47,6 +47,10 @@ const lambdaOptions: Record<string, HelpOption> = {
 		flag: '--concurrency-per-lambda <count>',
 		description: 'Set the concurrency within each Lambda invocation.',
 	},
+	'output-prefix': {
+		flag: '--output-prefix <prefix>',
+		description: 'Set the storage prefix for an image sequence.',
+	},
 	'out-name': {
 		flag: '--out-name <key>',
 		description: 'Set the S3 key of the rendered output.',
@@ -222,6 +226,7 @@ export const lambdaCommandHelp = [
 				'prores-profile',
 				'x264-preset',
 				'gop',
+				'disable-shared-memory-capture',
 				'crf',
 				'pixel-format',
 				'image-format',
@@ -232,6 +237,9 @@ export const lambdaCommandHelp = [
 				'number-of-gif-loops',
 				'timeout',
 				'out-name',
+				'output-prefix',
+				'sequence',
+				'image-sequence-pattern',
 				's3-output-provider-endpoint',
 				's3-output-provider-region',
 				's3-output-provider-force-path-style',

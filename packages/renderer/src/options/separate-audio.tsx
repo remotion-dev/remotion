@@ -23,6 +23,7 @@ export const separateAudioOption = {
 		};
 	},
 	name: 'Separate audio to',
+	addedIn: '4.0.123',
 	setConfig: () => {
 		throw new Error('Not implemented');
 	},

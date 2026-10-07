@@ -6,6 +6,7 @@ const cliFlag = 'license-key' as const;
 
 export const licenseKeyOption = {
 	name: 'License key',
+	addedIn: '4.0.409',
 	cliFlag,
 	description: () => (
 		<>

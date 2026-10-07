@@ -50,11 +50,6 @@ export const resolveContextMenuItems = async (
 	return [...result];
 };
 
-type ContextMenuSizeSource =
-	| React.RefObject<HTMLElement | null>
-	| HTMLElement
-	| null;
-
 type ContextMenuProps = {
 	readonly children: React.ReactNode;
 	readonly getItems: ContextMenuItemsFactory;
@@ -88,39 +83,25 @@ const notifyContextMenuOpened = (id: number) => {
 };
 
 const ContextMenuPortal: React.FC<{
-	readonly menuTreeId: number;
-	readonly sizeSource: ContextMenuSizeSource;
-	readonly currentZIndex: number;
+	readonly anchorRef: React.RefObject<HTMLElement | null> | null;
 	readonly onHide: () => void;
 	readonly opened: OpenedState;
-}> = ({menuTreeId, sizeSource, currentZIndex, onHide, opened}) => {
-	const size = PlayerInternals.useElementSize(sizeSource, {
+}> = ({anchorRef, onHide, opened}) => {
+	const [menuTreeId] = useState(getNextMenuTreeId);
+	const {currentZIndex} = useZIndex();
+	const size = PlayerInternals.useElementSize(anchorRef ?? document.body, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
 	const isMobileLayout = useMobileLayout();
-
-	const spaceToBottom = useMemo(() => {
-		if (size) {
-			return size.windowSize.height - opened.top;
-		}
-
-		return 0;
-	}, [opened.top, size]);
-
-	const spaceToTop = useMemo(() => {
-		if (size) {
-			return opened.top;
-		}
-
-		return 0;
-	}, [opened.top, size]);
 
 	const portalStyle = useMemo(() => {
 		if (!size) {
 			return;
 		}
 
+		const spaceToBottom = size.windowSize.height - opened.top;
+		const spaceToTop = opened.top;
 		const spaceToRight = size.windowSize.width - size.left;
 		const spaceToLeft = size.left + size.width;
 
@@ -150,14 +131,7 @@ const ContextMenuPortal: React.FC<{
 						right: canOpenOnLeft ? size.windowSize.width - opened.left : 0,
 					}),
 		};
-	}, [
-		opened.left,
-		opened.top,
-		size,
-		isMobileLayout,
-		spaceToTop,
-		spaceToBottom,
-	]);
+	}, [opened.left, opened.top, size, isMobileLayout]);
 
 	useEffect(() => {
 		const preventNativeContextMenu = (event: MouseEvent) => {
@@ -257,12 +231,10 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 	) => {
 		const ref = useRef<HTMLDivElement>(null);
 		const [id] = useState(() => nextContextMenuId++);
-		const [menuTreeId] = useState(getNextMenuTreeId);
 		const invocationRef = useRef(0);
 		const getItemsRef = useRef(getItems);
 		getItemsRef.current = getItems;
 		const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
-		const {currentZIndex} = useZIndex();
 
 		const setRef = useCallback(
 			(node: HTMLDivElement | null) => {
@@ -360,13 +332,7 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 					{children}
 				</div>
 				{opened.type === 'open' ? (
-					<ContextMenuPortal
-						menuTreeId={menuTreeId}
-						sizeSource={ref}
-						currentZIndex={currentZIndex}
-						onHide={onHide}
-						opened={opened}
-					/>
+					<ContextMenuPortal anchorRef={ref} onHide={onHide} opened={opened} />
 				) : null}
 			</>
 		);
@@ -381,7 +347,6 @@ export const ContextMenuForTarget: React.FC<{
 	readonly onOpenChange?: (open: boolean) => void;
 }> = ({triggerRef, getItems, onOpenChange = undefined}) => {
 	const [id] = useState(() => nextContextMenuId++);
-	const [menuTreeId] = useState(getNextMenuTreeId);
 	const invocationRef = useRef(0);
 	const isOpenRef = useRef(false);
 	const getItemsRef = useRef(getItems);
@@ -391,8 +356,6 @@ export const ContextMenuForTarget: React.FC<{
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
 	// Another menu must be able to cancel an in-flight items factory, too.
 	const [active, setActive] = useState(false);
-	const [body, setBody] = useState<HTMLElement | null>(null);
-	const {currentZIndex} = useZIndex();
 	const setOpenLifecycleState = useCallback((open: boolean) => {
 		if (isOpenRef.current === open) {
 			return;
@@ -401,12 +364,6 @@ export const ContextMenuForTarget: React.FC<{
 		isOpenRef.current = open;
 		setActive(open);
 		onOpenChangeRef.current?.(open);
-	}, []);
-
-	useEffect(() => {
-		// Access document.body after mount so importing this component stays safe
-		// in DOM-less test environments.
-		setBody(document.body);
 	}, []);
 
 	useEffect(() => {
@@ -497,12 +454,6 @@ export const ContextMenuForTarget: React.FC<{
 	}, [active, id, onHide]);
 
 	return opened.type === 'open' ? (
-		<ContextMenuPortal
-			menuTreeId={menuTreeId}
-			sizeSource={body}
-			currentZIndex={currentZIndex}
-			onHide={onHide}
-			opened={opened}
-		/>
+		<ContextMenuPortal anchorRef={null} onHide={onHide} opened={opened} />
 	) : null;
 };

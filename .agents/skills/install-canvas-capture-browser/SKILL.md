@@ -1,13 +1,14 @@
 ---
 name: install-canvas-capture-browser
-description: Install and verify the pinned Chrome for Testing build used by the private Remotion Canvas Capture extension on Apple Silicon macOS. Use when setting up Canvas Capture, when Recorder Chrome is missing or has the wrong version, or when the canvas-capture-extension installer reports that Chrome for Testing 150.0.7842.0 (r1631007) is unavailable.
+description: Install and verify Chrome for Testing 157.0.8080.0 or newer for the private Remotion Canvas Capture extension on Apple Silicon macOS. Use when setting up Canvas Capture or when no compatible Chrome browser is installed.
 ---
 
 # Install Canvas Capture Browser
 
-Install the exact Chrome for Testing build known to support Canvas Draw Element
-and proprietary H.264 codecs. Keep it pinned because other Chrome builds may
-remove or change the experimental API.
+Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled.
+Use an existing compatible Chrome browser, or install Chrome for Testing with
+the bundled script. The extension also checks the required HTML-in-canvas API
+and video encoding configuration before allowing recording.
 
 ## Install
 
@@ -17,25 +18,22 @@ remove or change the experimental API.
    .agents/skills/install-canvas-capture-browser/scripts/install-browser.sh
    ```
 
-   The script only supports Apple Silicon macOS. It downloads revision
-   `r1631007`, verifies the archive checksum and version `150.0.7842.0`, and
+   The script only supports Apple Silicon macOS. It selects the first compatible
+   Stable, Beta, Dev, or Canary release from Google's Chrome for Testing metadata,
+   verifies that the downloaded app matches that release, and
    installs the app at `/Users/jonathanburger/Applications/Recorder Chrome.app`.
-   It exits successfully without downloading when the correct version is
+   It exits successfully without downloading when the version is 157.0.8080.0 or newer and the browser is
    already installed. It does not overwrite an incompatible existing app.
 
-2. Confirm the script reports the expected installed path and version.
+2. Confirm the script reports the expected installed path and a version of at least 157.0.8080.0.
 
 3. Launch it for Canvas Capture with:
 
    ```bash
    '/Users/jonathanburger/Applications/Recorder Chrome.app/Contents/MacOS/Google Chrome for Testing' \
-     --user-data-dir='/Users/jonathanburger/Library/Application Support/Chrome for Testing Canvas Capture r1631007' \
+     --user-data-dir='/Users/jonathanburger/Library/Application Support/Remotion Canvas Capture' \
      --enable-features=CanvasDrawElement \
      --enable-blink-features=CanvasDrawElement \
-     --disable-component-update \
      --no-first-run \
      --no-default-browser-check
    ```
-
-Use this browser only with trusted websites because the pinned build does not
-receive security updates.

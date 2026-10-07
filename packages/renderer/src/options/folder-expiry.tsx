@@ -6,6 +6,7 @@ const cliFlag = 'enable-folder-expiry' as const;
 
 export const folderExpiryOption = {
 	name: 'Lambda render expiration',
+	addedIn: '4.0.32',
 	cliFlag,
 	description: () => {
 		return (

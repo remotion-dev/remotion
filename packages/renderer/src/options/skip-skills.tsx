@@ -4,6 +4,7 @@ const cliFlag = 'skip-skills' as const;
 
 export const skipSkillsOption = {
 	name: 'Skip Skills',
+	addedIn: '4.0.503',
 	cliFlag,
 	description: () => (
 		<>Do not update installed Remotion Agent Skills while upgrading Remotion.</>

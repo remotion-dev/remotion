@@ -13,6 +13,7 @@ const cliFlag = 'crf' as const;
 
 export const crfOption = {
 	name: 'CRF',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>

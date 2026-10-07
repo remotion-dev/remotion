@@ -1,7 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
-version: 4.0.533
+version: 4.0.534
 ---
 
 By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:
@@ -30,7 +30,7 @@ import type React from 'react';
 import {Interactive, type InteractivitySchema} from 'remotion';
 
 type LowerThirdProps = {
-  readonly children: string;
+  readonly children: React.ReactNode;
   readonly accentColor: string;
   readonly style?: React.CSSProperties;
 };
@@ -73,7 +73,7 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
 };
 
 const lowerThirdSchema = {
-  children: {type: 'text-content', default: '', description: 'Text'},
+  ...Interactive.childrenSchema,
   accentColor: {
     type: 'color',
     default: '#0b84f3',
@@ -100,7 +100,7 @@ Keys may use dot notation, such as `style.color`.
 
 | Type                                                                         | Use for                                                      | Keyframable   |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
-| `text-content`                                                               | Text, such as a title                                        | No            |
+| `string`                                                                     | Strings, such as a title, prompt, or code snippet            | No            |
 | `number`                                                                     | Numbers, with optional `min`, `max`, `step`, `integer`       | Yes           |
 | `boolean`                                                                    | On/off switches                                              | Yes (hold)    |
 | `color`                                                                      | CSS color strings                                            | Yes           |
@@ -132,6 +132,14 @@ const cardSchema = {
 ```
 
 Also available: `Interactive.borderSchema`, and `Interactive.captionsSchema` for components that accept captions.
+For components that accept `React.ReactNode` children, add `...Interactive.childrenSchema`.
+It provides controls for children content and may evolve to support richer content.
+Currently, it uses a string field labeled "Text" with a default of `''`.
+If a component requires string-only children, declare an explicit `children` field with `type: 'string'` instead.
+`Interactive.textSchema` controls typography styles; `childrenSchema` controls content.
+The children fragment is not included in `baseSchema` or automatically added to custom components.
+Nested markup and computed children are currently read-only.
+`text-content` is a deprecated alias for the `string` field type.
 See [`InteractivitySchema`](https://www.remotion.dev/docs/interactivity-schema) for all options.
 
 ### Register reusable components as connected compositions
