@@ -23,6 +23,7 @@ const cliFlag = 'gop' as const;
 
 export const gopSizeOption = {
 	name: 'GOP size',
+	addedIn: '4.0.466',
 	cliFlag,
 	description: () => (
 		<>

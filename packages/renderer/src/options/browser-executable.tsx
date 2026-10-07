@@ -7,6 +7,7 @@ const cliFlag = 'browser-executable' as const;
 
 export const browserExecutableOption = {
 	name: 'Browser executable',
+	addedIn: '1.5.0',
 	cliFlag,
 	description: () => (
 		<>

@@ -125,6 +125,7 @@ const parseFrameRangeFromCli = (
 
 export const framesOption = {
 	name: 'Frame Range',
+	addedIn: '2.0.0',
 	cliFlag,
 	description: () => (
 		<>

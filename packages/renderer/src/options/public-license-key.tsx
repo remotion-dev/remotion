@@ -6,6 +6,7 @@ let currentPublicLicenseKey: string | null = null;
 
 export const publicLicenseKeyOption = {
 	name: 'Public License Key',
+	addedIn: '4.0.398',
 	cliFlag,
 	description: () => (
 		<>

@@ -6,6 +6,7 @@ const cliFlag = 'default-premount-in-seconds' as const;
 
 export const defaultPremountInSecondsOption = {
 	name: 'Default premount duration in seconds',
+	addedIn: '4.0.535',
 	cliFlag,
 	id: cliFlag,
 	description: () => (

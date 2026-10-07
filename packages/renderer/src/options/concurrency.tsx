@@ -32,6 +32,7 @@ const validateConcurrencyValue = (value: unknown, setting: string) => {
 
 export const concurrencyOption = {
 	name: 'Concurrency',
+	addedIn: '1.0.0',
 	cliFlag,
 	description: () => (
 		<>

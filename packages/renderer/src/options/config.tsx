@@ -4,6 +4,7 @@ const cliFlag = 'config' as const;
 
 export const configOption = {
 	name: 'Config file',
+	addedIn: '1.2.0',
 	cliFlag,
 	description: () => <>Specify a location for the Remotion config file.</>,
 	ssrName: null,

@@ -6,6 +6,7 @@ let currentPreviewSampleRate: number | null = null;
 
 export const previewSampleRateOption = {
 	name: 'Preview Sample Rate',
+	addedIn: '4.0.470',
 	cliFlag,
 	description: () => (
 		<>

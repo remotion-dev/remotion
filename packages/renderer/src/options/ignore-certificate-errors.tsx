@@ -6,6 +6,7 @@ const cliFlag = 'ignore-certificate-errors' as const;
 
 export const ignoreCertificateErrorsOption = {
 	name: 'Ignore certificate errors',
+	addedIn: '2.6.5',
 	cliFlag,
 	description: () => (
 		<>

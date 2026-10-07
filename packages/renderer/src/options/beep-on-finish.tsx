@@ -7,6 +7,7 @@ const cliFlag = 'beep-on-finish' as const;
 
 export const beepOnFinishOption = {
 	name: 'Beep on finish',
+	addedIn: '4.0.84',
 	cliFlag,
 	description: () => (
 		<>

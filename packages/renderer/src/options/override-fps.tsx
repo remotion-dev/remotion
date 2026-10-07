@@ -7,6 +7,7 @@ const cliFlag = 'fps' as const;
 
 export const overrideFpsOption = {
 	name: 'Override FPS',
+	addedIn: '4.0.424',
 	cliFlag,
 	description: () => <>Overrides the frames per second of the composition.</>,
 	ssrName: null,

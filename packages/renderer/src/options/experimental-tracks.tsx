@@ -7,6 +7,7 @@ const cliFlag = 'experimental-tracks' as const;
 
 export const experimentalTracksOption = {
 	name: 'Enable experimental timeline tracks',
+	addedIn: '4.0.534',
 	cliFlag,
 	description: () => (
 		<>

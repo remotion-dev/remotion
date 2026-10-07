@@ -7,6 +7,7 @@ const cliFlag = 'disable-canvas-tabs' as const;
 
 export const canvasTabsOption = {
 	name: 'Disable or enable Studio canvas tabs',
+	addedIn: '4.0.530',
 	cliFlag,
 	description: () => <>Enable or disable the tabs above the Studio canvas.</>,
 	ssrName: null,

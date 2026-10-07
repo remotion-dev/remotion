@@ -8,6 +8,7 @@ let deleteAfter: DeleteAfter | null = null;
 
 export const deleteAfterOption = {
 	name: 'Lambda render expiration',
+	addedIn: '4.0.32',
 	cliFlag,
 	description: () => {
 		return (

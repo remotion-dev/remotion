@@ -7,6 +7,7 @@ let currentImageSequencePattern: string | null = null;
 // Option for --image-sequence-pattern
 export const imageSequencePatternOption = {
 	name: 'Image Sequence Pattern',
+	addedIn: '4.0.313',
 	cliFlag,
 	ssrName: 'imageSequencePattern',
 	description: () => (

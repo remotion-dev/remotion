@@ -8,6 +8,7 @@ const cliFlag = 'enforce-audio-track' as const;
 
 export const enforceAudioOption = {
 	name: 'Enforce Audio Track',
+	addedIn: '3.2.1',
 	cliFlag,
 	description: (mode) => (
 		<>

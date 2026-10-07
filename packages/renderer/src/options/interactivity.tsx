@@ -7,6 +7,7 @@ const cliFlag = 'disable-interactivity' as const;
 
 export const interactivityOption = {
 	name: 'Disable or enable Studio interactivity',
+	addedIn: '4.0.487',
 	cliFlag,
 	description: () => (
 		<>

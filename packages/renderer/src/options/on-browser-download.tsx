@@ -17,6 +17,7 @@ const cliFlag = 'on-browser-download' as const;
 
 export const onBrowserDownloadOption = {
 	name: 'Browser download callback function',
+	addedIn: '4.0.137',
 	cliFlag,
 	description: () => (
 		<>

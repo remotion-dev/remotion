@@ -7,6 +7,7 @@ const cliFlag = 'disable-ask-ai' as const;
 
 export const askAIOption = {
 	name: 'Disable or Enable the Ask AI option',
+	addedIn: '4.0.407',
 	cliFlag,
 	description: () => (
 		<>

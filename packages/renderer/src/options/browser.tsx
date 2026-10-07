@@ -4,6 +4,7 @@ const cliFlag = 'browser' as const;
 
 export const browserOption = {
 	name: 'Browser',
+	addedIn: '3.3.79',
 	cliFlag,
 	description: () => (
 		<>

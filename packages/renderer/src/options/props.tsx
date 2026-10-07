@@ -4,6 +4,7 @@ const cliFlag = 'props' as const;
 
 export const propsOption = {
 	name: 'Input Props',
+	addedIn: '1.0.0',
 	cliFlag,
 	description: () => (
 		<>

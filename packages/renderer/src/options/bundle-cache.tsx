@@ -6,6 +6,7 @@ let cachingEnabled = true;
 
 export const bundleCacheOption = {
 	name: 'Webpack Bundle Caching',
+	addedIn: '2.0.0',
 	cliFlag,
 	description: () => (
 		<>

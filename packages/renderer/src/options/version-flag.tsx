@@ -4,6 +4,7 @@ const cliFlag = 'version' as const;
 
 export const versionFlagOption = {
 	name: 'Version',
+	addedIn: '4.0.15',
 	cliFlag,
 	description: () => (
 		<>

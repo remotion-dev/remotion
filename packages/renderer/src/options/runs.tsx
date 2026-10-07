@@ -8,6 +8,7 @@ const cliFlag = 'runs' as const;
 
 export const runsOption = {
 	name: 'Benchmark runs',
+	addedIn: '3.2.28',
 	cliFlag,
 	description: () => (
 		<>

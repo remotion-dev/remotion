@@ -6,6 +6,7 @@ const cliFlag = 'experimental-keep-audio-context-alive' as const;
 
 export const experimentalKeepAudioContextAliveOption = {
 	name: 'Keep AudioContext alive (experimental)',
+	addedIn: '4.0.508',
 	cliFlag,
 	description: () => (
 		<>

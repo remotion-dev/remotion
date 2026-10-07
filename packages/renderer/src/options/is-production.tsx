@@ -6,6 +6,7 @@ let currentIsProductionKey: boolean | null = null;
 
 export const isProductionOption = {
 	name: 'Is Production',
+	addedIn: '4.0.409',
 	cliFlag,
 	description: () => (
 		<>

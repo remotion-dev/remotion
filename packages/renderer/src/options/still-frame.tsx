@@ -15,6 +15,7 @@ const validate = (frame: number) => {
 
 export const stillFrameOption = {
 	name: 'Frame',
+	addedIn: '2.3.0',
 	cliFlag,
 	description: () => (
 		<>

@@ -8,6 +8,7 @@ const cliFlag = 'every-nth-frame' as const;
 
 export const everyNthFrameOption = {
 	name: 'Every nth frame',
+	addedIn: '3.1.0',
 	cliFlag,
 	description: () => (
 		<>

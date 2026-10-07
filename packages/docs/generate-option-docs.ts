@@ -87,6 +87,8 @@ const generateOptionDocs = async () => {
 			`custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/renderer/src/options/${sourceFile}.tsx`,
 			'---',
 			'',
+			`# ${option.name.replaceAll('<', '&lt;').replaceAll('>', '&gt;')}<AvailableFrom v="${option.addedIn}" />`,
+			'',
 			apiDescription === cliDescription || supportedCommands.length === 0
 				? apiDescription
 				: `## JavaScript API\n\n${apiDescription}\n\n## Command line\n\n${cliDescription}`,

@@ -6,6 +6,7 @@ const cliFlag = 'disable-shared-memory-capture' as const;
 
 export const disableSharedMemoryCaptureOption = {
 	name: 'Disable shared-memory capture',
+	addedIn: '4.0.534',
 	cliFlag,
 	description: () => (
 		<>

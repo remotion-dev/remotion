@@ -23,6 +23,7 @@ export const disableGitSourceOption = {
 		};
 	},
 	name: 'Disable Git source',
+	addedIn: '4.0.182',
 	setConfig: () => {
 		throw new Error('Not implemented');
 	},

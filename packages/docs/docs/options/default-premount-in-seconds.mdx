@@ -7,6 +7,8 @@ crumb: Options
 custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/renderer/src/options/default-premount-in-seconds.tsx
 ---
 
+# Default premount duration in seconds<AvailableFrom v="4.0.535" />
+
 Set the default premount duration in seconds for timed components in the Studio. Defaults to 0 in v4 and 2 in v5. Must be a finite, non-negative number. The duration is converted to frames using the composition FPS and rounded to the nearest frame. An explicit `premountFor` prop takes precedence. Does not affect rendering. In the Player, use the `defaultPremountInSeconds` prop instead.
 
 ## CLI flag

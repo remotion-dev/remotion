@@ -13,6 +13,7 @@ const validate = (value: unknown) => {
 
 export const overwriteOption = {
 	name: 'Overwrite output',
+	addedIn: '1.0.0',
 	cliFlag,
 	description: () => (
 		<>

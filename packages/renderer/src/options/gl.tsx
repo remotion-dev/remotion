@@ -64,6 +64,7 @@ export const glOption = {
 	cliFlag,
 	docLink: 'https://www.remotion.dev/docs/options/gl',
 	name: 'OpenGL renderer',
+	addedIn: '2.6.5',
 	type: 'angle' as OpenGlRenderer | null,
 	ssrName: 'gl',
 	description: () => {

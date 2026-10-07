@@ -6,6 +6,7 @@ let envFileLocation: string | null = null;
 
 export const envFileOption = {
 	name: 'Env File',
+	addedIn: '2.2.0',
 	cliFlag,
 	description: () => (
 		<>
