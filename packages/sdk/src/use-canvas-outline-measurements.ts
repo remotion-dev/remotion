@@ -103,9 +103,6 @@ export const useCanvasOutlineMeasurements = ({
 
 		const ownerWindow = contentRoot.ownerDocument.defaultView;
 		const onCommit = () => {
-			// Composition mutations and resizes invalidate geometry; commits only
-			// refresh discovered nodes so zoom and pan keep the cache. CSS/SMIL
-			// animation and styles changed outside contentRoot need another trigger.
 			if (
 				targets.some(
 					(target) =>
