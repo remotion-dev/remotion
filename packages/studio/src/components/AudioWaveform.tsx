@@ -100,6 +100,8 @@ const AudioWaveformInner: React.FC<{
 			volume,
 		});
 	}, [displayDurationInFrames, displayOffsetInFrames, muted, volume]);
+	const waveformVolume =
+		shouldRenderVolumeOverlay && !muted ? 1 : visibleVolume;
 
 	// Layout effect so that a cache hit sets the peaks synchronously and the
 	// waveform is painted on the very first frame after mounting.
@@ -166,11 +168,11 @@ const AudioWaveformInner: React.FC<{
 				WHITE_ALPHA_60,
 				getComputedStyle(canvasElement),
 			),
-			volume: visibleVolume,
+			volume: waveformVolume,
 			width: drawingWidth,
 			horizontalOffset,
 		});
-	}, [height, peakRange, peaks, visibleVolume, visualizationWidth]);
+	}, [height, peakRange, peaks, visualizationWidth, waveformVolume]);
 
 	useLayoutEffect(() => {
 		if (!shouldRenderVolumeOverlay || !peaks) {
