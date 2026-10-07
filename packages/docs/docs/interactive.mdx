@@ -103,6 +103,23 @@ Controls for text-related style props:
 
 Use it for components that accept a `style` prop and render text.
 
+### `Interactive.childrenSchema`<AvailableFrom v="4.0.535" />
+
+A [`string`](/docs/interactivity-schema#string) control for a component's `children` prop, labeled "Text", with a default of `''`.
+
+Use it for components that accept string children. Remotion Studio can edit a single JSX text child or string literal. Nested markup and computed expressions are read-only.
+
+Add this fragment explicitly for custom components. It is separate from `Interactive.baseSchema` and `Interactive.textSchema`, which controls typography styles.
+
+```ts twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const labelSchema = {
+  ...Interactive.textSchema,
+  ...Interactive.childrenSchema,
+} as const satisfies InteractivitySchema;
+```
+
 ### `Interactive.backgroundSchema`<AvailableFrom v="4.0.497" />
 
 A color control for `style.backgroundColor`.

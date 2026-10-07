@@ -38,7 +38,7 @@ export const macOSCursorSchema: InteractivitySchema = {
 			{
 				custom: {
 					customCursor: {
-						type: 'text-content',
+						type: 'string',
 						default: '',
 						description: 'Custom cursor',
 						keyframable: false,

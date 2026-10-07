@@ -73,7 +73,7 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
 };
 
 const lowerThirdSchema = {
-  children: {type: 'text-content', default: '', description: 'Text'},
+  ...Interactive.childrenSchema,
   accentColor: {
     type: 'color',
     default: '#0b84f3',
@@ -100,7 +100,7 @@ Keys may use dot notation, such as `style.color`.
 
 | Type                                                                         | Use for                                                      | Keyframable   |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
-| `text-content`                                                               | Text, such as a title                                        | No            |
+| `string`                                                                     | Strings, such as a title, prompt, or code snippet            | No            |
 | `number`                                                                     | Numbers, with optional `min`, `max`, `step`, `integer`       | Yes           |
 | `boolean`                                                                    | On/off switches                                              | Yes (hold)    |
 | `color`                                                                      | CSS color strings                                            | Yes           |
@@ -132,6 +132,12 @@ const cardSchema = {
 ```
 
 Also available: `Interactive.borderSchema`, and `Interactive.captionsSchema` for components that accept captions.
+For components that accept string children, add `...Interactive.childrenSchema`.
+It provides a `children` string field labeled "Text" with a default of `''`.
+`Interactive.textSchema` controls typography styles; `childrenSchema` controls content.
+The children fragment is not included in `baseSchema` or automatically added to custom components.
+Nested markup and computed children remain read-only.
+`text-content` is a deprecated alias for the `string` field type.
 See [`InteractivitySchema`](https://www.remotion.dev/docs/interactivity-schema) for all options.
 
 ### Register reusable components as connected compositions

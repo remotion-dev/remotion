@@ -43,12 +43,7 @@ const labelSchema = {
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Interactive.borderRadiusSchema,
-	children: {
-		type: 'text-content',
-		default: '',
-		description: 'Text',
-		keyframable: false,
-	},
+	...Interactive.childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const LabelInner: React.FC<

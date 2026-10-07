@@ -237,7 +237,7 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
 };
 
 const lowerThirdSchema = {
-  children: { type: "text-content", default: "", description: "Text" },
+  ...Interactive.childrenSchema,
   accentColor: {
     type: "color",
     default: "#0b84f3",

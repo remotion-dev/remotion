@@ -66,7 +66,11 @@ export const getRuntimeValueForSchemaKey = ({
 }): unknown => {
 	const value = getNestedValue(props, key);
 
-	if (flatSchema[key]?.type === 'text-content' && typeof value !== 'string') {
+	if (
+		(flatSchema[key]?.type === 'string' ||
+			flatSchema[key]?.type === 'text-content') &&
+		typeof value !== 'string'
+	) {
 		return undefined;
 	}
 
@@ -112,7 +116,11 @@ export const mergeValues = ({
 
 	for (const key of schemaKeys) {
 		const value = valuesDotNotation[key];
-		if (flatSchema[key]?.type === 'text-content' && value === undefined) {
+		if (
+			(flatSchema[key]?.type === 'string' ||
+				flatSchema[key]?.type === 'text-content') &&
+			value === undefined
+		) {
 			continue;
 		}
 
@@ -145,7 +153,8 @@ export const mergeValues = ({
 		[...propsToDelete].filter(
 			(key) =>
 				!(
-					flatSchema[key]?.type === 'text-content' &&
+					(flatSchema[key]?.type === 'string' ||
+						flatSchema[key]?.type === 'text-content') &&
 					valuesDotNotation[key] === undefined
 				),
 		),
