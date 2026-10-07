@@ -714,21 +714,24 @@ export const renderCommand = async ({
 				);
 			}
 
+			const outputUrl = newStatus.outputSequence
+				? `${LambdaClientInternals.getS3BucketUrl({
+						region: getAwsRegion(),
+						bucketName: newStatus.outputSequence.bucketName,
+					})}&prefix=${encodeURIComponent(newStatus.outputSequence.keyPrefix)}`
+				: (newStatus.outputFile as string);
+
 			Log.info({indent: false, logLevel});
 			Log.info(
 				{indent: false, logLevel},
 				CliInternals.chalk.blue('+ S3 '.padEnd(CliInternals.LABEL_WIDTH)),
 				CliInternals.chalk.blue(
 					CliInternals.makeHyperlink({
-						fallback:
-							newStatus.outputSequence?.manifestUrl ??
-							(newStatus.outputFile as string),
+						fallback: outputUrl,
 						text:
 							newStatus.outputSequence?.keyPrefix ??
 							(newStatus.outKey as string),
-						url:
-							newStatus.outputSequence?.manifestUrl ??
-							(newStatus.outputFile as string),
+						url: outputUrl,
 					}),
 				),
 				CliInternals.chalk.gray(
