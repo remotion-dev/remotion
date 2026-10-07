@@ -292,6 +292,19 @@ Changes apply immediately in the Studio without reloading the page.
 
 The [`--experimental-tracks`](/docs/options/experimental-tracks) flag takes precedence over this option.
 
+## `setDefaultPremountInSeconds()`<AvailableFrom v="4.0.534" />
+
+<Options id="default-premount-in-seconds" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDefaultPremountInSeconds(2);
+```
+
+You can also change this value in the Studio settings. Changes apply immediately after saving.
+The [`--default-premount-in-seconds`](/docs/options/default-premount-in-seconds) flag takes precedence over this option.
+
 ## `setDefaultEditor()`<AvailableFrom v="4.0.503" />
 
 <Options id="editor" />

@@ -130,6 +130,7 @@ const studioOptions = options(
 		'beep-on-finish',
 		'ipv4',
 		'number-of-shared-audio-tags',
+		'default-premount-in-seconds',
 		'experimental-keep-audio-context-alive',
 		'preview-sample-rate',
 		'cross-site-isolation',

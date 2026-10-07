@@ -33,6 +33,7 @@ const {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
@@ -110,6 +111,9 @@ export type CommandLineOptions = {
 		typeof defaultCodingAgentOption
 	>;
 	[defaultEditorOption.cliFlag]: TypeOfOption<typeof defaultEditorOption>;
+	[defaultPremountInSecondsOption.cliFlag]: TypeOfOption<
+		typeof defaultPremountInSecondsOption
+	>;
 	[disableWebSecurityOption.cliFlag]: TypeOfOption<
 		typeof disableWebSecurityOption
 	> | null;

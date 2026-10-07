@@ -32,12 +32,20 @@ It carries the style <code>opacity: 0</code> to make it invisible.
 It's time defined by{' '}<a href="/docs/use-current-frame"><code>useCurrentFrame()</code></a>{' '}is frozen at <code>0</code>.
 :::
 
+## Default premount duration<AvailableFrom v="4.0.534" />
+
+Set `defaultPremountInSeconds` to premount timed components that do not specify `premountFor`. The default is `0` seconds in v4 and `2` seconds in [v5.0](/docs/5-0-migration).
+The duration is converted to frames using the composition FPS and rounded to the nearest frame.
+
+For the Studio, use [`Config.setDefaultPremountInSeconds()`](/docs/config#setdefaultpremountinseconds), the [`--default-premount-in-seconds`](/docs/options/default-premount-in-seconds) CLI flag, or the Studio settings. The empty template sets `2` seconds in its config file.
+
+For the Player, use the [`defaultPremountInSeconds`](/docs/player/player#defaultpremountinseconds) prop.
+Explicit `premountFor` values take precedence, including `premountFor={0}`. Sequences with `layout="none"` do not use the default premount duration.
+
 ## Premounting components
 
-From [v5.0](/docs/5-0-migration), all [`<Sequence>`](/docs/sequence) components are premounted for 1 second (`fps` frames) by default.
-You can opt out by passing `premountFor={0}`.
-
-In v4, add the [`premountFor`](/docs/sequence#premountfor) prop to the [`<Sequence>`](/docs/sequence) component to enable premounting.
+Use [`premountFor`](/docs/sequence#premountfor) to set the number of frames a component premounts for.
+When omitted, the [default premount duration](#default-premount-duration) applies. Pass `premountFor={0}` to disable premounting for a component.
 
 [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from `@remotion/media` accept `premountFor` directly from <AvailableFrom v="4.0.495" inline />. They remain layoutless, carry `display: none` while premounted and register the premounted range in the Studio timeline.
 
@@ -94,7 +102,7 @@ export const PremountedScene: React.FC = () => {
 
 The image and heading mount together at frame 30, become visible at frame 60, and unmount at frame 150.
 
-`premountFor` defaults to `0` in v4 and `fps` (1 second) in v5.
+When `premountFor` is omitted, the [default premount duration](#default-premount-duration) applies.
 Use `styleWhilePremounted` to override styles while premounted, including the default hiding styles.
 
 Premounting only applies in the Player and Studio, not during rendering. A parent must also be mounted for its children to premount; set `premountFor` on the outer timed component when preparing a whole scene.
