@@ -236,6 +236,7 @@ export const MultiSequenceField: React.FC<{
 			showSelectedBackground={false}
 			containsSelection={false}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<TimelineFieldRowContent field={field} rowDepth={0} selected={false}>
 				{content}

@@ -2,7 +2,7 @@ import type {TSequence} from 'remotion';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 
-export const TIMELINE_PACKED_TRACK_HEIGHT = 54;
+export const TIMELINE_PACKED_TRACK_HEIGHT = 28;
 export const TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT = 24;
 
 export type TimelineDisplayRow = {
