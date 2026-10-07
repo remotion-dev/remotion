@@ -1,9 +1,12 @@
-import {useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect, useLayoutEffect, useRef} from 'react';
 import type {TSequence} from './CompositionManager.js';
 import {
 	DisableSequenceRegistrationContext,
 	SequenceManagerActionsContext,
 } from './SequenceManager.js';
+
+const useIsomorphicLayoutEffect =
+	typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 export const useSequenceRegistration = ({
 	getSequence,
@@ -40,11 +43,14 @@ export const useSequenceRegistration = ({
 		};
 	}, [id, registerSequence, registrationEnabled, unregisterSequence]);
 
-	useEffect(() => {
+	// Commit metadata with the synchronous preview update, so continuous input
+	// cannot leave lower-priority registration updates pending between commits.
+	useIsomorphicLayoutEffect(() => {
 		if (
 			registrationDisabled ||
 			getSequence === null ||
 			updateSequence === null ||
+			lastRegisteredGetterRef.current === null ||
 			lastRegisteredGetterRef.current === getSequence
 		) {
 			return;
