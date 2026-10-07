@@ -95,12 +95,12 @@ const IntroLowerThirdContent: React.FC<IntroLowerThirdProps> = ({
 
 const lowerThirdSchema = {
 	nameText: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Jonny Burger',
 		description: 'Name',
 	},
 	roleText: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Roller Ski Enthusiast',
 		description: 'Role',
 	},

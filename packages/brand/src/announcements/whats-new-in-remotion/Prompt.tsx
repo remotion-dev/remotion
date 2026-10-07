@@ -147,7 +147,7 @@ const PromptInner: React.FC<PromptProps> = ({prompt, thinkingIndex, style}) => {
 };
 
 const promptSchema = {
-	prompt: {type: 'text-content', default: '', description: 'Prompt'},
+	prompt: {type: 'string', default: '', description: 'Prompt'},
 	thinkingIndex: {
 		type: 'number',
 		default: 0,
