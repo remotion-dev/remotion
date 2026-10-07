@@ -119,15 +119,19 @@ const makeRenderProgress = (progress: RenderProgress) => {
 		.join(' ');
 
 	if (progress.renderMetadata?.type === 'sequence') {
+		const framesUploaded = progress.framesUploaded ?? 0;
+		const uploadedFrames = `${framesUploaded}/${totalFrames ?? '?'}`;
 		return [
 			first,
 			[
 				'Uploading frames'.padEnd(CliInternals.LABEL_WIDTH),
 				CliInternals.makeProgressBar(
-					(progress.framesUploaded ?? 0) / (totalFrames ?? 1),
+					framesUploaded / (totalFrames ?? 1),
 					false,
 				),
-				`${progress.framesUploaded ?? 0}/${totalFrames ?? '?'}`,
+				totalFrames === framesUploaded
+					? CliInternals.chalk.gray(uploadedFrames)
+					: uploadedFrames,
 			].join(' '),
 		];
 	}
