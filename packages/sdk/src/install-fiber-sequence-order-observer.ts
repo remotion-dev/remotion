@@ -1,4 +1,4 @@
-import type {RefObject} from 'react';
+import type {ComponentProps, RefObject} from 'react';
 import type {AnyComposition, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 
@@ -32,7 +32,24 @@ type HookTarget = Window &
 		__REACT_DEVTOOLS_GLOBAL_HOOK__?: DevToolsHook;
 	};
 
-const {installationMarker} = Internals.CommittedMetadataInternals;
+const {installationMarker, metadataProp} = Internals.CommittedMetadataInternals;
+
+type CommittedMetadata = NonNullable<
+	ComponentProps<
+		typeof Internals.CommittedMetadataProvider
+	>[typeof metadataProp]
+>;
+
+const getCommittedMetadata = (props: unknown): CommittedMetadata | null => {
+	if (typeof props !== 'object' || props === null) {
+		return null;
+	}
+
+	const metadata: unknown = Reflect.get(props, metadataProp);
+	return typeof metadata === 'object' && metadata !== null
+		? (metadata as CommittedMetadata)
+		: null;
+};
 
 type CommittedSequenceRegistration = {
 	readonly onCommit: (
@@ -147,9 +164,7 @@ export const collectCommitOrderFromFiber = (
 		currentCompositionManagerId: string | null,
 		outlineCollectors: readonly (Element | Text)[][] | null,
 	) => {
-		const metadata = Internals.CommittedMetadataInternals.getMetadata(
-			fiber.memoizedProps,
-		);
+		const metadata = getCommittedMetadata(fiber.memoizedProps);
 		const sequenceManagerId =
 			metadata?.type === 'sequence-manager'
 				? metadata.id

@@ -4,6 +4,7 @@ import React, {useContext} from 'react';
 import {
 	CommittedMetadataInternals,
 	type CommittedCompositionSnapshot,
+	type CommittedMetadata,
 } from '../committed-metadata.js';
 import {Composition} from '../Composition.js';
 import {compositionsRef, type AnyComposition} from '../CompositionManager.js';
@@ -94,9 +95,13 @@ test('applies committed composition and folder order', async () => {
 			null;
 		while (pending.length > 0) {
 			const node = pending.pop()!;
-			const metadata = CommittedMetadataInternals.getMetadata(
-				node.memoizedProps,
-			);
+			const metadata =
+				typeof node.memoizedProps === 'object' && node.memoizedProps !== null
+					? (Reflect.get(
+							node.memoizedProps,
+							CommittedMetadataInternals.metadataProp,
+						) as CommittedMetadata | null | undefined)
+					: null;
 			if (metadata?.type === 'composition-manager') {
 				onCommit = metadata.onCommit;
 			} else if (metadata?.type === 'composition') {

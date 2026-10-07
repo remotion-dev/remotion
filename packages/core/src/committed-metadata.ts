@@ -8,6 +8,7 @@ import type {
 import type {AnyComposition, TSequence} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
 
+const COMMITTED_METADATA_PROP = '_remotionCommitMetadata';
 export const COMMIT_ORDER_EVENT = 'remotion:commit-order';
 export const COMMIT_REGISTRATION_ERROR_EVENT =
 	'remotion:commit-registration-error';
@@ -104,7 +105,7 @@ export const withCommittedMetadata = <T>(
 	provider: Provider<T>,
 ): ProviderExoticComponent<
 	ProviderProps<T> & {
-		readonly _remotionCommitMetadata: CommittedMetadata | null;
+		readonly [COMMITTED_METADATA_PROP]: CommittedMetadata | null;
 	}
 > => provider;
 
@@ -114,19 +115,8 @@ export const CommittedMetadataProvider = withCommittedMetadata(
 	createContext(null).Provider,
 );
 
-const getCommittedMetadata = (props: unknown): CommittedMetadata | null => {
-	if (typeof props !== 'object' || props === null) {
-		return null;
-	}
-
-	const metadata: unknown = Reflect.get(props, '_remotionCommitMetadata');
-	return typeof metadata === 'object' && metadata !== null
-		? (metadata as CommittedMetadata)
-		: null;
-};
-
 export const CommittedMetadataInternals = {
-	getMetadata: getCommittedMetadata,
+	metadataProp: COMMITTED_METADATA_PROP as typeof COMMITTED_METADATA_PROP,
 	eventName: COMMIT_ORDER_EVENT,
 	installationMarker: COMMIT_OBSERVER_INSTALLATION_MARKER,
 	failureMarker: COMMIT_OBSERVER_FAILURE_MARKER,
