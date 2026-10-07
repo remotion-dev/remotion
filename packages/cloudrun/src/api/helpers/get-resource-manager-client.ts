@@ -3,9 +3,12 @@ import {
 	getProjectId,
 	isInCloudTask,
 } from '../../functions/helpers/is-in-cloud-task';
+import {checkCredentials} from '../../shared/check-credentials';
 const {ProjectsClient} = v3;
 
 export const getResourceManagerClient = () => {
+	checkCredentials();
+
 	if (isInCloudTask()) {
 		return new ProjectsClient({
 			projectId: getProjectId(),
