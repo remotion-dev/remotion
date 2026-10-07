@@ -52,7 +52,7 @@
 	},
 	"devDependencies": {
 		"@huggingface/transformers": "catalog:",
-		"@playwright/test": "1.55.1",
+		"@playwright/test": "1.60.0",
 		"@rspack/core": "1.7.11",
 		"@remotion/studio": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",

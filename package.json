@@ -151,7 +151,7 @@
 			"@types/dom-webcodecs": "0.1.11",
 			"@vitejs/plugin-react": "4.3.4",
 			"@vitest/browser-playwright": "5.0.3",
-			"playwright": "1.55.1",
+			"playwright": "1.60.0",
 			"vitest": "5.0.3",
 			"@typescript/native-preview": "7.0.0-dev.20260217.1"
 		}
