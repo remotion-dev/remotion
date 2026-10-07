@@ -53,6 +53,7 @@ type RemotionOptions struct {
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
 	GopSize                        *int                   `json:"gopSize"`
+	DisableSharedMemoryCapture     bool                   `json:"disableSharedMemoryCapture"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
 	IsProduction                   *bool                  `json:"isProduction"`
 	SampleRate                     int                    `json:"sampleRate"`
@@ -114,6 +115,7 @@ type renderInternalOptions struct {
 	Gl                             *string                `json:"gl,omitempty"`
 	X264Preset                     interface{}            `json:"x264Preset"`
 	GopSize                        *int                   `json:"gopSize"`
+	DisableSharedMemoryCapture     bool                   `json:"disableSharedMemoryCapture"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
 	IsProduction                   *bool                  `json:"isProduction"`
 	SampleRate                     int                    `json:"sampleRate"`

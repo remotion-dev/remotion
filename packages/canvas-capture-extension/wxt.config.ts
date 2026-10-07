@@ -22,6 +22,7 @@ export default defineConfig({
 		description:
 			'Record any element on a webpage as a high-resolution MP4 or WebM.',
 		version: '0.1.0',
+		minimum_chrome_version: '157.0.8080.0',
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
 		icons: {
 			16: 'icons/icon-16.png',
@@ -41,25 +42,26 @@ export default defineConfig({
 	},
 	webExt: {
 		binaries: {
-			chrome: path.join(
-				homeDirectory,
-				'Applications',
-				'Recorder Chrome.app',
-				'Contents',
-				'MacOS',
-				'Google Chrome for Testing',
-			),
+			chrome:
+				process.env.CANVAS_CAPTURE_BROWSER_EXECUTABLE ??
+				path.join(
+					homeDirectory,
+					'Applications',
+					'Recorder Chrome.app',
+					'Contents',
+					'MacOS',
+					'Google Chrome for Testing',
+				),
 		},
 		chromiumArgs: [
 			`--user-data-dir=${path.join(
 				homeDirectory,
 				'Library',
 				'Application Support',
-				'Chrome for Testing Canvas Capture r1631007',
+				'Remotion Canvas Capture',
 			)}`,
 			'--enable-features=CanvasDrawElement',
 			'--enable-blink-features=CanvasDrawElement',
-			'--disable-component-update',
 			'--no-first-run',
 			'--no-default-browser-check',
 		],

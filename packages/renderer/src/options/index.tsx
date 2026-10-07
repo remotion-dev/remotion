@@ -22,6 +22,7 @@ import {defaultEditorOption} from './default-editor';
 import {defaultPremountInSecondsOption} from './default-premount-in-seconds';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
+import {disableSharedMemoryCaptureOption} from './disable-shared-memory-capture';
 import {disableWebSecurityOption} from './disable-web-security';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {enableCancellationOption} from './enable-cancellation';
@@ -121,6 +122,7 @@ export const allOptions = {
 	deleteAfterOption,
 	disableWebSecurityOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	folderExpiryOption,
 	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,

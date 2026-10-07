@@ -67,6 +67,7 @@ import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
+import {sharedMemoryCaptureSupportHandler} from './routes/shared-memory-capture-support';
 import {handleShutdownStudio} from './routes/shutdown-studio';
 import {splitSequencesHandler} from './routes/split-sequences';
 import {splitVideoFromAudioHandler} from './routes/split-video-from-audio';
@@ -99,6 +100,7 @@ export const allApiRoutes: {
 		ApiRoutes[key]['Response']
 	>;
 } = {
+	'/api/shared-memory-capture-support': sharedMemoryCaptureSupportHandler,
 	'/api/invalidate-bundle': invalidateBundleHandler,
 	'/api/composition-component-info': compositionComponentInfoHandler,
 	'/api/copy-render-output-to-asset': copyRenderOutputToAssetHandler,

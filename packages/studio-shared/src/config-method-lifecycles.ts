@@ -42,6 +42,7 @@ export const configMethodLifecycles = {
 	setDelayRenderTimeoutInMilliseconds: 'runtime',
 	setDeleteAfter: 'runtime',
 	setDisallowParallelEncoding: 'runtime',
+	setDisableSharedMemoryCapture: 'runtime',
 	setDotEnvLocation: 'restart',
 	setEnableCancellation: 'runtime',
 	setEnableCrossSiteIsolation: 'restart',

@@ -20,6 +20,7 @@ export const RenderModalPicture: React.FC<{
 	readonly setScale: React.Dispatch<React.SetStateAction<number>>;
 	readonly imageFormatOptions: SegmentedControlItem[];
 	readonly videoImageFormat: VideoImageFormat;
+	readonly usesSharedMemoryCapture: boolean;
 	readonly stillImageFormat: StillImageFormat;
 	readonly setJpegQuality: React.Dispatch<React.SetStateAction<number>>;
 	readonly jpegQuality: number;
@@ -31,6 +32,7 @@ export const RenderModalPicture: React.FC<{
 	setScale,
 	imageFormatOptions,
 	videoImageFormat,
+	usesSharedMemoryCapture,
 	setJpegQuality,
 	jpegQuality,
 	stillImageFormat,
@@ -39,7 +41,7 @@ export const RenderModalPicture: React.FC<{
 }) => {
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			{renderMode === 'video' ? (
+			{renderMode === 'video' && !usesSharedMemoryCapture ? (
 				<div style={optionRow}>
 					<div style={label}>Image Format</div>
 					<div style={rightRow}>
@@ -50,7 +52,9 @@ export const RenderModalPicture: React.FC<{
 					</div>
 				</div>
 			) : null}
-			{renderMode === 'video' && videoImageFormat === 'jpeg' ? (
+			{renderMode === 'video' &&
+			!usesSharedMemoryCapture &&
+			videoImageFormat === 'jpeg' ? (
 				<JpegQualitySetting
 					jpegQuality={jpegQuality}
 					setJpegQuality={setJpegQuality}
@@ -62,7 +66,9 @@ export const RenderModalPicture: React.FC<{
 					setJpegQuality={setJpegQuality}
 				/>
 			) : null}
-			{renderMode === 'video' ? <RenderModalHr /> : null}
+			{renderMode === 'video' && !usesSharedMemoryCapture ? (
+				<RenderModalHr />
+			) : null}
 			<ScaleSetting
 				scale={scale}
 				setScale={setScale}

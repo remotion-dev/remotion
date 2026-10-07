@@ -32,6 +32,7 @@ const makeStartPayload = ({
 		proResProfile: null,
 		x264Preset,
 		gopSize: null,
+		disableSharedMemoryCapture: false,
 		jpegQuality: 80,
 		maxRetries: 1,
 		privacy: 'public',

@@ -145,6 +145,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		repro: false,
 		sampleRate: 48_000,
 		scale: 1,
+		sharedMemoryCapture: null,
 		stillImageFormat: 'png',
 		userAgent: null,
 		videoBitrate: null,
