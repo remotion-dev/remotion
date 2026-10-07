@@ -14,9 +14,15 @@ import {focusBrowserTabByOrigin} from './better-opn';
 import {getAppDiscovery, getEditorInfo} from './helpers/app-discovery';
 import type {InstalledCodingAgent} from './helpers/coding-agent-registry';
 import {openInCodingAgent, openInEditor} from './helpers/open-in-app';
-import {getRecentlyUsedApps} from './helpers/recently-used-apps';
+import {
+	getRecentlyUsedApps,
+	subscribeToRecentlyUsedApps,
+} from './helpers/recently-used-apps';
 import {maybeOpenBrowser} from './maybe-open-browser';
-import {clearPrintPortMessageTimeout} from './preview-server/live-events';
+import {
+	clearPrintPortMessageTimeout,
+	subscribeToConfigChanges,
+} from './preview-server/live-events';
 
 type Key = {
 	name?: string;
@@ -57,12 +63,17 @@ export const registerStudioShortcuts = ({
 		null;
 	let codingAgent: InstalledCodingAgent | null = null;
 	const openingApps = new Set<string>();
+	let refreshRevision = 0;
+	let lastPrintedAssignment: string | null = null;
 
-	const discoverShortcuts = async () => {
+	const refreshShortcuts = async () => {
+		const revision = ++refreshRevision;
+		const configuredEditor = getDefaultEditor();
+		const configuredCodingAgent = getDefaultCodingAgent();
 		const [discovery, editorInfo, recentEditors, recentCodingAgents] =
 			await Promise.all([
 				getAppDiscovery(),
-				getEditorInfo(getDefaultEditor()),
+				getEditorInfo(configuredEditor),
 				getRecentlyUsedApps({
 					remotionRoot,
 					type: 'editor',
@@ -74,6 +85,10 @@ export const registerStudioShortcuts = ({
 					recentlyUsedIds: null,
 				}),
 			]);
+		if (cleanedUp || revision !== refreshRevision) {
+			return;
+		}
+
 		editor = getPreferredApp({
 			installedApps: editorInfo.installedEditors,
 			configuredId: editorInfo.defaultEditor,
@@ -83,11 +98,12 @@ export const registerStudioShortcuts = ({
 		});
 		codingAgent = getPreferredApp({
 			installedApps: discovery.installedCodingAgents,
-			configuredId: getDefaultCodingAgent(),
+			configuredId: configuredCodingAgent,
 			runningIds: discovery.runningCodingAgents,
 			recentlyUsedIds: recentCodingAgents,
 			fallbackIds: discovery.installedCodingAgents.map(({id}) => id),
 		});
+		printShortcuts();
 	};
 
 	const printShortcuts = () => {
@@ -104,11 +120,43 @@ export const registerStudioShortcuts = ({
 					]
 				: []),
 		];
+		const assignment = JSON.stringify([
+			editor?.id ?? null,
+			codingAgent?.id ?? null,
+			shortcuts,
+			editor?.id === 'custom' ? getDefaultEditor() : null,
+		]);
+		if (assignment === lastPrintedAssignment) {
+			return;
+		}
+
+		lastPrintedAssignment = assignment;
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			RenderInternals.chalk.gray(shortcuts.join('  ')),
 		);
 	};
+
+	const onPreferencesChange = () => {
+		if (cleanedUp) {
+			return;
+		}
+
+		refreshShortcuts().catch((err) => {
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				'Could not refresh Studio shortcuts:',
+				err,
+			);
+			printShortcuts();
+		});
+	};
+
+	const unsubscribeHistory = subscribeToRecentlyUsedApps({
+		remotionRoot,
+		onChange: onPreferencesChange,
+	});
+	const unsubscribeConfig = subscribeToConfigChanges(onPreferencesChange);
 
 	const openApp = async (key: 'a' | 'e') => {
 		if (openingApps.has(key) || cleanedUp) {
@@ -164,6 +212,8 @@ export const registerStudioShortcuts = ({
 		}
 
 		cleanedUp = true;
+		unsubscribeHistory();
+		unsubscribeConfig();
 		process.stdin.removeListener('keypress', onKeypress);
 		process.removeListener('SIGINT', cleanup);
 		process.removeListener('exit', cleanup);
@@ -247,15 +297,7 @@ export const registerStudioShortcuts = ({
 	process.once('SIGINT', cleanup);
 	process.once('exit', cleanup);
 	// Discovery may finish after other startup logs; never await it here.
-	discoverShortcuts()
-		.catch((err) => {
-			RenderInternals.Log.verbose(
-				{indent: false, logLevel},
-				'Could not discover Studio shortcuts:',
-				err,
-			);
-		})
-		.then(printShortcuts);
+	onPreferencesChange();
 
 	return {registered: true, cleanup};
 };

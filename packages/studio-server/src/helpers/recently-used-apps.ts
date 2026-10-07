@@ -3,6 +3,24 @@ import path from 'node:path';
 import {defaultCodingAgentIds, defaultEditorIds} from '@remotion/renderer';
 
 const histories = new Map<string, Promise<readonly string[]>>();
+const historyListeners = new Set<{
+	remotionRoot: string;
+	onChange: () => void;
+}>();
+
+export const subscribeToRecentlyUsedApps = ({
+	remotionRoot,
+	onChange,
+}: {
+	remotionRoot: string;
+	onChange: () => void;
+}): (() => void) => {
+	const listener = {remotionRoot, onChange};
+	historyListeners.add(listener);
+	return () => {
+		historyListeners.delete(listener);
+	};
+};
 
 export const getRecentlyUsedApps = ({
 	remotionRoot,
@@ -53,6 +71,12 @@ export const getRecentlyUsedApps = ({
 			} catch {
 				// Keep the history in memory when the project cache is not writable.
 			}
+
+			historyListeners.forEach((listener) => {
+				if (listener.remotionRoot === remotionRoot) {
+					listener.onChange();
+				}
+			});
 		}
 
 		return updatedIds;
