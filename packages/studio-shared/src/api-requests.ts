@@ -1396,7 +1396,9 @@ export type UpdateConfigResponse =
 	| {success: true}
 	| {success: false; reason: string};
 
-export type GetDefaultEditorInfoRequest = {};
+export type GetDefaultEditorInfoRequest = {
+	recentlyUsedIds: readonly EditorPickerId[];
+};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
@@ -1408,7 +1410,9 @@ export type GetDefaultEditorInfoResponse = {
 	}[];
 };
 
-export type GetDefaultCodingAgentInfoRequest = {};
+export type GetDefaultCodingAgentInfoRequest = {
+	recentlyUsedIds: readonly DefaultCodingAgent[];
+};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
 	runningCodingAgents: readonly DefaultCodingAgent[] | null;
@@ -1425,6 +1429,15 @@ export type GetDefaultCodingAgentInfoResponse = {
 		id: GitClientId;
 		name: string;
 	}[];
+};
+
+export type GetAppInfoRequest = {
+	editor: GetDefaultEditorInfoRequest;
+	codingAgent: GetDefaultCodingAgentInfoRequest;
+};
+export type GetAppInfoResponse = {
+	editorInfo: GetDefaultEditorInfoResponse;
+	codingAgentInfo: GetDefaultCodingAgentInfoResponse;
 };
 
 export type PackageInstallSpec = {
@@ -1504,10 +1517,7 @@ export type ApiRoutes = {
 		OpenInCodingAgentRequest,
 		OpenInCodingAgentResponse
 	>;
-	'/api/default-coding-agent-info': ReqAndRes<
-		GetDefaultCodingAgentInfoRequest,
-		GetDefaultCodingAgentInfoResponse
-	>;
+	'/api/app-info': ReqAndRes<GetAppInfoRequest, GetAppInfoResponse>;
 	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/open-in-terminal': ReqAndRes<
@@ -1711,10 +1721,6 @@ export type ApiRoutes = {
 	'/api/shutdown-studio': ReqAndRes<{}, ShutdownStudioResponse>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
-	'/api/default-editor-info': ReqAndRes<
-		GetDefaultEditorInfoRequest,
-		GetDefaultEditorInfoResponse
-	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
 		InstallPackageResponse

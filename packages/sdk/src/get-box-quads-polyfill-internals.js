@@ -511,29 +511,20 @@ export function getBoxQuads(node, options) {
 		const range = node.ownerDocument.createRange();
 		range.selectNodeContents(node);
 		const clientRects = range.getClientRects();
-		const viewportRoot =
-			node.ownerDocument.documentElement ?? node.ownerDocument.body;
-		const viewportRootRect = viewportRoot?.getBoundingClientRect();
-
 		const convertViewportRectToRelativeQuad = (rect) => {
-			if (relativeTo === viewportRoot) {
-				return new DOMQuad(
+			// Preserve fractional host offsets when converting text to composition
+			// coordinates, just like viewport quads from elements.
+			return convertViewportQuadToRelativeNode(
+				new DOMQuad(
 					new DOMPoint(rect.x, rect.y),
 					new DOMPoint(rect.x + rect.width, rect.y),
 					new DOMPoint(rect.x + rect.width, rect.y + rect.height),
 					new DOMPoint(rect.x, rect.y + rect.height),
-				);
-			}
-
-			const rectInViewportRoot = new DOMRect(
-				rect.x - (viewportRootRect?.x ?? 0),
-				rect.y - (viewportRootRect?.y ?? 0),
-				rect.width,
-				rect.height,
+				),
+				node,
+				relativeTo,
+				options?.iframes,
 			);
-			return convertRectFromNode(relativeTo, rectInViewportRoot, viewportRoot, {
-				iframes: options?.iframes,
-			});
 		};
 
 		if (clientRects.length > 1) {
@@ -722,11 +713,10 @@ export function getBoxQuads(node, options) {
 			new DOMPoint(x1, y1),
 			new DOMPoint(x0, y1),
 		];
-		const screenCtm = !hasTransformedHtmlAncestor(
-			node,
-			relativeTo,
-			options?.iframes,
-		)
+		// getScreenCTM returns viewport coordinates, so transforms on relativeTo
+		// and its ancestors matter too. WebKit omits ancestor CSS transforms;
+		// use the transform walk even when the zoom host is above relativeTo.
+		const screenCtm = !hasTransformedHtmlAncestor(node, options?.iframes)
 			? node.getScreenCTM()
 			: null;
 		if (screenCtm) {
@@ -1201,14 +1191,10 @@ function isZeroAngleValue(value) {
 	return Number.isFinite(angle) && Math.abs(angle) < 1e-10;
 }
 
-function hasTransformedHtmlAncestor(node, relativeTo, iframes) {
+function hasTransformedHtmlAncestor(node, iframes) {
 	const win = node.ownerDocument.defaultView ?? window;
 	let element = getParentElementIncludingSlots(node, iframes);
-	while (
-		element &&
-		element !== relativeTo &&
-		element !== node.ownerDocument.documentElement
-	) {
+	while (element) {
 		if (element instanceof win.HTMLElement) {
 			const css = getCachedComputedStyle(element);
 			if (
@@ -1218,6 +1204,9 @@ function hasTransformedHtmlAncestor(node, relativeTo, iframes) {
 			) {
 				return true;
 			}
+		}
+		if (element === node.ownerDocument.documentElement) {
+			break;
 		}
 		element = getParentElementIncludingSlots(element, iframes);
 	}

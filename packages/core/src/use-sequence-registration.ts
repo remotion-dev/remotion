@@ -57,11 +57,14 @@ export const useSequenceRegistration = ({
 		};
 	}, [id, registerSequence, registrationEnabled, unregisterSequence]);
 
-	useEffect(() => {
+	// Commit fallback metadata with the synchronous preview update, so continuous input
+	// cannot leave lower-priority registration updates pending between commits.
+	useIsomorphicLayoutEffect(() => {
 		if (
 			commitRegistrationEnabled ||
 			registrationDisabled ||
 			getSequence === null ||
+			lastRegisteredGetterRef.current === null ||
 			lastRegisteredGetterRef.current === getSequence
 		) {
 			return;

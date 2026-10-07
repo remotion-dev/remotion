@@ -684,6 +684,7 @@ export const TimelineEffectPropItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<TimelineFieldRowContent
 				field={field}

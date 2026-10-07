@@ -14,7 +14,11 @@ export type {
 	CanvasOutlinePath,
 	CanvasOutlineTarget,
 } from './outline-geometry';
-export {getCanvasOutlinePoint, getCanvasOutlineUv} from './outline-geometry';
+export {
+	getCanvasOutlinePoint,
+	getCanvasOutlineUv,
+	scaleCanvasOutline,
+} from './outline-geometry';
 export {
 	measureCanvasOutlineTargets,
 	cropCanvasOutlinePoints,
