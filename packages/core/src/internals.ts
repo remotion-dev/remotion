@@ -3,6 +3,7 @@ import {getAbsoluteSrc} from './absolute-src.js';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 import {getAnimatedImageDurationInSeconds} from './animated-image/get-duration-in-seconds.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
+import {getAudioSyncAnchorTolerance} from './audio/get-audio-sync-anchor-tolerance.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
@@ -417,6 +418,7 @@ export const Internals = {
 	SharedAudioContextProvider,
 	SharedAudioTagsContext,
 	SharedAudioTagsContextProvider,
+	getAudioSyncAnchorTolerance,
 	invalidCompositionErrorMessage,
 	invalidFolderNameErrorMessage,
 	calculateMediaDuration,
