@@ -2,7 +2,7 @@
 // such as in React Three Fiber. All the contexts need to be passed again
 // for them to be useable
 
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {BufferingContextReact} from './buffering.js';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import type {TSequence} from './CompositionManager.js';
@@ -14,7 +14,10 @@ import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
 import {
 	COMMIT_REGISTRATION_ERROR_EVENT,
+	COMMIT_ORDER_EVENT,
+	isCommitRegistrationObserverInstalled,
 	SequenceManagerOrderMarker,
+	type CommitOrderEventDetail,
 } from './sequence-order-marker.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
@@ -54,9 +57,6 @@ export function useRemotionContexts() {
 	const sequenceRegistryScopeContext = React.useContext(
 		SequenceRegistryScopeContext,
 	);
-	const sequenceCommitRegistrationContext = React.useContext(
-		SequenceCommitRegistrationContext,
-	);
 	const sequenceRegistrationContext = React.useContext(
 		SequenceRegistrationContext,
 	);
@@ -88,7 +88,6 @@ export function useRemotionContexts() {
 			sequenceManagerRefContext,
 			sequenceRegistryContext,
 			sequenceRegistryScopeContext,
-			sequenceCommitRegistrationContext,
 			sequenceRegistrationContext,
 			disableSequenceRegistrationContext,
 			remotionEnvironmentContext,
@@ -111,7 +110,6 @@ export function useRemotionContexts() {
 			sequenceManagerRefContext,
 			sequenceRegistryContext,
 			sequenceRegistryScopeContext,
-			sequenceCommitRegistrationContext,
 			sequenceRegistrationContext,
 			disableSequenceRegistrationContext,
 			remotionEnvironmentContext,
@@ -132,16 +130,26 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 	children,
 }) => {
 	const [scopeId] = useState(() => String(Math.random()));
-	const [observerFailed, setObserverFailed] = useState(false);
+	const [observerAvailable, setObserverAvailable] = useState(
+		isCommitRegistrationObserverInstalled,
+	);
+	const observedCommitRef = useRef(false);
+	const observerFailedRef = useRef(false);
+	const unmountedRef = useRef(false);
+	const lifetimeRef = useRef(0);
 	const registry = contexts.sequenceRegistryContext;
 	const scope = contexts.sequenceRegistryScopeContext;
+	const activeRegistryRef = useRef(registry);
 	const commitRegistrationEnabled =
-		contexts.sequenceCommitRegistrationContext &&
+		scope?.commitRegistrationRequested === true &&
 		registry !== null &&
-		scope !== null &&
-		!observerFailed;
+		observerAvailable;
 	const onCommitSequences = useCallback(
 		(sequences: readonly TSequence[], sequenceIds: readonly string[]) => {
+			if (observerFailedRef.current && sequenceIds.length > 0) {
+				return;
+			}
+
 			scope?.onCommitSequences(scopeId, sequences, sequenceIds);
 		},
 		[scope, scopeId],
@@ -153,18 +161,60 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 			return;
 		}
 
-		let unmounted = false;
-		const onFailure = () =>
+		const lifetime = ++lifetimeRef.current;
+		unmountedRef.current = false;
+		activeRegistryRef.current = registry;
+		const onFailure = () => {
+			if (observerFailedRef.current) {
+				return;
+			}
+
+			observerFailedRef.current = true;
 			queueMicrotask(() => {
-				if (!unmounted) setObserverFailed(true);
+				scope.onCommitSequences(scopeId, [], []);
+				// Release this root's committed records before its effects take over.
+				queueMicrotask(() => {
+					if (!unmountedRef.current) setObserverAvailable(false);
+				});
 			});
-		window.addEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
-		return () => {
-			unmounted = true;
-			window.removeEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
-			scope.onCommitSequences(scopeId, [], []);
 		};
-	}, [scope, scopeId]);
+
+		const onCommitOrder = (event: Event) => {
+			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
+			if (detail.sequenceManagers.some((item) => item.managerId === scopeId)) {
+				observedCommitRef.current = true;
+			}
+		};
+
+		window.addEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
+		window.addEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
+		if (commitRegistrationEnabled) {
+			queueMicrotask(() => {
+				if (
+					lifetimeRef.current === lifetime &&
+					!unmountedRef.current &&
+					!observedCommitRef.current
+				) {
+					onFailure();
+				}
+			});
+		}
+
+		return () => {
+			unmountedRef.current = true;
+			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
+			window.removeEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
+			// Strict Mode and Fast Refresh restart effects without removing the marker.
+			queueMicrotask(() => {
+				if (
+					activeRegistryRef.current !== registry ||
+					(lifetimeRef.current === lifetime && unmountedRef.current)
+				) {
+					scope.onCommitSequences(scopeId, [], []);
+				}
+			});
+		};
+	}, [scope, scopeId, registry, commitRegistrationEnabled]);
 	return (
 		<SequenceManagerOrderMarker
 			managerId={scopeId}

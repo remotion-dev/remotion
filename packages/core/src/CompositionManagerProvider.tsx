@@ -32,7 +32,7 @@ import {
 	CompositionManagerOrderMarker,
 	getCompositionAndFolderOrderKey,
 	getFolderOrderId,
-	isCommitRegistrationObserverAvailable,
+	isCommitRegistrationObserverInstalled,
 	COMMIT_ORDER_EVENT,
 	type CommitOrderEventDetail,
 	type CommittedCompositionSnapshot,
@@ -59,8 +59,9 @@ export const CompositionManagerProvider = ({
 	const {isStudio} = useRemotionEnvironment();
 	const [compositionManagerId] = useState(() => String(Math.random()));
 	const [commitRegistrationEnabled, setCommitRegistrationEnabled] = useState(
-		() => isStudio && isCommitRegistrationObserverAvailable(),
+		() => isStudio && isCommitRegistrationObserverInstalled(),
 	);
+	const observedCommitRef = useRef(false);
 	const pendingRegistrationsRef = useRef<CommittedCompositionSnapshot | null>(
 		null,
 	);
@@ -329,7 +330,7 @@ export const CompositionManagerProvider = ({
 			observerFailedRef.current = true;
 			pendingRegistrationsRef.current = null;
 			queueMicrotask(() => {
-				if (unmounted) {
+				if (unmountedRef.current) {
 					return;
 				}
 
@@ -356,6 +357,8 @@ export const CompositionManagerProvider = ({
 			if (!managerOrder) {
 				return;
 			}
+
+			observedCommitRef.current = true;
 
 			const orderIds = managerOrder.compositionAndFolderOrder.map(
 				getCompositionAndFolderOrderKey,
@@ -441,11 +444,17 @@ export const CompositionManagerProvider = ({
 			COMMIT_REGISTRATION_ERROR_EVENT,
 			onRegistrationError,
 		);
+		if (commitRegistrationEnabled) {
+			queueMicrotask(() => {
+				if (!unmounted && !observedCommitRef.current) {
+					onRegistrationError();
+				}
+			});
+		}
 
 		return () => {
 			unmounted = true;
 			unmountedRef.current = true;
-			pendingRegistrationsRef.current = null;
 			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
 			window.removeEventListener(
 				COMMIT_REGISTRATION_ERROR_EVENT,

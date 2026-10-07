@@ -9,7 +9,7 @@ import {
 import {
 	COMMIT_ORDER_EVENT,
 	COMMIT_REGISTRATION_ERROR_EVENT,
-	isCommitRegistrationObserverAvailable,
+	isCommitRegistrationObserverInstalled,
 	SequenceManagerOrderMarker,
 	type CommitOrderEventDetail,
 	type CommittedSequenceSnapshot,
@@ -78,6 +78,7 @@ const subscribeToNoRegistry = () => () => undefined;
 const getEmptySequences = () => defaultSequenceManager.sequences;
 export const SequenceCommitRegistrationContext = React.createContext(false);
 export const SequenceRegistryScopeContext = React.createContext<{
+	readonly commitRegistrationRequested: boolean;
 	readonly onCommitSequences: (
 		scopeId: string,
 		sequences: readonly TSequence[],
@@ -431,8 +432,10 @@ export const SequenceManagerProvider: React.FC<{
 	const shouldObserveCommits = isStudio || sequenceRegistrationEnabled;
 	const [sequenceManagerId] = useState(() => String(Math.random()));
 	const [commitRegistrationEnabled, setCommitRegistrationEnabled] = useState(
-		() => shouldObserveCommits && isCommitRegistrationObserverAvailable(),
+		() => shouldObserveCommits && isCommitRegistrationObserverInstalled(),
 	);
+	const observedCommitRef = useRef(false);
+	const rootObservationFailedRef = useRef(false);
 	const committedRegistrationIdsRef = useRef<ReadonlySet<string>>(new Set());
 	const committedDescriptorsRef = useRef<ReadonlyMap<string, TSequence>>(
 		new Map(),
@@ -875,13 +878,19 @@ export const SequenceManagerProvider: React.FC<{
 		[sequenceManagerId, setSequences],
 	);
 	const onCommitRootSequences = useCallback(
-		(sequences: readonly TSequence[], sequenceIds: readonly string[]) =>
-			onCommitSequences(sequenceManagerId, sequences, sequenceIds),
+		(sequences: readonly TSequence[], sequenceIds: readonly string[]) => {
+			if (!rootObservationFailedRef.current) {
+				onCommitSequences(sequenceManagerId, sequences, sequenceIds);
+			}
+		},
 		[onCommitSequences, sequenceManagerId],
 	);
 	const registryScope = useMemo(
-		() => ({onCommitSequences}),
-		[onCommitSequences],
+		() => ({
+			onCommitSequences,
+			commitRegistrationRequested: shouldObserveCommits,
+		}),
+		[onCommitSequences, shouldObserveCommits],
 	);
 
 	useIsomorphicLayoutEffect(() => {
@@ -899,7 +908,7 @@ export const SequenceManagerProvider: React.FC<{
 			registrationObserverFailedRef.current = true;
 			pendingCommittedSequencesRef.current.clear();
 			queueMicrotask(() => {
-				if (unmounted) {
+				if (registrationUnmountedRef.current) {
 					return;
 				}
 
@@ -914,15 +923,16 @@ export const SequenceManagerProvider: React.FC<{
 		};
 
 		const onCommitOrder = (event: Event) => {
-			if (commitRegistrationEnabled) {
-				return;
-			}
-
 			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
 			const managerOrder = detail.sequenceManagers.find(
 				(item) => item.managerId === sequenceManagerId,
 			);
 			if (!managerOrder) {
+				return;
+			}
+
+			observedCommitRef.current = true;
+			if (commitRegistrationEnabled) {
 				return;
 			}
 
@@ -974,10 +984,28 @@ export const SequenceManagerProvider: React.FC<{
 			COMMIT_REGISTRATION_ERROR_EVENT,
 			onRegistrationError,
 		);
+		if (commitRegistrationEnabled) {
+			// React invokes its commit hook after layout effects. Installation alone
+			// does not prove this renderer connected to the hook during initialization.
+			queueMicrotask(() => {
+				if (
+					unmounted ||
+					observedCommitRef.current ||
+					registrationObserverFailedRef.current
+				) {
+					return;
+				}
+
+				rootObservationFailedRef.current = true;
+				onCommitSequences(sequenceManagerId, [], []);
+				setCommitRegistrationEnabled(false);
+			});
+		}
+
 		return () => {
 			unmounted = true;
 			registrationUnmountedRef.current = true;
-			pendingCommittedSequencesRef.current.clear();
+			// Effect replay must not discard a snapshot already collected by React.
 			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
 			window.removeEventListener(
 				COMMIT_REGISTRATION_ERROR_EVENT,
@@ -989,6 +1017,7 @@ export const SequenceManagerProvider: React.FC<{
 		sequenceManagerId,
 		setSequences,
 		commitRegistrationEnabled,
+		onCommitSequences,
 	]);
 
 	const registerSequence = useCallback(
@@ -1183,7 +1212,7 @@ export const SequenceManagerProvider: React.FC<{
 const SequenceManagerProviderWithActions: React.FC<
 	React.ProviderProps<SequenceManagerContext>
 > = ({value, children}) => {
-	const [useCommittedManager] = useState(isCommitRegistrationObserverAvailable);
+	const [useCommittedManager] = useState(isCommitRegistrationObserverInstalled);
 	const [registry] = useState(() => createRegistryStore(value.sequences));
 	useIsomorphicLayoutEffect(() => {
 		if (!useCommittedManager) {

@@ -25,7 +25,7 @@ const COMMIT_OBSERVER_FAILURE_MARKER = Symbol.for(
 	'remotion.commit-registration-observer-failed',
 );
 
-export const isCommitRegistrationObserverAvailable = () => {
+export const isCommitRegistrationObserverInstalled = () => {
 	if (typeof window === 'undefined') {
 		return false;
 	}
@@ -34,6 +34,7 @@ export const isCommitRegistrationObserverAvailable = () => {
 	return (
 		typeof hook === 'object' &&
 		hook !== null &&
+		Reflect.get(hook, 'isDisabled') !== true &&
 		Reflect.get(hook, COMMIT_OBSERVER_INSTALLATION_MARKER) === true &&
 		Reflect.get(hook, COMMIT_OBSERVER_FAILURE_MARKER) !== true
 	);
