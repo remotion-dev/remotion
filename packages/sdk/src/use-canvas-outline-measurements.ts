@@ -1,7 +1,8 @@
 import type {MutableRefObject, RefObject} from 'react';
-import {useCallback, useLayoutEffect, useRef, useState} from 'react';
+import {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import type {CanvasOutline, CanvasOutlineTarget} from './outline-geometry';
+import {scaleCanvasOutline} from './outline-geometry';
 import {
 	canvasOutlinesAreEqual,
 	measureCanvasOutlineTargets,
@@ -10,10 +11,16 @@ import {getCanvasOutlineNodes} from './outline-nodes';
 
 export const useCanvasOutlineMeasurements = ({
 	containerRef,
+	contentRoot,
+	scale,
 	targets,
 	updateOutlinesRef,
 }: {
 	readonly containerRef: RefObject<SVGSVGElement | null>;
+	/** Observe composition mutations separately from the host's zoom and pan. */
+	readonly contentRoot: Element | null;
+	/** Cache at scale 1 and project to this scale. Null keeps container coordinates. */
+	readonly scale: number | null;
 	readonly targets: readonly CanvasOutlineTarget[];
 	readonly updateOutlinesRef: MutableRefObject<() => void> | null;
 }): readonly CanvasOutline[] => {
@@ -24,6 +31,14 @@ export const useCanvasOutlineMeasurements = ({
 	const latestUpdateRef = useRef<() => void>(() => undefined);
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 	const observedElementsRef = useRef<ReadonlySet<Element>>(new Set());
+	const measuredNodesRef = useRef(
+		new Map<CanvasOutlineTarget['ref'], readonly (Element | Text)[] | null>(),
+	);
+	const scaleRef = useRef(scale);
+	const normalize = scale !== null;
+	useLayoutEffect(() => {
+		scaleRef.current = scale;
+	}, [scale]);
 
 	const updateOutlines = useCallback(() => {
 		const container = containerRef.current;
@@ -42,8 +57,9 @@ export const useCanvasOutlineMeasurements = ({
 		const resizeObserver = resizeObserverRef.current;
 		if (resizeObserver !== null) {
 			const nextObservedElements = new Set<Element>();
-			if (containerRef.current !== null) {
-				nextObservedElements.add(containerRef.current);
+			// Zoom changes the overlay's CSS size, but only transforms its contents.
+			if (!normalize) {
+				nextObservedElements.add(container);
 			}
 
 			for (const target of targets) {
@@ -71,14 +87,33 @@ export const useCanvasOutlineMeasurements = ({
 			observedElementsRef.current = nextObservedElements;
 		}
 
-		const nextOutlines = measureCanvasOutlineTargets(container, targets);
+		const measurementScale = scaleRef.current;
+		const measuredOutlines = measureCanvasOutlineTargets(
+			container,
+			targets,
+			contentRoot === null || measurementScale === null
+				? null
+				: {root: contentRoot, scale: measurementScale},
+		);
+		const nextOutlines =
+			measurementScale === null
+				? measuredOutlines
+				: measuredOutlines.map((outline) =>
+						scaleCanvasOutline(outline, 1 / measurementScale),
+					);
+		measuredNodesRef.current = new Map(
+			targets.map((target) => [
+				target.ref,
+				Internals.SequenceOutlineInternals.getNodes(target.ref),
+			]),
+		);
 		if (canvasOutlinesAreEqual(outlinesRef.current, nextOutlines)) {
 			return;
 		}
 
 		outlinesRef.current = nextOutlines;
 		setOutlines(nextOutlines);
-	}, [containerRef, targets]);
+	}, [containerRef, contentRoot, normalize, targets]);
 
 	useLayoutEffect(() => {
 		latestUpdateRef.current = updateOutlines;
@@ -101,6 +136,19 @@ export const useCanvasOutlineMeasurements = ({
 		};
 
 		const ownerWindow = containerRef.current?.ownerDocument.defaultView;
+		const onCommit = () => {
+			if (
+				!normalize ||
+				targets.some(
+					(target) =>
+						measuredNodesRef.current.get(target.ref) !==
+						Internals.SequenceOutlineInternals.getNodes(target.ref),
+				)
+			) {
+				scheduleUpdate();
+			}
+		};
+
 		const hasAutomaticTargets = targets.some(
 			(target) =>
 				Internals.SequenceOutlineInternals.getNodes(target.ref) !== null,
@@ -109,7 +157,7 @@ export const useCanvasOutlineMeasurements = ({
 			latestUpdateRef.current = scheduleUpdate;
 			ownerWindow?.addEventListener(
 				Internals.CommitOrderInternals.eventName,
-				scheduleUpdate,
+				onCommit,
 			);
 			scheduleUpdate();
 		} else {
@@ -120,14 +168,14 @@ export const useCanvasOutlineMeasurements = ({
 			active = false;
 			ownerWindow?.removeEventListener(
 				Internals.CommitOrderInternals.eventName,
-				scheduleUpdate,
+				onCommit,
 			);
 			latestUpdateRef.current = () => undefined;
 			if (updateOutlinesRef?.current === updateOutlines) {
 				updateOutlinesRef.current = () => undefined;
 			}
 		};
-	}, [containerRef, targets, updateOutlines, updateOutlinesRef]);
+	}, [containerRef, normalize, targets, updateOutlines, updateOutlinesRef]);
 
 	useLayoutEffect(() => {
 		const ownerWindow = containerRef.current?.ownerDocument.defaultView;
@@ -160,5 +208,36 @@ export const useCanvasOutlineMeasurements = ({
 		};
 	}, [containerRef]);
 
-	return outlines;
+	useLayoutEffect(() => {
+		const ownerWindow = contentRoot?.ownerDocument.defaultView;
+		if (
+			contentRoot === null ||
+			!ownerWindow ||
+			typeof ownerWindow.MutationObserver === 'undefined'
+		) {
+			return;
+		}
+
+		// Includes descendant-only edits and transforms on composition ancestors,
+		// while the host's scaled container and the outline overlay stay outside.
+		const observer = new ownerWindow.MutationObserver(() =>
+			latestUpdateRef.current(),
+		);
+		observer.observe(contentRoot, {
+			attributes: true,
+			characterData: true,
+			childList: true,
+			subtree: true,
+		});
+		return () => observer.disconnect();
+	}, [contentRoot]);
+
+	// Controls keep using overlay pixels, while zoom only projects cached geometry.
+	return useMemo(
+		() =>
+			scale === null
+				? outlines
+				: outlines.map((outline) => scaleCanvasOutline(outline, scale)),
+		[outlines, scale],
+	);
 };

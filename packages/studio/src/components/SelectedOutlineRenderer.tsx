@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {Internals} from 'remotion';
 import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -63,7 +64,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	readonly sequences: Parameters<
 		typeof orderOutlinesForRendering
 	>[0]['sequences'];
-	readonly updateOutlinesRef: React.MutableRefObject<() => void>;
 }> = ({
 	compositionHeight,
 	compositionWidth,
@@ -76,7 +76,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	onSelect,
 	scale,
 	sequences,
-	updateOutlinesRef,
 }) => {
 	const overlayRef = useRef<SVGSVGElement>(null);
 	const contextMenuOpenHandlersRef = useRef(
@@ -122,11 +121,13 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		hoveredNodePathKey,
 	} = useCanvasOutlines({
 		containerRef: overlayRef,
+		contentRoot: Internals.portalNode(),
+		scale,
 		targets: outlineTargets,
 		sequences,
 		hoverController,
 		freezeOrder: dragging,
-		updateOutlinesRef,
+		updateOutlinesRef: null,
 	});
 	const {
 		outlinesForEditingHandles,

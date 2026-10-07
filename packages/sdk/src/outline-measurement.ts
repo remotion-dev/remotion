@@ -67,21 +67,32 @@ export const getTransformedSvgViewportPoints = ({
 
 const quadToPoints = (
 	quad: DOMQuad,
-	containerRect: DOMRect,
+	containerRect: Pick<DOMRect, 'left' | 'top'>,
+	scale: number,
 ): CanvasOutline['points'] => {
-	// `getBoxQuads`/the ponyfill returns the quad in viewport coordinates.
-	// The overlay <svg> is unscaled (the canvas `scale()`/pan live on a sibling
-	// container, not the svg), so 1 user unit == 1 px and we only need to move
-	// the quad into the svg's local space by subtracting its viewport origin.
-	// We deliberately do not pass `relativeTo` to the ponyfill: when the target
-	// is not an ancestor of the element, the polyfill cannot resolve the
-	// coordinate space and leaves the quad in viewport coordinates.
 	return [
-		{x: quad.p1.x - containerRect.left, y: quad.p1.y - containerRect.top},
-		{x: quad.p2.x - containerRect.left, y: quad.p2.y - containerRect.top},
-		{x: quad.p3.x - containerRect.left, y: quad.p3.y - containerRect.top},
-		{x: quad.p4.x - containerRect.left, y: quad.p4.y - containerRect.top},
+		{
+			x: (quad.p1.x - containerRect.left) * scale,
+			y: (quad.p1.y - containerRect.top) * scale,
+		},
+		{
+			x: (quad.p2.x - containerRect.left) * scale,
+			y: (quad.p2.y - containerRect.top) * scale,
+		},
+		{
+			x: (quad.p3.x - containerRect.left) * scale,
+			y: (quad.p3.y - containerRect.top) * scale,
+		},
+		{
+			x: (quad.p4.x - containerRect.left) * scale,
+			y: (quad.p4.y - containerRect.top) * scale,
+		},
 	];
+};
+
+type OutlineCoordinateSpace = {
+	readonly root: Element;
+	readonly scale: number;
 };
 
 const isSvgSvgElement = (element: Element): element is SVGSVGElement => {
@@ -121,16 +132,16 @@ const getSvgSvgElementViewport = (element: SVGSVGElement): SvgViewport => {
  * we compose two consistent transforms:
  *
  * 1. The polyfill's CSS-transform-aware walk from the root <svg> to the
- *    document element (document coordinates, no viewport scroll — FIX 15).
+ *    composition root, or to the document element for viewport measurements.
  * 2. `element.getCTM()`, the pure SVG-internal transform from user units to
  *    the root <svg>'s viewport. Cross-browser consistent, no CSS involved.
  *
- * Finally we mirror `toViewportRelativeDocumentElementQuad`: subtract window
- * scroll to land in viewport coordinates, then subtract the overlay origin
- * (like `quadToPoints` does for HTML quads).
+ * Composition coordinates are projected to the host scale. Viewport measurements
+ * subtract window scroll and the overlay origin, like HTML quads.
  */
 const getSvgElementScreenMatrix = (
 	element: SVGGraphicsElement,
+	coordinateSpace: OutlineCoordinateSpace | null,
 ): (SvgScreenCtm & {readonly is2D: boolean}) | null => {
 	const ownerSvg = element.ownerSVGElement;
 	const {documentElement} = element.ownerDocument;
@@ -139,6 +150,10 @@ const getSvgElementScreenMatrix = (
 		return null;
 	}
 
+	const relativeSpace = coordinateSpace?.root.contains(ownerSvg)
+		? coordinateSpace
+		: null;
+
 	let walk;
 	try {
 		// Walking the root <svg> (not the path) avoids the polyfill's
@@ -146,7 +161,7 @@ const getSvgElementScreenMatrix = (
 		// coordinates by the path's `getBBox()` origin.
 		walk = getResultingTransformationBetweenElementAndAllAncestors(
 			ownerSvg,
-			documentElement,
+			relativeSpace?.root ?? documentElement,
 			[],
 		);
 	} catch {
@@ -160,16 +175,23 @@ const getSvgElementScreenMatrix = (
 	}
 
 	const matrix = walk.multiply(ctm);
-	const scrollX = win.scrollX ?? documentElement.scrollLeft ?? 0;
-	const scrollY = win.scrollY ?? documentElement.scrollTop ?? 0;
+	const scrollX =
+		relativeSpace === null
+			? (win.scrollX ?? documentElement.scrollLeft ?? 0)
+			: 0;
+	const scrollY =
+		relativeSpace === null
+			? (win.scrollY ?? documentElement.scrollTop ?? 0)
+			: 0;
+	const scale = relativeSpace?.scale ?? 1;
 
 	return {
-		a: matrix.a,
-		b: matrix.b,
-		c: matrix.c,
-		d: matrix.d,
-		e: matrix.e - scrollX,
-		f: matrix.f - scrollY,
+		a: matrix.a * scale,
+		b: matrix.b * scale,
+		c: matrix.c * scale,
+		d: matrix.d * scale,
+		e: matrix.e * scale - scrollX,
+		f: matrix.f * scale - scrollY,
 		is2D: matrix.is2D,
 	};
 };
@@ -177,6 +199,7 @@ const getSvgElementScreenMatrix = (
 const getSvgSvgElementOutlinePoints = (
 	element: SVGSVGElement,
 	containerRect: DOMRect,
+	coordinateSpace: OutlineCoordinateSpace | null,
 ): CanvasOutline['points'] | null => {
 	const viewport = getSvgSvgElementViewport(element);
 	if (viewport.width === 0 && viewport.height === 0) {
@@ -189,13 +212,17 @@ const getSvgSvgElementOutlinePoints = (
 		return null;
 	}
 
+	const relativeSpace = coordinateSpace?.root.contains(element)
+		? coordinateSpace
+		: null;
+
 	let walk;
 	try {
 		// The walk on the root <svg> includes its own CSS transform, unlike
 		// `getScreenCTM()` in WebKit, which ignores ancestor CSS transforms.
 		walk = getResultingTransformationBetweenElementAndAllAncestors(
 			element,
-			documentElement,
+			relativeSpace?.root ?? documentElement,
 			[],
 		);
 	} catch {
@@ -209,7 +236,7 @@ const getSvgSvgElementOutlinePoints = (
 
 	// Compose the viewBox→viewport transform manually: root-svg `getCTM()`
 	// semantics are unreliable across browsers, and this keeps the math
-	// dependency-free. `walk` maps viewport px → document coordinates.
+	// dependency-free. `walk` maps viewport px into the chosen coordinate space.
 	const viewBox = element.viewBox.baseVal;
 	const hasViewBox = viewBox.width > 0 && viewBox.height > 0;
 	const viewportWidth = element.width.baseVal.value;
@@ -259,20 +286,27 @@ const getSvgSvgElementOutlinePoints = (
 		translateY -= viewBox.y * scaleY;
 	}
 
-	const scrollX = win.scrollX ?? documentElement.scrollLeft ?? 0;
-	const scrollY = win.scrollY ?? documentElement.scrollTop ?? 0;
+	const scrollX =
+		relativeSpace === null
+			? (win.scrollX ?? documentElement.scrollLeft ?? 0)
+			: 0;
+	const scrollY =
+		relativeSpace === null
+			? (win.scrollY ?? documentElement.scrollTop ?? 0)
+			: 0;
+	const scale = relativeSpace?.scale ?? 1;
 
 	return getTransformedSvgViewportPoints({
 		viewport,
 		ctm: {
-			a: walk.a * scaleX,
-			b: walk.b * scaleX,
-			c: walk.c * scaleY,
-			d: walk.d * scaleY,
-			e: walk.a * translateX + walk.c * translateY + walk.e - scrollX,
-			f: walk.b * translateX + walk.d * translateY + walk.f - scrollY,
+			a: walk.a * scaleX * scale,
+			b: walk.b * scaleX * scale,
+			c: walk.c * scaleY * scale,
+			d: walk.d * scaleY * scale,
+			e: (walk.a * translateX + walk.c * translateY + walk.e) * scale - scrollX,
+			f: (walk.b * translateX + walk.d * translateY + walk.f) * scale - scrollY,
 		},
-		containerRect,
+		containerRect: relativeSpace === null ? containerRect : {left: 0, top: 0},
 	});
 };
 
@@ -289,24 +323,27 @@ const isSvgPathElement = (element: Element): element is SVGPathElement => {
 const getPathOutline = ({
 	element,
 	containerRect,
+	coordinateSpace,
 }: {
 	readonly element: SVGPathElement;
 	readonly containerRect: DOMRect;
+	readonly coordinateSpace: OutlineCoordinateSpace | null;
 }): CanvasOutlinePath | null => {
 	const d = element.getAttribute('d');
 	if (d === null || d === '') {
 		return null;
 	}
 
-	const ctm = getSvgElementScreenMatrix(element);
+	const ctm = getSvgElementScreenMatrix(element, coordinateSpace);
 	if (ctm === null || !ctm.is2D) {
 		// In a 3D CSS context no single 2D matrix can place the path; the
 		// polygon outline from `getBoxQuads` still applies.
 		return null;
 	}
 
-	// Shift the translation into the overlay svg's local space, like every
-	// other point source.
+	const origin = coordinateSpace?.root.contains(element.ownerSVGElement)
+		? {left: 0, top: 0}
+		: containerRect;
 	return {
 		d,
 		matrix: {
@@ -314,8 +351,8 @@ const getPathOutline = ({
 			b: ctm.b,
 			c: ctm.c,
 			d: ctm.d,
-			e: ctm.e - containerRect.left,
-			f: ctm.f - containerRect.top,
+			e: ctm.e - origin.left,
+			f: ctm.f - origin.top,
 		},
 	};
 };
@@ -324,24 +361,38 @@ const getElementOutlinePoints = (
 	element: Element,
 	elementRect: DOMRect,
 	containerRect: DOMRect,
+	coordinateSpace: OutlineCoordinateSpace | null,
 ): CanvasOutline['points'] | null => {
 	if (elementRect.width === 0 && elementRect.height === 0) {
 		return null;
 	}
 
 	if (isSvgSvgElement(element)) {
-		return getSvgSvgElementOutlinePoints(element, containerRect);
+		return getSvgSvgElementOutlinePoints(
+			element,
+			containerRect,
+			coordinateSpace,
+		);
 	}
 
-	const quads = getBoxQuadsPonyfill(element, {
-		box: 'border',
-	});
+	// The composition root is a real ancestor. Measuring relative to it avoids
+	// rounding the host's fractional viewport offsets before normalization.
+	// The sibling overlay cannot be used as `relativeTo` by the ponyfill.
+	const relativeTo = coordinateSpace?.root.contains(element)
+		? coordinateSpace.root
+		: null;
+	const quads = getBoxQuadsPonyfill(
+		element,
+		relativeTo === null ? {box: 'border'} : {box: 'border', relativeTo},
+	);
 	const quad = quads?.[0];
 	if (!quad) {
 		return rectToPoints(elementRect, containerRect);
 	}
 
-	return quadToPoints(quad, containerRect);
+	return relativeTo === null
+		? quadToPoints(quad, containerRect, 1)
+		: quadToPoints(quad, {left: 0, top: 0}, coordinateSpace?.scale ?? 1);
 };
 
 export const cropCanvasOutlinePoints = (
@@ -376,6 +427,7 @@ export const cropCanvasOutlinePoints = (
 export const measureCanvasOutlineTargets = (
 	container: Element,
 	targets: readonly CanvasOutlineTarget[],
+	coordinateSpace: OutlineCoordinateSpace | null,
 ): CanvasOutline[] => {
 	// Reuse shared ancestor geometry within this synchronous batch only.
 	resetBoxQuadsCache();
@@ -469,6 +521,7 @@ export const measureCanvasOutlineTargets = (
 			element,
 			elementRect,
 			containerRect,
+			coordinateSpace,
 		);
 		if (uncroppedPoints === null) {
 			continue;
@@ -478,7 +531,7 @@ export const measureCanvasOutlineTargets = (
 		const ownerHTMLElement = element.ownerDocument.defaultView?.HTMLElement;
 
 		const path = isSvgPathElement(element)
-			? getPathOutline({element, containerRect})
+			? getPathOutline({element, containerRect, coordinateSpace})
 			: null;
 
 		const measured = {

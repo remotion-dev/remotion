@@ -1116,6 +1116,7 @@ export const WebMcp: FC = () => {
 									includeOutsideContainer: true,
 								};
 							}),
+							null,
 						);
 						const measurementsByKey = new Map(
 							measuredOutlines.map((outline) => [outline.key, outline]),

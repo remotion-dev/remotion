@@ -24,6 +24,8 @@ export type CanvasOutlineRenderTarget = Omit<
 /** Measure and order a host's outline targets without subscribing to playback. */
 export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 	containerRef,
+	contentRoot,
+	scale,
 	targets,
 	sequences,
 	hoverController,
@@ -31,6 +33,8 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 	updateOutlinesRef,
 }: {
 	readonly containerRef: RefObject<SVGSVGElement | null>;
+	readonly contentRoot: Element | null;
+	readonly scale: number | null;
 	readonly targets: readonly Target[];
 	readonly sequences: readonly CanvasOutlineSequenceParent[];
 	readonly hoverController: CanvasHoverController;
@@ -57,6 +61,8 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 	);
 	const outlines = useCanvasOutlineMeasurements({
 		containerRef,
+		contentRoot,
+		scale,
 		targets: measurementTargets,
 		updateOutlinesRef,
 	});

@@ -506,6 +506,8 @@ const ActiveCanvasOutlines = React.memo(
 		const {outlinesForRendering, outlinesByKey, targetsByKey} =
 			useCanvasOutlines({
 				containerRef,
+				contentRoot: null,
+				scale: null,
 				targets,
 				sequences,
 				hoverController: controller.hover,
