@@ -44,6 +44,8 @@ The option should be documented in the [API reference](/docs/api) and the [CLI r
 
 Note from which version the option is available.
 
+The [options reference](/docs/options) is generated from the option definitions and CLI help metadata. Add the option to the registry and the help entries for each supported command, then run `bun run build` at the repository root followed by `bun run generate-option-docs` in `packages/docs`. Keep API and configuration documentation up to date so the generated page can link to the relevant parameter sections.
+
 ## Testing changes to the CLI
 
 Check out the [Running the CLI](/docs/contributing) section in the contributing docs.

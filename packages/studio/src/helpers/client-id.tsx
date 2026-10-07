@@ -13,6 +13,7 @@ import {
 	subscribeToPreviewServerEvents,
 	type PreviewServerConnectionState,
 } from './preview-server-events';
+import {getStudioExperimentalTracksEnabled} from './studio-runtime-config';
 import {reloadUrl} from './url-state';
 
 type Context = {
@@ -187,7 +188,11 @@ export const PreviewServerConnection: React.FC<{
 
 	return (
 		<StudioServerConnectionCtx.Provider value={context}>
-			{children}
+			<Internals.ExperimentalTracksEnabledContext.Provider
+				value={getStudioExperimentalTracksEnabled()}
+			>
+				{children}
+			</Internals.ExperimentalTracksEnabledContext.Provider>
 		</StudioServerConnectionCtx.Provider>
 	);
 };

@@ -14,7 +14,7 @@ export const noOpenOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/studio#--no-open',
+	docLink: 'https://www.remotion.dev/docs/options/no-open',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		// Minimist quirk: `--no-open` sets `open` to `false`.

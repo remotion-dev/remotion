@@ -301,7 +301,14 @@ const TimelineTimeIndicatorsInner = React.memo<{
 
 			const firstFrame = Math.max(
 				0,
-				Math.floor((scrollLeft - TIMELINE_PADDING) / frameInterval),
+				// Keep labels visible after their ticks scroll out of the viewport.
+				Math.floor(
+					(scrollLeft -
+						TIMELINE_PADDING -
+						TICK_LABEL_MARGIN_LEFT -
+						maxTickLabelWidth) /
+						frameInterval,
+				),
 			);
 			const lastFrame = Math.min(
 				durationInFrames - 1,

@@ -503,6 +503,8 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	clearSelection: () => undefined,
 };
 
+const TimelineSelectionCanSelectContext = createContext(false);
+
 const TimelineSelectionContext = createContext<TimelineSelectionContextValue>(
 	defaultTimelineSelectionContextValue,
 );
@@ -685,7 +687,7 @@ const getSelectableTimelineItemsForTrack = ({
 		return [];
 	}
 
-	if (!getIsExpanded(nodePathInfo)) {
+	if (track.sequence.timelineTrack || !getIsExpanded(nodePathInfo)) {
 		return [sequenceSelection];
 	}
 
@@ -804,7 +806,7 @@ export const TimelineSelectAllKeybindings: React.FC<{
 	readonly timeline: readonly TimelineTrackData[];
 }> = ({timeline}) => {
 	const keybindings = useKeybinding();
-	const {canSelect} = useTimelineSelection();
+	const canSelect = useTimelineSelectionCanSelect();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const selectableSequenceSelections = useMemo(
@@ -1505,21 +1507,27 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 
 	return (
-		<CurrentTimelineSelectionContext.Provider value={currentSelection}>
-			<TimelineRowSelectionContext.Provider value={rowSelectionContextValue}>
-				<TimelineSelectionContext.Provider value={value}>
-					{children}
-					<TimelineEscapeKeybindings />
-					{isStudioInteractivityEnabled() ? (
-						<>
-							<TimelineClipboardKeybindings />
-							<TimelineDeleteKeybindings />
-						</>
-					) : null}
-				</TimelineSelectionContext.Provider>
-			</TimelineRowSelectionContext.Provider>
-		</CurrentTimelineSelectionContext.Provider>
+		<TimelineSelectionCanSelectContext.Provider value={canSelect}>
+			<CurrentTimelineSelectionContext.Provider value={currentSelection}>
+				<TimelineRowSelectionContext.Provider value={rowSelectionContextValue}>
+					<TimelineSelectionContext.Provider value={value}>
+						{children}
+						<TimelineEscapeKeybindings />
+						{isStudioInteractivityEnabled() ? (
+							<>
+								<TimelineClipboardKeybindings />
+								<TimelineDeleteKeybindings />
+							</>
+						) : null}
+					</TimelineSelectionContext.Provider>
+				</TimelineRowSelectionContext.Provider>
+			</CurrentTimelineSelectionContext.Provider>
+		</TimelineSelectionCanSelectContext.Provider>
 	);
+};
+
+export const useTimelineSelectionCanSelect = () => {
+	return useContext(TimelineSelectionCanSelectContext);
 };
 
 export const useTimelineSelection = () => {

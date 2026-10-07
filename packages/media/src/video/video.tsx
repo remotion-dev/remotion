@@ -450,7 +450,8 @@ const VideoInner: React.FC<
 					muted={muted ?? false}
 					onVideoFrame={onVideoFrame}
 					playbackRate={playbackRate ?? 1}
-					showInTimeline={showInTimeline ?? true}
+					// The enclosing Sequence already represents the video in the timeline.
+					showInTimeline={false}
 					src={src}
 					style={croppedStyle ?? {}}
 					trimAfter={effectiveTrimAfter}

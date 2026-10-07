@@ -18,7 +18,7 @@ export const publicPathOption = {
 		);
 	},
 	ssrName: 'publicPath' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer',
+	docLink: 'https://www.remotion.dev/docs/options/public-path',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

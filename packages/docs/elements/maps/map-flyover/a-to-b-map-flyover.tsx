@@ -280,7 +280,7 @@ const MapFlyoverContent: React.FC<MapFlyoverLayerProps> = ({
 	style,
 }) => {
 	const frame = useCurrentFrame();
-	const {height, width} = useVideoConfig();
+	const {durationInFrames, height, width} = useVideoConfig();
 	const {continueRender, delayRender} = useDelayRender();
 	const {delayPlayback} = useBufferState();
 	const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -313,7 +313,7 @@ const MapFlyoverContent: React.FC<MapFlyoverLayerProps> = ({
 		[mapPlate, route],
 	);
 	const travelStart = 0;
-	const travelEnd = 205;
+	const travelEnd = Math.max(1, durationInFrames - 80);
 	const travelProgress = interpolate(frame, [travelStart, travelEnd], [0, 1], {
 		easing: Easing.inOut(Easing.quad),
 		extrapolateLeft: 'clamp',

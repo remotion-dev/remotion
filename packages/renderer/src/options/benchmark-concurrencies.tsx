@@ -18,7 +18,7 @@ export const benchmarkConcurrenciesOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/benchmark#--concurrencies',
+	docLink: 'https://www.remotion.dev/docs/options/concurrencies',
 	type: null as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

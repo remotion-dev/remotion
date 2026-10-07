@@ -16,6 +16,10 @@ import {
 	SequenceManagerRefContext,
 	VisualModePropStatusesRefContext,
 } from './SequenceManager.js';
+import {
+	ExperimentalTracksEnabledContext,
+	TimelineTrackContext,
+} from './timeline-track-context.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
 
 export function useRemotionContexts() {
@@ -23,6 +27,10 @@ export function useRemotionContexts() {
 	const timelineContext = React.useContext(TimelineContext);
 	const setTimelineContext = React.useContext(SetTimelineContext);
 	const sequenceContext = React.useContext(SequenceContext);
+	const experimentalTracksEnabled = React.useContext(
+		ExperimentalTracksEnabledContext,
+	);
+	const timelineTrackContext = React.useContext(TimelineTrackContext);
 	const canUseRemotionHooksContext = React.useContext(CanUseRemotionHooks);
 	const preloadContext = React.useContext(PreloadContext);
 	const resolveCompositionContext = React.useContext(ResolveCompositionContext);
@@ -41,6 +49,8 @@ export function useRemotionContexts() {
 			timelineContext,
 			setTimelineContext,
 			sequenceContext,
+			experimentalTracksEnabled,
+			timelineTrackContext,
 			canUseRemotionHooksContext,
 			preloadContext,
 			resolveCompositionContext,
@@ -54,6 +64,8 @@ export function useRemotionContexts() {
 		[
 			compositionManagerCtx,
 			sequenceContext,
+			experimentalTracksEnabled,
+			timelineTrackContext,
 			setTimelineContext,
 			timelineContext,
 			canUseRemotionHooksContext,
@@ -108,7 +120,15 @@ export const RemotionContextProvider = (
 														<BufferingContextReact.Provider
 															value={contexts.bufferManagerContext}
 														>
-															{children}
+															<ExperimentalTracksEnabledContext.Provider
+																value={contexts.experimentalTracksEnabled}
+															>
+																<TimelineTrackContext.Provider
+																	value={contexts.timelineTrackContext}
+																>
+																	{children}
+																</TimelineTrackContext.Provider>
+															</ExperimentalTracksEnabledContext.Provider>
 														</BufferingContextReact.Provider>
 													</SequenceContext.Provider>
 												</SetTimelineContext.Provider>

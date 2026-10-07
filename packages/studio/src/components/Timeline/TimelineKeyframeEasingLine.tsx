@@ -8,6 +8,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {EasingPresetPreview} from './EasingEditorModal';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
@@ -103,8 +104,8 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
@@ -124,7 +125,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			const promise = updateSelectedTimelineEasings({
 				selections: getTargetSelections(),
 				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				propStatuses: propStatusesRef.current,
 				setPropStatuses,
 				clientId: previewServerState.clientId,
@@ -134,7 +135,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		},
 		[
 			getTargetSelections,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			previewServerState,
 			propStatusesRef,
 			sequencesRef,

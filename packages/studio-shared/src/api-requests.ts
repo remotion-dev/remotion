@@ -963,6 +963,7 @@ export type NodeWrapper =
 
 export type WrapNodeRequest = {
 	fileName: string;
+	compositionId: string;
 	nodePath: SequenceNodePath;
 	wrapper: NodeWrapper | null;
 	width: number | null;
@@ -1340,6 +1341,8 @@ export type OpenRemotionSkillRequest = {
 	scope: 'project' | 'global';
 };
 export type GetRemotionSkillsInfoResponse = {
+	studioServerStartedByAgent: boolean;
+	studioRestartSkill: 'remotion-studio' | 'remotion-best-practices' | null;
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
 	installations: {
@@ -1397,6 +1400,7 @@ export type GetDefaultEditorInfoRequest = {};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
+	runningEditors: readonly EditorPickerId[] | null;
 	installedEditors: {
 		id: EditorPickerId;
 		name: string;
@@ -1407,6 +1411,7 @@ export type GetDefaultEditorInfoResponse = {
 export type GetDefaultCodingAgentInfoRequest = {};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
+	runningCodingAgents: readonly DefaultCodingAgent[] | null;
 	installedCodingAgents: {
 		id: DefaultCodingAgent;
 		name: string;

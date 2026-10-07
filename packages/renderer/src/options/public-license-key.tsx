@@ -15,7 +15,7 @@ export const publicLicenseKeyOption = {
 		</>
 	),
 	ssrName: 'publicLicenseKey' as const,
-	docLink: 'https://www.remotion.dev/docs/licensing',
+	docLink: 'https://www.remotion.dev/docs/options/public-license-key',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

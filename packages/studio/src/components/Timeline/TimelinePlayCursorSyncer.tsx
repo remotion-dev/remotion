@@ -7,6 +7,7 @@ import {
 	getCurrentDuration,
 	getCurrentFrame,
 	getCurrentZoom,
+	setCurrentDimensions,
 	setCurrentDuration,
 	setCurrentFps,
 	setCurrentFrame,
@@ -47,6 +48,7 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 		setCurrentZoom(zoom);
 		setCurrentDuration(video.durationInFrames);
 		setCurrentFps(video.fps);
+		setCurrentDimensions(video.width, video.height);
 	}
 
 	/**

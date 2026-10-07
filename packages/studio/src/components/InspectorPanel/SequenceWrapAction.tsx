@@ -1,6 +1,6 @@
 import type {NodeWrapper} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useState} from 'react';
-import {Internals, isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
+import {Internals, isHtmlInCanvasSupported} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import type {
 	SequenceNodePathInfo,
@@ -11,6 +11,8 @@ import {HtmlInCanvasIcon} from '../../icons/html-in-canvas';
 import {MotionBlurIcon} from '../../icons/motion-blur';
 import {SetSelectedModalContext} from '../../state/modals';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {getCurrentDimensions} from '../Timeline/imperative-state';
 import {wrapNode} from '../wrap-node-api';
 import {
 	InspectorQuickAction,
@@ -38,20 +40,33 @@ export const SequenceWrapAction: React.FC<{
 		readonly line: number;
 	};
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
-	const {width, height} = useVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {sequence} = track;
 	const [busy, setBusy] = useState(false);
+	const canWrapInHtmlInCanvas =
+		sequence.type === 'sequence' &&
+		!nodePathInfo.supportsEffects &&
+		!htmlInCanvasComponentIdentities.has(
+			sequence.controls?.componentIdentity ?? '',
+		);
 
 	const onWrap = useCallback(
 		async (wrapper: HtmlInCanvasWrapper) => {
-			if (busy || sourceActionsDisabled) {
+			if (
+				busy ||
+				!canWrapInHtmlInCanvas ||
+				sourceActionsDisabled ||
+				canvasContent?.type !== 'composition'
+			) {
 				return;
 			}
+
+			const {compositionId} = canvasContent;
 
 			if (!isHtmlInCanvasSupported()) {
 				setSelectedModal({
@@ -63,6 +78,9 @@ export const SequenceWrapAction: React.FC<{
 			}
 
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
+			const {width, height} = getCurrentDimensions();
 			const sequencesById = new Map(
 				sequences.map((registeredSequence) => [
 					registeredSequence.id,
@@ -126,6 +144,7 @@ export const SequenceWrapAction: React.FC<{
 			try {
 				const eligibility = await wrapNode({
 					fileName: nodePath.absolutePath,
+					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper: null,
 					width: null,
@@ -161,6 +180,7 @@ export const SequenceWrapAction: React.FC<{
 
 				const result = await wrapNode({
 					fileName: nodePath.absolutePath,
+					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper,
 					width,
@@ -178,9 +198,10 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
-			height,
+			canWrapInHtmlInCanvas,
+			canvasContent,
 			nodePathInfo.sequenceSubscriptionKey,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			sequence.controls?.componentName,
 			sequence.displayName,
 			sequence.id,
@@ -188,11 +209,14 @@ export const SequenceWrapAction: React.FC<{
 			setSelectedModal,
 			sourceActionsDisabled,
 			sourceLocation,
-			width,
 		],
 	);
 
-	if (sourceActionsDisabled) {
+	if (
+		!canWrapInHtmlInCanvas ||
+		sourceActionsDisabled ||
+		canvasContent?.type !== 'composition'
+	) {
 		return null;
 	}
 
@@ -206,7 +230,7 @@ export const SequenceWrapAction: React.FC<{
 					<HtmlInCanvasIcon
 						color={color}
 						style={largeInspectorActionIconStyle}
-						viewBox="-64 -80 704 704"
+						viewBox="-48 -64 704 704"
 					/>
 				)}
 			>

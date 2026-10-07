@@ -254,6 +254,397 @@ const StravaRidesBroll: React.FC = () => {
 	);
 };
 
+export const PresenterIntroduction: React.FC = () => {
+	const {fps} = useVideoConfig();
+
+	return (
+		<>
+			<Video
+				src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
+				trimBefore={4.833333333333333 * fps}
+				style={videoStyle}
+				objectFit="cover"
+				effects={[lut({content: studioLut})]}
+				from={25}
+				durationInFrames={188}
+			/>
+			<IntroLowerThird
+				name={'Lower Third'}
+				from={36}
+				durationInFrames={108}
+				nameText="Jonny Burger"
+				roleText="Roller Ski Enthusiast"
+			/>
+			<BasicCaptions
+				name="Presenter introduction (1) captions"
+				captions={[
+					{
+						text: 'What',
+						startMs: 1000,
+						endMs: 1100,
+						timestampMs: 1050,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 1100,
+						endMs: 1200,
+						timestampMs: 1150,
+						confidence: null,
+					},
+					{
+						text: ' up',
+						startMs: 1200,
+						endMs: 1420,
+						timestampMs: 1310,
+						confidence: null,
+					},
+					{
+						text: ' guys,',
+						startMs: 1420,
+						endMs: 1600,
+						timestampMs: 1510,
+						confidence: null,
+					},
+					{
+						text: ' my',
+						startMs: 1700,
+						endMs: 1840,
+						timestampMs: 1770,
+						confidence: null,
+					},
+					{
+						text: ' name',
+						startMs: 1840,
+						endMs: 1980,
+						timestampMs: 1910,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 1980,
+						endMs: 2160,
+						timestampMs: 2070,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Jonny',
+						startMs: 2160,
+						endMs: 2340,
+						timestampMs: 2250,
+						confidence: null,
+					},
+					{
+						text: ' Burger,',
+						startMs: 2340,
+						endMs: 2860,
+						timestampMs: 2600,
+						confidence: null,
+					},
+					{
+						text: ' I',
+						startMs: 2860,
+						endMs: 2960,
+						timestampMs: 2910,
+						confidence: null,
+					},
+					{
+						text: ' am',
+						startMs: 2960,
+						endMs: 3100,
+						timestampMs: 3030,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 3100,
+						endMs: 3260,
+						timestampMs: 3180,
+						confidence: null,
+					},
+					{
+						text: ' founder',
+						startMs: 3260,
+						endMs: 3500,
+						timestampMs: 3380,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 3500,
+						endMs: 3640,
+						timestampMs: 3570,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Remotion',
+						startMs: 3640,
+						endMs: 4180,
+						timestampMs: 3910,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 4180,
+						endMs: 4580,
+						timestampMs: 4380,
+						confidence: null,
+					},
+					{
+						text: ' today',
+						startMs: 4580,
+						endMs: 5080,
+						timestampMs: 4830,
+						confidence: null,
+					},
+					{
+						text: " I'll",
+						startMs: 5300,
+						endMs: 5580,
+						timestampMs: 5440,
+						confidence: null,
+					},
+					{
+						text: ' use',
+						startMs: 5580,
+						endMs: 5800,
+						timestampMs: 5690,
+						confidence: null,
+					},
+					{
+						text: ' my',
+						startMs: 5800,
+						endMs: 6260,
+						timestampMs: 6030,
+						confidence: null,
+					},
+					{
+						text: ' massive',
+						startMs: 6260,
+						endMs: 6580,
+						timestampMs: 6420,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' reach',
+						startMs: 6580,
+						endMs: 7160,
+						timestampMs: 6870,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 7160,
+						endMs: 7400,
+						timestampMs: 7280,
+						confidence: null,
+					},
+					{
+						text: ' show',
+						startMs: 7400,
+						endMs: 7580,
+						timestampMs: 7490,
+						confidence: null,
+					},
+					{
+						text: ' you',
+						startMs: 7580,
+						endMs: 7840,
+						timestampMs: 7710,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 7840,
+						endMs: 8160,
+						timestampMs: 8000,
+						confidence: null,
+					},
+					{
+						text: ' really',
+						startMs: 8160,
+						endMs: 9180,
+						timestampMs: 8670,
+						confidence: null,
+					},
+					{
+						text: ' underrated',
+						startMs: 9180,
+						endMs: 9720,
+						timestampMs: 9450,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' sport –',
+						startMs: 9720,
+						endMs: 11000,
+						timestampMs: 10360,
+						confidence: null,
+					},
+					{
+						text: ' roller',
+						startMs: 11160,
+						endMs: 11480,
+						timestampMs: 11320,
+						confidence: null,
+					},
+					{
+						text: ' skis.',
+						startMs: 11480,
+						endMs: 12980,
+						timestampMs: 12230,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' I',
+						startMs: 13300,
+						endMs: 13520,
+						timestampMs: 13410,
+						confidence: null,
+					},
+					{
+						text: ' picked',
+						startMs: 13520,
+						endMs: 13760,
+						timestampMs: 13640,
+						confidence: null,
+					},
+					{
+						text: ' up',
+						startMs: 13760,
+						endMs: 14040,
+						timestampMs: 13900,
+						confidence: null,
+					},
+					{
+						text: ' these',
+						startMs: 14040,
+						endMs: 14340,
+						timestampMs: 14190,
+						confidence: null,
+					},
+					{
+						text: ' bad',
+						startMs: 14340,
+						endMs: 14600,
+						timestampMs: 14470,
+						confidence: null,
+					},
+					{
+						text: ' boys',
+						startMs: 14600,
+						endMs: 14900,
+						timestampMs: 14750,
+						confidence: null,
+					},
+					{
+						text: ' at',
+						startMs: 14900,
+						endMs: 15020,
+						timestampMs: 14960,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' a',
+						startMs: 15020,
+						endMs: 15240,
+						timestampMs: 15130,
+						confidence: null,
+					},
+					{
+						text: ' yard',
+						startMs: 15240,
+						endMs: 15520,
+						timestampMs: 15380,
+						confidence: null,
+					},
+					{
+						text: ' sale',
+						startMs: 15520,
+						endMs: 15920,
+						timestampMs: 15720,
+						confidence: null,
+					},
+					{
+						text: ' last',
+						startMs: 15920,
+						endMs: 16300,
+						timestampMs: 16110,
+						confidence: null,
+					},
+					{
+						text: ' weekend.',
+						startMs: 16300,
+						endMs: 17640,
+						timestampMs: 16970,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: " Let's",
+						startMs: 17740,
+						endMs: 17980,
+						timestampMs: 17860,
+						confidence: null,
+					},
+					{
+						text: ' take',
+						startMs: 17980,
+						endMs: 18140,
+						timestampMs: 18060,
+						confidence: null,
+					},
+					{
+						text: ' them',
+						startMs: 18140,
+						endMs: 18320,
+						timestampMs: 18230,
+						confidence: null,
+					},
+					{
+						text: ' out',
+						startMs: 18320,
+						endMs: 18480,
+						timestampMs: 18400,
+						confidence: null,
+					},
+					{
+						text: ' for',
+						startMs: 18480,
+						endMs: 18580,
+						timestampMs: 18530,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 18580,
+						endMs: 18820,
+						timestampMs: 18700,
+						confidence: null,
+					},
+					{
+						text: ' spin.',
+						startMs: 18820,
+						endMs: 19040,
+						timestampMs: 18930,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+				width={1400}
+				style={{position: 'absolute', left: 260, bottom: 90}}
+				combineTokensWithinMilliseconds={3000}
+			/>
+		</>
+	);
+};
+
 const RollerSkiRoughCut: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -270,392 +661,11 @@ const RollerSkiRoughCut: React.FC = () => {
 				</Series.Sequence>
 				<Series.Sequence
 					name="Presenter introduction (1)"
-					durationInFrames={336}
+					durationInFrames={192}
 					premountFor={fps}
 					trimBefore={21}
 				>
-					<Video
-						src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
-						trimBefore={4 * FPS}
-						style={videoStyle}
-						objectFit="cover"
-						premountFor={fps}
-						effects={[lut({content: studioLut})]}
-					/>
-					<IntroLowerThird
-						name="Jonny Burger lower third"
-						from={36}
-						durationInFrames={108}
-						premountFor={fps}
-						nameText="Jonny Burger"
-						roleText="Roller Ski Enthusiast"
-					/>
-					<BasicCaptions
-						name="Presenter introduction (1) captions"
-						captions={[
-							{
-								text: 'What',
-								startMs: 1000,
-								endMs: 1100,
-								timestampMs: 1050,
-								confidence: null,
-							},
-							{
-								text: ' is',
-								startMs: 1100,
-								endMs: 1200,
-								timestampMs: 1150,
-								confidence: null,
-							},
-							{
-								text: ' up',
-								startMs: 1200,
-								endMs: 1420,
-								timestampMs: 1310,
-								confidence: null,
-							},
-							{
-								text: ' guys,',
-								startMs: 1420,
-								endMs: 1600,
-								timestampMs: 1510,
-								confidence: null,
-							},
-							{
-								text: ' my',
-								startMs: 1700,
-								endMs: 1840,
-								timestampMs: 1770,
-								confidence: null,
-							},
-							{
-								text: ' name',
-								startMs: 1840,
-								endMs: 1980,
-								timestampMs: 1910,
-								confidence: null,
-							},
-							{
-								text: ' is',
-								startMs: 1980,
-								endMs: 2160,
-								timestampMs: 2070,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' Jonny',
-								startMs: 2160,
-								endMs: 2340,
-								timestampMs: 2250,
-								confidence: null,
-							},
-							{
-								text: ' Burger,',
-								startMs: 2340,
-								endMs: 2860,
-								timestampMs: 2600,
-								confidence: null,
-							},
-							{
-								text: ' I',
-								startMs: 2860,
-								endMs: 2960,
-								timestampMs: 2910,
-								confidence: null,
-							},
-							{
-								text: ' am',
-								startMs: 2960,
-								endMs: 3100,
-								timestampMs: 3030,
-								confidence: null,
-							},
-							{
-								text: ' the',
-								startMs: 3100,
-								endMs: 3260,
-								timestampMs: 3180,
-								confidence: null,
-							},
-							{
-								text: ' founder',
-								startMs: 3260,
-								endMs: 3500,
-								timestampMs: 3380,
-								confidence: null,
-							},
-							{
-								text: ' of',
-								startMs: 3500,
-								endMs: 3640,
-								timestampMs: 3570,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' Remotion',
-								startMs: 3640,
-								endMs: 4180,
-								timestampMs: 3910,
-								confidence: null,
-							},
-							{
-								text: ' and',
-								startMs: 4180,
-								endMs: 4580,
-								timestampMs: 4380,
-								confidence: null,
-							},
-							{
-								text: ' today',
-								startMs: 4580,
-								endMs: 5080,
-								timestampMs: 4830,
-								confidence: null,
-							},
-							{
-								text: " I'll",
-								startMs: 5300,
-								endMs: 5580,
-								timestampMs: 5440,
-								confidence: null,
-							},
-							{
-								text: ' use',
-								startMs: 5580,
-								endMs: 5800,
-								timestampMs: 5690,
-								confidence: null,
-							},
-							{
-								text: ' my',
-								startMs: 5800,
-								endMs: 6260,
-								timestampMs: 6030,
-								confidence: null,
-							},
-							{
-								text: ' massive',
-								startMs: 6260,
-								endMs: 6580,
-								timestampMs: 6420,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' reach',
-								startMs: 6580,
-								endMs: 7160,
-								timestampMs: 6870,
-								confidence: null,
-							},
-							{
-								text: ' to',
-								startMs: 7160,
-								endMs: 7400,
-								timestampMs: 7280,
-								confidence: null,
-							},
-							{
-								text: ' show',
-								startMs: 7400,
-								endMs: 7580,
-								timestampMs: 7490,
-								confidence: null,
-							},
-							{
-								text: ' you',
-								startMs: 7580,
-								endMs: 7840,
-								timestampMs: 7710,
-								confidence: null,
-							},
-							{
-								text: ' a',
-								startMs: 7840,
-								endMs: 8160,
-								timestampMs: 8000,
-								confidence: null,
-							},
-							{
-								text: ' really',
-								startMs: 8160,
-								endMs: 9180,
-								timestampMs: 8670,
-								confidence: null,
-							},
-							{
-								text: ' underrated',
-								startMs: 9180,
-								endMs: 9720,
-								timestampMs: 9450,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' sport –',
-								startMs: 9720,
-								endMs: 11000,
-								timestampMs: 10360,
-								confidence: null,
-							},
-							{
-								text: ' roller',
-								startMs: 11160,
-								endMs: 11480,
-								timestampMs: 11320,
-								confidence: null,
-							},
-							{
-								text: ' skis.',
-								startMs: 11480,
-								endMs: 12980,
-								timestampMs: 12230,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' I',
-								startMs: 13300,
-								endMs: 13520,
-								timestampMs: 13410,
-								confidence: null,
-							},
-							{
-								text: ' picked',
-								startMs: 13520,
-								endMs: 13760,
-								timestampMs: 13640,
-								confidence: null,
-							},
-							{
-								text: ' up',
-								startMs: 13760,
-								endMs: 14040,
-								timestampMs: 13900,
-								confidence: null,
-							},
-							{
-								text: ' these',
-								startMs: 14040,
-								endMs: 14340,
-								timestampMs: 14190,
-								confidence: null,
-							},
-							{
-								text: ' bad',
-								startMs: 14340,
-								endMs: 14600,
-								timestampMs: 14470,
-								confidence: null,
-							},
-							{
-								text: ' boys',
-								startMs: 14600,
-								endMs: 14900,
-								timestampMs: 14750,
-								confidence: null,
-							},
-							{
-								text: ' at',
-								startMs: 14900,
-								endMs: 15020,
-								timestampMs: 14960,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' a',
-								startMs: 15020,
-								endMs: 15240,
-								timestampMs: 15130,
-								confidence: null,
-							},
-							{
-								text: ' yard',
-								startMs: 15240,
-								endMs: 15520,
-								timestampMs: 15380,
-								confidence: null,
-							},
-							{
-								text: ' sale',
-								startMs: 15520,
-								endMs: 15920,
-								timestampMs: 15720,
-								confidence: null,
-							},
-							{
-								text: ' last',
-								startMs: 15920,
-								endMs: 16300,
-								timestampMs: 16110,
-								confidence: null,
-							},
-							{
-								text: ' weekend.',
-								startMs: 16300,
-								endMs: 17640,
-								timestampMs: 16970,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: " Let's",
-								startMs: 17740,
-								endMs: 17980,
-								timestampMs: 17860,
-								confidence: null,
-							},
-							{
-								text: ' take',
-								startMs: 17980,
-								endMs: 18140,
-								timestampMs: 18060,
-								confidence: null,
-							},
-							{
-								text: ' them',
-								startMs: 18140,
-								endMs: 18320,
-								timestampMs: 18230,
-								confidence: null,
-							},
-							{
-								text: ' out',
-								startMs: 18320,
-								endMs: 18480,
-								timestampMs: 18400,
-								confidence: null,
-							},
-							{
-								text: ' for',
-								startMs: 18480,
-								endMs: 18580,
-								timestampMs: 18530,
-								confidence: null,
-							},
-							{
-								text: ' a',
-								startMs: 18580,
-								endMs: 18820,
-								timestampMs: 18700,
-								confidence: null,
-							},
-							{
-								text: ' spin.',
-								startMs: 18820,
-								endMs: 19040,
-								timestampMs: 18930,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-						]}
-						width={1400}
-						style={{position: 'absolute', left: 260, bottom: 90}}
-						combineTokensWithinMilliseconds={3000}
-					/>
+					<PresenterIntroduction />
 				</Series.Sequence>
 				<Series.Sequence
 					name="Roller ski blueprint intro"

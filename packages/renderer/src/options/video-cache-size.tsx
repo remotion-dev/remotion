@@ -22,7 +22,7 @@ export const mediaCacheSizeInBytesOption = {
 		</>
 	),
 	ssrName: 'mediaCacheSizeInBytes' as const,
-	docLink: 'https://www.remotion.dev/docs/media/cache',
+	docLink: 'https://www.remotion.dev/docs/options/media-cache-size-in-bytes',
 	type: 0 as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

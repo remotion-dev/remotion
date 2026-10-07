@@ -6,6 +6,7 @@ import type {
 } from '@remotion/studio-shared';
 import {
 	getAvailableCodingAgents,
+	getRunningCodingAgents,
 	launchCodingAgent,
 } from '../../helpers/coding-agent-registry';
 import {getAvailableGitClients} from '../../helpers/git-client-registry';
@@ -17,10 +18,14 @@ export const getDefaultCodingAgentInfoHandler: ApiHandler<
 	GetDefaultCodingAgentInfoResponse
 > = async ({getDefaultCodingAgent}) => {
 	const installedCodingAgents = await getAvailableCodingAgents();
+	const runningCodingAgents = await getRunningCodingAgents(
+		installedCodingAgents,
+	);
 	const installedTerminals = await getAvailableTerminals();
 	const installedGitClients = await getAvailableGitClients();
 	return {
 		defaultCodingAgent: getDefaultCodingAgent(),
+		runningCodingAgents,
 		installedCodingAgents: installedCodingAgents.map(
 			({id, name, nameWithType}) => ({
 				id,
