@@ -1,5 +1,6 @@
 import {NoReactInternals} from 'remotion/no-react';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {validCodecs} from './codec';
 import {
 	codecSupportsCrf,
@@ -53,6 +54,7 @@ export {HardwareAccelerationOption} from './options/hardware-acceleration';
 export {ProResProfile} from './options/prores-profile';
 
 export const BrowserSafeApis = {
+	canUseParallelEncoding,
 	getExtensionOfFilename,
 	getFileExtensionFromCodec,
 	validCodecs,

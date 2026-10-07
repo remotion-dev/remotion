@@ -23,6 +23,7 @@ const {
 	mutedOption,
 	colorSpaceOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -173,6 +174,9 @@ export const render = async (
 	const colorSpace = colorSpaceOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -315,6 +319,7 @@ export const render = async (
 		numberOfGifLoops,
 		audioCodec,
 		disallowParallelEncoding,
+		disableSharedMemoryCapture,
 		offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes,
 		colorSpace,

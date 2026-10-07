@@ -78,11 +78,10 @@ export const CompositionManagerProvider = ({
 
 	const updateCompositions = useCallback(
 		(updateComps: (comp: AnyComposition[]) => AnyComposition[]) => {
-			setCompositions((comps) => {
-				const updated = updateComps(comps);
-				currentcompositionsRef.current = updated;
-				return updated;
-			});
+			// The renderer may read registrations before React commits the state.
+			const updated = updateComps(currentcompositionsRef.current);
+			currentcompositionsRef.current = updated;
+			setCompositions(updated);
 		},
 		[],
 	);
@@ -116,14 +115,15 @@ export const CompositionManagerProvider = ({
 		[updateCompositions],
 	);
 
-	const unregisterComposition = useCallback((id: string) => {
-		internalOrderRef.current.delete(
-			getCompositionAndFolderOrderKey({type: 'composition', id}),
-		);
-		setCompositions((comps) => {
-			return comps.filter((c) => c.id !== id);
-		});
-	}, []);
+	const unregisterComposition = useCallback(
+		(id: string) => {
+			internalOrderRef.current.delete(
+				getCompositionAndFolderOrderKey({type: 'composition', id}),
+			);
+			updateCompositions((comps) => comps.filter((c) => c.id !== id));
+		},
+		[updateCompositions],
+	);
 
 	const registerFolder = useCallback(
 		(name: string, parent: string | null, stack: string | null) => {

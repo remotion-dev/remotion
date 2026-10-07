@@ -58,6 +58,7 @@ def get_render_media_on_lambda_payload(
   webhook: nil,
   x264_preset: nil,
   gop_size: nil,
+  disable_shared_memory_capture: false,
   chromium_options: {},
   is_production: nil,
   sample_rate: 48000
@@ -124,6 +125,7 @@ payload = {
     webhook: webhook,
     x264Preset: x264_preset,
     gopSize: gop_size,
+    disableSharedMemoryCapture: disable_shared_memory_capture,
     bucketName: bucket_name,
     isProduction: is_production
   }

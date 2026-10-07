@@ -7,7 +7,7 @@ Give the user a notice.
 
 ## Nesting
 
-Nest `<HtmlInCanvas>` components only when `HtmlInCanvas.isNestingSupported()` returns `true` (Chrome 157 or newer with HTML-in-canvas enabled). Older browsers reject nesting.
+Nest `<HtmlInCanvas>` components only when `HtmlInCanvas.isNestingSupported()` returns `true` (Chrome 157.0.8080.0 or newer with HTML-in-canvas enabled). Older browsers reject nesting.
 
 ## Enabling WebGL during renders
 

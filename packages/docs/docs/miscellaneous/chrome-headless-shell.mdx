@@ -15,8 +15,7 @@ The following platforms are supported:
 
 - macOS (x64 and arm64)
 - Windows (x64)
-- Linux x64 - [install the Linux dependencies](/docs/miscellaneous/linux-dependencies)
-- Linux arm64 - only for "Chrome Headless Shell"
+- Linux (x64 and arm64) - [install the Linux dependencies](/docs/miscellaneous/linux-dependencies)
 
 ## Ensure Chrome is installed
 
@@ -57,8 +56,6 @@ Chrome Headless Shell will download to this folder:
 node_modules/.remotion/chrome-headless-shell/[platform]/chrome-headless-shell-[platform]
 ```
 
-An executable `./chrome-headless-shell` (`.\chrome-headless-shell.exe` on Windows) will be created.
-
 <hr />
 
 Chrome for Testing will download to this folder:
@@ -82,7 +79,7 @@ node_modules/.remotion/chrome-headless-shell/VERSION
 node_modules/.remotion/chrome-for-testing/VERSION
 ```
 
-The file contains the Chrome version string, e.g. `149.0.7790.0`.
+The file contains the Chrome version string, e.g. `157.0.8080.0`.
 
 If the `VERSION` file is missing (e.g. when upgrading from an older version of Remotion) or does not match the expected version, Remotion will delete the existing browser and download the correct version.
 
@@ -144,6 +141,7 @@ Remotion will download a well-tested Chrome version:
 
 | Remotion version | Chrome version                    |
 | ---------------- | --------------------------------- |
+| From 4.0.534     | 157.0.8080.0                      |
 | From 4.0.452     | 149.0.7790.0                      |
 | From 4.0.414     | 144.0.7559.97                     |
 | From 4.0.315     | 134.0.6998.35 (skipped on Lambda) |
@@ -151,6 +149,14 @@ Remotion will download a well-tested Chrome version:
 | From 4.0.245     | 123.0.6312.86                     |
 
 Upgrades may happen in a patch release and will be listed here.
+
+## Shared-memory capture<AvailableFrom v="4.0.534" />
+
+Video renders with Remotion's Chrome Headless Shell builds on Apple Silicon and Linux can capture frames through shared memory when parallel encoding is available. This avoids compressing each frame as JPEG or PNG before encoding the video.
+
+When shared-memory capture is used, frames are captured without JPEG compression, even when `imageFormat` is set to `"jpeg"`. Chrome for Testing and browsers without shared-memory capture continue using JPEG or PNG screenshots.
+
+See [Shared-memory capture](/docs/shared-memory-capture) for activation conditions, image-format behavior and how to opt out.
 
 ## Changing the Chrome version
 

@@ -892,6 +892,15 @@ export const articles = [
 		slug: 'options/disable-keyboard-shortcuts',
 	},
 	{
+		id: 'options/disable-shared-memory-capture',
+		title: 'Disable shared-memory capture',
+		relativePath: 'docs/options/disable-shared-memory-capture.mdx',
+		compId: 'articles-docs-options-disable-shared-memory-capture',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/disable-shared-memory-capture',
+	},
+	{
 		id: 'options/disable-web-security',
 		title: 'Disable web security',
 		relativePath: 'docs/options/disable-web-security.mdx',
@@ -998,6 +1007,15 @@ export const articles = [
 		crumb: 'Options',
 		noAi: false,
 		slug: 'options/experimental-keep-audio-context-alive',
+	},
+	{
+		id: 'options/experimental-tracks',
+		title: 'Enable experimental timeline tracks',
+		relativePath: 'docs/options/experimental-tracks.mdx',
+		compId: 'articles-docs-options-experimental-tracks',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/experimental-tracks',
 	},
 	{
 		id: 'options/for-seamless-aac-concatenation',
@@ -6679,6 +6697,15 @@ export const articles = [
 		slug: 'bundlers',
 	},
 	{
+		id: 'parallel-encoding',
+		title: 'Parallel encoding',
+		relativePath: 'docs/parallel-encoding.mdx',
+		compId: 'articles-docs-parallel-encoding',
+		crumb: 'Rendering',
+		noAi: false,
+		slug: 'parallel-encoding',
+	},
+	{
 		id: 'parameterized-rendering',
 		title: 'Parameterized videos',
 		relativePath: 'docs/parameterized-rendering.mdx',
@@ -8425,6 +8452,15 @@ export const articles = [
 		crumb: '@remotion/shapes',
 		noAi: false,
 		slug: 'shapes/triangle',
+	},
+	{
+		id: 'shared-memory-capture',
+		title: 'Shared-memory capture',
+		relativePath: 'docs/shared-memory-capture.mdx',
+		compId: 'articles-docs-shared-memory-capture',
+		crumb: 'Rendering',
+		noAi: false,
+		slug: 'shared-memory-capture',
 	},
 	{
 		id: 'skia/enable-skia',

@@ -54,6 +54,7 @@ const getDefaults = (): RenderDefaults => {
 		allowHtmlInCanvas: false,
 		sampleRate: 48000,
 		configFileRenderDefaults: null,
+		sharedMemoryCapture: null,
 	};
 };
 

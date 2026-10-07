@@ -71,6 +71,10 @@ export type RenderDefaults = {
 	allowHtmlInCanvas: boolean;
 	sampleRate: number;
 	configFileRenderDefaults: ConfigFileRenderDefaults | null;
+	sharedMemoryCapture: {
+		browserExecutable: string | null;
+		disabled: boolean;
+	} | null;
 };
 
 declare global {
