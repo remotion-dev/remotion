@@ -6,6 +6,7 @@ const cliFlag = 'disallow-parallel-encoding' as const;
 
 export const disallowParallelEncodingOption = {
 	name: 'Disallow parallel encoding',
+	addedIn: '3.2.29',
 	cliFlag,
 	description: () => (
 		<>

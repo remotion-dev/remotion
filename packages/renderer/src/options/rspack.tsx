@@ -7,6 +7,7 @@ const cliFlag = 'rspack' as const;
 
 export const rspackOption = {
 	name: 'Rspack',
+	addedIn: '4.0.502',
 	cliFlag,
 	description: () => (
 		<>Uses Rspack instead of Webpack as the bundler for the Studio or bundle.</>

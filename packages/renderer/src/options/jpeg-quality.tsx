@@ -21,6 +21,7 @@ const cliFlag = 'jpeg-quality' as const;
 
 export const jpegQualityOption = {
 	name: 'JPEG Quality',
+	addedIn: '4.0.0',
 	cliFlag,
 	description: () => (
 		<>

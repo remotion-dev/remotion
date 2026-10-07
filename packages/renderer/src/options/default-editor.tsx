@@ -106,6 +106,7 @@ const validateDefaultEditor = (
 
 export const defaultEditorOption = {
 	name: 'Default editor',
+	addedIn: '4.0.503',
 	cliFlag,
 	description: () => (
 		<>

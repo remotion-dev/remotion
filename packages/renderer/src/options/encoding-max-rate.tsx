@@ -6,6 +6,7 @@ const cliFlag = 'max-rate' as const;
 
 export const encodingMaxRateOption = {
 	name: 'FFmpeg -maxrate flag',
+	addedIn: '4.0.78',
 	cliFlag,
 	description: () => (
 		<>

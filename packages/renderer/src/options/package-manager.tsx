@@ -6,6 +6,7 @@ let currentPackageManager: string | null = null;
 
 export const packageManagerOption = {
 	name: 'Package Manager',
+	addedIn: '3.2.33',
 	cliFlag,
 	description: () => {
 		return (

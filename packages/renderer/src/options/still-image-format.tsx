@@ -8,6 +8,7 @@ const cliFlag = 'image-format' as const;
 
 export const stillImageFormatOption = {
 	name: 'Still Image Format',
+	addedIn: '2.3.0',
 	cliFlag,
 	description: () => (
 		<>

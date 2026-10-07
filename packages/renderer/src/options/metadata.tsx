@@ -8,6 +8,7 @@ const cliFlag = 'metadata' as const;
 
 export const metadataOption = {
 	name: 'Metadata',
+	addedIn: '4.0.216',
 	cliFlag,
 	description: (mode) => {
 		if (mode === 'ssr') {

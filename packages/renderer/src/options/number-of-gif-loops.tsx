@@ -14,6 +14,7 @@ const cliFlag = 'number-of-gif-loops' as const;
 
 export const numberOfGifLoopsOption = {
 	name: 'Number of GIF loops',
+	addedIn: '3.1.0',
 	cliFlag,
 	description: () => {
 		return (

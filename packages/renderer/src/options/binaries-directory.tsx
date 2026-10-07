@@ -6,6 +6,7 @@ let currentDirectory: string | null = null;
 
 export const binariesDirectoryOption = {
 	name: 'Binaries Directory',
+	addedIn: '4.0.120',
 	cliFlag,
 	description: () => (
 		<>

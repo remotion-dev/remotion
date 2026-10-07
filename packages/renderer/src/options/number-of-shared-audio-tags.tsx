@@ -7,6 +7,7 @@ const cliFlag = 'number-of-shared-audio-tags' as const;
 
 export const numberOfSharedAudioTagsOption = {
 	name: 'Number of shared audio tags',
+	addedIn: '3.3.2',
 	cliFlag,
 	description: () => (
 		<>

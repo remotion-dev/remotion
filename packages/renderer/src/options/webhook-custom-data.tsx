@@ -4,6 +4,7 @@ const cliFlag = 'webhook-custom-data' as const;
 
 export const webhookCustomDataOption = {
 	name: 'Webhook custom data',
+	addedIn: '4.0.25',
 	cliFlag,
 	description: (type) => (
 		<>

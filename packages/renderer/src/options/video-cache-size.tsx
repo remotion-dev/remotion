@@ -10,6 +10,7 @@ const cliFlag = 'media-cache-size-in-bytes' as const;
 
 export const mediaCacheSizeInBytesOption = {
 	name: '@remotion/media cache size',
+	addedIn: '4.0.352',
 	cliFlag,
 	description: () => (
 		<>

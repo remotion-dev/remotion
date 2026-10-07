@@ -16,6 +16,7 @@ const cliFlag = 'timeout' as const;
 
 export const delayRenderTimeoutInMillisecondsOption = {
 	name: 'delayRender() timeout',
+	addedIn: '2.6.3',
 	cliFlag,
 	description: () => (
 		<>

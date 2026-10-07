@@ -19,6 +19,7 @@ export const getHardwareAcceleration = () => {
 
 export const hardwareAccelerationOption = {
 	name: 'Hardware Acceleration',
+	addedIn: '4.0.228',
 	cliFlag,
 	description: () =>
 		`

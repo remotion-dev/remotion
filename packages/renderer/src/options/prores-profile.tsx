@@ -23,6 +23,7 @@ const cliFlag = 'prores-profile' as const;
 
 export const proResProfileOption = {
 	name: 'ProRes profile',
+	addedIn: '2.1.6',
 	cliFlag,
 	description: () => (
 		<>

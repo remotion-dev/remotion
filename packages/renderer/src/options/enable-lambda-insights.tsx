@@ -6,6 +6,7 @@ let option = false;
 
 export const enableLambdaInsights = {
 	name: 'Enable Lambda Insights',
+	addedIn: '4.0.61',
 	cliFlag,
 	description: () => (
 		<>

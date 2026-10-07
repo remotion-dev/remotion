@@ -6,6 +6,7 @@ let value: AudioContextLatencyCategory | null = null;
 
 export const audioLatencyHintOption = {
 	name: 'Audio Latency Hint',
+	addedIn: '4.0.303',
 	cliFlag,
 	description: () => (
 		<>

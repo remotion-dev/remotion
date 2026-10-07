@@ -26,6 +26,7 @@ const cliFlag = 'color-space' as const;
 
 export const colorSpaceOption = {
 	name: 'Color space',
+	addedIn: '4.0.28',
 	cliFlag: 'color-space' as const,
 	description: () => (
 		<>

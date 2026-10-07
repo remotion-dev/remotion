@@ -6,6 +6,7 @@ let audioBitrate: string | null = null;
 
 export const audioBitrateOption = {
 	name: 'Audio Bitrate',
+	addedIn: '3.2.32',
 	cliFlag,
 	description: () => (
 		<>

@@ -6,6 +6,7 @@ const cliFlag = 'no-open' as const;
 
 export const noOpenOption = {
 	name: 'Disable browser auto-open',
+	addedIn: '3.3.19',
 	cliFlag,
 	description: () => (
 		<>

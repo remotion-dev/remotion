@@ -10,6 +10,7 @@ const cliFlag = 'offthreadvideo-video-threads' as const;
 
 export const offthreadVideoThreadsOption = {
 	name: 'OffthreadVideo threads',
+	addedIn: '4.0.261',
 	cliFlag,
 	description: () => (
 		<>

@@ -34,6 +34,7 @@ const validateDefaultCodingAgent = (
 
 export const defaultCodingAgentOption = {
 	name: 'Default coding agent',
+	addedIn: '4.0.506',
 	cliFlag,
 	description: () => (
 		<>

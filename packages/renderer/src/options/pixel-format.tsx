@@ -8,6 +8,7 @@ const cliFlag = 'pixel-format' as const;
 
 export const pixelFormatOption = {
 	name: 'Pixel format',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>

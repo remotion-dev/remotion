@@ -10,6 +10,7 @@ const cliFlag = 'offthreadvideo-cache-size-in-bytes' as const;
 
 export const offthreadVideoCacheSizeInBytesOption = {
 	name: 'OffthreadVideo cache size',
+	addedIn: '4.0.23',
 	cliFlag,
 	description: () => (
 		<>

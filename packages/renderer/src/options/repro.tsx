@@ -10,6 +10,7 @@ const cliFlag = 'repro' as const;
 
 export const reproOption = {
 	name: 'Create reproduction',
+	addedIn: '4.0.88',
 	cliFlag,
 	description: () => (
 		<>

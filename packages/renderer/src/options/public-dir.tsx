@@ -6,6 +6,7 @@ let currentPublicDir: string | null = null;
 
 export const publicDirOption = {
 	name: 'Public Directory',
+	addedIn: '3.2.13',
 	cliFlag,
 	description: () => {
 		return (
