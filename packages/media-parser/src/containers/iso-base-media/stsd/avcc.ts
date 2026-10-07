@@ -13,6 +13,10 @@ export const parseAvcc = ({
 	data: BufferIterator;
 	size: number;
 }): AvccBox => {
+	if (size < 8) {
+		throw new Error(`Expected avcC box to be at least 8 bytes, got ${size}`);
+	}
+
 	const confVersion = data.getUint8();
 	if (confVersion !== 1) {
 		throw new Error(`Unsupported AVCC version ${confVersion}`);

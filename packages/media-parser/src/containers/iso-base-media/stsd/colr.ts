@@ -63,6 +63,10 @@ export const parseColorParameterBox = ({
 	}
 
 	if (byteString === 'prof') {
+		if (size < 12) {
+			throw new Error(`Expected colr box to be at least 12 bytes, got ${size}`);
+		}
+
 		const profile = iterator.getSlice(size - 12);
 
 		return {

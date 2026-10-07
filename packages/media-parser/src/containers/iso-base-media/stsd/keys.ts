@@ -34,6 +34,12 @@ export const parseKeys = ({
 	for (let i = 0; i < entryCount; i++) {
 		// key_size
 		const keySize = iterator.getUint32();
+		// key_size counts itself and the namespace, so anything below 8
+		// would ask for a negative amount of bytes
+		if (keySize < 8) {
+			throw new Error(`Expected key size to be at least 8, got ${keySize}`);
+		}
+
 		const namespace = iterator.getAtom();
 		const value = iterator.getByteString(keySize - 8, false);
 		// data

@@ -31,7 +31,7 @@ export const parseStco = ({
 	const entries: (number | bigint)[] = [];
 	for (let i = 0; i < entryCount; i++) {
 		const bytesRemaining = size - (iterator.counter.getOffset() - offset);
-		if (bytesRemaining < 4) {
+		if (bytesRemaining < (mode64Bit ? 8 : 4)) {
 			break;
 		}
 

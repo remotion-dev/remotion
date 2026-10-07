@@ -133,6 +133,14 @@ export const parseIlstBox = ({
 		}
 
 		const innerSize = iterator.getUint32();
+		// innerSize counts the 16-byte data header, so anything below 16
+		// would ask for a negative amount of bytes
+		if (innerSize < 16) {
+			throw new Error(
+				`Expected inner size to be at least 16, got ${innerSize}`,
+			);
+		}
+
 		const type = iterator.getAtom();
 		const typeIndicator = iterator.getUint8();
 
