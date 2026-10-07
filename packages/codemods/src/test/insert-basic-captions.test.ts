@@ -55,7 +55,7 @@ export const Comp = (${parameter}) => {
 				? 'BasicCaptions3'
 				: 'BasicCaptions2';
 			expect(output).toContain(`BasicCaptions as ${alias}`);
-			expect(output).toContain(`<${alias} captions={[]}`);
+			expect(output).toMatch(new RegExp(`<${alias}\\s+captions=\\{\\[\\]\\}`));
 			if (!declarations.startsWith('import')) {
 				expect(output).toContain(declarations);
 			}

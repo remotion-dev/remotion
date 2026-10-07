@@ -122,7 +122,12 @@ export const CaptionQueueProcessor: React.FC = () => {
 						contents: JSON.stringify(captions, null, 2),
 						filePath: job.outName,
 					});
-				} else if (job.captionStyle !== null) {
+				} else if (
+					job.captionStyle !== null &&
+					// The built-in path owns basic-captions.element.tsx, so the
+					// library's Basic Captions must not be installed under that name.
+					job.captionStyle.element.slug !== 'captions/basic-captions'
+				) {
 					const {element} = job.captionStyle;
 					updateCaptionJobProgress(job.id, {
 						message: `Adding ${element.displayName}...`,

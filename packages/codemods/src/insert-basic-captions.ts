@@ -227,6 +227,7 @@ export const insertBasicCaptions = ({
 						)
 						.join(formattingConfig.endOfLine);
 	} else {
+		const {style, ...initialProps} = element.initialProps ?? {};
 		const jsx = buildJsxElement({
 			ast,
 			element: createElementFromInsertable({
@@ -237,13 +238,22 @@ export const insertBasicCaptions = ({
 					importPath,
 					position: null,
 					props: [
-						...Object.entries(element.initialProps ?? {})
+						...Object.entries(initialProps)
 							.filter(
 								([name]) => name !== 'captions' && !timingProps.includes(name),
 							)
 							.map(([name, value]) => ({name, value})),
 						{name: 'captions', value: captions},
 						...fallbackTimingProps,
+						{
+							name: 'style',
+							value: {
+								bottom: 120,
+								left: '50%',
+								transform: 'translateX(-50%)',
+								...(typeof style === 'object' ? style : {}),
+							},
+						},
 					],
 				},
 				from: null,
