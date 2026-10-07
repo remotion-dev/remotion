@@ -96,6 +96,8 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				inset: 0,
 				width,
 				height,
+				// The layout canvas hides its bitmap; the capture samples stay visible.
+				visibility: 'visible',
 				isolation: 'isolate',
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}

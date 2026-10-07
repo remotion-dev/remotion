@@ -516,6 +516,7 @@ const HtmlInCanvasContent = forwardRef<
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
+		const displayCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const paintTargetRef = useRef<HtmlInCanvasPaintTarget | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
 		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${usesDirectLayoutCanvas ? 'direct' : 'offscreen'}`;
@@ -549,9 +550,11 @@ const HtmlInCanvasContent = forwardRef<
 		onInitRef.current = onInit;
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
-		const unmountedRef = useRef(false);
+		const paintGenerationRef = useRef(0);
 
 		const onPaintCb = useCallback(async () => {
+			const paintGeneration = paintGenerationRef.current;
+			const displayCanvas = displayCanvasRef.current;
 			const element = divRef.current;
 
 			if (!element) {
@@ -627,7 +630,7 @@ const HtmlInCanvasContent = forwardRef<
 								);
 							}
 
-							if (unmountedRef.current) {
+							if (paintGenerationRef.current !== paintGeneration) {
 								cleanup();
 							} else {
 								onInitCleanupRef.current = cleanup;
@@ -636,6 +639,11 @@ const HtmlInCanvasContent = forwardRef<
 							initImage.close();
 						}
 					}
+				}
+
+				if (paintGenerationRef.current !== paintGeneration) {
+					continueRender(handle);
+					return;
 				}
 
 				let elImage: ElementImage;
@@ -684,14 +692,21 @@ const HtmlInCanvasContent = forwardRef<
 						});
 					}
 
-					// `null` once unmounted, e.g. when an async `onPaint` resolves late.
+					// A resized or unmounted canvas must not publish a late async paint.
+					if (paintGenerationRef.current !== paintGeneration) {
+						continueRender(handle);
+						return;
+					}
+
 					const state = chainState.get(canvasWidth, canvasHeight);
 					if (state) {
 						await runEffectChain({
 							state,
 							source: paintTarget,
 							effects: effectsRef.current,
-							output: paintTarget,
+							// Copy custom drawing to a regular 2D canvas in this paint cycle.
+							// The transferred canvas publishes its own surface asynchronously.
+							output: displayCanvas ?? paintTarget,
 							width: canvasWidth,
 							height: canvasHeight,
 						});
@@ -739,7 +754,8 @@ const HtmlInCanvasContent = forwardRef<
 			});
 
 			initializedRef.current = false;
-			unmountedRef.current = false;
+			paintGenerationRef.current++;
+			const paintGeneration = paintGenerationRef.current;
 
 			placeholder.addEventListener('paint', onPaintCb);
 
@@ -747,7 +763,7 @@ const HtmlInCanvasContent = forwardRef<
 				placeholder.removeEventListener('paint', onPaintCb);
 				paintTargetRef.current = null;
 				initializedRef.current = false;
-				unmountedRef.current = true;
+				paintGenerationRef.current = paintGeneration + 1;
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
@@ -798,8 +814,10 @@ const HtmlInCanvasContent = forwardRef<
 			return {
 				width,
 				height,
+				// Keep the capture visible while hiding the transferred canvas bitmap.
+				visibility: usesDirectLayoutCanvas ? undefined : ('visible' as const),
 			};
-		}, [width, height]);
+		}, [width, height, usesDirectLayoutCanvas]);
 
 		const canvasStyle = useMemo(() => {
 			return {
@@ -809,20 +827,55 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [height, style, width]);
 
+		const layoutCanvas = (
+			<canvas
+				key={canvasSizeKey}
+				ref={setLayoutCanvasRef}
+				width={canvasWidth}
+				height={canvasHeight}
+				style={
+					usesDirectLayoutCanvas
+						? canvasStyle
+						: {
+								width: '100%',
+								height: '100%',
+								display: 'block',
+								visibility: 'hidden',
+							}
+				}
+			>
+				<div ref={divRef} style={innerStyle}>
+					{children}
+				</div>
+				{canvasSiblings}
+			</canvas>
+		);
+
 		return (
 			<HtmlInCanvasAncestorContext.Provider value>
-				<canvas
-					key={canvasSizeKey}
-					ref={setLayoutCanvasRef}
-					width={canvasWidth}
-					height={canvasHeight}
-					style={canvasStyle}
-				>
-					<div ref={divRef} style={innerStyle}>
-						{children}
+				{usesDirectLayoutCanvas ? (
+					layoutCanvas
+				) : (
+					<div style={{display: 'inline-block', ...canvasStyle}}>
+						<div style={{position: 'relative', width: '100%', height: '100%'}}>
+							{layoutCanvas}
+							<canvas
+								key={`display-${canvasSizeKey}`}
+								ref={displayCanvasRef}
+								width={canvasWidth}
+								height={canvasHeight}
+								style={{
+									position: 'absolute',
+									top: 0,
+									left: 0,
+									width: '100%',
+									height: '100%',
+									pointerEvents: 'none',
+								}}
+							/>
+						</div>
 					</div>
-					{canvasSiblings}
-				</canvas>
+				)}
 			</HtmlInCanvasAncestorContext.Provider>
 		);
 	},
