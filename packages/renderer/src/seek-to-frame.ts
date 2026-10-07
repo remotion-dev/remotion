@@ -211,5 +211,5 @@ export const seekToFrame = async ({
 		timeoutInMilliseconds,
 	});
 	await waitForReady({page, timeoutInMilliseconds, frame, indent, logLevel});
-	await page.evaluateHandle('document.fonts.ready');
+	await page.evaluate('document.fonts.ready.then(() => true)');
 };

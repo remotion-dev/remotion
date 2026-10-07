@@ -1472,6 +1472,14 @@ export type LogStudioErrorResponse = {};
 // When adding a route, also update the Browser Studio parity checklist:
 // https://github.com/remotion-dev/remotion/issues/9807
 export type ApiRoutes = {
+	'/api/shared-memory-capture-support': {
+		Request: {
+			browserExecutable: string | null;
+			chromeMode: ChromeMode;
+			chromiumOptions: RequiredChromiumOptions;
+		};
+		Response: {supported: boolean};
+	};
 	'/api/invalidate-bundle': ReqAndRes<
 		Record<string, never>,
 		{didInvalidate: boolean}

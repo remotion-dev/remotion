@@ -78,6 +78,7 @@ test(
 				webhook: null,
 				x264Preset: null,
 				gopSize: null,
+				disableSharedMemoryCapture: false,
 				inputProps: {},
 				preferLossless: false,
 				indent: false,

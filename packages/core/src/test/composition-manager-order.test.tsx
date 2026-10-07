@@ -1,7 +1,8 @@
 import {afterEach, expect, spyOn, test} from 'bun:test';
 import {act, cleanup, render, waitFor} from '@testing-library/react';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Composition} from '../Composition.js';
+import {compositionsRef} from '../CompositionManager.js';
 import type {CompositionManagerContext} from '../CompositionManagerContext.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
 import {CompositionManagerProvider} from '../CompositionManagerProvider.js';
@@ -23,6 +24,11 @@ test('applies committed composition and folder order', async () => {
 	let context: CompositionManagerContext | null = null;
 	const CaptureContext: React.FC = () => {
 		context = useContext(CompositionManager);
+		useEffect(() => {
+			expect(
+				compositionsRef.current?.getCompositions().map((comp) => comp.id),
+			).toEqual(['inside', 'outside']);
+		}, []);
 		return null;
 	};
 

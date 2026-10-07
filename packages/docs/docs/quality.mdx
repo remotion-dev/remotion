@@ -58,9 +58,11 @@ Use [Output Scaling](/docs/options/scale) to render the video with a higher pixe
 
 ## JPEG Quality
 
-Remotion makes screenshots of the browser page by default in JPEG format.  
+When Remotion captures video frames as screenshots, the default format is JPEG.
 The JPEG quality by default is 80 (on a scale of 0 to 100).  
 You may tweak it using the [`--jpeg-quality`](/docs/options/jpeg-quality) flag or switch to PNG as the image format using [`--image-format=png`](/docs/options/video-image-format) (slower).
+
+When [shared-memory capture](/docs/shared-memory-capture) is active, video frames are passed to FFmpeg without JPEG compression. The JPEG quality setting has no effect on those frames.
 
 ## Color accuracy
 

@@ -26,6 +26,9 @@ export const jpegQualityOption = {
 		<>
 			Sets the quality of the generated JPEG images. Must be an integer between
 			0 and 100. Default: 80.
+			<br />
+			This option has no effect when{' '}
+			<a href="/docs/shared-memory-capture">shared-memory capture</a> is active.
 		</>
 	),
 	ssrName: 'jpegQuality',

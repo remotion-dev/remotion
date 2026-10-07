@@ -491,6 +491,13 @@ const innerStitchFramesToVideo = async (
 		}),
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
+		// VP8/VP9 store alpha in additional blocks. Stream copying cannot infer
+		// the alpha channel from the decoded pixel format, so retain its signal.
+		preEncodedFileLocation &&
+		(codec === 'vp8' || codec === 'vp9') &&
+		pixelFormat === 'yuva420p'
+			? ['-metadata:s:v:0', 'alpha_mode=1']
+			: null,
 		...makeMetadataArgs(metadata ?? {}),
 		force || fastStartIntermediate ? '-y' : null,
 		fastStartIntermediate ? ['-f', fastStartMuxer] : null,

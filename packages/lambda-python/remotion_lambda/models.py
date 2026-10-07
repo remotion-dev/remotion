@@ -337,6 +337,7 @@ class RenderMediaParams:
     encoding_max_rate: Optional[str] = None
     is_production: Optional[bool] = None
     sample_rate: int = 48000
+    disable_shared_memory_capture: bool = False
 
     def serialize_params(self) -> Dict:
         """
@@ -395,6 +396,7 @@ class RenderMediaParams:
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
             'gopSize': self.gop_size,
+            'disableSharedMemoryCapture': self.disable_shared_memory_capture,
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,
             'encodingMaxRate': self.encoding_max_rate,

@@ -168,9 +168,17 @@ For example only every second frame, every third frame and so on. Only works for
 
 <Options cli id="enforce-audio-track" />
 
+### `--disable-shared-memory-capture`<AvailableFrom v="4.0.534" />
+
+<Options cli id="disable-shared-memory-capture" />
+
+See [Shared-memory capture](/docs/shared-memory-capture).
+
 ### `--disallow-parallel-encoding`<AvailableFrom v="4.0.315" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
+See [parallel encoding](/docs/parallel-encoding) for when it is enabled and how it works.
 
 From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabled automatically based on the available memory. Set this flag if the machine runs out of memory while rendering.
 

@@ -146,6 +146,7 @@ class Semantic
 				webhook: null,
 				x264Preset: null,
 				gopSize: null,
+				disableSharedMemoryCapture: false,
 				preferLossless: false,
 				indent: false,
 				forcePathStyle: false,
