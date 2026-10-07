@@ -25,6 +25,7 @@ type RegisteredPool = {
 type PendingFrame = {
 	frame: RemotionRawFrame;
 	pool: RegisteredPool;
+	acknowledged: boolean;
 	resolve: () => void;
 	reject: (error: Error) => void;
 };
@@ -240,12 +241,15 @@ export const createRemotionSharedMemoryFfmpegBridge = ({
 			const ack = parseRemotionSharedMemoryAck(line);
 			const key = pendingKey(ack.poolId, ack.slot);
 			const value = pending.get(key);
-			if (!value || value.frame.frameId !== ack.frameId) {
+			if (!value || value.acknowledged || value.frame.frameId !== ack.frameId) {
 				throw new Error(
 					`Unexpected Remotion shared-memory ACK for ${ack.poolId}:${ack.slot}:${ack.frameId}.`,
 				);
 			}
 
+			// Keep the frame pending until Chromium releases its slot, but stop
+			// counting it as a missing ACK if FFmpeg exits during that release.
+			value.acknowledged = true;
 			try {
 				await value.frame.release();
 			} catch (error) {
@@ -264,25 +268,22 @@ export const createRemotionSharedMemoryFfmpegBridge = ({
 		})().catch((error) => fail(toError(error)));
 	});
 	lines.on('error', (error) => fail(toError(error)));
-	lines.on('close', () => {
-		if (pending.size > 0 || !finishing) {
+	const onAcknowledgementsClosed = () => {
+		const unacknowledgedFrames = [...pending.values()].filter(
+			(frame) => !frame.acknowledged,
+		).length;
+		if (unacknowledgedFrames > 0 || !finishing) {
 			fail(
 				new Error(
-					`FFmpeg closed its Remotion shared-memory ACK pipe${pending.size > 0 ? ` with ${pending.size} frame(s) pending` : ' before input finished'}.`,
+					`FFmpeg closed its Remotion shared-memory ACK pipe${unacknowledgedFrames > 0 ? ` with ${unacknowledgedFrames} frame(s) pending` : ' before input finished'}.`,
 				),
 			);
 		}
-	});
+	};
+
+	lines.on('close', onAcknowledgementsClosed);
 	acknowledgements.on('error', (error) => fail(toError(error)));
-	acknowledgements.on('close', () => {
-		if (pending.size > 0 || !finishing) {
-			fail(
-				new Error(
-					`FFmpeg closed its Remotion shared-memory ACK pipe${pending.size > 0 ? ` with ${pending.size} frame(s) pending` : ' before input finished'}.`,
-				),
-			);
-		}
-	});
+	acknowledgements.on('close', onAcknowledgementsClosed);
 	control.on('error', (error) => fail(toError(error)));
 
 	return {
@@ -355,6 +356,7 @@ export const createRemotionSharedMemoryFfmpegBridge = ({
 			const pendingFrame: PendingFrame = {
 				frame,
 				pool,
+				acknowledged: false,
 				resolve: resolveAck,
 				reject: rejectAck,
 			};
