@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useMemo, useRef} from 'react';
 import React, {useCallback} from 'react';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {Fieldset} from './Fieldset';
@@ -29,6 +29,11 @@ export const ZodNumberEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({jsonPath, value, schema, setValue, onRemove, mayPad}) => {
+	const valueOnFocus = useRef(value);
+	const onFocus: React.FocusEventHandler<HTMLInputElement> = useCallback(() => {
+		valueOnFocus.current = value;
+	}, [value]);
+
 	const onNumberChange = useCallback(
 		(newValue: number) => {
 			setValue(() => newValue, {shouldSave: false});
@@ -37,7 +42,11 @@ export const ZodNumberEditor: React.FC<{
 	);
 
 	const onNumberChangeEnd = useCallback(
-		(newValue: number) => {
+		(newValue: number, source: 'input' | 'drag') => {
+			if (source === 'input' && valueOnFocus.current === newValue) {
+				return;
+			}
+
 			setValue(() => newValue, {shouldSave: true});
 		},
 		[setValue],
@@ -75,6 +84,7 @@ export const ZodNumberEditor: React.FC<{
 					onTextChange={onTextChange}
 					onValueChange={onNumberChange}
 					onValueChangeEnd={onNumberChangeEnd}
+					onFocus={onFocus}
 					min={getZodNumberMinimum(schema)}
 					max={getZodNumberMaximum(schema)}
 					step={getZodNumberStep(schema)}
