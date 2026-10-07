@@ -16,7 +16,6 @@ import React, {
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
-import {NO_HOVER_BACKGROUND_STYLE} from '../../helpers/hoverable';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {Checkmark} from '../../icons/Checkmark';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
@@ -34,6 +33,7 @@ import {InlineAction} from '../InlineAction';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
+import {CancelButton} from '../NewComposition/CancelButton';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
@@ -160,6 +160,12 @@ const tooltipContent: React.CSSProperties = {
 	lineHeight: 1.5,
 	maxWidth: 360,
 	padding: 12,
+};
+
+const tooltipLine: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 13,
+	lineHeight: 1.5,
 };
 
 const tooltipInlineCode: React.CSSProperties = {
@@ -718,7 +724,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	const [libraryUrl, setLibraryUrl] = useState(REMOTION_CAPTION_STYLES_URL);
 	const {studioRuntimeConfig} = useSettings();
 	const libraryOptions: SegmentedControlItem[] = [
-		{url: REMOTION_CAPTION_STYLES_URL, displayName: 'Remotion captions'},
+		{url: REMOTION_CAPTION_STYLES_URL, displayName: 'Remotion Elements'},
 		...(studioRuntimeConfig?.elementLibraries ?? []).flatMap(
 			({captionStylesUrl, displayName: libraryName}) =>
 				captionStylesUrl === null ||
@@ -921,94 +927,8 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		<DismissableModal ariaLabel={title}>
 			<div style={transcriptionModalStyle}>
 				<ModalHeader title={title} />
-				<div
-					style={{
-						...container,
-						minHeight: target === null ? 0 : 76,
-						flexShrink: 0,
-						gap: 8,
-					}}
-				>
-					{target === null || captionStyle === null ? (
-						<div style={flexer} />
-					) : (
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								minWidth: 0,
-								flex: 1,
-							}}
-						>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: 8,
-								}}
-							>
-								<div
-									style={{
-										fontSize: 13,
-										overflow: 'hidden',
-										textOverflow: 'ellipsis',
-										whiteSpace: 'nowrap',
-									}}
-									title={captionStyle.element.displayName}
-									role="status"
-								>
-									{captionStyle.element.displayName}
-								</div>
-								<Button
-									onClick={() =>
-										setSelectedModal((modal) =>
-											modal?.type === 'transcribe'
-												? {...modal, captionStyle: null}
-												: modal,
-										)
-									}
-									size="compact"
-									style={{...NO_HOVER_BACKGROUND_STYLE, flexShrink: 0}}
-								>
-									Reset
-								</Button>
-							</div>
-							<div style={{display: 'flex', alignItems: 'center', gap: 4}}>
-								<div
-									style={{
-										fontSize: 13,
-										color: LIGHT_TEXT,
-										overflow: 'hidden',
-										textOverflow: 'ellipsis',
-										whiteSpace: 'nowrap',
-									}}
-									title="Installs packages and runs code in your project."
-								>
-									Installs packages and runs code in your project.
-								</div>
-								<InfoBubble aria-label="Installation details">
-									<div style={{fontSize: 13}}>
-										Source:{' '}
-										{'origin' in captionStyle.source
-											? (captionStyle.source.origin ?? 'an unverified source')
-											: 'an unverified drag-and-drop payload'}
-									</div>
-									<div style={{fontSize: 13, overflowWrap: 'anywhere'}}>
-										Dependencies:{' '}
-										{captionStyle.element.dependencies
-											.map(({name, version}) =>
-												version === null ? name : `${name}@${version}`,
-											)
-											.join(', ') || 'None'}
-									</div>
-									<div style={{fontSize: 13}}>
-										This style can execute arbitrary code with access to your
-										files and network.
-									</div>
-								</InfoBubble>
-							</div>
-						</div>
-					)}
+				<div style={container}>
+					<div style={flexer} />
 					<Button
 						onClick={onAddToQueue}
 						disabled={!canTranscribe}
@@ -1135,19 +1055,92 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								overflow: 'hidden',
 							}}
 						>
-							{libraryOptions.length > 1 ? (
-								<div
-									role="group"
-									aria-label="Caption style library"
-									style={{display: 'flex', padding: '4px 16px', flexShrink: 0}}
-								>
-									<SegmentedControl
-										items={libraryOptions}
-										needsWrapping={false}
-										size="medium"
-									/>
-								</div>
-							) : null}
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8,
+									height: 44,
+									padding: '0 16px',
+									flexShrink: 0,
+								}}
+							>
+								{libraryOptions.length > 1 ? (
+									<div
+										role="group"
+										aria-label="Caption style library"
+										style={{display: 'flex', flexShrink: 0}}
+									>
+										<SegmentedControl
+											items={libraryOptions}
+											needsWrapping={false}
+											size="medium"
+										/>
+									</div>
+								) : null}
+								<div style={flexer} />
+								{captionStyle === null ? null : (
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: 2,
+											minWidth: 0,
+										}}
+									>
+										<div
+											style={{
+												fontSize: 13,
+												lineHeight: '16px',
+												minWidth: 0,
+												overflow: 'hidden',
+												textOverflow: 'ellipsis',
+												whiteSpace: 'nowrap',
+											}}
+											title={captionStyle.element.displayName}
+											role="status"
+										>
+											{captionStyle.element.displayName}
+										</div>
+										<InfoBubble
+											aria-label="Installation details"
+											horizontalAlignment="right"
+										>
+											<div style={tooltipContent}>
+												<div style={tooltipLine}>
+													Installs packages and runs code in your project.
+												</div>
+												<div style={tooltipLine}>
+													Source:{' '}
+													{'origin' in captionStyle.source
+														? (captionStyle.source.origin ??
+															'an unverified source')
+														: 'an unverified drag-and-drop payload'}
+												</div>
+												<div style={{...tooltipLine, overflowWrap: 'anywhere'}}>
+													Dependencies:{' '}
+													{captionStyle.element.dependencies
+														.map(({name, version}) =>
+															version === null ? name : `${name}@${version}`,
+														)
+														.join(', ') || 'None'}
+												</div>
+											</div>
+										</InfoBubble>
+										<CancelButton
+											aria-label="Reset caption style"
+											style={{width: 14, height: 14}}
+											onPress={() =>
+												setSelectedModal((modal) =>
+													modal?.type === 'transcribe'
+														? {...modal, captionStyle: null}
+														: modal,
+												)
+											}
+										/>
+									</div>
+								)}
+							</div>
 							<ElementLibraryFrame
 								name="Caption styles"
 								url={libraryUrl}
