@@ -30,23 +30,33 @@ export const ZodNumberEditor: React.FC<{
 	readonly mayPad: boolean;
 }> = ({jsonPath, value, schema, setValue, onRemove, mayPad}) => {
 	const valueOnFocus = useRef(value);
+	const hasUnsavedChanges = useRef(false);
 	const onFocus: React.FocusEventHandler<HTMLInputElement> = useCallback(() => {
-		valueOnFocus.current = value;
+		if (!hasUnsavedChanges.current) {
+			valueOnFocus.current = value;
+		}
 	}, [value]);
 
 	const onNumberChange = useCallback(
-		(newValue: number) => {
+		(newValue: number, source: 'input' | 'drag') => {
+			if (source === 'drag' && !hasUnsavedChanges.current) {
+				valueOnFocus.current = value;
+			}
+
+			hasUnsavedChanges.current = valueOnFocus.current !== newValue;
 			setValue(() => newValue, {shouldSave: false});
 		},
-		[setValue],
+		[setValue, value],
 	);
 
 	const onNumberChangeEnd = useCallback(
-		(newValue: number, source: 'input' | 'drag') => {
-			if (source === 'input' && valueOnFocus.current === newValue) {
+		(newValue: number) => {
+			hasUnsavedChanges.current = false;
+			if (valueOnFocus.current === newValue) {
 				return;
 			}
 
+			valueOnFocus.current = newValue;
 			setValue(() => newValue, {shouldSave: true});
 		},
 		[setValue],
@@ -54,7 +64,10 @@ export const ZodNumberEditor: React.FC<{
 
 	const onTextChange = useCallback(
 		(newValue: string) => {
-			setValue(() => Number(newValue), {shouldSave: true});
+			const number = Number(newValue);
+			hasUnsavedChanges.current = false;
+			valueOnFocus.current = number;
+			setValue(() => number, {shouldSave: true});
 		},
 		[setValue],
 	);
