@@ -221,10 +221,31 @@ export const TimelineVirtualizationProvider: React.FC<{
 		paddingStart,
 		rangeExtractor,
 	});
+	const measuredLayoutRef = useRef<{
+		readonly heights: readonly number[];
+		readonly keys: readonly (string | number)[];
+	} | null>(null);
 
 	useLayoutEffect(() => {
+		const previous = measuredLayoutRef.current;
+		const keys = trackHeights.map((_, index) => getItemKey(index));
+		// Trimming changes timeline metadata without changing row geometry. Only
+		// invalidate measurements when heights or the cached row identities change.
+		if (
+			previous !== null &&
+			previous.heights.length === trackHeights.length &&
+			trackHeights.every(
+				(height, index) =>
+					previous.heights[index] === height &&
+					previous.keys[index] === keys[index],
+			)
+		) {
+			return;
+		}
+
+		measuredLayoutRef.current = {heights: trackHeights, keys};
 		virtualizer.measure();
-	}, [trackHeights, virtualizer]);
+	}, [getItemKey, trackHeights, virtualizer]);
 
 	useEffect(() => {
 		if (revealRequest === null) {
