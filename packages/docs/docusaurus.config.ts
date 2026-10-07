@@ -42,7 +42,7 @@ const studioElementsEmbedScript = `
 })();`;
 
 const config: Config = {
-	title: 'Remotion',
+	title: 'Remotion | Make videos programmatically',
 	tagline: 'Make videos programmatically',
 	url: 'https://www.remotion.dev',
 	baseUrl: '/',
