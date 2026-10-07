@@ -549,6 +549,7 @@ test(
 				'build',
 				'gif',
 				'--concurrency=1',
+				'--log=verbose',
 				'--frames=0-47',
 				'--muted',
 				outputPath,
@@ -581,6 +582,10 @@ test(
 		expect(data).toContain('Video: h264');
 		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
 			expect(data).toContain('bt709');
+		} else if (task.stdout.includes('-f,remotionshm')) {
+			expect(data).toContain(
+				'yuv420p(tv, unknown/bt709/iec61966-2-1, progressive)',
+			);
 		} else {
 			expect(data).not.toContain('bt709');
 		}
@@ -717,6 +722,7 @@ test(
 				'build',
 				'dynamic-duration',
 				'--concurrency=1',
+				'--log=verbose',
 				`--props`,
 				JSON.stringify({duration: randomDuration, offthread: true}),
 				'--separate-audio-to',
@@ -746,6 +752,10 @@ test(
 		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
 			expect(data).toContain(
 				`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive)`,
+			);
+		} else if (task.stdout.includes('-f,remotionshm')) {
+			expect(data).toContain(
+				`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive)`,
 			);
 		} else {
 			expect(data).toContain(
