@@ -224,15 +224,8 @@ class MockAudioContext {
 
 const AudioComposition = () => {
 	return React.createElement(
-		Internals.SequenceManager.Provider,
-		{
-			value: {
-				registerSequence: () => undefined,
-				unregisterSequence: () => undefined,
-				updateSequence: null,
-				sequences: [],
-			},
-		},
+		Internals.SequenceManagerProvider,
+		null,
 		React.createElement(Html5Audio, {src: 'audio.mp3'}),
 	);
 };

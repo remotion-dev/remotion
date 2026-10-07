@@ -85,11 +85,9 @@ const validateCaptureSize = ({
 		width,
 		height,
 	};
-	const displayWidth = Math.max(1, Math.round(width * window.devicePixelRatio));
-	const displayHeight = Math.max(
-		1,
-		Math.round(height * window.devicePixelRatio),
-	);
+	const displayDensity = Math.max(window.devicePixelRatio, scale);
+	const displayWidth = Math.max(1, Math.round(width * displayDensity));
+	const displayHeight = Math.max(1, Math.round(height * displayDensity));
 	const outputSize = getScaledCanvasSize(
 		resolvedCrop.width,
 		resolvedCrop.height,
@@ -97,7 +95,7 @@ const validateCaptureSize = ({
 	);
 	if (displayWidth > maxCanvasDimension || displayHeight > maxCanvasDimension) {
 		throw new Error(
-			`The display canvas would be ${displayWidth}×${displayHeight} pixels; its maximum side is ${maxCanvasDimension.toLocaleString()} pixels.`,
+			`The display canvas would be ${displayWidth}×${displayHeight} pixels; its maximum side is ${maxCanvasDimension.toLocaleString()} pixels. Reduce the scale or page size.`,
 		);
 	}
 
@@ -316,7 +314,7 @@ export class PageCapture {
 				this.#wrapped.canvas,
 				sourceSize.width,
 				sourceSize.height,
-				window.devicePixelRatio,
+				Math.max(window.devicePixelRatio, this.#scale),
 			);
 			const initialCrop = this.#resolveCrop(
 				sourceSize.width,
@@ -352,7 +350,7 @@ export class PageCapture {
 			this.#wrapped.canvas,
 			width,
 			height,
-			window.devicePixelRatio,
+			Math.max(window.devicePixelRatio, this.#scale),
 		);
 		await this.#recorder.startRecording();
 		this.#requestPaint();
@@ -437,7 +435,7 @@ export class PageCapture {
 			this.#wrapped.canvas,
 			width,
 			height,
-			window.devicePixelRatio,
+			Math.max(window.devicePixelRatio, this.#scale),
 		);
 		syncCanvasSize(this.#captureCanvas, crop.width, crop.height, this.#scale);
 		resetCanvas(this.#context, this.#wrapped.canvas);

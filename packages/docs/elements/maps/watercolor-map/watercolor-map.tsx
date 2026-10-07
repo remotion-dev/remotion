@@ -52,12 +52,12 @@ const watercolorMapSchema = {
 		description: 'Destination [longitude, latitude]',
 	},
 	originLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Los Angeles',
 		description: 'Origin label',
 	},
 	destinationLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Zurich',
 		description: 'Destination label',
 	},

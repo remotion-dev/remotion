@@ -33,7 +33,7 @@ import {Rotations} from './Rotations';
 
 type LabelProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
-		readonly children: string;
+		readonly children: React.ReactNode;
 	};
 
 const labelSchema = {
@@ -43,12 +43,7 @@ const labelSchema = {
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Interactive.borderRadiusSchema,
-	children: {
-		type: 'text-content',
-		default: '',
-		description: 'Text',
-		keyframable: false,
-	},
+	...Interactive.childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const LabelInner: React.FC<

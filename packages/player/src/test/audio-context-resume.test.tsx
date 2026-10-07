@@ -73,18 +73,11 @@ class FrozenAudioContext {
 	}
 }
 
-const sequenceManager = {
-	registerSequence: () => undefined,
-	unregisterSequence: () => undefined,
-	updateSequence: null,
-	sequences: [],
-};
-
 const AudioComposition = () => {
 	return (
-		<Internals.SequenceManager.Provider value={sequenceManager}>
+		<Internals.SequenceManagerProvider>
 			<Html5Audio src="audio.mp3" />
-		</Internals.SequenceManager.Provider>
+		</Internals.SequenceManagerProvider>
 	);
 };
 

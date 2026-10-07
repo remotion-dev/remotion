@@ -105,14 +105,14 @@ const CodeBRollInner: React.FC<CodeBRollProps> = ({
 };
 
 const codeBRollSchema = {
-	code: {type: 'text-content', default: '', description: 'Code'},
+	code: {type: 'string', default: '', description: 'Code'},
 	previousCode: {
-		type: 'text-content',
+		type: 'string',
 		default: '',
 		description: 'Previous code',
 	},
-	lang: {type: 'text-content', default: 'tsx', description: 'Language'},
-	topExplainer: {type: 'text-content', default: '', description: 'Heading'},
+	lang: {type: 'string', default: 'tsx', description: 'Language'},
+	topExplainer: {type: 'string', default: '', description: 'Heading'},
 } as const satisfies InteractivitySchema;
 
 export const CodeBRoll = Interactive.withSchema({

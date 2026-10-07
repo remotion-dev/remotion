@@ -73,7 +73,7 @@ const ChapterInner: React.FC<ChapterProps> = ({title, style}) => {
 };
 
 const chapterSchema = {
-  title: {type: 'text-content', default: '', description: 'Title'},
+  title: {type: 'string', default: '', description: 'Title'},
 } as const satisfies InteractivitySchema;
 
 export const Chapter = Interactive.withSchema({

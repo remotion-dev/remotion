@@ -136,7 +136,7 @@ const numberedChapterSchema = {
 		description: 'Chapter number',
 	},
 	chapterTitle: {
-		type: 'text-content',
+		type: 'string',
 		default: '',
 		description: 'Chapter title',
 	},

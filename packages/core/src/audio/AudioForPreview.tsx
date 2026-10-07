@@ -9,14 +9,17 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {
+	CommittedMetadataProvider,
+	type CommittedMetadata,
+} from '../committed-metadata.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
-import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
-import {useMediaInTimeline} from '../use-media-in-timeline.js';
+import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -176,7 +179,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
 
-	useMediaInTimeline({
+	const {registration} = useMediaInTimelineRegistration({
 		volume,
 		mediaVolume,
 		src,
@@ -277,11 +280,27 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [audioRef, src]);
 
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			isStudio || registration !== null
+				? {
+						type: 'sequence',
+						id: timelineId,
+						value: registration,
+						outlineChildrenRef: null,
+					}
+				: null,
+		[isStudio, registration, timelineId],
+	);
+
 	if (initialShouldPreMountAudioElements) {
-		return isStudio ? (
-			<SequenceOrderMarker sequenceId={timelineId} outlineChildrenRef={null}>
+		return isStudio || registration !== null ? (
+			<CommittedMetadataProvider
+				value={null}
+				_remotionCommitMetadata={metadata}
+			>
 				{null}
-			</SequenceOrderMarker>
+			</CommittedMetadataProvider>
 		) : null;
 	}
 
@@ -294,10 +313,10 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		/>
 	);
 
-	return isStudio ? (
-		<SequenceOrderMarker sequenceId={timelineId} outlineChildrenRef={null}>
+	return isStudio || registration !== null ? (
+		<CommittedMetadataProvider value={null} _remotionCommitMetadata={metadata}>
 			{audio}
-		</SequenceOrderMarker>
+		</CommittedMetadataProvider>
 	) : (
 		audio
 	);

@@ -29,10 +29,10 @@ export const SequenceOutlineInternals = {
 			return;
 		}
 
-		nodesByRef.set(ref, nodes);
 		ref.current =
 			nodes.length === 1 && nodes[0].nodeType === 1
 				? (nodes[0] as Element)
 				: null;
+		nodesByRef.set(ref, nodes);
 	},
 };

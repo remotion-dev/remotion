@@ -50,12 +50,12 @@ const mapFlyoverSchema = {
 		description: 'Destination [longitude, latitude]',
 	},
 	originLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'London',
 		description: 'Origin label',
 	},
 	destinationLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Tokyo',
 		description: 'Destination label',
 	},

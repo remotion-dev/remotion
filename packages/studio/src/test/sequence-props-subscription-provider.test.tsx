@@ -40,20 +40,13 @@ test('updates the imperative node path mappings without rerendering consumers', 
 	};
 
 	render(
-		<Internals.SequenceManager.Provider
-			value={{
-				registerSequence: () => undefined,
-				sequences: [],
-				unregisterSequence: () => undefined,
-				updateSequence: null,
-			}}
-		>
+		<Internals.SequenceManagerProvider>
 			<SequencePropsSubscriptionProvider>
 				<RefConsumer />
 				<ReactiveConsumer />
 				<Setter />
 			</SequencePropsSubscriptionProvider>
-		</Internals.SequenceManager.Provider>,
+		</Internals.SequenceManagerProvider>,
 	);
 
 	const nodePath: SequencePropsSubscriptionKey = {
