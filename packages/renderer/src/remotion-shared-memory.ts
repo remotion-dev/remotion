@@ -11,6 +11,7 @@ import {
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {PixelFormat} from './pixel-format';
+import {setScreenshotBackground} from './screenshot-background';
 
 const encoderPadding = 64;
 const slotsPerPage = 1;
@@ -325,6 +326,14 @@ export class RemotionSharedMemoryCapture {
 		}
 
 		try {
+			await setScreenshotBackground(page, false);
+		} catch (error) {
+			if (!bestEffort && !isTargetClosedErr(error as Error) && !cleanupError) {
+				cleanupError = error;
+			}
+		}
+
+		try {
 			await page._client().send('Page.remotionDestroyFramePool');
 		} catch (error) {
 			if (!bestEffort && !isTargetClosedErr(error as Error) && !cleanupError) {
@@ -461,6 +470,7 @@ export class RemotionSharedMemoryCapture {
 	}
 
 	async #destroyPools() {
+		let cleanupError: unknown = null;
 		for (const pool of this.#pools.values()) {
 			if (pool.ownedSlots.size > 0) {
 				throw new Error(
@@ -469,15 +479,26 @@ export class RemotionSharedMemoryCapture {
 			}
 
 			try {
+				await setScreenshotBackground(pool.page, false);
+			} catch (error) {
+				if (!isTargetClosedErr(error as Error) && !cleanupError) {
+					cleanupError = error;
+				}
+			}
+
+			try {
 				await pool.page._client().send('Page.remotionDestroyFramePool');
 			} catch (error) {
-				if (!isTargetClosedErr(error as Error)) {
-					throw error;
+				if (!isTargetClosedErr(error as Error) && !cleanupError) {
+					cleanupError = error;
 				}
 			}
 		}
 
 		this.#pools.clear();
+		if (cleanupError) {
+			throw cleanupError;
+		}
 	}
 }
 

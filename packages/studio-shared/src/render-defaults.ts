@@ -71,11 +71,10 @@ export type RenderDefaults = {
 	allowHtmlInCanvas: boolean;
 	sampleRate: number;
 	configFileRenderDefaults: ConfigFileRenderDefaults | null;
-	// Optional to preserve compatibility with custom Studio integrations.
-	sharedMemoryCapture?: {
+	sharedMemoryCapture: {
 		browserExecutable: string | null;
 		disabled: boolean;
-	};
+	} | null;
 };
 
 declare global {

@@ -320,9 +320,10 @@ test('signals pool retirement before waiting for an unhanded frame to drain', as
 	expect(calls).toContain('Page.remotionDestroyFramePool');
 });
 
-test('releases a published frame if transparent background reset fails', async () => {
+test('keeps transparent backgrounds between frames and destroys the pool if reset fails', async () => {
 	let backgroundCalls = 0;
 	let releaseCalls = 0;
+	let destroyCalls = 0;
 	const client = {
 		send: (
 			method: string,
@@ -370,6 +371,10 @@ test('releases a published frame if transparent background reset fails', async (
 				releaseCalls++;
 			}
 
+			if (method === 'Page.remotionDestroyFramePool') {
+				destroyCalls++;
+			}
+
 			return Promise.resolve({value: undefined});
 		},
 	};
@@ -386,8 +391,8 @@ test('releases a published frame if transparent background reset fails', async (
 	});
 	await capture.ensurePage(page);
 
-	await expect(
-		screenshotTask({
+	for (let i = 0; i < 2; i++) {
+		const frame = await screenshotTask({
 			format: 'png',
 			height: 16,
 			width: 16,
@@ -396,10 +401,17 @@ test('releases a published frame if transparent background reset fails', async (
 			jpegQuality: undefined,
 			scale: 1,
 			remotionSharedMemory: capture,
-		}),
-	).rejects.toThrow('background reset failed');
-	expect(releaseCalls).toBe(1);
-	await capture.destroy();
+		});
+		expect(Buffer.isBuffer(frame)).toBe(false);
+		if (!Buffer.isBuffer(frame)) {
+			await frame.release();
+		}
+	}
+
+	expect(backgroundCalls).toBe(1);
+	expect(releaseCalls).toBe(2);
+	await expect(capture.destroy()).rejects.toThrow('background reset failed');
+	expect(destroyCalls).toBe(1);
 });
 
 test('uses raw viewport capture for every video image format and falls back on vanilla Chrome', async () => {

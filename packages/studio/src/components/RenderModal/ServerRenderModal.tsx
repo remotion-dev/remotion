@@ -485,15 +485,13 @@ const RenderModal: React.FC<
 	const sharedMemoryCaptureRequest = useMemo(
 		() => ({
 			browserExecutable:
-				renderDefaults.sharedMemoryCapture?.browserExecutable ?? null,
+				renderDefaults.sharedMemoryCapture === null
+					? null
+					: renderDefaults.sharedMemoryCapture.browserExecutable,
 			chromeMode,
 			chromiumOptions,
 		}),
-		[
-			renderDefaults.sharedMemoryCapture?.browserExecutable,
-			chromeMode,
-			chromiumOptions,
-		],
+		[renderDefaults.sharedMemoryCapture, chromeMode, chromiumOptions],
 	);
 	const sharedMemoryCaptureRequestKey = JSON.stringify(
 		sharedMemoryCaptureRequest,
@@ -504,7 +502,8 @@ const RenderModal: React.FC<
 	} | null>(null);
 	const canUseSharedMemoryCapture =
 		!readOnlyStudio &&
-		renderDefaults.sharedMemoryCapture?.disabled === false &&
+		renderDefaults.sharedMemoryCapture !== null &&
+		!renderDefaults.sharedMemoryCapture.disabled &&
 		renderMode === 'video' &&
 		!disallowParallelEncoding &&
 		BrowserSafeApis.canUseParallelEncoding(codec);

@@ -6,6 +6,7 @@ import type {
 	CapturedFrame,
 	RemotionSharedMemoryCapture,
 } from './remotion-shared-memory';
+import {setScreenshotBackground} from './screenshot-background';
 
 export const screenshotTask = async ({
 	format,
@@ -35,11 +36,7 @@ export const screenshotTask = async ({
 		targetId: target._targetId,
 	});
 
-	if (omitBackground) {
-		await client.send('Emulation.setDefaultBackgroundColorOverride', {
-			color: {r: 0, g: 0, b: 0, a: 0},
-		});
-	}
+	await setScreenshotBackground(page, omitBackground);
 
 	const cap = startPerfMeasure('capture');
 	try {
@@ -104,20 +101,9 @@ export const screenshotTask = async ({
 
 				const rawFrame = await reservation.publish(value.remotionFrame);
 				stopPerfMeasure(cap);
-				if (omitBackground) {
-					try {
-						await client.send('Emulation.setDefaultBackgroundColorOverride');
-					} catch (error) {
-						try {
-							await rawFrame.release();
-						} catch {
-							// Preserve the background reset error that made the capture fail.
-						}
 
-						throw error;
-					}
-				}
-
+				// Keep the background configured until pool cleanup. Encoded
+				// screenshots restore it below, including thumbnails on this page.
 				return rawFrame;
 			}
 
@@ -126,7 +112,7 @@ export const screenshotTask = async ({
 
 		stopPerfMeasure(cap);
 		if (omitBackground) {
-			await client.send('Emulation.setDefaultBackgroundColorOverride');
+			await setScreenshotBackground(page, false);
 		}
 
 		const buffer = Buffer.from(result.data, 'base64');
