@@ -1,4 +1,5 @@
 import {useColorMode} from '@docusaurus/theme-common';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import '@remotion/promo-pages/dist/Homepage.css';
 import {NewLanding} from '@remotion/promo-pages/dist/Homepage.js';
 import '@remotion/promo-pages/dist/tailwind.css';
@@ -19,8 +20,10 @@ const Inner: React.FC = () => {
 };
 
 const Homepage: React.FC = () => {
+	const {siteConfig} = useDocusaurusContext();
+
 	return (
-		<Layout>
+		<Layout title={siteConfig.tagline}>
 			<Inner />
 		</Layout>
 	);
