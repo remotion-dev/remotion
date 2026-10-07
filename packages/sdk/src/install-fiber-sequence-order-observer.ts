@@ -4,10 +4,8 @@ import {Internals} from 'remotion';
 
 type Fiber = {
 	readonly child: Fiber | null;
-	readonly elementType: unknown;
 	readonly memoizedProps: unknown;
 	readonly sibling: Fiber | null;
-	readonly type: unknown;
 	readonly tag: number | null;
 	readonly stateNode: unknown;
 	readonly memoizedState: unknown;
@@ -34,7 +32,7 @@ type HookTarget = Window &
 		__REACT_DEVTOOLS_GLOBAL_HOOK__?: DevToolsHook;
 	};
 
-const {installationMarker} = Internals.CommitOrderInternals;
+const {installationMarker} = Internals.CommittedMetadataInternals;
 
 type CommittedSequenceRegistration = {
 	readonly onCommit: (
@@ -89,26 +87,6 @@ const createCommitSnapshotCollector = <T>(previous: readonly T[] | null) => {
 type CompositionAndFolderOrderItem =
 	| {readonly type: 'composition'; readonly id: string}
 	| {readonly type: 'folder'; readonly id: string};
-
-const hasMarker = (candidate: unknown, marker: symbol): boolean => {
-	return (
-		(typeof candidate === 'function' ||
-			(typeof candidate === 'object' && candidate !== null)) &&
-		Reflect.get(candidate, marker) === true
-	);
-};
-
-const getStringProp = (props: unknown, key: string): string | null => {
-	if (typeof props !== 'object' || props === null) {
-		return null;
-	}
-
-	const value = Reflect.get(props, key);
-	return typeof value === 'string' ? value : null;
-};
-
-const hasFiberMarker = (fiber: Fiber, marker: symbol) =>
-	hasMarker(fiber.type, marker) || hasMarker(fiber.elementType, marker);
 
 export const collectCommitOrderFromFiber = (
 	root: FiberRoot,
@@ -174,33 +152,27 @@ export const collectCommitOrderFromFiber = (
 		currentCompositionManagerId: string | null,
 		outlineCollectors: readonly (Element | Text)[][] | null,
 	) => {
-		const isSequenceManagerMarker = hasFiberMarker(
-			fiber,
-			Internals.CommitOrderInternals.sequenceManagerMarker,
+		const metadata = Internals.CommittedMetadataInternals.getMetadata(
+			fiber.memoizedProps,
 		);
-		const sequenceManagerId = isSequenceManagerMarker
-			? getStringProp(fiber.memoizedProps, 'managerId')
-			: currentSequenceManagerId;
-
+		const sequenceManagerId =
+			metadata?.type === 'sequence-manager'
+				? metadata.id
+				: currentSequenceManagerId;
 		if (
-			isSequenceManagerMarker &&
-			sequenceManagerId !== null &&
-			!sequencesByManager.has(sequenceManagerId)
+			metadata?.type === 'sequence-manager' &&
+			!sequencesByManager.has(metadata.id)
 		) {
-			const previous = previousRegistrations?.get(sequenceManagerId) ?? null;
-			const props = fiber.memoizedProps;
-			const onCommit =
-				typeof props === 'object' && props !== null
-					? Reflect.get(props, 'onCommitSequences')
-					: null;
-			sequencesByManager.set(sequenceManagerId, {
+			const previous = previousRegistrations?.get(metadata.id) ?? null;
+			const {onCommit} = metadata;
+			sequencesByManager.set(metadata.id, {
 				sequenceIds: createCommitSnapshotCollector(
 					previous?.sequenceIds ?? null,
 				),
 				registration:
-					registrations !== null && typeof onCommit === 'function'
+					registrations !== null && onCommit !== null
 						? {
-								onCommit: onCommit as CommittedSequenceRegistration['onCommit'],
+								onCommit,
 								sequences: createCommitSnapshotCollector(
 									previous?.sequences ?? null,
 								),
@@ -210,32 +182,23 @@ export const collectCommitOrderFromFiber = (
 			});
 		}
 
-		const isCompositionManagerMarker = hasFiberMarker(
-			fiber,
-			Internals.CommitOrderInternals.compositionManagerMarker,
-		);
-		const compositionManagerId = isCompositionManagerMarker
-			? getStringProp(fiber.memoizedProps, 'managerId')
-			: currentCompositionManagerId;
+		const compositionManagerId =
+			metadata?.type === 'composition-manager'
+				? metadata.id
+				: currentCompositionManagerId;
 		if (
-			isCompositionManagerMarker &&
-			compositionManagerId !== null &&
-			!compositionsAndFoldersByManager.has(compositionManagerId)
+			metadata?.type === 'composition-manager' &&
+			!compositionsAndFoldersByManager.has(metadata.id)
 		) {
 			const previous =
-				previousCompositionRegistrations?.get(compositionManagerId) ?? null;
-			const props = fiber.memoizedProps;
-			const onCommit =
-				typeof props === 'object' && props !== null
-					? Reflect.get(props, 'onCommitRegistrations')
-					: null;
-			compositionsAndFoldersByManager.set(compositionManagerId, {
+				previousCompositionRegistrations?.get(metadata.id) ?? null;
+			const {onCommit} = metadata;
+			compositionsAndFoldersByManager.set(metadata.id, {
 				order: [],
 				registration:
-					compositionRegistrations !== null && typeof onCommit === 'function'
+					compositionRegistrations !== null && onCommit !== null
 						? {
-								onCommit:
-									onCommit as CommittedCompositionRegistration['onCommit'],
+								onCommit,
 								previous,
 								compositions: createCommitSnapshotCollector(
 									previous?.snapshot.compositions ?? null,
@@ -251,76 +214,25 @@ export const collectCommitOrderFromFiber = (
 			});
 		}
 
-		const isSequenceMarker = hasFiberMarker(
-			fiber,
-			Internals.CommitOrderInternals.sequenceMarker,
-		);
-		if (isSequenceMarker) {
-			const props = fiber.memoizedProps;
-			if (sequenceManagerId !== null) {
-				const sequenceId = getStringProp(fiber.memoizedProps, 'sequenceId');
-				if (sequenceId !== null) {
-					const manager = sequencesByManager.get(sequenceManagerId);
-					manager?.sequenceIds.push(sequenceId);
-					const registration =
-						typeof props === 'object' && props !== null
-							? (Reflect.get(props, 'registration') as
-									| TSequence
-									| null
-									| undefined)
-							: null;
-					if (registration) {
-						manager?.registration?.sequences.push(registration);
-					}
-				}
+		if (metadata?.type === 'sequence' && sequenceManagerId !== null) {
+			const manager = sequencesByManager.get(sequenceManagerId);
+			manager?.sequenceIds.push(metadata.id);
+			if (metadata.value !== null) {
+				manager?.registration?.sequences.push(metadata.value);
 			}
 		}
 
 		if (
-			hasFiberMarker(fiber, Internals.CommitOrderInternals.compositionMarker) &&
+			(metadata?.type === 'composition' || metadata?.type === 'folder') &&
 			compositionManagerId !== null
 		) {
-			const id = getStringProp(fiber.memoizedProps, 'compositionId');
-			if (id !== null) {
-				const manager =
-					compositionsAndFoldersByManager.get(compositionManagerId);
-				manager?.order.push({type: 'composition', id});
-				manager?.registration?.orderIds.push(`composition:${id}`);
-				const registration =
-					typeof fiber.memoizedProps === 'object' &&
-					fiber.memoizedProps !== null
-						? (Reflect.get(
-								fiber.memoizedProps,
-								'registration',
-							) as AnyComposition | null)
-						: null;
-				if (registration) {
-					manager?.registration?.compositions.push(registration);
-				}
-			}
-		}
-
-		if (
-			hasFiberMarker(fiber, Internals.CommitOrderInternals.folderMarker) &&
-			compositionManagerId !== null
-		) {
-			const id = getStringProp(fiber.memoizedProps, 'folderId');
-			if (id !== null) {
-				const manager =
-					compositionsAndFoldersByManager.get(compositionManagerId);
-				manager?.order.push({type: 'folder', id});
-				manager?.registration?.orderIds.push(`folder:${id}`);
-				const registration =
-					typeof fiber.memoizedProps === 'object' &&
-					fiber.memoizedProps !== null
-						? (Reflect.get(
-								fiber.memoizedProps,
-								'registration',
-							) as FolderRegistration | null)
-						: null;
-				if (registration) {
-					manager?.registration?.folders.push(registration);
-				}
+			const manager = compositionsAndFoldersByManager.get(compositionManagerId);
+			manager?.order.push({type: metadata.type, id: metadata.id});
+			manager?.registration?.orderIds.push(`${metadata.type}:${metadata.id}`);
+			if (metadata.type === 'composition') {
+				manager?.registration?.compositions.push(metadata.value);
+			} else {
+				manager?.registration?.folders.push(metadata.value);
 			}
 		}
 
@@ -340,16 +252,9 @@ export const collectCommitOrderFromFiber = (
 					: tag === 4
 						? []
 						: outlineCollectors;
-				if (isSequenceMarker) {
-					const props = fiber.memoizedProps;
-					const outlineRef =
-						typeof props === 'object' && props !== null
-							? (Reflect.get(props, 'outlineChildrenRef') as
-									| RefObject<Element | null>
-									| null
-									| undefined)
-							: null;
-					if (outlineRef) {
+				if (metadata?.type === 'sequence') {
+					const outlineRef = metadata.outlineChildrenRef;
+					if (outlineRef !== null) {
 						const nodes: (Element | Text)[] = [];
 						outlineNodesByRef.set(outlineRef, nodes);
 						if (childOutlineCollectors !== null) {
@@ -543,12 +448,12 @@ export const installFiberCommitOrderObserver = (
 		} catch {
 			// A registration collection or delivery failure permanently selects effect
 			// fallback for this hook. Retrying registration would risk repeated teardown.
-			hook[Internals.CommitOrderInternals.failureMarker] = true;
+			hook[Internals.CommittedMetadataInternals.failureMarker] = true;
 			order = null;
 			try {
 				target.dispatchEvent(
 					new CustomEvent(
-						Internals.CommitOrderInternals.registrationErrorEventName,
+						Internals.CommittedMetadataInternals.registrationErrorEventName,
 					),
 				);
 			} catch {
@@ -564,7 +469,7 @@ export const installFiberCommitOrderObserver = (
 		) {
 			try {
 				target.dispatchEvent(
-					new CustomEvent(Internals.CommitOrderInternals.eventName, {
+					new CustomEvent(Internals.CommittedMetadataInternals.eventName, {
 						detail: {
 							sequenceManagers: order.sequenceManagers,
 							compositionManagers: order.compositionManagers,

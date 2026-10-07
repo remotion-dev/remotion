@@ -13,11 +13,14 @@ import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {useMediaAudioState} from '../audio/use-media-audio-state.js';
+import {
+	CommittedMetadataProvider,
+	type CommittedMetadata,
+} from '../committed-metadata.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
-import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
@@ -371,14 +374,23 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		/>
 	);
 
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			isStudio || automaticOutlineRef || registration !== null
+				? {
+						type: 'sequence',
+						id: timelineId,
+						value: registration,
+						outlineChildrenRef: automaticOutlineRef,
+					}
+				: null,
+		[automaticOutlineRef, isStudio, registration, timelineId],
+	);
+
 	return isStudio || automaticOutlineRef || registration !== null ? (
-		<SequenceOrderMarker
-			sequenceId={timelineId}
-			registration={registration}
-			outlineChildrenRef={automaticOutlineRef}
-		>
+		<CommittedMetadataProvider value={null} _remotionCommitMetadata={metadata}>
 			{video}
-		</SequenceOrderMarker>
+		</CommittedMetadataProvider>
 	) : (
 		video
 	);

@@ -14,6 +14,11 @@ import {
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
 import type {Codec} from './codec.js';
+import {
+	CommittedMetadataProvider,
+	type CommittedMetadata,
+} from './committed-metadata.js';
+import {useCommittedCompositionEntry} from './composition-registry-fallback.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {CompositionErrorBoundary} from './CompositionErrorBoundary.js';
 import type {AnyComposition, TComposition} from './CompositionManager.js';
@@ -28,7 +33,6 @@ import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
-import {CompositionOrderMarker} from './sequence-order-marker.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -232,6 +236,12 @@ const InnerComposition = <
 		stack,
 	]);
 
+	const metadata = useMemo<Extract<CommittedMetadata, {type: 'composition'}>>(
+		() => ({type: 'composition', id, value: registration}),
+		[id, registration],
+	);
+	useCommittedCompositionEntry(metadata);
+
 	const resolved = useResolvedVideoConfig(id);
 
 	const {setError, clearError} = useContext(CompositionRenderErrorContext);
@@ -247,9 +257,9 @@ const InnerComposition = <
 		clearError();
 	}, [clearError]);
 	const wrapRegistration = (content: React.ReactNode) => (
-		<CompositionOrderMarker compositionId={id} registration={registration}>
+		<CommittedMetadataProvider value={null} _remotionCommitMetadata={metadata}>
 			{content}
-		</CompositionOrderMarker>
+		</CommittedMetadataProvider>
 	);
 
 	if (

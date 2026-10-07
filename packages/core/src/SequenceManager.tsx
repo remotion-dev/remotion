@@ -1,4 +1,13 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import {
+	COMMIT_ORDER_EVENT,
+	COMMIT_REGISTRATION_ERROR_EVENT,
+	isCommitRegistrationObserverInstalled,
+	withCommittedMetadata,
+	type CommittedMetadata,
+	type CommitOrderEventDetail,
+	type CommittedSequenceSnapshot,
+} from './committed-metadata.js';
 import type {TSequence} from './CompositionManager.js';
 import {
 	areRegistryEntriesEqual,
@@ -6,14 +15,6 @@ import {
 	reconcileRegistryEntries,
 	type RegistryStore,
 } from './registry-store.js';
-import {
-	COMMIT_ORDER_EVENT,
-	COMMIT_REGISTRATION_ERROR_EVENT,
-	isCommitRegistrationObserverInstalled,
-	SequenceManagerOrderMarker,
-	type CommitOrderEventDetail,
-	type CommittedSequenceSnapshot,
-} from './sequence-order-marker.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
 	CanUpdateSequencePropStatus,
@@ -99,6 +100,9 @@ export const SequenceManagerRefContext =
 	React.createContext<SequenceManagerRef>({
 		current: [],
 	});
+const SequenceManagerRefProvider = withCommittedMetadata(
+	SequenceManagerRefContext.Provider,
+);
 
 export const SequenceRegistrationContext = React.createContext(false);
 
@@ -1152,8 +1156,27 @@ export const SequenceManagerProvider: React.FC<{
 		[setDragOverridesBatch, setEffectDragOverridesBatch],
 	);
 
-	const providers = (
-		<SequenceManagerRefContext.Provider value={sequencesRef}>
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			shouldObserveCommits
+				? {
+						type: 'sequence-manager',
+						id: sequenceManagerId,
+						onCommit: commitRegistrationEnabled ? onCommitRootSequences : null,
+					}
+				: null,
+		[
+			commitRegistrationEnabled,
+			onCommitRootSequences,
+			sequenceManagerId,
+			shouldObserveCommits,
+		],
+	);
+	return (
+		<SequenceManagerRefProvider
+			value={sequencesRef}
+			_remotionCommitMetadata={metadata}
+		>
 			<SequenceRegistryScopeContext.Provider value={registryScope}>
 				<NativeSequenceManagerProvider value={sequenceManagerContext}>
 					<SequenceManagerActionsContext.Provider value={actions}>
@@ -1192,20 +1215,7 @@ export const SequenceManagerProvider: React.FC<{
 					</SequenceManagerActionsContext.Provider>
 				</NativeSequenceManagerProvider>
 			</SequenceRegistryScopeContext.Provider>
-		</SequenceManagerRefContext.Provider>
-	);
-
-	return shouldObserveCommits ? (
-		<SequenceManagerOrderMarker
-			managerId={sequenceManagerId}
-			onCommitSequences={
-				commitRegistrationEnabled ? onCommitRootSequences : null
-			}
-		>
-			{providers}
-		</SequenceManagerOrderMarker>
-	) : (
-		providers
+		</SequenceManagerRefProvider>
 	);
 };
 

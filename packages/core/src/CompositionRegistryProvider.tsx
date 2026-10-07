@@ -7,23 +7,27 @@ import {
 	useState,
 } from 'react';
 import {
+	COMMIT_REGISTRATION_ERROR_EVENT,
+	getCompositionAndFolderOrderKey,
+	getFolderOrderId,
+	isCommitRegistrationObserverInstalled,
+	withCommittedMetadata,
+	type CommittedMetadata,
+	type CommittedCompositionSnapshot,
+} from './committed-metadata.js';
+import {
 	CompositionRegistryFallbackContext,
 	type CommittedCompositionEntry,
 } from './composition-registry-fallback.js';
 import type {AnyComposition} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
-import {
-	COMMIT_REGISTRATION_ERROR_EVENT,
-	CompositionManagerOrderMarker,
-	getCompositionAndFolderOrderKey,
-	getFolderOrderId,
-	isCommitRegistrationObserverInstalled,
-	type CommittedCompositionSnapshot,
-} from './sequence-order-marker.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 const useIsomorphicLayoutEffect =
 	typeof window === 'undefined' ? useEffect : useLayoutEffect;
+const CompositionRegistryFallbackProvider = withCommittedMetadata(
+	CompositionRegistryFallbackContext.Provider,
+);
 
 // Every consumer receives a complete committed snapshot. The fallback changes
 // how descriptors are captured, rather than exposing a second registration API.
@@ -191,21 +195,23 @@ export const CompositionRegistryProvider: React.FC<{
 			}
 		};
 	}, [isStudio, useCommitObserver]);
-	const providers = (
-		<CompositionRegistryFallbackContext.Provider
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			isStudio
+				? {
+						type: 'composition-manager',
+						id: managerId,
+						onCommit: useCommitObserver ? onObservedSnapshot : null,
+					}
+				: null,
+		[isStudio, managerId, onObservedSnapshot, useCommitObserver],
+	);
+	return (
+		<CompositionRegistryFallbackProvider
 			value={useCommitObserver ? null : fallbackRegistry}
+			_remotionCommitMetadata={metadata}
 		>
 			{children}
-		</CompositionRegistryFallbackContext.Provider>
-	);
-	return isStudio ? (
-		<CompositionManagerOrderMarker
-			managerId={managerId}
-			onCommitRegistrations={useCommitObserver ? onObservedSnapshot : null}
-		>
-			{providers}
-		</CompositionManagerOrderMarker>
-	) : (
-		providers
+		</CompositionRegistryFallbackProvider>
 	);
 };

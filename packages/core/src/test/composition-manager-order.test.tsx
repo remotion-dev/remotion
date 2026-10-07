@@ -1,6 +1,10 @@
 import {afterEach, expect, test} from 'bun:test';
 import {act, cleanup, render, waitFor} from '@testing-library/react';
 import React, {useContext} from 'react';
+import {
+	CommittedMetadataInternals,
+	type CommittedCompositionSnapshot,
+} from '../committed-metadata.js';
 import {Composition} from '../Composition.js';
 import type {AnyComposition} from '../CompositionManager.js';
 import type {CompositionManagerContext} from '../CompositionManagerContext.js';
@@ -8,13 +12,6 @@ import {CompositionManager} from '../CompositionManagerContext.js';
 import {CompositionManagerProvider} from '../CompositionManagerProvider.js';
 import {Folder, type TFolder} from '../Folder.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
-import {
-	CommitOrderInternals,
-	CompositionManagerOrderMarker,
-	CompositionOrderMarker,
-	FolderOrderMarker,
-	type CommittedCompositionSnapshot,
-} from '../sequence-order-marker.js';
 
 afterEach(() => {
 	cleanup();
@@ -25,7 +22,7 @@ const AnyComp: React.FC = () => null;
 test('applies committed composition and folder order', async () => {
 	const previousHook = Reflect.get(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__');
 	Reflect.set(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-		[CommitOrderInternals.installationMarker]: true,
+		[CommittedMetadataInternals.installationMarker]: true,
 	});
 	let context: CompositionManagerContext | null = null;
 	const CaptureContext: React.FC = () => {
@@ -76,7 +73,6 @@ test('applies committed composition and folder order', async () => {
 		// ReactDOM has already initialized without this test's DevTools hook.
 		// Deliver the committed descriptors at the observer's manager boundary.
 		type Fiber = {
-			readonly type: unknown;
 			readonly memoizedProps: unknown;
 			readonly child: Fiber | null;
 			readonly sibling: Fiber | null;
@@ -98,26 +94,15 @@ test('applies committed composition and folder order', async () => {
 			null;
 		while (pending.length > 0) {
 			const node = pending.pop()!;
-			if (node.type === CompositionManagerOrderMarker) {
-				onCommit = (
-					node.memoizedProps as React.ComponentProps<
-						typeof CompositionManagerOrderMarker
-					>
-				).onCommitRegistrations;
-			} else if (node.type === CompositionOrderMarker) {
-				const {registration} = node.memoizedProps as React.ComponentProps<
-					typeof CompositionOrderMarker
-				>;
-				if (registration !== null) {
-					compositions.push(registration);
-				}
-			} else if (node.type === FolderOrderMarker) {
-				const {registration} = node.memoizedProps as React.ComponentProps<
-					typeof FolderOrderMarker
-				>;
-				if (registration !== null) {
-					folders.push(registration);
-				}
+			const metadata = CommittedMetadataInternals.getMetadata(
+				node.memoizedProps,
+			);
+			if (metadata?.type === 'composition-manager') {
+				onCommit = metadata.onCommit;
+			} else if (metadata?.type === 'composition') {
+				compositions.push(metadata.value);
+			} else if (metadata?.type === 'folder') {
+				folders.push(metadata.value);
 			}
 
 			if (node.sibling !== null) {

@@ -5,6 +5,10 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import {
+	getFolderOrderId,
+	type CommittedCompositionSnapshot,
+} from './committed-metadata.js';
 import {compositionsRef, type AnyComposition} from './CompositionManager';
 import type {
 	AssetPreviewMetadata,
@@ -23,10 +27,6 @@ import {
 	createRegistryStore,
 	reconcileRegistryEntries,
 } from './registry-store.js';
-import {
-	getFolderOrderId,
-	type CommittedCompositionSnapshot,
-} from './sequence-order-marker.js';
 import {useSyncExternalStore} from './use-sync-external-store.js';
 
 export const CompositionManagerProvider = ({

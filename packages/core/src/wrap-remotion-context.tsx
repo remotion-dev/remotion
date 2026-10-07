@@ -5,6 +5,12 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {BufferingContextReact} from './buffering.js';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
+import {
+	COMMIT_REGISTRATION_ERROR_EVENT,
+	isCommitRegistrationObserverInstalled,
+	withCommittedMetadata,
+	type CommittedMetadata,
+} from './committed-metadata.js';
 import type {TSequence} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {LogLevelContext} from './log-level-context.js';
@@ -12,11 +18,6 @@ import {PreloadContext} from './prefetch-state.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
-import {
-	COMMIT_REGISTRATION_ERROR_EVENT,
-	isCommitRegistrationObserverInstalled,
-	SequenceManagerOrderMarker,
-} from './sequence-order-marker.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SequenceManagerActionsContext,
@@ -123,6 +124,10 @@ export interface RemotionContextProviderProps {
 	readonly children: React.ReactNode;
 }
 
+const SequenceRegistryScopeProvider = withCommittedMetadata(
+	SequenceRegistryScopeContext.Provider,
+);
+
 const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 	contexts,
 	children,
@@ -194,7 +199,7 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 		return () => {
 			unmountedRef.current = true;
 			window.removeEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
-			// Strict Mode and Fast Refresh restart effects without removing the marker.
+			// Strict Mode and Fast Refresh restart effects without removing the provider.
 			queueMicrotask(() => {
 				if (
 					activeRegistryRef.current !== registry ||
@@ -205,25 +210,31 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 			});
 		};
 	}, [scope, scopeId, registry, commitRegistrationEnabled]);
+	const metadata = useMemo<CommittedMetadata>(
+		() => ({
+			type: 'sequence-manager',
+			id: scopeId,
+			onCommit: commitRegistrationEnabled ? onCommitSequences : null,
+		}),
+		[commitRegistrationEnabled, onCommitSequences, scopeId],
+	);
 	return (
-		<SequenceManagerOrderMarker
-			managerId={scopeId}
-			onCommitSequences={commitRegistrationEnabled ? onCommitSequences : null}
+		<SequenceRegistryScopeProvider
+			value={scope}
+			_remotionCommitMetadata={metadata}
 		>
-			<SequenceRegistryScopeContext.Provider value={scope}>
-				<SequenceManagerActionsContext.Provider
-					value={contexts.sequenceManagerActionsContext}
-				>
-					<SequenceRegistryContext.Provider value={registry}>
-						<SequenceCommitRegistrationContext.Provider
-							value={commitRegistrationEnabled}
-						>
-							{children}
-						</SequenceCommitRegistrationContext.Provider>
-					</SequenceRegistryContext.Provider>
-				</SequenceManagerActionsContext.Provider>
-			</SequenceRegistryScopeContext.Provider>
-		</SequenceManagerOrderMarker>
+			<SequenceManagerActionsContext.Provider
+				value={contexts.sequenceManagerActionsContext}
+			>
+				<SequenceRegistryContext.Provider value={registry}>
+					<SequenceCommitRegistrationContext.Provider
+						value={commitRegistrationEnabled}
+					>
+						{children}
+					</SequenceCommitRegistrationContext.Provider>
+				</SequenceRegistryContext.Provider>
+			</SequenceManagerActionsContext.Provider>
+		</SequenceRegistryScopeProvider>
 	);
 };
 

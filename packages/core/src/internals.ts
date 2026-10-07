@@ -23,6 +23,11 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
+import {
+	CommittedMetadataInternals,
+	CommittedMetadataProvider,
+	withCommittedMetadata,
+} from './committed-metadata.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {type CompProps} from './Composition.js';
 import type {
@@ -182,10 +187,6 @@ import {
 	OverrideIdsToNodePathsSettersContext,
 } from './sequence-node-path.js';
 import {
-	CommitOrderInternals,
-	SequenceOrderMarker,
-} from './sequence-order-marker.js';
-import {
 	SequenceOutlineContext,
 	SequenceOutlineInternals,
 } from './sequence-outline.js';
@@ -338,7 +339,8 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
-	SequenceOrderMarker,
+	CommittedMetadataProvider,
+	withCommittedMetadata,
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 	AbsoluteFillElement,
@@ -381,7 +383,7 @@ export const Internals = {
 	useSequenceManagerSequences,
 	SequenceRegistrationContext,
 	DisableSequenceRegistrationProvider,
-	CommitOrderInternals,
+	CommittedMetadataInternals,
 	SequenceOutlineInternals,
 	SequenceOutlineContext,
 	SequenceStackTracesUpdateContext,

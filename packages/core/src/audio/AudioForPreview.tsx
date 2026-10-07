@@ -9,11 +9,14 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {
+	CommittedMetadataProvider,
+	type CommittedMetadata,
+} from '../committed-metadata.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
-import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
@@ -277,15 +280,27 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [audioRef, src]);
 
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			isStudio || registration !== null
+				? {
+						type: 'sequence',
+						id: timelineId,
+						value: registration,
+						outlineChildrenRef: null,
+					}
+				: null,
+		[isStudio, registration, timelineId],
+	);
+
 	if (initialShouldPreMountAudioElements) {
 		return isStudio || registration !== null ? (
-			<SequenceOrderMarker
-				sequenceId={timelineId}
-				registration={registration}
-				outlineChildrenRef={null}
+			<CommittedMetadataProvider
+				value={null}
+				_remotionCommitMetadata={metadata}
 			>
 				{null}
-			</SequenceOrderMarker>
+			</CommittedMetadataProvider>
 		) : null;
 	}
 
@@ -299,13 +314,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	);
 
 	return isStudio || registration !== null ? (
-		<SequenceOrderMarker
-			sequenceId={timelineId}
-			registration={registration}
-			outlineChildrenRef={null}
-		>
+		<CommittedMetadataProvider value={null} _remotionCommitMetadata={metadata}>
 			{audio}
-		</SequenceOrderMarker>
+		</CommittedMetadataProvider>
 	) : (
 		audio
 	);

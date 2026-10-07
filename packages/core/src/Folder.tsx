@@ -1,6 +1,11 @@
 import type {FC, ReactNode} from 'react';
 import {createContext, useContext, useMemo} from 'react';
-import {FolderOrderMarker, getFolderOrderId} from './sequence-order-marker.js';
+import {
+	getFolderOrderId,
+	withCommittedMetadata,
+	type CommittedMetadata,
+} from './committed-metadata.js';
+import {useCommittedCompositionEntry} from './composition-registry-fallback.js';
 import {truthy} from './truthy.js';
 import {validateFolderName} from './validation/validate-folder-name.js';
 
@@ -20,6 +25,7 @@ export const FolderContext = createContext<FolderContextType>({
 	folderName: null,
 	parentName: null,
 });
+const FolderContextProvider = withCommittedMetadata(FolderContext.Provider);
 
 /*
  * @description By wrapping a <Composition /> inside a <Folder />, you can visually categorize it in your sidebar, should you have many compositions.
@@ -53,15 +59,18 @@ export const Folder: FC<{
 		[name, parentName, stack],
 	);
 
-	const folder = (
-		<FolderContext.Provider value={value}>{children}</FolderContext.Provider>
+	const metadata = useMemo<Extract<CommittedMetadata, {type: 'folder'}>>(
+		() => ({
+			type: 'folder',
+			id: getFolderOrderId({name, parent: parentName}),
+			value: registration,
+		}),
+		[name, parentName, registration],
 	);
+	useCommittedCompositionEntry(metadata);
 	return (
-		<FolderOrderMarker
-			folderId={getFolderOrderId({name, parent: parentName})}
-			registration={registration}
-		>
-			{folder}
-		</FolderOrderMarker>
+		<FolderContextProvider value={value} _remotionCommitMetadata={metadata}>
+			{children}
+		</FolderContextProvider>
 	);
 };

@@ -10,6 +10,10 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
+import {
+	withCommittedMetadata,
+	type CommittedMetadata,
+} from './committed-metadata.js';
 import type {
 	LoopDisplay,
 	SequenceControls,
@@ -35,7 +39,6 @@ import {
 	resolveSequenceCrop,
 	validateSequenceCrop,
 } from './sequence-crop.js';
-import {SequenceOrderMarker} from './sequence-order-marker.js';
 import {
 	SequenceOutlineContext,
 	SequenceOutlineInternals,
@@ -58,6 +61,7 @@ import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const SeriesContentVisibilityContext = createContext(true);
+const SequenceContextProvider = withCommittedMetadata(SequenceContext.Provider);
 
 const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
 type EffectDefinitionsWithRuntimeValues =
@@ -855,15 +859,27 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			shouldDiscoverOutline || registration !== null
+				? {
+						type: 'sequence',
+						id,
+						value: registration,
+						outlineChildrenRef: automaticOutlineRef,
+					}
+				: null,
+		[automaticOutlineRef, id, registration, shouldDiscoverOutline],
+	);
+
 	if (hidden) {
 		return shouldDiscoverOutline || registration !== null ? (
-			<SequenceOrderMarker
-				sequenceId={id}
-				registration={registration}
-				outlineChildrenRef={automaticOutlineRef}
+			<SequenceContextProvider
+				value={contextValue}
+				_remotionCommitMetadata={metadata}
 			>
 				{null}
-			</SequenceOrderMarker>
+			</SequenceContextProvider>
 		) : null;
 	}
 
@@ -887,7 +903,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			</AbsoluteFillElement>
 		);
 	const sequenceContent = (
-		<SequenceContext.Provider value={contextValue}>
+		<SequenceContextProvider
+			value={contextValue}
+			_remotionCommitMetadata={metadata}
+		>
 			{retainSeriesRegistration ? (
 				<SeriesContentVisibilityContext.Provider value={content !== null}>
 					{renderedContent}
@@ -895,7 +914,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			) : (
 				renderedContent
 			)}
-		</SequenceContext.Provider>
+		</SequenceContextProvider>
 	);
 	// Keep the provider mounted when track grouping changes so clip state survives.
 	const sequence = (
@@ -911,17 +930,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		</TimelineTrackContext.Provider>
 	);
 
-	return shouldDiscoverOutline || registration !== null ? (
-		<SequenceOrderMarker
-			sequenceId={id}
-			registration={registration}
-			outlineChildrenRef={automaticOutlineRef}
-		>
-			{sequence}
-		</SequenceOrderMarker>
-	) : (
-		sequence
-	);
+	return sequence;
 };
 
 const RegularSequence = forwardRef(RegularSequenceRefForwardingFunction);
