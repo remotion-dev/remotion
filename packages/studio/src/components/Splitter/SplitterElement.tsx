@@ -1,6 +1,5 @@
-import React, {useContext, useMemo} from 'react';
-import {interpolateColors, random} from 'remotion';
-import {SplitterContext} from './SplitterContext';
+import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import {SplitterContext, SplitterLayoutContext} from './SplitterContext';
 
 export const SplitterElement: React.FC<{
 	readonly type: 'flexer' | 'anti-flexer';
@@ -8,6 +7,9 @@ export const SplitterElement: React.FC<{
 	readonly sticky: React.ReactNode | null;
 }> = ({children, type, sticky}) => {
 	const context = useContext(SplitterContext);
+	const layout = useContext(SplitterLayoutContext);
+	const panelRef = useRef<HTMLDivElement>(null);
+	const stickyRef = useRef<HTMLDivElement>(null);
 	const maxSize =
 		type === 'flexer' ? context.maxFlexerSize : context.maxAntiFlexerSize;
 	const minSize =
@@ -47,25 +49,39 @@ export const SplitterElement: React.FC<{
 		type,
 	]);
 
-	const stickStyle: React.CSSProperties = useMemo(() => {
-		return {
-			position: 'absolute',
-			left: (type === 'flexer' ? 0 : context.flexValue) * 100 + '%',
-			width:
-				(type === 'flexer' ? context.flexValue : 1 - context.flexValue) * 100 +
-				'%',
-			backgroundColor: interpolateColors(
-				random(context.flexValue),
-				[0, 1],
-				['red', 'blue'],
-			),
+	useLayoutEffect(() => {
+		const panel = panelRef.current;
+		const overlay = stickyRef.current;
+		const offsetParent = overlay?.offsetParent;
+		if (!panel || !overlay || !(offsetParent instanceof HTMLElement)) {
+			return;
+		}
+
+		const update = () => {
+			const panelRect = panel.getBoundingClientRect();
+			const parentRect = offsetParent.getBoundingClientRect();
+			// Keep the overlay outside the scrolling panel, while matching its
+			// actual bounds, including the divider and scrollbar widths.
+			overlay.style.left = `${panelRect.left - parentRect.left - offsetParent.clientLeft + offsetParent.scrollLeft}px`;
+			overlay.style.width = `${panelRect.width}px`;
 		};
-	}, [context.flexValue, type]);
+
+		update();
+		const observer = new ResizeObserver(update);
+		observer.observe(panel);
+		return () => observer.disconnect();
+	}, [layout, sticky, style]);
 
 	return (
 		<>
-			<div style={style}>{children}</div>
-			<div style={stickStyle}>{sticky ?? null}</div>
+			<div ref={panelRef} style={style}>
+				{children}
+			</div>
+			{sticky === null ? null : (
+				<div ref={stickyRef} style={{position: 'absolute'}}>
+					{sticky}
+				</div>
+			)}
 		</>
 	);
 };
