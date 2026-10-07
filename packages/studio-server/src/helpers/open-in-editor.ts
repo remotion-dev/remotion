@@ -558,7 +558,11 @@ export async function launchEditor(
 		args.unshift(folderToOpen);
 	}
 
-	if (process.platform === 'darwin' && (folderToOpen !== null || isDirectory)) {
+	if (
+		process.platform === 'darwin' &&
+		isVsCodeDerivative(editor.command) &&
+		(folderToOpen !== null || isDirectory)
+	) {
 		const applicationPath = editor.process.match(
 			/^(.*?\.app)\/Contents\//,
 		)?.[1];
