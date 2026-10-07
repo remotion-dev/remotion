@@ -292,6 +292,19 @@ Changes apply immediately in the Studio without reloading the page.
 
 The [`--experimental-tracks`](/docs/options/experimental-tracks) flag takes precedence over this option.
 
+## `setShowPremounting()`<AvailableFrom v="4.0.535" />
+
+<Options id="show-premounting" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setShowPremounting(false);
+```
+
+You can also change this value in the Studio settings. Changes apply immediately.
+The [`--show-premounting`](/docs/options/show-premounting) flag takes precedence over this option.
+
 ## `setDefaultPremountInSeconds()`<AvailableFrom v="4.0.535" />
 
 <Options id="default-premount-in-seconds" />

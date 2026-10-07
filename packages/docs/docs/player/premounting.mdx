@@ -62,6 +62,8 @@ In the Studio timeline, diagonal stripes indicate the premounted range:
 
 <img src="/img/premount.png" alt="A premounted range shown with diagonal stripes in the Studio timeline" />
 
+Hide these indicators with [`Config.setShowPremounting(false)`](/docs/config#setshowpremounting) or the Studio settings. Premounting still runs, and child items may appear in the timeline while their parent is premounted.
+
 ## Premounting a whole scene
 
 Set `premountFor` on a container such as [`<AbsoluteFill>`](/docs/absolute-fill) to prepare its children together:

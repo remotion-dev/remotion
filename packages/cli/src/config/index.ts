@@ -141,6 +141,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showPremountingOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
@@ -683,6 +684,11 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setDefaultPremountInSeconds: (seconds: number) => void;
 		/**
+		 * Show premounting indicators in the Studio timeline.
+		 * @default true
+		 */
+		setShowPremounting: (show: boolean) => void;
+		/**
 		 * Set the coding agent used by Remotion Studio.
 		 */
 		setDefaultCodingAgent: (codingAgent: DefaultCodingAgent) => void;
@@ -910,6 +916,7 @@ export const Config: FlatConfig = {
 	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
 	setDefaultEditor: defaultEditorOption.setConfig,
 	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
+	setShowPremounting: showPremountingOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,

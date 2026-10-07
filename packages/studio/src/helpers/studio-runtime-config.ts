@@ -61,3 +61,7 @@ export const getStudioDefaultPremountInSeconds = () => {
 		NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS
 	);
 };
+
+export const getStudioShowPremounting = () => {
+	return getStudioRuntimeConfig().showPremounting ?? true;
+};

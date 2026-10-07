@@ -42,6 +42,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
 import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
+import {getStudioShowPremounting} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -957,6 +958,7 @@ const TimelineSequenceInner: React.FC<{
 		)?.durationInFrames?.status === 'static',
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const showPremounting = getStudioShowPremounting();
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -1373,7 +1375,8 @@ const TimelineSequenceInner: React.FC<{
 			video,
 			windowWidth,
 			// Premounting does not occupy space in a packed track.
-			premountDisplay: s.timelineTrack ? null : s.premountDisplay,
+			premountDisplay:
+				s.timelineTrack || !showPremounting ? null : s.premountDisplay,
 			postmountDisplay: s.postmountDisplay,
 		});
 	}, [
@@ -1381,6 +1384,7 @@ const TimelineSequenceInner: React.FC<{
 		displayDurationInFrames,
 		effectiveMaxMediaDuration,
 		s,
+		showPremounting,
 		video,
 		windowWidth,
 	]);
