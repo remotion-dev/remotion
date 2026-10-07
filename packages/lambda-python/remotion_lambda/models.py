@@ -437,6 +437,64 @@ class RenderMediaParams:
 
 
 @dataclass
+class ImageSequenceOutputPrefix:
+    """Destination bucket and prefix for an image sequence."""
+
+    bucket_name: str
+    key_prefix: str
+    s3_output_provider: Optional[CustomCredentials] = None
+
+    def serialize_params(self) -> Dict:
+        """Convert the destination to the Lambda payload format."""
+        return {
+            'bucketName': self.bucket_name,
+            'keyPrefix': self.key_prefix,
+            's3OutputProvider': (
+                self.s3_output_provider.serialize_params()
+                if self.s3_output_provider is not None else None
+            ),
+        }
+
+
+@dataclass
+class RenderFramesParams(RenderMediaParams):
+    """Parameters for rendering a PNG or JPEG image sequence."""
+
+    codec: Optional[str] = None
+    image_format: Literal['png', 'jpeg'] = 'png'
+    jpeg_quality: Optional[int] = None
+    frame_range: Optional[Union[int, List[int]]] = None
+    output_prefix: Optional[Union[str, ImageSequenceOutputPrefix]] = None
+    image_sequence_pattern: Optional[str] = None
+
+    def serialize_params(self) -> Dict:
+        """Convert the sequence parameters to the Lambda payload format."""
+        if self.image_format not in ('png', 'jpeg'):
+            raise ValueError('image_format must be "png" or "jpeg".')
+        if self.jpeg_quality is not None and self.image_format != 'jpeg':
+            raise ValueError('jpeg_quality can only be passed with image_format="jpeg".')
+
+        parameters = super().serialize_params()
+        parameters.update({
+            'codec': None,
+            'muted': True,
+            'outName': None,
+            'numberOfGifLoops': None,
+            'jpegQuality': self.jpeg_quality if self.jpeg_quality is not None else 80,
+            'output': {
+                'type': 'sequence',
+                'outputPrefix': (
+                    self.output_prefix.serialize_params()
+                    if isinstance(self.output_prefix, ImageSequenceOutputPrefix)
+                    else self.output_prefix
+                ),
+                'imageSequencePattern': self.image_sequence_pattern,
+            },
+        })
+        return parameters
+
+
+@dataclass
 class RenderStillParams:
     """
     Parameters for video rendering.
@@ -590,3 +648,5 @@ class RenderMediaProgress:
     outputSizeInBytes: Optional[int] = None
     lambdasInvoked: int = 0
     framesRendered: Optional[int] = None
+    framesUploaded: Optional[int] = None
+    outputSequence: Optional[Dict[str, Any]] = None
