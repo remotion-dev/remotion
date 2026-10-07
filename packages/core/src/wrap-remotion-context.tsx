@@ -14,10 +14,8 @@ import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
 import {
 	COMMIT_REGISTRATION_ERROR_EVENT,
-	COMMIT_ORDER_EVENT,
 	isCommitRegistrationObserverInstalled,
 	SequenceManagerOrderMarker,
-	type CommitOrderEventDetail,
 } from './sequence-order-marker.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
@@ -150,6 +148,7 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 				return;
 			}
 
+			observedCommitRef.current = true;
 			scope?.onCommitSequences(scopeId, sequences, sequenceIds);
 		},
 		[scope, scopeId],
@@ -179,14 +178,6 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 			});
 		};
 
-		const onCommitOrder = (event: Event) => {
-			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
-			if (detail.sequenceManagers.some((item) => item.managerId === scopeId)) {
-				observedCommitRef.current = true;
-			}
-		};
-
-		window.addEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
 		window.addEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
 		if (commitRegistrationEnabled) {
 			queueMicrotask(() => {
@@ -202,7 +193,6 @@ const ForwardedSequenceRegistry: React.FC<RemotionContextProviderProps> = ({
 
 		return () => {
 			unmountedRef.current = true;
-			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
 			window.removeEventListener(COMMIT_REGISTRATION_ERROR_EVENT, onFailure);
 			// Strict Mode and Fast Refresh restart effects without removing the marker.
 			queueMicrotask(() => {

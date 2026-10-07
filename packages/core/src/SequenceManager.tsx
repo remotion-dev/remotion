@@ -880,6 +880,7 @@ export const SequenceManagerProvider: React.FC<{
 	const onCommitRootSequences = useCallback(
 		(sequences: readonly TSequence[], sequenceIds: readonly string[]) => {
 			if (!rootObservationFailedRef.current) {
+				observedCommitRef.current = true;
 				onCommitSequences(sequenceManagerId, sequences, sequenceIds);
 			}
 		},
@@ -931,7 +932,6 @@ export const SequenceManagerProvider: React.FC<{
 				return;
 			}
 
-			observedCommitRef.current = true;
 			if (commitRegistrationEnabled) {
 				return;
 			}

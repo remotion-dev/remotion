@@ -132,6 +132,7 @@ export const collectCommitOrderFromFiber = (
 		RefObject<Element | null>,
 		(Element | Text)[]
 	>();
+	let outlineCollectionFailed = false;
 	const sequencesByManager = new Map<
 		string,
 		{
@@ -173,17 +174,6 @@ export const collectCommitOrderFromFiber = (
 		currentCompositionManagerId: string | null,
 		outlineCollectors: readonly (Element | Text)[][] | null,
 	) => {
-		// A portal ends the current DOM group, but can contain new sequences:
-		// Studio itself renders the composition through a portal. Hidden
-		// Offscreen trees must not contribute geometry, including new groups.
-		const skipOutline =
-			outlineCollectors === null ||
-			(fiber.tag === 22 && fiber.memoizedState !== null);
-		let childOutlineCollectors = skipOutline
-			? null
-			: fiber.tag === 4
-				? []
-				: outlineCollectors;
 		const isSequenceManagerMarker = hasFiberMarker(
 			fiber,
 			Internals.CommitOrderInternals.sequenceManagerMarker,
@@ -261,7 +251,11 @@ export const collectCommitOrderFromFiber = (
 			});
 		}
 
-		if (hasFiberMarker(fiber, Internals.CommitOrderInternals.sequenceMarker)) {
+		const isSequenceMarker = hasFiberMarker(
+			fiber,
+			Internals.CommitOrderInternals.sequenceMarker,
+		);
+		if (isSequenceMarker) {
 			const props = fiber.memoizedProps;
 			if (sequenceManagerId !== null) {
 				const sequenceId = getStringProp(fiber.memoizedProps, 'sequenceId');
@@ -278,21 +272,6 @@ export const collectCommitOrderFromFiber = (
 					if (registration) {
 						manager?.registration?.sequences.push(registration);
 					}
-				}
-			}
-
-			const outlineRef =
-				typeof props === 'object' && props !== null
-					? (Reflect.get(props, 'outlineChildrenRef') as
-							| RefObject<Element | null>
-							| null
-							| undefined)
-					: null;
-			if (outlineRef) {
-				const nodes: (Element | Text)[] = [];
-				outlineNodesByRef.set(outlineRef, nodes);
-				if (childOutlineCollectors !== null) {
-					childOutlineCollectors = [...childOutlineCollectors, nodes];
 				}
 			}
 		}
@@ -345,19 +324,61 @@ export const collectCommitOrderFromFiber = (
 			}
 		}
 
-		if (
-			childOutlineCollectors !== null &&
-			childOutlineCollectors.length > 0 &&
-			(fiber.tag === 5 || fiber.tag === 6) &&
-			fiber.stateNode !== null
-		) {
-			for (const collector of childOutlineCollectors) {
-				collector.push(fiber.stateNode as Element | Text);
-			}
+		let childOutlineCollectors = outlineCollectors;
+		if (outlineCollectionFailed) {
+			childOutlineCollectors = null;
+		} else {
+			try {
+				// A portal ends the current DOM group, but can contain new sequences.
+				// Hidden Offscreen trees must not contribute geometry, including new groups.
+				const {tag} = fiber;
+				const skipOutline =
+					outlineCollectors === null ||
+					(tag === 22 && fiber.memoizedState !== null);
+				childOutlineCollectors = skipOutline
+					? null
+					: tag === 4
+						? []
+						: outlineCollectors;
+				if (isSequenceMarker) {
+					const props = fiber.memoizedProps;
+					const outlineRef =
+						typeof props === 'object' && props !== null
+							? (Reflect.get(props, 'outlineChildrenRef') as
+									| RefObject<Element | null>
+									| null
+									| undefined)
+							: null;
+					if (outlineRef) {
+						const nodes: (Element | Text)[] = [];
+						outlineNodesByRef.set(outlineRef, nodes);
+						if (childOutlineCollectors !== null) {
+							childOutlineCollectors = [...childOutlineCollectors, nodes];
+						}
+					}
+				}
 
-			// Only first-level DOM nodes belong to this group. Keep traversing
-			// for sequence order and for new groups nested inside this element.
-			childOutlineCollectors = [];
+				if (
+					childOutlineCollectors !== null &&
+					childOutlineCollectors.length > 0 &&
+					(tag === 5 || tag === 6) &&
+					fiber.stateNode !== null
+				) {
+					for (const collector of childOutlineCollectors) {
+						collector.push(fiber.stateNode as Element | Text);
+					}
+
+					// Only first-level DOM nodes belong to this group. Keep traversing
+					// for sequence order and for new groups nested inside this element.
+					childOutlineCollectors = [];
+				}
+			} catch {
+				// Discard incomplete geometry for this commit without losing registrations.
+				// The next commit retries outline collection with a fresh map.
+				outlineCollectionFailed = true;
+				outlineNodesByRef.clear();
+				childOutlineCollectors = null;
+			}
 		}
 
 		let {child} = fiber;
@@ -374,7 +395,11 @@ export const collectCommitOrderFromFiber = (
 
 	visit(root.current, null, null, []);
 	for (const [ref, nodes] of outlineNodesByRef) {
-		Internals.SequenceOutlineInternals.setNodes(ref, nodes);
+		try {
+			Internals.SequenceOutlineInternals.setNodes(ref, nodes);
+		} catch {
+			// A failed outline publication is retried on the next commit.
+		}
 	}
 
 	const sequenceManagers = [...sequencesByManager].map(
@@ -456,6 +481,7 @@ export const installFiberCommitOrderObserver = (
 	>();
 
 	hook.onCommitFiberRoot = function (...args) {
+		let order: ReturnType<typeof collectCommitOrderFromFiber> | null = null;
 		try {
 			const [, root] = args;
 			const registrations = new Map<string, CommittedSequenceRegistration>();
@@ -466,7 +492,7 @@ export const installFiberCommitOrderObserver = (
 			>();
 			const previousCompositionRegistrations =
 				compositionRegistrationsByRoot.get(root);
-			const order = collectCommitOrderFromFiber(
+			order = collectCommitOrderFromFiber(
 				root,
 				registrations,
 				previousRegistrations ?? null,
@@ -514,12 +540,29 @@ export const installFiberCommitOrderObserver = (
 					}
 				}
 			}
+		} catch {
+			// A registration collection or delivery failure permanently selects effect
+			// fallback for this hook. Retrying registration would risk repeated teardown.
+			hook[Internals.CommitOrderInternals.failureMarker] = true;
+			order = null;
+			try {
+				target.dispatchEvent(
+					new CustomEvent(
+						Internals.CommitOrderInternals.registrationErrorEventName,
+					),
+				);
+			} catch {
+				// Notification failure must not prevent the previous hook from running.
+			}
+		}
 
-			if (
-				order.outlineCount > 0 ||
+		if (
+			order !== null &&
+			(order.outlineCount > 0 ||
 				order.sequenceManagers.length > 0 ||
-				order.compositionManagers.length > 0
-			) {
+				order.compositionManagers.length > 0)
+		) {
+			try {
 				target.dispatchEvent(
 					new CustomEvent(Internals.CommitOrderInternals.eventName, {
 						detail: {
@@ -528,15 +571,9 @@ export const installFiberCommitOrderObserver = (
 						},
 					}),
 				);
+			} catch {
+				// Order notifications are independent of registration and retry next commit.
 			}
-		} catch {
-			// Fiber is private React API. An unsupported shape must not break the host.
-			hook[Internals.CommitOrderInternals.failureMarker] = true;
-			target.dispatchEvent(
-				new CustomEvent(
-					Internals.CommitOrderInternals.registrationErrorEventName,
-				),
-			);
 		}
 
 		return previousOnCommitFiberRoot?.apply(this, args);
