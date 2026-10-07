@@ -7,6 +7,7 @@ import {
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
 import {TimelineSequence} from './TimelineSequence';
+import {useSeriesReorder} from './use-series-reorder';
 
 const noConnectedCompositions = [] as const;
 const primaryRowHeight =
@@ -17,6 +18,8 @@ export const TimelinePackedTrack: React.FC<{
 	readonly items: readonly TimelineTrackWithDisplayGroup[];
 	readonly auxiliaryRows: readonly (readonly TimelineTrackWithDisplayGroup[])[];
 }> = ({track, items, auxiliaryRows}) => {
+	const {dropIndicatorLeft, onClickCapture, onPointerDownCapture} =
+		useSeriesReorder(items);
 	const labelStartFrames = useMemo(() => {
 		const starts = new Map<string, number>();
 		let precedingTransition: TimelineTrackWithDisplayGroup['sequence'] | null =
@@ -68,6 +71,8 @@ export const TimelinePackedTrack: React.FC<{
 	return (
 		<div
 			data-timeline-track={track.sequence.displayName}
+			onClickCapture={onClickCapture}
+			onPointerDownCapture={onPointerDownCapture}
 			style={{
 				position: 'relative',
 				height:
@@ -96,6 +101,7 @@ export const TimelinePackedTrack: React.FC<{
 				row.items.map((item) => (
 					<div
 						key={item.sequence.id}
+						data-timeline-track-item-id={item.sequence.id}
 						style={{
 							position: 'absolute',
 							top: row.top,
@@ -121,6 +127,23 @@ export const TimelinePackedTrack: React.FC<{
 						/>
 					</div>
 				)),
+			)}
+			{dropIndicatorLeft === null ? null : (
+				<div
+					aria-hidden="true"
+					data-series-reorder-indicator
+					style={{
+						position: 'absolute',
+						left: dropIndicatorLeft - 6.5,
+						top: 0,
+						height: TIMELINE_PACKED_TRACK_HEIGHT,
+						width: 13,
+						background:
+							'linear-gradient(to right, #00E50000, #00E500 6px, #00E500 7px, #00E50000)',
+						pointerEvents: 'none',
+						zIndex: 2,
+					}}
+				/>
 			)}
 		</div>
 	);
