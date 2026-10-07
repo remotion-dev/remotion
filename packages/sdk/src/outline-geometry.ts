@@ -3,6 +3,12 @@ export type CanvasOutlinePoint = {
 	readonly y: number;
 };
 
+/** A uniformly scaled composition whose content can be measured independently of zoom. */
+export type CanvasOutlineViewport = {
+	readonly element: Element;
+	readonly scale: number;
+};
+
 /** Geometry in CSS pixels relative to the unscaled outline container. */
 export type CanvasOutline = {
 	readonly key: string;

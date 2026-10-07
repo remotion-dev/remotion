@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {Internals} from 'remotion';
 import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -63,7 +64,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	readonly sequences: Parameters<
 		typeof orderOutlinesForRendering
 	>[0]['sequences'];
-	readonly updateOutlinesRef: React.MutableRefObject<() => void>;
 }> = ({
 	compositionHeight,
 	compositionWidth,
@@ -76,7 +76,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	onSelect,
 	scale,
 	sequences,
-	updateOutlinesRef,
 }) => {
 	const overlayRef = useRef<SVGSVGElement>(null);
 	const contextMenuOpenHandlersRef = useRef(
@@ -115,9 +114,16 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		[getContextMenuOpenByKey],
 	);
 	const hoverController = useContext(TimelineSequenceHoverContext);
+	const viewport = useMemo(
+		() => ({element: Internals.portalNode(), scale}),
+		[scale],
+	);
 	const {
 		outlinesForRendering,
 		outlinesByKey,
+		renderingOutlinesByKey,
+		renderingTransform,
+		renderingOrder,
 		targetsByKey,
 		hoveredNodePathKey,
 	} = useCanvasOutlines({
@@ -126,7 +132,8 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		sequences,
 		hoverController,
 		freezeOrder: dragging,
-		updateOutlinesRef,
+		updateOutlinesRef: null,
+		viewport,
 	});
 	const {
 		outlinesForEditingHandles,
@@ -168,10 +175,17 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	}, [hoveredNodePathKey, outlinesForRendering, targetsByKey]);
 	const targetsRef = useRef(outlineTargets);
 	const outlinesByKeyRef = useRef(outlinesByKey);
+	const scaleRef = useRef(scale);
 	useLayoutEffect(() => {
 		targetsRef.current = outlineTargets;
 		outlinesByKeyRef.current = outlinesByKey;
-	}, [outlineTargets, outlinesByKey]);
+		scaleRef.current = scale;
+	}, [outlineTargets, outlinesByKey, scale]);
+	const getOutlineByKey = useCallback(
+		(key: string) => outlinesByKeyRef.current.get(key),
+		[],
+	);
+	const getScale = useCallback(() => scaleRef.current, []);
 	const getAllDragOutlines = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {
@@ -226,6 +240,67 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		(snapPoints) => updateSnapPointsRef.current(snapPoints),
 		[],
 	);
+	const selectedGeometry = useMemo(
+		() =>
+			outlineTargets.some((target) => target.containsSelection)
+				? {outlinesByKey, transform: renderingTransform}
+				: null,
+		[outlineTargets, outlinesByKey, renderingTransform],
+	);
+	const outlineElements = useMemo(
+		() =>
+			renderingOrder.map((key) => {
+				const target = targetsByKey.get(key);
+				const screenCoordinates = target?.containsSelection === true;
+				const outline = screenCoordinates
+					? selectedGeometry?.outlinesByKey.get(key)
+					: renderingOutlinesByKey.get(key);
+				if (outline === undefined) return null;
+				const projection = selectedGeometry?.transform ?? null;
+				const transform =
+					screenCoordinates && projection !== null
+						? `matrix(${1 / projection.scale} 0 0 ${1 / projection.scale} ${-projection.translateX / projection.scale} ${-projection.translateY / projection.scale})`
+						: null;
+				return (
+					<SelectedOutlineElement
+						key={key}
+						compositionHeight={compositionHeight}
+						compositionWidth={compositionWidth}
+						dragging={dragging}
+						getAllDragOutlines={getAllDragOutlines}
+						getAllDragTargets={getAllDragTargets}
+						getLatestTargetByKey={getLatestOutlineTargetByKey}
+						getOutlineByKey={getOutlineByKey}
+						getScale={getScale}
+						outline={outline}
+						onDraggingChange={onDraggingChange}
+						onSnapPointsChange={onSnapPointsChange}
+						onSelect={onSelect}
+						registerContextMenuOpen={registerContextMenuOpen}
+						layoutTarget={target}
+						transform={transform}
+					/>
+				);
+			}),
+		[
+			compositionHeight,
+			compositionWidth,
+			dragging,
+			getAllDragOutlines,
+			getAllDragTargets,
+			getLatestOutlineTargetByKey,
+			getOutlineByKey,
+			getScale,
+			onDraggingChange,
+			onSnapPointsChange,
+			onSelect,
+			registerContextMenuOpen,
+			renderingOrder,
+			renderingOutlinesByKey,
+			selectedGeometry,
+			targetsByKey,
+		],
+	);
 
 	return (
 		<svg
@@ -247,24 +322,18 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 				scale={scale}
 				updateSnapPointsRef={updateSnapPointsRef}
 			/>
-			{outlinesForRendering.map((outline) => (
-				<SelectedOutlineElement
-					key={outline.key}
-					compositionHeight={compositionHeight}
-					compositionWidth={compositionWidth}
-					dragging={dragging}
-					getAllDragOutlines={getAllDragOutlines}
-					getAllDragTargets={getAllDragTargets}
-					getLatestTargetByKey={getLatestOutlineTargetByKey}
-					outline={outline}
-					onDraggingChange={onDraggingChange}
-					onSnapPointsChange={onSnapPointsChange}
-					onSelect={onSelect}
-					registerContextMenuOpen={registerContextMenuOpen}
-					scale={scale}
-					layoutTarget={targetsByKey.get(outline.key)}
-				/>
-			))}
+			{/* Zoom changes one SVG transform while unselected polygon components
+			    keep their measured geometry and skip React renders. Editing surfaces
+			    cancel this transform so their controls remain in screen pixels. */}
+			<g
+				transform={
+					renderingTransform === null
+						? undefined
+						: `translate(${renderingTransform.translateX} ${renderingTransform.translateY}) scale(${renderingTransform.scale})`
+				}
+			>
+				{outlineElements}
+			</g>
 			{outlinesForRendering.map((outline) => {
 				const target = targetsByKey.get(outline.key);
 				const pathDrag = target?.containsSelection

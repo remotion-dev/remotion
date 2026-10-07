@@ -76,7 +76,9 @@ type SelectedOutlineElementProps = {
 		key: string,
 		handler: SelectedOutlineContextMenuOpenHandler | null,
 	) => void;
-	readonly scale: number;
+	readonly getScale: () => number;
+	readonly getOutlineByKey: (key: string) => SelectedOutline | undefined;
+	readonly transform: string | null;
 };
 
 const SelectedOutlineElementUnmemoized: React.FC<
@@ -94,7 +96,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	onSnapPointsChange,
 	onSelect,
 	registerContextMenuOpen,
-	scale,
+	getScale,
+	getOutlineByKey,
+	transform,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {
@@ -467,7 +471,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	}, [onContextMenuOpen, outline.key, registerContextMenuOpen]);
 
 	return (
-		<>
+		<g transform={transform ?? undefined}>
 			<SelectedOutlinePolygon
 				annotationAttributes={
 					layoutTarget
@@ -495,7 +499,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				onSnapPointsChange={onSnapPointsChange}
 				onSelect={onSelect}
 				onDoubleClickTarget={onDoubleClickTarget}
-				scale={scale}
+				getScale={getScale}
+				getOutlineByKey={getOutlineByKey}
 				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
 				translateWithCommandKey={
 					layoutTarget?.selectedForRotation === true &&
@@ -513,7 +518,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					transform3DMode={controlTarget.rotationDrag.transform3DMode}
 				/>
 			) : null}
-		</>
+		</g>
 	);
 };
 

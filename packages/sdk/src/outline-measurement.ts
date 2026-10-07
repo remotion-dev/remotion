@@ -369,18 +369,23 @@ export const cropCanvasOutlinePoints = (
 	];
 };
 
-/**
- * Measures a batch against an unscaled overlay container. Shared ancestor
- * transforms are cached only within this measurement batch.
- */
-export const measureCanvasOutlineTargets = (
+export const measureCanvasOutlineTargetsWithBounds = (
 	container: Element,
 	targets: readonly CanvasOutlineTarget[],
-): CanvasOutline[] => {
+) => {
 	// Reuse shared ancestor geometry within this synchronous batch only.
 	resetBoxQuadsCache();
 	const containerRect = container.getBoundingClientRect();
 	const outlines: CanvasOutline[] = [];
+	const boundsByKey = new Map<
+		string,
+		{
+			readonly left: number;
+			readonly top: number;
+			readonly right: number;
+			readonly bottom: number;
+		}
+	>();
 	const rects = new Map<Element | Text, DOMRect>();
 	const geometry = new Map<
 		Element,
@@ -431,6 +436,15 @@ export const measureCanvasOutlineTargets = (
 		) {
 			continue;
 		}
+
+		// Retain the union of the DOM rects for clipping. An inline element's
+		// first quad can be smaller than its bounds when it wraps across lines.
+		boundsByKey.set(target.key, {
+			left: left - containerRect.left,
+			top: top - containerRect.top,
+			right: right - containerRect.left,
+			bottom: bottom - containerRect.top,
+		});
 
 		if (measurableNodes.length !== 1 || measurableNodes[0].nodeType !== 1) {
 			const groupPoints: CanvasOutline['points'] = [
@@ -503,7 +517,18 @@ export const measureCanvasOutlineTargets = (
 		outlines.push({...measured, key: target.key, points});
 	}
 
-	return outlines;
+	return {outlines, boundsByKey};
+};
+
+/**
+ * Measures a batch against an unscaled overlay container. Shared ancestor
+ * transforms are cached only within this measurement batch.
+ */
+export const measureCanvasOutlineTargets = (
+	container: Element,
+	targets: readonly CanvasOutlineTarget[],
+): CanvasOutline[] => {
+	return measureCanvasOutlineTargetsWithBounds(container, targets).outlines;
 };
 
 export const canvasOutlinesAreEqual = (

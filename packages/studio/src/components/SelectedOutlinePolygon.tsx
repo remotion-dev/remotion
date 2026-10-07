@@ -90,7 +90,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		button: number,
 		sequenceWasDragged: boolean,
 	) => boolean;
-	readonly scale: number;
+	readonly getScale: () => number;
+	readonly getOutlineByKey: (key: string) => SelectedOutline | undefined;
 	readonly showSelectedOutline: boolean;
 	readonly translateWithCommandKey: boolean;
 }> = ({
@@ -112,7 +113,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	onSnapPointsChange,
 	onSelect,
 	onDoubleClickTarget,
-	scale,
+	getScale,
+	getOutlineByKey,
 	showSelectedOutline,
 	translateWithCommandKey,
 }) => {
@@ -221,12 +223,12 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 					getDragOverrides,
 					timelinePosition: getCurrentFrame(),
 				}),
-				scale,
+				scale: getScale(),
 				snapping: editorSnapping
 					? {
 							outlines: dragExistingSelection
 								? getAllDragOutlines()
-								: [outline],
+								: [getOutlineByKey(outline.key) ?? outline],
 							getTargets: () =>
 								getSelectedOutlineSnapTargets({
 									compositionHeight,
@@ -334,7 +336,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			onSelect,
 			onSnapPointsChange,
 			outline,
-			scale,
+			getScale,
+			getOutlineByKey,
 			setPropStatuses,
 			setDragOverrides,
 			translateWithCommandKey,

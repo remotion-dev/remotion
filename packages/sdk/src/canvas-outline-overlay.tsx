@@ -511,6 +511,7 @@ const ActiveCanvasOutlines = React.memo(
 				hoverController: controller.hover,
 				freezeOrder: dragging,
 				updateOutlinesRef: null,
+				viewport: null,
 			});
 		useLayoutEffect(() => {
 			measuredRef.current = {targets, outlinesByKey};
