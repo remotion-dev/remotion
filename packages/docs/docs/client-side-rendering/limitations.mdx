@@ -169,7 +169,7 @@ See how you can [contribute](/docs/contributing/web-renderer) to add more suppor
 ## Z-indexing
 
 The CSS property `z-index` is not supported.  
-Elements are drawn in DOM order. CSS stacking contexts and the stacking order implied by `position` are not reproduced.
+Elements are drawn in DOM order. CSS stacking contexts and the stacking order implied by `position` are not understood.
 
 For example, an absolutely positioned text label placed before an [`<Img>`](/docs/img) in JSX is drawn behind the image, even if the browser displays the label on top. Place the label after the image to draw it on top in client-side rendering.
 
