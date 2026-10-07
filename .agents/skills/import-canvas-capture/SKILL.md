@@ -14,7 +14,8 @@ not distribute it through `packages/skills` or document the command as a stable 
    recording must contain embedded `REMOTION_CAPTURE_DATA` metadata; a converted
    video that has lost this metadata cannot be imported.
 2. Inspect the project to find the TypeScript file containing its composition
-   registrations (usually `src/Root.tsx`). Choose an unused composition ID.
+   registrations (usually `src/Root.tsx`). Keep all registrations directly in
+   that root file. Choose an unused composition ID.
 3. From the target project's root, run:
 
    ```sh
@@ -33,8 +34,9 @@ not distribute it through `packages/skills` or document the command as a stable 
    ```
 
 4. Review the reported source files and public asset. The importer generates a
-   component beside the registration file, registers it, copies the video to the
-   public directory, and installs missing `@remotion/media` and
+   video component beside the root file, inserts its `<Composition>` registration
+   directly into the root, copies the video to the public directory, and installs
+   missing `@remotion/media` and
    `@remotion/mac-cursors` dependencies at the project's Remotion version. Studio
    does not need to be running. Existing Studio sessions pick up source changes
    through their file watchers; this operation does not enter Studio's undo stack.

@@ -50,25 +50,12 @@ Give the caption area a width and position it over the video. In this
 1920px-wide composition, the 900px caption area is centered by translating it
 `(1920 - 900) / 2 = 510` pixels from the left:
 
-```tsx
+```tsx title="src/MyComposition.tsx"
 import { Video } from "@remotion/media";
-import { Composition, Series, staticFile, useVideoConfig } from "remotion";
+import { Series, staticFile, useVideoConfig } from "remotion";
 import { BasicCaptions } from "./basic-captions";
 
 export const MyComposition: React.FC = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      component={MyComponent}
-      durationInFrames={750}
-      fps={30}
-      width={1920}
-      height={1080}
-    />
-  );
-};
-
-export const MyComponent: React.FC = () => {
   const { fps } = useVideoConfig();
 
   return (
@@ -154,6 +141,26 @@ export const MyComponent: React.FC = () => {
         />
       </Series.Sequence>
     </Series>
+  );
+};
+```
+
+Register the video directly in `src/Root.tsx`:
+
+```tsx title="src/Root.tsx"
+import { Composition } from "remotion";
+import { MyComposition } from "./MyComposition";
+
+export const RemotionRoot = () => {
+  return (
+    <Composition
+      id="MyComposition"
+      component={MyComposition}
+      durationInFrames={750}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
   );
 };
 ```

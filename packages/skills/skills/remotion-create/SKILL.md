@@ -47,8 +47,10 @@ As soon as the project can run, open [Remotion Studio](../remotion-studio/SKILL.
 Keep the scaffold and add React Markup.
 Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
 
-Before writing the root that registers `<Composition>` or `<Still>` elements,
-follow [Compositions and stills](../remotion-markup/compositions.md).
+Keep all `<Composition>`, `<Still>`, and `<Folder>` registrations directly in
+`src/Root.tsx`, and import the video components from their own files.
+Before writing the root, follow
+[Compositions and stills](../remotion-markup/compositions.md).
 
 ## Is this a timeline of clips?
 

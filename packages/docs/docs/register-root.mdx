@@ -5,7 +5,7 @@ title: registerRoot()
 crumb: 'API'
 ---
 
-`registerRoot` is a function that registers the root component of the Remotion project. In the root component, one or multiple compositions should be returned (in the case of multiple compositions, they should be wrapped in a React Fragment).
+`registerRoot` is a function that registers the root component of the Remotion project. Define all composition registrations directly in the root component in `src/Root.tsx`. Wrap multiple registrations in a React Fragment.
 
 :::info
 `registerRoot()` should live in a file that is separate from the list of compositions. This is because when using React Fast Refresh, all the code in the file that gets refreshed gets executed again, however, this function should only be called once.
@@ -33,7 +33,7 @@ export default () => <></>;
 // @filename: MyOtherComponent.tsx
 export default () => <></>;
 
-// @filename: index.tsx
+// @filename: Root.tsx
 import {Composition} from 'remotion';
 // ---cut---
 import MyComponent from './MyComponent';

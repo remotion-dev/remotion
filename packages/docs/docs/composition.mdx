@@ -9,6 +9,8 @@ This is the component to use to register a video to make it renderable and make 
 
 A composition represents the video you want to create, as a collection of clips (for example, several `<Sequence>`) that will play back to back to form your video.
 
+Define all [`<Composition>`](/docs/composition) and [`<Still>`](/docs/still) registrations directly in `src/Root.tsx`. Import the video components from their own files and render each registration in the root component's JSX, optionally inside a [`<Folder>`](/docs/folder).
+
 ```tsx twoslash title="src/Root.tsx"
 const Component: React.FC = () => null;
 // ---cut---
@@ -27,7 +29,7 @@ export const RemotionRoot: React.FC = () => {
 
 ## API
 
-A `<Composition />` should be placed within a fragment of the root component (which is registered using [`registerRoot()`](/docs/register-root)).
+A `<Composition />` should be placed in the root component, which is registered using [`registerRoot()`](/docs/register-root).
 
 The component takes the following props:
 
@@ -95,17 +97,17 @@ If omitted, the Studio [infers basic controls from `defaultProps`](/docs/default
 
 ## Example using `component`
 
-```tsx twoslash
+```tsx twoslash title="src/Root.tsx"
 // @allowUmdGlobalAccess
 // @filename: ./MyComp.tsx
 export const MyComp = () => <></>;
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import {Composition} from 'remotion';
 import {MyComp} from './MyComp';
 
-export const MyVideo = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Composition id="my-comp" component={MyComp} width={1080} height={1080} fps={30} durationInFrames={3 * 30} />
@@ -116,8 +118,8 @@ export const MyVideo = () => {
 
 ## Example using `lazyComponent`
 
-```tsx
-export const MyVideo = () => {
+```tsx title="src/Root.tsx"
+export const RemotionRoot = () => {
   return (
     <>
       <Composition id="my-comp" lazyComponent={() => import('./LazyComponent')} width={1080} height={1080} fps={30} durationInFrames={3 * 30} />
@@ -130,13 +132,13 @@ export const MyVideo = () => {
 
 You can use the [`<Folder />`](/docs/folder) component to organize your compositions in the sidebar.
 
-```tsx twoslash
+```tsx twoslash title="src/Root.tsx"
 import React from 'react';
 const Component: React.FC = () => null;
 // ---cut---
 import {Composition, Folder} from 'remotion';
 
-export const Video = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Folder name="Visuals">

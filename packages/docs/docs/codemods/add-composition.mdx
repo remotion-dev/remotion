@@ -40,7 +40,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### compositionFile
 
-The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with static IDs or folder names. Aliased and namespace imports from `remotion` are supported.
+The root file containing the composition registrations, normally `src/Root.tsx`. Keep all registrations directly in this file. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with static IDs or folder names. Aliased and namespace imports from `remotion` are supported.
 
 When `folder` is omitted, the file must have one component containing registrations, or a single component if no registrations exist yet. The first JSX return in the selected component is used; returns in nested functions are ignored.
 

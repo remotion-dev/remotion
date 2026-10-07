@@ -729,7 +729,9 @@ test('addCompositionHandler creates an interactive Canvas Capture composition', 
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
 			"import {FreshCapture} from './FreshCapture'",
 		);
-		expect(readFileSync(entryPoint, 'utf-8')).toContain('<FreshCapture />');
+		const rootContentsAfterImport = readFileSync(entryPoint, 'utf-8');
+		expect(rootContentsAfterImport).toContain('id="FreshCapture"');
+		expect(rootContentsAfterImport).toContain('component={FreshCapture}');
 		const componentContents = readFileSync(componentFile, 'utf-8');
 		expect(componentContents).toContain(
 			"import {MacOSCursor} from '@remotion/mac-cursors'",
@@ -743,9 +745,8 @@ test('addCompositionHandler creates an interactive Canvas Capture composition', 
 		);
 		expect(componentContents).toContain('width: 1920');
 		expect(componentContents).toContain('height: 1080');
-		expect(componentContents).toContain("id={'FreshCapture'}");
-		expect(componentContents).toContain('width={1280}');
-		expect(componentContents).toContain('height={720}');
+		expect(rootContentsAfterImport).toContain('width={1280}');
+		expect(rootContentsAfterImport).toContain('height={720}');
 
 		const undoResponse = await undoHandler(
 			getHandlerOptions({input: {}, entryPoint, remotionRoot}),

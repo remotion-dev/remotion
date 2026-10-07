@@ -15,6 +15,10 @@ If you detect a surprising change made in the meanwhile, don't overwrite it, ass
 
 ## General rules
 
+Keep all `<Composition>`, `<Still>`, and `<Folder>` registrations directly in
+`src/Root.tsx`. Import the video components from their own files and render
+the registrations in the root component's JSX.
+
 Inside a composition or scene component, get `fps` from `useVideoConfig()` for
 all seconds-to-frames calculations, including timing props such as `from`,
 `trimBefore`, `durationInFrames`, and `premountFor`. Keeping the expression on
@@ -253,8 +257,7 @@ export const LowerThird = Interactive.withSchema({
 });
 ```
 
-```tsx
-// Root.tsx
+```tsx title="src/Root.tsx"
 import { Composition } from "remotion";
 import { LowerThird } from "./LowerThird";
 import { MyScene } from "./MyScene";

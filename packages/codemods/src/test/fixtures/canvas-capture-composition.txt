@@ -2,14 +2,13 @@ import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
-	Composition,
 	Easing,
 	interpolate,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
 
-export const CanvasCapturePreview = () => {
+export const CanvasCaptureComposition = () => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -148,18 +147,5 @@ export const CanvasCapturePreview = () => {
 				}}
 			/>
 		</AbsoluteFill>
-	);
-};
-
-export const CanvasCaptureComposition = () => {
-	return (
-		<Composition
-			id={'canvas-capture-promo'}
-			component={CanvasCapturePreview}
-			width={1920}
-			height={1080}
-			fps={60}
-			durationInFrames={500}
-		/>
 	);
 };

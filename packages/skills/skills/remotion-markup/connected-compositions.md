@@ -11,7 +11,7 @@ Use connected composition when a section has its own layers or timing, will be r
    Render the exported component directly in the parent with inline timing and editable props.
    It does not need an additional `<Sequence>` to connect to its registration.
    For consecutive scenes or transitions, render one direct instance as the only child of a `<Series.Sequence>` or `<TransitionSeries.Sequence>`.
-3. Register the **same component reference** with `<Composition component={...}>` in the root.
+3. Register the **same component reference** with `<Composition component={...}>` directly in `src/Root.tsx`.
    Give it a unique `id` and the dimensions, fps, and natural duration needed to preview the scene on its own. A `<Folder>` can keep scene compositions together.
 
 ## Make the component independent of its parent
@@ -106,8 +106,7 @@ export const MyVideo = () => (
 );
 ```
 
-```tsx
-// Root.tsx
+```tsx title="src/Root.tsx"
 import {Composition, Folder} from 'remotion';
 import {MyVideo} from './MyVideo';
 import {Chapter} from './Chapter';

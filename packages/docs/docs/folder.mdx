@@ -9,15 +9,17 @@ crumb: 'API'
 
 By wrapping a [`<Composition />`](/docs/composition) inside a `<Folder />`, you can visually categorize it in your sidebar, should you have many compositions.
 
+Keep folders and their composition registrations directly in `src/Root.tsx`.
+
 ## Example
 
-```tsx twoslash
+```tsx twoslash title="src/Root.tsx"
 import React from 'react';
 const Component: React.FC = () => null;
 // ---cut---
 import {Composition, Folder} from 'remotion';
 
-export const Video = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Folder name="Visuals">

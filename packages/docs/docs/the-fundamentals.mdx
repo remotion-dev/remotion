@@ -77,7 +77,7 @@ A video's first frame is `0` and its last frame is `durationInFrames - 1`.
 
 A composition is the combination of a React component and video metadata.
 
-By rendering a [`<Composition>`](/docs/composition) component in `src/Root.tsx`, you can register a renderable video and make it visible in the Remotion sidebar.
+Define all [`<Composition>`](/docs/composition) registrations directly in `src/Root.tsx` to make your videos renderable and visible in the Remotion sidebar. Import the components that render the videos from their own files.
 
 ```tsx twoslash title="src/Root.tsx"
 import {Composition} from 'remotion';

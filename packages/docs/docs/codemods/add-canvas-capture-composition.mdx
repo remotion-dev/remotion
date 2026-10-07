@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # addCanvasCaptureComposition()<AvailableFrom v="4.0.528" />
 
-Creates an interactive Canvas Capture component and registers it in the project. Both files are returned in one result. Use [`addComposition()`](/docs/codemods/add-composition) when the component implementation already exists.
+Creates an interactive Canvas Capture component and inserts a [`<Composition>`](/docs/composition) registration directly into `src/Root.tsx`. Both files are returned in one result. Use [`addComposition()`](/docs/codemods/add-composition) when the component implementation already exists.
 
 :::warning
 
@@ -53,7 +53,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### compositionFile
 
-The existing project file containing the registration component. The same [registration-root requirements and import support](/docs/codemods/add-composition#compositionfile) as [`addComposition()`](/docs/codemods/add-composition) apply.
+The existing root file containing the composition registrations, normally `src/Root.tsx`. The same [registration-root requirements and import support](/docs/codemods/add-composition#compositionfile) as [`addComposition()`](/docs/codemods/add-composition) apply.
 
 ### compositionId
 
