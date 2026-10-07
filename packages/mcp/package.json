@@ -24,7 +24,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "1.31.0",
-		"zod": "4.1.13"
+		"zod": "catalog:"
 	},
 	"peerDependencies": {},
 	"devDependencies": {
