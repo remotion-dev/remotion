@@ -110,7 +110,7 @@ export const registerStudioShortcuts = ({
 			...(codingAgent ? [`[a] Open agent (${codingAgent.name})`] : []),
 			...(editor
 				? [
-						`[c] Open editor (${editor.name === 'Code' ? 'VS Code' : editor.name})`,
+						`[e] Open editor (${editor.name === 'Code' ? 'VS Code' : editor.name})`,
 					]
 				: []),
 		];
@@ -120,7 +120,7 @@ export const registerStudioShortcuts = ({
 		);
 	};
 
-	const openApp = async (key: 'a' | 'c') => {
+	const openApp = async (key: 'a' | 'e') => {
 		if (openingApps.has(key) || cleanedUp) {
 			return;
 		}
@@ -134,7 +134,7 @@ export const registerStudioShortcuts = ({
 					logLevel,
 					prompt: null,
 				});
-			} else if (key === 'c' && editor) {
+			} else if (key === 'e' && editor) {
 				if (editor.type === 'custom') {
 					await launchCustomEditor({
 						editor: editor.editor,
@@ -247,7 +247,7 @@ export const registerStudioShortcuts = ({
 
 		if (key?.name === 's') {
 			openStudio().catch(() => undefined);
-		} else if (key?.name === 'a' || key?.name === 'c') {
+		} else if (key?.name === 'a' || key?.name === 'e') {
 			openApp(key.name).catch(() => undefined);
 		}
 	}
