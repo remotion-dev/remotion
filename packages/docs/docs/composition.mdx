@@ -9,8 +9,6 @@ This is the component to use to register a video to make it renderable and make 
 
 A composition represents the video you want to create, as a collection of clips (for example, several `<Sequence>`) that will play back to back to form your video.
 
-Define all [`<Composition>`](/docs/composition) and [`<Still>`](/docs/still) registrations directly in `src/Root.tsx`. Import the video components from their own files and render each registration in the root component's JSX, optionally inside a [`<Folder>`](/docs/folder).
-
 ```tsx twoslash title="src/Root.tsx"
 const Component: React.FC = () => null;
 // ---cut---
