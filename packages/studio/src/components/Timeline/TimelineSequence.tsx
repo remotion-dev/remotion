@@ -328,6 +328,7 @@ const TimelineSequenceBar: React.FC<{
 		readonly width: number;
 	} | null;
 	readonly premount: {readonly left: number; readonly width: number} | null;
+	readonly showPremounting: boolean;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
 	readonly negativeStart: {
 		readonly left: number;
@@ -362,6 +363,7 @@ const TimelineSequenceBar: React.FC<{
 	displayDurationInFrames,
 	selectionBounds,
 	premount,
+	showPremounting,
 	postmount,
 	negativeStart,
 	leftEdgeVisible,
@@ -549,6 +551,7 @@ const TimelineSequenceBar: React.FC<{
 					displayDurationInFrames={displayDurationInFrames}
 					paddingLeft={5 + negativeStartEnd + (premount?.width ?? 0)}
 					frozenFrame={frozenFrame}
+					showPremounting={showPremounting}
 				/>
 			) : null}
 
@@ -1738,6 +1741,7 @@ const TimelineSequenceInner: React.FC<{
 			displayDurationInFrames={displayDurationInFrames}
 			selectionBounds={visibleLayout.media}
 			premount={visibleLayout.premount}
+			showPremounting={showPremounting}
 			postmount={visibleLayout.postmount}
 			negativeStart={visibleLayout.negativeStart}
 			leftEdgeVisible={visibleLayout.leftEdgeVisible}
