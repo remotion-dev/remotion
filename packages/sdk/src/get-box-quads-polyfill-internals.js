@@ -713,11 +713,10 @@ export function getBoxQuads(node, options) {
 			new DOMPoint(x1, y1),
 			new DOMPoint(x0, y1),
 		];
-		const screenCtm = !hasTransformedHtmlAncestor(
-			node,
-			relativeTo,
-			options?.iframes,
-		)
+		// getScreenCTM returns viewport coordinates, so transforms on relativeTo
+		// and its ancestors matter too. WebKit omits ancestor CSS transforms;
+		// use the transform walk even when the zoom host is above relativeTo.
+		const screenCtm = !hasTransformedHtmlAncestor(node, options?.iframes)
 			? node.getScreenCTM()
 			: null;
 		if (screenCtm) {
@@ -1192,14 +1191,10 @@ function isZeroAngleValue(value) {
 	return Number.isFinite(angle) && Math.abs(angle) < 1e-10;
 }
 
-function hasTransformedHtmlAncestor(node, relativeTo, iframes) {
+function hasTransformedHtmlAncestor(node, iframes) {
 	const win = node.ownerDocument.defaultView ?? window;
 	let element = getParentElementIncludingSlots(node, iframes);
-	while (
-		element &&
-		element !== relativeTo &&
-		element !== node.ownerDocument.documentElement
-	) {
+	while (element) {
 		if (element instanceof win.HTMLElement) {
 			const css = getCachedComputedStyle(element);
 			if (
@@ -1209,6 +1204,9 @@ function hasTransformedHtmlAncestor(node, relativeTo, iframes) {
 			) {
 				return true;
 			}
+		}
+		if (element === node.ownerDocument.documentElement) {
+			break;
 		}
 		element = getParentElementIncludingSlots(element, iframes);
 	}
