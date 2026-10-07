@@ -134,6 +134,7 @@ test.each([
 			if (!iterator) {
 				throw new Error('Expected an audio iterator');
 			}
+
 			const stop = vi.fn();
 			iterator.addQueuedAudioNode({
 				node: {stop} as unknown as AudioBufferSourceNode,
