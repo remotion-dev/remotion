@@ -48,11 +48,18 @@ export const SequenceWrapAction: React.FC<{
 	);
 	const {sequence} = track;
 	const [busy, setBusy] = useState(false);
+	const canWrapInHtmlInCanvas =
+		sequence.type === 'sequence' &&
+		!nodePathInfo.supportsEffects &&
+		!htmlInCanvasComponentIdentities.has(
+			sequence.controls?.componentIdentity ?? '',
+		);
 
 	const onWrap = useCallback(
 		async (wrapper: HtmlInCanvasWrapper) => {
 			if (
 				busy ||
+				!canWrapInHtmlInCanvas ||
 				sourceActionsDisabled ||
 				canvasContent?.type !== 'composition'
 			) {
@@ -191,6 +198,7 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
+			canWrapInHtmlInCanvas,
 			canvasContent,
 			nodePathInfo.sequenceSubscriptionKey,
 			overrideIdToNodePathMappingsRef,
@@ -204,7 +212,11 @@ export const SequenceWrapAction: React.FC<{
 		],
 	);
 
-	if (sourceActionsDisabled || canvasContent?.type !== 'composition') {
+	if (
+		!canWrapInHtmlInCanvas ||
+		sourceActionsDisabled ||
+		canvasContent?.type !== 'composition'
+	) {
 		return null;
 	}
 
