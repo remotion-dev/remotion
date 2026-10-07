@@ -12,6 +12,7 @@ import {
 	Applications,
 } from './Applications';
 import {AudioWaveform} from './AudioWaveform';
+import {BasicsShowcaseCompositions} from './BasicsShowcase';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
@@ -771,6 +772,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 			</Folder>
 
 			<Folder name="CloseUps">
+				<BasicsShowcaseCompositions />
 				<CloseUp1 />
 				<CloseUp2 />
 				<CloseUp3 />
