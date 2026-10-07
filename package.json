@@ -70,7 +70,8 @@
 		"oxfmt": "0.35.0",
 		"prettier": "catalog:",
 		"prettier-plugin-organize-imports": "3.2.4",
-		"react-scan": "0.5.7"
+		"react-scan": "0.5.7",
+		"vite": "6.4.4"
 	},
 	"dependencies": {
 		"@typescript/native-preview": "catalog:",
@@ -149,9 +150,9 @@
 			"openai": "4.67.1",
 			"@types/dom-webcodecs": "0.1.11",
 			"@vitejs/plugin-react": "4.3.4",
-			"@vitest/browser-playwright": "4.0.9",
+			"@vitest/browser-playwright": "5.0.3",
 			"playwright": "1.55.1",
-			"vitest": "4.0.9",
+			"vitest": "5.0.3",
 			"@typescript/native-preview": "7.0.0-dev.20260217.1"
 		}
 	}
