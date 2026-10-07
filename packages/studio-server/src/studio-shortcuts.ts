@@ -8,17 +8,13 @@ import {RenderInternals} from '@remotion/renderer';
 import {
 	getPreferredApp,
 	preferredFallbackEditorIds,
+	type GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
 import {focusBrowserTabByOrigin} from './better-opn';
 import {getAppDiscovery, getEditorInfo} from './helpers/app-discovery';
-import {
-	launchCodingAgent,
-	type InstalledCodingAgent,
-} from './helpers/coding-agent-registry';
-import {launchCustomEditor} from './helpers/custom-editor';
-import {launchEditor} from './helpers/open-in-editor';
+import type {InstalledCodingAgent} from './helpers/coding-agent-registry';
+import {openInCodingAgent, openInEditor} from './helpers/open-in-app';
 import {getRecentlyUsedApps} from './helpers/recently-used-apps';
-import {resolveEditor, type ResolvedEditor} from './helpers/resolve-editor';
 import {maybeOpenBrowser} from './maybe-open-browser';
 import {clearPrintPortMessageTimeout} from './preview-server/live-events';
 
@@ -57,7 +53,8 @@ export const registerStudioShortcuts = ({
 	const shouldPauseAfterCleanup = process.stdin.isPaused();
 	let cleanedUp = false;
 	let isOpeningBrowser = false;
-	let editor: ResolvedEditor | null = null;
+	let editor: GetDefaultEditorInfoResponse['installedEditors'][number] | null =
+		null;
 	let codingAgent: InstalledCodingAgent | null = null;
 	const openingApps = new Set<string>();
 
@@ -77,20 +74,13 @@ export const registerStudioShortcuts = ({
 					recentlyUsedIds: null,
 				}),
 			]);
-		const preferredEditor = getPreferredApp({
+		editor = getPreferredApp({
 			installedApps: editorInfo.installedEditors,
 			configuredId: editorInfo.defaultEditor,
 			runningIds: editorInfo.runningEditors ?? [],
 			recentlyUsedIds: recentEditors,
 			fallbackIds: preferredFallbackEditorIds,
 		});
-		editor = preferredEditor
-			? await resolveEditor({
-					defaultEditor: getDefaultEditor(),
-					preferredEditor: preferredEditor.id,
-					logLevel,
-				})
-			: null;
 		codingAgent = getPreferredApp({
 			installedApps: discovery.installedCodingAgents,
 			configuredId: getDefaultCodingAgent(),
@@ -127,37 +117,35 @@ export const registerStudioShortcuts = ({
 
 		openingApps.add(key);
 		try {
-			if (key === 'a' && codingAgent) {
-				await launchCodingAgent({
-					codingAgent,
-					projectPath: remotionRoot,
-					logLevel,
-					prompt: null,
-				});
-			} else if (key === 'e' && editor) {
-				if (editor.type === 'custom') {
-					await launchCustomEditor({
-						editor: editor.editor,
-						resolvedExecutable: editor,
-						targetPath: remotionRoot,
-						lineNumber: 1,
-						columnNumber: 1,
-						logLevel,
-						spawnProcess: null,
-					});
-				} else {
-					await launchEditor(
-						{
-							editor,
-							fileName: remotionRoot,
-							lineNumber: 1,
-							colNumber: 1,
-							vsCodeNewWindow: false,
+			const response =
+				key === 'a' && codingAgent
+					? await openInCodingAgent({
+							input: {codingAgentId: codingAgent.id, prompt: null},
+							remotionRoot,
 							logLevel,
-						},
-						remotionRoot,
-					);
-				}
+						})
+					: key === 'e' && editor
+						? await openInEditor({
+								input: {
+									editorId: editor.id,
+									stack: {
+										originalFileName: remotionRoot,
+										originalLineNumber: 1,
+										originalColumnNumber: 1,
+										originalFunctionName: null,
+										originalScriptCode: null,
+									},
+								},
+								remotionRoot,
+								logLevel,
+								getDefaultEditor,
+							})
+						: null;
+			if (response && !response.success) {
+				RenderInternals.Log.error(
+					{indent: false, logLevel},
+					`Could not open ${key === 'a' ? codingAgent?.name : editor?.name}`,
+				);
 			}
 		} catch (err) {
 			RenderInternals.Log.error(
