@@ -63,6 +63,9 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 
 	// Moving a captured polygon in the DOM can cancel the host's pointer session.
 	const renderingOrderRef = useRef<readonly string[]>([]);
+	// Cache stacking order alongside normalized geometry. Renderers apply zoom,
+	// so zooming and panning do not invalidate this memo or repeat the pairwise
+	// overlap checks.
 	const outlinesForRendering = useMemo(() => {
 		if (!freezeOrder || renderingOrderRef.current.length === 0) {
 			const ordered = orderCanvasOutlinesForRendering({
