@@ -107,11 +107,9 @@ Use it for components that accept a `style` prop and render text.
 
 A schema fragment for editing a component's children content.
 
-Currently, it uses a [`string`](/docs/interactivity-schema#string) control labeled "Text", with a default of `''`. Remotion Studio can edit a single JSX text child or string literal. Nested markup and computed expressions are currently read-only.
+Currently, it only supports [`string`](/docs/interactivity-schema#string) children.
 
-The fragment may evolve to support richer content. Use it with components that accept `React.ReactNode` children. For string-only children, declare an explicit [`string`](/docs/interactivity-schema#string) field instead.
-
-Add this fragment explicitly for custom components. It is separate from `Interactive.baseSchema` and `Interactive.textSchema`, which controls typography styles.
+In the future, it may support richer content. Use it with components that accept `React.ReactNode` children. For string-only children, declare an explicit [`string`](/docs/interactivity-schema#string) field instead.
 
 ```ts twoslash title="schema.ts"
 import {Interactive, type InteractivitySchema} from 'remotion';
