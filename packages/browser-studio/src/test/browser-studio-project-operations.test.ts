@@ -56,12 +56,14 @@ test('creates a Canvas Capture with both files in undo history', async () => {
 		throw new Error(result.reason);
 	}
 
-	expect(project.files['/project/src/Root.tsx']).toContain('<Capture />');
+	expect(project.files['/project/src/Root.tsx']).toContain('id="Capture"');
+	expect(project.files['/project/src/Root.tsx']).toContain(
+		'component={Capture}',
+	);
 	expect(project.files['/project/src/Root.tsx']).toMatch(
 		/from ["']\.\/Capture["']/,
 	);
 	const generated = project.files['/project/src/Capture.tsx'];
-	expect(generated).toContain("id={'Capture'}");
 	expect(generated).toContain("staticFile('capture.mp4')");
 	expect(generated).toContain('<MacOSCursor');
 	const createdProject = project;

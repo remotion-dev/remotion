@@ -157,7 +157,7 @@ Register the same exported component reference that the parent renders. For the
 example above, use `component={LowerThird}`, not `LowerThirdInner` or an inline wrapper.
 With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
 
-```tsx title="Root.tsx"
+```tsx title="src/Root.tsx"
 import {Composition} from 'remotion';
 import {LowerThird} from './LowerThird';
 
