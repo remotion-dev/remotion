@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.533",
+	"version": "4.0.534",
 	"scripts": {
 		"formatting": "oxfmt src standalone generate-option-docs.ts option-description.ts option-references.ts docs/options --check",
 		"format": "oxfmt src standalone generate-option-docs.ts option-description.ts option-references.ts docs/options",
