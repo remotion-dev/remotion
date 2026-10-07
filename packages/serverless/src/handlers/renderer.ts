@@ -342,7 +342,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			browserExecutable: providerSpecifics.getChromiumPath(),
 			cancelSignal: cancelSignal ?? undefined,
 			disallowParallelEncoding: false,
-			disableSharedMemoryCapture: params.disableSharedMemoryCapture ?? false,
+			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 			ffmpegOverride: ({args}) => args,
 			indent: false,
 			onCtrlCExit: () => undefined,

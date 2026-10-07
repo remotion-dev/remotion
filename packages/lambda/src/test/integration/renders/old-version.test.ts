@@ -34,6 +34,7 @@ test(
 					proResProfile: null,
 					x264Preset: null,
 					gopSize: null,
+					disableSharedMemoryCapture: false,
 					jpegQuality: undefined,
 					scale: 1,
 					timeoutInMilliseconds: 12000,

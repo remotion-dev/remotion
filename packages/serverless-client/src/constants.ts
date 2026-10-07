@@ -128,7 +128,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	proResProfile: _InternalTypes['ProResProfile'] | undefined | null;
 	x264Preset: X264Preset | null;
 	gopSize: number | null;
-	disableSharedMemoryCapture?: boolean;
+	disableSharedMemoryCapture: boolean;
 	jpegQuality: number | undefined;
 	maxRetries: number;
 	privacy: Privacy;
@@ -195,7 +195,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		gopSize: number | null;
-		disableSharedMemoryCapture?: boolean;
+		disableSharedMemoryCapture: boolean;
 		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
@@ -257,7 +257,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		gopSize: number | null;
-		disableSharedMemoryCapture?: boolean;
+		disableSharedMemoryCapture: boolean;
 		pixelFormat: PixelFormat | null;
 		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;

@@ -133,6 +133,7 @@ test('Render Media payload', async () => {
 			},
 			x264Preset: null,
 			gopSize: null,
+			disableSharedMemoryCapture: false,
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,
