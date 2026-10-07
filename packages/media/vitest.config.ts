@@ -18,7 +18,7 @@ export default defineConfig({
 	test: {
 		fileParallelism: false,
 		browser: {
-			provider: playwright({launchOptions: {channel: 'chrome'}}),
+			provider: playwright(),
 			instances: [{browser: 'chromium'}],
 			headless: true,
 			screenshotFailures: false,

@@ -329,6 +329,9 @@ jobs:
         run: bun ci
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
+      - name: Install Media browser
+        if: matrix.os == 'macos-latest' && needs.affected.outputs.build == 'true'
+        run: cd packages/media && bunx playwright install --with-deps chromium
       - name: Build & Test
         if: needs.affected.outputs.build == 'true'
         timeout-minutes: 30
@@ -338,6 +341,15 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && needs.affected.outputs.bundle_example == 'true'
         run: |
           bunx turbo run bundle-testbed --filter=@remotion/example --no-update-notifier
+      - name: Upload Media test failures
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-test-failures-${{ matrix.os }}-node-${{ matrix.node_version }}-${{ github.run_attempt }}
+          path: packages/media/.vitest/attachments
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
   required-ci:
     name: Required CI
     if: ${{ always() }}
