@@ -67,7 +67,7 @@ export const SplitterHandle: React.FC<{
 			// Capture the context and starting flex once, at drag start. The flex
 			// value updates on every pointermove, so it must not be re-read live.
 			const dragContext = latest.current.context;
-			const dragSize = dragContext.size;
+			const dragSize = dragContext.sizeRef.current;
 			if (dragSize === null) {
 				return;
 			}
@@ -97,7 +97,7 @@ export const SplitterHandle: React.FC<{
 			);
 
 			const getNewValue = (ev: PointerEvent, clamp: boolean) => {
-				const {width, height} = latest.current.context.size ?? dragSize;
+				const {width, height} = dragContext.sizeRef.current ?? dragSize;
 				const change =
 					dragContext.orientation === 'vertical'
 						? (ev.clientX - start.x) / (width - SPLITTER_HANDLE_SIZE)

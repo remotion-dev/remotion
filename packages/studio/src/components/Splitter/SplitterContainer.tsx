@@ -16,6 +16,7 @@ import {
 	getSplitterFlexBounds,
 	SplitterContext,
 	SplitterLayoutContext,
+	SplitterOriginContext,
 } from './SplitterContext';
 import {SPLITTER_HANDLE_SIZE} from './SplitterHandle';
 
@@ -73,6 +74,10 @@ export const SplitterContainer: React.FC<{
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+	// Pointer handlers read the latest measurement without subscribing panes
+	// to changes in the measurement object or its window-size metadata.
+	const sizeRef = useRef(size);
+	sizeRef.current = size;
 	const availableSize = size
 		? (orientation === 'vertical' ? size.width : size.height) -
 			SPLITTER_HANDLE_SIZE
@@ -108,7 +113,7 @@ export const SplitterContainer: React.FC<{
 			flexValue: effectiveFlexValue,
 			collapsedDuringDrag,
 			setCollapsedDuringDrag,
-			size,
+			sizeRef,
 			setFlexValue,
 			isDragging,
 			orientation,
@@ -135,7 +140,7 @@ export const SplitterContainer: React.FC<{
 		minFlex,
 		orientation,
 		persistFlex,
-		size,
+		sizeRef,
 	]);
 
 	const childCount = React.Children.toArray(children).length;
@@ -172,15 +177,19 @@ export const SplitterContainer: React.FC<{
 	}, [parentLayout, childCount, refreshSize]);
 
 	return (
-		<SplitterLayoutContext.Provider value={layout}>
-			<SplitterContext.Provider value={value}>
-				<div
-					ref={ref}
-					style={orientation === 'horizontal' ? containerColumn : containerRow}
-				>
-					{children}
-				</div>
-			</SplitterContext.Provider>
-		</SplitterLayoutContext.Provider>
+		<SplitterOriginContext.Provider value={size?.left ?? null}>
+			<SplitterLayoutContext.Provider value={layout}>
+				<SplitterContext.Provider value={value}>
+					<div
+						ref={ref}
+						style={
+							orientation === 'horizontal' ? containerColumn : containerRow
+						}
+					>
+						{children}
+					</div>
+				</SplitterContext.Provider>
+			</SplitterLayoutContext.Provider>
+		</SplitterOriginContext.Provider>
 	);
 };

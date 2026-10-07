@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import {SplitterContext} from '../Splitter/SplitterContext';
+import {SplitterOriginContext} from '../Splitter/SplitterContext';
 import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 import {TimelineSlider} from './TimelineSlider';
 import {
@@ -9,9 +9,9 @@ import {
 import {TimelineViewportBoundsContext} from './TimelineWidthProvider';
 
 const TimelineTimeControlsInner: React.FC = () => {
-	const {size} = useContext(SplitterContext);
+	const origin = useContext(SplitterOriginContext);
 	const viewport = useContext(TimelineViewportBoundsContext);
-	const left = size && viewport ? viewport.left - size.left : null;
+	const left = origin !== null && viewport ? viewport.left - origin : null;
 	const labelsStyle = useMemo<React.CSSProperties>(
 		() => ({
 			position: 'absolute',

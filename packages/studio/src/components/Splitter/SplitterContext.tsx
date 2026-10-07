@@ -10,12 +10,12 @@ export type TSplitterContext = {
 	setCollapsedDuringDrag: (side: 'left' | 'right' | null) => void;
 	setFlexValue: React.Dispatch<React.SetStateAction<number>>;
 	orientation: SplitterOrientation;
-	size: {
+	sizeRef: React.RefObject<{
 		width: number;
 		height: number;
 		left: number;
 		top: number;
-	} | null;
+	} | null>;
 	maxFlex: number;
 	minFlex: number;
 	maxFlexerSize: number | null;
@@ -91,7 +91,7 @@ export const SplitterContext = React.createContext<TSplitterContext>({
 	flexValue: 1,
 	collapsedDuringDrag: null,
 	setCollapsedDuringDrag: () => undefined,
-	size: null,
+	sizeRef: {current: null},
 	setFlexValue: () => undefined,
 	isDragging: {current: false},
 	orientation: 'horizontal',
@@ -108,3 +108,6 @@ export const SplitterContext = React.createContext<TSplitterContext>({
 
 // Propagate layout changes only through the affected splitter subtree.
 export const SplitterLayoutContext = React.createContext<object | null>(null);
+
+// Sticky timeline controls only need the enclosing pane's horizontal origin.
+export const SplitterOriginContext = React.createContext<number | null>(null);
