@@ -54,7 +54,7 @@ test('collects sequence, composition, and folder order per manager', () => {
 						_remotionCommitMetadata: {
 							type: 'composition-manager',
 							id: 'compositions',
-							onCommit: null,
+							onCommit: () => undefined,
 						},
 					},
 					children: [
@@ -129,22 +129,33 @@ test('collects sequence, composition, and folder order per manager', () => {
 		}),
 	};
 
-	expect(collectCommitOrderFromFiber(root)).toEqual({
+	const compositionRegistrations: NonNullable<
+		Parameters<typeof collectCommitOrderFromFiber>[3]
+	>['registrations'] = new Map();
+	expect(
+		collectCommitOrderFromFiber(root, null, null, {
+			registrations: compositionRegistrations,
+			previous: null,
+		}),
+	).toEqual({
 		outlineCount: 0,
 		sequenceManagers: [
 			{managerId: 'sequences', sequenceIds: ['left', 'right']},
 		],
-		compositionManagers: [
-			{
-				managerId: 'compositions',
-				compositionAndFolderOrder: [
-					{type: 'folder', id: 'group'},
-					{type: 'composition', id: 'inside'},
-					{type: 'composition', id: 'outside'},
-				],
-			},
-		],
 	});
+	const snapshot = compositionRegistrations.get('compositions')?.snapshot;
+	expect(snapshot?.compositions.map(({id}) => id)).toEqual([
+		'inside',
+		'outside',
+	]);
+	expect(snapshot?.folders).toEqual([
+		{name: 'group', parent: null, order: null, stack: null},
+	]);
+	expect(snapshot?.orderIds).toEqual([
+		'folder:group',
+		'composition:inside',
+		'composition:outside',
+	]);
 });
 
 test('chains the existing commit hook and emits the committed order once', () => {
@@ -210,7 +221,6 @@ test('chains the existing commit hook and emits the committed order once', () =>
 	expect(events).toEqual([
 		{
 			sequenceManagers: [{managerId: 'manager-a', sequenceIds: ['first']}],
-			compositionManagers: [],
 		},
 	]);
 });

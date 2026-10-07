@@ -84,10 +84,6 @@ const createCommitSnapshotCollector = <T>(previous: readonly T[] | null) => {
 	};
 };
 
-type CompositionAndFolderOrderItem =
-	| {readonly type: 'composition'; readonly id: string}
-	| {readonly type: 'folder'; readonly id: string};
-
 export const collectCommitOrderFromFiber = (
 	root: FiberRoot,
 	registrations: Map<string, CommittedSequenceRegistration> | null = null,
@@ -129,7 +125,6 @@ export const collectCommitOrderFromFiber = (
 	const compositionsAndFoldersByManager = new Map<
 		string,
 		{
-			readonly order: CompositionAndFolderOrderItem[];
 			readonly registration: {
 				readonly onCommit: CommittedCompositionRegistration['onCommit'];
 				readonly previous: CommittedCompositionRegistration | null;
@@ -194,7 +189,6 @@ export const collectCommitOrderFromFiber = (
 				previousCompositionRegistrations?.get(metadata.id) ?? null;
 			const {onCommit} = metadata;
 			compositionsAndFoldersByManager.set(metadata.id, {
-				order: [],
 				registration:
 					compositionRegistrations !== null && onCommit !== null
 						? {
@@ -227,7 +221,6 @@ export const collectCommitOrderFromFiber = (
 			compositionManagerId !== null
 		) {
 			const manager = compositionsAndFoldersByManager.get(compositionManagerId);
-			manager?.order.push({type: metadata.type, id: metadata.id});
 			manager?.registration?.orderIds.push(`${metadata.type}:${metadata.id}`);
 			if (metadata.type === 'composition') {
 				manager?.registration?.compositions.push(metadata.value);
@@ -329,37 +322,32 @@ export const collectCommitOrderFromFiber = (
 		},
 	);
 
-	const compositionManagers = [...compositionsAndFoldersByManager].map(
-		([managerId, manager]) => {
-			const {registration} = manager;
-			if (registration !== null && compositionRegistrations !== null) {
-				const compositions = registration.compositions.getSnapshot();
-				const folders = registration.folders.getSnapshot();
-				const orderIds = registration.orderIds.getSnapshot();
-				const {previous} = registration;
-				compositionRegistrations.set(
-					managerId,
-					previous !== null &&
-						previous.onCommit === registration.onCommit &&
-						previous.snapshot.compositions === compositions &&
-						previous.snapshot.folders === folders &&
-						previous.snapshot.orderIds === orderIds
-						? previous
-						: {
-								onCommit: registration.onCommit,
-								snapshot: {compositions, folders, orderIds},
-							},
-				);
-			}
-
-			return {managerId, compositionAndFolderOrder: manager.order};
-		},
-	);
+	for (const [managerId, manager] of compositionsAndFoldersByManager) {
+		const {registration} = manager;
+		if (registration !== null && compositionRegistrations !== null) {
+			const compositions = registration.compositions.getSnapshot();
+			const folders = registration.folders.getSnapshot();
+			const orderIds = registration.orderIds.getSnapshot();
+			const {previous} = registration;
+			compositionRegistrations.set(
+				managerId,
+				previous !== null &&
+					previous.onCommit === registration.onCommit &&
+					previous.snapshot.compositions === compositions &&
+					previous.snapshot.folders === folders &&
+					previous.snapshot.orderIds === orderIds
+					? previous
+					: {
+							onCommit: registration.onCommit,
+							snapshot: {compositions, folders, orderIds},
+						},
+			);
+		}
+	}
 
 	return {
 		outlineCount: outlineNodesByRef.size,
 		sequenceManagers,
-		compositionManagers,
 	};
 };
 
@@ -463,16 +451,13 @@ export const installFiberCommitOrderObserver = (
 
 		if (
 			order !== null &&
-			(order.outlineCount > 0 ||
-				order.sequenceManagers.length > 0 ||
-				order.compositionManagers.length > 0)
+			(order.outlineCount > 0 || order.sequenceManagers.length > 0)
 		) {
 			try {
 				target.dispatchEvent(
 					new CustomEvent(Internals.CommittedMetadataInternals.eventName, {
 						detail: {
 							sequenceManagers: order.sequenceManagers,
-							compositionManagers: order.compositionManagers,
 						},
 					}),
 				);

@@ -46,10 +46,6 @@ export type CommitOrderEventDetail = {
 		readonly managerId: string;
 		readonly sequenceIds: readonly string[];
 	}[];
-	readonly compositionManagers: readonly {
-		readonly managerId: string;
-		readonly compositionAndFolderOrder: readonly CompositionAndFolderOrderItem[];
-	}[];
 };
 
 export const getFolderOrderId = ({

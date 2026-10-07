@@ -245,10 +245,7 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
-	const effectDragOverrides = useEffectDragOverridesForNodePath(
-		nodePath,
-		effects.length,
-	);
+	const effectDragOverrides = useEffectDragOverridesForNodePath(nodePath);
 
 	const resolved = effects.map((descriptor, index) => {
 		if (nodePath === null) {

@@ -62,7 +62,6 @@ export const useSequenceRegistration = ({
 			commitRegistrationEnabled ||
 			registrationDisabled ||
 			getSequence === null ||
-			updateSequence === null ||
 			lastRegisteredGetterRef.current === getSequence
 		) {
 			return;

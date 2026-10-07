@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {Internals} from 'remotion';
 import {Gif, gifSchema} from '../Gif';
 import {manuallyManagedGifCache} from '../gif-cache';
@@ -128,28 +128,41 @@ const logContext = {
 	mountTime: 0,
 } as React.ContextType<typeof Internals.LogLevelContext>;
 
+const ObserveSequenceRegistrations: React.FC<{
+	readonly onRegisterSequence: (sequence: RegisteredSequence) => void;
+}> = ({onRegisterSequence}) => {
+	const registry = React.useContext(Internals.SequenceRegistryContext);
+	const previous = React.useRef(
+		new Map<
+			string,
+			ReturnType<typeof Internals.useSequenceManagerSequences>[number]
+		>(),
+	);
+	React.useEffect(() => {
+		if (registry === null) throw new Error('Sequence registry has not mounted');
+		const observe = () => {
+			const sequences = registry.getSnapshot();
+			const changed = sequences.filter(
+				(sequence) => previous.current.get(sequence.id) !== sequence,
+			);
+			previous.current = new Map(
+				sequences.map((sequence) => [sequence.id, sequence]),
+			);
+			changed.forEach(onRegisterSequence);
+		};
+
+		const unsubscribe = registry.subscribe(observe);
+		observe();
+		return unsubscribe;
+	}, [onRegisterSequence, registry]);
+	return null;
+};
+
 const SequenceRegistrationWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: RegisteredSequence) => void;
 	readonly currentFrame?: number;
 }> = ({children, onRegisterSequence, currentFrame = 0}) => {
-	const registerSequence = useCallback(
-		(sequence: RegisteredSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-	const unregisterSequence = useCallback(() => undefined, []);
-	const sequenceManagerContext = useMemo(
-		() =>
-			({
-				registerSequence,
-				unregisterSequence,
-				updateSequence: registerSequence,
-				sequences: [],
-			}) as React.ContextType<typeof Internals.SequenceManager>,
-		[registerSequence, unregisterSequence],
-	);
 	const currentTimelineContext = useMemo(
 		() => ({...timelineContext, frame: {comp: currentFrame}}),
 		[currentFrame],
@@ -169,15 +182,16 @@ const SequenceRegistrationWrapper: React.FC<{
 								<Internals.RemotionEnvironmentContext.Provider
 									value={studioEnvironment}
 								>
-									<Internals.SequenceManager.Provider
-										value={sequenceManagerContext}
-									>
+									<Internals.SequenceManagerProvider>
+										<ObserveSequenceRegistrations
+											onRegisterSequence={onRegisterSequence}
+										/>
 										<Internals.CompositionManager.Provider
 											value={compositionContext}
 										>
 											{children}
 										</Internals.CompositionManager.Provider>
-									</Internals.SequenceManager.Provider>
+									</Internals.SequenceManagerProvider>
 								</Internals.RemotionEnvironmentContext.Provider>
 							</Internals.PlaybackRateContext.Provider>
 						</Internals.TimelineContext.Provider>

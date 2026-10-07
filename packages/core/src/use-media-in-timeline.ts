@@ -348,9 +348,3 @@ export const useMediaInTimelineRegistration = ({
 	});
 	return {automaticOutlineRef, registration};
 };
-
-// Outline-only helper. Internal registration consumers use the full descriptor
-// returned by useMediaInTimelineRegistration and attach committed metadata.
-export const useMediaInTimeline = (
-	props: Parameters<typeof useMediaInTimelineRegistration>[0],
-) => useMediaInTimelineRegistration(props).automaticOutlineRef;

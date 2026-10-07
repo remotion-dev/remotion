@@ -200,7 +200,6 @@ import type {CannotUpdateSequenceReason} from './SequenceManager.js';
 import {
 	DisableSequenceRegistrationProvider,
 	makeSequencePropsSubscriptionKey,
-	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
 	SequenceRegistrationContext,
@@ -378,7 +377,6 @@ export const Internals = {
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
-	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
 	SequenceRegistryContext,
