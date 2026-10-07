@@ -30,7 +30,7 @@ import type React from 'react';
 import {Interactive, type InteractivitySchema} from 'remotion';
 
 type LowerThirdProps = {
-  readonly children: string;
+  readonly children: React.ReactNode;
   readonly accentColor: string;
   readonly style?: React.CSSProperties;
 };
@@ -132,11 +132,13 @@ const cardSchema = {
 ```
 
 Also available: `Interactive.borderSchema`, and `Interactive.captionsSchema` for components that accept captions.
-For components that accept string children, add `...Interactive.childrenSchema`.
-It provides a `children` string field labeled "Text" with a default of `''`.
+For components that accept `React.ReactNode` children, add `...Interactive.childrenSchema`.
+It provides controls for children content and may evolve to support richer content.
+Currently, it uses a string field labeled "Text" with a default of `''`.
+If a component requires string-only children, declare an explicit `children` field with `type: 'string'` instead.
 `Interactive.textSchema` controls typography styles; `childrenSchema` controls content.
 The children fragment is not included in `baseSchema` or automatically added to custom components.
-Nested markup and computed children remain read-only.
+Nested markup and computed children are currently read-only.
 `text-content` is a deprecated alias for the `string` field type.
 See [`InteractivitySchema`](https://www.remotion.dev/docs/interactivity-schema) for all options.
 

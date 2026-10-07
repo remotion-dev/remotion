@@ -194,7 +194,7 @@ import type React from "react";
 import { Interactive, type InteractivitySchema } from "remotion";
 
 type LowerThirdProps = {
-  readonly children: string;
+  readonly children: React.ReactNode;
   readonly accentColor: string;
   readonly style?: React.CSSProperties;
 };

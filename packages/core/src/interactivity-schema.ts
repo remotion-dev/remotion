@@ -485,14 +485,18 @@ export const svgPaintSchema = {
 	...svgStrokeSchema,
 } as const satisfies InteractivitySchema;
 
-export const childrenSchema = {
+/**
+ * Controls for children content. Currently uses a string field, but the field
+ * type may evolve to support richer content.
+ */
+export const childrenSchema: {children: InteractivitySchemaField} = {
 	children: {
 		type: 'string',
 		default: '',
 		description: 'Text',
 		keyframable: false,
 	},
-} as const satisfies InteractivitySchema;
+};
 
 /** @deprecated Use childrenSchema instead. */
 export const textContentSchema = childrenSchema;

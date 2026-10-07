@@ -33,7 +33,7 @@ import {Rotations} from './Rotations';
 
 type LabelProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
-		readonly children: string;
+		readonly children: React.ReactNode;
 	};
 
 const labelSchema = {
