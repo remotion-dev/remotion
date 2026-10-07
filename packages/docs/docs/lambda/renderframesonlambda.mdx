@@ -7,9 +7,10 @@ crumb: '@remotion/lambda-client'
 
 # renderFramesOnLambda()<AvailableFrom v="4.0.535" />
 
-Starts a distributed image sequence render on AWS Lambda. Each frame is uploaded as an individual image. A JSON manifest is written after all frames have been uploaded.
+Starts a distributed image sequence render on AWS Lambda.
 
-Requires a [deployed function](/docs/lambda/deployfunction) and a [site or Serve URL](/docs/lambda/deploysite). The function, site, and client package must use matching Remotion versions.
+Requires a [deployed function](/docs/lambda/deployfunction) and a [site or Serve URL](/docs/lambda/deploysite).  
+The function, site, and client package must use matching Remotion versions.
 
 ## Example
 
@@ -225,7 +226,27 @@ Returns a promise with the same [job identifiers and diagnostic links as `render
 
 ## Manifest
 
-The manifest contains the render ID, image format, output dimensions, composition FPS, inclusive frame range, `everyNthFrame`, and an ordered `frames` array of `{frame, key}` entries. Keys are relative to the destination bucket. FPS remains the composition FPS when skipping frames.
+The manifest contains the render ID, image format, output dimensions, composition FPS, inclusive frame range, `everyNthFrame`, and an ordered `frames` array of `{frame, key}` entries.  
+Keys are relative to the destination bucket.
+
+Example for `frameRange: [98, 102]` and `everyNthFrame: 2`:
+
+```json title="manifest.json"
+{
+  "renderId": "8g2k5j9p0w",
+  "imageFormat": "png",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "frameRange": [98, 102],
+  "everyNthFrame": 2,
+  "frames": [
+    {"frame": 98, "key": "exports/my-sequence/element-098.png"},
+    {"frame": 100, "key": "exports/my-sequence/element-100.png"},
+    {"frame": 102, "key": "exports/my-sequence/element-102.png"}
+  ]
+}
+```
 
 Private images and manifests require storage credentials or [`presignUrl()`](/docs/lambda/presignurl).
 
