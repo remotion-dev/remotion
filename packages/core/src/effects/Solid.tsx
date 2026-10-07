@@ -26,6 +26,7 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
@@ -363,18 +364,20 @@ const SolidOuter = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<SolidInner
-						reference={actualRef}
-						videoConfigValues={controls?.videoConfigValues ?? null}
-						overrideId={controls?.overrideId ?? null}
-						color={color}
-						height={height}
-						width={width}
-						className={className}
-						style={croppedStyle ?? undefined}
-						effects={effects}
-						pixelDensity={pixelDensity}
-					/>
+					<SequenceContent>
+						<SolidInner
+							reference={actualRef}
+							videoConfigValues={controls?.videoConfigValues ?? null}
+							overrideId={controls?.overrideId ?? null}
+							color={color}
+							height={height}
+							width={width}
+							className={className}
+							style={croppedStyle ?? undefined}
+							effects={effects}
+							pixelDensity={pixelDensity}
+						/>
+					</SequenceContent>
 				</Sequence>
 			</Freeze>
 		);

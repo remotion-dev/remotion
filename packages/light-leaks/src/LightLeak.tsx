@@ -299,7 +299,9 @@ const LightLeakInner: React.FC<
 			{...sequenceProps}
 			style={style}
 		>
-			<LightLeakCanvas seed={seed} hueShift={hueShift} />
+			<Internals.SequenceContent>
+				<LightLeakCanvas seed={seed} hueShift={hueShift} />
+			</Internals.SequenceContent>
 		</Sequence>
 	);
 };

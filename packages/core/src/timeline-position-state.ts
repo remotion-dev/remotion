@@ -1,4 +1,5 @@
 import {useContext} from 'react';
+import {SequenceActivityDormantContext} from './sequence-activity-context.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -58,6 +59,7 @@ const useTimelinePositionFromContext = (
 ): number => {
 	const videoConfig = useVideo();
 	const env = useRemotionEnvironment();
+	const dormant = useContext(SequenceActivityDormantContext);
 
 	if (!videoConfig) {
 		return typeof window === 'undefined'
@@ -69,7 +71,11 @@ const useTimelinePositionFromContext = (
 		state.frame[videoConfig.id] ??
 		(env.isPlayer ? 0 : getFrameForComposition(videoConfig.id));
 
-	return clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
+	// A discovery clock can be beyond the composition end, for example when a
+	// nested scene is trimmed by its parent. Keep its initial local frame intact.
+	return dormant
+		? unclamped
+		: clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
 };
 
 export const useTimelineContext = (): TimelineContextValue => {

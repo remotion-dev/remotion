@@ -15,6 +15,7 @@ import {
 	reconcileRegistryEntries,
 	type RegistryStore,
 } from './registry-store.js';
+import {SequenceActivityContext} from './sequence-activity-context.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
 	CanUpdateSequencePropStatus,
@@ -389,6 +390,17 @@ export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {isStudio} = useRemotionEnvironment();
+	const [activityRequested] = useState(
+		() =>
+			isStudio &&
+			typeof window !== 'undefined' &&
+			(new URLSearchParams(window.location.search).get(
+				'experimentalSequenceActivity',
+			) === 'true' ||
+				localStorage.getItem('remotion.experimentalSequenceActivity') ===
+					'true'),
+	);
+
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const shouldObserveCommits = isStudio || sequenceRegistrationEnabled;
 	const [sequenceManagerId] = useState(() => String(Math.random()));
@@ -1146,7 +1158,16 @@ export const SequenceManagerProvider: React.FC<{
 												<VisualModeBatchSettersContext.Provider
 													value={batchSettersContext}
 												>
-													{children}
+													<SequenceActivityContext.Provider
+														value={
+															activityRequested &&
+															isStudio &&
+															commitRegistrationEnabled &&
+															typeof React.Activity !== 'undefined'
+														}
+													>
+														{children}
+													</SequenceActivityContext.Provider>
 												</VisualModeBatchSettersContext.Provider>
 											</VisualModeSettersContext.Provider>
 										</VisualModeDragOverridesContext.Provider>

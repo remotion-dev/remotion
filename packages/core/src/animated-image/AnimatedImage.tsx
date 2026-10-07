@@ -28,6 +28,7 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -396,12 +397,14 @@ const AnimatedImageInner = ({
 				_remotionInternalIsPostmounting={postmountingActive}
 				{...sequenceProps}
 			>
-				<AnimatedImageContent
-					{...animatedImageProps}
-					ref={actualRef}
-					effects={effects}
-					controls={controls}
-				/>
+				<SequenceContent>
+					<AnimatedImageContent
+						{...animatedImageProps}
+						ref={actualRef}
+						effects={effects}
+						controls={controls}
+					/>
+				</SequenceContent>
 			</Sequence>
 		</Freeze>
 	);
@@ -483,10 +486,12 @@ const AnimatedImageComponent = (
 		const resolvedSrc = resolveAnimatedImageSource(props.src);
 		const requestInitKey = serializeRequestInit(props.requestInit);
 		return (
-			<AnimatedImageWithIntrinsicDuration
-				{...props}
-				key={`${resolvedSrc}-${requestInitKey}-${props.trimBefore ?? 0}`}
-			/>
+			<SequenceContent>
+				<AnimatedImageWithIntrinsicDuration
+					key={`${resolvedSrc}-${requestInitKey}-${props.trimBefore ?? 0}`}
+					{...props}
+				/>
+			</SequenceContent>
 		);
 	}
 

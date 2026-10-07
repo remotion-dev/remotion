@@ -35,6 +35,7 @@ import {
 } from './interactivity-schema.js';
 import {usePreload} from './prefetch.js';
 import {resolveSequenceDuration} from './resolve-sequence-duration.js';
+import {SequenceContent} from './sequence-activity-context.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
@@ -445,7 +446,9 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
 			>
-				<ImgContent src={src} style={croppedStyle ?? undefined} {...props} />
+				<SequenceContent>
+					<ImgContent src={src} style={croppedStyle ?? undefined} {...props} />
+				</SequenceContent>
 			</Sequence>
 		</Freeze>
 	);

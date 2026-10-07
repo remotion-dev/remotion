@@ -432,47 +432,49 @@ const VideoInner: React.FC<
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
 			>
-				<InnerVideo
-					{...props}
-					audioStreamIndex={audioStreamIndex ?? 0}
-					className={className}
-					delayRenderRetries={delayRenderRetries ?? null}
-					delayRenderTimeoutInMilliseconds={
-						delayRenderTimeoutInMilliseconds ?? null
-					}
-					disallowFallbackToOffthreadVideo={
-						disallowFallbackToOffthreadVideo ?? false
-					}
-					fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
-					logLevel={logLevel ?? fallbackLogLevel}
-					loop={loop ?? false}
-					loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
-					muted={muted ?? false}
-					onVideoFrame={onVideoFrame}
-					playbackRate={playbackRate ?? 1}
-					// The enclosing Sequence already represents the video in the timeline.
-					showInTimeline={false}
-					src={src}
-					style={croppedStyle ?? {}}
-					trimAfter={effectiveTrimAfter}
-					trimBefore={trimBefore}
-					volume={volume ?? 1}
-					toneFrequency={toneFrequency ?? 1}
-					_remotionInternalStack={sourceStack}
-					debugOverlay={debugOverlay ?? false}
-					headless={headless ?? false}
-					onError={onError}
-					credentials={credentials}
-					requestInit={requestInit}
-					controls={controls}
-					objectFit={objectFit ?? 'contain'}
-					maxCanvasSinkFrameSize={maxCanvasSinkFrameSize ?? null}
-					_experimentalInitiallyDrawCachedFrame={
-						_experimentalInitiallyDrawCachedFrame ?? false
-					}
-					effects={memoizedEffects}
-					setMediaDurationInSeconds={setMediaDurationInSeconds}
-				/>
+				<Internals.SequenceContent>
+					<InnerVideo
+						{...props}
+						audioStreamIndex={audioStreamIndex ?? 0}
+						className={className}
+						delayRenderRetries={delayRenderRetries ?? null}
+						delayRenderTimeoutInMilliseconds={
+							delayRenderTimeoutInMilliseconds ?? null
+						}
+						disallowFallbackToOffthreadVideo={
+							disallowFallbackToOffthreadVideo ?? false
+						}
+						fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
+						logLevel={logLevel ?? fallbackLogLevel}
+						loop={loop ?? false}
+						loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+						muted={muted ?? false}
+						onVideoFrame={onVideoFrame}
+						playbackRate={playbackRate ?? 1}
+						// The enclosing Sequence already represents the video in the timeline.
+						showInTimeline={false}
+						src={src}
+						style={croppedStyle ?? {}}
+						trimAfter={effectiveTrimAfter}
+						trimBefore={trimBefore}
+						volume={volume ?? 1}
+						toneFrequency={toneFrequency ?? 1}
+						_remotionInternalStack={sourceStack}
+						debugOverlay={debugOverlay ?? false}
+						headless={headless ?? false}
+						onError={onError}
+						credentials={credentials}
+						requestInit={requestInit}
+						controls={controls}
+						objectFit={objectFit ?? 'contain'}
+						maxCanvasSinkFrameSize={maxCanvasSinkFrameSize ?? null}
+						_experimentalInitiallyDrawCachedFrame={
+							_experimentalInitiallyDrawCachedFrame ?? false
+						}
+						effects={memoizedEffects}
+						setMediaDurationInSeconds={setMediaDurationInSeconds}
+					/>
+				</Internals.SequenceContent>
 			</Sequence>
 		</Freeze>
 	);

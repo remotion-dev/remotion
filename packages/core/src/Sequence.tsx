@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
 	createContext,
 	forwardRef,
@@ -36,6 +35,10 @@ import {
 } from './resolve-sequence-duration.js';
 import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
+	SequenceActivityContext,
+	SequenceActivityDormantContext,
+} from './sequence-activity-context.js';
+import {
 	getSequenceCropClipPath,
 	resolveSequenceCrop,
 	validateSequenceCrop,
@@ -44,6 +47,10 @@ import {
 	SequenceOutlineContext,
 	SequenceOutlineInternals,
 } from './sequence-outline.js';
+import {
+	SequenceActivityBoundary,
+	SequenceActivityContent,
+} from './SequenceActivityBoundary.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
@@ -202,6 +209,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
+	const activityRequested = useContext(SequenceActivityContext);
+	const parentDormant = useContext(SequenceActivityDormantContext);
+	const env = useRemotionEnvironment();
+	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const timelineTrack = useContext(TimelineTrackContext);
 	const timelineTrackRole = timelineTrackItem?.role ?? 'clip';
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
@@ -378,7 +389,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			? contentDurationInFrames / playbackRate
 			: null;
 	let loopIteration = 0;
-	if (loopPeriod !== null) {
+	if (
+		loopPeriod !== null &&
+		(!activityEnabled ||
+			(!parentDormant &&
+				frameInParent >= from &&
+				frameInParent < from + actualDurationInFrames))
+	) {
 		const loopsElapsed = (frameInParent - from) / loopPeriod;
 		const nearestIteration = Math.round(loopsElapsed);
 		// Fractional periods and nested playback rates can put an exact loop
@@ -411,7 +428,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				trimBefore;
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
-	const env = useRemotionEnvironment();
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
 	const automaticOutlineRef = useMemo(
 		() =>
@@ -796,12 +812,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		parentPlaybackRate,
 		durationInFrames: effectiveDurationInFrames,
 	});
-	const content =
-		!seriesContentVisible || frameInParent - from < -boundaryTolerance
-			? null
-			: frameInParent - endThreshold >= -boundaryTolerance
-				? null
-				: children;
+	const contentVisible =
+		seriesContentVisible &&
+		frameInParent - from >= -boundaryTolerance &&
+		frameInParent - endThreshold < -boundaryTolerance;
+	const content = contentVisible || activityEnabled ? children : null;
 	const frozenContent =
 		content === null || typeof freeze === 'undefined' || freeze === null ? (
 			content
@@ -886,33 +901,50 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	// Retain resolved scene registrations so Studio can recover the natural end
 	// even when seeking past an explicit wrapper trim. Scene contents stay hidden.
 	const retainSeriesRegistration = env.isStudio && canInferDuration;
+	const activityDormant = parentDormant || !contentVisible;
+	const contentForLayout = activityEnabled ? (
+		<SequenceActivityContent dormant={activityDormant}>
+			{loopedContent}
+		</SequenceActivityContent>
+	) : (
+		loopedContent
+	);
 	const renderedContent =
 		loopedContent === null ? (
 			retainSeriesRegistration ? (
 				children
 			) : null
 		) : other.layout === 'none' ? (
-			loopedContent
+			contentForLayout
 		) : (
 			<AbsoluteFillElement
 				ref={sequenceRef}
 				style={defaultStyle}
 				className={other.className}
 			>
-				{loopedContent}
+				{contentForLayout}
 			</AbsoluteFillElement>
 		);
+	const activityContent = activityEnabled ? (
+		<SequenceActivityBoundary dormant={activityDormant} frame={firstFrame}>
+			{renderedContent}
+		</SequenceActivityBoundary>
+	) : (
+		renderedContent
+	);
 	const sequenceContent = (
 		<SequenceContextProvider
 			value={contextValue}
 			_remotionCommitMetadata={metadata}
 		>
 			{retainSeriesRegistration ? (
-				<SeriesContentVisibilityContext.Provider value={content !== null}>
-					{renderedContent}
+				<SeriesContentVisibilityContext.Provider
+					value={activityEnabled || contentVisible}
+				>
+					{activityContent}
 				</SeriesContentVisibilityContext.Provider>
 			) : (
-				renderedContent
+				activityContent
 			)}
 		</SequenceContextProvider>
 	);
