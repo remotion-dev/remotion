@@ -1,9 +1,13 @@
-import {useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect, useLayoutEffect, useMemo, useRef} from 'react';
 import type {TSequence} from './CompositionManager.js';
 import {
 	DisableSequenceRegistrationContext,
+	SequenceCommitRegistrationContext,
 	SequenceManagerActionsContext,
 } from './SequenceManager.js';
+
+const useIsomorphicLayoutEffect =
+	typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 export const useSequenceRegistration = ({
 	getSequence,
@@ -16,10 +20,23 @@ export const useSequenceRegistration = ({
 		SequenceManagerActionsContext,
 	);
 	const registrationDisabled = useContext(DisableSequenceRegistrationContext);
+	const commitRegistrationEnabled = useContext(
+		SequenceCommitRegistrationContext,
+	);
 	const getSequenceRef = useRef(getSequence);
-	getSequenceRef.current = getSequence;
+	useIsomorphicLayoutEffect(() => {
+		getSequenceRef.current = getSequence;
+	}, [getSequence]);
 	const lastRegisteredGetterRef = useRef<(() => TSequence) | null>(null);
-	const registrationEnabled = getSequence !== null && !registrationDisabled;
+	const registrationEnabled =
+		getSequence !== null && !registrationDisabled && !commitRegistrationEnabled;
+	const registration = useMemo(
+		() =>
+			commitRegistrationEnabled && !registrationDisabled && getSequence !== null
+				? getSequence()
+				: null,
+		[commitRegistrationEnabled, getSequence, registrationDisabled],
+	);
 
 	useEffect(() => {
 		if (!registrationEnabled) {
@@ -42,9 +59,9 @@ export const useSequenceRegistration = ({
 
 	useEffect(() => {
 		if (
+			commitRegistrationEnabled ||
 			registrationDisabled ||
 			getSequence === null ||
-			updateSequence === null ||
 			lastRegisteredGetterRef.current === getSequence
 		) {
 			return;
@@ -52,5 +69,12 @@ export const useSequenceRegistration = ({
 
 		updateSequence(getSequence());
 		lastRegisteredGetterRef.current = getSequence;
-	}, [getSequence, registrationDisabled, updateSequence]);
+	}, [
+		commitRegistrationEnabled,
+		getSequence,
+		registrationDisabled,
+		updateSequence,
+	]);
+
+	return registration;
 };

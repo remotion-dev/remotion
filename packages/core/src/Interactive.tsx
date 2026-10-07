@@ -15,12 +15,12 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	captionsSchema,
+	childrenSchema,
 	cropSchema,
 	premountSchema,
 	sequenceSchema,
 	svgPaintSchema,
 	svgStrokeSchema,
-	textContentSchema,
 	textSchema,
 	transformSchema,
 	type InteractivitySchema,
@@ -176,14 +176,14 @@ const interactiveBorderElementSchema = {
 const interactiveTextElementSchema = {
 	...interactiveBorderElementSchema,
 	...textSchema,
-	...textContentSchema,
+	...childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveSvgTextElementSchema = {
 	...interactiveElementSchema,
 	...svgPaintSchema,
 	...textSchema,
-	...textContentSchema,
+	...childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveSvgElementSchema = {
@@ -635,6 +635,7 @@ const makeInteractiveSvgStrokeElement = <Tag extends InteractiveSvgTag>(
 export const Interactive = {
 	baseSchema,
 	captionsSchema,
+	childrenSchema,
 	transformSchema,
 	textSchema,
 	backgroundSchema,

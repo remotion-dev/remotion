@@ -52,7 +52,7 @@ const TypewriterInner: React.FC<Props> = ({
 };
 
 const typewriterSchema = {
-	text: {type: 'text-content', default: '', description: 'Text'},
+	text: {type: 'string', default: '', description: 'Text'},
 	start: {
 		type: 'number',
 		default: 0,

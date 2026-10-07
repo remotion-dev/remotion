@@ -67,8 +67,8 @@ const ChapterTagInner: React.FC<Props> = ({
 };
 
 const chapterTagSchema = {
-	index: {type: 'text-content', default: '01', description: 'Chapter number'},
-	title: {type: 'text-content', default: '', description: 'Chapter title'},
+	index: {type: 'string', default: '01', description: 'Chapter number'},
+	title: {type: 'string', default: '', description: 'Chapter title'},
 	color: {type: 'color', default: '#F3EFE6', description: 'Text color'},
 	start: {
 		type: 'number',

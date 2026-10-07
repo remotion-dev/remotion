@@ -103,6 +103,23 @@ Controls for text-related style props:
 
 Use it for components that accept a `style` prop and render text.
 
+### `Interactive.childrenSchema`<AvailableFrom v="4.0.535" />
+
+A schema fragment for editing a component's children content.
+
+Currently, it only supports [`string`](/docs/interactivity-schema#string) children.
+
+In the future, it may support richer content. Use it with components that accept `React.ReactNode` children. For string-only children, declare an explicit [`string`](/docs/interactivity-schema#string) field instead.
+
+```ts twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const labelSchema = {
+  ...Interactive.textSchema,
+  ...Interactive.childrenSchema,
+} as const satisfies InteractivitySchema;
+```
+
 ### `Interactive.backgroundSchema`<AvailableFrom v="4.0.497" />
 
 A color control for `style.backgroundColor`.

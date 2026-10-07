@@ -21,7 +21,7 @@ type SpinningTextWheelProps = InteractiveTransformProps & {
 
 const spinningTextWheelSchema = {
 	items: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
 		description: 'Items (selected first, one per line)',
 	},
