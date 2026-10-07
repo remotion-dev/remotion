@@ -52,6 +52,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		RendererFunctionName:           &options.RendererFunctionName,
 		DeleteAfter:                    options.DeleteAfter,
 		Type:                           "start",
+		Output:                         map[string]string{"type": "media"},
 		JpegQuality:                    jpegQuality,
 	}
 

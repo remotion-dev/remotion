@@ -18,6 +18,8 @@ type S3RendererStatusBase = {
 	lambdaInvoked: boolean;
 	renderedFrames: number;
 	encodedFrames: number;
+	uploadedFrames: number;
+	uploadedSizeInBytes: number;
 	startedAt: number;
 };
 
@@ -116,6 +118,8 @@ export const parseS3RendererStatus = ({
 		typeof status.lambdaInvoked !== 'boolean' ||
 		!isNumber(status.renderedFrames) ||
 		!isNumber(status.encodedFrames) ||
+		!isNumber(status.uploadedFrames) ||
+		!isNumber(status.uploadedSizeInBytes) ||
 		!isNumber(status.startedAt)
 	) {
 		throw new Error('Renderer S3 status has invalid progress fields');

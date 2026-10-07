@@ -63,7 +63,10 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 	const endTime = Date.now();
 	const billingCurrency = providerSpecifics.getBillingCurrency(region);
 
-	if (overallProgress.timeToEncode === null) {
+	if (
+		renderMetadata.type !== 'sequence' &&
+		overallProgress.timeToEncode === null
+	) {
 		throw new Error('Expected time to encode to be set');
 	}
 
@@ -85,7 +88,9 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 				},
 			).format(cost)}`,
 		},
-		outputFile: outputFile.url,
+		outputFile: renderMetadata.type === 'sequence' ? null : outputFile.url,
+		outputSequence:
+			renderMetadata.type === 'sequence' ? renderMetadata.outputSequence : null,
 		timeToFinish,
 		errors: errorExplanations,
 		startTime: renderMetadata.startedDate,

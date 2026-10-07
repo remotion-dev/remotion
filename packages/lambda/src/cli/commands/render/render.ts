@@ -126,6 +126,9 @@ export const renderCommand = async ({
 		);
 	}
 
+	const shouldOutputImageSequence =
+		Boolean(CliInternals.parsedCli.sequence) ||
+		ConfigInternals.getShouldOutputImageSequence(null);
 	const singleFrameRange = frameRange as SingleFrameRange | null;
 	const enableCancellation = enableCancellationOption.getValue({
 		commandLine: CliInternals.parsedCli,
@@ -336,7 +339,9 @@ export const renderCommand = async ({
 		composition = compositionId;
 	}
 
-	const outName = parsedLambdaCli['out-name'];
+	const outName = shouldOutputImageSequence
+		? (parsedLambdaCli['output-prefix'] ?? parsedLambdaCli['out-name'])
+		: parsedLambdaCli['out-name'];
 	const s3OutputProvider = getS3OutputProviderFromCli({
 		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
 		region: parsedLambdaCli['s3-output-provider-region'],
@@ -350,25 +355,27 @@ export const renderCommand = async ({
 	});
 	const downloadName = args[2] ?? null;
 
-	const {value: codec, source: reason} = videoCodecOption.getValue(
-		{
-			commandLine: CliInternals.parsedCli,
-		},
-		{
-			downloadName,
-			outName: outName ?? null,
-			configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-			uiCodec: null,
-			compositionCodec: null,
-		},
-	);
+	const {value: codec, source: reason} = shouldOutputImageSequence
+		? {value: null, source: 'image sequence'}
+		: videoCodecOption.getValue(
+				{
+					commandLine: CliInternals.parsedCli,
+				},
+				{
+					downloadName,
+					outName: outName ?? null,
+					configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+					uiCodec: null,
+					compositionCodec: null,
+				},
+			);
 
 	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue(
 		{
 			commandLine: CliInternals.parsedCli,
 		},
 		{
-			codec,
+			codec: codec ?? undefined,
 			uiVideoImageFormat: null,
 			compositionDefaultVideoImageFormat: null,
 		},
@@ -397,7 +404,24 @@ export const renderCommand = async ({
 		functionName,
 		serveUrl,
 		inputProps,
-		codec: codec as ServerlessCodec,
+		codec: shouldOutputImageSequence ? null : (codec as ServerlessCodec),
+		output: shouldOutputImageSequence
+			? {
+					type: 'sequence',
+					outputPrefix:
+						typeof resolvedOutName === 'object' && resolvedOutName !== null
+							? {
+									bucketName: resolvedOutName.bucketName,
+									keyPrefix: resolvedOutName.key,
+									s3OutputProvider: resolvedOutName.s3OutputProvider,
+								}
+							: resolvedOutName,
+					imageSequencePattern:
+						BrowserSafeApis.options.imageSequencePatternOption.getValue({
+							commandLine: CliInternals.parsedCli,
+						}).value,
+				}
+			: {type: 'media'},
 		imageFormat,
 		crf: crf ?? undefined,
 		gopSize,
@@ -546,19 +570,26 @@ export const renderCommand = async ({
 			})}`,
 		),
 	);
-	Log.info(
-		{
-			indent: false,
-			logLevel,
-		},
-		CliInternals.chalk.gray(
-			`${CliInternals.makeHyperlink({
-				text: 'Codec',
-				fallback: 'Codec',
-				url: 'https://remotion.dev/docs/encoding',
-			})}: ${codec} (${reason})`,
-		),
-	);
+	if (shouldOutputImageSequence) {
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray(`Image format: ${imageFormat}`),
+		);
+	} else {
+		Log.info(
+			{
+				indent: false,
+				logLevel,
+			},
+			CliInternals.chalk.gray(
+				`${CliInternals.makeHyperlink({
+					text: 'Codec',
+					fallback: 'Codec',
+					url: 'https://remotion.dev/docs/encoding',
+				})}: ${codec} (${reason})`,
+			),
+		);
+	}
 
 	Log.verbose(
 		{indent: false, logLevel},
@@ -689,9 +720,15 @@ export const renderCommand = async ({
 				CliInternals.chalk.blue('+ S3 '.padEnd(CliInternals.LABEL_WIDTH)),
 				CliInternals.chalk.blue(
 					CliInternals.makeHyperlink({
-						fallback: newStatus.outputFile as string,
-						text: newStatus.outKey as string,
-						url: newStatus.outputFile as string,
+						fallback:
+							newStatus.outputSequence?.manifestUrl ??
+							(newStatus.outputFile as string),
+						text:
+							newStatus.outputSequence?.keyPrefix ??
+							(newStatus.outKey as string),
+						url:
+							newStatus.outputSequence?.manifestUrl ??
+							(newStatus.outputFile as string),
 					}),
 				),
 				CliInternals.chalk.gray(

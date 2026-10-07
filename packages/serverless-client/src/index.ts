@@ -153,3 +153,5 @@ export const validateDurationInFrames: typeof NoReactInternals.validateDurationI
 	NoReactInternals.validateDurationInFrames;
 export const validateCodec: typeof NoReactInternals.validateCodec =
 	NoReactInternals.validateCodec;
+
+export * from './image-sequence';

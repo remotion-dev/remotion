@@ -6,7 +6,7 @@ slug: /lambda/downloadmedia
 crumb: 'Lambda API'
 ---
 
-Downloads a rendered video, audio or still to the disk of the machine this API is called from.
+Downloads a rendered video, audio, still, or image sequence to the disk of the machine this API is called from.
 
 If you want to let the user download a result to their machine, use [`renderMediaOnLambda()` -> `downloadBehavior`](/docs/lambda/rendermediaonlambda#downloadbehavior) instead.
 
@@ -44,6 +44,8 @@ The bucket name in which the render was stored. This should be the same variable
 The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
 ### `outPath`
+
+For [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda) jobs, pass a directory. All images and `manifest.json` are downloaded into it after the render completes. Available from <AvailableFrom v="4.0.535" inline />.
 
 Where the video should be saved. Pass an absolute path, or it will be resolved relative to your current working directory.
 

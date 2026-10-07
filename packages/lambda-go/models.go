@@ -67,6 +67,7 @@ type renderInternalOptions struct {
 	ServeUrl                       string                 `json:"serveUrl" validate:"required"`
 	InputProps                     interface{}            `json:"inputProps"`
 	Type                           string                 `json:"type,omitempty"`
+	Output                         map[string]string      `json:"output"`
 	Codec                          string                 `json:"codec"`
 	ProResProfile                  interface{}            `json:"proResProfile"`
 	PixelFormat                    interface{}            `json:"pixelFormat"`

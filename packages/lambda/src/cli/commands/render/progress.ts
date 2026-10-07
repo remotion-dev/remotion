@@ -76,7 +76,7 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 const makeRenderProgress = (progress: RenderProgress) => {
 	const framesEncoded = progress.encodingStatus?.framesEncoded ?? 0;
 	const totalFrames =
-		progress.renderMetadata && progress.renderMetadata.type === 'video'
+		progress.renderMetadata && progress.renderMetadata.type !== 'still'
 			? RenderInternals.getFramesToRender(
 					progress.renderMetadata.frameRange,
 					progress.renderMetadata.everyNthFrame,
@@ -118,11 +118,24 @@ const makeRenderProgress = (progress: RenderProgress) => {
 		.filter(truthy)
 		.join(' ');
 
+	if (progress.renderMetadata?.type === 'sequence') {
+		return [
+			first,
+			[
+				'Uploading frames'.padEnd(CliInternals.LABEL_WIDTH),
+				CliInternals.makeProgressBar(
+					(progress.framesUploaded ?? 0) / (totalFrames ?? 1),
+					false,
+				),
+				`${progress.framesUploaded ?? 0}/${totalFrames ?? '?'}`,
+			].join(' '),
+		];
+	}
 	return [first, second];
 };
 
 function getTotalFrames(status: RenderProgress): number | null {
-	return status.renderMetadata && status.renderMetadata.type === 'video'
+	return status.renderMetadata && status.renderMetadata.type !== 'still'
 		? RenderInternals.getFramesToRender(
 				status.renderMetadata.frameRange,
 				status.renderMetadata.everyNthFrame,
@@ -154,7 +167,7 @@ const makeCombinationProgress = (prog: RenderProgress) => {
 
 const makeDownloadProgress = (downloadInfo: DownloadedInfo) => {
 	return [
-		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`.padEnd(
+		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} output`.padEnd(
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
@@ -263,7 +276,9 @@ export const makeProgressString = ({
 		makeEvaluationProgress(overall),
 		...makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
-		makeCombinationProgress(overall),
+		overall.renderMetadata?.type === 'sequence'
+			? null
+			: makeCombinationProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
 		makeArtifactProgress(overall.artifacts),
 	]

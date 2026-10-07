@@ -402,6 +402,7 @@ class RenderMediaParams:
             'encodingMaxRate': self.encoding_max_rate,
             'isProduction': self.is_production,
             'type': 'start',
+            'output': {'type': 'media'},
         }
 
         if self.crf is not None:
