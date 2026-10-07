@@ -82,6 +82,33 @@ if render_response:
     print("Render done!", progress_response.outputFile)
 ```
 
+## Configuring the AWS clients
+
+### config?<AvailableFrom v="4.0.380" />
+
+Pass a [`botocore.config.Config`](https://botocore.amazonaws.com/v1/documentation/api/latest/reference/config.html) object to `RemotionClient()` to configure connection and read timeouts, retries, proxies, and other botocore options. The configuration applies to both AWS Lambda and S3 requests.
+
+Connection and read timeouts default to 60 seconds each. To override them:
+
+```python title="configure_client.py"
+import os
+from botocore.config import Config
+from remotion_lambda import RemotionClient
+
+client = RemotionClient(
+    region=os.environ['REMOTION_APP_REGION'],
+    serve_url=os.environ['REMOTION_APP_SERVE_URL'],
+    function_name=os.environ['REMOTION_APP_FUNCTION_NAME'],
+    config=Config(
+        connect_timeout=5,
+        read_timeout=30,
+        retries={'total_max_attempts': 3, 'mode': 'standard'},
+    ),
+)
+```
+
+Both timeout values are in seconds.
+
 ## Cancelling a render<AvailableFrom v="4.0.515" />
 
 Enable cancellation before starting the render, then call `cancel_render_on_lambda()`:
