@@ -14,6 +14,7 @@ import type {
 	ElementInstallExpectedFileState,
 	InsertElementRequest,
 	InsertElementResponse,
+	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import {addCompositionToFile} from '../../codemods/add-composition-to-file';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
@@ -384,25 +385,35 @@ export const insertElementHandler: ApiHandler<
 							position,
 						},
 			};
-			const inserted =
-				captionTarget === null
-					? await insertJsxElementIntoComposition({
-							...insertionInput,
-							compositionFile,
-							compositionId,
-							sourceFileOverrides,
-						})
-					: (() => {
-							const fileName = plan.safePaths.compositionFileName;
-							const oldContents = readFileSync(fileName, 'utf-8');
-							const result = CodemodsInternals.insertBasicCaptions({
-								...captionTarget,
-								input: oldContents,
-								importPath: plan.importPath,
-								element: {componentName: plan.componentName, initialProps},
-							});
-							return {...result, fileName, oldContents};
-						})();
+			let inserted: {
+				fileName: string;
+				oldContents: string;
+				output: string;
+				logLine: number;
+				nodePathRemappings: SequenceNodePathRemapping[];
+			};
+			if (captionTarget === null) {
+				inserted = await insertJsxElementIntoComposition({
+					...insertionInput,
+					compositionFile,
+					compositionId,
+					sourceFileOverrides,
+				});
+			} else {
+				const fileName = plan.safePaths.compositionFileName;
+				const oldContents = readFileSync(fileName, 'utf-8');
+				inserted = {
+					...CodemodsInternals.insertBasicCaptions({
+						...captionTarget,
+						input: oldContents,
+						importPath: plan.importPath,
+						element: {componentName: plan.componentName, initialProps},
+					}),
+					fileName,
+					oldContents,
+				};
+			}
+
 			if (
 				compositionCreation !== null &&
 				inserted.fileName !== compositionCreation.componentFilePath

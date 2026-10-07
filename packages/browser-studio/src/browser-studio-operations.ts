@@ -1,13 +1,11 @@
 import {
 	CodemodsInternals,
-	addCanvasCaptureComposition,
+	applyCodemodChanges,
 	addComposition as addCompositionCodemod,
+	addCanvasCaptureComposition,
 	addEffect as addEffectCodemod,
 	addElement,
 	addFolder as addFolderCodemod,
-	applyCodemodChanges,
-	canPrecomposeJsxNodes,
-	canWrapNode,
 	createElement,
 	deleteComposition as deleteCompositionCodemod,
 	deleteEffects as deleteEffectsCodemod,
@@ -16,10 +14,13 @@ import {
 	duplicateComposition as duplicateCompositionCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
 	duplicateNodes as duplicateNodesCodemod,
+	canWrapNode,
+	wrapNode as wrapNodeCodemod,
 	getNodeProps,
+	canPrecomposeJsxNodes,
+	precomposeJsxNodes as precomposeJsxNodesCodemod,
 	moveComposition as moveCompositionCodemod,
 	moveFolder as moveFolderCodemod,
-	precomposeJsxNodes as precomposeJsxNodesCodemod,
 	renameComposition as renameCompositionCodemod,
 	renameFolder as renameFolderCodemod,
 	reorderEffect as reorderEffectCodemod,
@@ -33,7 +34,6 @@ import {
 	updateEffectProps as updateEffectPropsCodemod,
 	updateNodeKeyframes,
 	updateNodeProps,
-	wrapNode as wrapNodeCodemod,
 	type CodemodFileChange,
 	type CodemodNodeResult,
 	type CompositionDestination,
@@ -56,18 +56,18 @@ import {
 	type BrowserStudioOperations,
 	type BrowserStudioPackageInstallationOperations,
 	type CompositionEditResponse,
+	type CompositionDestination as StudioCompositionDestination,
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
-	type InsertCompositionElementRequest,
 	type InsertElementResponse,
+	type InsertCompositionElementRequest,
 	type NewCompositionOptions,
 	type SequenceNodePathRemapping,
-	type CompositionDestination as StudioCompositionDestination,
 	type SubscribeToSequencePropsRequest,
 	type SubscribeToSequencePropsResponse,
 	type SymbolicatedStackFrame,
-	type UndoRedoNavigation,
 	type UnsubscribeFromSequencePropsRequest,
+	type UndoRedoNavigation,
 } from '@remotion/studio-shared';
 import type {
 	InteractivitySchema,
@@ -2504,17 +2504,6 @@ export const createBrowserStudioOperations = ({
 			),
 		insertElement: async (request) => {
 			try {
-				if (
-					request.captionTarget !== null &&
-					(request.element.isCaptionStyle !== true ||
-						request.element.installationMode !== 'component-owned-sequence' ||
-						request.newComposition !== null ||
-						request.compositionFile !== null ||
-						request.compositionId !== null)
-				) {
-					throw new Error('Invalid caption style installation target');
-				}
-
 				StudioProtocolInternals.assertElementAssets(request.element.assets);
 				StudioProtocolInternals.assertElementAssetReferences(request.element);
 				const {element} = request;
@@ -2698,88 +2687,84 @@ export const createBrowserStudioOperations = ({
 					request.element.dependencies,
 				);
 				const durationInFrames = request.element.durationInFrames ?? null;
-				const insertion =
-					request.captionTarget === null
-						? await insertIntoProject({
-								project,
-								request: {
-									compositionFile: request.compositionFile,
-									compositionId: request.compositionId,
-									element: {
-										componentName: plan.componentName,
-										importName: plan.componentName,
-										importPath: plan.importPath,
-										position: componentOwnsSequence ? request.position : null,
-										props: [
-											...Object.entries(request.element.initialProps ?? {}).map(
-												([name, value]) => ({name, value}),
-											),
-											...(componentOwnsSequence && durationInFrames !== null
-												? [
-														{
-															name: 'durationInFrames',
-															value: durationInFrames,
-														},
-													]
-												: []),
-											...(componentOwnsSequence
-												? [{name: 'name', value: request.element.displayName}]
-												: []),
-										],
-										type: 'component',
-									},
-									from: componentOwnsSequence ? request.from : null,
-									premountFor: request.premountFor,
+				let insertion: {
+					changes: CodemodFileChange[];
+					filePath: string;
+					nodePathRemappings: SequenceNodePathRemapping[];
+				};
+				if (request.captionTarget === null) {
+					insertion = await insertIntoProject({
+						project,
+						request: {
+							compositionFile: request.compositionFile,
+							compositionId: request.compositionId,
+							element: {
+								componentName: plan.componentName,
+								importName: plan.componentName,
+								importPath: plan.importPath,
+								position: componentOwnsSequence ? request.position : null,
+								props: [
+									...Object.entries(request.element.initialProps ?? {}).map(
+										([name, value]) => ({name, value}),
+									),
+									...(componentOwnsSequence && durationInFrames !== null
+										? [
+												{
+													name: 'durationInFrames',
+													value: durationInFrames,
+												},
+											]
+										: []),
+									...(componentOwnsSequence
+										? [{name: 'name', value: request.element.displayName}]
+										: []),
+								],
+								type: 'component',
+							},
+							from: componentOwnsSequence ? request.from : null,
+							premountFor: request.premountFor,
+						},
+						wrapInSequence: componentOwnsSequence
+							? null
+							: {
+									dimensions: request.element.dimensions,
+									durationInFrames,
+									from: request.from,
+									name: request.element.displayName,
+									position: request.position,
 								},
-								wrapInSequence: componentOwnsSequence
-									? null
-									: {
-											dimensions: request.element.dimensions,
-											durationInFrames,
-											from: request.from,
-											name: request.element.displayName,
-											position: request.position,
-										},
-							})
-						: (() => {
-								const filePath = findProjectFile({
-									filePath: request.captionTarget.fileName,
-									project,
-								});
-								const result = insertBasicCaptionsCodemod({
-									...request.captionTarget,
-									input: project.files[filePath],
-									importPath: plan.importPath,
-									element: {
-										componentName: plan.componentName,
-										initialProps: {
-											...element.initialProps,
-											...(element.dimensions === null
-												? {}
-												: {
-														style: {
-															...element.dimensions,
-															...(typeof element.initialProps?.style ===
-															'object'
-																? element.initialProps.style
-																: {}),
-														},
-													}),
-										},
-									},
-								});
-								return {
-									filePath,
-									nodePathRemappings: result.nodePathRemappings,
-									changes: [
-										{
-											filePath,
-											previousContents: project.files[filePath],
-											nextContents: result.output,
-										},
-									],
-								};
-							})();
+					});
+				} else {
+					const filePath = plan.destinationCompositionFilePath;
+					const initialProps = {...element.initialProps};
+					if (element.dimensions !== null) {
+						initialProps.style = {
+							...element.dimensions,
+							...(typeof initialProps.style === 'object'
+								? initialProps.style
+								: {}),
+						};
+					}
+
+					const result = insertBasicCaptionsCodemod({
+						...request.captionTarget,
+						input: project.files[filePath],
+						importPath: plan.importPath,
+						element: {componentName: plan.componentName, initialProps},
+					});
+					insertion = {
+						changes: [
+							{
+								filePath,
+								previousContents: project.files[filePath],
+								nextContents: result.output,
+							},
+						],
+						filePath,
+						nodePathRemappings: result.nodePathRemappings,
+					};
+				}
+
 				const projectWithElement = applyCodemodChanges(project, [
 					...insertion.changes,
 					{
