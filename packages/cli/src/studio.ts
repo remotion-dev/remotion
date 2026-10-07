@@ -57,6 +57,7 @@ const {
 	previewSampleRateOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
 	publicLicenseKeyOption,
 	beepOnFinishOption,
 	logLevelOption,
@@ -166,6 +167,9 @@ export const studioCommand = async (
 
 		return {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			defaultPremountInSeconds: defaultPremountInSecondsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			keyboardShortcuts: ConfigInternals.getKeyboardShortcuts(),
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
@@ -194,6 +198,8 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			configFileStudioSettings: {
+				defaultPremountInSeconds:
+					defaultPremountInSecondsOption.getConfigValue(),
 				askAIEnabled: askAIOption.getConfigValue(),
 				audioLatencyHint: audioLatencyHintOption.getConfigValue(),
 				beepOnFinish: beepOnFinishOption.getConfigValue(),

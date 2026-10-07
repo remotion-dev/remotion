@@ -140,6 +140,7 @@ const {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
@@ -677,6 +678,11 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setDefaultEditor: (editor: DefaultEditor) => void;
 		/**
+		 * Set the default premount duration in seconds in Remotion Studio.
+		 * Default: 0 in v4, 2 in v5.
+		 */
+		setDefaultPremountInSeconds: (seconds: number) => void;
+		/**
 		 * Set the coding agent used by Remotion Studio.
 		 */
 		setDefaultCodingAgent: (codingAgent: DefaultCodingAgent) => void;
@@ -903,6 +909,7 @@ export const Config: FlatConfig = {
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
 	setDefaultEditor: defaultEditorOption.setConfig,
+	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,

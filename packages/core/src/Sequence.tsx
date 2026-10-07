@@ -20,6 +20,7 @@ import type {
 	SequenceRegistrationControls,
 	TSequence,
 } from './CompositionManager.js';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import {getStackForControls} from './enable-sequence-stack-traces.js';
 import {Freeze, useIsInsideNonPremountFreeze} from './freeze.js';
@@ -57,7 +58,6 @@ import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
 import {useVideoConfig} from './use-video-config.js';
-import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const SeriesContentVisibilityContext = createContext(true);
@@ -983,7 +983,7 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 			active={isPremountingOrPostmounting}
 			_remotionInternalIsPremounting={premountingActive}
 		>
-			<SequenceInner
+			<RegularSequence
 				ref={ref}
 				from={from}
 				durationInFrames={durationInFrames}
@@ -1008,10 +1008,10 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const env = useRemotionEnvironment();
 	const {fps} = useVideoConfig();
+	const defaultPremountInSeconds = useContext(DefaultPremountContext);
 	if (props.layout !== 'none' && !env.isRendering) {
-		const effectivePremountFor = ENABLE_V5_BREAKING_CHANGES
-			? (props.premountFor ?? fps)
-			: props.premountFor;
+		const effectivePremountFor =
+			props.premountFor ?? Math.round(defaultPremountInSeconds * fps);
 		if (effectivePremountFor || props.postmountFor) {
 			return (
 				<PremountedPostmountedSequence

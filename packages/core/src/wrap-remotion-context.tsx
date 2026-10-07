@@ -13,6 +13,7 @@ import {
 } from './committed-metadata.js';
 import type {TSequence} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {LogLevelContext} from './log-level-context.js';
 import {PreloadContext} from './prefetch-state.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
@@ -20,13 +21,13 @@ import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
+	DisableSequenceRegistrationContext,
+	SequenceCommitRegistrationContext,
 	SequenceManagerActionsContext,
 	SequenceManagerRefContext,
+	SequenceRegistrationContext,
 	SequenceRegistryContext,
 	SequenceRegistryScopeContext,
-	SequenceCommitRegistrationContext,
-	SequenceRegistrationContext,
-	DisableSequenceRegistrationContext,
 	VisualModePropStatusesRefContext,
 } from './SequenceManager.js';
 import {
@@ -40,6 +41,7 @@ export function useRemotionContexts() {
 	const timelineContext = React.useContext(TimelineContext);
 	const setTimelineContext = React.useContext(SetTimelineContext);
 	const sequenceContext = React.useContext(SequenceContext);
+	const defaultPremountInSeconds = React.useContext(DefaultPremountContext);
 	const experimentalTracksEnabled = React.useContext(
 		ExperimentalTracksEnabledContext,
 	);
@@ -77,6 +79,7 @@ export function useRemotionContexts() {
 			timelineContext,
 			setTimelineContext,
 			sequenceContext,
+			defaultPremountInSeconds,
 			experimentalTracksEnabled,
 			timelineTrackContext,
 			canUseRemotionHooksContext,
@@ -97,6 +100,7 @@ export function useRemotionContexts() {
 		[
 			compositionManagerCtx,
 			sequenceContext,
+			defaultPremountInSeconds,
 			experimentalTracksEnabled,
 			timelineTrackContext,
 			setTimelineContext,
@@ -287,7 +291,13 @@ export const RemotionContextProvider = (
 																			<TimelineTrackContext.Provider
 																				value={contexts.timelineTrackContext}
 																			>
-																				{children}
+																				<DefaultPremountContext.Provider
+																					value={
+																						contexts.defaultPremountInSeconds
+																					}
+																				>
+																					{children}
+																				</DefaultPremountContext.Provider>
 																			</TimelineTrackContext.Provider>
 																		</ExperimentalTracksEnabledContext.Provider>
 																	</BufferingContextReact.Provider>

@@ -3,6 +3,7 @@ import {getAbsoluteSrc} from './absolute-src.js';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 import {getAnimatedImageDurationInSeconds} from './animated-image/get-duration-in-seconds.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
+import {getAudioSyncAnchorTolerance} from './audio/get-audio-sync-anchor-tolerance.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
@@ -47,6 +48,7 @@ import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import {CompositionRegistryProvider} from './CompositionRegistryProvider.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
@@ -113,19 +115,19 @@ import {
 	fromField,
 	hiddenField,
 	premountSchema,
-	sequencePremountSchema,
 	sequenceCropSchema,
+	sequencePremountSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	textSchema,
-	trimAfterField,
 	transformSchema,
-	type AssetFieldSchema,
+	trimAfterField,
 	type ArrayFieldSchema,
 	type ArrayItemFieldSchema,
-	type InteractivitySchemaField,
+	type AssetFieldSchema,
 	type InteractivitySchema,
+	type InteractivitySchemaField,
 	type VisibleFieldSchema,
 } from './interactivity-schema.js';
 import {
@@ -201,10 +203,10 @@ import {
 	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
+	SequenceRegistrationContext,
 	SequenceRegistryContext,
 	useActiveFromDragOverrideKeys,
 	useSequenceManagerSequences,
-	SequenceRegistrationContext,
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
@@ -217,8 +219,8 @@ import {
 	type CanUpdateSequencePropsResponseFalse,
 	type CanUpdateSequencePropsResponseTrue,
 	type SequenceNodePath,
-	type SequencePropsSubscriptionKey,
 	type SequencePropsStatusRemapping,
+	type SequencePropsSubscriptionKey,
 	type VideoConfigValues,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
@@ -262,8 +264,8 @@ import {PixelDensityContext} from './use-pixel-density.js';
 import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
 import type {
-	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusEasing,
+	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	DragOverrideValue,
@@ -312,8 +314,8 @@ import type {
 import {
 	MediaVolumeContext,
 	SetMediaVolumeContext,
-	usePlayerMutedState,
 	useMediaVolumeState,
+	usePlayerMutedState,
 } from './volume-position-state.js';
 import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
@@ -341,6 +343,7 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	CommittedMetadataProvider,
 	withCommittedMetadata,
+	DefaultPremountContext,
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 	AbsoluteFillElement,
@@ -427,6 +430,7 @@ export const Internals = {
 	SharedAudioContextProvider,
 	SharedAudioTagsContext,
 	SharedAudioTagsContextProvider,
+	getAudioSyncAnchorTolerance,
 	invalidCompositionErrorMessage,
 	invalidFolderNameErrorMessage,
 	calculateMediaDuration,
@@ -546,8 +550,8 @@ Object.assign(Internals, {useSyncExternalStore});
 
 export type {
 	ArrayFieldSchema,
-	AssetFieldSchema,
 	ArrayItemFieldSchema,
+	AssetFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
 	CanUpdateEffectPropsResponseFalse,
@@ -560,7 +564,6 @@ export type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
-	VideoConfigNumericExpression,
 	CompositionManagerContext,
 	CompProps,
 	DragOverrides,
@@ -570,6 +573,8 @@ export type {
 	GetEffectDragOverrides,
 	GetEffectPropStatuses,
 	GetPropStatuses,
+	InteractivitySchema,
+	InteractivitySchemaField,
 	JsxComponentIdentity,
 	LoggingContextValue,
 	MediaVolumeContextValue,
@@ -586,12 +591,9 @@ export type {
 	ResolvedStackLocation,
 	ScheduleAudioNodeOptions,
 	ScheduleAudioNodeResult,
-	InteractivitySchemaField,
 	SequenceNodePath,
-	SequencePropsSubscriptionKey,
 	SequencePropsStatusRemapping,
-	VideoConfigValues,
-	InteractivitySchema,
+	SequencePropsSubscriptionKey,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
@@ -600,6 +602,8 @@ export type {
 	TimelineContextValue,
 	TRenderAsset,
 	TSequence,
+	VideoConfigNumericExpression,
+	VideoConfigValues,
 	VisibleFieldSchema,
 	WatchRemotionStaticFilesPayload,
 };

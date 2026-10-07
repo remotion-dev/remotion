@@ -829,6 +829,15 @@ export const articles = [
 		slug: 'options/dark-mode',
 	},
 	{
+		id: 'options/default-premount-in-seconds',
+		title: 'Default premount duration in seconds',
+		relativePath: 'docs/options/default-premount-in-seconds.mdx',
+		compId: 'articles-docs-options-default-premount-in-seconds',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/default-premount-in-seconds',
+	},
+	{
 		id: 'options/delete-after',
 		title: 'Lambda render expiration',
 		relativePath: 'docs/options/delete-after.mdx',

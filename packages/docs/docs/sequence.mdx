@@ -310,7 +310,7 @@ If `layout` is set to `none`, there is no container and setting this style is no
 ### `premountFor?`<AvailableFrom v="4.0.140" />
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
-From [v5.0](/docs/5-0-migration), the default value changes from `0` to `fps` (1 second).
+The default is controlled by [`defaultPremountInSeconds`](/docs/player/premounting#default-premount-duration), converted to frames. It is `0` seconds in v4 and `2` seconds in [v5.0](/docs/5-0-migration).
 
 ### `postmountFor?`<AvailableFrom v="4.0.340" />
 

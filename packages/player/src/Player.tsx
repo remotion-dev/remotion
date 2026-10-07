@@ -93,6 +93,7 @@ export type PlayerProps<
 	readonly showPlaybackRateControl?: boolean | number[];
 	readonly posterFillMode?: PosterFillMode;
 	readonly bufferStateDelayInMilliseconds?: number;
+	readonly defaultPremountInSeconds?: number;
 	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
 	readonly overflowVisible?: boolean;
 	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
@@ -188,6 +189,7 @@ const PlayerFn = <
 		showPlaybackRateControl = false,
 		posterFillMode = 'player-size',
 		bufferStateDelayInMilliseconds,
+		defaultPremountInSeconds = NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS,
 		hideControlsWhenPointerDoesntMove = true,
 		overflowVisible = false,
 		renderMuteButton,
@@ -205,6 +207,8 @@ const PlayerFn = <
 	}: PlayerProps<Schema, Props>,
 	ref: RefObject<PlayerRef>,
 ) => {
+	NoReactInternals.validateDefaultPremountInSeconds(defaultPremountInSeconds);
+
 	if (typeof window !== 'undefined') {
 		window.remotion_isPlayer = true;
 	}
@@ -592,19 +596,21 @@ const PlayerFn = <
 		</Internals.IsPlayerContextProvider>
 	);
 
-	if (!onTimelineSequenceChange) {
-		return player;
-	}
-
 	return (
-		<Internals.SequenceRegistrationContext.Provider value>
-			<Internals.SequenceManagerProvider>
-				<TimelineSequenceObserverComponent
-					onTimelineSequenceChange={onTimelineSequenceChange}
-				/>
-				{player}
-			</Internals.SequenceManagerProvider>
-		</Internals.SequenceRegistrationContext.Provider>
+		<Internals.DefaultPremountContext.Provider value={defaultPremountInSeconds}>
+			{onTimelineSequenceChange ? (
+				<Internals.SequenceRegistrationContext.Provider value>
+					<Internals.SequenceManagerProvider>
+						<TimelineSequenceObserverComponent
+							onTimelineSequenceChange={onTimelineSequenceChange}
+						/>
+						{player}
+					</Internals.SequenceManagerProvider>
+				</Internals.SequenceRegistrationContext.Provider>
+			) : (
+				player
+			)}
+		</Internals.DefaultPremountContext.Provider>
 	);
 };
 
