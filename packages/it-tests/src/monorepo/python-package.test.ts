@@ -102,6 +102,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			offthreadVideoCacheSizeInBytes: null,
 			offthreadVideoThreads: null,
 			outName: null,
+			separateAudioTo: null,
 			overwrite: false,
 			pixelFormat: undefined,
 			privacy: 'public',
@@ -138,6 +139,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 
 	expect({
 		...parsedJson,
+		separateAudioTo: parsedJson.separateAudioTo ?? null,
 		type: 'start',
 	}).toEqual(nativeVersion);
 });

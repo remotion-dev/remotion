@@ -29,6 +29,7 @@ test(
 					logLevel: 'warn',
 					maxRetries: 3,
 					outName: null,
+					separateAudioTo: null,
 					pixelFormat: 'yuv420p',
 					privacy: 'public',
 					proResProfile: null,

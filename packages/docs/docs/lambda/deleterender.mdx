@@ -6,7 +6,7 @@ slug: /lambda/deleterender
 crumb: 'Lambda API'
 ---
 
-Deletes a rendered video, audio or still and its associated metada.
+Deletes a rendered video, audio or still and its associated metadata. If [`separateAudioTo`](/docs/lambda/rendermediaonlambda#separateaudioto) was used, both output files are deleted, including outputs in custom destinations.
 
 ```ts twoslash
 import {deleteRender} from '@remotion/lambda';
@@ -39,6 +39,10 @@ The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda(
 ### `customCredentials?`<AvailableFrom v="3.2.23" />
 
 If the render was saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
+
+### `separateAudioCredentials?`<AvailableFrom v="4.0.535" />
+
+Credentials for a separate audio output saved to a different S3-compatible provider. Pass the same `endpoint`, `accessKeyId` and `secretAccessKey` as in [`separateAudioTo.s3OutputProvider`](/docs/lambda/rendermediaonlambda#separateaudioto). Defaults to `customCredentials` when omitted.
 
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 

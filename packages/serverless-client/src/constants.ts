@@ -58,6 +58,15 @@ export type OutNameInput<Provider extends CloudProvider> =
 			s3OutputProvider?: CustomCredentials<Provider>;
 	  };
 
+export type RenderOutput = 'main' | 'separate-audio';
+
+export type SeparateAudioOutput = {
+	url: string;
+	bucketName: string;
+	key: string;
+	sizeInBytes: number;
+};
+
 export type SerializedInputProps =
 	| {
 			type: 'bucket-url';
@@ -135,6 +144,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<Provider> | null;
+	separateAudioTo: OutNameInput<Provider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -202,6 +212,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		logLevel: LogLevel;
 		frameRange: SingleFrameRange | null;
 		outName: OutNameInput<Provider> | null;
+		separateAudioTo: OutNameInput<Provider> | null;
 		timeoutInMilliseconds: number;
 		// Non-JS SDKs may not set chromiumOptions, may be undefined
 		chromiumOptions: ChromiumOptions | undefined;
@@ -270,6 +281,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
+		audioCodec: AudioCodec | null;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
 		encodingBufferSize: string | null;
@@ -397,6 +409,7 @@ export const artifactName = (renderId: string, name: string) =>
 export type PostRenderData<Provider extends CloudProvider> = {
 	cost: AfterRenderCost;
 	outputFile: string;
+	separateAudio: SeparateAudioOutput | null;
 	outputSize: number;
 	renderSize: number;
 	timeToFinish: number;

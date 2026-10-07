@@ -59,6 +59,12 @@ export type WebhookSuccessPayload = StaticWebhookPayload & {
   lambdaErrors: EnhancedErrorInfo[];
   outputUrl: string | undefined;
   outputFile: string | undefined;
+  separateAudio: {
+    url: string;
+    bucketName: string;
+    key: string;
+    sizeInBytes: number;
+  } | null;
   timeToFinish: number | undefined;
   costs: AfterRenderCost;
 };
@@ -103,6 +109,10 @@ The `outputUrl`, `outputFile` and `timeToFinish` keys are only returned if the r
 ```
 
 The `errors` array will contain the error message and stack trace of any _fatal_ error that occurs during the render process.
+
+### `separateAudio`<AvailableFrom v="4.0.535" />
+
+Successful renders include the same [`separateAudio`](/docs/lambda/getrenderprogress#separateaudio) details as [`getRenderProgress()`](/docs/lambda/getrenderprogress). The value is `null` when no separate audio output was requested. A success webhook is sent after both output files have uploaded.
 
 ## Validate Webhooks
 

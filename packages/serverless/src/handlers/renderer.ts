@@ -147,10 +147,12 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
 	const chunk = `localchunk-${String(params.chunk).padStart(8, '0')}`;
-	const defaultAudioCodec = RenderInternals.getDefaultAudioCodec({
-		codec: params.codec,
-		preferLossless: params.preferLossless,
-	});
+	const defaultAudioCodec =
+		params.audioCodec ??
+		RenderInternals.getDefaultAudioCodec({
+			codec: params.codec,
+			preferLossless: params.preferLossless,
+		});
 
 	const seamlessAudio = RenderInternals.canConcatAudioSeamlessly(
 		defaultAudioCodec,

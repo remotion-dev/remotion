@@ -65,6 +65,7 @@ test(
 				offthreadVideoCacheSizeInBytes: null,
 				offthreadVideoThreads: null,
 				outName: null,
+				separateAudioTo: null,
 				overwrite: false,
 				pixelFormat: undefined,
 				privacy: 'public',
@@ -94,7 +95,12 @@ test(
 				sampleRate: 48000,
 			});
 
-		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));
+		expect(
+			removeUndefined({
+				...parsed,
+				separateAudioTo: parsed.separateAudioTo ?? null,
+			}),
+		).toEqual(removeUndefined(nativeVersion));
 	},
 	{timeout: 60000},
 );

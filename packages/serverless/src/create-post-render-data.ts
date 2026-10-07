@@ -86,6 +86,7 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 			).format(cost)}`,
 		},
 		outputFile: outputFile.url,
+		separateAudio: overallProgress.separateAudio ?? null,
 		timeToFinish,
 		errors: errorExplanations,
 		startTime: renderMetadata.startedDate,

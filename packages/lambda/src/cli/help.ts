@@ -233,6 +233,7 @@ export const lambdaCommandHelp = [
 				'number-of-gif-loops',
 				'timeout',
 				'out-name',
+				'separate-audio-to',
 				's3-output-provider-endpoint',
 				's3-output-provider-region',
 				's3-output-provider-force-path-style',
@@ -273,6 +274,8 @@ export const lambdaCommandHelp = [
 			{
 				'image-format': 'Video Image Format',
 				port: 'Set a custom port when selecting a composition interactively.',
+				'separate-audio-to':
+					'Save the mixed audio as a separate file in the render bucket and omit audio from the video.',
 			},
 			'video',
 		),

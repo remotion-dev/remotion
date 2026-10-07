@@ -114,6 +114,7 @@ test('Render Media payload', async () => {
 			offthreadVideoCacheSizeInBytes: null,
 			offthreadVideoThreads: null,
 			outName: null,
+			separateAudioTo: null,
 			overwrite: false,
 			pixelFormat: undefined,
 			privacy: 'public',
@@ -148,7 +149,11 @@ test('Render Media payload', async () => {
 			sampleRate: 48000,
 		});
 
-	expect(JSON.parse(output)).toEqual(nativeVersion);
+	const parsedOutput = JSON.parse(output);
+	expect({
+		...parsedOutput,
+		separateAudioTo: parsedOutput.separateAudioTo ?? null,
+	}).toEqual(nativeVersion);
 });
 
 test('Render Still payload', async () => {

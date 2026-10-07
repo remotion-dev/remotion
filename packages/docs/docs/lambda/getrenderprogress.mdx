@@ -110,6 +110,26 @@ In which bucket the render and other artifacts get saved.
 
 `null` if the video is not yet rendered, a `string` containing a URL pointing to the final artifact if the video finished rendering.
 
+### `separateAudio`<AvailableFrom v="4.0.535" />
+
+Details of the audio output when [`separateAudioTo`](/docs/lambda/rendermediaonlambda#separateaudioto) was used. Returns `null` until the render completes, or when no separate audio output was requested. `done` becomes `true` after both outputs have uploaded successfully.
+
+#### `url`
+
+The URL of the audio file. Private outputs require credentials to download.
+
+#### `bucketName`
+
+The bucket containing the audio output.
+
+#### `key`
+
+The storage key of the audio output.
+
+#### `sizeInBytes`
+
+The size of the audio file in bytes. `outputFile` and `outputSizeInBytes` continue to describe the main output.
+
 ### `outKey`
 
 `null` if the video is not yet rendered, a `string` containing the S3 key where the final artifact is stored.

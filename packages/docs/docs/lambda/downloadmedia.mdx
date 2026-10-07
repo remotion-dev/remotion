@@ -47,6 +47,10 @@ The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda(
 
 Where the video should be saved. Pass an absolute path, or it will be resolved relative to your current working directory.
 
+### `output?`<AvailableFrom v="4.0.535" />
+
+Select the output to download: `"main"` (the default) or `"separate-audio"` for a render started with [`separateAudioTo`](/docs/lambda/rendermediaonlambda#separateaudioto). Selecting separate audio for a render without that output throws an error.
+
 ### `onProgress?`
 
 Callback function that gets called with the following properties:
@@ -58,6 +62,8 @@ Callback function that gets called with the following properties:
 ### `customCredentials?`<AvailableFrom v="3.2.23" />
 
 If the render was saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
+
+When downloading `"separate-audio"`, pass the credentials for its destination.
 
 ### `signal?`<AvailableFrom v="4.0.406" />
 

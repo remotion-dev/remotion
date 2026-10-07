@@ -133,6 +133,7 @@ class Semantic
 				offthreadVideoCacheSizeInBytes: null,
 				offthreadVideoThreads: null,
 				outName: null,
+				separateAudioTo: null,
 				overwrite: false,
 				pixelFormat: undefined,
 				privacy: 'public',
@@ -168,6 +169,7 @@ class Semantic
 
 		expect({
 			...parsedJson,
+			separateAudioTo: parsedJson.separateAudioTo ?? null,
 			type: 'start',
 		}).toEqual(nativeVersion);
 	});

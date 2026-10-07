@@ -13,7 +13,6 @@ import {getOverallProgressFromStorage} from './get-overall-progress-from-storage
 import {inspectErrors} from './inspect-error';
 import {makeTimeoutError} from './make-timeout-error';
 import type {ProviderSpecifics} from './provider-implementation';
-import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {CleanupInfo, GenericRenderProgress} from './render-progress';
 import {truthy} from './truthy';
 import type {CloudProvider} from './types';
@@ -69,6 +68,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 		}
 
 		const outData = getExpectedOutName({
+			output: 'main',
 			renderMetadata: overallProgress.renderMetadata,
 			bucketName,
 			customCredentials,
@@ -107,6 +107,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 			fatalErrorEncountered: false,
 			lambdasInvoked: overallProgress.renderMetadata.totalChunks,
 			outputFile: overallProgress.postRenderData.outputFile,
+			separateAudio: overallProgress.postRenderData.separateAudio ?? null,
 			renderId,
 			timeToFinish: overallProgress.postRenderData.timeToFinish,
 			timeToFinishChunks: overallProgress.postRenderData.timeToRenderChunks,
@@ -139,10 +140,6 @@ export const getProgress = async <Provider extends CloudProvider>({
 		errors: overallProgress.errors,
 	});
 
-	const {hasAudio, hasVideo} = renderMetadata
-		? lambdaRenderHasAudioVideo(renderMetadata)
-		: {hasAudio: false, hasVideo: false};
-
 	const chunkCount = overallProgress.chunks.length ?? 0;
 
 	const cleanup: CleanupInfo = {
@@ -167,6 +164,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 			renderMetadata,
 			bucket: bucketName,
 			outputFile: null,
+			separateAudio: null,
 			timeToFinish: null,
 			errors: errorExplanations,
 			fatalErrorEncountered: errorExplanations.some(
@@ -217,17 +215,11 @@ export const getProgress = async <Provider extends CloudProvider>({
 		fatalErrorTimestamp: overallProgress.fatalErrorTimestamp ?? null,
 	});
 
-	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
-
 	if (renderMetadata.type === 'still') {
 		throw new Error(
 			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
 		);
 	}
-
-	const allChunks =
-		(overallProgress.chunks ?? []).length / chunkMultiplier ===
-		(renderMetadata.totalChunks ?? Infinity);
 
 	const frameCount = NoReactAPIs.getFramesToRender(
 		renderMetadata.frameRange,
@@ -243,6 +235,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 				'undefined'
 			);
 		});
+	const allChunks = missingChunks.length === 0;
 	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
 
 	// 1. If we have missing chunks, we consider it timed out
@@ -257,6 +250,8 @@ export const getProgress = async <Provider extends CloudProvider>({
 
 	const shouldCheckForCompletedOutput =
 		allChunks &&
+		((renderMetadata.separateAudioTo ?? null) === null ||
+			(overallProgress.separateAudio ?? null) !== null) &&
 		!errorExplanations.some((error) => error.isFatal && !error.willRetry) &&
 		(isBeyondTimeoutAndHasStitchTimeout ||
 			(overallProgress.combinedFrames >= frameCount &&
@@ -264,6 +259,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 
 	if (shouldCheckForCompletedOutput) {
 		const outputFile = await findOutputFileInBucket({
+			output: 'main',
 			bucketName,
 			customCredentials,
 			renderMetadata,
@@ -283,6 +279,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 
 		if (outputFile) {
 			const outData = getExpectedOutName({
+				output: 'main',
 				renderMetadata,
 				bucketName,
 				customCredentials,
@@ -318,6 +315,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 				fatalErrorEncountered: false,
 				lambdasInvoked: renderMetadata.totalChunks,
 				outputFile: outputFile.url,
+				separateAudio: overallProgress.separateAudio ?? null,
 				renderId,
 				timeToFinish: now - renderMetadata.startedDate,
 				timeToFinishChunks,
@@ -376,6 +374,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 		renderMetadata,
 		bucket: bucketName,
 		outputFile: null,
+		separateAudio: null,
 		timeToFinish: null,
 		errors: allErrors,
 		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),

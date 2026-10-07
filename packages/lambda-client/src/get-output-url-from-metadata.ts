@@ -9,13 +9,28 @@ export const getOutputUrlFromMetadata: GetOutputUrl<AwsProvider> = ({
 	bucketName,
 	customCredentials,
 	currentRegion,
+	output,
 }) => {
-	const {key, renderBucketName} = getExpectedOutName({
+	const {
+		key,
+		renderBucketName,
+		customCredentials: credentials,
+	} = getExpectedOutName({
 		renderMetadata,
 		bucketName,
 		customCredentials,
 		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+		output,
 	});
+	if (credentials !== null) {
+		const url = new URL(credentials.endpoint);
+		if (!credentials.forcePathStyle) {
+			url.hostname = `${renderBucketName}.${url.hostname}`;
+		}
+
+		url.pathname = `${url.pathname.replace(/\/$/, '')}/${credentials.forcePathStyle ? `${renderBucketName}/` : ''}${key.split('/').map(encodeURIComponent).join('/')}`;
+		return {url: url.toString(), key};
+	}
 
 	const {dnsSuffix} = getAwsRegionMetadata(currentRegion);
 	return {
