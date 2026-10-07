@@ -166,9 +166,10 @@ export const ElementInstallRequestHandler: FC = () => {
 			}
 
 			const modal = selectedModalRef.current;
+			const selectsCaptionStyle =
+				modal?.type === 'transcribe' && modal.target !== null;
 			if (
-				modal?.type === 'transcribe' &&
-				modal.target !== null &&
+				selectsCaptionStyle &&
 				(payload.element.isCaptionStyle !== true ||
 					payload.element.installationMode !== 'component-owned-sequence')
 			) {
@@ -222,9 +223,20 @@ export const ElementInstallRequestHandler: FC = () => {
 			responsePort.onmessage = () => {
 				window.clearTimeout(timeout);
 				responsePort.close();
-				if (request !== null) {
-					enqueueElementInstallRequest(request);
+				if (request === null) {
+					return;
 				}
+
+				if (selectsCaptionStyle) {
+					setSelectedModal((current) =>
+						current?.type === 'transcribe' && current.target !== null
+							? {...current, captionStyle: request}
+							: current,
+					);
+					return;
+				}
+
+				enqueueElementInstallRequest(request);
 			};
 
 			responsePort.postMessage(result);
@@ -237,28 +249,11 @@ export const ElementInstallRequestHandler: FC = () => {
 		compositionFile,
 		currentCompositionId,
 		previewServerClientId,
+		setSelectedModal,
 	]);
 
 	useEffect(() => {
 		return subscribeToElementInstallRequests((request) => {
-			const modal = selectedModalRef.current;
-			if (modal?.type === 'transcribe' && modal.target !== null) {
-				if (
-					request.element.isCaptionStyle !== true ||
-					request.element.installationMode !== 'component-owned-sequence'
-				) {
-					showNotification('This Element is not a caption style', 4000);
-					return;
-				}
-
-				setSelectedModal((current) =>
-					current?.type === 'transcribe' && current.target !== null
-						? {...current, captionStyle: request}
-						: current,
-				);
-				return;
-			}
-
 			const shouldAddCompositionDefaults =
 				request.source.type !== 'drag-and-drop' &&
 				request.compositionFile !== null &&
@@ -283,7 +278,7 @@ export const ElementInstallRequestHandler: FC = () => {
 				: request;
 			setPendingRequests((requests) => [...requests, requestWithDefaults]);
 		});
-	}, [config, setSelectedModal]);
+	}, [config]);
 
 	useEffect(() => {
 		if (!canInstallElement || showingExperimentalNotice) {

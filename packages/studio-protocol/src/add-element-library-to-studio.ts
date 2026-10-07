@@ -400,9 +400,8 @@ export const addElementLibraryToStudio = async ({
 			if (
 				(parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') &&
 				(parsedCaptionStylesUrl === null ||
-					(typeof captionStylesUrl === 'string' &&
-						(parsedCaptionStylesUrl.protocol === 'http:' ||
-							parsedCaptionStylesUrl.protocol === 'https:'))) &&
+					parsedCaptionStylesUrl.protocol === 'http:' ||
+					parsedCaptionStylesUrl.protocol === 'https:') &&
 				normalizedDisplayName !== ''
 			) {
 				const parentResult = await addElementLibraryToParentStudio({
@@ -424,8 +423,7 @@ export const addElementLibraryToStudio = async ({
 
 	return addElementLibraryToStudioWithDependencies(
 		{
-			captionStylesUrl:
-				captionStylesUrl === undefined ? null : captionStylesUrl,
+			captionStylesUrl: captionStylesUrl ?? null,
 			displayName: displayName ?? null,
 			url,
 		},

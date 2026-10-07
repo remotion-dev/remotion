@@ -450,7 +450,7 @@ export {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
 } from './stringify-sequence-subscription-key';
-export {isUrl} from './url';
+export {isUrl, normalizeHttpUrl} from './url';
 
 export {emptyCompositionComponent} from './empty-composition-component';
 export {assetCompositionComponent} from './asset-composition-component';

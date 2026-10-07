@@ -1,4 +1,7 @@
-import type {StudioElementLibrary} from '@remotion/studio-shared';
+import {
+	normalizeHttpUrl,
+	type StudioElementLibrary,
+} from '@remotion/studio-shared';
 
 export type AddElementLibraryOptions = {
 	readonly url: string;
@@ -42,24 +45,12 @@ export const addElementLibrary = (options: AddElementLibraryOptions) => {
 		);
 	}
 
-	let normalizedCaptionStylesUrl: string | null = null;
-	if (captionStylesUrl !== undefined) {
-		try {
-			if (typeof captionStylesUrl !== 'string') {
-				throw new Error('Invalid URL');
-			}
-
-			const parsed = new URL(captionStylesUrl);
-			if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-				throw new Error('Unsupported protocol');
-			}
-
-			normalizedCaptionStylesUrl = parsed.href;
-		} catch {
-			throw new Error(
-				'Config.addElementLibrary() expects "captionStylesUrl" to be an absolute HTTP or HTTPS URL',
-			);
-		}
+	const normalizedCaptionStylesUrl =
+		captionStylesUrl === undefined ? null : normalizeHttpUrl(captionStylesUrl);
+	if (captionStylesUrl !== undefined && normalizedCaptionStylesUrl === null) {
+		throw new Error(
+			'Config.addElementLibrary() expects "captionStylesUrl" to be an absolute HTTP or HTTPS URL',
+		);
 	}
 
 	if (displayName !== undefined && typeof displayName !== 'string') {

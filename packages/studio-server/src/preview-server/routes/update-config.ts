@@ -4,6 +4,7 @@ import {
 	configMethodLifecycles,
 	type ConfigUpdate,
 	type ConfigValue,
+	normalizeHttpUrl,
 	type StudioRuntimeConfig,
 	validateStudioKeyboardShortcuts,
 	type UpdateConfigRequest,
@@ -119,22 +120,11 @@ const validateUpdates = (updates: unknown): string | null => {
 				return 'Config.addElementLibrary() expects an HTTP or HTTPS URL.';
 			}
 
-			if (elementLibrary.captionStylesUrl !== undefined) {
-				try {
-					if (typeof elementLibrary.captionStylesUrl !== 'string') {
-						throw new Error('Invalid URL');
-					}
-
-					const parsedUrl = new URL(elementLibrary.captionStylesUrl);
-					if (
-						parsedUrl.protocol !== 'http:' &&
-						parsedUrl.protocol !== 'https:'
-					) {
-						throw new Error('Unsupported protocol');
-					}
-				} catch {
-					return 'Config.addElementLibrary() expects "captionStylesUrl" to be an absolute HTTP or HTTPS URL.';
-				}
+			if (
+				elementLibrary.captionStylesUrl !== undefined &&
+				normalizeHttpUrl(elementLibrary.captionStylesUrl) === null
+			) {
+				return 'Config.addElementLibrary() expects "captionStylesUrl" to be an absolute HTTP or HTTPS URL.';
 			}
 
 			if (

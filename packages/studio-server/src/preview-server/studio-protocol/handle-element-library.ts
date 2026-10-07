@@ -1,5 +1,6 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {normalizeHttpUrl} from '@remotion/studio-shared';
 import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
@@ -103,25 +104,18 @@ export const handleStudioProtocolElementLibrary = async ({
 		return;
 	}
 
-	let captionStylesUrl: string | null = null;
-	if (parsedRequest.captionStylesUrl !== null) {
-		try {
-			const parsedUrl = new URL(parsedRequest.captionStylesUrl);
-			if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-				throw new Error('Unsupported protocol');
-			}
-
-			captionStylesUrl = parsedUrl.href;
-		} catch {
-			writeStudioProtocolError({
-				code: 'invalid-url',
-				message:
-					'The caption styles URL must be an absolute HTTP or HTTPS URL.',
-				response,
-				status: 400,
-			});
-			return;
-		}
+	const captionStylesUrl =
+		parsedRequest.captionStylesUrl === null
+			? null
+			: normalizeHttpUrl(parsedRequest.captionStylesUrl);
+	if (parsedRequest.captionStylesUrl !== null && captionStylesUrl === null) {
+		writeStudioProtocolError({
+			code: 'invalid-url',
+			message: 'The caption styles URL must be an absolute HTTP or HTTPS URL.',
+			response,
+			status: 400,
+		});
+		return;
 	}
 
 	const displayName = parsedRequest.displayName?.trim() ?? null;

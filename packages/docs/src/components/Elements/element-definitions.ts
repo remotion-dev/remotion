@@ -105,7 +105,6 @@ export type ElementDefinition = {
 	readonly safeArea: number;
 	readonly slug: string;
 	readonly installationMode: ElementInstallationMode;
-	readonly isCaptionStyle: boolean;
 	readonly width: number;
 };
 
@@ -131,7 +130,6 @@ const youtubeSubscribeNudgeAssets = {
 const elementImplementations = [
 	{
 		slug: 'audio/oscilloscope',
-		isCaptionStyle: false,
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
 			src: staticFileRef(audioOscilloscopeAudio.path),
@@ -164,7 +162,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'audio/waveform-progress',
-		isCaptionStyle: false,
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
 			src: staticFileRef(audioOscilloscopeAudio.path),
@@ -197,7 +194,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'audio/mirrored-spectrum',
-		isCaptionStyle: false,
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
 			src: staticFileRef(audioOscilloscopeAudio.path),
@@ -230,7 +226,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/notebook-paper',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: NotebookPaper,
@@ -258,7 +253,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/paper-texture',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: PaperTexture,
@@ -287,7 +281,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/rotating-starburst',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: RotatingStarburst,
@@ -315,7 +308,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/moving-waves',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: MovingWaves,
@@ -343,7 +335,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/moving-zigzags',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: MovingZigzags,
@@ -371,7 +362,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/liquid-contours',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: LiquidContours,
@@ -400,7 +390,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/basic-captions',
-		isCaptionStyle: true,
 		assets: [],
 		installationProps: null,
 		component: BasicCaptions,
@@ -429,7 +418,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/rounded-captions',
-		isCaptionStyle: true,
 		assets: [],
 		installationProps: null,
 		component: RoundedCaptions,
@@ -463,7 +451,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/moving-pill-captions',
-		isCaptionStyle: true,
 		assets: [],
 		installationProps: null,
 		component: MovingPillCaptions,
@@ -496,7 +483,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/popping-word-captions',
-		isCaptionStyle: true,
 		assets: [],
 		installationProps: null,
 		component: PoppingWordCaptions,
@@ -528,7 +514,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/word-highlight-captions',
-		isCaptionStyle: true,
 		assets: [],
 		installationProps: null,
 		component: WordHighlightCaptions,
@@ -560,7 +545,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'commerce/product-collection',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: ProductCollection,
@@ -588,7 +572,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'commerce/product-discount-callout',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: ProductDiscountCallout,
@@ -619,7 +602,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'commerce/shine',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: Shine,
@@ -645,7 +627,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'commerce/tear',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: Tear,
@@ -671,7 +652,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/horizontal-bar-chart',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: HorizontalBarChart,
@@ -699,7 +679,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/line-chart',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: LineChart,
@@ -725,7 +704,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/number-counter',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: NumberCounter,
@@ -759,7 +737,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/pie-chart',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: PieChart,
@@ -786,7 +763,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/vertical-bar-chart',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: VerticalBarChart,
@@ -815,7 +791,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'layouts/picture-in-picture-transition',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: PictureInPictureTransition,
@@ -844,7 +819,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'layouts/slide-to-split-screen',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: SlideToSplitScreen,
@@ -873,7 +847,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'maps/map-flyover',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: MapFlyover,
@@ -903,7 +876,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'maps/watercolor-map',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: WatercolorMap,
@@ -935,7 +907,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'overlays/location-lower-third',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: LocationLowerThird,
@@ -963,7 +934,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'overlays/name-lower-third',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: NameLowerThird,
@@ -992,7 +962,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'overlays/social-safe-zones',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: SocialSafeZones,
@@ -1021,7 +990,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/news-article-highlight',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: NewsArticleHighlight,
@@ -1049,7 +1017,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'storytelling/speed-lines',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: SpeedLines,
@@ -1077,7 +1044,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'storytelling/on-screen-messages',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: OnScreenMessages,
@@ -1106,7 +1072,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'storytelling/polaroid-pictures',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: PolaroidPictures,
@@ -1135,7 +1100,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/circle-marker',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: CircleMarker,
@@ -1167,7 +1131,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/crossed-off',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: CrossedOffText,
@@ -1197,7 +1160,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/spinning-text-wheel',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: SpinningTextWheel,
@@ -1226,7 +1188,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/strike-through',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: StrikeThroughText,
@@ -1258,7 +1219,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/text-marker',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: TextMarker,
@@ -1288,7 +1248,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'youtube/youtube-comment-highlight',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: YouTubeCommentHighlight,
@@ -1316,7 +1275,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'youtube/youtube-end-card',
-		isCaptionStyle: false,
 		assets: [],
 		installationProps: null,
 		component: YouTubeEndCard,
@@ -1345,7 +1303,6 @@ const elementImplementations = [
 	},
 	{
 		slug: 'youtube/youtube-subscribe-nudge',
-		isCaptionStyle: false,
 		assets: [
 			youtubeSubscribeNudgeAssets.click,
 			youtubeSubscribeNudgeAssets.ding,

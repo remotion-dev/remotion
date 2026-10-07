@@ -109,13 +109,6 @@ export const insertBasicCaptions = ({
 		throw new Error('The selected element is not a Remotion Video or Audio');
 	}
 
-	const componentName = element?.componentName ?? 'BasicCaptions';
-	const captionsLocalName = ensureOfficialNamedImport({
-		ast,
-		importedName: componentName,
-		preferredLocalName: componentName,
-		sourcePath: importPath,
-	});
 	const timingProps = [
 		'from',
 		'durationInFrames',
@@ -133,25 +126,31 @@ export const insertBasicCaptions = ({
 	const copiedAttributes = mediaAttributes.map(
 		(attribute) => recast.print(attribute).code,
 	);
-	if (
-		Number.isFinite(durationInFrames) &&
+	const fallbackTimingProps = [
+		...(Number.isFinite(durationInFrames) &&
 		durationInFrames !== null &&
 		!copiedAttributes.some((attribute) =>
 			attribute.startsWith('durationInFrames'),
 		)
-	) {
-		copiedAttributes.push(`durationInFrames={${durationInFrames}}`);
-	}
-
-	if (
-		premountFor !== null &&
+			? [{name: 'durationInFrames', value: durationInFrames}]
+			: []),
+		...(premountFor !== null &&
 		!copiedAttributes.some((attribute) => attribute.startsWith('premountFor'))
-	) {
-		copiedAttributes.push(`premountFor={${premountFor}}`);
-	}
+			? [{name: 'premountFor', value: premountFor}]
+			: []),
+	];
 
 	let elementSource: string;
 	if (element === null) {
+		const captionsLocalName = ensureOfficialNamedImport({
+			ast,
+			importedName: 'BasicCaptions',
+			preferredLocalName: 'BasicCaptions',
+			sourcePath: importPath,
+		});
+		copiedAttributes.push(
+			...fallbackTimingProps.map(({name, value}) => `${name}={${value}}`),
+		);
 		const formattingConfig = getSourceFormattingConfig({
 			input,
 			prettierConfigOverride,
@@ -233,8 +232,8 @@ export const insertBasicCaptions = ({
 			element: createElementFromInsertable({
 				element: {
 					type: 'component',
-					componentName: captionsLocalName,
-					importName: componentName,
+					componentName: element.componentName,
+					importName: element.componentName,
 					importPath,
 					position: null,
 					props: [
@@ -244,33 +243,18 @@ export const insertBasicCaptions = ({
 							)
 							.map(([name, value]) => ({name, value})),
 						{name: 'captions', value: captions},
-						...(durationInFrames !== null && Number.isFinite(durationInFrames)
-							? [{name: 'durationInFrames', value: durationInFrames}]
-							: []),
+						...fallbackTimingProps,
 					],
 				},
 				from: null,
-				premountFor,
+				premountFor: null,
 				wrapInSequence: null,
 			}),
 		});
-		const copiedNames = new Set(
-			mediaAttributes.map((attribute) =>
-				attribute.type === 'JSXAttribute' &&
-				attribute.name.type === 'JSXIdentifier'
-					? attribute.name.name
-					: null,
-			),
-		);
-		jsx.openingElement.attributes = (
-			jsx.openingElement.attributes ?? []
-		).filter(
-			(attribute) =>
-				attribute.type !== 'JSXAttribute' ||
-				attribute.name.type !== 'JSXIdentifier' ||
-				!copiedNames.has(attribute.name.name),
-		);
-		jsx.openingElement.attributes.push(...(mediaAttributes as never[]));
+		jsx.openingElement.attributes = [
+			...(jsx.openingElement.attributes ?? []),
+			...(mediaAttributes as never[]),
+		];
 		elementSource = printInsertedJsx({
 			element: jsx,
 			input,

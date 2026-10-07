@@ -2,6 +2,7 @@ import {
 	StudioProtocolInternals,
 	type AddElementLibraryToStudioResult,
 } from '@remotion/studio-protocol';
+import {normalizeHttpUrl} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -194,23 +195,12 @@ export const Modals: React.FC<{
 				// The response below explains that the URL is invalid.
 			}
 
-			let captionStylesUrl: string | null = null;
-			let invalidCaptionStylesUrl = false;
-			if (request.captionStylesUrl !== null) {
-				try {
-					const parsedUrl = new URL(request.captionStylesUrl);
-					if (
-						parsedUrl.protocol !== 'http:' &&
-						parsedUrl.protocol !== 'https:'
-					) {
-						throw new Error('Unsupported protocol');
-					}
-
-					captionStylesUrl = parsedUrl.href;
-				} catch {
-					invalidCaptionStylesUrl = true;
-				}
-			}
+			const captionStylesUrl =
+				request.captionStylesUrl === null
+					? null
+					: normalizeHttpUrl(request.captionStylesUrl);
+			const invalidCaptionStylesUrl =
+				request.captionStylesUrl !== null && captionStylesUrl === null;
 
 			const displayName = request.displayName?.trim() ?? null;
 			const canAddLibrary =

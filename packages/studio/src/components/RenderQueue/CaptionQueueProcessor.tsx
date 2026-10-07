@@ -139,7 +139,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 					let installed = false;
 					for (let index = 0; index < 1000; index++) {
 						signal.throwIfAborted();
-						const installationName = `${baseName}${index === 0 ? '' : `-${index + 1}`}`;
+						const installationName = `${baseName}${index === 0 ? '' : `-copy${index === 1 ? '' : `-${index}`}`}`;
 						const preflight = await prepareElementInstall({
 							installationName,
 							destination: {

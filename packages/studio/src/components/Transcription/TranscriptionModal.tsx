@@ -84,6 +84,8 @@ const DEFAULT_TOP_K = 50;
 const DEFAULT_REPETITION_PENALTY = 1;
 const DEFAULT_NO_REPEAT_NGRAM_SIZE = 0;
 const MAX_CHUNK_LENGTH_IN_SECONDS = 30;
+const REMOTION_CAPTION_STYLES_URL =
+	'https://www.remotion.dev/elements/captions';
 
 type Tab = 'transcribe' | 'advanced' | 'models' | 'styles';
 
@@ -713,20 +715,14 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	src,
 	target,
 }) => {
-	const [libraryUrl, setLibraryUrl] = useState(
-		'https://www.remotion.dev/elements/captions',
-	);
+	const [libraryUrl, setLibraryUrl] = useState(REMOTION_CAPTION_STYLES_URL);
 	const {studioRuntimeConfig} = useSettings();
 	const libraryOptions: SegmentedControlItem[] = [
-		{
-			url: 'https://www.remotion.dev/elements/captions',
-			displayName: 'Remotion captions',
-		},
+		{url: REMOTION_CAPTION_STYLES_URL, displayName: 'Remotion captions'},
 		...(studioRuntimeConfig?.elementLibraries ?? []).flatMap(
 			({captionStylesUrl, displayName: libraryName}) =>
 				captionStylesUrl === null ||
-				captionStylesUrl === undefined ||
-				captionStylesUrl === 'https://www.remotion.dev/elements/captions'
+				captionStylesUrl === REMOTION_CAPTION_STYLES_URL
 					? []
 					: [{url: captionStylesUrl, displayName: libraryName}],
 		),
@@ -875,7 +871,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 			outName:
 				target === null
 					? outName
-					: (captionStyle?.element.displayName ?? 'Basic Captions'),
+					: (captionStyle?.element.displayName ?? 'Basic captions'),
 			target,
 			model: selectedModel,
 			language: modelInfo.multilingual ? selectedLanguage : null,
@@ -933,7 +929,9 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						gap: 8,
 					}}
 				>
-					{target === null || captionStyle === null ? null : (
+					{target === null || captionStyle === null ? (
+						<div style={flexer} />
+					) : (
 						<div
 							style={{
 								display: 'flex',
@@ -1011,9 +1009,6 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							</div>
 						</div>
 					)}
-					{captionStyle === null || target === null ? (
-						<div style={flexer} />
-					) : null}
 					<Button
 						onClick={onAddToQueue}
 						disabled={!canTranscribe}
