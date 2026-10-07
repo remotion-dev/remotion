@@ -6,7 +6,7 @@ import {
 	type CommittedCompositionSnapshot,
 } from '../committed-metadata.js';
 import {Composition} from '../Composition.js';
-import type {AnyComposition} from '../CompositionManager.js';
+import {compositionsRef, type AnyComposition} from '../CompositionManager.js';
 import type {CompositionManagerContext} from '../CompositionManagerContext.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
 import {CompositionManagerProvider} from '../CompositionManagerProvider.js';
@@ -125,6 +125,15 @@ test('applies committed composition and folder order', async () => {
 				folders,
 				orderIds: ['folder:group', 'composition:inside', 'composition:outside'],
 			});
+			// Renderer reads must see the snapshot before React flushes the update.
+			expect(
+				compositionsRef.current
+					?.getCompositions()
+					.map((composition) => [composition.id, composition.order]),
+			).toEqual([
+				['inside', 1],
+				['outside', 2],
+			]);
 		});
 
 		await waitFor(() => {

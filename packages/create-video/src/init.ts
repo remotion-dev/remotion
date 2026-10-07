@@ -27,7 +27,7 @@ import {resolveProjectRoot} from './resolve-project-root';
 import {
 	getDirectoryArgument,
 	isHelpFlagSelected,
-	isNoTailwindFlagSelected,
+	isTailwindFlagSelected,
 	isTmpFlagSelected,
 	isYesFlagSelected,
 	selectTemplate,
@@ -160,7 +160,7 @@ export const init = async () => {
 	});
 
 	const shouldOverrideTailwind =
-		selectedTemplate.allowEnableTailwind && !isNoTailwindFlagSelected();
+		selectedTemplate.allowEnableTailwind && isTailwindFlagSelected();
 
 	const skillsInstallation = isYesFlagSelected() ? null : await askSkills();
 

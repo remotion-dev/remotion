@@ -17,6 +17,10 @@ export const videoImageFormatOption = {
 			{validVideoImageFormats.map((f) => `"${f}"`).join(', ')}. Default:{' '}
 			<code>&quot;jpeg&quot;</code>. JPEG is faster, but does not support
 			transparency.
+			<br />
+			When <a href="/docs/shared-memory-capture">shared-memory capture</a> is
+			active, this option has no effect. The output pixel format determines
+			transparency.
 		</>
 	),
 	ssrName: 'imageFormat' as const,

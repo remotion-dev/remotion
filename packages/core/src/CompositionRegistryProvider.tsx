@@ -1,6 +1,8 @@
 import {
+	forwardRef,
 	useCallback,
 	useEffect,
+	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -31,10 +33,13 @@ const CompositionRegistryFallbackProvider = withCommittedMetadata(
 
 // Every consumer receives a complete committed snapshot. The fallback changes
 // how descriptors are captured, rather than exposing a second registration API.
-export const CompositionRegistryProvider: React.FC<{
-	readonly children: React.ReactNode;
-	readonly onSnapshot: (snapshot: CommittedCompositionSnapshot) => void;
-}> = ({children, onSnapshot}) => {
+export const CompositionRegistryProvider = forwardRef<
+	() => void,
+	{
+		readonly children: React.ReactNode;
+		readonly onSnapshot: (snapshot: CommittedCompositionSnapshot) => void;
+	}
+>(({children, onSnapshot}, flushSnapshotRef) => {
 	const {isStudio} = useRemotionEnvironment();
 	const [managerId] = useState(() => String(Math.random()));
 	const [useCommitObserver, setUseCommitObserver] = useState(
@@ -48,6 +53,41 @@ export const CompositionRegistryProvider: React.FC<{
 	const pendingSnapshotRef = useRef<
 		CommittedCompositionSnapshot | (() => CommittedCompositionSnapshot) | null
 	>(null);
+	const flushSnapshot = useCallback(() => {
+		const pending = pendingSnapshotRef.current;
+		pendingSnapshotRef.current = null;
+		if (pending === null || unmountedRef.current) {
+			return;
+		}
+
+		const committed = typeof pending === 'function' ? pending() : pending;
+		const previous = lastSnapshotRef.current;
+		if (
+			previous !== null &&
+			(previous.compositions === committed.compositions ||
+				(previous.compositions.length === committed.compositions.length &&
+					previous.compositions.every(
+						(composition, index) =>
+							composition === committed.compositions[index],
+					))) &&
+			(previous.folders === committed.folders ||
+				(previous.folders.length === committed.folders.length &&
+					previous.folders.every(
+						(folder, index) => folder === committed.folders[index],
+					))) &&
+			(previous.orderIds === committed.orderIds ||
+				(previous.orderIds.length === committed.orderIds.length &&
+					previous.orderIds.every(
+						(id, index) => id === committed.orderIds[index],
+					)))
+		) {
+			return;
+		}
+
+		lastSnapshotRef.current = committed;
+		onSnapshotRef.current(committed);
+	}, []);
+	useImperativeHandle(flushSnapshotRef, () => flushSnapshot, [flushSnapshot]);
 	const queueSnapshot = useCallback(
 		(
 			snapshot:
@@ -60,42 +100,9 @@ export const CompositionRegistryProvider: React.FC<{
 				return;
 			}
 
-			queueMicrotask(() => {
-				const pending = pendingSnapshotRef.current;
-				pendingSnapshotRef.current = null;
-				if (pending === null || unmountedRef.current) {
-					return;
-				}
-
-				const committed = typeof pending === 'function' ? pending() : pending;
-				const previous = lastSnapshotRef.current;
-				if (
-					previous !== null &&
-					(previous.compositions === committed.compositions ||
-						(previous.compositions.length === committed.compositions.length &&
-							previous.compositions.every(
-								(composition, index) =>
-									composition === committed.compositions[index],
-							))) &&
-					(previous.folders === committed.folders ||
-						(previous.folders.length === committed.folders.length &&
-							previous.folders.every(
-								(folder, index) => folder === committed.folders[index],
-							))) &&
-					(previous.orderIds === committed.orderIds ||
-						(previous.orderIds.length === committed.orderIds.length &&
-							previous.orderIds.every(
-								(id, index) => id === committed.orderIds[index],
-							)))
-				) {
-					return;
-				}
-
-				lastSnapshotRef.current = committed;
-				onSnapshotRef.current(committed);
-			});
+			queueMicrotask(flushSnapshot);
 		},
-		[],
+		[flushSnapshot],
 	);
 	const onObservedSnapshot = useCallback(
 		(snapshot: CommittedCompositionSnapshot) => {
@@ -214,4 +221,4 @@ export const CompositionRegistryProvider: React.FC<{
 			{children}
 		</CompositionRegistryFallbackProvider>
 	);
-};
+});

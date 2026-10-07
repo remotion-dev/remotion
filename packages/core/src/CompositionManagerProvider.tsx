@@ -43,6 +43,7 @@ export const CompositionManagerProvider = ({
 	readonly initialCanvasContent: CanvasContent | null;
 }) => {
 	const committedKeysRef = useRef<ReadonlySet<string>>(new Set());
+	const flushSnapshotRef = useRef<(() => void) | null>(null);
 	const committedDescriptorsRef = useRef<
 		ReadonlyMap<string, AnyComposition | TFolder>
 	>(new Map());
@@ -138,7 +139,10 @@ export const CompositionManagerProvider = ({
 
 	useImperativeHandle(compositionsRef, () => {
 		return {
-			getCompositions: () => registry.getSnapshot().compositions,
+			getCompositions: () => {
+				flushSnapshotRef.current?.();
+				return registry.getSnapshot().compositions;
+			},
 		};
 	}, [registry]);
 
@@ -173,7 +177,10 @@ export const CompositionManagerProvider = ({
 	}
 
 	return (
-		<CompositionRegistryProvider onSnapshot={onCommitRegistrations}>
+		<CompositionRegistryProvider
+			ref={flushSnapshotRef}
+			onSnapshot={onCommitRegistrations}
+		>
 			<CompositionManager.Provider value={compositionManagerContextValue}>
 				<CompositionSetters.Provider value={compositionManagerSetters}>
 					{children}

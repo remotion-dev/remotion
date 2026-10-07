@@ -362,14 +362,12 @@ const SequenceSourceQuickActions: React.FC<{
 			>
 				Duplicate
 			</InspectorQuickAction>
-			{mediaSequence === null ? (
-				<SequenceWrapAction
-					nodePathInfo={selection.nodePathInfo}
-					track={track}
-					sourceActionsDisabled={sourceActionsDisabled}
-					sourceLocation={validatedLocation}
-				/>
-			) : null}
+			<SequenceWrapAction
+				nodePathInfo={selection.nodePathInfo}
+				track={track}
+				sourceActionsDisabled={sourceActionsDisabled}
+				sourceLocation={validatedLocation}
+			/>
 			<SequencePrecomposeAction
 				targets={[
 					{

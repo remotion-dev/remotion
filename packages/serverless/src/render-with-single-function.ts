@@ -123,6 +123,7 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 			browserExecutable: providerSpecifics.getChromiumPath(),
 			cancelSignal: params.enableCancellation ? cancelSignal : undefined,
 			disallowParallelEncoding: false,
+			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			colorSpace: params.colorSpace ?? undefined,
 			repro: false,

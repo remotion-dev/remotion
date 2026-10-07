@@ -3,8 +3,11 @@ import {
 	getProjectId,
 	isInCloudTask,
 } from '../../functions/helpers/is-in-cloud-task';
+import {checkCredentials} from '../../shared/check-credentials';
 
 export const getCloudStorageClient = () => {
+	checkCredentials();
+
 	if (isInCloudTask()) {
 		return new Storage({
 			projectId: getProjectId(),

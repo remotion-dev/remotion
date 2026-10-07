@@ -1,7 +1,10 @@
 import {ArtifactRegistryClient} from '@google-cloud/artifact-registry';
 import {VERSION} from 'remotion/version';
+import {checkCredentials} from './check-credentials';
 
 export const validateImageRemotionVersion = async () => {
+	checkCredentials();
+
 	const client = new ArtifactRegistryClient({
 		projectId: process.env.REMOTION_GCP_PROJECT_ID,
 		credentials: {

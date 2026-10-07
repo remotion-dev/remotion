@@ -291,6 +291,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			proResProfile: params.proResProfile,
 			x264Preset: params.x264Preset,
 			gopSize: params.gopSize ?? null,
+			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
