@@ -171,30 +171,18 @@ See how you can [contribute](/docs/contributing/web-renderer) to add more suppor
 The CSS property `z-index` is not supported.  
 Elements are drawn in DOM order. CSS stacking contexts and the stacking order implied by `position` are not understood.
 
-For example, an absolutely positioned text label placed before an [`<Img>`](/docs/img) in JSX is drawn behind the image, even if the browser displays the label on top. Place the label after the image to draw it on top in client-side rendering.
-
 To control the order of the elements, [order your elements from back to front](/docs/layers).
 
-```tsx twoslash title="The blue square will be drawn on top of the red square"
-import {AbsoluteFill} from 'remotion';
+```tsx twoslash title="The image is drawn on top of the text in client-side rendering"
+import {Img, staticFile} from 'remotion';
 
 // ---cut---
-const MyComp = () => {
-  return (
-    <AbsoluteFill>
-      <AbsoluteFill>
-        <svg viewBox="0 0 100 100">
-          <rect x="0" y="0" width="100" height="100" fill="red" />
-        </svg>
-      </AbsoluteFill>
-      <AbsoluteFill>
-        <svg viewBox="0 0 100 100">
-          <rect x="0" y="0" width="100" height="100" fill="blue" />
-        </svg>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
-};
+const MyComp = () => (
+  <div style={{position: 'relative'}}>
+    <div style={{position: 'absolute', top: 0, left: 0}}>Label</div>
+    <Img src={staticFile('image.png')} />
+  </div>
+);
 ```
 
 ## Video and media constraints
