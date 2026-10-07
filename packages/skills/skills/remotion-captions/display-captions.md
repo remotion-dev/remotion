@@ -145,8 +145,6 @@ export const MyComposition: React.FC = () => {
 };
 ```
 
-Register the video directly in `src/Root.tsx`:
-
 ```tsx title="src/Root.tsx"
 import { Composition } from "remotion";
 import { MyComposition } from "./MyComposition";

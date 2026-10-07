@@ -7,11 +7,6 @@ metadata:
 
 A `<Composition>` defines the component, width, height, fps and duration of a renderable video.
 
-Keep all `<Composition>`, `<Still>`, and `<Folder>` registrations directly in
-`src/Root.tsx`. Import the video and image components from their own files.
-Each registration should be an authored JSX node in the root component's
-return, optionally inside a `<Folder>` in the same file.
-
 ## Source-editable registrations
 
 Give each composition or still that should be edited independently in the
@@ -77,7 +72,6 @@ prop. See [Displaying captions](../remotion-captions/display-captions.md).
 For Studio editing, keep `defaultProps` as an inline object literal on `<Composition>` or `<Still>`.
 Keep values that should be written back directly in the object instead of deriving them from a loop variable.
 Do not store it in a variable, import it, spread it, create it with a helper, or wrap it in `satisfies`.
-Keep `width`, `height`, `fps`, `durationInFrames`, and `defaultProps` directly on each registration in `src/Root.tsx`.
 Use `type` declarations for props rather than `interface` to ensure `defaultProps` type safety.
 
 ```tsx title="src/Root.tsx"

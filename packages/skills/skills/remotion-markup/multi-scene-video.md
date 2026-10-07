@@ -47,7 +47,7 @@ export const MyVideo = () => {
 };
 ```
 
-Register the same scene components, plus the parent video, directly in `src/Root.tsx`:
+Register the same scene components, plus the parent video, in the root:
 
 ```tsx title="src/Root.tsx"
 import {Composition, Folder} from 'remotion';
