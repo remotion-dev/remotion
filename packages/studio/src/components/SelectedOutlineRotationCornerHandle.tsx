@@ -36,7 +36,6 @@ import {
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {svgPointToClientPoint} from './svg-point-to-client-point';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -266,31 +265,21 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 						change.type === 'keyframed',
 				);
 
-				Promise.all([
-					staticChanges.length > 0
-						? saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: rotationDrag.clientId,
-								undoLabel:
-									changes.length > 1
-										? 'Rotate selected sequences'
-										: 'Rotate sequence',
-								redoLabel:
-									changes.length > 1
-										? 'Rotate selected sequences back'
-										: 'Rotate sequence back',
-							})
-						: Promise.resolve(),
-					callAddKeyframes({
-						sequenceKeyframes: keyframedChanges,
-						effectKeyframes: [],
-						setPropStatuses,
-						clientId: rotationDrag.clientId,
-					}),
-				])
+				saveSequenceProps({
+					changes: staticChanges,
+					addedKeyframes: keyframedChanges,
+					movedKeyframes: null,
+					setPropStatuses,
+					clientId: rotationDrag.clientId,
+					undoLabel:
+						changes.length > 1
+							? 'Rotate selected sequences'
+							: 'Rotate sequence',
+					redoLabel:
+						changes.length > 1
+							? 'Rotate selected sequences back'
+							: 'Rotate sequence back',
+				})
 					.catch((err) => {
 						showNotification(
 							`Could not save sequence props: ${
