@@ -98,6 +98,7 @@ test('an artifact replayed by a retried streaming chunk is idempotent', async ()
 	await renderRendererFunctionWithRetry({
 		payload: {
 			type: 'renderer',
+			output: {type: 'media'},
 			bucketName: 'bucket',
 			renderId: 'render-id',
 			chunk: 0,

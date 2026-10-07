@@ -120,6 +120,7 @@ payload = {
     serveUrl: serve_url,
     timeoutInMilliseconds: timeout_in_milliseconds,
     type: "start",
+    output: {type: "media"},
     version: VERSION,
     videoBitrate: video_bitrate,
     webhook: webhook,

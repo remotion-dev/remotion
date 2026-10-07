@@ -5320,6 +5320,15 @@ export const articles = [
 		slug: 'lambda/region-selection',
 	},
 	{
+		id: 'renderframesonlambda',
+		title: 'renderFramesOnLambda()',
+		relativePath: 'docs/lambda/renderframesonlambda.mdx',
+		compId: 'articles-docs-lambda-renderframesonlambda',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/renderframesonlambda',
+	},
+	{
 		id: 'rendermediaonlambda',
 		title: 'renderMediaOnLambda()',
 		relativePath: 'docs/lambda/rendermediaonlambda.mdx',

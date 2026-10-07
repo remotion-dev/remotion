@@ -274,6 +274,11 @@ class PHPClient
         return $this->handleLambdaResponseRender($result);
     }
 
+    public function renderFramesOnLambda(RenderFramesParams $render): RenderMediaOnLambdaResponse
+    {
+        return $this->renderMediaOnLambda($render);
+    }
+
     public function makeRenderProgressPayload(string $renderId, string $bucketName, string $logLevel = "info", $forcePathStyle = false)
     {
         return json_encode([
@@ -403,6 +408,9 @@ class PHPClient
         $classResponse->outBucket = $response['outBucket'];
         $classResponse->outKey = $response['outKey'];
         $classResponse->outputFile = $response['outputFile'];
+        $classResponse->outputSequence = $response['outputSequence'] ?? null;
+        $classResponse->framesUploaded = $response['framesUploaded'] ?? null;
+        $classResponse->framesRendered = $response['framesRendered'] ?? null;
         $classResponse->overallProgress = $response['overallProgress'];
         $classResponse->renderSize = $response['renderSize'];
         $classResponse->timeToFinish = $response['timeToFinish'];
