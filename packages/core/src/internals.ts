@@ -39,6 +39,7 @@ import {
 	CompositionSetters,
 } from './CompositionManagerContext.js';
 import {CompositionManagerProvider} from './CompositionManagerProvider.js';
+import {CompositionRegistryProvider} from './CompositionRegistryProvider.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {
@@ -398,6 +399,7 @@ export const Internals = {
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
 	CompositionManagerProvider,
+	CompositionRegistryProvider,
 	useVideo,
 	getRoot,
 	useMediaVolumeState,

@@ -1,7 +1,6 @@
 import type React from 'react';
 import {createContext} from 'react';
-import type {AnyZodObject} from './any-zod-type.js';
-import type {AnyComposition, TComposition} from './CompositionManager.js';
+import type {AnyComposition} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
 import type {VideoConfig} from './video-config.js';
 
@@ -50,19 +49,6 @@ export type CanvasContent =
 	  };
 
 export type CompositionManagerSetters = {
-	registerComposition: <
-		Schema extends AnyZodObject,
-		Props extends Record<string, unknown>,
-	>(
-		comp: TComposition<Schema, Props>,
-	) => void;
-	unregisterComposition: (name: string) => void;
-	registerFolder: (
-		name: string,
-		parent: string | null,
-		stack: string | null,
-	) => void;
-	unregisterFolder: (name: string, parent: string | null) => void;
 	setCanvasContent: React.Dispatch<React.SetStateAction<CanvasContent | null>>;
 	setCurrentAssetMetadata: React.Dispatch<
 		React.SetStateAction<AssetPreviewMetadata | null>
@@ -87,16 +73,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	canvasContent: null,
 });
 
-// Bind commit registration to these setters so custom providers keep using
-// their own registration lifecycle, even inside a managed Studio tree.
-export const CompositionCommitRegistrationContext =
-	createContext<CompositionManagerSetters | null>(null);
-
 export const CompositionSetters = createContext<CompositionManagerSetters>({
-	registerComposition: () => undefined,
-	unregisterComposition: () => undefined,
-	registerFolder: () => undefined,
-	unregisterFolder: () => undefined,
 	setCanvasContent: () => undefined,
 	setCurrentAssetMetadata: () => undefined,
 	onlyRenderComposition: null,

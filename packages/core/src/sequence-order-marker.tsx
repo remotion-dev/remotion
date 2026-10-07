@@ -1,4 +1,6 @@
 import type React from 'react';
+import {useMemo} from 'react';
+import {useCommittedCompositionEntry} from './composition-registry-fallback.js';
 import type {AnyComposition, TSequence} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
 
@@ -112,7 +114,18 @@ export const CompositionOrderMarker: React.FC<{
 	readonly children: React.ReactNode;
 	readonly compositionId: string;
 	readonly registration: AnyComposition | null;
-}> = ({children}) => children;
+}> = ({children, registration}) => {
+	useCommittedCompositionEntry(
+		useMemo(
+			() =>
+				registration === null
+					? null
+					: {type: 'composition' as const, value: registration},
+			[registration],
+		),
+	);
+	return children;
+};
 
 Object.defineProperty(CompositionOrderMarker, COMPOSITION_ORDER_MARKER, {
 	value: true,
@@ -122,7 +135,18 @@ export const FolderOrderMarker: React.FC<{
 	readonly children: React.ReactNode;
 	readonly folderId: string;
 	readonly registration: TFolder | null;
-}> = ({children}) => children;
+}> = ({children, registration}) => {
+	useCommittedCompositionEntry(
+		useMemo(
+			() =>
+				registration === null
+					? null
+					: {type: 'folder' as const, value: registration},
+			[registration],
+		),
+	);
+	return children;
+};
 
 Object.defineProperty(FolderOrderMarker, FOLDER_ORDER_MARKER, {
 	value: true,

@@ -17,10 +17,7 @@ import type {Codec} from './codec.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {CompositionErrorBoundary} from './CompositionErrorBoundary.js';
 import type {AnyComposition, TComposition} from './CompositionManager.js';
-import {
-	CompositionCommitRegistrationContext,
-	CompositionSetters,
-} from './CompositionManagerContext.js';
+import {CompositionSetters} from './CompositionManagerContext.js';
 import {resolveComponentIdentity} from './enable-sequence-stack-traces.js';
 import {FolderContext} from './Folder.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
@@ -152,12 +149,6 @@ const InnerComposition = <
 }: CompositionProps<Schema, Props> & {
 	readonly _remotionInternalStack?: string;
 }) => {
-	const compManager = useContext(CompositionSetters);
-
-	const {registerComposition, unregisterComposition} = compManager;
-	const commitRegistrationEnabled =
-		useContext(CompositionCommitRegistrationContext) === compManager;
-
 	const video = useVideo();
 
 	const lazy = useLazyComponent<Props>({
@@ -199,7 +190,7 @@ const InnerComposition = <
 			? resolveComponentIdentity(compProps.component)
 			: null;
 
-	const getCompositionForRegistration = useCallback(() => {
+	const registration = useMemo(() => {
 		// Ensure it's a URL safe id
 		if (!id) {
 			throw new Error('No id for composition passed.');
@@ -224,7 +215,7 @@ const InnerComposition = <
 			schema: schema ?? null,
 			calculateMetadata: compProps.calculateMetadata ?? null,
 			stack,
-		} as TComposition<Schema, Props>;
+		} as TComposition<Schema, Props> as unknown as AnyComposition;
 	}, [
 		durationInFrames,
 		fps,
@@ -239,27 +230,6 @@ const InnerComposition = <
 		schema,
 		compProps.calculateMetadata,
 		stack,
-	]);
-	const registration = useMemo(
-		() =>
-			commitRegistrationEnabled
-				? (getCompositionForRegistration() as unknown as AnyComposition)
-				: null,
-		[commitRegistrationEnabled, getCompositionForRegistration],
-	);
-	useEffect(() => {
-		if (commitRegistrationEnabled) {
-			return;
-		}
-
-		registerComposition<Schema, Props>(getCompositionForRegistration());
-		return () => unregisterComposition(id);
-	}, [
-		commitRegistrationEnabled,
-		getCompositionForRegistration,
-		id,
-		registerComposition,
-		unregisterComposition,
 	]);
 
 	const resolved = useResolvedVideoConfig(id);
@@ -276,14 +246,11 @@ const InnerComposition = <
 	const onClear = useCallback(() => {
 		clearError();
 	}, [clearError]);
-	const wrapRegistration = (content: React.ReactNode) =>
-		environment.isStudio ? (
-			<CompositionOrderMarker compositionId={id} registration={registration}>
-				{content}
-			</CompositionOrderMarker>
-		) : (
-			content
-		);
+	const wrapRegistration = (content: React.ReactNode) => (
+		<CompositionOrderMarker compositionId={id} registration={registration}>
+			{content}
+		</CompositionOrderMarker>
+	);
 
 	if (
 		environment.isStudio &&
