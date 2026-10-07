@@ -165,6 +165,23 @@ export const collectCommitOrderFromFiber = (
 		outlineCollectors: readonly (Element | Text)[][] | null,
 	) => {
 		const metadata = getCommittedMetadata(fiber.memoizedProps);
+		if (outlineCollectors === null && metadata === null) {
+			// No metadata or geometry starts here inside an already hidden tree.
+			// Keep visiting descendants for registrations without rebuilding outlines.
+			let hiddenChild = fiber.child;
+			while (hiddenChild !== null) {
+				visit(
+					hiddenChild,
+					currentSequenceManagerId,
+					currentCompositionManagerId,
+					null,
+				);
+				hiddenChild = hiddenChild.sibling;
+			}
+
+			return;
+		}
+
 		const sequenceManagerId =
 			metadata?.type === 'sequence-manager'
 				? metadata.id
