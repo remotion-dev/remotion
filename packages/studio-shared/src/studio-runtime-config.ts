@@ -6,8 +6,8 @@ import type {
 import type {StudioKeyboardShortcuts} from './keyboard-shortcuts';
 
 export type ConfigFileStudioSettings = {
-	readonly showPremounting?: boolean | null;
-	readonly defaultPremountInSeconds?: number | null;
+	readonly showPremounting: boolean | null;
+	readonly defaultPremountInSeconds: number | null;
 	readonly askAIEnabled: boolean | null;
 	readonly audioLatencyHint: AudioContextLatencyCategory | null;
 	readonly beepOnFinish: boolean | null;
@@ -28,8 +28,8 @@ export type StudioElementLibrary = {
 };
 
 export type StudioRuntimeConfig = {
-	readonly showPremounting?: boolean;
-	readonly defaultPremountInSeconds?: number;
+	readonly showPremounting: boolean | null;
+	readonly defaultPremountInSeconds: number | null;
 	readonly maxTimelineTracks: number | null;
 	readonly askAIEnabled: boolean;
 	readonly elementLibraries?: readonly StudioElementLibrary[];

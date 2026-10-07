@@ -415,7 +415,7 @@ export const StudioSettings: React.FC = () => {
 						value,
 					)
 				}
-				value={settings.defaultPremountInSeconds ?? null}
+				value={settings.defaultPremountInSeconds}
 			/>
 
 			<p style={sectionTitle}>Audio</p>

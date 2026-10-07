@@ -673,6 +673,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				sampleRate: null,
 				staticHash: '',
 				studioRuntimeConfig: {
+					showPremounting: null,
+					defaultPremountInSeconds: null,
 					askAIEnabled: false,
 					bufferStateDelayInMilliseconds: null,
 					defaultCodingAgent: null,

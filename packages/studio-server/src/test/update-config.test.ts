@@ -13,6 +13,8 @@ import {
 } from '../preview-server/routes/update-config';
 
 const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
+	showPremounting: null,
+	defaultPremountInSeconds: null,
 	askAIEnabled: false,
 	bufferStateDelayInMilliseconds: null,
 	canvasTabsEnabled: true,
