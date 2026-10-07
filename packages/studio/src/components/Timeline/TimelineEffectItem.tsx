@@ -545,6 +545,7 @@ export const TimelineEffectItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<div style={labelContainerStyle}>
 				<span role="group" aria-label={label} style={labelStyle}>

@@ -684,8 +684,6 @@ type SelectedOutlineOverlayProps = {
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly scale: number;
-	readonly translationX: number;
-	readonly translationY: number;
 };
 
 type ActiveSelectedOutlineOverlayProps = Omit<
@@ -733,11 +731,8 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	selectedSequenceKeys,
 	sequenceKeysContainingSelection,
 	sequences,
-	translationX,
-	translationY,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const updateOutlinesRef = useRef<() => void>(() => undefined);
 	const selectableOutlines = useMemo(() => {
 		return getSelectableOutlines(timelinePosition);
 	}, [getSelectableOutlines, timelinePosition]);
@@ -805,9 +800,6 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 		],
 	);
 
-	useLayoutEffect(() => {
-		updateOutlinesRef.current();
-	}, [scale, translationX, translationY]);
 	return (
 		<SelectedOutlineRenderer
 			compositionHeight={compositionHeight}
@@ -821,7 +813,6 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			onSelect={onSelect}
 			scale={scale}
 			sequences={sequences}
-			updateOutlinesRef={updateOutlinesRef}
 		/>
 	);
 };
@@ -832,14 +823,7 @@ const ActiveSelectedOutlineOverlay = React.memo(
 
 const SelectedOutlineOverlayUnmemoized: React.FC<
 	SelectedOutlineOverlayProps
-> = ({
-	canvasHovered,
-	compositionHeight,
-	compositionWidth,
-	scale,
-	translationX,
-	translationY,
-}) => {
+> = ({canvasHovered, compositionHeight, compositionWidth, scale}) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const sequences = Internals.useSequenceManagerSequences();
@@ -1119,8 +1103,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					selectedSequenceKeys={selectedSequenceKeys}
 					sequenceKeysContainingSelection={sequenceKeysContainingSelection}
 					sequences={sequences}
-					translationX={translationX}
-					translationY={translationY}
 				/>
 			) : null}
 		</>

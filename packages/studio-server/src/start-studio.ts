@@ -21,7 +21,6 @@ import type {
 import {getFileWatcherRegistry} from './file-watcher';
 import {getNetworkAddress} from './get-network-address';
 import {maybeOpenBrowser} from './maybe-open-browser';
-import {registerOpenBrowserShortcut} from './open-browser-shortcut';
 import type {QueueMethods} from './preview-server/api-types';
 import {noOpUntilRestart} from './preview-server/close-and-restart';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
@@ -32,6 +31,7 @@ import {
 import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
 import {printServerReadyComment, setServerReadyComment} from './server-ready';
+import {registerStudioShortcuts} from './studio-shortcuts';
 import {watchRootFile} from './watch-root-file';
 
 export type StartStudioResult =
@@ -233,11 +233,14 @@ export const startStudio = async ({
 	printServerReadyComment('Server ready', logLevel);
 	RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
 	const studioUrl = `http://localhost:${port}`;
-	const openBrowserShortcut = registerOpenBrowserShortcut({
+	const studioShortcuts = registerStudioShortcuts({
 		browserArgs,
 		browserFlag,
 		url: studioUrl,
 		logLevel,
+		remotionRoot,
+		getDefaultEditor,
+		getDefaultCodingAgent,
 	});
 
 	let action: 'restart' | 'shutdown';
@@ -252,7 +255,7 @@ export const startStudio = async ({
 
 		action = await noOpUntilRestart();
 	} finally {
-		openBrowserShortcut.cleanup();
+		studioShortcuts.cleanup();
 	}
 
 	RenderInternals.Log.info(

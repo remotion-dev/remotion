@@ -856,6 +856,7 @@ export const TimelineSequencePropItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			{hidePathValue ? (
 				<TimelineFieldLabel
