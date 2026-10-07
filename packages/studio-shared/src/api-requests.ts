@@ -1396,7 +1396,9 @@ export type UpdateConfigResponse =
 	| {success: true}
 	| {success: false; reason: string};
 
-export type GetDefaultEditorInfoRequest = {};
+export type GetDefaultEditorInfoRequest = {
+	recentlyUsedIds?: readonly EditorPickerId[];
+};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
@@ -1408,7 +1410,9 @@ export type GetDefaultEditorInfoResponse = {
 	}[];
 };
 
-export type GetDefaultCodingAgentInfoRequest = {};
+export type GetDefaultCodingAgentInfoRequest = {
+	recentlyUsedIds?: readonly DefaultCodingAgent[];
+};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
 	runningCodingAgents: readonly DefaultCodingAgent[] | null;

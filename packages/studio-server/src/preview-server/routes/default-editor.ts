@@ -2,47 +2,18 @@ import type {
 	GetDefaultEditorInfoRequest,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
-import {resolveCustomEditorExecutable} from '../../helpers/custom-editor';
-import {
-	getAvailableEditors,
-	getRunningEditors,
-} from '../../helpers/editor-registry';
+import {getEditorInfo} from '../../helpers/app-discovery';
+import {getRecentlyUsedApps} from '../../helpers/recently-used-apps';
 import type {ApiHandler} from '../api-types';
 
 export const getDefaultEditorInfoHandler: ApiHandler<
 	GetDefaultEditorInfoRequest,
 	GetDefaultEditorInfoResponse
-> = async ({getDefaultEditor}) => {
-	const installedEditors = await getAvailableEditors();
-	const runningEditors = await getRunningEditors(installedEditors);
-	const configuredEditor = getDefaultEditor();
-	const customEditor =
-		configuredEditor &&
-		typeof configuredEditor === 'object' &&
-		resolveCustomEditorExecutable(configuredEditor)
-			? configuredEditor
-			: null;
-	return {
-		defaultEditor:
-			configuredEditor && typeof configuredEditor === 'object'
-				? 'custom'
-				: configuredEditor,
-		runningEditors,
-		installedEditors: [
-			...installedEditors.map(({id, name, nameWithType}) => ({
-				id,
-				name,
-				nameWithType,
-			})),
-			...(customEditor
-				? [
-						{
-							id: 'custom' as const,
-							name: customEditor.name,
-							nameWithType: customEditor.name,
-						},
-					]
-				: []),
-		],
-	};
+> = async ({getDefaultEditor, input, remotionRoot}) => {
+	await getRecentlyUsedApps({
+		remotionRoot,
+		type: 'editor',
+		recentlyUsedIds: input.recentlyUsedIds ?? null,
+	});
+	return getEditorInfo(getDefaultEditor());
 };

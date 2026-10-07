@@ -4,23 +4,26 @@ import type {
 	OpenInCodingAgentRequest,
 	OpenInCodingAgentResponse,
 } from '@remotion/studio-shared';
+import {getAppDiscovery} from '../../helpers/app-discovery';
 import {
 	getAvailableCodingAgents,
-	getRunningCodingAgents,
 	launchCodingAgent,
 } from '../../helpers/coding-agent-registry';
 import {getAvailableGitClients} from '../../helpers/git-client-registry';
+import {getRecentlyUsedApps} from '../../helpers/recently-used-apps';
 import {getAvailableTerminals} from '../../helpers/terminal-registry';
 import type {ApiHandler} from '../api-types';
 
 export const getDefaultCodingAgentInfoHandler: ApiHandler<
 	GetDefaultCodingAgentInfoRequest,
 	GetDefaultCodingAgentInfoResponse
-> = async ({getDefaultCodingAgent}) => {
-	const installedCodingAgents = await getAvailableCodingAgents();
-	const runningCodingAgents = await getRunningCodingAgents(
-		installedCodingAgents,
-	);
+> = async ({getDefaultCodingAgent, input, remotionRoot}) => {
+	await getRecentlyUsedApps({
+		remotionRoot,
+		type: 'coding-agent',
+		recentlyUsedIds: input.recentlyUsedIds ?? null,
+	});
+	const {installedCodingAgents, runningCodingAgents} = await getAppDiscovery();
 	const installedTerminals = await getAvailableTerminals();
 	const installedGitClients = await getAvailableGitClients();
 	return {

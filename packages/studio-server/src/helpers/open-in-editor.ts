@@ -475,10 +475,9 @@ export async function launchEditor(
 		return false;
 	}
 
+	const isDirectory = fs.statSync(fileName).isDirectory();
 	let folderToOpen =
-		isVsCodeDerivative(editor.command) && !fs.statSync(fileName).isDirectory()
-			? projectFolder
-			: null;
+		isVsCodeDerivative(editor.command) && !isDirectory ? projectFolder : null;
 
 	if (
 		process.platform === 'linux' &&
@@ -529,7 +528,7 @@ export async function launchEditor(
 		isVsCodeDerivative(editor.command) && vsCodeNewWindow;
 
 	// The file URL cannot specify both a workspace folder and a source location.
-	if (!shouldOpenVsCodeNewWindow && folderToOpen === null) {
+	if (!shouldOpenVsCodeNewWindow && folderToOpen === null && !isDirectory) {
 		const result = openInEditorViaUrlScheme({
 			editor: editor.command,
 			fileName,
@@ -546,7 +545,7 @@ export async function launchEditor(
 
 	const args = shouldOpenVsCodeNewWindow
 		? ['--new-window', fileName]
-		: lineNumber
+		: lineNumber && !isDirectory
 			? getArgumentsForLineNumber(
 					editor.command,
 					fileName,
@@ -559,7 +558,7 @@ export async function launchEditor(
 		args.unshift(folderToOpen);
 	}
 
-	if (process.platform === 'darwin' && folderToOpen !== null) {
+	if (process.platform === 'darwin' && (folderToOpen !== null || isDirectory)) {
 		const applicationPath = editor.process.match(
 			/^(.*?\.app)\/Contents\//,
 		)?.[1];

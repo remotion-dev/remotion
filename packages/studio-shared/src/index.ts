@@ -297,6 +297,7 @@ export {
 	getLocationFromBuildError,
 } from './get-location-from-build-error';
 export {getProjectName} from './get-project-name';
+export {getPreferredApp, preferredFallbackEditorIds} from './get-preferred-app';
 export type {GitSource} from './git-source';
 export {
 	HotMiddlewareMessage,
