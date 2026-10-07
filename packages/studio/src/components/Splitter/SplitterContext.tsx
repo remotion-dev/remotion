@@ -10,7 +10,12 @@ export type TSplitterContext = {
 	setCollapsedDuringDrag: (side: 'left' | 'right' | null) => void;
 	setFlexValue: React.Dispatch<React.SetStateAction<number>>;
 	orientation: SplitterOrientation;
-	ref: React.RefObject<HTMLDivElement | null>;
+	size: {
+		width: number;
+		height: number;
+		left: number;
+		top: number;
+	} | null;
 	maxFlex: number;
 	minFlex: number;
 	maxFlexerSize: number | null;
@@ -86,7 +91,7 @@ export const SplitterContext = React.createContext<TSplitterContext>({
 	flexValue: 1,
 	collapsedDuringDrag: null,
 	setCollapsedDuringDrag: () => undefined,
-	ref: {current: null},
+	size: null,
 	setFlexValue: () => undefined,
 	isDragging: {current: false},
 	orientation: 'horizontal',

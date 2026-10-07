@@ -18,7 +18,10 @@ import {scrollableRef} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
 import {TimelineTickFormatContext} from './TimelineTickFormatProvider';
-import {TimelineWidthContext} from './TimelineWidthProvider';
+import {
+	TimelineViewportBoundsContext,
+	TimelineWidthContext,
+} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
 
@@ -220,9 +223,10 @@ export const getTimelineTickScale = ({
 
 export const TimelineTimeIndicators: React.FC = () => {
 	const sliderTrack = useContext(TimelineWidthContext);
+	const viewport = useContext(TimelineViewportBoundsContext);
 	const video = Internals.useVideo();
 
-	if (sliderTrack === null) {
+	if (sliderTrack === null || viewport === null) {
 		return null;
 	}
 
@@ -235,15 +239,17 @@ export const TimelineTimeIndicators: React.FC = () => {
 			durationInFrames={video.durationInFrames}
 			fps={video.fps}
 			windowWidth={sliderTrack}
+			viewportWidth={viewport.width}
 		/>
 	);
 };
 
 const TimelineTimeIndicatorsInner = React.memo<{
 	readonly windowWidth: number;
+	readonly viewportWidth: number;
 	readonly fps: number;
 	readonly durationInFrames: number;
-}>(({windowWidth, durationInFrames, fps}) => {
+}>(({windowWidth, viewportWidth, durationInFrames, fps}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const {showFrames} = useContext(TimelineTickFormatContext);
 
@@ -282,7 +288,8 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			const computedStyle = getComputedStyle(canvas);
 			const tickColor = resolveStudioColor(WHITE_ALPHA_15, computedStyle);
 			const labelColor = resolveStudioColor(LIGHT_TEXT, computedStyle);
-			const {clientWidth: width, scrollLeft} = scrollable;
+			const width = viewportWidth;
+			const {scrollLeft} = scrollable;
 			const pixelRatio = getStudioPixelRatio();
 			const canvasWidth = Math.ceil(width * pixelRatio);
 			const canvasHeight = TIMELINE_TIME_INDICATOR_HEIGHT * pixelRatio;
@@ -398,16 +405,12 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			draw();
 		};
 
-		const resizeObserver = new ResizeObserver(draw);
-
 		draw();
 		scrollable.addEventListener('scroll', onScroll);
-		resizeObserver.observe(scrollable);
 		return () => {
 			scrollable.removeEventListener('scroll', onScroll);
-			resizeObserver.disconnect();
 		};
-	}, [durationInFrames, fps, showFrames, windowWidth]);
+	}, [durationInFrames, fps, showFrames, viewportWidth, windowWidth]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {

@@ -108,7 +108,7 @@ export const SplitterContainer: React.FC<{
 			flexValue: effectiveFlexValue,
 			collapsedDuringDrag,
 			setCollapsedDuringDrag,
-			ref,
+			size,
 			setFlexValue,
 			isDragging,
 			orientation,
@@ -135,7 +135,7 @@ export const SplitterContainer: React.FC<{
 		minFlex,
 		orientation,
 		persistFlex,
-		ref,
+		size,
 	]);
 
 	const childCount = React.Children.toArray(children).length;
@@ -147,6 +147,8 @@ export const SplitterContainer: React.FC<{
 			orientation,
 			width: size?.width,
 			height: size?.height,
+			left: size?.left,
+			top: size?.top,
 			childCount,
 		}),
 		[
@@ -156,15 +158,18 @@ export const SplitterContainer: React.FC<{
 			orientation,
 			size?.width,
 			size?.height,
+			size?.left,
+			size?.top,
 			childCount,
 		],
 	);
 	const refreshSize = size?.refresh;
 
 	useLayoutEffect(() => {
-		// Remeasure this splitter when its own or an ancestor's layout changes.
+		// The observer handles this container's size. Refresh its position when
+		// an ancestor changes layout, including when a sidebar is removed.
 		refreshSize?.();
-	}, [layout, refreshSize]);
+	}, [parentLayout, childCount, refreshSize]);
 
 	return (
 		<SplitterLayoutContext.Provider value={layout}>

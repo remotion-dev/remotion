@@ -69,12 +69,8 @@ import {
 } from './TimelineSelection';
 import {TimelineEdgeHighlightProvider} from './TimelineSequence';
 import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
-import {TimelineSlider} from './TimelineSlider';
 import {TimelineSnapIndicatorProvider} from './TimelineSnapIndicator';
-import {
-	TimelineTimeIndicators,
-	TimelineTimePlaceholders,
-} from './TimelineTimeIndicators';
+import {TimelineTimeControls} from './TimelineTimeControls';
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineVirtualizationProvider} from './TimelineVirtualization';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
@@ -673,10 +669,7 @@ const TimelineInner: React.FC = () => {
 											maxAntiFlexerSize={null}
 											minAntiFlexerSize={null}
 										>
-											<SplitterElement
-												type="flexer"
-												sticky={<TimelineTimePlaceholders />}
-											>
+											<SplitterElement type="flexer">
 												<TimelineList />
 											</SplitterElement>
 											<SplitterHandle
@@ -684,15 +677,7 @@ const TimelineInner: React.FC = () => {
 												onCollapseDuringDrag={null}
 												allowToCollapse="none"
 											/>
-											<SplitterElement
-												type="anti-flexer"
-												sticky={
-													<>
-														<TimelineTimeIndicators />
-														<TimelineSlider />
-													</>
-												}
-											>
+											<SplitterElement type="anti-flexer">
 												<TimelineScrollable>
 													<TimelineTracks hasBeenCut={hasBeenCut} />
 													<TimelinePlayCursorSyncer />
@@ -704,6 +689,7 @@ const TimelineInner: React.FC = () => {
 												</TimelineScrollable>
 											</SplitterElement>
 										</SplitterContainer>
+										<TimelineTimeControls />
 									</TimelineWidthProvider>
 								)}
 							</TimelineHeightContainer>

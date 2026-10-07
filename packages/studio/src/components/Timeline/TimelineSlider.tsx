@@ -8,9 +8,8 @@ import React, {
 import {Internals, useVideoConfig} from 'remotion';
 import {TIMELINE_PLAYHEAD_COLOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {getCurrentDuration, getCurrentFrame} from './imperative-state';
-import {scrollableRef, sliderAreaRef} from './timeline-refs';
+import {scrollableRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -81,24 +80,18 @@ const TimelineSliderInner: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const ref = useRef<HTMLDivElement>(null);
 	const timelineWidth = useContext(TimelineWidthContext);
-	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 
 	if (timelineWidth === null) {
 		throw new Error('Unexpectedly did not have timeline width');
 	}
 
-	const zoomLevel = zoomMap[videoConfig.id] ?? null;
+	const timelineWidthRef = useRef(timelineWidth);
+	timelineWidthRef.current = timelineWidth;
 
 	useLayoutEffect(() => {
 		const el = ref.current;
-		const measuredWidth = sliderAreaRef.current?.clientWidth;
 		const scrollable = scrollableRef.current;
-		if (
-			!el ||
-			!scrollable ||
-			measuredWidth === undefined ||
-			measuredWidth === 0
-		) {
+		if (!el || !scrollable || timelineWidth === 0) {
 			return;
 		}
 
@@ -107,7 +100,7 @@ const TimelineSliderInner: React.FC = () => {
 				durationInFrames: videoConfig.durationInFrames,
 				frame,
 				scrollLeft: scrollable.scrollLeft,
-				width: measuredWidth,
+				width: timelineWidth,
 			});
 		};
 
@@ -121,12 +114,7 @@ const TimelineSliderInner: React.FC = () => {
 		return () => {
 			scrollable.removeEventListener('scroll', onScroll);
 		};
-	}, [
-		timelinePosition,
-		videoConfig.durationInFrames,
-		timelineWidth,
-		zoomLevel,
-	]);
+	}, [timelinePosition, videoConfig.durationInFrames, timelineWidth]);
 
 	useImperativeHandle(redrawTimelineSliderFast, () => {
 		return {
@@ -140,7 +128,7 @@ const TimelineSliderInner: React.FC = () => {
 					durationInFrames: getCurrentDuration(),
 					frame,
 					scrollLeft: scrollableRef.current?.scrollLeft ?? 0,
-					width: width ?? (sliderAreaRef.current?.clientWidth as number) ?? 0,
+					width: width ?? timelineWidthRef.current,
 				});
 			},
 		};

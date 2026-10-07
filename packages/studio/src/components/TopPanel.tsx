@@ -127,7 +127,7 @@ const TopPanelInner: React.FC<{
 						orientation="vertical"
 					>
 						{actualStateLeft === 'expanded' ? (
-							<SplitterElement sticky={null} type="flexer">
+							<SplitterElement type="flexer">
 								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
 							</SplitterElement>
 						) : null}
@@ -138,7 +138,7 @@ const TopPanelInner: React.FC<{
 								onCollapseDuringDrag={setSidebarCollapsedDuringDrag}
 							/>
 						) : null}
-						<SplitterElement sticky={null} type="anti-flexer">
+						<SplitterElement type="anti-flexer">
 							<SplitterContainer
 								minFlex={0.5}
 								maxFlex={0.8}
@@ -150,7 +150,7 @@ const TopPanelInner: React.FC<{
 								id="canvas-to-right-sidebar"
 								orientation="vertical"
 							>
-								<SplitterElement sticky={null} type="flexer">
+								<SplitterElement type="flexer">
 									<div style={canvasPanel}>
 										<CanvasTabs />
 										<div ref={drawRef} style={canvasContainerStyle}>
@@ -166,7 +166,7 @@ const TopPanelInner: React.FC<{
 									/>
 								) : null}
 								{actualStateRight === 'expanded' ? (
-									<SplitterElement sticky={null} type="anti-flexer">
+									<SplitterElement type="anti-flexer">
 										<OptionsPanel readOnlyStudio={readOnlyStudio} />
 									</SplitterElement>
 								) : null}

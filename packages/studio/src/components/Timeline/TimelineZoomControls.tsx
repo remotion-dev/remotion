@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {BLACK} from '../../helpers/colors';
@@ -16,7 +15,7 @@ import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
 import {ControlButton} from '../ControlButton';
 import {Spacing} from '../layout';
-import {scrollableRef} from './timeline-refs';
+import {TimelineViewportBoundsContext} from './TimelineWidthProvider';
 
 const TIMELINE_ZOOM_BUTTON_FACTOR = 1.2;
 
@@ -96,12 +95,8 @@ const TimelineZoomControlsInner: React.FC<{
 }> = ({sliderMaxWidth}) => {
 	const {setZoom} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
-		triggerOnWindowResize: true,
-		shouldApplyCssTransforms: true,
-	});
-	const timelineViewportWidth =
-		timelineSize?.width ?? scrollableRef.current?.clientWidth ?? 0;
+	const viewport = useContext(TimelineViewportBoundsContext);
+	const timelineViewportWidth = viewport?.width ?? 0;
 	const minZoom = getTimelineMinZoom({
 		durationInFrames: videoConfig?.durationInFrames ?? 1,
 		timelineViewportWidth,

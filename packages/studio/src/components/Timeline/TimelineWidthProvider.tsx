@@ -13,6 +13,11 @@ type TimelineWidthContextType = number | null;
 export const TimelineWidthContext =
 	createContext<TimelineWidthContextType>(null);
 
+export const TimelineViewportBoundsContext = createContext<{
+	left: number;
+	width: number;
+} | null>(null);
+
 export const TimelineWidthProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
@@ -22,6 +27,15 @@ export const TimelineWidthProvider: React.FC<{
 	});
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const viewportLeft = size?.left ?? null;
+	const viewportWidth = size?.width ?? null;
+	const viewport = useMemo(
+		() =>
+			viewportLeft === null || viewportWidth === null
+				? null
+				: {left: viewportLeft, width: viewportWidth},
+		[viewportLeft, viewportWidth],
+	);
 
 	const width = useMemo(() => {
 		const scrollableWidth = size?.width ?? scrollableRef.current?.clientWidth;
@@ -40,8 +54,10 @@ export const TimelineWidthProvider: React.FC<{
 	}, [size?.width, videoConfig, zoomMap]);
 
 	return (
-		<TimelineWidthContext.Provider value={width}>
-			{children}
-		</TimelineWidthContext.Provider>
+		<TimelineViewportBoundsContext.Provider value={viewport}>
+			<TimelineWidthContext.Provider value={width}>
+				{children}
+			</TimelineWidthContext.Provider>
+		</TimelineViewportBoundsContext.Provider>
 	);
 };

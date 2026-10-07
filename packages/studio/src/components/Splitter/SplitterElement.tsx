@@ -1,15 +1,11 @@
-import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
-import {SplitterContext, SplitterLayoutContext} from './SplitterContext';
+import React, {useContext, useMemo} from 'react';
+import {SplitterContext} from './SplitterContext';
 
 export const SplitterElement: React.FC<{
 	readonly type: 'flexer' | 'anti-flexer';
 	readonly children: React.ReactNode;
-	readonly sticky: React.ReactNode | null;
-}> = ({children, type, sticky}) => {
+}> = ({children, type}) => {
 	const context = useContext(SplitterContext);
-	const layout = useContext(SplitterLayoutContext);
-	const panelRef = useRef<HTMLDivElement>(null);
-	const stickyRef = useRef<HTMLDivElement>(null);
 	const maxSize =
 		type === 'flexer' ? context.maxFlexerSize : context.maxAntiFlexerSize;
 	const minSize =
@@ -49,33 +45,5 @@ export const SplitterElement: React.FC<{
 		type,
 	]);
 
-	useLayoutEffect(() => {
-		const panel = panelRef.current;
-		const overlay = stickyRef.current;
-		const offsetParent = overlay?.offsetParent;
-		if (!panel || !overlay || !(offsetParent instanceof HTMLElement)) {
-			return;
-		}
-
-		const panelRect = panel.getBoundingClientRect();
-		const parentRect = offsetParent.getBoundingClientRect();
-		// SplitterLayoutContext propagates the container's existing resize observer
-		// and ancestor layout changes. Keep the overlay outside the scrolling panel,
-		// while matching its actual bounds, including divider and scrollbar widths.
-		overlay.style.left = `${panelRect.left - parentRect.left - offsetParent.clientLeft + offsetParent.scrollLeft}px`;
-		overlay.style.width = `${panelRect.width}px`;
-	}, [layout, sticky, style]);
-
-	return (
-		<>
-			<div ref={panelRef} style={style}>
-				{children}
-			</div>
-			{sticky === null ? null : (
-				<div ref={stickyRef} style={{position: 'absolute'}}>
-					{sticky}
-				</div>
-			)}
-		</>
-	);
+	return <div style={style}>{children}</div>;
 };
