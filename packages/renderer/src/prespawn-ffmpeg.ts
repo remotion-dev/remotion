@@ -235,8 +235,8 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 					['-f', 'remotionshm'],
 					['-video_size', `${options.width}x${options.height}`],
 					['-framerate', fpsAsFraction(options.fps)],
-					['-control_fd', '3'],
-					['-ack_fd', '4'],
+					['-control_fd', '0'],
+					['-ack_fd', '1'],
 					options.remotionSharedMemoryPoolDirectory === null
 						? null
 						: ['-pool_dir', options.remotionSharedMemoryPoolDirectory],
@@ -291,14 +291,19 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		cancelSignal: options.signal,
 		options:
 			options.inputMode === 'remotion-shared-memory'
-				? {stdio: ['ignore', 'pipe', 'pipe', 'pipe', 'pipe']}
+				? {
+						// Bun 1.3.3 can double-close extra stdio FDs. Use stdin/stdout
+						// for the protocol, and let the bridge consume ACKs without buffering.
+						stdio: 'pipe',
+						buffer: false,
+					}
 				: undefined,
 	});
 	const remotionSharedMemory =
 		options.inputMode === 'remotion-shared-memory'
 			? createRemotionSharedMemoryFfmpegBridge({
-					control: task.stdio[3] as Writable,
-					acknowledgements: task.stdio[4] as Readable,
+					control: task.stdin as Writable,
+					acknowledgements: task.stdout as Readable,
 				})
 			: null;
 
