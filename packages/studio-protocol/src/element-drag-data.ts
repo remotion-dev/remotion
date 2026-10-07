@@ -57,6 +57,7 @@ export type ElementDragData = {
 		durationInFrames?: number;
 		initialProps: ElementInitialProps | null;
 		installationMode?: ElementInstallationMode;
+		isCaptionStyle?: boolean;
 		slug: string;
 		displayName: string;
 		sourceCode: string;
@@ -427,6 +428,7 @@ export const makeElementDragData = ({
 	slug,
 	sourceCode,
 	installationMode,
+	isCaptionStyle,
 }: Omit<ElementDragData['element'], 'dependencies'> & {
 	dependencies: ElementDependency[];
 }): ElementDragData => {
@@ -453,6 +455,7 @@ export const makeElementDragData = ({
 			...(durationInFrames === undefined ? {} : {durationInFrames}),
 			initialProps,
 			...(installationMode === undefined ? {} : {installationMode}),
+			...(isCaptionStyle === undefined ? {} : {isCaptionStyle}),
 			slug,
 			sourceCode,
 		},
@@ -468,6 +471,7 @@ const elementDragDataSchema = z.object({
 		durationInFrames: z.optional(durationSchema),
 		initialProps: z.optional(z.nullable(elementInitialPropsSchema)),
 		installationMode: z.optional(elementInstallationModeSchema),
+		isCaptionStyle: z.optional(z.boolean()),
 		slug: slugSchema,
 		displayName: z.string().check(z.minLength(1), z.maxLength(119)),
 		sourceCode: z
@@ -531,6 +535,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			slug: parsed.data.element.slug,
 			sourceCode: parsed.data.element.sourceCode,
 			installationMode: parsed.data.element.installationMode,
+			isCaptionStyle: parsed.data.element.isCaptionStyle,
 		});
 		return result.version === parsed.data.version ? result : null;
 	} catch {

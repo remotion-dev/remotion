@@ -83,6 +83,36 @@ h6 {
 	display: none;
 }
 
+/* Let the embedding Studio supply the caption picker's background. */
+html:has(.studio-caption-picker),
+.studio-caption-picker {
+	--background: transparent;
+	--ifm-background-color: transparent;
+	background: transparent;
+}
+
+/* Caption selection needs previews, not documentation navigation. */
+.studio-caption-picker {
+	--doc-sidebar-width: 0px;
+	--ifm-navbar-height: 0px;
+}
+
+.studio-caption-picker .theme-doc-sidebar-container,
+.studio-caption-picker .theme-doc-toc-mobile,
+.studio-caption-picker .col:has(> .theme-doc-toc-desktop),
+.studio-caption-picker .theme-doc-breadcrumbs,
+.studio-caption-picker .navbar,
+.studio-caption-picker .caption-library-instructions,
+.studio-caption-picker
+	.theme-doc-markdown:has(.caption-library-instructions)
+	> header {
+	display: none;
+}
+
+.studio-caption-picker main > .container {
+	max-width: none;
+}
+
 .elements-embed-breadcrumbs {
 	display: flex;
 }

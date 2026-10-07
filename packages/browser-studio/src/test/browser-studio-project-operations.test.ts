@@ -526,6 +526,7 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 			logoSrc: staticFileRef('elements/lower-third.bin'),
 		},
 		installationMode: 'wrapped' as const,
+		isCaptionStyle: false,
 		slug: 'titles/lower-third',
 		sourceCode: `import {Rect} from '@remotion/shapes';
 import {Img} from 'remotion';
@@ -579,6 +580,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		expectedFileState: preflight.plan.expectedFileState,
 		from: 12,
 		premountFor: null,
+		captionTarget: null,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
@@ -642,6 +644,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		expectedFileState: null,
 		from: null,
 		premountFor: null,
+		captionTarget: null,
 		overwriteExisting: false,
 		position: null,
 		undoRedoNavigation: null,
@@ -684,6 +687,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		(
 			await operations.insertElement({
 				...installRequest,
+				captionTarget: null,
 				overwriteExisting: true,
 			})
 		).success,
@@ -731,12 +735,14 @@ const makeElementAssetFixture = () => {
 					durationInFrames: 30,
 					initialProps: null,
 					installationMode: 'wrapped',
+					isCaptionStyle: false,
 					slug: 'asset-element',
 					sourceCode: 'export const AssetElement = () => <div />;',
 				},
 				expectedFileState: null,
 				from: null,
 				premountFor: null,
+				captionTarget: null,
 				overwriteExisting: false,
 				position: null,
 				undoRedoNavigation: null,
@@ -859,6 +865,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		durationInFrames: 90,
 		initialProps: null,
 		installationMode: 'wrapped' as const,
+		isCaptionStyle: false,
 		slug: 'browser-element',
 		sourceCode: 'export const BrowserElement = () => <div />;\n',
 	} satisfies ElementDragData['element'];
@@ -879,6 +886,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		expectedFileState: preflight.plan.expectedFileState,
 		from: null,
 		premountFor: null,
+		captionTarget: null,
 		overwriteExisting: false,
 		position: null,
 		undoRedoNavigation: {
@@ -975,6 +983,7 @@ test('installs component-owned Element timing and initial props', async () => {
 			width: 640,
 		},
 		installationMode: 'component-owned-sequence' as const,
+		isCaptionStyle: false,
 		slug: 'captions',
 		sourceCode: 'export const Captions = () => <div />;\n',
 	} satisfies ElementDragData['element'];
@@ -999,6 +1008,7 @@ test('installs component-owned Element timing and initial props', async () => {
 		expectedFileState: preflight.plan.expectedFileState,
 		from: 30,
 		premountFor: null,
+		captionTarget: null,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
@@ -1083,12 +1093,14 @@ test('rejects contradictory component-owned Element initial props', async () => 
 				durationInFrames: 90,
 				initialProps,
 				installationMode: 'component-owned-sequence',
+				isCaptionStyle: false,
 				slug: 'captions',
 				sourceCode: 'export const Captions = () => <div />;\n',
 			},
 			expectedFileState: null,
 			from: 30,
 			premountFor: null,
+			captionTarget: null,
 			overwriteExisting: false,
 			position: {x: 24, y: 48},
 			undoRedoNavigation: null,

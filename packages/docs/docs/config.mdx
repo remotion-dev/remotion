@@ -203,6 +203,7 @@ import {Config} from '@remotion/cli/config';
 Config.addElementLibrary({
   url: 'https://example.com/elements',
   displayName: 'Acme Elements',
+  captionStylesUrl: 'https://example.com/elements/captions',
 });
 ```
 
@@ -211,6 +212,12 @@ Call `addElementLibrary()` once for each third-party Element Library. The `displ
 When at least one library is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
 
 Registering the Element Library does not install an individual Element's source code or dependencies. The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
+
+### captionStylesUrl?<AvailableFrom v="4.0.535" />
+
+An absolute HTTP or HTTPS URL for the library's caption styles page. When generating captions, Studio lists this library in the <kbd>Styles</kbd> tab and opens this URL instead of `url`. If omitted, the library appears only in Browse Elements.
+
+Studio adds [`remotion-studio-context=captions`](/docs/studio-protocol/add-element-library-to-studio#iframe-context) to the iframe URL so the library can display a focused caption picker without sidebars.
 
 ## `setMaxTimelineTracks()`<AvailableFrom v="2.1.10" />
 

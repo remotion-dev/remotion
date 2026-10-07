@@ -24,6 +24,7 @@ const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
 	elementLibraries: elementLibraryUrls.map((url) => ({
 		displayName: null,
 		url,
+		captionStylesUrl: null,
 	})),
 	interactivityEnabled: true,
 	keyboardShortcutsEnabled: true,

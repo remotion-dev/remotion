@@ -607,6 +607,7 @@ export const WebMcp: FC = () => {
 						}
 
 						const jobId = addCaptionJob({
+							captionStyle: null,
 							audioStreamIndex: null,
 							chunkLengthInSeconds,
 							displayName,
