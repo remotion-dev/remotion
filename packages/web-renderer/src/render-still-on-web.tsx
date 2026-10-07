@@ -7,10 +7,7 @@ import type {$ZodObject} from 'zod/v4/core';
 import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
 import {checkForError, createScaffold} from './create-scaffold';
-import {
-	containsLayoutSubtreeCanvas,
-	supportsNativeHtmlInCanvas,
-} from './html-in-canvas';
+import {supportsNativeHtmlInCanvas} from './html-in-canvas';
 import {makeInternalState} from './internal-state';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
@@ -197,15 +194,6 @@ async function internalRenderStillOnWeb<
 		}
 
 		await waitForRenderReady();
-
-		if (containsLayoutSubtreeCanvas(div)) {
-			// The paint callback can finish before its transferred OffscreenCanvas
-			// is presented on the layout canvas. Capture after a full paint cycle.
-			await new Promise<void>((resolve) => {
-				requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-			});
-			await waitForRenderReady();
-		}
 
 		if (signal?.aborted) {
 			throw new Error('renderStillOnWeb() was cancelled');
