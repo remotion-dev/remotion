@@ -19,7 +19,7 @@ test('preserves the Player media playback rate across source changes and reloads
 	const shortVideoRef = React.createRef<HTMLVideoElement>();
 	let registered: TSequence[] = [];
 	const ObserveSequences: React.FC = () => {
-		registered = React.useContext(Internals.SequenceManager).sequences;
+		registered = Internals.useSequenceManagerSequences();
 		return null;
 	};
 
@@ -158,7 +158,7 @@ test('seeks trimmed HTML5 loops across fractional boundaries under nested sequen
 	let registered: TSequence[] = [];
 
 	const ObserveSequences: React.FC = () => {
-		registered = React.useContext(Internals.SequenceManager).sequences;
+		registered = Internals.useSequenceManagerSequences();
 		return null;
 	};
 

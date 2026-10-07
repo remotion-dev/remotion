@@ -108,7 +108,7 @@ export const useCanvasOutlineMeasurements = ({
 		if (hasAutomaticTargets) {
 			latestUpdateRef.current = scheduleUpdate;
 			ownerWindow?.addEventListener(
-				Internals.CommitOrderInternals.eventName,
+				Internals.CommittedMetadataInternals.eventName,
 				scheduleUpdate,
 			);
 			scheduleUpdate();
@@ -119,7 +119,7 @@ export const useCanvasOutlineMeasurements = ({
 		return () => {
 			active = false;
 			ownerWindow?.removeEventListener(
-				Internals.CommitOrderInternals.eventName,
+				Internals.CommittedMetadataInternals.eventName,
 				scheduleUpdate,
 			);
 			latestUpdateRef.current = () => undefined;

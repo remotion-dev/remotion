@@ -1,12 +1,11 @@
-import type {RefObject} from 'react';
+import type {ComponentProps, RefObject} from 'react';
+import type {AnyComposition, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 
 type Fiber = {
 	readonly child: Fiber | null;
-	readonly elementType: unknown;
 	readonly memoizedProps: unknown;
 	readonly sibling: Fiber | null;
-	readonly type: unknown;
 	readonly tag: number | null;
 	readonly stateNode: unknown;
 	readonly memoizedState: unknown;
@@ -33,43 +32,130 @@ type HookTarget = Window &
 		__REACT_DEVTOOLS_GLOBAL_HOOK__?: DevToolsHook;
 	};
 
-const installationMarker = Symbol.for(
-	'remotion.commit-order-observer-installed',
-);
+const {installationMarker, metadataProp} = Internals.CommittedMetadataInternals;
 
-type CompositionAndFolderOrderItem =
-	| {readonly type: 'composition'; readonly id: string}
-	| {readonly type: 'folder'; readonly id: string};
+type CommittedMetadata = NonNullable<
+	ComponentProps<
+		typeof Internals.CommittedMetadataProvider
+	>[typeof metadataProp]
+>;
 
-const hasMarker = (candidate: unknown, marker: symbol): boolean => {
-	return (
-		(typeof candidate === 'function' ||
-			(typeof candidate === 'object' && candidate !== null)) &&
-		Reflect.get(candidate, marker) === true
-	);
-};
-
-const getStringProp = (props: unknown, key: string): string | null => {
+const getCommittedMetadata = (props: unknown): CommittedMetadata | null => {
 	if (typeof props !== 'object' || props === null) {
 		return null;
 	}
 
-	const value = Reflect.get(props, key);
-	return typeof value === 'string' ? value : null;
+	const metadata: unknown = Reflect.get(props, metadataProp);
+	return typeof metadata === 'object' && metadata !== null
+		? (metadata as CommittedMetadata)
+		: null;
 };
 
-const hasFiberMarker = (fiber: Fiber, marker: symbol) =>
-	hasMarker(fiber.type, marker) || hasMarker(fiber.elementType, marker);
+type CommittedSequenceRegistration = {
+	readonly onCommit: (
+		sequences: readonly TSequence[],
+		sequenceIds: readonly string[],
+	) => void;
+	readonly sequences: readonly TSequence[];
+	readonly sequenceIds: readonly string[];
+};
 
-export const collectCommitOrderFromFiber = (root: FiberRoot) => {
+type FolderRegistration = {
+	readonly name: string;
+	readonly parent: string | null;
+	readonly order: number | null;
+	readonly stack: string | null;
+};
+
+type CommittedCompositionSnapshot = {
+	readonly compositions: readonly AnyComposition[];
+	readonly folders: readonly FolderRegistration[];
+	readonly orderIds: readonly string[];
+};
+
+type CommittedCompositionRegistration = {
+	readonly onCommit: (snapshot: CommittedCompositionSnapshot) => void;
+	readonly snapshot: CommittedCompositionSnapshot;
+};
+
+// Compare while traversing, and allocate only after the first changed entry.
+const createCommitSnapshotCollector = <T>(previous: readonly T[] | null) => {
+	let count = 0;
+	let values: T[] | null = null;
+	return {
+		push: (value: T) => {
+			if (values !== null) {
+				values.push(value);
+			} else if (previous?.[count] !== value) {
+				values = previous?.slice(0, count) ?? [];
+				values.push(value);
+			}
+
+			count++;
+		},
+		getSnapshot: (): readonly T[] =>
+			values ??
+			(previous?.length === count
+				? previous
+				: (previous?.slice(0, count) ?? [])),
+	};
+};
+
+export const collectCommitOrderFromFiber = (
+	root: FiberRoot,
+	registrations: Map<string, CommittedSequenceRegistration> | null = null,
+	previousRegistrations: ReadonlyMap<
+		string,
+		CommittedSequenceRegistration
+	> | null = null,
+	compositionRegistry: {
+		readonly registrations: Map<string, CommittedCompositionRegistration>;
+		readonly previous: ReadonlyMap<
+			string,
+			CommittedCompositionRegistration
+		> | null;
+	} | null = null,
+) => {
+	const compositionRegistrations = compositionRegistry?.registrations ?? null;
+	const previousCompositionRegistrations =
+		compositionRegistry?.previous ?? null;
 	const outlineNodesByRef = new Map<
 		RefObject<Element | null>,
 		(Element | Text)[]
 	>();
-	const sequencesByManager = new Map<string, string[]>();
+	let outlineCollectionFailed = false;
+	const sequencesByManager = new Map<
+		string,
+		{
+			readonly sequenceIds: ReturnType<
+				typeof createCommitSnapshotCollector<string>
+			>;
+			readonly registration: {
+				readonly onCommit: CommittedSequenceRegistration['onCommit'];
+				readonly sequences: ReturnType<
+					typeof createCommitSnapshotCollector<TSequence>
+				>;
+				readonly previous: CommittedSequenceRegistration | null;
+			} | null;
+		}
+	>();
 	const compositionsAndFoldersByManager = new Map<
 		string,
-		CompositionAndFolderOrderItem[]
+		{
+			readonly registration: {
+				readonly onCommit: CommittedCompositionRegistration['onCommit'];
+				readonly previous: CommittedCompositionRegistration | null;
+				readonly compositions: ReturnType<
+					typeof createCommitSnapshotCollector<AnyComposition>
+				>;
+				readonly folders: ReturnType<
+					typeof createCommitSnapshotCollector<FolderRegistration>
+				>;
+				readonly orderIds: ReturnType<
+					typeof createCommitSnapshotCollector<string>
+				>;
+			} | null;
+		}
 	>();
 
 	const visit = (
@@ -78,110 +164,134 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 		currentCompositionManagerId: string | null,
 		outlineCollectors: readonly (Element | Text)[][] | null,
 	) => {
-		// A portal ends the current DOM group, but can contain new sequences:
-		// Studio itself renders the composition through a portal. Hidden
-		// Offscreen trees must not contribute geometry, including new groups.
-		const skipOutline =
-			outlineCollectors === null ||
-			(fiber.tag === 22 && fiber.memoizedState !== null);
-		let childOutlineCollectors = skipOutline
-			? null
-			: fiber.tag === 4
-				? []
-				: outlineCollectors;
-		const isSequenceManagerMarker = hasFiberMarker(
-			fiber,
-			Internals.CommitOrderInternals.sequenceManagerMarker,
-		);
-		const sequenceManagerId = isSequenceManagerMarker
-			? getStringProp(fiber.memoizedProps, 'managerId')
-			: currentSequenceManagerId;
-
+		const metadata = getCommittedMetadata(fiber.memoizedProps);
+		const sequenceManagerId =
+			metadata?.type === 'sequence-manager'
+				? metadata.id
+				: currentSequenceManagerId;
 		if (
-			isSequenceManagerMarker &&
-			sequenceManagerId !== null &&
-			!sequencesByManager.has(sequenceManagerId)
+			metadata?.type === 'sequence-manager' &&
+			!sequencesByManager.has(metadata.id)
 		) {
-			sequencesByManager.set(sequenceManagerId, []);
+			const previous = previousRegistrations?.get(metadata.id) ?? null;
+			const {onCommit} = metadata;
+			sequencesByManager.set(metadata.id, {
+				sequenceIds: createCommitSnapshotCollector(
+					previous?.sequenceIds ?? null,
+				),
+				registration:
+					registrations !== null && onCommit !== null
+						? {
+								onCommit,
+								sequences: createCommitSnapshotCollector(
+									previous?.sequences ?? null,
+								),
+								previous,
+							}
+						: null,
+			});
 		}
 
-		const isCompositionManagerMarker = hasFiberMarker(
-			fiber,
-			Internals.CommitOrderInternals.compositionManagerMarker,
-		);
-		const compositionManagerId = isCompositionManagerMarker
-			? getStringProp(fiber.memoizedProps, 'managerId')
-			: currentCompositionManagerId;
+		const compositionManagerId =
+			metadata?.type === 'composition-manager'
+				? metadata.id
+				: currentCompositionManagerId;
 		if (
-			isCompositionManagerMarker &&
-			compositionManagerId !== null &&
-			!compositionsAndFoldersByManager.has(compositionManagerId)
+			metadata?.type === 'composition-manager' &&
+			!compositionsAndFoldersByManager.has(metadata.id)
 		) {
-			compositionsAndFoldersByManager.set(compositionManagerId, []);
+			const previous =
+				previousCompositionRegistrations?.get(metadata.id) ?? null;
+			const {onCommit} = metadata;
+			compositionsAndFoldersByManager.set(metadata.id, {
+				registration:
+					compositionRegistrations !== null && onCommit !== null
+						? {
+								onCommit,
+								previous,
+								compositions: createCommitSnapshotCollector(
+									previous?.snapshot.compositions ?? null,
+								),
+								folders: createCommitSnapshotCollector(
+									previous?.snapshot.folders ?? null,
+								),
+								orderIds: createCommitSnapshotCollector(
+									previous?.snapshot.orderIds ?? null,
+								),
+							}
+						: null,
+			});
 		}
 
-		if (hasFiberMarker(fiber, Internals.CommitOrderInternals.sequenceMarker)) {
-			if (sequenceManagerId !== null) {
-				const sequenceId = getStringProp(fiber.memoizedProps, 'sequenceId');
-				if (sequenceId !== null) {
-					sequencesByManager.get(sequenceManagerId)?.push(sequenceId);
-				}
-			}
-
-			const props = fiber.memoizedProps;
-			const outlineRef =
-				typeof props === 'object' && props !== null
-					? (Reflect.get(props, 'outlineChildrenRef') as
-							| RefObject<Element | null>
-							| null
-							| undefined)
-					: null;
-			if (outlineRef) {
-				const nodes: (Element | Text)[] = [];
-				outlineNodesByRef.set(outlineRef, nodes);
-				if (childOutlineCollectors !== null) {
-					childOutlineCollectors = [...childOutlineCollectors, nodes];
-				}
+		if (metadata?.type === 'sequence' && sequenceManagerId !== null) {
+			const manager = sequencesByManager.get(sequenceManagerId);
+			manager?.sequenceIds.push(metadata.id);
+			if (metadata.value !== null) {
+				manager?.registration?.sequences.push(metadata.value);
 			}
 		}
 
 		if (
-			hasFiberMarker(fiber, Internals.CommitOrderInternals.compositionMarker) &&
+			(metadata?.type === 'composition' || metadata?.type === 'folder') &&
 			compositionManagerId !== null
 		) {
-			const id = getStringProp(fiber.memoizedProps, 'compositionId');
-			if (id !== null) {
-				compositionsAndFoldersByManager
-					.get(compositionManagerId)
-					?.push({type: 'composition', id});
+			const manager = compositionsAndFoldersByManager.get(compositionManagerId);
+			manager?.registration?.orderIds.push(`${metadata.type}:${metadata.id}`);
+			if (metadata.type === 'composition') {
+				manager?.registration?.compositions.push(metadata.value);
+			} else {
+				manager?.registration?.folders.push(metadata.value);
 			}
 		}
 
-		if (
-			hasFiberMarker(fiber, Internals.CommitOrderInternals.folderMarker) &&
-			compositionManagerId !== null
-		) {
-			const id = getStringProp(fiber.memoizedProps, 'folderId');
-			if (id !== null) {
-				compositionsAndFoldersByManager
-					.get(compositionManagerId)
-					?.push({type: 'folder', id});
-			}
-		}
+		let childOutlineCollectors = outlineCollectors;
+		if (outlineCollectionFailed) {
+			childOutlineCollectors = null;
+		} else {
+			try {
+				// A portal ends the current DOM group, but can contain new sequences.
+				// Hidden Offscreen trees must not contribute geometry, including new groups.
+				const {tag} = fiber;
+				const skipOutline =
+					outlineCollectors === null ||
+					(tag === 22 && fiber.memoizedState !== null);
+				childOutlineCollectors = skipOutline
+					? null
+					: tag === 4
+						? []
+						: outlineCollectors;
+				if (metadata?.type === 'sequence') {
+					const outlineRef = metadata.outlineChildrenRef;
+					if (outlineRef !== null) {
+						const nodes: (Element | Text)[] = [];
+						outlineNodesByRef.set(outlineRef, nodes);
+						if (childOutlineCollectors !== null) {
+							childOutlineCollectors = [...childOutlineCollectors, nodes];
+						}
+					}
+				}
 
-		if (
-			childOutlineCollectors !== null &&
-			childOutlineCollectors.length > 0 &&
-			(fiber.tag === 5 || fiber.tag === 6) &&
-			fiber.stateNode !== null
-		) {
-			for (const collector of childOutlineCollectors) {
-				collector.push(fiber.stateNode as Element | Text);
-			}
+				if (
+					childOutlineCollectors !== null &&
+					childOutlineCollectors.length > 0 &&
+					(tag === 5 || tag === 6) &&
+					fiber.stateNode !== null
+				) {
+					for (const collector of childOutlineCollectors) {
+						collector.push(fiber.stateNode as Element | Text);
+					}
 
-			// Only first-level DOM nodes belong to this group. Keep traversing
-			// for sequence order and for new groups nested inside this element.
-			childOutlineCollectors = [];
+					// Only first-level DOM nodes belong to this group. Keep traversing
+					// for sequence order and for new groups nested inside this element.
+					childOutlineCollectors = [];
+				}
+			} catch {
+				// Discard incomplete geometry for this commit without losing registrations.
+				// The next commit retries outline collection with a fresh map.
+				outlineCollectionFailed = true;
+				outlineNodesByRef.clear();
+				childOutlineCollectors = null;
+			}
 		}
 
 		let {child} = fiber;
@@ -198,20 +308,61 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 
 	visit(root.current, null, null, []);
 	for (const [ref, nodes] of outlineNodesByRef) {
-		Internals.SequenceOutlineInternals.setNodes(ref, nodes);
+		try {
+			Internals.SequenceOutlineInternals.setNodes(ref, nodes);
+		} catch {
+			// A failed outline publication is retried on the next commit.
+		}
+	}
+
+	const sequenceManagers = [...sequencesByManager].map(
+		([managerId, manager]) => {
+			const sequenceIds = manager.sequenceIds.getSnapshot();
+			const {registration} = manager;
+			if (registration !== null && registrations !== null) {
+				const sequences = registration.sequences.getSnapshot();
+				const {previous} = registration;
+				registrations.set(
+					managerId,
+					previous !== null &&
+						previous.onCommit === registration.onCommit &&
+						previous.sequences === sequences &&
+						previous.sequenceIds === sequenceIds
+						? previous
+						: {onCommit: registration.onCommit, sequences, sequenceIds},
+				);
+			}
+
+			return {managerId, sequenceIds};
+		},
+	);
+
+	for (const [managerId, manager] of compositionsAndFoldersByManager) {
+		const {registration} = manager;
+		if (registration !== null && compositionRegistrations !== null) {
+			const compositions = registration.compositions.getSnapshot();
+			const folders = registration.folders.getSnapshot();
+			const orderIds = registration.orderIds.getSnapshot();
+			const {previous} = registration;
+			compositionRegistrations.set(
+				managerId,
+				previous !== null &&
+					previous.onCommit === registration.onCommit &&
+					previous.snapshot.compositions === compositions &&
+					previous.snapshot.folders === folders &&
+					previous.snapshot.orderIds === orderIds
+					? previous
+					: {
+							onCommit: registration.onCommit,
+							snapshot: {compositions, folders, orderIds},
+						},
+			);
+		}
 	}
 
 	return {
 		outlineCount: outlineNodesByRef.size,
-		sequenceManagers: [...sequencesByManager].map(
-			([managerId, sequenceIds]) => ({managerId, sequenceIds}),
-		),
-		compositionManagers: [...compositionsAndFoldersByManager].map(
-			([managerId, compositionAndFolderOrder]) => ({
-				managerId,
-				compositionAndFolderOrder,
-			}),
-		),
+		sequenceManagers,
 	};
 };
 
@@ -228,26 +379,106 @@ export const installFiberCommitOrderObserver = (
 	}
 
 	const previousOnCommitFiberRoot = hook.onCommitFiberRoot;
+	const registrationsByRoot = new WeakMap<
+		FiberRoot,
+		Map<string, CommittedSequenceRegistration>
+	>();
+	const compositionRegistrationsByRoot = new WeakMap<
+		FiberRoot,
+		Map<string, CommittedCompositionRegistration>
+	>();
+
 	hook.onCommitFiberRoot = function (...args) {
+		let order: ReturnType<typeof collectCommitOrderFromFiber> | null = null;
 		try {
 			const [, root] = args;
-			const order = collectCommitOrderFromFiber(root);
-			if (
-				order.outlineCount > 0 ||
-				order.sequenceManagers.length > 0 ||
-				order.compositionManagers.length > 0
-			) {
+			const registrations = new Map<string, CommittedSequenceRegistration>();
+			const previousRegistrations = registrationsByRoot.get(root);
+			const compositionRegistrations = new Map<
+				string,
+				CommittedCompositionRegistration
+			>();
+			const previousCompositionRegistrations =
+				compositionRegistrationsByRoot.get(root);
+			order = collectCommitOrderFromFiber(
+				root,
+				registrations,
+				previousRegistrations ?? null,
+				{
+					registrations: compositionRegistrations,
+					previous: previousCompositionRegistrations ?? null,
+				},
+			);
+			registrationsByRoot.set(root, registrations);
+			compositionRegistrationsByRoot.set(root, compositionRegistrations);
+			for (const [managerId, registration] of registrations) {
+				if (registration !== previousRegistrations?.get(managerId)) {
+					registration.onCommit(
+						registration.sequences,
+						registration.sequenceIds,
+					);
+				}
+			}
+
+			if (previousRegistrations) {
+				for (const [managerId, registration] of previousRegistrations) {
+					if (!registrations.has(managerId)) {
+						registration.onCommit([], []);
+					}
+				}
+			}
+
+			for (const [managerId, registration] of compositionRegistrations) {
+				if (registration !== previousCompositionRegistrations?.get(managerId)) {
+					registration.onCommit(registration.snapshot);
+				}
+			}
+
+			if (previousCompositionRegistrations) {
+				for (const [
+					managerId,
+					registration,
+				] of previousCompositionRegistrations) {
+					if (!compositionRegistrations.has(managerId)) {
+						registration.onCommit({
+							compositions: [],
+							folders: [],
+							orderIds: [],
+						});
+					}
+				}
+			}
+		} catch {
+			// A registration collection or delivery failure permanently selects effect
+			// fallback for this hook. Retrying registration would risk repeated teardown.
+			hook[Internals.CommittedMetadataInternals.failureMarker] = true;
+			order = null;
+			try {
 				target.dispatchEvent(
-					new CustomEvent(Internals.CommitOrderInternals.eventName, {
+					new CustomEvent(
+						Internals.CommittedMetadataInternals.registrationErrorEventName,
+					),
+				);
+			} catch {
+				// Notification failure must not prevent the previous hook from running.
+			}
+		}
+
+		if (
+			order !== null &&
+			(order.outlineCount > 0 || order.sequenceManagers.length > 0)
+		) {
+			try {
+				target.dispatchEvent(
+					new CustomEvent(Internals.CommittedMetadataInternals.eventName, {
 						detail: {
 							sequenceManagers: order.sequenceManagers,
-							compositionManagers: order.compositionManagers,
 						},
 					}),
 				);
+			} catch {
+				// Order notifications are independent of registration and retry next commit.
 			}
-		} catch {
-			// Fiber is private React API. An unsupported shape must not break the host.
 		}
 
 		return previousOnCommitFiberRoot?.apply(this, args);

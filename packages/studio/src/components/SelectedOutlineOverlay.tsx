@@ -13,6 +13,7 @@ import {
 	type GetDragOverrides,
 	type InteractivitySchema,
 	type RuntimeValueStore,
+	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -710,9 +711,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 	) => void;
 	readonly selectedSequenceKeys: ReadonlySet<string>;
 	readonly sequenceKeysContainingSelection: ReadonlySet<string>;
-	readonly sequences: React.ContextType<
-		typeof Internals.SequenceManager
-	>['sequences'];
+	readonly sequences: TSequence[];
 };
 
 const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
