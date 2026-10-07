@@ -3,7 +3,7 @@ export type CanvasOutlinePoint = {
 	readonly y: number;
 };
 
-/** Geometry in CSS pixels relative to the unscaled outline container. */
+/** Measured geometry uses composition pixels at scale 1, relative to its root. */
 export type CanvasOutline = {
 	readonly key: string;
 	readonly dimensions: {
@@ -33,7 +33,7 @@ export type CanvasOutline = {
 	readonly path: CanvasOutlinePath | null;
 };
 
-/** Affine transform mapping SVG user units to overlay container pixels. */
+/** Affine transform mapping SVG user units into the outline's coordinate space. */
 export type CanvasOutlineMatrix = {
 	readonly a: number;
 	readonly b: number;

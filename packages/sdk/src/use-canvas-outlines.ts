@@ -1,4 +1,3 @@
-import type {MutableRefObject, RefObject} from 'react';
 import {useEffect, useMemo, useRef} from 'react';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 import type {CanvasHoverController} from './hover';
@@ -23,23 +22,17 @@ export type CanvasOutlineRenderTarget = Omit<
 
 /** Measure and order a host's outline targets without subscribing to playback. */
 export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
-	containerRef,
 	contentRoot,
-	scale,
 	targets,
 	sequences,
 	hoverController,
 	freezeOrder,
-	updateOutlinesRef,
 }: {
-	readonly containerRef: RefObject<SVGSVGElement | null>;
-	readonly contentRoot: Element | null;
-	readonly scale: number | null;
+	readonly contentRoot: HTMLElement;
 	readonly targets: readonly Target[];
 	readonly sequences: readonly CanvasOutlineSequenceParent[];
 	readonly hoverController: CanvasHoverController;
 	readonly freezeOrder: boolean;
-	readonly updateOutlinesRef: MutableRefObject<() => void> | null;
 }) => {
 	const hover = useCanvasHover(hoverController);
 	const hoveredNodePathKey = hover?.nodePathKey ?? null;
@@ -60,11 +53,8 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 		[hoveredTimelineNodePathKey, targets],
 	);
 	const outlines = useCanvasOutlineMeasurements({
-		containerRef,
 		contentRoot,
-		scale,
 		targets: measurementTargets,
-		updateOutlinesRef,
 	});
 	const targetsByKey = useMemo(
 		() => new Map(targets.map((target) => [target.key, target])),
