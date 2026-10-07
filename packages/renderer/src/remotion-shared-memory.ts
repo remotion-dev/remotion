@@ -4,8 +4,13 @@ import type {
 	RemotionFramePoolBackend,
 } from './browser/devtools-types';
 import {isTargetClosedErr} from './browser/flaky-errors';
+import {
+	type StillImageFormat,
+	validateSelectedPixelFormatAndImageFormatCombination,
+} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import type {PixelFormat} from './pixel-format';
 
 const encoderPadding = 64;
 const slotsPerPage = 1;
@@ -82,6 +87,7 @@ export class RemotionSharedMemoryCapture {
 	#nextFrameId = 1;
 	#supported: boolean | null = null;
 	#initialization: Promise<void> | null = null;
+	#pixelFormat: PixelFormat | null = null;
 	readonly #options: {
 		width: number;
 		height: number;
@@ -104,6 +110,28 @@ export class RemotionSharedMemoryCapture {
 
 	isSupported() {
 		return this.#supported === true;
+	}
+
+	getImageFormat(imageFormat: StillImageFormat): StillImageFormat {
+		if (!this.isSupported() || this.#pixelFormat === null) {
+			if (this.#pixelFormat !== null && imageFormat === 'jpeg') {
+				validateSelectedPixelFormatAndImageFormatCombination(
+					this.#pixelFormat,
+					imageFormat,
+				);
+			}
+
+			return imageFormat;
+		}
+
+		return this.#pixelFormat === 'yuva420p' ||
+			this.#pixelFormat === 'yuva444p10le'
+			? 'png'
+			: 'jpeg';
+	}
+
+	setPixelFormat(pixelFormat: PixelFormat) {
+		this.#pixelFormat = pixelFormat;
 	}
 
 	async initializePages(pages: Page[]) {

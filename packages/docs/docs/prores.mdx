@@ -90,7 +90,7 @@ ProRes does not support [`crf`](/docs/options/crf), and [`videoBitrate`](/docs/o
 ## Transparent ProRes
 
 To export a transparent overlay or transition for a video editor, use a ProRes profile with alpha support: `"4444"` or `"4444-xq"`.
-The video must be rendered with PNG frames and the `yuva444p10le` pixel format.
+Use the `yuva444p10le` pixel format. [Shared-memory capture](/docs/shared-memory-capture) preserves transparency automatically; screenshot capture requires PNG frames.
 
 ```bash title="Terminal"
 npx remotion render MyComp out/overlay.mov --codec=prores --prores-profile=4444 --image-format=png --pixel-format=yuva444p10le

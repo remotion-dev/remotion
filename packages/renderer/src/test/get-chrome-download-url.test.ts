@@ -1,7 +1,9 @@
 import {expect, test} from 'bun:test';
 import {getExpectedVersion} from '../browser/BrowserFetcher';
 import {
+	canUseRemotionMediaBinaries,
 	getChromeDownloadUrl,
+	isAmazonLinux2023,
 	TESTED_VERSION,
 } from '../browser/get-chrome-download-url';
 
@@ -62,5 +64,9 @@ test('uses a distinct cache marker for the Remotion Apple Silicon build', () => 
 			version: null,
 			chromeMode: 'headless-shell',
 		}),
-	).toBe(TESTED_VERSION);
+	).toBe(
+		canUseRemotionMediaBinaries() || isAmazonLinux2023()
+			? `${TESTED_VERSION}-remotion-v3`
+			: TESTED_VERSION,
+	);
 });

@@ -34,6 +34,7 @@ import type {VideoImageFormat} from './image-format';
 import {
 	DEFAULT_VIDEO_IMAGE_FORMAT,
 	validateSelectedPixelFormatAndImageFormatCombination,
+	validateVideoImageFormat,
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
@@ -444,10 +445,21 @@ const internalRenderMediaRaw = async ({
 			compositionWithPossibleUnevenDimensions.defaultVideoImageFormat ??
 			DEFAULT_VIDEO_IMAGE_FORMAT);
 
-	validateSelectedPixelFormatAndImageFormatCombination(
-		pixelFormat,
-		imageFormat,
-	);
+	validateVideoImageFormat(imageFormat);
+	const remotionSharedMemorySupport =
+		!parallelEncoding || disableSharedMemoryCapture
+			? null
+			: await probeRemotionSharedMemoryFfmpegSupport({
+					binariesDirectory,
+					indent,
+					logLevel,
+				});
+	if (!remotionSharedMemorySupport?.sharedMemory) {
+		validateSelectedPixelFormatAndImageFormatCombination(
+			pixelFormat,
+			imageFormat,
+		);
+	}
 
 	const workingDir = fs.mkdtempSync(
 		path.join(os.tmpdir(), 'react-motion-render'),
@@ -483,14 +495,6 @@ const internalRenderMediaRaw = async ({
 		);
 	}
 
-	const remotionSharedMemorySupport =
-		preEncodedFileLocation === null || disableSharedMemoryCapture
-			? null
-			: await probeRemotionSharedMemoryFfmpegSupport({
-					binariesDirectory,
-					indent,
-					logLevel,
-				});
 	// Chromium creates file-backed frame pools in this private directory when
 	// POSIX shared memory is unavailable (no /dev/shm, as on AWS Lambda). It is
 	// only offered when the FFmpeg binary can open such pools via -pool_dir.
@@ -507,6 +511,7 @@ const internalRenderMediaRaw = async ({
 				backingDirectory: remotionSharedMemoryPoolDirectory,
 			})
 		: null;
+	remotionSharedMemory?.setPixelFormat(pixelFormat);
 
 	const composition = {
 		...compositionWithPossibleUnevenDimensions,

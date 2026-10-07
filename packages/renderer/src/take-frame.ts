@@ -41,10 +41,12 @@ export const takeFrame = async <T extends RemotionSharedMemoryCapture | null>({
 		return null as TakeFrameResult<T>;
 	}
 
+	const captureImageFormat =
+		remotionSharedMemory?.getImageFormat(imageFormat) ?? imageFormat;
 	if (
-		imageFormat === 'png' ||
-		imageFormat === 'pdf' ||
-		imageFormat === 'webp'
+		captureImageFormat === 'png' ||
+		captureImageFormat === 'pdf' ||
+		captureImageFormat === 'webp'
 	) {
 		await puppeteerEvaluateWithCatch({
 			pageFunction: () => {
@@ -69,9 +71,10 @@ export const takeFrame = async <T extends RemotionSharedMemoryCapture | null>({
 
 	const buf = await screenshot({
 		page: freePage,
-		omitBackground: imageFormat === 'png' || imageFormat === 'webp',
+		omitBackground:
+			captureImageFormat === 'png' || captureImageFormat === 'webp',
 		path: (wantsBuffer ? undefined : output) ?? undefined,
-		type: imageFormat,
+		type: captureImageFormat,
 		jpegQuality,
 		width,
 		height,

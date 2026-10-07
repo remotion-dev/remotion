@@ -29,11 +29,13 @@ If you are lucky enough to visit the website in one of those supported web brows
 
 ## Creating a WebM video with Alpha channel
 
-In order to create a transparent video, you need at least version 1.4 of Remotion. Make sure to not set any background (use the checkerboard button to ensure your video is transparent). In order to render your videos transparent, you need to change 3 settings:
+In order to create a transparent video, you need at least version 1.4 of Remotion. Make sure to not set any background (use the checkerboard button to ensure your video is transparent). Use these settings:
 
-- Render each frame as PNG.
+- Render each frame as PNG when using screenshot capture.
 - Use the VP8 or VP9 codec
 - Use the `yuva420p` pixel format.
+
+With [shared-memory capture](/docs/shared-memory-capture), available from <AvailableFrom v="4.0.534" inline />, the output pixel format enables transparency automatically. You do not need to select PNG. The examples below also work with screenshot capture.
 
 If you want to set these options and persist them, add this to your `remotion.config.ts` file (create it if you don't yet have one);
 

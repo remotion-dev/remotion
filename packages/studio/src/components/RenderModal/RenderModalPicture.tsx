@@ -1,6 +1,5 @@
 import type {StillImageFormat, VideoImageFormat} from '@remotion/renderer';
-import React, {useCallback} from 'react';
-import {Checkbox} from '../Checkbox';
+import React from 'react';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -21,9 +20,6 @@ export const RenderModalPicture: React.FC<{
 	readonly setScale: React.Dispatch<React.SetStateAction<number>>;
 	readonly imageFormatOptions: SegmentedControlItem[];
 	readonly videoImageFormat: VideoImageFormat;
-	readonly setVideoImageFormat: React.Dispatch<
-		React.SetStateAction<VideoImageFormat>
-	>;
 	readonly usesSharedMemoryCapture: boolean;
 	readonly stillImageFormat: StillImageFormat;
 	readonly setJpegQuality: React.Dispatch<React.SetStateAction<number>>;
@@ -36,7 +32,6 @@ export const RenderModalPicture: React.FC<{
 	setScale,
 	imageFormatOptions,
 	videoImageFormat,
-	setVideoImageFormat,
 	usesSharedMemoryCapture,
 	setJpegQuality,
 	jpegQuality,
@@ -44,38 +39,16 @@ export const RenderModalPicture: React.FC<{
 	compositionWidth,
 	compositionHeight,
 }) => {
-	const onTransparentBackgroundChanged = useCallback(
-		(event: React.ChangeEvent<HTMLInputElement>) => {
-			setVideoImageFormat(event.target.checked ? 'png' : 'jpeg');
-		},
-		[setVideoImageFormat],
-	);
-
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			{renderMode === 'video' ? (
+			{renderMode === 'video' && !usesSharedMemoryCapture ? (
 				<div style={optionRow}>
-					{usesSharedMemoryCapture ? (
-						<label style={label} htmlFor="transparent-background">
-							Transparent background
-						</label>
-					) : (
-						<div style={label}>Image Format</div>
-					)}
+					<div style={label}>Image Format</div>
 					<div style={rightRow}>
-						{usesSharedMemoryCapture ? (
-							<Checkbox
-								checked={videoImageFormat === 'png'}
-								onChange={onTransparentBackgroundChanged}
-								name="transparent-background"
-								inputId="transparent-background"
-							/>
-						) : (
-							<SegmentedControl
-								items={imageFormatOptions}
-								needsWrapping={false}
-							/>
-						)}
+						<SegmentedControl
+							items={imageFormatOptions}
+							needsWrapping={false}
+						/>
 					</div>
 				</div>
 			) : null}
@@ -93,7 +66,9 @@ export const RenderModalPicture: React.FC<{
 					setJpegQuality={setJpegQuality}
 				/>
 			) : null}
-			{renderMode === 'video' ? <RenderModalHr /> : null}
+			{renderMode === 'video' && !usesSharedMemoryCapture ? (
+				<RenderModalHr />
+			) : null}
 			<ScaleSetting
 				scale={scale}
 				setScale={setScale}

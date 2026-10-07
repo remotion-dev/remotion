@@ -1650,7 +1650,6 @@ const RenderModal: React.FC<
 							jpegQuality={jpegQuality}
 							setJpegQuality={setJpegQuality}
 							videoImageFormat={videoImageFormat}
-							setVideoImageFormat={setVideoImageFormat}
 							usesSharedMemoryCapture={usesSharedMemoryCapture}
 							stillImageFormat={stillImageFormat}
 							compositionWidth={resolvedComposition.width}

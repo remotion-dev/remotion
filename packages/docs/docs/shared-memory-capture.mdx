@@ -33,16 +33,16 @@ The patch does not apply to previews or [client-side rendering](/docs/client-sid
 
 ## Image format and quality
 
-When shared-memory capture is active, both `imageFormat: "jpeg"` and `imageFormat: "png"` send uncompressed bitmaps to FFmpeg. Switching between them no longer changes the image compression or capture quality.
+When shared-memory capture is active, the [`imageFormat`](/docs/renderer/render-media#imageformat) and [`jpegQuality`](/docs/renderer/render-media#jpegquality) options have no effect. Frames are passed to FFmpeg as uncompressed bitmaps.
 
-The option still controls the background:
+The output [pixel format](/docs/renderer/render-media#pixelformat) determines the background:
 
-- `"jpeg"` uses an opaque black background for areas not painted by your composition.
-- `"png"` preserves transparency during capture. Follow the [transparent video guide](/docs/transparent-videos) to choose an output codec and pixel format that preserve transparency in the final video.
+- `"yuva420p"` and `"yuva444p10le"` preserve transparency automatically. Follow the [transparent video guide](/docs/transparent-videos) to choose a codec that supports your pixel format.
+- Other pixel formats composite transparent areas against black.
 
-The [`jpegQuality`](/docs/renderer/render-media#jpegquality) option has no effect on video frames captured through shared memory. When Remotion falls back to screenshots, the image format and JPEG quality options work as before.
+When Remotion falls back to screenshots, the image format and JPEG quality options work as before. Transparent output requires PNG screenshots.
 
-In the Studio render dialog, the **Picture** tab shows **Transparent background** instead of **Image Format** and hides **JPEG Quality** when shared-memory capture is available. The transparency setting applies to captured frames; exporting a transparent video also requires a [codec and pixel format that support transparency](/docs/transparent-videos).
+In the Studio render dialog, the Picture tab hides Image Format and JPEG Quality when shared-memory capture is available. Choose a pixel format with alpha support in the Encoding tab to export a transparent video.
 
 Shared-memory capture avoids the extra JPEG compression step. The final video is still compressed according to your [codec and quality settings](/docs/encoding). Overall render speed depends on your composition, encoder and machine.
 
