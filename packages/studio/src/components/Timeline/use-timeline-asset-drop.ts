@@ -6,7 +6,11 @@ import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {SetSelectedModalContext} from '../../state/modals';
 import {handleCanvasCaptureDrop} from '../canvas-capture-drop';
 import {isFileDragEvent, isSupportedDropEvent} from '../drop-handler-data';
-import {getEffectDragData} from '../effect-drag-and-drop';
+import {
+	getEffectDragData,
+	isEffectDragOverTarget,
+	isLutEffectDrop,
+} from '../effect-drag-and-drop';
 import {getElementDragData, hasElementDragType} from '../element-drag-and-drop';
 import {handleDrop} from '../handle-drop';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -99,6 +103,11 @@ export const useTimelineAssetDrop = () => {
 				return;
 			}
 
+			if (isEffectDragOverTarget(event)) {
+				setAssetDropFrame(null);
+				return;
+			}
+
 			const canDropElementIntoNewComposition =
 				compositionComponentInfo?.canAddSequence === false &&
 				canReceiveElementDrop &&
@@ -134,6 +143,11 @@ export const useTimelineAssetDrop = () => {
 				!isSupportedDropEvent(event) ||
 				!isEventTargetInsideElement(event, timeline)
 			) {
+				return;
+			}
+
+			if (isLutEffectDrop(event)) {
+				event.preventDefault();
 				return;
 			}
 

@@ -59,10 +59,9 @@ import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {
-	addEffectFromDragData,
-	getEffectDragData,
+	addEffectFromDrop,
 	hasEffectDragType,
-	hasExplicitEffectDragType,
+	LUT_EFFECT_DROP_TARGET_ATTR,
 } from '../effect-drag-and-drop';
 import {
 	ExpandedTracksGetterContext,
@@ -416,6 +415,23 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [selected, selectedItems]);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
+	useEffect(() => {
+		if (!effectDropHovered) {
+			return;
+		}
+
+		const clearEffectDropHover = () => setEffectDropHovered(false);
+		document.addEventListener('drop', clearEffectDropHover, {capture: true});
+		document.addEventListener('dragend', clearEffectDropHover, {capture: true});
+		return () => {
+			document.removeEventListener('drop', clearEffectDropHover, {
+				capture: true,
+			});
+			document.removeEventListener('dragend', clearEffectDropHover, {
+				capture: true,
+			});
+		};
+	}, [effectDropHovered]);
 	const [isRenaming, setIsRenaming] = useState(false);
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
@@ -1622,24 +1638,12 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			const dragData = getEffectDragData(e.dataTransfer);
-			if (!dragData) {
-				if (hasExplicitEffectDragType(e.dataTransfer)) {
-					e.preventDefault();
-					e.stopPropagation();
-					setEffectDropHovered(false);
-					showNotification('Could not read effect drag data', 3000);
-				}
-
-				return;
-			}
-
 			e.preventDefault();
 			e.stopPropagation();
 			setEffectDropHovered(false);
 
-			await addEffectFromDragData({
-				dragData,
+			await addEffectFromDrop({
+				dataTransfer: e.dataTransfer,
 				fileName: validatedLocation.source,
 				nodePathInfo,
 				clientId: previewServerState.clientId,
@@ -1752,6 +1756,9 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const annotatedTrackRow = (
 		<div
+			{...{
+				[LUT_EFFECT_DROP_TARGET_ATTR]: canDropEffect ? 'true' : undefined,
+			}}
 			{...getSequenceAnnotationAttributes({
 				sequence,
 				location: originalLocation,

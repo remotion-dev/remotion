@@ -1,5 +1,5 @@
 import {CanvasInternals} from '@remotion/sdk';
-import React, {useContext, useMemo, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -14,10 +14,9 @@ import type {getSequenceAnnotationAttributes} from '../helpers/sequence-annotati
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
-	addEffectFromDragData,
-	getEffectDragData,
+	addEffectFromDrop,
 	hasEffectDragType,
-	hasExplicitEffectDragType,
+	LUT_EFFECT_DROP_TARGET_ATTR,
 } from './effect-drag-and-drop';
 import {
 	forceSpecificCursor,
@@ -133,6 +132,23 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	const polygonRef = useRef<SVGPolygonElement>(null);
 	const {selectItems} = useTimelineSelection();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
+	useEffect(() => {
+		if (!effectDropHovered) {
+			return;
+		}
+
+		const clearEffectDropHover = () => setEffectDropHovered(false);
+		document.addEventListener('drop', clearEffectDropHover, {capture: true});
+		document.addEventListener('dragend', clearEffectDropHover, {capture: true});
+		return () => {
+			document.removeEventListener('drop', clearEffectDropHover, {
+				capture: true,
+			});
+			document.removeEventListener('dragend', clearEffectDropHover, {
+				capture: true,
+			});
+		};
+	}, [effectDropHovered]);
 	const visible = showSelectedOutline || hovered;
 	const getEffectDropTarget = React.useCallback(() => {
 		if (
@@ -415,24 +431,12 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				return;
 			}
 
-			const dragData = getEffectDragData(event.dataTransfer);
-			if (!dragData) {
-				if (hasExplicitEffectDragType(event.dataTransfer)) {
-					event.preventDefault();
-					event.stopPropagation();
-					setEffectDropHovered(false);
-					showNotification('Could not read effect drag data', 3000);
-				}
-
-				return;
-			}
-
 			event.preventDefault();
 			event.stopPropagation();
 			setEffectDropHovered(false);
 
-			await addEffectFromDragData({
-				dragData,
+			await addEffectFromDrop({
+				dataTransfer: event.dataTransfer,
 				fileName: effectDrop.fileName,
 				nodePathInfo: effectDrop.nodePathInfo,
 				clientId: effectDrop.clientId,
@@ -449,6 +453,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			{...{
 				[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true',
 				[SELECTED_OUTLINE_KEY_ATTR]: outline.key,
+				[LUT_EFFECT_DROP_TARGET_ATTR]:
+					getEffectDropTarget() !== null ? 'true' : undefined,
 			}}
 			outline={outline}
 			directlySelected={directlySelected}
