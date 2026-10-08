@@ -6,7 +6,7 @@ slug: /lambda/downloadmedia
 crumb: 'Lambda API'
 ---
 
-Downloads a rendered video, audio or still to the disk of the machine this API is called from.
+Downloads a rendered video, audio, still, or image sequence to the disk of the machine this API is called from.
 
 If you want to let the user download a result to their machine, use [`renderMediaOnLambda()` -> `downloadBehavior`](/docs/lambda/rendermediaonlambda#downloadbehavior) instead.
 
@@ -45,7 +45,7 @@ The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda(
 
 ### `outPath`
 
-Where the video should be saved. Pass an absolute path, or it will be resolved relative to your current working directory.
+Where to save the output. Pass a directory for image sequences. Relative paths resolve from your current working directory.
 
 ### `output?`<AvailableFrom v="4.0.535" />
 

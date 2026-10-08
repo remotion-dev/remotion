@@ -185,6 +185,7 @@ const SequenceSourceQuickActions: React.FC<{
 		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
 		setSelectedModal({
 			type: 'transcribe',
+			captionStyle: null,
 			src: mediaSequence.src,
 			displayName: getMediaFileName(
 				mediaSequence.src,

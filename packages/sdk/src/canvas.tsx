@@ -6,7 +6,6 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
-	useLayoutEffect,
 	useMemo,
 } from 'react';
 import type {AnyZodObject, TSequence} from 'remotion';
@@ -34,8 +33,9 @@ export type CanvasProps<
 	readonly resolveSequenceNodePathInfo?: CanvasSequenceNodePathResolver;
 	/**
 	 * Enables moving selected outlines by dragging them or pressing the arrow
-	 * keys. Called with the resulting prop values once a gesture ends; the
-	 * values stay previewed through `controller.overrides` until you clear them.
+	 * keys. Called once with all static and keyframed prop changes when a
+	 * gesture ends. Persist the full batch as one undoable edit. The values
+	 * stay previewed through `controller.overrides` until you clear them.
 	 */
 	readonly onSequencePropsChange?: CanvasSequencePropsChangeHandler;
 	/**
@@ -76,6 +76,14 @@ const CanvasFn = <
 	}: CanvasProps<Schema, Props>,
 	ref: RefObject<PlayerRef>,
 ) => {
+	// Install before rendering the Player's sequence manager so it can use
+	// commit registration from its first render. Timeline order also needs the
+	// observer when outlines are hidden. Installation is idempotent and reads
+	// sequence descriptors only after React commits the tree.
+	if (typeof window !== 'undefined') {
+		installFiberCommitOrderObserver(window);
+	}
+
 	const internals = getCanvasControllerInternals(controller);
 	const onTimelineSequenceChange = useCallback(
 		(sequences: TSequence[]) => internals.setSequences(sequences),
@@ -107,14 +115,6 @@ const CanvasFn = <
 		return () =>
 			window.removeEventListener(Internals.REACT_REFRESH_STARTED_EVENT, commit);
 	}, [internals]);
-	// React Refresh (used by Browser Studio) or React DevTools must have
-	// registered the renderer before this commit. Install before the commit hook
-	// fires so the initial outline nodes are discovered as well.
-	useLayoutEffect(() => {
-		if (showOutlines && typeof window !== 'undefined') {
-			installFiberCommitOrderObserver(window);
-		}
-	}, [showOutlines]);
 	const overlay = useMemo(
 		() => (
 			<>

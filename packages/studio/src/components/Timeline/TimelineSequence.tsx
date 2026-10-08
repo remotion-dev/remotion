@@ -42,6 +42,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
 import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
+import {getStudioShowPremounting} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -327,6 +328,7 @@ const TimelineSequenceBar: React.FC<{
 		readonly width: number;
 	} | null;
 	readonly premount: {readonly left: number; readonly width: number} | null;
+	readonly showPremounting: boolean;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
 	readonly negativeStart: {
 		readonly left: number;
@@ -361,6 +363,7 @@ const TimelineSequenceBar: React.FC<{
 	displayDurationInFrames,
 	selectionBounds,
 	premount,
+	showPremounting,
 	postmount,
 	negativeStart,
 	leftEdgeVisible,
@@ -548,6 +551,7 @@ const TimelineSequenceBar: React.FC<{
 					displayDurationInFrames={displayDurationInFrames}
 					paddingLeft={5 + negativeStartEnd + (premount?.width ?? 0)}
 					frozenFrame={frozenFrame}
+					showPremounting={showPremounting}
 				/>
 			) : null}
 
@@ -957,6 +961,7 @@ const TimelineSequenceInner: React.FC<{
 		)?.durationInFrames?.status === 'static',
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const showPremounting = getStudioShowPremounting();
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -1373,7 +1378,8 @@ const TimelineSequenceInner: React.FC<{
 			video,
 			windowWidth,
 			// Premounting does not occupy space in a packed track.
-			premountDisplay: s.timelineTrack ? null : s.premountDisplay,
+			premountDisplay:
+				s.timelineTrack || !showPremounting ? null : s.premountDisplay,
 			postmountDisplay: s.postmountDisplay,
 		});
 	}, [
@@ -1381,6 +1387,7 @@ const TimelineSequenceInner: React.FC<{
 		displayDurationInFrames,
 		effectiveMaxMediaDuration,
 		s,
+		showPremounting,
 		video,
 		windowWidth,
 	]);
@@ -1734,6 +1741,7 @@ const TimelineSequenceInner: React.FC<{
 			displayDurationInFrames={displayDurationInFrames}
 			selectionBounds={visibleLayout.media}
 			premount={visibleLayout.premount}
+			showPremounting={showPremounting}
 			postmount={visibleLayout.postmount}
 			negativeStart={visibleLayout.negativeStart}
 			leftEdgeVisible={visibleLayout.leftEdgeVisible}

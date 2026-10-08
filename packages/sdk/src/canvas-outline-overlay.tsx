@@ -17,6 +17,7 @@ import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 import {useCanvasHover, useCanvasSequenceHover} from './hover';
 import {getKeyframeDisplayOffset} from './keyframe-frames';
 import type {CanvasOutline} from './outline-geometry';
+import {scaleCanvasOutline} from './outline-geometry';
 import {handleCanvasOutlinePointerDown} from './outline-interaction';
 import {
 	getCanvasOutlineSnapTargets,
@@ -377,6 +378,8 @@ const ActiveCanvasOutlines = React.memo(
 	({
 		controller,
 		containerRef,
+		contentRoot,
+		scale,
 		selectableOutlines,
 		sequences,
 		selectableItems,
@@ -387,6 +390,8 @@ const ActiveCanvasOutlines = React.memo(
 	}: {
 		readonly controller: CanvasController;
 		readonly containerRef: RefObject<SVGSVGElement | null>;
+		readonly contentRoot: HTMLElement;
+		readonly scale: number;
 		readonly selectableOutlines: readonly CanvasSelectableOutline[];
 		readonly sequences: readonly TSequence[];
 		readonly selectableItems: readonly CanvasSelectionItem[];
@@ -505,12 +510,11 @@ const ActiveCanvasOutlines = React.memo(
 		);
 		const {outlinesForRendering, outlinesByKey, targetsByKey} =
 			useCanvasOutlines({
-				containerRef,
+				contentRoot,
 				targets,
 				sequences,
 				hoverController: controller.hover,
 				freezeOrder: dragging,
-				updateOutlinesRef: null,
 			});
 		useLayoutEffect(() => {
 			measuredRef.current = {targets, outlinesByKey};
@@ -524,7 +528,7 @@ const ActiveCanvasOutlines = React.memo(
 							key={outline.key}
 							controller={controller}
 							containerRef={containerRef}
-							outline={outline}
+							outline={scaleCanvasOutline(outline, scale)}
 							target={target}
 							selectableItems={selectableItems}
 							dragging={dragging}
@@ -550,6 +554,7 @@ export const CanvasOutlineOverlay = React.memo(
 		readonly getSequencePropStatuses: CanvasSequencePropStatusResolver | null;
 	}) => {
 		const containerRef = useRef<SVGSVGElement | null>(null);
+		const canvasContent = useContext(PlayerInternals.CanvasContentContext);
 		const [container, setContainer] = useState<SVGSVGElement | null>(null);
 		const attachContainer = useCallback((element: SVGSVGElement | null) => {
 			containerRef.current = element;
@@ -729,6 +734,7 @@ export const CanvasOutlineOverlay = React.memo(
 				},
 				getSelectedOutlines: () => {
 					const {targets, outlinesByKey} = measuredRef.current;
+					const scale = getScale();
 					return targets.flatMap((target) => {
 						if (
 							(!target.selected && !target.containsSelection) ||
@@ -738,7 +744,9 @@ export const CanvasOutlineOverlay = React.memo(
 						}
 
 						const outline = outlinesByKey.get(target.key);
-						return outline === undefined ? [] : [outline];
+						return outline === undefined
+							? []
+							: [scaleCanvasOutline(outline, scale)];
 					});
 				},
 				getSnapTargets: () =>
@@ -908,10 +916,14 @@ export const CanvasOutlineOverlay = React.memo(
 				onKeyUp={onKeyUp}
 				onBlur={finishNudge}
 			>
-				{measurementActive && container !== null ? (
+				{measurementActive &&
+				container !== null &&
+				canvasContent?.rootRef.current ? (
 					<ActiveCanvasOutlines
 						controller={controller}
 						containerRef={containerRef}
+						contentRoot={canvasContent.rootRef.current}
+						scale={canvasContent.scale}
 						selectableOutlines={selectableOutlines}
 						sequences={sequences}
 						selectableItems={selectableItems}

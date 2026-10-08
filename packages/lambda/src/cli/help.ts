@@ -47,6 +47,10 @@ const lambdaOptions: Record<string, HelpOption> = {
 		flag: '--concurrency-per-lambda <count>',
 		description: 'Set the concurrency within each Lambda invocation.',
 	},
+	'output-prefix': {
+		flag: '--output-prefix <prefix>',
+		description: 'Set the storage prefix for an image sequence.',
+	},
 	'out-name': {
 		flag: '--out-name <key>',
 		description: 'Set the S3 key of the rendered output.',
@@ -234,6 +238,9 @@ export const lambdaCommandHelp = [
 				'timeout',
 				'out-name',
 				'separate-audio-to',
+				'output-prefix',
+				'sequence',
+				'image-sequence-pattern',
 				's3-output-provider-endpoint',
 				's3-output-provider-region',
 				's3-output-provider-force-path-style',

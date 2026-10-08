@@ -253,8 +253,7 @@ export const LowerThird = Interactive.withSchema({
 });
 ```
 
-```tsx
-// Root.tsx
+```tsx title="src/Root.tsx"
 import { Composition } from "remotion";
 import { LowerThird } from "./LowerThird";
 import { MyScene } from "./MyScene";

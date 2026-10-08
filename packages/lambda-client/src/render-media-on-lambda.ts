@@ -159,7 +159,9 @@ export const internalRenderMediaOnLambdaRaw = async (
 };
 
 export const renderMediaOnLambdaOptionalToRequired = (
-	options: RenderMediaOnLambdaInput,
+	options: Omit<RenderMediaOnLambdaInput, 'codec'> & {
+		codec: ServerlessCodec | null;
+	},
 ): InnerRenderMediaOnLambdaInput => {
 	return {
 		enableCancellation: options.enableCancellation ?? false,
@@ -168,6 +170,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		audioCodec: options.audioCodec ?? null,
 		chromiumOptions: options.chromiumOptions ?? {},
 		codec: options.codec,
+		output: {type: 'media'},
 		colorSpace: options.colorSpace ?? null,
 		composition: options.composition,
 		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,

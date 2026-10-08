@@ -24,6 +24,11 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
+import {
+	CommittedMetadataInternals,
+	CommittedMetadataProvider,
+	withCommittedMetadata,
+} from './committed-metadata.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {type CompProps} from './Composition.js';
 import type {
@@ -40,6 +45,7 @@ import {
 	CompositionSetters,
 } from './CompositionManagerContext.js';
 import {CompositionManagerProvider} from './CompositionManagerProvider.js';
+import {CompositionRegistryProvider} from './CompositionRegistryProvider.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
@@ -109,19 +115,19 @@ import {
 	fromField,
 	hiddenField,
 	premountSchema,
-	sequencePremountSchema,
 	sequenceCropSchema,
+	sequencePremountSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	textSchema,
-	trimAfterField,
 	transformSchema,
-	type AssetFieldSchema,
+	trimAfterField,
 	type ArrayFieldSchema,
 	type ArrayItemFieldSchema,
-	type InteractivitySchemaField,
+	type AssetFieldSchema,
 	type InteractivitySchema,
+	type InteractivitySchemaField,
 	type VisibleFieldSchema,
 } from './interactivity-schema.js';
 import {
@@ -182,7 +188,6 @@ import {
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 } from './sequence-node-path.js';
-import {CommitOrderInternals} from './sequence-order-marker.js';
 import {
 	SequenceOutlineContext,
 	SequenceOutlineInternals,
@@ -195,12 +200,12 @@ import type {CannotUpdateSequenceReason} from './SequenceManager.js';
 import {
 	DisableSequenceRegistrationProvider,
 	makeSequencePropsSubscriptionKey,
-	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
+	SequenceRegistrationContext,
+	SequenceRegistryContext,
 	useActiveFromDragOverrideKeys,
 	useSequenceManagerSequences,
-	SequenceRegistrationContext,
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
@@ -213,8 +218,8 @@ import {
 	type CanUpdateSequencePropsResponseFalse,
 	type CanUpdateSequencePropsResponseTrue,
 	type SequenceNodePath,
-	type SequencePropsSubscriptionKey,
 	type SequencePropsStatusRemapping,
+	type SequencePropsSubscriptionKey,
 	type VideoConfigValues,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
@@ -252,14 +257,14 @@ import {useLazyComponent} from './use-lazy-component.js';
 import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
-	useMediaInTimeline,
+	useMediaInTimelineRegistration as useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import {PixelDensityContext} from './use-pixel-density.js';
 import {usePlaying} from './use-playing.js';
 import {usePremounting} from './use-premounting.js';
 import type {
-	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusEasing,
+	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	DragOverrideValue,
@@ -308,8 +313,8 @@ import type {
 import {
 	MediaVolumeContext,
 	SetMediaVolumeContext,
-	usePlayerMutedState,
 	useMediaVolumeState,
+	usePlayerMutedState,
 } from './volume-position-state.js';
 import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
@@ -335,6 +340,8 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	CommittedMetadataProvider,
+	withCommittedMetadata,
 	DefaultPremountContext,
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
@@ -370,14 +377,14 @@ export const Internals = {
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
-	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
+	SequenceRegistryContext,
 	useActiveFromDragOverrideKeys,
 	useSequenceManagerSequences,
 	SequenceRegistrationContext,
 	DisableSequenceRegistrationProvider,
-	CommitOrderInternals,
+	CommittedMetadataInternals,
 	SequenceOutlineInternals,
 	SequenceOutlineContext,
 	SequenceStackTracesUpdateContext,
@@ -395,6 +402,7 @@ export const Internals = {
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
 	CompositionManagerProvider,
+	CompositionRegistryProvider,
 	useVideo,
 	getRoot,
 	useMediaVolumeState,
@@ -540,8 +548,8 @@ Object.assign(Internals, {useSyncExternalStore});
 
 export type {
 	ArrayFieldSchema,
-	AssetFieldSchema,
 	ArrayItemFieldSchema,
+	AssetFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
 	CanUpdateEffectPropsResponseFalse,
@@ -554,7 +562,6 @@ export type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
-	VideoConfigNumericExpression,
 	CompositionManagerContext,
 	CompProps,
 	DragOverrides,
@@ -564,6 +571,8 @@ export type {
 	GetEffectDragOverrides,
 	GetEffectPropStatuses,
 	GetPropStatuses,
+	InteractivitySchema,
+	InteractivitySchemaField,
 	JsxComponentIdentity,
 	LoggingContextValue,
 	MediaVolumeContextValue,
@@ -580,12 +589,9 @@ export type {
 	ResolvedStackLocation,
 	ScheduleAudioNodeOptions,
 	ScheduleAudioNodeResult,
-	InteractivitySchemaField,
 	SequenceNodePath,
-	SequencePropsSubscriptionKey,
 	SequencePropsStatusRemapping,
-	VideoConfigValues,
-	InteractivitySchema,
+	SequencePropsSubscriptionKey,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
@@ -594,6 +600,8 @@ export type {
 	TimelineContextValue,
 	TRenderAsset,
 	TSequence,
+	VideoConfigNumericExpression,
+	VideoConfigValues,
 	VisibleFieldSchema,
 	WatchRemotionStaticFilesPayload,
 };

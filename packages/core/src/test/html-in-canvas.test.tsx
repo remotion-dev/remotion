@@ -1,19 +1,20 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import type {TSequence} from '../CompositionManager.js';
 import type {DelayRenderScope} from '../delay-render.js';
 import type {HtmlInCanvasOnPaintParams} from '../HtmlInCanvas.js';
 import {HtmlInCanvas, htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {Internals} from '../internals.js';
-import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
-	SequenceManager,
-	VisualModeDragOverridesContext,
+	SequenceManagerProvider,
 	VisualModePropStatusesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
-import {WrapSequenceContext} from './wrap-sequence-context.js';
+import {
+	ObserveSequenceRegistrations,
+	WrapSequenceContext,
+} from './wrap-sequence-context.js';
 
 const stub2dContext = () => {
 	return {
@@ -146,39 +147,9 @@ const SequenceTestWrapper: React.FC<{
 	compositionDurationInFrames,
 	currentFrame,
 }) => {
-	const registerSequence = useCallback(
-		(sequence: TSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-
-	const unregisterSequence = useCallback(() => undefined, []);
-
-	const sequenceManagerContext: SequenceManagerContext = useMemo(() => {
-		return {
-			registerSequence,
-			sequences: [],
-			updateSequence: registerSequence,
-			unregisterSequence,
-		};
-	}, [registerSequence, unregisterSequence]);
-
 	const visualPropStatuses = useMemo(
 		() => ({
 			propStatuses: {},
-		}),
-		[],
-	);
-
-	const visualDragOverrides = useMemo(
-		() => ({
-			getDragOverrides: () => {
-				throw new Error('VisualModeDragOverridesContext not initialized');
-			},
-			getEffectDragOverrides: () => {
-				throw new Error('VisualModeDragOverridesContext not initialized');
-			},
 		}),
 		[],
 	);
@@ -209,17 +180,16 @@ const SequenceTestWrapper: React.FC<{
 					isStudio: true,
 				}}
 			>
-				<SequenceManager.Provider value={sequenceManagerContext}>
+				<SequenceManagerProvider>
+					<ObserveSequenceRegistrations
+						onRegisterSequence={onRegisterSequence}
+					/>
 					<VisualModePropStatusesContext.Provider value={visualPropStatuses}>
-						<VisualModeDragOverridesContext.Provider
-							value={visualDragOverrides}
-						>
-							<VisualModeSettersContext.Provider value={visualSetters}>
-								{children}
-							</VisualModeSettersContext.Provider>
-						</VisualModeDragOverridesContext.Provider>
+						<VisualModeSettersContext.Provider value={visualSetters}>
+							{children}
+						</VisualModeSettersContext.Provider>
 					</VisualModePropStatusesContext.Provider>
-				</SequenceManager.Provider>
+				</SequenceManagerProvider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>
 	);

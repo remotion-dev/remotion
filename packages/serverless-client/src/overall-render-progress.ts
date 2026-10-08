@@ -16,6 +16,8 @@ export type OverallRenderProgress<Provider extends CloudProvider> = {
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;
+	framesUploaded: number;
+	uploadedSizeInBytes: number;
 	combinedFrames: number;
 	timeToCombine: number | null;
 	timeToEncode: number | null;

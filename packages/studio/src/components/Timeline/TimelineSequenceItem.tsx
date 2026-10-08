@@ -348,6 +348,7 @@ const getSequencePointerDropTargetAtPoint = ({
 const SEQUENCE_REORDER_POINTER_THRESHOLD = 3;
 
 const TimelineSequenceItemInner: React.FC<{
+	readonly showBottomBorder: boolean;
 	readonly afterDropLineOffset: number;
 	readonly sequence: TSequence;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
@@ -360,6 +361,7 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly numberOfHiddenDuplicates: number;
 	readonly showProvisionalVisibilityToggle: boolean;
 }> = ({
+	showBottomBorder,
 	afterDropLineOffset,
 	connectedCompositions,
 	nestedDepth,
@@ -477,11 +479,10 @@ const TimelineSequenceItemInner: React.FC<{
 	);
 	const parentId = sequence.parent ?? null;
 	const canReorderSequence =
-		!isPackedTrack &&
 		previewInteractive &&
 		Boolean(nodePath && nodePathKey && validatedLocation?.source) &&
 		nodePathInfo?.numberOfSequencesWithThisNodePath === 1;
-	const canHandleSequenceDrag = previewInteractive && !isPackedTrack;
+	const canHandleSequenceDrag = previewInteractive;
 	const confirm = useConfirmationDialog();
 
 	const deleteDisabled = useMemo(
@@ -775,7 +776,6 @@ const TimelineSequenceItemInner: React.FC<{
 				sourceRows.some(
 					(row, index) =>
 						!row ||
-						row.track.sequence.timelineTrack?.role === 'track' ||
 						row.track.sequence.parent !== parentId ||
 						selectedNodePathInfos[index].numberOfSequencesWithThisNodePath !==
 							1 ||
@@ -1678,6 +1678,7 @@ const TimelineSequenceItemInner: React.FC<{
 			containsSelection={containsSelection}
 			hovered={hovered}
 			outerHeight={outerHeight}
+			showBottomBorder={showBottomBorder}
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}

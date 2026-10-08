@@ -44,6 +44,7 @@ const deliverElementInstall = ({
 			durationInFrames: element.durationInFrames ?? null,
 			initialProps: element.initialProps ?? null,
 			installationMode: element.installationMode ?? null,
+			isCaptionStyle: element.isCaptionStyle ?? false,
 		},
 		from: null,
 		position: null,

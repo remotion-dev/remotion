@@ -1,0 +1,263 @@
+---
+image: /generated/articles-docs-lambda-renderframesonlambda.png
+id: renderframesonlambda
+title: renderFramesOnLambda()
+crumb: '@remotion/lambda-client'
+---
+
+# renderFramesOnLambda()<AvailableFrom v="4.0.535" />
+
+Starts a distributed image sequence render on AWS Lambda.
+
+Requires a [deployed function](/docs/lambda/deployfunction) and a [site or Serve URL](/docs/lambda/deploysite).  
+The function, site, and client package must use matching Remotion versions.
+
+## Example
+
+```ts twoslash title="render-sequence.ts"
+import {renderFramesOnLambda, getRenderProgress} from '@remotion/lambda-client';
+
+const region = 'eu-central-1';
+const functionName = 'remotion-render-4-0-535-mem2048mb-disk2048mb-120sec';
+
+const {bucketName, renderId} = await renderFramesOnLambda({
+  region,
+  functionName,
+  serveUrl: 'https://example.com/remotion/index.html',
+  composition: 'MyComposition',
+  imageFormat: 'png',
+  frameRange: [0, 299],
+  framesPerLambda: 20,
+  outputPrefix: 'exports/my-sequence/',
+  imageSequencePattern: 'element-[frame].[ext]',
+});
+
+const progress = await getRenderProgress({region, functionName, bucketName, renderId});
+if (progress.done && progress.outputSequence) {
+  console.log(progress.outputSequence.manifestUrl);
+}
+```
+
+Poll [`getRenderProgress()`](/docs/lambda/getrenderprogress) until `done` is `true`, or `fatalErrorEncountered` is `true`.
+
+## Arguments
+
+### `region`
+
+The [AWS region](/docs/lambda/region-selection) of the deployed function.
+
+### `functionName`
+
+The name of the deployed Lambda function.
+
+### `serveUrl`
+
+The [Serve URL](/docs/terminology/serve-url) or deployed site name.
+
+### `composition`
+
+The [composition ID](/docs/terminology/composition#composition-id) to render.
+
+### `imageFormat?`
+
+`'png'` or `'jpeg'`. Defaults to `'png'`. PNG preserves transparency.
+
+### `outputPrefix?`
+
+The storage prefix for the images and `manifest.json`. Defaults to `renders/<renderId>/frames/` in the render bucket. A trailing `/` is added if needed.
+
+To use another bucket or S3-compatible provider, pass `{bucketName, keyPrefix, s3OutputProvider?}`. The credentials have the same shape as [`renderMediaOnLambda()`'s custom destination](/docs/lambda/rendermediaonlambda#outname).
+
+#### `bucketName`
+
+The destination bucket.
+
+#### `keyPrefix`
+
+A non-empty relative storage prefix. Path traversal segments are rejected.
+
+#### `s3OutputProvider?`
+
+Custom endpoint and credentials. Defaults to the configured AWS credentials.
+
+### `imageSequencePattern?`
+
+Filename pattern using `[frame]` for the zero-padded composition frame number and `[ext]` for the selected image format. Defaults to `element-[frame].[ext]`.
+
+The pattern must contain `[frame]`, produce the selected file extension, and contain no directory separators. Padding is consistent across all workers. A range of `[98, 102]` produces filenames from `element-098.png` to `element-102.png`.
+
+### `frameRange?`
+
+An inclusive frame range, or a single frame number. Defaults to the whole composition. Multiple ranges are unsupported.
+
+### `everyNthFrame?`
+
+Render every nth frame, starting at the beginning of `frameRange`. Defaults to `1`. Filenames retain composition frame numbers, so skipped frames leave gaps.
+
+### `jpegQuality?`
+
+JPEG quality from `0` to `100`. Defaults to `80`. Only pass this option when `imageFormat` is `'jpeg'`.
+
+### `framesPerLambda?`
+
+Frames rendered by each worker. Defaults to the [automatic concurrency setting](/docs/lambda/concurrency).
+
+### `concurrency?`
+
+Worker count, as an alternative to `framesPerLambda`. Defaults to automatic selection. Setting `1` uses one worker.
+
+### `concurrencyPerLambda?`
+
+Number of frames rendered and uploaded concurrently in each worker. Defaults to `1`.
+
+### `overwrite?`
+
+Whether to replace existing output images and the manifest. Defaults to `false` in Remotion 4 and `true` in Remotion 5, matching [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#overwrite).
+
+Use a unique prefix for each concurrent render. When overwriting, files outside the selected sequence remain in the destination.
+
+### `inputProps?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#inputprops). Defaults to `{}`.
+
+### `envVariables?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#envvariables). Defaults to `{}`.
+
+### `privacy?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#privacy). Defaults to `'public'`.
+
+### `chromiumOptions?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#chromiumoptions). Defaults to `{}`.
+
+### `scale?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#scale). Defaults to `1`.
+
+### `downloadBehavior?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#downloadbehavior). Defaults to `{type: 'play-in-browser'}`.
+
+### `maxRetries?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#maxretries). Defaults to `1`.
+
+### `webhook?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#webhook). Defaults to `null`.
+
+### `forceWidth?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#forcewidth). Defaults to `null`.
+
+### `forceHeight?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#forceheight). Defaults to `null`.
+
+### `forceFps?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#forcefps). Defaults to `null`.
+
+### `forceDurationInFrames?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#forcedurationinframes). Defaults to `null`.
+
+### `rendererFunctionName?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#rendererfunctionname). Defaults to `null`.
+
+### `forceBucketName?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#forcebucketname). Defaults to the automatically selected render bucket.
+
+### `forcePathStyle?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#forcepathstyle). Defaults to `false`.
+
+### `storageClass?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#storageclass). Defaults to `null`.
+
+### `requestHandler?`
+
+A custom HTTP request handler for the AWS SDK. Defaults to the AWS SDK handler.
+
+### `isProduction?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#isproduction). Defaults to `true`.
+
+### `licenseKey?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey). Defaults to `null`.
+
+### `logLevel?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#loglevel). Defaults to `'info'`.
+
+### `timeoutInMilliseconds?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds). Defaults to `30000`.
+
+### `deleteAfter?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#deleteafter). Defaults to `null`.
+
+### `offthreadVideoCacheSizeInBytes?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#offthreadvideocachesizeinbytes). Defaults to automatic selection.
+
+### `offthreadVideoThreads?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#offthreadvideothreads). Defaults to automatic selection.
+
+### `mediaCacheSizeInBytes?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#mediacachesizeinbytes). Defaults to automatic selection.
+
+### `enableCancellation?`
+
+Same behavior as [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#enablecancellation). Defaults to `false`.
+
+## Return value
+
+Returns a promise with the same [job identifiers and diagnostic links as `renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#return-value). Completion is reported by [`getRenderProgress()`](/docs/lambda/getrenderprogress#outputsequence).
+
+## Manifest
+
+The manifest contains the render ID, image format, output dimensions, composition FPS, inclusive frame range, `everyNthFrame`, and an ordered `frames` array of `{frame, key}` entries.  
+Keys are relative to the destination bucket.
+
+Example for `frameRange: [98, 102]` and `everyNthFrame: 2`:
+
+```json title="manifest.json"
+{
+  "renderId": "8g2k5j9p0w",
+  "imageFormat": "png",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "frameRange": [98, 102],
+  "everyNthFrame": 2,
+  "frames": [
+    {"frame": 98, "key": "exports/my-sequence/element-098.png"},
+    {"frame": 100, "key": "exports/my-sequence/element-100.png"},
+    {"frame": 102, "key": "exports/my-sequence/element-102.png"}
+  ]
+}
+```
+
+Private images and manifests require storage credentials or [`presignUrl()`](/docs/lambda/presignurl).
+
+Use [`downloadMedia()`](/docs/lambda/downloadmedia) to download the sequence and manifest into a local directory, and [`deleteRender()`](/docs/lambda/deleterender) to delete its files and render metadata.
+
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions="Node.js runtime" clientSideRendering="" serverSideRendering player="" studio="" hideBrowsers />
+
+## See also
+
+- [`renderFrames()`](/docs/renderer/render-frames)
+- [`getRenderProgress()`](/docs/lambda/getrenderprogress)
+- [Lambda CLI image sequences](/docs/lambda/cli/render#--sequence)

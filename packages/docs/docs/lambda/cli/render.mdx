@@ -73,6 +73,22 @@ npx remotion lambda render --codec=mp3 testbed my-comp
 
 ## Flags
 
+### `--sequence`<AvailableFrom v="4.0.535" />
+
+Render an image sequence using [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda). Defaults to PNG. The optional output location is a local directory into which the images and manifest are downloaded.
+
+```sh title="Render an image sequence"
+bunx remotion lambda render testbed my-comp out/frames --sequence
+```
+
+### `--output-prefix`<AvailableFrom v="4.0.535" />
+
+Storage prefix for an image sequence. Defaults to `renders/<renderId>/frames/`. A trailing `/` is added if needed. Use `--overwrite` to replace existing output files.
+
+### `--image-sequence-pattern`<AvailableFrom v="4.0.535" />
+
+Filename pattern for a sequence. Defaults to `element-[frame].[ext]`. `[frame]` is the zero-padded composition frame number and `[ext]` is the selected image format.
+
 ### `--region`
 
 The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.

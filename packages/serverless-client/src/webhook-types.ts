@@ -1,4 +1,5 @@
 import type {AfterRenderCost, SeparateAudioOutput} from './constants';
+import type {ImageSequenceOutput} from './image-sequence';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 type StaticWebhookPayload<BucketOwner extends string | null> = {
@@ -25,6 +26,7 @@ export type WebhookSuccessPayload<BucketOwner extends string | null = string> =
 		outputUrl: string | undefined;
 		outputFile: string | undefined;
 		separateAudio: SeparateAudioOutput | null;
+		outputSequence: ImageSequenceOutput | null;
 		timeToFinish: number | undefined;
 		costs: AfterRenderCost;
 	};

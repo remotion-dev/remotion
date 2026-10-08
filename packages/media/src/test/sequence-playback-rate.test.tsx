@@ -415,9 +415,7 @@ test('trimmed loop volume matches live playback and complete Studio curves for r
 		isStudio: true,
 		isReadOnlyStudio: false,
 	};
-	let sequences: React.ContextType<
-		typeof Internals.SequenceManager
-	>['sequences'] = [];
+	let sequences: ReturnType<typeof Internals.useSequenceManagerSequences> = [];
 	const observedFrames = {repeat: -1, extend: -1};
 	const repeatVolume = (frame: number) => {
 		observedFrames.repeat = frame;
@@ -430,7 +428,7 @@ test('trimmed loop volume matches live playback and complete Studio curves for r
 	};
 
 	const ObserveSequences: React.FC = () => {
-		sequences = React.useContext(Internals.SequenceManager).sequences;
+		sequences = Internals.useSequenceManagerSequences();
 		return null;
 	};
 

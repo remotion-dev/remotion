@@ -63,8 +63,10 @@ const enableProxy = <
 					: props?.children;
 				const source =
 					sourceArgumentIndex === null ? null : argArray[sourceArgumentIndex];
+				const existingStack = props?.[internalStackProp];
 				const stack =
-					source &&
+					existingStack ||
+					(source &&
 					typeof source.fileName === 'string' &&
 					typeof source.lineNumber === 'number' &&
 					typeof source.columnNumber === 'number'
@@ -73,8 +75,8 @@ const enableProxy = <
 								lineNumber: source.lineNumber,
 								columnNumber: source.columnNumber,
 							})
-						: new Error().stack;
-				const newProps = props?.[internalStackProp]
+						: new Error().stack);
+				const newProps = existingStack
 					? {...props}
 					: {
 							...(props ?? {}),

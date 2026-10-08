@@ -1,11 +1,11 @@
 import {ding, mouseClick} from '@remotion/sfx';
-import {staticFileRef} from '@remotion/studio-protocol';
 import type {
 	ElementAsset,
 	ElementDependency,
 	ElementInitialProps,
 	ElementInstallationMode,
 } from '@remotion/studio-protocol';
+import {staticFileRef} from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
 import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/mirrored-spectrum';
 import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';

@@ -79,6 +79,7 @@ const postRenderData: PostRenderData<MockProvider> = {
 	filesCleanedUp: 0,
 	mostExpensiveFrameRanges: [],
 	outputFile: 'https://example.com/out.mp4',
+	outputSequence: null,
 	outputSize: 1,
 	renderSize: 1,
 	retriesInfo: [],

@@ -70,6 +70,8 @@ export {
 	ElementInstallSource,
 	FindInFileRequest,
 	FindInFileResponse,
+	GetAppInfoRequest,
+	GetAppInfoResponse,
 	GetDefaultCodingAgentInfoRequest,
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoRequest,
@@ -297,6 +299,7 @@ export {
 	getLocationFromBuildError,
 } from './get-location-from-build-error';
 export {getProjectName} from './get-project-name';
+export {getPreferredApp, preferredFallbackEditorIds} from './get-preferred-app';
 export type {GitSource} from './git-source';
 export {
 	HotMiddlewareMessage,
@@ -450,7 +453,7 @@ export {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
 } from './stringify-sequence-subscription-key';
-export {isUrl} from './url';
+export {isUrl, normalizeHttpUrl} from './url';
 
 export {emptyCompositionComponent} from './empty-composition-component';
 export {assetCompositionComponent} from './asset-composition-component';

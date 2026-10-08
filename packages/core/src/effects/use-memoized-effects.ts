@@ -117,7 +117,9 @@ export const useMemoizedEffectDefinitions = (
 	readonly runtimeValues: readonly RuntimeValueStore[];
 } => {
 	const previousRef = useRef<{
-		readonly definitions: readonly EffectDefinition<unknown>[];
+		readonly definitions: readonly EffectDefinition<unknown>[] & {
+			readonly runtimeValues: readonly RuntimeValueStore[];
+		};
 		readonly controllers: ReturnType<typeof createRuntimeValueStore>[];
 	} | null>(null);
 
@@ -135,9 +137,15 @@ export const useMemoizedEffectDefinitions = (
 		: effects.map((effect) =>
 				createRuntimeValueStore(effect.params as Record<string, unknown>),
 			);
-	const stableDefinitions = isSame ? previous.definitions : definitions;
+	const stableDefinitions = isSame
+		? previous.definitions
+		: Object.assign(definitions, {
+				runtimeValues: controllers.map((controller) => controller.store),
+			});
 
 	useLayoutEffect(() => {
+		// Abandoned renders must not replace the cache used by committed layers.
+		previousRef.current = {definitions: stableDefinitions, controllers};
 		// Stores are intentionally updated without changing the registered effect
 		// array, so frame-dependent parameters don't re-register the Sequence.
 		stableDefinitions.forEach((_definition, index) => {
@@ -146,10 +154,7 @@ export const useMemoizedEffectDefinitions = (
 		});
 	}, [controllers, effects, stableDefinitions]);
 
-	previousRef.current = {definitions: stableDefinitions, controllers};
-	return Object.assign(stableDefinitions, {
-		runtimeValues: controllers.map((controller) => controller.store),
-	});
+	return stableDefinitions;
 };
 
 type EffectStatus =
@@ -240,10 +245,7 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
-	const effectDragOverrides = useEffectDragOverridesForNodePath(
-		nodePath,
-		effects.length,
-	);
+	const effectDragOverrides = useEffectDragOverridesForNodePath(nodePath);
 
 	const resolved = effects.map((descriptor, index) => {
 		if (nodePath === null) {
@@ -286,18 +288,16 @@ export const useMemoizedEffects = ({
 				p.effectKey === resolved[i].effectKey,
 		);
 
-	if (isSame) {
-		return previous;
-	}
-
-	const next: EffectDefinitionAndStack<unknown>[] = resolved.map(
-		({descriptor, params, effectKey}) => ({
-			definition: descriptor.definition,
-			effectKey,
-			params,
-			memoized: true,
-		}),
-	);
-	previousRef.current = next;
+	const next: EffectDefinitionAndStack<unknown>[] = isSame
+		? previous
+		: resolved.map(({descriptor, params, effectKey}) => ({
+				definition: descriptor.definition,
+				effectKey,
+				params,
+				memoized: true,
+			}));
+	useLayoutEffect(() => {
+		previousRef.current = next;
+	}, [next]);
 	return next;
 };

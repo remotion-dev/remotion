@@ -28,6 +28,7 @@ import {startCancellationPolling} from '../cancellation-polling';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
+import {renderImageSequenceChunk} from '../render-image-sequence-chunk';
 
 type Options = {
 	expectedBucketOwner: string | null;
@@ -120,6 +121,27 @@ const renderHandler = async <Provider extends CloudProvider>({
 	});
 
 	onBrowserInstance(browserInstance);
+
+	if (params.output.type === 'sequence') {
+		await renderImageSequenceChunk({
+			params,
+			browser: browserInstance.instance,
+			chromiumOptions,
+			serializedInputProps: await inputPropsPromise,
+			serializedResolvedProps: await resolvedPropsPromise,
+			expectedBucketOwner: options.expectedBucketOwner,
+			onStream,
+			logs,
+			cancelSignal,
+			providerSpecifics,
+			insideFunctionSpecifics,
+		});
+		return {};
+	}
+
+	if (params.codec === null) {
+		throw new Error('Media renders require a codec');
+	}
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
 

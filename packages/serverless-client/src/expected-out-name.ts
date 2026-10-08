@@ -45,6 +45,18 @@ export const getExpectedOutName = <Provider extends CloudProvider>({
 	bucketNamePrefix: string;
 	output: RenderOutput;
 }): OutNameOutput<Provider> => {
+	if (renderMetadata.type === 'sequence') {
+		if (output === 'separate-audio') {
+			throw new Error('This render does not have a separate audio output.');
+		}
+
+		return {
+			key: renderMetadata.outputSequence.manifestKey,
+			renderBucketName: renderMetadata.outputSequence.bucketName,
+			customCredentials,
+		};
+	}
+
 	const outNameValue = getCustomOutName({
 		customCredentials,
 		outName:

@@ -95,17 +95,17 @@ If omitted, the Studio [infers basic controls from `defaultProps`](/docs/default
 
 ## Example using `component`
 
-```tsx twoslash
+```tsx twoslash title="src/Root.tsx"
 // @allowUmdGlobalAccess
 // @filename: ./MyComp.tsx
 export const MyComp = () => <></>;
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import {Composition} from 'remotion';
 import {MyComp} from './MyComp';
 
-export const MyVideo = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Composition id="my-comp" component={MyComp} width={1080} height={1080} fps={30} durationInFrames={3 * 30} />
@@ -116,8 +116,8 @@ export const MyVideo = () => {
 
 ## Example using `lazyComponent`
 
-```tsx
-export const MyVideo = () => {
+```tsx title="src/Root.tsx"
+export const RemotionRoot = () => {
   return (
     <>
       <Composition id="my-comp" lazyComponent={() => import('./LazyComponent')} width={1080} height={1080} fps={30} durationInFrames={3 * 30} />
@@ -130,13 +130,13 @@ export const MyVideo = () => {
 
 You can use the [`<Folder />`](/docs/folder) component to organize your compositions in the sidebar.
 
-```tsx twoslash
+```tsx twoslash title="src/Root.tsx"
 import React from 'react';
 const Component: React.FC = () => null;
 // ---cut---
 import {Composition, Folder} from 'remotion';
 
-export const Video = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Folder name="Visuals">

@@ -9,7 +9,7 @@ const getEditorInfo = (defaultEditor: DefaultEditor | null) => {
 		entryPoint: '',
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => defaultEditor,
-		input: {},
+		input: {recentlyUsedIds: []},
 		logLevel: 'error',
 		methods: {
 			addJob: () => undefined,

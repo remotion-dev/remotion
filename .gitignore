@@ -4,6 +4,7 @@ tsconfig.tsbuildinfo
 .DS_Store
 coverage
 .vitest-attachments
+.vitest
 /.idea/
 */**/.env
 .cache

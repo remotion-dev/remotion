@@ -17,6 +17,7 @@ from botocore.response import StreamingBody # For Lambda payload
 from .models import (
     CostsInfo,
     CustomCredentials,
+    RenderFramesParams,
     RenderMediaParams,
     RenderMediaProgress,
     RenderMediaResponse,
@@ -626,6 +627,12 @@ class RemotionClient:
             )
 
         return None
+
+    def render_frames_on_lambda(
+        self, render_params: RenderFramesParams
+    ) -> Optional[RenderMediaResponse]:
+        """Start an image sequence render and track it with get_render_progress()."""
+        return self.render_media_on_lambda(render_params)
 
     def cancel_render_on_lambda(self, render_id: str, bucket_name: str) -> None:
         """Cancel a render started with ``enable_cancellation=True``."""

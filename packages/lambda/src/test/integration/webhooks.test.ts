@@ -39,6 +39,7 @@ test(
 			payload: {
 				enableCancellation: false,
 				type: ServerlessRoutines.start,
+				output: {type: 'media'},
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
@@ -140,6 +141,7 @@ test(
 			lambdaErrors: [],
 			outputFile: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
 			separateAudio: null,
+			outputSequence: null,
 		});
 		await close();
 	},
@@ -171,6 +173,7 @@ test(
 			payload: {
 				enableCancellation: false,
 				type: ServerlessRoutines.launch,
+				output: {type: 'media'},
 				mediaCacheSizeInBytes: null,
 				offthreadVideoCacheSizeInBytes: null,
 				offthreadVideoThreads: null,
