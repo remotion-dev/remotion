@@ -95,11 +95,14 @@ If `true`, audio codec checks are skipped. Default is `false`.
 
 ### `videoBitrate?`
 
-_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+_number | string | Quality_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
 
 The video bitrate. Can be a number (bits per second) or a quality preset: `"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`.
 
 Default is `"medium"`.
+
+Since <AvailableFrom v="4.0.535" inline />, you can also pass a [Mediabunny `Quality` instance](/docs/web-renderer/render-media-on-web#mediabunny-quality).
+Pass the same value to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) so the support check uses the requested encoding settings.
 
 ### `audioBitrate?`
 

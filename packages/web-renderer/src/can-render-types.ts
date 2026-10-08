@@ -1,3 +1,4 @@
+import type {Quality} from 'mediabunny';
 import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
@@ -39,7 +40,7 @@ export type CanRenderMediaOnWebOptions = {
 	scale?: number;
 	transparent?: boolean;
 	muted?: boolean;
-	videoBitrate?: number | WebRendererQuality;
+	videoBitrate?: number | WebRendererQuality | Quality;
 	audioBitrate?: number | WebRendererQuality;
 	outputTarget?: WebRendererOutputTarget | null;
 };
