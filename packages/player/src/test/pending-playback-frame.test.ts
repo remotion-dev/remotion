@@ -113,3 +113,35 @@ test('Looping playback wraps instead of sticking to the first frame', () => {
 		}),
 	).toBe(300 % 100);
 });
+
+test('Consistently late commits keep seeks to earlier frames working', () => {
+	// Every commit lands one tick late, so the committed frame is always the
+	// frame the previous request advanced from.
+	const pendingFrame = createPendingPlaybackFrame();
+	const inFlight: {frame: number; visibleFromTick: number}[] = [];
+	let committedFrame = 0;
+	for (let tick = 1; tick <= 6000; tick++) {
+		while (inFlight.length > 0 && inFlight[0].visibleFromTick <= tick) {
+			committedFrame = inFlight.shift()!.frame;
+		}
+
+		const currentFrame = pendingFrame.resolve(committedFrame);
+		pendingFrame.request(currentFrame, currentFrame + 1);
+		inFlight.push({frame: currentFrame + 1, visibleFromTick: tick + 2});
+	}
+
+	expect(committedFrame).toBe(5998);
+	expect(pendingFrame.resolve(5998)).toBe(6000);
+	expect(pendingFrame.resolve(10)).toBe(10);
+});
+
+test('A pending request survives a commit of an intermediate request', () => {
+	const pendingFrame = createPendingPlaybackFrame();
+	pendingFrame.request(pendingFrame.resolve(100), 101);
+	pendingFrame.request(pendingFrame.resolve(100), 102);
+	pendingFrame.request(pendingFrame.resolve(101), 103);
+	expect(pendingFrame.resolve(101)).toBe(103);
+	expect(pendingFrame.resolve(102)).toBe(103);
+	// 100 was superseded before 102 committed, so reading it back is a seek.
+	expect(pendingFrame.resolve(100)).toBe(100);
+});
