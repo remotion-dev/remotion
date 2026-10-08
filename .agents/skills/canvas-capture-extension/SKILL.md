@@ -27,7 +27,7 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
    is installed, use `$install-canvas-capture-browser` to install one.
 
 3. Confirm that the installed directory contains `manifest.json`,
-   `background.js`, `capture.js`, `logo.svg`, `content-scripts/receiver.js`,
+   `background.js`, `capture.js`, `drag-image.js`, `logo.svg`, `content-scripts/receiver.js`,
    and the generated extension icons.
 
 ## Develop with React and Vite

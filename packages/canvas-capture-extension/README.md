@@ -88,3 +88,17 @@ recordings. Stop the recording, then open it directly in
 [remotion.dev/convert](https://remotion.dev/convert), or save it to disk.
 
 The page contents are temporarily placed inside a `content="drawable"` canvas while recording and restored afterward. The extension also sets `layoutSubtree` for older Chromium versions. Existing canvases and canvases added inside the captured subtree during recording temporarily receive `content="drawable"` to avoid Chromium clipping their bitmaps at the origin; their original attributes are restored afterward. Websites that rely on direct-child CSS selectors may look different during capture. Chrome's own pages and the Chrome Web Store do not allow extension script injection.
+
+Drag previews are copied into recordings at the cursor position. For default
+previews, the extension snapshots the draggable source after the page paints
+its drag-start changes and preserves the point where it was grabbed. Ordinary
+page elements retain their composed background, including backgrounds behind
+translucent fills. Images and elements that establish their own stacking context
+retain their transparency. Custom previews created with `DataTransfer.setDragImage()`
+replace that snapshot and use the supplied hotspot offset. The extension
+preserves temporary HTML previews before the page removes them and supports
+image and canvas sources. Previews are added only to recorded frames and
+disappear on drop or drag end. This recreates the content without Chrome's
+native translucency, cursor badges, or drop animation. Text-selection drags and
+drags originating in other tabs or applications are not captured. Shadow DOM
+and cross-origin content may not appear in copied previews.

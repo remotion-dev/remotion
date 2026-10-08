@@ -1,4 +1,5 @@
 import type {CropRectangle} from 'mediabunny';
+import {captureDragImages} from './drag-image';
 import type {CaptureFormat} from './messages';
 import {
 	assertCanEncodeCapture,
@@ -267,6 +268,7 @@ export class PageCapture {
 	readonly #captureContext: OffscreenCanvasRenderingContext2D;
 	readonly #matteColors: readonly string[];
 	readonly #resizeObserver: ResizeObserver;
+	readonly #dragImages: ReturnType<typeof captureDragImages>;
 	#restored = false;
 	#paintError: unknown = null;
 
@@ -340,6 +342,10 @@ export class PageCapture {
 		this.#wrapped.canvas.addEventListener('paint', this.#onPaint);
 		this.#resizeObserver = new ResizeObserver(this.#requestPaint);
 		this.#resizeObserver.observe(this.#wrapped.content);
+		this.#dragImages = captureDragImages({
+			density: Math.max(window.devicePixelRatio, scale),
+			requestPaint: this.#requestPaint,
+		});
 	}
 
 	start = async () => {
@@ -380,6 +386,7 @@ export class PageCapture {
 		}
 
 		this.#restored = true;
+		this.#dragImages.dispose();
 		this.#resizeObserver.disconnect();
 		this.#wrapped.canvas.removeEventListener('paint', this.#onPaint);
 		this.#recorder.dispose();
@@ -467,6 +474,11 @@ export class PageCapture {
 			this.#captureCanvas.height,
 		);
 
+		this.#dragImages.draw(this.#captureContext, this.#getRecordingRect(), {
+			canvas: this.#wrapped.canvas,
+			content: this.#wrapped.content,
+			backgroundColors: this.#matteColors,
+		});
 		this.#recorder.addFrame(this.#captureCanvas);
 	};
 
