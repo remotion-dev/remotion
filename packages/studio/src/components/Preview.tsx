@@ -188,20 +188,64 @@ const CompWhenItHasDimensions: React.FC<{
 	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
 	const {currentAssetMetadata} = useContext(Internals.CompositionManager);
 	const [canvasHovered, setCanvasHovered] = useState(false);
+	const [canvasDragHovered, setCanvasDragHovered] = useState(false);
 	const compositionContainerRef = useRef<HTMLDivElement>(null);
 	useEffect(() => {
 		const compositionContainer = compositionContainerRef.current;
 		if (compositionContainer === null) {
 			setCanvasHovered(false);
+			setCanvasDragHovered(false);
 			return;
 		}
 
 		setCanvasHovered(false);
-		return PlayerInternals.observeHover({
+		setCanvasDragHovered(false);
+		const stopObservingHover = PlayerInternals.observeHover({
 			element: compositionContainer,
 			onHoverChange: setCanvasHovered,
 			onPointerMove: null,
 		});
+		// Native drag-and-drop has its own events and cancels pointer hover.
+		// Keep its highlighting independent of the pointer hover observer.
+		const onDragOver = (event: DragEvent) => {
+			const rect = compositionContainer.getBoundingClientRect();
+			setCanvasDragHovered(
+				event.clientX >= rect.left &&
+					event.clientX <= rect.right &&
+					event.clientY >= rect.top &&
+					event.clientY <= rect.bottom,
+			);
+		};
+
+		const onDragLeave = (event: DragEvent) => {
+			if (
+				event.relatedTarget instanceof Node &&
+				compositionContainer.contains(event.relatedTarget)
+			) {
+				return;
+			}
+
+			onDragOver(event);
+		};
+
+		const onDragEnd = () => {
+			requestAnimationFrame(() => setCanvasDragHovered(false));
+		};
+
+		document.addEventListener('dragenter', onDragOver, {capture: true});
+		document.addEventListener('dragover', onDragOver, {capture: true});
+		document.addEventListener('dragleave', onDragLeave, {capture: true});
+		document.addEventListener('drop', onDragEnd, {capture: true});
+		document.addEventListener('dragend', onDragEnd, {capture: true});
+
+		return () => {
+			stopObservingHover();
+			document.removeEventListener('dragenter', onDragOver, {capture: true});
+			document.removeEventListener('dragover', onDragOver, {capture: true});
+			document.removeEventListener('dragleave', onDragLeave, {capture: true});
+			document.removeEventListener('drop', onDragEnd, {capture: true});
+			document.removeEventListener('dragend', onDragEnd, {capture: true});
+		};
 	}, [canvasContent.type]);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
@@ -373,7 +417,7 @@ const CompWhenItHasDimensions: React.FC<{
 			/>
 			<PixelGrid scale={scale} />
 			<SelectedOutlineOverlay
-				canvasHovered={canvasHovered}
+				canvasHovered={canvasHovered || canvasDragHovered}
 				compositionHeight={(contentDimensions as Dimensions).height}
 				compositionWidth={(contentDimensions as Dimensions).width}
 				scale={scale}

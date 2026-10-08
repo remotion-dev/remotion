@@ -59,7 +59,11 @@ import {isFileDragEvent, isSupportedDropEvent} from './drop-handler-data';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
-import {getEffectDragData} from './effect-drag-and-drop';
+import {
+	getEffectDragData,
+	isEffectDragOverTarget,
+	isLutEffectDrop,
+} from './effect-drag-and-drop';
 import {getElementDragData, hasElementDragType} from './element-drag-and-drop';
 import {handleDrop} from './handle-drop';
 import {
@@ -755,6 +759,16 @@ export const Canvas: React.FC<{
 				return;
 			}
 
+			if (isEffectDragOverTarget(event)) {
+				event.preventDefault();
+				if (event.dataTransfer) {
+					event.dataTransfer.dropEffect = 'copy';
+				}
+
+				setCompositionDropPreview(null);
+				return;
+			}
+
 			const mayBeCanvasCapture =
 				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
 			const canDropElementIntoNewComposition =
@@ -921,6 +935,11 @@ export const Canvas: React.FC<{
 			setCompositionDropPreview(null);
 
 			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
+				return;
+			}
+
+			if (isLutEffectDrop(event)) {
+				event.preventDefault();
 				return;
 			}
 

@@ -10,6 +10,10 @@ import {
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
+import {
+	ACTIVITY_STRESS_TEST_DURATION,
+	ActivityStressTest,
+} from './ActivityStressTest';
 import {UseanimatedEmojis} from './AnimatedEmojis';
 import {BarChart} from './BarChart';
 import BetaText, {betaTextSchema} from './BetaText';
@@ -3044,6 +3048,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="video-editing">
+				<Composition
+					id="ActivityStressTest"
+					component={ActivityStressTest}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={ACTIVITY_STRESS_TEST_DURATION}
+				/>
 				<Composition
 					id="track-sequence-props"
 					component={TrackSequenceProps}

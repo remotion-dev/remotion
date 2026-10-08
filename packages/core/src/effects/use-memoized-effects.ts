@@ -1,4 +1,4 @@
-import {useContext, useLayoutEffect, useRef} from 'react';
+import React, {useContext, useLayoutEffect, useRef} from 'react';
 import {evaluateSourcePropStatuses} from '../evaluate-source-expressions.js';
 import {
 	getFrameInKeyframedStatusClock,
@@ -7,6 +7,7 @@ import {
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
 import {createRuntimeValueStore} from '../runtime-value-store.js';
 import type {RuntimeValueStore} from '../runtime-value-store.js';
+import {SequenceActivityDormantContext} from '../sequence-activity-context.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import type {
 	CannotUpdateEffectReason,
@@ -32,6 +33,7 @@ import type {
 } from './effect-types.js';
 
 const emptyDragOverrides: Record<string, DragOverrideValue> = {};
+const useCacheCommitEffect = React.useInsertionEffect ?? useLayoutEffect;
 
 const mergeOverrides = ({
 	descriptor,
@@ -116,6 +118,7 @@ export const useMemoizedEffectDefinitions = (
 ): readonly EffectDefinition<unknown>[] & {
 	readonly runtimeValues: readonly RuntimeValueStore[];
 } => {
+	const activityDormant = useContext(SequenceActivityDormantContext);
 	const previousRef = useRef<{
 		readonly definitions: readonly EffectDefinition<unknown>[] & {
 			readonly runtimeValues: readonly RuntimeValueStore[];
@@ -143,9 +146,57 @@ export const useMemoizedEffectDefinitions = (
 				runtimeValues: controllers.map((controller) => controller.store),
 			});
 
-	useLayoutEffect(() => {
-		// Abandoned renders must not replace the cache used by committed layers.
+	useCacheCommitEffect(() => {
+		// Insertion effects also run for hidden Activity commits. Store listeners
+		// must run after React finishes committing, never inside an insertion effect.
 		previousRef.current = {definitions: stableDefinitions, controllers};
+		if (!activityDormant || controllers.length === 0) {
+			return;
+		}
+
+		let cancelled = false;
+		queueMicrotask(() => {
+			if (cancelled) {
+				return;
+			}
+
+			controllers.forEach((controller, index) => {
+				const snapshot = effects[index]?.params as Record<string, unknown>;
+				const currentSnapshot = controller.store.getSnapshot();
+				if (Object.is(snapshot, currentSnapshot)) {
+					return;
+				}
+
+				// Equivalent inline params should not notify inspector subscribers on
+				// every dormant render. Preserve changes to keys and leaf references.
+				if (
+					snapshot !== null &&
+					currentSnapshot !== null &&
+					typeof snapshot === 'object' &&
+					typeof currentSnapshot === 'object'
+				) {
+					const keys = Object.keys(snapshot);
+					if (
+						keys.length === Object.keys(currentSnapshot).length &&
+						keys.every(
+							(key) =>
+								Object.prototype.hasOwnProperty.call(currentSnapshot, key) &&
+								Object.is(snapshot[key], currentSnapshot[key]),
+						)
+					) {
+						return;
+					}
+				}
+
+				controller.setSnapshot(snapshot);
+			});
+		});
+		return () => {
+			// A newer commit or unmount supersedes this pending publication.
+			cancelled = true;
+		};
+	}, [activityDormant, controllers, effects, stableDefinitions]);
+	useLayoutEffect(() => {
 		// Stores are intentionally updated without changing the registered effect
 		// array, so frame-dependent parameters don't re-register the Sequence.
 		stableDefinitions.forEach((_definition, index) => {
@@ -296,7 +347,7 @@ export const useMemoizedEffects = ({
 				params,
 				memoized: true,
 			}));
-	useLayoutEffect(() => {
+	useCacheCommitEffect(() => {
 		previousRef.current = next;
 	}, [next]);
 	return next;
