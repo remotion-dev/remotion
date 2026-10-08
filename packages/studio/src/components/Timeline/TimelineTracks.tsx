@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
+import type {TimelineSceneRange} from './timeline-series-layout';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
 import {TimelineTrack} from './TimelineTrack';
 import {TimelineViewportContext} from './TimelineViewport';
@@ -18,6 +19,17 @@ const content: React.CSSProperties = {
 const timelineContent: React.CSSProperties = {
 	minHeight: '100%',
 };
+
+// Keep the frame subscription here so the track contents do not rerender
+// just to follow their scene's label visibility.
+const TimelineSceneTrackContent: React.FC<{
+	readonly children: React.ReactNode;
+	readonly sceneRange: TimelineSceneRange;
+}> = React.memo(({children, sceneRange}) => {
+	const frame = Internals.Timeline.useTimelinePosition();
+	const active = frame >= sceneRange.from && frame < sceneRange.end;
+	return <div style={{opacity: active ? 1 : 0.75}}>{children}</div>;
+});
 
 const TimelineTracksInner: React.FC<{
 	readonly hasBeenCut: boolean;
@@ -80,6 +92,16 @@ const TimelineTracksInner: React.FC<{
 				{virtualItems.map((virtualItem) => {
 					const {sceneRange, track, items, auxiliaryRows} =
 						rows[virtualItem.index];
+					const trackContent =
+						items === null ? (
+							<TimelineTrack track={track} />
+						) : (
+							<TimelinePackedTrack
+								track={track}
+								items={items}
+								auxiliaryRows={auxiliaryRows}
+							/>
+						);
 					return (
 						<div
 							key={virtualItem.key}
@@ -101,14 +123,12 @@ const TimelineTracksInner: React.FC<{
 										: `inset(0 ${Math.max(0, 100 - (sceneRange.end / video.durationInFrames) * 100)}% 0 ${Math.max(0, (sceneRange.from / video.durationInFrames) * 100)}%)`,
 							}}
 						>
-							{items === null ? (
-								<TimelineTrack track={track} />
+							{sceneRange === null ? (
+								trackContent
 							) : (
-								<TimelinePackedTrack
-									track={track}
-									items={items}
-									auxiliaryRows={auxiliaryRows}
-								/>
+								<TimelineSceneTrackContent sceneRange={sceneRange}>
+									{trackContent}
+								</TimelineSceneTrackContent>
 							)}
 						</div>
 					);
