@@ -251,13 +251,13 @@ The file name of the media output as stored in the S3 bucket. By default, it is 
 
 ### `--separate-audio-to`<AvailableFrom v="4.0.535" />
 
-Save the mixed audio as a separate file in the render bucket and omit the audio track from the video. The value is a cloud output name, such as `audio.wav`, saved under `renders/{renderId}/audio.wav`.
+Save the mixed audio as a separate file in the render bucket and omit the audio track from the video. The value is a the output name, such as `audio.wav`, which will then be saved under `renders/{renderId}/audio.wav`.
 
 ```bash title="Render separate video and audio outputs"
 bunx remotion lambda render <serve-url> <composition-id> --codec=h264 --out-name=video.mp4 --separate-audio-to=audio.wav
 ```
 
-The CLI prints the audio output first, followed by the video, with a link and file size for each. A positional output location downloads the main output. See [`separateAudioTo`](/docs/lambda/rendermediaonlambda#separateaudioto) for supported formats and restrictions.
+See [`separateAudioTo`](/docs/lambda/rendermediaonlambda#separateaudioto) for supported formats and restrictions.
 
 ### `--s3-output-provider-endpoint`
 
