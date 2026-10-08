@@ -1498,7 +1498,7 @@ test('reports inline SVG imports as unsupported without changing the project', a
 	expect(compositionAfter).toBe(compositionBefore);
 });
 
-test('clears hover backgrounds even if pointer leave events are lost', async ({
+test('clears hover backgrounds and tooltips even if pointer leave events are lost', async ({
 	page,
 }) => {
 	await page.goto('/');
@@ -1675,4 +1675,76 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await expect
 		.poll(() => getBackgroundColor(fileMenu))
 		.toBe('rgba(0, 0, 0, 0)');
+
+	// Leave a host-page gutter so the pointer can actually cross the iframe
+	// boundary while all leave events inside the frame remain suppressed.
+	await page.locator('iframe').evaluate((iframe) => {
+		iframe.style.width = 'calc(100% - 24px)';
+	});
+	const iframeBox = await page.locator('iframe').boundingBox();
+	if (iframeBox === null) {
+		throw new Error('Expected the Studio iframe to be visible');
+	}
+
+	const loop = studio.getByRole('button', {name: 'Loop', exact: true});
+	const loopTooltip = studio.getByRole('tooltip').filter({hasText: 'Loop'});
+	await loop.hover();
+	await expect(loopTooltip).toBeVisible();
+	await neutralArea.hover();
+	await expect(loopTooltip).toHaveCount(0);
+
+	// Re-entering the same control must still work after recovering a lost leave.
+	await loop.hover();
+	await expect(loopTooltip).toBeVisible();
+	await page.mouse.move(
+		iframeBox.x + iframeBox.width + 12,
+		iframeBox.y + iframeBox.height / 2,
+	);
+	await expect(loopTooltip).toHaveCount(0);
+	await loop.hover();
+	await expect(loopTooltip).toBeVisible();
+	await page.locator('iframe').dispatchEvent('pointerout');
+	await expect(loopTooltip).toHaveCount(0);
+
+	await page.mouse.move(
+		iframeBox.x + iframeBox.width + 12,
+		iframeBox.y + iframeBox.height / 2,
+	);
+	// Let the adjacent-control grace period expire so this hover starts a timer.
+	await page.waitForTimeout(350);
+	await expect(studio.getByRole('tooltip')).toHaveCount(0);
+	await loop.hover();
+	await expect(loopTooltip).toHaveCount(0);
+	await page.locator('iframe').dispatchEvent('pointerout');
+	// Leaving the frame must cancel the pending tooltip, even if CSS still
+	// considers the trigger hovered and its element-level leave was suppressed.
+	await page.waitForTimeout(900);
+	await expect(loopTooltip).toHaveCount(0);
+	await neutralArea.hover();
+	await loop.hover();
+	await expect(loopTooltip).toBeVisible();
+
+	const nextFrame = studio.getByRole('button', {name: 'Go forward 1 frame'});
+	const nextFrameTooltip = studio
+		.getByRole('tooltip')
+		.filter({hasText: 'Next frame'});
+	await nextFrame.hover();
+	await expect(nextFrameTooltip).toBeVisible();
+	await expect(loopTooltip).toHaveCount(0);
+	await nextFrame.click();
+	await expect(nextFrameTooltip).toHaveCount(0);
+	await neutralArea.hover();
+
+	// Enter through keyboard navigation so focus owns the tooltip, independently
+	// of the pointer and the missing leave events above.
+	await nextFrame.focus();
+	await page.keyboard.press('Shift+Tab');
+	await page.keyboard.press('Tab');
+	await expect(nextFrame).toBeFocused();
+	await expect(nextFrameTooltip).toBeVisible();
+	await nextFrame.hover();
+	await neutralArea.hover();
+	await expect(nextFrameTooltip).toBeVisible();
+	await page.keyboard.press('Escape');
+	await expect(nextFrameTooltip).toHaveCount(0);
 });

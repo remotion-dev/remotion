@@ -196,16 +196,12 @@ const CompWhenItHasDimensions: React.FC<{
 			return;
 		}
 
-		const onPointerEnter = () => setCanvasHovered(true);
-		const onPointerLeave = () => setCanvasHovered(false);
-		setCanvasHovered(compositionContainer.matches(':hover'));
-		compositionContainer.addEventListener('pointerenter', onPointerEnter);
-		compositionContainer.addEventListener('pointerleave', onPointerLeave);
-
-		return () => {
-			compositionContainer.removeEventListener('pointerenter', onPointerEnter);
-			compositionContainer.removeEventListener('pointerleave', onPointerLeave);
-		};
+		setCanvasHovered(false);
+		return PlayerInternals.observeHover({
+			element: compositionContainer,
+			onHoverChange: setCanvasHovered,
+			onPointerMove: null,
+		});
 	}, [canvasContent.type]);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
