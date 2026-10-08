@@ -200,7 +200,6 @@ import {
 import {VariableGoogleFont} from './VariableGoogleFont/VariableGoogleFont';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
-import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
 import {
 	VideoTesting,
@@ -222,7 +221,6 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
-import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
@@ -264,6 +262,7 @@ import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur'
 import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
+import {getMediaMetadata} from './get-media-metadata';
 import {
 	Issue8974IndependentVideosTimeline,
 	Issue8974SeriesTimeline,
@@ -1136,16 +1135,13 @@ export const Index: React.FC = () => {
 					calculateMetadata={async ({props}) => {
 						const fps = 30;
 
-						const {slowDurationInSeconds} = await parseMedia({
-							src: props.src as string,
-							fields: {
-								slowDurationInSeconds: true,
-							},
-						});
+						const {durationInSeconds} = await getMediaMetadata(
+							props.src as string,
+						);
 
 						return {
 							props: props,
-							durationInFrames: Math.round(slowDurationInSeconds * fps),
+							durationInFrames: Math.round(durationInSeconds * fps),
 							fps,
 							width: 800,
 							height: 800,
@@ -2723,16 +2719,6 @@ export const Index: React.FC = () => {
 				<Composition
 					id="AnimatedEmojis"
 					component={UseanimatedEmojis}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={10_000}
-				/>
-			</Folder>
-			<Folder name="VideoParser">
-				<Composition
-					id="VideoParser"
-					component={VideoParser}
 					fps={30}
 					height={1080}
 					width={1080}

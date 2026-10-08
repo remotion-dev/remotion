@@ -59,16 +59,6 @@ export const getResolveConfig = () => ({
 			'index.mjs',
 		),
 
-		...(NoReactInternals.ENABLE_V5_BREAKING_CHANGES
-			? {}
-			: {
-					'@remotion/media-parser/worker': path.resolve(
-						require.resolve('@remotion/media-parser'),
-						'..',
-						'esm',
-						'worker.mjs',
-					),
-				}),
 		// Studio entry points are also passed to the bundler as resolved CJS paths.
 		// Route both those paths and package imports through the same ESM build.
 		...Object.fromEntries(

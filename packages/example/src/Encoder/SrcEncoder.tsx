@@ -1,13 +1,14 @@
-import {MediaParserVideoTrack} from '@remotion/media-parser';
 import {
-	ConvertMediaProgress,
-	convertMedia,
-	webcodecsController,
-} from '@remotion/webcodecs';
-import React, {useCallback, useRef, useState} from 'react';
-import {flushSync} from 'react-dom';
+	ALL_FORMATS,
+	BufferTarget,
+	Conversion,
+	Input,
+	Output,
+	UrlSource,
+	WebMOutputFormat,
+} from 'mediabunny';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
-import {fitElementSizeInContainer} from './fit-element-size-in-container';
 
 const CANVAS_WIDTH = 1024 / 4;
 const CANVAS_HEIGHT = (CANVAS_WIDTH / 16) * 9;
@@ -52,129 +53,125 @@ export const SrcEncoder: React.FC<{
 	readonly src: string;
 	readonly label: string;
 }> = ({src, label}) => {
-	const [state, setState] = useState<ConvertMediaProgress>({
+	const [state, setState] = useState({
 		decodedAudioFrames: 0,
 		decodedVideoFrames: 0,
-		encodedVideoFrames: 0,
-		encodedAudioFrames: 0,
-		bytesWritten: 0,
-		millisecondsWritten: 0,
-		expectedOutputDurationInMs: null,
-		overallProgress: null,
+		overallProgress: 0,
 	});
 
 	const [downloadFn, setDownloadFn] = useState<null | (() => void)>(null);
 	const [abortfn, setAbortFn] = useState<null | (() => void)>(null);
 	const [error, setError] = useState<Error | null>(null);
-
+	const abortRef = useRef<null | (() => void)>(null);
 	const ref = useRef<HTMLCanvasElement>(null);
 
-	const i = useRef(0);
-
-	const onVideoFrame = useCallback(
-		async ({
-			frame,
-			track,
-		}: {
-			frame: VideoFrame;
-			track: MediaParserVideoTrack;
-		}) => {
-			i.current++;
-
-			if (i.current % 10 === 1) {
-				const rotatedWidth =
-					track.rotation === -90 || track.rotation === 90
-						? CANVAS_HEIGHT
-						: CANVAS_WIDTH;
-				const rotatedHeight =
-					track.rotation === -90 || track.rotation === 90
-						? CANVAS_WIDTH
-						: CANVAS_HEIGHT;
-
-				const fitted = fitElementSizeInContainer({
-					containerSize: {
-						width: rotatedWidth,
-						height: rotatedHeight,
-					},
-					elementSize: {
-						width: track.displayAspectWidth,
-						height: track.displayAspectHeight,
-					},
-				});
-
-				const image = await createImageBitmap(frame, {
-					resizeHeight: fitted.height * 2,
-					resizeWidth: fitted.width * 2,
-				});
-
-				if (!ref.current) {
-					return frame;
-				}
-
-				const context = ref.current.getContext('2d');
-				if (!context) {
-					return frame;
-				}
-				ref.current.width = CANVAS_WIDTH;
-				ref.current.height = CANVAS_HEIGHT;
-
-				if (track.rotation === -90) {
-					context.rotate((-track.rotation * Math.PI) / 180);
-					context.drawImage(
-						image,
-						fitted.left,
-						-CANVAS_WIDTH / 2 - fitted.height / 2,
-						fitted.width,
-						fitted.height,
-					);
-					context.setTransform(1, 0, 0, 1, 0, 0);
-				}
-				// TODO: Implement 90 and 180 rotations
-				else {
-					context.drawImage(image, fitted.left, 0, fitted.width, fitted.height);
-				}
-			}
-
-			return frame;
-		},
-		[],
-	);
+	useEffect(() => {
+		return () => abortRef.current?.();
+	}, [src]);
 
 	const onClick = useCallback(async () => {
-		try {
-			const abortController = webcodecsController();
-			setAbortFn(() => () => abortController.abort());
-			const fn = await convertMedia({
-				src,
-				onVideoFrame,
-				onProgress: (s) => {
-					flushSync(() => {
-						setState(() => s);
-					});
-				},
-				videoCodec: 'vp9',
-				audioCodec: 'opus',
-				container: 'webm',
-				controller: abortController,
-			});
-			setDownloadFn(() => {
-				return async () => {
-					const file = await fn.save();
-					const a = document.createElement('a');
-					a.href = URL.createObjectURL(file);
-					a.download = 'hithere';
-					a.click();
+		if (abortRef.current) {
+			return;
+		}
 
-					setTimeout(() => {
-						fn.remove();
-					}, 1000);
-				};
+		const input = new Input({
+			formats: ALL_FORMATS,
+			source: new UrlSource(src),
+		});
+		const output = new Output({
+			format: new WebMOutputFormat(),
+			target: new BufferTarget(),
+		});
+		let conversion: Conversion | null = null;
+		let cancelled = false;
+		const abort = () => {
+			cancelled = true;
+			if (conversion) {
+				void conversion.cancel();
+			} else {
+				input.dispose();
+			}
+		};
+		abortRef.current = abort;
+		setAbortFn(() => abort);
+		setError(null);
+		setDownloadFn(null);
+		const progress = {
+			decodedAudioFrames: 0,
+			decodedVideoFrames: 0,
+			overallProgress: 0,
+		};
+		setState({...progress});
+
+		try {
+			conversion = await Conversion.init({
+				input,
+				output,
+				video: {
+					codec: 'vp9',
+					forceTranscode: true,
+					process: (sample) => {
+						progress.decodedVideoFrames++;
+						const context = ref.current?.getContext('2d');
+						if (context && progress.decodedVideoFrames % 10 === 1) {
+							context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+							sample.drawWithFit(context, {fit: 'contain'});
+						}
+						return sample;
+					},
+				},
+				audio: {
+					codec: 'opus',
+					forceTranscode: true,
+					process: (sample) => {
+						progress.decodedAudioFrames++;
+						return sample;
+					},
+				},
+			});
+			if (cancelled) {
+				return;
+			}
+			if (!conversion.isValid) {
+				throw new Error('Cannot convert this file to WebM in this browser');
+			}
+			conversion.onProgress = (overallProgress) => {
+				progress.overallProgress = overallProgress;
+				setState({...progress});
+			};
+			await conversion.execute();
+			const buffer = output.target.buffer;
+			if (!buffer) {
+				throw new Error('Conversion produced no output');
+			}
+			setState({...progress, overallProgress: 1});
+			const file = new Blob([buffer], {type: 'video/webm'});
+			setDownloadFn(() => () => {
+				const a = document.createElement('a');
+				const url = URL.createObjectURL(file);
+				a.href = url;
+				a.download = 'converted.webm';
+				a.click();
+				setTimeout(() => URL.revokeObjectURL(url), 1000);
 			});
 		} catch (err) {
-			console.log(err);
-			setError(err as Error);
+			if (!cancelled) {
+				setError(err as Error);
+			}
+		} finally {
+			try {
+				if (conversion && conversion.state !== 'canceled') {
+					await conversion.cancel();
+				} else {
+					await output.cancel();
+				}
+			} finally {
+				input.dispose();
+				abortRef.current = null;
+				setAbortFn(null);
+			}
 		}
-	}, [onVideoFrame, src]);
+	}, [src]);
 
 	return (
 		<div
@@ -248,9 +245,11 @@ export const SrcEncoder: React.FC<{
 					}}
 				>
 					<SampleCount count={state.decodedVideoFrames} label="VD" />
-					<SampleCount count={state.encodedVideoFrames} label="VE" />
 					<SampleCount count={state.decodedAudioFrames} label="AD" />
-					<SampleCount count={state.encodedAudioFrames} label="AE" />
+					<SampleCount
+						count={Math.round(state.overallProgress * 100)}
+						label="%"
+					/>
 					<br />
 				</div>
 			</AbsoluteFill>

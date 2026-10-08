@@ -10,6 +10,7 @@
 		"formatting": "turbo run formatting --no-update-notifier",
 		"format": "bun pre-commit.ts",
 		"build": "turbo run make --no-update-notifier",
+		"build-fast": "turbo run make --filter='!@remotion/media-parser' --filter='!@remotion/webcodecs' --filter='!docs' --filter='!@remotion/it-tests' --no-update-notifier",
 		"build-docs": "TURBO_TELEMETRY_DISABLED=1 turbo run build-docs --no-update-notifier",
 		"testssr": "turbo run testssr --no-update-notifier",
 		"testmonorepo": "turbo run testmonorepo --no-update-notifier",

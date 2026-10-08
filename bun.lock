@@ -210,7 +210,6 @@
       "name": "@remotion/bundler",
       "version": "4.0.534",
       "dependencies": {
-        "@remotion/media-parser": "workspace:*",
         "@remotion/studio": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@remotion/timeline-utils": "workspace:*",
@@ -846,7 +845,6 @@
         "@remotion/mac-cursors": "workspace:*",
         "@remotion/maptiler": "workspace:*",
         "@remotion/media": "workspace:*",
-        "@remotion/media-parser": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/motion-blur": "workspace:*",
         "@remotion/noise": "workspace:*",
@@ -868,7 +866,6 @@
         "@remotion/tailwind-v4": "workspace:*",
         "@remotion/three": "workspace:*",
         "@remotion/transitions": "workspace:*",
-        "@remotion/webcodecs": "workspace:*",
         "@remotion/whisper-web": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "@remotion/zod-types-v3": "workspace:*",
