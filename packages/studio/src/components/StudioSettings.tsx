@@ -463,65 +463,62 @@ export const StudioSettings: React.FC = () => {
 							/>
 						</label>
 					</div>
-					<div style={optionRow}>
-						<div style={label}>
-							Hidden activity limit (experimental)
-							<InfoBubble
-								aria-label="About the hidden activity limit"
-								horizontalAlignment="right"
-							>
-								<div
-									style={{
-										padding: 12,
-										maxWidth: 280,
-										fontSize: 14,
-										lineHeight: 1.5,
-									}}
+					{activitySettings.enabled ? (
+						<div style={optionRow}>
+							<div style={label}>
+								Hidden activity limit (experimental)
+								<InfoBubble
+									aria-label="About the hidden activity limit"
+									horizontalAlignment="right"
 								>
-									Limits nearby hidden scenes, including nested sequences and
-									their ancestors. Visible, premounted, and postmounted scenes
-									always render. Set to 0 to disable hidden discovery. Default:{' '}
-									{Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
-								</div>
-							</InfoBubble>
+									<div
+										style={{
+											padding: 12,
+											maxWidth: 280,
+											fontSize: 14,
+											lineHeight: 1.5,
+										}}
+									>
+										Limits nearby hidden scenes, including nested sequences and
+										their ancestors. Visible, premounted, and postmounted scenes
+										always render. Set to 0 to disable hidden discovery.
+										Default: {Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
+									</div>
+								</InfoBubble>
+							</div>
+							<div style={{...rightRow, gap: 6}}>
+								<InputDragger
+									aria-label="Hidden activity limit (experimental)"
+									buttonStyle={{textAlign: 'right', width: 140}}
+									formatter={String}
+									integerOnly
+									min={0}
+									onTextChange={() => undefined}
+									onValueChange={activitySettings.setLimit}
+									rightAlign
+									status="ok"
+									step={1}
+									value={activitySettings.limit}
+								/>
+								<Button
+									disabled={
+										activitySettings.limit ===
+										Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT
+									}
+									onClick={() =>
+										activitySettings.setLimit(
+											Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+										)
+									}
+									size="compact"
+									style={{color: LIGHT_TEXT}}
+									aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
+								>
+									<UndoIcon style={resetIcon} />
+								</Button>
+							</div>
 						</div>
-						<div style={{...rightRow, gap: 6}}>
-							<InputDragger
-								aria-label="Hidden activity limit (experimental)"
-								buttonStyle={{textAlign: 'right', width: 140}}
-								formatter={String}
-								integerOnly
-								min={0}
-								onTextChange={() => undefined}
-								onValueChange={activitySettings.setLimit}
-								rightAlign
-								status="ok"
-								step={1}
-								value={activitySettings.limit}
-							/>
-							<Button
-								disabled={
-									activitySettings.limit ===
-									Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT
-								}
-								onClick={() =>
-									activitySettings.setLimit(
-										Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
-									)
-								}
-								size="compact"
-								style={{color: LIGHT_TEXT}}
-								aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
-							>
-								<UndoIcon style={resetIcon} />
-							</Button>
-						</div>
-					</div>
-					<div
-						style={{padding: '4px 16px 8px', color: LIGHT_TEXT, fontSize: 12}}
-					>
-						Activity settings save in this browser and apply immediately.
-					</div>
+					) : null}
 				</>
 			)}
 
