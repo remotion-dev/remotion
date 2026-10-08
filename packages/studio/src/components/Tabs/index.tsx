@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
 	BACKGROUND,
 	BLUE,
@@ -8,6 +8,7 @@ import {
 	TAB_HOVER_BACKGROUND,
 	WHITE,
 } from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {useZIndex} from '../../state/z-index';
 
 const tabsContainer: React.CSSProperties = {
@@ -40,7 +41,6 @@ const selectorButton: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	fontSize: 13,
-	color: 'inherit',
 	alignItems: 'center',
 	cursor: 'default',
 	userSelect: 'none',
@@ -55,16 +55,7 @@ export const Tab: React.FC<{
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
 }> = ({children, onClick, onDragEnter, onDragLeave, style, selected}) => {
-	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
-
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const onKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -82,29 +73,28 @@ export const Tab: React.FC<{
 	const definiteStyle: React.CSSProperties = useMemo(
 		() => ({
 			...selectorButton,
-			backgroundColor: selected
-				? BACKGROUND
-				: hovered
-					? TAB_HOVER_BACKGROUND
-					: INPUT_BACKGROUND,
-			color: selected ? WHITE : LIGHT_TEXT,
+			...hoverableStyle({
+				idleBackground: selected ? BACKGROUND : INPUT_BACKGROUND,
+				hoverBackground: selected ? BACKGROUND : TAB_HOVER_BACKGROUND,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: selected ? WHITE : LIGHT_TEXT,
+			}),
 			borderTop: selected ? '2px solid ' + BLUE : BORDER_TRANSPARENT_2PX,
 			boxShadow: selected ? 'none' : undefined,
 			...style,
 		}),
-		[hovered, selected, style],
+		[selected, style],
 	);
 
 	return (
 		<div
 			style={definiteStyle}
+			className={HOVERABLE_CLASS_NAME}
 			role="button"
 			onClick={onClick}
 			onDragEnter={onDragEnter}
 			onDragLeave={onDragLeave}
 			tabIndex={tabIndex}
-			onPointerLeave={onPointerLeave}
-			onPointerEnter={onPointerEnter}
 			onKeyDown={onKeyDown}
 		>
 			{children}
