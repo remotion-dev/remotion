@@ -242,19 +242,11 @@ const CanvasOutlineElement = React.memo(
 			'canvas',
 		);
 		const onHoverChange = useCallback(
-			(key: string | null, element?: SVGElement) => {
+			(key: string | null) => {
 				if (key === null) {
-					onPointerLeave(element ? {currentTarget: element} : undefined);
+					onPointerLeave();
 				} else {
-					onPointerEnter(
-						element
-							? {
-									currentTarget: element,
-									nativeEvent: null,
-									pointerType: null,
-								}
-							: undefined,
-					);
+					onPointerEnter();
 				}
 			},
 			[onPointerEnter, onPointerLeave],
@@ -657,24 +649,6 @@ export const CanvasOutlineOverlay = React.memo(
 				controller.hover.clear('canvas');
 			};
 		}, [controller.hover]);
-		useLayoutEffect(() => {
-			if (container === null) {
-				return;
-			}
-
-			setHovered(false);
-			return PlayerInternals.observeHover({
-				element: container,
-				initialPointerEvent: null,
-				onPointerMove: null,
-				onHoverChange: (isHovered) => {
-					setHovered(isHovered);
-					if (!isHovered) {
-						controller.hover.clear('canvas');
-					}
-				},
-			});
-		}, [container, controller.hover]);
 
 		// Gestures read the latest state through refs so the outline elements
 		// keep a stable editing object.
@@ -922,6 +896,11 @@ export const CanvasOutlineOverlay = React.memo(
 				tabIndex={0}
 				role="group"
 				aria-label="Canvas selection"
+				onPointerEnter={() => setHovered(true)}
+				onPointerLeave={() => {
+					setHovered(false);
+					controller.hover.clear('canvas');
+				}}
 				onPointerDown={(event) => {
 					if (event.button !== 0) {
 						return;

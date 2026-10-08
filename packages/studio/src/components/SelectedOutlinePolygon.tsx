@@ -76,10 +76,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly hovered: boolean;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
-	readonly onHoverChange: (
-		key: string | null,
-		element: SVGElement | null,
-	) => void;
+	readonly onHoverChange: (key: string | null) => void;
 	readonly onSnapPointsChange: (
 		snapPoints: readonly SelectedOutlineSnapPoint[],
 	) => void;
@@ -133,11 +130,6 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const polygonRef = useRef<SVGPolygonElement>(null);
-	const onPolygonHoverChange = React.useCallback(
-		(key: string | null, element?: SVGElement) =>
-			onHoverChange(key, element ?? null),
-		[onHoverChange],
-	);
 	const {selectItems} = useTimelineSelection();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	useEffect(() => {
@@ -462,7 +454,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			stroke={BLUE}
 			visible={visible || effectDropHovered}
 			interactive={hasTarget}
-			onHoverChange={onPolygonHoverChange}
+			onHoverChange={onHoverChange}
 			onPointerDown={onPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
 			onClick={onClick}

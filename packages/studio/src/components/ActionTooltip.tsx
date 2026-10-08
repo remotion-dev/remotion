@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
 	useEffect,
@@ -8,6 +7,7 @@ import React, {
 } from 'react';
 import {createPortal} from 'react-dom';
 import {TIMELINE_BACKGROUND_COLOR, WHITE_ALPHA_90} from '../helpers/colors';
+import {observeHover} from '../helpers/observe-hover';
 import {useZIndex} from '../state/z-index';
 import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {getPortal} from './Menu/portals';
@@ -126,10 +126,8 @@ export const ActionTooltip: React.FC<{
 			return;
 		}
 
-		const unobserve = PlayerInternals.observeHover({
-			initialPointerEvent: null,
+		const unobserve = observeHover({
 			element: trigger,
-			onPointerMove: null,
 			onHoverChange: (hovered) => {
 				// Keyboard focus is independent of the pointer's location.
 				if (activation.current === 'focus') {

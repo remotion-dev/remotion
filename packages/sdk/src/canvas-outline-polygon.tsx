@@ -1,12 +1,4 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {
-	forwardRef,
-	memo,
-	useImperativeHandle,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import React, {forwardRef, memo, useCallback, useMemo} from 'react';
 import type {CanvasOutline} from './outline-geometry';
 
 export type CanvasOutlinePolygonProps = Omit<
@@ -30,7 +22,7 @@ export type CanvasOutlinePolygonProps = Omit<
 	readonly interactive: boolean;
 	readonly fill: string;
 	readonly stroke: string;
-	readonly onHoverChange: (key: string | null, element?: SVGElement) => void;
+	readonly onHoverChange: (key: string | null) => void;
 };
 
 /** Shared outline geometry and hover behavior, with editing handlers supplied by the host. */
@@ -50,12 +42,6 @@ export const CanvasOutlinePolygon = memo(
 			},
 			ref,
 		) => {
-			const polygonRef = useRef<SVGPolygonElement>(null);
-			useImperativeHandle(
-				ref,
-				() => polygonRef.current as SVGPolygonElement,
-				[],
-			);
 			const points = useMemo(
 				() => outline.points.map((point) => `${point.x},${point.y}`).join(' '),
 				[outline.points],
@@ -67,33 +53,22 @@ export const CanvasOutlinePolygon = memo(
 						: `matrix(${outline.path.matrix.a} ${outline.path.matrix.b} ${outline.path.matrix.c} ${outline.path.matrix.d} ${outline.path.matrix.e} ${outline.path.matrix.f})`,
 				[outline.path],
 			);
-			useLayoutEffect(() => {
-				const element = polygonRef.current;
-				if (element === null) {
-					return;
+			const onPointerEnter = useCallback(() => {
+				if (!dragging) {
+					onHoverChange(outline.key);
 				}
-
-				const stopObserving = PlayerInternals.observeHover({
-					element,
-					initialPointerEvent: null,
-					onPointerMove: null,
-					onHoverChange: (hovered) => {
-						if (!dragging) {
-							onHoverChange(hovered ? outline.key : null, element);
-						}
-					},
-				});
-				return () => {
-					stopObserving();
-					onHoverChange(null, element);
-				};
 			}, [dragging, onHoverChange, outline.key]);
+			const onPointerLeave = useCallback(() => {
+				if (!dragging) {
+					onHoverChange(null);
+				}
+			}, [dragging, onHoverChange]);
 
 			return (
 				<g>
 					<polygon
 						{...props}
-						ref={polygonRef}
+						ref={ref}
 						data-remotion-canvas-outline-key={outline.key}
 						data-remotion-directly-selected-outline={
 							directlySelected ? 'true' : undefined
@@ -105,6 +80,8 @@ export const CanvasOutlinePolygon = memo(
 						strokeWidth={2}
 						vectorEffect="non-scaling-stroke"
 						pointerEvents={interactive ? 'all' : 'none'}
+						onPointerEnter={onPointerEnter}
+						onPointerLeave={onPointerLeave}
 					/>
 					{matrixTransform === null ? null : (
 						<path

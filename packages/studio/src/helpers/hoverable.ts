@@ -13,8 +13,8 @@ import {
 // frame, which would leave a state-driven hover background stuck forever.
 // CSS `:hover` is maintained by the browser and self-corrects.
 // https://github.com/remotion-dev/remotion/issues/9886
-// For behavior that needs JavaScript (tooltips, delayed controls, canvas UI),
-// use PlayerInternals.observeHover so missed leave events are reconciled too.
+// For behavior that needs JavaScript (tooltips and delayed menus),
+// use observeHover so missed leave events are reconciled too.
 
 export const HOVERABLE_CLASS_NAME = '__remotion-hoverable';
 export const HOVER_GROUP_CLASS_NAME = '__remotion-hover-group';

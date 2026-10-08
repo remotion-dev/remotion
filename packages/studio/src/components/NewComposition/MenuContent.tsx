@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import type {PointerEvent, SetStateAction} from 'react';
 import React, {
 	useCallback,
@@ -10,6 +9,7 @@ import React, {
 } from 'react';
 import {BLACK_ALPHA_60} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
+import {observeHover} from '../../helpers/observe-hover';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -395,15 +395,13 @@ export const MenuContent: React.FC<{
 			return;
 		}
 
-		return PlayerInternals.observeHover({
-			initialPointerEvent: null,
+		return observeHover({
 			element: current,
 			onHoverChange: (hovered) => {
 				if (!hovered && !subMenuActivatedRef.current) {
 					setSelectedItem(null);
 				}
 			},
-			onPointerMove: null,
 		});
 	}, []);
 

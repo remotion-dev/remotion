@@ -1,6 +1,5 @@
-import {PlayerInternals} from '@remotion/player';
 import type {Dispatch, SetStateAction} from 'react';
-import {useCallback, useLayoutEffect, useMemo} from 'react';
+import {useCallback, useMemo} from 'react';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 import {getCanvasSequenceSelectionKey} from './selection';
 import {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-key';
@@ -17,63 +16,6 @@ export type CanvasHoverController = {
 	readonly subscribe: (listener: () => void) => () => void;
 	readonly setHoveredSequence: Dispatch<SetStateAction<CanvasHover | null>>;
 	readonly clear: (source: CanvasHover['source'] | null) => void;
-};
-
-type HoverElement = HTMLElement | SVGElement;
-type HoverEvent = {
-	readonly currentTarget: HoverElement;
-	readonly nativeEvent: PointerEvent | null;
-	readonly pointerType: string | null;
-};
-
-// A row, its track, and several canvas handles can represent the same sequence.
-// Keep their claims separate so one element's late leave cannot clear another.
-const hoverClaims = new WeakMap<
-	CanvasHoverController,
-	Map<object, {hover: CanvasHover; element: HoverElement | null}>
->();
-
-const updateHoverClaim = (
-	controller: CanvasHoverController,
-	token: object,
-	element: HoverElement | null,
-	hover: CanvasHover | null,
-) => {
-	let claims = hoverClaims.get(controller);
-	if (hover !== null) {
-		if (!claims) {
-			claims = new Map();
-			hoverClaims.set(controller, claims);
-		}
-
-		claims.delete(token);
-		claims.set(token, {hover, element});
-		controller.setHoveredSequence(hover);
-		return;
-	}
-
-	const previous = claims?.get(token);
-	if (!claims || !previous) {
-		return;
-	}
-
-	claims.delete(token);
-	const current = controller.getSnapshot();
-	if (
-		current?.key !== previous.hover.key ||
-		current.nodePathKey !== previous.hover.nodePathKey ||
-		current.source !== previous.hover.source
-	) {
-		return;
-	}
-
-	const fallback = [...claims.values()].reverse().find((claim) => {
-		return (
-			claim.element === null ||
-			(claim.element.isConnected && claim.element.matches(':hover'))
-		);
-	});
-	controller.setHoveredSequence(fallback?.hover ?? null);
 };
 
 export const createCanvasHoverController = (): CanvasHoverController => {
@@ -160,111 +102,35 @@ export const useCanvasSequenceHover = (
 		[nodePathInfo],
 	);
 	const hovered = useIsCanvasSequenceHovered(controller, nodePathKey);
-	const handlers = useMemo(() => {
-		const tokens = new Map<HoverElement | null, object>();
-		const observers = new Map<HoverElement, () => void>();
-		let attachedElement: HoverElement | null = null;
-		const setHover = (element: HoverElement | null, active: boolean) => {
-			if (sequenceKey === null || nodePathKey === null) {
-				return;
-			}
 
-			let token = tokens.get(element);
-			if (!token) {
-				if (!active) {
-					return;
-				}
+	const onPointerEnter = useCallback(() => {
+		if (sequenceKey === null || nodePathKey === null) {
+			return;
+		}
 
-				token = {};
-				tokens.set(element, token);
-			}
-
-			updateHoverClaim(
-				controller,
-				token,
-				element,
-				active ? {key: sequenceKey, nodePathKey, source} : null,
-			);
-			if (!active) {
-				tokens.delete(element);
-			}
-		};
-
-		const observe = (element: HoverElement, event: PointerEvent | null) => {
-			if (observers.has(element)) {
-				return;
-			}
-
-			observers.set(
-				element,
-				PlayerInternals.observeHover({
-					element,
-					initialPointerEvent: event,
-					onPointerMove: null,
-					onHoverChange: (active) => setHover(element, active),
-				}),
-			);
-		};
-
-		const dispose = () => {
-			for (const stopObserving of observers.values()) {
-				stopObserving();
-			}
-
-			observers.clear();
-			for (const element of tokens.keys()) {
-				setHover(element, false);
-			}
-
-			tokens.clear();
-		};
-
-		return {
-			dispose,
-			connect: () => {
-				if (attachedElement !== null) {
-					observe(attachedElement, null);
-				}
-			},
-			ref: (element: HoverElement | null) => {
-				if (element === attachedElement) {
-					return;
-				}
-
-				dispose();
-				attachedElement = element;
-				if (element !== null) {
-					observe(element, null);
-				}
-			},
-			onPointerEnter: (event?: HoverEvent) => {
-				if (event?.pointerType === 'touch') {
-					return;
-				}
-
-				if (event?.nativeEvent) {
-					observe(event.currentTarget, event.nativeEvent);
-				}
-
-				setHover(event?.currentTarget ?? null, true);
-			},
-			onPointerLeave: (event?: Pick<HoverEvent, 'currentTarget'>) => {
-				setHover(event?.currentTarget ?? null, false);
-			},
-		};
+		controller.setHoveredSequence({
+			key: sequenceKey,
+			nodePathKey,
+			source,
+		});
 	}, [controller, nodePathKey, sequenceKey, source]);
-	useLayoutEffect(() => {
-		handlers.connect();
-		return handlers.dispose;
-	}, [handlers]);
+
+	const onPointerLeave = useCallback(() => {
+		controller.setHoveredSequence((currentHover) => {
+			if (
+				currentHover?.source !== source ||
+				currentHover.key !== sequenceKey ||
+				currentHover.nodePathKey !== nodePathKey
+			) {
+				return currentHover;
+			}
+
+			return null;
+		});
+	}, [controller, nodePathKey, sequenceKey, source]);
 
 	return useMemo(
-		() => ({
-			hovered,
-			onPointerEnter: handlers.onPointerEnter,
-			onPointerLeave: handlers.onPointerLeave,
-			ref: handlers.ref,
-		}),
-		[handlers, hovered],
+		() => ({hovered, onPointerEnter, onPointerLeave}),
+		[hovered, onPointerEnter, onPointerLeave],
 	);
 };

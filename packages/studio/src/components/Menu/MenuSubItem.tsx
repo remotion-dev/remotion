@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {LIGHT_TEXT, TRANSPARENT, WHITE_ALPHA_06} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
+import {observeHover} from '../../helpers/observe-hover';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
@@ -140,8 +141,7 @@ export const MenuSubItem: React.FC<{
 			return;
 		}
 
-		return PlayerInternals.observeHover({
-			initialPointerEvent: null,
+		return observeHover({
 			element,
 			onHoverChange: (isHovered) => {
 				hoveredRef.current = isHovered;
@@ -155,7 +155,6 @@ export const MenuSubItem: React.FC<{
 					onItemSelected(id);
 				}
 			},
-			onPointerMove: null,
 		});
 	}, [disabled, id, onItemSelected]);
 
