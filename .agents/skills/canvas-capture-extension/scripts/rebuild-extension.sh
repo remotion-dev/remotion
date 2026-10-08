@@ -61,7 +61,7 @@ fi
 	bun run make
 )
 
-for required_file in manifest.json background.js capture.js logo.svg content-scripts/receiver.js; do
+for required_file in manifest.json background.js capture.js drag-image.js logo.svg content-scripts/receiver.js; do
 	if [[ ! -f "$dist_dir/$required_file" ]]; then
 		printf 'Build did not produce %s\n' "$dist_dir/$required_file" >&2
 		exit 1
