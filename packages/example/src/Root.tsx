@@ -41,7 +41,6 @@ import {ControlsShowcase} from './ControlsShowcase';
 import CorruptVideo from './CorruptVideo';
 import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
-import {DecoderDemo} from './DecoderDemo';
 import {
 	DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION,
 	DifferentSegmentsAtDifferentSpeeds,
@@ -2725,12 +2724,6 @@ export const Index: React.FC = () => {
 					durationInFrames={10_000}
 				/>
 			</Folder>
-			<Still
-				id="DecoderDemo"
-				component={DecoderDemo}
-				height={1000}
-				width={1024}
-			/>
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
