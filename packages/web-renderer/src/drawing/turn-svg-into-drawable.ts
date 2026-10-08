@@ -10,9 +10,21 @@ const drawableBySvg = new WeakMap<
 >();
 
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
-	const {fill, color} = getComputedStyle(svg);
+	const {fill, color, width, height} = getComputedStyle(svg);
 
 	const originalStyle = svg.getAttribute('style');
+	const originalWidth = svg.getAttribute('width');
+	const originalHeight = svg.getAttribute('height');
+	const needsExplicitDimensions =
+		svg.preserveAspectRatio.baseVal.align ===
+		SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE;
+
+	// SVG images need explicit dimensions to preserve their viewport when
+	// preserveAspectRatio="none" removes the intrinsic aspect ratio.
+	if (needsExplicitDimensions) {
+		svg.setAttribute('width', width);
+		svg.setAttribute('height', height);
+	}
 
 	// Position and transforms are applied by the canvas renderer. Remove them
 	// from the serialized SVG so they are not applied again inside its viewport.
@@ -40,6 +52,20 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		svg.removeAttribute('style');
 	} else {
 		svg.setAttribute('style', originalStyle);
+	}
+
+	if (needsExplicitDimensions) {
+		if (originalWidth === null) {
+			svg.removeAttribute('width');
+		} else {
+			svg.setAttribute('width', originalWidth);
+		}
+
+		if (originalHeight === null) {
+			svg.removeAttribute('height');
+		} else {
+			svg.setAttribute('height', originalHeight);
+		}
 	}
 
 	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
