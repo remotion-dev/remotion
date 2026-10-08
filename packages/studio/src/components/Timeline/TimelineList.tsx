@@ -1,4 +1,5 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import {BACKGROUND, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT} from './timeline-track-groups';
 import {TimelineSequenceItem} from './TimelineSequenceItem';
@@ -17,11 +18,15 @@ const noConnectedCompositions: readonly never[] = [];
 
 const TimelineListTrack: React.FC<{
 	readonly row: TimelineVirtualRow;
-}> = React.memo(({row}) => {
+	readonly start: number;
+	readonly height: number;
+}> = React.memo(({row, start, height}) => {
 	const {afterDropLineOffset, siblingIndex, track} = row;
 
 	return (
-		<>
+		<div
+			style={{height, left: 0, position: 'absolute', top: start, width: '100%'}}
+		>
 			<TimelineSequenceItem
 				showBottomBorder={row.auxiliaryRows.length === 0}
 				afterDropLineOffset={afterDropLineOffset}
@@ -54,8 +59,25 @@ const TimelineListTrack: React.FC<{
 					}}
 				/>
 			) : null}
-		</>
+		</div>
 	);
+});
+
+// Only labels follow the playhead. The rows and the bars keep their layout.
+const TimelineSceneListTrack: React.FC<
+	React.ComponentProps<typeof TimelineListTrack>
+> = React.memo((props) => {
+	const {row} = props;
+	const frame = Internals.Timeline.useTimelinePosition();
+	if (
+		row.sceneRange === null ||
+		frame < row.sceneRange.from ||
+		frame >= row.sceneRange.end
+	) {
+		return null;
+	}
+
+	return <TimelineListTrack {...props} />;
 });
 
 export const TimelineList: React.FC = () => {
@@ -74,20 +96,23 @@ export const TimelineList: React.FC = () => {
 				line-height: normal;
 				visibility: hidden;
 			}`}</style>
-			{virtualItems.map((virtualItem) => (
-				<div
-					key={virtualItem.key}
-					style={{
-						height: virtualItem.size,
-						left: 0,
-						position: 'absolute',
-						top: virtualItem.start,
-						width: '100%',
-					}}
-				>
-					<TimelineListTrack row={rows[virtualItem.index]} />
-				</div>
-			))}
+			{virtualItems.map((virtualItem) =>
+				rows[virtualItem.index].sceneRange === null ? (
+					<TimelineListTrack
+						key={virtualItem.key}
+						row={rows[virtualItem.index]}
+						start={virtualItem.start}
+						height={virtualItem.size}
+					/>
+				) : (
+					<TimelineSceneListTrack
+						key={virtualItem.key}
+						row={rows[virtualItem.index]}
+						start={virtualItem.start}
+						height={virtualItem.size}
+					/>
+				),
+			)}
 		</div>
 	);
 };

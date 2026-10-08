@@ -13,9 +13,15 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {Internals} from 'remotion';
+import {getStudioShowPremounting} from '../../helpers/studio-runtime-config';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {timelineVerticalScroll} from './timeline-refs';
+import {
+	getTimelineSeriesLayout,
+	type TimelineSceneRange,
+} from './timeline-series-layout';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 	TIMELINE_PACKED_TRACK_HEIGHT,
@@ -33,6 +39,7 @@ import {useTimelineTrackHeights} from './use-timeline-height';
 export type TimelineVirtualRow = TimelineDisplayRow & {
 	readonly afterDropLineOffset: number;
 	readonly siblingIndex: number;
+	readonly sceneRange: TimelineSceneRange | null;
 };
 
 type TimelineVirtualizationContextValue = {
@@ -62,6 +69,17 @@ export const TimelineVirtualizationProvider: React.FC<{
 	readonly isStill: boolean;
 	readonly timeline: readonly TimelineDisplayRow[];
 }> = ({children, hasBeenCut, isStill, timeline}) => {
+	const sequences = Internals.useSequenceManagerSequences();
+	const experimentalTracks = useContext(
+		Internals.ExperimentalTracksEnabledContext,
+	);
+	const activitySettings = useContext(
+		Internals.SequenceActivitySettingsContext,
+	);
+	const compactSeries =
+		experimentalTracks &&
+		activitySettings?.enabled === true &&
+		!getStudioShowPremounting();
 	const representativeTracks = useMemo(
 		() => timeline.map((row) => row.track),
 		[timeline],
@@ -89,53 +107,40 @@ export const TimelineVirtualizationProvider: React.FC<{
 	const rowsRef = useRef<readonly TimelineVirtualRow[]>([]);
 
 	const layout = useMemo(() => {
-		const siblingIndexes = new Array<number>(timeline.length);
-		const subtreeEndIndexes = new Array<number>(timeline.length).fill(
-			timeline.length,
-		);
-		const openTracks: Array<{depth: number; index: number}> = [];
-		const siblingCounts = new Map<number | null, number>();
-
-		for (let index = 0; index < timeline.length; index++) {
-			const {depth} = timeline[index].track;
-			while (
-				openTracks.length > 0 &&
-				openTracks[openTracks.length - 1].depth >= depth
-			) {
-				const completed = openTracks.pop()!;
-				subtreeEndIndexes[completed.index] = index;
-			}
-
-			const parentIndex = openTracks[openTracks.length - 1]?.index ?? null;
-			const siblingIndex = siblingCounts.get(parentIndex) ?? 0;
-			siblingIndexes[index] = siblingIndex;
-			siblingCounts.set(parentIndex, siblingIndex + 1);
-			openTracks.push({depth, index});
-		}
-
-		const offsets = new Array<number>(timeline.length + 1);
-		offsets[0] = paddingStart;
-		for (let index = 0; index < trackHeights.length; index++) {
-			offsets[index + 1] = offsets[index] + trackHeights[index];
-		}
+		const seriesLayout = getTimelineSeriesLayout({
+			rows: timeline,
+			heights: trackHeights,
+			sequences,
+			compactSeries,
+			paddingStart,
+		});
 
 		const rows = timeline.map(
 			({track, items, auxiliaryRows}, index): TimelineVirtualRow => {
-				const afterDropLineOffset =
-					offsets[subtreeEndIndexes[index]] - offsets[index];
-				const siblingIndex = siblingIndexes[index];
+				const afterDropLineOffset = seriesLayout.afterDropLineOffsets[index];
+				const siblingIndex = seriesLayout.siblingIndexes[index];
+				const sceneRange = seriesLayout.sceneRanges[index];
 				const previous = rowsRef.current[index];
 				if (
 					previous?.track === track &&
 					previous.items === items &&
 					previous.auxiliaryRows === auxiliaryRows &&
 					previous.afterDropLineOffset === afterDropLineOffset &&
-					previous.siblingIndex === siblingIndex
+					previous.siblingIndex === siblingIndex &&
+					previous.sceneRange?.from === sceneRange?.from &&
+					previous.sceneRange?.end === sceneRange?.end
 				) {
 					return previous;
 				}
 
-				return {afterDropLineOffset, siblingIndex, track, items, auxiliaryRows};
+				return {
+					afterDropLineOffset,
+					siblingIndex,
+					track,
+					items,
+					auxiliaryRows,
+					sceneRange,
+				};
 			},
 		);
 		const rootTrackIndexes = new Map<string, number>();
@@ -154,12 +159,11 @@ export const TimelineVirtualizationProvider: React.FC<{
 		}
 
 		return {
-			offsets,
+			...seriesLayout,
 			rootTrackIndexes,
 			rows,
-			tracksEnd: offsets[offsets.length - 1],
 		};
-	}, [paddingStart, timeline, trackHeights]);
+	}, [compactSeries, paddingStart, sequences, timeline, trackHeights]);
 	useLayoutEffect(() => {
 		rowsRef.current = layout.rows;
 	}, [layout.rows]);
@@ -174,26 +178,30 @@ export const TimelineVirtualizationProvider: React.FC<{
 			const key = getSelectionTrackKey(selectedItem);
 			const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
 			if (index !== undefined) {
-				indexes.add(index);
+				indexes.add(layout.groupIndexes[index]);
 			}
 		}
 
 		return indexes;
-	}, [layout.rootTrackIndexes, selectedItems]);
-	const trackHeightsRef = useRef(trackHeights);
-	trackHeightsRef.current = trackHeights;
+	}, [layout.groupIndexes, layout.rootTrackIndexes, selectedItems]);
+	const groupsRef = useRef(layout.groups);
+	groupsRef.current = layout.groups;
 	const timelineRef = useRef(timeline);
 	timelineRef.current = timeline;
+	const groupHeights = useMemo(
+		() => layout.groups.map((group) => group.height),
+		[layout.groups],
+	);
 
 	const estimateSize = useCallback(
-		(index: number) => trackHeightsRef.current[index] ?? 0,
+		(index: number) => groupsRef.current[index]?.height ?? 0,
 		[],
 	);
 	const getItemKey = useCallback((index: number) => {
-		const row = timelineRef.current[index];
-		return row?.items
-			? (row.track.sequence.timelineTrack?.id ?? index)
-			: (row?.track.sequence.id ?? index);
+		const group = groupsRef.current[index];
+		return group === undefined
+			? index
+			: timelineRef.current[group.index].track.sequence.id;
 	}, []);
 	const rangeExtractor = useCallback(
 		(range: Range) => {
@@ -212,7 +220,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 	);
 
 	const virtualizer = useVirtualizer({
-		count: timeline.length,
+		count: layout.groups.length,
 		estimateSize,
 		getItemKey,
 		getScrollElement,
@@ -228,13 +236,13 @@ export const TimelineVirtualizationProvider: React.FC<{
 
 	useLayoutEffect(() => {
 		const previous = measuredLayoutRef.current;
-		const keys = trackHeights.map((_, index) => getItemKey(index));
+		const keys = groupHeights.map((_, index) => getItemKey(index));
 		// Trimming changes timeline metadata without changing row geometry. Only
 		// invalidate measurements when heights or the cached row identities change.
 		if (
 			previous !== null &&
-			previous.heights.length === trackHeights.length &&
-			trackHeights.every(
+			previous.heights.length === groupHeights.length &&
+			groupHeights.every(
 				(height, index) =>
 					previous.heights[index] === height &&
 					previous.keys[index] === keys[index],
@@ -243,9 +251,9 @@ export const TimelineVirtualizationProvider: React.FC<{
 			return;
 		}
 
-		measuredLayoutRef.current = {heights: trackHeights, keys};
+		measuredLayoutRef.current = {heights: groupHeights, keys};
 		virtualizer.measure();
-	}, [getItemKey, trackHeights, virtualizer]);
+	}, [getItemKey, groupHeights, virtualizer]);
 
 	useEffect(() => {
 		if (revealRequest === null) {
@@ -274,53 +282,39 @@ export const TimelineVirtualizationProvider: React.FC<{
 		}
 
 		const row = layout.rows[index];
-		if (row.items !== null) {
-			const scrollElement = timelineVerticalScroll.current;
-			if (
-				scrollElement === null ||
-				scrollElement.clientHeight <= paddingStart
-			) {
-				return;
-			}
+		const scrollElement = timelineVerticalScroll.current;
+		if (scrollElement === null || scrollElement.clientHeight <= paddingStart) {
+			return;
+		}
 
-			const auxiliaryIndex = row.auxiliaryRows.findIndex((items) =>
-				items.some(
-					({nodePathInfo}) =>
-						nodePathInfo !== null &&
-						getTimelineSequenceSelectionKey(nodePathInfo) === key,
-				),
-			);
-			const primaryHeight =
-				TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM;
-			const start =
-				layout.offsets[index] +
-				(auxiliaryIndex === -1
-					? 0
-					: primaryHeight +
-						auxiliaryIndex * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT);
-			const height =
-				auxiliaryIndex === -1
+		const auxiliaryIndex = row.auxiliaryRows.findIndex((items) =>
+			items.some(
+				({nodePathInfo}) =>
+					nodePathInfo !== null &&
+					getTimelineSequenceSelectionKey(nodePathInfo) === key,
+			),
+		);
+		const primaryHeight =
+			TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM;
+		const start =
+			layout.offsets[index] +
+			(auxiliaryIndex === -1
+				? 0
+				: primaryHeight +
+					auxiliaryIndex * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT);
+		const height =
+			auxiliaryIndex !== -1
+				? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT
+				: row.items !== null
 					? primaryHeight
-					: TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT;
-			// A packed Track can exceed the viewport. Reveal the selected lane,
-			// allowing for the pinned time ruler, rather than centering its owner.
-			if (
-				start < scrollElement.scrollTop + paddingStart ||
-				start + height > scrollElement.scrollTop + scrollElement.clientHeight
-			) {
-				virtualizer.scrollToOffset(
-					start + height / 2 - (scrollElement.clientHeight + paddingStart) / 2,
-				);
-			}
-		} else {
-			const offset = virtualizer.getOffsetForIndex(index, 'auto');
-			if (offset === undefined) {
-				return;
-			}
-
-			if (offset[1] !== 'auto') {
-				virtualizer.scrollToIndex(index, {align: 'center'});
-			}
+					: trackHeights[index];
+		if (
+			start < scrollElement.scrollTop + paddingStart ||
+			start + height > scrollElement.scrollTop + scrollElement.clientHeight
+		) {
+			virtualizer.scrollToOffset(
+				start + height / 2 - (scrollElement.clientHeight + paddingStart) / 2,
+			);
 		}
 
 		consumeRevealRequest(revealRequest.token);
@@ -332,6 +326,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		paddingStart,
 		revealRequest,
 		selectedItems,
+		trackHeights,
 		virtualizer,
 	]);
 
@@ -374,7 +369,23 @@ export const TimelineVirtualizationProvider: React.FC<{
 		};
 	}, [consumeRevealRequest, revealRequest]);
 
-	const virtualItems = virtualizer.getVirtualItems();
+	const virtualGroups = virtualizer.getVirtualItems();
+	const virtualItems = useMemo(
+		() =>
+			virtualGroups.flatMap((group) =>
+				layout.groups[group.index].rows.map(
+					(index): VirtualItem => ({
+						index,
+						key: timeline[index].track.sequence.id,
+						start: layout.offsets[index],
+						end: layout.offsets[index] + trackHeights[index],
+						size: trackHeights[index],
+						lane: 0,
+					}),
+				),
+			),
+		[layout.groups, layout.offsets, timeline, trackHeights, virtualGroups],
+	);
 	const value = useMemo(
 		(): TimelineVirtualizationContextValue => ({
 			rows: layout.rows,

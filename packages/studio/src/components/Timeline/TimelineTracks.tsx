@@ -1,4 +1,5 @@
 import React, {useContext, useImperativeHandle, useMemo} from 'react';
+import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
@@ -22,6 +23,7 @@ const TimelineTracksInner: React.FC<{
 	readonly hasBeenCut: boolean;
 }> = ({hasBeenCut}) => {
 	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
+	const video = Internals.useUnsafeVideoConfig();
 	const windowWidth = useContext(TimelineWidthContext);
 	const renderWindow = useContext(TimelineViewportContext);
 	useImperativeHandle(timelineDurationRef, () => ({
@@ -75,28 +77,42 @@ const TimelineTracksInner: React.FC<{
 	return (
 		<div style={timelineStyle} {...{'oai-annotation-container': ''}}>
 			<div style={{...content, height: tracksEnd}}>
-				{virtualItems.map((virtualItem) => (
-					<div
-						key={virtualItem.key}
-						style={{
-							height: virtualItem.size,
-							left: TIMELINE_PADDING,
-							position: 'absolute',
-							right: TIMELINE_PADDING,
-							top: virtualItem.start,
-						}}
-					>
-						{rows[virtualItem.index].items === null ? (
-							<TimelineTrack track={rows[virtualItem.index].track} />
-						) : (
-							<TimelinePackedTrack
-								track={rows[virtualItem.index].track}
-								items={rows[virtualItem.index].items!}
-								auxiliaryRows={rows[virtualItem.index].auxiliaryRows}
-							/>
-						)}
-					</div>
-				))}
+				{virtualItems.map((virtualItem) => {
+					const {sceneRange, track, items, auxiliaryRows} =
+						rows[virtualItem.index];
+					return (
+						<div
+							key={virtualItem.key}
+							style={{
+								height: virtualItem.size,
+								left: TIMELINE_PADDING,
+								position: 'absolute',
+								right: TIMELINE_PADDING,
+								// Sequence bars use the full zoomed timeline width, while this
+								// row's parent only fills the viewport. Clip in the same space.
+								width:
+									sceneRange !== null && windowWidth !== null
+										? windowWidth - TIMELINE_PADDING * 2
+										: undefined,
+								top: virtualItem.start,
+								clipPath:
+									sceneRange === null || !video
+										? undefined
+										: `inset(0 ${Math.max(0, 100 - (sceneRange.end / video.durationInFrames) * 100)}% 0 ${Math.max(0, (sceneRange.from / video.durationInFrames) * 100)}%)`,
+							}}
+						>
+							{items === null ? (
+								<TimelineTrack track={track} />
+							) : (
+								<TimelinePackedTrack
+									track={track}
+									items={items}
+									auxiliaryRows={auxiliaryRows}
+								/>
+							)}
+						</div>
+					);
+				})}
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
 		</div>

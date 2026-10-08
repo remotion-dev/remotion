@@ -239,6 +239,10 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 								from={currentStartFrame}
 								durationInFrames={durationInFramesProp}
 								{...passedProps}
+								_remotionInternalTimelineTrack={{
+									role: 'clip',
+									seriesOffset: offset,
+								}}
 								_remotionInternalSingleChildComponent={getSingleChildComponent(
 									sequenceChildren,
 								)}

@@ -285,6 +285,7 @@ export const useMediaInTimelineRegistration = ({
 						timelineTrack: {
 							...timelineTrack,
 							role: 'clip' as const,
+							seriesOffset: null,
 						},
 					}
 				: {}),
