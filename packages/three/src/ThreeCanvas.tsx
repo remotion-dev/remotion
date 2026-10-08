@@ -87,9 +87,25 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 	const contexts = Internals.useRemotionContexts();
 	const frame = useCurrentFrame();
 
-	const [waitForCreated] = useState(() =>
-		delayRender('Waiting for <ThreeCanvas/> to be created'),
-	);
+	// Taken at commit and released on unmount, so a canvas that unmounts before it is
+	// created, or a render React discards, does not leave the hold open.
+	const createdHold = useRef<number | null>(null);
+	const created = useRef(false);
+	useLayoutEffect(() => {
+		if (created.current) {
+			return;
+		}
+
+		createdHold.current = delayRender(
+			'Waiting for <ThreeCanvas/> to be created',
+		);
+		return () => {
+			if (createdHold.current !== null) {
+				continueRender(createdHold.current);
+				createdHold.current = null;
+			}
+		};
+	}, [delayRender, continueRender]);
 	const frameDelayHandle = useRef<number | null>(null);
 
 	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
@@ -107,10 +123,15 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 				state.advance(performance.now());
 			}
 
-			continueRender(waitForCreated);
+			created.current = true;
+			if (createdHold.current !== null) {
+				continueRender(createdHold.current);
+				createdHold.current = null;
+			}
+
 			onCreated?.(state);
 		},
-		[onCreated, waitForCreated, continueRender, isRendering, advanceOnCreated],
+		[onCreated, continueRender, isRendering, advanceOnCreated],
 	);
 
 	useLayoutEffect(() => {
