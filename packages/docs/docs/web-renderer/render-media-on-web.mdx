@@ -151,7 +151,7 @@ Controls the quality and file size of the output video. Can be either a number r
 
 You can also pass a Mediabunny [`Quality`](https://mediabunny.dev/guide/media-sources#encoding-quality) instance directly.
 Remotion's string presets use bitrate encoding.
-A qualitative `Quality` instance uses Mediabunny's automatic choice between quantizer and bitrate encoding based on codec and browser support. `preferBitrate` defaults to `false` in Mediabunny:
+Passing `new Quality('high')` lets Mediabunny choose how to encode the video. You don't need to set `preferBitrate: false`:
 
 ```tsx twoslash title="Use Mediabunny quality selection"
 const Component: React.FC = () => null;
@@ -173,8 +173,6 @@ await renderMediaOnWeb({
 });
 ```
 
-Quantizer encoding lets the bitrate vary with the content and can produce substantially larger files.
-Mediabunny falls back to bitrate encoding if the browser reports that quantizer encoding is unsupported.
 A browser may accept the configuration but still fail during encoding or introduce a large startup delay. See [known WebCodecs issues](/docs/mediabunny/webcodecs-bugs).
 
 Pass the same `Quality` instance to [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web) or [`getEncodableVideoCodecs()`](/docs/web-renderer/get-encodable-video-codecs) when checking support.
