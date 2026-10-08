@@ -37,7 +37,6 @@ import {
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
-import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
@@ -349,7 +348,6 @@ export const EasingInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorSections track={track} />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
