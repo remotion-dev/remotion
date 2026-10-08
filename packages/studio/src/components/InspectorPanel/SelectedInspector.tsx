@@ -1,5 +1,5 @@
 import React, {useLayoutEffect, useRef, useState} from 'react';
-import {flushSync} from 'react-dom';
+import {startSlideViewTransition} from '../../helpers/slide-view-transition';
 import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
@@ -80,10 +80,7 @@ export const SelectedInspector: React.FC<{
 			(!forward && !backward) ||
 			getTimelineSequenceSelectionKey(previous.nodePathInfo) !==
 				getTimelineSequenceSelectionKey(selection.nodePathInfo) ||
-			panel === null ||
-			typeof document.startViewTransition !== 'function' ||
-			typeof flushSync !== 'function' ||
-			window.matchMedia('(prefers-reduced-motion: reduce)').matches
+			panel === null
 		) {
 			displayedSelectionRef.current = selection;
 			setDisplayedSelection(selection);
@@ -91,49 +88,22 @@ export const SelectedInspector: React.FC<{
 		}
 
 		// Defer only the inspector DOM swap; timeline selection stays synchronous.
-		const root = document.documentElement;
-		const transitionClass = forward
-			? '__remotion-inspector-forward'
-			: '__remotion-inspector-backward';
-		root.classList.add(transitionClass);
-		panel.style.setProperty('view-transition-name', 'remotion-inspector');
-		let cancelled = false;
-
-		const cleanup = () => {
-			root.classList.remove(transitionClass);
-			panel.style.removeProperty('view-transition-name');
+		const update = () => {
+			displayedSelectionRef.current = selection;
+			setDisplayedSelection(selection);
 		};
 
-		const transition = document.startViewTransition(() => {
-			if (cancelled) {
-				return;
-			}
-
-			flushSync(() => {
-				displayedSelectionRef.current = selection;
-				setDisplayedSelection(selection);
-			});
+		const cancel = startSlideViewTransition({
+			panels: [{element: panel, name: 'remotion-inspector', clipY: null}],
+			direction: forward ? 'forward' : 'backward',
+			update,
 		});
-		// A skipped transition still applies its update, but rejects `ready`.
-		transition.ready.catch(() => undefined);
-		transition.finished.then(
-			() => {
-				if (!cancelled) {
-					cleanup();
-				}
-			},
-			() => {
-				if (!cancelled) {
-					cleanup();
-				}
-			},
-		);
+		if (cancel === null) {
+			update();
+			return;
+		}
 
-		return () => {
-			cancelled = true;
-			transition.skipTransition();
-			cleanup();
-		};
+		return cancel;
 	}, [selection]);
 
 	return (

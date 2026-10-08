@@ -28,7 +28,7 @@ const TimelineSceneTrackContent: React.FC<{
 }> = React.memo(({children, sceneRange}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const active = frame >= sceneRange.from && frame < sceneRange.end;
-	return <div style={{opacity: active ? 1 : 0.75}}>{children}</div>;
+	return <div style={{opacity: active ? 1 : 0.5}}>{children}</div>;
 });
 
 const TimelineTracksInner: React.FC<{

@@ -27,55 +27,27 @@ const makeDefaultGlobalCSS = () => {
     position: static !important;
   }
 
-  html.__remotion-inspector-forward,
-  html.__remotion-inspector-backward {
+  html.__remotion-slide-forward,
+  html.__remotion-slide-backward {
     view-transition-name: none;
-    --remotion-inspector-slide-distance: 100%;
+    --remotion-slide-distance: 100%;
   }
 
-  html.__remotion-inspector-backward {
-    --remotion-inspector-slide-distance: -100%;
+  html.__remotion-slide-backward {
+    --remotion-slide-distance: -100%;
   }
 
-  html.__remotion-inspector-forward::view-transition,
-  html.__remotion-inspector-backward::view-transition {
+  html.__remotion-slide-forward::view-transition,
+  html.__remotion-slide-backward::view-transition {
     pointer-events: none;
   }
 
-  ::view-transition-group(remotion-inspector) {
-    animation: none;
-    overflow: clip;
+  @keyframes remotion-slide-out {
+    to { transform: translateX(calc(-1 * var(--remotion-slide-distance))); }
   }
 
-  ::view-transition-old(remotion-inspector),
-  ::view-transition-new(remotion-inspector) {
-    animation-duration: 75ms;
-    animation-timing-function: ease-out;
-    animation-fill-mode: both;
-    mix-blend-mode: normal;
-  }
-
-  ::view-transition-old(remotion-inspector) {
-    animation-name: remotion-inspector-slide-out;
-  }
-
-  ::view-transition-new(remotion-inspector) {
-    animation-name: remotion-inspector-slide-in;
-  }
-
-  @keyframes remotion-inspector-slide-out {
-    to { transform: translateX(calc(-1 * var(--remotion-inspector-slide-distance))); }
-  }
-
-  @keyframes remotion-inspector-slide-in {
-    from { transform: translateX(var(--remotion-inspector-slide-distance)); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    ::view-transition-old(remotion-inspector),
-    ::view-transition-new(remotion-inspector) {
-      animation: none;
-    }
+  @keyframes remotion-slide-in {
+    from { transform: translateX(var(--remotion-slide-distance)); }
   }
 
   .remotion-splitter {

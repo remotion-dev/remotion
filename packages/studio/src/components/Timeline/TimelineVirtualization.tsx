@@ -40,6 +40,7 @@ export type TimelineVirtualRow = TimelineDisplayRow & {
 	readonly afterDropLineOffset: number;
 	readonly siblingIndex: number;
 	readonly sceneRange: TimelineSceneRange | null;
+	readonly sceneGroupId: string | null;
 };
 
 type TimelineVirtualizationContextValue = {
@@ -120,6 +121,12 @@ export const TimelineVirtualizationProvider: React.FC<{
 				const afterDropLineOffset = seriesLayout.afterDropLineOffsets[index];
 				const siblingIndex = seriesLayout.siblingIndexes[index];
 				const sceneRange = seriesLayout.sceneRanges[index];
+				const sceneGroupId =
+					sceneRange === null
+						? null
+						: timeline[
+								seriesLayout.groups[seriesLayout.groupIndexes[index]].index
+							].track.sequence.id;
 				const previous = rowsRef.current[index];
 				if (
 					previous?.track === track &&
@@ -127,6 +134,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 					previous.auxiliaryRows === auxiliaryRows &&
 					previous.afterDropLineOffset === afterDropLineOffset &&
 					previous.siblingIndex === siblingIndex &&
+					previous.sceneGroupId === sceneGroupId &&
 					previous.sceneRange?.from === sceneRange?.from &&
 					previous.sceneRange?.end === sceneRange?.end
 				) {
@@ -140,6 +148,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 					items,
 					auxiliaryRows,
 					sceneRange,
+					sceneGroupId,
 				};
 			},
 		);
