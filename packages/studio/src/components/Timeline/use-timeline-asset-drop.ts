@@ -104,6 +104,8 @@ export const useTimelineAssetDrop = () => {
 			}
 
 			if (isEffectDragOverTarget(event)) {
+				event.preventDefault();
+				dataTransfer.dropEffect = 'copy';
 				setAssetDropFrame(null);
 				return;
 			}

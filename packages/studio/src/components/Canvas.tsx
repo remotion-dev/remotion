@@ -760,6 +760,11 @@ export const Canvas: React.FC<{
 			}
 
 			if (isEffectDragOverTarget(event)) {
+				event.preventDefault();
+				if (event.dataTransfer) {
+					event.dataTransfer.dropEffect = 'copy';
+				}
+
 				setCompositionDropPreview(null);
 				return;
 			}

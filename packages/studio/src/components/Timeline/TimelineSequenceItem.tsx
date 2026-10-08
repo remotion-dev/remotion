@@ -61,6 +61,7 @@ import {ContextMenu} from '../ContextMenu';
 import {
 	addEffectFromDrop,
 	hasEffectDragType,
+	isLutEffectDrop,
 	LUT_EFFECT_DROP_TARGET_ATTR,
 } from '../effect-drag-and-drop';
 import {
@@ -1633,7 +1634,7 @@ const TimelineSequenceItemInner: React.FC<{
 				previewServerState.type !== 'connected' ||
 				nodePathInfo === null ||
 				validatedLocation === null ||
-				!hasEffectDragType(e.dataTransfer)
+				(!hasEffectDragType(e.dataTransfer) && !isLutEffectDrop(e.nativeEvent))
 			) {
 				return;
 			}

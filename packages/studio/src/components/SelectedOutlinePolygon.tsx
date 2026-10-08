@@ -16,6 +16,7 @@ import {EditorSnappingContext} from '../state/editor-snapping';
 import {
 	addEffectFromDrop,
 	hasEffectDragType,
+	isLutEffectDrop,
 	LUT_EFFECT_DROP_TARGET_ATTR,
 } from './effect-drag-and-drop';
 import {
@@ -422,7 +423,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 	const onEffectDrop = React.useCallback(
 		async (event: React.DragEvent<SVGPolygonElement>) => {
-			if (!hasEffectDragType(event.dataTransfer)) {
+			if (
+				!hasEffectDragType(event.dataTransfer) &&
+				!isLutEffectDrop(event.nativeEvent)
+			) {
 				return;
 			}
 

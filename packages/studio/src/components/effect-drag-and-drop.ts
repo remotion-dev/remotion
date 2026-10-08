@@ -30,9 +30,7 @@ export const hasExplicitEffectDragType = (dataTransfer: DataTransfer) => {
 export const hasEffectDragType = (dataTransfer: DataTransfer) => {
 	return (
 		hasExplicitEffectDragType(dataTransfer) ||
-		Array.from(dataTransfer.types).includes(LUT_ASSET_DRAG_TYPE) ||
-		// File names are unavailable during native file drags until the drop.
-		Array.from(dataTransfer.types).includes('Files')
+		Array.from(dataTransfer.types).includes(LUT_ASSET_DRAG_TYPE)
 	);
 };
 
@@ -61,7 +59,9 @@ export const isLutEffectDrop = (event: DragEvent) => {
 export const isEffectDragOverTarget = (event: DragEvent) => {
 	return (
 		event.dataTransfer !== null &&
-		hasEffectDragType(event.dataTransfer) &&
+		(hasEffectDragType(event.dataTransfer) ||
+			// File names are unavailable during native file drags until the drop.
+			Array.from(event.dataTransfer.types).includes('Files')) &&
 		event.target instanceof Element &&
 		event.target.closest(`[${LUT_EFFECT_DROP_TARGET_ATTR}="true"]`) !== null
 	);
