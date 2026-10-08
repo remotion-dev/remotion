@@ -12,6 +12,7 @@ import React, {
 	useLayoutEffect,
 	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import {Internals} from 'remotion';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
@@ -178,12 +179,59 @@ export const TimelineVirtualizationProvider: React.FC<{
 			const key = getSelectionTrackKey(selectedItem);
 			const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
 			if (index !== undefined) {
-				indexes.add(layout.groupIndexes[index]);
+				indexes.add(index);
 			}
 		}
 
 		return indexes;
-	}, [layout.groupIndexes, layout.rootTrackIndexes, selectedItems]);
+	}, [layout.rootTrackIndexes, selectedItems]);
+	const hasSharedRows = layout.groups.some((group) => group.rows.length > 1);
+	const [verticalRenderWindow, setVerticalRenderWindow] = useState<{
+		readonly top: number;
+		readonly bottom: number;
+	} | null>(null);
+	useLayoutEffect(() => {
+		if (!hasSharedRows) {
+			return;
+		}
+
+		let element: HTMLDivElement | null = null;
+		let resizeObserver: ResizeObserver | null = null;
+		const update = () => {
+			if (element === null || element.clientHeight === 0) {
+				return;
+			}
+
+			// The group's virtualizer does not notify while scrolling within one
+			// tall Series. Maintain a buffered row window inside it as well.
+			const height = element.clientHeight;
+			const section = Math.floor((element.scrollTop + height / 2) / height);
+			const top = Math.max(0, (section - 1) * height);
+			const bottom = top + height * 3;
+			setVerticalRenderWindow((previous) =>
+				previous?.top === top && previous.bottom === bottom
+					? previous
+					: {top, bottom},
+			);
+		};
+
+		const animationFrame = requestAnimationFrame(() => {
+			element = timelineVerticalScroll.current;
+			if (element === null) {
+				return;
+			}
+
+			resizeObserver = new ResizeObserver(update);
+			resizeObserver.observe(element);
+			element.addEventListener('scroll', update, {passive: true});
+			update();
+		});
+		return () => {
+			cancelAnimationFrame(animationFrame);
+			resizeObserver?.disconnect();
+			element?.removeEventListener('scroll', update);
+		};
+	}, [hasSharedRows]);
 	const groupsRef = useRef(layout.groups);
 	groupsRef.current = layout.groups;
 	const timelineRef = useRef(timeline);
@@ -207,12 +255,12 @@ export const TimelineVirtualizationProvider: React.FC<{
 		(range: Range) => {
 			const indexes = new Set(defaultRangeExtractor(range));
 			for (const selectedIndex of selectedTrackIndexes) {
-				indexes.add(selectedIndex);
+				indexes.add(layout.groupIndexes[selectedIndex]);
 			}
 
 			return [...indexes].sort((a, b) => a - b);
 		},
-		[selectedTrackIndexes],
+		[layout.groupIndexes, selectedTrackIndexes],
 	);
 	const getScrollElement = useCallback(
 		() => timelineVerticalScroll.current,
@@ -373,18 +421,42 @@ export const TimelineVirtualizationProvider: React.FC<{
 	const virtualItems = useMemo(
 		() =>
 			virtualGroups.flatMap((group) =>
-				layout.groups[group.index].rows.map(
-					(index): VirtualItem => ({
-						index,
-						key: timeline[index].track.sequence.id,
-						start: layout.offsets[index],
-						end: layout.offsets[index] + trackHeights[index],
-						size: trackHeights[index],
-						lane: 0,
-					}),
-				),
+				layout.groups[group.index].rows
+					.filter((index) => {
+						if (
+							layout.groups[group.index].rows.length === 1 ||
+							selectedTrackIndexes.has(index)
+						) {
+							return true;
+						}
+
+						return (
+							verticalRenderWindow !== null &&
+							layout.offsets[index] < verticalRenderWindow.bottom &&
+							layout.offsets[index] + trackHeights[index] >
+								verticalRenderWindow.top
+						);
+					})
+					.map(
+						(index): VirtualItem => ({
+							index,
+							key: timeline[index].track.sequence.id,
+							start: layout.offsets[index],
+							end: layout.offsets[index] + trackHeights[index],
+							size: trackHeights[index],
+							lane: 0,
+						}),
+					),
 			),
-		[layout.groups, layout.offsets, timeline, trackHeights, virtualGroups],
+		[
+			layout.groups,
+			layout.offsets,
+			selectedTrackIndexes,
+			timeline,
+			trackHeights,
+			verticalRenderWindow,
+			virtualGroups,
+		],
 	);
 	const value = useMemo(
 		(): TimelineVirtualizationContextValue => ({
