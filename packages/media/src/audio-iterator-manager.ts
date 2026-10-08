@@ -426,7 +426,9 @@ export const audioIteratorManager = ({
 		unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
-		if (muted) {
+		// Audio iterators only schedule forward. Studio's reverse playback must
+		// stay silent instead of producing negative AudioBufferSourceNode offsets.
+		if (muted || playbackRate <= 0) {
 			return;
 		}
 

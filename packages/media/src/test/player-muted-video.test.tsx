@@ -1,8 +1,9 @@
 import {Player, type PlayerRef} from '@remotion/player';
 import React from 'react';
+import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {Sequence} from 'remotion';
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {page} from 'vitest/browser';
 import {Video} from '../video/video';
 
@@ -20,28 +21,42 @@ const waitFor = async (predicate: () => boolean) => {
 };
 
 const VideoComposition: React.FC = () => {
-	return <Video src="/bigbuckbunny.mp4" />;
+	return <Video src="/bigbuckbunny.mp4" disallowFallbackToOffthreadVideo />;
 };
 
-test('renders a video in an initially muted Player', async () => {
+test('renders an initially muted video and resumes audio after reverse playback', async () => {
+	// Call through to Web Audio so invalid start offsets still throw.
+	const starts = vi.spyOn(AudioBufferSourceNode.prototype, 'start');
+	const startedMediaNodes = () =>
+		(starts.mock.contexts as AudioBufferSourceNode[]).filter(
+			(node) => node.buffer !== null,
+		);
 	const container = document.createElement('div');
 	document.body.appendChild(container);
-
+	const playerRef = React.createRef<PlayerRef>();
 	const root = createRoot(container);
-	root.render(
-		<Player
-			acknowledgeRemotionLicense
-			component={VideoComposition}
-			compositionHeight={720}
-			compositionWidth={1280}
-			durationInFrames={100}
-			fps={30}
-			initiallyMuted
-			inputProps={{}}
-		/>,
-	);
+	const renderPlayer = (playbackRate: number) => {
+		flushSync(() => {
+			root.render(
+				<Player
+					ref={playerRef}
+					acknowledgeRemotionLicense
+					component={VideoComposition}
+					compositionHeight={720}
+					compositionWidth={1280}
+					controls
+					durationInFrames={300}
+					fps={30}
+					initiallyMuted
+					playbackRate={playbackRate}
+					inputProps={{}}
+				/>,
+			);
+		});
+	};
 
 	try {
+		renderPlayer(1);
 		await waitFor(() => {
 			const renderedCanvas = container.querySelector('canvas');
 			return renderedCanvas?.width === 1280 && renderedCanvas.height === 720;
@@ -50,11 +65,40 @@ test('renders a video in an initially muted Player', async () => {
 		const canvas = container.querySelector('canvas');
 		expect(canvas?.width).toBe(1280);
 		expect(canvas?.height).toBe(720);
+
+		flushSync(() => {
+			playerRef.current!.seekTo(60);
+			playerRef.current!.unmute();
+		});
+		await page.getByRole('button', {name: 'Play video'}).click();
+		await waitFor(
+			() =>
+				startedMediaNodes().length > 0 &&
+				playerRef.current!.getCurrentFrame() > 60,
+		);
+
+		const forwardFrame = playerRef.current!.getCurrentFrame();
+		starts.mockClear();
+		// J changes the Player's global rate while playback continues.
+		renderPlayer(-1);
+		await waitFor(
+			() => playerRef.current!.getCurrentFrame() < forwardFrame - 2,
+		);
+		expect(startedMediaNodes()).toHaveLength(0);
+
+		const reverseFrame = playerRef.current!.getCurrentFrame();
+		renderPlayer(1);
+		await waitFor(
+			() =>
+				startedMediaNodes().length > 0 &&
+				playerRef.current!.getCurrentFrame() > reverseFrame,
+		);
 	} finally {
 		root.unmount();
 		container.remove();
+		starts.mockRestore();
 	}
-});
+}, 15000);
 
 test('renders a negatively offset video inside a sequence', async () => {
 	const container = document.createElement('div');
