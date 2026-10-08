@@ -52,6 +52,7 @@ import {
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
+import {ActionTooltip} from '../ActionTooltip';
 import {AudioWaveform} from '../AudioWaveform';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -505,7 +506,7 @@ const TimelineSequenceBar: React.FC<{
 					style={{
 						position: 'absolute',
 						left:
-							5 +
+							2.5 +
 							Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0)),
 						right: 0,
 						bottom: PACKED_LABEL_BOTTOM,
@@ -522,26 +523,43 @@ const TimelineSequenceBar: React.FC<{
 						<CompositionOrStillIcon
 							composition={connectedComposition}
 							color={getTimelineColor(false, false)}
-							style={{flexShrink: 0, height: 12, width: 12}}
+							style={{
+								color: getTimelineColor(false, false),
+								flexShrink: 0,
+								height: 10,
+								width: 10,
+							}}
 						/>
 					) : null}
-					<span
-						style={{
+					<ActionTooltip
+						label={s.displayName}
+						shortcut={null}
+						delay={250}
+						dismissOnClick
+						triggerStyle={{
 							alignSelf: 'stretch',
-							fontSize: 11,
-							lineHeight: `${PACKED_LABEL_HEIGHT}px`,
-							color: getTimelineColor(false, false),
-							maskImage:
-								'linear-gradient(to right, black calc(100% - 5px), transparent)',
 							minWidth: 0,
-							whiteSpace: 'nowrap',
-							overflow: 'hidden',
-							WebkitMaskImage:
-								'linear-gradient(to right, black calc(100% - 5px), transparent)',
+							pointerEvents: 'auto',
 						}}
 					>
-						{s.timelineTrack.role === 'overlay' ? 'Overlay' : s.displayName}
-					</span>
+						<span
+							style={{
+								flex: 1,
+								fontSize: 11,
+								lineHeight: `${PACKED_LABEL_HEIGHT}px`,
+								color: getTimelineColor(false, false),
+								maskImage:
+									'linear-gradient(to right, black calc(100% - 5px), transparent)',
+								minWidth: 0,
+								whiteSpace: 'nowrap',
+								overflow: 'hidden',
+								WebkitMaskImage:
+									'linear-gradient(to right, black calc(100% - 5px), transparent)',
+							}}
+						>
+							{s.timelineTrack.role === 'overlay' ? 'Overlay' : s.displayName}
+						</span>
+					</ActionTooltip>
 				</div>
 			) : null}
 
