@@ -713,12 +713,21 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 	const w = window as unknown as {remotion_cancelledError?: string};
 	w.remotion_cancelledError = undefined;
 
+	const originalUserAgent = Object.getOwnPropertyDescriptor(
+		navigator,
+		'userAgent',
+	);
+	Object.defineProperty(navigator, 'userAgent', {
+		configurable: true,
+		value: 'Chrome/157.0.0.0',
+	});
+
 	let captureCalls = 0;
 	Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
 		configurable: true,
 		value: () => {
 			captureCalls++;
-			if (captureCalls === 1) {
+			if (captureCalls === 2) {
 				throw new DOMException(
 					'No cached paint record for element',
 					'InvalidStateError',
@@ -749,7 +758,9 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 						paintCalled = true;
 					}}
 				>
-					<div>Test</div>
+					<HtmlInCanvas width={25} height={25}>
+						<div>Test</div>
+					</HtmlInCanvas>
 				</HtmlInCanvas>
 			</SequenceTestWrapper>,
 		);
@@ -759,18 +770,28 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 		});
 
 		const canvas = container.querySelector('canvas')!;
+		canvas.querySelector('canvas')!.dispatchEvent(new Event('paint'));
+		await new Promise((resolve) => setTimeout(resolve, 0));
 		canvas.dispatchEvent(new Event('paint'));
 
 		expect(paintCalled).toBe(false);
+		// Skipping an unavailable record must also release the nested paint barrier.
+		expect(window.remotion_renderReady).toBe(true);
 		expect(w.remotion_cancelledError).toBeUndefined();
 
 		canvas.dispatchEvent(new Event('paint'));
 		await waitFor(() => {
 			expect(paintCalled).toBe(true);
 		});
-		expect(captureCalls).toBe(2);
+		expect(captureCalls).toBe(3);
 		expect(w.remotion_cancelledError).toBeUndefined();
 	} finally {
+		if (originalUserAgent) {
+			Object.defineProperty(navigator, 'userAgent', originalUserAgent);
+		} else {
+			Reflect.deleteProperty(navigator, 'userAgent');
+		}
+
 		if (originalDescriptor) {
 			Object.defineProperty(
 				HTMLCanvasElement.prototype,

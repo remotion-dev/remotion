@@ -2,6 +2,7 @@ import {
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 } from './evaluate-source-expressions.js';
+import {RENDER_READY_EVENT} from './render-ready.js';
 export type {
 	ArtifactAsset,
 	AudioOrVideoAsset,
@@ -62,6 +63,7 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
+	RENDER_READY_EVENT,
 	DEFAULT_PREMOUNT_IN_SECONDS,
 	validateDefaultPremountInSeconds,
 	evaluateSourceNumericValue,

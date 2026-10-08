@@ -158,6 +158,7 @@ import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RemotionRootContexts} from './RemotionRoot.js';
+import {subscribeToRenderReady} from './render-ready.js';
 import {
 	makeRenderResourceManager,
 	RenderResourceManagerContext,
@@ -345,6 +346,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	subscribeToRenderReady,
 	CommittedMetadataProvider,
 	withCommittedMetadata,
 	DefaultPremountContext,

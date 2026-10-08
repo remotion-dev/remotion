@@ -47,10 +47,13 @@ const Paint: React.FC<HtmlInCanvasFramesProps & {readonly frame: number}> = ({
 	);
 	const gpuRef = useRef<{device: GpuDevice; context: GpuContext} | null>(null);
 	const onInit: HtmlInCanvasOnInit = useCallback(
-		async ({canvas}) => {
+		async ({canvas, element}) => {
 			// Exercise asynchronous initialization, including the first mounted frame.
 			await Promise.resolve();
 			if (backend === 'webgpu') {
+				// Initialization can span multiple browser paint events.
+				(element.parentElement as HTMLCanvasElement).requestPaint?.();
+				await new Promise((resolve) => setTimeout(resolve, 30));
 				const {gpu} = navigator as unknown as {
 					gpu: {
 						requestAdapter(): Promise<{
@@ -110,6 +113,9 @@ const Paint: React.FC<HtmlInCanvasFramesProps & {readonly frame: number}> = ({
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
 		async ({canvas, elementImage}) => {
 			if (backend === '2d') {
+				// Finish outside the paint event's task: a ready notification must
+				// still wait for this handler and its pixel copy.
+				await new Promise((resolve) => setTimeout(resolve, 5));
 				const ctx = canvas.getContext('2d')!;
 				ctx.reset();
 				ctx.drawElementImage(elementImage, 0, 0);
@@ -232,7 +238,9 @@ const paint: HtmlInCanvasOnPaint = ({canvas, elementImage}) => {
 const Nested: React.FC<HtmlInCanvasFramesProps> = (props) => {
 	return (
 		<HtmlInCanvas width={100} height={100} onPaint={paint} effects={[invert()]}>
-			<Component {...props} />
+			<HtmlInCanvas width={100} height={100}>
+				<Component {...props} />
+			</HtmlInCanvas>
 		</HtmlInCanvas>
 	);
 };

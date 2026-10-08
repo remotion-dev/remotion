@@ -122,11 +122,13 @@ export class DOMWorld {
 		timeout,
 		pageFunction,
 		title,
+		wakeUpEvent,
 	}: {
 		browser: HeadlessBrowser;
 		timeout: number | null;
 		pageFunction: Function | string;
 		title: string;
+		wakeUpEvent: string | null;
 	}): WaitTask {
 		return new WaitTask({
 			domWorld: this,
@@ -134,6 +136,7 @@ export class DOMWorld {
 			title,
 			timeout,
 			args: [],
+			wakeUpEvent,
 			browser,
 		});
 	}
@@ -146,6 +149,7 @@ interface WaitTaskOptions {
 	timeout: number | null;
 	browser: HeadlessBrowser;
 	args: SerializableOrJSHandle[];
+	wakeUpEvent: string | null;
 }
 
 const noop = (): void => undefined;
@@ -155,6 +159,7 @@ class WaitTask {
 	#timeout: number | null;
 	#predicateBody: string;
 	#args: SerializableOrJSHandle[];
+	#wakeUpEvent: string | null;
 	#runCount = 0;
 	#resolve: (x: JSHandle) => void = noop;
 	#reject: (x: Error) => void = noop;
@@ -177,6 +182,7 @@ class WaitTask {
 		this.#timeout = options.timeout;
 		this.#predicateBody = getPredicateBody(options.predicateBody);
 		this.#args = options.args;
+		this.#wakeUpEvent = options.wakeUpEvent;
 		this.#runCount = 0;
 		this.#domWorld._waitTasks.add(this);
 
@@ -238,6 +244,7 @@ class WaitTask {
 				waitForPredicatePageFunction,
 				this.#predicateBody,
 				this.#timeout,
+				this.#wakeUpEvent,
 				...this.#args,
 			);
 		} catch (error_) {
@@ -347,32 +354,77 @@ class WaitTask {
 function waitForPredicatePageFunction(
 	predicateBody: string,
 	timeout: number,
+	wakeUpEvent: string | null,
 	...args: unknown[]
 ): Promise<unknown> {
 	// eslint-disable-next-line no-new-func
 	const predicate = new Function('...args', predicateBody);
-	let timedOut = false;
-	if (timeout) {
-		setTimeout(() => {
-			timedOut = true;
-		}, timeout);
-	}
 
-	return new Promise<JSHandle | undefined>((resolve) => {
-		async function onRaf(): Promise<void> {
-			if (timedOut) {
-				resolve(undefined);
+	return new Promise<JSHandle | undefined>((resolve, reject) => {
+		let finished = false;
+		let checking = false;
+		let rafId: number | null = null;
+		let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+		const cleanup = () => {
+			finished = true;
+			if (rafId !== null) {
+				cancelAnimationFrame(rafId);
+			}
+
+			if (timeoutId !== null) {
+				clearTimeout(timeoutId);
+			}
+
+			if (wakeUpEvent !== null) {
+				window.removeEventListener(wakeUpEvent, onReady);
+			}
+		};
+
+		const check = async () => {
+			if (finished || checking) {
 				return;
 			}
 
-			const success = await predicate(...args);
-			if (success) {
-				resolve(success);
-			} else {
-				requestAnimationFrame(onRaf);
+			checking = true;
+			try {
+				const success = await predicate(...args);
+				if (!finished && success) {
+					cleanup();
+					resolve(success);
+				}
+			} catch (error) {
+				cleanup();
+				reject(error);
+			} finally {
+				checking = false;
+			}
+		};
+
+		const onReady = () => {
+			// Let effects finish replacing handles before testing readiness.
+			queueMicrotask(check);
+		};
+
+		async function onRaf(): Promise<void> {
+			await check();
+			if (!finished) {
+				rafId = requestAnimationFrame(onRaf);
 			}
 		}
 
+		if (timeout) {
+			timeoutId = setTimeout(() => {
+				cleanup();
+				resolve(undefined);
+			}, timeout);
+		}
+
+		if (wakeUpEvent !== null) {
+			window.addEventListener(wakeUpEvent, onReady);
+		}
+
+		// Keep polling for errors and for bundles predating the ready event.
 		onRaf();
 	});
 }
