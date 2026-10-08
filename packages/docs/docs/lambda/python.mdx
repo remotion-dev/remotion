@@ -82,6 +82,51 @@ if render_response:
     print("Render done!", progress_response.outputFile)
 ```
 
+## Asynchronous rendering<AvailableFrom v="4.0.535" />
+
+Use `AsyncRemotionClient` in `asyncio` applications to make requests without blocking the event loop. It accepts the same constructor options as `RemotionClient`, returns the same response objects, and raises the same exceptions.
+
+Await `render_media_on_lambda()`, `render_still_on_lambda()`, `get_render_progress()`, and `cancel_render_on_lambda()`:
+
+```python title="render_media_async.py"
+import asyncio
+import os
+from remotion_lambda import AsyncRemotionClient, RenderMediaParams
+
+
+async def main():
+    client = AsyncRemotionClient(
+        region=os.environ['REMOTION_APP_REGION'],
+        serve_url=os.environ['REMOTION_APP_SERVE_URL'],
+        function_name=os.environ['REMOTION_APP_FUNCTION_NAME'],
+    )
+
+    response = await client.render_media_on_lambda(
+        RenderMediaParams(composition="react-svg")
+    )
+    if response is None:
+        return
+
+    while True:
+        progress = await client.get_render_progress(
+            render_id=response.render_id,
+            bucket_name=response.bucket_name,
+        )
+        if progress is None:
+            return
+        if progress.fatalErrorEncountered:
+            raise RuntimeError(progress.errors)
+        if progress.done:
+            print("Render done!", progress.outputFile)
+            return
+        await asyncio.sleep(1)
+
+
+asyncio.run(main())
+```
+
+Cancelling an awaited request does not stop the AWS request or the render. To cancel a render, start it with `enable_cancellation=True` and await `cancel_render_on_lambda()` with its render ID and bucket name.
+
 ## Rendering an image sequence<AvailableFrom v="4.0.535" />
 
 Use `render_frames_on_lambda()` with `RenderFramesParams`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
