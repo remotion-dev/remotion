@@ -117,6 +117,8 @@ export const TimelinePackedTrack: React.FC<{
 							labelStartFrame={labelStartFrames.get(item.sequence.id) ?? null}
 							cascadedStart={item.cascadedStart}
 							localStart={item.localStart}
+							parentVisibleStart={item.parentVisibleStart ?? 0}
+							parentVisibleEnd={item.parentVisibleEnd ?? null}
 							connectedCompositions={
 								item.connectedCompositions ?? noConnectedCompositions
 							}
