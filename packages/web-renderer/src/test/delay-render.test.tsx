@@ -14,18 +14,12 @@ test('should be able to use delayRender()', async () => {
 
 		useEffect(() => {
 			setTimeout(() => {
+				flushSync(() => {
+					setData(true);
+				});
 				continueRender(handle);
-				// Replacing the last handle in the same task must not expose the
-				// intermediate red frame to an event-driven readiness waiter.
-				const nextHandle = delayRender('Loading the next piece of data');
-				setTimeout(() => {
-					flushSync(() => {
-						setData(true);
-					});
-					continueRender(nextHandle);
-				}, 50);
 			}, 50);
-		}, [continueRender, delayRender, handle]);
+		}, [continueRender, handle]);
 
 		return data ? (
 			<svg viewBox="0 0 100 100" style={{backgroundColor: 'green'}} />

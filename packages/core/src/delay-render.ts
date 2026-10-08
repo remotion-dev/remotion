@@ -12,7 +12,6 @@ import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
 import {Log} from './log.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
-import {notifyRenderReady} from './render-ready.js';
 import {truthy} from './truthy.js';
 
 export {
@@ -195,9 +194,6 @@ export const continueRenderInternal = ({
 
 	if (scope.remotion_delayRenderHandles.length === 0) {
 		scope.remotion_renderReady = true;
-		if (environment.isRendering) {
-			notifyRenderReady(scope);
-		}
 	}
 };
 

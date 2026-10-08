@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {Internals, type DelayRenderScope} from 'remotion';
+import type {DelayRenderScope} from 'remotion';
 import type {BackgroundKeepalive} from './background-keepalive';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
@@ -22,43 +22,29 @@ export const waitForReady = ({
 	const start = performance.now();
 	const {promise, resolve, reject} = withResolvers<void>();
 
-	let completed = false;
-	let rafId: number | null = null;
-	const unsubscribe = Internals.subscribeToRenderReady(scope, () => {
-		// A layout effect may clear an old handle and open a new one in the
-		// same commit. Check after that stack has finished.
-		queueMicrotask(check);
-	});
-
-	const finish = () => {
-		completed = true;
-		unsubscribe();
-		if (rafId !== null) {
-			cancelAnimationFrame(rafId);
-		}
-
-		internalState?.addWaitForReadyTime(performance.now() - start);
-	};
+	let cancelled = false;
 
 	const check = () => {
-		if (completed) {
+		if (cancelled) {
 			return;
 		}
 
 		if (signal?.aborted) {
-			finish();
+			cancelled = true;
+			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(new Error(`${apiName}() was cancelled`));
 			return;
 		}
 
 		if (scope.remotion_renderReady === true) {
-			finish();
+			internalState?.addWaitForReadyTime(performance.now() - start);
 			resolve();
 			return;
 		}
 
 		if (scope.remotion_cancelledError !== undefined) {
-			finish();
+			cancelled = true;
+			internalState?.addWaitForReadyTime(performance.now() - start);
 			const stack = scope.remotion_cancelledError;
 			const message = stack.split('\n')[0].replace(/^Error: /, '');
 			const error = new Error(message);
@@ -68,7 +54,8 @@ export const waitForReady = ({
 		}
 
 		if (performance.now() - start > timeoutInMilliseconds + 3000) {
-			finish();
+			cancelled = true;
+			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(
 				new Error(
 					Object.values(scope.remotion_delayRenderTimeouts)
@@ -76,14 +63,17 @@ export const waitForReady = ({
 						.join(', '),
 				),
 			);
+			return;
 		}
+
+		scheduleNextCheck();
 	};
 
 	// schedule both raf and worker timer - whichever fires first wins.
 	// when tab is visible, raf fires first. when backgrounded, worker wins.
 	const scheduleNextCheck = () => {
 		const rafTick = new Promise<void>((res) => {
-			rafId = requestAnimationFrame(() => res());
+			requestAnimationFrame(() => res());
 		});
 
 		// browsers throttle RAF when tab is backgrounded, so race against worker
@@ -91,24 +81,11 @@ export const waitForReady = ({
 			? Promise.race([rafTick, keepalive.waitForTick()])
 			: rafTick;
 
-		backgroundSafeTick.then(() => {
-			if (rafId !== null) {
-				cancelAnimationFrame(rafId);
-				rafId = null;
-			}
-
-			check();
-			if (!completed) {
-				scheduleNextCheck();
-			}
-		});
+		backgroundSafeTick.then(check);
 	};
 
 	// check immediately first - if already ready, don't wait for RAF
 	check();
-	if (!completed) {
-		scheduleNextCheck();
-	}
 
 	return promise;
 };

@@ -1,4 +1,3 @@
-import {NoReactInternals} from 'remotion/no-react';
 import {BrowserEmittedEvents} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {PageEmittedEvents} from './browser/BrowserPage';
@@ -68,7 +67,6 @@ export const waitForReady = ({
 	const waitForReadyProm = new Promise<JSHandle>((resolve, reject) => {
 		const waitTask = page.mainFrame()._mainWorld.waitForFunction({
 			browser: page.browser,
-			wakeUpEvent: NoReactInternals.RENDER_READY_EVENT,
 			// Increase timeout so the delayRender() timeout fires earlier
 			timeout: timeoutInMilliseconds + 3000,
 			pageFunction: `window.remotion_renderReady === true ? "${readyToken}" : window.remotion_cancelledError !== undefined ? "${cancelledToken}" : false`,
