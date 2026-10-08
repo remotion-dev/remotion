@@ -139,14 +139,14 @@ export const extraPackages: ExtraPackage[] = [
 	},
 	{
 		name: 'mediabunny',
-		version: '1.56.1',
+		version: '1.61.3',
 		description: 'Multimedia library used by Remotion',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny',
 		versionDocsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
 	},
 	{
 		name: '@mediabunny/ac3',
-		version: '1.56.1',
+		version: '1.61.3',
 		description: 'AC-3 and E-AC-3 audio codec support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
 		versionDocsUrl:
@@ -154,14 +154,14 @@ export const extraPackages: ExtraPackage[] = [
 	},
 	{
 		name: '@mediabunny/dts',
-		version: '1.56.1',
+		version: '1.61.3',
 		description: 'DTS audio codec support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#dts',
 		versionDocsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#dts',
 	},
 	{
 		name: '@mediabunny/prores',
-		version: '1.56.1',
+		version: '1.61.3',
 		description: 'Apple ProRes decoder support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats',
 		versionDocsUrl: 'https://www.remotion.dev/docs/mediabunny/formats',

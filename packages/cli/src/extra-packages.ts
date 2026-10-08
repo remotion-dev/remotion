@@ -4,10 +4,10 @@ export const EXTRA_PACKAGES: Record<string, string> = {
 	...Object.fromEntries(
 		extraPackages.map(({name, version}) => [name, version]),
 	),
-	'@mediabunny/mp3-encoder': '1.56.1',
-	'@mediabunny/aac-encoder': '1.56.1',
-	'@mediabunny/flac-encoder': '1.56.1',
-	'@mediabunny/server': '1.56.1',
+	'@mediabunny/mp3-encoder': '1.61.3',
+	'@mediabunny/aac-encoder': '1.61.3',
+	'@mediabunny/flac-encoder': '1.61.3',
+	'@mediabunny/server': '1.61.3',
 };
 
 export const EXTRA_PACKAGES_DOCS: Record<string, string> = {
