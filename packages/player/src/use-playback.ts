@@ -7,6 +7,7 @@ import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
+import {createPendingPlaybackFrame} from './pending-playback-frame.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
 import {type UsePlayerMethods, usePlayerMethods} from './use-player-methods.js';
 
@@ -202,6 +203,7 @@ export const usePlayback = ({
 			| null = null;
 		let startedTime = performance.now();
 		let framesAdvanced = 0;
+		const pendingFrame = createPendingPlaybackFrame();
 
 		const cancelQueuedFrame = () => {
 			if (reqAnimFrameCall !== null) {
@@ -236,7 +238,7 @@ export const usePlayback = ({
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
-			const currentFrame = getCurrentFrame();
+			const currentFrame = pendingFrame.resolve(getCurrentFrame());
 			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
 				time,
 				currentFrame,
@@ -251,10 +253,11 @@ export const usePlayback = ({
 			framesAdvanced += framesToAdvance;
 
 			if (
-				nextFrame !== getCurrentFrame() &&
+				nextFrame !== currentFrame &&
 				(!hasEnded || moveToBeginningWhenEnded) &&
 				!isBuffering()
 			) {
+				pendingFrame.request(currentFrame, nextFrame);
 				setFrameFromPlayback((c) => ({...c, [config.id]: nextFrame}));
 			}
 
