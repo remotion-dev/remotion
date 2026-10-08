@@ -1,7 +1,7 @@
 import {MapStyle, Map as MapTilerMap, type MapOptions} from '@maptiler/sdk';
 import '@maptiler/sdk/style.css';
 import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
 	Interactive,
 	useDelayRender,
@@ -276,18 +276,20 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 	const onMapReadyRef = useRef(onMapReady);
 	onMapReadyRef.current = onMapReady;
 	const {continueRender, delayRender} = useDelayRender();
-	const [map, setMap] = useState<MapTilerMap | null>(null);
+	const [loadedMap, setLoadedMap] = useState<{
+		map: MapTilerMap;
+		handle: number;
+	} | null>(null);
+	const map = loadedMap?.map ?? null;
 	const [cameraRevision, setCameraRevision] = useState(0);
 	const [styleRevision, setStyleRevision] = useState(0);
-	const [loadingHandle] = useState(() => delayRender('Loading MapTiler map'));
 	const contextValue = useMemo(
 		() => ({cameraRevision, map, styleRevision}),
 		[cameraRevision, map, styleRevision],
 	);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!apiKey) {
-			continueRender(loadingHandle);
 			return;
 		}
 
@@ -295,6 +297,8 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 			return;
 		}
 
+		const loadingHandle = delayRender('Loading MapTiler map');
+		let cancelled = false;
 		const initialCamera = initialCameraRef.current;
 		const initialOptions = initialMapOptionsRef.current;
 		// Keep MapTiler's logo and attribution visible:
@@ -340,20 +344,31 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 			});
 
 			mapInstance.once('idle', () => {
-				setMap(mapInstance);
+				if (cancelled) {
+					return;
+				}
+
+				setLoadedMap({map: mapInstance, handle: loadingHandle});
 				onMapReadyRef.current?.(mapInstance);
-				continueRender(loadingHandle);
 			});
 			mapInstance.triggerRepaint();
 		});
 
 		return () => {
+			cancelled = true;
 			mapInstance.remove();
 			mapRef.current = null;
+			continueRender(loadingHandle);
 		};
-	}, [apiKey, continueRender, loadingHandle]);
+	}, [apiKey, continueRender, delayRender]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		if (loadedMap) {
+			continueRender(loadedMap.handle);
+		}
+	}, [continueRender, loadedMap]);
+
+	useLayoutEffect(() => {
 		if (!map) {
 			return;
 		}
@@ -423,7 +438,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		zoom,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (
 			!map ||
 			(lastMapStyleRef.current === mapStyle &&
@@ -475,14 +490,14 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		showLabels,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (map && language) {
 			map.setLanguage(language);
 			map.triggerRepaint();
 		}
 	}, [language, map]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!map) {
 			return;
 		}
@@ -496,7 +511,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		map.triggerRepaint();
 	}, [map, terrain, terrainExaggeration]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (map && projection) {
 			map.setProjection(projection, {persist: true});
 			map.triggerRepaint();
