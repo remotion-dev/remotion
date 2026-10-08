@@ -58,6 +58,7 @@ const makeSequence = (
 			componentIdentity: null,
 			componentName: 'Sequence',
 		},
+		customOutlineRef: null,
 		refForOutline: null,
 		effects: [],
 		effectRuntimeValues: null,

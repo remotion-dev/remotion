@@ -5,7 +5,10 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutlineLayoutTarget} from './selected-outline-types';
 import type {AddSequenceKeyframeChange} from './Timeline/call-add-keyframe';
-import {getKeyframeDisplayOffset} from './Timeline/get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './Timeline/get-timeline-keyframes';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
@@ -55,13 +58,16 @@ export const CustomOutlineValueChangeBridge: React.FC<{
 								fieldKey,
 								Internals.makeKeyframedDragOverride({
 									status,
-									frame:
-										timelinePosition -
-										getKeyframeDisplayOffset({
+									frame: getKeyframeSourceFrame({
+										displayFrame: timelinePosition,
+										propStatus: status,
+										keyframePlaybackRate: target.keyframePlaybackRate,
+										keyframeDisplayOffset: getKeyframeDisplayOffset({
 											propStatus: status,
 											keyframeDisplayOffset: target.keyframeDisplayOffset,
 											keyframePlaybackRate: target.keyframePlaybackRate,
 										}),
+									}),
 									value,
 								}),
 							);
@@ -90,13 +96,16 @@ export const CustomOutlineValueChangeBridge: React.FC<{
 							fileName: nodePath.absolutePath,
 							nodePath,
 							fieldKey,
-							sourceFrame:
-								timelinePosition -
-								getKeyframeDisplayOffset({
+							sourceFrame: getKeyframeSourceFrame({
+								displayFrame: timelinePosition,
+								propStatus: status,
+								keyframePlaybackRate: target.keyframePlaybackRate,
+								keyframeDisplayOffset: getKeyframeDisplayOffset({
 									propStatus: status,
 									keyframeDisplayOffset: target.keyframeDisplayOffset,
 									keyframePlaybackRate: target.keyframePlaybackRate,
 								}),
+							}),
 							value,
 							schema: controls.schema,
 						});

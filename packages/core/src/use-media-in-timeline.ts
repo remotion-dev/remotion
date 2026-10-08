@@ -312,6 +312,7 @@ export const useMediaInTimelineRegistration = ({
 			postmountDisplay,
 			controls: null,
 			effects: EMPTY_EFFECTS,
+			customOutlineRef: null,
 			refForOutline: automaticOutlineRef,
 			isInsideSeries: false,
 			frozenFrame: null,

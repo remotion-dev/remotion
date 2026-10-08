@@ -65,9 +65,7 @@ export const getCanvasSelectableOutlines = ({
 			const {sequence} = track;
 			if (
 				!sequence.showInTimeline ||
-				(sequence.refForOutline === null &&
-					(sequence.customOutlineRef === null ||
-						sequence.customOutlineRef === undefined))
+				(sequence.refForOutline === null && sequence.customOutlineRef === null)
 			) {
 				return [];
 			}

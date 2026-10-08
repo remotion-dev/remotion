@@ -55,6 +55,7 @@ const makeSequence = ({
 	parent,
 	postmountDisplay: null,
 	premountDisplay: null,
+	customOutlineRef: null,
 	refForOutline: null,
 	showInTimeline: true,
 	timelineOrder: null,

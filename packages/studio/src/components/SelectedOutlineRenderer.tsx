@@ -339,7 +339,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 						compositionWidth={compositionWidth}
 						onDraggingChange={onDraggingChange}
 						onSelect={onSelect}
-						outline={outline}
+						outline={scaleCanvasOutline(outline, scale)}
 						scale={scale}
 						target={target}
 						visible={

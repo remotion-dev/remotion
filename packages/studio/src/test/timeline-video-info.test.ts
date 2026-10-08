@@ -372,6 +372,7 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 		parent: null,
 		postmountDisplay: null,
 		premountDisplay: null,
+		customOutlineRef: null,
 		refForOutline: null,
 		sequencePlaybackRate: 1.5,
 		showInTimeline: true,

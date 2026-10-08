@@ -207,7 +207,7 @@ export type TSequence = {
 	postmountDisplay: number | null;
 	controls: SequenceRegistrationControls | null;
 	refForOutline: React.RefObject<Element | null> | null;
-	customOutlineRef?: React.RefObject<CustomSequenceOutline | null> | null;
+	customOutlineRef: React.RefObject<CustomSequenceOutline | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
 	effectRuntimeValues: readonly RuntimeValueStore[] | null;
 	isInsideSeries: boolean;
