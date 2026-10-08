@@ -89,6 +89,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	if (params.codec !== null) {
 		validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
 	}
+
 	const separateAudioTo = params.separateAudioTo ?? null;
 
 	if (separateAudioTo !== null && params.codec === null) {

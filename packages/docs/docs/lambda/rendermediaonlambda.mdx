@@ -276,7 +276,7 @@ await renderMediaOnLambda({
 });
 ```
 
-The filename extension selects the audio format: `.wav` uses PCM, `.aac`, `.m4a`, `.m4b` and `.3gp` use AAC, `.mp3` uses MP3, and `.opus` uses Opus. Existing [audio codec compatibility rules](/docs/audio-codec) apply. Conflicting `audioCodec` or `preferLossless` settings throw an error.
+The filename extension selects the audio format: `.wav` uses PCM, `.aac`, `.m4a`, `.m4b` and `.3gp` use AAC, `.mp3` uses MP3, and `.opus` uses Opus. Existing [audio codec compatibility rules](/docs/encoding/#audio-codec) apply. Conflicting `audioCodec` or `preferLossless` settings throw an error.
 
 A composition without audio produces a silent audio file. Audio-only renders, codecs without audio support, and `muted: true` cannot be combined with this option. Both outputs use the specified privacy, storage class and overwrite behavior.
 

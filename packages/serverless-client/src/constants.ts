@@ -45,6 +45,7 @@ export enum ServerlessRoutines {
 
 export type CustomCredentialsWithoutSensitiveData = {
 	endpoint: string;
+	forcePathStyle?: boolean;
 };
 
 export type CustomCredentials<Provider extends CloudProvider> =
@@ -52,7 +53,6 @@ export type CustomCredentials<Provider extends CloudProvider> =
 		accessKeyId: string | null;
 		secretAccessKey: string | null;
 		region?: Provider['region'] | (string & {});
-		forcePathStyle?: boolean;
 	};
 
 export type OutNameInput<Provider extends CloudProvider> =

@@ -38,7 +38,10 @@ export const getCustomOutName = <Provider extends CloudProvider>({
 				accessKeyId: customCredentials?.accessKeyId ?? null,
 				secretAccessKey: customCredentials?.secretAccessKey ?? null,
 				region: customCredentials?.region,
-				forcePathStyle: customCredentials?.forcePathStyle ?? false,
+				forcePathStyle:
+					outName.s3OutputProvider.forcePathStyle ??
+					customCredentials?.forcePathStyle ??
+					false,
 			},
 		};
 	}
