@@ -162,7 +162,7 @@ const GifInner = ({
 				_remotionInternalIsPostmounting={postmountingActive}
 				{...sequenceProps}
 			>
-				<Internals.SequenceContent>{inner}</Internals.SequenceContent>
+				{inner}
 			</Sequence>
 		</Freeze>
 	);
@@ -260,12 +260,10 @@ const GifComponent = (
 			requestInit: props.requestInit,
 		});
 		return (
-			<Internals.SequenceContent>
-				<GifWithIntrinsicDuration
-					key={`${cacheKey}-${props.trimBefore ?? 0}`}
-					{...props}
-				/>
-			</Internals.SequenceContent>
+			<GifWithIntrinsicDuration
+				{...props}
+				key={`${cacheKey}-${props.trimBefore ?? 0}`}
+			/>
 		);
 	}
 

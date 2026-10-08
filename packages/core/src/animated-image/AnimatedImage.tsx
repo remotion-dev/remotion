@@ -402,6 +402,8 @@ const AnimatedImageInner = ({
 				_remotionInternalIsPostmounting={postmountingActive}
 				{...sequenceProps}
 			>
+				{/* Hidden Activity cleans up effects but retains state. Unmount the
+				decoder so reactivation cannot reuse one that cleanup has closed. */}
 				<SequenceContent>
 					<AnimatedImageContent
 						{...animatedImageProps}
@@ -507,12 +509,10 @@ const AnimatedImageComponent = (
 		const resolvedSrc = resolveAnimatedImageSource(props.src);
 		const requestInitKey = serializeRequestInit(props.requestInit);
 		return (
-			<SequenceContent>
-				<AnimatedImageWithIntrinsicDuration
-					key={`${resolvedSrc}-${requestInitKey}-${props.trimBefore ?? 0}`}
-					{...props}
-				/>
-			</SequenceContent>
+			<AnimatedImageWithIntrinsicDuration
+				{...props}
+				key={`${resolvedSrc}-${requestInitKey}-${props.trimBefore ?? 0}`}
+			/>
 		);
 	}
 
