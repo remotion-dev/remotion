@@ -120,6 +120,38 @@ test('should render media to a writable stream', async (t) => {
 	);
 });
 
+test('should pass the composition frame rate to the video encoder', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
+	const framerates: (number | undefined)[] = [];
+	const originalConfigure = VideoEncoder.prototype.configure;
+	VideoEncoder.prototype.configure = function (config) {
+		framerates.push(config.framerate);
+		return originalConfigure.call(this, config);
+	};
+
+	try {
+		await renderMediaOnWeb({
+			composition: {
+				component: () => null,
+				id: 'frame-rate-test',
+				width: 100,
+				height: 100,
+				fps: 60,
+				durationInFrames: 2,
+			},
+			inputProps: {},
+		});
+	} finally {
+		VideoEncoder.prototype.configure = originalConfigure;
+	}
+
+	expect(framerates).toContain(60);
+});
+
 test('should reject invalid page responsiveness values', async () => {
 	const Component: React.FC = () => null;
 
