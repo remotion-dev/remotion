@@ -44,6 +44,17 @@ export const config: VercelConfig = {
 		...['/new', '/new/', '/new.html', '/new/index.html'].map((source) =>
 			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
 		),
+		// The Vibe Code editor compiles with the browser bundler, which needs
+		// cross-origin isolation for the editor, its preview iframe and the
+		// compiler worker.
+		routes.header('/experimental_sdk(.*)', browserStudioIsolationHeaders),
+		...[
+			'/experimental_sdk',
+			'/experimental_sdk/',
+			'/experimental_sdk/index.html',
+		].map((source) =>
+			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
+		),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
@@ -134,6 +145,7 @@ export const config: VercelConfig = {
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
 		routes.redirect('/api', '/docs/api', {permanent: false}),
+		routes.redirect('/options', '/docs/options', {permanent: false}),
 		routes.redirect('/terminology', '/docs/terminology', {permanent: false}),
 		routes.redirect(
 			'/hacktoberfest',

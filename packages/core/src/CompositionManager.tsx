@@ -10,6 +10,7 @@ import type {
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 } from './runtime-value-store.js';
+import type {TimelineTrackItem} from './timeline-track-context.js';
 import type {VideoConfigValues} from './video-config.js';
 
 export type TComposition<
@@ -185,14 +186,23 @@ export type TSequence = {
 	from: number;
 	trimBefore: number | null;
 	duration: number;
+	/** Infer the timeline display duration from children without changing playback. */
+	readonly autoDuration?: boolean | null;
+	/** Whether the wrapper can restore its duration from its scenes. */
+	readonly canInferDuration?: boolean | null;
+	/** Full scene duration in the parent clock, before container clipping. */
+	readonly unclippedDuration?: number | null;
 	id: string;
 	displayName: string;
 	documentationLink: string | null;
 	parent: string | null;
 	showInTimeline: boolean;
 	timelineOrder: number | null;
+	timelineTrack?: TimelineTrackItem;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
+	/** Read the committed child clock without updating timeline metadata each frame. */
+	getCurrentFrame?: (() => number) | null;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	controls: SequenceRegistrationControls | null;

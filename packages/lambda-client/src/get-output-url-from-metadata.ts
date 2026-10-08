@@ -18,6 +18,16 @@ export const getOutputUrlFromMetadata: GetOutputUrl<AwsProvider> = ({
 	});
 
 	const {dnsSuffix} = getAwsRegionMetadata(currentRegion);
+	if (renderMetadata.type === 'sequence') {
+		const endpoint =
+			customCredentials?.endpoint ?? `https://s3.${currentRegion}.${dnsSuffix}`;
+		const url = new URL(endpoint);
+		url.pathname =
+			url.pathname.replace(/\/$/, '') +
+			`/${encodeURIComponent(renderBucketName)}/${key.split('/').map(encodeURIComponent).join('/')}`;
+		return {url: url.toString(), key};
+	}
+
 	return {
 		url: `https://s3.${currentRegion}.${dnsSuffix}/${renderBucketName}/${key}`,
 		key,

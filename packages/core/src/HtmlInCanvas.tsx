@@ -41,9 +41,28 @@ import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 // IDL: https://github.com/WICG/html-in-canvas#idl-changes
-// WebGPU's `copyElementImageToTexture` is omitted — `GPUQueue` is not in
+// WebGPU's `drawElementImageToTexture` is omitted — `GPUQueue` is not in
 // lib.dom.d.ts and would require pulling in `@webgpu/types`.
 declare global {
+	interface DrawElementImageOptions {
+		preserveElementGeometry?: boolean;
+	}
+
+	interface WebGLCopyElementImageConfig {
+		sx?: GLfloat;
+		sy?: GLfloat;
+		swidth?: GLfloat;
+		sheight?: GLfloat;
+		width?: GLsizei;
+		height?: GLsizei;
+	}
+
+	interface UpdateElementGeometryOptions {
+		preserveHitTestOrder?: boolean;
+		clip?: DOMRectInit;
+		canvasTransform?: DOMMatrixInit;
+	}
+
 	interface ElementImage {
 		readonly width: number;
 		readonly height: number;
@@ -55,14 +74,16 @@ declare global {
 			element: Element | ElementImage,
 			dx: number,
 			dy: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			dx: number,
 			dy: number,
 			dwidth: number,
 			dheight: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -71,7 +92,8 @@ declare global {
 			sheight: number,
 			dx: number,
 			dy: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -82,7 +104,8 @@ declare global {
 			dy: number,
 			dwidth: number,
 			dheight: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): void;
 	}
 
 	interface OffscreenCanvasRenderingContext2D {
@@ -90,14 +113,16 @@ declare global {
 			element: Element | ElementImage,
 			dx: number,
 			dy: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			dx: number,
 			dy: number,
 			dwidth: number,
 			dheight: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -106,7 +131,8 @@ declare global {
 			sheight: number,
 			dx: number,
 			dy: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -117,11 +143,22 @@ declare global {
 			dy: number,
 			dwidth: number,
 			dheight: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): void;
 	}
 
 	// Augmenting the base interface applies to both WebGL1 and WebGL2.
 	interface WebGLRenderingContextBase {
+		texElementSubImage2D(
+			target: GLenum,
+			level: GLint,
+			xoffset: GLint,
+			yoffset: GLint,
+			element: Element | ElementImage,
+			config?: WebGLCopyElementImageConfig,
+		): void;
+
+		// Older Chromium builds expose texElementImage2D during the migration.
 		texElementImage2D(
 			target: GLenum,
 			level: GLint,
@@ -173,14 +210,25 @@ declare global {
 	}
 
 	interface HTMLCanvasElement {
+		content: string;
 		layoutSubtree?: boolean;
 		onpaint: ((this: HTMLCanvasElement, ev: Event) => unknown) | null;
 		requestPaint?(): void;
 		captureElementImage(element: Element): ElementImage;
-		getElementTransform(
+		updateElementGeometry(
 			element: Element | ElementImage,
-			drawTransform: DOMMatrix,
-		): DOMMatrix;
+			options?: UpdateElementGeometryOptions,
+		): void;
+		clearElementGeometry(element: Element | ElementImage): void;
+		getElementTransform(element: Element): DOMMatrix;
+	}
+
+	interface OffscreenCanvas {
+		updateElementGeometry(
+			element: Element | ElementImage,
+			options?: UpdateElementGeometryOptions,
+		): void;
+		clearElementGeometry(element: Element | ElementImage): void;
 	}
 }
 
@@ -244,9 +292,60 @@ export const isHtmlInCanvasSupported = (): boolean => {
 	return cachedSupport;
 };
 
-/** Shown when {@link isHtmlInCanvasSupported} is false: APIs are absent (old Chrome and/or flag off). */
+const MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS = 157;
+
+export const isHtmlInCanvasNestingSupported = (): boolean => {
+	if (!isHtmlInCanvasSupported() || typeof navigator === 'undefined') {
+		return false;
+	}
+
+	const chromeVersion = navigator.userAgent.match(
+		/(?:Chrome|Chromium)\/(\d+)/,
+	)?.[1];
+	return (
+		chromeVersion !== undefined &&
+		Number(chromeVersion) >= MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS
+	);
+};
+
+/** Generic fallback for consumers that cannot inspect the current browser. */
 export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
-	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 148 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
+	'HTML in Canvas requires Chrome 149 or newer with Canvas Draw Element enabled at chrome://flags/#canvas-draw-element.';
+
+export const getHtmlInCanvasUnsupportedMessage = (): string => {
+	if (typeof document === 'undefined') {
+		return `HTML in Canvas is unavailable because there is no browser document. ${HTML_IN_CANVAS_UNSUPPORTED_MESSAGE}`;
+	}
+
+	const userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent;
+	const chromiumVersion = userAgent.match(/(?:Chrome|Chromium)\/(\d+)/)?.[1];
+	let browser = 'this browser';
+	if (userAgent.includes('Edg/')) {
+		browser = 'Microsoft Edge';
+	} else if (userAgent.includes('Chromium/')) {
+		browser = 'Chromium';
+	} else if (chromiumVersion) {
+		browser = 'Chrome';
+	} else if (userAgent.includes('Firefox/')) {
+		browser = 'Firefox';
+	} else if (userAgent.includes('Safari/')) {
+		browser = 'Safari';
+	}
+
+	if (chromiumVersion && Number(chromiumVersion) >= 149) {
+		const flagUrl =
+			browser === 'Microsoft Edge'
+				? 'edge://flags/#canvas-draw-element'
+				: 'chrome://flags/#canvas-draw-element';
+		return `HTML in Canvas is unavailable. Enable Canvas Draw Element at ${flagUrl} and fully restart ${browser}.`;
+	}
+
+	if (chromiumVersion) {
+		return `HTML in Canvas is not supported in ${browser} ${chromiumVersion}. Use a Chromium-based browser running version 149 or newer.`;
+	}
+
+	return `HTML in Canvas is not supported in ${browser}. Use Chrome 149 or newer.`;
+};
 
 export type HtmlInCanvasOnPaint = (
 	params: HtmlInCanvasOnPaintParams,
@@ -329,7 +428,6 @@ const resizePaintTarget = ({
 
 const defaultOnPaint = ({
 	canvas,
-	element,
 	elementImage,
 }: Omit<HtmlInCanvasOnPaintParams, 'canvas'> & {
 	readonly canvas: HtmlInCanvasPaintTarget;
@@ -340,8 +438,7 @@ const defaultOnPaint = ({
 	}
 
 	ctx.reset();
-	const transform = ctx.drawElementImage(elementImage, 0, 0);
-	element.style.transform = transform.toString();
+	ctx.drawElementImage(elementImage, 0, 0);
 };
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
@@ -399,9 +496,9 @@ const HtmlInCanvasContent = forwardRef<
 			HtmlInCanvasAncestorContext,
 		);
 		assertHtmlInCanvasDimensions(width, height);
-		if (isInsideAncestorHtmlInCanvas) {
+		if (isInsideAncestorHtmlInCanvas && !isHtmlInCanvasNestingSupported()) {
 			throw new Error(
-				'<HtmlInCanvas> components cannot be nested. Chrome does not reliably render nested HTML-in-canvas subtrees. Consider merging the effects into one <HtmlInCanvas> if you can.',
+				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer with HTML-in-canvas enabled.`,
 			);
 		}
 
@@ -415,7 +512,7 @@ const HtmlInCanvasContent = forwardRef<
 			onPaint === undefined && onInit === undefined;
 
 		if (!isHtmlInCanvasSupported()) {
-			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
+			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
@@ -440,6 +537,7 @@ const HtmlInCanvasContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 
 		// Refs so the paint handler always reads fresh values.
@@ -625,7 +723,9 @@ const HtmlInCanvasContent = forwardRef<
 				throw new Error('Canvas not found');
 			}
 
+			placeholder.setAttribute('content', 'drawable');
 			placeholder.layoutSubtree = true;
+			divRef.current?.setAttribute('drawable', '');
 
 			const paintTarget = usesDirectLayoutCanvas
 				? placeholder
@@ -808,7 +908,11 @@ const HtmlInCanvasInner = forwardRef<
 		});
 
 		return (
-			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Freeze
+				frame={freezeFrame}
+				active={isPremountingOrPostmounting}
+				_remotionInternalIsPremounting={premountingActive}
+			>
 				<Sequence
 					layout="none"
 					durationInFrames={durationInFrames}
@@ -873,10 +977,12 @@ const HtmlInCanvasWrapped = withInteractivitySchema({
 
 export const HtmlInCanvas = Object.assign(HtmlInCanvasWrapped, {
 	isSupported: isHtmlInCanvasSupported,
+	isNestingSupported: isHtmlInCanvasNestingSupported,
 }) as React.ForwardRefExoticComponent<
 	HtmlInCanvasProps & React.RefAttributes<HTMLCanvasElement>
 > & {
 	readonly isSupported: typeof isHtmlInCanvasSupported;
+	readonly isNestingSupported: typeof isHtmlInCanvasNestingSupported;
 };
 
 HtmlInCanvas.displayName = 'HtmlInCanvas';

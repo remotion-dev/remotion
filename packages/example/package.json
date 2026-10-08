@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.529",
+	"version": "4.0.534",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
@@ -117,7 +117,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.55.1",
+		"@playwright/test": "1.60.0",
 		"sharp": "catalog:",
 		"@types/dom-webcodecs": "catalog:",
 		"eslint": "catalog:"

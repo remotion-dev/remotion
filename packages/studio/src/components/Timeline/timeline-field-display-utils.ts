@@ -396,6 +396,7 @@ export const formatTimelineFieldValueForDisplay = ({
 				formatUnknownTimelineValueForDisplay(value)
 			);
 
+		case 'string':
 		case 'text-content':
 		case 'svg-path':
 			return String(value);

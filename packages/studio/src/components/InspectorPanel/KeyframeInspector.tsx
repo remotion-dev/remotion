@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/sdk';
 import {
 	canMoveKeyframesWithoutCollisions,
 	moveKeyframesInPropStatus,
@@ -45,7 +46,6 @@ import {
 	type TimelineSelection,
 } from '../Timeline/TimelineSelection';
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
-import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
 	InspectorBackAction,
 	InspectorDetailRow,
@@ -64,6 +64,8 @@ import {
 	selectedContainer,
 } from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
+
+const {canEditKeyframeEasing} = CanvasInternals;
 
 type KeyframeEditorDetails =
 	| {
@@ -183,7 +185,10 @@ export const KeyframeInspector: React.FC<{
 			return null;
 		}
 
-		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		const nodePath = {
+			...selection.nodePathInfo.sequenceSubscriptionKey,
+			videoConfigValues: track.sequence.controls.videoConfigValues,
+		};
 		const {keyframeDisplayOffset, keyframePlaybackRate} = track;
 
 		if (keyframeField.type === 'sequence') {
@@ -538,12 +543,10 @@ export const KeyframeInspector: React.FC<{
 			</InspectorBackAction>
 			<KeyframeEasingNavigator
 				currentSelection={selection}
-				includeEasings={
-					details.field.fieldSchema.type !== 'boolean' &&
-					canEditEasingForInterpolationFunction(
-						details.propStatus.interpolationFunction,
-					)
-				}
+				includeEasings={canEditKeyframeEasing({
+					field: details.field.fieldSchema,
+					propStatus: details.propStatus,
+				})}
 				keyframes={details.propStatus.keyframes.map((keyframe) => ({
 					...keyframe,
 					frame:

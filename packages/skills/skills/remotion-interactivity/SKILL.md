@@ -1,7 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
-version: 4.0.529
+version: 4.0.534
 ---
 
 By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:
@@ -12,6 +12,231 @@ By writing Remotion markup in a specific way, the Remotion Studio is able to rec
 - Making keyframes and easing values editable
 
 If the markup is too complex for the Studio to make it interactive, then the values become grayed out.
+
+## Prefer interactive components with their own timelines
+
+Use `Interactive.withSchema({wrapInSequence: true})` for custom scenes, cards, titles, and other visual components whose props should be editable per instance. Expose meaningful content and appearance controls in an `InteractivitySchema`. Keep decorative implementation details inside the component.
+
+The component must accept `style` and forward it to one visual root. Keep a shared root when transforms, cropping, or opacity should affect all its layers. Flatten redundant inner wrappers when their styles can move onto an existing element without changing layout or animation.
+
+```tsx title="LowerThird.tsx"
+import type React from 'react';
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+type LowerThirdProps = {
+  readonly children: React.ReactNode;
+  readonly accentColor: string;
+  readonly style?: React.CSSProperties;
+};
+
+const LowerThirdInner: React.FC<LowerThirdProps> = ({
+  children,
+  accentColor,
+  style,
+}) => {
+  return (
+    <Interactive.Div
+      style={{
+        position: 'absolute',
+        left: 80,
+        bottom: 80,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 20,
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: '20px 32px',
+        color: 'black',
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontSize: 48,
+        fontWeight: 600,
+        ...style,
+      }}
+    >
+      <div
+        style={{
+          width: 8,
+          alignSelf: 'stretch',
+          borderRadius: 4,
+          backgroundColor: accentColor,
+        }}
+      />
+      {children}
+    </Interactive.Div>
+  );
+};
+
+const lowerThirdSchema = {
+  ...Interactive.childrenSchema,
+  accentColor: {
+    type: 'color',
+    default: '#0b84f3',
+    description: 'Accent color',
+  },
+} as const satisfies InteractivitySchema;
+
+export const LowerThird = Interactive.withSchema({
+  Component: LowerThirdInner,
+  componentName: '<LowerThird>',
+  schema: lowerThirdSchema,
+  wrapInSequence: true,
+});
+```
+
+Forwarding the injected `style` inside the component is required; keep editable
+styles inline at the component's call site.
+
+### Choose schema fields
+
+Each key in the schema is a prop that Studio can read and edit at the call site.
+Props that are not in the schema still work, but are not editable in Studio.
+Keys may use dot notation, such as `style.color`.
+
+| Type                                                                         | Use for                                                      | Keyframable   |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
+| `string`                                                                     | Strings, such as a title, prompt, or code snippet            | No            |
+| `number`                                                                     | Numbers, with optional `min`, `max`, `step`, `integer`       | Yes           |
+| `boolean`                                                                    | On/off switches                                              | Yes (hold)    |
+| `color`                                                                      | CSS color strings                                            | Yes           |
+| `enum`                                                                       | A choice between `variants`, each with its own nested schema | Opt-in (hold) |
+| `array`                                                                      | Lists of numbers, colors, enums and more                     | No            |
+| `asset`                                                                      | Media sources, with optional `assetType`                     | No            |
+| `font-family`                                                                | CSS font family                                              | No            |
+| `font-weight`                                                                | Font weight                                                  | Yes           |
+| `translate`, `scale`, `rotation-css`, `rotation-degrees`, `transform-origin` | Transforms                                                   | Yes           |
+| `uv-coordinate`                                                              | A normalized `[x, y]` point on the element                   | Yes           |
+| `svg-path`                                                                   | SVG path data                                                | Yes           |
+| `remotion-captions`                                                          | `Caption[]` data                                             | No            |
+| `hidden`                                                                     | A value kept out of the controls                             | —             |
+
+Every field needs a `default` and should have a `description`, which Studio shows as the label.
+Set `keyframable: false` to show a static control.
+
+Expose content and per-instance appearance, such as the text and an accent color.
+Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `wrapInSequence: true` already adds them.
+
+To make CSS properties of the root editable per instance, spread the built-in schema fragments:
+
+```tsx
+const cardSchema = {
+  ...Interactive.textSchema, // style.color, style.fontSize, style.fontWeight, ...
+  ...Interactive.backgroundSchema, // style.backgroundColor
+  ...Interactive.borderRadiusSchema, // style.borderRadius, ...
+} as const satisfies InteractivitySchema;
+```
+
+Also available: `Interactive.borderSchema`, and `Interactive.captionsSchema` for components that accept captions.
+For components that accept `React.ReactNode` children, add `...Interactive.childrenSchema`.
+It provides controls for children content and may evolve to support richer content.
+Currently, it uses a string field labeled "Text" with a default of `''`.
+If a component requires string-only children, declare an explicit `children` field with `type: 'string'` instead.
+`Interactive.textSchema` controls typography styles; `childrenSchema` controls content.
+The children fragment is not included in `baseSchema` or automatically added to custom components.
+Nested markup and computed children are currently read-only.
+`text-content` is a deprecated alias for the `string` field type.
+See [`InteractivitySchema`](https://www.remotion.dev/docs/interactivity-schema) for all options.
+
+### Register reusable components as connected compositions
+
+Register substantial scenes and reusable components with their own layers or
+animation as standalone compositions. Studio calls these **connected
+compositions**: they can be opened in their own timeline while sharing the same
+component implementation with the parent video.
+
+Define required styles and load fonts inside the component so it works without
+its parent. See
+[parent independence](../remotion-markup/connected-compositions.md#make-the-component-independent-of-its-parent).
+
+Register the same exported component reference that the parent renders. For the
+example above, use `component={LowerThird}`, not `LowerThirdInner` or an inline wrapper.
+With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
+
+```tsx title="src/Root.tsx"
+import {Composition} from 'remotion';
+import {LowerThird} from './LowerThird';
+
+export const RemotionRoot = () => (
+  <Composition
+    id="LowerThird"
+    component={LowerThird}
+    width={1280}
+    height={720}
+    fps={30}
+    durationInFrames={30}
+    defaultProps={{
+      children: 'Jane Doe, Product Designer',
+      accentColor: '#0b84f3',
+    }}
+  />
+);
+```
+
+Choose a unique ID, representative inline defaults, and dimensions, fps, and
+duration suitable for previewing the component. Registration defaults do not
+automatically copy props from a parent instance. See
+[connected compositions](../remotion-markup/connected-compositions.md) for
+registration and extraction details.
+
+### Put timing directly on the component
+
+Avoid a separate `<Sequence>` around one component that already accepts timing
+props. Built-in interactive components and custom components made with
+`wrapInSequence: true` can receive `name`, `from`, `durationInFrames`,
+`trimBefore`, `playbackRate`, and `premountFor` directly.
+
+```tsx
+<LowerThird
+  name="Lower third"
+  from={30}
+  durationInFrames={90}
+  accentColor="#0b84f3"
+>
+  Jane Doe, Product Designer
+</LowerThird>
+```
+
+When removing a redundant sequence, move its timing and name to the child.
+Preserve any existing child timing; do not overwrite or double-apply offsets.
+A `useCurrentFrame()` call inside the component reads its local frame, while a
+style expression at the call site still uses the caller's frame. Preserve that
+distinction when moving animation styles.
+
+Keep a `<Sequence>` when it provides shared timing for multiple siblings,
+overrides dimensions for `useVideoConfig()`, or wraps a component that does not
+handle timing. Keep `<Series.Sequence>` for consecutive layout and
+`<TransitionSeries.Sequence>` for transitions; direct `from` props do not
+replace those behaviors.
+
+## Give every independently editable item its own JSX node
+
+The Studio edits the JSX source node that created an item. If multiple runtime
+items come from the same JSX node, they share one source-editing target.
+
+For every composition registration, clip, scene, layer or sequence that should
+be editable on its own, write a separate JSX node and keep its editable props
+on that node. This applies to `<Composition>`, `<Still>`, built-in media
+components, `<Sequence>`, `<Series.Sequence>`, `<TransitionSeries.Sequence>`
+and custom components.
+
+For example, author an editable timeline like this:
+
+```tsx title="Separate source nodes"
+<Series>
+  <Series.Sequence name="Introduction" durationInFrames={90}>
+    <Introduction />
+  </Series.Sequence>
+  <Series.Sequence name="Demo" durationInFrames={150}>
+    <Demo />
+  </Series.Sequence>
+</Series>
+```
+
+A `.map()` or another programmatic loop would create multiple runtime items
+from one JSX source node. That is appropriate for repeated output that is
+intentionally controlled as one template, such as visualization bars or
+particles. It is not appropriate when the instances need independent IDs or
+names, props, metadata, timing, ordering, deletion or duplication in the
+Studio.
 
 ## Make an HTML element interactive using `Interactive`
 
@@ -53,9 +278,9 @@ Avoid computed names, hardcode them.
   </Interactive.Div>
   <Img name="Avatar" src="https://remotion.media/image.jpeg" />
   <Video name="Background" src="https://remotion.media/video.mp4" />
-  <Sequence name="Title">
+  <Interactive.Div name="Title">
     Launch day
-  </Sequence>
+  </Interactive.Div>
 </>
 ```
 
@@ -220,7 +445,7 @@ If possible, use `scale`, `rotate` and `translate` instead because only they are
 
 ## Keep composition metadata inline
 
-When scaffolding a composition, keep `width`, `height`, `fps`, `durationInFrames` and `defaultProps` inline and make no type assertions.
+When scaffolding a composition, use a JSX string literal for `id`, keep `width`, `height`, `fps`, `durationInFrames` and `defaultProps` inline and make no type assertions.
 
 The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or `<Still>`.
 
@@ -262,50 +487,9 @@ Use only `calculateMetadata()` for the part of the metadata that is dynamic.
 
 ## Effects should be inline too
 
-The effects array should not be computed.  
-The same rules for setting keyframes as `interpolate()` apply too here: All values should also be hardcoded: Input range, output range, easing, extrapolation, `output` property.
-
-```tsx title="Effects"
-// 👍 Parameters are inline and the array shape is stable
-<CanvasImage
-  src={src}
-  width={1280}
-  height={720}
-  effects={[
-    radialProgressiveBlur({
-      center: [0.5, 0.5],
-      width: 1.2,
-      height: 0.8,
-      start: 0.2,
-      disabled: true,
-      rotation: interpolate(frame, [0, 120], [0, 180]),
-    }),
-  ]}
-/>
-
-const center = [0.5, 0.5] as const;
-const rotation = frame * 1.5;
-
-<CanvasImage
-  src={src}
-  width={1280}
-  height={720}
-  // ❌ Conditional effect is not animateable
-  effects={enabled ? [
-    radialProgressiveBlur({
-      // ❌ Not inline
-      center,
-      rotation,
-    }),
-  ] : []}
-/>
-```
-
-Render separate elements if one version should have effects and another should not.
+Keep effect arrays and parameters inline so their shape and keyframes remain editable. See [Inline effects](./inline-effects.md) for examples.
 
 ## Making your own component interactive
-
-When using `Interactive.withSchema()`, include `Interactive.baseSchema` in the schema so standard timeline controls such as trimming, looping and visibility remain available, and forward `from`, `durationInFrames`, `trimBefore`, `trimAfter`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline` to the `<Sequence>` the component renders.
 
 To make a custom userland component interactive, use:
 [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive.md)

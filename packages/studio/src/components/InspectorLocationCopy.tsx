@@ -1,8 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
+import {copyText} from '../helpers/copy-text';
 import {formatContextForAgents} from '../helpers/format-file-location';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
@@ -70,8 +72,7 @@ export const InspectorLocationCopy: React.FC<{
 				return;
 			}
 
-			navigator.clipboard
-				.writeText(contextForAgents)
+			copyText(contextForAgents)
 				.then(markCopied)
 				.catch((err) => {
 					showNotification(
@@ -105,18 +106,26 @@ export const InspectorLocationCopy: React.FC<{
 					}}
 				>
 					<InspectorOpenInEditor
+						annotationName={name}
 						locationType={null}
 						contextForAgents={contextForAgents}
 						location={openInEditorLocation}
-						showTooltips={false}
+						showTooltips
 					/>
 					{contextForAgents ? (
-						<InlineAction
-							variant={null}
-							onClick={onCopy}
-							renderAction={renderCopyAction}
-							aria-label="Copy context for agents"
-						/>
+						<ActionTooltip
+							label="Copy context for agents"
+							shortcut={null}
+							delay={800}
+							dismissOnClick
+						>
+							<InlineAction
+								variant={null}
+								onClick={onCopy}
+								renderAction={renderCopyAction}
+								aria-label="Copy context for agents"
+							/>
+						</ActionTooltip>
 					) : null}
 				</div>
 			) : null}

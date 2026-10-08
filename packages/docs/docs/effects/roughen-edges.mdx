@@ -24,11 +24,11 @@ Based on the open-source [Paper Shaders](https://shaders.paper.design) noise hel
 
 ```tsx twoslash title="MyComp.tsx"
 import {roughenEdges} from '@remotion/effects/roughen-edges';
-import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+import {CanvasImage, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <CanvasImage
         src={staticFile('logo-with-alpha.png')}
         width={1280}
@@ -42,7 +42,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

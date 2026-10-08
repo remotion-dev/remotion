@@ -1,15 +1,12 @@
 import type {GeoJSONSource} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
 import {
-	forwardRef,
 	useContext,
 	useEffect,
-	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
-	useRef,
 	useState,
-	type ForwardRefRenderFunction,
-	type RefObject,
+	type FC,
 } from 'react';
 import {
 	Interactive,
@@ -99,9 +96,14 @@ const MapRouteDrawing = ({
 	const {map} = useContext(MapTilerContext);
 	const {continueRender, delayRender} = useDelayRender();
 	const [isReady, setIsReady] = useState(false);
-	const [loadingHandle] = useState(() =>
-		delayRender(`Loading ${feature.properties.name} route`),
-	);
+	useLayoutEffect(() => {
+		if (isReady) {
+			return;
+		}
+
+		const handle = delayRender(`Loading ${feature.properties.name} route`);
+		return () => continueRender(handle);
+	}, [continueRender, delayRender, feature.properties.name, isReady]);
 	const route = useMemo(
 		() => lineString(feature.geometry.coordinates),
 		[feature],
@@ -114,7 +116,7 @@ const MapRouteDrawing = ({
 		glowLayerId,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!map) {
 			return;
 		}
@@ -168,17 +170,17 @@ const MapRouteDrawing = ({
 		map.setPaintProperty(sourceId, 'line-width', strokeWidth);
 
 		applyPremountVisibility();
-		map.once('idle', () => {
-			setIsReady(true);
-			continueRender(loadingHandle);
-		});
+		const onIdle = () => setIsReady(true);
+		map.once('idle', onIdle);
 		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+		};
 	}, [
 		applyPremountVisibility,
 		continueRender,
 		glow,
 		glowLayerId,
-		loadingHandle,
 		map,
 		route,
 		sourceId,
@@ -186,7 +188,7 @@ const MapRouteDrawing = ({
 		strokeWidth,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!isReady || !map) {
 			return;
 		}
@@ -200,8 +202,13 @@ const MapRouteDrawing = ({
 				Math.max(0.001, routeLength * Math.min(1, Math.max(0, progress))),
 			),
 		);
-		map.once('idle', () => continueRender(frameHandle));
+		const onIdle = () => continueRender(frameHandle);
+		map.once('idle', onIdle);
 		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+			continueRender(frameHandle);
+		};
 	}, [
 		continueRender,
 		delayRender,
@@ -239,17 +246,11 @@ const MapRouteDrawing = ({
 	return null;
 };
 
-const MapRouteBounds = ({
-	feature,
-	boundsRef,
-}: {
-	readonly feature: MapRouteFeature;
-	readonly boundsRef: RefObject<HTMLDivElement | null>;
-}) => {
+const MapRouteBounds: FC<{readonly feature: MapRouteFeature}> = ({feature}) => {
 	const {map} = useContext(MapTilerContext);
 
 	if (!map) {
-		return <div ref={boundsRef} />;
+		return <div />;
 	}
 
 	const points = feature.geometry.coordinates.map(([longitude, latitude]) =>
@@ -262,7 +263,6 @@ const MapRouteBounds = ({
 
 	return (
 		<div
-			ref={boundsRef}
 			style={{
 				height: bottom - top,
 				left,
@@ -277,36 +277,26 @@ const MapRouteBounds = ({
 	);
 };
 
-const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
-	HTMLDivElement,
-	MapRouteProps
-> = (
-	{
-		feature,
-		glow = 0.72,
-		id,
-		progress = 1,
-		strokeColor = '#006cff',
-		strokeWidth = 9,
-		durationInFrames,
-		from,
-		premountFor,
-		postmountFor,
-		trimBefore,
-		playbackRate,
-		loop,
-		freeze,
-		hidden,
-		name,
-		showInTimeline,
-		controls,
-	},
-	ref,
-) => {
-	const boundsRef = useRef<HTMLDivElement>(null);
-
-	useImperativeHandle(ref, () => boundsRef.current as HTMLDivElement, []);
-
+const MapRouteInner: FC<MapRouteProps> = ({
+	feature,
+	glow = 0.72,
+	id,
+	progress = 1,
+	strokeColor = '#006cff',
+	strokeWidth = 9,
+	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+}) => {
 	const {
 		effectivePremountFor,
 		effectivePostmountFor,
@@ -356,14 +346,12 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 						strokeColor={strokeColor}
 						strokeWidth={strokeWidth}
 					/>
-					<MapRouteBounds feature={feature} boundsRef={boundsRef} />
+					<MapRouteBounds feature={feature} />
 				</>
 			</Sequence>
 		</Freeze>
 	);
 };
-
-const MapRouteInner = forwardRef(MapRouteRefForwardingFunction);
 
 export const MapRoute = Interactive.withSchema({
 	Component: MapRouteInner,

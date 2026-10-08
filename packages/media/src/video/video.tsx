@@ -9,6 +9,7 @@ import {
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
@@ -108,6 +109,7 @@ const InnerVideo: React.FC<
 	requestInit,
 	controls,
 	objectFit,
+	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
@@ -177,6 +179,22 @@ const InnerVideo: React.FC<
 		);
 	}
 
+	if (maxCanvasSinkFrameSize?.width !== undefined) {
+		NoReactInternals.validateDimension(
+			maxCanvasSinkFrameSize.width,
+			'maxCanvasSinkFrameSize.width',
+			'of the <Video /> component',
+		);
+	}
+
+	if (maxCanvasSinkFrameSize?.height !== undefined) {
+		NoReactInternals.validateDimension(
+			maxCanvasSinkFrameSize.height,
+			'maxCanvasSinkFrameSize.height',
+			'of the <Video /> component',
+		);
+	}
+
 	return (
 		<VideoForPreview
 			{...props}
@@ -206,6 +224,7 @@ const InnerVideo: React.FC<
 			requestInit={requestInit}
 			controls={controls}
 			objectFit={objectFit}
+			maxCanvasSinkFrameSize={maxCanvasSinkFrameSize}
 			effects={effects}
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
@@ -246,6 +265,7 @@ const VideoInner: React.FC<
 	requestInit,
 	controls,
 	objectFit,
+	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	durationInFrames,
@@ -348,6 +368,7 @@ const VideoInner: React.FC<
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
 		overrideId: controls?.overrideId ?? null,
+		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(
 		effects ?? [],
@@ -384,7 +405,11 @@ const VideoInner: React.FC<
 	}
 
 	return (
-		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+		<Freeze
+			frame={freezeFrame}
+			active={isPremountingOrPostmounting}
+			_remotionInternalIsPremounting={premountingActive}
+		>
 			<Sequence
 				layout="none"
 				from={from ?? 0}
@@ -425,7 +450,8 @@ const VideoInner: React.FC<
 					muted={muted ?? false}
 					onVideoFrame={onVideoFrame}
 					playbackRate={playbackRate ?? 1}
-					showInTimeline={showInTimeline ?? true}
+					// The enclosing Sequence already represents the video in the timeline.
+					showInTimeline={false}
 					src={src}
 					style={croppedStyle ?? {}}
 					trimAfter={effectiveTrimAfter}
@@ -440,6 +466,7 @@ const VideoInner: React.FC<
 					requestInit={requestInit}
 					controls={controls}
 					objectFit={objectFit ?? 'contain'}
+					maxCanvasSinkFrameSize={maxCanvasSinkFrameSize ?? null}
 					_experimentalInitiallyDrawCachedFrame={
 						_experimentalInitiallyDrawCachedFrame ?? false
 					}

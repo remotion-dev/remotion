@@ -7,9 +7,7 @@ import type {
 import {Internals, type PropStatuses} from 'remotion';
 import {getInspectorKeyframeSourceFrame} from '../components/InspectorPanel/keyframe-inspector-frame';
 import {findTrackForNodePathInfo} from '../components/Timeline/find-track-for-node-path-info';
-import {getBoundedKeyframeDragDelta} from '../components/Timeline/get-bounded-keyframe-drag-delta';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
-import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-easing-segments';
 import {
 	getKeyframeDisplayOffset,
 	getTimelineKeyframes,
@@ -384,7 +382,7 @@ test('track lookup survives effect key changes', () => {
 		},
 	});
 
-	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toBe(currentNodePath);
+	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toEqual(currentNodePath);
 });
 
 test('keyframe display offsets account for parent trimBefore', () => {
@@ -481,71 +479,6 @@ test('keyframe display offsets respect the useCurrentFrame coordinate space', ()
 		{frame: 10, value: '0px 0px'},
 		{frame: 20, value: '500px 0px'},
 	]);
-});
-
-test('timeline easing segments connect adjacent display keyframes', () => {
-	const status: CanUpdateSequencePropStatusKeyframed = {
-		...makeKeyframedStatus(),
-		keyframes: [
-			{frame: 0, value: 2},
-			{frame: 30, value: 3},
-			{frame: 60, value: 4},
-		],
-		easing: [{type: 'linear'}, {type: 'linear'}],
-	};
-
-	expect(getTimelineEasingSegments(getTimelineKeyframes(status, 30))).toEqual([
-		{fromFrame: 30, toFrame: 60, segmentIndex: 0},
-		{fromFrame: 60, toFrame: 90, segmentIndex: 1},
-	]);
-});
-
-test('bounded keyframe drag delta stays inside the composition timeline', () => {
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets: [{displayFrame: 10}],
-			delta: -20,
-			durationInFrames: 100,
-		}),
-	).toBe(-10);
-
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets: [{displayFrame: 90}],
-			delta: 20,
-			durationInFrames: 100,
-		}),
-	).toBe(9);
-});
-
-test('bounded keyframe drag delta allows negative source frames when display frames stay in range', () => {
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets: [{displayFrame: 30}],
-			delta: -30,
-			durationInFrames: 100,
-		}),
-	).toBe(-30);
-});
-
-test('bounded keyframe drag delta clamps multi-selection at the first timeline edge', () => {
-	const targets = [{displayFrame: 20}, {displayFrame: 95}];
-
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets,
-			delta: -30,
-			durationInFrames: 100,
-		}),
-	).toBe(-20);
-
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets,
-			delta: 10,
-			durationInFrames: 100,
-		}),
-	).toBe(4);
 });
 
 test('getNodeKeyframes shows a temporary sequence keyframe from drag overrides', () => {

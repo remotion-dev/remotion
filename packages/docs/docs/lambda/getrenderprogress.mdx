@@ -6,7 +6,8 @@ slug: /lambda/getrenderprogress
 crumb: 'Lambda API'
 ---
 
-Gets the current status of a render initiated via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).  
+Gets the current status of a render initiated via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+
 By default, calling this function results in a Lambda invocation. See [Faster progress polling](/docs/lambda/faster-progress-polling) to read the progress directly from S3 instead.
 
 For renders initiated via [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), do not use this function. Instead, the result is returned immediately.
@@ -83,6 +84,8 @@ How many chunks have been fully rendered so far.
 
 ### `encodingStatus`
 
+Always `null` for image sequence renders.
+
 Either `null` if not all chunks have been rendered yet or an object with the signature `{framesEncoded: number}` that tells how many frames have been encoded so far in the encoding process.
 
 ### `renderId`
@@ -106,7 +109,41 @@ Contains the following information about the render:
 
 In which bucket the render and other artifacts get saved.
 
+### `outputSequence`<AvailableFrom v="4.0.535" />
+
+For completed [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda) jobs, an object describing the output sequence. Otherwise, `null`.
+
+#### `bucketName`
+
+The destination bucket containing the images and manifest.
+
+#### `keyPrefix`
+
+The storage prefix containing the sequence.
+
+#### `manifestKey`
+
+The storage key of the JSON manifest.
+
+#### `manifestUrl`
+
+The URL of the manifest. Private manifests require storage credentials or a signed URL.
+
+#### `imageFormat`
+
+`'png'` or `'jpeg'`.
+
+#### `frameCount`
+
+The number of rendered images.
+
+### `framesUploaded`<AvailableFrom v="4.0.535" />
+
+The number of uploaded frames for an image sequence. Retries do not double-count frames. `null` for other renders, or while composition metadata is being resolved.
+
 ### `outputFile`
+
+For image sequences, this is `null`; use `outputSequence`.
 
 `null` if the video is not yet rendered, a `string` containing a URL pointing to the final artifact if the video finished rendering.
 

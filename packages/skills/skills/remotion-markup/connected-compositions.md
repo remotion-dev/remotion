@@ -4,59 +4,124 @@ Using the connected compositions pattern, a group of layers can get their own St
 
 Use connected composition when a section has its own layers or timing, will be reused, or would be easier to edit and preview on its own.
 
-1. Put the scene's markup in a named React component. Multiple internal layers and sequences can live inside it.
-2. Render exactly one direct instance of that component inside a `<Sequence>`, `<Series.Sequence>`, or `<TransitionSeries.Sequence>` in the parent.
-3. Register the **same component reference** with `<Composition component={...}>` in the root. Give it a unique `id` and the dimensions, fps, and natural duration needed to preview the scene on its own. A `<Folder>` can keep scene compositions together.
+1. Put the scene's markup in a named React component.
+   Multiple internal layers and sequences can live inside it.
+
+2. Prefer making the component interactive with `Interactive.withSchema({wrapInSequence: true})`, following [Remotion Interactivity](../remotion-interactivity/SKILL.md).
+   Render the exported component directly in the parent with inline timing and editable props.
+   It does not need an additional `<Sequence>` to connect to its registration.
+   For consecutive scenes or transitions, render one direct instance as the only child of a `<Series.Sequence>` or `<TransitionSeries.Sequence>`.
+3. Register the **same component reference** with `<Composition component={...}>` in the root.
+   Give it a unique `id` and the dimensions, fps, and natural duration needed to preview the scene on its own. A `<Folder>` can keep scene compositions together.
+
+## Make the component independent of its parent
+
+The parent is not mounted when a connected composition opens on its own.
+Define required styles such as `fontFamily` inside the component, and avoid
+parent-only context providers or mount side effects. Load custom fonts in its
+module or a shared module it imports; see [Google fonts](google-fonts.md) and
+[local fonts](local-fonts.md).
+
+When extracting markup, carry over these dependencies. Verify its appearance
+by opening it directly in a fresh Studio preview before opening the parent.
+
+## Example
+
+```tsx
+// Chapter.tsx
+import type React from 'react';
+import {
+  AbsoluteFill,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+  type InteractivitySchema,
+} from 'remotion';
+
+type ChapterProps = {
+  readonly title: string;
+  readonly style?: React.CSSProperties;
+};
+
+const ChapterInner: React.FC<ChapterProps> = ({title, style}) => {
+  // Frame 0 is the start of this chapter, wherever the parent places it.
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        color: 'black',
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        ...style,
+      }}
+    >
+      <h1
+        style={{
+          fontSize: 96,
+          opacity: interpolate(frame, [0, 20], [0, 1], {
+            extrapolateRight: 'clamp',
+          }),
+        }}
+      >
+        {title}
+      </h1>
+    </AbsoluteFill>
+  );
+};
+
+const chapterSchema = {
+  title: {type: 'string', default: '', description: 'Title'},
+} as const satisfies InteractivitySchema;
+
+export const Chapter = Interactive.withSchema({
+  Component: ChapterInner,
+  componentName: '<Chapter>',
+  schema: chapterSchema,
+  wrapInSequence: true,
+});
+```
+
+`ChapterInner` only declares `title` and `style`.
+Because of `wrapInSequence: true`, the exported `Chapter` additionally accepts the timing props of a `<Sequence>`: `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`, plus `premountFor`, `postmountFor` and crop props.
+These are handled by the wrapper and are not passed to `ChapterInner`.
+See [Prefer interactive components with their own timelines](../remotion-interactivity/SKILL.md#prefer-interactive-components-with-their-own-timelines).
 
 ```tsx
 // MyVideo.tsx
-import {Series} from 'remotion';
-import {OpeningScene} from './OpeningScene';
-import {FeatureScene} from './FeatureScene';
+import {Chapter} from './Chapter';
 
 export const MyVideo = () => (
-  <Series>
-    <Series.Sequence
-      name="Opening"
-      durationInFrames={90}
-    >
-      <OpeningScene />
-    </Series.Sequence>
-    <Series.Sequence
+  <>
+    <Chapter name="Opening" durationInFrames={90} title="Introduction" />
+    <Chapter
       name="Feature"
+      from={90}
       durationInFrames={120}
-    >
-      <FeatureScene />
-    </Series.Sequence>
-  </Series>
+      title="New features"
+    />
+  </>
 );
 ```
 
-```tsx
-// Root.tsx
+```tsx title="src/Root.tsx"
 import {Composition, Folder} from 'remotion';
 import {MyVideo} from './MyVideo';
-import {OpeningScene} from './OpeningScene';
-import {FeatureScene} from './FeatureScene';
+import {Chapter} from './Chapter';
 
 export const RemotionRoot = () => (
   <>
     <Folder name="MyVideo-Scenes">
       <Composition
-        id="Opening"
-        component={OpeningScene}
-        width={1920}
-        height={1080}
-        fps={30}
-        durationInFrames={90}
-      />
-      <Composition
-        id="Feature"
-        component={FeatureScene}
+        id="Chapter"
+        component={Chapter}
         width={1920}
         height={1080}
         fps={30}
         durationInFrames={120}
+        defaultProps={{title: 'Introduction'}}
       />
     </Folder>
     <Composition
@@ -72,14 +137,10 @@ export const RemotionRoot = () => (
 ```
 
 Studio replaces the layers with a reference to the connected composition in the timeline.
-Double-clicking a sequence with one connected composition opens it at the corresponding frame.
+Double-clicking a timeline item with one connected composition opens it at the corresponding frame.
 Editing the shared component changes both views.
+
+Example: If user has `MyVideo` selected, they can see 2 layers in the timeline, and can double-click one to go to the `Chapter` composition.
 
 If the scene takes props, pass the intended values in the parent and use matching `defaultProps` on its standalone registration; registration does not automatically copy the parent's props.
 Keep scene and parent fps and dimensions aligned unless their difference is intentional.
-
-For a selection wrapped in a new `<Sequence layout="none">` with default timing, move a captured `useCurrentFrame()` call into the extracted component. Its clock is unchanged, and later `from` and `trimBefore` edits can control the local animation. `from` sets when the sequence appears; `trimBefore` sets the frame its children see at that start. Preserve timing props on any selected element inside the wrapper.
-
-When extracting children from an existing timed sequence, compare the clock where a frame was originally read with the clock inside the extracted component. A child sees `(parentFrame - from) * playbackRate + trimBefore`. Do not add `trimBefore` just to make a parent frame expression match: it also changes the clock of every descendant. If the clocks differ and the timing or descendant behavior cannot be proven safe, use an agent refactor rather than the codemod. A registered composition must last through the highest child frame used by its parent sequence.
-
-`durationInFrames` is measured in child frames. With `playbackRate={r}`, a non-looping sequence occupies `durationInFrames / r` frames in its parent timeline. A looping sequence repeats that many child frames per cycle. Account for `trimBefore` and the last visible child frame when setting the standalone composition's duration.

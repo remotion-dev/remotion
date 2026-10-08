@@ -12,6 +12,7 @@ test(
 				payload: {
 					enableCancellation: false,
 					type: ServerlessRoutines.launch,
+					output: {type: 'media'},
 					serveUrl: path.join(__dirname, 'old-version-bundle'),
 					chromiumOptions: {},
 					codec: 'h264',
@@ -34,6 +35,7 @@ test(
 					proResProfile: null,
 					x264Preset: null,
 					gopSize: null,
+					disableSharedMemoryCapture: false,
 					jpegQuality: undefined,
 					scale: 1,
 					timeoutInMilliseconds: 12000,

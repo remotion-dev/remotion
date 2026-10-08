@@ -7,7 +7,7 @@
 import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import {reloadUrl} from '../../helpers/url-state';
 import {markErrorAsLoggedByServer} from '../error-origin';
-import {setErrorsRef} from '../remotion-overlay/Overlay';
+import {addErrorToOverlay} from '../runtime-error-store';
 import {massageWarning} from './effects/format-warning';
 import {
 	permanentRegister as permanentRegisterConsole,
@@ -52,7 +52,7 @@ export const getErrorRecord = async (
 	};
 };
 
-const crashWithFrames = (crash: () => void) => (error: Error) => {
+const handleRuntimeError = (error: Error) => {
 	const didHookOrderChange =
 		error.message.startsWith('Rendered fewer hooks') ||
 		error.message.startsWith('Rendered more hooks') ||
@@ -78,20 +78,16 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 
 		reloadUrl();
 	} else {
-		setErrorsRef.current?.addError(error);
-
-		crash();
+		addErrorToOverlay(error, null);
 	}
 };
 
-export function listenToRuntimeErrors(crash: () => void) {
-	const crashWithFramesRunTime = crashWithFrames(crash);
-
+export function listenToRuntimeErrors() {
 	registerError(window, (error) => {
-		return crashWithFramesRunTime(error);
+		return handleRuntimeError(error);
 	});
 	registerPromise(window, (error) => {
-		return crashWithFramesRunTime(error);
+		return handleRuntimeError(error);
 	});
 	registerStackTraceLimit();
 	registerReactStack();
@@ -106,12 +102,12 @@ export function listenToRuntimeErrors(crash: () => void) {
 			};
 
 			markErrorAsLoggedByServer(error);
-			crashWithFramesRunTime(error);
+			handleRuntimeError(error);
 		}
 
 		if (d.type === 'build-error') {
 			markErrorAsLoggedByServer(d.error);
-			crashWithFramesRunTime(d.error);
+			handleRuntimeError(d.error);
 		}
 	});
 

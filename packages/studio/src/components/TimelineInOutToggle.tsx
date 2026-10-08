@@ -28,8 +28,8 @@ import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 
 const style: React.CSSProperties = {
-	width: 17,
-	height: 17,
+	width: 16,
+	height: 16,
 };
 
 const buttonStyle: React.CSSProperties = {

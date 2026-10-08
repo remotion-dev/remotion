@@ -1,29 +1,33 @@
-import React, {forwardRef, useCallback} from 'react';
+import React, {forwardRef, useCallback, useContext} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
 } from './CompositionManager.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	addSequenceStackTraces,
+	resolveComponentIdentity,
+} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
 	borderRadiusSchema,
-	captionsSchema,
 	borderSchema,
+	captionsSchema,
+	childrenSchema,
 	cropSchema,
 	premountSchema,
 	sequenceSchema,
 	svgPaintSchema,
 	svgStrokeSchema,
-	textContentSchema,
 	textSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {resolveSequenceDuration} from './resolve-sequence-duration.js';
-import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
+import {Sequence, SequenceWithoutSchema} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {usePremounting} from './use-premounting.js';
 import {
@@ -172,14 +176,14 @@ const interactiveBorderElementSchema = {
 const interactiveTextElementSchema = {
 	...interactiveBorderElementSchema,
 	...textSchema,
-	...textContentSchema,
+	...childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveSvgTextElementSchema = {
 	...interactiveElementSchema,
 	...svgPaintSchema,
 	...textSchema,
-	...textContentSchema,
+	...childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveSvgElementSchema = {
@@ -218,13 +222,258 @@ const setRef = <ElementType,>(
 	}
 };
 
-const withSchema = <S extends InteractivitySchema, Props extends object>(
-	options: WithInteractivitySchemaOptions<S, Props>,
-): React.ComponentType<Props> => {
-	const Wrapped = withInteractivitySchema(options);
+type NonIntrinsicComponent<Component extends React.ElementType> = Component &
+	React.ComponentType<React.ComponentProps<Component>>;
+
+type KeysOfUnion<Props> = Props extends unknown ? keyof Props : never;
+
+type ComponentWithoutReservedProps<
+	Component extends React.ElementType,
+	ReservedKey extends PropertyKey,
+> = NonIntrinsicComponent<Component> &
+	(Extract<
+		KeysOfUnion<React.ComponentPropsWithoutRef<Component>>,
+		ReservedKey
+	> extends never
+		? unknown
+		: never);
+
+type WithSchemaReservedKey =
+	| keyof InteractiveBaseProps
+	| keyof InteractiveCropProps
+	| keyof InteractivePremountProps
+	| 'controls';
+
+type IsAny<Value> = 0 extends 1 & Value ? true : false;
+
+type StyleMemberAcceptsCssProperties<Style> =
+	IsAny<Style> extends true
+		? true
+		: Style extends unknown
+			? [Style] extends [null | undefined]
+				? false
+				: Exclude<keyof React.CSSProperties, keyof Style> extends never
+					? React.CSSProperties extends Style
+						? true
+						: false
+					: false
+			: never;
+
+type StyleAcceptsCssProperties<Style> =
+	true extends StyleMemberAcceptsCssProperties<Style> ? true : false;
+
+type PropsBranchAcceptsStyle<Props> = Props extends unknown
+	? 'style' extends keyof Props
+		? StyleAcceptsCssProperties<Props[Extract<'style', keyof Props>]>
+		: false
+	: never;
+
+type EveryPropsBranchAcceptsStyle<Props> = [Props] extends [never]
+	? false
+	: false extends PropsBranchAcceptsStyle<Props>
+		? false
+		: true;
+
+type ComponentAcceptingStyle<
+	Component extends React.ElementType,
+	ReservedKey extends PropertyKey,
+> = ComponentWithoutReservedProps<Component, ReservedKey> &
+	(EveryPropsBranchAcceptsStyle<
+		React.ComponentPropsWithoutRef<Component>
+	> extends true
+		? unknown
+		: never);
+
+type WithSchema = {
+	<S extends InteractivitySchema, Component extends React.ElementType>(
+		options: Omit<
+			WithInteractivitySchemaOptions<
+				S,
+				React.ComponentPropsWithoutRef<Component>
+			>,
+			'Component' | 'supportsEffects'
+		> & {
+			readonly Component: ComponentAcceptingStyle<
+				Component,
+				WithSchemaReservedKey
+			>;
+			readonly wrapInSequence: true;
+		},
+	): React.FC<
+		React.ComponentPropsWithRef<Component> &
+			InteractiveBaseProps &
+			InteractivePremountProps &
+			InteractiveCropProps
+	>;
+	<S extends InteractivitySchema, Props extends object>(
+		options: WithInteractivitySchemaOptions<S, Props> & {
+			readonly wrapInSequence?: false;
+		},
+	): React.ComponentType<Props>;
+};
+
+type WithSchemaImplementationOptions = Omit<
+	WithInteractivitySchemaOptions<InteractivitySchema, object>,
+	'Component' | 'supportsEffects'
+> & {
+	readonly Component: React.ComponentType<object>;
+	readonly supportsEffects?: boolean;
+	readonly wrapInSequence?: false | true;
+};
+
+const withSchema: WithSchema = (untypedOptions: unknown) => {
+	const options = untypedOptions as WithSchemaImplementationOptions;
+	if (!options.wrapInSequence) {
+		const LegacyWrapped = withInteractivitySchema(
+			options as WithInteractivitySchemaOptions<InteractivitySchema, object>,
+		);
+		addSequenceStackTraces(LegacyWrapped);
+
+		return LegacyWrapped as React.FC<
+			React.ComponentProps<typeof LegacyWrapped>
+		>;
+	}
+
+	const {
+		Component,
+		componentName,
+		schema,
+		wrapInSequence: _,
+		...rest
+	} = options;
+	type ComponentWrappedInSequenceProps = React.ComponentProps<
+		typeof Component
+	> &
+		InteractiveBaseProps &
+		InteractivePremountProps &
+		InteractiveCropProps & {
+			readonly controls: SequenceControls | undefined;
+		};
+	const ComponentWrappedInSequence = forwardRef<
+		unknown,
+		ComponentWrappedInSequenceProps
+	>((props, ref) => {
+		const {canvasContent, compositions} = useContext(CompositionManager);
+		// The render callback runs after the exported wrapper has been initialized.
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		const componentIdentity = resolveComponentIdentity(Wrapped);
+		const isCurrentComposition = compositions.some(
+			(composition) =>
+				canvasContent?.type === 'composition' &&
+				composition.id === canvasContent.compositionId &&
+				composition.componentFromProps === componentIdentity,
+		);
+		const {
+			durationInFrames,
+			from,
+			trimBefore,
+			playbackRate,
+			loop,
+			freeze,
+			hidden,
+			name,
+			showInTimeline,
+			controls,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
+			...componentProps
+		} = props;
+		const {
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style,
+			...componentPropsWithoutCropping
+		} = componentProps as InteractiveCropProps & {
+			readonly style?: React.CSSProperties;
+			readonly [key: string]: unknown;
+		};
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: from ?? 0,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				playbackRate,
+				loop,
+			}),
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: premountingStyle,
+			componentName,
+		});
+
+		return (
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<SequenceWithoutSchema
+					_remotionInternalSingleChildComponent={
+						isCurrentComposition ? null : componentIdentity
+					}
+					layout="none"
+					durationInFrames={durationInFrames}
+					from={from}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					loop={loop}
+					freeze={freeze}
+					hidden={hidden}
+					name={name ?? componentName}
+					showInTimeline={isCurrentComposition ? false : showInTimeline}
+					controls={controls}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
+					{React.createElement(Component, {
+						...componentPropsWithoutCropping,
+						style: croppedStyle ?? undefined,
+						ref,
+					} as React.ComponentProps<typeof Component>)}
+				</SequenceWithoutSchema>
+			</Freeze>
+		);
+	});
+	const Wrapped = withInteractivitySchema({
+		...rest,
+		Component: ComponentWrappedInSequence,
+		componentName,
+		schema: {
+			...schema,
+			...transformSchema,
+			...baseSchema,
+			...premountSchema,
+			...cropSchema,
+		},
+		supportsEffects: false,
+	});
 	addSequenceStackTraces(Wrapped);
 
-	return Wrapped;
+	return Wrapped as React.FC<
+		React.ComponentProps<typeof Component> &
+			InteractiveBaseProps &
+			InteractivePremountProps &
+			InteractiveCropProps
+	>;
 };
 
 const makeInteractiveElement = <Tag extends InteractiveTag>(
@@ -304,7 +553,11 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		);
 
 		return (
-			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Freeze
+				frame={freezeFrame}
+				active={isPremountingOrPostmounting}
+				_remotionInternalIsPremounting={premountingActive}
+			>
 				<Sequence
 					layout="none"
 					from={from ?? 0}
@@ -382,6 +635,7 @@ const makeInteractiveSvgStrokeElement = <Tag extends InteractiveSvgTag>(
 export const Interactive = {
 	baseSchema,
 	captionsSchema,
+	childrenSchema,
 	transformSchema,
 	textSchema,
 	backgroundSchema,

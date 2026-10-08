@@ -22,6 +22,7 @@ const style: React.CSSProperties = {
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+	padding: 3,
 	...hoverableStyle({
 		idleBackground: TRANSPARENT,
 		hoverBackground: WHITE_ALPHA_06,
@@ -44,12 +45,13 @@ export const CancelIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 export const CancelButton: React.FC<
 	SVGProps<SVGSVGElement> & {
 		readonly onPress: () => void;
+		readonly 'aria-label': string;
 	}
-> = ({onPress, ...props}) => {
+> = ({onPress, 'aria-label': ariaLabel, ...props}) => {
 	const {tabIndex} = useZIndex();
 	return (
 		<button
-			aria-label="Close dialog"
+			aria-label={ariaLabel}
 			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			tabIndex={tabIndex}
 			style={style}

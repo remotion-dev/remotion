@@ -10,6 +10,7 @@ import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {
 	getTimelineRowHighlightBackground,
+	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_SELECTED_BACKGROUND,
 } from './TimelineSelection';
 
@@ -77,6 +78,7 @@ export const TimelineRowChrome: React.FC<{
 	// bottom track separator. The background highlight and click target span the
 	// outer (used by sequence rows whose layer is taller than the chrome row).
 	readonly outerHeight: number | null;
+	readonly showBottomBorder: boolean;
 	readonly onDragLeave?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -97,6 +99,7 @@ export const TimelineRowChrome: React.FC<{
 	containsSelection,
 	hovered = false,
 	outerHeight,
+	showBottomBorder,
 	onDragLeave,
 	onDragOver,
 	onDrop,
@@ -129,13 +132,22 @@ export const TimelineRowChrome: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				onSelect({
-					shiftKey: e.shiftKey,
-					toggleKey: e.metaKey || e.ctrlKey,
-				});
+				if (
+					shouldSelectTimelineRowOnPointerDown({
+						selected,
+						shiftKey: e.shiftKey,
+						metaKey: e.metaKey,
+						ctrlKey: e.ctrlKey,
+					})
+				) {
+					onSelect({
+						shiftKey: e.shiftKey,
+						toggleKey: e.metaKey || e.ctrlKey,
+					});
+				}
 			}
 		},
-		[onSelect],
+		[onSelect, selected],
 	);
 
 	const onContextMenu = useCallback(
@@ -210,13 +222,13 @@ export const TimelineRowChrome: React.FC<{
 
 		return {
 			height: outerHeight,
-			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+			borderBottom: `1px solid ${showBottomBorder ? TIMELINE_TRACK_SEPARATOR : 'transparent'}`,
 			display: 'flex',
 			flexDirection: 'column',
 			justifyContent: 'center',
 			backgroundColor: highlightBackground,
 		};
-	}, [outerHeight, highlightBackground]);
+	}, [outerHeight, highlightBackground, showBottomBorder]);
 
 	const chrome = (
 		<>

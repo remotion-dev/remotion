@@ -26,6 +26,7 @@ import type {
 import {ContextMenu} from '../ContextMenu';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
@@ -115,8 +116,8 @@ const Value: React.FC<{
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const getPlaybackRateChanges = useCallback(
 		(value: unknown) => {
@@ -144,7 +145,7 @@ const Value: React.FC<{
 			return getPlaybackRateKeyframeChanges({
 				nodePath,
 				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				propStatuses: propStatusesRef.current,
 				previousPlaybackRate,
 				playbackRate: value,
@@ -154,7 +155,7 @@ const Value: React.FC<{
 			field.fieldSchema.default,
 			field.key,
 			nodePath,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			propStatusesRef,
 			sequencesRef,
 		],
@@ -179,6 +180,8 @@ const Value: React.FC<{
 			}
 
 			const key = stringifySequenceSubscriptionKey(nodePath);
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
 			const sequence = sequencesRef.current.find((candidate) => {
 				const overrideId = candidate.controls?.overrideId;
 				const path = overrideId
@@ -201,7 +204,7 @@ const Value: React.FC<{
 		[
 			field.key,
 			nodePath,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			propStatusesRef,
 			schema,
 			sequencesRef,
@@ -243,6 +246,7 @@ const Value: React.FC<{
 			}
 
 			const defaultValue =
+				field.fieldSchema.type === 'string' ||
 				field.fieldSchema.type === 'text-content'
 					? null
 					: field.fieldSchema.default !== undefined
@@ -852,6 +856,7 @@ export const TimelineSequencePropItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			{hidePathValue ? (
 				<TimelineFieldLabel

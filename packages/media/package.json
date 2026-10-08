@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.529",
+	"version": "4.0.534",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -13,7 +13,6 @@
 	},
 	"type": "module",
 	"scripts": {
-		"if-node-18+": "node -e \"const [maj]=process.versions.node.split('.').map(Number); process.exit(maj>=18?0:1)\"",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
@@ -33,12 +32,12 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",
-		"@vitest/browser-webdriverio": "4.0.9",
+		"@vitest/browser-playwright": "catalog:",
 		"eslint": "catalog:",
+		"playwright": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"vitest": "catalog:",
-		"webdriverio": "9.19.2",
 		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [],

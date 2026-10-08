@@ -64,6 +64,7 @@ class RenderParams
     protected $isProduction = null;
     protected $sampleRate = 48000;
     protected $gopSize = null;
+    protected $disableSharedMemoryCapture = false;
 
     public function __construct(
         ?array  $data = null,
@@ -116,7 +117,8 @@ class RenderParams
         ?array  $metadata = null,
         ?bool   $isProduction = null,
         ?int    $gopSize = null,
-        ?bool   $enableCancellation = false
+        ?bool   $enableCancellation = false,
+        bool    $disableSharedMemoryCapture = false
     )
     {
         if ($chromiumOptions === null) {
@@ -174,6 +176,7 @@ class RenderParams
         $this->isProduction = $isProduction;
         $this->gopSize = $gopSize;
         $this->enableCancellation = $enableCancellation;
+        $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
     }
 
     private array $inputProps = array();
@@ -227,9 +230,11 @@ class RenderParams
             'storageClass' => $this->getStorageClass(),
             'x264Preset' => $this->getX264Preset(),
             'gopSize' => $this->getGopSize(),
+            'disableSharedMemoryCapture' => $this->getDisableSharedMemoryCapture(),
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
             'isProduction' => $this->getIsProduction(),
+            'output' => ['type' => 'media'],
             'type' => 'start'
         ];
 
@@ -1035,6 +1040,17 @@ class RenderParams
     public function setGopSize($gopSize)
     {
         $this->gopSize = $gopSize;
+        return $this;
+    }
+
+    public function getDisableSharedMemoryCapture()
+    {
+        return $this->disableSharedMemoryCapture;
+    }
+
+    public function setDisableSharedMemoryCapture(bool $disableSharedMemoryCapture)
+    {
+        $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
         return $this;
     }
 

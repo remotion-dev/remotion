@@ -16,11 +16,9 @@ This schema is not a Zod schema. Use [Zod schemas](/docs/schemas) for [`<Composi
 ## Example
 
 ```ts twoslash title="schema.ts"
-import {Interactive, type InteractivitySchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 
 export const titleCardSchema = {
-  ...Interactive.baseSchema,
-  ...Interactive.transformSchema,
   tint: {
     type: 'color',
     default: '#ffffff',
@@ -37,7 +35,9 @@ Keys may use dot notation. For example, a key named `style.opacity` reads from a
 
 ### `Interactive.baseSchema`
 
-Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and uses it for its [`<Sequence>`](/docs/sequence).
 
 ### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
 
@@ -49,17 +49,38 @@ This schema fragment is headless: it does not render an element or add layout, t
 
 Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
 
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment.
+
 ### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
 
-Crop props inherited from an absolute-fill [`<Sequence>`](/docs/sequence): [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
+Controls for cropping a component from each edge: [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
 
-Use this fragment to opt a custom component into crop controls. The component must apply the crop props to its rendered element or forward them to an absolute-fill `<Sequence>`.
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and applies the crop through the component's `style` prop.
 
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
 Text-related style props: `style.color`, `style.fontFamily`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
 
 `style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
+
+### `Interactive.childrenSchema`<AvailableFrom v="4.0.535" />
+
+A schema fragment for editing the content passed through a component's `children` prop.
+
+Currently, it uses a [`string`](#string) control labeled "Text", with a default of `''`. It edits a single JSX text child, a string literal expression such as `{'Hello'}`, or a literal `children="Hello"` prop. Nested markup and computed expressions are currently read-only.
+
+The fragment may evolve to support richer children content. Use it with components that accept `React.ReactNode` children. If your component requires string-only children, declare an explicit [`string`](#string) field instead.
+
+This fragment edits content. [`Interactive.textSchema`](#interactivetextschema) edits typography styles. `childrenSchema` is separate from `baseSchema` and must be added explicitly for custom components.
+
+```ts twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const labelSchema = {
+  ...Interactive.textSchema,
+  ...Interactive.childrenSchema,
+} as const satisfies InteractivitySchema;
+```
 
 ### `Interactive.backgroundSchema`<AvailableFrom v="4.0.497" />
 
@@ -85,6 +106,8 @@ When `style.borderRadius` is a number or contains one to four pixel values, the 
 
 Mounting props: `premountFor` and `postmountFor`.
 
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and uses the props for its [`<Sequence>`](/docs/sequence).
+
 These schemas are for component props. Effects created with [`createEffect()`](/docs/create-effect) should define only their own effect parameters.
 
 ## Field Types
@@ -100,6 +123,32 @@ Shows an on/off control.
 ### `color`
 
 Shows a color control. The value is a CSS color string.
+
+### `string`<AvailableFrom v="4.0.535" />
+
+Shows a text control for a string prop, such as a title, prompt, or code snippet.
+
+Remotion Studio can edit a string literal, such as `title="Hello"`. Other expressions are shown as read-only.
+
+String fields are not keyframable.
+
+```ts twoslash title="schema.ts"
+import type {InteractivitySchema} from 'remotion';
+
+export const schema = {
+  title: {
+    type: 'string',
+    default: '',
+    description: 'Title',
+  },
+} as const satisfies InteractivitySchema;
+```
+
+### ~~`text-content`~~
+
+:::info Deprecated
+Use [`string`](#string) instead. `text-content` remains supported as an alias with the same behavior.
+:::
 
 ### `asset`
 
@@ -129,6 +178,12 @@ export const schema = {
 Shows a font family control. The value is a CSS font family string.
 
 When choosing a Google Font in Studio, Remotion adds the matching `loadFont()` call from `@remotion/google-fonts` to the composition file.
+
+### `font-weight`
+
+Shows a font weight control. The value is a number such as `700` or a CSS font weight string such as `"bold"`.
+
+Keyframes are written as [`interpolate()`](/docs/interpolate) calls with [`outputType: 'font-weight'`](/docs/interpolate#outputtype).
 
 ### `enum`
 
@@ -236,6 +291,12 @@ start: {
 
 `innerScale` is optional. When present, Remotion Studio draws a second ellipse using the same center, width, height and rotation multiplied by that numeric field.
 
+### `svg-path`
+
+Shows an SVG path control. The value is an SVG path string, as used by the `d` attribute.
+
+Keyframes are written as [`interpolatePaths()`](/docs/paths/interpolate-paths) calls from `@remotion/paths`.
+
 ### `hidden`
 
 Keeps a field in the schema without rendering a visible control.
@@ -260,11 +321,11 @@ The label shown in Remotion Studio.
 
 Controls whether the field can be animated with keyframes.
 
-Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate` and `color` fields.
+Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate`, `color`, `font-weight` and `svg-path` fields.
 
 Boolean fields use hold keyframes: their value changes at the next keyframe without blending. Boolean keyframes are available from <AvailableFrom v="4.0.530" inline />.
 
-`array` and `font-family` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
+`array`, `asset`, `font-family`, `string`, `text-content` and `remotion-captions` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
 
 `enum` fields are not keyframable by default. From <AvailableFrom v="4.0.509" inline />, set `keyframable: true` to enable hold keyframes. Remotion Studio generates [`Easing.step1`](/docs/easing#step1) segments because enum values cannot be blended.
 

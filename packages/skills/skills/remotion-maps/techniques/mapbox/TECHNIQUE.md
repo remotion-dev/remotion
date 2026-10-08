@@ -74,7 +74,7 @@ if (!mapboxAccessToken) {
 
 ```tsx
 import {useEffect, useRef, useState} from 'react';
-import {AbsoluteFill, useDelayRender, useVideoConfig} from 'remotion';
+import {useDelayRender, useVideoConfig} from 'remotion';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -120,9 +120,9 @@ export const MyComposition = () => {
 	}, [continueRender, loadingHandle]);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<div ref={containerRef} style={{width, height, position: 'absolute'}} />
-		</AbsoluteFill>
+		</>
 	);
 };
 ```

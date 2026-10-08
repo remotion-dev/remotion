@@ -74,6 +74,7 @@ declare global {
 		) => Promise<VideoConfigWithSerializedProps>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
+		remotion_outputsBase: string | null;
 		remotion_staticFiles: StaticFile[];
 		remotion_publicPath: string;
 		remotion_publicFolderExists: string | null;
@@ -173,6 +174,7 @@ export {Solid} from './effects/Solid.js';
 export type {SolidProps} from './effects/Solid.js';
 export {
 	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	getHtmlInCanvasUnsupportedMessage,
 	HtmlInCanvas,
 	isHtmlInCanvasSupported,
 	type HtmlInCanvasOnInit,
@@ -251,6 +253,7 @@ export * from './spring/index.js';
 export {staticFile} from './static-file.js';
 export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
+export {Track, type TrackProps} from './Track.js';
 export {useBufferState} from './use-buffer-state';
 export {useCurrentFrame} from './use-current-frame.js';
 export {

@@ -272,6 +272,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	const openAssetSelection = useCallback(() => {
 		const assetSelection = {
 			initialQuery,
+			fileTypes: null,
 			onSelectFile: () => {
 				selectFile().catch(() => undefined);
 			},

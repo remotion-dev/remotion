@@ -66,6 +66,7 @@ import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
 import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
+import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaleFixture} from './fixtures/scale';
@@ -75,6 +76,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
@@ -128,6 +130,7 @@ export const Root: React.FC = () => {
 			<Composition {...multiLevelTransformOrigins} />
 			<Composition {...threeLevelTransformOrigins} />
 			<Composition {...pixelTransformOrigin} />
+			<Composition {...positionedSvg} />
 			<Composition {...complexNestedSvg} />
 			<Composition {...threeDoverflow} />
 			<Composition {...threeDTransformOutOfBounds} />
@@ -139,6 +142,7 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
+			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />

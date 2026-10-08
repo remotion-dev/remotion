@@ -27,8 +27,10 @@ import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
+import {useMediaPlayerMuted} from '../use-media-player-muted';
 import type {
 	FallbackOffthreadVideoProps,
+	MaxCanvasSinkFrameSize,
 	NativeVideoProps,
 	VideoObjectFit,
 } from './props';
@@ -75,6 +77,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly credentials: RequestCredentials | undefined;
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
+	readonly maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
@@ -109,6 +112,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	credentials,
 	requestInit,
 	objectFit: objectFitProp,
+	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
@@ -181,6 +185,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 
+	const maxCanvasSinkFrameSizeRef = useRef(maxCanvasSinkFrameSize);
+	maxCanvasSinkFrameSizeRef.current = maxCanvasSinkFrameSize;
+
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
@@ -202,6 +209,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		volume: userPreferredVolume,
 		audioEnabled: true,
 	});
+	const mediaPlayerMuted = useMediaPlayerMuted({
+		muted,
+		volume: userPreferredVolume,
+	});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -210,7 +221,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(effectivePlaybackRate);
 	const initialToneFrequency = useRef(toneFrequency);
-	const initialMuted = useRef(effectiveMuted);
+	const initialMuted = useRef(mediaPlayerMuted);
 	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(sequenceDurationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
@@ -306,6 +317,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
+				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
@@ -354,20 +366,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 						setShouldFallbackToNativeVideo(true);
 					};
 
-					if (result.type === 'unknown-container-format') {
-						handleError(
-							new Error(`Unknown container format ${preloadedSrc}.`),
-							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
-						);
-						return;
-					}
-
-					if (result.type === 'network-error') {
-						handleError(
-							new Error(`Network error fetching ${preloadedSrc}.`),
-							`Network error fetching ${preloadedSrc}, falling back to <OffthreadVideo>`,
-						);
-						return;
+					if (
+						result.type === 'unknown-container-format' ||
+						result.type === 'network-error'
+					) {
+						// The catch below applies onError and the existing fallback policy.
+						throw result.error;
 					}
 
 					if (result.type === 'cannot-decode') {
@@ -475,6 +479,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
+		// Compare the numbers, so that a new object with the same size does not
+		// recreate the player.
+		maxCanvasSinkFrameSize?.width,
+		maxCanvasSinkFrameSize?.height,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
@@ -494,7 +502,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		frame,
 		trimBefore,
 		trimAfter,
-		effectiveMuted,
+		effectiveMuted: mediaPlayerMuted,
 		userPreferredVolume,
 		playbackRate: effectivePlaybackRate,
 		toneFrequency,

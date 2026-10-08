@@ -60,7 +60,7 @@ export const EasingInspector: React.FC<{
 	const runtimeValues = useRuntimeValues(track?.sequence.controls ?? null);
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);

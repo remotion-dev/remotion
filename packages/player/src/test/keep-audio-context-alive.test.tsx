@@ -67,22 +67,15 @@ class TrackedAudioContext {
 	}
 }
 
-const sequenceManager = {
-	registerSequence: () => undefined,
-	unregisterSequence: () => undefined,
-	updateSequence: null,
-	sequences: [],
-};
-
 let startBuffering: (() => {unblock: () => void}) | null = null;
 
 const AudioComposition = () => {
 	startBuffering = useBufferState().delayPlayback;
 
 	return (
-		<Internals.SequenceManager.Provider value={sequenceManager}>
+		<Internals.SequenceManagerProvider>
 			<Html5Audio src="audio.mp3" />
-		</Internals.SequenceManager.Provider>
+		</Internals.SequenceManagerProvider>
 	);
 };
 

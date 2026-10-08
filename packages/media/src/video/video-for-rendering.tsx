@@ -252,6 +252,20 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					});
 				};
 
+				if (
+					(result.type === 'unknown-container-format' ||
+						result.type === 'network-error') &&
+					result.error
+				) {
+					handleError(
+						result.error,
+						result.error,
+						`Failed to read ${src}: ${result.error.message}, falling back to <OffthreadVideo>`,
+						null,
+					);
+					return;
+				}
+
 				if (result.type === 'unknown-container-format') {
 					handleError(
 						new Error(`Unknown container format ${src}.`),

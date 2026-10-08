@@ -48,18 +48,11 @@ Use `installationMode: 'component-owned-sequence'` when Studio interactivity doe
 - Canvas-based Elements where individual outlines cannot be passed to Studio
 - Single-image overlays where the image itself cannot be edited
 
-Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema). The user gets one timeline layer that they can move on the canvas and trim in the timeline. The implementation does not appear as separate editable layers.
+Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema) and set `wrapInSequence: true`. The user gets one timeline layer that they can trim. The component must accept a `style` prop and apply it to its visual root. The implementation does not appear as separate editable layers.
 
-Export the schema-enabled component directly and wire up the common props:
+Export the schema-enabled component directly, without another forwarding wrapper.
 
-- Add [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) to every `Interactive.withSchema()` schema and pass `controls` unchanged to the component's `<Sequence>`.
-- Pass `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name`, and `showInTimeline` to that Sequence.
-- Pass `style` and the ref to the rendered element. With `layout="none"`, Studio discovers the outline automatically. Set the dimensions in the component because Element metadata does not pass them as props.
-- Render frame-dependent animation in a child below the Sequence. This makes [`useCurrentFrame()`](/docs/use-current-frame) respect `from`, `trimBefore`, `durationInFrames`, `playbackRate`, `loop`, and `freeze`. If the component that returns the Sequence calls it, it reads the parent clock.
-
-Export the schema-enabled component directly, without a forwarding wrapper. See the [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements.
-
-Check in Studio that the exported instance appears as one layer and can be moved and trimmed. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for a gallery preview.
+Check in Studio that the exported instance appears as one layer, can be trimmed and can be moved. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for a gallery preview.
 
 ## Initial props
 
@@ -85,7 +78,7 @@ Animate properties within the Element, such as translation, scale, and opacity; 
 
 Elements are source-code copies designed for direct editing, not managed dependencies. Expose useful Studio controls in the Element's `Interactive` schema, but there is no need to mirror every implementation detail as a public prop.
 
-Use [`Interactive.withSchema()`](/docs/interactive-with-schema) when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
+Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
 
 Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
 

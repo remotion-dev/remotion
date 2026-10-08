@@ -89,14 +89,20 @@ export const Comp=()=>(
 		{
 			oldNodePath: lineContainingToNodePath(input, '<Video'),
 			newNodePath: lineContainingToNodePath(output, '<Video'),
+			oldJsxName: 'Video',
+			newJsxName: 'Video',
 		},
 		{
 			oldNodePath: lineContainingToNodePath(input, '<div'),
 			newNodePath: lineContainingToNodePath(output, '<div'),
+			oldJsxName: 'div',
+			newJsxName: 'div',
 		},
 		{
 			oldNodePath: null,
 			newNodePath: lineContainingToNodePath(output, '<Audio'),
+			oldJsxName: null,
+			newJsxName: 'Audio',
 		},
 	]);
 });

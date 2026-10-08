@@ -153,6 +153,7 @@ import {
 	getKeyframesForTimelineEasingDrag,
 	getTimelineSelectionsAfterEasingKeyframeDrag,
 } from '../components/Timeline/use-timeline-keyframe-drag';
+import {calculateTimeline} from '../helpers/calculate-timeline';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -343,9 +344,10 @@ const makeLeftEdgePropStatuses = (
 	nodePaths: readonly SequencePropsSubscriptionKey[],
 	includeTrimBefore = false,
 	includeTimelineRange = true,
+	durationInFramesCodeValues: readonly (number | undefined)[] | null = null,
 ): PropStatuses => {
 	const propStatuses: PropStatuses = {};
-	for (const nodePath of nodePaths) {
+	for (const [index, nodePath] of nodePaths.entries()) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
 			canUpdate: true,
 			props: {
@@ -354,7 +356,7 @@ const makeLeftEdgePropStatuses = (
 							durationInFrames: {
 								status: 'static' as const,
 								keyframeDisplayOffsetAdjustment: null,
-								codeValue: 100,
+								codeValue: durationInFramesCodeValues?.[index],
 							},
 							from: {
 								status: 'static' as const,
@@ -1931,6 +1933,113 @@ test('Timeline duration drag uses the declared duration for negative from values
 	).toEqual([]);
 });
 
+test.each([
+	{
+		name: 'negative ancestor start',
+		parentFrom: -30,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 31,
+	},
+	{
+		name: 'positive child start under a negative ancestor',
+		parentFrom: -30,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 0,
+		childFrom: 10,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 21,
+	},
+	{
+		name: 'ancestor trimBefore',
+		parentFrom: 0,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 30,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 31,
+	},
+	{
+		name: 'sped-up ancestor',
+		parentFrom: -30,
+		parentPlaybackRate: 2,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 62,
+	},
+	{
+		name: 'sped-up ancestor with a slowed-down child',
+		parentFrom: -30,
+		parentPlaybackRate: 2,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 0.5,
+		expectedDurationInFrames: 31,
+	},
+])('Timeline duration drag retains one visible frame: $name', (scenario) => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const parent = makeTimelineSequence({
+		schema,
+		id: 'parent',
+		overrideId: 'parent',
+		from: scenario.parentFrom,
+		duration: 300,
+		trimBefore: scenario.parentTrimBefore,
+		sequencePlaybackRate: scenario.parentPlaybackRate,
+	});
+	const child = makeTimelineSequence({
+		schema,
+		id: 'child',
+		overrideId: 'child',
+		parentId: parent.id,
+		from: scenario.childFrom,
+		duration: 60 * scenario.parentPlaybackRate,
+		sequencePlaybackRate: scenario.childPlaybackRate,
+	});
+	const overrideIdsToNodePaths = {child: nodePath};
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [parent, child],
+		overrideIdsToNodePaths,
+		propStatuses: makeDurationPropStatuses([nodePath]),
+		timelineDurationInFrames: 600,
+	});
+	const changes = getTimelineSequenceDurationDragChanges({
+		targets: targets ?? [],
+		deltaFrames: -1000,
+	});
+
+	expect(changes.map(({fieldKey, value}) => ({fieldKey, value}))).toEqual([
+		{
+			fieldKey: 'durationInFrames',
+			value: scenario.expectedDurationInFrames,
+		},
+	]);
+
+	const resizedTracks = calculateTimeline({
+		sequences: [
+			parent,
+			{
+				...child,
+				duration: Number(changes[0].value) / child.sequencePlaybackRate,
+			},
+		],
+		overrideIdsToNodePaths,
+	});
+	expect(
+		resizedTracks.find((track) => track.sequence.id === child.id)?.sequence
+			.duration,
+	).toBe(1);
+});
+
 test('Timeline duration drag clamps to the composition end', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
@@ -2056,7 +2165,7 @@ test('Timeline edge drags edit durationInFrames in the child clock', () => {
 	).toMatchObject({fieldKey: 'durationInFrames', value: 24});
 });
 
-test('Left edge trim updates durationInFrames in the child clock', () => {
+test('Left edge trim preserves a recent right edge trim in the child clock', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const sequence = makeTimelineSequence({
@@ -2075,7 +2184,7 @@ test('Left edge trim updates durationInFrames in the child clock', () => {
 		selectedItems: [{type: 'sequence', nodePathInfo}],
 		sequences: [sequence],
 		overrideIdsToNodePaths: {override: nodePath},
-		propStatuses: makeLeftEdgePropStatuses([nodePath], true),
+		propStatuses: makeLeftEdgePropStatuses([nodePath], true, true, [16]),
 	});
 
 	expect(
@@ -2085,7 +2194,7 @@ test('Left edge trim updates durationInFrames in the child clock', () => {
 		}).map((change) => [change.fieldKey, change.value]),
 	).toEqual([
 		['from', 2],
-		['durationInFrames', 16],
+		['durationInFrames', 12],
 		['trimBefore', 8],
 	]);
 });
@@ -2732,6 +2841,88 @@ test('Timeline left edge drag adjusts from, duration and trimBefore for selected
 	]);
 });
 
+test.each([
+	{durationInFrames: null, from: 0, parentRate: 1, childRate: 1},
+	{durationInFrames: 465, from: 33, parentRate: 1, childRate: 1},
+	{durationInFrames: 232.5, from: 33, parentRate: 2, childRate: 0.5},
+])(
+	'left edge trimming uses the visible start of a clipped child: %j',
+	({durationInFrames, from, parentRate, childRate}) => {
+		const schema = {} satisfies InteractivitySchema;
+		const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+		const child = makeTimelineSequence({
+			schema,
+			id: 'captions',
+			parentId: 'parent',
+			from,
+			duration: (durationInFrames ?? 498 * childRate) / childRate,
+			trimBefore: from * childRate,
+			sequencePlaybackRate: childRate,
+		});
+		const sequences = [
+			makeTimelineSequence({
+				schema,
+				id: 'parent',
+				overrideId: 'parent',
+				from: 30,
+				duration: 129 / parentRate,
+				trimBefore: 369,
+				sequencePlaybackRate: parentRate,
+			}),
+			child,
+		];
+		const overrideIdsToNodePaths = {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		};
+		const targets = getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences,
+			overrideIdsToNodePaths,
+			propStatuses: makeLeftEdgePropStatuses(
+				[nodePathInfo.sequenceSubscriptionKey],
+				true,
+				true,
+				[durationInFrames ?? undefined],
+			),
+		});
+		const changes = getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 6,
+		});
+		const values = Object.fromEntries(
+			changes.map((change) => {
+				if (typeof change.value !== 'number') {
+					throw new Error('Expected numeric trim values');
+				}
+
+				return [change.fieldKey, change.value] as const;
+			}),
+		);
+		expect(values).toEqual({
+			from: 369 + 6 * parentRate,
+			durationInFrames: (129 - 6 * parentRate) * childRate,
+			trimBefore: (369 + 6 * parentRate) * childRate,
+		});
+		const tracks = calculateTimeline({
+			sequences: [
+				sequences[0],
+				{
+					...child,
+					from: values.from,
+					duration: values.durationInFrames / childRate,
+					trimBefore: values.trimBefore,
+					autoDuration: false,
+				} as TSequence,
+			],
+			overrideIdsToNodePaths,
+		});
+		expect(
+			tracks.find((track) => track.sequence.id === 'captions')?.sequence,
+		).toMatchObject({from: 36, duration: 129 / parentRate - 6});
+	},
+);
+
 test('TransitionSeries.Sequence self-trim changes its duration and trimBefore', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
@@ -3092,7 +3283,7 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
 
 	for (const [deltaFrames, expected] of [
-		[-100, -24],
+		[-100, -0],
 		[100, 79],
 	]) {
 		expect(

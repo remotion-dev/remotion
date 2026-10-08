@@ -16,7 +16,7 @@ import {
 	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
-	textContentSchema,
+	childrenSchema,
 	textSchema,
 	transformSchema,
 	type InteractivitySchema,
@@ -47,7 +47,7 @@ export const absoluteFillSchema = {
 	...borderSchema,
 	...borderRadiusSchema,
 	...textSchema,
-	...textContentSchema,
+	...childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(
@@ -108,7 +108,11 @@ const AbsoluteFillWithTiming: React.FC<
 		hideWhilePremounted: 'opacity',
 	});
 	return (
-		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+		<Freeze
+			frame={freezeFrame}
+			active={isPremountingOrPostmounting}
+			_remotionInternalIsPremounting={premountingActive}
+		>
 			<Sequence
 				layout="none"
 				from={from ?? 0}

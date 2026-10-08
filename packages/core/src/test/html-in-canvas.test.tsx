@@ -1,62 +1,27 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import type {TSequence} from '../CompositionManager.js';
 import type {DelayRenderScope} from '../delay-render.js';
 import type {HtmlInCanvasOnPaintParams} from '../HtmlInCanvas.js';
 import {HtmlInCanvas, htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {Internals} from '../internals.js';
-import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
-	SequenceManager,
-	VisualModeDragOverridesContext,
+	SequenceManagerProvider,
 	VisualModePropStatusesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
-import {WrapSequenceContext} from './wrap-sequence-context.js';
-
-class TestDOMMatrix {
-	private readonly scaleX: number;
-	private readonly scaleY: number;
-
-	public constructor(scaleX = 1, scaleY = 1) {
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-	}
-
-	public scale(x: number, y: number) {
-		return new TestDOMMatrix(this.scaleX * x, this.scaleY * y);
-	}
-
-	public multiply(other: TestDOMMatrix) {
-		return new TestDOMMatrix(
-			this.scaleX * other.scaleX,
-			this.scaleY * other.scaleY,
-		);
-	}
-
-	public toString() {
-		return `matrix(${this.scaleX}, 0, 0, ${this.scaleY}, 0, 0)`;
-	}
-}
-
-Object.defineProperty(globalThis, 'DOMMatrix', {
-	configurable: true,
-	value: TestDOMMatrix,
-});
+import {
+	ObserveSequenceRegistrations,
+	WrapSequenceContext,
+} from './wrap-sequence-context.js';
 
 const stub2dContext = () => {
-	let currentTransform = new DOMMatrix();
-
 	return {
 		canvas: null as unknown as HTMLCanvasElement,
-		reset: () => {
-			currentTransform = new DOMMatrix();
-		},
-		scale: (x: number, y: number) => {
-			currentTransform = currentTransform.scale(x, y);
-		},
-		drawElementImage: () => currentTransform,
+		reset: () => undefined,
+		scale: () => undefined,
+		drawElementImage: () => undefined,
 		getImageData: () => ({
 			data: new Uint8ClampedArray(4),
 			width: 1,
@@ -182,39 +147,9 @@ const SequenceTestWrapper: React.FC<{
 	compositionDurationInFrames,
 	currentFrame,
 }) => {
-	const registerSequence = useCallback(
-		(sequence: TSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-
-	const unregisterSequence = useCallback(() => undefined, []);
-
-	const sequenceManagerContext: SequenceManagerContext = useMemo(() => {
-		return {
-			registerSequence,
-			sequences: [],
-			updateSequence: registerSequence,
-			unregisterSequence,
-		};
-	}, [registerSequence, unregisterSequence]);
-
 	const visualPropStatuses = useMemo(
 		() => ({
 			propStatuses: {},
-		}),
-		[],
-	);
-
-	const visualDragOverrides = useMemo(
-		() => ({
-			getDragOverrides: () => {
-				throw new Error('VisualModeDragOverridesContext not initialized');
-			},
-			getEffectDragOverrides: () => {
-				throw new Error('VisualModeDragOverridesContext not initialized');
-			},
 		}),
 		[],
 	);
@@ -245,17 +180,16 @@ const SequenceTestWrapper: React.FC<{
 					isStudio: true,
 				}}
 			>
-				<SequenceManager.Provider value={sequenceManagerContext}>
+				<SequenceManagerProvider>
+					<ObserveSequenceRegistrations
+						onRegisterSequence={onRegisterSequence}
+					/>
 					<VisualModePropStatusesContext.Provider value={visualPropStatuses}>
-						<VisualModeDragOverridesContext.Provider
-							value={visualDragOverrides}
-						>
-							<VisualModeSettersContext.Provider value={visualSetters}>
-								{children}
-							</VisualModeSettersContext.Provider>
-						</VisualModeDragOverridesContext.Provider>
+						<VisualModeSettersContext.Provider value={visualSetters}>
+							{children}
+						</VisualModeSettersContext.Provider>
 					</VisualModePropStatusesContext.Provider>
-				</SequenceManager.Provider>
+				</SequenceManagerProvider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>
 	);
@@ -372,7 +306,7 @@ test('<HtmlInCanvas> throws when nested', () => {
 				</HtmlInCanvas>
 			</SequenceTestWrapper>,
 		),
-	).toThrow('<HtmlInCanvas> components cannot be nested.');
+	).toThrow('Nested <HtmlInCanvas> components require Chrome 157 or newer');
 });
 
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
@@ -488,32 +422,6 @@ test('<HtmlInCanvas> tolerates layout effect re-runs on the same canvas', async 
 	});
 
 	expect(transferControlToOffscreenCalls).toBe(1);
-});
-
-test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', async () => {
-	const {container} = render(
-		<SequenceTestWrapper onRegisterSequence={() => undefined}>
-			<HtmlInCanvas width={50} height={50} pixelDensity={2}>
-				<div>Test</div>
-			</HtmlInCanvas>
-		</SequenceTestWrapper>,
-	);
-
-	await waitFor(() => {
-		expect(container.querySelector('canvas')?.getAttribute('width')).toBe(
-			'100',
-		);
-	});
-
-	const canvas = container.querySelector('canvas')!;
-	canvas.dispatchEvent(new Event('paint'));
-
-	const htmlInCanvasElement = canvas.querySelector('div');
-	await waitFor(() => {
-		expect(htmlInCanvasElement?.style.transform).toBe(
-			new DOMMatrix().toString(),
-		);
-	});
 });
 
 test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {

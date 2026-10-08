@@ -185,7 +185,16 @@ export const createBrowserBundleRuntime = (): BrowserBundleRuntime => {
 						throw new Error('The browser bundle runtime was disposed.');
 					}
 
-					refresh.performReactRefresh();
+					// Authoring UIs such as <Canvas> commit queued source-node remappings
+					// on the started event, in the same task as the refreshed tree.
+					window.dispatchEvent(
+						new Event(Internals.REACT_REFRESH_STARTED_EVENT),
+					);
+					if (refresh.performReactRefresh() !== null) {
+						window.dispatchEvent(
+							new Event(Internals.REACT_REFRESH_FINISHED_EVENT),
+						);
+					}
 				}
 
 				if (disposed) {

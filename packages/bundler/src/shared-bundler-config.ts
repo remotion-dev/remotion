@@ -75,6 +75,7 @@ export const getResolveConfig = () => ({
 			[
 				'@remotion/studio',
 				'@remotion/studio/internals',
+				'@remotion/studio/previewBootstrap',
 				'@remotion/studio/previewEntry',
 				'@remotion/studio/renderEntry',
 			].flatMap((specifier) => {

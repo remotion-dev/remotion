@@ -6,12 +6,9 @@ import React, {
 	useState,
 } from 'react';
 import {createPortal} from 'react-dom';
-import {
-	TIMELINE_BACKGROUND_COLOR,
-	WHITE_ALPHA_10,
-	WHITE_ALPHA_90,
-} from '../helpers/colors';
+import {TIMELINE_BACKGROUND_COLOR, WHITE_ALPHA_90} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
+import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {getPortal} from './Menu/portals';
 import {SHADOW_TOWARDS_TOP} from './Menu/styles';
 
@@ -43,11 +40,8 @@ const labelStyle: React.CSSProperties = {
 
 const shortcutStyle: React.CSSProperties = {
 	...labelStyle,
-	backgroundColor: WHITE_ALPHA_10,
-	borderRadius: 3,
-	padding: '0 4px',
-	minWidth: 16,
-	textAlign: 'center',
+	backgroundColor: 'transparent',
+	opacity: 0.6,
 	whiteSpace: 'nowrap',
 	flexShrink: 0,
 };
@@ -77,6 +71,8 @@ export const ActionTooltip: React.FC<{
 	const triggerRef = useRef<HTMLSpanElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	// Dismissal must also cancel a tooltip that is waiting for its hover delay.
+	const [active, setActive] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [position, setPosition] = useState<{left: number; top: number} | null>(
 		null,
@@ -101,6 +97,7 @@ export const ActionTooltip: React.FC<{
 			timer.current = null;
 		}
 
+		setActive(false);
 		setVisible(false);
 		setPosition(null);
 	}, []);
@@ -111,6 +108,7 @@ export const ActionTooltip: React.FC<{
 			timer.current = null;
 		}
 
+		setActive(true);
 		setVisible(true);
 	}, []);
 
@@ -135,12 +133,17 @@ export const ActionTooltip: React.FC<{
 				return;
 			}
 
+			setActive(true);
 			timer.current = setTimeout(show, delay);
 		},
 		[delay, show],
 	);
 
 	useEffect(() => {
+		if (!active) {
+			return;
+		}
+
 		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') {
 				hide();
@@ -161,7 +164,7 @@ export const ActionTooltip: React.FC<{
 			window.removeEventListener('resize', hide);
 			window.removeEventListener('scroll', hide, true);
 		};
-	}, [hide]);
+	}, [active, hide]);
 
 	useLayoutEffect(() => {
 		if (!visible || !triggerRef.current || !tooltipRef.current) {
@@ -239,7 +242,11 @@ export const ActionTooltip: React.FC<{
 							}}
 						>
 							<span style={labelStyle}>{label}</span>
-							{shortcut ? <kbd style={shortcutStyle}>{shortcut}</kbd> : null}
+							{shortcut ? (
+								<kbd style={shortcutStyle}>
+									<KeyboardShortcutLabel shortcut={shortcut} style={null} />
+								</kbd>
+							) : null}
 						</div>,
 						getPortal(currentZIndex),
 					)

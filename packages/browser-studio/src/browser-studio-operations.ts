@@ -1,13 +1,13 @@
 import {
 	CodemodsInternals,
 	applyCodemodChanges,
-	addComposition,
+	addComposition as addCompositionCodemod,
 	addCanvasCaptureComposition,
 	addEffect as addEffectCodemod,
 	addElement,
-	addFolder,
+	addFolder as addFolderCodemod,
 	createElement,
-	deleteComposition,
+	deleteComposition as deleteCompositionCodemod,
 	deleteEffects as deleteEffectsCodemod,
 	deleteNodes as deleteNodesCodemod,
 	detachAudio,
@@ -19,24 +19,23 @@ import {
 	getNodeProps,
 	canPrecomposeJsxNodes,
 	precomposeJsxNodes as precomposeJsxNodesCodemod,
-	moveComposition,
-	moveFolder,
-	renameComposition,
-	renameFolder,
+	moveComposition as moveCompositionCodemod,
+	moveFolder as moveFolderCodemod,
+	renameComposition as renameCompositionCodemod,
+	renameFolder as renameFolderCodemod,
 	reorderEffect as reorderEffectCodemod,
-	reorderNode,
+	reorderNodes,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences as splitSequencesCodemod,
-	unwrapFolder,
-	updateCompositionMetadata,
+	unwrapFolder as unwrapFolderCodemod,
+	updateCompositionMetadata as updateCompositionMetadataCodemod,
 	updateEffectKeyframes,
 	updateEffectProps as updateEffectPropsCodemod,
 	updateNodeKeyframes,
 	updateNodeProps,
 	type CodemodFileChange,
 	type CodemodNodeResult,
-	type CodemodResult,
 	type CompositionDestination,
 	type EffectKeyframeUpdate,
 	type InsertableSequenceWrapper,
@@ -47,6 +46,7 @@ import {
 	type StudioElementPayload,
 } from '@remotion/studio-protocol';
 import {
+	assetCompositionComponent,
 	emptyCompositionComponent,
 	getAllSchemaKeys,
 	getRequiredPackageForEffectImportPath,
@@ -55,20 +55,20 @@ import {
 	type BrowserStudioKeyframeOperations,
 	type BrowserStudioOperations,
 	type BrowserStudioPackageInstallationOperations,
+	type CompositionEditResponse,
+	type CompositionDestination as StudioCompositionDestination,
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
 	type InsertElementResponse,
 	type InsertCompositionElementRequest,
-	type RecastCodemod,
+	type NewCompositionOptions,
 	type SequenceNodePathRemapping,
 	type SubscribeToSequencePropsRequest,
 	type SubscribeToSequencePropsResponse,
 	type SymbolicatedStackFrame,
 	type UnsubscribeFromSequencePropsRequest,
+	type UndoRedoNavigation,
 } from '@remotion/studio-shared';
-import * as prettierPluginEstree from 'prettier/plugins/estree';
-import * as prettierPluginTypescript from 'prettier/plugins/typescript';
-import {format} from 'prettier/standalone';
 import type {
 	InteractivitySchema,
 	SequenceNodePath,
@@ -104,7 +104,6 @@ const {
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	pasteEffects: pasteEffectsCodemod,
-	simpleDiff,
 } = CodemodsInternals;
 
 /*
@@ -160,6 +159,7 @@ const insertIntoProject = async ({
 		element: createElementFromInsertable({
 			element: request.element,
 			from: request.from,
+			premountFor: request.premountFor,
 			wrapInSequence,
 		}),
 		target: {
@@ -173,21 +173,15 @@ const insertIntoProject = async ({
 		filePath: result.insertedNode.filePath,
 		insertedNodePath: result.insertedNode.nodePath,
 		nodePathRemappings: result.nodePathRemappings.map(
-			({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+			({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+				oldNodePath,
+				newNodePath,
+				oldJsxName,
+				newJsxName,
+			}),
 		),
 	};
 };
-
-const formatCodemodFile = async ({contents}: {contents: string}) => ({
-	formatted: true,
-	output: await format(contents, {
-		bracketSpacing: false,
-		parser: 'typescript',
-		plugins: [prettierPluginTypescript, prettierPluginEstree],
-		singleQuote: true,
-		useTabs: true,
-	}),
-});
 
 const getNodePathMutationFiles = (result: CodemodNodeResult) =>
 	[
@@ -199,7 +193,12 @@ const getNodePathMutationFiles = (result: CodemodNodeResult) =>
 		absolutePath,
 		remappings: result.nodePathRemappings
 			.filter(({filePath}) => filePath === absolutePath)
-			.map(({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath})),
+			.map(({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+				oldNodePath,
+				newNodePath,
+				oldJsxName,
+				newJsxName,
+			})),
 	}));
 
 const getStructuredError = (error: unknown) => ({
@@ -208,7 +207,18 @@ const getStructuredError = (error: unknown) => ({
 	stack: error instanceof Error && error.stack ? error.stack : '',
 });
 
+const runBrowserCompositionEdit = (
+	edit: () => CompositionEditResponse,
+): Promise<CompositionEditResponse> => {
+	try {
+		return Promise.resolve(edit());
+	} catch (error) {
+		return Promise.resolve(getStructuredError(error));
+	}
+};
+
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
+	clearPendingHmrEvent: () => void;
 	emitEvent: (event: EventSourceEvent) => void;
 	resetHistory: () => void;
 };
@@ -270,7 +280,10 @@ const makeSequencePropsSubscriptionKey = ({
 	JSON.stringify({
 		clientId,
 		fileName,
-		nodePath,
+		nodePath: {
+			absolutePath: nodePath.absolutePath,
+			nodePath: nodePath.nodePath,
+		},
 		sequenceKeys,
 		assetKeys,
 		effectKeys,
@@ -298,41 +311,14 @@ const relativeToRoot = (filePath: string, rootDir: string) => {
 		: filePath.replace(/^\//, '');
 };
 
-const getCodemodTargetCompositionId = (
-	codemod: RecastCodemod,
-): string | null => {
-	if (codemod.type === 'duplicate-composition') {
-		return codemod.idToDuplicate;
-	}
-
-	if (codemod.type === 'rename-composition') {
-		return codemod.idToRename;
-	}
-
-	if (codemod.type === 'update-composition-metadata') {
-		return codemod.idToUpdate;
-	}
-
-	if (codemod.type === 'delete-composition') {
-		return codemod.idToDelete;
-	}
-
-	if (
-		codemod.type === 'move-composition-or-folder' &&
-		codemod.source.type === 'composition'
-	) {
-		return codemod.source.compositionId;
-	}
-
-	return null;
-};
-
-const resolveCodemodTargetFile = ({
-	codemod,
+const resolveCompositionEditFile = ({
+	compositionId,
+	folderName,
 	project,
 	symbolicatedStack,
 }: {
-	codemod: RecastCodemod;
+	compositionId: string | null;
+	folderName: string | null;
 	project: VirtualProject;
 	symbolicatedStack: SymbolicatedStackFrame | null;
 }): string => {
@@ -343,7 +329,6 @@ const resolveCodemodTargetFile = ({
 		});
 	}
 
-	const compositionId = getCodemodTargetCompositionId(codemod);
 	if (compositionId !== null) {
 		const compositionFile = getCompositionFile({compositionId, project});
 		if (compositionFile === null) {
@@ -353,28 +338,13 @@ const resolveCodemodTargetFile = ({
 		return findProjectFile({filePath: compositionFile, project});
 	}
 
-	if (codemod.type === 'rename-folder' || codemod.type === 'delete-folder') {
+	if (folderName !== null) {
 		const folderFile = getFolderFile({
-			folderName: codemod.folderName,
+			folderName,
 			project,
 		});
 		if (folderFile === null) {
-			throw new Error(`Could not find folder "${codemod.folderName}"`);
-		}
-
-		return findProjectFile({filePath: folderFile, project});
-	}
-
-	if (
-		codemod.type === 'move-composition-or-folder' &&
-		codemod.source.type === 'folder'
-	) {
-		const folderFile = getFolderFile({
-			folderName: codemod.source.folderName,
-			project,
-		});
-		if (folderFile === null) {
-			throw new Error(`Could not find folder "${codemod.source.folderName}"`);
+			throw new Error(`Could not find folder "${folderName}"`);
 		}
 
 		return findProjectFile({filePath: folderFile, project});
@@ -391,182 +361,92 @@ const resolveCodemodTargetFile = ({
 	return findProjectFile({filePath: rootFile, project});
 };
 
-const applyCompositionCodemod = ({
+const toCodemodCompositionDestination = (
+	destination: StudioCompositionDestination,
+): CompositionDestination =>
+	destination.type === 'folder'
+		? {
+				type: 'folder',
+				folder: {
+					name: destination.folderName,
+					parentName: destination.parentName,
+				},
+			}
+		: destination.type === 'root'
+			? destination
+			: {
+					type: destination.type,
+					target:
+						destination.target.type === 'composition'
+							? destination.target
+							: {
+									type: 'folder',
+									name: destination.target.folderName,
+									parentName: destination.target.parentName,
+								},
+				};
+
+const getAddCompositionResult = ({
 	project,
 	compositionFile,
-	codemod,
+	options,
 }: {
 	project: VirtualProject;
 	compositionFile: string;
-	codemod: RecastCodemod;
-}): VirtualProject => {
-	const target = {project, compositionFile};
-	const apply = (result: CodemodResult) =>
-		applyCodemodChanges(project, result.changes);
-	switch (codemod.type) {
-		case 'new-composition': {
-			const componentFilePath = `${dirname(compositionFile)}/${codemod.componentName}.tsx`;
-			if (project.files[componentFilePath] !== undefined) {
-				throw new Error(
-					`Cannot create ${relativeToRoot(componentFilePath, project.rootDir)} because it already exists`,
-				);
-			}
-
-			const composition = {
-				...target,
-				compositionId: codemod.newId,
-				component: {
-					filePath: componentFilePath,
-					importName: codemod.componentName,
-					importPath: codemod.componentImportPath,
-				},
-				metadata: {
-					width: codemod.newWidth,
-					height: codemod.newHeight,
-					fps: codemod.newFps,
-					durationInFrames: codemod.newDurationInFrames,
-				},
-				folder:
-					codemod.folderName === null
-						? undefined
-						: {name: codemod.folderName, parentName: codemod.parentName},
-			};
-			if (codemod.canvasCapture !== null) {
-				return apply(
-					addCanvasCaptureComposition({
-						...composition,
-						capture: codemod.canvasCapture,
-					}),
-				);
-			}
-
-			const result = addComposition(composition);
-			return applyCodemodChanges(project, [
-				...result.changes,
-				{
-					filePath: componentFilePath,
-					previousContents: null,
-					nextContents: emptyCompositionComponent(codemod.componentName),
-				},
-			]);
-		}
-
-		case 'duplicate-composition':
-			return apply(
-				duplicateCompositionCodemod({
-					...target,
-					compositionId: codemod.idToDuplicate,
-					newId: codemod.newId,
-					tag: codemod.tag,
-					metadata: {
-						width: codemod.newWidth ?? undefined,
-						height: codemod.newHeight ?? undefined,
-						fps:
-							codemod.tag === 'Still'
-								? undefined
-								: (codemod.newFps ?? undefined),
-						durationInFrames:
-							codemod.tag === 'Still'
-								? undefined
-								: (codemod.newDurationInFrames ?? undefined),
-					},
-				}),
-			);
-		case 'rename-composition':
-			return apply(
-				renameComposition({
-					...target,
-					compositionId: codemod.idToRename,
-					newId: codemod.newId,
-				}),
-			);
-		case 'delete-composition':
-			return apply(
-				deleteComposition({...target, compositionId: codemod.idToDelete}),
-			);
-		case 'update-composition-metadata':
-			return apply(
-				updateCompositionMetadata({
-					...target,
-					compositionId: codemod.idToUpdate,
-					metadata: {
-						width: codemod.newWidth ?? undefined,
-						height: codemod.newHeight ?? undefined,
-						fps: codemod.newFps ?? undefined,
-						durationInFrames: codemod.newDurationInFrames ?? undefined,
-					},
-				}),
-			);
-		case 'new-folder':
-			return apply(
-				addFolder({
-					...target,
-					folder: {name: codemod.folderName, parentName: codemod.parentName},
-				}),
-			);
-		case 'rename-folder':
-			return apply(
-				renameFolder({
-					...target,
-					folder: {name: codemod.folderName, parentName: codemod.parentName},
-					newName: codemod.newName,
-				}),
-			);
-		case 'delete-folder':
-			return apply(
-				unwrapFolder({
-					...target,
-					folder: {name: codemod.folderName, parentName: codemod.parentName},
-				}),
-			);
-		case 'move-composition-or-folder': {
-			const destination: CompositionDestination =
-				codemod.destination.type === 'folder'
-					? {
-							type: 'folder',
-							folder: {
-								name: codemod.destination.folderName,
-								parentName: codemod.destination.parentName,
-							},
-						}
-					: codemod.destination.type === 'root'
-						? codemod.destination
-						: {
-								type: codemod.destination.type,
-								target:
-									codemod.destination.target.type === 'composition'
-										? codemod.destination.target
-										: {
-												type: 'folder',
-												name: codemod.destination.target.folderName,
-												parentName: codemod.destination.target.parentName,
-											},
-							};
-			return apply(
-				codemod.source.type === 'composition'
-					? moveComposition({
-							...target,
-							compositionId: codemod.source.compositionId,
-							destination,
-						})
-					: moveFolder({
-							...target,
-							folder: {
-								name: codemod.source.folderName,
-								parentName: codemod.source.parentName,
-							},
-							destination,
-						}),
-			);
-		}
-
-		case 'apply-visual-control':
-			throw new Error(
-				'Applying visual controls is not supported in Browser Studio',
-			);
-		default:
-			throw new Error('Unsupported codemod');
+	options: NewCompositionOptions;
+}): CodemodNodeResult => {
+	const componentFilePath = `${dirname(compositionFile)}/${options.componentName}.tsx`;
+	if (project.files[componentFilePath] !== undefined) {
+		throw new Error(
+			`Cannot create ${relativeToRoot(componentFilePath, project.rootDir)} because it already exists`,
+		);
 	}
+
+	const composition = {
+		project,
+		compositionFile,
+		compositionId: options.newId,
+		component: {
+			filePath: componentFilePath,
+			importName: options.componentName,
+			importPath: options.componentImportPath,
+		},
+		metadata: {
+			width: options.newWidth,
+			height: options.newHeight,
+			fps: options.newFps,
+			durationInFrames: options.newDurationInFrames,
+		},
+		folder:
+			options.folderName === null
+				? undefined
+				: {name: options.folderName, parentName: options.parentName},
+	};
+	if (options.canvasCapture !== null) {
+		return addCanvasCaptureComposition({
+			...composition,
+			capture: options.canvasCapture,
+		});
+	}
+
+	const result = addCompositionCodemod(composition);
+	return {
+		...result,
+		changes: [
+			...result.changes,
+			{
+				filePath: componentFilePath,
+				previousContents: null,
+				nextContents:
+					options.asset === null
+						? emptyCompositionComponent(options.componentName)
+						: assetCompositionComponent({
+								asset: options.asset,
+								componentName: options.componentName,
+							}),
+			},
+		],
+	};
 };
 
 const getElementInstallPlanForProject = async ({
@@ -577,6 +457,14 @@ const getElementInstallPlanForProject = async ({
 }: Parameters<BrowserStudioOperations['prepareElementInstall']>[0] & {
 	project: VirtualProject;
 }) => {
+	if (
+		destination.type === 'selected-media' &&
+		(element.isCaptionStyle !== true ||
+			element.installationMode !== 'component-owned-sequence')
+	) {
+		throw new Error('The Element must be a component-owned caption style');
+	}
+
 	const componentName =
 		StudioProtocolInternals.getElementComponentNameFromSourceCode(
 			element.sourceCode,
@@ -751,6 +639,25 @@ export const createBrowserStudioOperations = ({
 			}
 		},
 	});
+	const commitCompositionEdit = ({
+		fileName,
+		project: _project,
+		result,
+		undoRedoNavigation,
+	}: {
+		fileName: string;
+		project: VirtualProject;
+		result: CodemodNodeResult;
+		undoRedoNavigation: UndoRedoNavigation | null;
+	}) => {
+		return controller.applyMutation({
+			undoRedoNavigation,
+			timelineSelection: null,
+			fileName,
+			nodePathMutationFiles: getNodePathMutationFiles(result),
+			mutate: (current) => applyCodemodChanges(current, result.changes),
+		});
+	};
 
 	const mutateKeyframesInProject = async ({
 		project,
@@ -920,7 +827,6 @@ export const createBrowserStudioOperations = ({
 			componentIdentity: null,
 			keys: getAllSchemaKeys(mutation.schema),
 			effectKeys: [],
-			videoConfig: mutation.nodePath.videoConfigValues ?? undefined,
 		});
 		const nodePath = {
 			...mutation.nodePath,
@@ -954,7 +860,6 @@ export const createBrowserStudioOperations = ({
 			componentIdentity: null,
 			keys: [],
 			effectKeys: effects,
-			videoConfig: mutation.sequenceNodePath.videoConfigValues ?? undefined,
 		});
 
 		return (
@@ -1007,7 +912,6 @@ export const createBrowserStudioOperations = ({
 				keys: request.keys,
 				assetKeys: request.assetKeys,
 				effects: request.effects,
-				videoConfigValues: request.videoConfigValues,
 			});
 		} catch {
 			return {
@@ -1033,7 +937,6 @@ export const createBrowserStudioOperations = ({
 					keys: request.keys,
 					assetKeys: request.assetKeys,
 					effectKeys: request.effects,
-					videoConfig: request.videoConfigValues ?? undefined,
 				});
 				const nextEffectChain = nextStatus.effects
 					.map((effect) => (effect.canUpdate ? effect.callee : false))
@@ -1117,7 +1020,6 @@ export const createBrowserStudioOperations = ({
 			effectKeys: Array.from({length: effectIndex + 1}, (_, index) =>
 				index === effectIndex ? getAllSchemaKeys(schema) : [],
 			),
-			videoConfig: sequenceNodePath.videoConfigValues ?? undefined,
 		});
 		return (
 			status.effects[effectIndex] ?? {
@@ -1535,10 +1437,12 @@ export const createBrowserStudioOperations = ({
 
 	const wrapNode: BrowserStudioOperations['wrapNode'] = ({
 		fileName,
+		compositionId,
 		nodePath,
 		wrapper,
 		width,
 		height,
+		timing,
 	}) => {
 		try {
 			const project = getProject();
@@ -1566,13 +1470,28 @@ export const createBrowserStudioOperations = ({
 							: 'remotion',
 					props:
 						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
-							? {width: width ?? 0, height: height ?? 0}
+							? {
+									width: width ?? 0,
+									height: height ?? 0,
+									...(timing ?? {}),
+								}
 							: {},
 				}),
 			});
+			const insertedNodePath =
+				result.nodePathRemappings.find(
+					(remapping) => remapping.oldNodePath === null,
+				)?.newNodePath ?? null;
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
-				timelineSelection: null,
+				timelineSelection:
+					insertedNodePath !== null
+						? {
+								compositionId,
+								absolutePath: filePath,
+								nodePath: insertedNodePath,
+							}
+						: null,
 				fileName,
 				mutate: (current) => applyCodemodChanges(current, result.changes),
 				nodePathMutationFiles: getNodePathMutationFiles(result),
@@ -1688,6 +1607,7 @@ export const createBrowserStudioOperations = ({
 					node: {filePath: sequence.fileName, nodePath: sequence.nodePath},
 					frame: sequence.splitFrame,
 					sequenceKeys: sequence.sequenceKeys,
+					videoConfig: sequence.videoConfigValues ?? undefined,
 				})),
 			});
 			const nodePathMutation = controller.applyMutation({
@@ -1711,71 +1631,266 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
-	const applyCodemod: BrowserStudioOperations['applyCodemod'] = async ({
-		codemod,
-		dryRun,
-		symbolicatedStack,
-		undoRedoNavigation,
-	}) => {
-		try {
-			if (codemod.type === 'apply-visual-control') {
-				throw new Error(
-					'Applying visual controls is not supported in Browser Studio',
-				);
-			}
-
+	const addComposition: BrowserStudioOperations['addComposition'] = (
+		request,
+	) => {
+		return runBrowserCompositionEdit(() => {
 			const project = getProject();
-			const absolutePath = resolveCodemodTargetFile({
-				codemod,
+			const absolutePath = resolveCompositionEditFile({
+				compositionId: null,
+				folderName: null,
 				project,
-				symbolicatedStack,
+				symbolicatedStack: request.symbolicatedStack,
 			});
-			const input = project.files[absolutePath];
-			const nextProject = applyCompositionCodemod({
+			const result = getAddCompositionResult({
 				project,
 				compositionFile: absolutePath,
-				codemod,
+				options: request.options,
 			});
-			const newContents = nextProject.files[absolutePath];
-			const output =
-				codemod.type === 'new-composition' ||
-				codemod.type === 'duplicate-composition' ||
-				codemod.type === 'rename-composition' ||
-				codemod.type === 'delete-composition'
-					? newContents
-					: (await formatCodemodFile({contents: newContents})).output;
-			const files: Record<string, string> = {
-				...nextProject.files,
-				[absolutePath]: output,
-			};
-
-			const diff = simpleDiff({
-				oldLines: input.split('\n'),
-				newLines: output.split('\n'),
+			const nodePathMutation = commitCompositionEdit({
+				fileName: absolutePath,
+				project,
+				result,
+				undoRedoNavigation: request.undoRedoNavigation,
 			});
+			return {success: true, nodePathMutation};
+		});
+	};
 
-			if (!dryRun) {
-				controller.applyMutation({
-					undoRedoNavigation,
-					timelineSelection: null,
-					fileName: absolutePath,
-					nodePathMutationFiles: null,
-					mutate: () => ({...project, files}),
+	const renameCompositionOperation: BrowserStudioOperations['renameComposition'] =
+		(request) => {
+			return runBrowserCompositionEdit(() => {
+				const project = getProject();
+				const absolutePath = resolveCompositionEditFile({
+					compositionId: request.idToRename,
+					folderName: null,
+					project,
+					symbolicatedStack: request.symbolicatedStack,
 				});
-			}
+				const result = renameCompositionCodemod({
+					project,
+					compositionFile: absolutePath,
+					compositionId: request.idToRename,
+					newId: request.newId,
+				});
+				return {
+					success: true as const,
+					nodePathMutation: commitCompositionEdit({
+						fileName: absolutePath,
+						project,
+						result,
+						undoRedoNavigation: request.undoRedoNavigation,
+					}),
+				};
+			});
+		};
 
-			return {success: true, diff};
-		} catch (error) {
+	const deleteCompositionOperation: BrowserStudioOperations['deleteComposition'] =
+		(request) => {
+			return runBrowserCompositionEdit(() => {
+				const project = getProject();
+				const absolutePath = resolveCompositionEditFile({
+					compositionId: request.idToDelete,
+					folderName: null,
+					project,
+					symbolicatedStack: request.symbolicatedStack,
+				});
+				const result = deleteCompositionCodemod({
+					project,
+					compositionFile: absolutePath,
+					compositionId: request.idToDelete,
+				});
+				return {
+					success: true as const,
+					nodePathMutation: commitCompositionEdit({
+						fileName: absolutePath,
+						project,
+						result,
+						undoRedoNavigation: request.undoRedoNavigation,
+					}),
+				};
+			});
+		};
+
+	const updateCompositionMetadataOperation: BrowserStudioOperations['updateCompositionMetadata'] =
+		(request) => {
+			return runBrowserCompositionEdit(() => {
+				const project = getProject();
+				const absolutePath = resolveCompositionEditFile({
+					compositionId: request.idToUpdate,
+					folderName: null,
+					project,
+					symbolicatedStack: request.symbolicatedStack,
+				});
+				const result = updateCompositionMetadataCodemod({
+					project,
+					compositionFile: absolutePath,
+					compositionId: request.idToUpdate,
+					metadata: {
+						width: request.newWidth ?? undefined,
+						height: request.newHeight ?? undefined,
+						fps: request.newFps ?? undefined,
+						durationInFrames: request.newDurationInFrames ?? undefined,
+					},
+				});
+				return {
+					success: true as const,
+					nodePathMutation: commitCompositionEdit({
+						fileName: absolutePath,
+						project,
+						result,
+						undoRedoNavigation: request.undoRedoNavigation,
+					}),
+				};
+			});
+		};
+
+	const moveCompositionOperation: BrowserStudioOperations['moveComposition'] = (
+		request,
+	) => {
+		return runBrowserCompositionEdit(() => {
+			const project = getProject();
+			const absolutePath = resolveCompositionEditFile({
+				compositionId: request.compositionId,
+				folderName: null,
+				project,
+				symbolicatedStack: request.symbolicatedStack,
+			});
+			const result = moveCompositionCodemod({
+				project,
+				compositionFile: absolutePath,
+				compositionId: request.compositionId,
+				destination: toCodemodCompositionDestination(request.destination),
+			});
 			return {
-				success: false,
-				reason: error instanceof Error ? error.message : String(error),
+				success: true as const,
+				nodePathMutation: commitCompositionEdit({
+					fileName: absolutePath,
+					project,
+					result,
+					undoRedoNavigation: request.undoRedoNavigation,
+				}),
 			};
-		}
+		});
+	};
+
+	const addFolderOperation: BrowserStudioOperations['addFolder'] = (
+		request,
+	) => {
+		return runBrowserCompositionEdit(() => {
+			const project = getProject();
+			const absolutePath = resolveCompositionEditFile({
+				compositionId: null,
+				folderName: null,
+				project,
+				symbolicatedStack: request.symbolicatedStack,
+			});
+			const result = addFolderCodemod({
+				project,
+				compositionFile: absolutePath,
+				folder: {name: request.folderName, parentName: request.parentName},
+			});
+			return {
+				success: true as const,
+				nodePathMutation: commitCompositionEdit({
+					fileName: absolutePath,
+					project,
+					result,
+					undoRedoNavigation: request.undoRedoNavigation,
+				}),
+			};
+		});
+	};
+
+	const renameFolderOperation: BrowserStudioOperations['renameFolder'] = (
+		request,
+	) => {
+		return runBrowserCompositionEdit(() => {
+			const project = getProject();
+			const absolutePath = resolveCompositionEditFile({
+				compositionId: null,
+				folderName: request.folderName,
+				project,
+				symbolicatedStack: request.symbolicatedStack,
+			});
+			const result = renameFolderCodemod({
+				project,
+				compositionFile: absolutePath,
+				folder: {name: request.folderName, parentName: request.parentName},
+				newName: request.newName,
+			});
+			return {
+				success: true as const,
+				nodePathMutation: commitCompositionEdit({
+					fileName: absolutePath,
+					project,
+					result,
+					undoRedoNavigation: request.undoRedoNavigation,
+				}),
+			};
+		});
+	};
+
+	const unwrapFolderOperation: BrowserStudioOperations['unwrapFolder'] = (
+		request,
+	) => {
+		return runBrowserCompositionEdit(() => {
+			const project = getProject();
+			const absolutePath = resolveCompositionEditFile({
+				compositionId: null,
+				folderName: request.folderName,
+				project,
+				symbolicatedStack: request.symbolicatedStack,
+			});
+			const result = unwrapFolderCodemod({
+				project,
+				compositionFile: absolutePath,
+				folder: {name: request.folderName, parentName: request.parentName},
+			});
+			return {
+				success: true as const,
+				nodePathMutation: commitCompositionEdit({
+					fileName: absolutePath,
+					project,
+					result,
+					undoRedoNavigation: request.undoRedoNavigation,
+				}),
+			};
+		});
+	};
+
+	const moveFolderOperation: BrowserStudioOperations['moveFolder'] = (
+		request,
+	) => {
+		return runBrowserCompositionEdit(() => {
+			const project = getProject();
+			const absolutePath = resolveCompositionEditFile({
+				compositionId: null,
+				folderName: request.folderName,
+				project,
+				symbolicatedStack: request.symbolicatedStack,
+			});
+			const result = moveFolderCodemod({
+				project,
+				compositionFile: absolutePath,
+				folder: {name: request.folderName, parentName: request.parentName},
+				destination: toCodemodCompositionDestination(request.destination),
+			});
+			return {
+				success: true as const,
+				nodePathMutation: commitCompositionEdit({
+					fileName: absolutePath,
+					project,
+					result,
+					undoRedoNavigation: request.undoRedoNavigation,
+				}),
+			};
+		});
 	};
 
 	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async ({
 		fileName,
-		sourceNodePath,
+		sourceNodePaths,
 		targetNodePath,
 		position,
 	}) => {
@@ -1785,9 +1900,12 @@ export const createBrowserStudioOperations = ({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderNode({
+			const result = await reorderNodes({
 				project,
-				node: {filePath: absolutePath, nodePath: sourceNodePath.nodePath},
+				nodes: sourceNodePaths.map((sourceNodePath) => ({
+					filePath: absolutePath,
+					nodePath: sourceNodePath.nodePath,
+				})),
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
 				position,
 			});
@@ -2059,57 +2177,44 @@ export const createBrowserStudioOperations = ({
 	};
 
 	const duplicateComposition: BrowserStudioOperations['duplicateComposition'] =
-		async ({codemod, dryRun, undoRedoNavigation}) => {
-			try {
+		(request) => {
+			return runBrowserCompositionEdit(() => {
 				const project = getProject();
-				const compositionFile = getCompositionFile({
-					compositionId: codemod.idToDuplicate,
+				const absolutePath = resolveCompositionEditFile({
+					compositionId: request.idToDuplicate,
+					folderName: null,
 					project,
+					symbolicatedStack: request.symbolicatedStack,
 				});
-				if (compositionFile === null) {
-					throw new Error(
-						`Could not find composition "${codemod.idToDuplicate}" to duplicate`,
-					);
-				}
-
-				const absolutePath = findProjectFile({
-					filePath: compositionFile,
-					project,
-				});
-				const input = project.files[absolutePath];
-				const nextProject = applyCompositionCodemod({
+				const result = duplicateCompositionCodemod({
 					project,
 					compositionFile: absolutePath,
-					codemod,
+					compositionId: request.idToDuplicate,
+					newId: request.newId,
+					tag: request.tag,
+					metadata: {
+						width: request.newWidth ?? undefined,
+						height: request.newHeight ?? undefined,
+						fps:
+							request.tag === 'Still'
+								? undefined
+								: (request.newFps ?? undefined),
+						durationInFrames:
+							request.tag === 'Still'
+								? undefined
+								: (request.newDurationInFrames ?? undefined),
+					},
 				});
-				const newContents = nextProject.files[absolutePath];
-				const {output} = await formatCodemodFile({contents: newContents});
-				const diff = simpleDiff({
-					oldLines: input.split('\n'),
-					newLines: output.split('\n'),
-				});
-
-				if (!dryRun) {
-					controller.applyMutation({
-						undoRedoNavigation,
-						timelineSelection: null,
-						fileName: absolutePath,
-						nodePathMutationFiles: null,
-						mutate: () => ({
-							...project,
-							files: {...project.files, [absolutePath]: output},
-						}),
-					});
-				}
-
-				return {success: true, diff};
-			} catch (error) {
 				return {
-					success: false,
-					reason: error instanceof Error ? error.message : String(error),
-					stack: error instanceof Error && error.stack ? error.stack : '',
+					success: true,
+					nodePathMutation: commitCompositionEdit({
+						fileName: absolutePath,
+						project,
+						result,
+						undoRedoNavigation: request.undoRedoNavigation,
+					}),
 				};
-			}
+			});
 		};
 
 	const updateDefaultProps: BrowserStudioOperations['updateDefaultProps'] =
@@ -2185,6 +2290,7 @@ export const createBrowserStudioOperations = ({
 		nodePath,
 		captions,
 		durationInFrames,
+		premountFor,
 	}) => {
 		try {
 			const project = getProject();
@@ -2194,10 +2300,12 @@ export const createBrowserStudioOperations = ({
 				readFileContents: (candidate) => project.files[candidate] ?? null,
 			});
 			const result = insertBasicCaptionsCodemod({
+				element: null,
 				input: project.files[absolutePath],
 				nodePath,
 				captions,
 				durationInFrames,
+				premountFor,
 				importPath: elementFile.importPath,
 			});
 			const nodePathMutation = controller.applyMutation({
@@ -2348,7 +2456,8 @@ export const createBrowserStudioOperations = ({
 		};
 
 	return {
-		applyCodemod,
+		addComposition,
+		addFolder: addFolderOperation,
 		consumeInitialElement: () => {
 			const value = pendingInitialElement;
 			pendingInitialElement = null;
@@ -2359,6 +2468,7 @@ export const createBrowserStudioOperations = ({
 							...value.payload.element,
 							durationInFrames: value.payload.element.durationInFrames ?? null,
 							installationMode: value.payload.element.installationMode ?? null,
+							isCaptionStyle: value.payload.element.isCaptionStyle ?? false,
 						},
 						sourceOrigin: value.sourceOrigin,
 					};
@@ -2377,10 +2487,12 @@ export const createBrowserStudioOperations = ({
 				project: getProject(),
 			}),
 		duplicateComposition,
+		deleteComposition: deleteCompositionOperation,
 		precomposeJsxNodes,
 		duplicateNodes,
 		wrapNode,
 		effects: effectOperations,
+		clearPendingHmrEvent: controller.clearPendingHmrEvent,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
 		getFileSource: controller.getFileSource,
@@ -2425,14 +2537,15 @@ export const createBrowserStudioOperations = ({
 				const originalProject = getProject();
 				let project = originalProject;
 				if (request.newComposition !== null) {
-					if (request.newComposition.codemod.newId !== request.compositionId) {
+					if (request.newComposition.options.newId !== request.compositionId) {
 						throw new Error(
 							'New composition ID does not match installation target',
 						);
 					}
 
-					const absolutePath = resolveCodemodTargetFile({
-						codemod: request.newComposition.codemod,
+					const absolutePath = resolveCompositionEditFile({
+						compositionId: null,
+						folderName: null,
 						project,
 						symbolicatedStack: request.newComposition.symbolicatedStack,
 					});
@@ -2442,20 +2555,29 @@ export const createBrowserStudioOperations = ({
 						);
 					}
 
-					project = applyCompositionCodemod({
+					project = applyCodemodChanges(
 						project,
-						compositionFile: absolutePath,
-						codemod: request.newComposition.codemod,
-					});
+						getAddCompositionResult({
+							project,
+							compositionFile: absolutePath,
+							options: request.newComposition.options,
+						}).changes,
+					);
 				}
 
 				const plan = await getElementInstallPlanForProject({
 					installationName: request.installationName,
-					destination: {
-						type: 'current-composition',
-						compositionFile: request.compositionFile,
-						compositionId: request.compositionId,
-					},
+					destination:
+						request.captionTarget === null
+							? {
+									type: 'current-composition',
+									compositionFile: request.compositionFile,
+									compositionId: request.compositionId,
+								}
+							: {
+									type: 'selected-media',
+									compositionFile: request.captionTarget.fileName,
+								},
 					element,
 					project,
 				});
@@ -2565,46 +2687,84 @@ export const createBrowserStudioOperations = ({
 					request.element.dependencies,
 				);
 				const durationInFrames = request.element.durationInFrames ?? null;
-				const insertion = await insertIntoProject({
-					project,
-					request: {
-						compositionFile: request.compositionFile,
-						compositionId: request.compositionId,
-						element: {
-							componentName: plan.componentName,
-							importName: plan.componentName,
-							importPath: plan.importPath,
-							position: componentOwnsSequence ? request.position : null,
-							props: [
-								...Object.entries(request.element.initialProps ?? {}).map(
-									([name, value]) => ({name, value}),
-								),
-								...(componentOwnsSequence && durationInFrames !== null
-									? [
-											{
-												name: 'durationInFrames',
-												value: durationInFrames,
-											},
-										]
-									: []),
-								...(componentOwnsSequence
-									? [{name: 'name', value: request.element.displayName}]
-									: []),
-							],
-							type: 'component',
-						},
-						from: componentOwnsSequence ? request.from : null,
-					},
-					wrapInSequence: componentOwnsSequence
-						? null
-						: {
-								dimensions: request.element.dimensions,
-								durationInFrames,
-								from: request.from,
-								name: request.element.displayName,
-								position: request.position,
+				let insertion: {
+					changes: CodemodFileChange[];
+					filePath: string;
+					nodePathRemappings: SequenceNodePathRemapping[];
+				};
+				if (request.captionTarget === null) {
+					insertion = await insertIntoProject({
+						project,
+						request: {
+							compositionFile: request.compositionFile,
+							compositionId: request.compositionId,
+							element: {
+								componentName: plan.componentName,
+								importName: plan.componentName,
+								importPath: plan.importPath,
+								position: componentOwnsSequence ? request.position : null,
+								props: [
+									...Object.entries(request.element.initialProps ?? {}).map(
+										([name, value]) => ({name, value}),
+									),
+									...(componentOwnsSequence && durationInFrames !== null
+										? [
+												{
+													name: 'durationInFrames',
+													value: durationInFrames,
+												},
+											]
+										: []),
+									...(componentOwnsSequence
+										? [{name: 'name', value: request.element.displayName}]
+										: []),
+								],
+								type: 'component',
 							},
-				});
+							from: componentOwnsSequence ? request.from : null,
+							premountFor: request.premountFor,
+						},
+						wrapInSequence: componentOwnsSequence
+							? null
+							: {
+									dimensions: request.element.dimensions,
+									durationInFrames,
+									from: request.from,
+									name: request.element.displayName,
+									position: request.position,
+								},
+					});
+				} else {
+					const filePath = plan.destinationCompositionFilePath;
+					const initialProps = {...element.initialProps};
+					if (element.dimensions !== null) {
+						initialProps.style = {
+							...element.dimensions,
+							...(typeof initialProps.style === 'object'
+								? initialProps.style
+								: {}),
+						};
+					}
+
+					const result = insertBasicCaptionsCodemod({
+						...request.captionTarget,
+						input: project.files[filePath],
+						importPath: plan.importPath,
+						element: {componentName: plan.componentName, initialProps},
+					});
+					insertion = {
+						changes: [
+							{
+								filePath,
+								previousContents: project.files[filePath],
+								nextContents: result.output,
+							},
+						],
+						filePath,
+						nodePathRemappings: result.nodePathRemappings,
+					};
+				}
+
 				const projectWithElement = applyCodemodChanges(project, [
 					...insertion.changes,
 					{
@@ -2656,6 +2816,8 @@ export const createBrowserStudioOperations = ({
 			}
 		},
 		insertCompositionElement,
+		moveComposition: moveCompositionOperation,
+		moveFolder: moveFolderOperation,
 		keyframes,
 		packageInstallation,
 		prepareElementInstall: async (request) => {
@@ -2682,6 +2844,8 @@ export const createBrowserStudioOperations = ({
 				};
 			}
 		},
+		renameComposition: renameCompositionOperation,
+		renameFolder: renameFolderOperation,
 		redo: controller.redo,
 		renameStaticFile: controller.renameStaticFile,
 		reorderSequence,
@@ -2860,6 +3024,8 @@ export const createBrowserStudioOperations = ({
 			return Promise.resolve(undefined);
 		},
 		updateDefaultProps,
+		updateCompositionMetadata: updateCompositionMetadataOperation,
+		unwrapFolder: unwrapFolderOperation,
 		writeStaticFile: controller.writeStaticFile,
 	};
 };

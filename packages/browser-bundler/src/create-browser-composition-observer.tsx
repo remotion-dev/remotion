@@ -1,4 +1,10 @@
-import React, {Suspense, useEffect, useMemo, useState} from 'react';
+import React, {
+	Suspense,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {createRoot} from 'react-dom/client';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
@@ -63,7 +69,19 @@ const RegistrationCommitted: React.FC<{
 	readonly revision: number;
 	readonly onCommit: (revision: number) => void;
 }> = ({revision, onCommit}) => {
-	useEffect(() => onCommit(revision), [onCommit, revision]);
+	useEffect(() => {
+		let cancelled = false;
+		// Publish readiness after the registry's post-commit snapshot, so
+		// metadata resolution cannot mistake pending publication for an empty Root.
+		queueMicrotask(() => {
+			if (!cancelled) {
+				onCommit(revision);
+			}
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [onCommit, revision]);
 	return null;
 };
 
@@ -168,34 +186,37 @@ const ObserveComposition: React.FC<
 		null,
 	);
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
-	const setters = useMemo<
-		React.ContextType<typeof Internals.CompositionSetters>
-	>(
-		() => ({
-			registerComposition: (composition) => {
-				setCompositions((current) => {
-					if (current.some(({id}) => id === composition.id)) {
-						throw new Error(
-							`A composition with ID "${composition.id}" was registered more than once.`,
-						);
-					}
-
-					return [...current, composition as AnyComposition];
-				});
-			},
-			unregisterComposition: (id) => {
-				setCompositions((current) =>
-					current.filter((composition) => composition.id !== id),
-				);
-			},
-			registerFolder: () => undefined,
-			unregisterFolder: () => undefined,
-			setCanvasContent: () => undefined,
-			setCurrentAssetMetadata: () => undefined,
-			onlyRenderComposition: null,
-		}),
-		[],
+	const [registrationError, setRegistrationError] = useState<Error | null>(
+		null,
 	);
+	const onSnapshot = useCallback<
+		React.ComponentProps<
+			typeof Internals.CompositionRegistryProvider
+		>['onSnapshot']
+	>((snapshot) => {
+		const ids = new Set<string>();
+		for (const composition of snapshot.compositions) {
+			if (ids.has(composition.id)) {
+				setRegistrationError(
+					new Error(
+						`A composition with ID "${composition.id}" was registered more than once.`,
+					),
+				);
+				return;
+			}
+
+			ids.add(composition.id);
+		}
+
+		setCompositions((current) =>
+			current.length === snapshot.compositions.length &&
+			current.every(
+				(composition, index) => composition === snapshot.compositions[index],
+			)
+				? current
+				: [...snapshot.compositions],
+		);
+	}, []);
 	// Registry changes must not rerender Root and trigger another registration.
 	const registration = useMemo(
 		() => (
@@ -209,10 +230,13 @@ const ObserveComposition: React.FC<
 		),
 		[RegisteredRoot, revision],
 	);
+	if (registrationError !== null) {
+		throw registrationError;
+	}
 
 	return (
 		<Internals.RemotionEnvironmentContext.Provider value={environment}>
-			<Internals.CompositionSetters.Provider value={setters}>
+			<Internals.CompositionRegistryProvider onSnapshot={onSnapshot}>
 				{registration}
 				<ObserveMetadata
 					composition={
@@ -225,7 +249,7 @@ const ObserveComposition: React.FC<
 					onChange={onChange}
 					onError={onError}
 				/>
-			</Internals.CompositionSetters.Provider>
+			</Internals.CompositionRegistryProvider>
 		</Internals.RemotionEnvironmentContext.Provider>
 	);
 };

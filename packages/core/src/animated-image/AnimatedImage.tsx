@@ -7,7 +7,6 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import {cancelRender} from '../cancel-render.js';
 import type {SequenceControls} from '../CompositionManager.js';
 import type {EffectsProp} from '../effects/effect-types.js';
 import {
@@ -22,6 +21,7 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
+	loopField,
 	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
@@ -39,6 +39,7 @@ import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
 import {getCurrentTime} from './get-current-time.js';
+import {getAnimatedImageDurationInSeconds} from './get-duration-in-seconds.js';
 import type {
 	AnimatedImageCanvasProps,
 	AnimatedImageProps,
@@ -56,6 +57,7 @@ export const animatedImageSchema = {
 		keyframable: false,
 	},
 	...baseSchema,
+	loop: loopField,
 	...cropSchema,
 	...premountSchema,
 	...transformSchema,
@@ -108,13 +110,12 @@ const AnimatedImageContent = forwardRef<
 		canvasRef,
 	) => {
 		const resolvedSrc = resolveAnimatedImageSource(src);
-		const [imageDecoder, setImageDecoder] =
-			useState<RemotionImageDecoder | null>(null);
-		const {delayRender, continueRender} = useDelayRender();
-
-		const [decodeHandle] = useState(() =>
-			delayRender(`Rendering <AnimatedImage/> with src="${resolvedSrc}"`),
-		);
+		const [decodedImage, setDecodedImage] = useState<{
+			decoder: RemotionImageDecoder;
+			handle: number;
+		} | null>(null);
+		const imageDecoder = decodedImage?.decoder ?? null;
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
@@ -130,6 +131,7 @@ const AnimatedImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 
 		useImperativeHandle(canvasRef, () => {
@@ -143,7 +145,10 @@ const AnimatedImageContent = forwardRef<
 
 		const [initialLoopBehavior] = useState(() => loopBehavior);
 
-		useEffect(() => {
+		useLayoutEffect(() => {
+			const decodeHandle = delayRender(
+				`Rendering <AnimatedImage/> with src="${resolvedSrc}"`,
+			);
 			const controller = new AbortController();
 			let cancelled = false;
 			let continued = false;
@@ -170,8 +175,7 @@ const AnimatedImageContent = forwardRef<
 						return;
 					}
 
-					setImageDecoder(d);
-					continueRenderOnce();
+					setDecodedImage({decoder: d, handle: decodeHandle});
 				})
 				.catch((err) => {
 					if (cancelled) {
@@ -199,11 +203,12 @@ const AnimatedImageContent = forwardRef<
 			};
 		}, [
 			resolvedSrc,
-			decodeHandle,
 			onError,
 			requestInitKey,
 			initialLoopBehavior,
 			continueRender,
+			delayRender,
+			cancelRender,
 		]);
 
 		useEffect(() => {
@@ -213,13 +218,15 @@ const AnimatedImageContent = forwardRef<
 		}, [imageDecoder]);
 
 		useLayoutEffect(() => {
-			if (!imageDecoder) {
+			if (!imageDecoder || !decodedImage) {
 				return;
 			}
 
 			const delay = delayRender(
 				`Rendering frame at ${currentTime} of <AnimatedImage src="${src}"/>`,
 			);
+			// The frame hold takes over only after the decoded image has committed.
+			continueRender(decodedImage.handle);
 
 			let cancelled = false;
 
@@ -261,6 +268,7 @@ const AnimatedImageContent = forwardRef<
 		}, [
 			currentTime,
 			imageDecoder,
+			decodedImage,
 			loopBehavior,
 			onError,
 			src,
@@ -270,6 +278,7 @@ const AnimatedImageContent = forwardRef<
 			fit,
 			width,
 			height,
+			cancelRender,
 		]);
 
 		return (
@@ -372,7 +381,11 @@ const AnimatedImageInner = ({
 	};
 
 	return (
-		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+		<Freeze
+			frame={freezeFrame}
+			active={isPremountingOrPostmounting}
+			_remotionInternalIsPremounting={premountingActive}
+		>
 			<Sequence
 				layout="none"
 				from={from ?? 0}
@@ -399,8 +412,110 @@ const AnimatedImageInner = ({
 	);
 };
 
+const AnimatedImageWithIntrinsicDuration = (
+	props: AnimatedImageProps & {
+		readonly controls?: SequenceControls | undefined;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	},
+) => {
+	const {fps} = useVideoConfig();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {src, requestInit, trimBefore} = props;
+	const requestInitRef = useRef(requestInit);
+	requestInitRef.current = requestInit;
+	const onErrorRef = useRef(props.onError);
+	onErrorRef.current = props.onError;
+	const [duration, setDuration] = useState<{
+		durationInFrames: number;
+		handle: number;
+	} | null>(null);
+	const [failedHandle, setFailedHandle] = useState<number | null>(null);
+
+	useLayoutEffect(() => {
+		const handle = delayRender(
+			`Finding duration of <AnimatedImage src="${src}" />`,
+		);
+		const controller = new AbortController();
+		let cancelled = false;
+		getAnimatedImageDurationInSeconds({
+			resolvedSrc: resolveAnimatedImageSource(src),
+			signal: controller.signal,
+			requestInit: requestInitRef.current,
+			contentType: null,
+		})
+			.then((durationInSeconds) => {
+				if (!cancelled) {
+					setDuration({
+						durationInFrames:
+							Math.ceil(durationInSeconds * fps) - (trimBefore ?? 0),
+						handle,
+					});
+				}
+			})
+			.catch((error) => {
+				if (cancelled) {
+					return;
+				}
+
+				if (onErrorRef.current) {
+					onErrorRef.current(error);
+					setFailedHandle(handle);
+				} else {
+					cancelRender(error);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+			controller.abort();
+			continueRender(handle);
+		};
+	}, [cancelRender, continueRender, delayRender, fps, src, trimBefore]);
+
+	useLayoutEffect(() => {
+		if (duration !== null) {
+			continueRender(duration.handle);
+		}
+
+		if (failedHandle !== null) {
+			continueRender(failedHandle);
+		}
+	}, [continueRender, duration, failedHandle]);
+
+	if (duration === null || failedHandle !== null) {
+		return null;
+	}
+
+	return (
+		<AnimatedImageInner
+			{...props}
+			durationInFrames={duration.durationInFrames}
+		/>
+	);
+};
+
+const AnimatedImageComponent = (
+	props: AnimatedImageProps & {
+		readonly controls?: SequenceControls | undefined;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	},
+) => {
+	if (props.loop && props.durationInFrames === undefined) {
+		const resolvedSrc = resolveAnimatedImageSource(props.src);
+		const requestInitKey = serializeRequestInit(props.requestInit);
+		return (
+			<AnimatedImageWithIntrinsicDuration
+				{...props}
+				key={`${resolvedSrc}-${requestInitKey}-${props.trimBefore ?? 0}`}
+			/>
+		);
+	}
+
+	return <AnimatedImageInner {...props} />;
+};
+
 export const AnimatedImage = withInteractivitySchema({
-	Component: AnimatedImageInner,
+	Component: AnimatedImageComponent,
 	componentName: '<AnimatedImage>',
 	componentIdentity: 'dev.remotion.remotion.AnimatedImage',
 	schema: animatedImageSchema,

@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {
 	useCallback,
 	useContext,
@@ -6,7 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import type {_InternalTypes} from 'remotion';
+import {Internals, type _InternalTypes} from 'remotion';
 import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -38,7 +38,7 @@ import type {
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 
-const {useCanvasOutlines} = CanvasInternals;
+const {useCanvasOutlines, scaleCanvasOutline} = CanvasInternals;
 type CustomSequenceOutline = _InternalTypes['CustomSequenceOutline'];
 
 const outlineContainer: React.CSSProperties = {
@@ -67,7 +67,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	readonly sequences: Parameters<
 		typeof orderOutlinesForRendering
 	>[0]['sequences'];
-	readonly updateOutlinesRef: React.MutableRefObject<() => void>;
 }> = ({
 	compositionHeight,
 	compositionWidth,
@@ -80,7 +79,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	onSelect,
 	scale,
 	sequences,
-	updateOutlinesRef,
 }) => {
 	const overlayRef = useRef<SVGSVGElement>(null);
 	const selectedCustomOutlinesRef = useRef<ReadonlySet<CustomSequenceOutline>>(
@@ -128,12 +126,11 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		targetsByKey,
 		hoveredNodePathKey,
 	} = useCanvasOutlines({
-		containerRef: overlayRef,
+		contentRoot: Internals.portalNode(),
 		targets: outlineTargets,
 		sequences,
 		hoverController,
 		freezeOrder: dragging,
-		updateOutlinesRef,
 	});
 	useLayoutEffect(() => {
 		const nextSelectedCustomOutlines = new Set<CustomSequenceOutline>();
@@ -213,10 +210,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	}, [hoveredNodePathKey, outlinesForRendering, targetsByKey]);
 	const targetsRef = useRef(outlineTargets);
 	const outlinesByKeyRef = useRef(outlinesByKey);
+	const scaleRef = useRef(scale);
 	useLayoutEffect(() => {
 		targetsRef.current = outlineTargets;
 		outlinesByKeyRef.current = outlinesByKey;
-	}, [outlineTargets, outlinesByKey]);
+		scaleRef.current = scale;
+	}, [outlineTargets, outlinesByKey, scale]);
 	const getAllDragOutlines = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {
@@ -232,7 +231,9 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 				}
 
 				const outline = outlinesByKeyRef.current.get(target.key);
-				return outline === undefined ? [] : [outline];
+				return outline === undefined
+					? []
+					: [scaleCanvasOutline(outline, scaleRef.current)];
 			}),
 		[getLatestOutlineTargetByKey],
 	);
@@ -279,6 +280,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	return (
 		<svg
 			ref={overlayRef}
+			{...{'oai-annotation-container': ''}}
 			style={outlineContainer}
 			width="100%"
 			height="100%"
@@ -305,7 +307,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					getAllDragOutlines={getAllDragOutlines}
 					getAllDragTargets={getAllDragTargets}
 					getLatestTargetByKey={getLatestOutlineTargetByKey}
-					outline={outline}
+					outline={scaleCanvasOutline(outline, scale)}
 					onDraggingChange={onDraggingChange}
 					onSnapPointsChange={onSnapPointsChange}
 					onSelect={onSelect}
@@ -322,7 +324,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 				return outline.path !== null && pathDrag !== null ? (
 					<SelectedOutlinePathPoints
 						key={`${outline.key}-path-points`}
-						outline={outline}
+						outline={scaleCanvasOutline(outline, scale)}
 						pathDrag={pathDrag}
 						onDraggingChange={onDraggingChange}
 					/>
@@ -362,14 +364,14 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					onContextMenuOpenChange={onContextMenuOpenChange}
 					onDraggingChange={onDraggingChange}
 					onSelect={onSelect}
-					outline={outline}
+					outline={scaleCanvasOutline(outline, scale)}
 				/>
 			))}
 			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}
 			{outlinesForUvHandles.map((outline) => (
 				<SelectedOutlineUvHandleConnectionLayer
 					key={`${outline.key}-uv-connection-lines`}
-					outline={outline}
+					outline={scaleCanvasOutline(outline, scale)}
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
@@ -378,7 +380,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					key={`${outline.key}-uv-handles`}
 					onDraggingChange={onDraggingChange}
 					onSelect={onSelect}
-					outline={outline}
+					outline={scaleCanvasOutline(outline, scale)}
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
@@ -386,7 +388,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			{outlinesForTransformOrigin.map((outline) => (
 				<SelectedOutlineTransformOriginHandle
 					key={`${outline.key}-transform-origin`}
-					outline={outline}
+					outline={scaleCanvasOutline(outline, scale)}
 					onDraggingChange={onDraggingChange}
 					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					layoutTarget={targetsByKey.get(outline.key)}

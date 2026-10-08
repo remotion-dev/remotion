@@ -1,6 +1,6 @@
 {
 	"name": "template-vibe-code",
-	"version": "4.0.529",
+	"version": "4.0.534",
 	"description": "Browser-based motion graphics editor: code, preview and edit Remotion compositions live in the browser",
 	"private": true,
 	"repository": {
@@ -9,7 +9,7 @@
 	"homepage": "https://www.remotion.dev",
 	"scripts": {
 		"dev": "node scripts/build-preview.mjs && next dev",
-		"build": "node scripts/build-preview.mjs && next build",
+		"build": "node scripts/build-preview.mjs && next build && node scripts/prune-compiler-duplicates.mjs",
 		"start": "next start",
 		"build-preview": "node scripts/build-preview.mjs",
 		"lint": "eslint . && tsc --noEmit",
@@ -26,7 +26,7 @@
 		"@radix-ui/react-tabs": "1.1.13",
 		"@radix-ui/react-tooltip": "1.2.8",
 		"@remotion/browser-bundler": "workspace:*",
-		"@remotion/canvas": "workspace:*",
+		"@remotion/sdk": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/codemods": "workspace:*",
 		"@remotion/player": "workspace:*",
@@ -36,7 +36,7 @@
 		"lucide-react": "0.555.0",
 		"monaco-editor": "0.55.1",
 		"monaco-jsx-syntax-highlight": "1.2.2",
-		"next": "16.3.3",
+		"next": "16.4.0",
 		"react": "19.2.3",
 		"react-dom": "19.2.3",
 		"react-refresh": "0.18.0",
@@ -52,7 +52,7 @@
 		"@types/react": "19.2.7",
 		"@types/react-dom": "19.2.3",
 		"esbuild": "0.28.1",
-		"eslint": "9.19.0",
+		"eslint": "9.39.5",
 		"postcss": "8.5.23",
 		"prettier": "3.8.1",
 		"tailwindcss": "4.2.0",

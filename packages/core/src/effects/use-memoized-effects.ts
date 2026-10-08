@@ -1,4 +1,5 @@
 import {useContext, useLayoutEffect, useRef} from 'react';
+import {evaluateSourcePropStatuses} from '../evaluate-source-expressions.js';
 import {
 	getFrameInKeyframedStatusClock,
 	resolveDragOverrideValue,
@@ -13,7 +14,7 @@ import type {
 } from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
-	VisualModeDragOverridesContext,
+	useEffectDragOverridesForNodePath,
 	VisualModePropStatusesContext,
 	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
@@ -23,11 +24,14 @@ import {
 	type DragOverrideValue,
 	type PropStatuses,
 } from '../use-schema.js';
+import type {VideoConfigValues} from '../video-config.js';
 import type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
 	EffectDefinition,
 } from './effect-types.js';
+
+const emptyDragOverrides: Record<string, DragOverrideValue> = {};
 
 const mergeOverrides = ({
 	descriptor,
@@ -113,7 +117,9 @@ export const useMemoizedEffectDefinitions = (
 	readonly runtimeValues: readonly RuntimeValueStore[];
 } => {
 	const previousRef = useRef<{
-		readonly definitions: readonly EffectDefinition<unknown>[];
+		readonly definitions: readonly EffectDefinition<unknown>[] & {
+			readonly runtimeValues: readonly RuntimeValueStore[];
+		};
 		readonly controllers: ReturnType<typeof createRuntimeValueStore>[];
 	} | null>(null);
 
@@ -131,9 +137,15 @@ export const useMemoizedEffectDefinitions = (
 		: effects.map((effect) =>
 				createRuntimeValueStore(effect.params as Record<string, unknown>),
 			);
-	const stableDefinitions = isSame ? previous.definitions : definitions;
+	const stableDefinitions = isSame
+		? previous.definitions
+		: Object.assign(definitions, {
+				runtimeValues: controllers.map((controller) => controller.store),
+			});
 
 	useLayoutEffect(() => {
+		// Abandoned renders must not replace the cache used by committed layers.
+		previousRef.current = {definitions: stableDefinitions, controllers};
 		// Stores are intentionally updated without changing the registered effect
 		// array, so frame-dependent parameters don't re-register the Sequence.
 		stableDefinitions.forEach((_definition, index) => {
@@ -142,10 +154,7 @@ export const useMemoizedEffectDefinitions = (
 		});
 	}, [controllers, effects, stableDefinitions]);
 
-	previousRef.current = {definitions: stableDefinitions, controllers};
-	return Object.assign(stableDefinitions, {
-		runtimeValues: controllers.map((controller) => controller.store),
-	});
+	return stableDefinitions;
 };
 
 type EffectStatus =
@@ -189,7 +198,10 @@ export const getEffectPropStatusesCtx = ({
 		return {type: 'cannot-update-effect', reason: effect.reason};
 	}
 
-	return {type: 'can-update-effect', props: effect.props};
+	return {
+		type: 'can-update-effect',
+		props: evaluateSourcePropStatuses(effect.props, nodePath.videoConfigValues),
+	};
 };
 
 export const getPropStatusesCtx = (
@@ -205,7 +217,7 @@ export const getPropStatusesCtx = (
 		return undefined;
 	}
 
-	return status.props;
+	return evaluateSourcePropStatuses(status.props, nodePath.videoConfigValues);
 };
 
 export type GetPropStatusesType = typeof getPropStatusesCtx;
@@ -213,14 +225,15 @@ export type GetPropStatusesType = typeof getPropStatusesCtx;
 export const useMemoizedEffects = ({
 	effects,
 	overrideId,
+	videoConfigValues,
 }: {
 	effects: readonly EffectDescriptor<unknown>[];
 	readonly overrideId: string | null;
+	videoConfigValues: VideoConfigValues | null;
 }): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
-	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
 	const frame = useCurrentFrame();
 
 	const {overrideIdToNodePathMappings} = useContext(
@@ -232,6 +245,7 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
+	const effectDragOverrides = useEffectDragOverridesForNodePath(nodePath);
 
 	const resolved = effects.map((descriptor, index) => {
 		if (nodePath === null) {
@@ -244,14 +258,14 @@ export const useMemoizedEffects = ({
 
 		const effectStatus = getEffectPropStatusesCtx({
 			propStatuses,
-			nodePath,
+			nodePath: {...nodePath, videoConfigValues},
 			effectIndex: index,
 		});
 		const propStatusOverrides =
 			effectStatus.type === 'can-update-effect'
 				? resolvePropStatusOverrides(effectStatus.props, frame)
 				: null;
-		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
+		const dragOverridesMap = effectDragOverrides[index] ?? emptyDragOverrides;
 		const dragOverrides =
 			Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
 
@@ -274,18 +288,16 @@ export const useMemoizedEffects = ({
 				p.effectKey === resolved[i].effectKey,
 		);
 
-	if (isSame) {
-		return previous;
-	}
-
-	const next: EffectDefinitionAndStack<unknown>[] = resolved.map(
-		({descriptor, params, effectKey}) => ({
-			definition: descriptor.definition,
-			effectKey,
-			params,
-			memoized: true,
-		}),
-	);
-	previousRef.current = next;
+	const next: EffectDefinitionAndStack<unknown>[] = isSame
+		? previous
+		: resolved.map(({descriptor, params, effectKey}) => ({
+				definition: descriptor.definition,
+				effectKey,
+				params,
+				memoized: true,
+			}));
+	useLayoutEffect(() => {
+		previousRef.current = next;
+	}, [next]);
 	return next;
 };

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.529",
+	"version": "4.0.534",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"scripts": {
@@ -35,8 +35,10 @@
 	},
 	"dependencies": {
 		"@jridgewell/trace-mapping": "0.3.31",
-		"@remotion/canvas": "workspace:*",
+		"@remotion/sdk": "workspace:*",
 		"@remotion/captions": "workspace:*",
+		"@remotion/elevenlabs": "workspace:*",
+		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/paths": "workspace:*",
@@ -93,6 +95,12 @@
 			"module": "./dist/esm/internals.mjs",
 			"import": "./dist/esm/internals.mjs"
 		},
+		"./previewBootstrap": {
+			"types": "./dist/previewBootstrap.d.ts",
+			"require": "./dist/previewBootstrap.js",
+			"module": "./dist/esm/previewBootstrap.mjs",
+			"import": "./dist/esm/previewBootstrap.mjs"
+		},
 		"./previewEntry": {
 			"types": "./dist/previewEntry.d.ts",
 			"require": "./dist/previewEntry.js",
@@ -108,6 +116,9 @@
 			],
 			"internals": [
 				"./dist/internals.d.ts"
+			],
+			"previewBootstrap": [
+				"./dist/previewBootstrap.d.ts"
 			],
 			"previewEntry": [
 				"./dist/previewEntry.d.ts"

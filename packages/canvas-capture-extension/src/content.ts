@@ -1014,7 +1014,7 @@ export const startContent = () => {
 			const closeLabel = state.recording
 				? 'Stop recording before clearing selection'
 				: state.hasCompletedRecording
-					? 'Discard recording and clear selection'
+					? 'Discard recording'
 					: state.hasTarget
 						? 'Clear selection'
 						: 'Close';
@@ -1287,6 +1287,17 @@ export const startContent = () => {
 					`${getContainerLabel(recordingFormat)} ready. Open it in Browser Studio, Convert, or download it.`,
 				);
 			} catch (error) {
+				// eslint-disable-next-line no-console -- Surface stop failures in the page DevTools console.
+				console.error(
+					'[Remotion Canvas Capture] Failed to stop recording',
+					{
+						format: recordingFormat,
+						outputSize,
+						scale,
+						target: selectedTarget?.type,
+					},
+					error,
+				);
 				setStatus(error instanceof Error ? error.message : String(error), true);
 			} finally {
 				capture = null;
@@ -1496,13 +1507,16 @@ export const startContent = () => {
 				return;
 			}
 
-			if (selectedTarget || completedRecording) {
-				setStatus(
-					completedRecording
-						? 'Recording discarded. Choose an area or the whole page.'
-						: 'Choose an area or the whole page.',
-				);
+			if (completedRecording) {
 				completedRecording = null;
+				setStatus('Recording discarded. Ready to record again.');
+				updateHighlight();
+				updateControls();
+				return;
+			}
+
+			if (selectedTarget) {
+				setStatus('Choose an area or the whole page.');
 				selectedTarget = null;
 				encoderSupportCheckId++;
 				encoderSupport = 'unavailable';
@@ -1603,6 +1617,11 @@ export const startContent = () => {
 
 			action()
 				.catch((error) => {
+					// eslint-disable-next-line no-console -- Surface unexpected control errors in the page DevTools console.
+					console.error(
+						`[Remotion Canvas Capture] Failed to ${state.recording ? 'stop' : 'start'} recording`,
+						error,
+					);
 					setStatus(
 						error instanceof Error ? error.message : String(error),
 						true,

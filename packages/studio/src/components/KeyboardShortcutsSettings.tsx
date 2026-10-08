@@ -37,6 +37,7 @@ import {
 	keyboardShortcutsOverlap,
 	shortcutFromKeyboardEvent,
 } from './keyboard-shortcuts';
+import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -173,7 +174,7 @@ const ShortcutChords: React.FC<{
 					<span style={chord}>
 						{keys.map((keyboardKey) => (
 							<kbd key={keyboardKey} style={key}>
-								{keyboardKey}
+								<KeyboardShortcutLabel shortcut={keyboardKey} style={null} />
 							</kbd>
 						))}
 					</span>

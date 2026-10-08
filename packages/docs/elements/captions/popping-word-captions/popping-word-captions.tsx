@@ -2,34 +2,22 @@ import type {Caption, TikTokPage, TikTokToken} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Montserrat';
 import {fitText} from '@remotion/layout-utils';
-import React, {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	Interactive,
 	interpolate,
-	Sequence,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type PoppingWordCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+type PoppingWordCaptionsProps = InteractiveTransformProps &
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
-		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
@@ -40,10 +28,8 @@ const highlightColor = '#2563eb';
 const activeWordScale = 1.03;
 const defaultCombineTokensWithinMilliseconds = 800;
 const defaultWidth = 682;
-const defaultHeight = 252;
 
 const poppingWordCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -51,14 +37,6 @@ const poppingWordCaptionsSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Caption area width',
-		hiddenFromList: false,
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
 		hiddenFromList: false,
 	},
 	combineTokensWithinMilliseconds: {
@@ -69,7 +47,6 @@ const poppingWordCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
@@ -238,21 +215,24 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const PoppingWordCaptionsContent: React.FC<{
-	readonly captionAreaWidth: number | null;
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-	readonly playbackRate: number;
-	readonly trimBefore: number;
-}> = ({
-	captionAreaWidth,
+const PoppingWordCaptionsContent: React.FC<PoppingWordCaptionsProps> = ({
 	captions,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
-	playbackRate,
-	trimBefore,
+	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+	style,
+	width = defaultWidth,
 }) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontLoaded(true);
+			})
+			.catch((error) => {
+				cancelRender(error instanceof Error ? error : new Error(String(error)));
+			});
+	}, []);
+
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -263,101 +243,34 @@ const PoppingWordCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	const currentTimeMs =
-		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
+	const currentTimeMs = (frame / fps) * 1000;
 	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
 	const page = pages[activePageIndex];
 
-	if (!fontLoaded || !page) {
-		return null;
-	}
-
 	return (
-		<CaptionPage
-			key={`${activePageIndex}-${page.startMs}`}
-			captionAreaWidth={captionAreaWidth}
-			currentTimeMs={currentTimeMs}
-			fps={fps}
-			page={page}
-			pageIndex={activePageIndex}
-		/>
+		<div
+			style={{
+				width,
+				...style,
+			}}
+		>
+			{fontLoaded && page ? (
+				<CaptionPage
+					key={`${activePageIndex}-${page.startMs}`}
+					captionAreaWidth={width ?? null}
+					currentTimeMs={currentTimeMs}
+					fps={fps}
+					page={page}
+					pageIndex={activePageIndex}
+				/>
+			) : null}
+		</div>
 	);
 };
 
-const PoppingWordCaptionsInner = forwardRef<
-	HTMLDivElement,
-	PoppingWordCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-			controls,
-			height = defaultHeight,
-			name,
-			playbackRate = 1,
-			style,
-			trimBefore,
-			width = defaultWidth,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-		const [fontLoaded, setFontLoaded] = useState(false);
-
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-		useEffect(() => {
-			waitUntilDone()
-				.then(() => {
-					setFontLoaded(true);
-				})
-				.catch((error) => {
-					cancelRender(
-						error instanceof Error ? error : new Error(String(error)),
-					);
-				});
-		}, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? '<PoppingWordCaptions>'}
-				trimBefore={trimBefore}
-			>
-				<div
-					ref={elementRef}
-					style={{
-						height,
-						marginInline: 'auto',
-						width,
-						...style,
-					}}
-				>
-					<PoppingWordCaptionsContent
-						captionAreaWidth={width ?? null}
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						fontLoaded={fontLoaded}
-						playbackRate={playbackRate}
-						trimBefore={trimBefore ?? 0}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
-
-const PoppingWordCaptionsLayer = Interactive.withSchema({
-	Component: PoppingWordCaptionsInner,
+export const PoppingWordCaptions = Interactive.withSchema({
+	Component: PoppingWordCaptionsContent,
 	componentName: '<PoppingWordCaptions>',
 	schema: poppingWordCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<PoppingWordCaptionsProps>;
-
-export const PoppingWordCaptions = PoppingWordCaptionsLayer;
+	wrapInSequence: true,
+});

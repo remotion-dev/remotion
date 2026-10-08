@@ -45,36 +45,33 @@ test.describe('error overlay dismissal', () => {
 		const errorMessage = page.getByText('"radius" must be a finite number');
 		const openInEditorRequests: unknown[] = [];
 		const openInCodingAgentRequests: unknown[] = [];
-		await page.route('**/api/default-editor-info', async (route) => {
+		await page.route('**/api/app-info', async (route) => {
 			await route.fulfill({
 				json: {
 					success: true,
 					data: {
-						defaultEditor: 'zed',
-						installedEditors: [
-							{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
-							{id: 'vscode', name: 'Code', nameWithType: 'VS Code'},
-						],
-					},
-				},
-			});
-		});
-		await page.route('**/api/default-coding-agent-info', async (route) => {
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						defaultCodingAgent: 'codex',
-						installedCodingAgents: [
-							{id: 'codex', name: 'Codex', nameWithType: 'Codex'},
-							{
-								id: 'claude-code',
-								name: 'Claude',
-								nameWithType: 'Claude Code',
-							},
-						],
-						installedGitClients: [],
-						installedTerminals: [],
+						editorInfo: {
+							defaultEditor: 'zed',
+							runningEditors: [],
+							installedEditors: [
+								{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+								{id: 'vscode', name: 'Code', nameWithType: 'VS Code'},
+							],
+						},
+						codingAgentInfo: {
+							defaultCodingAgent: 'codex',
+							runningCodingAgents: [],
+							installedCodingAgents: [
+								{id: 'codex', name: 'ChatGPT', nameWithType: 'ChatGPT'},
+								{
+									id: 'claude-code',
+									name: 'Claude',
+									nameWithType: 'Claude Code',
+								},
+							],
+							installedGitClients: [],
+							installedTerminals: [],
+						},
 					},
 				},
 			});
@@ -176,7 +173,7 @@ test.describe('error overlay dismissal', () => {
 			}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Fix with Codex', exact: true}),
+			page.getByRole('button', {name: 'Fix with ChatGPT', exact: true}),
 		).toBeVisible();
 		await expect(
 			page.getByRole('button', {
@@ -187,7 +184,7 @@ test.describe('error overlay dismissal', () => {
 			'Copy stack',
 			'Search Issues Ctrl+G',
 			'Ask on Discord Ctrl+D',
-			'Fix with Codex',
+			'Fix with ChatGPT',
 		]) {
 			const button = page.getByRole('button', {name: buttonName});
 			await expect(button).toHaveCSS('border-style', 'none');
@@ -201,7 +198,7 @@ test.describe('error overlay dismissal', () => {
 			.first()
 			.boundingBox();
 		const fixWithAgentButton = page.getByRole('button', {
-			name: 'Fix with Codex',
+			name: 'Fix with ChatGPT',
 			exact: true,
 		});
 		const fixWithAgentButtonBounds = await fixWithAgentButton.boundingBox();
@@ -239,7 +236,7 @@ test.describe('error overlay dismissal', () => {
 				(errorMessageBounds.y + errorMessageBounds.height),
 		).toBeLessThan(16);
 		await page
-			.getByRole('button', {name: 'Fix with Codex', exact: true})
+			.getByRole('button', {name: 'Fix with ChatGPT', exact: true})
 			.click();
 		await expect
 			.poll(() => openInCodingAgentRequests)
@@ -347,7 +344,7 @@ test.describe('error overlay dismissal', () => {
 			.locator('#error-overlay-open-in-editor')
 			.boundingBox();
 		const symbolicatedFixButtonBounds = await page
-			.getByRole('button', {name: 'Fix with Codex', exact: true})
+			.getByRole('button', {name: 'Fix with ChatGPT', exact: true})
 			.boundingBox();
 		const symbolicatedCopyButtonBounds = await page
 			.getByRole('button', {name: 'Copy stack'})

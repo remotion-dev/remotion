@@ -6,6 +6,7 @@ const cliFlag = 'allow-html-in-canvas' as const;
 
 export const allowHtmlInCanvasOption = {
 	name: 'Allow HTML-in-canvas for client-side rendering',
+	addedIn: '4.0.447',
 	cliFlag,
 	description: () => (
 		<>
@@ -19,7 +20,7 @@ export const allowHtmlInCanvasOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/client-side-rendering/html-in-canvas',
+	docLink: 'https://www.remotion.dev/docs/options/allow-html-in-canvas',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== null) {

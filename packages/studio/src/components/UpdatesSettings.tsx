@@ -103,6 +103,12 @@ const releaseNotesTitle: React.CSSProperties = {
 	width: '100%',
 };
 
+const releaseNotesTitleLink: React.CSSProperties = {
+	...text,
+	cursor: 'pointer',
+	textDecoration: 'none',
+};
+
 const commands: {
 	[key in UpdateAvailableResponse['packageManager']]: string;
 } = {
@@ -202,10 +208,17 @@ const RenderedReleaseNotes: React.FC<{
 	return (
 		<>
 			<div style={releaseNotesTitle}>
-				v{release.version}
-				{formattedReleaseDate === null
-					? null
-					: ` \u2013\u00a0${formattedReleaseDate}`}
+				<a
+					style={releaseNotesTitleLink}
+					href={`https://github.com/remotion-dev/remotion/releases/tag/v${release.version}`}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					v{release.version}
+					{formattedReleaseDate === null
+						? null
+						: ` \u2013\u00a0${formattedReleaseDate}`}
+				</a>
 			</div>
 			{document === null ? (
 				<div style={text}>
@@ -411,6 +424,35 @@ export const UpdatesSettings: React.FC = () => {
 					align="flex-start"
 				/>
 			) : null}
+			{info.skillsUpdateAvailable ? (
+				<>
+					<div style={title}>Remotion Agent Skills are out of date:</div>
+					{info.skillsUpdateDetails ? (
+						<ul
+							style={{
+								...text,
+								listStyleType: 'disc',
+								margin: 0,
+								paddingLeft: 20,
+							}}
+						>
+							{info.skillsUpdateDetails.outdatedSkills.map((skill) => (
+								<li
+									key={skill.name}
+									style={{...text, display: 'list-item', listStyleType: 'disc'}}
+								>
+									{skill.name}:{' '}
+									{skill.reason === 'missing-version'
+										? `The installed version is missing or could not be read. Update to match Remotion v${info.currentVersion}.`
+										: skill.reason === 'invalid-version'
+											? `The installed version "${skill.installedVersion}" is invalid. Update to match Remotion v${info.currentVersion}.`
+											: `Installed v${skill.installedVersion} is older than Remotion v${info.currentVersion}.`}
+								</li>
+							))}
+						</ul>
+					) : null}
+				</>
+			) : null}
 			{hasKnownBugs && info.updateAvailable ? (
 				<>
 					<div style={title}>
@@ -427,8 +469,8 @@ export const UpdatesSettings: React.FC = () => {
 				</div>
 			) : (
 				<div style={titleBeforeCommand}>
-					Your Remotion Agent Skills are out of date. Run the following{' '}
-					{updateActionType}:
+					Run the following {updateActionType} in this project to update your
+					skills:
 				</div>
 			)}
 			<div style={commandField}>
@@ -450,7 +492,16 @@ export const UpdatesSettings: React.FC = () => {
 				releaseNotes.latestVersion === info.latestVersion ? (
 					releaseNotes.releases.length === 0 ? (
 						<>
-							<div style={releaseNotesTitle}>v{info.latestVersion}</div>
+							<div style={releaseNotesTitle}>
+								<a
+									style={releaseNotesTitleLink}
+									href={`https://github.com/remotion-dev/remotion/releases/tag/v${info.latestVersion}`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									v{info.latestVersion}
+								</a>
+							</div>
 							<div style={text}>
 								Release notes could not be loaded.{' '}
 								<a

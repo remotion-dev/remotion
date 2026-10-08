@@ -7,8 +7,9 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
+import {Internals, type TSequence} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
+import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -18,6 +19,7 @@ import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
 	subscribeToInsertedElementSelection,
+	type PendingInsertedElementSelection,
 } from '../../helpers/inserted-element-selection';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
@@ -43,6 +45,10 @@ import {
 	type TimelineTrackWithDisplayGroup,
 } from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
+import {
+	filterTimelineTrackContents,
+	getTimelineDisplayRows,
+} from './timeline-track-groups';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
 import {TimelineInOutDragHandler} from './TimelineInOutDragHandler';
@@ -61,10 +67,10 @@ import {
 	TimelineSelectAllKeybindings,
 	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
-import {TimelineRippleEditHighlightProvider} from './TimelineSequence';
+import {TimelineEdgeHighlightProvider} from './TimelineSequence';
 import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineSlider} from './TimelineSlider';
-import {TimelineTickFormatProvider} from './TimelineTickFormatProvider';
+import {TimelineSnapIndicatorProvider} from './TimelineSnapIndicator';
 import {
 	TimelineTimeIndicators,
 	TimelineTimePlaceholders,
@@ -162,6 +168,7 @@ const TimelineContextMenuArea: React.FC<{
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
+				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -267,8 +274,60 @@ const TimelineContextMenuArea: React.FC<{
 	);
 };
 
+const TimelineTrackChildrenSyncer: React.FC<{
+	readonly tracks: readonly TimelineTrackWithDisplayGroup[];
+	readonly onChange: (activeTrackItemIds: ReadonlySet<string>) => void;
+}> = React.memo(({tracks, onChange}) => {
+	const frame = Internals.Timeline.useTimelinePosition();
+	const packedItems = useMemo(
+		() =>
+			tracks.filter(({sequence}) => {
+				const role = sequence.timelineTrack?.role;
+				return (
+					(role === 'clip' && sequence.showInTimeline) ||
+					role === 'overlay' ||
+					role === 'transition'
+				);
+			}),
+		[tracks],
+	);
+	const activeTrackItemIds = useMemo(
+		() =>
+			new Set(
+				packedItems
+					.filter(
+						({sequence}) =>
+							frame >= sequence.from &&
+							frame < sequence.from + sequence.duration,
+					)
+					.map(({sequence}) => sequence.id),
+			),
+		[frame, packedItems],
+	);
+	// Publish even an empty set when tracks are re-enabled after seeking.
+	const previousActiveIds = useRef<ReadonlySet<string> | null>(null);
+	useLayoutEffect(() => {
+		const previous = previousActiveIds.current;
+		if (
+			previous !== null &&
+			previous.size === activeTrackItemIds.size &&
+			[...activeTrackItemIds].every((id) => previous.has(id))
+		) {
+			return;
+		}
+
+		previousActiveIds.current = activeTrackItemIds;
+		onChange(activeTrackItemIds);
+	}, [activeTrackItemIds, onChange]);
+
+	return null;
+});
+
 const TimelineInner: React.FC = () => {
-	const {sequences} = useContext(Internals.SequenceManager);
+	const experimentalTracksEnabled = useContext(
+		Internals.ExperimentalTracksEnabledContext,
+	);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
@@ -284,30 +343,104 @@ const TimelineInner: React.FC = () => {
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 
 	const videoConfigIsNull = videoConfig === null;
+	const previousTimelineRef = useRef<{
+		readonly sequences: TSequence[];
+		readonly overrideIdsToNodePaths: typeof overrideIdToNodePathMappings;
+		readonly compositions: typeof compositions;
+		readonly timeline: TimelineTrackWithDisplayGroup[];
+	} | null>(null);
 
 	const timeline = useMemo((): TimelineTrackWithDisplayGroup[] => {
 		if (videoConfigIsNull) {
 			return [];
 		}
 
-		return addTimelineDisplayGroups(
+		const next = addTimelineDisplayGroups(
 			calculateTimeline({
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
 			}),
 		);
+		const previous = previousTimelineRef.current;
+		if (
+			previous === null ||
+			previous.overrideIdsToNodePaths !== overrideIdToNodePathMappings ||
+			previous.compositions !== compositions
+		) {
+			return next;
+		}
+
+		const previousSequencesById = new Map(
+			previous.sequences.map((sequence) => [sequence.id, sequence]),
+		);
+		const currentSequencesById = new Map(
+			sequences.map((sequence) => [sequence.id, sequence]),
+		);
+		const previousTracksById = new Map(
+			previous.timeline.map((track) => [track.sequence.id, track]),
+		);
+		return next.map((track) => {
+			const oldTrack = previousTracksById.get(track.sequence.id);
+			const currentSource = currentSequencesById.get(track.sequence.id);
+			const oldNodePath = oldTrack?.nodePathInfo ?? null;
+			const nodePath = track.nodePathInfo;
+			const oldLoop = oldTrack?.sequence.loopDisplay;
+			const loop = track.sequence.loopDisplay;
+			if (
+				oldTrack === undefined ||
+				currentSource !== previousSequencesById.get(track.sequence.id) ||
+				oldTrack.depth !== track.depth ||
+				oldTrack.cascadedStart !== track.cascadedStart ||
+				oldTrack.localStart !== track.localStart ||
+				oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
+				oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
+				oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||
+				oldTrack.sequence.from !== track.sequence.from ||
+				oldTrack.sequence.duration !== track.sequence.duration ||
+				oldTrack.sequence.sequencePlaybackRate !==
+					track.sequence.sequencePlaybackRate ||
+				oldTrack.sequence.premountDisplay !== track.sequence.premountDisplay ||
+				oldTrack.sequence.postmountDisplay !==
+					track.sequence.postmountDisplay ||
+				oldTrack.displayGroup?.key !== track.displayGroup?.key ||
+				oldTrack.displayGroup?.numberOfSequences !==
+					track.displayGroup?.numberOfSequences ||
+				(oldNodePath === null) !== (nodePath === null) ||
+				(oldNodePath !== null &&
+					nodePath !== null &&
+					!areSequenceNodePathInfosEqual(oldNodePath, nodePath)) ||
+				(oldLoop === undefined) !== (loop === undefined) ||
+				(oldLoop !== undefined &&
+					loop !== undefined &&
+					(oldLoop.durationInFrames !== loop.durationInFrames ||
+						oldLoop.numberOfTimes !== loop.numberOfTimes ||
+						oldLoop.startOffset !== loop.startOffset ||
+						oldLoop.phaseOffsetInFrames !== loop.phaseOffsetInFrames ||
+						oldLoop.mediaOffsetInFrames !== loop.mediaOffsetInFrames))
+			) {
+				return track;
+			}
+
+			return oldTrack;
+		});
 	}, [
 		sequences,
 		videoConfigIsNull,
 		overrideIdToNodePathMappings,
 		compositions,
 	]);
+	useLayoutEffect(() => {
+		previousTimelineRef.current = {
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			compositions,
+			timeline,
+		};
+	}, [compositions, overrideIdToNodePathMappings, sequences, timeline]);
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
-	);
+	const activeFromDragOverrideKeys = Internals.useActiveFromDragOverrideKeys();
 	const filtered = useMemo(() => {
 		return timeline.filter((t) => {
 			// Moving outside the composition can reduce the displayed duration to
@@ -315,22 +448,32 @@ const TimelineInner: React.FC = () => {
 			if (
 				t.sequence.showInTimeline &&
 				t.nodePathInfo !== null &&
-				getDragOverrides(t.nodePathInfo.sequenceSubscriptionKey).from !==
-					undefined
+				activeFromDragOverrideKeys.has(
+					Internals.makeSequencePropsSubscriptionKey(
+						t.nodePathInfo.sequenceSubscriptionKey,
+					),
+				)
 			) {
 				return true;
 			}
 
 			return shouldShowTrackInTimeline(t, durationInFrames);
 		});
-	}, [durationInFrames, getDragOverrides, timeline]);
+	}, [activeFromDragOverrideKeys, durationInFrames, timeline]);
+	const [activeTrackItemIds, setActiveTrackItemIds] = useState<
+		ReadonlySet<string>
+	>(() => new Set());
 
 	// Keep `filtered` complete so a future toggle can show every programmatic
 	// instance without recalculating the timeline or losing its instance index.
 	const collapsed = useMemo(() => {
 		const seenDisplayGroups = new Set<string>();
-		return filtered.filter((track) => {
-			if (track.displayGroup === null) {
+		return filterTimelineTrackContents(
+			filtered,
+			sequences,
+			activeTrackItemIds,
+		).filter((track) => {
+			if (track.sequence.timelineTrack || track.displayGroup === null) {
 				return true;
 			}
 
@@ -341,24 +484,46 @@ const TimelineInner: React.FC = () => {
 			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
-	}, [filtered]);
+	}, [activeTrackItemIds, filtered, sequences]);
 
 	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
 		collapsed,
 		sequences,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
 	);
-	const pendingInsertedElementSelection = useSyncExternalStore(
-		subscribeToInsertedElementSelection,
-		getInsertedElementSelection,
-		getInsertedElementSelection,
-	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
 	const pendingSelectionStart = useRef<{
-		selection: NonNullable<typeof pendingInsertedElementSelection>;
+		selection: PendingInsertedElementSelection;
 		fastRefreshes: number;
 		existingSequenceIds: Set<string>;
 	} | null>(null);
+	const selectionBaselineRef = useRef({fastRefreshes, timeline});
+	selectionBaselineRef.current = {fastRefreshes, timeline};
+	const subscribeToPendingSelection = useCallback((listener: () => void) => {
+		return subscribeToInsertedElementSelection(() => {
+			const selection = getInsertedElementSelection();
+			if (selection !== null) {
+				// Capture before React handles the notification. Fast Refresh may have
+				// already committed the inserted sequence by the next layout effect.
+				pendingSelectionStart.current = {
+					selection,
+					fastRefreshes: selectionBaselineRef.current.fastRefreshes,
+					existingSequenceIds: new Set(
+						selectionBaselineRef.current.timeline.map(
+							(track) => track.sequence.id,
+						),
+					),
+				};
+			}
+
+			listener();
+		});
+	}, []);
+	const pendingInsertedElementSelection = useSyncExternalStore(
+		subscribeToPendingSelection,
+		getInsertedElementSelection,
+		getInsertedElementSelection,
+	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	useLayoutEffect(() => {
 		if (pendingInsertedElementSelection === null) {
@@ -382,9 +547,7 @@ const TimelineInner: React.FC = () => {
 				selection: pendingInsertedElementSelection,
 				fastRefreshes,
 				existingSequenceIds: new Set(
-					timeline
-						.filter(matchesInsertedNodePath)
-						.map((track) => track.sequence.id),
+					timeline.map((track) => track.sequence.id),
 				),
 			};
 			return;
@@ -441,17 +604,30 @@ const TimelineInner: React.FC = () => {
 	]);
 
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
-	const shown = useMemo(() => {
-		return maxTimelineTracks !== null &&
-			visibleTracks.length > maxTimelineTracks
-			? visibleTracks.slice(0, maxTimelineTracks)
-			: visibleTracks;
-	}, [visibleTracks, maxTimelineTracks]);
+	const displayRows = useMemo(
+		() => getTimelineDisplayRows(visibleTracks),
+		[visibleTracks],
+	);
+	const shownRows = useMemo(() => {
+		return maxTimelineTracks !== null && displayRows.length > maxTimelineTracks
+			? displayRows.slice(0, maxTimelineTracks)
+			: displayRows;
+	}, [displayRows, maxTimelineTracks]);
+	const shown = useMemo(
+		() => shownRows.flatMap((row) => [row.track, ...(row.items ?? [])]),
+		[shownRows],
+	);
 
-	const hasBeenCut = visibleTracks.length > shown.length;
+	const hasBeenCut = displayRows.length > shownRows.length;
 
 	return (
 		<TimelineContextMenuArea>
+			{experimentalTracksEnabled ? (
+				<TimelineTrackChildrenSyncer
+					tracks={filtered}
+					onChange={setActiveTrackItemIds}
+				/>
+			) : null}
 			{sequences.map((sequence) => {
 				if (!shouldSubscribeToSequenceProps(sequence, previewInteractive)) {
 					return null;
@@ -465,7 +641,6 @@ const TimelineInner: React.FC = () => {
 						schema={sequence.controls.schema}
 						getStack={sequence.getStack}
 						effects={sequence.effects}
-						videoConfigValues={sequence.controls.videoConfigValues}
 					/>
 				);
 			})}
@@ -476,7 +651,7 @@ const TimelineInner: React.FC = () => {
 						<TimelineVirtualizationProvider
 							hasBeenCut={hasBeenCut}
 							isStill={isStill}
-							timeline={shown}
+							timeline={shownRows}
 						>
 							{isStudioInteractivityEnabled() ? (
 								<TimelineSelectAllKeybindings timeline={shown} />
@@ -544,12 +719,12 @@ const MemoizedTimelineInner = React.memo(TimelineInner);
 
 export const Timeline: React.FC = () => {
 	return (
-		<TimelineTickFormatProvider>
-			<TimelineRippleEditHighlightProvider>
-				<TimelineSequenceMediaDurationDragLimitsProvider>
+		<TimelineEdgeHighlightProvider>
+			<TimelineSequenceMediaDurationDragLimitsProvider>
+				<TimelineSnapIndicatorProvider>
 					<MemoizedTimelineInner />
-				</TimelineSequenceMediaDurationDragLimitsProvider>
-			</TimelineRippleEditHighlightProvider>
-		</TimelineTickFormatProvider>
+				</TimelineSnapIndicatorProvider>
+			</TimelineSequenceMediaDurationDragLimitsProvider>
+		</TimelineEdgeHighlightProvider>
 	);
 };

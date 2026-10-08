@@ -138,7 +138,7 @@ test('plays while a video with audio is frozen on a future frame', async () => {
 			);
 		});
 
-		await page.getByRole('button', {name: 'Play'}).click();
+		await page.getByRole('button', {name: 'Play video'}).click();
 		await waitFor(() => (playerRef.current?.getCurrentFrame() ?? 0) > 0);
 
 		expect(playerRef.current?.getCurrentFrame()).toBeGreaterThan(0);

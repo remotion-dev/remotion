@@ -1,5 +1,5 @@
-import {CanvasInternals} from '@remotion/canvas';
 import {PlayerInternals} from '@remotion/player';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {
 	useCallback,
 	useContext,
@@ -13,6 +13,7 @@ import {
 	type GetDragOverrides,
 	type InteractivitySchema,
 	type RuntimeValueStore,
+	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -683,8 +684,6 @@ type SelectedOutlineOverlayProps = {
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly scale: number;
-	readonly translationX: number;
-	readonly translationY: number;
 };
 
 type ActiveSelectedOutlineOverlayProps = Omit<
@@ -710,9 +709,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 	) => void;
 	readonly selectedSequenceKeys: ReadonlySet<string>;
 	readonly sequenceKeysContainingSelection: ReadonlySet<string>;
-	readonly sequences: React.ContextType<
-		typeof Internals.SequenceManager
-	>['sequences'];
+	readonly sequences: TSequence[];
 };
 
 const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
@@ -734,11 +731,8 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	selectedSequenceKeys,
 	sequenceKeysContainingSelection,
 	sequences,
-	translationX,
-	translationY,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const updateOutlinesRef = useRef<() => void>(() => undefined);
 	const selectableOutlines = useMemo(() => {
 		return getSelectableOutlines(timelinePosition);
 	}, [getSelectableOutlines, timelinePosition]);
@@ -806,9 +800,6 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 		],
 	);
 
-	useLayoutEffect(() => {
-		updateOutlinesRef.current();
-	}, [scale, translationX, translationY]);
 	return (
 		<SelectedOutlineRenderer
 			compositionHeight={compositionHeight}
@@ -822,7 +813,6 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			onSelect={onSelect}
 			scale={scale}
 			sequences={sequences}
-			updateOutlinesRef={updateOutlinesRef}
 		/>
 	);
 };
@@ -833,17 +823,10 @@ const ActiveSelectedOutlineOverlay = React.memo(
 
 const SelectedOutlineOverlayUnmemoized: React.FC<
 	SelectedOutlineOverlayProps
-> = ({
-	canvasHovered,
-	compositionHeight,
-	compositionWidth,
-	scale,
-	translationX,
-	translationY,
-}) => {
+> = ({canvasHovered, compositionHeight, compositionWidth, scale}) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -1120,8 +1103,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					selectedSequenceKeys={selectedSequenceKeys}
 					sequenceKeysContainingSelection={sequenceKeysContainingSelection}
 					sequences={sequences}
-					translationX={translationX}
-					translationY={translationY}
 				/>
 			) : null}
 		</>

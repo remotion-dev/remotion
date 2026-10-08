@@ -81,16 +81,20 @@ test.each([
 	},
 );
 
-test('does not reinitialize MediaPlayer when onError identity changes', async () => {
+test('does not reinitialize MediaPlayer when onError or maxCanvasSinkFrameSize identity changes', async () => {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 
 	const initSpy = vi.spyOn(MediaPlayer.prototype, 'initialize');
 	const root = createRoot(container);
 	let committedRerenders = 0;
+	let lastFrameSize = '';
+	let setMaxWidth: (maxWidth: number) => void = () => {};
 
 	const VideoComposition: React.FC = () => {
 		const [rerenders, setRerenders] = useState(0);
+		const [maxWidth, setMaxWidthState] = useState(333);
+		setMaxWidth = setMaxWidthState;
 
 		useEffect(() => {
 			const interval = window.setInterval(() => {
@@ -111,7 +115,17 @@ test('does not reinitialize MediaPlayer when onError identity changes', async ()
 			committedRerenders = rerenders;
 		}, [rerenders]);
 
-		return <Video src="/bigbuckbunny.mp4" onError={() => {}} />;
+		return (
+			<Video
+				src="/bigbuckbunny.mp4"
+				onError={() => {}}
+				maxCanvasSinkFrameSize={{width: maxWidth}}
+				onVideoFrame={(frame) => {
+					const {width, height} = frame as HTMLCanvasElement;
+					lastFrameSize = `${width}x${height}`;
+				}}
+			/>
+		);
 	};
 
 	root.render(
@@ -133,11 +147,25 @@ test('does not reinitialize MediaPlayer when onError identity changes', async ()
 			return (
 				renderedCanvas?.width === 1280 &&
 				renderedCanvas.height === 720 &&
-				committedRerenders >= 4
+				committedRerenders >= 4 &&
+				lastFrameSize !== ''
 			);
 		});
 
 		expect(initSpy.mock.calls.length).toBe(1);
+
+		// The frames are smaller, the canvas keeps the size of the video and the
+		// frame is scaled up to its edges.
+		expect(lastFrameSize).toBe('333x187');
+		const canvas = container.querySelector('canvas')!;
+		expect(canvas.getContext('2d')!.getImageData(1279, 719, 1, 1).data[3]).toBe(
+			255,
+		);
+
+		// New numbers take effect. Frames are never upscaled.
+		setMaxWidth(4000);
+		await waitFor(() => lastFrameSize === '1280x720');
+		expect(initSpy.mock.calls.length).toBe(2);
 	} finally {
 		root.unmount();
 		container.remove();

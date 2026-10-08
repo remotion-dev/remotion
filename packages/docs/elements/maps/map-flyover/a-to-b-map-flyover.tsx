@@ -3,9 +3,7 @@ import * as maplibregl from 'maplibre-gl';
 import {type Map} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import React, {
-	forwardRef,
 	useEffect,
-	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -14,30 +12,25 @@ import React, {
 import {
 	Easing,
 	Interactive,
-	Sequence,
 	interpolate,
 	useBufferState,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
-type MapFlyoverLayerProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
-		readonly destination?: readonly [number, number];
-		readonly destinationLabel?: string;
-		readonly lineWidth?: number;
-		readonly origin?: readonly [number, number];
-		readonly originLabel?: string;
-		readonly routeColor?: string;
-	};
+type MapFlyoverLayerProps = InteractiveTransformProps & {
+	readonly destination?: readonly [number, number];
+	readonly destinationLabel?: string;
+	readonly lineWidth?: number;
+	readonly origin?: readonly [number, number];
+	readonly originLabel?: string;
+	readonly routeColor?: string;
+};
 
 const mapFlyoverSchema = {
-	...Interactive.baseSchema,
 	origin: {
 		type: 'array',
 		item: {type: 'number', step: 0.0001},
@@ -57,12 +50,12 @@ const mapFlyoverSchema = {
 		description: 'Destination [longitude, latitude]',
 	},
 	originLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'London',
 		description: 'Origin label',
 	},
 	destinationLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Tokyo',
 		description: 'Destination label',
 	},
@@ -80,7 +73,6 @@ const mapFlyoverSchema = {
 		description: 'Route width',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const unwrapLongitude = (longitude: number, reference: number) => {
@@ -278,27 +270,17 @@ const projectFlyoverRoute = (
 	};
 };
 
-const MapFlyoverContent: React.FC<{
-	readonly destination: readonly [number, number];
-	readonly destinationLabel: string;
-	readonly lineWidth: number;
-	readonly origin: readonly [number, number];
-	readonly originLabel: string;
-	readonly elementRef: React.RefObject<HTMLDivElement | null>;
-	readonly routeColor: string;
-	readonly style: React.CSSProperties | null;
-}> = ({
-	destination,
-	destinationLabel,
-	lineWidth,
-	origin,
-	originLabel,
-	elementRef,
-	routeColor,
+const MapFlyoverContent: React.FC<MapFlyoverLayerProps> = ({
+	destination = [139.6917, 35.6895],
+	destinationLabel = 'Tokyo',
+	lineWidth = 24,
+	origin = [-0.1276, 51.5072],
+	originLabel = 'London',
+	routeColor = '#ff5c4d',
 	style,
 }) => {
 	const frame = useCurrentFrame();
-	const {height, width} = useVideoConfig();
+	const {durationInFrames, height, width} = useVideoConfig();
 	const {continueRender, delayRender} = useDelayRender();
 	const {delayPlayback} = useBufferState();
 	const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -331,7 +313,7 @@ const MapFlyoverContent: React.FC<{
 		[mapPlate, route],
 	);
 	const travelStart = 0;
-	const travelEnd = 205;
+	const travelEnd = Math.max(1, durationInFrames - 80);
 	const travelProgress = interpolate(frame, [travelStart, travelEnd], [0, 1], {
 		easing: Easing.inOut(Easing.quad),
 		extrapolateLeft: 'clamp',
@@ -481,7 +463,6 @@ const MapFlyoverContent: React.FC<{
 
 	return (
 		<div
-			ref={elementRef}
 			style={{
 				backgroundColor: '#dbe4e8',
 				height,
@@ -608,53 +589,9 @@ const MapFlyoverContent: React.FC<{
 	);
 };
 
-const MapFlyoverLayerInner = forwardRef<
-	HTMLDivElement,
-	MapFlyoverLayerProps & {readonly controls: SequenceControls | undefined}
->(
-	(
-		{
-			controls,
-			destination = [139.6917, 35.6895],
-			destinationLabel = 'Tokyo',
-			lineWidth = 24,
-			name,
-			origin = [-0.1276, 51.5072],
-			originLabel = 'London',
-			routeColor = '#ff5c4d',
-			style,
-			...sequenceProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...sequenceProps}
-				controls={controls}
-				name={name ?? 'A-to-B Map Flyover'}
-			>
-				<MapFlyoverContent
-					destination={destination}
-					destinationLabel={destinationLabel}
-					lineWidth={lineWidth}
-					origin={origin}
-					originLabel={originLabel}
-					elementRef={elementRef}
-					routeColor={routeColor}
-					style={style ?? null}
-				/>
-			</Sequence>
-		);
-	},
-);
-
 export const MapFlyover = Interactive.withSchema({
-	Component: MapFlyoverLayerInner,
+	Component: MapFlyoverContent,
 	componentName: '<MapFlyover>',
 	schema: mapFlyoverSchema,
-	supportsEffects: false,
-}) as React.FC<MapFlyoverLayerProps>;
+	wrapInSequence: true,
+});

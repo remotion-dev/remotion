@@ -6,7 +6,10 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {splitSequences as splitSequencesApi} from '../split-sequences-api';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
@@ -28,6 +31,18 @@ type SplitPropStatuses = Partial<
 		CanUpdateSequencePropStatus
 	>
 >;
+
+export const getSequenceSourceSplitFrame = ({
+	timelineFrame,
+	keyframeDisplayOffset,
+	keyframePlaybackRate,
+}: {
+	readonly timelineFrame: number;
+	readonly keyframeDisplayOffset: TimelineTrackData['keyframeDisplayOffset'];
+	readonly keyframePlaybackRate: TimelineTrackData['keyframePlaybackRate'];
+}): number => {
+	return (timelineFrame - keyframeDisplayOffset) * keyframePlaybackRate;
+};
 
 const staticNumberish = (
 	status: CanUpdateSequencePropStatus | undefined,
@@ -181,6 +196,7 @@ export const splitTimelineSequencesFromSource = ({
 				nodePath: nodePath.nodePath,
 				sequenceKeys: nodePath.sequenceKeys,
 				splitFrame,
+				videoConfigValues: nodePath.videoConfigValues,
 			};
 		}),
 	})
@@ -258,8 +274,11 @@ export const splitSelectedTimelineItems = ({
 			eligible.push({
 				nodePathInfo: eligibility.nodePathInfo,
 				splitFrame: track
-					? (splitFrame - track.keyframeDisplayOffset) *
-						track.keyframePlaybackRate
+					? getSequenceSourceSplitFrame({
+							timelineFrame: splitFrame,
+							keyframeDisplayOffset: track.keyframeDisplayOffset,
+							keyframePlaybackRate: track.keyframePlaybackRate,
+						})
 					: splitFrame,
 			});
 		} else {

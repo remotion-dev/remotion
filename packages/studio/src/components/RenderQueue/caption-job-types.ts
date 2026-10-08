@@ -1,3 +1,4 @@
+import type {ElementInstallRequest} from '@remotion/studio-shared';
 import type {
 	WhisperWebGpuModel,
 	WhisperWebGpuTask,
@@ -20,6 +21,7 @@ type CaptionJobStatus =
 	  };
 
 export type AddCaptionJobParams = {
+	captionStyle: ElementInstallRequest | null;
 	src: string;
 	displayName: string;
 	audioStreamIndex: number | null;
@@ -29,6 +31,7 @@ export type AddCaptionJobParams = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
+		premountFor: number | null;
 	} | null;
 	model: WhisperWebGpuModel;
 	language: string | null;

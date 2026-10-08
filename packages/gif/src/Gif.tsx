@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {
 	Freeze,
 	Internals,
 	Interactive,
 	Sequence,
+	useDelayRender,
 	useRemotionEnvironment,
+	useVideoConfig,
 	type EffectsProp,
 	type InteractiveBaseProps,
 	type InteractiveCropProps,
@@ -13,9 +15,12 @@ import {
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
+import {getGifDurationInSeconds} from './get-gif-duration-in-seconds';
 import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
+import {getGifCacheKey} from './request-init';
+import {resolveGifSource} from './resolve-gif-source';
 
 const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
@@ -33,6 +38,12 @@ export type GifProps = InteractiveBaseProps &
  */
 export const gifSchema: InteractivitySchema = {
 	...Internals.baseSchema,
+	loop: {
+		type: 'boolean',
+		default: false,
+		description: 'Loop',
+		keyframable: false,
+	},
 	...Internals.premountSchema,
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
@@ -108,6 +119,7 @@ const GifInner = ({
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: controls?.overrideId ?? null,
+		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 
 	const gifProps: RemotionGifProps & {
@@ -156,8 +168,110 @@ const GifInner = ({
 	);
 };
 
+const GifWithIntrinsicDuration = (
+	props: GifProps & {
+		readonly controls?: SequenceControls | undefined;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	},
+) => {
+	const {fps} = useVideoConfig();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {src, requestInit, trimBefore} = props;
+	const onErrorRef = useRef(props.onError);
+	onErrorRef.current = props.onError;
+	const requestInitRef = useRef(requestInit);
+	requestInitRef.current = requestInit;
+	const [duration, setDuration] = useState<{
+		durationInFrames: number;
+		handle: number;
+	} | null>(null);
+	const [failedHandle, setFailedHandle] = useState<number | null>(null);
+	const {delayRenderTimeoutInMilliseconds} = props;
+
+	useLayoutEffect(() => {
+		const handle = delayRender(`Finding duration of <Gif src="${src}" />`, {
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+		});
+		let cancelled = false;
+		getGifDurationInSeconds(src, {requestInit: requestInitRef.current})
+			.then((durationInSeconds) => {
+				if (!cancelled) {
+					setDuration({
+						durationInFrames:
+							Math.ceil(durationInSeconds * fps) - (trimBefore ?? 0),
+						handle,
+					});
+				}
+			})
+			.catch((error) => {
+				if (cancelled) {
+					return;
+				}
+
+				if (onErrorRef.current) {
+					onErrorRef.current(error);
+					setFailedHandle(handle);
+				} else {
+					cancelRender(error);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+			continueRender(handle);
+		};
+	}, [
+		cancelRender,
+		continueRender,
+		delayRender,
+		delayRenderTimeoutInMilliseconds,
+		fps,
+		src,
+		trimBefore,
+	]);
+
+	useLayoutEffect(() => {
+		if (duration !== null) {
+			continueRender(duration.handle);
+		}
+
+		if (failedHandle !== null) {
+			continueRender(failedHandle);
+		}
+	}, [continueRender, duration, failedHandle]);
+
+	if (duration === null || failedHandle !== null) {
+		return null;
+	}
+
+	return <GifInner {...props} durationInFrames={duration.durationInFrames} />;
+};
+
+const GifComponent = (
+	props: GifProps & {
+		readonly controls?: SequenceControls | undefined;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	},
+) => {
+	if (props.loop && props.durationInFrames === undefined) {
+		const resolvedSrc = resolveGifSource(props.src);
+		const cacheKey = getGifCacheKey({
+			resolvedSrc,
+			requestInit: props.requestInit,
+		});
+		return (
+			<GifWithIntrinsicDuration
+				{...props}
+				key={`${cacheKey}-${props.trimBefore ?? 0}`}
+			/>
+		);
+	}
+
+	return <GifInner {...props} />;
+};
+
 export const Gif = Interactive.withSchema({
-	Component: GifInner,
+	Component: GifComponent,
 	componentName: '<Gif>',
 	componentIdentity: 'dev.remotion.gif.Gif',
 	schema: gifSchema,

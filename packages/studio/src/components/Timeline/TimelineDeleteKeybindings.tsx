@@ -1,5 +1,5 @@
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {memo, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -10,11 +10,11 @@ import {getCurrentFrame} from './imperative-state';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {
 	useCurrentTimelineSelectionStateAsRef,
-	useTimelineSelection,
+	useTimelineSelectionCanSelect,
 } from './TimelineSelection';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 
-export const TimelineDeleteKeybindings: React.FC = () => {
+const TimelineDeleteKeybindingsUnmemoized: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
@@ -24,7 +24,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
-	const {canSelect} = useTimelineSelection();
+	const canSelect = useTimelineSelectionCanSelect();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
@@ -112,3 +112,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 	return null;
 };
+
+export const TimelineDeleteKeybindings = memo(
+	TimelineDeleteKeybindingsUnmemoized,
+);

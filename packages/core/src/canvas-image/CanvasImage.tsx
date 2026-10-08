@@ -241,6 +241,7 @@ const CanvasImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
 		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);
@@ -607,7 +608,11 @@ const CanvasImageInner = forwardRef<
 		});
 
 		return (
-			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Freeze
+				frame={freezeFrame}
+				active={isPremountingOrPostmounting}
+				_remotionInternalIsPremounting={premountingActive}
+			>
 				<Sequence
 					layout="none"
 					from={from ?? 0}

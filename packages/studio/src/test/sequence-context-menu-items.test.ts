@@ -236,6 +236,7 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 		canOpenInEditor: true,
 		codingAgentInfo: {
 			defaultCodingAgent: 'cursor',
+			runningCodingAgents: null,
 			installedCodingAgents: [
 				{
 					id: 'cursor',
@@ -257,6 +258,7 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 		duplicateDisabled: false,
 		editorInfo: {
 			defaultEditor: 'cursor',
+			runningEditors: null,
 			installedEditors: [
 				{
 					id: 'cursor',

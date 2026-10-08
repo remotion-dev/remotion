@@ -11,12 +11,20 @@ import type {
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
-	ApplyCodemodRequest,
+	AddCompositionRequest,
+	AddFolderRequest,
+	DeleteCompositionRequest,
+	DuplicateCompositionRequest,
 	EnumPath,
+	MoveCompositionRequest,
+	MoveFolderRequest,
 	OpenInFileExplorerRequest,
-	RecastCodemod,
+	RenameCompositionRequest,
+	RenameFolderRequest,
 	RenderJob,
 	RequiredChromiumOptions,
+	UnwrapFolderRequest,
+	UpdateCompositionMetadataRequest,
 	VisualControlChange,
 } from '@remotion/studio-shared';
 import type {_InternalTypes} from 'remotion';
@@ -346,31 +354,98 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 	return callApi('/api/open-in-file-explorer', body);
 };
 
-export const applyCodemod = ({
-	codemod,
-	dryRun,
-	symbolicatedStack,
-	signal,
-	undoRedoNavigation,
-}: {
-	codemod: RecastCodemod;
-	dryRun: boolean;
-	symbolicatedStack: ApplyCodemodRequest['symbolicatedStack'];
-	signal: AbortController['signal'];
-	undoRedoNavigation: ApplyCodemodRequest['undoRedoNavigation'];
-}) => {
-	const body: ApplyCodemodRequest = {
-		codemod,
-		dryRun,
-		symbolicatedStack,
-		undoRedoNavigation,
-	};
-	const browserStudioOperations = getBrowserStudioOperations();
-	if (browserStudioOperations !== null) {
-		return browserStudioOperations.applyCodemod(body);
-	}
+export const addComposition = (
+	request: AddCompositionRequest,
+	signal: AbortSignal,
+) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/add-composition', request, signal)
+		: operations.addComposition(request);
+};
 
-	return callApi('/api/apply-codemod', body, signal);
+export const duplicateComposition = (
+	request: DuplicateCompositionRequest,
+	signal: AbortSignal,
+) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/duplicate-composition', request, signal)
+		: operations.duplicateComposition(request);
+};
+
+export const renameComposition = (
+	request: RenameCompositionRequest,
+	signal: AbortSignal,
+) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/rename-composition', request, signal)
+		: operations.renameComposition(request);
+};
+
+export const updateCompositionMetadata = (
+	request: UpdateCompositionMetadataRequest,
+	signal: AbortSignal,
+) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/update-composition-metadata', request, signal)
+		: operations.updateCompositionMetadata(request);
+};
+
+export const deleteComposition = (
+	request: DeleteCompositionRequest,
+	signal: AbortSignal,
+) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/delete-composition', request, signal)
+		: operations.deleteComposition(request);
+};
+
+export const moveComposition = (
+	request: MoveCompositionRequest,
+	signal: AbortSignal,
+) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/move-composition', request, signal)
+		: operations.moveComposition(request);
+};
+
+export const addFolder = (request: AddFolderRequest, signal: AbortSignal) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/add-folder', request, signal)
+		: operations.addFolder(request);
+};
+
+export const renameFolder = (
+	request: RenameFolderRequest,
+	signal: AbortSignal,
+) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/rename-folder', request, signal)
+		: operations.renameFolder(request);
+};
+
+export const unwrapFolder = (
+	request: UnwrapFolderRequest,
+	signal: AbortSignal,
+) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/unwrap-folder', request, signal)
+		: operations.unwrapFolder(request);
+};
+
+export const moveFolder = (request: MoveFolderRequest, signal: AbortSignal) => {
+	const operations = getBrowserStudioOperations();
+	return operations === null
+		? callApi('/api/move-folder', request, signal)
+		: operations.moveFolder(request);
 };
 
 export const removeRenderJob = (job: RenderJob) => {

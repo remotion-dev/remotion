@@ -19,6 +19,7 @@ export const getInstallCommand = ({
 			'--save-exact',
 			'--no-fund',
 			'--no-audit',
+			'--loglevel=error',
 			...additionalArgs,
 			...pkgList,
 		],

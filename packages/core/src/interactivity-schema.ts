@@ -100,11 +100,17 @@ export type ColorFieldSchema = {
 	keyframable?: boolean;
 };
 
-export type TextContentFieldSchema = {
-	type: 'text-content';
+export type StringFieldSchema = {
+	type: 'string';
 	default: string;
 	description?: string;
 	keyframable?: false;
+};
+
+/** @deprecated Use StringFieldSchema with type: 'string' instead. */
+export type TextContentFieldSchema = Omit<StringFieldSchema, 'type'> & {
+	/** @deprecated Use 'string' instead. */
+	type: 'text-content';
 };
 
 export type SvgPathFieldSchema = {
@@ -226,6 +232,7 @@ export type VisibleFieldSchema =
 	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
+	| StringFieldSchema
 	| TextContentFieldSchema
 	| SvgPathFieldSchema
 	| FontFamilyFieldSchema
@@ -479,14 +486,21 @@ export const svgPaintSchema = {
 	...svgStrokeSchema,
 } as const satisfies InteractivitySchema;
 
-export const textContentSchema = {
+/**
+ * Controls for children content. Currently uses a string field, but the field
+ * type may evolve to support richer content.
+ */
+export const childrenSchema: {children: InteractivitySchemaField} = {
 	children: {
-		type: 'text-content',
+		type: 'string',
 		default: '',
 		description: 'Text',
 		keyframable: false,
 	},
-} as const satisfies InteractivitySchema;
+};
+
+/** @deprecated Use childrenSchema instead. */
+export const textContentSchema = childrenSchema;
 
 export const premountSchema = {
 	premountFor: {
@@ -649,7 +663,6 @@ export const baseSchema = {
 	from: fromField,
 	trimBefore: trimBeforeField,
 	playbackRate: playbackRateField,
-	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,
@@ -661,7 +674,6 @@ export const baseSchemaWithoutPlaybackRate = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
 	trimBefore: trimBeforeField,
-	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,
@@ -685,7 +697,6 @@ export const baseSchemaWithoutFrom = {
 	durationInFrames: durationInFramesField,
 	trimBefore: trimBeforeField,
 	playbackRate: playbackRateField,
-	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,

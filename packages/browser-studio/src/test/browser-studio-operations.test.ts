@@ -66,6 +66,7 @@ test('consumes an initial Element payload only once', () => {
 			...payload.element,
 			durationInFrames: 60,
 			installationMode: 'wrapped',
+			isCaptionStyle: false,
 		},
 		sourceOrigin: 'https://elements.example.test',
 	});
@@ -183,6 +184,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 		from: null,
+		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,
@@ -278,12 +280,6 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -294,6 +290,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		compositionFile: fileName,
 		compositionId: 'MyComp',
 		from: null,
+		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,
@@ -309,14 +306,14 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		{
 			absolutePath: fileName,
 			remappings: expect.arrayContaining([
-				{
+				expect.objectContaining({
 					oldNodePath: subscription.nodePath.nodePath,
 					newNodePath: expect.any(Array),
-				},
-				{
+				}),
+				expect.objectContaining({
 					oldNodePath: null,
 					newNodePath: expect.any(Array),
-				},
+				}),
 			]),
 		},
 	]);
@@ -373,12 +370,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -420,6 +411,7 @@ registerRoot(Root);`,
 		fileName: 'src/Composition.tsx',
 		nodePath: subscription.nodePath.nodePath,
 		durationInFrames: 20,
+		premountFor: 30,
 		captions: [
 			{
 				text: ' Hello',
@@ -440,10 +432,10 @@ registerRoot(Root);`,
 	expect(currentProject.files['/project/src/basic-captions.element.tsx']).toBe(
 		basicCaptionsElementSource,
 	);
-	expect(currentProject.files[fileName]).toContain(
+	expect(currentProject.files[fileName].replace(/\s+/g, ' ')).toContain(
 		'<BasicCaptions captions={[',
 	);
-	expect(currentProject.files[fileName]).toContain('"text": " Hello"');
+	expect(currentProject.files[fileName]).toContain("text: ' Hello'");
 	expect(events).toContainEqual({
 		type: 'sequence-node-paths-remapped',
 		mutation: captionsResult.nodePathMutation,
@@ -469,12 +461,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!currentSubscription.success) {
 		throw new Error('Expected the updated Video node path');
@@ -484,6 +470,7 @@ registerRoot(Root);`,
 		fileName: 'src/Composition.tsx',
 		nodePath: currentSubscription.nodePath.nodePath,
 		durationInFrames: 20,
+		premountFor: 30,
 		captions: [
 			{
 				text: ' Again',
@@ -503,12 +490,12 @@ registerRoot(Root);`,
 		currentProject.files['/project/src/basic-captions-2.element.tsx'],
 	).toBeUndefined();
 	expect(
-		currentProject.files[fileName].match(/<BasicCaptions captions/g),
+		currentProject.files[fileName].match(/<BasicCaptions\b/g),
 	).toHaveLength(2);
 	expect((await operations.undo()).success).toBe(true);
 	expect(currentProject.files[localElementPath]).toBe(customizedSource);
 	expect(
-		currentProject.files[fileName].match(/<BasicCaptions captions/g),
+		currentProject.files[fileName].match(/<BasicCaptions\b/g),
 	).toHaveLength(1);
 	expect((await operations.undo()).success).toBe(true);
 	expect(currentProject.files[fileName]).toBe(initialSource);
@@ -535,6 +522,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		from: 1.5,
+		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,
@@ -873,12 +861,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -891,6 +873,7 @@ registerRoot(Root);`,
 				nodePath: subscription.nodePath.nodePath,
 				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 				splitFrame: 10,
+				videoConfigValues: subscription.nodePath.videoConfigValues,
 			},
 		],
 	});
@@ -908,6 +891,7 @@ registerRoot(Root);`,
 				nodePath: subscription.nodePath.nodePath,
 				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 				splitFrame: 15,
+				videoConfigValues: subscription.nodePath.videoConfigValues,
 			},
 		],
 	});
@@ -961,6 +945,7 @@ const makeOperationsForProject = (project: VirtualProject) => {
 
 test('wraps JSX as an undoable virtual project mutation', async () => {
 	const fileName = '/project/src/Composition.tsx';
+	const compositionId = 'MyComp';
 	const initialContents = `import {AbsoluteFill} from 'remotion';
 
 export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
@@ -979,12 +964,25 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 
 	const result = await operations.wrapNode({
 		fileName,
+		compositionId,
 		nodePath,
 		wrapper: 'Sequence',
 		width: null,
 		height: null,
+		timing: null,
 	});
-	expect(result.success).toBe(true);
+	expect(result).toMatchObject({
+		success: true,
+		nodePathMutation: {
+			timelineSelection: {
+				compositionId,
+				absolutePath: fileName,
+				nodePath: getNodes({project: getProject(), filePath: fileName}).find(
+					({tagName}) => tagName === 'Sequence',
+				)?.nodePath,
+			},
+		},
+	});
 	expect(getProject().files[fileName]).toContain('<Sequence>');
 	expect(getProject().files[fileName]).toContain('<AbsoluteFill>');
 	expect(await operations.undo()).toMatchObject({success: true});
@@ -1026,12 +1024,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -1120,12 +1112,6 @@ export const Comp = () => {
 		assetKeys: [],
 		effects: [['amount']],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription');
@@ -1303,13 +1289,9 @@ test('renames a composition by resolving the file from the composition id', asyn
 		createBlankTemplateProject(),
 	);
 
-	const result = await operations.applyCodemod({
-		codemod: {
-			type: 'rename-composition',
-			idToRename: 'MyComp',
-			newId: 'RenamedComp',
-		},
-		dryRun: false,
+	const result = await operations.renameComposition({
+		idToRename: 'MyComp',
+		newId: 'RenamedComp',
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
@@ -1333,16 +1315,12 @@ test('updates composition metadata in Browser Studio', async () => {
 		createBlankTemplateProject(),
 	);
 
-	const result = await operations.applyCodemod({
-		codemod: {
-			type: 'update-composition-metadata',
-			idToUpdate: 'MyComp',
-			newDurationInFrames: 120,
-			newFps: 60,
-			newHeight: 1080,
-			newWidth: 1920,
-		},
-		dryRun: false,
+	const result = await operations.updateCompositionMetadata({
+		idToUpdate: 'MyComp',
+		newDurationInFrames: 120,
+		newFps: 60,
+		newHeight: 1080,
+		newWidth: 1920,
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
@@ -1357,30 +1335,12 @@ test('updates composition metadata in Browser Studio', async () => {
 	expect(composition).toContain('height={1080}');
 });
 
-test('deletes a composition and supports a dry run', async () => {
+test('deletes a composition', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
 	);
-	const initialContents = getProject().files['/project/src/Composition.tsx'];
-
-	const dryRunResult = await operations.applyCodemod({
-		codemod: {type: 'delete-composition', idToDelete: 'MyComp'},
-		dryRun: true,
-		undoRedoNavigation: null,
-		symbolicatedStack: null,
-	});
-	if (!dryRunResult.success) {
-		throw new Error(dryRunResult.reason);
-	}
-
-	expect(dryRunResult.diff.deletions).toBeGreaterThan(0);
-	expect(getProject().files['/project/src/Composition.tsx']).toBe(
-		initialContents,
-	);
-
-	const result = await operations.applyCodemod({
-		codemod: {type: 'delete-composition', idToDelete: 'MyComp'},
-		dryRun: false,
+	const result = await operations.deleteComposition({
+		idToDelete: 'MyComp',
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
@@ -1398,8 +1358,8 @@ test('creates a composition with a component file in the root file', async () =>
 		createBlankTemplateProject(),
 	);
 
-	const codemod = {
-		type: 'new-composition' as const,
+	const options = {
+		asset: null,
 		newId: 'FreshComp',
 		componentName: 'FreshComp',
 		componentImportPath: './FreshComp',
@@ -1411,9 +1371,8 @@ test('creates a composition with a component file in the root file', async () =>
 		newDurationInFrames: 90,
 		canvasCapture: null,
 	};
-	const result = await operations.applyCodemod({
-		codemod,
-		dryRun: false,
+	const result = await operations.addComposition({
+		options,
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
@@ -1429,13 +1388,12 @@ test('creates a composition with a component file in the root file', async () =>
 		'export const FreshComp: React.FC',
 	);
 
-	const conflict = await operations.applyCodemod({
-		codemod: {...codemod, newId: 'FreshComp2'},
-		dryRun: false,
+	const conflict = await operations.addComposition({
+		options: {...options, newId: 'FreshComp2'},
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
-	expect(conflict).toEqual({
+	expect(conflict).toMatchObject({
 		success: false,
 		reason: 'Cannot create src/FreshComp.tsx because it already exists',
 	});
@@ -1453,9 +1411,9 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 		createBlankTemplateProject(),
 	);
 
-	const result = await operations.applyCodemod({
-		codemod: {
-			type: 'new-composition',
+	const result = await operations.addComposition({
+		options: {
+			asset: null,
 			newId: 'CanvasComp',
 			componentName: 'CanvasComp',
 			componentImportPath: './CanvasComp',
@@ -1493,7 +1451,6 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 				},
 			},
 		},
-		dryRun: false,
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
@@ -1503,20 +1460,20 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 
 	const rootFile = getProject().files['/project/src/Root.tsx'];
 	const componentFile = getProject().files['/project/src/CanvasComp.tsx'];
-	expect(rootFile).toContain('<CanvasComp');
+	expect(rootFile).toContain('id="CanvasComp"');
+	expect(rootFile).toContain('component={CanvasComp}');
 	expect(rootFile).toContain('import { CanvasComp } from "./CanvasComp"');
 	expect(componentFile).toContain("src={staticFile('capture.mp4')}");
 	expect(componentFile).toContain('<MacOSCursor');
 	expect(componentFile).toContain('translate: interpolate(');
-	expect(componentFile).toContain("id={'CanvasComp'}");
-	expect(componentFile).toContain('width={1920}');
-	expect(componentFile).toContain('height={1080}');
+	expect(rootFile).toContain('width={1920}');
+	expect(rootFile).toContain('height={1080}');
 
 	const undoResult = await operations.undo();
 	expect(undoResult.success).toBe(true);
 	expect(getProject().files['/project/src/CanvasComp.tsx']).toBeUndefined();
 	expect(getProject().files['/project/src/Root.tsx']).not.toContain(
-		'<CanvasComp',
+		'id="CanvasComp"',
 	);
 });
 
@@ -1525,9 +1482,9 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 		createBlankTemplateProject(),
 	);
 
-	const createResult = await operations.applyCodemod({
-		codemod: {type: 'new-folder', folderName: 'my-folder', parentName: null},
-		dryRun: false,
+	const createResult = await operations.addFolder({
+		folderName: 'my-folder',
+		parentName: null,
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
@@ -1537,16 +1494,12 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 
 	const rootFile = getProject().files['/project/src/Root.tsx'];
 	expect(rootFile).toContain('<Folder name="my-folder" />');
-	expect(rootFile).toContain("import {Folder} from 'remotion'");
+	expect(rootFile).toContain('import { Folder } from "remotion"');
 
-	const renameResult = await operations.applyCodemod({
-		codemod: {
-			type: 'rename-folder',
-			folderName: 'my-folder',
-			parentName: null,
-			newName: 'renamed-folder',
-		},
-		dryRun: false,
+	const renameResult = await operations.renameFolder({
+		folderName: 'my-folder',
+		parentName: null,
+		newName: 'renamed-folder',
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
@@ -1558,13 +1511,9 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 		'<Folder name="renamed-folder" />',
 	);
 
-	const deleteResult = await operations.applyCodemod({
-		codemod: {
-			type: 'delete-folder',
-			folderName: 'renamed-folder',
-			parentName: null,
-		},
-		dryRun: false,
+	const deleteResult = await operations.unwrapFolder({
+		folderName: 'renamed-folder',
+		parentName: null,
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
@@ -1601,17 +1550,13 @@ export const Root = () => {
 		},
 	});
 
-	const result = await operations.applyCodemod({
-		codemod: {
-			type: 'move-composition-or-folder',
-			source: {type: 'composition', compositionId: 'MyComp'},
-			destination: {
-				type: 'folder',
-				folderName: 'target-folder',
-				parentName: null,
-			},
+	const result = await operations.moveComposition({
+		compositionId: 'MyComp',
+		destination: {
+			type: 'folder',
+			folderName: 'target-folder',
+			parentName: null,
 		},
-		dryRun: false,
 		undoRedoNavigation: null,
 		symbolicatedStack: {
 			originalFileName: 'src/Root.tsx',
@@ -1625,6 +1570,7 @@ export const Root = () => {
 		throw new Error(result.reason);
 	}
 
+	expect(result.nodePathMutation).not.toBeNull();
 	const rootFile = getProject().files[fileName];
 	expect(rootFile).toContain('<Folder name="target-folder">');
 	expect(rootFile.indexOf('<Composition')).toBeGreaterThan(
@@ -1671,12 +1617,6 @@ registerRoot(Root);`,
 			assetKeys: [],
 			effects: [],
 			clientId: 'browser-studio',
-			videoConfigValues: {
-				durationInFrames: 60,
-				fps: 30,
-				height: 720,
-				width: 1280,
-			},
 		});
 		if (!subscription.success) {
 			throw new Error('Expected sequence props subscription to succeed');
@@ -1690,21 +1630,21 @@ registerRoot(Root);`,
 
 	const identicalFailure = await operations.reorderSequence({
 		fileName: 'src/Composition.tsx',
-		sourceNodePath: firstNodePath,
+		sourceNodePaths: [firstNodePath],
 		targetNodePath: firstNodePath,
 		position: 'after',
 		clientId: 'browser-studio',
 	});
 	expect(identicalFailure).toMatchObject({
 		success: false,
-		reason: 'Cannot reorder sequence: source and target are identical',
+		reason: 'Cannot reorder sequences relative to a selected sequence',
 		stack: expect.any(String),
 	});
 	expect(getProject().files[fileName]).toBe(initialContents);
 
 	const result = await operations.reorderSequence({
 		fileName: 'src/Composition.tsx',
-		sourceNodePath: firstNodePath,
+		sourceNodePaths: [firstNodePath],
 		targetNodePath: secondNodePath,
 		position: 'after',
 		clientId: 'browser-studio',
@@ -1881,32 +1821,19 @@ test('adds missing composition defaultProps and restores them through undo and r
 	expect(getProject().files).toEqual(updatedFiles);
 });
 
-test('reports structured failures for unsupported codemods', async () => {
+test('reports structured failures for composition edits', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
 	);
 	const initialFiles = {...getProject().files};
 
 	expect(
-		await operations.applyCodemod({
-			codemod: {type: 'apply-visual-control', changes: []},
-			dryRun: false,
+		await operations.deleteComposition({
+			idToDelete: 'MissingComp',
 			undoRedoNavigation: null,
 			symbolicatedStack: null,
 		}),
-	).toEqual({
-		success: false,
-		reason: 'Applying visual controls is not supported in Browser Studio',
-	});
-
-	expect(
-		await operations.applyCodemod({
-			codemod: {type: 'delete-composition', idToDelete: 'MissingComp'},
-			dryRun: false,
-			undoRedoNavigation: null,
-			symbolicatedStack: null,
-		}),
-	).toEqual({
+	).toMatchObject({
 		success: false,
 		reason: 'Could not find composition "MissingComp"',
 	});
@@ -1956,12 +1883,6 @@ export const Comp = () => (
 		assetKeys: [],
 		effects: [['amount'], ['amount']],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription');

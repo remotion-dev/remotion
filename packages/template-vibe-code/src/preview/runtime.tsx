@@ -8,7 +8,7 @@ import {
   createCanvasController,
   type CanvasSequencePropsChangeHandler,
   type CanvasSequencePropStatusResolver,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import type { PlayerRef } from "@remotion/player";
 import {
   canRenderMediaOnWeb,

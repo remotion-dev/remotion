@@ -12,6 +12,7 @@ import type {
 	PixelFormat,
 	Privacy,
 	ServerlessCodec,
+	ServerlessRenderOutput,
 	SingleFrameRange,
 	ServerlessPayloads,
 	ServerlessStartPayload,
@@ -47,7 +48,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps: Record<string, unknown>;
-	codec: ServerlessCodec;
+	codec: ServerlessCodec | null;
+	output: ServerlessRenderOutput<AwsProvider>;
 	imageFormat: VideoImageFormat;
 	crf: number | undefined;
 	envVariables: Record<string, string>;
@@ -104,6 +106,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	concurrency,
 	forceBucketName: bucketName,
 	codec,
+	output,
 	composition,
 	serveUrl,
 	imageFormat,
@@ -115,6 +118,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	disableSharedMemoryCapture,
 	maxRetries,
 	privacy,
 	logLevel,
@@ -155,7 +159,14 @@ export const makeLambdaRenderMediaPayload = async ({
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
-	const actualCodec = validateLambdaCodec(codec);
+	const actualCodec = codec === null ? null : validateLambdaCodec(codec);
+
+	if ((output.type === 'sequence') !== (actualCodec === null)) {
+		throw new Error(
+			'Image sequence renders must omit the codec. Media renders require a codec.',
+		);
+	}
+
 	validateServeUrl(serveUrl);
 	validateDownloadBehavior(downloadBehavior);
 	validateWebhook(webhook);
@@ -193,6 +204,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		serveUrl,
 		inputProps: serialized,
 		codec: actualCodec,
+		output,
 		imageFormat,
 		crf: crf ?? null,
 		envVariables,
@@ -200,6 +212,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		proResProfile: proResProfile ?? null,
 		x264Preset,
 		gopSize,
+		disableSharedMemoryCapture,
 		jpegQuality,
 		maxRetries,
 		privacy,

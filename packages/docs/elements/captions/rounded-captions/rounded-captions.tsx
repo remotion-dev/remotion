@@ -3,38 +3,25 @@ import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Figtree';
 import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
 import {createRoundedTextBox} from '@remotion/rounded-text-box';
-import React, {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type RoundedCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+type RoundedCaptionsProps = InteractiveTransformProps &
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
-		readonly playbackRate: number | null;
 		readonly combineTokensWithinMilliseconds: number | null;
 	};
 
 const defaultCombineTokensWithinMilliseconds = 2000;
 const defaultWidth = 900;
-const defaultHeight = 220;
 const fontWeight = '700';
 const maxFontSize = 64;
 const lineHeight = 1.5;
@@ -42,7 +29,6 @@ const horizontalPadding = 22;
 const borderRadius = 20;
 
 const roundedCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -50,14 +36,6 @@ const roundedCaptionsSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Caption area width',
-		hiddenFromList: false,
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
 		hiddenFromList: false,
 	},
 	combineTokensWithinMilliseconds: {
@@ -68,7 +46,6 @@ const roundedCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
@@ -76,23 +53,23 @@ const {fontFamily, waitUntilDone} = loadFont('normal', {
 	subsets: ['latin'],
 });
 
-const RoundedCaptionsContent: React.FC<{
-	readonly captions: Caption[];
-	readonly playbackRate: number;
-	readonly trimBefore: number;
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-	readonly width: number;
-	readonly height: number;
-}> = ({
+const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
 	captions,
-	playbackRate,
-	trimBefore,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
-	width,
-	height,
+	combineTokensWithinMilliseconds: providedCombineTokensWithinMilliseconds,
+	style,
+	width = defaultWidth,
 }) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => setFontLoaded(true))
+			.catch((error) => cancelRender(error));
+	}, []);
+
+	const combineTokensWithinMilliseconds =
+		providedCombineTokensWithinMilliseconds ??
+		defaultCombineTokensWithinMilliseconds;
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -103,9 +80,7 @@ const RoundedCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	// The Sequence frame already includes trimBefore; only elapsed frames speed up.
-	const currentTimeMs =
-		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
+	const currentTimeMs = (frame / fps) * 1000;
 	const page = pages.find(
 		(candidate) =>
 			currentTimeMs >= candidate.startMs &&
@@ -129,7 +104,7 @@ const RoundedCaptionsContent: React.FC<{
 				maxBoxWidth: Math.max(1, width - horizontalPadding * 2),
 				fontFamily,
 				fontWeight,
-				maxFontSize: Math.min(maxFontSize, height / (maxLines * lineHeight)),
+				maxFontSize,
 				validateFontIsLoaded: true,
 			}),
 		);
@@ -160,131 +135,69 @@ const RoundedCaptionsContent: React.FC<{
 				borderRadius,
 			}),
 		};
-	}, [fontLoaded, height, page, width]);
-
-	if (!layout) {
-		return null;
-	}
+	}, [fontLoaded, page, width]);
 
 	return (
 		<div
 			style={{
-				position: 'relative',
-				width: layout.boundingBox.width,
-				height: layout.boundingBox.height,
-				flexShrink: 0,
+				alignItems: 'center',
+				display: 'flex',
+				justifyContent: 'center',
+				width,
+				...style,
 			}}
 		>
-			<svg
-				viewBox={layout.boundingBox.viewBox}
-				style={{
-					position: 'absolute',
-					left: 0,
-					top: 0,
-					width: layout.boundingBox.width,
-					height: layout.boundingBox.height,
-					overflow: 'visible',
-				}}
-			>
-				<path fill="#ffffff" d={layout.d} />
-			</svg>
-			<div style={{position: 'relative'}}>
-				{layout.lines.map((line, index) => (
-					<div
-						// eslint-disable-next-line react/no-array-index-key
-						key={index}
+			{layout ? (
+				<div
+					style={{
+						position: 'relative',
+						width: layout.boundingBox.width,
+						height: layout.boundingBox.height,
+						flexShrink: 0,
+					}}
+				>
+					<svg
+						viewBox={layout.boundingBox.viewBox}
 						style={{
-							color: '#000000',
-							fontFamily,
-							fontSize: layout.fontSize,
-							fontWeight,
-							lineHeight,
-							paddingInline: horizontalPadding,
-							textAlign: 'center',
-							whiteSpace: 'pre',
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: layout.boundingBox.width,
+							height: layout.boundingBox.height,
+							overflow: 'visible',
 						}}
 					>
-						{line}
+						<path fill="#ffffff" d={layout.d} />
+					</svg>
+					<div style={{position: 'relative'}}>
+						{layout.lines.map((line, index) => (
+							<div
+								// eslint-disable-next-line react/no-array-index-key
+								key={index}
+								style={{
+									color: '#000000',
+									fontFamily,
+									fontSize: layout.fontSize,
+									fontWeight,
+									lineHeight,
+									paddingInline: horizontalPadding,
+									textAlign: 'center',
+									whiteSpace: 'pre',
+								}}
+							>
+								{line}
+							</div>
+						))}
 					</div>
-				))}
-			</div>
+				</div>
+			) : null}
 		</div>
 	);
 };
 
-const RoundedCaptionsInner = forwardRef<
-	HTMLDivElement,
-	RoundedCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds,
-			controls,
-			height = defaultHeight,
-			name,
-			playbackRate,
-			style,
-			trimBefore,
-			width = defaultWidth,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-		const [fontLoaded, setFontLoaded] = useState(false);
-
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-		useEffect(() => {
-			waitUntilDone()
-				.then(() => setFontLoaded(true))
-				.catch((error) => cancelRender(error));
-		}, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? '<RoundedCaptions>'}
-				trimBefore={trimBefore}
-			>
-				<div
-					ref={elementRef}
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						justifyContent: 'center',
-						marginInline: 'auto',
-						width,
-						height,
-						...style,
-					}}
-				>
-					<RoundedCaptionsContent
-						captions={captions}
-						combineTokensWithinMilliseconds={
-							combineTokensWithinMilliseconds ??
-							defaultCombineTokensWithinMilliseconds
-						}
-						fontLoaded={fontLoaded}
-						playbackRate={playbackRate ?? 1}
-						trimBefore={trimBefore ?? 0}
-						width={width}
-						height={height}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
-
 export const RoundedCaptions = Interactive.withSchema({
-	Component: RoundedCaptionsInner,
+	Component: RoundedCaptionsContent,
 	componentName: '<RoundedCaptions>',
 	schema: roundedCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<RoundedCaptionsProps>;
+	wrapInSequence: true,
+});

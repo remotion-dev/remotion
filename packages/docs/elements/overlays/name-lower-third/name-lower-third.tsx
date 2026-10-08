@@ -1,18 +1,27 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 loadFont('normal', {
 	subsets: ['latin'],
 	weights: ['500', '700'],
 });
 
-export const NameLowerThird: React.FC = () => {
+const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				display: 'flex',
 				flexDirection: 'column',
@@ -21,18 +30,24 @@ export const NameLowerThird: React.FC = () => {
 				height: 132,
 				boxSizing: 'border-box',
 				fontFamily: 'Inter',
+				...style,
 			}}
 		>
 			<Interactive.Div
-				cropRight={interpolate(frame, [0, 20, 96, 116], [1, 0, 0, 1], {
-					easing: [
-						Easing.bezier(0.65, 0, 0.35, 1),
-						Easing.linear,
-						Easing.bezier(0.65, 0, 0.35, 1),
-					],
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				})}
+				cropRight={interpolate(
+					frame,
+					[0, 20, durationInFrames - 24, durationInFrames - 4],
+					[1, 0, 0, 1],
+					{
+						easing: [
+							Easing.bezier(0.65, 0, 0.35, 1),
+							Easing.linear,
+							Easing.bezier(0.65, 0, 0.35, 1),
+						],
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)}
 				name="Name bar"
 				style={{
 					display: 'flex',
@@ -53,15 +68,20 @@ export const NameLowerThird: React.FC = () => {
 				Alex Morgan
 			</Interactive.Div>
 			<Interactive.Div
-				cropRight={interpolate(frame, [4, 24, 92, 112], [1, 0, 0, 1], {
-					easing: [
-						Easing.bezier(0.65, 0, 0.35, 1),
-						Easing.linear,
-						Easing.bezier(0.65, 0, 0.35, 1),
-					],
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				})}
+				cropRight={interpolate(
+					frame,
+					[4, 24, durationInFrames - 28, durationInFrames - 8],
+					[1, 0, 0, 1],
+					{
+						easing: [
+							Easing.bezier(0.65, 0, 0.35, 1),
+							Easing.linear,
+							Easing.bezier(0.65, 0, 0.35, 1),
+						],
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)}
 				name="Title bar"
 				style={{
 					display: 'flex',
@@ -84,3 +104,10 @@ export const NameLowerThird: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const NameLowerThird = Interactive.withSchema({
+	Component: NameLowerThirdInner,
+	componentName: '<NameLowerThird>',
+	schema: {},
+	wrapInSequence: true,
+});

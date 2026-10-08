@@ -1,5 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import {Internals} from 'remotion';
 
 const {collectCommitOrderFromFiber, installFiberCommitOrderObserver} =
@@ -7,21 +7,17 @@ const {collectCommitOrderFromFiber, installFiberCommitOrderObserver} =
 
 type TestFiber = {
 	child: TestFiber | null;
-	elementType: unknown;
 	memoizedProps: unknown;
 	sibling: TestFiber | null;
-	type: unknown;
 	tag: number | null;
 	stateNode: unknown;
 	memoizedState: unknown;
 };
 
 const makeFiber = ({
-	type = null,
 	props = {},
 	children = [],
 }: {
-	type?: unknown;
 	props?: unknown;
 	children?: TestFiber[];
 } = {}): TestFiber => {
@@ -31,20 +27,12 @@ const makeFiber = ({
 
 	return {
 		child: children[0] ?? null,
-		elementType: type,
 		memoizedProps: props,
 		sibling: null,
-		type,
 		tag: null,
 		stateNode: null,
 		memoizedState: null,
 	};
-};
-
-const makeMarker = (marker: symbol) => {
-	const Marker = () => null;
-	Object.defineProperty(Marker, marker, {value: true});
-	return Marker;
 };
 
 const originalHook = Reflect.get(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__');
@@ -58,51 +46,80 @@ afterEach(() => {
 });
 
 test('collects sequence, composition, and folder order per manager', () => {
-	const SequenceManagerMarker = makeMarker(
-		Internals.CommitOrderInternals.sequenceManagerMarker,
-	);
-	const CompositionManagerMarker = makeMarker(
-		Internals.CommitOrderInternals.compositionManagerMarker,
-	);
-	const SequenceMarker = makeMarker(
-		Internals.CommitOrderInternals.sequenceMarker,
-	);
-	const CompositionMarker = makeMarker(
-		Internals.CommitOrderInternals.compositionMarker,
-	);
-	const FolderMarker = makeMarker(Internals.CommitOrderInternals.folderMarker);
 	const root = {
 		current: makeFiber({
 			children: [
 				makeFiber({
-					type: CompositionManagerMarker,
-					props: {managerId: 'compositions'},
+					props: {
+						_remotionCommitMetadata: {
+							type: 'composition-manager',
+							id: 'compositions',
+							onCommit: () => undefined,
+						},
+					},
 					children: [
 						makeFiber({
-							type: SequenceManagerMarker,
-							props: {managerId: 'sequences'},
+							props: {
+								_remotionCommitMetadata: {
+									type: 'sequence-manager',
+									id: 'sequences',
+									onCommit: null,
+								},
+							},
 							children: [
 								makeFiber({
-									type: FolderMarker,
-									props: {folderId: 'group'},
+									props: {
+										_remotionCommitMetadata: {
+											type: 'folder',
+											id: 'group',
+											value: {
+												name: 'group',
+												parent: null,
+												order: null,
+												stack: null,
+											},
+										},
+									},
 									children: [
 										makeFiber({
-											type: CompositionMarker,
-											props: {compositionId: 'inside'},
+											props: {
+												_remotionCommitMetadata: {
+													type: 'composition',
+													id: 'inside',
+													value: {id: 'inside'},
+												},
+											},
 										}),
 									],
 								}),
 								makeFiber({
-									type: CompositionMarker,
-									props: {compositionId: 'outside'},
+									props: {
+										_remotionCommitMetadata: {
+											type: 'composition',
+											id: 'outside',
+											value: {id: 'outside'},
+										},
+									},
 								}),
 								makeFiber({
-									type: SequenceMarker,
-									props: {sequenceId: 'left'},
+									props: {
+										_remotionCommitMetadata: {
+											type: 'sequence',
+											id: 'left',
+											value: null,
+											outlineChildrenRef: null,
+										},
+									},
 								}),
 								makeFiber({
-									type: SequenceMarker,
-									props: {sequenceId: 'right'},
+									props: {
+										_remotionCommitMetadata: {
+											type: 'sequence',
+											id: 'right',
+											value: null,
+											outlineChildrenRef: null,
+										},
+									},
 								}),
 							],
 						}),
@@ -112,41 +129,57 @@ test('collects sequence, composition, and folder order per manager', () => {
 		}),
 	};
 
-	expect(collectCommitOrderFromFiber(root)).toEqual({
+	const compositionRegistrations: NonNullable<
+		Parameters<typeof collectCommitOrderFromFiber>[3]
+	>['registrations'] = new Map();
+	expect(
+		collectCommitOrderFromFiber(root, null, null, {
+			registrations: compositionRegistrations,
+			previous: null,
+		}),
+	).toEqual({
 		outlineCount: 0,
 		sequenceManagers: [
 			{managerId: 'sequences', sequenceIds: ['left', 'right']},
 		],
-		compositionManagers: [
-			{
-				managerId: 'compositions',
-				compositionAndFolderOrder: [
-					{type: 'folder', id: 'group'},
-					{type: 'composition', id: 'inside'},
-					{type: 'composition', id: 'outside'},
-				],
-			},
-		],
 	});
+	const snapshot = compositionRegistrations.get('compositions')?.snapshot;
+	expect(snapshot?.compositions.map(({id}) => id)).toEqual([
+		'inside',
+		'outside',
+	]);
+	expect(snapshot?.folders).toEqual([
+		{name: 'group', parent: null, order: null, stack: null},
+	]);
+	expect(snapshot?.orderIds).toEqual([
+		'folder:group',
+		'composition:inside',
+		'composition:outside',
+	]);
 });
 
 test('chains the existing commit hook and emits the committed order once', () => {
-	const ManagerMarker = makeMarker(
-		Internals.CommitOrderInternals.sequenceManagerMarker,
-	);
-	const SequenceMarker = makeMarker(
-		Internals.CommitOrderInternals.sequenceMarker,
-	);
 	const root = {
 		current: makeFiber({
 			children: [
 				makeFiber({
-					type: ManagerMarker,
-					props: {managerId: 'manager-a'},
+					props: {
+						_remotionCommitMetadata: {
+							type: 'sequence-manager',
+							id: 'manager-a',
+							onCommit: null,
+						},
+					},
 					children: [
 						makeFiber({
-							type: SequenceMarker,
-							props: {sequenceId: 'first'},
+							props: {
+								_remotionCommitMetadata: {
+									type: 'sequence',
+									id: 'first',
+									value: null,
+									outlineChildrenRef: null,
+								},
+							},
 						}),
 					],
 				}),
@@ -167,7 +200,10 @@ test('chains the existing commit hook and emits the committed order once', () =>
 		events.push((event as CustomEvent).detail);
 	};
 
-	window.addEventListener(Internals.CommitOrderInternals.eventName, onOrder);
+	window.addEventListener(
+		Internals.CommittedMetadataInternals.eventName,
+		onOrder,
+	);
 
 	try {
 		expect(installFiberCommitOrderObserver(window)).toBe(true);
@@ -176,7 +212,7 @@ test('chains the existing commit hook and emits the committed order once', () =>
 		hook.onCommitFiberRoot(1, root, null, false);
 	} finally {
 		window.removeEventListener(
-			Internals.CommitOrderInternals.eventName,
+			Internals.CommittedMetadataInternals.eventName,
 			onOrder,
 		);
 	}
@@ -185,7 +221,6 @@ test('chains the existing commit hook and emits the committed order once', () =>
 	expect(events).toEqual([
 		{
 			sequenceManagers: [{managerId: 'manager-a', sequenceIds: ['first']}],
-			compositionManagers: [],
 		},
 	]);
 });

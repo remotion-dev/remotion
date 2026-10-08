@@ -4,6 +4,7 @@ import {makeLambdaRenderMediaPayload} from '../make-lambda-payload';
 
 test('Should include concurrency field in payload', async () => {
 	const payload = await makeLambdaRenderMediaPayload({
+		output: {type: 'media'},
 		enableCancellation: false,
 		region: 'us-east-1',
 		functionName: 'test-function',
@@ -18,6 +19,7 @@ test('Should include concurrency field in payload', async () => {
 		proResProfile: undefined,
 		x264Preset: null,
 		gopSize: null,
+		disableSharedMemoryCapture: false,
 		privacy: 'public',
 		jpegQuality: 80,
 		maxRetries: 1,
@@ -69,6 +71,7 @@ test('Should include concurrency field in payload', async () => {
 
 test('Should handle null concurrency', async () => {
 	const payload = await makeLambdaRenderMediaPayload({
+		output: {type: 'media'},
 		enableCancellation: false,
 		region: 'us-east-1',
 		functionName: 'test-function',
@@ -83,6 +86,7 @@ test('Should handle null concurrency', async () => {
 		proResProfile: undefined,
 		x264Preset: null,
 		gopSize: null,
+		disableSharedMemoryCapture: false,
 		privacy: 'public',
 		jpegQuality: 80,
 		maxRetries: 1,

@@ -1,7 +1,13 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {
+	AbsoluteFill,
+	Interactive,
+	type InteractiveTransformProps,
+} from 'remotion';
 
-export const ElementComponent: React.FC = () => {
+const ElementComponentInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	return (
 		<AbsoluteFill
 			style={{
@@ -13,9 +19,17 @@ export const ElementComponent: React.FC = () => {
 				fontSize: 96,
 				fontWeight: 700,
 				justifyContent: 'center',
+				...style,
 			}}
 		>
 			Element
 		</AbsoluteFill>
 	);
 };
+
+export const ElementComponent = Interactive.withSchema({
+	Component: ElementComponentInner,
+	componentName: '<ElementComponent>',
+	schema: {},
+	wrapInSequence: true,
+});

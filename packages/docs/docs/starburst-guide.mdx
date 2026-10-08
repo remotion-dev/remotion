@@ -15,20 +15,14 @@ Apply the effect to a [`<Solid>`](/docs/solid) and animate its parameters with [
 
 ```tsx twoslash title="MyComp.tsx"
 import {starburst} from '@remotion/effects/starburst';
-import {
-  AbsoluteFill,
-  interpolate,
-  Solid,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
+import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, height, durationInFrames} = useVideoConfig();
 
   return (
-    <AbsoluteFill>
+    <>
       <Solid
         width={width}
         height={height}
@@ -40,7 +34,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

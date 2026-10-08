@@ -30,13 +30,14 @@ import type {MediaRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
+import type {MaxCanvasSinkFrameSize} from './video/props';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
-	| {type: 'unknown-container-format'}
+	| {type: 'unknown-container-format'; error: Error}
 	| {type: 'cannot-decode'}
 	| {type: 'cannot-decode-prores'}
-	| {type: 'network-error'}
+	| {type: 'network-error'; error: Error}
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
 
@@ -94,6 +95,8 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
+	private maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	private premountAwareDelayPlayback: PremountAwareDelayPlayback;
@@ -127,6 +130,7 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
+		maxCanvasSinkFrameSize,
 		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -157,6 +161,7 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
+		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
@@ -197,6 +202,7 @@ export class MediaPlayer {
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
+		this.maxCanvasSinkFrameSize = maxCanvasSinkFrameSize;
 		this.onError = onError;
 
 		if (canvas) {
@@ -318,7 +324,7 @@ export class MediaPlayer {
 					error,
 				);
 
-				return {type: 'unknown-container-format'};
+				return {type: 'unknown-container-format', error: err};
 			}
 
 			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
@@ -386,6 +392,7 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
+					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
 				});
 			}
 
@@ -483,7 +490,7 @@ export class MediaPlayer {
 					`[MediaPlayer] Network/CORS error for ${this.src}`,
 					err,
 				);
-				return {type: 'network-error'};
+				return {type: 'network-error', error: err};
 			}
 
 			Internals.Log.error(

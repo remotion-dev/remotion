@@ -1,10 +1,10 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 
 export type {
 	ParsedTranslate,
 	ParsedTranslateWithUnits,
 	TranslateUnit,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 
 export const {
 	parseTranslate,

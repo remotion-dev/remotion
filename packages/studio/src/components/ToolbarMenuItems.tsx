@@ -1,4 +1,5 @@
 import React, {useContext, useMemo} from 'react';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {
 	getFileMenu,
@@ -24,6 +25,7 @@ export const FileToolbarMenuItem: React.FC<ToolbarMenuItemProps> = React.memo(
 	({closeMenu, readOnlyStudio, ...menuItemProps}) => {
 		const {setSelectedModal} = useContext(SetSelectedModalContext);
 		const {connectionStatus, openInApps} = useOpenInMenuApps();
+		const newCompositionShortcut = useKeyboardShortcutLabel('newComposition');
 		const menu = useMemo(
 			() =>
 				getFileMenu({
@@ -33,6 +35,9 @@ export const FileToolbarMenuItem: React.FC<ToolbarMenuItemProps> = React.memo(
 					editorName: openInApps.defaultEditorName,
 					previewServerState: connectionStatus,
 					setSelectedModal,
+					newCompositionShortcut: areKeyboardShortcutsDisabled()
+						? null
+						: newCompositionShortcut || null,
 				}),
 			[
 				readOnlyStudio,
@@ -41,6 +46,7 @@ export const FileToolbarMenuItem: React.FC<ToolbarMenuItemProps> = React.memo(
 				openInApps.defaultEditorName,
 				connectionStatus,
 				setSelectedModal,
+				newCompositionShortcut,
 			],
 		);
 

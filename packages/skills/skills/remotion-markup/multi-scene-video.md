@@ -3,6 +3,13 @@
 Put each substantial scene in its own component and file.  
 Register those components as [connected compositions](connected-compositions.md) so each scene has an editable Studio timeline.
 
+Treat the parent timeline as an editable document: Author every scene that
+should be edited independently as a separate interactive component,
+`<Series.Sequence>`, or `<TransitionSeries.Sequence>` JSX node. Keep its `name` and
+`durationInFrames` inline so the node has its own source-editing target.
+Programmatic rendering is suitable only when the generated scenes are
+intentionally controlled as one source template.
+
 Use `<TransitionSeries>` when the scenes may have transitions.  
 Install `@remotion/transitions` if it is missing.  
 Give each sequence an inline `durationInFrames` value so Studio can edit its timing.
@@ -12,39 +19,56 @@ Example:
 ```tsx
 // MyVideo.tsx
 import {TransitionSeries} from '@remotion/transitions';
+import {useVideoConfig} from 'remotion';
 import {OpeningScene} from './OpeningScene';
 import {FeatureScene} from './FeatureScene';
 
-export const MyVideo = () => (
-  <TransitionSeries>
-    <TransitionSeries.Sequence
-      name="Opening"
-      durationInFrames={90}
-    >
-      <OpeningScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Sequence
-      name="Feature"
-      durationInFrames={120}
-    >
-      <FeatureScene />
-    </TransitionSeries.Sequence>
-  </TransitionSeries>
-);
+export const MyVideo = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence
+        name="Opening"
+        durationInFrames={90}
+        premountFor={fps}
+      >
+        <OpeningScene />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Sequence
+        name="Feature"
+        durationInFrames={120}
+        premountFor={fps}
+      >
+        <FeatureScene />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
 ```
 
 Register the same scene components, plus the parent video, in the root:
 
-```tsx
-// Root.tsx
+```tsx title="src/Root.tsx"
 import {Composition, Folder} from 'remotion';
 import {OpeningScene} from './OpeningScene';
 import {FeatureScene} from './FeatureScene';
+import {ChapterElement} from './ChapterElement';
 import {MyVideo} from './MyVideo';
 
 export const RemotionRoot = () => (
   <>
-    <Folder name="MyVideo-Scenes">
+    <Folder name="Elements">
+      <Composition
+        id="ChapterElement"
+        component={ChapterElement}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={60}
+      />
+    </Folder>
+    <Folder name="Scenes">
       <Composition
         id="Opening"
         component={OpeningScene}
@@ -76,6 +100,8 @@ export const RemotionRoot = () => (
 
 Keep each scene's standalone metadata and `defaultProps` consistent with how it is used in the main video.
 
-With no transition, this example needs a 210-frame main composition. If you add a transition, account for its overlap in the main duration; see [transitions](transitions.md).
+With no transition, this example needs a 210-frame main composition.  
+If you add a transition, account for its overlap in the main duration; see [transitions](transitions.md).
 
-Use `<Series>` for consecutive scenes that do not need transitions. Use `<Sequence>` for scenes placed independently on the parent timeline.
+Use `<Series>` for consecutive scenes that do not need transitions.  
+For independently placed scenes, prefer components made with `Interactive.withSchema({wrapInSequence: true})` and put `from` and `durationInFrames` directly on each instance.

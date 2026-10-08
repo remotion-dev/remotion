@@ -15,6 +15,7 @@ import type {
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {openInFileExplorer} from '../components/RenderQueue/actions';
+import {getSidebarMenuItems} from '../components/sidebar-menu-items';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -29,7 +30,6 @@ import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {SetSelectedModalContext} from '../state/modals';
-import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {
 	canInstallPackages,
@@ -66,6 +66,7 @@ export const getFileMenu = ({
 	editorId,
 	previewServerState,
 	setSelectedModal,
+	newCompositionShortcut,
 }: {
 	readOnlyStudio: boolean;
 	closeMenu: () => void;
@@ -73,6 +74,7 @@ export const getFileMenu = ({
 	editorId: EditorPickerId | null;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
+	newCompositionShortcut: string | null;
 }) => {
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
@@ -96,7 +98,7 @@ export const getFileMenu = ({
 						});
 					},
 					type: 'item' as const,
-					keyHint: null,
+					keyHint: newCompositionShortcut,
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'New composition...',
@@ -371,6 +373,7 @@ const useMenuStructureBase = ({
 	const {defaultEditorId, defaultEditorName} = openInApps;
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
 	const resetZoomShortcut = useKeyboardShortcutLabel('resetZoom');
+	const newCompositionShortcut = useKeyboardShortcutLabel('newComposition');
 	const toggleSnappingShortcut = useKeyboardShortcutLabel('toggleSnapping');
 	const checkerboardShortcut = useKeyboardShortcutLabel('toggleCheckerboard');
 	const pixelGridShortcut = useKeyboardShortcutLabel('togglePixelGrid');
@@ -468,6 +471,7 @@ const useMenuStructureBase = ({
 							closeMenu();
 							setSelectedModal({
 								type: 'settings',
+								initialStudioPane: null,
 								initialTab: studioConfigEditable ? 'studio' : 'shortcuts',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -525,6 +529,9 @@ const useMenuStructureBase = ({
 				editorName: defaultEditorName,
 				previewServerState: type,
 				setSelectedModal,
+				newCompositionShortcut: keyboardShortcutsDisabled
+					? null
+					: newCompositionShortcut || null,
 			}),
 			{
 				id: 'view' as const,
@@ -665,65 +672,14 @@ const useMenuStructureBase = ({
 						subMenu: {
 							leaveLeftSpace: true,
 							preselectIndex: 0,
-							items: [
-								{
-									id: 'left-sidebar-responsive',
-									keyHint: null,
-									label: 'Responsive',
-									leftItem:
-										sidebarCollapsedStateLeft === 'responsive' ? (
-											<Checkmark />
-										) : null,
-									onClick: () => {
-										closeMenu();
-										setSidebarCollapsedState({
-											left: 'responsive',
-											right: null,
-										});
-									},
-									subMenu: null,
-									type: 'item' as const,
-									value: 'responsive' as SidebarCollapsedState,
-									quickSwitcherLabel: null,
+							items: getSidebarMenuItems({
+								side: 'left',
+								state: sidebarCollapsedStateLeft,
+								onStateChange: (left) => {
+									closeMenu();
+									setSidebarCollapsedState({left, right: null});
 								},
-								{
-									id: 'left-sidebar-expanded',
-									keyHint: null,
-									label: 'Expanded',
-									leftItem:
-										sidebarCollapsedStateLeft === 'expanded' ? (
-											<Checkmark />
-										) : null,
-									onClick: () => {
-										closeMenu();
-										setSidebarCollapsedState({left: 'expanded', right: null});
-									},
-									subMenu: null,
-									type: 'item' as const,
-									value: 'expanded' as SidebarCollapsedState,
-									quickSwitcherLabel: 'Expand',
-								},
-								{
-									id: 'left-sidebar-collapsed',
-									keyHint: null,
-									label: 'Collapsed',
-									leftItem:
-										sidebarCollapsedStateLeft === 'collapsed' ? (
-											<Checkmark />
-										) : null,
-									onClick: () => {
-										closeMenu();
-										setSidebarCollapsedState({
-											left: 'collapsed',
-											right: null,
-										});
-									},
-									subMenu: null,
-									type: 'item' as const,
-									value: 'collapsed' as SidebarCollapsedState,
-									quickSwitcherLabel: 'Collapse',
-								},
-							],
+							}),
 						},
 						onClick: () => undefined,
 					},
@@ -738,45 +694,14 @@ const useMenuStructureBase = ({
 						subMenu: {
 							leaveLeftSpace: true,
 							preselectIndex: 0,
-							items: [
-								{
-									id: 'sidebar-expanded',
-									keyHint: null,
-									label: 'Expanded',
-									leftItem:
-										sidebarCollapsedStateRight === 'expanded' ? (
-											<Checkmark />
-										) : null,
-									onClick: () => {
-										closeMenu();
-										setSidebarCollapsedState({left: null, right: 'expanded'});
-									},
-									subMenu: null,
-									type: 'item' as const,
-									value: 'expanded' as SidebarCollapsedState,
-									quickSwitcherLabel: 'Expand',
+							items: getSidebarMenuItems({
+								side: 'right',
+								state: sidebarCollapsedStateRight,
+								onStateChange: (right) => {
+									closeMenu();
+									setSidebarCollapsedState({left: null, right});
 								},
-								{
-									id: 'right-sidebar-collapsed',
-									keyHint: null,
-									label: 'Collapsed',
-									leftItem:
-										sidebarCollapsedStateRight === 'collapsed' ? (
-											<Checkmark />
-										) : null,
-									onClick: () => {
-										closeMenu();
-										setSidebarCollapsedState({
-											left: null,
-											right: 'collapsed',
-										});
-									},
-									subMenu: null,
-									type: 'item' as const,
-									value: 'collapsed' as SidebarCollapsedState,
-									quickSwitcherLabel: 'Collapse',
-								},
-							],
+							}),
 						},
 						onClick: () => undefined,
 					},
@@ -1000,6 +925,7 @@ const useMenuStructureBase = ({
 									closeMenu();
 									setSelectedModal({
 										type: 'settings',
+										initialStudioPane: null,
 										initialTab: 'packages',
 										initialPublicLicenseKey:
 											window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -1030,6 +956,7 @@ const useMenuStructureBase = ({
 
 							setSelectedModal({
 								type: 'settings',
+								initialStudioPane: null,
 								initialTab: 'shortcuts',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -1214,6 +1141,7 @@ const useMenuStructureBase = ({
 		isFullscreenSupported,
 		remotion_packageManager,
 		mobileLayout,
+		newCompositionShortcut,
 		defaultEditorId,
 		defaultEditorName,
 		openInApps,

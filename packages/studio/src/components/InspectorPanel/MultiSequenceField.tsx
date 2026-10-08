@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -65,7 +71,15 @@ export const MultiSequenceField: React.FC<{
 			clearDragOverrides(target.nodePath);
 		}
 	}, [clearDragOverrides, targets]);
-	useEffect(() => clear, [clear]);
+	const targetsRef = useRef(targets);
+	targetsRef.current = targets;
+	useEffect(() => {
+		return () => {
+			for (const target of targetsRef.current) {
+				clearDragOverrides(target.nodePath);
+			}
+		};
+	}, [clearDragOverrides]);
 	const preview = useCallback(
 		(nextValues: unknown[]) => {
 			if (!editable) {
@@ -99,6 +113,7 @@ export const MultiSequenceField: React.FC<{
 						fieldKey: field.key,
 						value: nextValues[index],
 						defaultValue:
+							field.typeName === 'string' ||
 							field.typeName === 'text-content' ||
 							field.fieldSchema.default === undefined
 								? null
@@ -195,7 +210,9 @@ export const MultiSequenceField: React.FC<{
 						codeValue: mixed ? undefined : values[0],
 					}}
 					scaleLockNodePath={
-						field.typeName === 'text-content' ? null : targets[0].nodePath
+						field.typeName === 'string' || field.typeName === 'text-content'
+							? null
+							: targets[0].nodePath
 					}
 					onSave={(value, options) =>
 						save(
@@ -222,6 +239,7 @@ export const MultiSequenceField: React.FC<{
 			showSelectedBackground={false}
 			containsSelection={false}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<TimelineFieldRowContent field={field} rowDepth={0} selected={false}>
 				{content}

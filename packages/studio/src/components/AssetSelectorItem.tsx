@@ -43,12 +43,14 @@ import {getCachedImageMetadata} from '../helpers/use-image-metadata';
 import {getCachedMediaMetadata} from '../helpers/use-media-metadata';
 import {EllipsisIcon} from '../icons/ellipsis';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
+import {ActionTooltip} from './ActionTooltip';
 import {
 	getAssetActionAvailability,
 	useAssetContextMenuItems,
 } from './asset-context-menu';
 import {AssetFileIcon} from './AssetFileIcon';
 import {ContextMenu} from './ContextMenu';
+import {LUT_ASSET_DRAG_TYPE} from './effect-drag-and-drop';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -126,7 +128,11 @@ export const getCanDragAsset = ({
 	readOnlyStudio: boolean;
 	relativePath: string;
 }) => {
-	return !readOnlyStudio && getAssetElementFromPath(relativePath) !== null;
+	return (
+		!readOnlyStudio &&
+		(getAssetElementFromPath(relativePath) !== null ||
+			getPreviewFileType(relativePath) === 'lut')
+	);
 };
 
 export const getAssetFolderContextMenuItems = ({
@@ -254,7 +260,7 @@ const AssetFolderItem: React.FC<{
 	const folderStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			paddingLeft: 4 + level * 8,
+			paddingLeft: 12 + (level - 1) * 11,
 			...hoverableStyle({
 				idleBackground: TRANSPARENT,
 				hoverBackground: WHITE_ALPHA_06,
@@ -390,14 +396,21 @@ const AssetFolderItem: React.FC<{
 							style={inlineActionsStyle}
 						>
 							<Spacing x={0.5} />
-							<InlineDropdown
-								variant={null}
-								aria-label="More actions"
-								renderAction={renderContextMenuAction}
-								getItems={getContextMenuItems}
-								style={NO_HOVER_BACKGROUND_STYLE}
-								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-							/>
+							<ActionTooltip
+								label="More actions"
+								shortcut={null}
+								delay={800}
+								dismissOnClick
+							>
+								<InlineDropdown
+									variant={null}
+									aria-label="More actions"
+									renderAction={renderContextMenuAction}
+									getItems={getContextMenuItems}
+									style={NO_HOVER_BACKGROUND_STYLE}
+									className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+								/>
+							</ActionTooltip>
 						</div>
 					</div>
 				</Row>
@@ -575,6 +588,9 @@ const AssetSelectorItem: React.FC<{
 				durationInSeconds,
 			});
 			e.dataTransfer.setData(dragData.mimeType, dragData.payload);
+			if (previewFileType === 'lut') {
+				e.dataTransfer.setData(LUT_ASSET_DRAG_TYPE, '');
+			}
 		},
 		[canDragAsset, previewFileType, relativePath],
 	);
@@ -592,7 +608,7 @@ const AssetSelectorItem: React.FC<{
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
-			paddingLeft: 12 + level * 8,
+			paddingLeft: 12 + level * 11,
 		};
 	}, [level, selected]);
 
@@ -650,25 +666,39 @@ const AssetSelectorItem: React.FC<{
 							style={inlineActionsStyle}
 						>
 							<Spacing x={0.5} />
-							<InlineDropdown
-								variant={null}
-								aria-label="More actions"
-								renderAction={renderContextMenuAction}
-								getItems={getContextMenuItems}
-								style={NO_HOVER_BACKGROUND_STYLE}
-								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-							/>
+							<ActionTooltip
+								label="More actions"
+								shortcut={null}
+								delay={800}
+								dismissOnClick
+							>
+								<InlineDropdown
+									variant={null}
+									aria-label="More actions"
+									renderAction={renderContextMenuAction}
+									getItems={getContextMenuItems}
+									style={NO_HOVER_BACKGROUND_STYLE}
+									className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+								/>
+							</ActionTooltip>
 							{fileExplorerDisabled ? null : (
 								<>
 									<Spacing x={0.5} />
-									<InlineAction
-										variant={null}
-										aria-label={`Show in ${fileManagerName}`}
-										renderAction={renderFileExplorerAction}
-										onClick={revealInExplorer}
-										style={NO_HOVER_BACKGROUND_STYLE}
-										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-									/>
+									<ActionTooltip
+										label={`Show in ${fileManagerName}`}
+										shortcut={null}
+										delay={800}
+										dismissOnClick
+									>
+										<InlineAction
+											variant={null}
+											aria-label={`Show in ${fileManagerName}`}
+											renderAction={renderFileExplorerAction}
+											onClick={revealInExplorer}
+											style={NO_HOVER_BACKGROUND_STYLE}
+											className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+										/>
+									</ActionTooltip>
 								</>
 							)}
 						</div>

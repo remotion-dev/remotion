@@ -46,7 +46,12 @@ export const splitVideoFromAudioHandler: ApiHandler<
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, nodeLabel, logLine} = result.editDetails[0];
 			const nodePathRemappings = result.nodePathRemappings.map(
-				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+				({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+					oldNodePath,
+					newNodePath,
+					oldJsxName,
+					newJsxName,
+				}),
 			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[

@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';

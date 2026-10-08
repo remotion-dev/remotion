@@ -8,7 +8,7 @@ export const separateAudioOption = {
 	cliFlag,
 	description: () =>
 		`If set, the audio will not be included in the main output but rendered as a separate file at the location you pass. If the render contains no audio, a silent audio file is produced even when enforceAudioTrack is false. The muted option still takes precedence. It is recommended to use an absolute path. If a relative path is passed, it is relative to the Remotion Root.`,
-	docLink: 'https://remotion.dev/docs/renderer/render-media',
+	docLink: 'https://www.remotion.dev/docs/options/separate-audio-to',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
 			return {
@@ -23,6 +23,7 @@ export const separateAudioOption = {
 		};
 	},
 	name: 'Separate audio to',
+	addedIn: '4.0.123',
 	setConfig: () => {
 		throw new Error('Not implemented');
 	},

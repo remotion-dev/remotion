@@ -1,0 +1,49 @@
+---
+image: /generated/articles-docs-studio-browse-elements.png
+title: Browse Elements in Studio
+sidebar_label: Browse Elements
+crumb: 'Remotion Studio'
+---
+
+[Remotion Elements](/elements) are available directly inside Remotion Studio.
+
+## Open Browse Elements
+
+Select Browse Elements in the Actions section of the right inspector.
+
+<video
+  src="https://remotion.media/elements/studio/browse-elements-demo-v2.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  controls
+  aria-label="Browsing Remotion Elements in Studio"
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+## Add more libraries
+
+### In Studio
+
+Use the **Configure Elements** gear in the library window to manage Element Libraries. If additional libraries are configured, you can also choose **Manage…** from the Browse Elements menu.
+
+<img src="https://remotion.media/elements/studio/browse-elements-libraries.webp" alt="Element Libraries and Manage option in the Browse Elements menu" style={{maxWidth: '450px', width: '100%'}} />
+
+### In `remotion.config.ts`
+
+Add an Element Library with [`Config.addElementLibrary()`](/docs/config#addelementlibrary):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.addElementLibrary({
+  url: 'https://example.com/elements',
+  displayName: 'Acme Elements',
+});
+```
+
+## See also
+
+- [Remotion Elements](/elements)
+- [Third-party Element Libraries](/elements/libraries)

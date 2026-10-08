@@ -18,14 +18,14 @@ import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared/keyframe-easing-pr
 import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropsResponseTrue,
-	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropSource,
+	SourceNumericValue,
 	ExtrapolateType,
 	InterpolateOutputOption,
 	InterpolateOutputType,
 	JsxComponentIdentity,
 	SequenceNodePath,
 	VideoConfigNumericExpression,
-	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
@@ -44,11 +44,11 @@ import {parseBorderRadiusShorthand} from './sequence-props/parse-border-radius-s
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
 import {parseVideoConfigNumericExpression} from './sequence-props/video-config-numeric-expression';
 import {
-	getVideoConfigIdentifierValues,
+	getVideoConfigIdentifiers,
 	type VideoConfigIdentifierValues,
 } from './sequence-props/video-config-values';
 
-type CanUpdatePropStatus = CanUpdateSequencePropStatus;
+type CanUpdatePropStatus = CanUpdateSequencePropSource;
 type KeyframedPropStatus = Extract<CanUpdatePropStatus, {status: 'keyframed'}>;
 type PropKeyframes = KeyframedPropStatus['keyframes'];
 type PropEasing = KeyframedPropStatus['easing'];
@@ -598,6 +598,21 @@ const findNodePath = (
 	return found;
 };
 
+const combineSourceNumericValues = (
+	operator: '+' | '-' | '*' | '/',
+	left: SourceNumericValue,
+	right: SourceNumericValue,
+): SourceNumericValue => {
+	const expression: VideoConfigNumericExpression = {
+		type: 'binary',
+		operator,
+		left,
+		right,
+	};
+	const value = NoReactInternals.evaluateSourceNumericValue(expression, null);
+	return Number.isFinite(value) ? value : expression;
+};
+
 const getJsxNumericAttribute = ({
 	openingElement,
 	name,
@@ -608,7 +623,7 @@ const getJsxNumericAttribute = ({
 	name: string;
 	defaultValue: number;
 	videoConfigValues: VideoConfigIdentifierValues;
-}): number | null => {
+}): SourceNumericValue | null => {
 	if (
 		openingElement.attributes.some(
 			(attribute) => attribute.type === 'JSXSpreadAttribute',
@@ -634,12 +649,11 @@ const getJsxNumericAttribute = ({
 			return null;
 		}
 
-		return (
-			parseVideoConfigNumericExpression({
-				node: attribute.value.expression,
-				videoConfigValues,
-			})?.value ?? null
-		);
+		const expression = parseVideoConfigNumericExpression({
+			node: attribute.value.expression,
+			videoConfigValues,
+		});
+		return expression?.type === 'literal' ? expression.value : expression;
 	}
 
 	return defaultValue;
@@ -682,24 +696,148 @@ const getJsxBooleanAttribute = ({
 	return defaultValue;
 };
 
+const getJsxFrom = ({
+	jsxPath,
+	ast,
+	videoConfigValues,
+}: {
+	jsxPath: recast.types.NodePath;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): SourceNumericValue | null => {
+	const element = jsxPath.value as JSXElement;
+	if (
+		getJsxComponentIdentity({ast, jsxElement: element.openingElement}) !==
+		'dev.remotion.remotion.Series.Sequence'
+	) {
+		return getJsxNumericAttribute({
+			openingElement: element.openingElement,
+			name: 'from',
+			defaultValue: 0,
+			videoConfigValues,
+		});
+	}
+
+	let {parentPath} = jsxPath;
+	while (parentPath && parentPath.value.type !== 'JSXElement') {
+		parentPath = parentPath.parentPath;
+	}
+
+	const parent = parentPath?.value as JSXElement | undefined;
+	if (
+		!parent ||
+		getJsxComponentIdentity({ast, jsxElement: parent.openingElement}) !==
+			'dev.remotion.remotion.Series' ||
+		parent.openingElement.attributes.some(
+			(attribute) =>
+				attribute.type === 'JSXSpreadAttribute' ||
+				(attribute.type === 'JSXAttribute' &&
+					attribute.name.type === 'JSXIdentifier' &&
+					attribute.name.name === 'children'),
+		)
+	) {
+		return null;
+	}
+
+	// Series derives each start from the preceding siblings, including their
+	// offsets and playback rates. Unknown children must keep the runtime value.
+	const children = [...parent.children].reverse();
+	let start: SourceNumericValue = 0;
+	while (children.length > 0) {
+		const child = children.pop()!;
+		if (child.type === 'JSXText' && child.value.trim() === '') {
+			continue;
+		}
+
+		if (child.type === 'JSXFragment') {
+			children.push(...[...child.children].reverse());
+			continue;
+		}
+
+		if (
+			child.type === 'JSXExpressionContainer' &&
+			(child.expression.type === 'JSXEmptyExpression' ||
+				child.expression.type === 'NullLiteral' ||
+				child.expression.type === 'BooleanLiteral')
+		) {
+			continue;
+		}
+
+		if (
+			child.type !== 'JSXElement' ||
+			getJsxComponentIdentity({ast, jsxElement: child.openingElement}) !==
+				'dev.remotion.remotion.Series.Sequence'
+		) {
+			return null;
+		}
+
+		const offset = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'offset',
+			defaultValue: 0,
+			videoConfigValues,
+		});
+		if (offset === null) {
+			return null;
+		}
+
+		start = combineSourceNumericValues('+', start, offset);
+		if (child === element) {
+			return typeof start !== 'number' || Number.isFinite(start) ? start : null;
+		}
+
+		const duration = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'durationInFrames',
+			defaultValue: NaN,
+			videoConfigValues,
+		});
+		const rate = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'playbackRate',
+			defaultValue: 1,
+			videoConfigValues,
+		});
+		if (
+			duration === null ||
+			(typeof duration === 'number' &&
+				(!Number.isFinite(duration) || duration <= 0)) ||
+			rate === null ||
+			(typeof rate === 'number' && (!Number.isFinite(rate) || rate <= 0))
+		) {
+			return null;
+		}
+
+		start = combineSourceNumericValues(
+			'+',
+			start,
+			combineSourceNumericValues('/', duration, rate),
+		);
+	}
+
+	return null;
+};
+
 const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	startPath,
 	endPath,
+	ast,
 	videoConfigValues,
 }: {
 	startPath: recast.types.NodePath;
 	endPath: recast.types.NodePath;
+	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
-	readonly adjustment: number;
-	readonly playbackRateAdjustment: number;
+	readonly adjustment: SourceNumericValue;
+	readonly playbackRateAdjustment: SourceNumericValue;
 	readonly hasEnclosingElement: boolean;
 } | null => {
 	let current: recast.types.NodePath | null = startPath;
 	let hasSeenControlledElement = false;
 	let hasEnclosingElement = false;
-	let adjustment = 0;
-	let playbackRateAdjustment = 1;
+	let adjustment: SourceNumericValue = 0;
+	let playbackRateAdjustment: SourceNumericValue = 1;
 	while (current && current.value !== endPath.value) {
 		const currentNode = current.value as Node;
 		if (
@@ -717,10 +855,9 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 				hasEnclosingElement = true;
 				// Sequence-backed built-ins and userland components can both shift
 				// their children, so the prop names are the semantic boundary.
-				const from = getJsxNumericAttribute({
-					openingElement: currentNode.openingElement,
-					name: 'from',
-					defaultValue: 0,
+				const from = getJsxFrom({
+					jsxPath: current,
+					ast,
 					videoConfigValues,
 				});
 				const trimBefore = getJsxNumericAttribute({
@@ -746,16 +883,28 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 					playbackRate === null ||
 					loop === null ||
 					loop ||
-					!Number.isFinite(playbackRate) ||
-					playbackRate <= 0
+					(typeof playbackRate === 'number' &&
+						(!Number.isFinite(playbackRate) || playbackRate <= 0))
 				) {
 					return null;
 				}
 
 				// Walk from the controlled element back to the hook's scope.
 				// A sequence maps parent time to (parent - from) * rate + trimBefore.
-				adjustment = (adjustment + trimBefore) / playbackRate - from;
-				playbackRateAdjustment /= playbackRate;
+				adjustment = combineSourceNumericValues(
+					'-',
+					combineSourceNumericValues(
+						'/',
+						combineSourceNumericValues('+', adjustment, trimBefore),
+						playbackRate,
+					),
+					from,
+				);
+				playbackRateAdjustment = combineSourceNumericValues(
+					'/',
+					playbackRateAdjustment,
+					playbackRate,
+				);
 			}
 		}
 
@@ -769,13 +918,15 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 
 const getDefaultFrameDisplayOffsetAdjustment = ({
 	jsxPath,
+	ast,
 	videoConfigValues,
 }: {
 	jsxPath: recast.types.NodePath;
+	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
-	adjustment: number;
-	playbackRateAdjustment: number;
+	adjustment: SourceNumericValue;
+	playbackRateAdjustment: SourceNumericValue;
 	canKeyframe: boolean;
 } | null => {
 	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
@@ -831,6 +982,7 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	const result = getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: jsxPath,
 		endPath: functionPath,
+		ast,
 		videoConfigValues,
 	});
 	return result ? {...result, canKeyframe: true} : null;
@@ -973,8 +1125,8 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
-	readonly adjustment: number;
-	readonly playbackRateAdjustment: number;
+	readonly adjustment: SourceNumericValue;
+	readonly playbackRateAdjustment: SourceNumericValue;
 	readonly hasEnclosingElement: boolean;
 } | null => {
 	if (node.type === 'TSAsExpression') {
@@ -998,6 +1150,7 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	const frameDisplayOffset = getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: nodePath,
 		endPath: resolved.bindingScopePath,
+		ast,
 		videoConfigValues,
 	});
 	if (frameDisplayOffset === null) {
@@ -1008,7 +1161,11 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 		...frameDisplayOffset,
 		// interpolate(frame + offset, [keyframe], ...) reaches the keyframe at
 		// composition frame `keyframe - offset`.
-		adjustment: frameDisplayOffset.adjustment - resolved.offset,
+		adjustment: combineSourceNumericValues(
+			'-',
+			frameDisplayOffset.adjustment,
+			resolved.offset,
+		),
 	};
 };
 
@@ -1024,8 +1181,8 @@ const getInterpolationKeyframes = (
 			posterize: PropPosterize;
 			output: PropOutput;
 			interpolationFunction: PropInterpolationFunction;
-			keyframeDisplayOffsetAdjustment: number | null;
-			keyframePlaybackRateAdjustment: number;
+			keyframeDisplayOffsetAdjustment: SourceNumericValue | null;
+			keyframePlaybackRateAdjustment: SourceNumericValue;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -1129,7 +1286,10 @@ const getInterpolationKeyframes = (
 		}
 
 		keyframes.push({
-			frame: frameExpression.value,
+			frame:
+				frameExpression.type === 'literal'
+					? frameExpression.value
+					: frameExpression,
 			value: extractStaticValue(outputElement),
 			...(frameExpression.type === 'literal' ? {} : {frameExpression}),
 		});
@@ -1207,18 +1367,30 @@ export const retimeSequenceKeyframes = ({
 	}
 
 	const {openingElement} = jsxElement;
-	const previousPlaybackRate = getJsxNumericAttribute({
+	const previousPlaybackRateExpression = getJsxNumericAttribute({
 		openingElement,
 		name: 'playbackRate',
 		defaultValue: 1,
 		videoConfigValues,
 	});
-	const from = getJsxNumericAttribute({
+	const fromExpression = getJsxNumericAttribute({
 		openingElement,
 		name: 'from',
 		defaultValue: 0,
 		videoConfigValues,
 	});
+	const previousPlaybackRate =
+		previousPlaybackRateExpression === null
+			? null
+			: NoReactInternals.evaluateSourceNumericValue(
+					previousPlaybackRateExpression,
+					null,
+				);
+	const from =
+		fromExpression === null
+			? null
+			: NoReactInternals.evaluateSourceNumericValue(fromExpression, null);
+
 	if (
 		previousPlaybackRate === null ||
 		!Number.isFinite(previousPlaybackRate) ||
@@ -1267,6 +1439,7 @@ export const retimeSequenceKeyframes = ({
 			const clock = getFrameDisplayOffsetAdjustmentBetweenPaths({
 				startPath: rootPath,
 				endPath: resolved.bindingScopePath,
+				ast,
 				videoConfigValues,
 			});
 			if (!clock) {
@@ -1274,8 +1447,12 @@ export const retimeSequenceKeyframes = ({
 			}
 
 			const anchor =
-				from * clock.playbackRateAdjustment -
-				clock.adjustment +
+				from *
+					NoReactInternals.evaluateSourceNumericValue(
+						clock.playbackRateAdjustment,
+						null,
+					) -
+				NoReactInternals.evaluateSourceNumericValue(clock.adjustment, null) +
 				resolved.offset;
 			const inputRange = call.arguments[1];
 			if (inputRange.type !== 'ArrayExpression') {
@@ -1284,7 +1461,11 @@ export const retimeSequenceKeyframes = ({
 
 			inputRange.elements = interpolation.keyframes.map<NumericLiteral>(
 				(keyframe) => {
-					const frame = anchor + (keyframe.frame - anchor) * ratio;
+					const frame =
+						anchor +
+						(NoReactInternals.evaluateSourceNumericValue(keyframe.frame, null) -
+							anchor) *
+							ratio;
 					const nearestInteger = Math.round(frame);
 					const value =
 						Math.abs(frame - nearestInteger) <=
@@ -1354,7 +1535,12 @@ const getPropsStatus = (
 					videoConfigValues,
 				});
 				props[name] = numericExpression
-					? staticStatus(numericExpression.value, numericExpression)
+					? staticStatus(
+							numericExpression.type === 'literal'
+								? numericExpression.value
+								: undefined,
+							numericExpression,
+						)
 					: getComputedStatus(expression, ast, videoConfigValues);
 				continue;
 			}
@@ -1755,8 +1941,16 @@ const getBorderRadiusShorthandStatus = ({
 		node: propValue,
 		videoConfigValues,
 	});
-	if (numericExpression !== null && numericExpression.value >= 0) {
-		return staticStatus(numericExpression.value, numericExpression);
+	if (
+		numericExpression !== null &&
+		(numericExpression.type !== 'literal' || numericExpression.value >= 0)
+	) {
+		return staticStatus(
+			numericExpression.type === 'literal'
+				? numericExpression.value
+				: undefined,
+			numericExpression,
+		);
 	}
 
 	const computed = getComputedStatus(propValue, ast, videoConfigValues);
@@ -1913,7 +2107,12 @@ const getNestedPropStatus = ({
 			videoConfigValues,
 		});
 		return numericExpression
-			? staticStatus(numericExpression.value, numericExpression)
+			? staticStatus(
+					numericExpression.type === 'literal'
+						? numericExpression.value
+						: undefined,
+					numericExpression,
+				)
 			: getComputedStatus(propValue, ast, videoConfigValues);
 	}
 
@@ -2122,11 +2321,12 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	const defaultKeyframeDisplayOffsetAdjustment =
 		getDefaultFrameDisplayOffsetAdjustment({
 			jsxPath,
+			ast,
 			videoConfigValues: videoConfigIdentifierValues,
 		});
 	const addDefaultKeyframeDisplayOffsetAdjustment = (
-		status: CanUpdateSequencePropStatus,
-	): CanUpdateSequencePropStatus => {
+		status: CanUpdateSequencePropSource,
+	): CanUpdateSequencePropSource => {
 		if (status.status !== 'static') {
 			return status;
 		}
@@ -2190,7 +2390,6 @@ export const computeSequencePropsStatusFromContent = ({
 	keys,
 	assetKeys = [],
 	effects,
-	videoConfigValues,
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
@@ -2198,32 +2397,12 @@ export const computeSequencePropsStatusFromContent = ({
 	keys: string[];
 	assetKeys?: string[];
 	effects: string[][];
-	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const cachedAst = getReadOnlySourceSnapshot(fileContents);
 	const {ast} = cachedAst;
-	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
-	let videoConfigIdentifierValues =
-		cachedAst.videoConfigIdentifierValues.get(videoConfigCacheKey);
-	if (videoConfigIdentifierValues === undefined) {
-		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
-			ast,
-			videoConfigValues,
-		});
-	}
-
-	// A source snapshot may outlive many composition metadata changes. Bound
-	// derived values as well, retaining the configurations most recently read.
-	cachedAst.videoConfigIdentifierValues.delete(videoConfigCacheKey);
-	cachedAst.videoConfigIdentifierValues.set(
-		videoConfigCacheKey,
-		videoConfigIdentifierValues,
-	);
-	if (cachedAst.videoConfigIdentifierValues.size > 8) {
-		cachedAst.videoConfigIdentifierValues.delete(
-			cachedAst.videoConfigIdentifierValues.keys().next().value!,
-		);
-	}
+	const videoConfigIdentifierValues =
+		cachedAst.videoConfigIdentifierValues ?? getVideoConfigIdentifiers({ast});
+	cachedAst.videoConfigIdentifierValues = videoConfigIdentifierValues;
 
 	return computeSequencePropsStatusFromAstAndIdentifiers({
 		ast,
@@ -2245,7 +2424,6 @@ export const computeSequencePropsSubscriptionFromContent = ({
 	keys,
 	assetKeys = [],
 	effects,
-	videoConfigValues,
 }: {
 	fileContents: string;
 	absolutePath: string;
@@ -2255,7 +2433,6 @@ export const computeSequencePropsSubscriptionFromContent = ({
 	keys: string[];
 	assetKeys?: string[];
 	effects: string[][];
-	videoConfigValues: VideoConfigValues;
 }): SubscribeToSequencePropsResponse => {
 	if (preferredNodePath) {
 		try {
@@ -2268,14 +2445,13 @@ export const computeSequencePropsSubscriptionFromContent = ({
 					keys,
 					assetKeys,
 					effects,
-					videoConfigValues,
 				}),
 				nodePath: {
 					absolutePath,
 					nodePath: preferredNodePath,
 					sequenceKeys: keys,
 					effectKeys: effects,
-					videoConfigValues,
+					videoConfigValues: null,
 				},
 			};
 		} catch (error) {
@@ -2312,14 +2488,13 @@ export const computeSequencePropsSubscriptionFromContent = ({
 				keys,
 				assetKeys,
 				effects,
-				videoConfigValues,
 			}),
 			nodePath: {
 				absolutePath,
 				nodePath: resolvedNodePath,
 				sequenceKeys: keys,
 				effectKeys: effects,
-				videoConfigValues,
+				videoConfigValues: null,
 			},
 		};
 	} catch {

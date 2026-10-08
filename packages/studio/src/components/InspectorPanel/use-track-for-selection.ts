@@ -4,7 +4,7 @@ import {findTrackForNodePathInfo} from '../Timeline/find-track-for-node-path-inf
 import type {TimelineSelection} from '../Timeline/TimelineSelection';
 
 export const useTrackForSelection = (selection: TimelineSelection) => {
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);

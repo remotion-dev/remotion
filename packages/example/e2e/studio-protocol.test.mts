@@ -324,7 +324,13 @@ const CloseupPlaceholder = () => {
 			studioPage.getByRole('button', {name: '45', exact: true}),
 		).toBeVisible();
 
-		await studioPage.locator('[data-sidebar-toggle="right"]').click();
+		const expandRightSidebar = studioPage.getByRole('button', {
+			name: 'Expand right sidebar',
+		});
+		if (await expandRightSidebar.isVisible()) {
+			await expandRightSidebar.click();
+		}
+
 		const browseElements = studioPage.getByRole('button', {
 			name: 'Browse Elements',
 		});
@@ -397,11 +403,10 @@ const CloseupPlaceholder = () => {
 		});
 		await expect(dialog).toBeVisible();
 		await dialog.getByRole('button', {name: 'Cancel'}).click();
-		expect(fs.existsSync(installedAsset)).toBe(false);
-		await browseElements.click();
-		await expect(externalLibraryItem).toBeVisible();
-		await externalLibraryItem.click();
+		await expect(dialog).toHaveCount(0);
 		await expect(elementsIframe).toBeVisible();
+		expect(externalLibraryRequests).toHaveLength(1);
+		expect(fs.existsSync(installedAsset)).toBe(false);
 		await installInStudio.click();
 		await expect(dialog).toBeVisible();
 		const currentDestination = dialog.getByRole('button', {
@@ -447,9 +452,10 @@ const CloseupPlaceholder = () => {
 		await expect(
 			decoyStudioPage.getByText('Install Protocol Element', {exact: true}),
 		).toHaveCount(0);
-		await expect(elementsIframe).toHaveCount(0);
+		await expect(elementsIframe).toBeVisible();
 		expect(studioProtocolRequests).toEqual([]);
 		await dialog.getByRole('button', {name: /Install/}).click();
+		await expect(elementsIframe).toHaveCount(0);
 		await expect(
 			studioPage
 				.getByRole('group', {name: 'Inspector source location'})
@@ -888,19 +894,10 @@ const CloseupPlaceholder = () => {
 			addLibraryDialog.getByText('Add Element Library', {exact: true}),
 		).toBeVisible();
 		await expect(
-			addLibraryDialog.getByText(senderUrl, {exact: true}),
-		).toBeVisible();
-		await expect(
-			addLibraryDialog.getByText(protocolLibraryUrl, {exact: true}),
-		).toBeVisible();
-		const libraryDetails = addLibraryDialog.getByLabel(
-			'Element Library details',
-		);
-		await expect(
-			libraryDetails.getByText('Display name', {exact: true}),
-		).toBeVisible();
-		await expect(
-			libraryDetails.getByText('Protocol Library', {exact: true}),
+			addLibraryDialog.getByText(
+				`${senderUrl.replace(/^https?:\/\//, '')} wants to add ${protocolLibraryUrl.replace(/^https?:\/\//, '')} as an Element library to ${path.basename(temporaryProject)}.`,
+				{exact: true},
+			),
 		).toBeVisible();
 		await expect(decoyStudioPage.getByText('Add Element Library')).toHaveCount(
 			0,
@@ -914,6 +911,10 @@ const CloseupPlaceholder = () => {
 		await expect
 			.poll(() => fs.readFileSync(configFile, 'utf8'), {timeout: 30_000})
 			.toContain(protocolLibraryUrl);
+		await expect(studioPage.getByLabel('Protocol Library library')).toBeVisible(
+			{timeout: 30_000},
+		);
+		await studioPage.keyboard.press('Escape');
 
 		await browseElements.click();
 		await expect(
@@ -946,6 +947,10 @@ const CloseupPlaceholder = () => {
 				{timeout: 30_000},
 			)
 			.toBe(1);
+		await expect(studioPage.getByLabel('Protocol Library library')).toBeVisible(
+			{timeout: 30_000},
+		);
+		await studioPage.keyboard.press('Escape');
 
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);

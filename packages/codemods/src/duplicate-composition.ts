@@ -1,5 +1,4 @@
-import type {CodemodProject, CodemodResult} from './codemod-project';
-import {getCodemodResult} from './codemod-project';
+import type {CodemodProject} from './codemod-project';
 import {
 	type CompositionTarget,
 	type CompositionMetadata,
@@ -8,7 +7,8 @@ import {
 	validateMetadata,
 } from './composition-editing';
 import {duplicateCompositionInSource} from './duplicate-composition-in-source';
-import {parseAst} from './sequence-props/parse-ast';
+import {getRegistrationInsertionResult} from './folder-editing';
+import type {CodemodInsertionResult} from './node-references';
 
 export type DuplicateCompositionOptions<Project extends CodemodProject> =
 	CompositionTarget & {
@@ -25,7 +25,7 @@ export const duplicateComposition = <Project extends CodemodProject>({
 	newId,
 	tag,
 	metadata = {},
-}: DuplicateCompositionOptions<Project>): CodemodResult => {
+}: DuplicateCompositionOptions<Project>): CodemodInsertionResult => {
 	const node = requireComposition({project, compositionFile, compositionId});
 	assertNewCompositionId({project, compositionFile, compositionId: newId});
 	validateMetadata(metadata);
@@ -37,16 +37,19 @@ export const duplicateComposition = <Project extends CodemodProject>({
 		throw new Error('Still registrations do not have fps or durationInFrames');
 	}
 
+	const input = project.files[node.filePath];
 	const output = duplicateCompositionInSource({
-		input: project.files[node.filePath],
+		input,
 		nodePath: node.nodePath,
 		newId,
 		tag: newTag,
 		metadata,
 	});
-	parseAst(output);
-	return getCodemodResult({
+	return getRegistrationInsertionResult({
 		project,
-		edits: [{filePath: node.filePath, nextContents: output}],
+		filePath: node.filePath,
+		input,
+		output,
+		inserted: {type: 'composition', compositionId: newId},
 	});
 };

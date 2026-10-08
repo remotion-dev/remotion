@@ -15,6 +15,7 @@ import {
 	TimelineSelectionProvider,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
+import {TimelineTickFormatProvider} from './Timeline/TimelineTickFormatProvider';
 import {WebMcp} from './WebMcp';
 
 const noop = () => undefined;
@@ -90,18 +91,20 @@ export const EditorContent: React.FC<{
 	);
 
 	return (
-		<TimelineSelectionProvider>
-			<WebMcp />
-			<Transform3DModeStateProvider>
-				<StudioClearSelectionArea>
-					<InitialCompositionLoader />
-					<MenuToolbar readOnlyStudio={readOnlyStudio} />
-					<GlobalKeybindings />
-					<TimelineKeyframeDragStateProvider>
-						{content}
-					</TimelineKeyframeDragStateProvider>
-				</StudioClearSelectionArea>
-			</Transform3DModeStateProvider>
-		</TimelineSelectionProvider>
+		<TimelineTickFormatProvider>
+			<TimelineSelectionProvider>
+				<WebMcp />
+				<Transform3DModeStateProvider>
+					<StudioClearSelectionArea>
+						<InitialCompositionLoader />
+						<MenuToolbar readOnlyStudio={readOnlyStudio} />
+						<GlobalKeybindings />
+						<TimelineKeyframeDragStateProvider>
+							{content}
+						</TimelineKeyframeDragStateProvider>
+					</StudioClearSelectionArea>
+				</Transform3DModeStateProvider>
+			</TimelineSelectionProvider>
+		</TimelineTickFormatProvider>
 	);
 };

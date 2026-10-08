@@ -62,8 +62,8 @@ export const MenuContent: React.FC<{
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const inheritedMenuTreeId = useContext(MenuTreeContext);
-	const localMenuTreeId = useRef(getNextMenuTreeId());
-	const menuTreeId = inheritedMenuTreeId ?? localMenuTreeId.current;
+	const [localMenuTreeId] = useState(getNextMenuTreeId);
+	const menuTreeId = inheritedMenuTreeId ?? localMenuTreeId;
 	const isMobileLayout = useMobileLayout();
 
 	const [subMenuActivated, setSubMenuActivated] =

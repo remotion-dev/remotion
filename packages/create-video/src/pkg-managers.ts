@@ -62,7 +62,7 @@ export const selectPackageManager = (): PackageManager => {
 
 export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
-		return `npm i`;
+		return `npm i --loglevel=error`;
 	}
 
 	if (manager === 'yarn') {
@@ -80,6 +80,8 @@ export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'nub') {
 		return `nub install`;
 	}
+
+	throw new TypeError('unknown package manager');
 };
 
 const getStartCommand = (manager: PackageManager) => {

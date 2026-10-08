@@ -22,10 +22,10 @@ import {
 	getRootFileForProject,
 } from './internals';
 import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
+import {computeEffectPropsStatusesFromContent} from './sequence-props/can-update-effect-props';
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
-import {simpleDiff} from './simple-diff';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
 
 export {
@@ -59,7 +59,7 @@ export {
 	type DuplicateNodesOptions,
 	type DuplicateNodesResult,
 } from './duplicate-nodes';
-export {reorderNode, type ReorderNodeOptions} from './reorder-node';
+export {reorderNodes, type ReorderNodesOptions} from './reorder-nodes';
 export {splitSequences, type SplitSequencesOptions} from './split-sequences';
 export {detachAudio, type DetachAudioOptions} from './detach-audio';
 export type {
@@ -171,6 +171,7 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	computeEffectPropsStatusesFromContent,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	basicCaptionsElementSource,
@@ -193,7 +194,6 @@ export const CodemodsInternals = {
 	pasteEffects,
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
-	simpleDiff,
 	updateInlineCaptionPatches,
 };
 

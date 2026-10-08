@@ -3,7 +3,11 @@ export type {
 	AudioWaveformWorkerOutgoingMessage,
 } from './audio-waveform/audio-waveform-worker-types';
 export {TARGET_SAMPLE_RATE} from './audio-waveform/constants';
-export {drawBars, type WaveformVolume} from './audio-waveform/draw-peaks';
+export {
+	drawBars,
+	type WaveformDrawRange,
+	type WaveformVolume,
+} from './audio-waveform/draw-peaks';
 export {getVisibleWaveformVolume} from './audio-waveform/get-visible-waveform-volume';
 export {loadWaveformPeaks} from './audio-waveform/load-waveform-peaks';
 export {sliceVisibleWaveformPeaks} from './audio-waveform/slice-visible-waveform-peaks';
@@ -14,6 +18,10 @@ export {
 	emitWaveformProgress,
 } from './audio-waveform/waveform-peak-processor';
 export {clampTimestampsToDuration} from './clamp-timestamps-to-duration';
+export {
+	getDevicePixelAlignedCanvasLayout,
+	snapCanvasPositionToDevicePixel,
+} from './device-pixel-alignment';
 export {extractFrames} from './extract-frames';
 export type {
 	ExtractFramesProps,

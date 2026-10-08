@@ -13,6 +13,7 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
+import {getSequenceAnnotationAttributes} from '../helpers/sequence-annotation';
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
@@ -45,6 +46,7 @@ import {
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
+import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -128,6 +130,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		selectedOutline !== undefined &&
 		!(selectedOutline instanceof Element) &&
 		selectedOutline.positionControls !== null;
+	const annotationLocation = useResolvedStack(
+		layoutTarget?.sequence.getStack() ?? null,
+	);
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -269,6 +274,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				? () => {
 						setSelectedModal({
 							type: 'settings',
+							initialStudioPane: null,
 							initialTab: 'apps',
 							initialPublicLicenseKey:
 								window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -469,6 +475,15 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	return (
 		<>
 			<SelectedOutlinePolygon
+				annotationAttributes={
+					layoutTarget
+						? getSequenceAnnotationAttributes({
+								sequence: layoutTarget.sequence,
+								location: annotationLocation,
+								surface: 'outline',
+							})
+						: null
+				}
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
 				containsSelection={layoutTarget?.containsSelection === true}

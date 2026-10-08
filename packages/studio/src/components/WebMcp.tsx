@@ -198,7 +198,7 @@ const WebMcpSelectionSync: FC<{
 	readonly selectedSequenceRef: MutableRefObject<WebMcpSequence | null>;
 }> = ({currentSelectionRef, selectedSequenceRef}) => {
 	const {selectedItems} = useTimelineSelection();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -294,7 +294,7 @@ export const WebMcp: FC = () => {
 	const selectComposition = useSelectComposition();
 	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -333,8 +333,6 @@ export const WebMcp: FC = () => {
 	currentCompositionDefinitionRef.current = currentCompositionDefinition;
 	const compositionsRef = useRef(compositions);
 	compositionsRef.current = compositions;
-	const sequencesRef = useRef(sequences);
-	sequencesRef.current = sequences;
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const foldersRef = useRef(folders);
@@ -609,6 +607,7 @@ export const WebMcp: FC = () => {
 						}
 
 						const jobId = addCaptionJob({
+							captionStyle: null,
 							audioStreamIndex: null,
 							chunkLengthInSeconds,
 							displayName,
@@ -1088,19 +1087,7 @@ export const WebMcp: FC = () => {
 						});
 						const portalNode = Internals.portalNode();
 						const portalRect = portalNode.getBoundingClientRect();
-						const metadata = currentCompositionMetadataRef.current;
-						const compositionWidth =
-							metadata?.width ?? composition.width ?? portalNode.offsetWidth;
-						const compositionHeight =
-							metadata?.height ?? composition.height ?? portalNode.offsetHeight;
-						const scaleX = portalRect.width / compositionWidth;
-						const scaleY = portalRect.height / compositionHeight;
-						if (
-							!Number.isFinite(scaleX) ||
-							scaleX === 0 ||
-							!Number.isFinite(scaleY) ||
-							scaleY === 0
-						) {
+						if (portalRect.width === 0 || portalRect.height === 0) {
 							throw new Error('The Studio canvas is not ready to be measured.');
 						}
 
@@ -1152,10 +1139,7 @@ export const WebMcp: FC = () => {
 									outline.sequence.displayName ||
 									outline.sequence.controls?.componentName ||
 									null;
-								const points = measurement.points.map((point) => ({
-									x: point.x / scaleX,
-									y: point.y / scaleY,
-								}));
+								const {points} = measurement;
 								const xValues = points.map((point) => point.x);
 								const yValues = points.map((point) => point.y);
 								const left = Math.min(...xValues);
@@ -1778,6 +1762,7 @@ export const WebMcp: FC = () => {
 		addVideoMattingJob,
 		isPlaying,
 		selectComposition,
+		sequencesRef,
 		setEditorShowGuides,
 		setGuidesList,
 		setPlaybackRate,

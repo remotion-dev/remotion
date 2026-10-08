@@ -5,7 +5,8 @@ metadata:
   tags: effects, visual-effects, webgl, canvas, video, create-effect
 ---
 
-Use this rule only when the top-level skill lists an effect that matches the requested look, or when the user asks to create a reusable custom effect.
+Read this guidance when adding an effect to a component that supports `effects`,
+or when considering canvas post-processing or a reusable custom effect.
 
 Docs: https://www.remotion.dev/docs/effects
 Custom effect docs: https://www.remotion.dev/docs/create-effect
@@ -18,7 +19,23 @@ Install the package that provides the chosen effect:
 npx remotion add @remotion/effects
 ```
 
-Effects are functions passed to the `effects` prop of canvas-based components such as `<Video>` from `@remotion/media`, `<Solid>`, `<CanvasImage>`, and `<HtmlInCanvas>`.
+Effects are functions passed to the `effects` prop of supported components.
+
+These components accept `effects` directly:
+
+| Import from        | Components                                                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `remotion`         | `<Img>`, `<CanvasImage>`, `<AnimatedImage>`, `<Solid>`, `<HtmlInCanvas>`                                                      |
+| `@remotion/media`  | `<Video>`                                                                                                                     |
+| `@remotion/gif`    | `<Gif>`                                                                                                                       |
+| `@remotion/rive`   | `<RemotionRiveCanvas>`                                                                                                        |
+| `@remotion/shapes` | `<Arrow>`, `<Callout>`, `<Circle>`, `<Ellipse>`, `<Heart>`, `<Pie>`, `<Polygon>`, `<Rect>`, `<Spark>`, `<Star>`, `<Triangle>` |
+
+Ordinary HTML elements, `<Interactive.*>` DOM wrappers, `<AbsoluteFill>`, and
+`<Sequence>` do not accept `effects` directly. To apply effects to their content,
+wrap them in `<HtmlInCanvas>` and put the `effects` prop on the wrapper.
+
+For example, apply an effect directly to a video:
 
 ```tsx
 import {Video} from '@remotion/media';
@@ -42,7 +59,15 @@ Config.setChromiumOpenGlRenderer('angle');
 
 ## Available effects
 
-`brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `paper()`, `roughenEdges()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
+Built-in effects from `@remotion/effects`:
+
+- Color and tone: `brightness()`, `colorCorrection()`, `colorKey()`, `contrast()`, `duotone()`, `exposure()`, `grayscale()`, `hue()`, `invert()`, `levels()`, `linearGradient()`, `linearGradientTint()`, `lut()`, `saturation()`, `shadowsHighlights()`, `thermalVision()`, `tint()`, `vibrance()`, `whiteBalance()`.
+- Blur and trails: `blur()`, `lightTrail()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `regionBlur()`, `zoomBlur()`.
+- Lighting: `dropShadow()`, `glow()`, `lightLeak()`, `shine()`, `starburst()`, `vignette()`.
+- Distortion and transforms: `barrelDistortion()`, `chromaticAberration()`, `cornerPin()`, `fisheye()`, `mirror()`, `noiseDisplacement()`, `scale()`, `skew()`, `tile()`, `uvTranslate()`, `wave()`, `xyTranslate()`.
+- Textures and patterns: `burlap()`, `checkerboard()`, `contourLines()`, `dotGrid()`, `emboss()`, `flannel()`, `gridlines()`, `halftone()`, `halftoneLinearGradient()`, `lines()`, `liquidContours()`, `noise()`, `paper()`, `pattern()`, `rings()`, `scanlines()`, `speckle()`, `tvSignalOff()`, `waves()`, `whiteNoise()`, `zigzag()`.
+- Edges: `outline()`, `roughenEdges()`, `shrinkwrap()`, `tear()`.
+- Pixelation and transitions: `evolve()`, `linearProgressivePixelate()`, `pixelate()`, `pixelDissolve()`, `radialProgressivePixelate()`, `venetianBlinds()`.
 
 Example:
 

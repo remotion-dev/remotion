@@ -13,6 +13,7 @@ import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
+import {useMediaPlayerMuted} from '../use-media-player-muted';
 import type {FallbackHtml5AudioProps} from './props';
 
 const {
@@ -152,6 +153,10 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		volume: userPreferredVolume,
 		audioEnabled: true,
 	});
+	const mediaPlayerMuted = useMediaPlayerMuted({
+		muted,
+		volume: userPreferredVolume,
+	});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -159,7 +164,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(effectivePlaybackRate);
-	const initialMuted = useRef(effectiveMuted);
+	const initialMuted = useRef(mediaPlayerMuted);
 	const initialVolume = useRef(userPreferredVolume);
 	const initialDurationInFrames = useRef(sequenceDurationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
@@ -177,7 +182,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		frame,
 		trimBefore,
 		trimAfter,
-		effectiveMuted,
+		effectiveMuted: mediaPlayerMuted,
 		userPreferredVolume,
 		playbackRate: effectivePlaybackRate,
 		toneFrequency: toneFrequency ?? 1,
@@ -242,6 +247,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				tagType: 'audio',
 				getEffects: () => [],
 				getEffectChainState: () => null,
+				maxCanvasSinkFrameSize: null,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
@@ -290,20 +296,12 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 						}
 					};
 
-					if (result.type === 'unknown-container-format') {
-						handleError(
-							new Error(`Unknown container format ${preloadedSrc}.`),
-							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
-						);
-						return;
-					}
-
-					if (result.type === 'network-error') {
-						handleError(
-							new Error(`Network error fetching ${preloadedSrc}.`),
-							`Network error fetching ${preloadedSrc}, falling back to <Html5Audio>`,
-						);
-						return;
+					if (
+						result.type === 'unknown-container-format' ||
+						result.type === 'network-error'
+					) {
+						// The catch below applies onError and the existing fallback policy.
+						throw result.error;
 					}
 
 					if (result.type === 'cannot-decode') {

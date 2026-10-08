@@ -1,70 +1,31 @@
-import React, {
-	createRef,
-	useCallback,
-	useImperativeHandle,
-	useState,
-} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {MENU_TOOLBAR_HEIGHT} from '../../components/menu-toolbar-height';
 import {SettingsProvider} from '../../components/SettingsContext';
 import {PreviewServerConnection} from '../../helpers/client-id';
 import {BACKGROUND_HEX, WHITE} from '../../helpers/colors';
 import {KeybindingContextProvider} from '../../state/keybindings';
+import {
+	getRuntimeErrors,
+	subscribeToRuntimeErrors,
+} from '../runtime-error-store';
 import {ErrorLoader} from './ErrorLoader';
-
-type SetErrors = {
-	setErrors: (errs: State) => void;
-	addError: (err: Error) => void;
-};
-
-export const setErrorsRef = createRef<SetErrors>();
-
-type State =
-	| {
-			type: 'clear';
-	  }
-	| {
-			type: 'errors';
-			errors: Error[];
-	  };
-
-const errorsAreTheSame = (first: Error, second: Error) => {
-	return first.stack === second.stack && first.message === second.message;
-};
 
 const BACKGROUND_COLOR = BACKGROUND_HEX;
 export const Overlay: React.FC = () => {
-	const [errors, setErrors] = useState<State>({type: 'clear'});
+	const [errors, setErrors] = useState(getRuntimeErrors);
 
-	const addError = useCallback((err: Error) => {
-		setErrors((state) => {
-			if (state.type === 'errors') {
-				if (state.errors.some((e) => errorsAreTheSame(e, err))) {
-					return state;
-				}
-
-				return {
-					...state,
-					errors: [...state.errors, err],
-				};
-			}
-
-			return {
-				type: 'errors',
-				errors: [err],
-			};
-		});
+	useLayoutEffect(() => {
+		return subscribeToRuntimeErrors(() => setErrors(getRuntimeErrors()));
 	}, []);
 
-	useImperativeHandle(setErrorsRef, () => {
-		return {setErrors, addError};
-	}, [addError]);
+	useLayoutEffect(() => {
+		if (errors.length > 0) {
+			window.remotion_studioStartup?.dismiss();
+		}
+	}, [errors]);
 
-	if (errors.type === 'clear') {
-		return null;
-	}
-
-	if (errors.errors.length === 0) {
+	if (errors.length === 0) {
 		return null;
 	}
 
@@ -81,7 +42,7 @@ export const Overlay: React.FC = () => {
 							height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
 						}}
 					>
-						{errors.errors.map((err, i) => {
+						{errors.map(({error: err}, i) => {
 							return (
 								<ErrorLoader
 									// eslint-disable-next-line react/no-array-index-key

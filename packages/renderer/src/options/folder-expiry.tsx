@@ -6,6 +6,7 @@ const cliFlag = 'enable-folder-expiry' as const;
 
 export const folderExpiryOption = {
 	name: 'Lambda render expiration',
+	addedIn: '4.0.32',
 	cliFlag,
 	description: () => {
 		return (
@@ -18,7 +19,7 @@ export const folderExpiryOption = {
 		);
 	},
 	ssrName: 'enableFolderExpiry' as const,
-	docLink: 'https://www.remotion.dev/docs/lambda/autodelete',
+	docLink: 'https://www.remotion.dev/docs/options/enable-folder-expiry',
 	type: false as boolean | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

@@ -1,5 +1,9 @@
-import {type EventSourceEvent} from '@remotion/studio-shared';
+import {
+	REACT_REFRESH_STARTED_EVENT,
+	type EventSourceEvent,
+} from '@remotion/studio-shared';
 import {useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {flushSync} from 'react-dom';
 import type {
 	SequencePropsStatusRemapping,
 	SequencePropsSubscriptionKey,
@@ -7,10 +11,7 @@ import type {
 import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {
-	subscribeToSequenceNodePathMutations,
-	takePendingSequenceNodePathMutations,
-} from '../../helpers/sequence-node-path-mutations';
+import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {refreshSequencePropsSubscription} from './sequence-props-subscription-store';
 import {useTimelineSelection} from './TimelineSelection';
@@ -32,14 +33,28 @@ export const SequencePropsObserver = () => {
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
-	const [mutationVersion, setMutationVersion] = useState(0);
-	useEffect(
-		() =>
-			subscribeToSequenceNodePathMutations(() =>
-				setMutationVersion((version) => version + 1),
-			),
-		[],
-	);
+	const [fastRefreshStarts, setFastRefreshStarts] = useState(0);
+	useEffect(() => {
+		const handleReactRefreshStarted = () => {
+			// Apply source-node remappings immediately before React commits the
+			// refreshed tree. This keeps the old tree paired with the old statuses
+			// and the new tree paired with the remapped statuses in the same task.
+			flushSync(() => {
+				setFastRefreshStarts((starts) => starts + 1);
+			});
+		};
+
+		window.addEventListener(
+			REACT_REFRESH_STARTED_EVENT,
+			handleReactRefreshStarted,
+		);
+		return () => {
+			window.removeEventListener(
+				REACT_REFRESH_STARTED_EVENT,
+				handleReactRefreshStarted,
+			);
+		};
+	}, []);
 	const {migrateExpandedTracksForSubscriptionKey} = useContext(
 		ExpandedTracksSetterContext,
 	);
@@ -92,19 +107,24 @@ export const SequencePropsObserver = () => {
 					}
 
 					// Prop statuses follow source nodes to their new paths. Override IDs
-					// normally follow React's runtime instances, which may be reused at an
-					// old path. If the old path has no runtime replacement, move its mapping
-					// to the new source path and resubscribe without remounting the instance.
-					const runtimeNodePathIsSource = file.remappings.some(
+					// normally follow React's runtime instances, which may be reused when the
+					// same JSX component takes over an old path. A different component remounts,
+					// so move the old mapping with its source node and resubscribe instead.
+					const runtimeNodePathSource = file.remappings.find(
 						(item) =>
 							item.oldNodePath !== null &&
 							JSON.stringify(item.oldNodePath) === previousNodePathString,
 					);
-					const runtimeNodePathIsDestination = file.remappings.some(
+					const runtimeNodePathDestination = file.remappings.find(
 						(item) =>
 							item.newNodePath !== null &&
 							JSON.stringify(item.newNodePath) === previousNodePathString,
 					);
+					const replacementComponentMatches =
+						runtimeNodePathSource?.oldJsxName === undefined ||
+						runtimeNodePathDestination?.newJsxName === undefined ||
+						runtimeNodePathSource.oldJsxName ===
+							runtimeNodePathDestination.newJsxName;
 					const runtimeNodePathWasInserted = file.remappings.some(
 						(item) =>
 							item.oldNodePath === null &&
@@ -118,11 +138,14 @@ export const SequencePropsObserver = () => {
 							JSON.stringify(item.oldNodePath) === previousNodePathString &&
 							JSON.stringify(item.newNodePath) === previousNodePathString,
 					);
-					if (runtimeNodePathIsSource) {
-						runtimeNodePathExists = runtimeNodePathIsDestination;
+					if (runtimeNodePathSource) {
+						runtimeNodePathExists = Boolean(
+							runtimeNodePathDestination && replacementComponentMatches,
+						);
 						runtimeNodePathNeedsRefresh =
-							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;
-					} else if (runtimeNodePathIsDestination) {
+							runtimeNodePathExists &&
+							(runtimeNodePathWasInserted || runtimeNodePathWasUpdated);
+					} else if (runtimeNodePathDestination) {
 						runtimeNodePathExists = true;
 						runtimeNodePathNeedsRefresh =
 							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;
@@ -198,7 +221,7 @@ export const SequencePropsObserver = () => {
 		}
 	}, [
 		fastRefreshes,
-		mutationVersion,
+		fastRefreshStarts,
 		migrateExpandedTracksForSubscriptionKey,
 		propStatusesRef,
 		remapSelectionNodePaths,

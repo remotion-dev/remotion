@@ -1,8 +1,10 @@
 import type {StudioKeyboardShortcutAction} from '@remotion/studio-shared';
 import type React from 'react';
-import {useCallback, useContext, useEffect, useMemo} from 'react';
+import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {calculateTimeline} from '../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {pickColor} from '../helpers/pick-color';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
@@ -19,6 +21,7 @@ import {askAiModalRef} from './AskAiModal';
 import {useCompositionNavigation} from './CompositionSelector';
 import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {showNotification} from './Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from './SequencePropsSubscriptionProvider';
 import {
 	getTimelineSequenceSelectionKey,
 	useCurrentTimelineSelectionStateAsRef,
@@ -41,6 +44,7 @@ const hasOwnProperty = (obj: object, key: string) =>
 export const GlobalKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setCheckerboard} = useContext(CheckerboardContext);
 	const {setEditorSnapping} = useContext(EditorSnappingContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
@@ -113,29 +117,18 @@ export const GlobalKeybindings: React.FC = () => {
 	]);
 
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {navigateToNextComposition, navigateToPreviousComposition} =
 		useCompositionNavigation();
 	const video = Internals.useVideo();
-	const timeline = useMemo(() => {
-		if (videoConfig === null) {
-			return [];
-		}
-
-		return calculateTimeline({
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-		});
-	}, [overrideIdToNodePathMappings, sequences, videoConfig]);
-
 	const selectSequenceProp = useCallback(
 		(fieldKey: string) => {
 			const {selectedItems, selectItems} = currentSelection.current;
-			if (selectedItems.length !== 1) {
+			if (videoConfig === null || selectedItems.length !== 1) {
 				return false;
 			}
 
@@ -147,6 +140,10 @@ export const GlobalKeybindings: React.FC = () => {
 			const selectedTrackKey = getTimelineSequenceSelectionKey(
 				selection.nodePathInfo,
 			);
+			const timeline = calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			});
 			const track = timeline.find(
 				(candidate) =>
 					candidate.nodePathInfo !== null &&
@@ -182,7 +179,12 @@ export const GlobalKeybindings: React.FC = () => {
 			);
 			return true;
 		},
-		[currentSelection, timeline],
+		[
+			currentSelection,
+			overrideIdToNodePathMappingsRef,
+			sequencesRef,
+			videoConfig,
+		],
 	);
 
 	const openRenderModal = useCallback(() => {
@@ -226,6 +228,30 @@ export const GlobalKeybindings: React.FC = () => {
 			triggerIfInputFieldFocused: true,
 			keepRegisteredWhenNotHighestContext: false,
 			commandCtrlKey: true,
+			preventDefault: true,
+		});
+		const newComposition = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'newComposition',
+			callback: () => {
+				if (
+					getBrowserStudioOperations() === null &&
+					(window.remotion_isReadOnlyStudio ||
+						previewServerState.type !== 'connected')
+				) {
+					return;
+				}
+
+				setSelectedModal({
+					type: 'new-comp',
+					folderName: null,
+					parentName: null,
+					stack: null,
+					canvasCapture: null,
+				});
+			},
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
 			preventDefault: true,
 		});
 		const cmdIKey = getStudioAskAIEnabled()
@@ -298,6 +324,7 @@ export const GlobalKeybindings: React.FC = () => {
 			callback: () => {
 				setSelectedModal({
 					type: 'settings',
+					initialStudioPane: null,
 					initialTab: 'shortcuts',
 					initialPublicLicenseKey:
 						window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -348,6 +375,7 @@ export const GlobalKeybindings: React.FC = () => {
 			questionMark.unregister();
 			cmdKKey.unregister();
 			cmdSKey.unregister();
+			newComposition.unregister();
 			cmdIKey?.unregister();
 			colorPicker?.unregister();
 			pageDown.unregister();
@@ -361,6 +389,7 @@ export const GlobalKeybindings: React.FC = () => {
 		setCheckerboard,
 		setEditorSnapping,
 		setSelectedModal,
+		previewServerState.type,
 		navigateToNextComposition,
 		navigateToPreviousComposition,
 	]);

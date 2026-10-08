@@ -8,7 +8,7 @@ import {
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
 import {splitSequencesHandler} from '../preview-server/routes/split-sequences';
-import {getUndoStack} from '../preview-server/undo-stack';
+import {getUndoStack, popUndo} from '../preview-server/undo-stack';
 import {lineContainingToNodePath} from './test-utils';
 
 const wrap = (
@@ -75,7 +75,7 @@ test('splitSequencesHandler writes success and failure responses', async () => {
 		clearUndoStack();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
 		const input = wrap(
-			'<AbsoluteFill name="one" from={0} durationInFrames={50} />\n\t\t\t<AbsoluteFill name="two" from={10} durationInFrames={50} />',
+			'<AbsoluteFill name="one" from={0} durationInFrames={50} />\n\t\t\t<Solid name="two" from={10} durationInFrames={50} />',
 		);
 		writeFileSync(entryPoint, input);
 
@@ -88,12 +88,14 @@ test('splitSequencesHandler writes success and failure responses', async () => {
 							nodePath: lineContainingToNodePath(input, 'name="one"'),
 							sequenceKeys: sequenceTimingKeys,
 							splitFrame: 30,
+							videoConfigValues: null,
 						},
 						{
 							fileName: entryPoint,
 							nodePath: lineContainingToNodePath(input, 'name="two"'),
 							sequenceKeys: sequenceTimingKeys,
 							splitFrame: 30,
+							videoConfigValues: null,
 						},
 					],
 				},
@@ -107,9 +109,45 @@ test('splitSequencesHandler writes success and failure responses', async () => {
 			'<AbsoluteFill name="one" from={30} durationInFrames={20} trimBefore={30} />',
 		);
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
-			'<AbsoluteFill name="two" from={30} durationInFrames={30} trimBefore={20} />',
+			'<Solid name="two" from={30} durationInFrames={30} trimBefore={20} />',
 		);
+		if (!success.success) {
+			throw new Error(success.reason);
+		}
+
+		const originalSolidPath = lineContainingToNodePath(input, 'name="two"');
+		const [{remappings}] = success.nodePathMutation.files;
+		expect(
+			remappings.find(
+				(remapping) =>
+					JSON.stringify(remapping.oldNodePath) ===
+					JSON.stringify(originalSolidPath),
+			),
+		).toMatchObject({oldJsxName: 'Solid', newJsxName: 'Solid'});
+		expect(
+			remappings.find(
+				(remapping) =>
+					remapping.oldNodePath === null &&
+					JSON.stringify(remapping.newNodePath) ===
+						JSON.stringify(originalSolidPath),
+			),
+		).toMatchObject({oldJsxName: null, newJsxName: 'AbsoluteFill'});
 		expect(getUndoStack().length).toBe(1);
+
+		const undo = popUndo();
+		expect(undo.success).toBe(true);
+		if (!undo.success || undo.nodePathMutation === null) {
+			throw new Error('Expected undo to include a node path mutation');
+		}
+
+		expect(readFileSync(entryPoint, 'utf-8')).toBe(input);
+		expect(
+			undo.nodePathMutation.files[0].remappings.find(
+				(remapping) =>
+					JSON.stringify(remapping.oldNodePath) ===
+						JSON.stringify(originalSolidPath) && remapping.newNodePath === null,
+			),
+		).toMatchObject({oldJsxName: 'AbsoluteFill', newJsxName: null});
 
 		const failure = await splitSequencesHandler(
 			getHandlerOptions({
@@ -120,6 +158,7 @@ test('splitSequencesHandler writes success and failure responses', async () => {
 							nodePath: lineContainingToNodePath(input, 'name="one"'),
 							sequenceKeys: sequenceTimingKeys,
 							splitFrame: 0,
+							videoConfigValues: null,
 						},
 					],
 				},

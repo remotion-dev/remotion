@@ -5,6 +5,7 @@ import type {
 	ConfigUpdate,
 } from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {NoReactInternals} from 'remotion/no-react';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {UndoIcon} from '../icons/undo';
 import {Button} from './Button';
@@ -44,16 +45,20 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	showPremounting: null,
+	defaultPremountInSeconds: null,
 	askAIEnabled: null,
 	audioLatencyHint: null,
 	beepOnFinish: null,
 	enableCrossSiteIsolation: null,
+	experimentalTracksEnabled: null,
 	interactivityEnabled: null,
 	keyboardShortcutsEnabled: null,
 	logLevel: null,
 	maxTimelineTracks: null,
 	numberOfSharedAudioTags: null,
 	rspack: null,
+	canvasTabsEnabled: null,
 };
 
 const ConfigNumber = ({
@@ -62,8 +67,10 @@ const ConfigNumber = ({
 	onChange,
 	onChangeEnd,
 	value,
+	step,
 }: {
 	readonly defaultValue: number;
+	readonly step: number;
 	readonly name: string;
 	readonly onChange: (value: number | null) => void;
 	readonly onChangeEnd: (value: number | null) => void;
@@ -86,7 +93,7 @@ const ConfigNumber = ({
 					placeholder={`Default (${defaultValue})`}
 					rightAlign
 					status="ok"
-					step={1}
+					step={step}
 					value={value ?? defaultValue}
 				/>
 				<Button
@@ -109,7 +116,8 @@ export const StudioSettings: React.FC = () => {
 		useState<ConfigFileStudioSettings>(initialSettings);
 	const [committedNumberSettings, setCommittedNumberSettings] = useState<{
 		numberOfSharedAudioTags: number | null;
-	}>({numberOfSharedAudioTags: null});
+		defaultPremountInSeconds: number | null;
+	}>({numberOfSharedAudioTags: null, defaultPremountInSeconds: null});
 	const [editedSetters, setEditedSetters] = useState<Set<string>>(
 		() => new Set(),
 	);
@@ -125,6 +133,9 @@ export const StudioSettings: React.FC = () => {
 			studioRuntimeConfig.configFileStudioSettings ?? initialSettings,
 		);
 		setCommittedNumberSettings({
+			defaultPremountInSeconds:
+				studioRuntimeConfig.configFileStudioSettings
+					?.defaultPremountInSeconds ?? null,
 			numberOfSharedAudioTags:
 				studioRuntimeConfig.configFileStudioSettings?.numberOfSharedAudioTags ??
 				null,
@@ -146,13 +157,20 @@ export const StudioSettings: React.FC = () => {
 		[],
 	);
 	const previewNumberSetting = useCallback(
-		(key: 'numberOfSharedAudioTags', value: number | null) => {
+		(
+			key: 'numberOfSharedAudioTags' | 'defaultPremountInSeconds',
+			value: number | null,
+		) => {
 			setSettings((current) => ({...current, [key]: value}));
 		},
 		[],
 	);
 	const commitNumberSetting = useCallback(
-		(key: 'numberOfSharedAudioTags', setter: string, value: number | null) => {
+		(
+			key: 'numberOfSharedAudioTags' | 'defaultPremountInSeconds',
+			setter: string,
+			value: number | null,
+		) => {
 			setSettings((current) => ({...current, [key]: value}));
 			setCommittedNumberSettings((current) => ({...current, [key]: value}));
 			setEditedSetters((current) => new Set(current).add(setter));
@@ -165,9 +183,12 @@ export const StudioSettings: React.FC = () => {
 			setter: string,
 			value: ConfigFileStudioSettings[keyof ConfigFileStudioSettings],
 		): ConfigUpdate =>
-			value === null ? {setter, type: 'delete'} : {setter, type: 'set', value};
+			value === null || value === undefined
+				? {setter, type: 'delete'}
+				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setShowPremounting', settings.showPremounting),
 			update('setAskAIEnabled', settings.askAIEnabled),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
 			update('setBeepOnFinish', settings.beepOnFinish),
@@ -176,8 +197,17 @@ export const StudioSettings: React.FC = () => {
 				'setNumberOfSharedAudioTags',
 				committedNumberSettings.numberOfSharedAudioTags,
 			),
+			update(
+				'setDefaultPremountInSeconds',
+				committedNumberSettings.defaultPremountInSeconds,
+			),
 			update('setRspack', settings.rspack),
 			update('setInteractivityEnabled', settings.interactivityEnabled),
+			update(
+				'setExperimentalTracksEnabled',
+				settings.experimentalTracksEnabled,
+			),
+			update('setCanvasTabsEnabled', settings.canvasTabsEnabled),
 			update('setLogLevel', settings.logLevel),
 		].filter((item) => editedSetters.has(item.setter));
 
@@ -270,6 +300,22 @@ export const StudioSettings: React.FC = () => {
 
 			<p style={sectionTitle}>Interface</p>
 			<label style={optionRow}>
+				<div style={label}>Show premounting in timeline</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={settings.showPremounting ?? true}
+						name="Show premounting in timeline"
+						onChange={(event) =>
+							changeSetting(
+								'showPremounting',
+								'setShowPremounting',
+								event.target.checked,
+							)
+						}
+					/>
+				</div>
+			</label>
+			<label style={optionRow}>
 				<div style={label}>Ask AI enabled</div>
 				<div style={rightRow}>
 					<Checkbox
@@ -279,6 +325,22 @@ export const StudioSettings: React.FC = () => {
 							changeSetting(
 								'askAIEnabled',
 								'setAskAIEnabled',
+								event.target.checked ? null : false,
+							)
+						}
+					/>
+				</div>
+			</label>
+			<label style={optionRow}>
+				<div style={label}>Tabs above Canvas</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={settings.canvasTabsEnabled !== false}
+						name="Tabs above Canvas"
+						onChange={(event) =>
+							changeSetting(
+								'canvasTabsEnabled',
+								'setCanvasTabsEnabled',
 								event.target.checked ? null : false,
 							)
 						}
@@ -302,6 +364,60 @@ export const StudioSettings: React.FC = () => {
 				</div>
 			</label>
 
+			<div style={optionRow}>
+				<div style={label}>
+					Experimental tracks
+					<InfoBubble
+						aria-label="About experimental tracks"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: 14,
+								lineHeight: 1.5,
+							}}
+						>
+							Groups Track, Series, and TransitionSeries clips on shared
+							timeline rows, with extra rows for overlays. Disabled by default.
+							Changes apply immediately after saving, without reloading Studio.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Experimental tracks">
+					<Checkbox
+						checked={settings.experimentalTracksEnabled === true}
+						name="Experimental tracks"
+						onChange={(event) =>
+							changeSetting(
+								'experimentalTracksEnabled',
+								'setExperimentalTracksEnabled',
+								event.target.checked ? true : null,
+							)
+						}
+					/>
+				</label>
+			</div>
+
+			<p style={sectionTitle}>Playback</p>
+			<ConfigNumber
+				defaultValue={NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS}
+				name="Default premount in seconds"
+				step={0.1}
+				onChange={(value) =>
+					previewNumberSetting('defaultPremountInSeconds', value)
+				}
+				onChangeEnd={(value) =>
+					commitNumberSetting(
+						'defaultPremountInSeconds',
+						'setDefaultPremountInSeconds',
+						value,
+					)
+				}
+				value={settings.defaultPremountInSeconds}
+			/>
+
 			<p style={sectionTitle}>Audio</p>
 			<ConfigSelect
 				defaultLabel="Playback"
@@ -319,6 +435,7 @@ export const StudioSettings: React.FC = () => {
 			<ConfigNumber
 				defaultValue={0}
 				name="Number of shared audio tags"
+				step={1}
 				onChange={(value) =>
 					previewNumberSetting('numberOfSharedAudioTags', value)
 				}

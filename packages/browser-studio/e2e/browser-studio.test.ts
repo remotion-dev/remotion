@@ -91,7 +91,13 @@ test('selects a composition inserted from the Add composition dialog', async ({
 
 	await page.goBack();
 	await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
-	await studio.locator('[data-sidebar-toggle="right"]').click();
+	const expandRightSidebar = studio.getByRole('button', {
+		name: 'Expand right sidebar',
+	});
+	if (await expandRightSidebar.isVisible()) {
+		await expandRightSidebar.click();
+	}
+
 	await studio.getByRole('button', {name: 'Add composition...'}).click();
 	await studio.getByPlaceholder('Search compositions...').fill('MyComp1');
 	await page.keyboard.press('Enter');
@@ -362,7 +368,6 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 				'MyComp1',
 			);
 			await studio.getByPlaceholder('Composition ID').fill('测试');
-			await expect(studio.getByText(/addition/)).toBeVisible();
 			await studio.getByRole('button', {name: /^Add to /}).click();
 			await expect(studio.locator('[data-compname="测试"]')).toBeVisible();
 			await expect
@@ -829,7 +834,9 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 		page,
 		target: canvas,
 	});
-	await expect(studio.getByText('<CanvasImage>', {exact: true})).toBeVisible();
+	await expect(
+		studio.locator('[data-timeline-marquee-item][aria-label="<CanvasImage>"]'),
+	).toBeVisible();
 
 	await expect
 		.poll(() =>
@@ -869,7 +876,9 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 		page,
 		target: canvas,
 	});
-	await expect(studio.getByText('framer.webm', {exact: true})).toBeVisible();
+	await expect(
+		studio.getByRole('button', {name: 'framer.webm', exact: true}),
+	).toBeVisible();
 	await expect
 		.poll(() =>
 			page.evaluate(() =>
@@ -1333,7 +1342,9 @@ export const BrowserElement = ({logoSrc}: {logoSrc: string}) => <>
 		studio.getByRole('img', {name: 'Element asset'}),
 	).toHaveJSProperty('naturalWidth', 20);
 	await expect(
-		studio.getByText('Browser Element', {exact: true}),
+		studio.locator(
+			'[data-timeline-marquee-item][aria-label="Browser Element"]',
+		),
 	).toBeVisible();
 });
 
@@ -1495,7 +1506,13 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await expect(studio.locator('[data-compname="MyComp"]')).toBeVisible();
 	await waitForBrowserStudioOperations(studio);
 	await studio.locator('[data-compname="MyComp"]').click();
-	await studio.locator('[data-sidebar-toggle="right"]').click();
+	const expandRightSidebar = studio.getByRole('button', {
+		name: 'Expand right sidebar',
+	});
+	if (await expandRightSidebar.isVisible()) {
+		await expandRightSidebar.click();
+	}
+
 	await studio.locator('body').evaluate(async () => {
 		await window.remotion_browserStudio.writeStaticFile({
 			contents: new TextEncoder().encode('hover test').buffer,

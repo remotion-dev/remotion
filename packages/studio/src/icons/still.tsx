@@ -6,11 +6,34 @@ export const StillIcon: React.FC<
 		readonly color: string;
 	}
 > = ({color, ...props}) => {
+	const size =
+		typeof props.style?.height === 'number' ? props.style.height : 18;
+	const bodyTop = Math.round((size * 3) / 16);
+	const humpLeft = Math.round((size * 3) / 8) - 0.5;
+
 	return (
-		<svg {...props} viewBox="0 0 512 512">
+		<svg
+			{...props}
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox={`0 0 ${size} ${size}`}
+			fill="none"
+			stroke={color}
+			strokeWidth={1}
+		>
 			<path
-				fill={color}
-				d="M144 288C144 226.1 194.1 176 256 176C317.9 176 368 226.1 368 288C368 349.9 317.9 400 256 400C194.1 400 144 349.9 144 288zM256 208C211.8 208 176 243.8 176 288C176 332.2 211.8 368 256 368C300.2 368 336 332.2 336 288C336 243.8 300.2 208 256 208zM362.9 64.82L373.3 96H448C483.3 96 512 124.7 512 160V416C512 451.3 483.3 480 448 480H64C28.65 480 0 451.3 0 416V160C0 124.7 28.65 96 64 96H138.7L149.1 64.82C155.6 45.22 173.9 32 194.6 32H317.4C338.1 32 356.4 45.22 362.9 64.82H362.9zM64 128C46.33 128 32 142.3 32 160V416C32 433.7 46.33 448 64 448H448C465.7 448 480 433.7 480 416V160C480 142.3 465.7 128 448 128H350.3L332.6 74.94C330.4 68.41 324.3 64 317.4 64H194.6C187.7 64 181.6 68.41 179.4 74.94L161.7 128H64z"
+				d={`M2 ${bodyTop + 0.5}
+				H${humpLeft - 1}L${humpLeft} 1.5H${size - humpLeft}
+				L${size - humpLeft + 1} ${bodyTop + 0.5}H${size - 2}
+				a1.5 1.5 0 0 1 1.5 1.5V${size - 3}
+				a1.5 1.5 0 0 1 -1.5 1.5H2
+				a1.5 1.5 0 0 1 -1.5 -1.5V${bodyTop + 2}
+				a1.5 1.5 0 0 1 1.5 -1.5z`}
+				strokeLinejoin="round"
+			/>
+			<circle
+				cx={size / 2}
+				cy={Math.floor((size * 9) / 16)}
+				r={Math.round((size * 7) / 32) - 0.5}
 			/>
 		</svg>
 	);

@@ -1,11 +1,11 @@
 import {ding, mouseClick} from '@remotion/sfx';
-import {staticFileRef} from '@remotion/studio-protocol';
 import type {
 	ElementAsset,
 	ElementDependency,
 	ElementInitialProps,
 	ElementInstallationMode,
 } from '@remotion/studio-protocol';
+import {staticFileRef} from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
 import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/mirrored-spectrum';
 import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';
@@ -30,10 +30,7 @@ import {roundedCaptionsInitialProps} from '../../../elements/captions/rounded-ca
 import {RoundedCaptions} from '../../../elements/captions/rounded-captions/rounded-captions';
 import {wordHighlightCaptionsInitialProps} from '../../../elements/captions/word-highlight-captions/initial-props';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
-import {
-	ProductCollection,
-	productCollectionDurationInFrames,
-} from '../../../elements/commerce/product-collection/product-collection';
+import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {Shine} from '../../../elements/commerce/shine/shine';
 import {Tear} from '../../../elements/commerce/tear/tear';
@@ -51,6 +48,8 @@ import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-l
 import {SocialSafeZones} from '../../../elements/overlays/social-safe-zones/social-safe-zones';
 import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
 import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
+import {speedLinesInitialProps} from '../../../elements/storytelling/speed-lines/initial-props';
+import {SpeedLines} from '../../../elements/storytelling/speed-lines/speed-lines';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
@@ -69,7 +68,10 @@ import {
 
 export type ElementPreviewLayout = 'composition' | 'vertical';
 
+export type ElementBackgroundTheme = 'light' | 'dark';
+
 export type ElementPreviewMetadata = {
+	readonly backgroundTheme: ElementBackgroundTheme;
 	readonly previewLayout: ElementPreviewLayout;
 	readonly posterUrl:
 		| `/elements/${string}-preview.png`
@@ -130,7 +132,7 @@ const elementImplementations = [
 		slug: 'audio/oscilloscope',
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
-			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+			src: staticFileRef(audioOscilloscopeAudio.path),
 		} as ElementInitialProps,
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
@@ -149,6 +151,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/audio-oscilloscope-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/audio-oscilloscope-preview.mp4',
 		},
@@ -161,7 +164,7 @@ const elementImplementations = [
 		slug: 'audio/waveform-progress',
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
-			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+			src: staticFileRef(audioOscilloscopeAudio.path),
 		} as ElementInitialProps,
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
@@ -180,11 +183,12 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/audio-waveform-progress-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/audio-waveform-progress-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: {audioSrc: audioOscilloscopeAudio.url} as ElementInitialProps,
+		initialProps: {src: audioOscilloscopeAudio.url} as ElementInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -192,7 +196,7 @@ const elementImplementations = [
 		slug: 'audio/mirrored-spectrum',
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
-			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+			src: staticFileRef(audioOscilloscopeAudio.path),
 		} as ElementInitialProps,
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
@@ -211,11 +215,12 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: {audioSrc: audioOscilloscopeAudio.url} as ElementInitialProps,
+		initialProps: {src: audioOscilloscopeAudio.url} as ElementInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -237,12 +242,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-notebook-paper-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-notebook-paper-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -264,12 +270,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-paper-texture-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-paper-texture-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -290,12 +297,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -316,12 +324,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-moving-waves-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-moving-waves-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -342,12 +351,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-moving-zigzags-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-moving-zigzags-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -369,12 +379,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-liquid-contours-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-liquid-contours-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -387,22 +398,23 @@ const elementImplementations = [
 			'Simple synchronized captions with white text on a translucent gray background.',
 		dependencies: [{name: '@remotion/captions', version: null}],
 		durationInFrames: 210,
-		elementHeight: 220,
-		elementWidth: 900,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
-		height: 1080,
+		height: 300,
 		posterFrame: 75,
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-basic-captions-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-basic-captions-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: basicCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
-		width: 1920,
+		width: 900,
 	},
 	{
 		slug: 'captions/rounded-captions',
@@ -419,22 +431,23 @@ const elementImplementations = [
 			{name: '@remotion/rounded-text-box', version: null},
 		],
 		durationInFrames: 210,
-		elementHeight: 220,
-		elementWidth: 900,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
-		height: 1080,
+		height: 300,
 		posterFrame: 75,
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-rounded-captions-preview-694426c4-721c-484f-8a33-79f21d54da5d.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-rounded-captions-preview-694426c4-721c-484f-8a33-79f21d54da5d.mp4',
 		},
 		safeArea: 120,
 		initialProps: roundedCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
-		width: 1920,
+		width: 900,
 	},
 	{
 		slug: 'captions/moving-pill-captions',
@@ -450,22 +463,23 @@ const elementImplementations = [
 			{name: '@remotion/layout-utils', version: null},
 		],
 		durationInFrames: 210,
-		elementHeight: 252,
-		elementWidth: 682,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
-		height: 1080,
+		height: 300,
 		posterFrame: 75,
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-moving-pill-captions-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-moving-pill-captions-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: movingPillCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
-		width: 1920,
+		width: 682,
 	},
 	{
 		slug: 'captions/popping-word-captions',
@@ -480,22 +494,23 @@ const elementImplementations = [
 			{name: '@remotion/layout-utils', version: null},
 		],
 		durationInFrames: 210,
-		elementHeight: 252,
-		elementWidth: 682,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
-		height: 1080,
+		height: 300,
 		posterFrame: 75,
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-popping-word-captions-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-popping-word-captions-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: poppingWordCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
-		width: 1920,
+		width: 682,
 	},
 	{
 		slug: 'captions/word-highlight-captions',
@@ -510,22 +525,23 @@ const elementImplementations = [
 			{name: '@remotion/layout-utils', version: null},
 		],
 		durationInFrames: 210,
-		elementHeight: 252,
-		elementWidth: 682,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
-		height: 1080,
+		height: 300,
 		posterFrame: 75,
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-word-highlight-captions-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-word-highlight-captions-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: wordHighlightCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
-		width: 1920,
+		width: 682,
 	},
 	{
 		slug: 'commerce/product-collection',
@@ -535,7 +551,7 @@ const elementImplementations = [
 		contributors: [],
 		description: 'Three cards which each take center once.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: productCollectionDurationInFrames,
+		durationInFrames: 150,
 		elementHeight: 1020,
 		elementWidth: 1020,
 		fps: 30,
@@ -545,12 +561,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/commerce-product-collection-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-collection-preview.mp4',
 		},
 		safeArea: 30,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1080,
 	},
 	{
@@ -574,12 +591,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.mp4',
 		},
 		safeArea: 90,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1080,
 	},
 	{
@@ -599,11 +617,12 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/commerce-shine-preview.png',
+			backgroundTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/commerce-shine-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -623,11 +642,12 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/commerce-tear-preview.png',
+			backgroundTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/commerce-tear-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -648,12 +668,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -673,11 +694,12 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
+			backgroundTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -704,12 +726,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-number-counter-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/data-number-counter-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -730,11 +753,12 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
+			backgroundTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -756,12 +780,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -783,12 +808,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/layouts-picture-in-picture-transition-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/layouts-picture-in-picture-transition-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -810,12 +836,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/layouts-slide-to-split-screen-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/layouts-slide-to-split-screen-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -839,6 +866,7 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
+			backgroundTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
 		},
 		safeArea: 0,
@@ -868,6 +896,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/maps-watercolor-map-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/maps-watercolor-map-preview.mp4',
 		},
@@ -894,12 +923,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-location-lower-third-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/overlays-location-lower-third-preview.mp4',
 		},
 		safeArea: 300,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -921,12 +951,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-name-lower-third-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
 		safeArea: 300,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -948,6 +979,7 @@ const elementImplementations = [
 			previewLayout: 'vertical',
 			posterUrl:
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.mp4',
 		},
@@ -974,12 +1006,40 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-news-article-highlight-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/text-news-article-highlight-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
+		slug: 'storytelling/speed-lines',
+		assets: [],
+		installationProps: null,
+		component: SpeedLines,
+		contributors: [],
+		description: 'A burst of animated radial speed lines around a subject.',
+		dependencies: [],
+		durationInFrames: 45,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 15,
+		preview: {
+			backgroundTheme: 'dark',
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/storytelling-speed-lines-preview-589e0765-d9d0-4d46-bcff-86e7bcf79c05.png',
+			videoUrl:
+				'https://remotion.media/elements/storytelling-speed-lines-preview-589e0765-d9d0-4d46-bcff-86e7bcf79c05.mp4',
+		},
+		safeArea: 0,
+		initialProps: speedLinesInitialProps as ElementInitialProps,
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1001,12 +1061,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/storytelling-on-screen-messages-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/storytelling-on-screen-messages-preview.mp4',
 		},
 		safeArea: 180,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1028,12 +1089,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/storytelling-polaroid-pictures-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/storytelling-polaroid-pictures-preview.mp4',
 		},
 		safeArea: 220,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1058,12 +1120,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-circle-marker-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/text-circle-marker-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1087,11 +1150,12 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
+			backgroundTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1113,6 +1177,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.mp4',
 		},
@@ -1143,12 +1208,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-strike-through-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/text-strike-through-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1172,11 +1238,12 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/text-text-marker-preview.png',
+			backgroundTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/text-text-marker-preview.mp4',
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1197,12 +1264,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.mp4',
 		},
 		safeArea: 200,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1224,12 +1292,13 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-social-endcard-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -1263,6 +1332,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.png',
+			backgroundTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
 		},
@@ -1272,7 +1342,7 @@ const elementImplementations = [
 			dingSrc: youtubeSubscribeNudgeAssets.ding.url,
 			avatarSrc: youtubeSubscribeNudgeAssets.avatar.url,
 		} as ElementInitialProps,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 ] satisfies readonly (Omit<

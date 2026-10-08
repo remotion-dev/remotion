@@ -33,7 +33,7 @@ import {Rotations} from './Rotations';
 
 type LabelProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
-		readonly children: string;
+		readonly children: React.ReactNode;
 	};
 
 const labelSchema = {
@@ -43,92 +43,63 @@ const labelSchema = {
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Interactive.borderRadiusSchema,
-	children: {
-		type: 'text-content',
-		default: '',
-		description: 'Text',
-		keyframable: false,
-	},
+	...Interactive.childrenSchema,
 } as const satisfies InteractivitySchema;
 
-const setRef = <ElementType,>(
-	ref: React.ForwardedRef<ElementType>,
-	value: ElementType | null,
-) => {
-	if (typeof ref === 'function') {
-		ref(value);
-	} else if (ref) {
-		ref.current = value;
-	}
-};
-
-const LabelInner = React.forwardRef<
-	HTMLDivElement,
+const LabelInner: React.FC<
 	LabelProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			children,
-			durationInFrames,
-			from,
-			trimBefore,
-			trimAfter,
-			loop,
-			freeze,
-			hidden,
-			name,
-			showInTimeline,
-			controls,
-			style,
-		},
-		ref,
-	) => {
-		const opacity = useLabelOpacity();
-		const callbackRef = React.useCallback(
-			(element: HTMLDivElement | null) => {
-				setRef(ref, element);
-			},
-			[ref],
-		);
+> = ({
+	children,
+	durationInFrames,
+	from,
+	trimBefore,
+	trimAfter,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+	style,
+}) => {
+	const opacity = useLabelOpacity();
 
-		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				trimAfter={trimAfter}
-				loop={loop}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? '<Label>'}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls ?? undefined}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
+	return (
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			trimBefore={trimBefore}
+			trimAfter={trimAfter}
+			loop={loop}
+			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
+			hidden={hidden}
+			name={name ?? '<Label>'}
+			showInTimeline={showInTimeline ?? true}
+			controls={controls ?? undefined}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
+		>
+			<div
+				className="text-white "
+				style={{
+					fontFamily: 'GT Planar',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+					paddingLeft: 20,
+					fontSize: 24,
+					opacity,
+					...style,
+				}}
 			>
-				<div
-					ref={callbackRef}
-					className="text-white "
-					style={{
-						fontFamily: 'GT Planar',
-						height: '100%',
-						display: 'flex',
-						flexDirection: 'column',
-						justifyContent: 'center',
-						paddingLeft: 20,
-						fontSize: 24,
-						opacity,
-						...style,
-					}}
-				>
-					{children}
-				</div>
-			</Sequence>
-		);
-	},
-);
+				{children}
+			</div>
+		</Sequence>
+	);
+};
 
 LabelInner.displayName = '<Label>';
 

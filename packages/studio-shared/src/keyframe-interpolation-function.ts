@@ -30,6 +30,7 @@ const KEYFRAME_FIELD_TYPE_SUPPORT = {
 	'rotation-degrees': true,
 	scale: true,
 	'svg-path': true,
+	string: false,
 	'text-content': false,
 	'transform-origin': true,
 	translate: true,
@@ -56,6 +57,7 @@ const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 	'rotation-degrees': 'infer',
 	scale: 'interpolate',
 	'svg-path': 'interpolatePaths',
+	string: 'unsupported',
 	'text-content': 'unsupported',
 	'transform-origin': 'interpolate',
 	translate: 'interpolate',
@@ -80,6 +82,7 @@ const KEYFRAME_FIELD_TYPE_OUTPUT_TYPE = {
 	'rotation-degrees': null,
 	scale: 'scale',
 	'svg-path': null,
+	string: null,
 	'text-content': null,
 	'transform-origin': 'transform-origin',
 	translate: 'translate',
@@ -158,6 +161,18 @@ export const isSchemaFieldKeyframable = ({
 	return isInteractivitySchemaFieldKeyframable(field);
 };
 
+export const isInteractivitySchemaFieldHoldOnly = (
+	field: InteractivitySchemaField | undefined,
+): boolean => {
+	return (
+		(field?.type === 'boolean' && field.keyframable !== false) ||
+		(field?.type === 'enum' && field.keyframable === true) ||
+		(field?.type === 'number' &&
+			field.integer === true &&
+			field.keyframable !== false)
+	);
+};
+
 export const isSchemaFieldHoldOnly = ({
 	schema,
 	key,
@@ -165,13 +180,8 @@ export const isSchemaFieldHoldOnly = ({
 	schema: InteractivitySchema | null;
 	key: string;
 }): boolean => {
-	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return (
-		(field?.type === 'boolean' && field.keyframable !== false) ||
-		(field?.type === 'enum' && field.keyframable === true) ||
-		(field?.type === 'number' &&
-			field.integer === true &&
-			field.keyframable !== false)
+	return isInteractivitySchemaFieldHoldOnly(
+		schema ? findFieldInSchema(schema, key) : undefined,
 	);
 };
 

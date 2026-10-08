@@ -463,6 +463,12 @@ export function popUndo(): UndoResponse {
 					(remapping): SequenceNodePathRemapping => ({
 						oldNodePath: remapping.newNodePath,
 						newNodePath: remapping.oldNodePath,
+						...(remapping.newJsxName === undefined
+							? {}
+							: {oldJsxName: remapping.newJsxName}),
+						...(remapping.oldJsxName === undefined
+							? {}
+							: {newJsxName: remapping.oldJsxName}),
 					}),
 				),
 			},

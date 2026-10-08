@@ -6,7 +6,6 @@ import {
 import type {LogLevel} from 'remotion';
 import {Internals, type ScheduleAudioNodeResult} from 'remotion';
 import {
-	ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT,
 	isAlreadyQueued,
 	makeAudioIterator,
 	type AudioIterator,
@@ -265,7 +264,10 @@ export const audioIteratorManager = ({
 			logLevel,
 			originalUnloopedMediaTimestamp: buffer.buffer.timestamp,
 			sourceOffsetInSeconds: buffer.sourceOffsetInSeconds,
-			sourceDurationInSeconds: buffer.sourceDurationInSeconds,
+			sourceDurationInSeconds: Math.min(
+				buffer.sourceDurationInSeconds,
+				sequenceEndTime - buffer.timelineTimestamp,
+			),
 		});
 
 		drawDebugOverlay();
@@ -565,7 +567,8 @@ export const audioIteratorManager = ({
 			currentSeek.sequenceOffset === sequenceOffset &&
 			currentSeek.sequenceDurationInFrames === sequenceDurationInFrames &&
 			currentSeek.loop === loop &&
-			currentSeek.fps === fps
+			currentSeek.fps === fps &&
+			(muted || (audioBufferIterator && !audioBufferIterator.isDestroyed()))
 		) {
 			return;
 		}
@@ -598,15 +601,16 @@ export const audioIteratorManager = ({
 						})
 					: newTime;
 			const queuedPeriod = audioBufferIterator.getQueuedPeriod();
+			// Queued timestamps are in media seconds, so convert the Player's
+			// AudioContext tolerance using the combined media and Player rate.
+			const anchorTolerance =
+				Internals.getAudioSyncAnchorTolerance(sharedAudioContext.audioContext) *
+				Math.abs(playbackRate);
 			// If there is a missing period, but we'd have no chance to schedule nodes,
 			// then let's not bother. Let's just leave the gap.
 			const queuedPeriodMinusLatency: QueuedPeriod | null = queuedPeriod
 				? {
-						from:
-							queuedPeriod.from -
-							ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT -
-							sharedAudioContext.audioContext.baseLatency -
-							sharedAudioContext.audioContext.outputLatency,
+						from: queuedPeriod.from - anchorTolerance,
 						until: queuedPeriod.until,
 					}
 				: null;
@@ -672,8 +676,21 @@ export const audioIteratorManager = ({
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
 		getTotalAudioScheduledInSeconds: () => totalAudioScheduledInSeconds,
 		setMuted: (newMuted: boolean) => {
+			if (muted === newMuted) {
+				return;
+			}
+
 			muted = newMuted;
 			gainNode.gain.value = muted ? 0 : currentVolume;
+			if (muted) {
+				audioBufferIterator?.destroy();
+				audioBufferIterator = null;
+				currentAnchor = null;
+				unblockCurrentDelayHandle();
+			}
+
+			// An unmute at the same frame still needs a fresh iterator.
+			currentSeek = null;
 		},
 		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);

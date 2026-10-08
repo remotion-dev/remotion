@@ -8,6 +8,7 @@ const cliFlag = 'dark-mode' as const;
 
 export const darkModeOption = {
 	name: 'Dark Mode',
+	addedIn: '4.0.381',
 	cliFlag,
 	description: () => (
 		<>
@@ -17,7 +18,7 @@ export const darkModeOption = {
 		</>
 	),
 	ssrName: 'darkMode',
-	docLink: 'https://www.remotion.dev/docs/chromium-flags#--dark-mode',
+	docLink: 'https://www.remotion.dev/docs/options/dark-mode',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
 	useState,
@@ -32,6 +33,7 @@ import {CompositionListContext} from '../state/composition-list';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
 import {useAssetContextMenuItems} from './asset-context-menu';
+import {canvasTabsRef} from './CanvasTabsRef';
 import {
 	getCompositionDragPreviewMetadata,
 	parseCompositionDragData,
@@ -48,7 +50,8 @@ import {
 	getDraggedRenderOutputCanvasContent,
 	RENDER_OUTPUT_TAB_DRAG_MIME_TYPE,
 } from './RenderQueue/use-render-output-file-drag';
-import {Tab, Tabs} from './Tabs';
+import {useSettings} from './SettingsContext';
+import {TAB_HEIGHT, Tab, Tabs} from './Tabs';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {useOpenInMenuApps} from './use-open-in-menu-apps';
 import {useSelectAsset} from './use-select-asset';
@@ -145,7 +148,7 @@ const loadTabs = (): CanvasContent[] => {
 const container: React.CSSProperties = {
 	backgroundColor: TIMELINE_BACKGROUND_COLOR,
 	flexShrink: 0,
-	height: 34,
+	height: TAB_HEIGHT,
 	overflowX: 'auto',
 	overflowY: 'hidden',
 	overscrollBehaviorX: 'none',
@@ -425,6 +428,9 @@ const CanvasTab: React.FC<{
 				triggerStyle={tooltipTriggerStyle}
 			>
 				<span
+					data-annotation-composition-id={
+						tab.type === 'composition' ? tab.compositionId : undefined
+					}
 					style={{...labelStyle, color: selected ? WHITE : LIGHT_TEXT}}
 					onPointerEnter={() => {
 						setTooltipHovered(true);
@@ -459,7 +465,7 @@ const CanvasTab: React.FC<{
 					event.stopPropagation();
 					onClose();
 				}}
-				renderAction={() => <CancelIcon height={20} width={20} />}
+				renderAction={() => <CancelIcon height={16} width={16} />}
 				style={closeStyle}
 				variant={null}
 			/>
@@ -488,6 +494,8 @@ const CanvasTab: React.FC<{
 };
 
 export const CanvasTabs: React.FC = () => {
+	const {studioRuntimeConfig} = useSettings();
+	const canvasTabsEnabled = studioRuntimeConfig?.canvasTabsEnabled ?? true;
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
@@ -502,6 +510,33 @@ export const CanvasTabs: React.FC = () => {
 	const previousTabKeys = useRef(tabs.map(getTabKey));
 	const activeTabKey = canvasContent === null ? null : getTabKey(canvasContent);
 	const previousActiveTabKey = useRef<string | null>(null);
+
+	useImperativeHandle(
+		canvasTabsRef,
+		() => ({
+			openTabs: (contents) => {
+				setTabs((current) => {
+					const keys = new Set(current.map(getTabKey));
+					const next = [...current];
+					for (const content of contents) {
+						const key = getTabKey(content);
+						if (!keys.has(key)) {
+							keys.add(key);
+							next.push(content);
+						}
+					}
+
+					if (next.length === current.length) {
+						return current;
+					}
+
+					previousTabKeys.current = next.map(getTabKey);
+					return next;
+				});
+			},
+		}),
+		[],
+	);
 
 	useLayoutEffect(() => {
 		const keys = tabs.map(getTabKey);
@@ -844,7 +879,7 @@ export const CanvasTabs: React.FC = () => {
 		[],
 	);
 
-	if (tabs.length === 0) {
+	if (!canvasTabsEnabled || tabs.length === 0) {
 		return null;
 	}
 

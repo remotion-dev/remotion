@@ -129,7 +129,6 @@ export const saveSequencePropsInProject = ({
 			},
 			componentIdentity: null,
 			effectKeys: [],
-			videoConfig: target.nodePath.videoConfigValues ?? undefined,
 		});
 
 		return {

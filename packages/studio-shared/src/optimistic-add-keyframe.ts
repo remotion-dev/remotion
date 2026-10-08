@@ -1,3 +1,4 @@
+import type {VideoConfigValues} from 'remotion';
 import {
 	type CanUpdateSequencePropStatus,
 	type CanUpdateSequencePropsResponse,
@@ -13,6 +14,7 @@ import {
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 } from './keyframe-interpolation-function';
+import {updateSourcePropStatus} from './update-source-prop-status';
 
 const getEasingIndexToDuplicate = ({
 	insertedKeyframeIndex,
@@ -33,7 +35,11 @@ const getEasingIndexToDuplicate = ({
 	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
 };
 
-const addKeyframeToPropStatus = ({
+/**
+ * The status of a prop after adding a keyframe: a keyframed prop gets the
+ * keyframe inserted or replaced, a static prop becomes keyframed.
+ */
+export const addKeyframeToPropStatus = ({
 	status,
 	fieldKey,
 	frame,
@@ -173,12 +179,14 @@ const getMissingPropStatus = ({
 
 export const optimisticAddSequenceKeyframe = ({
 	previous,
+	videoConfigValues,
 	fieldKey,
 	frame,
 	value,
 	schema,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	fieldKey: string;
 	frame: number;
 	value: unknown;
@@ -200,12 +208,17 @@ export const optimisticAddSequenceKeyframe = ({
 		...previous,
 		props: {
 			...previous.props,
-			[fieldKey]: addKeyframeToPropStatus({
-				status,
-				fieldKey,
-				frame,
-				value,
-				schema: schema ?? null,
+			[fieldKey]: updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					addKeyframeToPropStatus({
+						status: evaluatedStatus,
+						fieldKey,
+						frame,
+						value,
+						schema: schema ?? null,
+					}),
 			}),
 		},
 	};
@@ -213,6 +226,7 @@ export const optimisticAddSequenceKeyframe = ({
 
 export const optimisticAddEffectKeyframe = ({
 	previous,
+	videoConfigValues,
 	effectIndex,
 	fieldKey,
 	frame,
@@ -220,6 +234,7 @@ export const optimisticAddEffectKeyframe = ({
 	schema,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	effectIndex: number;
 	fieldKey: string;
 	frame: number;
@@ -254,12 +269,17 @@ export const optimisticAddEffectKeyframe = ({
 		...target,
 		props: {
 			...target.props,
-			[fieldKey]: addKeyframeToPropStatus({
-				status,
-				fieldKey,
-				frame,
-				value,
-				schema: schema ?? null,
+			[fieldKey]: updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					addKeyframeToPropStatus({
+						status: evaluatedStatus,
+						fieldKey,
+						frame,
+						value,
+						schema: schema ?? null,
+					}),
 			}),
 		},
 	};

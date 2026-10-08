@@ -678,11 +678,13 @@ const insertCompositionElement = async ({
 	compositionId,
 	element,
 	from,
+	premountFor,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
+	premountFor: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
 	const browserStudioOperations = getBrowserStudioOperations();
@@ -692,7 +694,13 @@ const insertCompositionElement = async ({
 		);
 	}
 
-	const request = {compositionFile, compositionId, element, from};
+	const request = {
+		compositionFile,
+		compositionId,
+		element,
+		from,
+		premountFor,
+	};
 	const result = browserStudioOperations
 		? await browserStudioOperations.insertCompositionElement(request)
 		: await callApi('/api/insert-composition-element', request);
@@ -791,6 +799,7 @@ export const importAssets = async ({
 						from,
 						preferCompositionStart,
 					}),
+					premountFor: fps,
 					element: {
 						type: 'svg',
 						markup: new TextDecoder().decode(contents),
@@ -851,6 +860,7 @@ export const importAssets = async ({
 					from,
 					preferCompositionStart,
 				}),
+				premountFor: fps,
 				element: {
 					...element,
 					dimensions: resolvedDimensions,
@@ -886,12 +896,14 @@ export const importFigmaClipboard = async ({
 	compositionId,
 	destinationDimensions,
 	dropPosition,
+	fps,
 	html,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
+	fps: number;
 	html: string;
 }) => {
 	// Figma clipboard conversion requires the SVGR-based pipeline in
@@ -921,6 +933,7 @@ export const importFigmaClipboard = async ({
 			compositionId,
 			destinationDimensions,
 			dropPosition,
+			fps,
 			markup: converted.svg,
 		});
 	} catch (error) {
@@ -938,12 +951,14 @@ export const insertSvgMarkup = async ({
 	compositionId,
 	destinationDimensions,
 	dropPosition,
+	fps,
 	markup,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
+	fps: number;
 	markup: string;
 }) => {
 	try {
@@ -964,6 +979,7 @@ export const insertSvgMarkup = async ({
 			compositionFile,
 			compositionId,
 			from: null,
+			premountFor: fps,
 			element: {
 				type: 'svg',
 				markup,
@@ -1035,6 +1051,7 @@ export const importRemoteAsset = async ({
 				from,
 				preferCompositionStart,
 			}),
+			premountFor: fps,
 			element: {
 				...element,
 				dimensions,
@@ -1100,6 +1117,7 @@ export const insertRemoteAudio = async ({
 				from,
 				preferCompositionStart,
 			}),
+			premountFor: fps,
 		});
 	} catch (error) {
 		showNotification(
@@ -1164,6 +1182,7 @@ export const insertExistingAssets = async ({
 					from,
 					preferCompositionStart,
 				}),
+				premountFor: fps,
 				element: {
 					...element,
 					dimensions,
@@ -1197,6 +1216,7 @@ export const insertComponent = async ({
 	compositionFile,
 	compositionId,
 	dropPosition,
+	fps,
 	from,
 	preferCompositionStart,
 }: {
@@ -1204,6 +1224,7 @@ export const insertComponent = async ({
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
+	fps: number;
 	from: number | null;
 	preferCompositionStart: boolean | null;
 }) => {
@@ -1216,6 +1237,7 @@ export const insertComponent = async ({
 				from,
 				preferCompositionStart,
 			}),
+			premountFor: fps,
 			element: {
 				type: 'component',
 				componentName: component.componentName,
@@ -1253,6 +1275,7 @@ export const insertComposition = async ({
 	compositionFile,
 	compositionId,
 	dropPosition,
+	fps,
 	from,
 	preferCompositionStart,
 }: {
@@ -1260,6 +1283,7 @@ export const insertComposition = async ({
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
+	fps: number;
 	from: number | null;
 	preferCompositionStart: boolean | null;
 }) => {
@@ -1294,6 +1318,7 @@ export const insertComposition = async ({
 				from,
 				preferCompositionStart,
 			}),
+			premountFor: fps,
 			element: {
 				type: 'composition',
 				compositionId: composition.compositionId,
@@ -1327,6 +1352,7 @@ export const insertElement = async ({
 	expectedFileState,
 	position,
 	from,
+	premountFor,
 	overwriteExisting,
 	undoRedoNavigation,
 	newComposition,
@@ -1338,6 +1364,7 @@ export const insertElement = async ({
 	expectedFileState: ElementInstallExpectedFileState;
 	position: InsertableCompositionElementPosition | null;
 	from: number | null;
+	premountFor: number | null;
 	overwriteExisting: boolean;
 	undoRedoNavigation: InsertElementRequest['undoRedoNavigation'];
 	newComposition: InsertElementRequest['newComposition'];
@@ -1348,12 +1375,14 @@ export const insertElement = async ({
 		}
 
 		const response = await installElement({
+			captionTarget: null,
 			installationName,
 			compositionFile,
 			compositionId,
 			element,
 			expectedFileState,
 			from,
+			premountFor,
 			overwriteExisting,
 			position,
 			undoRedoNavigation,

@@ -1,58 +1,62 @@
-import React from "react";
-import { spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { FONT_FAMILY } from "./constants";
+import type React from "react";
+import { Easing, Interactive, interpolate, useCurrentFrame, useVideoConfig, type InteractivitySchema } from "remotion";
 
-const title: React.CSSProperties = {
-  fontFamily: FONT_FAMILY,
-  fontWeight: "bold",
-  fontSize: 100,
-  textAlign: "center",
-  position: "absolute",
-  bottom: 160,
-  width: "100%",
-};
-
-const word: React.CSSProperties = {
-  marginLeft: 10,
-  marginRight: 10,
-  display: "inline-block",
-};
-
-export const Title: React.FC<{
+type TitleProps = {
   readonly titleText: string;
   readonly titleColor: string;
-}> = ({ titleText, titleColor }) => {
-  const videoConfig = useVideoConfig();
+  readonly style?: React.CSSProperties;
+};
+
+const TitleInner: React.FC<TitleProps> = ({ titleText, titleColor, style }) => {
+  const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
-  const words = titleText.split(" ");
-
   return (
-    <h1 style={title}>
-      {words.map((t, i) => {
-        const delay = i * 5;
-
-        const scale = spring({
-          fps: videoConfig.fps,
-          frame: frame - delay,
-          config: {
-            damping: 200,
-          },
-        });
-
+    <Interactive.H1
+      style={{
+        fontFamily: "SF Pro Text, Helvetica, Arial, sans-serif",
+        fontWeight: "bold",
+        fontSize: 100,
+        textAlign: "center",
+        position: "absolute",
+        bottom: 160,
+        width: "100%",
+        ...style,
+      }}
+    >
+      {titleText.split(" ").map((word, index) => {
         return (
           <span
-            key={t}
+            key={`${word}-${index}`}
             style={{
-              ...word,
+              marginLeft: 10,
+              marginRight: 10,
+              display: "inline-block",
               color: titleColor,
-              transform: `scale(${scale})`,
+              scale: interpolate(frame, [index * 5, index * 5 + fps], [0, 1], {
+                easing: Easing.spring({ damping: 200 }),
+                output: "perceptual-scale",
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              }),
             }}
           >
-            {t}
+            {word}
           </span>
         );
       })}
-    </h1>
+    </Interactive.H1>
   );
 };
+
+const titleSchema = {
+  titleText: { type: "string", default: "Welcome to Remotion", description: "Title" },
+  titleColor: { type: "color", default: "#000000", description: "Title color" },
+} as const satisfies InteractivitySchema;
+
+export const Title = Interactive.withSchema({
+  Component: TitleInner,
+  componentName: "<Title>",
+  schema: titleSchema,
+  wrapInSequence: true,
+});

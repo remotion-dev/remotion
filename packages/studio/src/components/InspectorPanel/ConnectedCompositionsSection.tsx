@@ -110,7 +110,12 @@ const ConnectedCompositionRow: React.FC<{
 					/>
 				)}
 			>
-				{composition.id}
+				<span
+					data-annotation-composition-id={composition.id}
+					style={{font: 'inherit'}}
+				>
+					{composition.id}
+				</span>
 			</InspectorQuickAction>
 		</ContextMenu>
 	);

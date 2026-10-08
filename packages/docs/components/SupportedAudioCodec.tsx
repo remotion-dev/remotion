@@ -26,6 +26,10 @@ export const SupportedAudioCodecTable = () => {
 									default: FileExtension;
 								};
 
+								const documentedExtensions = possibleExtensions.possible.filter(
+									(extension) => extension !== 'mpg' && extension !== 'mpeg',
+								);
+
 								return (
 									<tr key={audioCodec}>
 										<td>{i === 0 ? <code>{api}</code> : null}</td>
@@ -40,7 +44,7 @@ export const SupportedAudioCodecTable = () => {
 											<code>{audioCodec}</code>
 										</td>
 										<td>
-											{possibleExtensions.possible.map((p, index) => {
+											{documentedExtensions.map((p, index) => {
 												return (
 													<span key={p}>
 														<code>.{p}</code>{' '}
@@ -48,7 +52,7 @@ export const SupportedAudioCodecTable = () => {
 															<em>(default)</em>
 														) : null}
 														{index ===
-														possibleExtensions.possible.length - 1 ? null : (
+														documentedExtensions.length - 1 ? null : (
 															<span>, </span>
 														)}
 													</span>
@@ -67,7 +71,9 @@ export const SupportedAudioCodecTable = () => {
 };
 
 export const FileExtensionTable: React.FC = () => {
-	const extensions = Object.keys(BrowserSafeApis.defaultCodecsForFileExtension);
+	const extensions = Object.keys(
+		BrowserSafeApis.defaultCodecsForFileExtension,
+	).filter((extension) => extension !== 'mpg' && extension !== 'mpeg');
 
 	return (
 		<table>

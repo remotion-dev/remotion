@@ -1,15 +1,17 @@
+import { Internals } from "remotion";
 import {
   getCanvasSequenceNodePathInfo,
   getCanvasSequenceSourceLocation,
   type CanvasSelectionItem,
   type SequenceNodePathInfo,
   type TimelineTrackData,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import {
   getNodeProps,
   getNodes,
   type CodemodProject,
   type CodemodNode,
+  type NodePathRemapping,
   type NodeReference,
 } from "@remotion/codemods";
 import type {
@@ -93,7 +95,7 @@ export const resolveSequenceNodePaths = (
       nodePath: node.nodePath,
       sequenceKeys: [],
       effectKeys: [],
-      videoConfigValues: track.sequence.controls?.videoConfigValues ?? null,
+      videoConfigValues: null,
     };
   }
 
@@ -128,6 +130,37 @@ export const buildLayers = (
     };
   });
 };
+
+/**
+ * The remappings of codemods that were applied one after another, expressed
+ * as one mapping from the paths of the first input project. A node that a
+ * later codemod moved again is followed to its final path.
+ */
+export const chainNodePathRemappings = (
+  batches: readonly (readonly NodePathRemapping[])[],
+): NodePathRemapping[] =>
+  batches.reduce<NodePathRemapping[]>((chained, batch) => {
+    const unchained = new Set(batch);
+    const followed = chained.map((entry) => {
+      const { newNodePath } = entry;
+      const next =
+        newNodePath === null
+          ? undefined
+          : batch.find(
+              (candidate) =>
+                candidate.filePath === entry.filePath &&
+                candidate.oldNodePath !== null &&
+                sameNodePath(candidate.oldNodePath, newNodePath),
+            );
+      if (!next) {
+        return entry;
+      }
+
+      unchained.delete(next);
+      return { ...entry, newNodePath: next.newNodePath };
+    });
+    return [...followed, ...unchained];
+  }, []);
 
 export const getNodeReference = (
   item: CanvasSelectionItem,
@@ -166,7 +199,7 @@ export const getSequencePropStatuses = ({
   }
 
   try {
-    return getNodeProps({ project, node, keys: [...keys], videoConfig }).props;
+    return Internals.evaluateSourcePropStatuses(getNodeProps({ project, node, keys: [...keys] }).props, nodePathInfo.sequenceSubscriptionKey.videoConfigValues ?? videoConfig);
   } catch {
     return null;
   }
