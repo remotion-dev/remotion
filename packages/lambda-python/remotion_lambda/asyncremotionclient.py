@@ -50,7 +50,7 @@ class AsyncRemotionClient:
         render_type: RenderType,
     ) -> str:
         """Construct a render request, including any required S3 uploads."""
-        return await asyncio.get_event_loop().run_in_executor(
+        return await asyncio.get_running_loop().run_in_executor(
             None, self._client.construct_render_request, render_params, render_type
         )
 
@@ -62,7 +62,7 @@ class AsyncRemotionClient:
         s3_output_provider: Optional[CustomCredentials] = None,
     ) -> str:
         """Construct a render progress request in JSON format."""
-        return await asyncio.get_event_loop().run_in_executor(
+        return await asyncio.get_running_loop().run_in_executor(
             None,
             self._client.construct_render_progress_request,
             render_id,
@@ -75,7 +75,7 @@ class AsyncRemotionClient:
         self, render_params: RenderMediaParams
     ) -> Optional[RenderMediaResponse]:
         """Start a media render and return its render ID and bucket name."""
-        return await asyncio.get_event_loop().run_in_executor(
+        return await asyncio.get_running_loop().run_in_executor(
             None, self._client.render_media_on_lambda, render_params
         )
 
@@ -83,7 +83,7 @@ class AsyncRemotionClient:
         self, render_params: RenderStillParams
     ) -> Optional[RenderStillResponse]:
         """Render a still and return its output information."""
-        return await asyncio.get_event_loop().run_in_executor(
+        return await asyncio.get_running_loop().run_in_executor(
             None, self._client.render_still_on_lambda, render_params
         )
 
@@ -95,7 +95,7 @@ class AsyncRemotionClient:
         s3_output_provider: Optional[CustomCredentials] = None,
     ) -> Optional[RenderMediaProgress]:
         """Get the progress of a media render."""
-        return await asyncio.get_event_loop().run_in_executor(
+        return await asyncio.get_running_loop().run_in_executor(
             None,
             self._client.get_render_progress,
             render_id,
@@ -106,6 +106,6 @@ class AsyncRemotionClient:
 
     async def cancel_render_on_lambda(self, render_id: str, bucket_name: str) -> None:
         """Cancel a render started with enable_cancellation=True."""
-        await asyncio.get_event_loop().run_in_executor(
+        await asyncio.get_running_loop().run_in_executor(
             None, self._client.cancel_render_on_lambda, render_id, bucket_name
         )
