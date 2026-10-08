@@ -12,7 +12,8 @@ import {createLayer, type HtmlInCanvasLayerOutcome} from '../take-screenshot';
 import {backgroundColor} from './fixtures/background-color';
 import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
 import {
-	htmlInCanvasFrames,
+	htmlInCanvasBackends,
+	htmlInCanvasFrameMatrix,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
 
@@ -99,85 +100,74 @@ for (const allowHtmlInCanvas of [false, true]) {
 		},
 	);
 
-	for (const backend of [
-		'2d',
-		'init-only',
-		'incremental',
-		'webgl',
-		'webgl2',
-		'webgpu',
-	] as const) {
-		for (const preserveDrawingBuffer of backend === 'webgl' ||
-		backend === 'webgl2'
-			? [false, true]
-			: [false]) {
-			for (const mountAt of [0, 50]) {
-				test(
-					`captures current custom ${backend} pixels at mount ${mountAt}, preserve=${preserveDrawingBuffer}, native=${allowHtmlInCanvas} (#12074)`,
-					{timeout: 60_000},
-					async (t) => {
-						if (!supportsNativeHtmlInCanvas()) {
-							t.skip();
-							return;
+	for (const mountAt of [0, 50]) {
+		test(
+			`captures all custom backends at mount ${mountAt}, native=${allowHtmlInCanvas} (#12074)`,
+			{timeout: 60_000},
+			async (t) => {
+				if (!supportsNativeHtmlInCanvas()) {
+					t.skip();
+					return;
+				}
+
+				const start = Math.max(0, mountAt - 2);
+				const {width, height} = htmlInCanvasFrameMatrix;
+				let captured = start;
+				await renderMediaOnWeb({
+					composition: htmlInCanvasFrameMatrix,
+					inputProps: {mountAt, pixelDensity: 2},
+					allowHtmlInCanvas,
+					licenseKey: 'free-license',
+					logLevel: 'error',
+					frameRange: [start, mountAt + 5],
+					container: 'webm',
+					videoCodec: 'vp9',
+					hardwareAcceleration: 'prefer-software',
+					muted: true,
+					onFrame: (frame) => {
+						const pixels = readPixels(frame, width, height);
+						const color =
+							captured < mountAt
+								? [255, 255, 255, 255]
+								: [(captured * 37 + 17) % 255, 0, 0, 255];
+						for (const [
+							column,
+							{backend, preserveDrawingBuffer},
+						] of htmlInCanvasBackends.entries()) {
+							const label = `${backend}, preserve=${preserveDrawingBuffer}, frame ${captured}`;
+							const left = column * 100;
+							const index = (10 * width + left + 10) * 4;
+							expect(Array.from(pixels.slice(index, index + 4)), label).toEqual(
+								color,
+							);
+							if (backend === 'incremental' && captured >= mountAt) {
+								const retained = (10 * width + left + 50) * 4;
+								expect(
+									Array.from(pixels.slice(retained, retained + 4)),
+									`retained pixels: ${label}`,
+								).toEqual([0, 0, 255, 255]);
+							}
+
+							const right = (10 * width + left + 70) * 4;
+							expect(
+								Array.from(pixels.slice(right, right + 4)),
+								`resized frame: ${label}`,
+							).toEqual(
+								captured >= mountAt && (captured === 1 || captured === 51)
+									? backend === 'incremental'
+										? [0, 0, 255, 255]
+										: color
+									: [255, 255, 255, 255],
+							);
 						}
 
-						const start = Math.max(0, mountAt - 2);
-						let captured = start;
-						await renderMediaOnWeb({
-							composition: htmlInCanvasFrames,
-							inputProps: {
-								backend,
-								preserveDrawingBuffer,
-								mountAt,
-								pixelDensity: 2,
-							},
-							allowHtmlInCanvas,
-							licenseKey: 'free-license',
-							logLevel: 'error',
-							frameRange: [start, mountAt + 5],
-							container: 'webm',
-							videoCodec: 'vp9',
-							hardwareAcceleration: 'prefer-software',
-							muted: true,
-							onFrame: (frame) => {
-								const pixels = readPixels(frame, 100, 100);
-								const color =
-									captured < mountAt
-										? [255, 255, 255, 255]
-										: [(captured * 37 + 17) % 255, 0, 0, 255];
-								const index = (10 * 100 + 10) * 4;
-								expect(
-									Array.from(pixels.slice(index, index + 4)),
-									`frame ${captured}`,
-								).toEqual(color);
-								if (backend === 'incremental' && captured >= mountAt) {
-									const retained = (10 * 100 + 50) * 4;
-									expect(
-										Array.from(pixels.slice(retained, retained + 4)),
-										`retained pixels ${captured}`,
-									).toEqual([0, 0, 255, 255]);
-								}
-
-								const right = (10 * 100 + 70) * 4;
-								expect(
-									Array.from(pixels.slice(right, right + 4)),
-									`resized frame ${captured}`,
-								).toEqual(
-									captured >= mountAt && (captured === 1 || captured === 51)
-										? backend === 'incremental'
-											? [0, 0, 255, 255]
-											: color
-										: [255, 255, 255, 255],
-								);
-								captured++;
-								return frame;
-							},
-						});
-						expect(captured).toBe(mountAt + 6);
+						captured++;
+						return frame;
 					},
-				);
-			}
-		}
+				});
+				expect(captured).toBe(mountAt + 6);
+			},
+		);
 	}
 
 	for (const offset of [false, true]) {

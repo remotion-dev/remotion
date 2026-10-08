@@ -33,6 +33,7 @@ import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
 import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
 import {
+	htmlInCanvasFrameMatrix,
 	htmlInCanvasFrames,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
@@ -144,6 +145,7 @@ export const Root: React.FC = () => {
 			<Composition {...hugeImageTransform} />
 			<Composition {...htmlInCanvasBlur} />
 			<Composition {...htmlInCanvasFrames} />
+			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />

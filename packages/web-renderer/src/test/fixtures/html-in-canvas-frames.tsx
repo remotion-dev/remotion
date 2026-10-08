@@ -181,6 +181,48 @@ export const htmlInCanvasFrames = {
 	},
 } as const;
 
+export const htmlInCanvasBackends = [
+	{backend: '2d', preserveDrawingBuffer: false},
+	{backend: 'init-only', preserveDrawingBuffer: false},
+	{backend: 'incremental', preserveDrawingBuffer: false},
+	{backend: 'webgl', preserveDrawingBuffer: false},
+	{backend: 'webgl', preserveDrawingBuffer: true},
+	{backend: 'webgl2', preserveDrawingBuffer: false},
+	{backend: 'webgl2', preserveDrawingBuffer: true},
+	{backend: 'webgpu', preserveDrawingBuffer: false},
+] as const;
+
+const FrameMatrix: React.FC<
+	Pick<HtmlInCanvasFramesProps, 'mountAt' | 'pixelDensity'>
+> = (props) => {
+	return (
+		<AbsoluteFill>
+			{htmlInCanvasBackends.map((backend, index) => (
+				<div
+					key={`${backend.backend}-${backend.preserveDrawingBuffer}`}
+					style={{
+						position: 'absolute',
+						// Native nested capture drops pixels with nonzero layout offsets.
+						transform: `translateX(${index * 100}px)`,
+						width: 100,
+						height: 100,
+					}}
+				>
+					<Component {...props} {...backend} />
+				</div>
+			))}
+		</AbsoluteFill>
+	);
+};
+
+export const htmlInCanvasFrameMatrix = {
+	...htmlInCanvasFrames,
+	id: 'html-in-canvas-frame-matrix',
+	component: FrameMatrix,
+	width: htmlInCanvasBackends.length * 100,
+	defaultProps: {mountAt: 0, pixelDensity: 2},
+} as const;
+
 const paint: HtmlInCanvasOnPaint = ({canvas, elementImage}) => {
 	const ctx = canvas.getContext('2d')!;
 	ctx.reset();
