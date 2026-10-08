@@ -129,6 +129,8 @@ export type TSequence = {
 	from: number;
 	trimBefore: number | null;
 	duration: number;
+	/** Full duration in the parent clock, before ancestor clipping. */
+	readonly intrinsicDuration?: number | null;
 	/** Infer the timeline display duration from children without changing playback. */
 	readonly autoDuration?: boolean | null;
 	/** Whether the wrapper can restore its duration from its scenes. */

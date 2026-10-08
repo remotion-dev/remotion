@@ -61,6 +61,7 @@ import {
 import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
+import {TimelineRipplePreviewProvider} from './TimelineRipplePreview';
 import {TimelineScrollable} from './TimelineScrollable';
 import {
 	TimelineSelectableItemsProvider,
@@ -660,7 +661,9 @@ export const Timeline: React.FC = () => {
 		<TimelineEdgeHighlightProvider>
 			<TimelineSequenceMediaDurationDragLimitsProvider>
 				<TimelineSnapIndicatorProvider>
-					<MemoizedTimelineInner />
+					<TimelineRipplePreviewProvider>
+						<MemoizedTimelineInner />
+					</TimelineRipplePreviewProvider>
 				</TimelineSnapIndicatorProvider>
 			</TimelineSequenceMediaDurationDragLimitsProvider>
 		</TimelineEdgeHighlightProvider>

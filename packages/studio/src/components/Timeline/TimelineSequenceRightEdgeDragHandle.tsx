@@ -51,6 +51,7 @@ import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
 } from './save-sequence-prop';
+import {TimelineRipplePreviewContext} from './TimelineRipplePreview';
 import {
 	getTimelineSequenceSelectionKey,
 	shouldSelectTimelineRowOnPointerDown,
@@ -1599,6 +1600,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	onSelect,
 	selected,
 }) => {
+	const beginRipplePreview = useContext(TimelineRipplePreviewContext);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -1628,6 +1630,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		selectionInteraction: TimelineSelectionInteraction | null;
 		targets: readonly TimelineSequenceLeftEdgeDragTarget[];
 		mode: 'ripple' | 'source-only' | 'self-trim';
+		ripplePreview: ReturnType<typeof beginRipplePreview>;
 	} | null>(null);
 
 	const latestRef = useRef({
@@ -1692,13 +1695,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			latestServerState.type !== 'connected' ||
 			changes.length === 0
 		) {
-			clearLeftEdgeDragOverrides({
-				clearDragOverrides: latestClear,
-				targets: dragState.targets,
-			});
+			dragState.ripplePreview?.cancel();
+			if (dragState.previousPreviewValues.size > 0) {
+				clearLeftEdgeDragOverrides({
+					clearDragOverrides: latestClear,
+					targets: dragState.targets,
+				});
+			}
+
 			return;
 		}
 
+		dragState.ripplePreview?.finish();
 		const savePromise = saveSequenceProps({
 			addedKeyframes: null,
 			movedKeyframes: null,
@@ -1732,10 +1740,13 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				);
 			})
 			.finally(() => {
-				clearLeftEdgeDragOverrides({
-					clearDragOverrides: latestClear,
-					targets: dragState.targets,
-				});
+				dragState.ripplePreview?.saved();
+				if (dragState.previousPreviewValues.size > 0) {
+					clearLeftEdgeDragOverrides({
+						clearDragOverrides: latestClear,
+						targets: dragState.targets,
+					});
+				}
 			});
 	}, []);
 
@@ -1804,7 +1815,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				mode,
 				targets.map((target) => target.nodePath),
 			);
-			dragStateRef.current = {
+			const initialRipplePrevious =
+				targets.length === 1 && mode === 'ripple'
+					? targets[0].ripplePrevious
+					: null;
+			const startedDrag: NonNullable<typeof dragStateRef.current> = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
 				lastPreviewDeltaFrames: 0,
@@ -1816,7 +1831,51 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				selectionInteraction,
 				targets,
 				mode,
+				ripplePreview: null,
 			};
+			dragStateRef.current = startedDrag;
+			if (initialRipplePrevious !== null) {
+				startedDrag.ripplePreview = beginRipplePreview({
+					nodePath: initialRipplePrevious.nodePath,
+					initialDuration: initialRipplePrevious.initialDuration,
+					timelineDurationInFrames,
+					overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+					onInvalidated: (duration) => {
+						if (dragStateRef.current !== startedDrag) {
+							return;
+						}
+
+						startedDrag.ripplePreview = null;
+						const updates: DragOverrideUpdate[] = [];
+						queueStaticDragOverrideIfChanged({
+							updates,
+							previousValues: startedDrag.previousPreviewValues,
+							nodePath: initialRipplePrevious.nodePath,
+							key: initialRipplePrevious.endField.fieldKey,
+							value: getTimelineSequenceEndFieldValue({
+								endField: initialRipplePrevious.endField,
+								durationInFrames: duration,
+							}),
+							initialValue: getTimelineSequenceEndFieldValue({
+								endField: initialRipplePrevious.endField,
+								durationInFrames: initialRipplePrevious.initialDuration,
+							}),
+						});
+						if (latestRef.current.batchSetters) {
+							latestRef.current.batchSetters.setDragOverridesBatch(updates);
+						} else {
+							for (const update of updates) {
+								latestRef.current.setDragOverrides(
+									update.nodePath,
+									update.key,
+									update.value,
+								);
+							}
+						}
+					},
+				});
+			}
+
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 			forceSpecificCursor(activeCursor);
@@ -1866,6 +1925,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 							maximumDuration: previous.maximumDuration,
 							minimumDuration: previous.minimumDuration,
 						});
+						if (dragState.ripplePreview?.update(nextDuration)) {
+							continue;
+						}
+
 						queueStaticDragOverrideIfChanged({
 							updates,
 							previousValues: dragState.previousPreviewValues,
@@ -2021,6 +2084,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			});
 		},
 		[
+			beginRipplePreview,
 			currentSelection,
 			cursor,
 			finishDrag,
@@ -2468,6 +2532,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	onSelect,
 	selected,
 }) => {
+	const beginRipplePreview = useContext(TimelineRipplePreviewContext);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -2500,6 +2565,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		pointerId: number;
 		selectionInteraction: TimelineSelectionInteraction | null;
 		targets: readonly TimelineSequenceDurationDragTarget[];
+		ripplePreview: ReturnType<typeof beginRipplePreview>;
 	} | null>(null);
 
 	// Keep latest props/setters available to window listeners installed once at pointerdown.
@@ -2569,13 +2635,18 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			latestServerState.type !== 'connected' ||
 			changes.length === 0
 		) {
-			clearDurationDragOverrides({
-				clearDragOverrides: latestClear,
-				targets: dragState.targets,
-			});
+			dragState.ripplePreview?.cancel();
+			if (dragState.previousPreviewValues.size > 0) {
+				clearDurationDragOverrides({
+					clearDragOverrides: latestClear,
+					targets: dragState.targets,
+				});
+			}
+
 			return;
 		}
 
+		dragState.ripplePreview?.finish();
 		const savePromise = saveSequenceProps({
 			addedKeyframes: null,
 			movedKeyframes: null,
@@ -2599,10 +2670,13 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				);
 			})
 			.finally(() => {
-				clearDurationDragOverrides({
-					clearDragOverrides: latestClear,
-					targets: dragState.targets,
-				});
+				dragState.ripplePreview?.saved();
+				if (dragState.previousPreviewValues.size > 0) {
+					clearDurationDragOverrides({
+						clearDragOverrides: latestClear,
+						targets: dragState.targets,
+					});
+				}
 			});
 	}, []);
 
@@ -2662,7 +2736,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 			stopPointerSessionRef.current?.();
 			onDragStart(targets.map((target) => target.nodePath));
-			dragStateRef.current = {
+			const startedDrag: NonNullable<typeof dragStateRef.current> = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
 				lastPreviewDeltaFrames: 0,
@@ -2673,7 +2747,52 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				pointerId: e.pointerId,
 				selectionInteraction,
 				targets,
+				ripplePreview: null,
 			};
+			dragStateRef.current = startedDrag;
+			if (targets.length === 1) {
+				const previewTarget = targets[0];
+				startedDrag.ripplePreview = beginRipplePreview({
+					nodePath: previewTarget.nodePath,
+					initialDuration: previewTarget.initialDuration,
+					timelineDurationInFrames,
+					overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+					onInvalidated: (duration) => {
+						if (dragStateRef.current !== startedDrag) {
+							return;
+						}
+
+						startedDrag.ripplePreview = null;
+						const updates: DragOverrideUpdate[] = [];
+						queueStaticDragOverrideIfChanged({
+							updates,
+							previousValues: startedDrag.previousPreviewValues,
+							nodePath: previewTarget.nodePath,
+							key: previewTarget.endField.fieldKey,
+							value: getTimelineSequenceEndFieldValue({
+								endField: previewTarget.endField,
+								durationInFrames: duration,
+							}),
+							initialValue: getTimelineSequenceEndFieldValue({
+								endField: previewTarget.endField,
+								durationInFrames: previewTarget.initialDuration,
+							}),
+						});
+						if (latestRef.current.batchSetters) {
+							latestRef.current.batchSetters.setDragOverridesBatch(updates);
+						} else {
+							for (const update of updates) {
+								latestRef.current.setDragOverrides(
+									update.nodePath,
+									update.key,
+									update.value,
+								);
+							}
+						}
+					},
+				});
+			}
+
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 			forceSpecificCursor(cursor);
@@ -2716,6 +2835,10 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						maximumDuration: target.maximumDuration,
 						minimumDuration: target.minimumDuration,
 					});
+
+					if (dragState.ripplePreview?.update(previewValue)) {
+						continue;
+					}
 
 					queueStaticDragOverrideIfChanged({
 						updates,
@@ -2815,6 +2938,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			});
 		},
 		[
+			beginRipplePreview,
 			currentSelection,
 			cursor,
 			finishDrag,
