@@ -48,6 +48,7 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<{
 	outputFile: string;
+	separateAudioFile: string | null;
 	cleanup: () => Promise<void>;
 }> => {
 	if (params.type !== ServerlessRoutines.launch || params.codec === null) {
@@ -55,11 +56,22 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 	}
 
 	const outputDirectory = RenderInternals.tmpDir('remotion-direct-render-');
+	const separateAudioFilename =
+		typeof params.separateAudioTo === 'string'
+			? params.separateAudioTo
+			: (params.separateAudioTo?.key ?? null);
+	const separateAudioFile =
+		separateAudioFilename === null
+			? null
+			: join(
+					outputDirectory,
+					`audio.${RenderInternals.getExtensionOfFilename(separateAudioFilename)?.toLowerCase()}`,
+				);
 	const outputFile = join(
 		outputDirectory,
 		`output.${RenderInternals.getFileExtensionFromCodec(
 			params.codec,
-			params.audioCodec,
+			separateAudioFile === null ? params.audioCodec : null,
 		)}`,
 	);
 	const cleanup = () =>
@@ -89,6 +101,7 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 			serveUrl: params.serveUrl,
 			codec: params.codec,
 			outputLocation: outputFile,
+			separateAudioTo: separateAudioFile,
 			inputProps: JSON.parse(serializedInputPropsWithCustomSchema) as Record<
 				string,
 				unknown
@@ -168,7 +181,7 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 		overallProgress.addChunkCompleted(0, startedAt, Date.now());
 		overallProgress.setCombinedFrames(frameCount);
 
-		return {outputFile, cleanup};
+		return {outputFile, separateAudioFile, cleanup};
 	} catch (err) {
 		await cleanup();
 		throw err;

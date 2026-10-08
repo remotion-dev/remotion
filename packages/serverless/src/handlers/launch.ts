@@ -4,6 +4,7 @@ import {join} from 'path';
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {validateCodec, VERSION} from '@remotion/serverless-client';
 import type {
 	CloudProvider,
@@ -83,6 +84,69 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
+	}
+
+	if (params.codec !== null) {
+		validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
+	}
+
+	const separateAudioTo = params.separateAudioTo ?? null;
+
+	if (separateAudioTo !== null && params.codec === null) {
+		throw new Error(
+			'`separateAudioTo` cannot be used with image sequence renders.',
+		);
+	}
+
+	const separateAudioFilename =
+		typeof separateAudioTo === 'string'
+			? separateAudioTo
+			: (separateAudioTo?.key ?? null);
+	const audioCodec =
+		separateAudioFilename === null || params.codec === null
+			? params.audioCodec
+			: RenderInternals.resolveAudioCodec({
+					codec: params.codec,
+					setting: params.audioCodec,
+					preferLossless: params.preferLossless,
+					separateAudioTo: separateAudioFilename.toLowerCase(),
+				});
+	if (separateAudioTo !== null) {
+		if (NoReactAPIs.isAudioCodec(params.codec)) {
+			throw new Error(
+				'`separateAudioTo` was set, but this render was audio-only. This option is meant to be used for video renders.',
+			);
+		}
+
+		if (params.muted || audioCodec === null) {
+			throw new Error(
+				'`separateAudioTo` requires audio output. Audio output is disabled by the muted option or selected codec.',
+			);
+		}
+
+		const extension =
+			RenderInternals.getExtensionOfFilename(
+				separateAudioFilename,
+			)?.toLowerCase() ?? null;
+		if (
+			extension !== RenderInternals.getExtensionFromAudioCodec(audioCodec) &&
+			!(
+				audioCodec === 'aac' &&
+				RenderInternals.getMp4BrandForExtension(extension)
+			)
+		) {
+			throw new Error(
+				'`separateAudioTo` must use a supported audio extension: .wav, .aac, .mp3, .opus, .m4a, .m4b or .3gp.',
+			);
+		}
+
+		validateOutname({
+			outName: separateAudioTo,
+			codec: null,
+			audioCodecSetting: audioCodec,
+			separateAudioTo: null,
+			bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		});
 	}
 
 	const startedDate = Date.now();
@@ -303,14 +367,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	validateOutname({
 		outName,
 		codec: params.codec,
-		audioCodecSetting: params.audioCodec,
-		separateAudioTo: null,
+		audioCodecSetting: audioCodec,
+		separateAudioTo: separateAudioFilename?.toLowerCase() ?? null,
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
-	if (params.codec !== null) {
-		validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
-	}
-
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
@@ -409,6 +469,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			everyNthFrame: params.everyNthFrame,
 			concurrencyPerLambda: params.concurrencyPerFunction,
 			muted: params.muted,
+			audioCodec,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
 			encodingMaxRate: params.encodingMaxRate,
@@ -449,6 +510,16 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		options.requestContext !== null;
 
 	const renderMetadata: RenderMetadata<Provider> = {
+		separateAudioTo:
+			removeOutnameCredentials(separateAudioTo ?? undefined) ?? null,
+		separateAudioOutputFileIsConditional:
+			separateAudioTo === null
+				? null
+				: !params.overwrite &&
+					providerSpecifics.supportsConditionalOutput({
+						customCredentials: getCredentialsFromOutName(separateAudioTo),
+					}) &&
+					providerSpecifics.writeFileIfNotExists !== null,
 		outputFileIsConditional:
 			!params.overwrite &&
 			providerSpecifics.supportsConditionalOutput({
@@ -491,7 +562,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		privacy: params.privacy,
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,
-		audioCodec: params.audioCodec,
+		audioCodec,
 		deleteAfter: params.deleteAfter,
 		numberOfGifLoops: params.numberOfGifLoops,
 		downloadBehavior: params.downloadBehavior,
@@ -509,14 +580,37 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+		output: 'main',
 		renderMetadata,
 		bucketName: params.bucketName,
 		customCredentials: getCredentialsFromOutName(outName),
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
+	const separateAudioDestination =
+		separateAudioTo === null
+			? null
+			: getExpectedOutName({
+					output: 'separate-audio',
+					renderMetadata,
+					bucketName: params.bucketName,
+					customCredentials: getCredentialsFromOutName(separateAudioTo),
+					bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+				});
+	if (
+		separateAudioDestination !== null &&
+		separateAudioDestination.key === key &&
+		separateAudioDestination.renderBucketName === renderBucketName &&
+		(separateAudioDestination.customCredentials?.endpoint ?? null) ===
+			(customCredentials?.endpoint ?? null)
+	) {
+		throw new Error(
+			'`outName` and `separateAudioTo` must point to different output files.',
+		);
+	}
 
 	if (outputSequence !== null) {
 		outputSequence.manifestUrl = providerSpecifics.getOutputUrl({
+			output: 'main',
 			bucketName: params.bucketName,
 			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			customCredentials,
@@ -529,30 +623,50 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			'Checking if output file already exists',
 			params.logLevel,
 		);
-		const output = await findOutputFileInBucket({
-			bucketName: params.bucketName,
-			customCredentials,
-			renderMetadata,
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
-			providerSpecifics,
-			forcePathStyle: params.forcePathStyle,
-			requestHandler: null,
-		}).catch((err) => {
-			if (
-				err instanceof OutputFileAccessDeniedError &&
-				renderMetadata.outputFileIsConditional
-			) {
-				// The final conditional upload still enforces overwrite: false.
-				return null;
-			}
+		for (const destination of [
+			{
+				output: 'main' as const,
+				key,
+				renderBucketName,
+				customCredentials,
+				conditional: renderMetadata.outputFileIsConditional,
+			},
+			...(separateAudioDestination === null
+				? []
+				: [
+						{
+							output: 'separate-audio' as const,
+							...separateAudioDestination,
+							conditional: renderMetadata.separateAudioOutputFileIsConditional,
+						},
+					]),
+		]) {
+			const output = await findOutputFileInBucket({
+				output: destination.output,
+				bucketName: params.bucketName,
+				customCredentials: destination.customCredentials,
+				renderMetadata,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				requestHandler: null,
+			}).catch((err) => {
+				if (
+					err instanceof OutputFileAccessDeniedError &&
+					destination.conditional
+				) {
+					// The final conditional upload still enforces overwrite: false.
+					return null;
+				}
 
-			throw err;
-		});
-		if (output) {
-			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in ${params.output.type === 'sequence' ? 'renderFramesOnLambda()' : 'renderMediaOnLambda()'} to overwrite it.`,
-			);
+				throw err;
+			});
+			if (output) {
+				throw new TypeError(
+					`Output file "${destination.key}" in bucket "${destination.renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in ${params.output.type === 'sequence' ? 'renderFramesOnLambda()' : 'renderMediaOnLambda()'} to overwrite it.`,
+				);
+			}
 		}
 
 		findOutputFile.end();
@@ -811,7 +925,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			.catch(() => undefined);
 	} else if (shouldRenderDirectly) {
 		const directRender = await renderWithSingleFunction({
-			params,
+			params: {...params, audioCodec},
 			composition: comp,
 			serializedInputPropsWithCustomSchema,
 			frameRange: realFrameRange,
@@ -824,6 +938,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		});
 		try {
 			postRenderData = await finishRender({
+				bucketName: params.bucketName,
+				separateAudioFile: directRender.separateAudioFile,
+				separateAudioCredentials:
+					separateAudioDestination?.customCredentials ?? null,
 				expectedBucketOwner: options.expectedBucketOwner,
 				renderBucketName,
 				customCredentials,
@@ -885,7 +1003,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 			numberOfFrames: comp.durationInFrames,
-			audioCodec: params.audioCodec,
+			audioCodec,
+			separateAudioFilename,
+			separateAudioCredentials:
+				separateAudioDestination?.customCredentials ?? null,
 			chunkCount: chunks.length,
 			codec: params.codec,
 			customCredentials,
@@ -1191,6 +1312,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 						outputUrl: postRenderData.outputFile ?? undefined,
 						lambdaErrors: postRenderData.errors,
 						outputFile: postRenderData.outputFile ?? undefined,
+						separateAudio: postRenderData.separateAudio,
 						outputSequence: postRenderData.outputSequence,
 						timeToFinish: postRenderData.timeToFinish,
 						costs: postRenderData.cost,

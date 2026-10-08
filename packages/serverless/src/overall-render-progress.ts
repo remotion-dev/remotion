@@ -8,6 +8,7 @@ import type {
 	ProviderSpecifics,
 	ReceivedArtifact,
 	RenderMetadata,
+	SeparateAudioOutput,
 } from '@remotion/serverless-client';
 import {overallProgressKey} from '@remotion/serverless-client';
 
@@ -48,6 +49,7 @@ export type OverallProgressHelper<Provider extends CloudProvider> = {
 		postRenderData: PostRenderData<Provider>,
 	) => Promise<void>;
 	setRenderMetadata: (renderMetadata: RenderMetadata<Provider>) => void;
+	setSeparateAudio: (separateAudio: SeparateAudioOutput) => Promise<void>;
 	addErrorWithoutUpload: (errorInfo: FunctionErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
 	get: () => OverallRenderProgress<Provider>;
@@ -76,6 +78,7 @@ export const makeInitialOverallRenderProgress = <
 		lambdasInvoked: 0,
 		retries: [],
 		postRenderData: null,
+		separateAudio: null,
 		timings: [],
 		renderMetadata: null,
 		errors: [],
@@ -318,6 +321,10 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 		async setPostRenderData(postRenderData) {
 			renderProgress.postRenderData = postRenderData;
 			await upload('setPostRenderData');
+		},
+		async setSeparateAudio(separateAudio) {
+			renderProgress.separateAudio = separateAudio;
+			await upload('setSeparateAudio');
 		},
 		setRenderMetadata: (renderMetadata) => {
 			renderProgress.renderMetadata = renderMetadata;

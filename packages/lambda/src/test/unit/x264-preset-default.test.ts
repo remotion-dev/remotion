@@ -40,6 +40,7 @@ const makeStartPayload = ({
 		logLevel: 'error',
 		frameRange: null,
 		outName: null,
+		separateAudioTo: null,
 		timeoutInMilliseconds: 30_000,
 		chromiumOptions: {},
 		scale: 1,

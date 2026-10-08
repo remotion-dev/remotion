@@ -9,6 +9,7 @@ class GetRenderProgressResponse
     public float $overallProgress;
     public string $type;
     public ?string $outputFile;
+    public ?array $separateAudio = null;
     public ?array $outputSequence = null;
     public ?int $framesUploaded = null;
     public ?int $framesRendered = null;

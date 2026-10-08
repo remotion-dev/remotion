@@ -57,6 +57,7 @@ test(
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: 'out.mp4',
+				separateAudioTo: null,
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
@@ -139,6 +140,7 @@ test(
 			outputUrl: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
 			lambdaErrors: [],
 			outputFile: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
+			separateAudio: null,
 			outputSequence: null,
 		});
 		await close();
@@ -192,6 +194,7 @@ test(
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: 'out.mp4',
+				separateAudioTo: null,
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: null,

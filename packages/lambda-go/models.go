@@ -20,6 +20,7 @@ type RemotionOptions struct {
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
+	SeparateAudioTo                interface{}            `json:"separateAudioTo"`
 	TimeoutInMilliseconds          int                    `json:"timeoutInMilliseconds"`
 	ChromiumOptions                interface{}            `json:"chromiumOptions"`
 	Scale                          int                    `json:"scale"`
@@ -132,6 +133,7 @@ type renderInternalOptions struct {
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
+	SeparateAudioTo                interface{}            `json:"separateAudioTo"`
 	TimeoutInMilliseconds          int                    `json:"timeoutInMilliseconds"`
 	ChromiumOptions                interface{}            `json:"chromiumOptions"`
 	Scale                          float64                `json:"scale"`
@@ -241,6 +243,7 @@ type RenderProgress struct {
 	RenderId                 string               `json:"renderId"`
 	RenderMetadata           *RenderMetadata      `json:"renderMetadata,omitempty"`
 	OutputFile               *string              `json:"outputFile,omitempty"`
+	SeparateAudio            *SeparateAudioOutput `json:"separateAudio"`
 	OutputSequence           *ImageSequenceOutput `json:"outputSequence"`
 	FramesUploaded           *int                 `json:"framesUploaded"`
 	OutKey                   *string              `json:"outKey,omitempty"`
@@ -253,6 +256,13 @@ type RenderProgress struct {
 	LambdasInvoked           int                  `json:"lambdasInvoked"`
 	FramesRendered           *int                 `json:"framesRendered,omitempty"`
 	MostExpensiveFrameRanges []FrameRange         `json:"mostExpensiveFrameRanges,omitempty"`
+}
+
+type SeparateAudioOutput struct {
+	Url         string `json:"url"`
+	BucketName  string `json:"bucketName"`
+	Key         string `json:"key"`
+	SizeInBytes int64  `json:"sizeInBytes"`
 }
 
 type ImageSequenceOutput struct {

@@ -18,6 +18,7 @@ export type DeleteRenderInput = {
 	bucketName: string;
 	renderId: string;
 	customCredentials?: CustomCredentials<AwsProvider>;
+	separateAudioCredentials?: CustomCredentials<AwsProvider>;
 	forcePathStyle?: boolean;
 	requestHandler?: RequestHandler;
 };
@@ -46,14 +47,27 @@ export const internalDeleteRender = async (
 		return {freedBytes: 0};
 	}
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+	const mainOutput = getExpectedOutName({
+		output: 'main',
 		renderMetadata: progress.renderMetadata,
 		bucketName: input.bucketName,
 		customCredentials: input.customCredentials ?? null,
 		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
 	});
+	const separateAudioOutput =
+		(progress.renderMetadata.separateAudioTo ?? null) === null
+			? null
+			: getExpectedOutName({
+					output: 'separate-audio',
+					renderMetadata: progress.renderMetadata,
+					bucketName: input.bucketName,
+					customCredentials:
+						input.separateAudioCredentials ?? input.customCredentials ?? null,
+					bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+				});
 
 	if (progress.renderMetadata.type === 'sequence') {
+		const {renderBucketName, customCredentials} = mainOutput;
 		const metadata = progress.renderMetadata;
 		const sequence = metadata.outputSequence;
 		const frames = Array.from(
@@ -94,14 +108,19 @@ export const internalDeleteRender = async (
 		}
 	}
 
-	await input.providerSpecifics.deleteFile({
-		bucketName: renderBucketName,
-		customCredentials,
-		key,
-		region: input.region,
-		forcePathStyle: input.forcePathStyle,
-		requestHandler: input.requestHandler,
-	});
+	for (const {key, renderBucketName, customCredentials} of [
+		mainOutput,
+		...(separateAudioOutput === null ? [] : [separateAudioOutput]),
+	]) {
+		await input.providerSpecifics.deleteFile({
+			bucketName: renderBucketName,
+			customCredentials,
+			key,
+			region: input.region,
+			forcePathStyle: input.forcePathStyle,
+			requestHandler: input.requestHandler,
+		});
+	}
 
 	let files = await input.providerSpecifics.listObjects({
 		bucketName: input.bucketName,

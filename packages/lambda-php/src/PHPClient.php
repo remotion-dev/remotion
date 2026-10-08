@@ -408,6 +408,7 @@ class PHPClient
         $classResponse->outBucket = $response['outBucket'];
         $classResponse->outKey = $response['outKey'];
         $classResponse->outputFile = $response['outputFile'];
+        $classResponse->separateAudio = $response['separateAudio'] ?? null;
         $classResponse->outputSequence = $response['outputSequence'] ?? null;
         $classResponse->framesUploaded = $response['framesUploaded'] ?? null;
         $classResponse->framesRendered = $response['framesRendered'] ?? null;

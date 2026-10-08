@@ -65,6 +65,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
+	separateAudioTo: OutNameInput<AwsProvider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -123,6 +124,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	privacy,
 	logLevel,
 	outName,
+	separateAudioTo,
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
@@ -219,6 +221,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		logLevel,
 		frameRange,
 		outName,
+		separateAudioTo,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		scale,

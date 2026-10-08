@@ -62,5 +62,5 @@ export const getRenderProgress = async (
 			timeoutInTest: 120000,
 			requestHandler: input.requestHandler,
 		});
-	return result;
+	return {...result, separateAudio: result.separateAudio ?? null};
 };

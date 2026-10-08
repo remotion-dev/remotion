@@ -66,6 +66,7 @@ test(
 				offthreadVideoCacheSizeInBytes: null,
 				offthreadVideoThreads: null,
 				outName: null,
+				separateAudioTo: null,
 				overwrite: false,
 				pixelFormat: undefined,
 				privacy: 'public',
