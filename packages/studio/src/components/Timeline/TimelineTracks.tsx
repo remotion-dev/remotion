@@ -5,6 +5,7 @@ import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
+import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
 import {TimelineTrack} from './TimelineTrack';
 import {TimelineViewportContext} from './TimelineViewport';
 import {useTimelineVirtualization} from './TimelineVirtualization';
@@ -28,7 +29,11 @@ const TimelineSceneTrackContent: React.FC<{
 }> = React.memo(({children, sceneRange}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const active = frame >= sceneRange.from && frame < sceneRange.end;
-	return <div style={{opacity: active ? 1 : 0.5}}>{children}</div>;
+	return (
+		<TimelineSceneRangeContext.Provider value={sceneRange}>
+			<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
+		</TimelineSceneRangeContext.Provider>
+	);
 });
 
 const TimelineTracksInner: React.FC<{

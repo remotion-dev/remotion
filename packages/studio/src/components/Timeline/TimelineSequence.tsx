@@ -87,6 +87,7 @@ import {
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
+import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
 import {
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
@@ -384,6 +385,9 @@ const TimelineSequenceBar: React.FC<{
 	onClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const sceneRange = useContext(TimelineSceneRangeContext);
+	const timelineWidth = useContext(TimelineWidthContext);
+	const video = Internals.useUnsafeVideoConfig();
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -421,11 +425,30 @@ const TimelineSequenceBar: React.FC<{
 		s.timelineTrack?.role === 'transition'
 			? (marqueeHorizontalBounds?.width ?? Number(style.width))
 			: null;
-	// Take the gap from the trailing painted edge, keeping the full frame-based
-	// layout and trim handles intact. Keep tiny clips visible when zoomed out.
+	const frameIncrement =
+		timelineWidth !== null && video !== null
+			? (timelineWidth - TIMELINE_PADDING * 2) / video.durationInFrames
+			: null;
+	const sceneLeft =
+		sceneRange !== null && frameIncrement !== null
+			? sceneRange.from * frameIncrement - Number(style.marginLeft)
+			: -Infinity;
+	const sceneRight =
+		sceneRange !== null && frameIncrement !== null
+			? sceneRange.end * frameIncrement - Number(style.marginLeft)
+			: Infinity;
+	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
+	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
+	// Shared child rows need the same gap as Track clips, including when the
+	// scene clips their trailing edge. Only inset the paint: timing, hit areas,
+	// and trim handles keep their full width. Preserve tiny clips when zoomed out.
 	const visualRightInset =
-		s.timelineTrack && transitionWidth === null && rightEdgeVisible
-			? Math.min(1, Math.max(0, Number(style.width) - negativeStartEnd - 1))
+		(s.timelineTrack || sceneRange !== null) &&
+		transitionWidth === null &&
+		(rightEdgeVisible || sceneRight <= Number(style.width))
+			? Number(style.width) -
+				paintedEnd +
+				Math.min(1, Math.max(0, paintedEnd - paintedStart - 1))
 			: 0;
 	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
 	const sequenceBackground =
