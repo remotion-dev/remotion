@@ -87,6 +87,7 @@ import {
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
+	getTimelineColor,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
@@ -506,11 +507,11 @@ const TimelineSequenceBar: React.FC<{
 						left:
 							5 +
 							Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0)),
-						right: 4,
+						right: 0,
 						bottom: PACKED_LABEL_BOTTOM,
 						display: 'flex',
-						alignItems: 'center',
-						gap: 4,
+						flexDirection: 'column',
+						alignItems: 'flex-start',
 						overflow: 'hidden',
 						pointerEvents: 'none',
 						userSelect: 'none',
@@ -520,19 +521,23 @@ const TimelineSequenceBar: React.FC<{
 					{connectedComposition ? (
 						<CompositionOrStillIcon
 							composition={connectedComposition}
-							color={WHITE}
+							color={getTimelineColor(false, false)}
 							style={{flexShrink: 0, height: 12, width: 12}}
 						/>
 					) : null}
 					<span
 						style={{
+							alignSelf: 'stretch',
 							fontSize: 11,
 							lineHeight: `${PACKED_LABEL_HEIGHT}px`,
-							color: WHITE,
+							color: getTimelineColor(false, false),
+							maskImage:
+								'linear-gradient(to right, black calc(100% - 5px), transparent)',
 							minWidth: 0,
 							whiteSpace: 'nowrap',
 							overflow: 'hidden',
-							textOverflow: 'ellipsis',
+							WebkitMaskImage:
+								'linear-gradient(to right, black calc(100% - 5px), transparent)',
 						}}
 					>
 						{s.timelineTrack.role === 'overlay' ? 'Overlay' : s.displayName}
