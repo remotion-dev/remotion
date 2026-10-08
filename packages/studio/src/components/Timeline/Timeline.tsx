@@ -78,6 +78,7 @@ import {
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineVirtualizationProvider} from './TimelineVirtualization';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
+import {useCompactSeries} from './use-compact-series';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
@@ -276,6 +277,7 @@ const TimelineContextMenuArea: React.FC<{
 
 const TimelineInner: React.FC = () => {
 	const sequences = Internals.useSequenceManagerSequences();
+	const compactSeries = useCompactSeries();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
@@ -308,6 +310,7 @@ const TimelineInner: React.FC = () => {
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
+				showConnectedCompositionChildren: compactSeries,
 			}),
 		);
 		const previous = previousTimelineRef.current;
@@ -377,6 +380,7 @@ const TimelineInner: React.FC = () => {
 		videoConfigIsNull,
 		overrideIdToNodePathMappings,
 		compositions,
+		compactSeries,
 	]);
 	useLayoutEffect(() => {
 		previousTimelineRef.current = {

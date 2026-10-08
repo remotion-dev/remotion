@@ -14,7 +14,6 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals} from 'remotion';
-import {getStudioShowPremounting} from '../../helpers/studio-runtime-config';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {timelineVerticalScroll} from './timeline-refs';
@@ -34,6 +33,7 @@ import {
 	useTimelineSelection,
 } from './TimelineSelection';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
+import {useCompactSeries} from './use-compact-series';
 import {useTimelineTrackHeights} from './use-timeline-height';
 
 export type TimelineVirtualRow = TimelineDisplayRow & {
@@ -71,16 +71,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 	readonly timeline: readonly TimelineDisplayRow[];
 }> = ({children, hasBeenCut, isStill, timeline}) => {
 	const sequences = Internals.useSequenceManagerSequences();
-	const experimentalTracks = useContext(
-		Internals.ExperimentalTracksEnabledContext,
-	);
-	const activitySettings = useContext(
-		Internals.SequenceActivitySettingsContext,
-	);
-	const compactSeries =
-		experimentalTracks &&
-		activitySettings?.enabled === true &&
-		!getStudioShowPremounting();
+	const compactSeries = useCompactSeries();
 	const representativeTracks = useMemo(
 		() => timeline.map((row) => row.track),
 		[timeline],
