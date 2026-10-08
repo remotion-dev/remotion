@@ -4,7 +4,14 @@ import type {
 	ConfigFileStudioSettings,
 	ConfigUpdate,
 } from '@remotion/studio-shared';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {UndoIcon} from '../icons/undo';
@@ -112,6 +119,9 @@ const ConfigNumber = ({
 
 export const StudioSettings: React.FC = () => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
+	const activitySettings = useContext(
+		Internals.SequenceActivitySettingsContext,
+	);
 	const [settings, setSettings] =
 		useState<ConfigFileStudioSettings>(initialSettings);
 	const [committedNumberSettings, setCommittedNumberSettings] = useState<{
@@ -417,6 +427,103 @@ export const StudioSettings: React.FC = () => {
 				}
 				value={settings.defaultPremountInSeconds}
 			/>
+			{activitySettings === null ? null : (
+				<>
+					<div style={optionRow}>
+						<div style={label}>
+							Sequence Activity (experimental)
+							<InfoBubble
+								aria-label="About experimental Sequence Activity"
+								horizontalAlignment="right"
+							>
+								<div
+									style={{
+										padding: 12,
+										maxWidth: 280,
+										fontSize: 14,
+										lineHeight: 1.5,
+									}}
+								>
+									Discovers layers in nearby scenes before they become visible.
+									This experimental feature may use more CPU. Changes apply
+									immediately and are saved in this browser.
+								</div>
+							</InfoBubble>
+						</div>
+						<label
+							style={rightRow}
+							aria-label="Sequence Activity (experimental)"
+						>
+							<Checkbox
+								checked={activitySettings.enabled}
+								name="Sequence Activity (experimental)"
+								onChange={(event) =>
+									activitySettings.setEnabled(event.target.checked)
+								}
+							/>
+						</label>
+					</div>
+					<div style={optionRow}>
+						<div style={label}>
+							Hidden activity limit (experimental)
+							<InfoBubble
+								aria-label="About the hidden activity limit"
+								horizontalAlignment="right"
+							>
+								<div
+									style={{
+										padding: 12,
+										maxWidth: 280,
+										fontSize: 14,
+										lineHeight: 1.5,
+									}}
+								>
+									Limits nearby hidden scenes, including nested sequences and
+									their ancestors. Visible, premounted, and postmounted scenes
+									always render. Set to 0 to disable hidden discovery. Default:{' '}
+									{Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
+								</div>
+							</InfoBubble>
+						</div>
+						<div style={{...rightRow, gap: 6}}>
+							<InputDragger
+								aria-label="Hidden activity limit (experimental)"
+								buttonStyle={{textAlign: 'right', width: 140}}
+								formatter={String}
+								integerOnly
+								min={0}
+								onTextChange={() => undefined}
+								onValueChange={activitySettings.setLimit}
+								rightAlign
+								status="ok"
+								step={1}
+								value={activitySettings.limit}
+							/>
+							<Button
+								disabled={
+									activitySettings.limit ===
+									Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT
+								}
+								onClick={() =>
+									activitySettings.setLimit(
+										Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+									)
+								}
+								size="compact"
+								style={{color: LIGHT_TEXT}}
+								aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
+							>
+								<UndoIcon style={resetIcon} />
+							</Button>
+						</div>
+					</div>
+					<div
+						style={{padding: '4px 16px 8px', color: LIGHT_TEXT, fontSize: 12}}
+					>
+						Activity settings save in this browser and apply immediately.
+					</div>
+				</>
+			)}
 
 			<p style={sectionTitle}>Audio</p>
 			<ConfigSelect

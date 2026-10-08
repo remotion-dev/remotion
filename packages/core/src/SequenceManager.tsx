@@ -15,7 +15,10 @@ import {
 	reconcileRegistryEntries,
 	type RegistryStore,
 } from './registry-store.js';
-import {SequenceActivityContext} from './sequence-activity-context.js';
+import {
+	SequenceActivityContext,
+	SequenceActivitySettingsContext,
+} from './sequence-activity-context.js';
 import {SequenceActivityBudgetProvider} from './SequenceActivityBudget.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
@@ -391,16 +394,7 @@ export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {isStudio} = useRemotionEnvironment();
-	const [activityRequested] = useState(
-		() =>
-			isStudio &&
-			typeof window !== 'undefined' &&
-			(new URLSearchParams(window.location.search).get(
-				'experimentalSequenceActivity',
-			) === 'true' ||
-				localStorage.getItem('remotion.experimentalSequenceActivity') ===
-					'true'),
-	);
+	const activitySettings = useContext(SequenceActivitySettingsContext);
 
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const shouldObserveCommits = isStudio || sequenceRegistrationEnabled;
@@ -1161,7 +1155,7 @@ export const SequenceManagerProvider: React.FC<{
 												>
 													<SequenceActivityContext.Provider
 														value={
-															activityRequested &&
+															activitySettings?.enabled === true &&
 															isStudio &&
 															commitRegistrationEnabled &&
 															typeof React.Activity !== 'undefined'

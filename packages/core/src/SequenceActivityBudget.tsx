@@ -1,12 +1,15 @@
 import React, {createContext, useContext, useMemo, useState} from 'react';
 import {createRegistryStore} from './registry-store.js';
-import {SequenceActivityContext} from './sequence-activity-context.js';
+import {
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	SequenceActivityContext,
+	SequenceActivitySettingsContext,
+} from './sequence-activity-context.js';
 import {TimelineContext, type TimelineContextValue} from './TimelineContext.js';
 import {useSyncExternalStore} from './use-sync-external-store.js';
 
 // Count nested dormant content too: one admitted scene must not be able to
 // recursively mount another thousand expensive scenes behind its Activity.
-const MAX_DORMANT_SEQUENCES = 20;
 const useCommitEffect = React.useInsertionEffect ?? React.useLayoutEffect;
 
 type ActivityCandidate = {
@@ -21,6 +24,7 @@ const createActivityBudget = () => {
 	const registry = createRegistryStore<ReadonlySet<string>>(new Set());
 	const candidates = new Map<string, ActivityCandidate>();
 	let frame: Record<string, number> = {};
+	let limit = DEFAULT_SEQUENCE_ACTIVITY_LIMIT;
 	let scheduled = false;
 	const schedule = () => {
 		if (scheduled) {
@@ -52,7 +56,7 @@ const createActivityBudget = () => {
 				let ancestor: ActivityCandidate | undefined = candidate;
 				while (ancestor && !selected.has(ancestor.id)) {
 					ancestors.push(ancestor.id);
-					if (selected.size + ancestors.length > MAX_DORMANT_SEQUENCES) {
+					if (selected.size + ancestors.length > limit) {
 						break;
 					}
 
@@ -62,7 +66,7 @@ const createActivityBudget = () => {
 							: candidates.get(ancestor.parent);
 				}
 
-				if (selected.size + ancestors.length > MAX_DORMANT_SEQUENCES) {
+				if (selected.size + ancestors.length > limit) {
 					continue;
 				}
 
@@ -70,14 +74,14 @@ const createActivityBudget = () => {
 					selected.add(id);
 				}
 
-				if (selected.size === MAX_DORMANT_SEQUENCES) {
+				if (selected.size === limit) {
 					break;
 				}
 			}
 
 			// Reserve nearby visible trees too, so becoming dormant retains their
-			// state immediately. All other visible trees bypass admission. At most
-			// 20 reserved IDs can become dormant, including during a large seek.
+			// state immediately. All other visible trees bypass admission. Reserved
+			// IDs bound dormant content, including during a large seek.
 			registry.setSnapshot((previous) =>
 				previous.size === selected.size &&
 				[...previous].every((id) => selected.has(id))
@@ -89,6 +93,12 @@ const createActivityBudget = () => {
 
 	return {
 		...registry,
+		setLimit: (next: number) => {
+			if (limit !== next) {
+				limit = next;
+				schedule();
+			}
+		},
 		setFrame: (next: Record<string, number>) => {
 			frame = next;
 			schedule();
@@ -117,23 +127,38 @@ export const SequenceActivityBudgetProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const enabled = useContext(SequenceActivityContext);
+	const settings = useContext(SequenceActivitySettingsContext);
+	const limit = settings?.limit ?? DEFAULT_SEQUENCE_ACTIVITY_LIMIT;
+	const admitting = enabled && limit > 0;
 	const [budget] = useState(createActivityBudget);
 	const timeline = useContext(
-		enabled ? TimelineContext : InactiveTimelineContext,
+		admitting ? TimelineContext : InactiveTimelineContext,
 	);
 	const selected = useSyncExternalStore(
 		budget.subscribe,
 		budget.getSnapshot,
 		budget.getSnapshot,
 	);
+	// Shrinking the setting must not keep the old, larger selection for a commit
+	// while the budget schedules its new snapshot.
+	const admitted = useMemo(
+		() =>
+			!admitting
+				? emptySelection
+				: selected.size > limit
+					? new Set([...selected].slice(0, limit))
+					: selected,
+		[admitting, limit, selected],
+	);
 	useCommitEffect(() => {
-		if (enabled && timeline !== null) {
+		budget.setLimit(admitting ? limit : 0);
+		if (admitting && timeline !== null) {
 			budget.setFrame(timeline.frame);
 		}
-	}, [budget, enabled, timeline]);
+	}, [admitting, budget, limit, timeline]);
 	return (
-		<ActivityBudgetContext.Provider value={enabled ? budget : null}>
-			<ActivitySelectionContext.Provider value={selected}>
+		<ActivityBudgetContext.Provider value={admitting ? budget : null}>
+			<ActivitySelectionContext.Provider value={admitted}>
 				{children}
 			</ActivitySelectionContext.Provider>
 		</ActivityBudgetContext.Provider>
