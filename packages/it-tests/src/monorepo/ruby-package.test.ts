@@ -151,10 +151,7 @@ test('Render Media payload', async () => {
 		});
 
 	const parsedOutput = JSON.parse(output);
-	expect({
-		...parsedOutput,
-		separateAudioTo: parsedOutput.separateAudioTo ?? null,
-	}).toEqual(nativeVersion);
+	expect(parsedOutput).toEqual(nativeVersion);
 });
 
 test('Render Still payload', async () => {

@@ -11,6 +11,7 @@ class RenderParams
     protected $bucketName = null;
     protected $region = null;
     protected $outName = null;
+    protected $separateAudioTo = null;
     protected $composition = null;
     protected $serverUrl = null;
     protected $framesPerLambda = null;
@@ -118,7 +119,8 @@ class RenderParams
         ?bool   $isProduction = null,
         ?int    $gopSize = null,
         ?bool   $enableCancellation = false,
-        bool    $disableSharedMemoryCapture = false
+        bool    $disableSharedMemoryCapture = false,
+        string|array|null $separateAudioTo = null
     )
     {
         if ($chromiumOptions === null) {
@@ -141,6 +143,7 @@ class RenderParams
         $this->logLevel = $logLevel;
         $this->frameRange = $frameRange;
         $this->outName = $outName;
+        $this->separateAudioTo = $separateAudioTo;
         $this->timeoutInMilliseconds = $timeoutInMilliseconds;
         $this->scale = $scale;
         $this->everyNthFrame = $everyNthFrame;
@@ -199,6 +202,7 @@ class RenderParams
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
+            'separateAudioTo' => $this->getSeparateAudioTo(),
             'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
             'chromiumOptions' => $this->getChromiumOptions() === null ? new stdClass() : $this->getChromiumOptions(),
             'scale' => $this->getScale(),
@@ -657,6 +661,11 @@ class RenderParams
         $this->outName = $outName;
     }
 
+    public function setSeparateAudioTo(string|array|null $separateAudioTo)
+    {
+        $this->separateAudioTo = $separateAudioTo;
+    }
+
     public function setTimeoutInMilliseconds($timeoutInMilliseconds)
     {
         $this->timeoutInMilliseconds = $timeoutInMilliseconds;
@@ -706,6 +715,11 @@ class RenderParams
     public function getOutName()
     {
         return $this->outName;
+    }
+
+    public function getSeparateAudioTo(): string|array|null
+    {
+        return $this->separateAudioTo;
     }
 
     public function getTimeoutInMilliseconds()

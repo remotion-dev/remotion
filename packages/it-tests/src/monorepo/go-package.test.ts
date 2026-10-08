@@ -96,12 +96,7 @@ test(
 				sampleRate: 48000,
 			});
 
-		expect(
-			removeUndefined({
-				...parsed,
-				separateAudioTo: parsed.separateAudioTo ?? null,
-			}),
-		).toEqual(removeUndefined(nativeVersion));
+		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));
 	},
 	{timeout: 60000},
 );

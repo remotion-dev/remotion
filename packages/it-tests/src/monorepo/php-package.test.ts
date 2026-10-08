@@ -170,7 +170,6 @@ class Semantic
 
 		expect({
 			...parsedJson,
-			separateAudioTo: parsedJson.separateAudioTo ?? null,
 			type: 'start',
 		}).toEqual(nativeVersion);
 	});
