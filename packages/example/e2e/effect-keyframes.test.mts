@@ -303,7 +303,7 @@ test.describe('effect keyframes', () => {
 		await expect(async () => {
 			await page
 				.getByRole('group', {name: 'Timeline expansion', exact: true})
-				.first()
+				.last()
 				.click();
 			await expect(opacityRow).toHaveCount(1, {timeout: 1_000});
 		}).toPass({timeout: 15_000});
