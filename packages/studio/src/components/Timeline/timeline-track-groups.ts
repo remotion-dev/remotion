@@ -14,6 +14,7 @@ export type TimelineDisplayRow = {
 export const filterTimelineTrackContents = (
 	tracks: readonly TimelineTrackWithDisplayGroup[],
 	sequences: readonly TSequence[],
+	activeTrackItemIds: ReadonlySet<string>,
 ): TimelineTrackWithDisplayGroup[] => {
 	const byId = new Map(sequences.map((sequence) => [sequence.id, sequence]));
 	const tracksById = new Map(tracks.map((track) => [track.sequence.id, track]));
@@ -52,6 +53,12 @@ export const filterTimelineTrackContents = (
 					ancestor.timelineTrack.role !== 'track' &&
 					(ancestor.timelineTrack.role !== 'clip' || ancestor.showInTimeline)
 				) {
+					// Nested tracks follow their containing clip too, while keeping
+					// their own packed rows whenever that clip is active.
+					if (!activeTrackItemIds.has(ancestor.id)) {
+						return [];
+					}
+
 					if (nearestPackedInstance === null) {
 						const nodePathInfo = tracksById.get(ancestor.id)?.nodePathInfo;
 						nearestPackedInstance = nodePathInfo
