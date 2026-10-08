@@ -127,6 +127,28 @@ asyncio.run(main())
 
 Cancelling an awaited request does not stop the AWS request or the render. To cancel a render, start it with `enable_cancellation=True` and await `cancel_render_on_lambda()` with its render ID and bucket name.
 
+## Rendering an image sequence<AvailableFrom v="4.0.535" />
+
+Use `render_frames_on_lambda()` with `RenderFramesParams`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+
+```python title="render_frames.py"
+from remotion_lambda import RenderFramesParams
+
+render_params = RenderFramesParams(
+    composition="main",
+    frame_range=[0, 99],
+    frames_per_lambda=20,
+    output_prefix="exports/my-sequence/",
+    image_sequence_pattern="element-[frame].[ext]",
+)
+
+render_response = client.render_frames_on_lambda(render_params)
+if render_response:
+    print(render_response.render_id, render_response.bucket_name)
+```
+
+Poll `get_render_progress()` until `done` or `fatalErrorEncountered`. `framesUploaded` reports uploaded frames, and `outputSequence['manifestUrl']` points to the completed manifest. Use `ImageSequenceOutputPrefix(bucket_name=..., key_prefix=..., s3_output_provider=...)` as `output_prefix` to select another bucket or provider.
+
 ## Configuring the AWS clients
 
 ### config?<AvailableFrom v="4.0.380" />

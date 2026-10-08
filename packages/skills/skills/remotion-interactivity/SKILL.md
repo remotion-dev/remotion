@@ -15,15 +15,9 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Prefer interactive components with their own timelines
 
-Use `Interactive.withSchema({wrapInSequence: true})` for custom scenes, cards,
-titles, and other visual components whose props should be editable per instance.
-Expose meaningful content and appearance controls in an `InteractivitySchema`.
-Keep decorative implementation details inside the component.
+Use `Interactive.withSchema({wrapInSequence: true})` for custom scenes, cards, titles, and other visual components whose props should be editable per instance. Expose meaningful content and appearance controls in an `InteractivitySchema`. Keep decorative implementation details inside the component.
 
-The component must accept `style` and forward it to one visual root. Keep a
-shared root when transforms, cropping, or opacity should affect all its layers.
-Flatten redundant inner wrappers when their styles can move onto an existing
-element without changing layout or animation.
+The component must accept `style` and forward it to one visual root. Keep a shared root when transforms, cropping, or opacity should affect all its layers. Flatten redundant inner wrappers when their styles can move onto an existing element without changing layout or animation.
 
 ```tsx title="LowerThird.tsx"
 import type React from 'react';
@@ -157,7 +151,7 @@ Register the same exported component reference that the parent renders. For the
 example above, use `component={LowerThird}`, not `LowerThirdInner` or an inline wrapper.
 With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
 
-```tsx title="Root.tsx"
+```tsx title="src/Root.tsx"
 import {Composition} from 'remotion';
 import {LowerThird} from './LowerThird';
 

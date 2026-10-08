@@ -16,6 +16,7 @@ import {addElementLibraryToStudio} from '@remotion/studio-protocol';
 const result = await addElementLibraryToStudio({
   url: 'https://example.com/elements',
   displayName: 'Acme Elements',
+  captionStylesUrl: 'https://example.com/elements/captions',
 });
 
 if (!result.success) {
@@ -36,6 +37,25 @@ An absolute HTTP or HTTPS URL for the Element Library. The URL is normalized bef
 ### displayName?
 
 The label shown in Browse Elements. If omitted, Studio derives a label from the URL.
+
+### captionStylesUrl?<AvailableFrom v="4.0.535" />
+
+An absolute HTTP or HTTPS URL for a page listing your caption styles. Studio opens this page directly in the <kbd>Styles</kbd> tab when generating captions. If omitted, the library is available only in Browse Elements. The URL is normalized before it is stored.
+
+Caption Elements must set [`isCaptionStyle: true`](/docs/studio-protocol/create-element-payload#iscaptionstyle) and accept a `captions` prop.
+
+## Iframe context
+
+Studio appends `remotion-studio=true` to embedded library URLs. In the caption picker, it also appends `remotion-studio-context=captions`. Use this context to hide navigation sidebars and show a focused caption selection page:
+
+```ts title="caption-picker.ts"
+const params = new URLSearchParams(window.location.search);
+const isCaptionPicker =
+  params.get('remotion-studio') === 'true' &&
+  params.get('remotion-studio-context') === 'captions';
+```
+
+Preserve these query parameters when navigating within your library. The context is a display hint, not an authorization signal. Selecting a style sends its Element payload through [`installInStudio()`](/docs/studio-protocol/install-in-studio); Studio uses it for captions instead of installing it immediately.
 
 ## Return value
 
@@ -79,7 +99,7 @@ A human-readable failure message. Use `code` for application logic.
 
 After confirmation, Studio adds an object-form [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call to the loaded `remotion.config.ts`. Existing config source and library entries are preserved.
 
-Element Libraries are identified by their normalized URL. Requesting an already configured URL does not add another call or replace its display name.
+Element Libraries are identified by their normalized URL. Requesting an already configured URL does not add another call or replace its display name or caption styles URL. To update them, edit the existing config entry.
 
 A project without a loaded `remotion.config.ts` returns `no-config-file`.
 
@@ -87,7 +107,7 @@ A project without a loaded `remotion.config.ts` returns `no-config-file`.
 
 The function supports HTTPS websites. HTTP is supported only on `localhost` and `127.0.0.1` for local development. The Element Library itself must use HTTP or HTTPS.
 
-The confirmation shows the requesting website, Element Library URL, and display name. The Element Library is not added or loaded before confirmation. Adding an Element Library does not install Element source code or dependencies; each Element installation keeps its own confirmation.
+The confirmation shows the requesting website and the Element Library and caption styles URLs. The Element Library is not added or loaded before confirmation. Adding an Element Library does not install Element source code or dependencies; each Element installation keeps its own [confirmation](/docs/studio-protocol/security#confirmation-boundary).
 
 ## Compatibility
 

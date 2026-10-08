@@ -244,6 +244,7 @@ export const makeDragData = ((
 					slug: input.slug,
 					sourceCode: input.sourceCode,
 					installationMode: input.installationMode,
+					isCaptionStyle: input.isCaptionStyle,
 				}),
 				{
 					type: input.type,

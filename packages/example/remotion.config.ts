@@ -18,4 +18,5 @@ Config.addElementLibrary({
 Config.addElementLibrary({
 	url: 'http://localhost:3002/elements',
 	displayName: 'Local Elements',
+	captionStylesUrl: 'http://localhost:3002/elements/captions',
 });

@@ -1,10 +1,20 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
-import type {TSequence} from './CompositionManager.js';
 import {
 	COMMIT_ORDER_EVENT,
-	SequenceManagerOrderMarker,
+	COMMIT_REGISTRATION_ERROR_EVENT,
+	isCommitRegistrationObserverInstalled,
+	withCommittedMetadata,
+	type CommittedMetadata,
 	type CommitOrderEventDetail,
-} from './sequence-order-marker.js';
+	type CommittedSequenceSnapshot,
+} from './committed-metadata.js';
+import type {TSequence} from './CompositionManager.js';
+import {
+	areRegistryEntriesEqual,
+	createRegistryStore,
+	reconcileRegistryEntries,
+	type RegistryStore,
+} from './registry-store.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
 	CanUpdateSequencePropStatus,
@@ -22,11 +32,10 @@ import type {VideoConfigValues} from './video-config.js';
 const useIsomorphicLayoutEffect =
 	typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
 
-export type SequenceManagerContext = {
+type SequenceManagerActions = {
 	registerSequence: (seq: TSequence) => void;
-	updateSequence: ((seq: TSequence) => void) | null;
+	updateSequence: (seq: TSequence) => void;
 	unregisterSequence: (id: string) => void;
-	sequences: TSequence[];
 };
 
 export type SequenceManagerRef = {
@@ -35,65 +44,53 @@ export type SequenceManagerRef = {
 
 export type SequenceNodePath = Array<string | number>;
 
-const defaultSequenceManager: SequenceManagerContext = {
+const defaultSequenceManagerActions: SequenceManagerActions = {
 	registerSequence: () => {
-		throw new Error('SequenceManagerContext not initialized');
+		throw new Error('SequenceManagerActionsContext not initialized');
 	},
-	updateSequence: null,
+	updateSequence: () => {
+		throw new Error('SequenceManagerActionsContext not initialized');
+	},
 	unregisterSequence: () => {
-		throw new Error('SequenceManagerContext not initialized');
+		throw new Error('SequenceManagerActionsContext not initialized');
 	},
-	sequences: [],
 };
 
-type SequenceManagerActions = Pick<
-	SequenceManagerContext,
-	'registerSequence' | 'updateSequence' | 'unregisterSequence'
->;
+export const SequenceManagerActionsContext = React.createContext(
+	defaultSequenceManagerActions,
+);
 
-export const SequenceManagerActionsContext =
-	React.createContext<SequenceManagerActions>({
-		registerSequence: defaultSequenceManager.registerSequence,
-		updateSequence: defaultSequenceManager.updateSequence,
-		unregisterSequence: defaultSequenceManager.unregisterSequence,
-	});
-
-export const SequenceManager = React.createContext(defaultSequenceManager);
-const NativeSequenceManagerProvider = SequenceManager.Provider;
-const SequenceManagerProviderWithActions: React.FC<
-	React.ProviderProps<SequenceManagerContext>
-> = ({value, children}) => {
-	const actions = useMemo<SequenceManagerActions>(
-		() => ({
-			registerSequence: value.registerSequence,
-			updateSequence: value.updateSequence,
-			unregisterSequence: value.unregisterSequence,
-		}),
-		[value.registerSequence, value.updateSequence, value.unregisterSequence],
-	);
-	return (
-		<SequenceManagerActionsContext.Provider value={actions}>
-			<NativeSequenceManagerProvider value={value}>
-				{children}
-			</NativeSequenceManagerProvider>
-		</SequenceManagerActionsContext.Provider>
-	);
-};
-
-// Keep custom SequenceManager.Provider trees in sync with the stable actions
-// context while preserving the legacy reactive sequence-list context.
-Object.defineProperty(SequenceManager, 'Provider', {
-	value: SequenceManagerProviderWithActions,
-});
-
+export const SequenceRegistryContext = React.createContext<RegistryStore<
+	TSequence[]
+> | null>(null);
+const subscribeToNoRegistry = () => () => undefined;
+const emptySequences: TSequence[] = [];
+const getEmptySequences = () => emptySequences;
+export const SequenceCommitRegistrationContext = React.createContext(false);
+export const SequenceRegistryScopeContext = React.createContext<{
+	readonly commitRegistrationRequested: boolean;
+	readonly onCommitSequences: (
+		scopeId: string,
+		sequences: readonly TSequence[],
+		sequenceIds: readonly string[],
+	) => void;
+} | null>(null);
 export const useSequenceManagerSequences = (): TSequence[] => {
-	return useContext(SequenceManager).sequences;
+	const registry = useContext(SequenceRegistryContext);
+	return useSyncExternalStore(
+		registry?.subscribe ?? subscribeToNoRegistry,
+		registry?.getSnapshot ?? getEmptySequences,
+		registry?.getSnapshot ?? getEmptySequences,
+	);
 };
 
 export const SequenceManagerRefContext =
 	React.createContext<SequenceManagerRef>({
 		current: [],
 	});
+const SequenceManagerRefProvider = withCommittedMetadata(
+	SequenceManagerRefContext.Provider,
+);
 
 export const SequenceRegistrationContext = React.createContext(false);
 
@@ -298,7 +295,6 @@ export const VisualModeDragOverridesContext =
 		},
 	});
 
-/* eslint-disable react-hooks/rules-of-hooks */
 export const useDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
 ): Record<string, DragOverrideValue> => {
@@ -306,12 +302,6 @@ export const useDragOverridesForNodePath = (
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedSubscription =
 		subscription?.manager === manager ? subscription : null;
-	// Legacy providers only supply VisualModeDragOverridesContext. Its presence is
-	// fixed for the lifetime of a mounted tree.
-	const legacy =
-		scopedSubscription === null
-			? useContext(VisualModeDragOverridesContext)
-			: null;
 	const key =
 		nodePath === null ? null : makeSequencePropsSubscriptionKey(nodePath);
 	const subscribe = useCallback(
@@ -323,10 +313,7 @@ export const useDragOverridesForNodePath = (
 		() => scopedSubscription?.getSnapshot(key) ?? emptyDragOverrides,
 		[key, scopedSubscription],
 	);
-	const overrides = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-	return legacy !== null && nodePath !== null
-		? legacy.getDragOverrides(nodePath)
-		: overrides;
+	return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 };
 
 export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
@@ -337,18 +324,11 @@ export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
 
 export const useEffectDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
-	effectCount: number,
 ): Record<string, Record<string, DragOverrideValue>> => {
 	const subscription = useContext(VisualModeDragOverridesSubscriptionContext);
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedSubscription =
 		subscription?.manager === manager ? subscription : null;
-	// Legacy providers only supply VisualModeDragOverridesContext. Its presence is
-	// fixed for the lifetime of a mounted tree.
-	const legacy =
-		scopedSubscription === null
-			? useContext(VisualModeDragOverridesContext)
-			: null;
 	const key =
 		nodePath === null ? null : makeSequencePropsSubscriptionKey(nodePath);
 	const subscribe = useCallback(
@@ -361,22 +341,8 @@ export const useEffectDragOverridesForNodePath = (
 			scopedSubscription?.getEffectSnapshot(key) ?? emptyEffectDragOverrides,
 		[key, scopedSubscription],
 	);
-	const overrides = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-	if (legacy !== null && nodePath !== null) {
-		const legacyOverrides: Record<
-			string,
-			Record<string, DragOverrideValue>
-		> = {};
-		for (let index = 0; index < effectCount; index++) {
-			legacyOverrides[index] = legacy.getEffectDragOverrides(nodePath, index);
-		}
-
-		return legacyOverrides;
-	}
-
-	return overrides;
+	return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 };
-/* eslint-enable react-hooks/rules-of-hooks */
 
 export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 	setDragOverrides: () => {
@@ -423,12 +389,40 @@ export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {isStudio} = useRemotionEnvironment();
+	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
+	const shouldObserveCommits = isStudio || sequenceRegistrationEnabled;
 	const [sequenceManagerId] = useState(() => String(Math.random()));
+	const [commitRegistrationEnabled, setCommitRegistrationEnabled] = useState(
+		() => shouldObserveCommits && isCommitRegistrationObserverInstalled(),
+	);
+	const observedCommitRef = useRef(false);
+	const rootObservationFailedRef = useRef(false);
+	const committedRegistrationIdsRef = useRef<ReadonlySet<string>>(new Set());
+	const committedDescriptorsRef = useRef<ReadonlyMap<string, TSequence>>(
+		new Map(),
+	);
+	const pendingCommittedSequencesRef = useRef(
+		new Map<string, CommittedSequenceSnapshot>(),
+	);
+	const committedScopesRef = useRef(
+		new Map<string, CommittedSequenceSnapshot>([
+			[sequenceManagerId, {sequences: [], sequenceIds: []}],
+		]),
+	);
+	const registrationObserverFailedRef = useRef(false);
+	const registrationUnmountedRef = useRef(false);
 	const committedOrderRef = useRef<ReadonlyMap<string, number> | null>(null);
 	const committedOrderIdsRef = useRef<readonly string[] | null>(null);
-	const [sequences, setSequences] = useState<TSequence[]>([]);
-	const sequencesRef = useRef(sequences);
-	sequencesRef.current = sequences;
+	const [registry] = useState(() => createRegistryStore<TSequence[]>([]));
+	const setSequences = registry.setSnapshot;
+	const sequencesRef = useMemo<SequenceManagerRef>(
+		() => ({
+			get current() {
+				return registry.getSnapshot();
+			},
+		}),
+		[registry],
+	);
 	const [dragOverrideState, setDragOverrideState] = useState(() => ({
 		overrides: {} as DragOverrides,
 		fromKeys: new Set<string>(),
@@ -450,7 +444,9 @@ export const SequenceManagerProvider: React.FC<{
 	});
 	const [propStatuses, setPropStatusesMapState] = useState<PropStatuses>({});
 	const propStatusesRef = useRef(propStatuses);
-	propStatusesRef.current = propStatuses;
+	useIsomorphicLayoutEffect(() => {
+		propStatusesRef.current = propStatuses;
+	}, [propStatuses]);
 
 	const setDragOverridesBatch = useCallback(
 		(
@@ -758,12 +754,135 @@ export const SequenceManagerProvider: React.FC<{
 		[],
 	);
 
+	const onCommitSequences = useCallback(
+		(
+			scopeId: string,
+			snapshot: readonly TSequence[],
+			sequenceIds: readonly string[],
+		) => {
+			if (
+				registrationObserverFailedRef.current ||
+				registrationUnmountedRef.current
+			) {
+				return;
+			}
+
+			const previousSnapshot =
+				pendingCommittedSequencesRef.current.get(scopeId) ??
+				committedScopesRef.current.get(scopeId);
+			if (
+				previousSnapshot?.sequences === snapshot &&
+				previousSnapshot.sequenceIds === sequenceIds
+			) {
+				return;
+			}
+
+			const alreadyPending = pendingCommittedSequencesRef.current.size > 0;
+			pendingCommittedSequencesRef.current.set(scopeId, {
+				sequences: snapshot,
+				sequenceIds,
+			});
+			if (alreadyPending) {
+				return;
+			}
+
+			// Publish after React finishes committing, and coalesce successive snapshots.
+			queueMicrotask(() => {
+				const pending = pendingCommittedSequencesRef.current;
+				pendingCommittedSequencesRef.current = new Map();
+				if (
+					pending.size === 0 ||
+					registrationObserverFailedRef.current ||
+					registrationUnmountedRef.current
+				) {
+					return;
+				}
+
+				const previousIds = committedRegistrationIdsRef.current;
+				const previousDescriptors = committedDescriptorsRef.current;
+				for (const [id, scope] of pending) {
+					if (id !== sequenceManagerId && scope.sequenceIds.length === 0) {
+						committedScopesRef.current.delete(id);
+					} else {
+						committedScopesRef.current.set(id, scope);
+					}
+				}
+
+				// A forwarded renderer owns only its fragment. Publishing or removing it
+				// must never replace the descriptors committed by the other roots.
+				const scopes = [...committedScopesRef.current.values()];
+				const sequences = scopes.flatMap((scope) => scope.sequences);
+				const ids = scopes.flatMap((scope) => scope.sequenceIds);
+				committedDescriptorsRef.current = new Map(
+					sequences.map((sequence) => [sequence.id, sequence]),
+				);
+				const nextIds = new Set(sequences.map((sequence) => sequence.id));
+				const order = new Map(ids.map((id, index) => [id, index]));
+				committedOrderIdsRef.current = ids;
+				committedOrderRef.current = order;
+				committedRegistrationIdsRef.current = nextIds;
+				setSequences((current) =>
+					reconcileRegistryEntries({
+						current,
+						entries: sequences,
+						previousDescriptors,
+						previousKeys: previousIds,
+						nextKeys: nextIds,
+						getKey: (sequence) => sequence.id,
+						order,
+						orderProperty: 'timelineOrder',
+					}),
+				);
+			});
+		},
+		[sequenceManagerId, setSequences],
+	);
+	const onCommitRootSequences = useCallback(
+		(sequences: readonly TSequence[], sequenceIds: readonly string[]) => {
+			if (!rootObservationFailedRef.current) {
+				observedCommitRef.current = true;
+				onCommitSequences(sequenceManagerId, sequences, sequenceIds);
+			}
+		},
+		[onCommitSequences, sequenceManagerId],
+	);
+	const registryScope = useMemo(
+		() => ({
+			onCommitSequences,
+			commitRegistrationRequested: shouldObserveCommits,
+		}),
+		[onCommitSequences, shouldObserveCommits],
+	);
+
 	useIsomorphicLayoutEffect(() => {
-		if (!isStudio) {
+		if (!shouldObserveCommits) {
 			return;
 		}
 
 		let unmounted = false;
+		registrationUnmountedRef.current = false;
+		const onRegistrationError = () => {
+			if (registrationObserverFailedRef.current) {
+				return;
+			}
+
+			registrationObserverFailedRef.current = true;
+			pendingCommittedSequencesRef.current.clear();
+			queueMicrotask(() => {
+				if (registrationUnmountedRef.current) {
+					return;
+				}
+
+				const previousIds = committedRegistrationIdsRef.current;
+				committedRegistrationIdsRef.current = new Set();
+				committedScopesRef.current.clear();
+				setSequences((current) =>
+					current.filter((sequence) => !previousIds.has(sequence.id)),
+				);
+				setCommitRegistrationEnabled(false);
+			});
+		};
+
 		const onCommitOrder = (event: Event) => {
 			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
 			const managerOrder = detail.sequenceManagers.find(
@@ -773,13 +892,19 @@ export const SequenceManagerProvider: React.FC<{
 				return;
 			}
 
+			if (commitRegistrationEnabled) {
+				return;
+			}
+
 			const previousOrder = committedOrderIdsRef.current;
 			if (
-				previousOrder !== null &&
-				previousOrder.length === managerOrder.sequenceIds.length &&
-				previousOrder.every(
-					(sequenceId, index) => sequenceId === managerOrder.sequenceIds[index],
-				)
+				previousOrder === managerOrder.sequenceIds ||
+				(previousOrder !== null &&
+					previousOrder.length === managerOrder.sequenceIds.length &&
+					previousOrder.every(
+						(sequenceId, index) =>
+							sequenceId === managerOrder.sequenceIds[index],
+					))
 			) {
 				return;
 			}
@@ -815,81 +940,98 @@ export const SequenceManagerProvider: React.FC<{
 		};
 
 		window.addEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
+		window.addEventListener(
+			COMMIT_REGISTRATION_ERROR_EVENT,
+			onRegistrationError,
+		);
+		if (commitRegistrationEnabled) {
+			// React invokes its commit hook after layout effects. Installation alone
+			// does not prove this renderer connected to the hook during initialization.
+			queueMicrotask(() => {
+				if (
+					unmounted ||
+					observedCommitRef.current ||
+					registrationObserverFailedRef.current
+				) {
+					return;
+				}
+
+				rootObservationFailedRef.current = true;
+				onCommitSequences(sequenceManagerId, [], []);
+				setCommitRegistrationEnabled(false);
+			});
+		}
+
 		return () => {
 			unmounted = true;
+			registrationUnmountedRef.current = true;
+			// Effect replay must not discard a snapshot already collected by React.
 			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
+			window.removeEventListener(
+				COMMIT_REGISTRATION_ERROR_EVENT,
+				onRegistrationError,
+			);
 		};
-	}, [isStudio, sequenceManagerId]);
+	}, [
+		shouldObserveCommits,
+		sequenceManagerId,
+		setSequences,
+		commitRegistrationEnabled,
+		onCommitSequences,
+	]);
 
-	const registerSequence = useCallback((seq: TSequence) => {
-		setSequences((seqs) => {
-			return [
-				...seqs,
-				{
+	const registerSequence = useCallback(
+		(seq: TSequence) => {
+			setSequences((seqs) => {
+				return [
+					...seqs,
+					{
+						...seq,
+						timelineOrder: committedOrderRef.current?.get(seq.id) ?? null,
+					},
+				];
+			});
+		},
+		[setSequences],
+	);
+	const updateSequence = useCallback(
+		(seq: TSequence) => {
+			setSequences((seqs) => {
+				const index = seqs.findIndex((item) => item.id === seq.id);
+				if (index === -1) {
+					return seqs;
+				}
+
+				const updatedSequence = {
 					...seq,
 					timelineOrder: committedOrderRef.current?.get(seq.id) ?? null,
-				},
-			];
-		});
-	}, []);
-	const updateSequence = useCallback((seq: TSequence) => {
-		setSequences((seqs) => {
-			const index = seqs.findIndex((item) => item.id === seq.id);
-			if (index === -1) {
-				return seqs;
-			}
-
-			const previousSequence = seqs[index];
-			const timelineOrder = committedOrderRef.current?.get(seq.id) ?? null;
-			// A new registration getter does not necessarily change the metadata.
-			let unchanged = Object.is(previousSequence.timelineOrder, timelineOrder);
-			// The manager adds timelineOrder even if the incoming object omits it.
-			let keyCount = 1;
-			if (unchanged) {
-				for (const key in seq) {
-					if (
-						key === 'timelineOrder' ||
-						!Object.prototype.hasOwnProperty.call(seq, key)
-					) {
-						continue;
-					}
-
-					keyCount++;
-					if (
-						!Object.prototype.hasOwnProperty.call(previousSequence, key) ||
-						!Object.is(
-							previousSequence[key as keyof TSequence],
-							seq[key as keyof TSequence],
-						)
-					) {
-						unchanged = false;
-						break;
-					}
+				};
+				if (areRegistryEntriesEqual(seqs[index], updatedSequence)) {
+					return seqs;
 				}
-			}
 
-			if (unchanged && Object.keys(previousSequence).length === keyCount) {
-				return seqs;
-			}
+				const next = [...seqs];
+				next[index] = updatedSequence;
+				return next;
+			});
+		},
+		[setSequences],
+	);
 
-			const next = [...seqs];
-			next[index] = {...seq, timelineOrder};
-			return next;
-		});
-	}, []);
+	const unregisterSequence = useCallback(
+		(seq: string) => {
+			setSequences((seqs) => seqs.filter((s) => s.id !== seq));
+		},
+		[setSequences],
+	);
 
-	const unregisterSequence = useCallback((seq: string) => {
-		setSequences((seqs) => seqs.filter((s) => s.id !== seq));
-	}, []);
-
-	const sequenceContext: SequenceManagerContext = useMemo(() => {
+	const actions = useMemo<SequenceManagerActions>(() => {
 		return {
 			registerSequence,
-			sequences,
 			updateSequence,
 			unregisterSequence,
 		};
-	}, [registerSequence, sequences, unregisterSequence, updateSequence]);
+	}, [registerSequence, unregisterSequence, updateSequence]);
 	const dragOverridesSubscription = useMemo<
 		Omit<DragOverridesSubscription, 'manager'>
 	>(
@@ -960,38 +1102,61 @@ export const SequenceManagerProvider: React.FC<{
 		[setDragOverridesBatch, setEffectDragOverridesBatch],
 	);
 
-	const providers = (
-		<SequenceManagerRefContext.Provider value={sequencesRef}>
-			<SequenceManager.Provider value={sequenceContext}>
-				<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
-					<VisualModePropStatusesContext.Provider value={propStatusesContext}>
-						<SequenceManagerScopeProviders
-							dragOverridesSubscription={dragOverridesSubscription}
-							fromKeys={dragOverrideState.fromKeys}
-						>
-							<VisualModeDragOverridesContext.Provider
-								value={dragOverridesContext}
-							>
-								<VisualModeSettersContext.Provider value={settersContext}>
-									<VisualModeBatchSettersContext.Provider
-										value={batchSettersContext}
-									>
-										{children}
-									</VisualModeBatchSettersContext.Provider>
-								</VisualModeSettersContext.Provider>
-							</VisualModeDragOverridesContext.Provider>
-						</SequenceManagerScopeProviders>
-					</VisualModePropStatusesContext.Provider>
-				</VisualModePropStatusesRefContext.Provider>
-			</SequenceManager.Provider>
-		</SequenceManagerRefContext.Provider>
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			shouldObserveCommits
+				? {
+						type: 'sequence-manager',
+						id: sequenceManagerId,
+						onCommit: commitRegistrationEnabled ? onCommitRootSequences : null,
+					}
+				: null,
+		[
+			commitRegistrationEnabled,
+			onCommitRootSequences,
+			sequenceManagerId,
+			shouldObserveCommits,
+		],
 	);
-
-	return isStudio ? (
-		<SequenceManagerOrderMarker managerId={sequenceManagerId}>
-			{providers}
-		</SequenceManagerOrderMarker>
-	) : (
-		providers
+	return (
+		<SequenceManagerRefProvider
+			value={sequencesRef}
+			_remotionCommitMetadata={metadata}
+		>
+			<SequenceRegistryScopeContext.Provider value={registryScope}>
+				<SequenceManagerActionsContext.Provider value={actions}>
+					<SequenceRegistryContext.Provider value={registry}>
+						<SequenceCommitRegistrationContext.Provider
+							value={commitRegistrationEnabled}
+						>
+							<VisualModePropStatusesRefContext.Provider
+								value={propStatusesRef}
+							>
+								<VisualModePropStatusesContext.Provider
+									value={propStatusesContext}
+								>
+									<SequenceManagerScopeProviders
+										dragOverridesSubscription={dragOverridesSubscription}
+										fromKeys={dragOverrideState.fromKeys}
+									>
+										<VisualModeDragOverridesContext.Provider
+											value={dragOverridesContext}
+										>
+											<VisualModeSettersContext.Provider value={settersContext}>
+												<VisualModeBatchSettersContext.Provider
+													value={batchSettersContext}
+												>
+													{children}
+												</VisualModeBatchSettersContext.Provider>
+											</VisualModeSettersContext.Provider>
+										</VisualModeDragOverridesContext.Provider>
+									</SequenceManagerScopeProviders>
+								</VisualModePropStatusesContext.Provider>
+							</VisualModePropStatusesRefContext.Provider>
+						</SequenceCommitRegistrationContext.Provider>
+					</SequenceRegistryContext.Provider>
+				</SequenceManagerActionsContext.Provider>
+			</SequenceRegistryScopeContext.Provider>
+		</SequenceManagerRefProvider>
 	);
 };

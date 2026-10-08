@@ -13,14 +13,17 @@ import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {useMediaAudioState} from '../audio/use-media-audio-state.js';
+import {
+	CommittedMetadataProvider,
+	type CommittedMetadata,
+} from '../committed-metadata.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
-import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
-import {useMediaInTimeline} from '../use-media-in-timeline.js';
+import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -165,7 +168,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
 
-	const automaticOutlineRef = useMediaInTimeline({
+	const {automaticOutlineRef, registration} = useMediaInTimelineRegistration({
 		volume,
 		mediaVolume,
 		mediaType: 'video',
@@ -371,13 +374,23 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		/>
 	);
 
-	return isStudio || automaticOutlineRef ? (
-		<SequenceOrderMarker
-			sequenceId={timelineId}
-			outlineChildrenRef={automaticOutlineRef}
-		>
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			isStudio || automaticOutlineRef || registration !== null
+				? {
+						type: 'sequence',
+						id: timelineId,
+						value: registration,
+						outlineChildrenRef: automaticOutlineRef,
+					}
+				: null,
+		[automaticOutlineRef, isStudio, registration, timelineId],
+	);
+
+	return isStudio || automaticOutlineRef || registration !== null ? (
+		<CommittedMetadataProvider value={null} _remotionCommitMetadata={metadata}>
 			{video}
-		</SequenceOrderMarker>
+		</CommittedMetadataProvider>
 	) : (
 		video
 	);

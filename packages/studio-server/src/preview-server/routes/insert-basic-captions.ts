@@ -69,6 +69,7 @@ export const insertBasicCaptionsHandler: ApiHandler<
 				},
 			});
 			const {output, logLine, nodePathRemappings} = insertBasicCaptions({
+				element: null,
 				input: fileContents,
 				nodePath,
 				captions,

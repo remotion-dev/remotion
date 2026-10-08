@@ -102,6 +102,7 @@ export type InstallableElement = {
 	durationInFrames: number | null;
 	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
 	installationMode: ElementInstallationMode | null;
+	isCaptionStyle: boolean;
 	slug: string;
 	displayName: string;
 	sourceCode: string;
@@ -1177,6 +1178,10 @@ export type ElementInstallExpectedFileState =
 
 export type ElementInstallDestination =
 	| {
+			type: 'selected-media';
+			compositionFile: string;
+	  }
+	| {
 			type: 'current-composition';
 			compositionFile: string;
 			compositionId: string;
@@ -1209,8 +1214,6 @@ export type PrepareElementInstallResponse =
 
 export type InsertElementRequest = {
 	installationName: string | null;
-	compositionFile: string;
-	compositionId: string;
 	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
@@ -1218,11 +1221,23 @@ export type InsertElementRequest = {
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
-	newComposition: {
-		options: NewCompositionOptions;
-		symbolicatedStack: SymbolicatedStackFrame | null;
-	} | null;
-};
+} & (
+	| {
+			captionTarget: InsertBasicCaptionsRequest;
+			compositionFile: null;
+			compositionId: null;
+			newComposition: null;
+	  }
+	| {
+			captionTarget: null;
+			compositionFile: string;
+			compositionId: string;
+			newComposition: {
+				options: NewCompositionOptions;
+				symbolicatedStack: SymbolicatedStackFrame | null;
+			} | null;
+	  }
+);
 
 export type InsertElementFileConflict = {
 	filePath: string;
@@ -1396,7 +1411,9 @@ export type UpdateConfigResponse =
 	| {success: true}
 	| {success: false; reason: string};
 
-export type GetDefaultEditorInfoRequest = {};
+export type GetDefaultEditorInfoRequest = {
+	recentlyUsedIds: readonly EditorPickerId[];
+};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
@@ -1408,7 +1425,9 @@ export type GetDefaultEditorInfoResponse = {
 	}[];
 };
 
-export type GetDefaultCodingAgentInfoRequest = {};
+export type GetDefaultCodingAgentInfoRequest = {
+	recentlyUsedIds: readonly DefaultCodingAgent[];
+};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
 	runningCodingAgents: readonly DefaultCodingAgent[] | null;
@@ -1425,6 +1444,15 @@ export type GetDefaultCodingAgentInfoResponse = {
 		id: GitClientId;
 		name: string;
 	}[];
+};
+
+export type GetAppInfoRequest = {
+	editor: GetDefaultEditorInfoRequest;
+	codingAgent: GetDefaultCodingAgentInfoRequest;
+};
+export type GetAppInfoResponse = {
+	editorInfo: GetDefaultEditorInfoResponse;
+	codingAgentInfo: GetDefaultCodingAgentInfoResponse;
 };
 
 export type PackageInstallSpec = {
@@ -1504,10 +1532,7 @@ export type ApiRoutes = {
 		OpenInCodingAgentRequest,
 		OpenInCodingAgentResponse
 	>;
-	'/api/default-coding-agent-info': ReqAndRes<
-		GetDefaultCodingAgentInfoRequest,
-		GetDefaultCodingAgentInfoResponse
-	>;
+	'/api/app-info': ReqAndRes<GetAppInfoRequest, GetAppInfoResponse>;
 	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/open-in-terminal': ReqAndRes<
@@ -1711,10 +1736,6 @@ export type ApiRoutes = {
 	'/api/shutdown-studio': ReqAndRes<{}, ShutdownStudioResponse>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
-	'/api/default-editor-info': ReqAndRes<
-		GetDefaultEditorInfoRequest,
-		GetDefaultEditorInfoResponse
-	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
 		InstallPackageResponse

@@ -61,6 +61,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 	}
 
 	return new Promise<StreamRendererResponse>((resolve) => {
+		let chunkCompleted = false;
 		const chunkFilename = (type: 'video' | 'audio') =>
 			join(outdir, `chunk:${String(payload.chunk).padStart(8, '0')}:${type}`);
 
@@ -93,6 +94,14 @@ const streamRenderer = <Provider extends CloudProvider>({
 		const receivedStreamingPayload: OnMessage<Provider> = ({message}) => {
 			if (message.type === 'lambda-invoked') {
 				overallProgress.setLambdaInvoked(payload.chunk);
+				return;
+			}
+
+			if (message.type === 'frames-uploaded') {
+				overallProgress.setUploadedFrames({
+					index: payload.chunk,
+					...message.payload,
+				});
 				return;
 			}
 
@@ -137,6 +146,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 			}
 
 			if (message.type === 'chunk-complete') {
+				chunkCompleted = true;
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
 					`Finished chunk ${payload.chunk}`,
@@ -227,6 +237,15 @@ const streamRenderer = <Provider extends CloudProvider>({
 				getBinaryPayloadSink,
 			})
 			.then(() => {
+				if (payload.output.type === 'sequence' && !chunkCompleted) {
+					resolve({
+						type: 'error',
+						error: `Image sequence chunk ${payload.chunk} ended without completing its uploads`,
+						shouldRetry: true,
+					});
+					return;
+				}
+
 				resolve({
 					type: 'success',
 				});
@@ -373,6 +392,14 @@ const s3Renderer = async <Provider extends CloudProvider>({
 					index: payload.chunk,
 					rendered: lastRendered,
 					encoded: lastEncoded,
+				});
+			}
+
+			if (payload.output.type === 'sequence') {
+				overallProgress.setUploadedFrames({
+					index: payload.chunk,
+					uploaded: status.uploadedFrames,
+					sizeInBytes: status.uploadedSizeInBytes,
 				});
 			}
 

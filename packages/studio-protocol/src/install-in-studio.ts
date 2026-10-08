@@ -99,7 +99,7 @@ const installInStudioResultSchema = z.union([
 	}),
 	z.object({
 		success: z.literal(false),
-		code: z.literal('no-installable-target'),
+		code: z.enum(['no-installable-target', 'request-rejected']),
 		message: z.string(),
 	}),
 ]);

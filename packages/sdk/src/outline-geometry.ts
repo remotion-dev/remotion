@@ -3,7 +3,7 @@ export type CanvasOutlinePoint = {
 	readonly y: number;
 };
 
-/** Geometry in CSS pixels relative to the unscaled outline container. */
+/** Measured geometry uses composition pixels at scale 1, relative to its root. */
 export type CanvasOutline = {
 	readonly key: string;
 	readonly dimensions: {
@@ -33,7 +33,7 @@ export type CanvasOutline = {
 	readonly path: CanvasOutlinePath | null;
 };
 
-/** Affine transform mapping SVG user units to overlay container pixels. */
+/** Affine transform mapping SVG user units into the outline's coordinate space. */
 export type CanvasOutlineMatrix = {
 	readonly a: number;
 	readonly b: number;
@@ -47,6 +47,57 @@ export type CanvasOutlineMatrix = {
 export type CanvasOutlinePath = {
 	readonly d: string;
 	readonly matrix: CanvasOutlineMatrix;
+};
+
+/** Converts outline coordinates without changing the element's local dimensions. */
+export const scaleCanvasOutline = (
+	outline: CanvasOutline,
+	scale: number,
+): CanvasOutline => {
+	if (scale === 1) {
+		return outline;
+	}
+
+	const scalePoint = (point: CanvasOutlinePoint): CanvasOutlinePoint => ({
+		x: point.x * scale,
+		y: point.y * scale,
+	});
+	const scalePoints = ([
+		tl,
+		tr,
+		br,
+		bl,
+	]: CanvasOutline['points']): CanvasOutline['points'] => [
+		scalePoint(tl),
+		scalePoint(tr),
+		scalePoint(br),
+		scalePoint(bl),
+	];
+	const points = scalePoints(outline.points);
+	return {
+		...outline,
+		points,
+		uncroppedPoints:
+			outline.uncroppedPoints === null
+				? null
+				: outline.uncroppedPoints === outline.points
+					? points
+					: scalePoints(outline.uncroppedPoints),
+		path:
+			outline.path === null
+				? null
+				: {
+						d: outline.path.d,
+						matrix: {
+							a: outline.path.matrix.a * scale,
+							b: outline.path.matrix.b * scale,
+							c: outline.path.matrix.c * scale,
+							d: outline.path.matrix.d * scale,
+							e: outline.path.matrix.e * scale,
+							f: outline.path.matrix.f * scale,
+						},
+					},
+	};
 };
 
 const mix = (from: number, to: number, progress: number): number => {

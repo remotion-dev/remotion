@@ -66,6 +66,7 @@ test('consumes an initial Element payload only once', () => {
 			...payload.element,
 			durationInFrames: 60,
 			installationMode: 'wrapped',
+			isCaptionStyle: false,
 		},
 		sourceOrigin: 'https://elements.example.test',
 	});
@@ -1459,20 +1460,20 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 
 	const rootFile = getProject().files['/project/src/Root.tsx'];
 	const componentFile = getProject().files['/project/src/CanvasComp.tsx'];
-	expect(rootFile).toContain('<CanvasComp');
+	expect(rootFile).toContain('id="CanvasComp"');
+	expect(rootFile).toContain('component={CanvasComp}');
 	expect(rootFile).toContain('import { CanvasComp } from "./CanvasComp"');
 	expect(componentFile).toContain("src={staticFile('capture.mp4')}");
 	expect(componentFile).toContain('<MacOSCursor');
 	expect(componentFile).toContain('translate: interpolate(');
-	expect(componentFile).toContain("id={'CanvasComp'}");
-	expect(componentFile).toContain('width={1920}');
-	expect(componentFile).toContain('height={1080}');
+	expect(rootFile).toContain('width={1920}');
+	expect(rootFile).toContain('height={1080}');
 
 	const undoResult = await operations.undo();
 	expect(undoResult.success).toBe(true);
 	expect(getProject().files['/project/src/CanvasComp.tsx']).toBeUndefined();
 	expect(getProject().files['/project/src/Root.tsx']).not.toContain(
-		'<CanvasComp',
+		'id="CanvasComp"',
 	);
 });
 

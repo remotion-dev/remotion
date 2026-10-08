@@ -43,6 +43,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		{
 			displayName: 'Initial Elements',
 			url: 'https://initial.example.com/elements',
+			captionStylesUrl: null,
 		},
 	];
 	writeConfig(
@@ -115,6 +116,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		{
 			displayName: 'Reloaded Elements',
 			url: 'https://reloaded.example.com/library',
+			captionStylesUrl: null,
 		},
 	]);
 	expect(

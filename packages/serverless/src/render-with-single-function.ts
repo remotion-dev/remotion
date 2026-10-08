@@ -50,7 +50,7 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 	outputFile: string;
 	cleanup: () => Promise<void>;
 }> => {
-	if (params.type !== ServerlessRoutines.launch) {
+	if (params.type !== ServerlessRoutines.launch || params.codec === null) {
 		throw new Error('Expected launch type');
 	}
 

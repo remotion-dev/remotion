@@ -94,6 +94,7 @@ export const configMethodLifecycles = {
 	setSampleRate: 'runtime',
 	setScale: 'runtime',
 	setShouldOpenBrowser: 'restart',
+	setShowPremounting: 'runtime',
 	setStillImageFormat: 'runtime',
 	setStudioPort: 'restart',
 	setTimeoutInMilliseconds: 'runtime',

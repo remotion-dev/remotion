@@ -1,4 +1,5 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
+import {openInCodingAgent} from '../helpers/open-in-app';
 import type {ApiHandler} from './api-types';
 import {addCompositionHandler} from './routes/add-composition';
 import {addEffectHandler} from './routes/add-effect';
@@ -7,17 +8,13 @@ import {addFolderHandler} from './routes/add-folder';
 import {addKeyframesHandler} from './routes/add-keyframes';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
+import {appInfoHandler} from './routes/app-info';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe-settings';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
 import {copyRenderOutputToAssetHandler} from './routes/copy-render-output-to-asset';
-import {
-	getDefaultCodingAgentInfoHandler,
-	openInCodingAgentHandler,
-} from './routes/default-coding-agent';
-import {getDefaultEditorInfoHandler} from './routes/default-editor';
 import {deleteCompositionHandler} from './routes/delete-composition';
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
@@ -115,7 +112,7 @@ export const allApiRoutes: {
 	'/api/open-in-terminal': openInTerminalHandler,
 	'/api/open-in-git-client': openInGitClientHandler,
 	'/api/open-in-editor': openInEditorHandler,
-	'/api/open-in-coding-agent': openInCodingAgentHandler,
+	'/api/open-in-coding-agent': openInCodingAgent,
 	'/api/register-client-render': registerClientRenderHandler,
 	'/api/unregister-client-render': unregisterClientRenderHandler,
 	'/api/update-default-props': updateDefaultPropsHandler,
@@ -173,8 +170,7 @@ export const allApiRoutes: {
 	'/api/upgrade-remotion': handleUpgradeRemotion,
 	'/api/shutdown-studio': handleShutdownStudio,
 	'/api/restart-studio': handleRestartStudio,
-	'/api/default-coding-agent-info': getDefaultCodingAgentInfoHandler,
-	'/api/default-editor-info': getDefaultEditorInfoHandler,
+	'/api/app-info': appInfoHandler,
 	'/api/insert-composition-element': insertCompositionElementHandler,
 	'/api/insert-element': insertElementHandler,
 	'/api/prepare-element-install': prepareElementInstallHandler,

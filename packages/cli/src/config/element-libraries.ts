@@ -1,8 +1,12 @@
-import type {StudioElementLibrary} from '@remotion/studio-shared';
+import {
+	normalizeHttpUrl,
+	type StudioElementLibrary,
+} from '@remotion/studio-shared';
 
 export type AddElementLibraryOptions = {
 	readonly url: string;
 	readonly displayName?: string;
+	readonly captionStylesUrl?: string;
 };
 
 let elementLibraries: StudioElementLibrary[] = [];
@@ -19,7 +23,7 @@ export const addElementLibrary = (options: AddElementLibraryOptions) => {
 		);
 	}
 
-	const {url, displayName} = options;
+	const {url, displayName, captionStylesUrl} = options;
 	if (typeof url !== 'string') {
 		throw new Error(
 			`Config.addElementLibrary() expects "url" to be a string, got ${typeof url}`,
@@ -41,6 +45,14 @@ export const addElementLibrary = (options: AddElementLibraryOptions) => {
 		);
 	}
 
+	const normalizedCaptionStylesUrl =
+		captionStylesUrl === undefined ? null : normalizeHttpUrl(captionStylesUrl);
+	if (captionStylesUrl !== undefined && normalizedCaptionStylesUrl === null) {
+		throw new Error(
+			'Config.addElementLibrary() expects "captionStylesUrl" to be an absolute HTTP or HTTPS URL',
+		);
+	}
+
 	if (displayName !== undefined && typeof displayName !== 'string') {
 		throw new Error(
 			`Config.addElementLibrary() expects the display name to be a string, got ${typeof displayName}`,
@@ -57,6 +69,7 @@ export const addElementLibrary = (options: AddElementLibraryOptions) => {
 	elementLibraries.push({
 		displayName: trimmedDisplayName,
 		url: parsedUrl.href,
+		captionStylesUrl: normalizedCaptionStylesUrl,
 	});
 };
 

@@ -10,6 +10,10 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
+import {
+	withCommittedMetadata,
+	type CommittedMetadata,
+} from './committed-metadata.js';
 import type {
 	LoopDisplay,
 	SequenceControls,
@@ -36,7 +40,6 @@ import {
 	resolveSequenceCrop,
 	validateSequenceCrop,
 } from './sequence-crop.js';
-import {SequenceOrderMarker} from './sequence-order-marker.js';
 import {
 	SequenceOutlineContext,
 	SequenceOutlineInternals,
@@ -58,6 +61,7 @@ import {useVideoConfig} from './use-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 const SeriesContentVisibilityContext = createContext(true);
+const SequenceContextProvider = withCommittedMetadata(SequenceContext.Provider);
 
 const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
 type EffectDefinitionsWithRuntimeValues =
@@ -343,7 +347,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	lastPlaybackRate.current = {playbackRate, frame: absoluteFrame};
+	useLayoutEffect(() => {
+		lastPlaybackRate.current = {playbackRate, frame: absoluteFrame};
+	}, [absoluteFrame, playbackRate]);
 	const videoConfig = useVideoConfig();
 	const effectiveDurationInFrames = resolveSequenceDuration({
 		durationInFrames,
@@ -531,13 +537,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
-	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
-	// and if it changes, it would lead to-remounting of the sequence.
-	const stackRef = useRef<string | null>(null);
-	stackRef.current = controls
+	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);
-	const getStack = useCallback(() => stackRef.current, []);
+	const getStack = useCallback(() => registrationStack, [registrationStack]);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
 	const currentFrame =
 		registeredFrozenFrame ??
@@ -776,7 +779,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		frozenMediaFrame,
 		singleChildComponent,
 	]);
-	useSequenceRegistration({
+	const registration = useSequenceRegistration({
 		getSequence:
 			env.isStudio || sequenceRegistrationEnabled
 				? getSequenceForRegistration
@@ -856,14 +859,27 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			shouldDiscoverOutline || registration !== null
+				? {
+						type: 'sequence',
+						id,
+						value: registration,
+						outlineChildrenRef: automaticOutlineRef,
+					}
+				: null,
+		[automaticOutlineRef, id, registration, shouldDiscoverOutline],
+	);
+
 	if (hidden) {
-		return shouldDiscoverOutline ? (
-			<SequenceOrderMarker
-				sequenceId={id}
-				outlineChildrenRef={automaticOutlineRef}
+		return shouldDiscoverOutline || registration !== null ? (
+			<SequenceContextProvider
+				value={contextValue}
+				_remotionCommitMetadata={metadata}
 			>
 				{null}
-			</SequenceOrderMarker>
+			</SequenceContextProvider>
 		) : null;
 	}
 
@@ -887,7 +903,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			</AbsoluteFillElement>
 		);
 	const sequenceContent = (
-		<SequenceContext.Provider value={contextValue}>
+		<SequenceContextProvider
+			value={contextValue}
+			_remotionCommitMetadata={metadata}
+		>
 			{retainSeriesRegistration ? (
 				<SeriesContentVisibilityContext.Provider value={content !== null}>
 					{renderedContent}
@@ -895,7 +914,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			) : (
 				renderedContent
 			)}
-		</SequenceContext.Provider>
+		</SequenceContextProvider>
 	);
 	// Keep the provider mounted when track grouping changes so clip state survives.
 	const sequence = (
@@ -911,16 +930,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		</TimelineTrackContext.Provider>
 	);
 
-	return shouldDiscoverOutline ? (
-		<SequenceOrderMarker
-			sequenceId={id}
-			outlineChildrenRef={automaticOutlineRef}
-		>
-			{sequence}
-		</SequenceOrderMarker>
-	) : (
-		sequence
-	);
+	return sequence;
 };
 
 const RegularSequence = forwardRef(RegularSequenceRefForwardingFunction);

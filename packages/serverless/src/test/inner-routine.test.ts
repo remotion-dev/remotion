@@ -160,6 +160,7 @@ test('buffered render start exceptions are written to the response', async () =>
 	await innerRoutine<MockProvider>({
 		params: {
 			type: 'start',
+			output: {type: 'media'},
 			version: VERSION,
 			logLevel: 'error',
 			deleteAfter: null,

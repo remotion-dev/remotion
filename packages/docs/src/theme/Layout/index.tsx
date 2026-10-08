@@ -51,7 +51,7 @@ const LayoutWithCrawlChat = (props: Props): ReactNode => {
 };
 
 const LayoutWrapper = (props: Props): ReactNode => {
-	const {pathname} = useLocation();
+	const {pathname, search} = useLocation();
 	const [isStudioElementsEmbed, setIsStudioElementsEmbed] = useState(false);
 
 	useLayoutEffect(() => {
@@ -59,13 +59,20 @@ const LayoutWrapper = (props: Props): ReactNode => {
 		const isEmbedded =
 			isInsideStudio() &&
 			(pathname === '/elements' || pathname.startsWith('/elements/'));
+		const isCaptionPicker =
+			isEmbedded &&
+			new URLSearchParams(search).get('remotion-studio-context') === 'captions';
 		document.body.classList.toggle('studio-elements-embed', isEmbedded);
+		document.body.classList.toggle('studio-caption-picker', isCaptionPicker);
 		setIsStudioElementsEmbed(isEmbedded);
 
 		return () => {
-			document.body.classList.remove('studio-elements-embed');
+			document.body.classList.remove(
+				'studio-elements-embed',
+				'studio-caption-picker',
+			);
 		};
-	}, [pathname]);
+	}, [pathname, search]);
 
 	if (isStudioElementsEmbed) {
 		return <Layout {...props} noFooter />;

@@ -32,6 +32,7 @@ test(
 
 		const nativeVersion =
 			await LambdaClientInternals.makeLambdaRenderMediaPayload({
+				output: {type: 'media'},
 				enableCancellation: false,
 				region: 'us-east-1',
 				composition: 'react-svg',
