@@ -1,5 +1,9 @@
 import React, {useContext, useMemo} from 'react';
-import {SequenceActivityDormantContext} from './sequence-activity-context.js';
+import {
+	SequenceActivityAbsoluteTimeContext,
+	SequenceActivityDormantContext,
+	SequenceActivityTimelineContext,
+} from './sequence-activity-context.js';
 import {
 	AbsoluteTimeContext,
 	TimelineContext,
@@ -67,8 +71,13 @@ export const SequenceActivityBoundary: React.FC<{
 	readonly dormant: boolean;
 	readonly frame: number;
 }> = ({children, dormant, frame}) => {
-	const timeline = useContext(TimelineContext);
-	const absoluteTime = useContext(AbsoluteTimeContext);
+	const parentDormant = useContext(SequenceActivityDormantContext);
+	const timeline = useContext(
+		parentDormant ? SequenceActivityTimelineContext : TimelineContext,
+	);
+	const absoluteTime = useContext(
+		parentDormant ? SequenceActivityAbsoluteTimeContext : AbsoluteTimeContext,
+	);
 	const {id} = useVideoConfig();
 	if (timeline === null) {
 		throw new Error('TimelineContext is missing');
@@ -90,15 +99,27 @@ export const SequenceActivityBoundary: React.FC<{
 	// disable Series duration inference.
 	return (
 		<SequenceActivityDormantContext.Provider value={dormant}>
-			<TimelineContext.Provider value={dormant ? dormantTimeline : timeline}>
-				<AbsoluteTimeContext.Provider
-					value={dormant ? dormantTimeline : absoluteTime}
+			<SequenceActivityTimelineContext.Provider
+				value={dormant ? dormantTimeline : null}
+			>
+				<SequenceActivityAbsoluteTimeContext.Provider
+					value={dormant ? dormantTimeline : null}
 				>
-					<React.Activity mode={dormant ? 'hidden' : 'visible'}>
-						{children}
-					</React.Activity>
-				</AbsoluteTimeContext.Provider>
-			</TimelineContext.Provider>
+					<TimelineContext.Provider
+						value={dormant ? dormantTimeline : timeline}
+					>
+						<AbsoluteTimeContext.Provider
+							value={dormant ? dormantTimeline : absoluteTime}
+						>
+							<React.Activity
+								mode={dormant && !parentDormant ? 'hidden' : 'visible'}
+							>
+								{children}
+							</React.Activity>
+						</AbsoluteTimeContext.Provider>
+					</TimelineContext.Provider>
+				</SequenceActivityAbsoluteTimeContext.Provider>
+			</SequenceActivityTimelineContext.Provider>
 		</SequenceActivityDormantContext.Provider>
 	);
 };

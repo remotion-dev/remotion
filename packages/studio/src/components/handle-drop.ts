@@ -142,6 +142,7 @@ export const handleDrop = async ({
 				durationInFrames: element.element.durationInFrames ?? null,
 				initialProps: element.element.initialProps ?? null,
 				installationMode: element.element.installationMode ?? null,
+				isCaptionStyle: element.element.isCaptionStyle ?? false,
 			},
 			from,
 			position: getElementPositionForDrop({

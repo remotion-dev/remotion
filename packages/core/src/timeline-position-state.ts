@@ -1,5 +1,9 @@
 import {useContext} from 'react';
-import {SequenceActivityDormantContext} from './sequence-activity-context.js';
+import {
+	SequenceActivityAbsoluteTimeContext,
+	SequenceActivityDormantContext,
+	SequenceActivityTimelineContext,
+} from './sequence-activity-context.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -79,7 +83,10 @@ const useTimelinePositionFromContext = (
 };
 
 export const useTimelineContext = (): TimelineContextValue => {
-	const state = useContext(TimelineContext);
+	const dormant = useContext(SequenceActivityDormantContext);
+	const state = useContext(
+		dormant ? SequenceActivityTimelineContext : TimelineContext,
+	);
 	if (state === null) {
 		throw new Error(
 			'TimelineContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
@@ -110,7 +117,10 @@ export const useIsInsideFreeze = (): boolean => {
 };
 
 export const useAbsoluteTimelinePosition = (): number => {
-	const state = useContext(AbsoluteTimeContext);
+	const dormant = useContext(SequenceActivityDormantContext);
+	const state = useContext(
+		dormant ? SequenceActivityAbsoluteTimeContext : AbsoluteTimeContext,
+	);
 	if (state === null) {
 		throw new Error(
 			'AbsoluteTimeContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',

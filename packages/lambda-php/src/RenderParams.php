@@ -234,6 +234,7 @@ class RenderParams
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
             'isProduction' => $this->getIsProduction(),
+            'output' => ['type' => 'media'],
             'type' => 'start'
         ];
 

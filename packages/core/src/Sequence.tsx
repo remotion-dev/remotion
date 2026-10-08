@@ -51,6 +51,7 @@ import {
 	SequenceActivityBoundary,
 	SequenceActivityContent,
 } from './SequenceActivityBoundary.js';
+import {useSequenceActivityAdmission} from './SequenceActivityBudget.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
@@ -816,7 +817,24 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		seriesContentVisible &&
 		frameInParent - from >= -boundaryTolerance &&
 		frameInParent - endThreshold < -boundaryTolerance;
-	const content = contentVisible || activityEnabled ? children : null;
+	const activityDormant = parentDormant || !contentVisible;
+	const admitted = useSequenceActivityAdmission(
+		activityEnabled && !hidden
+			? {
+					id,
+					parent: parentSequence?.id ?? null,
+					compositionId: videoConfig.id,
+					from: firstFrame,
+					end:
+						cumulatedFrom +
+						(from + actualDurationInFrames) / parentPlaybackRate,
+				}
+			: null,
+	);
+	const renderActivity = activityEnabled && (!activityDormant || admitted);
+	const content = (activityEnabled ? renderActivity : contentVisible)
+		? children
+		: null;
 	const frozenContent =
 		content === null || typeof freeze === 'undefined' || freeze === null ? (
 			content
@@ -901,8 +919,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	// Retain resolved scene registrations so Studio can recover the natural end
 	// even when seeking past an explicit wrapper trim. Scene contents stay hidden.
 	const retainSeriesRegistration = env.isStudio && canInferDuration;
-	const activityDormant = parentDormant || !contentVisible;
-	const contentForLayout = activityEnabled ? (
+	const contentForLayout = renderActivity ? (
 		<SequenceActivityContent dormant={activityDormant}>
 			{loopedContent}
 		</SequenceActivityContent>
@@ -925,7 +942,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				{contentForLayout}
 			</AbsoluteFillElement>
 		);
-	const activityContent = activityEnabled ? (
+	const activityContent = renderActivity ? (
 		<SequenceActivityBoundary dormant={activityDormant} frame={firstFrame}>
 			{renderedContent}
 		</SequenceActivityBoundary>
@@ -939,7 +956,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		>
 			{retainSeriesRegistration ? (
 				<SeriesContentVisibilityContext.Provider
-					value={activityEnabled || contentVisible}
+					value={renderActivity || contentVisible}
 				>
 					{activityContent}
 				</SeriesContentVisibilityContext.Provider>

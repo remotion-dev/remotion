@@ -1,6 +1,6 @@
 import Link from '@docusaurus/Link';
-import {setStudioDragData} from '@remotion/studio-protocol';
-import React, {useEffect, useRef, useState} from 'react';
+import {isInsideStudio, setStudioDragData} from '@remotion/studio-protocol';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
 import {
@@ -41,9 +41,10 @@ const usePrefersReducedMotion = () => {
 
 const ElementCard: React.FC<{
 	readonly definition: ElementDefinition;
+	readonly isCaptionPicker: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCode: string;
-}> = ({definition, prefersReducedMotion, sourceCode}) => {
+}> = ({definition, isCaptionPicker, prefersReducedMotion, sourceCode}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
@@ -110,16 +111,25 @@ const ElementCard: React.FC<{
 		}
 	};
 
+	const Card = isCaptionPicker ? 'button' : Link;
+
 	return (
 		<li
 			className={styles.cardItem}
 			onPointerEnter={activateFromPointer}
 			onPointerLeave={() => setIsPointerOver(false)}
 		>
-			<Link
+			<Card
 				className={styles.card}
 				draggable
-				to={getElementDocumentationUrl(definition)}
+				{...(isCaptionPicker
+					? {
+							type: 'button' as const,
+							onClick: installElement,
+							disabled: isInstalling,
+							'aria-label': `Select ${definition.displayName}`,
+						}
+					: {to: getElementDocumentationUrl(definition)})}
 				onBlur={() => setIsFocused(false)}
 				onFocus={() => {
 					setPlaybackFailed(false);
@@ -168,7 +178,7 @@ const ElementCard: React.FC<{
 				<div className={styles.content}>
 					<span className={styles.title}>{definition.displayName}</span>
 				</div>
-			</Link>
+			</Card>
 			<div aria-live="polite" className={styles.installAction}>
 				<BlueButton
 					aria-label={`Use – ${definition.displayName}`}
@@ -201,9 +211,15 @@ const ElementCard: React.FC<{
 
 const ElementGrid: React.FC<{
 	readonly definitions: readonly ElementDefinition[];
+	readonly isCaptionPicker: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
-}> = ({definitions, prefersReducedMotion, sourceCodeBySlug}) => {
+}> = ({
+	definitions,
+	isCaptionPicker,
+	prefersReducedMotion,
+	sourceCodeBySlug,
+}) => {
 	return (
 		// The Algolia recordExtractor must remove this subtree before extracting records.
 		// This marker requires explicit crawler configuration; it is not built in.
@@ -224,6 +240,7 @@ const ElementGrid: React.FC<{
 					<ElementCard
 						key={definition.slug}
 						definition={definition}
+						isCaptionPicker={isCaptionPicker}
 						prefersReducedMotion={prefersReducedMotion}
 						sourceCode={sourceCode}
 					/>
@@ -239,6 +256,16 @@ export const ElementLibrary: React.FC<{
 }> = ({category, sourceCodeBySlug}) => {
 	const sections = getElementLibrarySections(category);
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const [isCaptionPicker, setIsCaptionPicker] = useState(false);
+
+	useLayoutEffect(() => {
+		setIsCaptionPicker(
+			isInsideStudio() &&
+				new URLSearchParams(window.location.search).get(
+					'remotion-studio-context',
+				) === 'captions',
+		);
+	}, []);
 
 	return (
 		<div className={styles.library}>
@@ -252,6 +279,7 @@ export const ElementLibrary: React.FC<{
 						>
 							<ElementGrid
 								definitions={section.definitions}
+								isCaptionPicker={isCaptionPicker}
 								prefersReducedMotion={prefersReducedMotion}
 								sourceCodeBySlug={sourceCodeBySlug}
 							/>
@@ -272,6 +300,7 @@ export const ElementLibrary: React.FC<{
 						</h2>
 						<ElementGrid
 							definitions={section.definitions}
+							isCaptionPicker={isCaptionPicker}
 							prefersReducedMotion={prefersReducedMotion}
 							sourceCodeBySlug={sourceCodeBySlug}
 						/>

@@ -33,8 +33,9 @@ export type CanvasProps<
 	readonly resolveSequenceNodePathInfo?: CanvasSequenceNodePathResolver;
 	/**
 	 * Enables moving selected outlines by dragging them or pressing the arrow
-	 * keys. Called with the resulting prop values once a gesture ends; the
-	 * values stay previewed through `controller.overrides` until you clear them.
+	 * keys. Called once with all static and keyframed prop changes when a
+	 * gesture ends. Persist the full batch as one undoable edit. The values
+	 * stay previewed through `controller.overrides` until you clear them.
 	 */
 	readonly onSequencePropsChange?: CanvasSequencePropsChangeHandler;
 	/**

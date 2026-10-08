@@ -536,6 +536,9 @@ const internalRenderMediaOnWeb = async <
 					// 1 packet per frame, + 33% buffer
 					// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
 					maximumPacketCount: Math.ceil(totalFrames * 1.33),
+					// Mediabunny passes this to `VideoEncoder` as `framerate` and uses it
+					// for the container timescale. Without it, Chromium assumes 30 fps.
+					frameRate: resolved.fps,
 				},
 			);
 		}

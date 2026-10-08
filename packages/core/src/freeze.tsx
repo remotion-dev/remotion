@@ -1,4 +1,8 @@
 import React, {createContext, useContext, useMemo} from 'react';
+import {
+	SequenceActivityDormantContext,
+	SequenceActivityTimelineContext,
+} from './sequence-activity-context.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useTimelineContext} from './timeline-position-state.js';
@@ -67,6 +71,7 @@ export const Freeze: React.FC<FreezeProps> = ({
 	}, [active, frame]);
 
 	const timelineContext = useTimelineContext();
+	const activityDormant = useContext(SequenceActivityDormantContext);
 	const sequenceContext = useContext(SequenceContext);
 	const isInsideNonPremountFreeze = useIsInsideNonPremountFreeze();
 
@@ -106,6 +111,7 @@ export const Freeze: React.FC<FreezeProps> = ({
 			cumulatedFrom: 0,
 		};
 	}, [sequenceContext, isActive]);
+	const providedTimeline = isActive ? frozenTimelineValue : timelineContext;
 
 	return (
 		<NonPremountFreezeContext.Provider
@@ -114,12 +120,14 @@ export const Freeze: React.FC<FreezeProps> = ({
 				(Boolean(isActive) && !_remotionInternalIsPremounting)
 			}
 		>
-			<TimelineContext.Provider
-				value={isActive ? frozenTimelineValue : timelineContext}
-			>
-				<SequenceContext.Provider value={newSequenceContext}>
-					{children}
-				</SequenceContext.Provider>
+			<TimelineContext.Provider value={providedTimeline}>
+				<SequenceActivityTimelineContext.Provider
+					value={activityDormant ? providedTimeline : null}
+				>
+					<SequenceContext.Provider value={newSequenceContext}>
+						{children}
+					</SequenceContext.Provider>
+				</SequenceActivityTimelineContext.Provider>
 			</TimelineContext.Provider>
 		</NonPremountFreezeContext.Provider>
 	);

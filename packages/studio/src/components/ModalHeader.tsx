@@ -43,7 +43,11 @@ export const ModalHeader: React.FC<{
 			<div style={titleStyle}>{title}</div>
 			<Flex />
 			{rightAction}
-			<CancelButton style={icon} onPress={onClose ?? onPress} />
+			<CancelButton
+				aria-label="Close dialog"
+				style={icon}
+				onPress={onClose ?? onPress}
+			/>
 		</div>
 	);
 };

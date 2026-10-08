@@ -42,6 +42,14 @@ export const getExpectedOutName = <Provider extends CloudProvider>({
 	customCredentials: CustomCredentials<Provider> | null;
 	bucketNamePrefix: string;
 }): OutNameOutput<Provider> => {
+	if (renderMetadata.type === 'sequence') {
+		return {
+			key: renderMetadata.outputSequence.manifestKey,
+			renderBucketName: renderMetadata.outputSequence.bucketName,
+			customCredentials,
+		};
+	}
+
 	const outNameValue = getCustomOutName({
 		customCredentials,
 		renderMetadata,

@@ -17,6 +17,7 @@ const makeStartPayload = ({
 }: Pick<ServerlessStartPayload<AwsProvider>, 'codec' | 'x264Preset'>) => {
 	return {
 		type: ServerlessRoutines.start,
+		output: {type: 'media'},
 		rendererFunctionName: null,
 		serveUrl: 'https://example.com',
 		composition: 'test-composition',

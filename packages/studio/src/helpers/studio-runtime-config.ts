@@ -4,6 +4,8 @@ import {NoReactInternals} from 'remotion/no-react';
 export const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
 const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
+	showPremounting: null,
+	defaultPremountInSeconds: null,
 	askAIEnabled: false,
 	bufferStateDelayInMilliseconds: null,
 	defaultCodingAgent: null,
@@ -60,4 +62,8 @@ export const getStudioDefaultPremountInSeconds = () => {
 		getStudioRuntimeConfig().defaultPremountInSeconds ??
 		NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS
 	);
+};
+
+export const getStudioShowPremounting = () => {
+	return getStudioRuntimeConfig().showPremounting ?? true;
 };

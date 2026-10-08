@@ -469,6 +469,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/getorcreatebucket',
 				'lambda/getrenderprogress',
 				'lambda/presignurl',
+				'lambda/renderframesonlambda',
 				'lambda/rendermediaonlambda',
 				'lambda/cancelrenderonlambda',
 				'lambda/renderstillonlambda',

@@ -519,6 +519,7 @@ test('delivers an Element Library request without changing config before confirm
 		expect(deliveredEvents).toEqual([
 			{
 				type: 'element-library-add-request',
+				captionStylesUrl: null,
 				url: 'https://new.example.com/library',
 				displayName: 'New library',
 				origin: requestOrigin,

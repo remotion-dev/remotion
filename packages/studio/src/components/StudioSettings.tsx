@@ -45,6 +45,7 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: null,
 	audioLatencyHint: null,
@@ -187,6 +188,7 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setShowPremounting', settings.showPremounting),
 			update('setAskAIEnabled', settings.askAIEnabled),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
 			update('setBeepOnFinish', settings.beepOnFinish),
@@ -298,6 +300,22 @@ export const StudioSettings: React.FC = () => {
 
 			<p style={sectionTitle}>Interface</p>
 			<label style={optionRow}>
+				<div style={label}>Show premounting in timeline</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={settings.showPremounting ?? true}
+						name="Show premounting in timeline"
+						onChange={(event) =>
+							changeSetting(
+								'showPremounting',
+								'setShowPremounting',
+								event.target.checked,
+							)
+						}
+					/>
+				</div>
+			</label>
+			<label style={optionRow}>
 				<div style={label}>Ask AI enabled</div>
 				<div style={rightRow}>
 					<Checkbox
@@ -397,7 +415,7 @@ export const StudioSettings: React.FC = () => {
 						value,
 					)
 				}
-				value={settings.defaultPremountInSeconds ?? null}
+				value={settings.defaultPremountInSeconds}
 			/>
 
 			<p style={sectionTitle}>Audio</p>

@@ -30,12 +30,14 @@ export const TimelineSequenceFrame: React.FC<{
 	readonly displayDurationInFrames: number;
 	readonly paddingLeft: number;
 	readonly frozenFrame: number | null;
+	readonly showPremounting: boolean;
 }> = ({
 	s,
 	sequenceFrameOffset,
 	displayDurationInFrames,
 	paddingLeft,
 	frozenFrame,
+	showPremounting,
 }) => {
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
@@ -46,6 +48,7 @@ export const TimelineSequenceFrame: React.FC<{
 		relativeFrame >= 0 && relativeFrame < displayDurationInFrames;
 	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
 	const isPremounting =
+		showPremounting &&
 		relativeFrameWithPremount >= 0 &&
 		relativeFrameWithPremount < displayDurationInFrames &&
 		!isInRange;

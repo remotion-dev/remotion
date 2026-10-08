@@ -106,8 +106,7 @@ export const MyVideo = () => (
 );
 ```
 
-```tsx
-// Root.tsx
+```tsx title="src/Root.tsx"
 import {Composition, Folder} from 'remotion';
 import {MyVideo} from './MyVideo';
 import {Chapter} from './Chapter';

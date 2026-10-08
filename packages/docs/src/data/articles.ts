@@ -1441,6 +1441,15 @@ export const articles = [
 		slug: 'options/sequence',
 	},
 	{
+		id: 'options/show-premounting',
+		title: 'Show premounting in the Studio timeline',
+		relativePath: 'docs/options/show-premounting.mdx',
+		compId: 'articles-docs-options-show-premounting',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/show-premounting',
+	},
+	{
 		id: 'options/skip-skills',
 		title: 'Skip Skills',
 		relativePath: 'docs/options/skip-skills.mdx',
@@ -5318,6 +5327,15 @@ export const articles = [
 		crumb: 'Lambda',
 		noAi: false,
 		slug: 'lambda/region-selection',
+	},
+	{
+		id: 'renderframesonlambda',
+		title: 'renderFramesOnLambda()',
+		relativePath: 'docs/lambda/renderframesonlambda.mdx',
+		compId: 'articles-docs-lambda-renderframesonlambda',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/renderframesonlambda',
 	},
 	{
 		id: 'rendermediaonlambda',

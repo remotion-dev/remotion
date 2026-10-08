@@ -16,6 +16,7 @@ import {
 	type RegistryStore,
 } from './registry-store.js';
 import {SequenceActivityContext} from './sequence-activity-context.js';
+import {SequenceActivityBudgetProvider} from './SequenceActivityBudget.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
 	CanUpdateSequencePropStatus,
@@ -1166,7 +1167,9 @@ export const SequenceManagerProvider: React.FC<{
 															typeof React.Activity !== 'undefined'
 														}
 													>
-														{children}
+														<SequenceActivityBudgetProvider>
+															{children}
+														</SequenceActivityBudgetProvider>
 													</SequenceActivityContext.Provider>
 												</VisualModeBatchSettersContext.Provider>
 											</VisualModeSettersContext.Provider>
