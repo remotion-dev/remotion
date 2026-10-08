@@ -114,7 +114,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	readonly _remotionInternalTimelineTrack?: Pick<TimelineTrackItem, 'role'>;
+	readonly _remotionInternalTimelineTrack?: Pick<
+		TimelineTrackItem,
+		'role' | 'seriesOffset'
+	>;
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -216,6 +219,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const timelineTrack = useContext(TimelineTrackContext);
 	const timelineTrackRole = timelineTrackItem?.role ?? 'clip';
+	const seriesOffset = timelineTrackItem?.seriesOffset ?? null;
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
 	const cumulativePlaybackRate = parentPlaybackRate * playbackRate;
 	const cumulatedFrom = parentSequence
@@ -664,6 +668,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					timelineTrack: {
 						...timelineTrack,
 						role: timelineTrackRole,
+						seriesOffset,
 					},
 				}
 			: {};
@@ -767,6 +772,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		id,
 		timelineTrack,
 		timelineTrackRole,
+		seriesOffset,
 		getCurrentFrame,
 		getStack,
 		timelineClipName,

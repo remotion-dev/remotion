@@ -7,6 +7,7 @@ export type TimelineTrack = {
 
 export type TimelineTrackItem = TimelineTrack & {
 	readonly role: 'track' | 'clip' | 'transition' | 'overlay';
+	readonly seriesOffset: number | null;
 };
 
 export const TimelineTrackContext = createContext<TimelineTrack | null>(null);

@@ -64,6 +64,7 @@ import {
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
+import {useCompactSeries} from './Timeline/use-compact-series';
 import {useResolveStackAndReactToChange} from './Timeline/use-resolved-stack-react-to-change';
 import {
 	getDefaultCaptionOutputName,
@@ -277,6 +278,9 @@ const WebMcpSelectionSync: FC<{
 };
 
 export const WebMcp: FC = () => {
+	const compactSeries = useCompactSeries();
+	const compactSeriesRef = useRef(compactSeries);
+	compactSeriesRef.current = compactSeries;
 	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
 	const staticFiles = useStaticFiles();
 	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
@@ -376,6 +380,7 @@ export const WebMcp: FC = () => {
 				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				compositions: compositionsRef.current,
+				showConnectedCompositionChildren: compactSeriesRef.current,
 			}).filter((timelineTrack) =>
 				shouldShowTrackInTimeline(timelineTrack, durationInFrames),
 			);

@@ -78,6 +78,7 @@ import {
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineVirtualizationProvider} from './TimelineVirtualization';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
+import {useCompactSeries} from './use-compact-series';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
@@ -274,60 +275,9 @@ const TimelineContextMenuArea: React.FC<{
 	);
 };
 
-const TimelineTrackChildrenSyncer: React.FC<{
-	readonly tracks: readonly TimelineTrackWithDisplayGroup[];
-	readonly onChange: (activeTrackItemIds: ReadonlySet<string>) => void;
-}> = React.memo(({tracks, onChange}) => {
-	const frame = Internals.Timeline.useTimelinePosition();
-	const packedItems = useMemo(
-		() =>
-			tracks.filter(({sequence}) => {
-				const role = sequence.timelineTrack?.role;
-				return (
-					(role === 'clip' && sequence.showInTimeline) ||
-					role === 'overlay' ||
-					role === 'transition'
-				);
-			}),
-		[tracks],
-	);
-	const activeTrackItemIds = useMemo(
-		() =>
-			new Set(
-				packedItems
-					.filter(
-						({sequence}) =>
-							frame >= sequence.from &&
-							frame < sequence.from + sequence.duration,
-					)
-					.map(({sequence}) => sequence.id),
-			),
-		[frame, packedItems],
-	);
-	// Publish even an empty set when tracks are re-enabled after seeking.
-	const previousActiveIds = useRef<ReadonlySet<string> | null>(null);
-	useLayoutEffect(() => {
-		const previous = previousActiveIds.current;
-		if (
-			previous !== null &&
-			previous.size === activeTrackItemIds.size &&
-			[...activeTrackItemIds].every((id) => previous.has(id))
-		) {
-			return;
-		}
-
-		previousActiveIds.current = activeTrackItemIds;
-		onChange(activeTrackItemIds);
-	}, [activeTrackItemIds, onChange]);
-
-	return null;
-});
-
 const TimelineInner: React.FC = () => {
-	const experimentalTracksEnabled = useContext(
-		Internals.ExperimentalTracksEnabledContext,
-	);
 	const sequences = Internals.useSequenceManagerSequences();
+	const compactSeries = useCompactSeries();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
@@ -360,6 +310,7 @@ const TimelineInner: React.FC = () => {
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
+				showConnectedCompositionChildren: compactSeries,
 			}),
 		);
 		const previous = previousTimelineRef.current;
@@ -429,6 +380,7 @@ const TimelineInner: React.FC = () => {
 		videoConfigIsNull,
 		overrideIdToNodePathMappings,
 		compositions,
+		compactSeries,
 	]);
 	useLayoutEffect(() => {
 		previousTimelineRef.current = {
@@ -460,19 +412,11 @@ const TimelineInner: React.FC = () => {
 			return shouldShowTrackInTimeline(t, durationInFrames);
 		});
 	}, [activeFromDragOverrideKeys, durationInFrames, timeline]);
-	const [activeTrackItemIds, setActiveTrackItemIds] = useState<
-		ReadonlySet<string>
-	>(() => new Set());
-
 	// Keep `filtered` complete so a future toggle can show every programmatic
 	// instance without recalculating the timeline or losing its instance index.
 	const collapsed = useMemo(() => {
 		const seenDisplayGroups = new Set<string>();
-		return filterTimelineTrackContents(
-			filtered,
-			sequences,
-			activeTrackItemIds,
-		).filter((track) => {
+		return filterTimelineTrackContents(filtered, sequences).filter((track) => {
 			if (track.sequence.timelineTrack || track.displayGroup === null) {
 				return true;
 			}
@@ -484,7 +428,7 @@ const TimelineInner: React.FC = () => {
 			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
-	}, [activeTrackItemIds, filtered, sequences]);
+	}, [filtered, sequences]);
 
 	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
 		collapsed,
@@ -622,12 +566,6 @@ const TimelineInner: React.FC = () => {
 
 	return (
 		<TimelineContextMenuArea>
-			{experimentalTracksEnabled ? (
-				<TimelineTrackChildrenSyncer
-					tracks={filtered}
-					onChange={setActiveTrackItemIds}
-				/>
-			) : null}
 			{sequences.map((sequence) => {
 				if (!shouldSubscribeToSequenceProps(sequence, previewInteractive)) {
 					return null;

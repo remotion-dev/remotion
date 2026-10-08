@@ -24,10 +24,12 @@ export const calculateTimeline = ({
 	sequences,
 	overrideIdsToNodePaths,
 	compositions = [],
+	showConnectedCompositionChildren = false,
 }: {
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	compositions?: readonly _InternalTypes['AnyComposition'][];
+	showConnectedCompositionChildren?: boolean;
 }): TimelineTrackData[] => {
 	const registeredSequencesById = new Map(
 		sequences.map((sequence) => [sequence.id, sequence]),
@@ -186,7 +188,9 @@ export const calculateTimeline = ({
 	};
 
 	const timelineSequences = sortedSequences.filter(
-		(sequence) => !getTiming(sequence).hasConnectedCompositionAncestor,
+		(sequence) =>
+			showConnectedCompositionChildren ||
+			!getTiming(sequence).hasConnectedCompositionAncestor,
 	);
 
 	for (let i = 0; i < timelineSequences.length; i++) {

@@ -44,7 +44,7 @@ export const TrackWithoutSchema: React.FC<SequenceProps> = ({
 				{...props}
 				name={name}
 				layout={layout}
-				_remotionInternalTimelineTrack={{role: 'track'}}
+				_remotionInternalTimelineTrack={{role: 'track', seriesOffset: null}}
 			>
 				{children}
 			</SequenceWithoutSchema>

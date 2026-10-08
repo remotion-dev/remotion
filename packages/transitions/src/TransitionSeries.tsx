@@ -333,6 +333,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				name="<TS.Overlay>"
 				_remotionInternalTimelineTrack={{
 					role: 'overlay',
+					seriesOffset: null,
 				}}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 				controls={info.controls ?? undefined}
@@ -567,6 +568,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 										name="<TS.Transition>"
 										_remotionInternalTimelineTrack={{
 											role: 'transition',
+											seriesOffset: null,
 										}}
 										_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 										controls={transitionProps.controls ?? undefined}
