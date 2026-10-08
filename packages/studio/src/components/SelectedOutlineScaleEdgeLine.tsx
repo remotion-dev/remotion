@@ -1,4 +1,5 @@
-import React, {useContext, useMemo, useRef} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {TRANSPARENT} from '../helpers/colors';
 import {startCapturedPointerSession} from '../helpers/pointer-session';
@@ -47,7 +48,10 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
 	readonly onContextMenuOpenChange: (open: boolean) => void;
-	readonly onHoverChange: (key: string | null) => void;
+	readonly onHoverChange: (
+		key: string | null,
+		element: SVGElement | null,
+	) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
@@ -80,6 +84,28 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 		() => getSelectedOutlineScaleEdgeInfo(outline.points, edge),
 		[edge, outline.points],
 	);
+	const showHandle = scaleDrag !== null && edgeInfo !== null;
+	useLayoutEffect(() => {
+		const element = lineRef.current;
+		if (element === null) {
+			return;
+		}
+
+		const stopObserving = PlayerInternals.observeHover({
+			element,
+			initialPointerEvent: null,
+			onPointerMove: null,
+			onHoverChange: (hovered) => {
+				if (!dragging) {
+					onHoverChange(hovered ? outline.key : null, element);
+				}
+			},
+		});
+		return () => {
+			stopObserving();
+			onHoverChange(null, element);
+		};
+	}, [dragging, onHoverChange, outline.key, showHandle]);
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGLineElement>) => {
@@ -278,16 +304,6 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				data-remotion-studio-scale-edge-contains-selection={
 					target?.containsSelection ?? false
 				}
-				onPointerEnter={() => {
-					if (!dragging) {
-						onHoverChange(outline.key);
-					}
-				}}
-				onPointerLeave={() => {
-					if (!dragging) {
-						onHoverChange(null);
-					}
-				}}
 				onPointerDown={onPointerDown}
 			/>
 			<ContextMenuForTarget

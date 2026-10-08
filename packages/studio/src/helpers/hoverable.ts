@@ -1,5 +1,11 @@
 import type React from 'react';
-import {TRANSPARENT} from './colors';
+import {
+	BLACK_ALPHA_60,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_05,
+} from './colors';
 
 // Purely visual hover styling must be driven by CSS `:hover` rather than
 // React state: When the Studio runs in an <iframe> (like in Browser Studio),
@@ -13,7 +19,10 @@ import {TRANSPARENT} from './colors';
 export const HOVERABLE_CLASS_NAME = '__remotion-hoverable';
 export const HOVER_GROUP_CLASS_NAME = '__remotion-hover-group';
 export const HOVER_GROUP_REVEAL_CLASS_NAME = '__remotion-hover-group-reveal';
+export const HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME =
+	'__remotion-hover-group-reveal-keep-space';
 export const FOCUS_VISIBLE_ONLY_CLASS_NAME = '__remotion-focus-visible-only';
+export const INPUT_HOVER_CLASS_NAME = '__remotion-input-hover';
 
 const BG_VARIABLE = '--remotion-studio-hoverable-bg';
 const HOVER_BG_VARIABLE = '--remotion-studio-hoverable-hover-bg';
@@ -54,6 +63,8 @@ export const hoverableStyle = ({
 const hoverable = `.${HOVERABLE_CLASS_NAME}.${HOVERABLE_CLASS_NAME}`;
 const hoverGroup = `.${HOVER_GROUP_CLASS_NAME}`;
 const reveal = `.${HOVER_GROUP_REVEAL_CLASS_NAME}.${HOVER_GROUP_REVEAL_CLASS_NAME}`;
+const revealKeepSpace = `.${HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME}.${HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME}`;
+const inputHover = `.${INPUT_HOVER_CLASS_NAME}`;
 
 export const makeHoverableCSS = () => `
   ${hoverable} {
@@ -69,7 +80,17 @@ export const makeHoverableCSS = () => `
     flex-shrink: 0;
   }
 
+  ${inputHover} {
+    --remotion-studio-input-hover-border: ${BLACK_ALPHA_60};
+    --remotion-studio-input-hover-icon: var(--remotion-studio-input-idle-icon, ${LIGHT_TEXT});
+  }
+
   @media (hover: hover) {
+    ${inputHover}:hover {
+      --remotion-studio-input-hover-border: ${WHITE_ALPHA_05};
+      --remotion-studio-input-hover-icon: ${WHITE};
+    }
+
     ${hoverable}:hover {
       background-color: var(${HOVER_BG_VARIABLE}, var(${BG_VARIABLE}, ${TRANSPARENT}));
     }
@@ -98,6 +119,18 @@ export const makeHoverableCSS = () => `
       opacity: 1;
       width: auto;
       overflow: visible;
+    }
+
+    ${hoverGroup} ${revealKeepSpace} {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    ${hoverGroup}:hover ${revealKeepSpace},
+    ${hoverGroup}:focus-within ${revealKeepSpace},
+    ${hoverGroup}:has([aria-expanded="true"]) ${revealKeepSpace} {
+      opacity: 1;
+      pointer-events: auto;
     }
   }
 `;

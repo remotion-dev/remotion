@@ -383,8 +383,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
-	const {hovered, onPointerEnter, onPointerLeave} =
-		useTimelineSequenceHover(nodePathInfo);
+	const {hovered, ref: hoverRef} = useTimelineSequenceHover(nodePathInfo);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
@@ -1662,6 +1661,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const trackRow = (
 		<TimelineRowChrome
+			ref={hoverRef}
 			depth={nestedDepth}
 			eye={
 				showVisibilityToggle ? (
@@ -1690,8 +1690,6 @@ const TimelineSequenceItemInner: React.FC<{
 			onDoubleClick={
 				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
 			}
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
 		>
 			<div style={labelContainerStyle}>
 				{connectedCompositions.length > 0 ? (

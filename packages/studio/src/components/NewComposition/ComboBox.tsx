@@ -2,13 +2,13 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {
+	BLACK_ALPHA_60,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
-	WHITE_ALPHA_05,
-	BLACK_ALPHA_60,
 	SELECTED_BACKGROUND,
 	WHITE,
 } from '../../helpers/colors';
+import {INPUT_HOVER_CLASS_NAME} from '../../helpers/hoverable';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
@@ -125,7 +125,6 @@ export const Combobox: React.FC<{
 	size: controlSize = 'default',
 	unhoveredIconColor = LIGHT_TEXT,
 }) => {
-	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
 	const {tabIndex, currentZIndex} = useZIndex();
@@ -154,8 +153,6 @@ export const Combobox: React.FC<{
 			return;
 		}
 
-		const onMouseEnter = () => setIsHovered(true);
-		const onMouseLeave = () => setIsHovered(false);
 		const onPointerDown = (e: PointerEvent) => {
 			// Prevent deselection of currently selected items
 			e.stopPropagation();
@@ -197,14 +194,10 @@ export const Combobox: React.FC<{
 			});
 		};
 
-		current.addEventListener('mouseenter', onMouseEnter);
-		current.addEventListener('mouseleave', onMouseLeave);
 		current.addEventListener('pointerdown', onPointerDown);
 		current.addEventListener('click', onClick);
 
 		return () => {
-			current.removeEventListener('mouseenter', onMouseEnter);
-			current.removeEventListener('mouseleave', onMouseLeave);
 			current.removeEventListener('pointerdown', onPointerDown);
 			current.removeEventListener('click', onClick);
 		};
@@ -290,13 +283,12 @@ export const Combobox: React.FC<{
 			display: 'inline-flex',
 			flexDirection: 'row',
 			alignItems: 'center',
+			'--remotion-studio-input-idle-icon': unhoveredIconColor,
 			borderColor: opened
 				? SELECTED_BACKGROUND
-				: hovered
-					? WHITE_ALPHA_05
-					: BLACK_ALPHA_60,
-		};
-	}, [controlSize, customStyle, hovered, opened]);
+				: `var(--remotion-studio-input-hover-border, ${BLACK_ALPHA_60})`,
+		} as React.CSSProperties;
+	}, [controlSize, customStyle, opened, unhoveredIconColor]);
 
 	const selectedLabelStyle =
 		controlSize === 'small'
@@ -313,7 +305,7 @@ export const Combobox: React.FC<{
 				tabIndex={tabIndex}
 				type="button"
 				style={style}
-				className={MENU_INITIATOR_CLASSNAME}
+				className={`${MENU_INITIATOR_CLASSNAME} ${INPUT_HOVER_CLASS_NAME}`}
 			>
 				{selected ? (
 					<div
@@ -328,7 +320,11 @@ export const Combobox: React.FC<{
 				) : null}
 				<Spacing x={controlSize === 'default' ? 1 : 0.5} />{' '}
 				<CaretDown
-					color={hovered || opened ? WHITE : unhoveredIconColor}
+					color={
+						opened
+							? WHITE
+							: `var(--remotion-studio-input-hover-icon, ${unhoveredIconColor})`
+					}
 					small={controlSize === 'small'}
 				/>
 			</button>

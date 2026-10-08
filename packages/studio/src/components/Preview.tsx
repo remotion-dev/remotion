@@ -201,6 +201,7 @@ const CompWhenItHasDimensions: React.FC<{
 		setCanvasHovered(false);
 		setCanvasDragHovered(false);
 		const stopObservingHover = PlayerInternals.observeHover({
+			initialPointerEvent: null,
 			element: compositionContainer,
 			onHoverChange: setCanvasHovered,
 			onPointerMove: null,

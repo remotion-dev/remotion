@@ -1573,6 +1573,12 @@ test('clears hover backgrounds and tooltips even if pointer leave events are los
 	await page.locator('iframe').dispatchEvent('pointerout');
 	await expect(hoveredOutline).toHaveCount(0, {timeout: 5000});
 	await neutralArea.hover();
+	// Native tracking must recover entry into a timeline row too, even when
+	// React cannot synthesize an enter from the suppressed pointerout event.
+	await solid.hover();
+	await expect(hoveredOutline).toHaveCount(1);
+	await neutralArea.hover();
+	await expect(hoveredOutline).toHaveCount(0);
 
 	await studio.getByRole('button', {name: 'Assets', exact: true}).click();
 	const assetFolder = studio.getByRole('group', {
@@ -1685,6 +1691,133 @@ test('clears hover backgrounds and tooltips even if pointer leave events are los
 	if (iframeBox === null) {
 		throw new Error('Expected the Studio iframe to be visible');
 	}
+
+	// Shared controls must also recover without their own leave callbacks.
+	await studio.getByRole('button', {name: 'Settings', exact: true}).click();
+	const modelsTab = studio.getByRole('button', {name: 'Models', exact: true});
+	await page.mouse.move(iframeBox.x + iframeBox.width + 12, 100);
+	await modelsTab.hover();
+	await expect
+		.poll(() => getBackgroundColor(modelsTab), {timeout: 5000})
+		.toBe('rgba(255, 255, 255, 0.06)');
+	await page.mouse.move(iframeBox.x + iframeBox.width + 12, 100);
+	await expect
+		.poll(() => getBackgroundColor(modelsTab), {timeout: 5000})
+		.toBe('rgba(0, 0, 0, 0)');
+	await studio.getByRole('button', {name: 'Close dialog'}).click();
+
+	const sourceLocation = studio.getByRole('group', {
+		name: 'Inspector source location',
+	});
+	const copyContext = sourceLocation.getByRole('button', {
+		name: 'Copy context for agents',
+	});
+	await sourceLocation.hover();
+	await expect
+		.poll(() =>
+			copyContext.evaluate((element) =>
+				element.checkVisibility({checkOpacity: true}),
+			),
+		)
+		.toBe(true);
+	await page.mouse.move(iframeBox.x + iframeBox.width + 12, 100);
+	await expect
+		.poll(() =>
+			copyContext.evaluate((element) =>
+				element.checkVisibility({checkOpacity: true}),
+			),
+		)
+		.toBe(false);
+	await copyContext.focus();
+	await expect(copyContext).toBeFocused();
+	await expect
+		.poll(() =>
+			copyContext.evaluate((element) =>
+				element.checkVisibility({checkOpacity: true}),
+			),
+		)
+		.toBe(true);
+
+	await studio
+		.getByRole('button', {name: 'Export the current composition (R)'})
+		.click();
+	const containerInput = studio.getByRole('button', {
+		name: 'Container',
+		exact: true,
+	});
+	const outputName = studio.getByRole('textbox', {name: 'Output name'});
+	for (const input of [containerInput, outputName]) {
+		await input.hover();
+		await expect(input).toHaveCSS('border-color', 'rgba(255, 255, 255, 0.05)');
+		await page.mouse.move(iframeBox.x + iframeBox.width + 12, 100);
+		await expect(input).toHaveCSS('border-color', 'rgba(0, 0, 0, 0.6)');
+	}
+
+	await outputName.focus();
+	const focusedBorder = await outputName.evaluate(
+		(element) => window.getComputedStyle(element).borderColor,
+	);
+	await outputName.hover();
+	await page.mouse.move(iframeBox.x + iframeBox.width + 12, 100);
+	await expect(outputName).toBeFocused();
+	await expect(outputName).toHaveCSS('border-color', focusedBorder);
+	await studio.getByRole('button', {name: 'Close dialog'}).click();
+
+	await studio.getByRole('button', {name: 'View', exact: true}).click();
+	const leftSidebarMenu = studio.getByRole('button', {
+		name: 'Left Sidebar',
+		exact: true,
+	});
+	const responsive = studio.getByRole('button', {
+		name: 'Responsive',
+		exact: true,
+	});
+	await leftSidebarMenu.hover();
+	await expect(responsive).toBeVisible();
+	await page.keyboard.press('Escape');
+	await studio.getByRole('button', {name: 'View', exact: true}).click();
+	await leftSidebarMenu.hover();
+	await page.mouse.move(iframeBox.x + iframeBox.width + 12, 100);
+	await page.waitForTimeout(200);
+	await expect(responsive).toHaveCount(0);
+	// Keyboard selection must not inherit a different row's hover timer.
+	await leftSidebarMenu.hover();
+	await page.keyboard.press('ArrowDown');
+	await page.waitForTimeout(200);
+	await expect(responsive).toHaveCount(0);
+	await page.keyboard.press('ArrowRight');
+	await expect(responsive).toBeVisible();
+	await page.keyboard.press('Escape');
+
+	await studio.getByRole('button', {name: 'View', exact: true}).click();
+	await studio.getByRole('button', {name: 'Show Rulers', exact: true}).click();
+	const ruler = studio.getByLabel('Horizontal ruler', {exact: true});
+	const rulerBox = await ruler.boundingBox();
+	if (rulerBox === null) {
+		throw new Error('Expected a visible ruler to create a guide');
+	}
+
+	await page.mouse.move(
+		rulerBox.x + rulerBox.width / 2,
+		rulerBox.y + rulerBox.height / 2,
+	);
+	await page.mouse.down();
+	await page.mouse.move(rulerBox.x + rulerBox.width / 2, rulerBox.y + 80, {
+		steps: 5,
+	});
+	await page.mouse.up();
+	const guide = studio.locator('.__remotion_editor_guide');
+	await expect(guide).toHaveCount(1);
+	await page.keyboard.press('Escape');
+	await neutralArea.hover();
+	const guideLine = guide.locator('.__remotion_editor_guide_content');
+	const idleGuideColor = await getBackgroundColor(guideLine);
+	await guide.hover({position: {x: 20, y: 4}});
+	await expect
+		.poll(() => getBackgroundColor(guideLine))
+		.not.toBe(idleGuideColor);
+	await page.mouse.move(iframeBox.x + iframeBox.width + 12, 100);
+	await expect.poll(() => getBackgroundColor(guideLine)).toBe(idleGuideColor);
 
 	const loop = studio.getByRole('button', {name: 'Loop', exact: true});
 	const loopTooltip = studio.getByRole('tooltip').filter({hasText: 'Loop'});

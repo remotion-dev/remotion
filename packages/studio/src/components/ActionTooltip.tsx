@@ -127,6 +127,7 @@ export const ActionTooltip: React.FC<{
 		}
 
 		const unobserve = PlayerInternals.observeHover({
+			initialPointerEvent: null,
 			element: trigger,
 			onPointerMove: null,
 			onHoverChange: (hovered) => {

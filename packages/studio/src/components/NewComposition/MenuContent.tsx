@@ -1,3 +1,4 @@
+import {PlayerInternals} from '@remotion/player';
 import type {PointerEvent, SetStateAction} from 'react';
 import React, {
 	useCallback,
@@ -68,6 +69,10 @@ export const MenuContent: React.FC<{
 
 	const [subMenuActivated, setSubMenuActivated] =
 		useState<SubMenuActivated>(false);
+	const subMenuActivatedRef = useRef(subMenuActivated);
+	useEffect(() => {
+		subMenuActivatedRef.current = subMenuActivated;
+	}, [subMenuActivated]);
 	const typeaheadQueryRef = useRef('');
 	const typeaheadTimeoutRef = useRef<number | null>(null);
 
@@ -390,17 +395,17 @@ export const MenuContent: React.FC<{
 			return;
 		}
 
-		const onPointerLeave = () => {
-			if (subMenuActivated) {
-				return;
-			}
-
-			setSelectedItem(null);
-		};
-
-		current.addEventListener('pointerleave', onPointerLeave);
-		return () => current.removeEventListener('pointerleave', onPointerLeave);
-	}, [onHide, subMenuActivated]);
+		return PlayerInternals.observeHover({
+			initialPointerEvent: null,
+			element: current,
+			onHoverChange: (hovered) => {
+				if (!hovered && !subMenuActivatedRef.current) {
+					setSelectedItem(null);
+				}
+			},
+			onPointerMove: null,
+		});
+	}, []);
 
 	return (
 		<MenuTreeContext.Provider value={menuTreeId}>

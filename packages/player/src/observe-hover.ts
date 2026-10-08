@@ -6,10 +6,12 @@ export const observeHover = ({
 	element,
 	onHoverChange,
 	onPointerMove,
+	initialPointerEvent,
 }: {
-	element: HTMLElement;
+	element: HTMLElement | SVGElement;
 	onHoverChange: (hovered: boolean) => void;
 	onPointerMove: (() => void) | null;
+	initialPointerEvent: PointerEvent | null;
 }): (() => void) => {
 	const {ownerDocument} = element;
 	const ownerWindow = ownerDocument.defaultView;
@@ -66,7 +68,8 @@ export const observeHover = ({
 		animationFrame = ownerWindow?.requestAnimationFrame(reconcileHover) ?? null;
 	};
 
-	const onPointerEnter = (event: PointerEvent) => {
+	const onPointerEnter = (nativeEvent: Event) => {
+		const event = nativeEvent as PointerEvent;
 		if (event.pointerType === 'touch' || hovered || disposed) {
 			return;
 		}
@@ -93,13 +96,15 @@ export const observeHover = ({
 		onHoverChange(true);
 	};
 
-	const onPointerLeave = (event: PointerEvent) => {
+	const onPointerLeave = (nativeEvent: Event) => {
+		const event = nativeEvent as PointerEvent;
 		if (event.pointerType !== 'touch') {
 			onLeave();
 		}
 	};
 
-	const onMove = (event: PointerEvent) => {
+	const onMove = (nativeEvent: Event) => {
+		const event = nativeEvent as PointerEvent;
 		if (event.pointerType === 'touch' || disposed) {
 			return;
 		}
@@ -127,6 +132,13 @@ export const observeHover = ({
 	element.addEventListener('pointerenter', onPointerEnter);
 	element.addEventListener('pointerleave', onPointerLeave);
 	element.addEventListener('pointermove', onMove);
+	// Event-handler consumers attach after the native enter was dispatched.
+	// Seed only from that real pointer event, never from a mount-time :hover
+	// sample, which can also be left behind by touch input.
+	if (initialPointerEvent !== null) {
+		onPointerEnter(initialPointerEvent);
+	}
+
 	return () => {
 		disposed = true;
 		onLeave();

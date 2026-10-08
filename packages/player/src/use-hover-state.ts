@@ -88,6 +88,7 @@ export const useHoverState = (
 
 		current.addEventListener('pointerdown', onPointerDown);
 		const stopObserving = observeHover({
+			initialPointerEvent: null,
 			element: current,
 			onHoverChange: (isHovered) => {
 				if (isHovered) {

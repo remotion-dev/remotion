@@ -39,11 +39,19 @@ export const useSelectedOutlineControlTarget = ({
 			? getLatestTargetByKey(layoutTarget.key)
 			: undefined;
 	const onHoverChange = React.useCallback(
-		(key: string | null) => {
+		(key: string | null, element: SVGElement | null) => {
 			if (key === null) {
-				onPointerLeave();
+				onPointerLeave(element === null ? undefined : {currentTarget: element});
 			} else if (targetRef.current?.key === key) {
-				onPointerEnter();
+				onPointerEnter(
+					element === null
+						? undefined
+						: {
+								currentTarget: element,
+								nativeEvent: null,
+								pointerType: null,
+							},
+				);
 			}
 		},
 		[onPointerEnter, onPointerLeave],

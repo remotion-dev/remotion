@@ -28,9 +28,7 @@ const TimelineTrackUnmemoized: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
 	const timelineWidth = useContext(TimelineWidthContext);
-	const {hovered, onPointerEnter, onPointerLeave} = useTimelineSequenceHover(
-		track.nodePathInfo,
-	);
+	const {hovered, ref: hoverRef} = useTimelineSequenceHover(track.nodePathInfo);
 	const rowHighlightBackground = useTimelineRowHighlightBackground(
 		track.nodePathInfo,
 		{
@@ -54,7 +52,7 @@ const TimelineTrackUnmemoized: React.FC<{
 		getIsExpanded(track.nodePathInfo);
 
 	return (
-		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
+		<div ref={hoverRef}>
 			<div
 				style={layerStyle}
 				{...getSequenceAnnotationAttributes({

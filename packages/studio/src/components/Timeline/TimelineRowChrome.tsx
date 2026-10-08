@@ -61,7 +61,7 @@ export const TimelineRowKeyframeControlsColumn: React.FC<{
 	);
 };
 
-export const TimelineRowChrome: React.FC<{
+type TimelineRowChromeProps = {
 	readonly depth: number;
 	readonly eye: React.ReactNode;
 	readonly keyframeControls?: React.ReactNode;
@@ -83,30 +83,34 @@ export const TimelineRowChrome: React.FC<{
 	readonly onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
-	readonly onPointerEnter?: () => void;
-	readonly onPointerLeave?: () => void;
-}> = ({
-	depth,
-	eye,
-	keyframeControls,
-	arrow,
-	children,
-	style,
-	selected,
-	selectable,
-	onSelect,
-	showSelectedBackground,
-	containsSelection,
-	hovered = false,
-	outerHeight,
-	showBottomBorder,
-	onDragLeave,
-	onDragOver,
-	onDrop,
-	onDoubleClick,
-	onPointerEnter,
-	onPointerLeave,
-}) => {
+};
+
+const TimelineRowChromeForwardRef: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	TimelineRowChromeProps
+> = (
+	{
+		depth,
+		eye,
+		keyframeControls,
+		arrow,
+		children,
+		style,
+		selected,
+		selectable,
+		onSelect,
+		showSelectedBackground,
+		containsSelection,
+		hovered = false,
+		outerHeight,
+		showBottomBorder,
+		onDragLeave,
+		onDragOver,
+		onDrop,
+		onDoubleClick,
+	},
+	ref,
+) => {
 	const {basePadding, rowBorderRadius, rowHorizontalMargin} = useContext(
 		TimelineRowLayoutContext,
 	);
@@ -252,6 +256,7 @@ export const TimelineRowChrome: React.FC<{
 	if (outerStyle) {
 		return (
 			<div
+				ref={ref}
 				style={outerStyle}
 				onDragLeave={onDragLeave}
 				onDragOver={onDragOver}
@@ -260,8 +265,6 @@ export const TimelineRowChrome: React.FC<{
 				onPointerDown={selectable ? onPointerDown : undefined}
 				onClick={onClick}
 				onContextMenu={selectable ? onContextMenu : undefined}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
 			>
 				<div style={innerRowStyle}>{chrome}</div>
 			</div>
@@ -270,6 +273,7 @@ export const TimelineRowChrome: React.FC<{
 
 	return (
 		<div
+			ref={ref}
 			onDragLeave={onDragLeave}
 			onDragOver={onDragOver}
 			onDrop={onDrop}
@@ -277,11 +281,14 @@ export const TimelineRowChrome: React.FC<{
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick}
 			onContextMenu={selectable ? onContextMenu : undefined}
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
 			style={innerRowStyle}
 		>
 			{chrome}
 		</div>
 	);
 };
+
+export const TimelineRowChrome = React.forwardRef<
+	HTMLDivElement,
+	TimelineRowChromeProps
+>(TimelineRowChromeForwardRef);

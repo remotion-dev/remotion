@@ -1,4 +1,5 @@
-import React, {useContext, useMemo, useRef} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {TRANSPARENT} from '../helpers/colors';
 import {startCapturedPointerSession} from '../helpers/pointer-session';
@@ -53,7 +54,10 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
 	readonly onContextMenuOpenChange: (open: boolean) => void;
-	readonly onHoverChange: (key: string | null) => void;
+	readonly onHoverChange: (
+		key: string | null,
+		element: SVGElement | null,
+	) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
@@ -82,9 +86,31 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const rotationDrag = target?.rotationDrag ?? null;
+	const hasRotationDrag = rotationDrag !== null;
 	const selected = target?.selected ?? false;
 	const containsSelection = target?.containsSelection ?? false;
 	const circleRef = useRef<SVGCircleElement>(null);
+	useLayoutEffect(() => {
+		const element = circleRef.current;
+		if (element === null) {
+			return;
+		}
+
+		const stopObserving = PlayerInternals.observeHover({
+			element,
+			initialPointerEvent: null,
+			onPointerMove: null,
+			onHoverChange: (hovered) => {
+				if (!dragging) {
+					onHoverChange(hovered ? outline.key : null, element);
+				}
+			},
+		});
+		return () => {
+			stopObserving();
+			onHoverChange(null, element);
+		};
+	}, [dragging, hasRotationDrag, onHoverChange, outline.key]);
 	const cornerInfo = useMemo(
 		() => getSelectedOutlineRotationCornerInfo(outline.points, corner),
 		[corner, outline.points],
@@ -345,16 +371,6 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 				data-remotion-studio-rotation-corner-contains-selection={
 					containsSelection
 				}
-				onPointerEnter={() => {
-					if (!dragging) {
-						onHoverChange(outline.key);
-					}
-				}}
-				onPointerLeave={() => {
-					if (!dragging) {
-						onHoverChange(null);
-					}
-				}}
 				onPointerDown={onPointerDown}
 			/>
 			<ContextMenuForTarget
