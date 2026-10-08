@@ -35,6 +35,7 @@ import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
+import {useCurrentFrame} from './use-current-frame.js';
 import {useDelayRender} from './use-delay-render.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -234,8 +235,8 @@ declare global {
 
 export type HtmlInCanvasOnPaintParams = {
 	/**
-	 * The `OffscreenCanvas` from {@link HTMLCanvasElement.transferControlToOffscreen}
-	 * on the layout `<canvas>` (same logical canvas as the forwarded ref).
+	 * The paint target. During rendering, its pixels are copied to the layout
+	 * `<canvas>` after painting; during preview, it controls that canvas directly.
 	 */
 	readonly canvas: OffscreenCanvas;
 	readonly element: HTMLDivElement;
@@ -507,29 +508,42 @@ const HtmlInCanvasContent = forwardRef<
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
+		const frame = useCurrentFrame();
+		const renderFrame = isRendering ? frame : null;
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
 			onPaint === undefined && onInit === undefined;
+		const paintTargetMode = usesDirectLayoutCanvas
+			? 'direct'
+			: isRendering
+				? 'copied'
+				: 'transferred';
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
+		const outputCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const paintTargetRef = useRef<HtmlInCanvasPaintTarget | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
-		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${usesDirectLayoutCanvas ? 'direct' : 'offscreen'}`;
+		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${paintTargetMode}`;
 
-		const setLayoutCanvasRef = useCallback(
+		const setVisibleCanvasRef = useCallback(
 			(node: HTMLCanvasElement | null) => {
-				canvas2dRef.current = node;
+				if (paintTargetMode === 'copied') {
+					outputCanvasRef.current = node;
+				} else {
+					canvas2dRef.current = node;
+				}
+
 				if (typeof ref === 'function') {
 					ref(node);
 				} else if (ref) {
 					(ref as React.RefObject<HTMLCanvasElement | null>).current = node;
 				}
 			},
-			[ref],
+			[ref, paintTargetMode],
 		);
 
 		const chainState = useEffectChainState();
@@ -577,6 +591,7 @@ const HtmlInCanvasContent = forwardRef<
 					throw new Error('Canvas not found');
 				}
 
+				const outputCanvas = outputCanvasRef.current;
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
 					const currentOnInit = onInitRef.current;
@@ -627,11 +642,16 @@ const HtmlInCanvasContent = forwardRef<
 								);
 							}
 
-							if (unmountedRef.current) {
+							if (
+								unmountedRef.current ||
+								paintTargetRef.current !== paintTarget
+							) {
 								cleanup();
-							} else {
-								onInitCleanupRef.current = cleanup;
+								continueRender(handle);
+								return;
 							}
+
+							onInitCleanupRef.current = cleanup;
 						} finally {
 							initImage.close();
 						}
@@ -700,6 +720,25 @@ const HtmlInCanvasContent = forwardRef<
 					elImage.close();
 				}
 
+				if (
+					paintTargetMode === 'copied' &&
+					paintTargetRef.current === paintTarget &&
+					outputCanvas
+				) {
+					const ctx = outputCanvas.getContext('2d');
+					if (!ctx) {
+						throw new Error(
+							'HtmlInCanvas: could not get layout canvas context',
+						);
+					}
+
+					// A transferred OffscreenCanvas submits its pixels asynchronously.
+					// Copy before releasing the render handle so capture sees this paint.
+					// drawImage preserves the source for handlers that paint incrementally.
+					ctx.reset();
+					ctx.drawImage(paintTarget, 0, 0);
+				}
+
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
@@ -713,10 +752,13 @@ const HtmlInCanvasContent = forwardRef<
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
+			paintTargetMode,
 		]);
 
 		// Default paint handlers draw synchronously on the layout canvas itself.
-		// Custom handlers retain the transferred OffscreenCanvas API.
+		// ElementImage can only be drawn into its associated canvas, so custom
+		// handlers retain a transferred target. Rendering copies it to a separate
+		// visible canvas without waiting for the transferred canvas to present.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
@@ -727,9 +769,10 @@ const HtmlInCanvasContent = forwardRef<
 			placeholder.layoutSubtree = true;
 			divRef.current?.setAttribute('drawable', '');
 
-			const paintTarget = usesDirectLayoutCanvas
-				? placeholder
-				: getTransferredOffscreenCanvas(placeholder);
+			const paintTarget =
+				paintTargetMode === 'direct'
+					? placeholder
+					: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
 			resizePaintTarget({
@@ -751,13 +794,7 @@ const HtmlInCanvasContent = forwardRef<
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [
-			onPaintCb,
-			cancelRender,
-			canvasWidth,
-			canvasHeight,
-			usesDirectLayoutCanvas,
-		]);
+		}, [onPaintCb, cancelRender, canvasWidth, canvasHeight, paintTargetMode]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
@@ -780,19 +817,25 @@ const HtmlInCanvasContent = forwardRef<
 				return;
 			}
 
-			const handle = delayRender('waiting for first paint after canvas resize');
-			canvas.addEventListener(
-				'paint',
-				() => {
-					continueRender(handle);
-				},
-				{once: true},
-			);
+			// Block capture before the paint event begins, including updates that
+			// keep the same canvas. onPaintCb holds its own handle through async work.
+			const handle = delayRender('waiting for HtmlInCanvas paint');
+			const onPainted = () => continueRender(handle);
+			canvas.addEventListener('paint', onPainted, {once: true});
+			canvas.requestPaint?.();
 
 			return () => {
+				canvas.removeEventListener('paint', onPainted);
 				continueRender(handle);
 			};
-		}, [width, height, continueRender, delayRender, canvasSizeKey]);
+		}, [
+			width,
+			height,
+			continueRender,
+			delayRender,
+			canvasSizeKey,
+			renderFrame,
+		]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -813,16 +856,43 @@ const HtmlInCanvasContent = forwardRef<
 			<HtmlInCanvasAncestorContext.Provider value>
 				<canvas
 					key={canvasSizeKey}
-					ref={setLayoutCanvasRef}
+					ref={paintTargetMode === 'copied' ? canvas2dRef : setVisibleCanvasRef}
 					width={canvasWidth}
 					height={canvasHeight}
-					style={canvasStyle}
+					style={
+						paintTargetMode === 'copied'
+							? {
+									...canvasStyle,
+									position: 'absolute',
+									// Hide the source canvas while keeping its drawable children
+									// visible to captureElementImage. opacity: 0 drops paint records.
+									visibility: 'hidden',
+									pointerEvents: 'none',
+								}
+							: canvasStyle
+					}
 				>
-					<div ref={divRef} style={innerStyle}>
+					<div
+						ref={divRef}
+						style={
+							paintTargetMode === 'copied'
+								? {...innerStyle, visibility: 'visible'}
+								: innerStyle
+						}
+					>
 						{children}
 					</div>
 					{canvasSiblings}
 				</canvas>
+				{paintTargetMode === 'copied' ? (
+					<canvas
+						key={`output-${canvasSizeKey}`}
+						ref={setVisibleCanvasRef}
+						width={canvasWidth}
+						height={canvasHeight}
+						style={canvasStyle}
+					/>
+				) : null}
 			</HtmlInCanvasAncestorContext.Provider>
 		);
 	},

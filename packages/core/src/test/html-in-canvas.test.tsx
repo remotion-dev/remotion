@@ -22,6 +22,7 @@ const stub2dContext = () => {
 		reset: () => undefined,
 		scale: () => undefined,
 		drawElementImage: () => undefined,
+		drawImage: () => undefined,
 		getImageData: () => ({
 			data: new Uint8ClampedArray(4),
 			width: 1,
@@ -459,7 +460,53 @@ test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {
 	});
 });
 
-test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
+test('<HtmlInCanvas> keeps the visible ref when switching paint handlers and resizing', () => {
+	const canvasRef = React.createRef<HTMLCanvasElement>();
+	const Component: React.FC<{
+		readonly customPaint: boolean;
+		readonly size: number;
+	}> = ({customPaint, size}) => (
+		<React.StrictMode>
+			<SequenceTestWrapper isRendering onRegisterSequence={() => undefined}>
+				<HtmlInCanvas
+					ref={canvasRef}
+					width={size}
+					height={size}
+					pixelDensity={2}
+					onPaint={customPaint ? () => undefined : undefined}
+				>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>
+		</React.StrictMode>
+	);
+	const {container, rerender} = render(
+		<Component customPaint={false} size={50} />,
+	);
+	const preview = canvasRef.current;
+	expect(container.querySelectorAll('canvas')).toHaveLength(1);
+	expect(transferControlToOffscreenCalls).toBe(0);
+
+	rerender(<Component customPaint size={50} />);
+	const output = canvasRef.current;
+	expect(output).not.toBe(preview);
+	expect(container.querySelectorAll('canvas')).toHaveLength(2);
+	expect(output).toBe(container.querySelectorAll('canvas')[1]);
+	expect(transferControlToOffscreenCalls).toBe(1);
+
+	rerender(<Component customPaint size={60} />);
+	expect(canvasRef.current).not.toBe(output);
+	expect(canvasRef.current?.getAttribute('width')).toBe('120');
+	expect(canvasRef.current?.style.width).toBe('60px');
+	expect(transferControlToOffscreenCalls).toBe(2);
+
+	rerender(<Component customPaint={false} size={60} />);
+	expect(container.querySelectorAll('canvas')).toHaveLength(1);
+	expect(canvasRef.current).toBe(container.querySelector('canvas'));
+	expect(transferControlToOffscreenCalls).toBe(2);
+});
+
+test('<HtmlInCanvas> copies custom paint before releasing scoped delayRender handles', async () => {
 	const delayRenderScope: DelayRenderScope = {
 		remotion_attempt: 0,
 		remotion_delayRenderHandles: [],
@@ -467,6 +514,9 @@ test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
 		remotion_puppeteerTimeout: 30_000,
 		remotion_renderReady: true,
 	};
+	const canvasRef = React.createRef<HTMLCanvasElement>();
+	let paintedCanvas: OffscreenCanvas | null = null;
+	const copied: CanvasImageSource[] = [];
 	let resolvePaint!: () => void;
 	const paintPromise = new Promise<void>((resolve) => {
 		resolvePaint = resolve;
@@ -479,7 +529,15 @@ test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
 				isRendering
 				onRegisterSequence={() => undefined}
 			>
-				<HtmlInCanvas width={50} height={50} onPaint={() => paintPromise}>
+				<HtmlInCanvas
+					ref={canvasRef}
+					width={50}
+					height={50}
+					onPaint={({canvas: offscreenCanvas}) => {
+						paintedCanvas = offscreenCanvas;
+						return paintPromise;
+					}}
+				>
 					<div>Test</div>
 				</HtmlInCanvas>
 			</SequenceTestWrapper>
@@ -492,6 +550,17 @@ test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
 	expect(window.remotion_delayRenderHandles).toHaveLength(0);
 
 	const canvas = container.querySelector('canvas')!;
+	expect(canvasRef.current).not.toBe(canvas);
+	expect(canvasRef.current).toBe(container.querySelectorAll('canvas')[1]);
+	Object.defineProperty(canvasRef.current, 'getContext', {
+		value: () => ({
+			...stub2dContext(),
+			drawImage: (source: CanvasImageSource) => {
+				expect(delayRenderScope.remotion_renderReady).toBe(false);
+				copied.push(source);
+			},
+		}),
+	});
 	canvas.dispatchEvent(new Event('paint'));
 
 	await waitFor(() => {
@@ -500,10 +569,13 @@ test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
 	});
 	expect(window.remotion_delayRenderHandles).toHaveLength(0);
 
+	expect(copied).toHaveLength(0);
 	resolvePaint();
 	await waitFor(() => {
 		expect(delayRenderScope.remotion_delayRenderHandles).toHaveLength(0);
 		expect(delayRenderScope.remotion_renderReady).toBe(true);
+		expect(copied).toHaveLength(1);
+		expect(copied[0]).toBe(paintedCanvas!);
 	});
 });
 

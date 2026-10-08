@@ -112,6 +112,8 @@ The callback receives:
 An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with backing dimensions `width * pixelDensity` × `height * pixelDensity`, rounded up.  
 You should paint to this canvas.
 
+From <AvailableFrom v="4.0.535" inline />, rendering waits for each frame's paint and copies the finished pixels to the visible canvas before capture. Return a `Promise` from `onPaint` if your drawing is asynchronous.
+
 #### `element`
 
 The inner [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement) that wraps `children`.  
@@ -157,7 +159,7 @@ From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/doc
 ### `ref?`
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<HtmlInCanvas />`.  
-It is attached to the [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement) that hosts the drawable subtree.
+It is attached to the visible [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement). From <AvailableFrom v="4.0.535" inline />, custom handlers use a separate canvas for the drawable subtree during rendering, so use the [`element`](#element) callback parameter to access the children.
 
 If you use TypeScript, type the ref with `HTMLCanvasElement`:
 

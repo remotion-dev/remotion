@@ -31,6 +31,11 @@ import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
+import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
+import {
+	htmlInCanvasFrames,
+	htmlInCanvasNestedFrames,
+} from './fixtures/html-in-canvas-frames';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -137,6 +142,9 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden} />
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
+			<Composition {...htmlInCanvasBlur} />
+			<Composition {...htmlInCanvasFrames} />
+			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
