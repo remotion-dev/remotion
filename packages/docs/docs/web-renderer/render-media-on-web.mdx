@@ -149,10 +149,11 @@ Controls the quality and file size of the output video. Can be either a number r
 
 #### Mediabunny `Quality`<AvailableFrom v="4.0.535" />
 
-Pass a [Mediabunny `Quality`](https://mediabunny.dev/guide/media-sources#encoding-quality) instance to control encoding settings directly.
-String presets use bitrate encoding. To prefer quantizer encoding, pass a `Quality` with `preferBitrate: false`:
+You can also pass a Mediabunny [`Quality`](https://mediabunny.dev/guide/media-sources#encoding-quality) instance directly.
+Remotion's string presets use bitrate encoding.
+A qualitative `Quality` instance uses Mediabunny's automatic choice between quantizer and bitrate encoding based on codec and browser support. `preferBitrate` defaults to `false` in Mediabunny:
 
-```tsx twoslash title="Use quantizer encoding"
+```tsx twoslash title="Use Mediabunny quality selection"
 const Component: React.FC = () => null;
 
 // ---cut---
@@ -168,7 +169,7 @@ await renderMediaOnWeb({
     height: 1080,
     id: 'my-composition',
   },
-  videoBitrate: new Quality({quality: 'high', preferBitrate: false}),
+  videoBitrate: new Quality('high'),
 });
 ```
 
