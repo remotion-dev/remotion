@@ -23,4 +23,5 @@ from .models import (
     Webhook,
 )
 from .remotionclient import RemotionClient
+from .asyncremotionclient import AsyncRemotionClient
 from .version import VERSION
