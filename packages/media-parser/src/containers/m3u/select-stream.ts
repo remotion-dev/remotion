@@ -52,6 +52,9 @@ export const selectAssociatedPlaylists = async ({
 	return selectedStreams;
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const defaultSelectM3uAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn =
 	({associatedPlaylists}) => {
 		if (associatedPlaylists.length === 1) {
@@ -84,6 +87,9 @@ export const selectStream = async ({
 	return Promise.resolve(selectedStream);
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const defaultSelectM3uStreamFn: SelectM3uStreamFn = ({streams}) => {
 	return Promise.resolve(streams[0].id);
 };

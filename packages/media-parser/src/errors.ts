@@ -102,6 +102,9 @@ export class MediaParserAbortError extends Error {
 	}
 }
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const hasBeenAborted = (
 	error: unknown,
 ): error is MediaParserAbortError => {
