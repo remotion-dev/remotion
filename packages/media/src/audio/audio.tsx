@@ -233,22 +233,24 @@ const AudioInner: React.FC<
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
 			>
-				{environment.isRendering ? (
-					<AudioForRendering
-						{...otherProps}
-						trimAfter={effectiveTrimAfter}
-						style={premountingStyle ?? undefined}
-					/>
-				) : (
-					<AudioForPreview
-						name={name}
-						{...otherProps}
-						trimAfter={effectiveTrimAfter}
-						style={premountingStyle}
-						_remotionInternalStack={sourceStack}
-						setMediaDurationInSeconds={setMediaDurationInSeconds}
-					/>
-				)}
+				<Internals.SequenceContent>
+					{environment.isRendering ? (
+						<AudioForRendering
+							{...otherProps}
+							trimAfter={effectiveTrimAfter}
+							style={premountingStyle ?? undefined}
+						/>
+					) : (
+						<AudioForPreview
+							name={name}
+							{...otherProps}
+							trimAfter={effectiveTrimAfter}
+							style={premountingStyle}
+							_remotionInternalStack={sourceStack}
+							setMediaDurationInSeconds={setMediaDurationInSeconds}
+						/>
+					)}
+				</Internals.SequenceContent>
 			</Sequence>
 		</Freeze>
 	);

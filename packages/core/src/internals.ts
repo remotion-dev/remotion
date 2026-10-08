@@ -178,6 +178,11 @@ import {
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
 import {createRuntimeValueStore} from './runtime-value-store.js';
+import {
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	SequenceActivitySettingsContext,
+	SequenceContent,
+} from './sequence-activity-context.js';
 import {resolveSequenceCrop} from './sequence-crop.js';
 import type {
 	OverrideIdToNodePaths,
@@ -390,6 +395,9 @@ export const Internals = {
 	SequenceStackTracesUpdateContext,
 	baseSchema,
 	sequenceSchema,
+	SequenceContent,
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	SequenceActivitySettingsContext,
 	SequenceWithoutSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,

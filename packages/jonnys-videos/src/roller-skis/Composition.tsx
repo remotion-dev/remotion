@@ -266,7 +266,7 @@ export const PresenterIntroduction: React.FC = () => {
 				objectFit="cover"
 				effects={[lut({content: studioLut})]}
 				from={25}
-				durationInFrames={188}
+				durationInFrames={350}
 			/>
 			<IntroLowerThird
 				name={'Lower Third'}
@@ -654,14 +654,14 @@ const RollerSkiRoughCut: React.FC = () => {
 			<Series>
 				<Series.Sequence
 					name="Opening text"
-					durationInFrames={165}
+					durationInFrames={185}
 					premountFor={fps}
 				>
 					<OpeningTitleCard />
 				</Series.Sequence>
 				<Series.Sequence
 					name="Presenter introduction (1)"
-					durationInFrames={192}
+					durationInFrames={346}
 					premountFor={fps}
 					trimBefore={21}
 				>
