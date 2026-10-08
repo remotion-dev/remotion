@@ -2,6 +2,7 @@ import {
 	BufferTarget,
 	StreamTarget,
 	type MetadataTags,
+	type Quality,
 	type StreamTargetChunk,
 } from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
@@ -132,7 +133,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	onProgress: RenderMediaOnWebProgressCallback | null;
 	hardwareAcceleration: WebRendererHardwareAcceleration;
 	keyframeIntervalInSeconds: number;
-	videoBitrate: number | WebRendererQuality;
+	videoBitrate: number | WebRendererQuality | Quality;
 	frameRange: FrameRange | null;
 	transparent: boolean;
 	onArtifact: WebRendererOnArtifact | null;
