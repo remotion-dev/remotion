@@ -29,6 +29,12 @@ import {
 import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
+import {
+	COMMITTED_HOLDS_DURATION,
+	COMMITTED_HOLDS_HEIGHT,
+	COMMITTED_HOLDS_WIDTH,
+	CommittedRenderHolds,
+} from './CommittedRenderHolds';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import {ControlsShowcase} from './ControlsShowcase';
@@ -478,6 +484,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="CommittedRenderHolds"
+				component={CommittedRenderHolds}
+				durationInFrames={COMMITTED_HOLDS_DURATION}
+				fps={30}
+				width={COMMITTED_HOLDS_WIDTH}
+				height={COMMITTED_HOLDS_HEIGHT}
+			/>
 			<Folder name="WhatsNew">
 				<WhatsNewRoot />
 			</Folder>
