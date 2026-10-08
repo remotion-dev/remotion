@@ -43,16 +43,8 @@ import {
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
-import {
-	ConnectedCompositionsSection,
-	useConnectedCompositions,
-} from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
-import {
-	SequenceInspectorDuplicationSection,
-	SequenceInspectorHeader,
-	useSequenceInspectorSourceLocation,
-} from './SequenceInspectorHeader';
+import {useSequenceInspectorSourceLocation} from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
@@ -405,9 +397,7 @@ const SequenceExpandedInspector: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
-	const connectedCompositions = useConnectedCompositions({track});
 	const {validatedLocation} = sourceLocation;
-	const stackKey = track.sequence.getStack();
 	const sequenceSelection = useMemo((): Extract<
 		TimelineSelection,
 		{type: 'sequence'}
@@ -468,17 +458,6 @@ const SequenceExpandedInspector: React.FC<{
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
-			<SequenceInspectorHeader
-				key={stackKey ?? track.sequence.id}
-				sourceLocation={sourceLocation}
-				track={track}
-			/>
-			<SequenceInspectorDuplicationSection track={track} />
-			{connectedCompositions.length > 0 ? (
-				<ConnectedCompositionsSection
-					connectedCompositions={connectedCompositions}
-				/>
-			) : null}
 			{validatedLocation ? (
 				<>
 					<InspectorSequenceSection

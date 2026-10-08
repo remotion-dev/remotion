@@ -55,7 +55,6 @@ import {
 } from './common';
 import {clampInspectorKeyframeDisplayFrame} from './keyframe-inspector-frame';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
-import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
 	detailsBeforeInlineAction,
 	detailsWithInlineAction,
@@ -533,7 +532,6 @@ export const KeyframeInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorSections track={track} />
 			<InspectorBackAction
 				disabled={parentSelection === null}
 				onClick={onSelectParent}
