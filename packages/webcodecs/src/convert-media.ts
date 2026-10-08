@@ -75,6 +75,9 @@ export type ConvertMediaOnAudioData = (options: {
 	track: MediaParserAudioTrack;
 }) => Promise<AudioData> | AudioData;
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const convertMedia = async function <
 	F extends Options<ParseMediaFields>,
 >({

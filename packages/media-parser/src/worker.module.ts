@@ -12,6 +12,9 @@ export {
 } from './errors';
 export type {ParseMediaOnWorker, ParseMediaOnWorkerOptions} from './options';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const parseMediaOnWebWorker: ParseMediaOnWorker = <
 	F extends Options<ParseMediaFields>,
 >(

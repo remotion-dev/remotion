@@ -17,6 +17,9 @@ export type WebCodecsVideoEncoder = {
 	ioSynchronizer: IoSynchronizer;
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const createVideoEncoder = ({
 	onChunk,
 	onError,

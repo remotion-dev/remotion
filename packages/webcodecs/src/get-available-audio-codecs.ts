@@ -2,6 +2,9 @@ import type {ConvertMediaContainer} from './get-available-containers';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const availableAudioCodecs = ['opus', 'aac', 'wav'] as const;
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const getAvailableAudioCodecs = ({
 	container,
 }: {
