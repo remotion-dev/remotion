@@ -17,50 +17,34 @@ If the asynchronous task fails and you cannot recover, call [`cancelRender()`](/
 
 ## Example
 
-```tsx twoslash title="MyVideo.tsx"
-import {useLayoutEffect, useState} from 'react';
+```tsx twoslash {2, 6,7,  15, 17}
+import {useCallback, useEffect, useState} from 'react';
 import {useDelayRender} from 'remotion';
 
 export const MyVideo = () => {
-  const [data, setData] = useState<{value: unknown; handle: number} | null>(null);
+  const [data, setData] = useState(null);
   const {delayRender, continueRender, cancelRender} = useDelayRender();
+  const [handle] = useState(() => delayRender());
 
-  useLayoutEffect(() => {
-    const handle = delayRender('Fetching data');
-    const controller = new AbortController();
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await fetch('http://example.com/api');
+      const json = await response.json();
+      setData(json);
 
-    fetch('http://example.com/api', {signal: controller.signal})
-      .then((response) => response.json())
-      .then((value) => {
-        if (!controller.signal.aborted) {
-          setData({value, handle});
-        }
-      })
-      .catch((err) => {
-        if (!controller.signal.aborted) {
-          cancelRender(err);
-        }
-      });
-
-    return () => {
-      controller.abort();
       continueRender(handle);
-    };
-  }, [delayRender, continueRender, cancelRender]);
-
-  useLayoutEffect(() => {
-    if (data !== null) {
-      continueRender(data.handle);
+    } catch (err) {
+      cancelRender(err);
     }
-  }, [data, continueRender]);
+  }, []);
 
-  return <div>{data ? JSON.stringify(data.value) : null}</div>;
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return <div>{data ? <div>This video has data from an API! {JSON.stringify(data)}</div> : null}</div>;
 };
 ```
-
-Create the handle in [`useLayoutEffect()`](https://react.dev/reference/react/useLayoutEffect), and release it in the cleanup if the component unmounts. React may discard a render or run a state initializer more than once, so calling `delayRender()` during render can leave a handle that is never cleared.
-
-A layout effect acquires the handle synchronously when the component commits, before the browser paints. If your task updates React state, release the handle in a layout effect after that state commits, as shown above. Calling `continueRender()` immediately after `setState()` can unblock the render before the updated content is ready.
 
 ## Timeout
 
@@ -96,27 +80,20 @@ Uncaught Error: A delayRender() "Fetching data from API..." was called but not c
 
 You can call `delayRender()` multiple times. The render will be blocked for as long as at least one blocking handle exists that has not been cleared by `continueRender()`.
 
-```tsx twoslash title="MultipleHandles.tsx"
-import {useLayoutEffect} from 'react';
+```tsx twoslash
+import {useEffect, useState} from 'react';
 import {useDelayRender} from 'remotion';
 
 const MyComp: React.FC = () => {
   const {delayRender, continueRender} = useDelayRender();
+  const [handle1] = useState(() => delayRender());
+  const [handle2] = useState(() => delayRender());
 
-  useLayoutEffect(() => {
-    const handle1 = delayRender('First task');
-    const handle2 = delayRender('Second task');
-    const firstTask = setTimeout(() => continueRender(handle1), 1000);
-    const secondTask = setTimeout(() => continueRender(handle2), 2000);
-
-    // Clear every handle when its task finishes, or when unmounting.
-    return () => {
-      clearTimeout(firstTask);
-      clearTimeout(secondTask);
-      continueRender(handle1);
-      continueRender(handle2);
-    };
-  }, [delayRender, continueRender]);
+  useEffect(() => {
+    // You need to clear all handles before the render continues
+    continueRender(handle1);
+    continueRender(handle2);
+  }, []);
 
   return null;
 };
@@ -162,23 +139,19 @@ const MyComp: React.FC = () => {
 };
 ```
 
-Use [`useDelayRender()`](/docs/use-delay-render) to scope the handle to the current render, and acquire it in a layout effect:
+It's best to always use [`useDelayRender()`](/docs/use-delay-render) in the first place since this mistake cannot happen and it enables [browser rendering](/docs/miscellaneous/render-in-browser) in the future.
 
-```tsx twoslash title="MyComp.tsx"
-import {useLayoutEffect} from 'react';
+```tsx twoslash title="✅ Best practice - useDelayRender() + useState() " {4-7}
+import {useEffect, useState} from 'react';
 import {useDelayRender} from 'remotion';
 
 const MyComp: React.FC = () => {
   const {delayRender, continueRender} = useDelayRender();
+  const [handle] = useState(() => delayRender());
 
-  useLayoutEffect(() => {
-    const handle = delayRender();
-    const task = setTimeout(() => continueRender(handle), 1000);
-    return () => {
-      clearTimeout(task);
-      continueRender(handle);
-    };
-  }, [delayRender, continueRender]);
+  useEffect(() => {
+    continueRender(handle);
+  }, []);
 
   return null;
 };
@@ -196,32 +169,19 @@ Note that data fetching can also be performed in [`calculateMetadata()`](/docs/c
 If your code fails to do an asynchronous operation and you want to cancel the render, you can call [`cancelRender()`](/docs/cancel-render) with an error message. This will automatically cancel all `delayRender()` calls to not further delay the render.
 
 ```tsx twoslash title="MyComposition.tsx"
-import {useLayoutEffect} from 'react';
-import {useDelayRender} from 'remotion';
+import React, {useEffect, useState} from 'react';
+import {cancelRender, continueRender, delayRender} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const {delayRender, continueRender, cancelRender} = useDelayRender();
+  const [handle] = useState(() => delayRender('Fetching data...'));
 
-  useLayoutEffect(() => {
-    const handle = delayRender('Fetching data...');
-    const controller = new AbortController();
-    fetch('https://example.com', {signal: controller.signal})
+  useEffect(() => {
+    fetch('https://example.com')
       .then(() => {
-        if (!controller.signal.aborted) {
-          continueRender(handle);
-        }
+        continueRender(handle);
       })
-      .catch((err) => {
-        if (!controller.signal.aborted) {
-          cancelRender(err);
-        }
-      });
-
-    return () => {
-      controller.abort();
-      continueRender(handle);
-    };
-  }, [delayRender, continueRender, cancelRender]);
+      .catch((err) => cancelRender(err));
+  }, []);
 
   return null;
 };
@@ -274,21 +234,20 @@ import {useBufferState, useDelayRender} from 'remotion';
 const MyComp: React.FC = () => {
   const buffer = useBufferState();
   const {delayRender, continueRender} = useDelayRender();
-  React.useLayoutEffect(() => {
-    const handle = delayRender();
+  const [handle] = React.useState(() => delayRender());
+
+  React.useEffect(() => {
     const delayHandle = buffer.delayPlayback();
 
-    const timeout = setTimeout(() => {
+    setTimeout(() => {
       delayHandle.unblock();
       continueRender(handle);
     }, 5000);
 
     return () => {
-      clearTimeout(timeout);
       delayHandle.unblock();
-      continueRender(handle);
     };
-  }, [buffer, delayRender, continueRender]);
+  }, []);
 
   return <></>;
 };
