@@ -38,6 +38,7 @@ import {useCompactSeries} from './use-compact-series';
 import {useTimelineTrackHeights} from './use-timeline-height';
 
 export type TimelineVirtualRow = TimelineDisplayRow & {
+	readonly auxiliaryRowOffsets: readonly number[];
 	readonly afterDropLineOffset: number;
 	readonly siblingIndex: number;
 	readonly sceneRange: TimelineSceneRange | null;
@@ -111,6 +112,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		const rows = timeline.map(
 			({track, items, auxiliaryRows}, index): TimelineVirtualRow => {
 				const afterDropLineOffset = seriesLayout.afterDropLineOffsets[index];
+				const auxiliaryRowOffsets = seriesLayout.auxiliaryRowOffsets[index];
 				const siblingIndex = seriesLayout.siblingIndexes[index];
 				const sceneRange = seriesLayout.sceneRanges[index];
 				const sceneGroupId =
@@ -124,6 +126,11 @@ export const TimelineVirtualizationProvider: React.FC<{
 					previous?.track === track &&
 					previous.items === items &&
 					previous.auxiliaryRows === auxiliaryRows &&
+					previous.auxiliaryRowOffsets.length === auxiliaryRowOffsets.length &&
+					previous.auxiliaryRowOffsets.every(
+						(offset, auxiliaryIndex) =>
+							offset === auxiliaryRowOffsets[auxiliaryIndex],
+					) &&
 					previous.afterDropLineOffset === afterDropLineOffset &&
 					previous.siblingIndex === siblingIndex &&
 					previous.sceneGroupId === sceneGroupId &&
@@ -134,6 +141,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 				}
 
 				return {
+					auxiliaryRowOffsets,
 					afterDropLineOffset,
 					siblingIndex,
 					track,
@@ -346,10 +354,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 			TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM;
 		const start =
 			layout.offsets[index] +
-			(auxiliaryIndex === -1
-				? 0
-				: primaryHeight +
-					auxiliaryIndex * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT);
+			(auxiliaryIndex === -1 ? 0 : row.auxiliaryRowOffsets[auxiliaryIndex]);
 		const height =
 			auxiliaryIndex !== -1
 				? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT
@@ -433,7 +438,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 						return (
 							verticalRenderWindow !== null &&
 							layout.offsets[index] < verticalRenderWindow.bottom &&
-							layout.offsets[index] + trackHeights[index] >
+							layout.offsets[index] + layout.rowHeights[index] >
 								verticalRenderWindow.top
 						);
 					})
@@ -442,8 +447,8 @@ export const TimelineVirtualizationProvider: React.FC<{
 							index,
 							key: timeline[index].track.sequence.id,
 							start: layout.offsets[index],
-							end: layout.offsets[index] + trackHeights[index],
-							size: trackHeights[index],
+							end: layout.offsets[index] + layout.rowHeights[index],
+							size: layout.rowHeights[index],
 							lane: 0,
 						}),
 					),
@@ -451,9 +456,9 @@ export const TimelineVirtualizationProvider: React.FC<{
 		[
 			layout.groups,
 			layout.offsets,
+			layout.rowHeights,
 			selectedTrackIndexes,
 			timeline,
-			trackHeights,
 			verticalRenderWindow,
 			virtualGroups,
 		],
