@@ -162,11 +162,6 @@ export type SequencePropsWithoutDuration = {
 				type: 'image';
 				src: string;
 		  };
-	/**
-	 * @deprecated Remotion Studio discovers rendered elements automatically.
-	 * Remove this prop.
-	 */
-	readonly outlineRef?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -200,7 +195,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
-		outlineRef: passedRefForOutline,
 		cropLeft,
 		cropRight,
 		cropTop,
@@ -436,16 +430,14 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
 	const automaticOutlineRef = useMemo(
 		() =>
-			shouldDiscoverOutline && layout === 'none' && !passedRefForOutline
+			shouldDiscoverOutline && layout === 'none'
 				? SequenceOutlineInternals.createRef()
 				: null,
-		[shouldDiscoverOutline, layout, passedRefForOutline],
+		[shouldDiscoverOutline, layout],
 	);
 	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
 	const refForOutline =
-		other.layout === 'none'
-			? (passedRefForOutline ?? automaticOutlineRef)
-			: (passedRefForOutline ?? wrapperRefForOutline);
+		layout === 'none' ? automaticOutlineRef : wrapperRefForOutline;
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
