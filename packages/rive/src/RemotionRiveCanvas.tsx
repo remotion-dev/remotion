@@ -545,11 +545,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 				hidden={hidden}
 				showInTimeline={showInTimeline}
 				name={name ?? '<RemotionRiveCanvas>'}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/rive/remotionrivecanvas'
-						: undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/rive/remotionrivecanvas"
 				durationInFrames={durationInFrames}
 				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
