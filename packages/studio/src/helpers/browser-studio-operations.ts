@@ -1,6 +1,9 @@
-import type {ApiRoutes, BrowserStudioOperations} from '@remotion/studio-shared';
+import {
+	studioOperations,
+	type ApiRoutes,
+	type BrowserStudioOperations,
+} from '@remotion/studio-shared';
 import {enqueueStudioSourceMutation} from './enqueue-studio-source-mutation';
-import {sourceMutationEndpoints} from './source-mutation-endpoints';
 
 const queuedOperations = new WeakMap<object, object>();
 
@@ -35,7 +38,7 @@ const withMutationQueue = <T extends object>(operations: T): T => {
 						: property;
 			const endpoint =
 				`/api/${name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}` as keyof ApiRoutes;
-			const queued = sourceMutationEndpoints.has(endpoint)
+			const queued = studioOperations[endpoint]?.mutatesSource
 				? (...args: unknown[]) =>
 						enqueueStudioSourceMutation(endpoint, args[0], () =>
 							value.apply(target, args),
