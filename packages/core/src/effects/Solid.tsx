@@ -33,7 +33,7 @@ import {useDelayRender} from '../use-delay-render.js';
 import {usePremounting} from '../use-premounting.js';
 import type {VideoConfigValues} from '../video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
-import type {EffectsProp} from './effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
 import {
@@ -49,6 +49,7 @@ type MandatoryProps = {
 type OptionalProps = {
 	readonly color: string | undefined;
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly className: string | undefined;
 	readonly style: React.CSSProperties | undefined;
 	readonly pixelDensity: number | undefined;
@@ -131,6 +132,7 @@ const SolidInner: React.FC<
 	width,
 	height,
 	effects = [],
+	effectsOutputSize = null,
 	className,
 	style,
 	pixelDensity,
@@ -165,7 +167,7 @@ const SolidInner: React.FC<
 		return canvas;
 	}, []);
 
-	const chainState = useEffectChainState();
+	const chainState = useEffectChainState(effectsOutputSize);
 
 	const canvasRef = useCallback(
 		(canvas: HTMLCanvasElement | null) => {
@@ -271,6 +273,7 @@ const SolidOuter = forwardRef<
 	(
 		{
 			effects = [],
+			effectsOutputSize = null,
 			controls,
 			color,
 			height,
@@ -375,6 +378,7 @@ const SolidOuter = forwardRef<
 							className={className}
 							style={croppedStyle ?? undefined}
 							effects={effects}
+							effectsOutputSize={effectsOutputSize}
 							pixelDensity={pixelDensity}
 						/>
 					</SequenceContent>

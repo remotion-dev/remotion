@@ -77,6 +77,7 @@ const GifInner = ({
 	cropBottom,
 	controls,
 	effects = [],
+	effectsOutputSize,
 	ref,
 	...sequenceProps
 }: GifProps & {
@@ -137,6 +138,7 @@ const GifInner = ({
 		requestInit,
 		style: croppedStyle ?? undefined,
 		effects: memoizedEffects,
+		effectsOutputSize,
 	};
 
 	const inner = env.isRendering ? (

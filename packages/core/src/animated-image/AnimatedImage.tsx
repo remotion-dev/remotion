@@ -8,7 +8,7 @@ import {
 	useState,
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
-import type {EffectsProp} from '../effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import {
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
@@ -87,6 +87,7 @@ const getCanvasPropsFromSequenceProps = (
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly controls: SequenceControls | undefined;
 };
 
@@ -105,6 +106,7 @@ const AnimatedImageContent = forwardRef<
 			fit = 'fill',
 			requestInit,
 			effects,
+			effectsOutputSize,
 			controls,
 			...props
 		},
@@ -280,6 +282,8 @@ const AnimatedImageContent = forwardRef<
 			width,
 			height,
 			cancelRender,
+			effectsOutputSize?.width,
+			effectsOutputSize?.height,
 		]);
 
 		return (
@@ -289,6 +293,7 @@ const AnimatedImageContent = forwardRef<
 				height={height}
 				fit={fit}
 				effects={memoizedEffects}
+				effectsOutputSize={effectsOutputSize ?? null}
 				{...props}
 			/>
 		);
@@ -320,6 +325,7 @@ const AnimatedImageInner = ({
 	cropBottom,
 	requestInit,
 	effects = [],
+	effectsOutputSize,
 	controls,
 	ref,
 	...sequenceProps
@@ -409,6 +415,7 @@ const AnimatedImageInner = ({
 						{...animatedImageProps}
 						ref={actualRef}
 						effects={effects}
+						effectsOutputSize={effectsOutputSize ?? null}
 						controls={controls}
 					/>
 				</SequenceContent>

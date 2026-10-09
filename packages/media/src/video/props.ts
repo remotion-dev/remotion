@@ -2,6 +2,7 @@ import type React from 'react';
 import type {
 	EffectDefinitionAndStack,
 	EffectsProp,
+	EffectsOutputSize,
 	InteractiveBaseProps,
 	InteractiveCropProps,
 	InteractivePremountProps,
@@ -87,6 +88,7 @@ type OptionalVideoProps = {
 	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;
+	effectsOutputSize: EffectsOutputSize | null;
 };
 
 export type NativeVideoProps = Omit<
