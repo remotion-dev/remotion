@@ -10,7 +10,7 @@ Use connected composition when a section has its own layers or timing, will be r
 2. Prefer making the component interactive with `Interactive.withSchema({wrapInSequence: true})`, following [Remotion Interactivity](../remotion-interactivity/SKILL.md).
    Render the exported component directly in the parent with inline timing and editable props.
    It does not need an additional `<Sequence>` to connect to its registration.
-   For consecutive scenes or transitions, render one direct instance as the only child of a `<Series.Sequence>` or `<TransitionSeries.Sequence>`.
+   For consecutive scenes or transitions, render one direct instance as the only child of a `<TransitionSeries.Sequence>`.
 3. Register the **same component reference** with `<Composition component={...}>` in the root.
    Give it a unique `id` and the dimensions, fps, and natural duration needed to preview the scene on its own. A `<Folder>` can keep scene compositions together.
 
