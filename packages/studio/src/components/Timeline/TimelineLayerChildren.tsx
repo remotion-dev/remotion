@@ -117,7 +117,7 @@ export const useTimelineLayerChildren = (
 			}
 		}
 
-		return {keys, parents, ancestors};
+		return {keys, parents, ancestors, byId};
 	}, [compositionId, sequences, tracks]);
 	const toggle = useCallback(
 		(key: string) => {
@@ -181,6 +181,17 @@ export const useTimelineLayerChildren = (
 			tracks.filter((track) => {
 				return !(hierarchy.ancestors.get(track.sequence.id) ?? []).some(
 					(id) => {
+						// Clips, transitions and overlays draw the packed track itself.
+						// Keep them when that track collapses, hiding only their contents.
+						const packedTrack = track.sequence.timelineTrack;
+						if (
+							packedTrack &&
+							packedTrack.role !== 'track' &&
+							packedTrack.id === hierarchy.byId.get(id)?.timelineTrack?.id
+						) {
+							return false;
+						}
+
 						const key = hierarchy.keys.get(id);
 						return key !== undefined && collapsed[key];
 					},
