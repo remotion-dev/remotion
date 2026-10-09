@@ -121,11 +121,7 @@ import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
-const {
-	getTimelineVisibleDuration,
-	getTimelineVisibleStart,
-	sortItemsByCommitOrder,
-} = CanvasInternals;
+const {sortItemsByCommitOrder} = CanvasInternals;
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
@@ -228,6 +224,8 @@ const TimelineSequenceFn: React.FC<{
 	readonly sequenceFrameOffset: number;
 	readonly cascadedStart: number;
 	readonly localStart: number;
+	readonly parentVisibleStart: number;
+	readonly parentVisibleEnd: number | null;
 }> = ({
 	s,
 	labelStartFrame,
@@ -238,6 +236,8 @@ const TimelineSequenceFn: React.FC<{
 	sequenceFrameOffset,
 	cascadedStart,
 	localStart,
+	parentVisibleStart,
+	parentVisibleEnd,
 }) => {
 	const windowWidth = useContext(TimelineWidthContext);
 
@@ -257,6 +257,8 @@ const TimelineSequenceFn: React.FC<{
 			sequenceFrameOffset={sequenceFrameOffset}
 			cascadedStart={cascadedStart}
 			localStart={localStart}
+			parentVisibleStart={parentVisibleStart}
+			parentVisibleEnd={parentVisibleEnd}
 		/>
 	);
 };
@@ -744,6 +746,8 @@ const TimelineSequenceInner: React.FC<{
 	readonly sequenceFrameOffset: number;
 	readonly cascadedStart: number;
 	readonly localStart: number;
+	readonly parentVisibleStart: number;
+	readonly parentVisibleEnd: number | null;
 }> = ({
 	s,
 	labelStartFrame,
@@ -755,6 +759,8 @@ const TimelineSequenceInner: React.FC<{
 	sequenceFrameOffset,
 	cascadedStart,
 	localStart,
+	parentVisibleStart,
+	parentVisibleEnd,
 }) => {
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
@@ -1531,15 +1537,8 @@ const TimelineSequenceInner: React.FC<{
 			),
 		) === Math.ceil(naturalMediaDuration);
 
-	const parentSequence = sequences.find(
-		(candidate) => candidate.id === s.parent,
-	);
-	const parentStart = parentSequence
-		? getTimelineVisibleStart(parentSequence, sequences)
-		: 0;
-	const parentEnd = parentSequence
-		? parentStart + getTimelineVisibleDuration(parentSequence, sequences)
-		: video.durationInFrames;
+	const parentStart = parentVisibleStart;
+	const parentEnd = parentVisibleEnd ?? video.durationInFrames;
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const isMedia = s.type === 'audio' || s.type === 'video';

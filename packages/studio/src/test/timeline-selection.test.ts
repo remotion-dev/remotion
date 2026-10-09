@@ -6645,6 +6645,8 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 				{
 					cascadedStart: 0,
 					localStart: 0,
+					parentVisibleStart: 0,
+					parentVisibleEnd: null,
 					depth: 0,
 					keyframeDisplayOffset: 0,
 					keyframePlaybackRate: 1,

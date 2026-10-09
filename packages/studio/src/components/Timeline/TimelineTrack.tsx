@@ -76,6 +76,8 @@ const TimelineTrackUnmemoized: React.FC<{
 					labelStartFrame={null}
 					cascadedStart={track.cascadedStart}
 					localStart={track.localStart}
+					parentVisibleStart={track.parentVisibleStart}
+					parentVisibleEnd={track.parentVisibleEnd}
 					connectedCompositions={
 						track.connectedCompositions ?? emptyConnectedCompositions
 					}

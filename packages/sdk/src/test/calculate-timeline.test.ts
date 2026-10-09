@@ -50,15 +50,39 @@ test('normalizes nesting and visible starts', () => {
 	});
 
 	expect(
-		timeline.map(({depth, sequence, sequenceFrameOffset}) => ({
-			depth,
-			from: sequence.from,
-			id: sequence.id,
-			sequenceFrameOffset,
-		})),
+		timeline.map(
+			({
+				depth,
+				sequence,
+				sequenceFrameOffset,
+				parentVisibleStart,
+				parentVisibleEnd,
+			}) => ({
+				depth,
+				from: sequence.from,
+				id: sequence.id,
+				sequenceFrameOffset,
+				parentVisibleStart,
+				parentVisibleEnd,
+			}),
+		),
 	).toEqual([
-		{id: 'parent', depth: 0, from: 20, sequenceFrameOffset: 0},
-		{id: 'child', depth: 1, from: 20, sequenceFrameOffset: 10},
+		{
+			id: 'parent',
+			depth: 0,
+			from: 20,
+			sequenceFrameOffset: 0,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
+		},
+		{
+			id: 'child',
+			depth: 1,
+			from: 20,
+			sequenceFrameOffset: 10,
+			parentVisibleStart: 20,
+			parentVisibleEnd: 120,
+		},
 	]);
 });
 
