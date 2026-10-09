@@ -17,7 +17,6 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../../helpers/hoverable';
-import {toggleBooleanMapKey} from '../../helpers/persist-boolean-map';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {getTimelineSeriesLayout} from './timeline-series-layout';
@@ -71,18 +70,6 @@ export const useTimelineLayerChildren = (
 			return {};
 		}
 	});
-	const toggle = useCallback((key: string) => {
-		setCollapsed((previous) => {
-			const next = toggleBooleanMapKey(previous, key);
-			try {
-				window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-			} catch {
-				// Keep the control usable when storage is unavailable.
-			}
-
-			return next;
-		});
-	}, []);
 	const hierarchy = useMemo(() => {
 		const byId = new Map(sequences.map((sequence) => [sequence.id, sequence]));
 		const siblingIndices = new Map<string, number>();
@@ -94,7 +81,6 @@ export const useTimelineLayerChildren = (
 		}
 
 		const keys = new Map<string, string>();
-		const identities = new Map<string, string>();
 		const parents = new Set<string>();
 		const ancestors = new Map<string, string[]>();
 		for (const track of tracks) {
@@ -121,7 +107,6 @@ export const useTimelineLayerChildren = (
 								.map((id) => siblingIndices.get(id)),
 						];
 			const key = JSON.stringify([compositionId, identity]);
-			identities.set(track.sequence.id, key);
 			// Packed clips have no child-collapse control. Do not let a saved
 			// layer collapse make an explicit nested Track inaccessible.
 			if (!track.sequence.timelineTrack) {
@@ -129,49 +114,67 @@ export const useTimelineLayerChildren = (
 			}
 		}
 
-		if (compactSeries) {
-			const rows = getTimelineDisplayRows(tracks);
-			// Use structural row positions before hiding children. Expanding fields
-			// or collapsing a layer must not change which layers share its state.
-			const layout = getTimelineSeriesLayout({
-				rows,
-				heights: rows.map(() => 1),
-				sequences,
-				compactSeries,
-				paddingStart: 0,
-			});
-			for (let index = 0; index < rows.length; index++) {
-				const position = layout.sharedChildPositions[index];
-				if (position === null) {
-					continue;
-				}
-
-				const {sequence} = rows[index].track;
-				if (!keys.has(sequence.id)) {
-					continue;
-				}
-
-				const seriesKey = identities.get(
-					rows[position.seriesIndex].track.sequence.id,
-				);
-				if (seriesKey === undefined) {
-					continue;
-				}
-
-				keys.set(
-					sequence.id,
-					JSON.stringify([
-						'series-row',
-						seriesKey,
-						position.role,
-						position.offset,
-					]),
-				);
-			}
-		}
-
 		return {keys, parents, ancestors};
-	}, [compactSeries, compositionId, sequences, tracks]);
+	}, [compositionId, sequences, tracks]);
+	const toggle = useCallback(
+		(key: string) => {
+			const affectedKeys = new Set([key]);
+			if (compactSeries) {
+				const rows = getTimelineDisplayRows(tracks);
+				const index = rows.findIndex(
+					(row) => hierarchy.keys.get(row.track.sequence.id) === key,
+				);
+				// Find corresponding layers on click, before hiding any children.
+				const layout = getTimelineSeriesLayout({
+					rows,
+					heights: rows.map(() => 1),
+					sequences,
+					compactSeries,
+					paddingStart: 0,
+				});
+				const position = layout.sharedChildPositions[index];
+				if (position) {
+					for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+						const candidate = layout.sharedChildPositions[rowIndex];
+						if (
+							candidate?.seriesIndex !== position.seriesIndex ||
+							candidate.role !== position.role ||
+							candidate.offset !== position.offset
+						) {
+							continue;
+						}
+
+						const candidateKey = hierarchy.keys.get(
+							rows[rowIndex].track.sequence.id,
+						);
+						if (candidateKey !== undefined) {
+							affectedKeys.add(candidateKey);
+						}
+					}
+				}
+			}
+
+			setCollapsed((previous) => {
+				const next = {...previous};
+				for (const affectedKey of affectedKeys) {
+					if (previous[key]) {
+						delete next[affectedKey];
+					} else {
+						next[affectedKey] = true;
+					}
+				}
+
+				try {
+					window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+				} catch {
+					// Keep the control usable when storage is unavailable.
+				}
+
+				return next;
+			});
+		},
+		[compactSeries, hierarchy, sequences, tracks],
+	);
 	const visibleTracks = useMemo(
 		() =>
 			tracks.filter((track) => {
