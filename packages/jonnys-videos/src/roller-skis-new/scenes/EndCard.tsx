@@ -16,10 +16,7 @@ const EndCardInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={{backgroundColor: 'black', fontFamily}}
-		>
+		<>
 			<Sequence name="Last frame" freeze={3328} premountFor={fps}>
 				<Video
 					name="IMG_0475"
@@ -43,6 +40,7 @@ const EndCardInner: React.FC = () => {
 			<AbsoluteFill
 				showInTimeline={false}
 				style={{
+					fontFamily,
 					justifyContent: 'center',
 					alignItems: 'center',
 				}}
@@ -128,7 +126,7 @@ const EndCardInner: React.FC = () => {
 				volume={0.6}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 

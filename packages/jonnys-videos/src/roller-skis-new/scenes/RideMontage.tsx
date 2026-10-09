@@ -1,12 +1,12 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Interactive, Series, useVideoConfig} from 'remotion';
+import {Interactive, Series, useVideoConfig} from 'remotion';
 
 const RideMontageInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Under the trees"
@@ -51,7 +51,7 @@ const RideMontageInner: React.FC = () => {
 				volume={0.5}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
