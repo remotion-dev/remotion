@@ -636,6 +636,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					} = resolvedProps as InternalSeriesSequenceProps & {from: never};
 					const propsForSequence = {
 						...passedProps,
+						_remotionInternalTimelineTrack: {
+							role: 'clip' as const,
+							seriesOffset: offsetProp ?? 0,
+						},
 						_remotionInternalSingleChildComponent:
 							Internals.getSingleChildComponent(sequenceChildren),
 					};
