@@ -432,7 +432,7 @@ const getMinimumSequenceDuration = ({
 
 export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 	const isInteractiveCascadingSequence = isCascadingSequence(sequence);
-	if (sequence.loopDisplay) {
+	if (sequence.loopDisplay || sequence.timelineTrack?.role === 'track') {
 		return false;
 	}
 
@@ -456,6 +456,7 @@ export const canResizeTimelineSequenceDuration = ({
 
 export const isTimelineSequenceLeftEdgeDraggable = (sequence: TSequence) => {
 	return (
+		sequence.timelineTrack?.role !== 'track' &&
 		(!sequence.isInsideSeries || isCascadingSequence(sequence)) &&
 		Boolean(sequence.controls) &&
 		(sequence.type === 'sequence' ||
@@ -516,7 +517,11 @@ export const getTimelineSequenceEndFieldValue = ({
 };
 
 const isFromDraggableSequence = (sequence: TSequence) => {
-	return !sequence.isInsideSeries && Boolean(sequence.controls);
+	return (
+		!sequence.isInsideSeries &&
+		sequence.timelineTrack?.role !== 'track' &&
+		Boolean(sequence.controls)
+	);
 };
 
 export const getTimelineSequenceDurationDragValue = ({

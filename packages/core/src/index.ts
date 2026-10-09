@@ -283,12 +283,10 @@ export {watchStaticFile} from './watch-static-file.js';
 export const Experimental = {
 	/**
 	 * @description This is a special component that will cause Remotion to only partially capture the frame of the video.
-	 * @see [Documentation](https://www.remotion.dev/docs/clipper)
 	 */
 	Clipper,
 	/**
 	 * @description This is a special component, that, when rendered, will skip rendering the frame altogether.
-	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,
 	useIsPlayer,

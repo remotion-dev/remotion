@@ -51,6 +51,7 @@ import {
 } from '../../helpers/timeline-layout';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
+import {SnowflakeIcon} from '../../icons/snowflake';
 import {SetSelectedModalContext} from '../../state/modals';
 import {ActionTooltip} from '../ActionTooltip';
 import {AudioWaveform} from '../AudioWaveform';
@@ -555,7 +556,11 @@ const TimelineSequenceBar: React.FC<{
 						/>
 					) : null}
 					<ActionTooltip
-						label={s.displayName}
+						label={
+							s.timelineTrack.role === 'track' && frozenFrame !== null
+								? `${s.displayName} (frozen at frame ${frozenFrame})`
+								: s.displayName
+						}
 						shortcut={null}
 						delay={250}
 						dismissOnClick
@@ -580,6 +585,18 @@ const TimelineSequenceBar: React.FC<{
 									'linear-gradient(to right, black calc(100% - 5px), transparent)',
 							}}
 						>
+							{s.timelineTrack.role === 'track' && frozenFrame !== null ? (
+								<SnowflakeIcon
+									aria-label={`Frozen at frame ${frozenFrame}`}
+									color={getTimelineColor(false, false)}
+									style={{
+										width: 12,
+										height: 12,
+										marginRight: 4,
+										verticalAlign: 'middle',
+									}}
+								/>
+							) : null}
 							{s.timelineTrack.role === 'overlay' ? 'Overlay' : s.displayName}
 						</span>
 					</ActionTooltip>

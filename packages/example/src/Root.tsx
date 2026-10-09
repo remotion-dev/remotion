@@ -3026,15 +3026,7 @@ export const Index: React.FC = () => {
 					durationInFrames={165}
 				/>
 			</Folder>
-			<Folder name="video-editing">
-				<Composition
-					id="ActivityStressTest"
-					component={ActivityStressTest}
-					width={1280}
-					height={720}
-					fps={30}
-					durationInFrames={ACTIVITY_STRESS_TEST_DURATION}
-				/>
+			<Folder name="tracks">
 				<Composition
 					id="track-sequence-props"
 					component={TrackSequenceProps}
@@ -3050,6 +3042,16 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={240}
+				/>
+			</Folder>
+			<Folder name="video-editing">
+				<Composition
+					id="ActivityStressTest"
+					component={ActivityStressTest}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={ACTIVITY_STRESS_TEST_DURATION}
 				/>
 				<Composition
 					id="hour-long-timeline"
