@@ -4,8 +4,9 @@ import {AudioSample, VideoSample} from 'mediabunny';
 export const addVideoSampleAndCloseFrame = async (
 	frameToEncode: VideoFrame,
 	videoSampleSource: VideoSampleSource,
+	durationInSeconds: number,
 ) => {
-	const sample = new VideoSample(frameToEncode);
+	const sample = new VideoSample(frameToEncode, {duration: durationInSeconds});
 
 	try {
 		await videoSampleSource.add(sample);
