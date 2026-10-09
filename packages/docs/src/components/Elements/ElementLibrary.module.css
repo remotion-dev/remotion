@@ -90,6 +90,12 @@
 	border-radius: 8px;
 }
 
+.card[aria-pressed='true'] .previewMedia {
+	border-radius: inherit;
+	outline: 3px solid var(--ifm-color-primary);
+	outline-offset: -3px;
+}
+
 .previewMedia {
 	position: absolute;
 	inset: 0;
