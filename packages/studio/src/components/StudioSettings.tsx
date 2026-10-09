@@ -4,13 +4,7 @@ import type {
 	ConfigFileStudioSettings,
 	ConfigUpdate,
 } from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {LIGHT_TEXT} from '../helpers/colors';
@@ -59,6 +53,8 @@ const initialSettings: ConfigFileStudioSettings = {
 	beepOnFinish: null,
 	enableCrossSiteIsolation: null,
 	experimentalTracksEnabled: null,
+	experimentalSequenceActivityEnabled: null,
+	experimentalSequenceActivityLimit: null,
 	interactivityEnabled: null,
 	keyboardShortcutsEnabled: null,
 	logLevel: null,
@@ -119,15 +115,17 @@ const ConfigNumber = ({
 
 export const StudioSettings: React.FC = () => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
-	const activitySettings = useContext(
-		Internals.SequenceActivitySettingsContext,
-	);
 	const [settings, setSettings] =
 		useState<ConfigFileStudioSettings>(initialSettings);
 	const [committedNumberSettings, setCommittedNumberSettings] = useState<{
 		numberOfSharedAudioTags: number | null;
 		defaultPremountInSeconds: number | null;
-	}>({numberOfSharedAudioTags: null, defaultPremountInSeconds: null});
+		experimentalSequenceActivityLimit: number | null;
+	}>({
+		numberOfSharedAudioTags: null,
+		defaultPremountInSeconds: null,
+		experimentalSequenceActivityLimit: null,
+	});
 	const [editedSetters, setEditedSetters] = useState<Set<string>>(
 		() => new Set(),
 	);
@@ -143,6 +141,9 @@ export const StudioSettings: React.FC = () => {
 			studioRuntimeConfig.configFileStudioSettings ?? initialSettings,
 		);
 		setCommittedNumberSettings({
+			experimentalSequenceActivityLimit:
+				studioRuntimeConfig.configFileStudioSettings
+					?.experimentalSequenceActivityLimit ?? null,
 			defaultPremountInSeconds:
 				studioRuntimeConfig.configFileStudioSettings
 					?.defaultPremountInSeconds ?? null,
@@ -168,7 +169,10 @@ export const StudioSettings: React.FC = () => {
 	);
 	const previewNumberSetting = useCallback(
 		(
-			key: 'numberOfSharedAudioTags' | 'defaultPremountInSeconds',
+			key:
+				| 'numberOfSharedAudioTags'
+				| 'defaultPremountInSeconds'
+				| 'experimentalSequenceActivityLimit',
 			value: number | null,
 		) => {
 			setSettings((current) => ({...current, [key]: value}));
@@ -177,7 +181,10 @@ export const StudioSettings: React.FC = () => {
 	);
 	const commitNumberSetting = useCallback(
 		(
-			key: 'numberOfSharedAudioTags' | 'defaultPremountInSeconds',
+			key:
+				| 'numberOfSharedAudioTags'
+				| 'defaultPremountInSeconds'
+				| 'experimentalSequenceActivityLimit',
 			setter: string,
 			value: number | null,
 		) => {
@@ -216,6 +223,14 @@ export const StudioSettings: React.FC = () => {
 			update(
 				'setExperimentalTracksEnabled',
 				settings.experimentalTracksEnabled,
+			),
+			update(
+				'setExperimentalSequenceActivityEnabled',
+				settings.experimentalSequenceActivityEnabled,
+			),
+			update(
+				'setExperimentalSequenceActivityLimit',
+				committedNumberSettings.experimentalSequenceActivityLimit,
 			),
 			update('setCanvasTabsEnabled', settings.canvasTabsEnabled),
 			update('setLogLevel', settings.logLevel),
@@ -427,100 +442,113 @@ export const StudioSettings: React.FC = () => {
 				}
 				value={settings.defaultPremountInSeconds}
 			/>
-			{activitySettings === null ? null : (
-				<>
-					<div style={optionRow}>
-						<div style={label}>
-							Sequence Activity (experimental)
-							<InfoBubble
-								aria-label="About experimental Sequence Activity"
-								horizontalAlignment="right"
-							>
-								<div
-									style={{
-										padding: 12,
-										maxWidth: 280,
-										fontSize: 14,
-										lineHeight: 1.5,
-									}}
-								>
-									Discovers layers in nearby scenes before they become visible.
-									This experimental feature may use more CPU. Changes apply
-									immediately and are saved in this browser.
-								</div>
-							</InfoBubble>
-						</div>
-						<label
-							style={rightRow}
-							aria-label="Sequence Activity (experimental)"
+			<div style={optionRow}>
+				<div style={label}>
+					Sequence Activity (experimental)
+					<InfoBubble
+						aria-label="About experimental Sequence Activity"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: 14,
+								lineHeight: 1.5,
+							}}
 						>
-							<Checkbox
-								checked={activitySettings.enabled}
-								name="Sequence Activity (experimental)"
-								onChange={(event) =>
-									activitySettings.setEnabled(event.target.checked)
-								}
-							/>
-						</label>
-					</div>
-					{activitySettings.enabled ? (
-						<div style={optionRow}>
-							<div style={label}>
-								Hidden activity limit (experimental)
-								<InfoBubble
-									aria-label="About the hidden activity limit"
-									horizontalAlignment="right"
-								>
-									<div
-										style={{
-											padding: 12,
-											maxWidth: 280,
-											fontSize: 14,
-											lineHeight: 1.5,
-										}}
-									>
-										Limits nearby hidden scenes, including nested sequences and
-										their ancestors. Visible, premounted, and postmounted scenes
-										always render. Set to 0 to disable hidden discovery.
-										Default: {Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
-									</div>
-								</InfoBubble>
-							</div>
-							<div style={{...rightRow, gap: 6}}>
-								<InputDragger
-									aria-label="Hidden activity limit (experimental)"
-									buttonStyle={{textAlign: 'right', width: 140}}
-									formatter={String}
-									integerOnly
-									min={0}
-									onTextChange={() => undefined}
-									onValueChange={activitySettings.setLimit}
-									rightAlign
-									status="ok"
-									step={1}
-									value={activitySettings.limit}
-								/>
-								<Button
-									disabled={
-										activitySettings.limit ===
-										Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT
-									}
-									onClick={() =>
-										activitySettings.setLimit(
-											Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
-										)
-									}
-									size="compact"
-									style={{color: LIGHT_TEXT}}
-									aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
-								>
-									<UndoIcon style={resetIcon} />
-								</Button>
-							</div>
+							Discovers layers in nearby scenes before they become visible. This
+							experimental feature may use more CPU. Changes apply immediately
+							and are saved in remotion.config.ts.
 						</div>
-					) : null}
-				</>
-			)}
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Sequence Activity (experimental)">
+					<Checkbox
+						checked={settings.experimentalSequenceActivityEnabled === true}
+						name="Sequence Activity (experimental)"
+						onChange={(event) =>
+							changeSetting(
+								'experimentalSequenceActivityEnabled',
+								'setExperimentalSequenceActivityEnabled',
+								event.target.checked ? true : null,
+							)
+						}
+					/>
+				</label>
+			</div>
+			{settings.experimentalSequenceActivityEnabled === true ? (
+				<div style={optionRow}>
+					<div style={label}>
+						Hidden activity limit (experimental)
+						<InfoBubble
+							aria-label="About the hidden activity limit"
+							horizontalAlignment="right"
+						>
+							<div
+								style={{
+									padding: 12,
+									maxWidth: 280,
+									fontSize: 14,
+									lineHeight: 1.5,
+								}}
+							>
+								Limits nearby hidden scenes, including nested sequences and
+								their ancestors. Visible, premounted, and postmounted scenes
+								always render. Set to 0 to disable hidden discovery. Default:{' '}
+								{Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
+							</div>
+						</InfoBubble>
+					</div>
+					<div style={{...rightRow, gap: 6}}>
+						<InputDragger
+							aria-label="Hidden activity limit (experimental)"
+							buttonStyle={{textAlign: 'right', width: 140}}
+							formatter={() =>
+								settings.experimentalSequenceActivityLimit === null
+									? `Default (${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT})`
+									: String(settings.experimentalSequenceActivityLimit)
+							}
+							integerOnly
+							max={Number.MAX_SAFE_INTEGER}
+							min={0}
+							onTextChange={() => undefined}
+							onValueChange={(value) =>
+								previewNumberSetting('experimentalSequenceActivityLimit', value)
+							}
+							onValueChangeEnd={(value) =>
+								commitNumberSetting(
+									'experimentalSequenceActivityLimit',
+									'setExperimentalSequenceActivityLimit',
+									value,
+								)
+							}
+							rightAlign
+							status="ok"
+							step={1}
+							value={
+								settings.experimentalSequenceActivityLimit ??
+								Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT
+							}
+						/>
+						<Button
+							disabled={settings.experimentalSequenceActivityLimit === null}
+							onClick={() =>
+								commitNumberSetting(
+									'experimentalSequenceActivityLimit',
+									'setExperimentalSequenceActivityLimit',
+									null,
+								)
+							}
+							size="compact"
+							style={{color: LIGHT_TEXT}}
+							aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
+						>
+							<UndoIcon style={resetIcon} />
+						</Button>
+					</div>
+				</div>
+			) : null}
 
 			<p style={sectionTitle}>Audio</p>
 			<ConfigSelect

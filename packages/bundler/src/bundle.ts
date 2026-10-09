@@ -462,6 +462,9 @@ export const internalBundle = async (
 		studioRuntimeConfig: {
 			showPremounting: null,
 			defaultPremountInSeconds: null,
+			experimentalSequenceActivityEnabled: false,
+			experimentalSequenceActivityLimit:
+				NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
 			canvasTabsEnabled: true,
