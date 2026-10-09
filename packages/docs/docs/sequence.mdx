@@ -242,6 +242,8 @@ By default, your sequences will be absolutely positioned, so they will overlay e
 If you would like to opt out of it and handle layouting yourself, pass `layout="none"`.  
 Available since v1.4.
 
+Remotion Studio discovers selection outlines automatically. By default, it outlines the wrapper created by `<Sequence>`. With `layout="none"`, it outlines the rendered element or the bounds of multiple rendered roots.
+
 ### `cropLeft?`<AvailableFrom v="4.0.500" />
 
 Crops the Sequence from the left edge without changing its size or transform origin.  
@@ -290,12 +292,9 @@ export const MyVideo = () => {
 ### ~~`outlineRef?`~~<AvailableFrom v="4.0.479" />
 
 :::info Deprecated
-Remotion Studio discovers selection outlines automatically.  
+This prop has no effect since <AvailableFrom v="4.0.535" inline />. Remotion Studio discovers selection outlines automatically.
 Remove this prop.
 :::
-
-By default, the Studio outlines the wrapper created by `<Sequence>`.  
-With `layout="none"`, it outlines the rendered element or the bounds of multiple rendered roots.
 
 ### `style?`<AvailableFrom v="3.0.27"/>
 
