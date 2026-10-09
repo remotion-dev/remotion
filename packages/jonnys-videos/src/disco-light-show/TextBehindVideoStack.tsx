@@ -180,7 +180,7 @@ export const TextBehindVideoStack: React.FC = () => {
 
 export const TextBehindVideoStackComposition = Interactive.withSchema({
 	Component: TextBehindVideoStackCompositionInner,
-	componentName: '<TextBehindVideoStackComposition>',
+	componentName: 'TextBehindVideoStackComposition',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

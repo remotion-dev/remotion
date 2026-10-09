@@ -23,7 +23,7 @@ const BasicsSourceOnlyTrimSceneInner = () => {
 
 export const BasicsSourceOnlyTrimScene = Interactive.withSchema({
 	Component: BasicsSourceOnlyTrimSceneInner,
-	componentName: '<BasicsSourceOnlyTrimScene>',
+	componentName: 'BasicsSourceOnlyTrimScene',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

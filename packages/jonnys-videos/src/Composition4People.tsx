@@ -92,7 +92,7 @@ const Composition4PeopleInner: React.FC = () => {
 
 export const Composition4People = Interactive.withSchema({
 	Component: Composition4PeopleInner,
-	componentName: '<Composition4People>',
+	componentName: 'Composition4People',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

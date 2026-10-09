@@ -23,7 +23,7 @@ const BasicsVolumeKeyframesSceneInner = () => {
 
 export const BasicsVolumeKeyframesScene = Interactive.withSchema({
 	Component: BasicsVolumeKeyframesSceneInner,
-	componentName: '<BasicsVolumeKeyframesScene>',
+	componentName: 'BasicsVolumeKeyframesScene',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

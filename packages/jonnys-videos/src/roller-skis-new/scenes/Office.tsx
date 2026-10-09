@@ -912,7 +912,7 @@ const OfficeInner: React.FC = () => {
 
 export const Office = Interactive.withSchema({
 	Component: OfficeInner,
-	componentName: '<Office>',
+	componentName: 'Office',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

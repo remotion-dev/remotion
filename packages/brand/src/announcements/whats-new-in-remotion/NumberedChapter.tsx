@@ -142,7 +142,7 @@ const numberedChapterSchema = {
 
 export const NumberedChapter = Interactive.withSchema({
 	Component: NumberedChapterInner,
-	componentName: '<NumberedChapter>',
+	componentName: 'NumberedChapter',
 	schema: numberedChapterSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',

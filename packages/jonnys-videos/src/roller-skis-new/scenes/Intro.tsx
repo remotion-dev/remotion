@@ -356,7 +356,7 @@ const IntroInner: React.FC = () => {
 
 export const Intro = Interactive.withSchema({
 	Component: IntroInner,
-	componentName: '<Intro>',
+	componentName: 'Intro',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

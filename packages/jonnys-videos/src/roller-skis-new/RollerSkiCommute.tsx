@@ -174,7 +174,7 @@ const RollerSkiCommuteInner: React.FC = () => {
 
 export const RollerSkiCommute = Interactive.withSchema({
 	Component: RollerSkiCommuteInner,
-	componentName: '<RollerSkiCommute>',
+	componentName: 'RollerSkiCommute',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

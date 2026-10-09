@@ -389,7 +389,7 @@ const BasicsPlaybackRateInner = ({
 
 export const BasicsPlaybackRatePreview = Interactive.withSchema({
 	Component: BasicsPlaybackRateInner,
-	componentName: '<BasicsPlaybackRatePreview>',
+	componentName: 'BasicsPlaybackRatePreview',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

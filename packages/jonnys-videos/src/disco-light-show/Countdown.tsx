@@ -74,7 +74,7 @@ const countdownPageSchema = {
 
 const CountdownPage = Interactive.withSchema({
 	Component: CountdownPageInner,
-	componentName: '<CountdownPage>',
+	componentName: 'CountdownPage',
 	schema: countdownPageSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',
@@ -110,7 +110,7 @@ const CountdownInner: React.FC = () => {
 
 export const Countdown = Interactive.withSchema({
 	Component: CountdownInner,
-	componentName: '<Countdown>',
+	componentName: 'Countdown',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

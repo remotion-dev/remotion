@@ -24,7 +24,7 @@ const BasicsPlaybackRateSceneInner = () => {
 
 export const BasicsPlaybackRateScene = Interactive.withSchema({
 	Component: BasicsPlaybackRateSceneInner,
-	componentName: '<BasicsPlaybackRateScene>',
+	componentName: 'BasicsPlaybackRateScene',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

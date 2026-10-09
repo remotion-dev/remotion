@@ -100,7 +100,7 @@ const ZurichPhotoInner: React.FC = () => {
 
 export const ZurichPhoto = Interactive.withSchema({
 	Component: ZurichPhotoInner,
-	componentName: '<ZurichPhoto>',
+	componentName: 'ZurichPhoto',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

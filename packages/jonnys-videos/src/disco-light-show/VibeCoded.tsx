@@ -39,7 +39,7 @@ const VibeCodedInner: React.FC = () => {
 
 export const VibeCoded = Interactive.withSchema({
 	Component: VibeCodedInner,
-	componentName: '<VibeCoded>',
+	componentName: 'VibeCoded',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

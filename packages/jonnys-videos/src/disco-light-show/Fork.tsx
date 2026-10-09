@@ -71,7 +71,7 @@ const ForkInner: React.FC = () => {
 
 export const Fork = Interactive.withSchema({
 	Component: ForkInner,
-	componentName: '<Fork>',
+	componentName: 'Fork',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

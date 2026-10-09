@@ -1177,7 +1177,7 @@ const AnimatedCaptionsInner: React.FC = () => {
 
 export const AnimatedCaptions = Interactive.withSchema({
 	Component: AnimatedCaptionsInner,
-	componentName: '<AnimatedCaptions>',
+	componentName: 'AnimatedCaptions',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

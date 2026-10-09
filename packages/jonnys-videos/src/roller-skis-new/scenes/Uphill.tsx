@@ -1388,7 +1388,7 @@ const UphillInner: React.FC = () => {
 
 export const Uphill = Interactive.withSchema({
 	Component: UphillInner,
-	componentName: '<Uphill>',
+	componentName: 'Uphill',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

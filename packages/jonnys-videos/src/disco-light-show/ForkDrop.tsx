@@ -148,7 +148,7 @@ const ForkDropInner: React.FC = () => {
 
 export const ForkDrop = Interactive.withSchema({
 	Component: ForkDropInner,
-	componentName: '<ForkDrop>',
+	componentName: 'ForkDrop',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

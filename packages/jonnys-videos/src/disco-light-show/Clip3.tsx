@@ -44,7 +44,7 @@ const Clip3Inner: React.FC = () => {
 
 export const Clip3 = Interactive.withSchema({
 	Component: Clip3Inner,
-	componentName: '<Clip3>',
+	componentName: 'Clip3',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

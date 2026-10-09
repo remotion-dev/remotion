@@ -134,7 +134,7 @@ const EndCardInner: React.FC = () => {
 
 export const EndCard = Interactive.withSchema({
 	Component: EndCardInner,
-	componentName: '<EndCard>',
+	componentName: 'EndCard',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

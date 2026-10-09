@@ -57,7 +57,7 @@ const RideMontageInner: React.FC = () => {
 
 export const RideMontage = Interactive.withSchema({
 	Component: RideMontageInner,
-	componentName: '<RideMontage>',
+	componentName: 'RideMontage',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

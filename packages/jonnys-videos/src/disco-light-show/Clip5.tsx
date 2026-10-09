@@ -28,7 +28,7 @@ const Clip5Inner: React.FC = () => {
 
 export const Clip5 = Interactive.withSchema({
 	Component: Clip5Inner,
-	componentName: '<Clip5>',
+	componentName: 'Clip5',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

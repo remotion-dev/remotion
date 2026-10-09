@@ -527,7 +527,7 @@ const BasicsLeftTrimInner = ({
 
 export const BasicsLeftTrimPreview = Interactive.withSchema({
 	Component: BasicsLeftTrimInner,
-	componentName: '<BasicsLeftTrimPreview>',
+	componentName: 'BasicsLeftTrimPreview',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

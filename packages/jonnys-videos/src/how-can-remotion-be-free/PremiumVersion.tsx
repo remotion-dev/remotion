@@ -165,7 +165,7 @@ const PremiumVersionInner: React.FC = () => {
 
 export const PremiumVersion = Interactive.withSchema({
 	Component: PremiumVersionInner,
-	componentName: '<PremiumVersion>',
+	componentName: 'PremiumVersion',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

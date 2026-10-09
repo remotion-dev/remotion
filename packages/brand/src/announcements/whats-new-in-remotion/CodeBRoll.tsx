@@ -118,7 +118,7 @@ const codeBRollSchema = {
 
 export const CodeBRoll = Interactive.withSchema({
 	Component: CodeBRollInner,
-	componentName: '<CodeBRoll>',
+	componentName: 'CodeBRoll',
 	schema: codeBRollSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',

@@ -125,7 +125,7 @@ const TextBackgroundCompositionInner: React.FC = () => {
 
 export const TextBackgroundComposition = Interactive.withSchema({
 	Component: TextBackgroundCompositionInner,
-	componentName: '<TextBackgroundComposition>',
+	componentName: 'TextBackgroundComposition',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

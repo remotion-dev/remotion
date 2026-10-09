@@ -157,7 +157,7 @@ const titleCardSchema = {
 
 export const TitleCard = Interactive.withSchema({
 	Component: TitleCardInner,
-	componentName: '<TitleCard>',
+	componentName: 'TitleCard',
 	schema: titleCardSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',

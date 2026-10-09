@@ -122,7 +122,7 @@ const DiscoBallBgInner: React.FC = () => {
 
 export const DiscoBallBg = Interactive.withSchema({
 	Component: DiscoBallBgInner,
-	componentName: '<DiscoBallBg>',
+	componentName: 'DiscoBallBg',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

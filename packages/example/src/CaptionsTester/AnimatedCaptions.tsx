@@ -109,7 +109,7 @@ const CaptionPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 
 const CaptionPage = Interactive.withSchema({
 	Component: CaptionPageInner,
-	componentName: '<CaptionPage>',
+	componentName: 'CaptionPage',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',
@@ -161,7 +161,7 @@ const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({captions}) => {
 
 export const AnimatedCaptions = Interactive.withSchema({
 	Component: AnimatedCaptionsInner,
-	componentName: '<AnimatedCaptions>',
+	componentName: 'AnimatedCaptions',
 	schema: animatedCaptionsSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',

@@ -797,7 +797,7 @@ const MyComponentInner: React.FC = () => {
 
 export const MyComponent = Interactive.withSchema({
 	Component: MyComponentInner,
-	componentName: '<MyComponent>',
+	componentName: 'MyComponent',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

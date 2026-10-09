@@ -26,7 +26,7 @@ const SeparateInner: React.FC = () => {
 
 export const Separate = Interactive.withSchema({
 	Component: SeparateInner,
-	componentName: '<Separate>',
+	componentName: 'Separate',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',
