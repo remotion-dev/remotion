@@ -5,6 +5,7 @@ import {ElementStudioAction} from './ElementStudioAction';
 import styles from './ElementInstallFallbackModal.module.css';
 
 export const ElementInstallFallbackModal: React.FC<{
+	readonly buttonLabel: string;
 	readonly definition: ElementDefinition;
 	readonly installFailureCount: number;
 	readonly isInstalling: boolean;
@@ -14,6 +15,7 @@ export const ElementInstallFallbackModal: React.FC<{
 	readonly posterRef: RefObject<HTMLImageElement | null>;
 	readonly sourceCode: string;
 }> = ({
+	buttonLabel,
 	definition,
 	installFailureCount,
 	isInstalling,
@@ -97,11 +99,14 @@ export const ElementInstallFallbackModal: React.FC<{
 					Use this element
 				</h3>
 				<p className={styles.description}>
-					Open a Remotion Studio, then click below.
+					<a href="/docs/studio" target="_blank" rel="noreferrer">
+						Open a Remotion Studio
+					</a>
+					, then click below.
 				</p>
 				<div className={styles.installAction}>
 					<ElementStudioAction
-						buttonLabel={installFailureCount > 1 ? 'Oops!' : 'Install'}
+						buttonLabel={buttonLabel}
 						definition={definition}
 						loading={isInstalling}
 						onClick={onInstall}

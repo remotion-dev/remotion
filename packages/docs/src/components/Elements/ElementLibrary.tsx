@@ -15,6 +15,7 @@ import {
 } from './element-library-data';
 import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ELEMENT_PREVIEW_BACKGROUND} from './ElementPreviewComposition';
+import {useStudioInstallFallback} from './use-studio-install-fallback';
 import styles from './ElementLibrary.module.css';
 
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
@@ -49,8 +50,13 @@ const ElementCard: React.FC<{
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
 	const [isInstalling, setIsInstalling] = useState(false);
-	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
-	const [installFailureCount, setInstallFailureCount] = useState(0);
+	const {
+		buttonLabel,
+		closeFallback,
+		failureCount,
+		isFallbackOpen,
+		showFallback,
+	} = useStudioInstallFallback('Install');
 	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
@@ -91,21 +97,18 @@ const ElementCard: React.FC<{
 		try {
 			const result = await installElementInStudio({definition, sourceCode});
 			if (!result.success) {
-				setInstallFailureCount((count) => count + 1);
-				setIsInstallFallbackOpen(true);
+				showFallback();
 				return;
 			}
 
-			setIsInstallFallbackOpen(false);
-			setInstallFailureCount(0);
+			closeFallback();
 			if (window.location.origin === 'https://www.remotion.dev') {
 				navigator.sendBeacon(
 					`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
 				);
 			}
 		} catch {
-			setInstallFailureCount((count) => count + 1);
-			setIsInstallFallbackOpen(true);
+			showFallback();
 		} finally {
 			setIsInstalling(false);
 		}
@@ -193,14 +196,12 @@ const ElementCard: React.FC<{
 				</BlueButton>
 			</div>
 			<ElementInstallFallbackModal
+				buttonLabel={buttonLabel}
 				definition={definition}
-				installFailureCount={installFailureCount}
+				installFailureCount={failureCount}
 				isInstalling={isInstalling}
-				isOpen={isInstallFallbackOpen}
-				onClose={() => {
-					setIsInstallFallbackOpen(false);
-					setInstallFailureCount(0);
-				}}
+				isOpen={isFallbackOpen}
+				onClose={closeFallback}
 				onInstall={installElement}
 				posterRef={posterRef}
 				sourceCode={sourceCode}
