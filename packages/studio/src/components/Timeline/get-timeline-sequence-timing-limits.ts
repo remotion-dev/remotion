@@ -80,11 +80,13 @@ export const getTimelineSequenceTimingLimits = ({
 	tracks,
 	sequences,
 	timelineDurationInFrames,
+	movingSequenceIds,
 }: {
 	readonly track: TimelineTrackData;
 	readonly tracks: readonly TimelineTrackData[];
 	readonly sequences: TSequence[];
 	readonly timelineDurationInFrames: number;
+	readonly movingSequenceIds: ReadonlySet<string> | null;
 }) => {
 	const sequence = sequences.find((item) => item.id === track.sequence.id)!;
 	const runtimeValues = sequence.controls?.runtimeValues.getSnapshot() ?? {};
@@ -128,6 +130,7 @@ export const getTimelineSequenceTimingLimits = ({
 			const sibling = item.sequence;
 			if (
 				sibling.id === sequence.id ||
+				movingSequenceIds?.has(sibling.id) ||
 				sibling.timelineTrack?.role !== 'clip' ||
 				sibling.timelineTrack.id !== sequence.timelineTrack.id ||
 				(!sibling.showInTimeline && sibling.type === 'sequence') ||

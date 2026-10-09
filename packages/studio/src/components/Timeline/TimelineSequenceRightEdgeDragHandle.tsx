@@ -259,6 +259,7 @@ export type TimelineSequenceFromDragTarget = {
 	readonly parentPlaybackRate: number;
 	readonly canSnapToTimelineStart: boolean;
 	readonly minimumDeltaFrames: number;
+	readonly maximumDeltaFrames: number;
 	readonly initialTimelineStart: number;
 	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly fileName: string;
@@ -769,8 +770,11 @@ const getTimelineSequenceFromDragResult = ({
 		),
 	);
 	const maximumDelta = Math.min(
-		...targets.map(
-			(target) => timelineDurationInFrames - 1 - target.initialTimelineStart,
+		...targets.map((target) =>
+			Math.min(
+				target.maximumDeltaFrames,
+				timelineDurationInFrames - 1 - target.initialTimelineStart,
+			),
 		),
 	);
 	// Keep selected clips inside their parents unless they started before them,
@@ -1046,6 +1050,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 			}
 
 			const timingLimits = getTimelineSequenceTimingLimits({
+				movingSequenceIds: null,
 				track,
 				tracks,
 				sequences,
@@ -1311,6 +1316,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				positionField,
 				ripplePrevious,
 				timingLimits: getTimelineSequenceTimingLimits({
+					movingSequenceIds: null,
 					track,
 					tracks,
 					sequences,
@@ -1464,15 +1470,39 @@ export const getTimelineSequenceFromDragTargets = ({
 			const sequenceKeyframes = descendantKeyframes.flatMap(
 				(descendant) => descendant.sequenceKeyframes,
 			);
+			const parentPlaybackRate = getParentSequencePlaybackRate(
+				originalSequence,
+				sequences,
+			);
+			const track = tracks.find(
+				(candidate) => candidate.sequence.id === originalSequence.id,
+			)!;
+			const timingLimits = getTimelineSequenceTimingLimits({
+				track,
+				tracks,
+				sequences,
+				timelineDurationInFrames: Infinity,
+				movingSequenceIds: selectedSequenceIds,
+			});
+			// All selected clips share a composition-frame delta. Ignore moving neighbours
+			// and intersect each clip's bounds so the selection keeps its spacing.
 			targets.set(key, {
-				parentPlaybackRate: getParentSequencePlaybackRate(
-					originalSequence,
-					sequences,
-				),
+				parentPlaybackRate,
 				canSnapToTimelineStart: true,
-				minimumDeltaFrames:
+				minimumDeltaFrames: Math.max(
 					(1 - originalSequence.duration - originalSequence.from) /
-					getParentSequencePlaybackRate(originalSequence, sequences),
+						parentPlaybackRate,
+					Math.min(
+						0,
+						(timingLimits.minimumFrom - originalSequence.from) /
+							parentPlaybackRate,
+					),
+				),
+				maximumDeltaFrames: Math.max(
+					0,
+					(timingLimits.maximumFrom - originalSequence.from) /
+						parentPlaybackRate,
+				),
 				initialTimelineStart,
 				effectKeyframes,
 				fileName: nodePath.absolutePath,

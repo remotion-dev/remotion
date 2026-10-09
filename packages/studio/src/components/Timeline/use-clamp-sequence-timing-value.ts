@@ -44,6 +44,7 @@ export const useClampSequenceTimingValue = () => {
 				);
 				for (const track of matching) {
 					const next = getTimelineSequenceTimingLimits({
+						movingSequenceIds: null,
 						track,
 						tracks,
 						sequences,
