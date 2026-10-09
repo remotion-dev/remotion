@@ -55,9 +55,7 @@ export const makeKeyframeBank = async ({
 	videoSampleSink: VideoSampleSink;
 	initialTimestampRequest: number;
 }) => {
-	const sampleIterator = videoSampleSink.samples(
-		roundTo4Digits(initialTimestampRequest),
-	);
+	const sampleIterator = videoSampleSink.samples(initialTimestampRequest);
 
 	const frames: Record<number, VideoSampleWithoutDuration> = {};
 	const frameTimestamps: number[] = [];
