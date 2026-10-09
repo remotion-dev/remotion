@@ -137,6 +137,10 @@ type SeriesSequenceProps = PropsWithChildren<
 			| 'hidden'
 			| 'trimBefore'
 			| 'playbackRate'
+			| 'cropLeft'
+			| 'cropRight'
+			| 'cropTop'
+			| 'cropBottom'
 		>
 >;
 
