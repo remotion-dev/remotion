@@ -37,7 +37,7 @@ const trackSchema = {
 	...trackSequenceSchema,
 	from: {
 		...sequenceSchema.from,
-		description: 'Start',
+		description: 'From',
 		hiddenFromList: false,
 		keyframable: false,
 	},
