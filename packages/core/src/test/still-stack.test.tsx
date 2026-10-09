@@ -1,9 +1,9 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
+import {setComponentIdentityResolver} from '../component-identity.js';
 import type {AnyComposition} from '../CompositionManager.js';
 import {CompositionRegistryProvider} from '../CompositionRegistryProvider.js';
-import {setComponentIdentityResolver} from '../enable-sequence-stack-traces.js';
 import {Internals} from '../internals.js';
 import {Still} from '../Still.js';
 

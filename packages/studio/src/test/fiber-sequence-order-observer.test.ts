@@ -2,8 +2,7 @@ import {afterEach, expect, test} from 'bun:test';
 import {CanvasInternals} from '@remotion/sdk';
 import {Internals} from 'remotion';
 
-const {collectCommitOrderFromFiber, installFiberCommitOrderObserver} =
-	CanvasInternals;
+const {collectReactCommit, installReactCommitObserver} = CanvasInternals;
 
 type TestFiber = {
 	alternate: TestFiber | null;
@@ -132,10 +131,10 @@ test('collects sequence, composition, and folder order per manager', () => {
 	};
 
 	const compositionRegistrations: NonNullable<
-		Parameters<typeof collectCommitOrderFromFiber>[3]
+		Parameters<typeof collectReactCommit>[3]
 	>['registrations'] = new Map();
 	expect(
-		collectCommitOrderFromFiber(root, null, null, {
+		collectReactCommit(root, null, null, {
 			registrations: compositionRegistrations,
 			previous: null,
 		}),
@@ -208,8 +207,8 @@ test('chains the existing commit hook and emits the committed order once', () =>
 	);
 
 	try {
-		expect(installFiberCommitOrderObserver(window)).toBe(true);
-		expect(installFiberCommitOrderObserver(window)).toBe(true);
+		expect(installReactCommitObserver(window)).toBe(true);
+		expect(installReactCommitObserver(window)).toBe(true);
 		hook.onCommitFiberRoot(1, {current: makeFiber()}, null, false);
 		hook.onCommitFiberRoot(1, root, null, false);
 	} finally {
@@ -312,9 +311,9 @@ test('reuses retained subtrees on one root and refreshes reordered and removed m
 		expect(retainedReads - before).toBe(expectedReads);
 		const cachedNodes = Internals.SequenceOutlineInternals.getNodes(outlineRef);
 		const registrations: NonNullable<
-			Parameters<typeof collectCommitOrderFromFiber>[3]
+			Parameters<typeof collectReactCommit>[3]
 		>['registrations'] = new Map();
-		const fresh = collectCommitOrderFromFiber(root, null, null, {
+		const fresh = collectReactCommit(root, null, null, {
 			registrations,
 			previous: null,
 		});
@@ -333,7 +332,7 @@ test('reuses retained subtrees on one root and refreshes reordered and removed m
 	};
 
 	try {
-		expect(installFiberCommitOrderObserver(window)).toBe(true);
+		expect(installReactCommitObserver(window)).toBe(true);
 		commitAndCompare(['first', 'second'], 1);
 		// A new root Fiber with the exact retained child list must skip descendants.
 		root.current = {...root.current, alternate: root.current};

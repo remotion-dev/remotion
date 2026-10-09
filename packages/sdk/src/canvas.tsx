@@ -13,7 +13,7 @@ import {Internals} from 'remotion';
 import type {CanvasController} from './canvas-controller';
 import {getCanvasControllerInternals} from './canvas-controller';
 import {CanvasOutlineOverlay} from './canvas-outline-overlay';
-import {installFiberCommitOrderObserver} from './install-fiber-sequence-order-observer';
+import {installReactCommitObserver} from './react-commit-adapter';
 import type {CanvasSequenceNodePathResolver} from './sequence-node-path';
 import {getCanvasSequenceNodePathInfo} from './sequence-node-path';
 import type {
@@ -81,7 +81,7 @@ const CanvasFn = <
 	// observer when outlines are hidden. Installation is idempotent and reads
 	// sequence descriptors only after React commits the tree.
 	if (typeof window !== 'undefined') {
-		installFiberCommitOrderObserver(window);
+		installReactCommitObserver(window);
 	}
 
 	const internals = getCanvasControllerInternals(controller);
