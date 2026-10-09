@@ -29,6 +29,10 @@ import {
 	CommittedMetadataProvider,
 	withCommittedMetadata,
 } from './committed-metadata.js';
+import {
+	getSingleChildComponent,
+	setComponentIdentityResolver,
+} from './component-identity.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {type CompProps} from './Composition.js';
 import type {
@@ -46,6 +50,7 @@ import {
 } from './CompositionManagerContext.js';
 import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import {CompositionRegistryProvider} from './CompositionRegistryProvider.js';
+import {createElementSourceProxy} from './create-element-source-proxy.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
@@ -74,13 +79,10 @@ import {
 import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
-	getSequenceComponent,
-	getSingleChildComponent,
 	getStackForControls,
 	makeOriginalSourceStack,
 	parseOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
-	setComponentIdentityResolver,
 	type OriginalSourceLocation,
 } from './enable-sequence-stack-traces.js';
 import {
@@ -345,6 +347,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	createElementSourceProxy,
 	CommittedMetadataProvider,
 	withCommittedMetadata,
 	DefaultPremountContext,
@@ -480,7 +483,6 @@ export const Internals = {
 	BufferingProvider,
 	BufferingContextReact,
 	getComponentsToAddStacksTo,
-	getSequenceComponent,
 	getSingleChildComponent,
 	getStackForControls,
 	makeOriginalSourceStack,

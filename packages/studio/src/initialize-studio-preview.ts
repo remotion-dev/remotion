@@ -20,7 +20,7 @@ export const initializeStudioPreview = () => {
 		return;
 	}
 
-	CanvasInternals.installFiberCommitOrderObserver(window);
+	CanvasInternals.installReactCommitObserver(window);
 	Internals.CSSUtils.injectCSS(studioCssVariables);
 	Internals.CSSUtils.injectCSS(
 		Internals.CSSUtils.makeDefaultPreviewCSS(null, BACKGROUND_HEX),

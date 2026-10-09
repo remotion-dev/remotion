@@ -2,8 +2,7 @@ import {afterEach, expect, test} from 'bun:test';
 import {CanvasInternals} from '@remotion/sdk';
 import {Internals} from 'remotion';
 
-const {collectCommitOrderFromFiber, installFiberCommitOrderObserver} =
-	CanvasInternals;
+const {collectReactCommit, installReactCommitObserver} = CanvasInternals;
 
 type TestFiber = {
 	child: TestFiber | null;
@@ -130,10 +129,10 @@ test('collects sequence, composition, and folder order per manager', () => {
 	};
 
 	const compositionRegistrations: NonNullable<
-		Parameters<typeof collectCommitOrderFromFiber>[3]
+		Parameters<typeof collectReactCommit>[3]
 	>['registrations'] = new Map();
 	expect(
-		collectCommitOrderFromFiber(root, null, null, {
+		collectReactCommit(root, null, null, {
 			registrations: compositionRegistrations,
 			previous: null,
 		}),
@@ -206,8 +205,8 @@ test('chains the existing commit hook and emits the committed order once', () =>
 	);
 
 	try {
-		expect(installFiberCommitOrderObserver(window)).toBe(true);
-		expect(installFiberCommitOrderObserver(window)).toBe(true);
+		expect(installReactCommitObserver(window)).toBe(true);
+		expect(installReactCommitObserver(window)).toBe(true);
 		hook.onCommitFiberRoot(1, {current: makeFiber()}, null, false);
 		hook.onCommitFiberRoot(1, root, null, false);
 	} finally {

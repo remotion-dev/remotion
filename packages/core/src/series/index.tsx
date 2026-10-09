@@ -5,10 +5,7 @@ import React, {
 	type PropsWithChildren,
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
-import {
-	addSequenceStackTraces,
-	getSingleChildComponent,
-} from '../enable-sequence-stack-traces.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Interactive} from '../Interactive.js';
 import {
 	sequenceSchemaDefaultLayoutNone,
@@ -243,9 +240,6 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 									role: 'clip',
 									seriesOffset: offset,
 								}}
-								_remotionInternalSingleChildComponent={getSingleChildComponent(
-									sequenceChildren,
-								)}
 							>
 								<IsNotInsideSeriesProvider>
 									{sequenceChildren}
