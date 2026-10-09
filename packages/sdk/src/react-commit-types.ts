@@ -1,6 +1,7 @@
 import type {ComponentProps} from 'react';
 import {Internals} from 'remotion';
 export type Fiber = {
+	readonly alternate: Fiber | null;
 	readonly child: Fiber | null;
 	readonly memoizedProps: unknown;
 	readonly sibling: Fiber | null;

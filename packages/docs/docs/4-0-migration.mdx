@@ -128,7 +128,7 @@ Furthermore, the `npx remotion install ffmpeg` and `npx remotion install ffprobe
 - Remove all calls to [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe).
 - Remove the `--ffmpeg-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
 - Remove the `--ffprobe-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
-- Don't use the [`npx remotion install`](/docs/cli/install) command anymore
+- Don't use the `npx remotion install` command anymore
 
 ## Added `npx remotion ffmpeg` and `npx remotion ffprobe`
 
@@ -265,7 +265,7 @@ const composition: AnyComposition = {
 
 ## `getCanExtractFramesFast()` function has been removed
 
-The [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) function has been removed, since frames can always be extracted fast now using `<OffthreadVideo>`.
+The `getCanExtractFramesFast()` function has been removed, since frames can always be extracted fast now using `<OffthreadVideo>`.
 
 **How to upgrade:**
 
@@ -402,7 +402,7 @@ The recommended way is to get the `composition` object using [`selectComposition
 - **@remotion/motion-blur**: [`<MotionBlur>`](/docs/motion-blur/motion-blur) has been removed
 - **@remotion/paths**: [`getParts()`](/docs/paths/get-parts) has been removed
 - **@remotion/renderer**: New [`selectComposition()`](/docs/renderer/select-composition) API
-- **@remotion/renderer**: [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) has been removed
+- **@remotion/renderer**: `getCanExtractFramesFast()` has been removed
 - **@remotion/renderer**: FFmpeg is now included in Remotion (v6.0), no need to install it anymore
 - **@remotion/renderer**: [ProRes](/docs/encoding) now exports uncompressed audio by default.
 - **@remotion/renderer**: [`onSlowestFrames`](/docs/renderer/render-media#onslowestframes) has been removed
