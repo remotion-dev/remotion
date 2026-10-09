@@ -1,4 +1,5 @@
 import type {TSequence} from 'remotion';
+import {getTimelineSceneRange} from './get-timeline-scene-range';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
@@ -8,6 +9,8 @@ import {
 export type TimelineSceneRange = {
 	readonly from: number;
 	readonly end: number;
+	readonly fadeInEnd: number | null;
+	readonly fadeOutStart: number | null;
 };
 
 // Keep sequence rows and their identities intact. Only their vertical positions
@@ -129,73 +132,52 @@ export const getTimelineSeriesLayout = ({
 				continue;
 			}
 
-			// Keep transitions by the scene track, but place overlays after scene children.
-			const overlayRows = rows[index].auxiliaryRows.flatMap(
-				(items, auxiliaryIndex) =>
-					items[0]?.sequence.timelineTrack?.role === 'overlay'
-						? [auxiliaryIndex]
-						: [],
-			);
-			cursor -= overlayRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT;
+			const overlayRowCount = rows[index].auxiliaryRows.length;
+			cursor -= overlayRowCount * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT;
 			// Overlay contents get their own space below the scene contents.
 			for (const role of ['clip', 'overlay'] as const) {
 				if (role === 'overlay') {
-					for (const auxiliaryIndex of overlayRows) {
+					for (
+						let auxiliaryIndex = 0;
+						auxiliaryIndex < overlayRowCount;
+						auxiliaryIndex++
+					) {
 						auxiliaryRowOffsets[index][auxiliaryIndex] =
 							cursor - offsets[index];
 						cursor += TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT;
 					}
 
-					if (overlayRows.length > 0) {
+					if (overlayRowCount > 0) {
 						rowHeights[index] = cursor - offsets[index];
 					}
 				}
 
-				const lanes: {end: number; height: number}[] = [];
-				const placements: {lane: number; rows: number[]}[] = [];
-				for (const {sequence} of scenes) {
-					if (sequence.timelineTrack?.role !== role) {
-						continue;
-					}
-
-					const sceneRange = {
-						from: Math.max(range?.from ?? -Infinity, sequence.from),
-						end: Math.min(
-							range?.end ?? Infinity,
-							sequence.from + sequence.duration,
-						),
-					};
-					const firstRow = groupRows.length;
+				let sceneHeight = 0;
+				const roleScenes = scenes.filter(
+					({sequence}) => sequence.timelineTrack?.role === role,
+				);
+				for (let sceneIndex = 0; sceneIndex < roleScenes.length; sceneIndex++) {
+					const {sequence} = roleScenes[sceneIndex];
+					const previous = roleScenes[sceneIndex - 1]?.sequence;
+					const next = roleScenes[sceneIndex + 1]?.sequence;
+					const sceneRange = getTimelineSceneRange({
+						sequence,
+						seriesItems: rows[index].items?.map((item) => item.sequence) ?? [],
+						previous: previous ?? null,
+						next: next ?? null,
+						range,
+					});
 					const end = layoutRows(
 						childrenByScene.get(sequence.id) ?? [],
 						cursor,
 						sceneRange,
 						groupRows,
 					);
-					let lane = lanes.findIndex((item) => item.end <= sceneRange.from);
-					if (lane === -1) {
-						lane = lanes.length;
-						lanes.push({end: sceneRange.end, height: end - cursor});
-					} else {
-						lanes[lane].end = sceneRange.end;
-						lanes[lane].height = Math.max(lanes[lane].height, end - cursor);
-					}
-
-					placements.push({lane, rows: groupRows.slice(firstRow)});
+					sceneHeight = Math.max(sceneHeight, end - cursor);
 				}
 
-				// Assign lanes even to dormant scenes without registered children.
-				// Reserve the largest child stack in every lane: otherwise a lane
-				// collapses when its scene unmounts and moves a still-active scene.
-				const laneHeight = Math.max(0, ...lanes.map((lane) => lane.height));
-
-				for (const placement of placements) {
-					for (const childIndex of placement.rows) {
-						offsets[childIndex] += placement.lane * laneHeight;
-					}
-				}
-
-				cursor += lanes.length * laneHeight;
+				// Scenes share child space, handing it off at transition midpoints.
+				cursor += sceneHeight;
 			}
 		}
 

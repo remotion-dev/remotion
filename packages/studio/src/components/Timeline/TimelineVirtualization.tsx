@@ -135,7 +135,9 @@ export const TimelineVirtualizationProvider: React.FC<{
 					previous.siblingIndex === siblingIndex &&
 					previous.sceneGroupId === sceneGroupId &&
 					previous.sceneRange?.from === sceneRange?.from &&
-					previous.sceneRange?.end === sceneRange?.end
+					previous.sceneRange?.end === sceneRange?.end &&
+					previous.sceneRange?.fadeInEnd === sceneRange?.fadeInEnd &&
+					previous.sceneRange?.fadeOutStart === sceneRange?.fadeOutStart
 				) {
 					return previous;
 				}
