@@ -421,11 +421,7 @@ const VideoInner: React.FC<
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 				name={name ?? '<Video>'}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/media/video'
-						: undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/media/video"
 				controls={controls}
 				_remotionInternalLoopDisplay={loopDisplay}
 				_remotionInternalEffects={memoizedEffectDefinitions}

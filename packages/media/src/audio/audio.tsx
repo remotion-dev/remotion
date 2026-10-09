@@ -223,11 +223,7 @@ const AudioInner: React.FC<
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 				name={name ?? '<Audio>'}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/media/audio'
-						: undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/media/audio"
 				controls={controls}
 				_remotionInternalLoopDisplay={loopDisplay}
 				showInTimeline={showInTimeline ?? true}

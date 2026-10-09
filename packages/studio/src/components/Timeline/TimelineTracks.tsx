@@ -95,7 +95,7 @@ const TimelineTracksInner: React.FC<{
 		<div style={timelineStyle} {...{'oai-annotation-container': ''}}>
 			<div style={{...content, height: tracksEnd}}>
 				{virtualItems.map((virtualItem) => {
-					const {sceneRange, track, items, auxiliaryRows} =
+					const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} =
 						rows[virtualItem.index];
 					const trackContent =
 						items === null ? (
@@ -105,6 +105,7 @@ const TimelineTracksInner: React.FC<{
 								track={track}
 								items={items}
 								auxiliaryRows={auxiliaryRows}
+								auxiliaryRowOffsets={auxiliaryRowOffsets}
 							/>
 						);
 					return (

@@ -35,7 +35,11 @@ const FadePresentation: React.FC<
 		presentationProgress,
 	]);
 
-	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
+	return (
+		<AbsoluteFill showInTimeline={false} style={style}>
+			{children}
+		</AbsoluteFill>
+	);
 };
 /*
  * @description Provides a simple fade transition component for sliding elements in and out.

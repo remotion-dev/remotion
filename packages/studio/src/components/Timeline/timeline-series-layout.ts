@@ -1,6 +1,9 @@
 import type {TSequence} from 'remotion';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
-import type {TimelineDisplayRow} from './timeline-track-groups';
+import {
+	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+	type TimelineDisplayRow,
+} from './timeline-track-groups';
 
 export type TimelineSceneRange = {
 	readonly from: number;
@@ -49,27 +52,21 @@ export const getTimelineSeriesLayout = ({
 				!registered ||
 				registered.some(
 					(item) =>
-						item.timelineTrack?.role !== 'clip' ||
-						item.timelineTrack.seriesOffset !== 0 ||
+						(item.timelineTrack?.role === 'clip' &&
+							item.timelineTrack.seriesOffset !== 0) ||
 						!item.showInTimeline,
 				)
 			) {
 				continue;
 			}
 
-			const scenes = [...row.items].sort(
-				(a, b) => a.sequence.from - b.sequence.from,
-			);
-			if (
-				scenes.some((scene, sceneIndex) => {
-					const previous = scenes[sceneIndex - 1]?.sequence;
-					return (
-						previous && previous.from + previous.duration > scene.sequence.from
-					);
-				})
-			) {
-				continue;
-			}
+			const scenes = row.items
+				.filter(
+					({sequence}) =>
+						sequence.timelineTrack?.role === 'clip' ||
+						sequence.timelineTrack?.role === 'overlay',
+				)
+				.sort((a, b) => a.sequence.from - b.sequence.from);
 
 			scenesBySeries.set(index, scenes);
 			for (const scene of scenes) {
@@ -96,6 +93,15 @@ export const getTimelineSeriesLayout = ({
 	}
 
 	const offsets = new Array<number>(rows.length);
+	const rowHeights = [...heights];
+	const auxiliaryRowOffsets = rows.map((row, index) =>
+		row.auxiliaryRows.map(
+			(_, auxiliaryIndex) =>
+				heights[index] -
+				(row.auxiliaryRows.length - auxiliaryIndex) *
+					TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+		),
+	);
 	const sceneRanges = new Array<TimelineSceneRange | null>(rows.length).fill(
 		null,
 	);
@@ -123,27 +129,74 @@ export const getTimelineSeriesLayout = ({
 				continue;
 			}
 
-			let end = cursor;
-			for (const {sequence} of scenes) {
-				const sceneRange = {
-					from: Math.max(range?.from ?? -Infinity, sequence.from),
-					end: Math.min(
-						range?.end ?? Infinity,
-						sequence.from + sequence.duration,
-					),
-				};
-				end = Math.max(
-					end,
-					layoutRows(
+			// Keep transitions by the scene track, but place overlays after scene children.
+			const overlayRows = rows[index].auxiliaryRows.flatMap(
+				(items, auxiliaryIndex) =>
+					items[0]?.sequence.timelineTrack?.role === 'overlay'
+						? [auxiliaryIndex]
+						: [],
+			);
+			cursor -= overlayRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT;
+			// Overlay contents get their own space below the scene contents.
+			for (const role of ['clip', 'overlay'] as const) {
+				if (role === 'overlay') {
+					for (const auxiliaryIndex of overlayRows) {
+						auxiliaryRowOffsets[index][auxiliaryIndex] =
+							cursor - offsets[index];
+						cursor += TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT;
+					}
+
+					if (overlayRows.length > 0) {
+						rowHeights[index] = cursor - offsets[index];
+					}
+				}
+
+				const lanes: {end: number; height: number}[] = [];
+				const placements: {lane: number; rows: number[]}[] = [];
+				for (const {sequence} of scenes) {
+					if (sequence.timelineTrack?.role !== role) {
+						continue;
+					}
+
+					const sceneRange = {
+						from: Math.max(range?.from ?? -Infinity, sequence.from),
+						end: Math.min(
+							range?.end ?? Infinity,
+							sequence.from + sequence.duration,
+						),
+					};
+					const firstRow = groupRows.length;
+					const end = layoutRows(
 						childrenByScene.get(sequence.id) ?? [],
 						cursor,
 						sceneRange,
 						groupRows,
-					),
-				);
-			}
+					);
+					let lane = lanes.findIndex((item) => item.end <= sceneRange.from);
+					if (lane === -1) {
+						lane = lanes.length;
+						lanes.push({end: sceneRange.end, height: end - cursor});
+					} else {
+						lanes[lane].end = sceneRange.end;
+						lanes[lane].height = Math.max(lanes[lane].height, end - cursor);
+					}
 
-			cursor = end;
+					placements.push({lane, rows: groupRows.slice(firstRow)});
+				}
+
+				// Assign lanes even to dormant scenes without registered children.
+				// Reserve the largest child stack in every lane: otherwise a lane
+				// collapses when its scene unmounts and moves a still-active scene.
+				const laneHeight = Math.max(0, ...lanes.map((lane) => lane.height));
+
+				for (const placement of placements) {
+					for (const childIndex of placement.rows) {
+						offsets[childIndex] += placement.lane * laneHeight;
+					}
+				}
+
+				cursor += lanes.length * laneHeight;
+			}
 		}
 
 		return cursor;
@@ -165,7 +218,9 @@ export const getTimelineSeriesLayout = ({
 		siblingCounts.set(track.sequence.parent, index + 1);
 		return index;
 	});
-	const subtreeEnds = offsets.map((offset, index) => offset + heights[index]);
+	const subtreeEnds = offsets.map(
+		(offset, index) => offset + rowHeights[index],
+	);
 	for (let index = 0; index < rows.length; index++) {
 		let {parent} = rows[index].track.sequence;
 		while (parent !== null) {
@@ -173,7 +228,7 @@ export const getTimelineSeriesLayout = ({
 			if (parentIndex !== undefined) {
 				subtreeEnds[parentIndex] = Math.max(
 					subtreeEnds[parentIndex],
-					offsets[index] + heights[index],
+					offsets[index] + rowHeights[index],
 				);
 			}
 
@@ -183,6 +238,8 @@ export const getTimelineSeriesLayout = ({
 
 	return {
 		offsets,
+		rowHeights,
+		auxiliaryRowOffsets,
 		sceneRanges,
 		groupIndexes,
 		groups,

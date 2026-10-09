@@ -17,7 +17,7 @@ import {
 } from '../optimistic-sequence-deletion.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {SequenceWithoutSchema} from '../Sequence.js';
-import {TrackWithoutSchema} from '../Track.js';
+import {TrackWithoutSchema, type TrackWithoutSchemaProps} from '../Track.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import {flattenChildren} from './flatten-children.js';
@@ -107,7 +107,7 @@ const SeriesSequence = Interactive.withSchema({
 	SeriesSequenceProps & React.RefAttributes<HTMLDivElement>
 >;
 
-type SeriesProps = SequenceProps;
+type SeriesProps = TrackWithoutSchemaProps;
 const SequenceWithoutSchemaWithRef =
 	SequenceWithoutSchema as React.ComponentType<
 		SequenceProps & {readonly ref?: React.Ref<HTMLDivElement>}
@@ -237,9 +237,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 							<SequenceWithoutSchemaWithRef
 								ref={ref}
 								name={name || '<Series.Sequence>'}
-								_remotionInternalDocumentationLink={
-									name ? undefined : 'https://www.remotion.dev/docs/series'
-								}
+								_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 								controls={controls ?? undefined}
 								from={currentStartFrame}
 								durationInFrames={durationInFramesProp}

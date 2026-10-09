@@ -16,57 +16,22 @@ const primaryRowHeight =
 export const TimelinePackedTrack: React.FC<{
 	readonly track: TimelineTrackWithDisplayGroup;
 	readonly items: readonly TimelineTrackWithDisplayGroup[];
+	readonly auxiliaryRowOffsets: readonly number[];
 	readonly auxiliaryRows: readonly (readonly TimelineTrackWithDisplayGroup[])[];
-}> = ({track, items, auxiliaryRows}) => {
+}> = ({track, items, auxiliaryRows, auxiliaryRowOffsets}) => {
 	const {dropIndicatorLeft, onClickCapture, onPointerDownCapture} =
 		useSeriesReorder(items);
-	const labelStartFrames = useMemo(() => {
-		const starts = new Map<string, number>();
-		let precedingTransition: TimelineTrackWithDisplayGroup['sequence'] | null =
-			null;
-		// Match transitions to their incoming clips before reordering for painting.
-		for (const {sequence} of items) {
-			if (sequence.timelineTrack?.role === 'transition') {
-				precedingTransition = sequence;
-			} else if (sequence.timelineTrack?.role === 'clip') {
-				if (
-					precedingTransition !== null &&
-					precedingTransition.from < sequence.from + sequence.duration &&
-					precedingTransition.from + precedingTransition.duration >
-						sequence.from
-				) {
-					starts.set(
-						sequence.id,
-						precedingTransition.from + precedingTransition.duration,
-					);
-				}
-
-				precedingTransition = null;
-			}
-		}
-
-		return starts;
-	}, [items]);
 	const rows = useMemo(() => {
-		const clips = items.filter(
-			(item) => item.sequence.timelineTrack?.role === 'clip',
-		);
-		const effects = items.filter(
-			(item) =>
-				item.sequence.timelineTrack?.role !== 'clip' &&
-				item.sequence.timelineTrack?.role !== 'overlay',
-		);
-		return [[...clips, ...effects], ...auxiliaryRows].map((row, index) => ({
+		const clips = items
+			.filter((item) => item.sequence.timelineTrack?.role === 'clip')
+			.sort((a, b) => a.sequence.from - b.sequence.from);
+		return [clips, ...auxiliaryRows].map((row, index) => ({
 			items: row,
-			top:
-				index === 0
-					? 0
-					: primaryRowHeight +
-						(index - 1) * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+			top: index === 0 ? 0 : auxiliaryRowOffsets[index - 1],
 			height:
 				index === 0 ? primaryRowHeight : TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 		}));
-	}, [auxiliaryRows, items]);
+	}, [auxiliaryRows, auxiliaryRowOffsets, items]);
 
 	return (
 		<div
@@ -75,16 +40,21 @@ export const TimelinePackedTrack: React.FC<{
 			onPointerDownCapture={onPointerDownCapture}
 			style={{
 				position: 'relative',
-				height:
-					primaryRowHeight +
-					auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+				height: Math.max(
+					primaryRowHeight,
+					...auxiliaryRowOffsets.map(
+						(offset) => offset + TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+					),
+				),
 			}}
 		>
 			{rows.map((row) => (
 				<div
 					key={row.top}
 					aria-hidden="true"
-					data-timeline-track-row={row.top === 0 ? 'clips' : 'overlays'}
+					data-timeline-track-row={
+						row.top === 0 ? 'clips' : row.items[0]?.sequence.timelineTrack?.role
+					}
 					style={{
 						position: 'absolute',
 						top: row.top,
@@ -98,7 +68,7 @@ export const TimelinePackedTrack: React.FC<{
 			))}
 			{/* Keep clips under the same parent when timing edits move them to another row. */}
 			{rows.flatMap((row) =>
-				row.items.map((item) => (
+				row.items.map((item, index) => (
 					<div
 						key={item.sequence.id}
 						data-timeline-track-item-id={item.sequence.id}
@@ -114,7 +84,14 @@ export const TimelinePackedTrack: React.FC<{
 					>
 						<TimelineSequence
 							s={item.sequence}
-							labelStartFrame={labelStartFrames.get(item.sequence.id) ?? null}
+							labelStartFrame={null}
+							paintEndFrame={
+								row.top === 0 &&
+								(row.items[index + 1]?.sequence.from ?? -Infinity) >
+									item.sequence.from
+									? (row.items[index + 1]?.sequence.from ?? null)
+									: null
+							}
 							cascadedStart={item.cascadedStart}
 							localStart={item.localStart}
 							parentVisibleStart={item.parentVisibleStart}

@@ -56,7 +56,7 @@ const ElementCard: React.FC<{
 		failureCount,
 		isFallbackOpen,
 		showFallback,
-	} = useStudioInstallFallback('Install');
+	} = useStudioInstallFallback('Use');
 	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =

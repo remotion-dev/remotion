@@ -298,7 +298,7 @@ test('Should pass integer dimensions to HtmlInCanvas', async () => {
 	expect(htmlInCanvasCalls[0].height).toBe(21);
 });
 
-test('Should not add a documentation link if a custom name is passed', async () => {
+test('Should keep the documentation link if a custom name is passed', async () => {
 	const {Circle} = await loadComponents();
 	hasVideoConfig = true;
 	sequenceCalls.length = 0;
@@ -306,7 +306,9 @@ test('Should not add a documentation link if a custom name is passed', async () 
 	render(<Circle radius={100} name="Custom circle" />);
 
 	expect(sequenceCalls[0].name).toBe('Custom circle');
-	expect(sequenceCalls[0]._remotionInternalDocumentationLink).toBe(undefined);
+	expect(sequenceCalls[0]._remotionInternalDocumentationLink).toBe(
+		'https://www.remotion.dev/docs/shapes/circle',
+	);
 });
 
 test('Should render SVG without Sequence outside a Remotion video config', async () => {

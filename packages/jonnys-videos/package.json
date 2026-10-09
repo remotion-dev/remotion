@@ -25,6 +25,7 @@
 		"@remotion/media": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/transitions": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*",
