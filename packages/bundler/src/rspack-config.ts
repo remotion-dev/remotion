@@ -1,6 +1,6 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
-import {ProgressPlugin, rspack} from '@rspack/core';
-import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
+import type {ReactRefreshRspackPlugin as ReactRefreshRspackPluginType} from '@rspack/plugin-react-refresh';
+import {getRspack} from './get-rspack';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 import type {
 	BundlerOverrideFn,
@@ -45,6 +45,12 @@ export const rspackConfig = async ({
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	extraPlugins: any[];
 }): Promise<[string, RspackConfiguration]> => {
+	const {ProgressPlugin, rspack} = getRspack();
+	const ReactRefreshRspackPlugin =
+		environment === 'development'
+			? (require('@rspack/plugin-react-refresh')
+					.ReactRefreshRspackPlugin as typeof ReactRefreshRspackPluginType)
+			: null;
 	let lastProgress = 0;
 
 	const swcLoaderRule = {
@@ -81,7 +87,7 @@ export const rspackConfig = async ({
 		},
 	};
 
-	const sharedBaseConfig = getBaseConfig(environment, poll);
+	const sharedBaseConfig = getBaseConfig(environment, poll, 'rspack');
 	const baseConfig = {
 		...sharedBaseConfig,
 		optimization: {
@@ -91,12 +97,12 @@ export const rspackConfig = async ({
 			emitOnErrors: true,
 		},
 		experiments: {
-			...sharedBaseConfig.experiments,
-			...(environment === 'development'
-				? // Makes the first HMR event faster.
-					{incremental: {buildChunkGraph: true}}
-				: {}),
+			nativeWatcher: true,
 		},
+		...(environment === 'development'
+			? // Makes the first HMR event faster.
+				{incremental: {buildChunkGraph: true}}
+			: {}),
 		ignoreWarnings: [transformersImportMetaWarning],
 		node: {
 			// Suppress the warning in `source-map`
@@ -120,25 +126,24 @@ export const rspackConfig = async ({
 			studioRenderEntry: entry,
 		}),
 		mode: environment,
-		plugins:
-			environment === 'development'
-				? [
-						new ReactRefreshPlugin({overlay: false}),
-						new rspack.HotModuleReplacementPlugin(),
-						new AllowOptionalDependenciesPlugin(),
-						...extraPlugins,
-					]
-				: [
-						new ProgressPlugin((p: number) => {
-							if (onProgress) {
-								if ((p === 1 && p > lastProgress) || p - lastProgress > 0.05) {
-									lastProgress = p;
-									onProgress(Number((p * 100).toFixed(2)));
-								}
+		plugins: ReactRefreshRspackPlugin
+			? [
+					new ReactRefreshRspackPlugin(),
+					new rspack.HotModuleReplacementPlugin(),
+					new AllowOptionalDependenciesPlugin(),
+					...extraPlugins,
+				]
+			: [
+					new ProgressPlugin((p: number) => {
+						if (onProgress) {
+							if ((p === 1 && p > lastProgress) || p - lastProgress > 0.05) {
+								lastProgress = p;
+								onProgress(Number((p * 100).toFixed(2)));
 							}
-						}),
-						new AllowOptionalDependenciesPlugin(),
-					],
+						}
+					}),
+					new AllowOptionalDependenciesPlugin(),
+				],
 		output: getOutputConfig(environment),
 		resolve: getResolveConfig(),
 		module: {
@@ -183,6 +188,7 @@ export const rspackConfig = async ({
 	const conf = await rspackOverride(sharedConfig as RspackConfiguration);
 
 	const [hash, finalConf] = computeHashAndFinalConfig(conf, {
+		bundler: 'rspack',
 		enableCaching,
 		environment,
 		outDir,
@@ -192,5 +198,5 @@ export const rspackConfig = async ({
 };
 
 export const createRspackCompiler = (config: RspackConfiguration) => {
-	return rspack(config);
+	return getRspack().rspack(config);
 };

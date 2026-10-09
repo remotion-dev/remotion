@@ -84,7 +84,6 @@
 	"overrides": {
 		"@aws-sdk/xml-builder": "3.972.5",
 		"caniuse-lite": "1.0.30001766",
-		"@rspack/core": "1.7.11",
 		"@remix-run/dev": "2.17.4",
 		"@remix-run/node": "2.17.4",
 		"@remix-run/react": "2.17.4",
