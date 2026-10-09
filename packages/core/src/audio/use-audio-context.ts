@@ -80,6 +80,8 @@ export const useSingletonAudioContext = ({
 		// Tracks the state we are transitioning towards while resume()/suspend()
 		// have been called but the native state has not updated yet.
 		let transitionTarget: 'running' | 'suspended' | null = null;
+		let transitionId = 0;
+		let pendingResume: Promise<void> | null = null;
 
 		const getState = (): RemotionAudioContextState => {
 			const nativeState = audioContext.state;
@@ -96,29 +98,46 @@ export const useSingletonAudioContext = ({
 		};
 
 		const resume = () => {
+			const id = ++transitionId;
 			transitionTarget = 'running';
+			// Keep resume synchronous so it retains the browser's user activation.
 			const promise = audioContext.resume();
+			pendingResume = promise;
 
-			promise.finally(() => {
-				if (transitionTarget === 'running') {
+			return promise.finally(() => {
+				if (pendingResume === promise) {
+					pendingResume = null;
+				}
+
+				if (transitionId === id) {
 					transitionTarget = null;
 				}
 			});
-
-			return promise;
 		};
 
 		const suspend = () => {
+			const id = ++transitionId;
 			transitionTarget = 'suspended';
-			const promise = audioContext.suspend();
+			// Chromium can freeze the audio clock if suspend runs before an
+			// in-flight resume settles, while its reported state is still suspended.
+			// A newer playback request must cancel this deferred suspension.
+			const promise = pendingResume
+				? pendingResume
+						.catch(() => {})
+						.then(() => {
+							if (transitionId !== id) {
+								return;
+							}
 
-			promise.finally(() => {
-				if (transitionTarget === 'suspended') {
+							return audioContext.suspend();
+						})
+				: audioContext.suspend();
+
+			return promise.finally(() => {
+				if (transitionId === id) {
 					transitionTarget = null;
 				}
 			});
-
-			return promise;
 		};
 
 		return {
