@@ -1,11 +1,14 @@
 import {Video} from '@remotion/media';
 import React from 'react';
+import {useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
 export const DragInDemo: React.FC = () => {
+	const {fps} = useVideoConfig();
 	return (
 		<>
 			<Video
+				premountFor={fps}
 				src={asset('Screen Recording 2026-07-19 at 18.16.56.mov')}
 				style={{
 					position: 'absolute',

@@ -1,12 +1,20 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {Sequence, Solid, interpolate, useCurrentFrame, Easing} from 'remotion';
+import {
+	useVideoConfig,
+	Sequence,
+	Solid,
+	interpolate,
+	useCurrentFrame,
+	Easing,
+} from 'remotion';
 import {asset} from './assets';
 import {Clip1} from './Clip1';
 import {Clip3} from './Clip3';
 import {Clip4} from './Clip4';
 
 export const BirthdayPartyCompilation: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
@@ -19,7 +27,7 @@ export const BirthdayPartyCompilation: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={93}
-				premountFor={30}
+				premountFor={fps}
 			>
 				<Clip1 />
 			</Sequence>
@@ -32,7 +40,7 @@ export const BirthdayPartyCompilation: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={37}
-				premountFor={30}
+				premountFor={fps}
 			>
 				<Clip3 />
 			</Sequence>
@@ -45,7 +53,7 @@ export const BirthdayPartyCompilation: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={134}
-				premountFor={30}
+				premountFor={fps}
 			>
 				<Clip4 />
 			</Sequence>
@@ -59,10 +67,11 @@ export const BirthdayPartyCompilation: React.FC = () => {
 				from={4}
 				durationInFrames={33}
 				trimBefore={11}
-				premountFor={30}
+				premountFor={fps}
 				muted
 			/>
 			<Solid
+				premountFor={fps}
 				width={1080}
 				height={1920}
 				color={'#ffffff'}

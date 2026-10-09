@@ -34,6 +34,7 @@ const BigWordPage: React.FC<{page: TikTokPage}> = ({page}) => {
 
 	return (
 		<AbsoluteFill
+			premountFor={fps}
 			style={{
 				alignItems: 'center',
 				justifyContent: 'center',
@@ -43,6 +44,7 @@ const BigWordPage: React.FC<{page: TikTokPage}> = ({page}) => {
 			}}
 		>
 			<Interactive.Div
+				premountFor={fps}
 				name={`Caption page: ${page.text.trim()}`}
 				style={{
 					alignItems: 'center',
@@ -153,8 +155,13 @@ export const AnimatedCaptionsBigWords: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill>
-			<Audio src={asset(VOICEOVER_FILE)} hidden showInTimeline={false} />
+		<AbsoluteFill premountFor={fps}>
+			<Audio
+				premountFor={fps}
+				src={asset(VOICEOVER_FILE)}
+				hidden
+				showInTimeline={false}
+			/>
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];
 				const startFrame = Math.round((page.startMs / 1000) * fps);

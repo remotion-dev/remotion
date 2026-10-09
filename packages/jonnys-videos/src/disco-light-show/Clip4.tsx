@@ -1,11 +1,14 @@
 import {Video} from '@remotion/media';
 import React from 'react';
+import {useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
 export const Clip4: React.FC = () => {
+	const {fps} = useVideoConfig();
 	return (
 		<>
 			<Video
+				premountFor={fps}
 				src={asset('IMG_8549.mp4')}
 				style={{
 					position: 'absolute',
