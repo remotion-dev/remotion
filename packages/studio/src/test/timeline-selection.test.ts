@@ -2219,8 +2219,6 @@ test('Looping timeline items cannot be resized or split', () => {
 		...loopedSequence,
 		type: 'video',
 		src: 'video.mp4',
-		volume: 1,
-		doesVolumeChange: false,
 		muted: false,
 		startMediaFrom: 0,
 		mediaFrameAtSequenceZero: 0,
