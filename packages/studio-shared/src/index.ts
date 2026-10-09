@@ -1,3 +1,4 @@
+export {studioOperations} from './api-requests';
 export {splitAnsi, stripAnsi} from './ansi';
 export type {TerminalId} from './terminal';
 export type {GitClientId} from './git-client';

@@ -244,9 +244,16 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	const prevImageRef = useRef<ImageMap>({});
 	const nextImageRef = useRef<ImageMap>({});
 
+	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const flattedChildren = useMemo(() => {
-		return flattenChildren(children);
-	}, [children]);
+		return flattenChildren(children).filter(
+			(child) =>
+				!Internals.OptimisticSequenceDeletion.isElementDeleted(
+					child,
+					pendingDeletions,
+				),
+		);
+	}, [children, pendingDeletions]);
 	const hasOverlay = flattedChildren.some(
 		(child) => React.isValidElement(child) && child.type === SeriesOverlay,
 	);

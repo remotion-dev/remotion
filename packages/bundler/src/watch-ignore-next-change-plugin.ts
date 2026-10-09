@@ -66,6 +66,7 @@ type TraceLogFn = (...args: Parameters<typeof console.log>) => void;
 
 export class WatchIgnoreNextChangePlugin {
 	private filesToIgnore = new Set<string>();
+	private filesRequiringRebuild = new Set<string>();
 	private dirsToIgnore = new Set<string>();
 	private snapshotFileTimestamps = new Map<string, TimeInfoEntry>();
 	private snapshotDirTimestamps = new Map<string, TimeInfoEntry>();
@@ -78,6 +79,10 @@ export class WatchIgnoreNextChangePlugin {
 	}
 
 	ignoreNextChange(file: string): void {
+		if (this.filesRequiringRebuild.has(file)) {
+			return;
+		}
+
 		this.filesToIgnore.add(file);
 		const dir = path.dirname(file);
 		this.dirsToIgnore.add(dir);
@@ -109,6 +114,11 @@ export class WatchIgnoreNextChangePlugin {
 		}
 
 		this.trace('[WatchIgnoreNextChange] Registered ignore for', file);
+	}
+
+	requireRebuild(file: string): void {
+		this.unignoreNextChange(file);
+		this.filesRequiringRebuild.add(file);
 	}
 
 	unignoreNextChange(file: string): void {
@@ -197,6 +207,16 @@ export class WatchIgnoreNextChangePlugin {
 					changedFiles,
 					removedFiles,
 				) => {
+					// A rebuild-required write wins over subsequent suppressed writes in
+					// the same watcher batch. Release it only when the watcher sees it.
+					for (const file of changedFiles ?? []) {
+						self.filesRequiringRebuild.delete(file);
+					}
+
+					for (const file of removedFiles ?? []) {
+						self.filesRequiringRebuild.delete(file);
+					}
+
 					const hasIgnoredFiles = self.filesToIgnore.size > 0;
 					const suppressedFiles: string[] = [];
 					const suppressedDirs: string[] = [];

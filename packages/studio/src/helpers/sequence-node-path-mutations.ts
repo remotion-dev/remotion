@@ -1,7 +1,10 @@
 import type {SequenceNodePathMutation} from '@remotion/studio-shared';
+import {Internals} from 'remotion';
 import {requestInsertedElementSelection} from './inserted-element-selection';
+import {getLastDispatchedSourceMutationRevision} from './source-mutation-queue';
 
 const pendingMutations: SequenceNodePathMutation[] = [];
+const pendingDeletionRetirements: Array<() => void> = [];
 const seenMutationIds = new Set<string>();
 
 export const queueSequenceNodePathMutation = (
@@ -13,6 +16,23 @@ export const queueSequenceNodePathMutation = (
 
 	seenMutationIds.add(mutation.mutationId);
 	pendingMutations.push(mutation);
+	pendingDeletionRetirements.push(
+		Internals.OptimisticSequenceDeletion.prepareRetirement(
+			mutation.files.flatMap((file) =>
+				file.remappings.flatMap((remapping) =>
+					remapping.oldNodePath === null
+						? []
+						: [
+								{
+									absolutePath: file.absolutePath,
+									nodePath: remapping.oldNodePath,
+								},
+							],
+				),
+			),
+			getLastDispatchedSourceMutationRevision(),
+		),
+	);
 
 	if (mutation.timelineSelection !== null) {
 		requestInsertedElementSelection({
@@ -51,4 +71,10 @@ export const queueSequenceNodePathMutationFromApiResponse = (
 };
 
 export const takePendingSequenceNodePathMutations =
-	(): SequenceNodePathMutation[] => pendingMutations.splice(0);
+	(): SequenceNodePathMutation[] => {
+		for (const retire of pendingDeletionRetirements.splice(0)) {
+			retire();
+		}
+
+		return pendingMutations.splice(0);
+	};
