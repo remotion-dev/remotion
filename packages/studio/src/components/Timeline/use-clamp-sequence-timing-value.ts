@@ -7,6 +7,9 @@ import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscripti
 import {getTimelineSequenceTimingLimits} from './get-timeline-sequence-timing-limits';
 
 export const useClampSequenceTimingValue = () => {
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const mappingsRef = useContext(OverrideIdToNodePathMappingsRefContext);
 	const video = Internals.useVideo();
@@ -44,6 +47,7 @@ export const useClampSequenceTimingValue = () => {
 				);
 				for (const track of matching) {
 					const next = getTimelineSequenceTimingLimits({
+						propStatuses: propStatusesRef.current,
 						movingSequenceIds: null,
 						track,
 						tracks,
@@ -110,7 +114,7 @@ export const useClampSequenceTimingValue = () => {
 				),
 			);
 		},
-		[mappingsRef, sequencesRef, video?.durationInFrames],
+		[mappingsRef, sequencesRef, propStatusesRef, video?.durationInFrames],
 	);
 	return {clampTimingValue, clearTimingLimits};
 };

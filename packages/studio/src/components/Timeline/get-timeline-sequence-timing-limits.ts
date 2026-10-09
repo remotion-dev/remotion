@@ -1,5 +1,10 @@
 import {CanvasInternals} from '@remotion/sdk';
-import type {TSequence} from 'remotion';
+import type {
+	CanUpdateSequencePropStatus,
+	PropStatuses,
+	TSequence,
+} from 'remotion';
+import {Internals} from 'remotion';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {getCachedMediaMetadata} from '../../helpers/use-media-metadata';
 import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
@@ -75,21 +80,50 @@ export const getTrimPlaybackRate = ({
 	return typeof runtimePlaybackRate === 'number' ? runtimePlaybackRate : 1;
 };
 
+export const getEffectiveSequenceTimingValues = ({
+	sequence,
+	propStatus,
+}: {
+	readonly sequence: TSequence;
+	readonly propStatus: Record<string, CanUpdateSequencePropStatus> | null;
+}) => {
+	const {controls} = sequence;
+	if (!controls) return {};
+	// Saved Studio edits live in code overrides until JSX runtime values refresh.
+	return Internals.computeEffectiveSchemaValuesDotNotation({
+		schema: controls.schema,
+		currentValue: controls.runtimeValues.getSnapshot(),
+		overrideValues: {},
+		propStatus: propStatus ?? undefined,
+		frame: sequence.getCurrentFrame?.() ?? null,
+	}).merged;
+};
+
 export const getTimelineSequenceTimingLimits = ({
 	track,
 	tracks,
 	sequences,
 	timelineDurationInFrames,
 	movingSequenceIds,
+	propStatuses,
 }: {
 	readonly track: TimelineTrackData;
 	readonly tracks: readonly TimelineTrackData[];
 	readonly sequences: TSequence[];
 	readonly timelineDurationInFrames: number;
+	readonly propStatuses: PropStatuses;
 	readonly movingSequenceIds: ReadonlySet<string> | null;
 }) => {
 	const sequence = sequences.find((item) => item.id === track.sequence.id)!;
-	const runtimeValues = sequence.controls?.runtimeValues.getSnapshot() ?? {};
+	const runtimeValues = getEffectiveSequenceTimingValues({
+		sequence,
+		propStatus: track.nodePathInfo
+			? (Internals.getPropStatusesCtx(
+					propStatuses,
+					track.nodePathInfo.sequenceSubscriptionKey,
+				) ?? null)
+			: null,
+	});
 	const playbackRate = getTrimPlaybackRate({sequence, runtimeValues});
 	const trimBefore =
 		typeof runtimeValues.trimBefore === 'number'

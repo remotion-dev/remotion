@@ -50,6 +50,7 @@ import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natura
 import {
 	getMinimumSequenceDuration,
 	getTrimPlaybackRate,
+	getEffectiveSequenceTimingValues,
 	getTimelineSequenceTimingLimits,
 } from './get-timeline-sequence-timing-limits';
 import {
@@ -976,7 +977,11 @@ export const getTimelineSequenceDurationDragTargets = ({
 
 		const endField = getTimelineSequenceEndField({
 			sequence: originalSequence,
-			runtimeValues: controls.runtimeValues.getSnapshot(),
+			runtimeValues: getEffectiveSequenceTimingValues({
+				sequence: originalSequence,
+				propStatus:
+					Internals.getPropStatusesCtx(propStatuses, nodePath) ?? null,
+			}),
 		});
 		const durationStatus = Internals.getPropStatusesCtx(
 			propStatuses,
@@ -1050,6 +1055,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 			}
 
 			const timingLimits = getTimelineSequenceTimingLimits({
+				propStatuses,
 				movingSequenceIds: null,
 				track,
 				tracks,
@@ -1247,7 +1253,11 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
-			const runtimeValues = controls.runtimeValues.getSnapshot();
+			const runtimeValues = getEffectiveSequenceTimingValues({
+				sequence: originalSequence,
+				propStatus:
+					Internals.getPropStatusesCtx(propStatuses, nodePath) ?? null,
+			});
 			const sequencePropStatuses = Internals.getPropStatusesCtx(
 				propStatuses,
 				nodePath,
@@ -1316,6 +1326,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				positionField,
 				ripplePrevious,
 				timingLimits: getTimelineSequenceTimingLimits({
+					propStatuses,
 					movingSequenceIds: null,
 					track,
 					tracks,
@@ -1478,6 +1489,7 @@ export const getTimelineSequenceFromDragTargets = ({
 				(candidate) => candidate.sequence.id === originalSequence.id,
 			)!;
 			const timingLimits = getTimelineSequenceTimingLimits({
+				propStatuses,
 				track,
 				tracks,
 				sequences,
