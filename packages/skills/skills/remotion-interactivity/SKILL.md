@@ -203,9 +203,8 @@ distinction when moving animation styles.
 
 Keep a `<Sequence>` when it provides shared timing for multiple siblings,
 overrides dimensions for `useVideoConfig()`, or wraps a component that does not
-handle timing. Keep `<Series.Sequence>` for consecutive layout and
-`<TransitionSeries.Sequence>` for transitions; direct `from` props do not
-replace those behaviors.
+handle timing. Keep `<TransitionSeries.Sequence>` for consecutive layout,
+with or without transitions; direct `from` props do not replace those behaviors.
 
 ## Give every independently editable item its own JSX node
 
@@ -215,20 +214,22 @@ items come from the same JSX node, they share one source-editing target.
 For every composition registration, clip, scene, layer or sequence that should
 be editable on its own, write a separate JSX node and keep its editable props
 on that node. This applies to `<Composition>`, `<Still>`, built-in media
-components, `<Sequence>`, `<Series.Sequence>`, `<TransitionSeries.Sequence>`
+components, `<Sequence>`, `<TransitionSeries.Sequence>`
 and custom components.
 
 For example, author an editable timeline like this:
 
 ```tsx title="Separate source nodes"
-<Series>
-  <Series.Sequence name="Introduction" durationInFrames={90}>
+import { TransitionSeries } from "@remotion/transitions";
+
+<TransitionSeries>
+  <TransitionSeries.Sequence name="Introduction" durationInFrames={90}>
     <Introduction />
-  </Series.Sequence>
-  <Series.Sequence name="Demo" durationInFrames={150}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence name="Demo" durationInFrames={150}>
     <Demo />
-  </Series.Sequence>
-</Series>
+  </TransitionSeries.Sequence>
+</TransitionSeries>
 ```
 
 A `.map()` or another programmatic loop would create multiple runtime items

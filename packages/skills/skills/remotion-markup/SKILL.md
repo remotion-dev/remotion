@@ -33,9 +33,8 @@ with editable props, and register reusable scenes as connected compositions.
 Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
 Give every timed component that supports `premountFor` one second of premounting:
 `premountFor={fps}`, where `fps` comes from `useVideoConfig()`. Apply this to
-media, interactive components, `<Sequence>`, `<Series.Sequence>`,
-`<TransitionSeries.Sequence>`, and `<TransitionSeries.Overlay>`, including
-timed components nested inside scenes. Premount the parent timeline item too
+media, interactive components, `<Sequence>`, `<TransitionSeries.Sequence>`,
+and `<TransitionSeries.Overlay>`, including timed components nested inside scenes. Premount the parent timeline item too
 when a nested item needs to mount before the parent starts. A component without
 `premountFor`, such as `<TransitionSeries.Transition>`, needs no substitute.
 
