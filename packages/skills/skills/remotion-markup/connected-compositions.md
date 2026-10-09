@@ -78,7 +78,7 @@ const chapterSchema = {
 
 export const Chapter = Interactive.withSchema({
   Component: ChapterInner,
-  componentName: '<Chapter>',
+  componentName: 'Chapter',
   schema: chapterSchema,
   wrapInSequence: true,
 });
