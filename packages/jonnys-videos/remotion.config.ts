@@ -14,4 +14,4 @@ Config.setDefaultPremountInSeconds(2);
 Config.setExperimentalTracksEnabled(true);
 Config.setExperimentalSequenceActivityEnabled(true);
 Config.setShowPremounting(false);
-Config.setExperimentalSequenceActivityLimit(300);
+Config.setExperimentalSequenceActivityLimit(-1);

@@ -96,28 +96,6 @@
 	z-index: 1;
 }
 
-.loadingStatus,
-.successStatus,
-.errorStatus {
-	position: relative;
-	z-index: 1;
-	margin: 10px 0 0;
-	font-size: 0.875rem;
-	line-height: 1.45;
-}
-
-.loadingStatus {
-	color: var(--ifm-color-emphasis-700);
-}
-
-.successStatus {
-	color: var(--ifm-color-success-dark);
-}
-
-.errorStatus {
-	color: var(--ifm-color-danger-dark);
-}
-
 @container third-party-libraries (min-width: 640px) {
 	.list {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
