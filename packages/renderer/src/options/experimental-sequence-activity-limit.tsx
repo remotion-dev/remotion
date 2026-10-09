@@ -14,9 +14,10 @@ export const experimentalSequenceActivityLimitOption = {
 			Limit nearby hidden scenes discovered by experimental Sequence Activity in
 			the Remotion Studio, including nested sequences and their ancestors.
 			Visible, premounted, and postmounted scenes always render. Defaults to 20.
-			Must be a non-negative safe integer. Set to 0 to disable hidden discovery.
-			Only applies when experimental Sequence Activity is enabled. Does not
-			affect rendering.
+			Must be a safe integer of at least -1. Set to 0 to disable hidden
+			discovery, or -1 for unlimited discovery without admission delays. Only
+			applies when experimental Sequence Activity is enabled. Does not affect
+			rendering.
 		</>
 	),
 	ssrName: null,
@@ -26,9 +27,9 @@ export const experimentalSequenceActivityLimitOption = {
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			const value = commandLine[cliFlag];
-			if (!Number.isSafeInteger(value) || (value as number) < 0) {
+			if (!Number.isSafeInteger(value) || (value as number) < -1) {
 				throw new Error(
-					'Sequence Activity limit must be a non-negative safe integer.',
+					'Sequence Activity limit must be a safe integer of at least -1.',
 				);
 			}
 
@@ -42,9 +43,9 @@ export const experimentalSequenceActivityLimitOption = {
 		};
 	},
 	setConfig(value) {
-		if (!Number.isSafeInteger(value) || value < 0) {
+		if (!Number.isSafeInteger(value) || value < -1) {
 			throw new Error(
-				'Sequence Activity limit must be a non-negative safe integer.',
+				'Sequence Activity limit must be a safe integer of at least -1.',
 			);
 		}
 
