@@ -1,5 +1,9 @@
 import Link from '@docusaurus/Link';
-import {isInsideStudio, setStudioDragData} from '@remotion/studio-protocol';
+import {
+	isInsideStudio,
+	setStudioDragData,
+	subscribeToCaptionStyleSelection,
+} from '@remotion/studio-protocol';
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
@@ -42,9 +46,16 @@ const usePrefersReducedMotion = () => {
 const ElementCard: React.FC<{
 	readonly definition: ElementDefinition;
 	readonly isCaptionPicker: boolean;
+	readonly isSelected: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCode: string;
-}> = ({definition, isCaptionPicker, prefersReducedMotion, sourceCode}) => {
+}> = ({
+	definition,
+	isCaptionPicker,
+	isSelected,
+	prefersReducedMotion,
+	sourceCode,
+}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
@@ -128,6 +139,7 @@ const ElementCard: React.FC<{
 							onClick: installElement,
 							disabled: isInstalling,
 							'aria-label': `Select ${definition.displayName}`,
+							'aria-pressed': isSelected,
 						}
 					: {to: getElementDocumentationUrl(definition)})}
 				onBlur={() => setIsFocused(false)}
@@ -212,11 +224,13 @@ const ElementCard: React.FC<{
 const ElementGrid: React.FC<{
 	readonly definitions: readonly ElementDefinition[];
 	readonly isCaptionPicker: boolean;
+	readonly selectedSlug: string | null;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
 }> = ({
 	definitions,
 	isCaptionPicker,
+	selectedSlug,
 	prefersReducedMotion,
 	sourceCodeBySlug,
 }) => {
@@ -241,6 +255,7 @@ const ElementGrid: React.FC<{
 						key={definition.slug}
 						definition={definition}
 						isCaptionPicker={isCaptionPicker}
+						isSelected={isCaptionPicker && definition.slug === selectedSlug}
 						prefersReducedMotion={prefersReducedMotion}
 						sourceCode={sourceCode}
 					/>
@@ -257,6 +272,7 @@ export const ElementLibrary: React.FC<{
 	const sections = getElementLibrarySections(category);
 	const prefersReducedMotion = usePrefersReducedMotion();
 	const [isCaptionPicker, setIsCaptionPicker] = useState(false);
+	const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
 	useLayoutEffect(() => {
 		setIsCaptionPicker(
@@ -266,6 +282,8 @@ export const ElementLibrary: React.FC<{
 				) === 'captions',
 		);
 	}, []);
+
+	useEffect(() => subscribeToCaptionStyleSelection(setSelectedSlug), []);
 
 	return (
 		<div className={styles.library}>
@@ -280,6 +298,7 @@ export const ElementLibrary: React.FC<{
 							<ElementGrid
 								definitions={section.definitions}
 								isCaptionPicker={isCaptionPicker}
+								selectedSlug={selectedSlug}
 								prefersReducedMotion={prefersReducedMotion}
 								sourceCodeBySlug={sourceCodeBySlug}
 							/>
@@ -301,6 +320,7 @@ export const ElementLibrary: React.FC<{
 						<ElementGrid
 							definitions={section.definitions}
 							isCaptionPicker={isCaptionPicker}
+							selectedSlug={selectedSlug}
 							prefersReducedMotion={prefersReducedMotion}
 							sourceCodeBySlug={sourceCodeBySlug}
 						/>

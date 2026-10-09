@@ -721,6 +721,20 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	src,
 	target,
 }) => {
+	const captionStyleSelection = useMemo(() => {
+		if (
+			captionStyle === null ||
+			!('origin' in captionStyle.source) ||
+			captionStyle.source.origin === null
+		) {
+			return null;
+		}
+
+		return {
+			slug: captionStyle.element.slug,
+			origin: captionStyle.source.origin,
+		};
+	}, [captionStyle]);
 	const [libraryUrl, setLibraryUrl] = useState(REMOTION_CAPTION_STYLES_URL);
 	const {studioRuntimeConfig} = useSettings();
 	const libraryOptions: SegmentedControlItem[] = [
@@ -1145,6 +1159,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								name="Caption styles"
 								url={libraryUrl}
 								context="captions"
+								captionStyleSelection={captionStyleSelection}
 							/>
 						</div>
 					) : null}

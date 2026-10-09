@@ -851,6 +851,7 @@ const sidebars: SidebarsConfig = {
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
 				'studio-protocol/add-element-library-to-studio',
+				'studio-protocol/subscribe-to-caption-style-selection',
 				'studio-protocol/is-inside-studio',
 				'studio-protocol/security',
 			],
