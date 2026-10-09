@@ -144,11 +144,13 @@ export const getTimelineSequenceTimingLimits = ({
 						track.cascadedStart) *
 					track.keyframePlaybackRate
 				: sequence.duration;
-	let minimumStart = track.parentVisibleStart;
-	let maximumEnd = Math.min(
+	const parentEnd = Math.min(
 		timelineDurationInFrames,
 		track.parentVisibleEnd ?? Infinity,
 	);
+	let maximumEnd = parentEnd;
+	let minimumNeighbourStart = -Infinity;
+	let maximumNeighbourEnd = Infinity;
 	// Only normal Track clips exclude their neighbours. Series manages overlaps itself.
 	if (
 		sequence.timelineTrack?.role === 'clip' &&
@@ -174,9 +176,13 @@ export const getTimelineSequenceTimingLimits = ({
 			}
 
 			if (sibling.from < track.sequence.from) {
-				minimumStart = Math.max(minimumStart, sibling.from + sibling.duration);
+				minimumNeighbourStart = Math.max(
+					minimumNeighbourStart,
+					sibling.from + sibling.duration,
+				);
 			} else {
-				maximumEnd = Math.min(maximumEnd, sibling.from);
+				maximumNeighbourEnd = Math.min(maximumNeighbourEnd, sibling.from);
+				maximumEnd = Math.min(maximumEnd, maximumNeighbourEnd);
 			}
 		}
 	}
@@ -230,16 +236,32 @@ export const getTimelineSequenceTimingLimits = ({
 				? Math.max(initialDuration, (sourceEnd - trimBefore) / playbackRate)
 				: (sourceEnd - trimBefore) / playbackRate,
 	);
+	// Preserve authored clipping: an already hidden edge may move farther outside
+	// its parent, provided one frame remains visible. Neighbours still exclude it.
+	const minimumMoveStart = Math.max(
+		minimumNeighbourStart,
+		track.cascadedStart < track.parentVisibleStart
+			? track.parentVisibleStart -
+					(initialDuration - 1) / track.keyframePlaybackRate
+			: track.parentVisibleStart,
+	);
+	const maximumMoveEnd = Math.min(
+		maximumNeighbourEnd,
+		track.cascadedStart + initialDuration / track.keyframePlaybackRate >
+			parentEnd
+			? parentEnd + (initialDuration - 1) / track.keyframePlaybackRate
+			: parentEnd,
+	);
 	return {
 		playbackRate,
 		minimumDuration,
 		maximumDuration: Math.max(minimumDuration, maximumDuration),
 		minimumFrom:
 			sequence.from +
-			(minimumStart - track.cascadedStart) * track.keyframePlaybackRate,
+			(minimumMoveStart - track.cascadedStart) * track.keyframePlaybackRate,
 		maximumFrom:
 			sequence.from +
-			(maximumEnd - track.cascadedStart) * track.keyframePlaybackRate -
+			(maximumMoveEnd - track.cascadedStart) * track.keyframePlaybackRate -
 			initialDuration,
 		minimumTrimBefore:
 			isMedia && inferredDuration && !Number.isFinite(sourceEnd)
