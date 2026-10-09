@@ -4,6 +4,7 @@ import type {
 	OutputFileMetadata,
 	ProviderSpecifics,
 	RenderMetadata,
+	RenderOutput,
 } from '@remotion/serverless-client';
 import {findOutputFileInBucket as findOutputFileInBucketShared} from '@remotion/serverless-client';
 
@@ -18,6 +19,7 @@ export const findOutputFileInBucket = <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
+	output,
 }: {
 	region: Provider['region'];
 	renderMetadata: RenderMetadata<Provider>;
@@ -27,6 +29,7 @@ export const findOutputFileInBucket = <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
 	requestHandler: Provider['requestHandler'] | null;
+	output: RenderOutput;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');
@@ -41,5 +44,6 @@ export const findOutputFileInBucket = <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle,
 		requestHandler,
+		output,
 	});
 };

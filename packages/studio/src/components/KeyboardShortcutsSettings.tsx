@@ -19,6 +19,7 @@ import {
 	BORDER_WHITE_ALPHA_12,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
@@ -36,6 +37,7 @@ import {
 	keyboardShortcutsOverlap,
 	shortcutFromKeyboardEvent,
 } from './keyboard-shortcuts';
+import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -128,7 +130,7 @@ const key: React.CSSProperties = {
 
 const chordButton: React.CSSProperties = {
 	alignItems: 'center',
-	background: 'transparent',
+	background: TRANSPARENT,
 	border: 0,
 	cursor: 'pointer',
 	display: 'flex',
@@ -172,7 +174,7 @@ const ShortcutChords: React.FC<{
 					<span style={chord}>
 						{keys.map((keyboardKey) => (
 							<kbd key={keyboardKey} style={key}>
-								{keyboardKey}
+								<KeyboardShortcutLabel shortcut={keyboardKey} style={null} />
 							</kbd>
 						))}
 					</span>
@@ -474,7 +476,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 											<span style={actionCell}>
 												<InlineDropdown
 													renderAction={(color) => <CaretDown color={color} />}
-													title={`Actions for ${shortcut.action}`}
+													aria-label={`Actions for ${shortcut.action}`}
 													values={shortcutMenuItems}
 													variant="compact"
 												/>

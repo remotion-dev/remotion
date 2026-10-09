@@ -1,16 +1,26 @@
 import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
 import {OpenInEditor} from '../error-overlay/remotion-overlay/OpenInEditor';
 import {StackElement} from '../error-overlay/remotion-overlay/StackFrame';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
+import {getCodexAnnotation} from '../helpers/get-codex-annotation';
 import {findOriginalPositionInFileAtProperty} from '../helpers/open-in-editor';
+import {requestCodexAnnotation} from '../helpers/request-codex-annotation';
 import type {ModalState} from '../state/modals';
 import {AgentPrompt} from './AgentPrompt';
+import {ModalButton} from './ModalButton';
 import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
+import {useSettings} from './SettingsContext';
 import {useEditorOpening} from './use-default-editor-info';
 
 const panelStyle: React.CSSProperties = {
@@ -69,6 +79,15 @@ export const FixComputedValueModal: React.FC<{
 	readonly state: FixComputedValueModalState;
 }> = ({state}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {remotionSkillsInfo} = useSettings();
+	const annotationTarget = useRef<HTMLDivElement>(null);
+	const interactivitySkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-interactivity',
+	);
+	const interactivitySkillAvailable = Boolean(
+		interactivitySkill?.installedInProject ||
+		interactivitySkill?.installedGlobally,
+	);
 	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
 		useEditorOpening(previewServerState.type === 'connected');
 	const [sourcePreview, setSourcePreview] = useState<SourcePreviewState>({
@@ -79,6 +98,19 @@ export const FixComputedValueModal: React.FC<{
 			? `${sourcePreview.stack.originalFileName}:${sourcePreview.stack.originalLineNumber}:${sourcePreview.stack.originalColumnNumber}`
 			: `${state.location.source}:${state.location.line}:${state.location.column}`;
 	const promptDetails = ` ${promptLocation} make "${state.prop}" interactive`;
+	const canAnnotate =
+		sourcePreview.type === 'loaded' &&
+		!window.remotion_isReadOnlyStudio &&
+		getCodexAnnotation() !== null;
+	const onSendToChatGPT = useCallback(() => {
+		requestCodexAnnotation({
+			target: annotationTarget.current,
+			initialComment: interactivitySkillAvailable
+				? '$remotion-interactivity Make this computed value interactive.'
+				: 'Make this computed value interactive.',
+			metadata: {property: state.prop, source: promptLocation},
+		});
+	}, [interactivitySkillAvailable, promptLocation, state.prop]);
 	const canOpenSourceInEditor =
 		sourcePreview.type === 'loaded' &&
 		canOpenInEditor &&
@@ -131,7 +163,7 @@ export const FixComputedValueModal: React.FC<{
 					This value cannot be interactively edited because it is computed:
 				</div>
 				{sourcePreview.type === 'loaded' ? (
-					<div style={sourcePreviewContainer}>
+					<div ref={annotationTarget} style={sourcePreviewContainer}>
 						<StackElement
 							collapsible={false}
 							defaultFunctionName={null}
@@ -171,6 +203,13 @@ export const FixComputedValueModal: React.FC<{
 					</div>
 				)}
 				<AgentPrompt
+					action={
+						canAnnotate ? (
+							<ModalButton size="compact" onClick={onSendToChatGPT}>
+								Send to ChatGPT
+							</ModalButton>
+						) : null
+					}
 					availableText="Use this prompt to make this value editable:"
 					promptDetails={promptDetails}
 					skillId="remotion-interactivity"

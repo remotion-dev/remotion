@@ -1,7 +1,6 @@
 import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
-export const ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT = 0.1;
 
 export type QueuedNode = {
 	node: AudioBufferSourceNode;

@@ -16,7 +16,12 @@ import {
 	getScaledCanvasSize,
 	isHtmlInCanvasAvailable,
 } from './recorder';
-import {makeSelectionRectangle, type SelectionRectangle} from './selection';
+import {
+	dragSelectionRectangle,
+	makeSelectionRectangle,
+	type SelectionHandle,
+	type SelectionRectangle,
+} from './selection';
 
 type ExtensionController = {
 	readonly handleRequest: (
@@ -55,16 +60,6 @@ export const startContent = () => {
 
 	const getFormatLabel = (format: CaptureFormat) =>
 		format === 'mp4' ? 'H.264 MP4' : 'VP9 WebM';
-
-	const getCropRelativeTo = (
-		selection: SelectionRectangle,
-		target: DOMRect,
-	): CaptureCrop => ({
-		left: selection.left - target.left,
-		top: selection.top - target.top,
-		width: Math.max(1, selection.width),
-		height: Math.max(1, selection.height),
-	});
 
 	const createController = (): ExtensionController => {
 		const host = document.createElement('div');
@@ -115,6 +110,27 @@ export const startContent = () => {
 			box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.65);
 			pointer-events: none;
 		}
+		.highlight.editable {
+			cursor: move;
+			pointer-events: auto;
+			touch-action: none;
+		}
+		.selection-handle {
+			position: absolute;
+			display: none;
+			width: 16px;
+			height: 16px;
+			background: transparent;
+		}
+		.highlight.editable .selection-handle { display: block; }
+		.selection-handle[data-handle="nw"] { left: -8px; top: -8px; cursor: nwse-resize; z-index: 1; }
+		.selection-handle[data-handle="ne"] { right: -8px; top: -8px; cursor: nesw-resize; z-index: 1; }
+		.selection-handle[data-handle="se"] { right: -8px; bottom: -8px; cursor: nwse-resize; z-index: 1; }
+		.selection-handle[data-handle="sw"] { left: -8px; bottom: -8px; cursor: nesw-resize; z-index: 1; }
+		.selection-handle[data-handle="n"] { left: 8px; right: 8px; top: -8px; width: auto; cursor: ns-resize; }
+		.selection-handle[data-handle="s"] { left: 8px; right: 8px; bottom: -8px; width: auto; cursor: ns-resize; }
+		.selection-handle[data-handle="e"] { right: -8px; top: 8px; bottom: 8px; height: auto; cursor: ew-resize; }
+		.selection-handle[data-handle="w"] { left: -8px; top: 8px; bottom: 8px; height: auto; cursor: ew-resize; }
 		.capture-dimensions {
 			position: fixed;
 			display: none;
@@ -205,7 +221,7 @@ export const startContent = () => {
 			display: none;
 			align-items: center;
 			gap: 6px;
-			width: 224px;
+			width: 270px;
 			max-width: calc(100vw - 40px);
 			padding: 8px;
 			border: 2px solid #000;
@@ -272,7 +288,10 @@ export const startContent = () => {
 			display: block;
 			width: 24px;
 			height: 24px;
-			fill: currentColor;
+			fill: none;
+			stroke: currentColor;
+			stroke-width: 1.5;
+			stroke-linecap: round;
 		}
 		.capture-controls button {
 			height: 38px;
@@ -285,6 +304,15 @@ export const startContent = () => {
 			font: inherit;
 			font-weight: 700;
 		}
+		.capture-controls-actions {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			transform: translate(-50%, -50%);
+		}
 		.capture-controls-select {
 			width: 32px;
 			flex: 0 0 32px;
@@ -296,9 +324,6 @@ export const startContent = () => {
 		}
 		.capture-controls-select:hover:not(:disabled) {
 			color: #000 !important;
-		}
-		.capture-controls-select + .capture-controls-select {
-			margin-left: -6px;
 		}
 		.capture-controls-select svg {
 			display: block;
@@ -314,7 +339,7 @@ export const startContent = () => {
 		.capture-controls button.capture-controls-close:disabled {
 			opacity: 1;
 		}
-		.capture-controls [data-tooltip] {
+		.capture-controls [data-tooltip]:not(.capture-controls-primary) {
 			position: relative;
 		}
 		.capture-controls [data-tooltip]::after {
@@ -350,18 +375,23 @@ export const startContent = () => {
 			visibility: visible;
 		}
 		.capture-controls-primary {
+			position: absolute;
+			left: 50%;
+			top: 50%;
 			width: 40px;
 			height: 38px;
-			flex: 0 0 40px;
-			margin-left: 6px;
 			perspective: 300px;
+			transform: translate(-50%, -50%);
 		}
 		.capture-controls-duration {
-			width: 64px;
-			flex: 0 0 64px;
+			position: absolute;
+			left: 47px;
+			top: 50%;
+			width: 42px;
 			font-variant-numeric: tabular-nums;
 			font-weight: 700;
 			text-align: center;
+			transform: translateY(-50%);
 		}
 		.capture-controls-primary .contents {
 			display: contents;
@@ -382,21 +412,33 @@ export const startContent = () => {
 			padding: 0;
 			place-items: center;
 			border-radius: 999px !important;
-			background: #ff3232 !important;
+			background: #fff !important;
 			overflow: hidden;
 		}
 		.capture-controls-primary button:hover:not(:disabled) {
+			background: #f5f5f5 !important;
+		}
+		.capture-controls-primary.recording button {
+			background: #ff3232 !important;
+		}
+		.capture-controls-primary.recording button:hover:not(:disabled) {
 			background: #ff4b4b !important;
 		}
 		.capture-controls-record-icon {
 			position: absolute;
 			left: 50%;
 			top: 50%;
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: #ff3232;
+			transform: translate(-50%, -50%);
+		}
+		.capture-controls-primary.recording .capture-controls-record-icon {
 			width: 13px;
 			height: 13px;
 			border-radius: 4.5px;
 			background: #fff;
-			transform: translate(-50%, -50%);
 		}
 	`;
 
@@ -411,6 +453,13 @@ export const startContent = () => {
 		interactionShield.className = 'interaction-shield';
 		const highlight = document.createElement('div');
 		highlight.className = 'highlight';
+		for (const handle of ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']) {
+			const element = document.createElement('div');
+			element.className = 'selection-handle';
+			element.dataset.handle = handle;
+			highlight.appendChild(element);
+		}
+
 		const dimensions = document.createElement('div');
 		dimensions.className = 'capture-dimensions';
 		const dimensionsSource = document.createElement('span');
@@ -468,7 +517,7 @@ export const startContent = () => {
 		controlsHeader.className = 'capture-controls-header';
 		controlsHeader.dataset.tooltip = 'Drag to reposition';
 		controlsHeader.innerHTML =
-			'<svg class="capture-controls-grab" viewBox="0 0 640 640" aria-hidden="true"><path d="M288 128C288 92.7 259.3 64 224 64C188.7 64 160 92.7 160 128C160 163.3 188.7 192 224 192C259.3 192 288 163.3 288 128zM288 320C288 284.7 259.3 256 224 256C188.7 256 160 284.7 160 320C160 355.3 188.7 384 224 384C259.3 384 288 355.3 288 320zM160 512C160 547.3 188.7 576 224 576C259.3 576 288 547.3 288 512C288 476.7 259.3 448 224 448C188.7 448 160 476.7 160 512zM480 128C480 92.7 451.3 64 416 64C380.7 64 352 92.7 352 128C352 163.3 380.7 192 416 192C451.3 192 480 163.3 480 128zM352 320C352 355.3 380.7 384 416 384C451.3 384 480 355.3 480 320C480 284.7 451.3 256 416 256C380.7 256 352 284.7 352 320zM480 512C480 476.7 451.3 448 416 448C380.7 448 352 476.7 352 512C352 547.3 380.7 576 416 576C451.3 576 480 547.3 480 512z"/></svg>';
+			'<svg class="capture-controls-grab" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="4" r="1.5"/><circle cx="15" cy="4" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="20" r="1.5"/><circle cx="15" cy="20" r="1.5"/></svg>';
 		const controlsSecondary = document.createElement('button');
 		controlsSecondary.className = 'capture-controls-select';
 		controlsSecondary.type = 'button';
@@ -490,6 +539,7 @@ export const startContent = () => {
 		controlsDuration.ariaLabel = 'Recording duration 00:00';
 		const controlsPrimary = document.createElement('div');
 		controlsPrimary.className = 'capture-controls-primary';
+		controlsPrimary.hidden = true;
 		const controlsPrimaryRoot = createRoot(controlsPrimary);
 		const renderControlsPrimary = (label: string, disabled: boolean) => {
 			controlsPrimary.dataset.tooltip = label;
@@ -499,6 +549,7 @@ export const startContent = () => {
 					{
 						'aria-label': label,
 						className: 'capture-controls-primary-button',
+						depth: 0.5,
 						disabled,
 					},
 					createElement('span', {
@@ -540,17 +591,22 @@ export const startContent = () => {
 		controlsClose.ariaLabel = 'Close capture controls';
 		controlsClose.dataset.tooltip = 'Close';
 		controlsClose.innerHTML =
-			'<svg viewBox="46 46 548 548" aria-hidden="true"><path d="M135.5 169C126.1 159.6 126.1 144.4 135.5 135.1C144.9 125.8 160.1 125.7 169.4 135.1L320.4 286.1L471.4 135.1C480.8 125.7 496 125.7 505.3 135.1C514.6 144.5 514.7 159.7 505.3 169L354.3 320L505.3 471C514.7 480.4 514.7 495.6 505.3 504.9C495.9 514.2 480.7 514.3 471.4 504.9L320.4 353.9L169.4 504.9C160 514.3 144.8 514.3 135.5 504.9C126.2 495.5 126.1 480.3 135.5 471L286.5 320L135.5 169z"/></svg>';
-		controls.append(
-			controlsEncodingError,
-			controlsHeader,
+			'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>';
+		const controlsActions = document.createElement('div');
+		controlsActions.className = 'capture-controls-actions';
+		controlsActions.append(
 			controlsSecondary,
 			controlsWholePage,
-			controlsDuration,
-			controlsPrimary,
 			controlsNew,
 			controlsConvert,
 			controlsDownload,
+		);
+		controls.append(
+			controlsEncodingError,
+			controlsHeader,
+			controlsActions,
+			controlsDuration,
+			controlsPrimary,
 			controlsClose,
 		);
 		shadow.append(
@@ -562,6 +618,15 @@ export const startContent = () => {
 			dimensions,
 			controls,
 		);
+		for (const eventType of [
+			'pointerdown',
+			'pointerup',
+			'mousedown',
+			'mouseup',
+			'click',
+		] as const) {
+			shadow.addEventListener(eventType, (event) => event.stopPropagation());
+		}
 
 		let selectedTarget: SelectedTarget | null = null;
 		let capture: PageCapture | null = null;
@@ -592,6 +657,14 @@ export const startContent = () => {
 			: 'Canvas capture is unavailable because the experimental HTML-in-canvas API is disabled. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.';
 		let statusIsError = !supported;
 		let selectionStart: {readonly x: number; readonly y: number} | null = null;
+		let selectionDrag: {
+			readonly pointerId: number;
+			readonly startX: number;
+			readonly startY: number;
+			readonly rect: SelectionRectangle;
+			readonly crop: CaptureCrop;
+			readonly handle: SelectionHandle;
+		} | null = null;
 
 		const setStatus = (message: string, error = false) => {
 			status = message;
@@ -631,11 +704,10 @@ export const startContent = () => {
 			}
 
 			if (selectedTarget.type === 'whole-page') {
-				const pageRect = document.body.getBoundingClientRect();
 				return {
 					crop: {
-						left: -pageRect.left,
-						top: -pageRect.top,
+						left: 0,
+						top: 0,
 						width: window.innerWidth,
 						height: window.innerHeight,
 					},
@@ -660,7 +732,8 @@ export const startContent = () => {
 				capture ||
 				completedRecording ||
 				finalizing ||
-				selecting
+				selecting ||
+				selectionDrag
 			) {
 				if (!selectedTarget) {
 					encoderSupport = 'unavailable';
@@ -825,17 +898,7 @@ export const startContent = () => {
 			interactionShield.style.display =
 				capture || startingRecording ? 'none' : 'block';
 			const target = resolveCaptureTarget();
-			let rect: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'> | null =
-				null;
-			if (target?.crop) {
-				const pageRect = document.body.getBoundingClientRect();
-				rect = {
-					left: pageRect.left + target.crop.left,
-					top: pageRect.top + target.crop.top,
-					width: target.crop.width,
-					height: target.crop.height,
-				};
-			}
+			const rect = target?.crop;
 
 			if (!rect) {
 				dimensionsZoomPopover.hidden = true;
@@ -848,6 +911,14 @@ export const startContent = () => {
 
 			backdrop.style.display = 'none';
 			highlight.style.display = 'block';
+			highlight.classList.toggle(
+				'editable',
+				selectedTarget?.type === 'page-crop' &&
+					!capture &&
+					!startingRecording &&
+					!completedRecording &&
+					!finalizing,
+			);
 			highlight.style.left = `${rect.left}px`;
 			highlight.style.top = `${rect.top}px`;
 			highlight.style.width = `${rect.width}px`;
@@ -892,12 +963,13 @@ export const startContent = () => {
 			dimensionsZoomSlider.disabled = dimensionsZoom.disabled;
 			controlsSecondary.disabled =
 				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsSecondary.hidden = state.recording || state.hasCompletedRecording;
+			controlsSecondary.hidden = state.hasTarget || state.hasCompletedRecording;
 			controlsWholePage.disabled =
 				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsWholePage.hidden = state.recording || state.hasCompletedRecording;
+			controlsWholePage.hidden = state.hasTarget || state.hasCompletedRecording;
 			controlsDuration.hidden = !state.recording;
-			controlsPrimary.hidden = state.hasCompletedRecording;
+			controlsPrimary.hidden = !state.hasTarget || state.hasCompletedRecording;
+			controlsPrimary.classList.toggle('recording', state.recording);
 			controlsNew.hidden = !state.hasCompletedRecording;
 			controlsNew.disabled = controlsBusy;
 			controlsConvert.hidden = !state.hasCompletedRecording;
@@ -918,12 +990,17 @@ export const startContent = () => {
 				(!state.recording &&
 					(!state.hasTarget || state.encoderSupport !== 'supported'));
 			renderControlsPrimary(primaryLabel, primaryDisabled);
-			const closeLabel = state.hasCompletedRecording
-				? 'Discard recording'
-				: 'Close';
+			const closeLabel = state.recording
+				? 'Stop recording before clearing selection'
+				: state.hasCompletedRecording
+					? 'Discard recording'
+					: state.hasTarget
+						? 'Clear selection'
+						: 'Close';
 			controlsClose.ariaLabel = closeLabel;
 			controlsClose.dataset.tooltip = closeLabel;
-			controlsClose.disabled = controlsBusy;
+			controlsClose.disabled =
+				controlsBusy || state.recording || startingRecording;
 		};
 
 		const cancelSelection = () => {
@@ -947,6 +1024,85 @@ export const startContent = () => {
 			updateControls();
 		};
 
+		highlight.addEventListener('pointerdown', (event) => {
+			if (
+				event.button !== 0 ||
+				selectedTarget?.type !== 'page-crop' ||
+				capture ||
+				startingRecording ||
+				completedRecording ||
+				finalizing ||
+				selectionDrag
+			) {
+				return;
+			}
+
+			const box = highlight.getBoundingClientRect();
+			selectionDrag = {
+				pointerId: event.pointerId,
+				startX: event.clientX,
+				startY: event.clientY,
+				rect: makeSelectionRectangle(box.left, box.top, box.right, box.bottom),
+				crop: selectedTarget.crop,
+				handle:
+					((event.target as HTMLElement).dataset.handle as
+						| SelectionHandle
+						| undefined) ?? 'move',
+			};
+			encoderSupportCheckId++;
+			encoderSupport = 'checking';
+			updateControls();
+			highlight.setPointerCapture(event.pointerId);
+			event.preventDefault();
+		});
+
+		const updateSelectionDrag = (event: PointerEvent) => {
+			if (!selectionDrag || selectionDrag.pointerId !== event.pointerId) {
+				return;
+			}
+
+			const rect = dragSelectionRectangle({
+				rect: selectionDrag.rect,
+				handle: selectionDrag.handle,
+				deltaX: event.clientX - selectionDrag.startX,
+				deltaY: event.clientY - selectionDrag.startY,
+				viewportWidth: window.innerWidth,
+				viewportHeight: window.innerHeight,
+				minimumWidth: minimumCaptureArea.width,
+				minimumHeight: minimumCaptureArea.height,
+			});
+			selectedTarget = {
+				type: 'page-crop',
+				crop: rect,
+			};
+			updateHighlight();
+		};
+
+		highlight.addEventListener('pointermove', updateSelectionDrag);
+
+		const finishSelectionDrag = (event: PointerEvent) => {
+			if (!selectionDrag || selectionDrag.pointerId !== event.pointerId) {
+				return;
+			}
+
+			if (event.type === 'pointercancel') {
+				selectedTarget = {type: 'page-crop', crop: selectionDrag.crop};
+			} else {
+				updateSelectionDrag(event);
+			}
+
+			selectionDrag = null;
+			highlight.releasePointerCapture(event.pointerId);
+			encoderSupportKey = null;
+			updateHighlight();
+			refreshEncoderSupport()
+				.then(updateControls)
+				.catch(() => undefined);
+		};
+
+		highlight.addEventListener('pointerup', finishSelectionDrag);
+		highlight.addEventListener('pointercancel', finishSelectionDrag);
+
 		const finishSelection = (event: PointerEvent) => {
 			if (!selectionStart) {
 				return;
@@ -955,8 +1111,8 @@ export const startContent = () => {
 			const selection = makeSelectionRectangle(
 				selectionStart.x,
 				selectionStart.y,
-				event.clientX,
-				event.clientY,
+				Math.min(Math.max(0, event.clientX), window.innerWidth),
+				Math.min(Math.max(0, event.clientY), window.innerHeight),
 			);
 			selectionStart = null;
 			if (
@@ -974,11 +1130,7 @@ export const startContent = () => {
 			selectionLayer.style.display = 'none';
 			selectionBox.style.display = 'none';
 
-			const crop = getCropRelativeTo(
-				selection,
-				document.body.getBoundingClientRect(),
-			);
-			selectedTarget = {type: 'page-crop', crop};
+			selectedTarget = {type: 'page-crop', crop: selection};
 			controlsDismissed = false;
 
 			encoderSupportKey = null;
@@ -1007,8 +1159,8 @@ export const startContent = () => {
 			const rect = makeSelectionRectangle(
 				selectionStart.x,
 				selectionStart.y,
-				event.clientX,
-				event.clientY,
+				Math.min(Math.max(0, event.clientX), window.innerWidth),
+				Math.min(Math.max(0, event.clientY), window.innerHeight),
 			);
 			selectionBox.style.left = `${rect.left}px`;
 			selectionBox.style.top = `${rect.top}px`;
@@ -1019,7 +1171,6 @@ export const startContent = () => {
 
 		selectionLayer.addEventListener('pointerup', finishSelection);
 		selectionLayer.addEventListener('pointercancel', cancelSelection);
-		window.addEventListener('scroll', updateHighlight, true);
 		window.addEventListener('resize', () => {
 			updateHighlight();
 			const supportCheck = refreshEncoderSupport();
@@ -1110,6 +1261,17 @@ export const startContent = () => {
 					`${getContainerLabel(recordingFormat)} ready. Open it in Browser Studio, Convert, or download it.`,
 				);
 			} catch (error) {
+				// eslint-disable-next-line no-console -- Surface stop failures in the page DevTools console.
+				console.error(
+					'[Remotion Canvas Capture] Failed to stop recording',
+					{
+						format: recordingFormat,
+						outputSize,
+						scale,
+						target: selectedTarget?.type,
+					},
+					error,
+				);
 				setStatus(error instanceof Error ? error.message : String(error), true);
 			} finally {
 				capture = null;
@@ -1180,6 +1342,11 @@ export const startContent = () => {
 
 			if (request.command === 'select-area') {
 				if (!capture && !completedRecording && !finalizing) {
+					if (selectionDrag) {
+						highlight.releasePointerCapture(selectionDrag.pointerId);
+						selectionDrag = null;
+					}
+
 					encoderSupportCheckId++;
 					encoderSupportKey = null;
 					selecting = true;
@@ -1211,6 +1378,11 @@ export const startContent = () => {
 
 			if (request.command === 'select-whole-page') {
 				if (!capture && !completedRecording && !finalizing) {
+					if (selectionDrag) {
+						highlight.releasePointerCapture(selectionDrag.pointerId);
+						selectionDrag = null;
+					}
+
 					if (selecting) {
 						cancelSelection();
 					}
@@ -1232,7 +1404,8 @@ export const startContent = () => {
 					startingRecording ||
 					completedRecording ||
 					finalizing ||
-					selecting
+					selecting ||
+					selectionDrag
 				) {
 					return getState();
 				}
@@ -1304,20 +1477,27 @@ export const startContent = () => {
 		};
 
 		controlsClose.addEventListener('click', () => {
+			if (capture || startingRecording || finalizing) {
+				return;
+			}
+
 			if (completedRecording) {
 				completedRecording = null;
 				setStatus('Recording discarded. Ready to record again.');
 				updateHighlight();
 				updateControls();
-				refreshEncoderSupport()
-					.then(updateControls)
-					.catch((error) => {
-						setStatus(
-							error instanceof Error ? error.message : String(error),
-							true,
-						);
-						updateControls();
-					});
+				return;
+			}
+
+			if (selectedTarget) {
+				setStatus('Choose an area or the whole page.');
+				selectedTarget = null;
+				encoderSupportCheckId++;
+				encoderSupport = 'unavailable';
+				encoderSupportKey = null;
+				outputSize = null;
+				updateHighlight();
+				updateControls();
 				return;
 			}
 
@@ -1411,6 +1591,11 @@ export const startContent = () => {
 
 			action()
 				.catch((error) => {
+					// eslint-disable-next-line no-console -- Surface unexpected control errors in the page DevTools console.
+					console.error(
+						`[Remotion Canvas Capture] Failed to ${state.recording ? 'stop' : 'start'} recording`,
+						error,
+					);
 					setStatus(
 						error instanceof Error ? error.message : String(error),
 						true,

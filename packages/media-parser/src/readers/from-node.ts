@@ -7,6 +7,9 @@ import type {
 	ReadWholeAsText,
 } from './reader';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const nodeReadContent: ReadContent = async ({
 	src,
 	range,
@@ -104,6 +107,9 @@ export const nodeReadContent: ReadContent = async ({
 	}
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const nodeReadWholeAsText: ReadWholeAsText = (src) => {
 	if (typeof src !== 'string') {
 		throw new Error('src must be a string when using `nodeReader`');
@@ -112,6 +118,9 @@ export const nodeReadWholeAsText: ReadWholeAsText = (src) => {
 	return promises.readFile(src, 'utf8');
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const nodeCreateAdjacentFileSource: CreateAdjacentFileSource = (
 	relativePath,
 	src,
@@ -131,6 +140,9 @@ export const nodeCreateAdjacentFileSource: CreateAdjacentFileSource = (
 	return result;
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const nodeReader: MediaParserReaderInterface = {
 	read: nodeReadContent,
 	readWholeAsText: nodeReadWholeAsText,

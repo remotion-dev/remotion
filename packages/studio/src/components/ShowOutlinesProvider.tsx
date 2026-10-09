@@ -23,9 +23,7 @@ export const ShowOutlinesProvider: React.FC<{
 	);
 	useEffect(() => {
 		const onPointerLeave = () => {
-			timelineSequenceHoverStore.setHoveredSequence((hover) =>
-				hover?.source === 'timeline' ? null : hover,
-			);
+			timelineSequenceHoverStore.clear('timeline');
 		};
 
 		window.addEventListener('pointerleave', onPointerLeave);

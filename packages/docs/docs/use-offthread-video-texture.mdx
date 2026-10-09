@@ -120,6 +120,12 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 
 Like `<OffthreadVideo>`, looping a video [is not supported out of the box](/docs/offthreadvideo#looping-a-offthreadvideo) but can be achieved with the `<Loop>` component.
 
+## Compatibility
+
+<CompatibilityTable chrome="During rendering" firefox={false} safari={false} nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player={false} studio={false} hideServers />
+
+Only works during server-side rendering. Use [`useVideoTexture()`](/docs/use-video-texture) for preview, or [`@remotion/media`](/docs/videos/as-threejs-texture) for a texture that also supports client-side rendering.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/three/src/use-offthread-video-texture.ts)

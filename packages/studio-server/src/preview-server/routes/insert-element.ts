@@ -1,28 +1,41 @@
-import {existsSync, readFileSync} from 'node:fs';
+import {
+	closeSync,
+	existsSync,
+	lstatSync,
+	readFileSync,
+	unlinkSync,
+	writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
 	ElementInstallExpectedFileState,
 	InsertElementRequest,
 	InsertElementResponse,
+	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
-import {
-	applyCodemodToFile,
-	resolveFilePathFromSymbolicatedStack,
-} from '../../codemods/apply-codemod-to-file';
+import {addCompositionToFile} from '../../codemods/add-composition-to-file';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
+import {
+	assertNoSymlinks,
+	openFileForWritingWithoutSymlinks,
+} from '../../helpers/open-file-for-writing-without-symlinks';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {getProjectInfo} from '../project-info';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
+	discardLastUndoEntryAfterFailedCommit,
 	printUndoHint,
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {formatNewCompositionFile} from './apply-codemod';
 import {checkIfTypeScriptFile} from './can-update-default-props';
+import {downloadRemoteAssetBytes} from './download-remote-asset';
 import {
 	getElementInstallPlan,
 	validateElementInstallPosition,
@@ -57,14 +70,16 @@ const hasExpectedFileState = ({
 export const insertElementHandler: ApiHandler<
 	InsertElementRequest,
 	InsertElementResponse
-> = ({
+> = async ({
 	input: {
 		compositionFile,
 		compositionId,
+		captionTarget,
 		element,
 		installationName,
 		expectedFileState,
 		from,
+		premountFor,
 		position,
 		overwriteExisting,
 		undoRedoNavigation,
@@ -73,8 +88,46 @@ export const insertElementHandler: ApiHandler<
 	entryPoint,
 	remotionRoot,
 	logLevel,
-}) =>
-	withSourceFileWriteQueue(async () => {
+	publicDir,
+}) => {
+	let resolvedAssets: Array<{contents: Uint8Array; path: string}>;
+	try {
+		if (
+			captionTarget !== null &&
+			(element.isCaptionStyle !== true ||
+				element.installationMode !== 'component-owned-sequence' ||
+				newComposition !== null ||
+				compositionFile !== null ||
+				compositionId !== null)
+		) {
+			throw new Error('Invalid caption style installation target');
+		}
+
+		StudioProtocolInternals.assertElementAssets(element.assets);
+		StudioProtocolInternals.assertElementAssetReferences(element);
+		resolvedAssets = await StudioProtocolInternals.resolveElementAssets({
+			assets: element.assets,
+			downloadAsset: (options) =>
+				downloadRemoteAssetBytes({...options, acceptHeader: null}),
+		});
+	} catch (err) {
+		return {
+			success: false,
+			type: 'error',
+			reason: (err as Error).message,
+			stack: (err as Error).stack ?? '',
+		};
+	}
+
+	return withSourceFileWriteQueue(async () => {
+		const createdAssets: Array<{absolutePath: string; contents: Uint8Array}> =
+			[];
+		const changedSources: Array<{
+			filePath: string;
+			newContents: string;
+			oldContents: string | null;
+		}> = [];
+		let undoEntryPushed = false;
 		try {
 			validateElementInstallPosition(position);
 			if (
@@ -129,17 +182,19 @@ export const insertElementHandler: ApiHandler<
 			let sourceFileOverrides: ReadonlyMap<string, string> | null = null;
 
 			if (newComposition !== null) {
-				if (newComposition.codemod.newId !== compositionId) {
+				if (newComposition.options.newId !== compositionId) {
 					throw new Error(
 						'New composition ID does not match installation target',
 					);
 				}
 
 				const registrationFilePath = newComposition.symbolicatedStack
-					? resolveFilePathFromSymbolicatedStack(
+					?.originalFileName
+					? resolveFileInsideProject({
 							remotionRoot,
-							newComposition.symbolicatedStack,
-						)
+							fileName: newComposition.symbolicatedStack.originalFileName,
+							action: 'add a composition to',
+						}).absolutePath
 					: (await getProjectInfo(remotionRoot, entryPoint)).rootFile;
 				if (registrationFilePath === null) {
 					throw new Error('Cannot find file for composition in project');
@@ -156,7 +211,7 @@ export const insertElementHandler: ApiHandler<
 
 				const componentFilePath = path.join(
 					path.dirname(registrationFilePath),
-					`${newComposition.codemod.componentName}.tsx`,
+					`${newComposition.options.componentName}.tsx`,
 				);
 				if (existsSync(componentFilePath)) {
 					throw new Error(
@@ -171,13 +226,26 @@ export const insertElementHandler: ApiHandler<
 					registrationFilePath,
 					'utf-8',
 				);
-				const registrationFileNewContents = await applyCodemodToFile({
+				const codemodResult = await addCompositionToFile({
 					filePath: registrationFilePath,
-					codeMod: newComposition.codemod,
+					options: newComposition.options,
+					remotionRoot,
 				});
-				const componentFileContents = await formatNewCompositionFile(
-					newComposition.codemod,
-				);
+				const registrationFileNewContents =
+					codemodResult.changes.find(
+						(change) => change.filePath === registrationFilePath,
+					)?.nextContents ?? registrationFileOldContents;
+				const componentFileContents = codemodResult.changes.find(
+					(change) => change.filePath === componentFilePath,
+				)?.nextContents;
+
+				if (
+					componentFileContents === null ||
+					componentFileContents === undefined
+				) {
+					throw new Error('Could not create the composition component');
+				}
+
 				compositionCreation = {
 					componentFileContents,
 					componentFilePath,
@@ -192,16 +260,21 @@ export const insertElementHandler: ApiHandler<
 			}
 
 			const installDestination =
-				newComposition === null
+				captionTarget !== null
 					? {
-							type: 'current-composition' as const,
-							compositionFile,
-							compositionId,
+							type: 'selected-media' as const,
+							compositionFile: captionTarget.fileName,
 						}
-					: {
-							type: 'new-composition' as const,
-							compositionFile,
-						};
+					: newComposition === null
+						? {
+								type: 'current-composition' as const,
+								compositionFile,
+								compositionId,
+							}
+						: {
+								type: 'new-composition' as const,
+								compositionFile,
+							};
 			const plan = await getElementInstallPlan({
 				installationName,
 				destination: installDestination,
@@ -263,6 +336,14 @@ export const insertElementHandler: ApiHandler<
 
 			const shouldWriteElementFile =
 				!plan.elementFileExists || elementSourcesDiffer;
+			const initialProps = {...element.initialProps};
+			if (componentOwnsSequence && element.dimensions !== null) {
+				initialProps.style = {
+					...element.dimensions,
+					...(typeof initialProps.style === 'object' ? initialProps.style : {}),
+				};
+			}
+
 			const insertionInput = {
 				remotionRoot,
 				compositionFile,
@@ -273,9 +354,10 @@ export const insertElementHandler: ApiHandler<
 					importName: plan.componentName,
 					importPath: plan.importPath,
 					props: [
-						...Object.entries(element.initialProps ?? {}).map(
-							([name, value]) => ({name, value}),
-						),
+						...Object.entries(initialProps).map(([name, value]) => ({
+							name,
+							value,
+						})),
 						...(componentOwnsSequence && element.durationInFrames !== null
 							? [
 									{
@@ -291,6 +373,7 @@ export const insertElementHandler: ApiHandler<
 					position: componentOwnsSequence ? position : null,
 				},
 				from: componentOwnsSequence ? from : null,
+				premountFor,
 				prettierConfigOverride: null,
 				wrapInSequence: componentOwnsSequence
 					? null
@@ -302,10 +385,35 @@ export const insertElementHandler: ApiHandler<
 							position,
 						},
 			};
-			const inserted = await insertJsxElementIntoComposition({
-				...insertionInput,
-				sourceFileOverrides,
-			});
+			let inserted: {
+				fileName: string;
+				oldContents: string;
+				output: string;
+				logLine: number;
+				nodePathRemappings: SequenceNodePathRemapping[];
+			};
+			if (captionTarget === null) {
+				inserted = await insertJsxElementIntoComposition({
+					...insertionInput,
+					compositionFile,
+					compositionId,
+					sourceFileOverrides,
+				});
+			} else {
+				const fileName = plan.safePaths.compositionFileName;
+				const oldContents = readFileSync(fileName, 'utf-8');
+				inserted = {
+					...CodemodsInternals.insertBasicCaptions({
+						...captionTarget,
+						input: oldContents,
+						importPath: plan.importPath,
+						element: {componentName: plan.componentName, initialProps},
+					}),
+					fileName,
+					oldContents,
+				};
+			}
+
 			if (
 				compositionCreation !== null &&
 				inserted.fileName !== compositionCreation.componentFilePath
@@ -351,6 +459,56 @@ export const insertElementHandler: ApiHandler<
 				);
 			}
 
+			const assetsToCreate: Array<{
+				absolutePath: string;
+				contents: Uint8Array;
+			}> = [];
+			for (const asset of resolvedAssets) {
+				const absolutePath = path.resolve(publicDir, ...asset.path.split('/'));
+				assertNoSymlinks({
+					absolutePath,
+					rootDirectory: path.resolve(publicDir),
+				});
+				if (existsSync(absolutePath)) {
+					if (!lstatSync(absolutePath).isFile()) {
+						throw new Error(
+							`Asset ${asset.path} already exists and is not a file`,
+						);
+					}
+
+					if (!readFileSync(absolutePath).equals(asset.contents)) {
+						throw new Error(
+							`Asset ${asset.path} already exists with different contents`,
+						);
+					}
+				} else {
+					assetsToCreate.push({absolutePath, contents: asset.contents});
+				}
+			}
+
+			for (const asset of assetsToCreate) {
+				const fileDescriptor = openFileForWritingWithoutSymlinks({
+					absolutePath: asset.absolutePath,
+					exclusive: true,
+					rootDirectory: publicDir,
+				});
+				try {
+					writeFileSync(fileDescriptor, asset.contents);
+				} catch (error) {
+					closeSync(fileDescriptor);
+					try {
+						unlinkSync(asset.absolutePath);
+					} catch {
+						// Keep the original write error.
+					}
+
+					throw error;
+				}
+
+				closeSync(fileDescriptor);
+				createdAssets.push(asset);
+			}
+
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[
 					{
@@ -360,6 +518,31 @@ export const insertElementHandler: ApiHandler<
 				],
 				null,
 			);
+
+			const writeSource = ({
+				content,
+				file,
+				metadata,
+			}: {
+				content: string;
+				file: string;
+				metadata: {skipSequencePropsUpdate: true} | null;
+			}) => {
+				const oldContents = existsSync(file)
+					? readFileSync(file, 'utf8')
+					: null;
+				changedSources.push({
+					filePath: file,
+					newContents: content,
+					oldContents,
+				});
+				writeFileAndNotifyFileWatchers({
+					file,
+					content,
+					originatorClientId: undefined,
+					metadata,
+				});
+			};
 
 			pushTransactionToUndoStack({
 				snapshots: [
@@ -407,10 +590,11 @@ export const insertElementHandler: ApiHandler<
 								undoMessage: `↩️  Installation of ${element.displayName} into composition "${compositionId}"`,
 								redoMessage: `↪️  Installation of ${element.displayName} into composition "${compositionId}"`,
 							},
-				entryType: 'insert-jsx-element',
+				entryType: 'insert-composition-element',
 				suppressHmrOnFileRestore: false,
 				undoRedoNavigation,
 			});
+			undoEntryPushed = true;
 			if (compositionCreation !== null) {
 				suppressUndoStackInvalidation(compositionCreation.registrationFilePath);
 			}
@@ -422,27 +606,24 @@ export const insertElementHandler: ApiHandler<
 			suppressUndoStackInvalidation(inserted.fileName);
 
 			if (compositionCreation !== null) {
-				writeFileAndNotifyFileWatchers({
+				writeSource({
 					file: compositionCreation.registrationFilePath,
 					content: compositionCreation.registrationFileNewContents,
-					originatorClientId: undefined,
 					metadata: null,
 				});
 			}
 
 			if (shouldWriteElementFile) {
-				writeFileAndNotifyFileWatchers({
+				writeSource({
 					file: plan.elementFileName,
 					content: element.sourceCode,
-					originatorClientId: undefined,
 					metadata: null,
 				});
 			}
 
-			writeFileAndNotifyFileWatchers({
+			writeSource({
 				file: inserted.fileName,
 				content: inserted.output,
-				originatorClientId: undefined,
 				metadata: {skipSequencePropsUpdate: true},
 			});
 
@@ -486,6 +667,41 @@ export const insertElementHandler: ApiHandler<
 
 			return {success: true, nodePathMutation};
 		} catch (err) {
+			if (undoEntryPushed) {
+				discardLastUndoEntryAfterFailedCommit();
+			}
+
+			for (const source of changedSources.reverse()) {
+				try {
+					if (readFileSync(source.filePath, 'utf8') !== source.newContents) {
+						continue;
+					}
+
+					if (source.oldContents === null) {
+						unlinkSync(source.filePath);
+					} else {
+						writeFileAndNotifyFileWatchers({
+							file: source.filePath,
+							content: source.oldContents,
+							originatorClientId: undefined,
+							metadata: null,
+						});
+					}
+				} catch {
+					// Preserve subsequent user changes and the original installation error.
+				}
+			}
+
+			for (const asset of createdAssets.reverse()) {
+				try {
+					if (readFileSync(asset.absolutePath).equals(asset.contents)) {
+						unlinkSync(asset.absolutePath);
+					}
+				} catch {
+					// Preserve subsequent user changes and the original installation error.
+				}
+			}
+
 			return {
 				success: false,
 				type: 'error',
@@ -494,3 +710,4 @@ export const insertElementHandler: ApiHandler<
 			};
 		}
 	});
+};

@@ -7,7 +7,11 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {saveSequenceProps, type SetPropStatuses} from './save-sequence-prop';
 
 export const shouldShowFreezeFrameMenuItem = (sequence: TSequence): boolean => {
-	return sequence.type !== 'audio';
+	return (
+		sequence.type !== 'audio' &&
+		sequence.timelineTrack?.role !== 'track' &&
+		sequence.controls?.componentIdentity !== 'dev.remotion.remotion.Track'
+	);
 };
 
 export const isSequenceVisibleAtTimelinePosition = ({
@@ -32,12 +36,19 @@ export const calculateSequenceFreezeFrame = ({
 	readonly sequenceFrameOffset: number;
 	readonly timelinePosition: number;
 }): number => {
-	const rawFreezeFrame = Math.round(
-		timelinePosition - sequence.from + sequenceFrameOffset,
-	);
-	const minFrame = sequenceFrameOffset;
+	const rawFreezeFrame =
+		(timelinePosition - sequence.from) * sequence.sequencePlaybackRate +
+		sequenceFrameOffset;
+	const minFrame =
+		(Math.ceil(sequence.from) - sequence.from) * sequence.sequencePlaybackRate +
+		sequenceFrameOffset;
 	const maxFrame = Number.isFinite(sequence.duration)
-		? Math.max(minFrame, sequence.duration + sequenceFrameOffset - 1)
+		? Math.max(
+				minFrame,
+				(Math.ceil(sequence.from + sequence.duration) - 1 - sequence.from) *
+					sequence.sequencePlaybackRate +
+					sequenceFrameOffset,
+			)
 		: Infinity;
 
 	return Math.min(Math.max(minFrame, rawFreezeFrame), maxFrame);

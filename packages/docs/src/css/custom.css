@@ -76,6 +76,72 @@ h6 {
 	margin-bottom: 0.75rem;
 }
 
+/* The Elements library is also browsed inside Studio's iframe. */
+.studio-elements-embed .theme-announcement-bar,
+.studio-elements-embed .theme-doc-footer,
+.studio-elements-embed .pagination-nav {
+	display: none;
+}
+
+/* Let the embedding Studio supply the caption picker's background. */
+html:has(.studio-caption-picker),
+.studio-caption-picker {
+	--background: transparent;
+	--ifm-background-color: transparent;
+	background: transparent;
+}
+
+/* Caption selection needs previews, not documentation navigation. */
+.studio-caption-picker {
+	--doc-sidebar-width: 0px;
+	--ifm-navbar-height: 0px;
+}
+
+.studio-caption-picker .theme-doc-sidebar-container,
+.studio-caption-picker .theme-doc-toc-mobile,
+.studio-caption-picker .col:has(> .theme-doc-toc-desktop),
+.studio-caption-picker .theme-doc-breadcrumbs,
+.studio-caption-picker .navbar,
+.studio-caption-picker .caption-library-instructions,
+.studio-caption-picker
+	.theme-doc-markdown:has(.caption-library-instructions)
+	> header {
+	display: none;
+}
+
+.studio-caption-picker main > .container {
+	max-width: none;
+}
+
+.elements-embed-breadcrumbs {
+	display: flex;
+}
+
+.studio-elements-embed .elements-embed-breadcrumbs {
+	display: none;
+}
+
+@media (min-width: 997px) {
+	.studio-elements-embed {
+		--ifm-navbar-height: 0px;
+	}
+
+	html:has(.studio-elements-embed) {
+		scroll-padding-top: 0;
+	}
+
+	.studio-elements-embed .navbar {
+		display: none;
+	}
+}
+
+@media (max-width: 996px) {
+	/* Keep the mobile sidebar toggle so categories remain navigable. */
+	.studio-elements-embed .navbar__items--right {
+		display: none;
+	}
+}
+
 .elements-sidebar-root > .menu__list {
 	padding-left: 0;
 }
@@ -168,6 +234,10 @@ code {
 	font-feature-settings: 'ss03' on;
 	vertical-align: baseline;
 	padding: 0;
+}
+
+.theme-code-block {
+	box-shadow: none;
 }
 
 .code-container code {

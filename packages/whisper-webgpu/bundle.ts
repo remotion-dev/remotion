@@ -12,6 +12,7 @@ const output = await build({
 	external: [
 		'@huggingface/transformers',
 		'@remotion/captions',
+		'onnxruntime-node',
 		'remotion',
 		'remotion/no-react',
 		'react',

@@ -8,10 +8,14 @@ import {
 	test,
 } from 'bun:test';
 import {cleanup, renderHook} from '@testing-library/react';
-import React, {useMemo} from 'react';
-import type {SequenceManagerContext} from '../SequenceManager.js';
-import {SequenceManager} from '../SequenceManager.js';
-import {useMediaInTimeline} from '../use-media-in-timeline.js';
+import React from 'react';
+import type {TSequence} from '../CompositionManager.js';
+import {
+	SequenceOutlineContext,
+	SequenceOutlineInternals,
+} from '../sequence-outline.js';
+import {SequenceRegistryContext} from '../SequenceManager.js';
+import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
@@ -43,34 +47,26 @@ afterAll(() => {
 });
 
 test('useMediaInTimeline registers muted changes and unregisters the sequence', () => {
-	const registerSequence = mock();
-	const updateSequence = mock();
-	const unregisterSequence = mock();
-	const wrapper: React.FC<{
-		children: React.ReactNode;
-	}> = ({children}) => {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const sequenceManagerContext: SequenceManagerContext = useMemo(() => {
-			return {
-				registerSequence,
-				unregisterSequence,
-				updateSequence,
-				sequences: [],
-			};
-		}, []);
-
-		return (
-			<WrapSequenceContext>
-				<SequenceManager.Provider value={sequenceManagerContext}>
-					{children}
-				</SequenceManager.Provider>
-			</WrapSequenceContext>
-		);
+	let getSequences = (): TSequence[] => {
+		throw new Error('Sequence registry has not mounted');
 	};
 
+	const CaptureRegistry = () => {
+		const registry = React.useContext(SequenceRegistryContext);
+		if (registry === null) throw new Error('Sequence registry has not mounted');
+		getSequences = registry.getSnapshot;
+		return null;
+	};
+
+	const wrapper: React.FC<{children: React.ReactNode}> = ({children}) => (
+		<WrapSequenceContext>
+			<CaptureRegistry />
+			{children}
+		</WrapSequenceContext>
+	);
 	const {rerender, unmount} = renderHook(
 		({muted}: {readonly muted: boolean}) =>
-			useMediaInTimeline({
+			useMediaInTimelineRegistration({
 				volume: 1,
 				src: 'test',
 				mediaVolume: 1,
@@ -83,57 +79,49 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 				premountDisplay: null,
 				postmountDisplay: null,
 				loopDisplay: undefined,
+				loopVolumeCurveBehavior: 'repeat',
 				documentationLink: null,
-				refForOutline: null,
 				muted,
 			}),
-		{
-			wrapper,
-			initialProps: {muted: false},
-		},
+		{wrapper, initialProps: {muted: false}},
 	);
-	expect(registerSequence).toHaveBeenCalled();
-	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
-		mediaFrameAtSequenceZero: null,
+	expect(getSequences()).toHaveLength(1);
+	expect(getSequences()[0]).toMatchObject({
+		mediaFrameAtSequenceZero: 0,
 		muted: false,
+		refForOutline: null,
 	});
-
+	const id = getSequences()[0]?.id;
 	rerender({muted: true});
-	expect(registerSequence).toHaveBeenCalledTimes(1);
-	expect(updateSequence.mock.calls.at(-1)?.[0]).toMatchObject({muted: true});
-
+	expect(getSequences()).toHaveLength(1);
+	expect(getSequences()[0]).toMatchObject({id, muted: true});
 	unmount();
-	expect(unregisterSequence).toHaveBeenCalled();
+	expect(getSequences()).toEqual([]);
 });
 
 test('useMediaInTimeline keeps documentation links for custom display names', () => {
-	const registerSequence = mock();
-	const unregisterSequence = mock();
-	const wrapper: React.FC<{
-		children: React.ReactNode;
-	}> = ({children}) => {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const sequenceManagerContext: SequenceManagerContext = useMemo(() => {
-			return {
-				registerSequence,
-				unregisterSequence,
-				updateSequence: null,
-				sequences: [],
-			};
-		}, []);
-
-		return (
-			<WrapSequenceContext>
-				<SequenceManager.Provider value={sequenceManagerContext}>
-					{children}
-				</SequenceManager.Provider>
-			</WrapSequenceContext>
-		);
+	let getSequences = (): TSequence[] => {
+		throw new Error('Sequence registry has not mounted');
 	};
 
-	renderHook(
+	const CaptureRegistry = () => {
+		const registry = React.useContext(SequenceRegistryContext);
+		if (registry === null) throw new Error('Sequence registry has not mounted');
+		getSequences = registry.getSnapshot;
+		return null;
+	};
+
+	const wrapper: React.FC<{children: React.ReactNode}> = ({children}) => (
+		<SequenceOutlineContext.Provider value>
+			<WrapSequenceContext>
+				<CaptureRegistry />
+				{children}
+			</WrapSequenceContext>
+		</SequenceOutlineContext.Provider>
+	);
+	const {result} = renderHook(
 		() =>
-			useMediaInTimeline({
+			useMediaInTimelineRegistration({
 				volume: 1,
 				src: 'test.mp4',
 				mediaVolume: 1,
@@ -146,17 +134,18 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 				premountDisplay: null,
 				postmountDisplay: null,
 				loopDisplay: undefined,
+				loopVolumeCurveBehavior: 'repeat',
 				documentationLink: 'https://www.remotion.dev/docs/html5-video',
-				refForOutline: null,
 				muted: false,
 			}),
-		{
-			wrapper,
-		},
+		{wrapper},
 	);
-
-	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
+	expect(getSequences()[0]).toMatchObject({
 		displayName: 'Intro',
 		documentationLink: 'https://www.remotion.dev/docs/html5-video',
+		refForOutline: result.current.automaticOutlineRef,
 	});
+	expect(
+		SequenceOutlineInternals.getNodes(result.current.automaticOutlineRef!),
+	).toEqual([]);
 });

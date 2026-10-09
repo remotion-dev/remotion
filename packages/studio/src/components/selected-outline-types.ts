@@ -1,3 +1,13 @@
+import {
+	CanvasInternals,
+	type CanvasOutlineCrop,
+	type CanvasOutlineLayoutTarget,
+	type CanvasOutlineTranslateDragState,
+	type CanvasOutlineTranslatePropStatus,
+	type CanvasOutlineTranslateSession,
+	type CanvasOutlineTranslateTarget,
+	type CanvasSelectableOutline,
+} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
@@ -5,11 +15,9 @@ import type {
 	InteractivitySchema,
 	InteractivitySchemaField,
 	SequencePropsSubscriptionKey,
-	TSequence,
 } from 'remotion';
-import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import type {TimelineSelection} from './Timeline/TimelineSelection';
+import type {KeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
 
 export type SelectedOutlineContextMenuOpenResult =
 	| false
@@ -19,36 +27,33 @@ export type SelectedOutlineContextMenuOpenHandler = () =>
 	| SelectedOutlineContextMenuOpenResult
 	| Promise<SelectedOutlineContextMenuOpenResult>;
 
-export type SelectedOutlineLayoutTarget = {
-	readonly key: string;
-	readonly containsSelection: boolean;
-	readonly keyframeDisplayOffset: number;
-	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly ref: React.RefObject<Element | null>;
-	readonly selected: boolean;
+export type SelectedOutlineLayoutTarget = CanvasOutlineLayoutTarget & {
 	readonly selectedForCrop: boolean;
 	readonly selectedForRotation: boolean;
 	readonly selectedForTransformOrigin: boolean;
 	readonly selectedForUvHandles: boolean;
-	readonly showSelectedOutline: boolean;
 	readonly transformOriginValue: string;
-	readonly selection: TimelineSelection;
-	readonly sequence: TSequence;
-	readonly crop: {
-		readonly left: number;
-		readonly right: number;
-		readonly top: number;
-		readonly bottom: number;
-	};
+	readonly crop: CanvasOutlineCrop;
 };
 
 export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
 	readonly canCrop: boolean;
+	readonly pathDrag: SelectedOutlinePathDragTarget | null;
 	readonly cropDrag: SelectedOutlineCropDragTarget | null;
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
 	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
+};
+
+export type SelectedOutlinePathDragTarget = {
+	readonly clientId: string;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly schema: InteractivitySchema;
+	readonly sourceFrame: KeyframeSourceFrame;
 };
 
 export const cropFieldKeys = {
@@ -119,7 +124,7 @@ export type SelectedOutlineCropDragTarget = {
 	>;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 	readonly transformOrigin: {
 		readonly defaultValue: string | undefined;
 		readonly propStatus: CanUpdateSequencePropStatus;
@@ -127,20 +132,17 @@ export type SelectedOutlineCropDragTarget = {
 	} | null;
 };
 
-export type SelectedOutlineDragTarget = {
-	readonly propStatus:
-		| CanUpdateSequencePropStatusStatic
-		| CanUpdateSequencePropStatusKeyframed;
+// The Studio knows how every translate prop is written, so the source status
+// is always available and the changes are saved through its connected client.
+export type SelectedOutlineDragTarget = CanvasOutlineTranslateTarget & {
+	readonly propStatus: CanvasOutlineTranslatePropStatus;
 	readonly clientId: string;
-	readonly fieldDefault: string | undefined;
-	readonly keyframeDisplayOffset: number;
-	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: InteractivitySchema;
 };
 
 export type SelectedOutlineTransformOriginDragTarget = {
 	readonly clientId: string;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly originDefault: string | undefined;
 	readonly originPropStatus:
@@ -150,7 +152,7 @@ export type SelectedOutlineTransformOriginDragTarget = {
 	readonly rotateValue: string;
 	readonly scaleValue: number | string;
 	readonly schema: InteractivitySchema;
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 	readonly translateDefault: string | undefined;
 	readonly translatePropStatus:
 		| CanUpdateSequencePropStatusStatic
@@ -175,6 +177,7 @@ export type SelectedOutlineScaleDragTarget = {
 	readonly fieldDefault: number | string | undefined;
 	readonly fieldSchema: ScaleFieldSchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly linked: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
@@ -188,21 +191,15 @@ export type SelectedOutlineRotationDragTarget = {
 	readonly fieldDefault: string | undefined;
 	readonly fieldSchema: RotationFieldSchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly transform3DMode: boolean;
 	readonly transformOriginValue: string;
 };
 
-export type SelectedOutlineDragState = {
-	readonly defaultValue: string | null;
-	readonly key: string;
-	readonly sourceFrame: number;
-	readonly startX: number;
-	readonly startY: number;
-	readonly startZ: number | null;
-	readonly target: SelectedOutlineDragTarget;
-};
+export type SelectedOutlineDragState =
+	CanvasOutlineTranslateDragState<SelectedOutlineDragTarget>;
 
 export type SelectedOutlineScaleDragState = {
 	readonly defaultValue: string | null;
@@ -224,19 +221,12 @@ export type SelectedOutlineRotationDragState = {
 	readonly target: SelectedOutlineRotationDragTarget;
 };
 
-export type SequenceWithSelectedOutline = {
-	readonly depth: number;
-	readonly keyframeDisplayOffset: number;
-	readonly key: string;
-	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly sequence: TSequence;
-};
+export type SequenceWithSelectedOutline = CanvasSelectableOutline;
 
-export const translateFieldKey = 'style.translate';
+export const {canvasTranslateFieldKey: translateFieldKey} = CanvasInternals;
 export const scaleFieldKey = 'style.scale';
 export const rotateFieldKey = 'style.rotate';
 export const transformOriginFieldKey = 'style.transformOrigin';
-export const selectedOutlineDragThresholdPx = 4;
 
 export const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -247,10 +237,5 @@ export const outlineContainer: React.CSSProperties = {
 
 export const emptyContextMenuValues: readonly ComboboxValue[] = [];
 
-export type SelectedOutlineKeyboardNudgeSession = {
-	readonly dragStates: readonly SelectedOutlineDragState[];
-	readonly clientId: string;
-	deltaX: number;
-	deltaY: number;
-	lastValues: ReadonlyMap<string, string>;
-};
+export type SelectedOutlineKeyboardNudgeSession =
+	CanvasOutlineTranslateSession<SelectedOutlineDragTarget>;

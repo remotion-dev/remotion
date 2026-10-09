@@ -110,6 +110,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	);
 	const startsAt = Internals.useMediaStartsAt();
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const startInVideo = sequenceContext
 		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
 		: 0;
@@ -173,9 +174,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			);
 		}
 
-		const timestamp = frame / fps;
+		const timestamp = frame / sequencePlaybackRate / fps;
 		const durationInSeconds = 1 / fps;
 
+		let cancelled = false;
 		const newHandle = delayRender(
 			`Extracting frame at time ${timestamp} from ${src}`,
 			{
@@ -189,7 +191,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
-			playbackRate,
+			playbackRate: playbackRate * sequencePlaybackRate,
 			logLevel,
 			includeAudio: shouldUseAudio,
 			includeVideo: videoEnabled,
@@ -205,7 +207,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			mediaCache,
 		})
 			.then(async (result) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					if (result.type === 'success') {
 						result.frame?.close();
 					}
@@ -249,6 +251,20 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						durationInSeconds: mediaDurationInSeconds,
 					});
 				};
+
+				if (
+					(result.type === 'unknown-container-format' ||
+						result.type === 'network-error') &&
+					result.error
+				) {
+					handleError(
+						result.error,
+						result.error,
+						`Failed to read ${src}: ${result.error.message}, falling back to <OffthreadVideo>`,
+						null,
+					);
+					return;
+				}
 
 				if (result.type === 'unknown-container-format') {
 					handleError(
@@ -341,7 +357,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 								height: imageBitmap.height,
 							});
 
-							if (!completed || mediaCache.isDisposed()) {
+							if (!completed || cancelled || mediaCache.isDisposed()) {
 								imageBitmap.close();
 								return;
 							}
@@ -372,6 +388,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					fps,
 					frame,
 					startsAt,
+					playbackRate,
+					trimBefore: trimBeforeValue,
+					trimAfter: trimAfterValue,
 				});
 
 				const volume = Internals.evaluateVolume({
@@ -401,7 +420,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				continueRender(newHandle);
 			})
 			.catch((err) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -409,6 +428,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			});
 
 		return () => {
+			cancelled = true;
 			continueRender(newHandle);
 			unregisterRenderAsset(id);
 		};
@@ -429,6 +449,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		shouldUseAudio,
 		onVideoFrame,
 		playbackRate,
+		sequencePlaybackRate,
 		registerRenderAsset,
 		src,
 		startInVideo,
@@ -503,6 +524,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					fallbackOffthreadVideoProps?.pauseWhenBuffering ?? false
 				}
 				trimAfter={trimAfterValue}
+				durationInFrames={undefined}
 				trimBefore={trimBeforeValue}
 				useWebAudioApi={fallbackOffthreadVideoProps?.useWebAudioApi ?? false}
 				preservePitch={fallbackOffthreadVideoProps?.preservePitch ?? true}

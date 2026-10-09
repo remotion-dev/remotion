@@ -57,7 +57,7 @@ test.describe('render output dragging', () => {
 			await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible();
 			await page.evaluate(() => {
 				window.localStorage.setItem(
-					'remotion.sidebarRightCollapsing',
+					'remotion.sidebarRightCollapsing.v2',
 					'expanded',
 				);
 				window.localStorage.setItem('remotion.sidebarPanel', 'renders');

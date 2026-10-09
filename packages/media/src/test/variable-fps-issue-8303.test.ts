@@ -38,6 +38,7 @@ test('variable FPS video can be sought forward one frame at a time', async () =>
 		for (let frame = 0; frame <= 210; frame++) {
 			const time = frame / FPS;
 			const result = await iterator.tryToSatisfySeek(time, {
+				onWait: () => undefined,
 				pendingFrameBehavior: 'wait',
 				shouldContinue: () => true,
 			});

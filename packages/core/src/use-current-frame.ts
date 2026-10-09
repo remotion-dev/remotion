@@ -31,5 +31,5 @@ export const useCurrentFrame = (): number => {
 		? context.cumulatedFrom + context.relativeFrom
 		: 0;
 
-	return frame - contextOffset;
+	return (frame - contextOffset) * (context?.playbackRate ?? 1);
 };

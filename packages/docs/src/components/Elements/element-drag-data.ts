@@ -1,5 +1,6 @@
 import {
 	createElementPayload,
+	installInStudio,
 	type StudioElementPayload,
 } from '@remotion/studio-protocol';
 import type {ElementDefinition} from './element-definitions';
@@ -7,9 +8,11 @@ import type {ElementDefinition} from './element-definitions';
 export const createElementPayloadFromDefinition = ({
 	definition,
 	sourceCode,
+	installAssets,
 }: {
 	readonly definition: ElementDefinition;
 	readonly sourceCode: string;
+	readonly installAssets: boolean;
 }): StudioElementPayload => {
 	const dimensions =
 		definition.elementWidth !== null && definition.elementHeight !== null
@@ -20,14 +23,45 @@ export const createElementPayloadFromDefinition = ({
 			: null;
 
 	return createElementPayload({
+		assets: installAssets ? definition.assets : [],
 		dependencies: definition.dependencies,
 		dimensions,
 		displayName: definition.displayName,
 		durationInFrames: definition.durationInFrames,
-		initialProps: definition.initialProps,
+		initialProps:
+			!installAssets || definition.installationProps === null
+				? definition.initialProps
+				: {...definition.initialProps, ...definition.installationProps},
 		installationMode: definition.installationMode,
+		isCaptionStyle: definition.category === 'captions',
 		slug: definition.slug,
 		sourceCode,
+	});
+};
+
+export const installElementInStudio = ({
+	definition,
+	sourceCode,
+}: {
+	readonly definition: ElementDefinition;
+	readonly sourceCode: string;
+}) => {
+	const elementPayload = createElementPayloadFromDefinition({
+		definition,
+		sourceCode,
+		installAssets: false,
+	});
+	if (definition.assets.length === 0) {
+		return installInStudio({payload: elementPayload});
+	}
+
+	return installInStudio({
+		payload: createElementPayloadFromDefinition({
+			definition,
+			sourceCode,
+			installAssets: true,
+		}),
+		fallbackPayload: elementPayload,
 	});
 };
 
@@ -50,15 +84,12 @@ export const setElementDragImage = (
 	);
 	const width = poster.naturalWidth * scale;
 	const height = poster.naturalHeight * scale;
-	const outlineWidth = 2;
 	const wrapper = document.createElement('div');
 	wrapper.style.position = 'fixed';
 	wrapper.style.top = '-1000px';
 	wrapper.style.left = '-1000px';
-	wrapper.style.boxSizing = 'border-box';
-	wrapper.style.width = `${width + outlineWidth * 2}px`;
-	wrapper.style.height = `${height + outlineWidth * 2}px`;
-	wrapper.style.border = `${outlineWidth}px solid #0b84f3`;
+	wrapper.style.width = `${width}px`;
+	wrapper.style.height = `${height}px`;
 
 	const image = document.createElement('img');
 	image.src = poster.currentSrc || poster.src;
@@ -68,10 +99,6 @@ export const setElementDragImage = (
 	wrapper.appendChild(image);
 
 	document.body.appendChild(wrapper);
-	dataTransfer.setDragImage(
-		wrapper,
-		width / 2 + outlineWidth,
-		height / 2 + outlineWidth,
-	);
+	dataTransfer.setDragImage(wrapper, width / 2, height / 2);
 	requestAnimationFrame(() => wrapper.remove());
 };

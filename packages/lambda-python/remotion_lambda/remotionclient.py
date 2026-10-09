@@ -6,6 +6,7 @@ import json
 import hashlib
 import time
 from math import ceil
+from threading import Lock
 from typing import Optional, Union, List, Dict, Any
 from enum import Enum
 import warnings
@@ -17,6 +18,7 @@ from botocore.response import StreamingBody # For Lambda payload
 from .models import (
     CostsInfo,
     CustomCredentials,
+    RenderFramesParams,
     RenderMediaParams,
     RenderMediaProgress,
     RenderMediaResponse,
@@ -213,6 +215,7 @@ class RemotionClient:
         self.function_name = function_name.strip()
         self.force_path_style = force_path_style
         self.config = config or Config()  # Provide default empty config
+        self._session_lock = Lock()
 
     def _generate_hash(self, payload: str) -> str: # Added type hints
         """Generate a hash for the payload."""
@@ -257,7 +260,9 @@ class RemotionClient:
         if current_config:
             client_kwargs['config'] = current_config
 
-        return self.session.client(service_name, **client_kwargs)  # type: ignore[call-overload]
+        # boto3 sessions cannot create clients concurrently across threads.
+        with self._session_lock:
+            return self.session.client(service_name, **client_kwargs)  # type: ignore[call-overload]
 
     def _create_s3_client(self) -> Any: # Returns an S3 client type
         """Creates and returns a boto3 S3 client."""
@@ -626,6 +631,12 @@ class RemotionClient:
             )
 
         return None
+
+    def render_frames_on_lambda(
+        self, render_params: RenderFramesParams
+    ) -> Optional[RenderMediaResponse]:
+        """Start an image sequence render and track it with get_render_progress()."""
+        return self.render_media_on_lambda(render_params)
 
     def cancel_render_on_lambda(self, render_id: str, bucket_name: str) -> None:
         """Cancel a render started with ``enable_cancellation=True``."""

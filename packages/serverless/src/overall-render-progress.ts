@@ -8,6 +8,7 @@ import type {
 	ProviderSpecifics,
 	ReceivedArtifact,
 	RenderMetadata,
+	SeparateAudioOutput,
 } from '@remotion/serverless-client';
 import {overallProgressKey} from '@remotion/serverless-client';
 
@@ -30,6 +31,11 @@ export type OverallProgressHelper<Provider extends CloudProvider> = {
 		encoded: number;
 		index: number;
 	}) => void;
+	setUploadedFrames: (options: {
+		index: number;
+		uploaded: number;
+		sizeInBytes: number;
+	}) => void;
 	setLambdaInvoked: (chunk: number) => void;
 	addChunkCompleted: (
 		chunkIndex: number,
@@ -43,6 +49,7 @@ export type OverallProgressHelper<Provider extends CloudProvider> = {
 		postRenderData: PostRenderData<Provider>,
 	) => Promise<void>;
 	setRenderMetadata: (renderMetadata: RenderMetadata<Provider>) => void;
+	setSeparateAudio: (separateAudio: SeparateAudioOutput) => Promise<void>;
 	addErrorWithoutUpload: (errorInfo: FunctionErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
 	get: () => OverallRenderProgress<Provider>;
@@ -63,12 +70,15 @@ export const makeInitialOverallRenderProgress = <
 		chunks: [],
 		framesRendered: 0,
 		framesEncoded: 0,
+		framesUploaded: 0,
+		uploadedSizeInBytes: 0,
 		combinedFrames: 0,
 		timeToCombine: null,
 		timeToEncode: null,
 		lambdasInvoked: 0,
 		retries: [],
 		postRenderData: null,
+		separateAudio: null,
 		timings: [],
 		renderMetadata: null,
 		errors: [],
@@ -105,6 +115,8 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 }): OverallProgressHelper<Provider> => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
+	let framesUploaded: number[] = [];
+	let uploadedSizes: number[] = [];
 	let lambdasInvoked: boolean[] = [];
 
 	const renderProgress: OverallRenderProgress<Provider> =
@@ -224,7 +236,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 			if (renderProgress.timeToRenderFrames === null) {
 				const frameCount =
 					renderProgress.renderMetadata &&
-					renderProgress.renderMetadata.type === 'video'
+					renderProgress.renderMetadata.type !== 'still'
 						? RenderInternals.getFramesToRender(
 								renderProgress.renderMetadata.frameRange,
 								renderProgress.renderMetadata.everyNthFrame,
@@ -243,11 +255,37 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 				`setFrames(rendered=${totalFramesRendered}, encoded=${totalFramesEncoded})`,
 			);
 		},
+		setUploadedFrames: ({index, uploaded, sizeInBytes}) => {
+			if (
+				uploaded < framesUploaded[index] ||
+				(uploaded === framesUploaded[index] &&
+					sizeInBytes === uploadedSizes[index])
+			) {
+				return;
+			}
+
+			framesUploaded[index] = uploaded;
+			uploadedSizes[index] = sizeInBytes;
+			renderProgress.framesUploaded = framesUploaded.reduce((a, b) => a + b, 0);
+			renderProgress.uploadedSizeInBytes = uploadedSizes.reduce(
+				(a, b) => a + b,
+				0,
+			);
+			upload(`setUploadedFrames(chunk=${index})`);
+		},
 		addChunkCompleted: (chunkIndex, start, rendered) => {
+			if (
+				renderProgress.renderMetadata?.type === 'sequence' &&
+				renderProgress.chunks.includes(chunkIndex)
+			) {
+				return;
+			}
+
 			renderProgress.chunks.push(chunkIndex);
 			if (
+				renderProgress.renderMetadata?.type !== 'sequence' &&
 				renderProgress.chunks.length ===
-				renderProgress.renderMetadata?.totalChunks
+					renderProgress.renderMetadata?.totalChunks
 			) {
 				const timeToEncode = Date.now() - (encodeStartTime ?? Date.now());
 				renderProgress.timeToEncode = timeToEncode;
@@ -284,6 +322,10 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 			renderProgress.postRenderData = postRenderData;
 			await upload('setPostRenderData');
 		},
+		async setSeparateAudio(separateAudio) {
+			renderProgress.separateAudio = separateAudio;
+			await upload('setSeparateAudio');
+		},
 		setRenderMetadata: (renderMetadata) => {
 			renderProgress.renderMetadata = renderMetadata;
 			upload('setRenderMetadata');
@@ -297,6 +339,8 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 		setExpectedChunks: (expectedChunks) => {
 			framesRendered = new Array(expectedChunks).fill(0);
 			framesEncoded = new Array(expectedChunks).fill(0);
+			framesUploaded = new Array(expectedChunks).fill(0);
+			uploadedSizes = new Array(expectedChunks).fill(0);
 			lambdasInvoked = new Array(expectedChunks).fill(false);
 		},
 		setCompositionValidated(timestamp) {

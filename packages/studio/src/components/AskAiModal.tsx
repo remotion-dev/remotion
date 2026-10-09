@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useRef,
 	useState,
 } from 'react';
@@ -29,6 +30,17 @@ export const askAiModalRef = createRef<AskAiModalRef>();
 export const AskAiModal: React.FC = () => {
 	const [state, setState] = useState<State>('never-opened');
 	const iframe = useRef<HTMLIFrameElement>(null);
+
+	useLayoutEffect(() => {
+		if (!iframe.current || iframe.current.hasAttribute('src')) {
+			return;
+		}
+
+		// Studio is cross-origin isolated, while the embedded chatbot does not
+		// opt in to COEP. Set credentialless before loading the iframe.
+		iframe.current.setAttribute('credentialless', '');
+		iframe.current.src = 'https://www.remotion.dev/ai-embed';
+	}, [state]);
 
 	useImperativeHandle(
 		askAiModalRef,
@@ -103,7 +115,6 @@ export const AskAiModal: React.FC = () => {
 					ref={iframe}
 					frameBorder={0}
 					style={container}
-					src="https://www.remotion.dev/ai-embed"
 					allow="clipboard-read; clipboard-write"
 				/>
 			</ModalContainer>

@@ -13,28 +13,32 @@ type AnimationKeyframe = {
 const getKeyframeSelection = ({
 	keyframe,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	nodePathInfo,
 }: {
 	readonly keyframe: AnimationKeyframe;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
 }): AnimationItemSelection => {
 	return {
 		type: 'keyframe',
 		nodePathInfo,
-		frame: keyframe.frame + keyframeDisplayOffset,
+		frame: keyframe.frame / keyframePlaybackRate + keyframeDisplayOffset,
 	};
 };
 
 export const getAnimationItemSelectionForSourceFrame = ({
 	includeEasings,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	keyframes,
 	nodePathInfo,
 	sourceFrame,
 }: {
 	readonly includeEasings: boolean;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly keyframes: readonly AnimationKeyframe[];
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly sourceFrame: number;
@@ -50,6 +54,7 @@ export const getAnimationItemSelectionForSourceFrame = ({
 			return getKeyframeSelection({
 				keyframe,
 				keyframeDisplayOffset,
+				keyframePlaybackRate,
 				nodePathInfo,
 			});
 		}
@@ -67,8 +72,10 @@ export const getAnimationItemSelectionForSourceFrame = ({
 			return {
 				type: 'easing',
 				nodePathInfo,
-				fromFrame: keyframe.frame + keyframeDisplayOffset,
-				toFrame: nextKeyframe.frame + keyframeDisplayOffset,
+				fromFrame:
+					keyframe.frame / keyframePlaybackRate + keyframeDisplayOffset,
+				toFrame:
+					nextKeyframe.frame / keyframePlaybackRate + keyframeDisplayOffset,
 				segmentIndex: i,
 			};
 		}
@@ -78,6 +85,7 @@ export const getAnimationItemSelectionForSourceFrame = ({
 	return getKeyframeSelection({
 		keyframe: sourceFrame < firstKeyframe.frame ? firstKeyframe : lastKeyframe,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 		nodePathInfo,
 	});
 };

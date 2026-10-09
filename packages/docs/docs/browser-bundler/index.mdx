@@ -44,13 +44,79 @@ The compiler downloads a sizable WebAssembly binary and can use significant memo
 
 The package ships a prebuilt compiler worker together with its WebAssembly binary and supporting worker asset. Your app's bundler must handle `new Worker(new URL(..., import.meta.url))` and emit the assets referenced with `new URL(..., import.meta.url)`. Serve those emitted assets alongside your app.
 
-Alternatively, use [`workerUrl`](/docs/browser-bundler/create-browser-bundler#workerurl) to host the packaged worker and its adjacent assets at a custom same-origin location. Preserve the packaged filenames and relative paths. This overrides the main worker URL, not the requirement to deploy its supporting assets.
+Alternatively, use [`workerUrl`](/docs/browser-bundler/create-browser-bundler#workerurl) to host the packaged worker and its adjacent assets at a custom same-origin location. Preserve the packaged filenames and relative paths. This overrides the main worker URL, not the requirement to deploy its supporting assets. See [serving the compiler as static files](#serving-the-compiler-as-static-files) for a setup that does not depend on the host bundler.
 
 Other bundlers and deployment configurations are not guaranteed to work without additional setup. Call these APIs on the client, not during server rendering.
 
-### Next.js with webpack
+### Next.js
 
-The initial Next.js integration uses webpack for development and production builds, not Turbopack:
+For TypeScript projects, use `"moduleResolution": "bundler"` in `tsconfig.json` so imports from `@remotion/browser-bundler/runtime` resolve through the package's exports.
+
+Add the cross-origin isolation headers to the routes that use the compiler, including the compiler assets. This example uses `/browser-bundler` as the page route; replace it with your route.
+
+```js title="next.config.mjs"
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  async headers() {
+    return ['/browser-bundler', '/_next/:path*', '/compiler/:path*'].map(
+      (source) => ({
+        source,
+        headers: [
+          {key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
+          {key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
+        ],
+      }),
+    );
+  },
+};
+
+export default nextConfig;
+```
+
+If other pages are served without these headers, use full-page navigation when entering or leaving this route. Next.js client-side navigation does not change the current document's cross-origin isolation. A normal `<a>` link performs a full-page navigation.
+
+#### Serving the compiler as static files<AvailableFrom v="4.0.529" />
+
+The recommended setup works with Turbopack and webpack, in the App Router and the Pages Router: copy the compiler assets into `public/` and point [`workerUrl`](/docs/browser-bundler/create-browser-bundler#workerurl) at them. The worker resolves its WebAssembly binary and supporting worker relative to its own URL, so the Next.js bundler does not process them.
+
+```js title="scripts/copy-compiler.mjs"
+import {copyFile, mkdir} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import path from 'node:path';
+
+const require = createRequire(import.meta.url);
+const dist = path.join(
+  path.dirname(require.resolve('@remotion/browser-bundler/package.json')),
+  'dist',
+);
+const target = path.join(process.cwd(), 'public', 'compiler');
+
+await mkdir(target, {recursive: true});
+for (const asset of [
+  'browser-bundler-worker.js',
+  'rspack.wasm32-wasi.wasm',
+  'wasi-worker-browser.mjs',
+]) {
+  await copyFile(path.join(dist, asset), path.join(target, asset));
+}
+```
+
+Run the script before `next dev` and `next build`, and ignore `public/compiler` in version control. Then create the bundler with the served worker:
+
+```ts twoslash title="compiler.ts"
+// @moduleResolution: bundler
+import {createBrowserBundler} from '@remotion/browser-bundler';
+
+const bundler = createBrowserBundler({
+  workerUrl: new URL('/compiler/browser-bundler-worker.js', window.location.origin),
+});
+```
+
+Without `workerUrl`, the package falls back to `new Worker(new URL('./browser-bundler-worker.js', import.meta.url))`, which makes the Next.js bundler process the worker and its assets. In the App Router, the supporting worker is then transpiled and fails to start with `Cannot use 'import.meta' outside a module`, and Turbopack warns about a module format mismatch.
+
+#### Bundling the compiler with webpack
+
+In the Pages Router with webpack, the compiler assets can be bundled by Next.js instead. Use webpack for development and production builds, not Turbopack:
 
 ```json title="package.json (scripts)"
 {
@@ -61,22 +127,11 @@ The initial Next.js integration uses webpack for development and production buil
 }
 ```
 
-For TypeScript projects, use `"moduleResolution": "bundler"` in `tsconfig.json` so imports from `@remotion/browser-bundler/runtime` resolve through the package's exports.
-
-Merge these headers and webpack rules into your configuration. This example uses `/browser-bundler` as the page route; replace it with your route.
+Merge these rules into your configuration:
 
 ```js title="next.config.mjs"
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async headers() {
-    return ['/browser-bundler', '/_next/:path*'].map((source) => ({
-      source,
-      headers: [
-        {key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
-        {key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
-      ],
-    }));
-  },
   webpack(config) {
     config.module.rules.push(
       {test: /browser-bundler-worker\.js$/, parser: {url: true}},
@@ -90,11 +145,9 @@ const nextConfig = {
 export default nextConfig;
 ```
 
-If other pages are served without these headers, use full-page navigation when entering or leaving this route. Next.js client-side navigation does not change the current document's cross-origin isolation. A normal `<a>` link performs a full-page navigation.
-
 Next.js normally makes asset URLs relative. The supporting worker starts from a `blob:` URL, so its `importScripts()` call needs an absolute script URL. The scoped `parser: {url: true}` rule preserves that behavior for the packaged compiler worker without changing URL handling throughout your app.
 
-This configuration is specific to webpack. Check that the emitted worker and WebAssembly URLs remain accessible in your deployment.
+This configuration does not work in the App Router, where the supporting worker is passed through the React Refresh loader before the `asset/resource` rule applies. Use the static files setup above instead.
 
 ## Trusted code only
 

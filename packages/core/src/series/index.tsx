@@ -15,7 +15,8 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
-import {Sequence, SequenceWithoutSchema} from '../Sequence.js';
+import {SequenceWithoutSchema} from '../Sequence.js';
+import {TrackWithoutSchema} from '../Track.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import {flattenChildren} from './flatten-children.js';
@@ -33,7 +34,13 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly className?: string;
 	} & Pick<
 		SequenceProps,
-		'layout' | 'name' | 'hidden' | 'showInTimeline' | 'freeze' | 'trimBefore'
+		| 'layout'
+		| 'name'
+		| 'hidden'
+		| 'showInTimeline'
+		| 'freeze'
+		| 'trimBefore'
+		| 'playbackRate'
 	> &
 		LayoutAndStyle
 >;
@@ -59,6 +66,7 @@ const seriesSequenceSchema = {
 	showInTimeline: Interactive.sequenceSchema.showInTimeline,
 	freeze: Interactive.baseSchema.freeze,
 	trimBefore: Interactive.sequenceSchema.trimBefore,
+	playbackRate: Interactive.sequenceSchema.playbackRate,
 	layout: Interactive.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 
@@ -191,6 +199,14 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 			return React.cloneElement(castedElement, {
 				_remotionInternalRender: (resolvedProps, ref) => {
 					const durationInFramesProp = resolvedProps.durationInFrames;
+					const timelineDurationInFrames =
+						durationInFramesProp / (resolvedProps.playbackRate ?? 1);
+					if ((resolvedProps as {readonly loop?: boolean}).loop) {
+						throw new Error(
+							'<Series.Sequence> does not accept `loop`. Put a looping <Sequence> inside the <Series.Sequence> instead.',
+						);
+					}
+
 					const {
 						durationInFrames: _durationInFrames,
 						children: sequenceChildren,
@@ -209,7 +225,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 					});
 
 					const currentStartFrame = startFrame + offset;
-					const nextStartFrame = startFrame + durationInFramesProp + offset;
+					const nextStartFrame = startFrame + timelineDurationInFrames + offset;
 
 					return (
 						<>
@@ -223,6 +239,10 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 								from={currentStartFrame}
 								durationInFrames={durationInFramesProp}
 								{...passedProps}
+								_remotionInternalTimelineTrack={{
+									role: 'clip',
+									seriesOffset: offset,
+								}}
 								_remotionInternalSingleChildComponent={getSingleChildComponent(
 									sequenceChildren,
 								)}
@@ -242,14 +262,14 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 	}, [props.children]);
 
 	return (
-		<Sequence
+		<TrackWithoutSchema
 			layout="none"
-			name="<Series>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 			{...props}
+			name={props.name ?? '<Series>'}
 		>
 			<IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>
-		</Sequence>
+		</TrackWithoutSchema>
 	);
 };
 

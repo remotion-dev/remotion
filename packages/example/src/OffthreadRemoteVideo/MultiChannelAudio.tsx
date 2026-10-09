@@ -1,6 +1,6 @@
-import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
 import {CalculateMetadataFunction, Html5Audio} from 'remotion';
+import {getMediaMetadata} from '../get-media-metadata';
 
 const fps = 30;
 const src = 'https://remotion.media/multiple-audio-streams.mov';
@@ -8,16 +8,10 @@ const src = 'https://remotion.media/multiple-audio-streams.mov';
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
 > = async () => {
-	const {slowDurationInSeconds} = await parseMedia({
-		src,
-		acknowledgeRemotionLicense: true,
-		fields: {
-			slowDurationInSeconds: true,
-		},
-	});
+	const {durationInSeconds} = await getMediaMetadata(src);
 
 	return {
-		durationInFrames: Math.round(slowDurationInSeconds * fps),
+		durationInFrames: Math.round(durationInSeconds * fps),
 		fps,
 	};
 };

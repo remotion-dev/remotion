@@ -1,4 +1,8 @@
 import {beforeEach, expect, mock, test} from 'bun:test';
+import {existsSync} from 'node:fs';
+import {mkdtemp, readdir, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 
 let initializationCount = 0;
 let initializationStarted: ((count: number) => void) | null = null;
@@ -21,10 +25,29 @@ let cacheClear:
 let cacheCheckEnvironment:
 	| {remoteHost: string; remotePathTemplate: string}
 	| undefined;
+const downloadedFiles = new Map<string, Response>();
+const requestedFiles: string[] = [];
+let checkDownloadedFiles = false;
+const customCache = {
+	match: (url: string) => Promise.resolve(downloadedFiles.get(url)?.clone()),
+	put: async (url: string, response: Response) => {
+		downloadedFiles.set(url, new Response(await response.arrayBuffer()));
+	},
+};
 
 const originalTransformersEnvironment = {
 	remoteHost: 'https://huggingface.co/',
 	remotePathTemplate: '{model}/resolve/{revision}/',
+	useCustomCache: true,
+	customCache,
+	useBrowserCache: false,
+	useFSCache: false,
+	cacheDir: null as string | null,
+	cacheKey: 'transformers-cache',
+	fetch: (url: string) => {
+		requestedFiles.push(url);
+		return Promise.resolve(new Response(url));
+	},
 };
 const transformersEnvironment = {...originalTransformersEnvironment};
 const preexistingWhisperModelHostState = {
@@ -71,7 +94,10 @@ mock.module('@huggingface/transformers', () => ({
 			initializationCount++;
 			initializedModelIds.push(modelId);
 			initializationOptions = options;
-			initializationEnvironment = {...transformersEnvironment};
+			initializationEnvironment = {
+				remoteHost: transformersEnvironment.remoteHost,
+				remotePathTemplate: transformersEnvironment.remotePathTemplate,
+			};
 			initializationStarted?.(initializationCount);
 			await initializationGate;
 			const onProgress = options.progress_callback as
@@ -93,6 +119,22 @@ mock.module('@huggingface/transformers', () => ({
 	},
 	BackgroundRemovalPipeline,
 	ModelRegistry: {
+		is_pipeline_cached_files: () => {
+			const files = ['config.json', 'onnx/model.onnx'].map((file) => ({
+				file,
+				cached: transformersEnvironment.useFSCache
+					? existsSync(
+							join(transformersEnvironment.cacheDir!, 'modnet-v1', file),
+						)
+					: downloadedFiles.has(
+							`https://remotion.media/models/modnet-v1/${file}`,
+						),
+			}));
+			return Promise.resolve({
+				files,
+				allCached: files.every(({cached}) => cached),
+			});
+		},
 		clear_pipeline_cache: (
 			task: string,
 			modelId: string,
@@ -107,8 +149,21 @@ mock.module('@huggingface/transformers', () => ({
 			options: Record<string, unknown>,
 		) => {
 			cacheCheck = {task, modelId, options};
-			cacheCheckEnvironment = {...transformersEnvironment};
-			return Promise.resolve(true);
+			cacheCheckEnvironment = {
+				remoteHost: transformersEnvironment.remoteHost,
+				remotePathTemplate: transformersEnvironment.remotePathTemplate,
+			};
+			return Promise.resolve(
+				transformersEnvironment.useFSCache
+					? ['config.json', 'onnx/model.onnx'].every((file) =>
+							existsSync(
+								join(transformersEnvironment.cacheDir!, modelId, file),
+							),
+						)
+					: checkDownloadedFiles
+						? downloadedFiles.size === 2
+						: true,
+			);
 		},
 	},
 }));
@@ -131,9 +186,64 @@ beforeEach(async () => {
 	cacheCheck = undefined;
 	cacheClear = undefined;
 	cacheCheckEnvironment = undefined;
+	downloadedFiles.clear();
+	requestedFiles.length = 0;
+	checkDownloadedFiles = false;
 	preexistingWhisperModelHostState.activeOperations = 0;
 	preexistingWhisperModelHostState.previousRemoteConfiguration = null;
 	Object.assign(transformersEnvironment, originalTransformersEnvironment);
+});
+
+test('downloads a model, then initializes from the cached files', async () => {
+	checkDownloadedFiles = true;
+	transformersEnvironment.useCustomCache = false;
+	transformersEnvironment.useBrowserCache = true;
+	const originalCaches = Object.getOwnPropertyDescriptor(globalThis, 'caches');
+	Object.defineProperty(globalThis, 'caches', {
+		configurable: true,
+		value: {open: () => Promise.resolve(customCache)},
+	});
+	try {
+		const {downloadVideoMattingModel, loadVideoMattingModel} =
+			await import('../index');
+		await expect(loadVideoMattingModel({model: 'modnet'})).rejects.toThrow(
+			'downloadVideoMattingModel() first',
+		);
+		const progress: number[] = [];
+		const download = await downloadVideoMattingModel({
+			model: 'modnet',
+			onProgress: ({progress: value}) => progress.push(value),
+		});
+
+		expect(download.alreadyDownloaded).toBe(false);
+		expect(initializationCount).toBe(0);
+		expect(requestedFiles).toEqual([
+			'https://remotion.media/models/modnet-v1/config.json',
+			'https://remotion.media/models/modnet-v1/onnx/model.onnx',
+		]);
+		expect(progress.at(-1)).toBe(1);
+		downloadedFiles.delete(
+			'https://remotion.media/models/modnet-v1/onnx/model.onnx',
+		);
+		expect(
+			(await downloadVideoMattingModel({model: 'modnet'})).alreadyDownloaded,
+		).toBe(false);
+		expect(requestedFiles.slice(2)).toEqual([requestedFiles[1]]);
+
+		await using loaded = await loadVideoMattingModel({model: 'modnet'});
+		expect(loaded.alreadyLoaded).toBe(false);
+		expect(initializationCount).toBe(1);
+		expect(
+			(await downloadVideoMattingModel({model: 'modnet'})).alreadyDownloaded,
+		).toBe(true);
+		expect(requestedFiles).toHaveLength(3);
+	} finally {
+		if (originalCaches) {
+			Object.defineProperty(globalThis, 'caches', originalCaches);
+		} else {
+			Reflect.deleteProperty(globalThis, 'caches');
+		}
+	}
 });
 
 test('shares loading, reports progress, and defers disposal while in use', async () => {
@@ -176,10 +286,11 @@ test('shares loading, reports progress, and defers disposal while in use', async
 	});
 	expect(cacheCheckEnvironment).toEqual(initializationEnvironment);
 	releaseInitialization();
-	expect(await Promise.all([first, second])).toEqual([
-		{alreadyLoaded: false},
-		{alreadyLoaded: true},
-	]);
+	expect(
+		(await Promise.all([first, second])).map(
+			({alreadyLoaded}) => alreadyLoaded,
+		),
+	).toEqual([false, true]);
 	expect(initializationOptions).toMatchObject({
 		device: 'webgpu',
 		dtype: 'fp32',
@@ -215,6 +326,50 @@ test('shares loading, reports progress, and defers disposal while in use', async
 	await disposal;
 	expect(pipelineRunCount).toBe(1);
 	expect(disposeCalls).toBe(1);
+	expect(livePipelineCount).toBe(0);
+});
+
+test('await using releases a model after its last load handle', async () => {
+	const {loadVideoMattingModel} = await import('../index');
+	const {withLoadedVideoMattingPipeline} = await getRuntime();
+
+	{
+		await using first = await loadVideoMattingModel({model: 'modnet'});
+		expect(first.alreadyLoaded).toBe(false);
+		{
+			await using second = await loadVideoMattingModel({model: 'modnet'});
+			expect(second.alreadyLoaded).toBe(true);
+			await second[Symbol.asyncDispose]();
+		}
+
+		expect(disposeCalls).toBe(0);
+		const result = await withLoadedVideoMattingPipeline({
+			model: 'modnet',
+			signal: null,
+			run: (pipeline) => pipeline({} as OffscreenCanvas),
+		});
+		expect(result.data).toEqual(new Uint8ClampedArray([10, 20, 30, 128]));
+	}
+
+	expect(initializationCount).toBe(1);
+	expect(pipelineRunCount).toBe(1);
+	expect(disposeCalls).toBe(1);
+	expect(livePipelineCount).toBe(0);
+});
+
+test('an old load handle cannot dispose a replacement model', async () => {
+	const {disposeVideoMattingModel, loadVideoMattingModel} =
+		await import('../index');
+	const oldHandle = await loadVideoMattingModel({model: 'modnet'});
+	await disposeVideoMattingModel({model: 'modnet'});
+	const newHandle = await loadVideoMattingModel({model: 'modnet'});
+
+	await oldHandle[Symbol.asyncDispose]();
+	expect(disposeCalls).toBe(1);
+	expect(livePipelineCount).toBe(1);
+
+	await newHandle[Symbol.asyncDispose]();
+	expect(disposeCalls).toBe(2);
 	expect(livePipelineCount).toBe(0);
 });
 
@@ -282,10 +437,39 @@ test('coordinates the shared Transformers environment across model loads', async
 		environmentWithState[Symbol.for('@remotion/transformers/model-host-state')],
 	).toBe(sharedState);
 	releaseInitialization();
-	expect(await Promise.all(loads)).toEqual([
-		{alreadyLoaded: false},
-		{alreadyLoaded: false},
-	]);
+	expect(
+		(await Promise.all(loads)).map(({alreadyLoaded}) => alreadyLoaded),
+	).toEqual([false, false]);
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
 	await disposeVideoMattingModel();
+});
+
+test('an interrupted filesystem download can be retried without leaving partial model files', async () => {
+	const {downloadVideoMattingModel} = await import('../index');
+	const directory = await mkdtemp(join(tmpdir(), 'video-matting-download-'));
+	transformersEnvironment.useCustomCache = false;
+	transformersEnvironment.useFSCache = true;
+	transformersEnvironment.cacheDir = directory;
+	transformersEnvironment.fetch = () =>
+		Promise.resolve(
+			new Response(
+				new ReadableStream({
+					start(controller) {
+						controller.error(new Error('download interrupted'));
+					},
+				}),
+			),
+		);
+	try {
+		await expect(downloadVideoMattingModel({model: 'modnet'})).rejects.toThrow(
+			'download interrupted',
+		);
+		expect(await readdir(join(directory, 'modnet-v1'))).toEqual([]);
+		transformersEnvironment.fetch = originalTransformersEnvironment.fetch;
+		expect(await downloadVideoMattingModel({model: 'modnet'})).toEqual({
+			alreadyDownloaded: false,
+		});
+	} finally {
+		await rm(directory, {recursive: true, force: true});
+	}
 });

@@ -103,7 +103,7 @@ const sendUnfinishedOversizedInstallRequest = (
 	});
 };
 
-test('discovers an exact Studio target and delivers one install request over HTTP', async () => {
+test('discovers a sole unfocused Studio without a composition and delivers one install request over HTTP', async () => {
 	clearElementInstallStateForTests();
 	const deliveredEvents: EventSourceEvent[] = [];
 	const liveEventsServer: LiveEventsServer = {
@@ -118,11 +118,11 @@ test('discovers an exact Studio target and delivers one install request over HTT
 			updateElementInstallTarget({
 				requestId: event.requestId,
 				clientId: 'focused-studio-tab',
-				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
-				compositionId: 'Main',
-				lastFocusedAt: Date.now(),
+				compositionFile: null,
+				compositionId: null,
+				lastFocusedAt: null,
 				readOnly: false,
-				studioUrl: 'http://localhost:3000/Main',
+				studioUrl: 'http://localhost:3000',
 			});
 		},
 		sendEventToClientId: (clientId, event) => {
@@ -203,13 +203,19 @@ test('discovers an exact Studio target and delivers one install request over HTT
 					type: 'install-element';
 					target: {
 						id: string;
-						compositionId: string;
+						compositionId: string | null;
+						lastFocusedAt: number | null;
 					};
 				},
 			];
 		};
 		const installTarget = descriptor.capabilities[0].target;
-		expect(installTarget.compositionId).toBe('Main');
+		expect(installTarget.compositionId).toBe(null);
+		expect(installTarget.lastFocusedAt).toBe(null);
+		expect(descriptor.capabilities.slice(1)).toMatchObject([
+			{target: null},
+			{target: null},
+		]);
 
 		const installBody = {
 			operation: 'install-element',
@@ -314,8 +320,8 @@ test('discovers an exact Studio target and delivers one install request over HTT
 			type: 'element-install-request',
 			request: {
 				clientId: 'focused-studio-tab',
-				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
-				compositionId: 'Main',
+				compositionFile: null,
+				compositionId: null,
 				element: {displayName: 'Lower Third'},
 				source: {
 					type: 'studio-protocol',
@@ -349,7 +355,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 	}
 });
 
-test('delivers an Element catalog request without changing config before confirmation', async () => {
+test('delivers an Element Library request without changing config before confirmation', async () => {
 	clearElementInstallStateForTests();
 	const deliveredEvents: EventSourceEvent[] = [];
 	const focusedUrls: string[] = [];
@@ -429,7 +435,7 @@ test('delivers an Element catalog request without changing config before confirm
 		}
 
 		const origin = `http://127.0.0.1:${address.port}`;
-		const requestOrigin = 'https://catalog.example.com';
+		const requestOrigin = 'https://library.example.com';
 		const preflight = await fetch(
 			`${origin}/api/studio-protocol/element-library`,
 			{method: 'OPTIONS', headers: {Origin: requestOrigin}},
@@ -459,13 +465,13 @@ test('delivers an Element catalog request without changing config before confirm
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
 			targetId,
-			url: 'https://new.example.com/catalog',
-			displayName: '  New catalog  ',
+			url: 'https://new.example.com/library',
+			displayName: '  New library  ',
 		};
 
 		for (const invalidBody of [
 			{...body, protocolVersion: 2},
-			{...body, url: 'file:///tmp/catalog'},
+			{...body, url: 'file:///tmp/library'},
 			{...body, displayName: '  '},
 		]) {
 			const invalidResponse = await fetch(
@@ -513,8 +519,9 @@ test('delivers an Element catalog request without changing config before confirm
 		expect(deliveredEvents).toEqual([
 			{
 				type: 'element-library-add-request',
-				url: 'https://new.example.com/catalog',
-				displayName: 'New catalog',
+				captionStylesUrl: null,
+				url: 'https://new.example.com/library',
+				displayName: 'New library',
 				origin: requestOrigin,
 			},
 		]);

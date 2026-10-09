@@ -37,15 +37,17 @@ export const TableOfContents: React.FC = () => {
 					<strong>interpolatePath()</strong>
 					<div>Interpolates between two SVG paths</div>
 				</TOCItem>
+				<TOCItem link="/docs/paths/interpolate-paths">
+					<strong>interpolatePaths()</strong>
+					<div>Interpolate SVG paths across multiple keyframes</div>
+				</TOCItem>
 				<TOCItem link="/docs/paths/evolve-path">
 					<strong>evolvePath()</strong>
 					<div>Animate an SVG path</div>
 				</TOCItem>
 				<TOCItem link="/docs/paths/center-path">
 					<strong>centerPath()</strong>
-					<div>
-						Translates an SVG path to center it around a target point
-					</div>
+					<div>Translates an SVG path to center it around a target point</div>
 				</TOCItem>
 				<TOCItem link="/docs/paths/translate-path">
 					<strong>translatePath()</strong>

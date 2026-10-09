@@ -1,14 +1,11 @@
 import {formatBytes} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {
-	BLUE,
-	BORDER_WHITE_ALPHA_12,
-	LIGHT_TEXT,
-	WHITE,
-} from '../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../helpers/colors';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
 import {CloudDownloadIcon} from '../icons/cloud-download';
+import {ModelsIcon} from '../icons/models';
 import {TrashIcon} from '../icons/trash';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
@@ -43,15 +40,14 @@ const descriptionStyle: React.CSSProperties = {
 const list: React.CSSProperties = {marginTop: 14};
 const modelRow: React.CSSProperties = {
 	alignItems: 'center',
-	borderBottom: BORDER_WHITE_ALPHA_12,
 	display: 'flex',
 	gap: 10,
 	minHeight: 38,
-	padding: '0 10px',
 };
-const lastModelRow: React.CSSProperties = {
-	...modelRow,
-	borderBottom: 'none',
+const modelIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 16,
+	width: 16,
 };
 const statusIcon: React.CSSProperties = {
 	flexShrink: 0,
@@ -59,7 +55,7 @@ const statusIcon: React.CSSProperties = {
 	width: 14,
 };
 const modelName: React.CSSProperties = {
-	color: WHITE,
+	color: LIGHT_TEXT,
 	flex: 1,
 	fontFamily: 'monospace',
 	fontSize: 13,
@@ -259,7 +255,7 @@ export const ModelManager = <Model extends string>({
 					role="list"
 					aria-label={ariaLabel}
 				>
-					{availableModels.map((model, index) => {
+					{availableModels.map((model) => {
 						const cached = cachedModels?.has(model.name) ?? false;
 						const processingThisModel =
 							actionState.type !== 'idle' &&
@@ -279,15 +275,10 @@ export const ModelManager = <Model extends string>({
 								: formatBytes(model.webGpuDownloadSize);
 
 						return (
-							<div
-								key={model.name}
-								role="listitem"
-								style={
-									index === availableModels.length - 1 ? lastModelRow : modelRow
-								}
-							>
+							<div key={model.name} role="listitem" style={modelRow}>
+								<ModelsIcon aria-hidden color={LIGHT_TEXT} style={modelIcon} />
 								<span style={modelName}>{model.name}</span>
-								<span style={status} title={modelStatus}>
+								<span role="group" style={status} aria-label={modelStatus}>
 									{modelStatus}
 								</span>
 								{cached ? (
@@ -301,21 +292,35 @@ export const ModelManager = <Model extends string>({
 										<Spinner duration={0.5} size={14} />
 									</span>
 								) : cached ? (
-									<InlineAction
-										disabled={actionInProgress}
-										onClick={() => remove(model.name)}
-										renderAction={renderRemoveIcon}
-										title={`Remove ${model.name}`}
-										variant={null}
-									/>
+									<ActionTooltip
+										label="Uninstall"
+										shortcut={null}
+										delay={800}
+										dismissOnClick
+									>
+										<InlineAction
+											aria-label={`Remove ${model.name}`}
+											disabled={actionInProgress}
+											onClick={() => remove(model.name)}
+											renderAction={renderRemoveIcon}
+											variant={null}
+										/>
+									</ActionTooltip>
 								) : (
-									<InlineAction
-										disabled={cachedModels === null || actionInProgress}
-										onClick={() => downloadModel(model.name)}
-										renderAction={renderDownloadIcon}
-										title={`Download ${model.name}`}
-										variant={null}
-									/>
+									<ActionTooltip
+										label="Install"
+										shortcut={null}
+										delay={800}
+										dismissOnClick
+									>
+										<InlineAction
+											aria-label={`Download ${model.name}`}
+											disabled={cachedModels === null || actionInProgress}
+											onClick={() => downloadModel(model.name)}
+											renderAction={renderDownloadIcon}
+											variant={null}
+										/>
+									</ActionTooltip>
 								)}
 							</div>
 						);

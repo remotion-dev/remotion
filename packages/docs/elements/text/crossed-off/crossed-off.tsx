@@ -1,19 +1,25 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {CrossedOff} from '@remotion/rough-notation';
 import React from 'react';
-import {Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
 	weights: ['700'],
 	subsets: ['latin'],
 });
 
-export const CrossedOffText: React.FC = () => {
+const CrossedOffTextInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				display: 'flex',
 				alignItems: 'center',
@@ -24,6 +30,7 @@ export const CrossedOffText: React.FC = () => {
 				lineHeight: 1.1,
 				color: '#171717',
 				fontFamily,
+				...style,
 			}}
 		>
 			<div>
@@ -46,3 +53,10 @@ export const CrossedOffText: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const CrossedOffText = Interactive.withSchema({
+	Component: CrossedOffTextInner,
+	componentName: '<CrossedOffText>',
+	schema: {},
+	wrapInSequence: true,
+});

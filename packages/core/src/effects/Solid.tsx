@@ -9,22 +9,29 @@ import React, {
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {Freeze} from '../freeze.js';
 import type {
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	InteractiveCropProps,
 } from '../Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {usePremounting} from '../use-premounting.js';
+import type {VideoConfigValues} from '../video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
@@ -75,6 +82,7 @@ export type SolidProps = MandatoryProps &
 
 export const solidSchema = {
 	...baseSchema,
+	...premountSchema,
 	color: {
 		type: 'color',
 		default: 'transparent',
@@ -116,6 +124,7 @@ const SolidInner: React.FC<
 	InnerSolidProps & {
 		readonly overrideId: string | null;
 		readonly reference: React.Ref<HTMLCanvasElement>;
+		readonly videoConfigValues: VideoConfigValues | null;
 	}
 > = ({
 	color,
@@ -126,6 +135,7 @@ const SolidInner: React.FC<
 	style,
 	pixelDensity,
 	overrideId,
+	videoConfigValues,
 	reference,
 }) => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
@@ -141,6 +151,7 @@ const SolidInner: React.FC<
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: overrideId ?? null,
+		videoConfigValues,
 	});
 
 	const sourceCanvas = useMemo(() => {
@@ -254,7 +265,8 @@ const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
 		readonly controls: SequenceControls | undefined;
-	} & InteractiveBaseProps
+	} & InteractiveBaseProps &
+		InteractivePremountProps
 >(
 	(
 		{
@@ -268,7 +280,13 @@ const SolidOuter = forwardRef<
 			style,
 			name,
 			from,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
 			trimBefore,
+			playbackRate,
+			loop,
 			freeze,
 			hidden,
 			showInTimeline,
@@ -289,43 +307,79 @@ const SolidOuter = forwardRef<
 		useImperativeHandle(ref, () => {
 			return actualRef.current as HTMLCanvasElement;
 		}, []);
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: from ?? 0,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				playbackRate,
+				loop,
+			}),
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		const croppedStyle = useCropStyle({
 			cropLeft,
 			cropRight,
 			cropTop,
 			cropBottom,
-			style: style ?? null,
+			style: premountingStyle,
 			componentName: '<Solid />',
 		});
 
 		return (
-			<Sequence
-				layout="none"
-				from={from}
-				trimBefore={trimBefore}
-				freeze={freeze}
-				hidden={hidden}
-				showInTimeline={showInTimeline}
-				controls={controls}
-				_remotionInternalEffects={memoizedEffectDefinitions}
-				durationInFrames={durationInFrames}
-				name={name ?? '<Solid>'}
-				outlineRef={actualRef}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
-				{...props}
+			<Freeze
+				frame={freezeFrame}
+				active={isPremountingOrPostmounting}
+				_remotionInternalIsPremounting={premountingActive}
 			>
-				<SolidInner
-					reference={actualRef}
-					overrideId={controls?.overrideId ?? null}
-					color={color}
-					height={height}
-					width={width}
-					className={className}
-					style={croppedStyle ?? undefined}
-					effects={effects}
-					pixelDensity={pixelDensity}
-				/>
-			</Sequence>
+				<Sequence
+					layout="none"
+					from={from}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					loop={loop}
+					freeze={freeze}
+					hidden={hidden}
+					showInTimeline={showInTimeline}
+					controls={controls}
+					_remotionInternalEffects={memoizedEffectDefinitions}
+					durationInFrames={durationInFrames}
+					name={name ?? '<Solid>'}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
+					{...props}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
+					<SequenceContent>
+						<SolidInner
+							reference={actualRef}
+							videoConfigValues={controls?.videoConfigValues ?? null}
+							overrideId={controls?.overrideId ?? null}
+							color={color}
+							height={height}
+							width={width}
+							className={className}
+							style={croppedStyle ?? undefined}
+							effects={effects}
+							pixelDensity={pixelDensity}
+						/>
+					</SequenceContent>
+				</Sequence>
+			</Freeze>
 		);
 	},
 );

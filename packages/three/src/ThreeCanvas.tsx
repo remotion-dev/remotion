@@ -8,7 +8,11 @@ import React, {
 	useState,
 } from 'react';
 import {
+	Freeze,
+	Sequence,
 	Internals,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -16,11 +20,16 @@ import {
 import {SuspenseLoader} from './SuspenseLoader';
 import {validateDimension} from './validate';
 
-export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
-	readonly width: number;
-	readonly height: number;
-	readonly children: React.ReactNode;
-};
+export type ThreeCanvasProps = Omit<
+	React.ComponentProps<typeof Canvas>,
+	keyof InteractiveBaseProps
+> &
+	InteractiveBaseProps &
+	InteractivePremountProps & {
+		readonly width: number;
+		readonly height: number;
+		readonly children: React.ReactNode;
+	};
 
 export type ThreeCanvasFrameRendererProps = {
 	readonly onRendered: () => void;
@@ -60,7 +69,7 @@ const ManualFrameRenderer = ({onRendered}: ThreeCanvasFrameRendererProps) => {
 	return null;
 };
 
-export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
+const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 	const {
 		children,
 		width,
@@ -78,9 +87,25 @@ export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
 	const contexts = Internals.useRemotionContexts();
 	const frame = useCurrentFrame();
 
-	const [waitForCreated] = useState(() =>
-		delayRender('Waiting for <ThreeCanvas/> to be created'),
-	);
+	// Taken at commit and released on unmount, so a canvas that unmounts before it is
+	// created, or a render React discards, does not leave the hold open.
+	const createdHold = useRef<number | null>(null);
+	const created = useRef(false);
+	useLayoutEffect(() => {
+		if (created.current) {
+			return;
+		}
+
+		createdHold.current = delayRender(
+			'Waiting for <ThreeCanvas/> to be created',
+		);
+		return () => {
+			if (createdHold.current !== null) {
+				continueRender(createdHold.current);
+				createdHold.current = null;
+			}
+		};
+	}, [delayRender, continueRender]);
 	const frameDelayHandle = useRef<number | null>(null);
 
 	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
@@ -98,10 +123,15 @@ export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
 				state.advance(performance.now());
 			}
 
-			continueRender(waitForCreated);
+			created.current = true;
+			if (createdHold.current !== null) {
+				continueRender(createdHold.current);
+				createdHold.current = null;
+			}
+
 			onCreated?.(state);
 		},
-		[onCreated, waitForCreated, continueRender, isRendering, advanceOnCreated],
+		[onCreated, continueRender, isRendering, advanceOnCreated],
 	);
 
 	useLayoutEffect(() => {
@@ -143,6 +173,69 @@ export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
 				</Internals.RemotionContextProvider>
 			</Canvas>
 		</SuspenseLoader>
+	);
+};
+
+export const ThreeCanvasInternals = ({
+	from,
+	durationInFrames,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	style,
+	...props
+}: ThreeCanvasInternalsProps) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				durationInFrames={durationInFrames}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loop={loop}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<ThreeCanvas>'}
+				showInTimeline={showInTimeline ?? false}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<ThreeCanvasContent {...props} style={premountingStyle ?? undefined} />
+			</Sequence>
+		</Freeze>
 	);
 };
 

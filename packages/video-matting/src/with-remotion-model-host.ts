@@ -4,6 +4,7 @@ import type {
 	BackgroundRemovalPipeline,
 	env,
 	ModelRegistry,
+	RawImage,
 } from '@huggingface/transformers';
 
 const REMOTION_MODEL_HOST = 'https://remotion.media/';
@@ -21,6 +22,7 @@ type TransformersModule = {
 	readonly BackgroundRemovalPipeline: typeof BackgroundRemovalPipeline;
 	readonly env: typeof env;
 	readonly ModelRegistry: typeof ModelRegistry;
+	readonly RawImage: typeof RawImage;
 };
 
 type ModelHostState = {

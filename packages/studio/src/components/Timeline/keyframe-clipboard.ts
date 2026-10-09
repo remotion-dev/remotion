@@ -16,7 +16,11 @@ import {
 	type TSequence,
 } from 'remotion';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
-import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
+import {
+	getKeyframePlaybackRate,
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -36,6 +40,7 @@ type ResolvedKeyframeField = {
 	readonly fieldType: KeyframeClipboardFieldType | null;
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 };
 
 const getKeyframeClipboardFieldType = ({
@@ -134,9 +139,11 @@ const resolveKeyframeField = ({
 				fieldKey: identity.fieldKey,
 			}),
 			propStatus: sequencePropStatus,
+			keyframePlaybackRate: track.keyframePlaybackRate,
 			keyframeDisplayOffset: getKeyframeDisplayOffset({
 				propStatus: sequencePropStatus,
 				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
 			}),
 		};
 	}
@@ -165,9 +172,11 @@ const resolveKeyframeField = ({
 			fieldKey: identity.fieldKey,
 		}),
 		propStatus: effectPropStatus,
+		keyframePlaybackRate: track.keyframePlaybackRate,
 		keyframeDisplayOffset: getKeyframeDisplayOffset({
 			propStatus: effectPropStatus,
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			keyframePlaybackRate: track.keyframePlaybackRate,
 		}),
 	};
 };
@@ -252,7 +261,12 @@ export const getKeyframeClipboardDataFromSelections = ({
 
 	const keyframes: {readonly frame: number; readonly value: unknown}[] = [];
 	for (const {selection} of resolvedFields) {
-		const sourceFrame = selection.frame - firstResolved.keyframeDisplayOffset;
+		const sourceFrame = getKeyframeSourceFrame({
+			displayFrame: selection.frame,
+			keyframeDisplayOffset: firstResolved.keyframeDisplayOffset,
+			keyframePlaybackRate: firstResolved.keyframePlaybackRate,
+			propStatus: keyframedPropStatus,
+		});
 		const keyframe = keyframedPropStatus.keyframes.find(
 			(item) => item.frame === sourceFrame,
 		);
@@ -321,7 +335,12 @@ export const getKeyframeClipboardDataFromSelections = ({
 		},
 		keyframes: keyframes.map((keyframe) => {
 			return {
-				frameOffset: keyframe.frame - firstFrame,
+				frameOffset:
+					(keyframe.frame - firstFrame) /
+					getKeyframePlaybackRate(
+						firstResolved.propStatus,
+						firstResolved.keyframePlaybackRate,
+					),
 				value: keyframe.value,
 			};
 		}),
@@ -444,8 +463,12 @@ export const getPasteKeyframeTarget = ({
 	}
 
 	const keyframes = payload.keyframes.map((keyframe) => ({
-		sourceFrame:
-			timelinePosition - resolved.keyframeDisplayOffset + keyframe.frameOffset,
+		sourceFrame: getKeyframeSourceFrame({
+			displayFrame: timelinePosition + keyframe.frameOffset,
+			keyframeDisplayOffset: resolved.keyframeDisplayOffset,
+			keyframePlaybackRate: resolved.keyframePlaybackRate,
+			propStatus: resolved.propStatus,
+		}),
 		value: keyframe.value,
 	}));
 	const firstFrame = keyframes[0]?.sourceFrame;

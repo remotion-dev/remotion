@@ -1,45 +1,12 @@
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import {CanvasInternals} from '@remotion/sdk';
 
-export const getTimelineKeyframes = (
-	propStatus: CanUpdateSequencePropStatus | null | undefined,
-	keyframeDisplayOffset = 0,
-): {frame: number; value: unknown}[] => {
-	if (!propStatus) {
-		return [];
-	}
+export type {KeyframeSourceFrame} from '@remotion/sdk';
 
-	if (propStatus.status !== 'keyframed') {
-		return [];
-	}
-
-	const {keyframes} = propStatus;
-	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
-		propStatus,
-		keyframeDisplayOffset,
-	});
-	if (resolvedKeyframeDisplayOffset === 0) {
-		return keyframes;
-	}
-
-	return keyframes.map((keyframe) => ({
-		...keyframe,
-		frame: keyframe.frame + resolvedKeyframeDisplayOffset,
-	}));
-};
-
-export const getKeyframeDisplayOffset = ({
-	propStatus,
-	keyframeDisplayOffset,
-}: {
-	propStatus: CanUpdateSequencePropStatus | null | undefined;
-	keyframeDisplayOffset: number;
-}): number => {
-	return (
-		keyframeDisplayOffset +
-		(propStatus?.status === 'keyframed' || propStatus?.status === 'static'
-			? propStatus.keyframeDisplayOffsetAdjustment === null
-				? 0
-				: propStatus.keyframeDisplayOffsetAdjustment
-			: 0)
-	);
-};
+export const {
+	getKeyframeDisplayOffset,
+	getKeyframeLocalFrame,
+	getKeyframePlaybackRate,
+	getKeyframeSourceFrame,
+	getTimelineKeyframes,
+	resolveKeyframeSourceFrame,
+} = CanvasInternals;

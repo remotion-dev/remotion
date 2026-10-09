@@ -43,6 +43,14 @@ type GpuDevice = {
 	queue: {
 		submit(c: unknown[]): void;
 		writeBuffer(b: GpuBuffer, offset: number, data: BufferSource): void;
+		drawElementImageToTexture?(
+			source: {source: Element | ElementImage},
+			destination: {
+				texture: GpuTexture;
+				size: {width: number; height: number};
+			},
+		): void;
+		// Kept for Chrome builds predating drawElementImageToTexture.
 		copyElementImageToTexture(
 			source: Element | ElementImage,
 			width: number,
@@ -247,12 +255,19 @@ const HtmlInCanvasDocsWebGPUInner: React.FC = () => {
 			const {device, context, pipeline, texture, bindGroup, uniformBuffer} =
 				gpu;
 
-			device.queue.copyElementImageToTexture(
-				elementImage,
-				gpu.width,
-				gpu.height,
-				{texture},
-			);
+			if (device.queue.drawElementImageToTexture) {
+				device.queue.drawElementImageToTexture(
+					{source: elementImage},
+					{texture, size: {width: gpu.width, height: gpu.height}},
+				);
+			} else {
+				device.queue.copyElementImageToTexture(
+					elementImage,
+					gpu.width,
+					gpu.height,
+					{texture},
+				);
+			}
 
 			const uniforms = new Float32Array([time, 0, gpu.width, gpu.height]);
 			device.queue.writeBuffer(uniformBuffer, 0, uniforms);

@@ -6,6 +6,7 @@ let currentOutDir: string | null = null;
 
 export const outDirOption = {
 	name: 'Output Directory',
+	addedIn: '4.0.426',
 	cliFlag,
 	description: () => {
 		return (
@@ -17,7 +18,7 @@ export const outDirOption = {
 		);
 	},
 	ssrName: 'outDir' as const,
-	docLink: 'https://www.remotion.dev/docs/cli/bundle#--out-dir',
+	docLink: 'https://www.remotion.dev/docs/options/out-dir',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

@@ -1,10 +1,19 @@
-import type {InsertJsxElementRequest} from '@remotion/studio-shared';
-import {useCallback, useContext, useMemo, useState} from 'react';
+import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
+import {
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+	type MouseEvent,
+} from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {getRelativeFileLocation} from '../../helpers/format-file-location';
+import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
+import {requestCodexAnnotation} from '../../helpers/request-codex-annotation';
 import {SetSelectedModalContext} from '../../state/modals';
 import {callApi} from '../call-api';
 import type {CompositionDragData} from '../composition-drag-data';
@@ -15,6 +24,7 @@ import {
 	pickFilesToImport,
 } from '../import-assets';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {useSettings} from '../SettingsContext';
 import {getOriginalLocationFromStack} from '../Timeline/TimelineStack/get-stack';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 
@@ -28,6 +38,13 @@ export const useCompositionActions = () => {
 	const [isAddingComposition, setIsAddingComposition] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {remotionSkillsInfo} = useSettings();
+	const markupSkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-markup',
+	);
+	const markupSkillAvailable = Boolean(
+		markupSkill?.installedInProject || markupSkill?.installedGlobally,
+	);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const browserStudioOperations = getBrowserStudioOperations();
@@ -75,12 +92,12 @@ export const useCompositionActions = () => {
 		currentCompositionId !== null &&
 		compositionFile !== null;
 	const canInsertAsset = canShowInsertAsset && !isAddingAsset;
-	const canShowInsertComposition = canShowInsertAsset;
+	const canShowInsertComposition = canShowInsertAsset && videoConfig !== null;
 	const canInsertComposition = canShowInsertComposition && !isAddingComposition;
 	const canShowGenerateWithAgent =
-		previewInteractive &&
 		!window.remotion_isReadOnlyStudio &&
-		browserStudioOperations === null &&
+		((previewInteractive && browserStudioOperations === null) ||
+			getCodexAnnotation() !== null) &&
 		currentCompositionId !== null;
 
 	const insertSolid = useCallback(async () => {
@@ -95,10 +112,11 @@ export const useCompositionActions = () => {
 
 		setIsAddingSolid(true);
 		try {
-			const request: InsertJsxElementRequest = {
+			const request: InsertCompositionElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
+				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -107,8 +125,8 @@ export const useCompositionActions = () => {
 				},
 			};
 			const result = browserStudioOperations
-				? await browserStudioOperations.insertSolid(request)
-				: await callApi('/api/insert-jsx-element', request);
+				? await browserStudioOperations.insertCompositionElement(request)
+				: await callApi('/api/insert-composition-element', request);
 
 			if (result.success) {
 				return;
@@ -202,6 +220,7 @@ export const useCompositionActions = () => {
 			invocationTimestamp: Date.now(),
 			assetSelection: {
 				initialQuery: '',
+				fileTypes: null,
 				onSelectFile: () => {
 					onFilesSelected().catch(() => undefined);
 				},
@@ -218,7 +237,8 @@ export const useCompositionActions = () => {
 			if (
 				!canInsertComposition ||
 				currentCompositionId === null ||
-				compositionFile === null
+				compositionFile === null ||
+				videoConfig === null
 			) {
 				return;
 			}
@@ -244,6 +264,7 @@ export const useCompositionActions = () => {
 					compositionFile,
 					compositionId: currentCompositionId,
 					dropPosition: null,
+					fps: videoConfig.fps,
 					from: null,
 					preferCompositionStart: null,
 				});
@@ -263,6 +284,7 @@ export const useCompositionActions = () => {
 			canInsertComposition,
 			compositionFile,
 			currentCompositionId,
+			videoConfig,
 		],
 	);
 
@@ -288,16 +310,60 @@ export const useCompositionActions = () => {
 		setSelectedModal,
 	]);
 
-	const generateWithAgent = useCallback(() => {
-		if (currentCompositionId === null) {
-			return;
-		}
+	const generateWithAgent = useCallback(
+		(event: MouseEvent<HTMLButtonElement>) => {
+			if (!canShowGenerateWithAgent || currentCompositionId === null) {
+				return;
+			}
 
-		setSelectedModal({
-			type: 'generate-with-agent',
-			location: compositionComponentInfo?.location ?? null,
-		});
-	}, [compositionComponentInfo, currentCompositionId, setSelectedModal]);
+			const location = compositionComponentInfo?.location ?? null;
+			if (markupSkillAvailable && getCodexAnnotation() !== null) {
+				const sourceLocation = getRelativeFileLocation({
+					location,
+					root: window.remotion_cwd,
+				});
+				const metadata: Record<string, string | number> = {};
+				if (currentCompositionId.length <= 256) {
+					metadata.composition = currentCompositionId;
+				}
+
+				if (sourceLocation && sourceLocation.filename.length <= 256) {
+					const withSource = {
+						...metadata,
+						source: sourceLocation.filename,
+						line: sourceLocation.line,
+					};
+					if (
+						new TextEncoder().encode(JSON.stringify(withSource)).length <= 2048
+					) {
+						metadata.source = sourceLocation.filename;
+						metadata.line = sourceLocation.line;
+					}
+				}
+
+				const accepted = requestCodexAnnotation({
+					target: event.currentTarget,
+					initialComment: '$remotion-markup',
+					metadata,
+				});
+				if (accepted) {
+					return;
+				}
+			}
+
+			setSelectedModal({
+				type: 'generate-with-agent',
+				location,
+			});
+		},
+		[
+			canShowGenerateWithAgent,
+			compositionComponentInfo,
+			currentCompositionId,
+			markupSkillAvailable,
+			setSelectedModal,
+		],
+	);
 
 	return {
 		canInsertAsset,

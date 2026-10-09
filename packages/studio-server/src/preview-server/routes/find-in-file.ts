@@ -1,23 +1,25 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import {findSearchPosition} from '@remotion/studio-codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import type {
 	FindInFileRequest,
 	FindInFileResponse,
 } from '@remotion/studio-shared';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 
-export {findSearchPosition} from '@remotion/studio-codemods';
+export const {findSearchPosition} = CodemodsInternals;
 
 export const findInFileHandler: ApiHandler<
 	FindInFileRequest,
 	FindInFileResponse
 > = async ({input, remotionRoot}) => {
 	const {fileName, lineNumber, columnNumber, search} = input;
-	const contents = await fs.promises.readFile(
-		path.resolve(remotionRoot, fileName),
-		'utf-8',
-	);
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName,
+		action: 'read',
+	});
+	const contents = await fs.promises.readFile(absolutePath, 'utf-8');
 
 	return findSearchPosition({
 		contents,

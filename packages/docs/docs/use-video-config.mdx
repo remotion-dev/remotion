@@ -42,8 +42,11 @@ The frame rate of the composition, in frames per seconds.
 
 ### `durationInFrames`
 
-If inside a [`<Sequence>`](/docs/sequence), the duration of the sequence in frames.  
+If inside a [`<Sequence>`](/docs/sequence), the end of the sequence in its local frame space.
+
 If not inside a [`<Sequence>`](/docs/sequence), the duration of the composition in frames.
+
+This accounts for [`playbackRate`](/docs/sequence#playbackrate) and [`trimBefore`](/docs/sequence#trimbefore). For example, a sequence visible for `40` parent frames with `playbackRate={2}` and `trimBefore={10}` returns `90`: `40 * 2 + 10`. Its children start at local frame `10` and unmount before local frame `90`.
 
 ### `id`
 

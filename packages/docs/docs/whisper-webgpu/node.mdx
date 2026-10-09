@@ -1,0 +1,145 @@
+---
+image: /generated/articles-docs-whisper-webgpu-node.png
+title: 'Using @remotion/whisper-webgpu in Node.js'
+crumb: '@remotion/whisper-webgpu'
+---
+
+# Using @remotion/whisper-webgpu in Node.js<AvailableFrom v="4.0.528" />
+
+You can use the `@remotion/whisper-webgpu` package in Node.js to transcribe audio.
+
+The following example uses [`@mediabunny/server`](https://mediabunny.dev/guide/extensions/server) to decode and resample a local audio or video file to 16Khz.
+
+## Installation
+
+<Installation pkg="@remotion/whisper-webgpu @huggingface/transformers mediabunny @mediabunny/server" />
+
+## Example
+
+```ts twoslash title="transcribe.ts"
+import {registerMediabunnyServer} from '@mediabunny/server';
+import {
+  WHISPER_WEBGPU_SAMPLE_RATE,
+  downloadWhisperModel,
+  loadWhisperModel,
+  toCaptions,
+  transcribe,
+} from '@remotion/whisper-webgpu';
+import {
+  ALL_FORMATS,
+  Conversion,
+  FilePathSource,
+  Input,
+  NullTarget,
+  Output,
+  WavOutputFormat,
+} from 'mediabunny';
+import {writeFile} from 'node:fs/promises';
+
+registerMediabunnyServer();
+
+type WaveformChunk = {
+  startFrame: number;
+  waveform: Float32Array;
+};
+const chunks: WaveformChunk[] = [];
+
+// In long-running apps, put this code in an async function rather than using
+// `using` at the top level: top-level resources live until the module finishes.
+using input = new Input({
+  formats: ALL_FORMATS,
+  source: new FilePathSource('audio.mp3'),
+});
+const audioTrack = await input.getPrimaryAudioTrack();
+if (audioTrack === null) {
+  throw new Error('The media does not contain an audio track.');
+}
+
+const conversion = await Conversion.init({
+  input,
+  output: new Output({
+    format: new WavOutputFormat(),
+    target: new NullTarget(),
+  }),
+  video: {discard: true},
+  audio: (track) => {
+    if (track.id !== audioTrack.id) {
+      return {discard: true};
+    }
+
+    return {
+      codec: 'pcm-f32',
+      forceTranscode: true,
+      numberOfChannels: 1,
+      sampleFormat: 'f32',
+      sampleRate: WHISPER_WEBGPU_SAMPLE_RATE,
+      process: (sample) => {
+        const waveform = new Float32Array(
+          sample.allocationSize({format: 'f32', planeIndex: 0}) /
+            Float32Array.BYTES_PER_ELEMENT,
+        );
+        sample.copyTo(waveform, {format: 'f32', planeIndex: 0});
+        chunks.push({
+          startFrame: Math.round(
+            sample.timestamp * WHISPER_WEBGPU_SAMPLE_RATE,
+          ),
+          waveform,
+        });
+        return sample;
+      },
+    };
+  },
+});
+
+if (!conversion.isValid) {
+  throw new Error('The audio track cannot be decoded.');
+}
+
+await conversion.execute();
+
+const waveformLength = chunks.reduce(
+  (max, chunk) => Math.max(max, chunk.startFrame + chunk.waveform.length),
+  0,
+);
+const channelWaveform = new Float32Array(waveformLength);
+for (const chunk of chunks) {
+  const destinationStart = Math.max(0, chunk.startFrame);
+  const sourceStart = Math.max(0, -chunk.startFrame);
+  const availableLength = Math.min(
+    chunk.waveform.length - sourceStart,
+    channelWaveform.length - destinationStart,
+  );
+
+  if (availableLength > 0) {
+    channelWaveform.set(
+      chunk.waveform.subarray(sourceStart, sourceStart + availableLength),
+      destinationStart,
+    );
+  }
+}
+
+const model = 'small.en';
+await downloadWhisperModel({model});
+await using modelHandle = await loadWhisperModel({model});
+const transcription = await transcribe({channelWaveform, model});
+const {captions} = toCaptions({whisperWebGpuOutput: transcription});
+await writeFile('captions.json', JSON.stringify(captions, null, 2));
+```
+
+Call [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) before loading the model if the script may run on different hardware. It creates and disposes a tiny WebGPU-backed ONNX session, so it verifies that ONNX Runtime can acquire an adapter without downloading a Whisper model.
+
+## Implementation notes
+
+A compatible GPU is required for this to work.
+
+Node.js does not have WebGPU APIs available by default.
+
+Transformers.js uses the `onnxruntime-node` addon instead, whose experimental WebGPU execution provider uses [Dawn](https://github.com/google/dawn).
+
+ONNX Runtime does not work on Linux arm64.
+
+## See also
+
+- [`transcribe()`](/docs/whisper-webgpu/transcribe)
+- [`toCaptions()`](/docs/whisper-webgpu/to-captions)
+- [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model)

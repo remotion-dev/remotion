@@ -22,15 +22,13 @@ import {Loading} from '../loading-indicator.js';
 import type {OverrideIdToNodePaths} from '../sequence-node-path.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import {Sequence} from '../Sequence.js';
-import type {
-	SequenceManagerContext,
-	SequencePropsSubscriptionKey,
-} from '../SequenceManager.js';
+import type {SequencePropsSubscriptionKey} from '../SequenceManager.js';
 import {
-	SequenceManager,
+	SequenceManagerActionsContext,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
-	VisualModeDragOverridesContext,
+	useSequenceManagerSequences,
+	VisualModeBatchSettersContext,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
 	VisualModeSettersContext,
@@ -39,7 +37,10 @@ import {Series} from '../series/index.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import type {BasicMediaInTimelineReturnType} from '../use-media-in-timeline.js';
 import type {DragOverrides, PropStatuses} from '../use-schema.js';
-import {WrapSequenceContext} from './wrap-sequence-context.js';
+import {
+	ObserveSequenceRegistrations,
+	WrapSequenceContext,
+} from './wrap-sequence-context.js';
 
 afterEach(cleanup);
 
@@ -56,6 +57,50 @@ type VisualModeOverrides = {
 	readonly overrideIdToNodePathMappings: OverrideIdToNodePaths;
 	readonly propStatuses: PropStatuses;
 	readonly dragOverrides: DragOverrides;
+};
+
+const ApplyVisualModeOverrides: React.FC<{
+	readonly overrides: VisualModeOverrides | null;
+}> = ({overrides}) => {
+	const sequences = useSequenceManagerSequences();
+	const setters = React.useContext(VisualModeBatchSettersContext);
+	React.useLayoutEffect(() => {
+		if (overrides === null) return;
+		if (setters === null)
+			throw new Error('Visual mode setters have not mounted');
+		const nodePaths = new Map<string, SequencePropsSubscriptionKey>();
+		for (const nodePath of Object.values(
+			overrides.overrideIdToNodePathMappings,
+		)) {
+			nodePaths.set(
+				Internals.makeSequencePropsSubscriptionKey(nodePath),
+				nodePath,
+			);
+		}
+
+		for (const sequence of sequences) {
+			const nodePath =
+				sequence.controls === null
+					? null
+					: overrides.overrideIdToNodePathMappings[
+							sequence.controls.overrideId
+						];
+			if (nodePath)
+				nodePaths.set(
+					Internals.makeSequencePropsSubscriptionKey(nodePath),
+					nodePath,
+				);
+		}
+
+		setters.setDragOverridesBatch(
+			[...nodePaths].flatMap(([subscriptionKey, nodePath]) =>
+				Object.entries(overrides.dragOverrides[subscriptionKey] ?? {}).map(
+					([key, value]) => ({nodePath, key, value}),
+				),
+			),
+		);
+	}, [overrides, sequences, setters]);
+	return null;
 };
 
 const makeEffect = (): EffectDescriptor<unknown> => {
@@ -105,32 +150,9 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 		[onRegisterSequence, rerenderOnRegister],
 	);
 
-	const unregisterSequence = useCallback(() => undefined, []);
-
-	const ctx: SequenceManagerContext = useMemo(
-		() => ({
-			registerSequence,
-			unregisterSequence,
-			updateSequence: registerSequence,
-			sequences: [],
-		}),
-		[registerSequence, unregisterSequence],
-	);
-
 	const visualPropStatuses = useMemo(
 		() => ({
 			propStatuses: visualModeOverrides?.propStatuses ?? {},
-		}),
-		[visualModeOverrides],
-	);
-
-	const visualDragOverrides = useMemo(
-		() => ({
-			getDragOverrides: (nodePath: SequencePropsSubscriptionKey) =>
-				visualModeOverrides?.dragOverrides[
-					Internals.makeSequencePropsSubscriptionKey(nodePath)
-				] ?? {},
-			getEffectDragOverrides: () => ({}),
 		}),
 		[visualModeOverrides],
 	);
@@ -172,17 +194,17 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 				<OverrideIdsToNodePathsGettersContext.Provider
 					value={overrideIdToNodePathContext}
 				>
-					<SequenceManager.Provider value={ctx}>
+					<SequenceManagerProvider>
+						<ApplyVisualModeOverrides overrides={visualModeOverrides} />
+						<ObserveSequenceRegistrations
+							onRegisterSequence={registerSequence}
+						/>
 						<VisualModePropStatusesContext.Provider value={visualPropStatuses}>
-							<VisualModeDragOverridesContext.Provider
-								value={visualDragOverrides}
-							>
-								<VisualModeSettersContext.Provider value={visualSetters}>
-									{children}
-								</VisualModeSettersContext.Provider>
-							</VisualModeDragOverridesContext.Provider>
+							<VisualModeSettersContext.Provider value={visualSetters}>
+								{children}
+							</VisualModeSettersContext.Provider>
 						</VisualModePropStatusesContext.Provider>
-					</SequenceManager.Provider>
+					</SequenceManagerProvider>
 				</OverrideIdsToNodePathsGettersContext.Provider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>
@@ -446,9 +468,10 @@ test('Sequence registers its wrapper element for Studio outlines', () => {
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(ref.current);
 });
 
-test('Sequence uses outlineRef for Studio outlines', () => {
+test('Sequence ignores outlineRef and outlines its wrapper', () => {
 	const registeredSequences: TSequence[] = [];
 	const outlineRef = React.createRef<HTMLDivElement>();
+	const wrapperRef = React.createRef<HTMLDivElement>();
 
 	render(
 		<SequenceTestWrapper
@@ -456,17 +479,19 @@ test('Sequence uses outlineRef for Studio outlines', () => {
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Sequence outlineRef={outlineRef}>
+			<Sequence ref={wrapperRef} outlineRef={outlineRef}>
 				<div ref={outlineRef}>hi</div>
 			</Sequence>
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.refForOutline).toBe(outlineRef);
 	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+	expect(registeredSequences[0]?.refForOutline?.current).toBe(
+		wrapperRef.current,
+	);
 });
 
-test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
+test('Sequence layout="none" ignores outlineRef and registers automatic outlines', () => {
 	const registeredSequences: TSequence[] = [];
 	const outlineRef = React.createRef<HTMLDivElement>();
 
@@ -482,8 +507,12 @@ test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.refForOutline).toBe(outlineRef);
-	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+	expect(outlineRef.current).toBeInstanceOf(HTMLDivElement);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('Series inherits Sequence controls', () => {
@@ -654,7 +683,7 @@ test('read-only Studio registers visual controls without applying overrides', ()
 		</SequenceTestWrapperWithVisualModeOverrides>,
 	);
 
-	const sequence = registeredSequences.find(
+	const sequence = registeredSequences.findLast(
 		(item) => item.displayName === '<Interactive.Div>',
 	);
 	expect(sequence?.controls).not.toBe(null);
@@ -963,7 +992,7 @@ test('Img with effects delegates premounting to one CanvasImage owner', async ()
 	).toContain('display: none');
 });
 
-test('AnimatedImage registers its canvas ref for the Studio outline', () => {
+test('AnimatedImage registers an automatic Studio outline', () => {
 	const registeredSequences: TSequence[] = [];
 	const ref = React.createRef<HTMLCanvasElement>();
 
@@ -977,11 +1006,12 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 		</SequenceTestWrapper>,
 	);
 
-	const refForOutline = registeredSequences[0]
-		?.refForOutline as React.RefObject<HTMLCanvasElement | null>;
-
-	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
-	expect(ref.current).toBe(refForOutline.current);
+	expect(ref.current).toBeInstanceOf(HTMLCanvasElement);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
@@ -1317,7 +1347,7 @@ test('Video media registration keeps frozen frame sequence-local for negative fr
 	expect(videoSequence?.frozenMediaFrame).toBe(17);
 });
 
-test('Img registers a refForOutline pointing to the rendered image element', () => {
+test('Img registers an automatic outline for its image element', () => {
 	const registeredSequences: TSequence[] = [];
 
 	render(
@@ -1330,10 +1360,14 @@ test('Img registers a refForOutline pointing to the rendered image element', () 
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('IMG');
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
-test('Interactive elements register their rendered element for Studio outlines', () => {
+test('Interactive elements register automatic Studio outlines', () => {
 	const registeredSequences: TSequence[] = [];
 	const divRef = React.createRef<HTMLDivElement>();
 	const rectRef = React.createRef<SVGRectElement>();
@@ -1394,30 +1428,27 @@ test('Interactive elements register their rendered element for Studio outlines',
 			(sequence) => sequence.displayName === displayName,
 		);
 
-	expect(getByName('<Interactive.Div>')?.refForOutline?.current?.tagName).toBe(
-		'DIV',
-	);
-	expect(getByName('<Interactive.Span>')?.refForOutline?.current?.tagName).toBe(
-		'SPAN',
-	);
-	expect(getByName('<Interactive.Svg>')?.refForOutline?.current?.tagName).toBe(
-		'svg',
-	);
-	expect(getByName('<Interactive.Rect>')?.refForOutline?.current?.tagName).toBe(
-		'rect',
-	);
-	expect(getByName('<Interactive.Text>')?.refForOutline?.current?.tagName).toBe(
-		'text',
-	);
+	for (const displayName of [
+		'<Interactive.Div>',
+		'<Interactive.Span>',
+		'<Interactive.Svg>',
+		'<Interactive.Rect>',
+		'<Interactive.Text>',
+	]) {
+		expect(
+			Internals.SequenceOutlineInternals.getNodes(
+				getByName(displayName)!.refForOutline!,
+			),
+		).toEqual([]);
+	}
+
 	expect(getByName('<Interactive.Div>')?.documentationLink).toBe(
 		documentationLink,
 	);
 	expect(getByName('<Interactive.Rect>')?.documentationLink).toBe(
 		documentationLink,
 	);
-	expect(getByName('<Interactive.Div>')?.refForOutline?.current).toBe(
-		divRef.current,
-	);
+	expect(divRef.current?.tagName).toBe('DIV');
 	expect(getByName('<Interactive.Div>')?.controls).not.toBe(null);
 	expect(divRef.current?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
 	expect(divRef.current?.getAttributeNames()).not.toContain('cropleft');
@@ -1541,7 +1572,11 @@ test('AbsoluteFill is an interactive sequence while preserving its div contract'
 		duration: 12,
 		showInTimeline: true,
 	});
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(element);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 	expect(registeredSequences[0]?.controls?.componentIdentity).toBe(
 		'dev.remotion.remotion.AbsoluteFill',
 	);
@@ -1647,7 +1682,7 @@ test('Imperative sequence refs update without rerendering ref-only consumers', a
 	});
 
 	const Mutator = () => {
-		const {registerSequence} = React.useContext(SequenceManager);
+		const {registerSequence} = React.useContext(SequenceManagerActionsContext);
 		const {setPropStatuses} = React.useContext(VisualModeSettersContext);
 
 		React.useEffect(() => {

@@ -3,7 +3,7 @@ import {
 	isSchemaFieldKeyframable,
 	optimisticUpdateForEffectPropStatuses,
 } from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusFalse,
@@ -15,18 +15,27 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {formatContextForAgents} from '../../helpers/format-file-location';
+import {
+	formatContextForAgents,
+	formatFileLocation,
+} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {ContextMenu} from '../ContextMenu';
 import {saveEffectProps} from '../effect-operations-api';
+import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useSettings} from '../SettingsContext';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
-import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
+import {
+	getKeyframeLocalFrame,
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -44,7 +53,10 @@ import {
 	TimelineNonEditableStatus,
 	UnsupportedStatus,
 } from './TimelineSchemaField';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	useTimelineRowContainsSelection,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -367,7 +379,7 @@ export const TimelineEffectPropValue: React.FC<{
 		propStatus,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
-		frame: sourceFrame,
+		frame: getKeyframeLocalFrame(sourceFrame, propStatus),
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -389,12 +401,16 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
+	readonly propStatus: CanUpdateSequencePropStatus | null;
 	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	nodePath,
 	validatedLocation,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
+	propStatus,
 	runtimeValueStore,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -404,7 +420,12 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 			field={field}
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
-			sourceFrame={timelinePosition - keyframeDisplayOffset}
+			sourceFrame={getKeyframeSourceFrame({
+				displayFrame: timelinePosition,
+				keyframeDisplayOffset,
+				keyframePlaybackRate,
+				propStatus,
+			})}
 			runtimeValueStore={runtimeValueStore}
 		/>
 	);
@@ -417,6 +438,7 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 	readonly revealInInspector: boolean;
 	readonly runtimeValueStore: RuntimeValueStore | null;
@@ -427,11 +449,20 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePath,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	keyframeControlsMode,
 	revealInInspector,
 	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const annotationTarget = useRef<HTMLDivElement>(null);
+	const {remotionSkillsInfo} = useSettings();
+	const markupSkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-markup',
+	);
+	const markupSkillAvailable = Boolean(
+		markupSkill?.installedInProject || markupSkill?.installedGlobally,
+	);
 	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
 		previewServerState.type === 'connected',
 	);
@@ -441,8 +472,9 @@ export const TimelineEffectPropItem: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const style = useMemo((): React.CSSProperties => {
-		return field.typeName === 'text-content'
+		return field.typeName === 'string' || field.typeName === 'text-content'
 			? fieldRowBase
 			: {...fieldRowBase, height: field.rowHeight};
 	}, [field.rowHeight, field.typeName]);
@@ -464,6 +496,7 @@ export const TimelineEffectPropItem: React.FC<{
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
 
 	const dragOverrideValue = useMemo(() => {
@@ -471,10 +504,12 @@ export const TimelineEffectPropItem: React.FC<{
 		return overrides[field.key];
 	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
 
-	const keyframable = isSchemaFieldKeyframable({
-		schema: field.effectSchema,
-		key: field.key,
-	});
+	const keyframable =
+		!(propStatus?.status === 'static' && propStatus.canKeyframe === false) &&
+		isSchemaFieldKeyframable({
+			schema: field.effectSchema,
+			key: field.key,
+		});
 	const keyframeControls =
 		propStatus !== null &&
 		(keyframeControlsMode === 'inspector'
@@ -490,6 +525,7 @@ export const TimelineEffectPropItem: React.FC<{
 				nodePath={nodePath}
 				fileName={validatedLocation.source}
 				keyframeDisplayOffset={keyframeDisplayOffset}
+				keyframePlaybackRate={keyframePlaybackRate}
 				defaultValue={field.fieldSchema.default}
 				dragOverrideValue={dragOverrideValue}
 				schema={field.effectSchema}
@@ -569,6 +605,25 @@ export const TimelineEffectPropItem: React.FC<{
 					root: window.remotion_cwd,
 				}),
 			}),
+			...getAnnotateWithChatGPTMenuItems({
+				id: 'annotate-effect-property',
+				getTarget: () => annotationTarget.current,
+				initialComment: markupSkillAvailable ? '$remotion-markup' : null,
+				metadata: {
+					layer: nodePath.nodePath.join('.'),
+					layerKeys: JSON.stringify(nodePath.sequenceKeys),
+					effectIndex: field.effectIndex,
+					effectKeys: JSON.stringify(
+						nodePath.effectKeys[field.effectIndex] ?? [],
+					),
+					property: field.key,
+					source:
+						formatFileLocation({
+							location: validatedLocation,
+							root: window.remotion_cwd,
+						}) ?? validatedLocation.source,
+				},
+			}),
 			{
 				type: 'divider',
 				id: 'copy-context-for-agents-divider',
@@ -586,7 +641,16 @@ export const TimelineEffectPropItem: React.FC<{
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canShowReset, field.key, onReset, selection, validatedLocation]);
+	}, [
+		canShowReset,
+		field.effectIndex,
+		field.key,
+		markupSkillAvailable,
+		nodePath,
+		onReset,
+		selection,
+		validatedLocation,
+	]);
 
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
@@ -618,24 +682,31 @@ export const TimelineEffectPropItem: React.FC<{
 			onSelect={selection.onSelect}
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
-			containsSelection={false}
+			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<TimelineFieldRowContent
 				field={field}
 				rowDepth={rowDepth}
-				selected={selection.selected}
+				selected={selection.selected || containsSelection}
 			>
 				<TimelineEffectPropValueAtCurrentFrame
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					keyframeDisplayOffset={resolvedKeyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
+					propStatus={propStatus}
 					runtimeValueStore={runtimeValueStore}
 				/>
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>
 	);
 
-	return <ContextMenu getItems={getContextMenuItems}>{row}</ContextMenu>;
+	return (
+		<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
+			{row}
+		</ContextMenu>
+	);
 };

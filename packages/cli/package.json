@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
 	},
 	"name": "@remotion/cli",
-	"version": "4.0.526",
+	"version": "4.0.534",
 	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"bin": {
@@ -38,6 +38,7 @@
 	"dependencies": {
 		"@babel/parser": "7.24.1",
 		"@remotion/bundler": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
@@ -45,6 +46,7 @@
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"dotenv": "17.3.1",
+		"mediabunny": "catalog:",
 		"minimist": "1.2.6",
 		"prompts": "2.4.2",
 		"semver": "7.5.3",

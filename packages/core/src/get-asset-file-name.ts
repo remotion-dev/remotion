@@ -15,5 +15,10 @@ export const getAssetDisplayName = (filename: string): string => {
 		.split('/')
 		.map((s) => s.split('\\'))
 		.flat(1);
-	return splitted[splitted.length - 1];
+	const name = splitted[splitted.length - 1];
+	try {
+		return decodeURIComponent(name);
+	} catch {
+		return name;
+	}
 };

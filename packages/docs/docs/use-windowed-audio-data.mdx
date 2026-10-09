@@ -151,6 +151,12 @@ _`number`_
 The offset in seconds of the audio data that is currently loaded.  
 You should pass it through to [`visualizeAudio()`](/docs/visualize-audio).
 
+## Compatibility
+
+<CompatibilityTable chrome="Supported codecs" firefox="Supported codecs" safari="Supported codecs" nodejs="" bun="" serverlessFunctions="" clientSideRendering="Supported codecs" serverSideRendering="Supported codecs" player="Supported codecs" studio="Supported codecs" hideServers />
+
+Audio decoding depends on [Mediabunny format support](/docs/mediabunny/formats) and the codecs available in the browser. During server-side rendering, this hook runs inside Chromium.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/use-windowed-audio-data.ts)

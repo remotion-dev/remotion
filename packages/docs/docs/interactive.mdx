@@ -12,13 +12,13 @@ crumb: 'API'
 Use it when a regular element should be selectable and draggable in the preview:
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>Hello World</Interactive.Div>
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -64,7 +64,7 @@ therefore removes the stroke.
 
 ## Schema helpers
 
-`Interactive` also exposes schema fragments for custom timeline components.
+`Interactive` also exposes reusable schema fragments for component controls.
 
 Use them with [`Interactive.withSchema()`](/docs/interactive-with-schema).
 
@@ -72,23 +72,9 @@ Use them with [`Interactive.withSchema()`](/docs/interactive-with-schema).
 
 Controls inherited from [`<Sequence>`](/docs/sequence):
 
-`durationInFrames`, `from`, `trimBefore`, `freeze`, `hidden`, `name` and `showInTimeline`.
+`durationInFrames`, `from`, `trimBefore`, `playbackRate`, `freeze`, `hidden`, `name` and `showInTimeline`.
 
-Use it for components that render a `<Sequence>` internally.
-
-```tsx twoslash title="schema.ts"
-import {Interactive, type InteractivitySchema} from 'remotion';
-
-export const shapeSchema = {
-  ...Interactive.baseSchema,
-  radius: {
-    type: 'number',
-    default: 80,
-    description: 'Radius',
-    hiddenFromList: false,
-  },
-} as const satisfies InteractivitySchema;
-```
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema and uses it for its [`<Sequence>`](/docs/sequence).
 
 ### `Interactive.transformSchema`<AvailableFrom v="4.0.479" />
 
@@ -96,7 +82,7 @@ Controls for transform-related style props:
 
 `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
 
-Use it for components that accept a `style` prop and apply it to the rendered element.
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema.
 Keep these values inline in JSX if the Studio should edit or keyframe them.
 
 ### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
@@ -105,7 +91,7 @@ Controls for cropping an element from each edge:
 
 [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
 
-Spread this schema into a custom component's schema to opt it into crop controls. The component must apply the crop props to its rendered element or forward them to an absolute-fill [`<Sequence>`](/docs/sequence).
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema and applies the crop through the component's `style` prop.
 
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
@@ -116,6 +102,23 @@ Controls for text-related style props:
 `style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
 
 Use it for components that accept a `style` prop and render text.
+
+### `Interactive.childrenSchema`<AvailableFrom v="4.0.535" />
+
+A schema fragment for editing a component's children content.
+
+Currently, it only supports [`string`](/docs/interactivity-schema#string) children.
+
+In the future, it may support richer content. Use it with components that accept `React.ReactNode` children. For string-only children, declare an explicit [`string`](/docs/interactivity-schema#string) field instead.
+
+```ts twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const labelSchema = {
+  ...Interactive.textSchema,
+  ...Interactive.childrenSchema,
+} as const satisfies InteractivitySchema;
+```
 
 ### `Interactive.backgroundSchema`<AvailableFrom v="4.0.497" />
 
@@ -163,7 +166,7 @@ Controls for mounting behavior:
 
 `premountFor` and `postmountFor`.
 
-Use it for components that forward these props to a `<Sequence>`.
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema and uses the props for its [`<Sequence>`](/docs/sequence).
 
 ### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
 
@@ -181,7 +184,7 @@ See [`Interactive.withSchema()`](/docs/interactive-with-schema).
 
 ### `InteractiveBaseProps`<AvailableFrom v="4.0.479" />
 
-The prop type matching `Interactive.baseSchema`.
+The timing props accepted by interactive components. It includes the props in `Interactive.baseSchema` and `loop`.
 
 ### `InteractiveTransformProps`<AvailableFrom v="4.0.479" />
 
@@ -199,7 +202,9 @@ The prop type matching `Interactive.premountSchema`.
 
 ### Inherited props
 
-Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
+Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
+
+From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
 Every `Interactive` component also supports [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom) from <AvailableFrom v="4.0.506" inline />.
 

@@ -87,6 +87,14 @@ Use [`npx remotion gpu`](/docs/cli/gpu) to inspect GPU support.
 
 `<ThreeWebGPUCanvas>` accepts the props of [`<ThreeCanvas>`](/docs/three-canvas), except for `gl`. The renderer is initialized by `<ThreeWebGPUCanvas>`.
 
+From <AvailableFrom v="4.0.528" inline />, this includes the [timing and premounting props inherited from `<Sequence>`](/docs/three-canvas#inherited-props).
+
+## Compatibility
+
+<CompatibilityTable chrome="WebGPU / WebGL 2" firefox="WebGPU / WebGL 2" safari="WebGPU / WebGL 2" nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+Uses the [WebGL 2 fallback](#fallback) when WebGPU is unavailable. Features requiring native WebGPU depend on the browser, GPU and [rendering configuration](#rendering).
+
 ## See also
 
 - [`<ThreeCanvas>`](/docs/three-canvas)

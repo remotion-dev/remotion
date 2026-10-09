@@ -177,6 +177,10 @@ const ChannelInput: React.FC<ChannelInputProps> = ({
 
 		const clamped = Math.max(min, Math.min(max, parsed));
 		setDraft(String(Math.round(clamped)));
+		if (clamped === Math.round(value)) {
+			return;
+		}
+
 		onCommit(channel, clamped);
 	}, [channel, draft, max, min, onCommit, value]);
 
@@ -221,7 +225,12 @@ const HexInput: React.FC<{
 	const onBlur = useCallback(() => {
 		try {
 			const parsed = parseAnyColor(draft);
-			onCommit(formatRgba(parsed));
+			const next = formatRgba(parsed);
+			if (next === formatRgba(parseAnyColor(value))) {
+				return;
+			}
+
+			onCommit(next);
 		} catch {
 			setDraft(value);
 		}
@@ -431,7 +440,6 @@ export const ColorPickerPopup: React.FC<{
 						style={eyedropperButtonStyle}
 						onClick={onPickWithEyeDropper}
 						tabIndex={tabIndex}
-						title="Pick color from screen"
 						aria-label="Pick color from screen"
 					>
 						<EyedropperIcon
@@ -440,7 +448,7 @@ export const ColorPickerPopup: React.FC<{
 						/>
 					</button>
 				) : null}
-				<div style={previewSwatchStyle} title={formatted}>
+				<div role="group" style={previewSwatchStyle} aria-label={formatted}>
 					<div style={previewFill} />
 				</div>
 				<div style={slidersColumnStyle}>

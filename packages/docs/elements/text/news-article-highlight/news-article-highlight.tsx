@@ -6,6 +6,8 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
 } from 'remotion';
 
 const getHighlightProgress = (frame: number, highlightIndex: number) => {
@@ -39,29 +41,39 @@ const getWordProgress = (phraseProgress: number, wordIndex: number) => {
 	);
 };
 
-export const NewsArticleHighlight: React.FC = () => {
+const NewsArticleHighlightInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 	const firstHighlightProgress = getHighlightProgress(frame, 0);
 	const secondHighlightProgress = getHighlightProgress(frame, 1);
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				alignItems: 'center',
 				display: 'flex',
 				justifyContent: 'center',
 				overflow: 'hidden',
+				...style,
 			}}
 		>
 			<Interactive.Div
 				name="Container"
 				style={{
 					height: 458,
-					opacity: interpolate(frame, [125, 149], [1, 0], {
-						easing: Easing.in(Easing.cubic),
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
+					opacity: interpolate(
+						frame,
+						[durationInFrames - 25, durationInFrames - 1],
+						[1, 0],
+						{
+							easing: Easing.in(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
 					width: 1420,
 					willChange: 'opacity',
 				}}
@@ -179,3 +191,10 @@ export const NewsArticleHighlight: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const NewsArticleHighlight = Interactive.withSchema({
+	Component: NewsArticleHighlightInner,
+	componentName: '<NewsArticleHighlight>',
+	schema: {},
+	wrapInSequence: true,
+});

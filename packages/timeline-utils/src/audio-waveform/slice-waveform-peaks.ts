@@ -22,9 +22,21 @@ export const sliceWaveformPeaks = ({
 	const startTimeInSeconds = startFrom / fps;
 	const durationInSeconds = (durationInFrames / fps) * playbackRate;
 
-	const startPeakIndex = Math.floor(startTimeInSeconds * waveformSampleRate);
+	const start = startTimeInSeconds * waveformSampleRate;
+	const end = (startTimeInSeconds + durationInSeconds) * waveformSampleRate;
+	// Fractional loop periods can round an exact trim boundary a few ULPs past
+	// the next sample. Do not include a peak from outside the trimmed source.
+	const startPeakIndex = Math.floor(
+		start +
+			(Number.isFinite(start)
+				? Number.EPSILON * Math.max(1, Math.abs(start)) * 4
+				: 0),
+	);
 	const endPeakIndex = Math.ceil(
-		(startTimeInSeconds + durationInSeconds) * waveformSampleRate,
+		end -
+			(Number.isFinite(end)
+				? Number.EPSILON * Math.max(1, Math.abs(end)) * 4
+				: 0),
 	);
 
 	if (!Number.isFinite(startPeakIndex) || !Number.isFinite(endPeakIndex)) {

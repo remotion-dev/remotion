@@ -216,7 +216,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 							<Combobox
 								values={containerOptions}
 								selectedId={container}
-								title="Container"
+								aria-label="Container"
 							/>
 						</div>
 					</div>
@@ -234,7 +234,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 								<Combobox
 									values={codecOptions}
 									selectedId={effectiveVideoCodec}
-									title="Codec"
+									aria-label="Codec"
 								/>
 							</div>
 						</div>
@@ -274,7 +274,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 					<Combobox
 						values={logLevelOptions}
 						selectedId={logLevel}
-						title="Log Level"
+						aria-label="Log Level"
 					/>
 				</div>
 			</div>

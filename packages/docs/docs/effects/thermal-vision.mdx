@@ -22,11 +22,11 @@ The source alpha channel is preserved, so transparent and semi-transparent regio
 
 ```tsx twoslash title="MyComp.tsx"
 import {thermalVision} from '@remotion/effects/thermal-vision';
-import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+import {CanvasImage, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <CanvasImage
         src={staticFile('image.png')}
         width={1280}
@@ -48,7 +48,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

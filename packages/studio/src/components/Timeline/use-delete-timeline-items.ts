@@ -7,6 +7,7 @@ import {
 	persistGuidesList,
 } from '../../state/editor-guides';
 import {useConfirmationDialog} from '../ConfirmationDialog';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {
 	deleteSelectedTimelineItems,
 	getTimelineSelectionAfterDeletingItems,
@@ -25,8 +26,8 @@ import {
 export const useDeleteTimelineItems = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -50,6 +51,8 @@ export const useDeleteTimelineItems = () => {
 			} = currentSelection.current;
 			const selectedItems = selectedItemsOverride ?? currentSelectedItems;
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
 			const propStatuses = propStatusesRef.current;
 			const timelinePosition = getCurrentFrame();
 			if (selectedItems.length === 0) {
@@ -81,26 +84,32 @@ export const useDeleteTimelineItems = () => {
 			});
 
 			if (deletePromise !== null) {
-				deletePromise
-					.then((deleted) => {
-						if (!deleted) {
-							return;
-						}
+				const updateSelectionAfterDeletion = () => {
+					const nextSelection = getTimelineSelectionAfterDeletingItems({
+						selections: selectedItems,
+					});
+					if (nextSelection.length === 0) {
+						clearSelection();
+					} else {
+						selectItems(nextSelection);
+					}
+				};
 
-						const nextSelection = getTimelineSelectionAfterDeletingItems({
-							selections: selectedItems,
-							sequences,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
-							propStatuses,
-							timelinePosition,
-						});
-						if (nextSelection.length === 0) {
-							clearSelection();
-						} else {
-							selectItems(nextSelection);
-						}
-					})
-					.catch(() => undefined);
+				if (selectedItems.some((item) => item.type === 'keyframe')) {
+					// Keyframes are removed optimistically. Update selection in the same
+					// event so easing segments cannot inherit the deleted segments' indices.
+					updateSelectionAfterDeletion();
+					deletePromise.catch(() => undefined);
+				} else {
+					deletePromise
+						.then((deleted) => {
+							if (deleted) {
+								updateSelectionAfterDeletion();
+							}
+						})
+						.catch(() => undefined);
+				}
+
 				return;
 			}
 
@@ -138,7 +147,7 @@ export const useDeleteTimelineItems = () => {
 		[
 			confirm,
 			currentSelection,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			previewServerState,
 			propStatusesRef,
 			sequencesRef,

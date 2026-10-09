@@ -1,9 +1,14 @@
+import {
+	CanvasInternals,
+	type CanvasOutlineDragChange,
+	type CanvasOutlineKeyframedDragChange,
+	type CanvasOutlineStaticDragChange,
+} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatus,
 	DragOverrideValue,
 	GetDragOverrides,
 	InteractivitySchema,
-	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -21,8 +26,6 @@ import type {
 	SelectedOutlineCropDragTarget,
 	SelectedOutlineCropFieldKey,
 	SelectedOutlineCropHandle,
-	SelectedOutlineDragState,
-	SelectedOutlineDragTarget,
 	SelectedOutlineRotationDragState,
 	SelectedOutlineRotationDragTarget,
 	SelectedOutlineScaleDragState,
@@ -34,12 +37,16 @@ import {
 	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
-	selectedOutlineDragThresholdPx,
 	transformOriginFieldKey,
 	translateFieldKey,
 } from './selected-outline-types';
 import {getUvHandlePosition, type UvCoordinate} from './selected-outline-uv';
 import type {AddSequenceKeyframeChange} from './Timeline/call-add-keyframe';
+import {
+	getKeyframeLocalFrame,
+	getKeyframeSourceFrame,
+	resolveKeyframeSourceFrame,
+} from './Timeline/get-timeline-keyframes';
 import type {SaveSequencePropChange} from './Timeline/save-sequence-prop';
 import {
 	getTimelineDisplayDecimalPlaces,
@@ -89,179 +96,17 @@ export const getSelectedOutlineActiveSchema = ({
 	return Internals.flattenActiveSchema(schema, (key) => valuesDotNotation[key]);
 };
 
-export const getSelectedOutlineDragStates = ({
-	dragTargets,
-	getDragOverrides,
-	timelinePosition,
-}: {
-	readonly dragTargets: readonly SelectedOutlineDragTarget[];
-	readonly getDragOverrides: GetDragOverrides;
-	readonly timelinePosition: number;
-}): SelectedOutlineDragState[] => {
-	return dragTargets.map((target) => {
-		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
-			translateFieldKey
-		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
-		const effectiveValue = Internals.getEffectiveVisualModeValue({
-			propStatus: target.propStatus,
-			dragOverrideValue,
-			defaultValue: target.fieldDefault,
-			frame: sourceFrame,
-			shouldResortToDefaultValueIfUndefined: true,
-		});
-		const [startX, startY, startZ] = parseTranslate(
-			String(effectiveValue ?? '0px 0px'),
-		);
+// Moving outlines is shared with @remotion/sdk; the Studio adds scale,
+// rotation, crop and transform-origin editing on top.
+export const {
+	isCanvasOutlineDragPastThreshold: isSelectedOutlineDragPastThreshold,
+	clearCanvasOutlineDragOverrides: clearSelectedOutlineDragOverrides,
+} = CanvasInternals;
 
-		return {
-			defaultValue:
-				target.fieldDefault !== undefined
-					? JSON.stringify(target.fieldDefault)
-					: null,
-			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
-			sourceFrame,
-			startX,
-			startY,
-			startZ,
-			target,
-		};
-	});
-};
-
-export const getSelectedOutlineDragValues = ({
-	dragStates,
-	deltaX,
-	deltaY,
-}: {
-	readonly dragStates: readonly SelectedOutlineDragState[];
-	readonly deltaX: number;
-	readonly deltaY: number;
-}): Map<string, string> => {
-	return new Map(
-		dragStates.map((dragState) => [
-			dragState.key,
-			serializeTranslate([
-				dragState.startX + deltaX,
-				dragState.startY + deltaY,
-				dragState.startZ,
-			]),
-		]),
-	);
-};
-
-export const applySelectedOutlineDragAxisLock = ({
-	deltaX,
-	deltaY,
-	axisLocked,
-}: {
-	readonly deltaX: number;
-	readonly deltaY: number;
-	readonly axisLocked: boolean;
-}) => {
-	if (!axisLocked) {
-		return {deltaX, deltaY};
-	}
-
-	if (Math.abs(deltaX) >= Math.abs(deltaY)) {
-		return {deltaX, deltaY: 0};
-	}
-
-	return {deltaX: 0, deltaY};
-};
-
-export const isSelectedOutlineDragPastThreshold = ({
-	deltaX,
-	deltaY,
-}: {
-	readonly deltaX: number;
-	readonly deltaY: number;
-}) => {
-	return Math.hypot(deltaX, deltaY) >= selectedOutlineDragThresholdPx;
-};
-
-export type SelectedOutlineStaticDragChange = SaveSequencePropChange & {
-	readonly type: 'static';
-};
-
-export type SelectedOutlineKeyframedDragChange = {
-	readonly type: 'keyframed';
-	readonly fileName: string;
-	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly fieldKey: string;
-	readonly sourceFrame: number;
-	readonly value: unknown;
-	readonly schema: InteractivitySchema;
-	readonly clientId: string;
-};
-
-export type SelectedOutlineDragChange =
-	| SelectedOutlineStaticDragChange
-	| SelectedOutlineKeyframedDragChange;
-
-export const getSelectedOutlineDragChanges = ({
-	dragStates,
-	lastValues,
-}: {
-	readonly dragStates: readonly SelectedOutlineDragState[];
-	readonly lastValues: ReadonlyMap<string, string>;
-}): SelectedOutlineDragChange[] => {
-	const changes: SelectedOutlineDragChange[] = [];
-
-	for (const dragState of dragStates) {
-		const value = lastValues.get(dragState.key);
-		if (value === undefined) {
-			continue;
-		}
-
-		if (dragState.target.propStatus.status === 'keyframed') {
-			const startValue = serializeTranslate([
-				dragState.startX,
-				dragState.startY,
-				dragState.startZ,
-			]);
-			if (value === startValue) {
-				continue;
-			}
-
-			changes.push({
-				type: 'keyframed',
-				fileName: dragState.target.nodePath.absolutePath,
-				nodePath: dragState.target.nodePath,
-				fieldKey: translateFieldKey,
-				sourceFrame: dragState.sourceFrame,
-				value,
-				schema: dragState.target.schema,
-				clientId: dragState.target.clientId,
-			});
-			continue;
-		}
-
-		const stringifiedValue = JSON.stringify(value);
-		const shouldSave =
-			value !== dragState.target.propStatus.codeValue &&
-			!(
-				dragState.defaultValue === stringifiedValue &&
-				dragState.target.propStatus.codeValue === undefined
-			);
-
-		if (!shouldSave) {
-			continue;
-		}
-
-		changes.push({
-			type: 'static',
-			fileName: dragState.target.nodePath.absolutePath,
-			nodePath: dragState.target.nodePath,
-			fieldKey: translateFieldKey,
-			value,
-			defaultValue: dragState.defaultValue,
-			schema: dragState.target.schema,
-		});
-	}
-
-	return changes;
-};
+export type SelectedOutlineStaticDragChange = CanvasOutlineStaticDragChange;
+export type SelectedOutlineKeyframedDragChange =
+	CanvasOutlineKeyframedDragChange;
+export type SelectedOutlineDragChange = CanvasOutlineDragChange;
 
 export type SelectedOutlineCropValues = Record<
 	SelectedOutlineCropFieldKey,
@@ -388,10 +233,12 @@ export const getSelectedOutlineCropDragChanges = ({
 				fileName: target.nodePath.absolutePath,
 				nodePath: target.nodePath,
 				fieldKey,
-				sourceFrame: target.sourceFrame,
+				sourceFrame: resolveKeyframeSourceFrame(
+					target.sourceFrame,
+					field.propStatus,
+				),
 				value,
 				schema: target.schema,
-				clientId: target.clientId,
 			});
 			continue;
 		}
@@ -467,46 +314,6 @@ export const getSelectedOutlineCropDragChanges = ({
 	}
 
 	return changes;
-};
-
-export type SelectedOutlineKeyboardNudgeDirection =
-	| 'left'
-	| 'right'
-	| 'up'
-	| 'down';
-
-export const getSelectedOutlineKeyboardNudgeDelta = ({
-	direction,
-	shiftKey,
-}: {
-	readonly direction: SelectedOutlineKeyboardNudgeDirection;
-	readonly shiftKey: boolean;
-}) => {
-	const increment = shiftKey ? 10 : 1;
-	return direction === 'left' || direction === 'up' ? -increment : increment;
-};
-
-export const getSelectedOutlineKeyboardNudgeDeltas = ({
-	deltaX,
-	deltaY,
-	direction,
-	shiftKey,
-}: {
-	readonly deltaX: number;
-	readonly deltaY: number;
-	readonly direction: SelectedOutlineKeyboardNudgeDirection;
-	readonly shiftKey: boolean;
-}) => {
-	const delta = getSelectedOutlineKeyboardNudgeDelta({
-		direction,
-		shiftKey,
-	});
-
-	if (direction === 'left' || direction === 'right') {
-		return {deltaX: deltaX + delta, deltaY};
-	}
-
-	return {deltaX, deltaY: deltaY + delta};
 };
 
 export type SelectedOutlineScaleEdge = 'top' | 'right' | 'bottom' | 'left';
@@ -586,12 +393,17 @@ export const getSelectedOutlineScaleDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			scaleFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame = getKeyframeSourceFrame({
+			displayFrame: timelinePosition,
+			keyframeDisplayOffset: target.keyframeDisplayOffset,
+			keyframePlaybackRate: target.keyframePlaybackRate,
+			propStatus: target.propStatus,
+		});
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
 			defaultValue: target.fieldDefault,
-			frame: sourceFrame,
+			frame: getKeyframeLocalFrame(sourceFrame, target.propStatus),
 			shouldResortToDefaultValueIfUndefined: true,
 		});
 		const [startX, startY, startZ] =
@@ -688,7 +500,6 @@ export const getSelectedOutlineScaleDragChanges = ({
 				sourceFrame: dragState.sourceFrame,
 				value,
 				schema: dragState.target.schema,
-				clientId: dragState.target.clientId,
 			});
 			continue;
 		}
@@ -733,12 +544,17 @@ export const getSelectedOutlineRotationDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			rotateFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame = getKeyframeSourceFrame({
+			displayFrame: timelinePosition,
+			keyframeDisplayOffset: target.keyframeDisplayOffset,
+			keyframePlaybackRate: target.keyframePlaybackRate,
+			propStatus: target.propStatus,
+		});
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
 			defaultValue: target.fieldDefault,
-			frame: sourceFrame,
+			frame: getKeyframeLocalFrame(sourceFrame, target.propStatus),
 			shouldResortToDefaultValueIfUndefined: true,
 		});
 		const startValue = String(effectiveValue ?? '0deg');
@@ -886,7 +702,6 @@ export const getSelectedOutlineRotationDragChanges = ({
 				sourceFrame: dragState.sourceFrame,
 				value,
 				schema: dragState.target.schema,
-				clientId: dragState.target.clientId,
 			});
 			continue;
 		}
@@ -915,64 +730,6 @@ export const getSelectedOutlineRotationDragChanges = ({
 	}
 
 	return changes;
-};
-
-export const clearSelectedOutlineDragOverrides = ({
-	clearDragOverrides,
-	dragStates,
-}: {
-	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
-	readonly dragStates: readonly SelectedOutlineDragState[];
-}) => {
-	for (const dragState of dragStates) {
-		clearDragOverrides(dragState.target.nodePath);
-	}
-};
-
-export const getSelectedOutlineKeyboardNudgeDirection = (
-	key: string,
-): SelectedOutlineKeyboardNudgeDirection | null => {
-	if (key === 'ArrowLeft') {
-		return 'left';
-	}
-
-	if (key === 'ArrowRight') {
-		return 'right';
-	}
-
-	if (key === 'ArrowUp') {
-		return 'up';
-	}
-
-	if (key === 'ArrowDown') {
-		return 'down';
-	}
-
-	return null;
-};
-
-export const clearSelectedOutlineScaleDragOverrides = ({
-	clearDragOverrides,
-	dragStates,
-}: {
-	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
-	readonly dragStates: readonly SelectedOutlineScaleDragState[];
-}) => {
-	for (const dragState of dragStates) {
-		clearDragOverrides(dragState.target.nodePath);
-	}
-};
-
-export const clearSelectedOutlineRotationDragOverrides = ({
-	clearDragOverrides,
-	dragStates,
-}: {
-	readonly clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
-	readonly dragStates: readonly SelectedOutlineRotationDragState[];
-}) => {
-	for (const dragState of dragStates) {
-		clearDragOverrides(dragState.target.nodePath);
-	}
 };
 
 export const compensateTranslateForTransformOrigin = ({
@@ -1039,7 +796,10 @@ export const getSelectedOutlineTransformOriginDragChanges = ({
 				fileName: target.nodePath.absolutePath,
 				nodePath: target.nodePath,
 				fieldKey: transformOriginFieldKey,
-				sourceFrame: target.sourceFrame,
+				sourceFrame: resolveKeyframeSourceFrame(
+					target.sourceFrame,
+					target.originPropStatus,
+				),
 				value: origin,
 				schema: target.schema,
 			});
@@ -1082,7 +842,10 @@ export const getSelectedOutlineTransformOriginDragChanges = ({
 			fileName: target.nodePath.absolutePath,
 			nodePath: target.nodePath,
 			fieldKey: translateFieldKey,
-			sourceFrame: target.sourceFrame,
+			sourceFrame: resolveKeyframeSourceFrame(
+				target.sourceFrame,
+				target.translatePropStatus,
+			),
 			value: translate,
 			schema: target.schema,
 		});

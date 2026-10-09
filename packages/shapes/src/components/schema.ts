@@ -9,6 +9,7 @@ export const numberField = ({
 	defaultValue,
 	description,
 	hiddenFromList = false,
+	integer,
 	max,
 	min,
 	step = 1,
@@ -16,6 +17,7 @@ export const numberField = ({
 	readonly defaultValue: number | undefined;
 	readonly description: string;
 	readonly hiddenFromList?: boolean;
+	readonly integer?: boolean;
 	readonly max?: number;
 	readonly min?: number;
 	readonly step?: number;
@@ -25,6 +27,7 @@ export const numberField = ({
 		default: defaultValue,
 		description,
 		hiddenFromList,
+		integer,
 		max,
 		min,
 		step,
@@ -83,6 +86,7 @@ export const makeShapeSchema = (
 ): InteractivitySchema => {
 	return {
 		...Internals.baseSchema,
+		...Internals.premountSchema,
 		...shapeFields,
 		fill: colorField({
 			defaultValue: '#0b84ff',

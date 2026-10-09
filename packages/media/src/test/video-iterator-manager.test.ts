@@ -98,6 +98,7 @@ const makeManager = (
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		maxCanvasSinkFrameSize: null,
 	});
 
 test('plays at a high playback rate without restarting the iterator', async () => {
@@ -115,6 +116,7 @@ test('plays at a high playback rate without restarting the iterator', async () =
 				fps: 30,
 				playbackRate: 3.75,
 				isPlaying: true,
+				continuousPlayback: null,
 			});
 		}
 
@@ -147,6 +149,7 @@ test('paused forward scrubs do not wait for pending frames', async () => {
 		};
 
 		await manager.seek({
+			continuousPlayback: null,
 			newTime: 0.1,
 			nonce: nonceManager.createAsyncOperation(),
 			fps: 30,
@@ -194,6 +197,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		maxCanvasSinkFrameSize: null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -204,6 +208,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 	// Perform seeks that will trigger 'not-satisfied' (jumping around)
 	// These should NOT cause overlapping blocks
 	await manager.seek({
+		continuousPlayback: null,
 		newTime: 5,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
@@ -211,6 +216,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		isPlaying: false,
 	});
 	await manager.seek({
+		continuousPlayback: null,
 		newTime: 0,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
@@ -218,6 +224,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		isPlaying: false,
 	});
 	await manager.seek({
+		continuousPlayback: null,
 		newTime: 8,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
@@ -265,6 +272,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		maxCanvasSinkFrameSize: null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -277,6 +285,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		// Alternate between distant positions to force iterator recreation
 		const time = i % 2 === 0 ? i * 0.5 : 9 - i * 0.5;
 		await manager.seek({
+			continuousPlayback: null,
 			newTime: time,
 			nonce: nonceManager.createAsyncOperation(),
 			fps: 30,
@@ -313,6 +322,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		maxCanvasSinkFrameSize: null,
 	});
 
 	const nonceManager = makeNonceManager();

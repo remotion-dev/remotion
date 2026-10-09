@@ -4,13 +4,25 @@ import os from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {
-	insertJsxElementIntoComposition,
+	insertJsxElementIntoComposition as insertJsxElementIntoCompositionInternal,
 	resolveCompositionComponent,
 } from '../helpers/resolve-composition-component';
-import {insertJsxElementHandler} from '../preview-server/routes/insert-jsx-element';
+import {insertCompositionElementHandler} from '../preview-server/routes/insert-composition-element';
 import {lineContainingToNodePath} from './test-utils';
 
 const remotionRoot = path.join(__dirname, '..', '..', '..', 'example');
+
+const insertJsxElementIntoComposition = (
+	input: Omit<
+		Parameters<typeof insertJsxElementIntoCompositionInternal>[0],
+		'premountFor'
+	> & {premountFor?: number | null},
+) => {
+	return insertJsxElementIntoCompositionInternal({
+		...input,
+		premountFor: input.premountFor ?? null,
+	});
+};
 
 test('resolves a statically imported composition component', async () => {
 	const location = await resolveCompositionComponent({
@@ -954,9 +966,9 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 		});
 
 		expect(result.output).toContain(
-			"import {AbsoluteFill, Solid as RemotionSolid} from 'remotion';",
+			"import {AbsoluteFill, Solid as Solid2} from 'remotion';",
 		);
-		expect(result.output).toContain('<RemotionSolid');
+		expect(result.output).toContain('<Solid2');
 		expect(result.output).toContain('width={1920}');
 		expect(result.output).toContain('height={1080}');
 		expect(result.output).toContain("position: 'absolute'");
@@ -1146,7 +1158,7 @@ test('inserts a CanvasImage asset at a timeline frame', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import {AbsoluteFill, staticFile, CanvasImage} from 'remotion';",
+			"import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';",
 		);
 		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('from={42}');
@@ -1213,7 +1225,7 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import {AbsoluteFill, staticFile, CanvasImage} from 'remotion';",
+			"import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
@@ -1271,7 +1283,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 		});
 
 		expect(result.output).toContain(
-			"import {AbsoluteFill, staticFile, AnimatedImage} from 'remotion';",
+			"import {AbsoluteFill, AnimatedImage, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
@@ -1351,7 +1363,7 @@ test('inserts a Video asset with its duration and CSS dimensions', async () => {
 	}
 });
 
-test('rejects inserting a Video asset if Video is already defined', async () => {
+test('aliases an inserted Video asset when Video is already defined', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1379,25 +1391,31 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 			].join('\n'),
 		);
 
-		await expect(
-			insertJsxElementIntoComposition({
-				remotionRoot: tempDir,
-				compositionFile: 'Root.tsx',
-				compositionId: 'test',
-				element: {
-					type: 'asset',
-					assetType: 'video',
-					src: 'clip.mp4',
-					srcType: 'static',
-					dimensions: null,
-					durationInFrames: null,
-					position: null,
-				},
-				from: null,
-				prettierConfigOverride: {singleQuote: true, useTabs: true},
-				sourceFileOverrides: null,
-			}),
-		).rejects.toThrow('Cannot add <Video> because Video is already defined');
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'video',
+				src: 'clip.mp4',
+				srcType: 'static',
+				dimensions: null,
+				durationInFrames: null,
+				position: null,
+			},
+			from: null,
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
+		});
+
+		expect(result.output).toContain(
+			"import {Video as Video2} from '@remotion/media';",
+		);
+		expect(result.output).toMatch(
+			/<Video2\s+src=\{staticFile\('clip\.mp4'\)\}/,
+		);
+		expect(result.output).toContain('export const Video = () => null;');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1583,7 +1601,7 @@ test('inserts a remote audio asset with a literal URL', async () => {
 	}
 });
 
-test('rejects inserting an Audio asset if Audio is already defined', async () => {
+test('aliases an inserted Audio asset when Audio is already defined', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1611,25 +1629,31 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 			].join('\n'),
 		);
 
-		await expect(
-			insertJsxElementIntoComposition({
-				remotionRoot: tempDir,
-				compositionFile: 'Root.tsx',
-				compositionId: 'test',
-				element: {
-					type: 'asset',
-					assetType: 'audio',
-					src: 'audio.mp3',
-					srcType: 'static',
-					dimensions: null,
-					durationInFrames: null,
-					position: null,
-				},
-				from: null,
-				prettierConfigOverride: {singleQuote: true, useTabs: true},
-				sourceFileOverrides: null,
-			}),
-		).rejects.toThrow('Cannot add <Audio> because Audio is already defined');
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'audio',
+				src: 'audio.mp3',
+				srcType: 'static',
+				dimensions: null,
+				durationInFrames: null,
+				position: null,
+			},
+			from: null,
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
+		});
+
+		expect(result.output).toContain(
+			"import {Audio as Audio2} from '@remotion/media';",
+		);
+		expect(result.output).toMatch(
+			/<Audio2\s+src=\{staticFile\('audio\.mp3'\)\}/,
+		);
+		expect(result.output).toContain('export const Audio = () => null;');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1983,7 +2007,7 @@ test('rejects inserting a composition whose component is not exported', async ()
 		const targetFile = path.join(tempDir, 'Target.tsx');
 		await fs.writeFile(targetFile, targetContents);
 
-		const response = await insertJsxElementHandler({
+		const response = await insertCompositionElementHandler({
 			input: {
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
@@ -1998,6 +2022,7 @@ test('rejects inserting a composition whose component is not exported', async ()
 					position: null,
 				},
 				from: null,
+				premountFor: null,
 			},
 			entryPoint: path.join(tempDir, 'Root.tsx'),
 			remotionRoot: tempDir,
@@ -2177,7 +2202,7 @@ test('rejects array payloads for resolved composition props', async () => {
 test('rejects composition insertion requests that traverse out of the project root', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
-		const response = await insertJsxElementHandler({
+		const response = await insertCompositionElementHandler({
 			input: {
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
@@ -2192,6 +2217,7 @@ test('rejects composition insertion requests that traverse out of the project ro
 					position: null,
 				},
 				from: null,
+				premountFor: null,
 			},
 			entryPoint: path.join(tempDir, 'Root.tsx'),
 			remotionRoot: tempDir,

@@ -3,6 +3,7 @@ import React from 'react';
 import {
 	ERROR_CODE_FRAME_BACKGROUND,
 	ERROR_CODE_FRAME_LINE_BACKGROUND,
+	PRISM_VARIABLE_COLOR,
 	SELECTED_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
@@ -28,6 +29,7 @@ const sourceContainer: React.CSSProperties = {
 
 const lineNumberColumn: React.CSSProperties = {
 	flexShrink: 0,
+	userSelect: 'none',
 	width: 60,
 };
 
@@ -101,7 +103,7 @@ export const CodeFrame: React.FC<{
 										display: 'block',
 										fontFamily: 'monospace',
 										fontSize,
-										color: '#9cdcfe',
+										color: PRISM_VARIABLE_COLOR,
 										whiteSpace: 'pre',
 										tabSize: 2,
 										backgroundColor: TRANSPARENT,

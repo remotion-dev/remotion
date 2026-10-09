@@ -161,6 +161,14 @@ export const addCommand = async ({
 			return `${pkg}@${EXTRA_PACKAGES[pkg]}`;
 		}
 
+		const localPackageOverride = StudioServerInternals.getLocalPackageOverride({
+			remotionRoot,
+			packageName: pkg,
+		});
+		if (localPackageOverride !== null) {
+			return `${pkg}@${localPackageOverride}`;
+		}
+
 		return `${pkg}@${targetVersion}`;
 	});
 

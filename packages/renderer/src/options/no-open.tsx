@@ -6,6 +6,7 @@ const cliFlag = 'no-open' as const;
 
 export const noOpenOption = {
 	name: 'Disable browser auto-open',
+	addedIn: '3.3.19',
 	cliFlag,
 	description: () => (
 		<>
@@ -14,7 +15,7 @@ export const noOpenOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/studio#--no-open',
+	docLink: 'https://www.remotion.dev/docs/options/no-open',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		// Minimist quirk: `--no-open` sets `open` to `false`.

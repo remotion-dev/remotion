@@ -12,7 +12,7 @@ test('Studio render defaults keep the startup log level', () => {
 	expect(getRenderDefaults('warn').logLevel).toBe('warn');
 });
 
-test('Element library configuration must be valid', () => {
+test('Element Library configuration must be valid', () => {
 	ConfigInternals.resetConfigOptions();
 
 	expect(() => Config.addElementLibrary({url: '/elements'})).toThrow(
@@ -117,6 +117,7 @@ test('reset config options restores defaults before reloading config', async () 
 		{
 			displayName: 'Example Elements',
 			url: 'https://example.com/elements',
+			captionStylesUrl: null,
 		},
 	]);
 	expect(ConfigInternals.getKeyboardShortcuts()).toEqual({

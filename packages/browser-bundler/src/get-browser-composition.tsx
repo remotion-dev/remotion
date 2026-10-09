@@ -145,24 +145,27 @@ export const getBrowserComposition = async ({
 				});
 			};
 
-			const setters: React.ContextType<typeof Internals.CompositionSetters> = {
-				registerComposition: (composition) => {
-					if (compositions.has(composition.id)) {
-						throw new Error(
-							`A composition with ID "${composition.id}" was registered more than once.`,
+			const onSnapshot: React.ComponentProps<
+				typeof Internals.CompositionRegistryProvider
+			>['onSnapshot'] = (snapshot) => {
+				const next = new Map<string, AnyComposition>();
+				for (const composition of snapshot.compositions) {
+					if (next.has(composition.id)) {
+						onError(
+							new Error(
+								`A composition with ID "${composition.id}" was registered more than once.`,
+							),
 						);
+						return;
 					}
 
-					compositions.set(composition.id, composition as AnyComposition);
-				},
-				unregisterComposition: (id) => {
-					compositions.delete(id);
-				},
-				registerFolder: () => undefined,
-				unregisterFolder: () => undefined,
-				setCanvasContent: () => undefined,
-				setCurrentAssetMetadata: () => undefined,
-				onlyRenderComposition: null,
+					next.set(composition.id, composition);
+				}
+
+				compositions.clear();
+				for (const [id, composition] of next) {
+					compositions.set(id, composition);
+				}
 			};
 
 			reactRoot = createRoot(container, {
@@ -180,12 +183,12 @@ export const getBrowserComposition = async ({
 							isStudio: false,
 						}}
 					>
-						<Internals.CompositionSetters.Provider value={setters}>
+						<Internals.CompositionRegistryProvider onSnapshot={onSnapshot}>
 							<Suspense fallback={null}>
 								<RegisteredRoot />
 								<RegistrationComplete onComplete={onComplete} />
 							</Suspense>
-						</Internals.CompositionSetters.Provider>
+						</Internals.CompositionRegistryProvider>
 					</Internals.RemotionEnvironmentContext.Provider>
 				</RegistrationErrorBoundary>,
 			);

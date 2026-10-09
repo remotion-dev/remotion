@@ -1,0 +1,92 @@
+---
+image: /generated/articles-docs-paths-interpolate-paths.png
+title: interpolatePaths()
+crumb: '@remotion/paths'
+---
+
+# interpolatePaths()<AvailableFrom v="4.0.529" />
+
+Interpolates between SVG paths across multiple keyframes. Uses the same input range, easing, and posterization behavior as [`interpolate()`](/docs/interpolate).
+
+```tsx twoslash title="MorphingPath.tsx"
+import {interpolatePaths} from '@remotion/paths';
+import {Easing, Interactive, useCurrentFrame} from 'remotion';
+
+export const MorphingPath = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Svg width={300} height={300} viewBox="0 0 300 300">
+      <Interactive.Path
+        d={interpolatePaths(
+          frame,
+          [0, 30, 60],
+          [
+            'M 40 40 L 260 40 L 150 260 Z',
+            'M 40 150 L 150 40 L 260 150 Z',
+            'M 40 260 L 150 40 L 260 260 Z',
+          ],
+          {
+            easing: [Easing.bezier(0.42, 0, 0.58, 1), Easing.linear],
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          },
+        )}
+        fill="#0b84f3"
+      />
+    </Interactive.Svg>
+  );
+};
+```
+
+## Arguments
+
+### input
+
+The number to interpolate, usually the current [frame](/docs/use-current-frame).
+
+### inputRange
+
+A non-empty array of finite numbers in strictly increasing order. Each value corresponds to a path in `outputRange`.
+
+### outputRange
+
+An array of valid SVG path strings with the same length as `inputRange`. Paths may have different numbers of points. A single keyframe returns its path for every input.
+
+Interpolated paths must have matching move and close commands in their subpaths after normalization. When interpolating between a curve and a line, the curve gradually straightens into the line.
+
+### options?
+
+#### easing?
+
+An easing function, or an array with one easing function per segment (`inputRange.length - 1`). Defaults to linear easing. See [`Easing`](/docs/easing), including [`Easing.spring()`](/docs/easing#spring).
+
+#### extrapolateLeft?
+
+Controls inputs before the first keyframe: `'extend'`, `'clamp'`, or `'wrap'`. Defaults to `'extend'`. See [extrapolation](/docs/interpolate#extrapolateleft).
+
+#### extrapolateRight?
+
+Controls inputs after the last keyframe: `'extend'`, `'clamp'`, or `'wrap'`. Defaults to `'extend'`. Spring easing can continue beyond its segment when `allowTail` is enabled, as with [`interpolate()`](/docs/interpolate).
+
+#### posterize?
+
+Rounds the input down to a multiple of this positive number before interpolation. For example, `posterize: 3` updates the animation every three frames. Defaults to no posterization.
+
+## Return value
+
+An SVG path string suitable for a `<path>` element's `d` attribute.
+
+## Editing in Studio
+
+Use `interpolatePaths()` for the `d` prop of [`<Interactive.Path>`](/docs/interactive). In Studio, you can add and move path keyframes, adjust their easing, and drag anchors and Bézier handles to update the path at the current frame.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`interpolatePath()`](/docs/paths/interpolate-path)
+- [`interpolate()`](/docs/interpolate)
+- [`@remotion/paths`](/docs/paths)

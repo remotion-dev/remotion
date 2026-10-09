@@ -412,6 +412,12 @@ Either `player-size` (default) or `composition-size`:
 - `player-size`: The poster will be rendered in the size of the player. This is useful if you want to render for example a Play button with constant size.
 - `composition-size`: The poster will be rendered in the size of the composition and scaled to the size of the Player. This is useful if you want to render a freeze frame of the video as a poster.
 
+### `defaultPremountInSeconds?`<AvailableFrom v="4.0.535" />
+
+The default [premount duration](/docs/player/premounting) in seconds for timed components inside the Player. Defaults to `0` in v4 and `2` in v5.
+Must be a finite, non-negative number. The duration is converted to frames using `fps` and rounded to the nearest frame.
+An explicit [`premountFor`](/docs/sequence#premountfor) prop takes precedence, including `premountFor={0}` to disable premounting for a component.
+
 ### `bufferStateDelayInMilliseconds`<AvailableFrom v="4.0.111"/>
 
 After the Player has entered a [buffer state](/docs/player/buffer-state), it will wait for this amount of time before showing the buffering UI.  
@@ -948,6 +954,12 @@ const MyApp: React.FC = () => {
   return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} errorFallback={errorFallback} />;
 };
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
+
+This component previews a composition in a web app. To export it, pass the composition to a [rendering API](/docs/renderer).
 
 ## See also
 

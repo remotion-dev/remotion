@@ -28,6 +28,7 @@ type RenderVideoConfig = {
 	preferLossless: InternalRenderMediaOptions['preferLossless'];
 	enforceAudioTrack: InternalRenderMediaOptions['enforceAudioTrack'];
 	disallowParallelEncoding: InternalRenderMediaOptions['disallowParallelEncoding'];
+	disableSharedMemoryCapture: InternalRenderMediaOptions['disableSharedMemoryCapture'];
 	concurrency: InternalRenderMediaOptions['concurrency'];
 	binariesDirectory: InternalRenderMediaOptions['binariesDirectory'];
 	metadata: InternalRenderMediaOptions['metadata'];
@@ -200,6 +201,7 @@ try {
 		preferLossless: config.preferLossless,
 		enforceAudioTrack: config.enforceAudioTrack,
 		disallowParallelEncoding: config.disallowParallelEncoding,
+		disableSharedMemoryCapture: config.disableSharedMemoryCapture,
 		concurrency: config.concurrency,
 		binariesDirectory: config.binariesDirectory,
 		metadata: config.metadata,

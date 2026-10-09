@@ -1,14 +1,10 @@
 import {lstatSync, readFileSync} from 'node:fs';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
-import {
-	basicCaptionsElementSource,
-	getBasicCaptionsElementFile,
-} from '@remotion/studio-codemods';
 import type {
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
 } from '@remotion/studio-shared';
-import {insertBasicCaptions} from '../../codemods/insert-basic-captions';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -24,11 +20,17 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
+const {
+	basicCaptionsElementSource,
+	getBasicCaptionsElementFile,
+	insertBasicCaptions,
+} = CodemodsInternals;
+
 export const insertBasicCaptionsHandler: ApiHandler<
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse
 > = ({
-	input: {fileName, nodePath, captions, durationInFrames},
+	input: {fileName, nodePath, captions, durationInFrames, premountFor},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -67,10 +69,12 @@ export const insertBasicCaptionsHandler: ApiHandler<
 				},
 			});
 			const {output, logLine, nodePathRemappings} = insertBasicCaptions({
+				element: null,
 				input: fileContents,
 				nodePath,
 				captions,
 				durationInFrames,
+				premountFor,
 				importPath: elementFile.importPath,
 			});
 			const nodePathMutation = broadcastSequenceNodePathMutation(

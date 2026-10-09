@@ -10,7 +10,7 @@ Load a virtual Remotion project once and apply later edits through Rspack hot up
 
 :::warning
 
-*Draft API*: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+_Draft API_: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
 
 :::
 
@@ -71,6 +71,12 @@ The returned root registers compositions; it is not the video component for the 
 
 Calling [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition) again for every edit creates fresh component wrappers and does not preserve that tree.
 
+## Source locations<AvailableFrom v="4.0.529" />
+
+Development bundles record the file, line and column of every JSX element. The runtime forwards this location to Remotion's built-in elements and to components wrapped with [`Interactive.withSchema()`](/docs/interactive-with-schema) when the bundle renders them. Rendering the composition with [`<Canvas>`](/docs/sdk/canvas) exposes the location of each mounted sequence through [`getCanvasSequenceSourceLocation()`](/docs/sdk/get-canvas-sequence-source-location), so an editor can map a track to its source node.
+
+Only the bundle's own JSX carries locations. Elements created by dependencies resolved over HTTP do not, and their location is `null`. The host's React is not modified.
+
 ## Return value
 
 A `BrowserBundleRuntime` with the following methods. Use one runtime per preview document.
@@ -80,6 +86,8 @@ A `BrowserBundleRuntime` with the following methods. Use one runtime per preview
 Accepts a complete [`BrowserBundle`](/docs/browser-bundler/create-browser-bundler#browserbundle) and returns a `Promise<React.FC>` containing its registered root.
 
 The first call evaluates the full bundle. Later calls apply Rspack's hot-update assets to the existing module graph and run React Fast Refresh. Compatible component edits preserve React state; changing hook signatures or component types can reset the affected component.
+
+Immediately before a Fast Refresh update is applied, the runtime dispatches a `remotion-react-refresh-started` event on `window`, and a `remotion-react-refresh-finished` event once React refreshed its roots<AvailableFrom v="4.0.530" inline />. A [`<Canvas>`](/docs/sdk/canvas) in the preview document uses the started event to commit [queued node-path remappings](/docs/sdk/create-canvas-controller#queuesequencenodepathremappings) in the same task as the refreshed tree.
 
 Calls are serialized. Apply every successfully compiled bundle in order, even when newer edits are pending. Skipping compiled updates breaks the hot-update chain and rejects the promise.
 

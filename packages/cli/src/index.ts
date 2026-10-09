@@ -20,6 +20,10 @@ import {listCompositionsCommand} from './compositions';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
+import {
+	experimentalCodemodCommand,
+	printExperimentalCodemodHelp,
+} from './experimental-codemod';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
@@ -28,6 +32,7 @@ import {getGitSource} from './get-github-repository';
 import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
 import {makeHyperlink} from './hyperlinks/make-link';
+import {importCanvasCapture} from './import-canvas-capture';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand, tryPrintLambdaHelp} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
@@ -65,6 +70,11 @@ export const cli = async () => {
 			: parsedCli._;
 	if (parsedCli.help || command === 'help') {
 		const [helpCommand, ...helpArgs] = helpPath;
+		if (helpCommand === 'experimental-codemod') {
+			printExperimentalCodemodHelp('info');
+			return;
+		}
+
 		if (helpCommand === 'lambda' || helpCommand === 'cloudrun') {
 			const helpRemotionRoot = RenderInternals.findRemotionRoot();
 			const printed =
@@ -175,6 +185,12 @@ export const cli = async () => {
 				cwd: process.cwd(),
 				environment: process.env,
 			});
+		} else if (command === 'experimental-codemod') {
+			await experimentalCodemodCommand(
+				remotionRoot,
+				process.argv.slice(2),
+				logLevel,
+			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
@@ -201,6 +217,7 @@ export const cli = async () => {
 };
 
 export const CliInternals = {
+	importCanvasCapture,
 	createOverwriteableCliOutput,
 	chalk,
 	makeProgressBar,

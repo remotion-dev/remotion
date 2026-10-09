@@ -39,12 +39,6 @@ export const Second = () => {
 	const clientId = `subscription-test-${uniqueSuffix}`;
 	writeFileSync(join(remotionRoot, firstFileName), firstInput);
 	writeFileSync(join(remotionRoot, secondFileName), secondInput);
-	const videoConfigValues = {
-		durationInFrames: 100,
-		fps: 30,
-		height: 1080,
-		width: 1920,
-	};
 	const requestBase = {
 		column: 0,
 		componentIdentity: 'dev.remotion.remotion.Interactive.Div',
@@ -52,7 +46,6 @@ export const Second = () => {
 		assetKeys: [],
 		effects: [],
 		clientId,
-		videoConfigValues,
 	} satisfies Omit<
 		SubscribeToSequencePropsRequest,
 		'fileName' | 'line' | 'nodePath'
@@ -91,7 +84,7 @@ export const Second = () => {
 			entryPoint: join(remotionRoot, firstFileName),
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			input: {...requests[0], requests},
+			input: {requests},
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,
@@ -209,12 +202,6 @@ export default InteractiveDivStressTest;
 			assetKeys: [],
 			effects: [],
 			clientId,
-			videoConfigValues: {
-				durationInFrames: 120,
-				fps: 30,
-				height: 1080,
-				width: 1080,
-			},
 		}),
 	);
 
@@ -226,7 +213,7 @@ export default InteractiveDivStressTest;
 			entryPoint: join(remotionRoot, fileName),
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			input: {...requests[0], requests},
+			input: {requests},
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,

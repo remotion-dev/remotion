@@ -1,7 +1,13 @@
 import React, {useContext, useMemo} from 'react';
-import {interpolateColors, random} from 'remotion';
-import {RED} from '../../helpers/colors';
 import {SplitterContext} from './SplitterContext';
+
+const stickyStyle: React.CSSProperties = {
+	position: 'sticky',
+	top: 0,
+	height: 0,
+	flexShrink: 0,
+	zIndex: 1,
+};
 
 export const SplitterElement: React.FC<{
 	readonly type: 'flexer' | 'anti-flexer';
@@ -9,6 +15,7 @@ export const SplitterElement: React.FC<{
 	readonly sticky: React.ReactNode | null;
 }> = ({children, type, sticky}) => {
 	const context = useContext(SplitterContext);
+	const hasSticky = sticky !== null;
 	const maxSize =
 		type === 'flexer' ? context.maxFlexerSize : context.maxAntiFlexerSize;
 	const minSize =
@@ -24,7 +31,8 @@ export const SplitterElement: React.FC<{
 					? 'none'
 					: 'flex',
 			position: 'relative',
-			overflow: 'hidden',
+			// Clip the overlay without making this panel the sticky scrollport.
+			overflow: hasSticky ? 'clip' : 'hidden',
 			flexDirection: 'column',
 			maxWidth:
 				context.orientation === 'vertical' ? (maxSize ?? undefined) : undefined,
@@ -32,8 +40,7 @@ export const SplitterElement: React.FC<{
 				context.orientation === 'horizontal'
 					? (maxSize ?? undefined)
 					: undefined,
-			minWidth:
-				context.orientation === 'vertical' ? (minSize ?? undefined) : undefined,
+			minWidth: context.orientation === 'vertical' ? (minSize ?? 0) : 0,
 			minHeight:
 				context.orientation === 'horizontal'
 					? (minSize ?? undefined)
@@ -43,30 +50,20 @@ export const SplitterElement: React.FC<{
 		context.collapsedDuringDrag,
 		context.flexValue,
 		context.orientation,
+		hasSticky,
 		maxSize,
 		minSize,
 		type,
 	]);
 
-	const stickStyle: React.CSSProperties = useMemo(() => {
-		return {
-			position: 'absolute',
-			left: (type === 'flexer' ? 0 : context.flexValue) * 100 + '%',
-			width:
-				(type === 'flexer' ? context.flexValue : 1 - context.flexValue) * 100 +
-				'%',
-			backgroundColor: interpolateColors(
-				random(context.flexValue),
-				[0, 1],
-				[RED, 'blue'],
-			),
-		};
-	}, [context.flexValue, type]);
-
 	return (
-		<>
-			<div style={style}>{children}</div>
-			<div style={stickStyle}>{sticky ?? null}</div>
-		</>
+		<div style={style}>
+			{hasSticky ? (
+				// Share the panel's actual width while staying pinned to the
+				// timeline's vertical scrollport.
+				<div style={stickyStyle}>{sticky}</div>
+			) : null}
+			{children}
+		</div>
 	);
 };

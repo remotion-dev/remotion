@@ -1,10 +1,8 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
 	useContext,
 	useEffect,
-	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -16,8 +14,8 @@ import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
-import {applyCodemod} from '../RenderQueue/actions';
-import {CodemodFooter} from './CodemodFooter';
+import {renameFolder} from '../RenderQueue/actions';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
@@ -66,15 +64,6 @@ export const RenameFolder: React.FC<{
 
 	const valid = folderNameErrMessage === null && folderName !== slug;
 
-	const codemod: RecastCodemod = useMemo(() => {
-		return {
-			type: 'rename-folder',
-			folderName,
-			parentName,
-			newName: slug,
-		};
-	}, [folderName, slug, parentName]);
-
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
 	}, []);
@@ -121,25 +110,26 @@ export const RenameFolder: React.FC<{
 					</div>
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						loadingNotification={'Renaming folder...'}
 						errorNotification={'Could not rename folder'}
 						genericSubmitLabel={'Rename'}
 						submitLabel={({relativeRootPath}) => `Modify ${relativeRootPath}`}
-						codemod={codemod}
 						stack={stack}
 						valid={valid}
 						onSuccess={null}
-						applyCodemod={({signal, symbolicatedStack}) =>
-							applyCodemod({
-								codemod,
-								dryRun: false,
+						applyEdit={({signal, symbolicatedStack}) =>
+							renameFolder(
+								{
+									folderName,
+									parentName,
+									newName: slug,
+									symbolicatedStack,
+									undoRedoNavigation: null,
+								},
 								signal,
-								symbolicatedStack,
-								undoRedoNavigation: null,
-							})
+							)
 						}
-						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

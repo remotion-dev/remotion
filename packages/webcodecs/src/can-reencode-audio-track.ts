@@ -3,6 +3,9 @@ import {getAudioDecoderConfig} from './audio-decoder-config';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const canReencodeAudioTrack = async ({
 	track,
 	audioCodec,

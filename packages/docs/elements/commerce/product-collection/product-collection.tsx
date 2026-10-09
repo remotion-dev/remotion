@@ -1,16 +1,14 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React from 'react';
 import {
+	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
-	Sequence,
 	interpolate,
 	useCurrentFrame,
-	type InteractiveBaseProps,
+	useVideoConfig,
 	type InteractiveTransformProps,
-	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
 loadFont('normal', {
@@ -18,38 +16,19 @@ loadFont('normal', {
 	weights: ['500', '600', '700'],
 });
 
-export const productCollectionDurationInFrames = 150;
+type ProductCardProps = {
+	readonly count: number;
+	readonly index: number;
+	readonly label: string;
+};
 
-type ProductCardProps = InteractiveBaseProps &
-	Omit<InteractiveTransformProps, 'style'> & {
-		readonly count: number;
-		readonly index: number;
-		readonly label: string;
-		readonly style: React.CSSProperties | null;
-	};
-
-const productCardSchema = {
-	...Interactive.baseSchema,
-	label: {
-		type: 'text-content',
-		default: 'A',
-		description: 'Card label',
-	},
-	count: {type: 'hidden'},
-	index: {type: 'hidden'},
-	...Interactive.transformSchema,
-} as const satisfies InteractivitySchema;
-
-const ProductCardInner = forwardRef<
-	HTMLDivElement,
-	ProductCardProps & {readonly controls: SequenceControls | undefined}
->(({controls, count, index, label, name, style, ...sequenceProps}, ref) => {
-	const outlineRef = useRef<HTMLDivElement>(null);
+const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames: cardDurationInFrames} = useVideoConfig();
 	const lastProductIndex = Math.max(0, count - 1);
 	const rawScrollPosition = interpolate(
 		frame,
-		[24, productCollectionDurationInFrames - 28],
+		[24, cardDurationInFrames - 28],
 		[0, lastProductIndex],
 		{
 			extrapolateLeft: 'clamp',
@@ -101,186 +80,146 @@ const ProductCardInner = forwardRef<
 		extrapolateRight: 'clamp',
 	});
 
-	useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
 	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			controls={controls}
-			name={name ?? '<ProductCard>'}
-			outlineRef={outlineRef}
+		<div
+			style={{
+				height: 560,
+				left: 300,
+				top: 40,
+				opacity: visibility * entryProgress,
+				position: 'absolute',
+				rotate: `${rotation}deg`,
+				scale: cardScale * (0.86 + entryProgress * 0.14),
+				transform: 'perspective(100px)',
+				translate: `${x}px ${y}px`,
+				width: 300,
+				willChange: 'transform, opacity',
+				zIndex: 100 - Math.round(distanceFromCenter * 20),
+			}}
 		>
 			<div
 				style={{
-					height: 560,
-					left: 300,
-					top: 40,
-					opacity: visibility * entryProgress,
-					position: 'absolute',
-					rotate: `${rotation}deg`,
-					scale: cardScale * (0.86 + entryProgress * 0.14),
-					transform: 'perspective(100px)',
-					translate: `${x}px ${y}px`,
-					width: 300,
-					willChange: 'transform, opacity',
-					zIndex: 100 - Math.round(distanceFromCenter * 20),
+					backgroundColor: '#ffffff',
+					borderRadius: 6,
+					boxShadow: '0 2px 6px rgba(29, 29, 25, 0.12)',
+					boxSizing: 'border-box',
+					color: '#1d1d19',
+					display: 'flex',
+					flexDirection: 'column',
+					height: '100%',
+					overflow: 'hidden',
+					width: '100%',
 				}}
 			>
-				<div
-					ref={outlineRef}
+				<Interactive.Div
+					name="Card label"
 					style={{
-						...style,
-						backgroundColor: '#ffffff',
-						borderRadius: 6,
-						boxShadow: '0 2px 6px rgba(29, 29, 25, 0.12)',
-						boxSizing: 'border-box',
-						color: '#1d1d19',
+						alignItems: 'center',
+						color: '#ffffff',
 						display: 'flex',
-						flexDirection: 'column',
+						fontFamily: 'sans-serif',
+						fontSize: 160,
+						fontWeight: 900,
 						height: '100%',
+						justifyContent: 'center',
+						letterSpacing: -8,
 						overflow: 'hidden',
-						width: '100%',
+						position: 'relative',
+						textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
 					}}
 				>
-					<Interactive.Div
-						name="Card label"
+					<Img
+						alt=""
+						name="Card background"
+						showInTimeline={false}
+						src={
+							index === 1
+								? 'https://remotion.media/transition-bg-pink.jpg'
+								: 'https://remotion.media/transition-bg-blue.jpg'
+						}
 						style={{
-							alignItems: 'center',
-							color: '#ffffff',
-							display: 'flex',
-							fontFamily: 'sans-serif',
-							fontSize: 160,
-							fontWeight: 900,
+							filter: index === 2 ? 'hue-rotate(-65deg)' : 'none',
 							height: '100%',
-							justifyContent: 'center',
-							letterSpacing: -8,
-							overflow: 'hidden',
-							position: 'relative',
-							textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
+							objectFit: 'cover',
+							position: 'absolute',
+							width: '100%',
 						}}
-					>
-						<Img
-							alt=""
-							name="Card background"
-							showInTimeline={false}
-							src={
-								index === 1
-									? 'https://remotion.media/transition-bg-pink.jpg'
-									: 'https://remotion.media/transition-bg-blue.jpg'
-							}
-							style={{
-								filter: index === 2 ? 'hue-rotate(-65deg)' : 'none',
-								height: '100%',
-								objectFit: 'cover',
-								position: 'absolute',
-								width: '100%',
-							}}
-						/>
-						<div style={{position: 'relative'}}>{label}</div>
-					</Interactive.Div>
-				</div>
+					/>
+					<div style={{position: 'relative'}}>{label}</div>
+				</Interactive.Div>
 			</div>
-		</Sequence>
-	);
-});
-
-const ProductCard = Interactive.withSchema({
-	Component: ProductCardInner,
-	componentName: '<ProductCard>',
-	schema: productCardSchema,
-	supportsEffects: false,
-}) as React.FC<ProductCardProps>;
-
-export const ProductCollection = () => {
-	const frame = useCurrentFrame();
-
-	return (
-		<Interactive.Div
-			name="Container"
-			style={{
-				WebkitFontSmoothing: 'antialiased',
-				boxSizing: 'border-box',
-				color: '#1d1d19',
-				fontFamily: 'Inter',
-				height: 660,
-				isolation: 'isolate',
-				left: 60,
-				opacity: interpolate(
-					frame,
-					[
-						0,
-						10,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
-					[0, 1, 1, 0],
-					{
-						easing: Easing.bezier(0.16, 1, 0.3, 1),
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					},
-				),
-				overflow: 'hidden',
-				position: 'absolute',
-				scale: interpolate(
-					frame,
-					[
-						0,
-						16,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
-					[0.97, 1, 1, 0.98],
-					{
-						easing: Easing.bezier(0.16, 1, 0.3, 1),
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-					},
-				),
-				top: 180,
-				transform: 'perspective(100px)',
-				translate: interpolate(
-					frame,
-					[
-						0,
-						16,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
-					['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
-					{
-						easing: Easing.bezier(0.16, 1, 0.3, 1),
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					},
-				),
-				width: 900,
-				willChange: 'transform, opacity',
-			}}
-		>
-			<ProductCard
-				count={3}
-				index={0}
-				label="A"
-				name="Card A"
-				style={{translate: '0px 0px'}}
-			/>
-			<ProductCard
-				count={3}
-				index={1}
-				label="B"
-				name="Card B"
-				style={{translate: '0px 0px'}}
-			/>
-			<ProductCard
-				count={3}
-				index={2}
-				label="C"
-				name="Card C"
-				style={{translate: '0px 0px'}}
-			/>
-		</Interactive.Div>
+		</div>
 	);
 };
+
+const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
+
+	return (
+		<AbsoluteFill style={style} showInTimeline={false}>
+			<Interactive.Div
+				name="Container"
+				style={{
+					WebkitFontSmoothing: 'antialiased',
+					boxSizing: 'border-box',
+					color: '#1d1d19',
+					fontFamily: 'Inter',
+					height: 660,
+					isolation: 'isolate',
+					left: 60,
+					opacity: interpolate(
+						frame,
+						[0, 10, durationInFrames - 8, durationInFrames - 1],
+						[0, 1, 1, 0],
+						{
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+					overflow: 'hidden',
+					position: 'absolute',
+					scale: interpolate(
+						frame,
+						[0, 16, durationInFrames - 8, durationInFrames - 1],
+						[0.97, 1, 1, 0.98],
+						{
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
+						},
+					),
+					top: 180,
+					transform: 'perspective(100px)',
+					translate: interpolate(
+						frame,
+						[0, 16, durationInFrames - 8, durationInFrames - 1],
+						['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
+						{
+							easing: Easing.bezier(0.16, 1, 0.3, 1),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+					width: 900,
+					willChange: 'transform, opacity',
+				}}
+			>
+				<ProductCard count={3} index={0} label="A" />
+				<ProductCard count={3} index={1} label="B" />
+				<ProductCard count={3} index={2} label="C" />
+			</Interactive.Div>
+		</AbsoluteFill>
+	);
+};
+
+export const ProductCollection = Interactive.withSchema({
+	Component: ProductCollectionInner,
+	componentName: '<ProductCollection>',
+	schema: {},
+	wrapInSequence: true,
+});

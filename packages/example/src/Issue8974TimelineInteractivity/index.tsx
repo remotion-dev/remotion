@@ -1,3 +1,4 @@
+import {LightLeak} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
@@ -30,6 +31,9 @@ export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 			>
 				<Video name="Linked video 02" src="https://remotion.media/video.webm" />
 			</TransitionSeries.Sequence>
+			<TransitionSeries.Overlay durationInFrames={20}>
+				<LightLeak seed={4} />
+			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence
 				name="Linked clip 03"
 				durationInFrames={43}
@@ -48,6 +52,9 @@ export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 			>
 				<Video name="Linked video 04" src="https://remotion.media/video.webm" />
 			</TransitionSeries.Sequence>
+			<TransitionSeries.Overlay durationInFrames={24}>
+				<LightLeak seed={8} hueShift={120} />
+			</TransitionSeries.Overlay>
 			<TransitionSeries.Sequence
 				name="Linked clip 05"
 				durationInFrames={45}

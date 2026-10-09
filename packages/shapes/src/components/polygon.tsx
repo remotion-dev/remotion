@@ -14,6 +14,7 @@ const polygonSchema = makeShapeSchema({
 		description: 'Points',
 		min: 3,
 		step: 1,
+		integer: true,
 	}),
 	radius: numberField({
 		defaultValue: 100,

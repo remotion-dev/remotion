@@ -5,6 +5,7 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import type {DefaultCodingAgent, LogLevel} from '@remotion/renderer';
 import {defaultCodingAgentIds, RenderInternals} from '@remotion/renderer';
+import {getRunningProcesses, isAppRunning} from './running-processes';
 
 const execFilePromise = promisify(execFile);
 
@@ -384,8 +385,8 @@ export const discoverAvailableCodingAgents = async (
 						applicationPath,
 						id,
 						launchMode: 'direct',
-						name: definition.name,
-						nameWithType: definition.nameWithType,
+						name: id === 'codex' ? 'ChatGPT' : definition.name,
+						nameWithType: id === 'codex' ? 'ChatGPT' : definition.nameWithType,
 						platform,
 						terminal: null,
 					});
@@ -434,6 +435,35 @@ export const getAvailableCodingAgents = () => {
 	return availableCodingAgents;
 };
 
+export const getRunningCodingAgents = async (
+	installedCodingAgents: readonly InstalledCodingAgent[],
+): Promise<readonly DefaultCodingAgent[]> => {
+	if (installedCodingAgents.length === 0) {
+		return [];
+	}
+
+	const processes = await getRunningProcesses();
+	if (processes === null) {
+		return [];
+	}
+
+	return installedCodingAgents
+		.filter((agent) =>
+			isAppRunning({
+				processes,
+				executablePath: agent.applicationPath,
+				commands:
+					agent.platform === 'darwin'
+						? []
+						: codingAgentDefinitions[agent.id][agent.platform].flatMap(
+								(variant) => variant.commands,
+							),
+				platform: agent.platform,
+			}),
+		)
+		.map((agent) => agent.id);
+};
+
 export const getCodingAgentLaunchCommand = ({
 	codingAgent,
 	projectPath,
@@ -443,15 +473,17 @@ export const getCodingAgentLaunchCommand = ({
 }): {command: string; args: string[]; cwd: string | null} => {
 	if (codingAgent.platform === 'darwin') {
 		switch (codingAgent.id) {
-			case 'codex':
+			case 'codex': {
+				const deepLink = new URL('codex://new');
+				deepLink.searchParams.set('path', projectPath);
+
 				return {
-					command: path.posix.join(
-						codingAgent.applicationPath,
-						'Contents/Resources/codex',
-					),
-					args: ['app', projectPath],
+					command: 'open',
+					args: [deepLink.toString()],
 					cwd: null,
 				};
+			}
+
 			case 'cursor':
 				return {
 					command: path.posix.join(

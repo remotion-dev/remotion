@@ -31,18 +31,17 @@ export const readDirectory: ReadDir = ({
 			continue;
 		}
 
+		const relative = path
+			.relative(originalDir, filePath)
+			.split(path.sep)
+			.join('/');
+
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
 			const realPath = fs.realpathSync(filePath);
 
-			etags[path.relative(originalDir, filePath)] = getEtagOfFile(
-				realPath,
-				onProgress,
-			);
+			etags[relative] = getEtagOfFile(realPath, onProgress);
 		} else {
-			etags[path.relative(originalDir, filePath)] = getEtagOfFile(
-				filePath,
-				onProgress,
-			);
+			etags[relative] = getEtagOfFile(filePath, onProgress);
 		}
 	}
 

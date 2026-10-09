@@ -41,9 +41,13 @@ const deriveCodecsFromFilename = (
 		return {possible: [], default: null};
 	}
 
+	const normalizedExtension = extension.toLowerCase();
+
 	return {
-		default: defaultCodecsForFileExtension[extension as FileExtension] ?? null,
-		possible: makeFileExtensionMap()[extension] ?? [],
+		default:
+			defaultCodecsForFileExtension[normalizedExtension as FileExtension] ??
+			null,
+		possible: makeFileExtensionMap()[normalizedExtension] ?? [],
 	};
 };
 
@@ -51,6 +55,7 @@ const cliFlag = 'codec' as const;
 
 export const videoCodecOption = {
 	name: 'Codec',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -60,7 +65,7 @@ export const videoCodecOption = {
 		</>
 	),
 	ssrName: 'codec',
-	docLink: 'https://www.remotion.dev/docs/encoding/#choosing-a-codec',
+	docLink: 'https://www.remotion.dev/docs/options/codec',
 	type: '' as Codec,
 	getValue: (
 		{commandLine}: {commandLine: Record<string, unknown>},

@@ -31,6 +31,13 @@ bun run dev
 bunx remotion render
 ```
 
+## Roller ski video
+
+The compositions from the `roller-skis` project are in the `RollerSkis` folder in
+Studio. Their source is in `src/roller-skis`, and the media is hosted under
+`https://remotion.media/jonnys-videos/roller-skis/`. The caption data needed by
+the rough cut is kept with the composition source.
+
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).

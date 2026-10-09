@@ -4,6 +4,7 @@ import {
 	configMethodLifecycles,
 	type ConfigUpdate,
 	type ConfigValue,
+	normalizeHttpUrl,
 	type StudioRuntimeConfig,
 	validateStudioKeyboardShortcuts,
 	type UpdateConfigRequest,
@@ -74,6 +75,26 @@ const validateUpdates = (updates: unknown): string | null => {
 
 		setters.add(setter);
 		if (setter === 'addElementLibrary') {
+			if (type === 'delete') {
+				if (typeof update.value !== 'string') {
+					return 'Deleting an Element Library requires its URL.';
+				}
+
+				try {
+					const parsedUrl = new URL(update.value);
+					if (
+						parsedUrl.protocol !== 'http:' &&
+						parsedUrl.protocol !== 'https:'
+					) {
+						return 'Deleting an Element Library requires an HTTP or HTTPS URL.';
+					}
+				} catch {
+					return 'Deleting an Element Library requires an HTTP or HTTPS URL.';
+				}
+
+				continue;
+			}
+
 			if (
 				type !== 'set' ||
 				!('value' in update) ||
@@ -100,6 +121,13 @@ const validateUpdates = (updates: unknown): string | null => {
 			}
 
 			if (
+				elementLibrary.captionStylesUrl !== undefined &&
+				normalizeHttpUrl(elementLibrary.captionStylesUrl) === null
+			) {
+				return 'Config.addElementLibrary() expects "captionStylesUrl" to be an absolute HTTP or HTTPS URL.';
+			}
+
+			if (
 				displayName !== undefined &&
 				(typeof displayName !== 'string' || displayName.trim() === '')
 			) {
@@ -110,6 +138,10 @@ const validateUpdates = (updates: unknown): string | null => {
 		}
 
 		if (type === 'delete') {
+			if (update.value !== undefined) {
+				return `Config.${setter}() does not accept a value when deleting.`;
+			}
+
 			continue;
 		}
 
@@ -135,6 +167,14 @@ export const updateConfigFile = ({
 	readonly updates: ConfigUpdate[];
 }) => {
 	const setters = new Set(updates.map(({setter}) => setter));
+	const deletedElementLibraryValue = updates.find(
+		(update) =>
+			update.setter === 'addElementLibrary' && update.type === 'delete',
+	)?.value;
+	const deletedElementLibraryUrl =
+		typeof deletedElementLibraryValue === 'string'
+			? new URL(deletedElementLibraryValue).href
+			: null;
 	const elementLibraryUrls = new Set<string>();
 	for (const url of existingElementLibraryUrls) {
 		try {
@@ -184,6 +224,15 @@ export const updateConfigFile = ({
 						try {
 							const parsedUrl = new URL(urlProperty.value.value);
 							if (
+								deletedElementLibraryUrl !== null &&
+								parsedUrl.href === deletedElementLibraryUrl
+							) {
+								path.prune();
+								changed = true;
+								return false;
+							}
+
+							if (
 								parsedUrl.protocol === 'http:' ||
 								parsedUrl.protocol === 'https:'
 							) {
@@ -219,7 +268,11 @@ export const updateConfigFile = ({
 		let value = initialValue;
 		if (setter === 'addElementLibrary') {
 			const elementLibrary = initialValue as Record<string, ConfigValue>;
-			const {displayName: rawDisplayName, url} = elementLibrary;
+			const {
+				displayName: rawDisplayName,
+				url,
+				captionStylesUrl,
+			} = elementLibrary;
 			const normalizedUrl = new URL(url as string).href;
 			if (elementLibraryUrls.has(normalizedUrl)) {
 				continue;
@@ -227,10 +280,13 @@ export const updateConfigFile = ({
 
 			const displayName =
 				typeof rawDisplayName === 'string' ? rawDisplayName.trim() : null;
-			value =
-				displayName === null
-					? {url: normalizedUrl}
-					: {url: normalizedUrl, displayName};
+			value = {
+				url: normalizedUrl,
+				...(displayName === null ? {} : {displayName}),
+				...(captionStylesUrl === undefined
+					? {}
+					: {captionStylesUrl: new URL(captionStylesUrl as string).href}),
+			};
 			elementLibraryUrls.add(normalizedUrl);
 		}
 
@@ -347,6 +403,19 @@ export const updateConfigHandler = async ({
 		updates: input.updates,
 	});
 	if (updatedConfig === configContents) {
+		if (
+			input.updates.some(
+				(update) =>
+					update.setter === 'addElementLibrary' && update.type === 'delete',
+			)
+		) {
+			return {
+				success: false,
+				reason:
+					'Could not find a matching literal Element Library URL in the config file.',
+			};
+		}
+
 		return {success: true};
 	}
 

@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/sdk';
 import {
 	Internals,
 	type DragOverrideValue,
@@ -9,6 +10,8 @@ import {
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
 
+const {canEditKeyframeEasing} = CanvasInternals;
+
 const hasOverride = (
 	overrides: Record<string, DragOverrideValue>,
 	key: string,
@@ -17,12 +20,14 @@ const hasOverride = (
 const withDragOverrideKeyframe = ({
 	propStatus,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	timelinePosition,
 	dragOverrideValue,
 	hasDragOverride,
 }: {
 	propStatus: Parameters<typeof getTimelineKeyframes>[0];
 	keyframeDisplayOffset: number;
+	keyframePlaybackRate: number;
 	timelinePosition: number;
 	dragOverrideValue: DragOverrideValue | undefined;
 	hasDragOverride: boolean;
@@ -31,10 +36,15 @@ const withDragOverrideKeyframe = ({
 		return getTimelineKeyframes(
 			dragOverrideValue.status,
 			keyframeDisplayOffset,
+			keyframePlaybackRate,
 		);
 	}
 
-	const keyframes = getTimelineKeyframes(propStatus, keyframeDisplayOffset);
+	const keyframes = getTimelineKeyframes(
+		propStatus,
+		keyframeDisplayOffset,
+		keyframePlaybackRate,
+	);
 
 	if (!hasDragOverride || propStatus?.status !== 'keyframed') {
 		return keyframes;
@@ -64,6 +74,7 @@ export const getNodeKeyframes = ({
 	nodePath,
 	propStatuses,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	getDragOverrides,
 	getEffectDragOverrides,
 	timelinePosition,
@@ -72,6 +83,7 @@ export const getNodeKeyframes = ({
 	nodePath: SequencePropsSubscriptionKey;
 	propStatuses: PropStatuses;
 	keyframeDisplayOffset: number;
+	keyframePlaybackRate: number;
 	getDragOverrides: GetDragOverrides;
 	getEffectDragOverrides: GetEffectDragOverrides;
 	timelinePosition: number;
@@ -87,6 +99,7 @@ export const getNodeKeyframes = ({
 				node.field.key
 			],
 			keyframeDisplayOffset,
+			keyframePlaybackRate,
 			timelinePosition,
 			dragOverrideValue: dragOverrides[node.field.key],
 			hasDragOverride: hasOverride(dragOverrides, node.field.key),
@@ -109,6 +122,7 @@ export const getNodeKeyframes = ({
 				? effectStatus.props?.[node.field.key]
 				: null,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 		timelinePosition,
 		dragOverrideValue: effectDragOverrides[node.field.key],
 		hasDragOverride: hasOverride(effectDragOverrides, node.field.key),
@@ -162,4 +176,41 @@ export const getNodeHasKeyframes = ({
 		effectStatus.type === 'can-update-effect' &&
 		effectStatus.props?.[node.field.key]?.status === 'keyframed'
 	);
+};
+
+/** Whether the row of a field shows easing segments between its keyframes. */
+export const getNodeCanEditEasing = ({
+	node,
+	nodePath,
+	propStatuses,
+}: {
+	node: TimelineTreeNode;
+	nodePath: SequencePropsSubscriptionKey;
+	propStatuses: PropStatuses;
+}): boolean => {
+	if (node.kind !== 'field' || node.field === null) {
+		return false;
+	}
+
+	if (node.field.kind === 'sequence-field') {
+		return canEditKeyframeEasing({
+			field: node.field.fieldSchema,
+			propStatus: Internals.getPropStatusesCtx(propStatuses, nodePath)?.[
+				node.field.key
+			],
+		});
+	}
+
+	const effectStatus = Internals.getEffectPropStatusesCtx({
+		propStatuses,
+		nodePath,
+		effectIndex: node.field.effectIndex,
+	});
+	return canEditKeyframeEasing({
+		field: node.field.fieldSchema,
+		propStatus:
+			effectStatus.type === 'can-update-effect'
+				? effectStatus.props[node.field.key]
+				: null,
+	});
 };

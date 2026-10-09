@@ -37,12 +37,14 @@ export const TimelineExpandedSection: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly nestedDepth: number;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 }> = ({
 	sequence,
 	validatedLocation,
 	nodePathInfo,
 	nestedDepth,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 }) => {
 	const {filteredTree, getIsExpanded, toggleTrack} = useTimelineExpandedTree({
 		sequence,
@@ -97,6 +99,7 @@ export const TimelineExpandedSection: React.FC<{
 								nodePath={nodePathInfo.sequenceSubscriptionKey}
 								schema={schema}
 								keyframeDisplayOffset={keyframeDisplayOffset}
+								keyframePlaybackRate={keyframePlaybackRate}
 								keyframeControlsMode="timeline"
 							/>
 						</React.Fragment>

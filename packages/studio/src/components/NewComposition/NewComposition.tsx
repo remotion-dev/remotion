@@ -1,4 +1,4 @@
-import {sortItemsByCommitOrder} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import type {
 	ChangeEventHandler,
 	Dispatch,
@@ -31,9 +31,9 @@ import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
-import {CodemodFooter} from './CodemodFooter';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
 import {getNewCompositionDefaults} from './get-new-composition-defaults';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
@@ -42,6 +42,8 @@ import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
 import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
+
+const {sortItemsByCommitOrder} = CanvasInternals;
 
 const content: React.CSSProperties = {
 	padding: 12,
@@ -84,18 +86,18 @@ const folderLabelTextStyle: React.CSSProperties = {
 
 const FolderDropdownLabel: React.FC<{
 	readonly indentation: number;
-	readonly folderPath: string | null;
-}> = ({folderPath, indentation}) => {
+	readonly folderName: string | null;
+}> = ({folderName, indentation}) => {
 	return (
 		<div style={folderLabelStyle}>
 			<Spacing x={indentation * 1.5} />
-			{folderPath === null ? (
+			{folderName === null ? (
 				<div style={folderIconStyle} />
 			) : (
 				<CollapsedFolderIcon color={LIGHT_TEXT} style={folderIconStyle} />
 			)}
 			<Spacing x={1} />
-			<span style={folderLabelTextStyle}>{folderPath ?? 'None'}</span>
+			<span style={folderLabelTextStyle}>{folderName ?? 'None'}</span>
 		</div>
 	);
 };
@@ -170,7 +172,7 @@ export const NewCompositionFields: React.FC<{
 			{
 				id: rootFolderId,
 				keyHint: null,
-				label: <FolderDropdownLabel folderPath={null} indentation={0} />,
+				label: <FolderDropdownLabel folderName={null} indentation={0} />,
 				leftItem: values.folder.folderName === null ? <Checkmark /> : null,
 				onClick: () => {
 					setValues((current) => ({
@@ -207,7 +209,7 @@ export const NewCompositionFields: React.FC<{
 					keyHint: null,
 					label: (
 						<FolderDropdownLabel
-							folderPath={folderPath}
+							folderName={folder.name}
 							indentation={indentation}
 						/>
 					),
@@ -222,7 +224,7 @@ export const NewCompositionFields: React.FC<{
 							},
 						}));
 					},
-					quickSwitcherLabel: folderPath,
+					quickSwitcherLabel: folder.name,
 					subMenu: null,
 					type: 'item',
 					value: id,
@@ -314,7 +316,7 @@ export const NewCompositionFields: React.FC<{
 						values={folderValues}
 						selectedId={selectedFolderId}
 						style={folderSelectStyle}
-						title="Folder"
+						aria-label="Folder"
 					/>
 				</div>
 			</div>
@@ -466,7 +468,7 @@ const NewCompositionLoaded: React.FC<{
 		durationInFrames: initialDimensions.durationInFrames,
 		folder: {folderName, parentName, stack},
 		fps: initialDimensions.fps,
-		id: getUniqueCompositionName(compositions),
+		id: getUniqueCompositionName(compositions, null),
 		size: {
 			height: initialDimensions.height,
 			width: initialDimensions.width,
@@ -481,7 +483,6 @@ const NewCompositionLoaded: React.FC<{
 	}, []);
 
 	const {
-		codemod,
 		compositionId,
 		createComposition,
 		heightValidationMessage,
@@ -489,6 +490,7 @@ const NewCompositionLoaded: React.FC<{
 		valid,
 		widthValidationMessage,
 	} = useCreateComposition({
+		asset: null,
 		compositions,
 		durationInFrames: values.durationInFrames,
 		folderName: values.folder.folderName,
@@ -566,22 +568,20 @@ const NewCompositionLoaded: React.FC<{
 					/>
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						loadingNotification={null}
 						errorNotification="Could not create composition"
 						genericSubmitLabel="Add to root file"
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
-						codemod={codemod}
 						stack={values.folder.stack}
 						valid={valid}
 						onSuccess={null}
-						applyCodemod={({signal, symbolicatedStack}) =>
+						applyEdit={({signal, symbolicatedStack}) =>
 							createCanvasCaptureComposition({
 								signal,
 								symbolicatedStack,
 							})
 						}
-						applyCodemodForPreview={null}
 						fallbackToRootFile
 					/>
 				</ModalFooterContainer>

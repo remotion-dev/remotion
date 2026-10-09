@@ -1,4 +1,5 @@
 import {
+	downloadWhisperModel,
 	loadWhisperModel,
 	resampleTo16Khz,
 	toCaptions,
@@ -46,7 +47,7 @@ export default function TranscribeAudio({
 				file: await sourceToBlob(source),
 			});
 
-			await loadWhisperModel({
+			await downloadWhisperModel({
 				model: selectedModel,
 				onProgress: (progress) =>
 					setState(() => ({
@@ -54,6 +55,7 @@ export default function TranscribeAudio({
 						progress,
 					})),
 			});
+			await loadWhisperModel({model: selectedModel});
 
 			setState(() => ({
 				type: 'transcribing',
@@ -87,7 +89,7 @@ export default function TranscribeAudio({
 							<div
 								className="w-[50%] h-5 bg-brand"
 								style={{
-									width: `${(state.progress.progress ?? 0) * 100}%`,
+									width: `${state.progress.progress * 100}%`,
 								}}
 							/>
 						</div>
@@ -100,12 +102,8 @@ export default function TranscribeAudio({
 							</div>
 							<div className="tabular-nums text-muted-foreground font-brand text-sm">
 								<span>
-									{state.progress.progress === null
-										? state.progress.status
-										: `${Math.round(state.progress.progress * 100)}%`}{' '}
-									{state.progress.loadedBytes === null
-										? null
-										: formatBytes(state.progress.loadedBytes)}
+									{Math.round(state.progress.progress * 100)}%{' '}
+									{formatBytes(state.progress.loadedBytes)}
 								</span>
 							</div>
 						</div>

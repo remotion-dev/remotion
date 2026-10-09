@@ -90,6 +90,11 @@ injectCSS(`
     background: transparent;
   }
 
+  .__remotion-vertical-scrollbar,
+  .__remotion-horizontal-scrollbar {
+    overflow-anchor: none;
+  }
+
   .__remotion-vertical-scrollbar {
     scrollbar-gutter: stable;
   }

@@ -190,7 +190,7 @@ test('Should calculate asset positions for a complete media workflow', async () 
 			volume: 1,
 			playbackRate: 1,
 			toneFrequency: 1,
-			audioStartFrame: 20,
+			audioStartFrame: 0,
 			audioStreamIndex: 0,
 		},
 	]);
@@ -246,7 +246,7 @@ test('Should calculate asset positions for a complete media workflow', async () 
 			}),
 		),
 		toneFrequency: 1,
-		audioStartFrame: 10,
+		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	} as const;
 
@@ -271,7 +271,7 @@ test('Should calculate asset positions for a complete media workflow', async () 
 				}),
 			),
 			toneFrequency: 1,
-			audioStartFrame: 10,
+			audioStartFrame: 0,
 			audioStreamIndex: 0,
 		},
 	]);

@@ -1,12 +1,13 @@
 import type {SVGProps} from 'react';
 import React from 'react';
+import {CURRENT_COLOR} from '../helpers/colors';
 
 export const AlignRightIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
-	const color = props.color ?? 'currentColor';
+	const color = props.color ?? CURRENT_COLOR;
 
 	return (
 		<svg {...props} viewBox="0 0 16 16" fill="none">
-			<path d="M14 2V14" stroke={color} strokeLinecap="square" />
+			<path d="M13.5 2.5V13.5" stroke={color} strokeLinecap="square" />
 			<line x1="3" y1="6" x2="12" y2="6" stroke={color} strokeWidth="2" />
 			<line x1="5" y1="10" x2="12" y2="10" stroke={color} strokeWidth="2" />
 		</svg>

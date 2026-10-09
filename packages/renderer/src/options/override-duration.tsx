@@ -7,10 +7,11 @@ const cliFlag = 'duration' as const;
 
 export const overrideDurationOption = {
 	name: 'Override Duration',
+	addedIn: '4.0.424',
 	cliFlag,
 	description: () => <>Overrides the duration in frames of the composition.</>,
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#overrideduration',
+	docLink: 'https://www.remotion.dev/docs/options/duration',
 	type: null as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

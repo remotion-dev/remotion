@@ -87,6 +87,15 @@ html {
 	}
 }
 
+.explore-video {
+	opacity: 0.3;
+	transition: opacity 300ms;
+}
+
+.group:hover .explore-video {
+	opacity: 1;
+}
+
 @keyframes click {
 	0% {
 		transform: translateY(-18px);

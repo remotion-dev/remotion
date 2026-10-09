@@ -25,6 +25,7 @@ const compositionRef: CompositionRef = {
 };
 
 const makeCaptionParams = (displayName: string): AddCaptionJobParams => ({
+	captionStyle: null,
 	src: `/${displayName}`,
 	displayName,
 	audioStreamIndex: null,
@@ -60,12 +61,12 @@ const makeStillParams = (compositionId: string): AddClientStillJobParams => ({
 });
 
 const videoMattingParams: AddVideoMattingJobParams = {
-	audio: 'base',
-	baseOutName: 'video-base.webm',
+	audio: 'keep',
 	displayName: 'video.mp4',
-	foregroundOutName: 'video-foreground.webm',
+	outName: 'video-no-background.webm',
 	model: 'ben2-base',
 	src: '/video.mp4',
+	target: null,
 	videoBitrate: 'very-high',
 };
 

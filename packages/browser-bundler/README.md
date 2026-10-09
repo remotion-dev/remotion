@@ -1,11 +1,18 @@
 # @remotion/browser-bundler
 
-Experimental browser-side bundling for virtual Remotion projects. Compile source snapshots, then use `@remotion/browser-bundler/runtime` to select a registered composition for your own UI, such as a Remotion Player.
+Compile virtual Remotion projects in the browser
 
-```sh
-npm install @remotion/browser-bundler
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/browser-bundler.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/browser-bundler?minimal=true)
+
+## Installation
+
+```bash
+npm install @remotion/browser-bundler --save-exact
 ```
 
-Requires a cross-origin-isolated browser page and worker/WebAssembly asset support in your app's bundler. The runtime executes trusted code with host-page privileges; it is not a sandbox.
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
 
-[Documentation](https://www.remotion.dev/docs/browser-bundler)
+## Usage
+
+See the [documentation](https://www.remotion.dev/docs/browser-bundler) for more information.

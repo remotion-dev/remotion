@@ -21,12 +21,12 @@ Use it for dot-pattern wipes, overlays, and backgrounds on canvas-based componen
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Solid} from 'remotion';
+import {Solid} from 'remotion';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Solid
         width={1280}
         height={720}
@@ -42,7 +42,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -50,12 +50,12 @@ export const MyComp: React.FC = () => {
 To use colors from the previous effect in the chain, set `colorMode` to `'source'`:
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Solid} from 'remotion';
+import {Solid} from 'remotion';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Solid
         width={1280}
         height={720}
@@ -71,7 +71,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

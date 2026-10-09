@@ -4,6 +4,12 @@ export {
 } from './can-use-whisper-webgpu';
 export type {CanUseWhisperWebGpuResult} from './can-use-whisper-webgpu';
 export {clearStaleModels} from './clear-stale-models';
+export {downloadWhisperModel} from './download-whisper-model';
+export type {
+	DownloadWhisperModelOptions,
+	DownloadWhisperModelResult,
+	WhisperModelDownloadProgress,
+} from './download-whisper-model';
 export {isWhisperModelCached} from './is-whisper-model-cached';
 export type {IsWhisperModelCachedOptions} from './is-whisper-model-cached';
 export {disposeWhisperModel, loadWhisperModel} from './load-whisper-model';

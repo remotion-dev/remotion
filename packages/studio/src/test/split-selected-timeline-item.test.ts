@@ -62,6 +62,7 @@ const makeSequence = (
 		effects: [],
 		effectRuntimeValues: null,
 		isInsideSeries: false,
+		sequencePlaybackRate: 1,
 		frozenFrame: null,
 		type: 'sequence',
 		...overrides,

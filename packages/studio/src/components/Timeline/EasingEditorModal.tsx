@@ -1,8 +1,8 @@
 import {
-	HOLD_KEYFRAME_EASING,
-	KEYFRAME_EASING_PRESETS,
-	LINEAR_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
+	canvasKeyframeEasingPresets,
+	type CanvasKeyframeEasingPreset,
+} from '@remotion/sdk';
+import {HOLD_KEYFRAME_EASING} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -62,11 +62,6 @@ type EasingGraphLabels = {
 	readonly start: string;
 	readonly end: string;
 };
-type EasingPreset = {
-	readonly id: string;
-	readonly label: string;
-	readonly easing: TimelineEasingValue;
-};
 
 const SVG_WIDTH = 560;
 const SVG_HEIGHT = 320;
@@ -102,15 +97,6 @@ const DEFAULT_SPRING_EASING: SpringEasing = {
 	overshootClamping: false,
 	stiffness: 100,
 };
-const EDITOR_EASING_PRESETS: readonly EasingPreset[] = [
-	{
-		id: 'linear',
-		label: 'Linear',
-		easing: LINEAR_KEYFRAME_EASING,
-	},
-	...KEYFRAME_EASING_PRESETS,
-];
-
 const SPRING_LIMITS: Record<
 	SpringNumberKey,
 	{
@@ -661,7 +647,11 @@ const EasingGraphScaffold: React.FC<{
 				width={topLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
 			>
-				<div style={getEasingGraphLabelStyle('left')} title={labels.end}>
+				<div
+					role="group"
+					style={getEasingGraphLabelStyle('left')}
+					aria-label={labels.end}
+				>
 					{labels.end}
 				</div>
 			</foreignObject>
@@ -676,7 +666,11 @@ const EasingGraphScaffold: React.FC<{
 				width={bottomLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
 			>
-				<div style={getEasingGraphLabelStyle('right')} title={labels.start}>
+				<div
+					role="group"
+					style={getEasingGraphLabelStyle('right')}
+					aria-label={labels.start}
+				>
 					{labels.start}
 				</div>
 			</foreignObject>
@@ -688,7 +682,7 @@ const EasingPresetButton: React.FC<{
 	readonly currentEasing: TimelineEasingValue;
 	readonly disabled: boolean;
 	readonly onClick: (easing: TimelineEasingValue) => void;
-	readonly preset: EasingPreset;
+	readonly preset: CanvasKeyframeEasingPreset;
 }> = ({currentEasing, disabled, onClick, preset}) => {
 	const selected = areEasingsEqual(currentEasing, preset.easing);
 	const [hovered, setHovered] = useState(false);
@@ -715,7 +709,6 @@ const EasingPresetButton: React.FC<{
 		<button
 			type="button"
 			style={style}
-			title={preset.label}
 			aria-label={`Apply ${preset.label} easing`}
 			disabled={disabled}
 			onClick={handleClick}
@@ -833,11 +826,10 @@ export const EasingEditor: React.FC<{
 			pendingOverrideTargetsRef.current = updates;
 
 			for (const update of updates) {
-				const dragOverrideValue = makeEasingDragOverride({
-					status: update.propStatus,
-					segmentIndex: update.segmentIndex,
-					easing,
-				});
+				const dragOverrideValue = makeEasingDragOverride({update, easing});
+				if (dragOverrideValue === null) {
+					continue;
+				}
 
 				if (update.type === 'sequence') {
 					setDragOverrides(update.nodePath, update.fieldKey, dragOverrideValue);
@@ -1230,7 +1222,7 @@ export const EasingEditor: React.FC<{
 					renderHeader ? inspectorPresetButtonsWrapper : presetButtonsWrapper
 				}
 			>
-				{EDITOR_EASING_PRESETS.map((preset) => (
+				{canvasKeyframeEasingPresets.map((preset) => (
 					<EasingPresetButton
 						key={preset.id}
 						currentEasing={currentEasing}

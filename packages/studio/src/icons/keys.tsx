@@ -6,12 +6,30 @@ const iconStyle: React.CSSProperties = {
 	display: 'inline',
 };
 
-export const ShiftIcon: React.FC = () => {
+const shiftIconStyle: React.CSSProperties = {
+	display: 'inline-block',
+	height: 12,
+	verticalAlign: 'baseline',
+	width: 12,
+};
+
+export const ShiftIcon: React.FC<{
+	readonly color: string | null;
+}> = ({color}) => {
 	return (
-		<svg style={iconStyle} viewBox="0 0 448 512">
+		<svg
+			aria-hidden="true"
+			focusable="false"
+			style={shiftIconStyle}
+			viewBox="0 0 12 12"
+		>
 			<path
-				fill={CURRENT_COLOR}
-				d="M48.048 304h73.798v128c0 26.51 21.49 48 48 48h108.308c26.51 0 48-21.49 48-48V304h73.789c42.638 0 64.151-51.731 33.941-81.941l-175.943-176c-18.745-18.745-49.137-18.746-67.882 0l-175.952 176C-16.042 252.208 5.325 304 48.048 304zM224 80l176 176H278.154v176H169.846V256H48L224 80z"
+				d="M4.5 11.5V8.5H1.5L6 3.5L10.5 8.5H7.5V11.5"
+				fill="none"
+				stroke={color ?? CURRENT_COLOR}
+				strokeLinecap="square"
+				strokeLinejoin="miter"
+				strokeWidth="1"
 			/>
 		</svg>
 	);

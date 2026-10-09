@@ -1,12 +1,16 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {BufferingProvider} from '../buffering.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import type {TSequence} from '../CompositionManager.js';
 import type {CompositionManagerContext} from '../CompositionManagerContext.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
 import type {LoggingContextValue} from '../log-level-context.js';
 import {LogLevelContext} from '../log-level-context.js';
 import {createRuntimeValueStore} from '../runtime-value-store.js';
-import {SequenceManagerProvider} from '../SequenceManager.js';
+import {
+	SequenceManagerProvider,
+	SequenceRegistryContext,
+} from '../SequenceManager.js';
 import type {
 	PlaybackRateContextValue,
 	SetTimelineContextValue,
@@ -20,6 +24,34 @@ import {
 } from '../TimelineContext.js';
 
 const Comp: React.FC = () => null;
+
+export const ObserveSequenceRegistrations: React.FC<{
+	readonly onRegisterSequence: (sequence: TSequence) => void;
+}> = ({onRegisterSequence}) => {
+	const registry = useContext(SequenceRegistryContext);
+	const previous = useRef(new Map<string, TSequence>());
+	useEffect(() => {
+		if (registry === null) {
+			throw new Error('Sequence registry has not mounted');
+		}
+
+		const observe = () => {
+			const sequences = registry.getSnapshot();
+			const changed = sequences.filter(
+				(sequence) => previous.current.get(sequence.id) !== sequence,
+			);
+			previous.current = new Map(
+				sequences.map((sequence) => [sequence.id, sequence]),
+			);
+			changed.forEach(onRegisterSequence);
+		};
+
+		const unsubscribe = registry.subscribe(observe);
+		observe();
+		return unsubscribe;
+	}, [onRegisterSequence, registry]);
+	return null;
+};
 
 const makeMockCompositionContext = (
 	durationInFrames: number,
@@ -130,7 +162,8 @@ export const WrapSequenceContext: React.FC<{
 	);
 	const setTimelineContext = useMemo<SetTimelineContextValue>(
 		() => ({
-			setFrame: () => undefined,
+			setFrameWithoutSeek: () => undefined,
+			seek: null,
 			setPlaying: () => undefined,
 			setBuffering: (buffering) => {
 				if (bufferingStore.store.getSnapshot().buffering !== buffering) {

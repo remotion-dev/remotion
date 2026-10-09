@@ -3,7 +3,6 @@ import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
 export const TableOfContents: React.FC = () => {
-	const offthreadComponent = '<OffthreadVideo>';
 	return (
 		<div>
 			<Grid>
@@ -68,12 +67,6 @@ export const TableOfContents: React.FC = () => {
 						ensureFfprobe()
 					</strong>
 					<div>Check for ffprobe binary and install if not existing</div>
-				</TOCItem>
-				<TOCItem link="/docs/renderer/get-can-extract-frames-fast">
-					<strong style={{textDecoration: 'line-through'}}>
-						getCanExtractFramesFast()
-					</strong>
-					<div>Probes for fast extraction for {offthreadComponent}</div>
 				</TOCItem>
 			</Grid>
 		</div>

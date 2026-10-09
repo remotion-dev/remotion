@@ -6,10 +6,15 @@ import * as JSXRuntime from 'react/jsx-runtime';
 import * as Remotion from 'remotion';
 import * as RemotionNoReact from 'remotion/no-react';
 import * as RemotionVersion from 'remotion/version';
+import {addSourceLocationsToJsxModules} from './source-location-jsx';
 
-export const createBrowserModuleScope = (
-	additionalModules: ReadonlyMap<string, unknown> | null,
-) => {
+export const createBrowserModuleScope = ({
+	additionalModules,
+	addSourceLocations,
+}: {
+	additionalModules: ReadonlyMap<string, unknown> | null;
+	addSourceLocations: boolean;
+}) => {
 	let root: React.FC | null = null;
 	let registrations = 0;
 	const registerRoot = (component: React.FC) => {
@@ -30,12 +35,20 @@ export const createBrowserModuleScope = (
 		root = component;
 	};
 
+	const jsxModules = addSourceLocations
+		? addSourceLocationsToJsxModules({
+				react: React,
+				jsxRuntime: JSXRuntime,
+				jsxDevRuntime: JSXDevRuntime,
+			})
+		: {react: React, jsxRuntime: JSXRuntime, jsxDevRuntime: JSXDevRuntime};
+
 	const sharedModules = new Map<string, unknown>([
-		['react', React],
+		['react', jsxModules.react],
 		['react-dom', ReactDOM],
 		['react-dom/client', ReactDOMClient],
-		['react/jsx-runtime', JSXRuntime],
-		['react/jsx-dev-runtime', JSXDevRuntime],
+		['react/jsx-runtime', jsxModules.jsxRuntime],
+		['react/jsx-dev-runtime', jsxModules.jsxDevRuntime],
 		['remotion', {...Remotion, registerRoot}],
 		['remotion/no-react', RemotionNoReact],
 		['remotion/version', RemotionVersion],

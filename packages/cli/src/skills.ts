@@ -51,7 +51,7 @@ export const skillsCommand = (
 		subcommand === 'add'
 			? [
 					'--loglevel=error',
-					'skills@1.5.26',
+					'skills@1.7.0',
 					'add',
 					'remotion-dev/skills',
 					...restArgs,
@@ -59,7 +59,7 @@ export const skillsCommand = (
 				]
 			: [
 					'--loglevel=error',
-					'skills',
+					'skills@1.7.0',
 					'update',
 					...remotionSkillNames,
 					...restArgs,

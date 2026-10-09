@@ -1,6 +1,12 @@
 import type {RefObject} from 'react';
-import {useCallback, useEffect, useLayoutEffect, useRef} from 'react';
-import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+} from 'react';
+import {Html5MediaTrimContext} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {getMediaSyncAction} from './get-media-sync-action.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
@@ -9,6 +15,7 @@ import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-t
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
+import {SequenceContext} from './SequenceContext.js';
 import {
 	usePlaying,
 	usePlaybackRate,
@@ -81,7 +88,7 @@ export const useMediaPlayback = ({
 	const playing = usePlaying();
 	const playerBuffering = useBuffering();
 	const {fps} = useVideoConfig();
-	const mediaStartsAt = useMediaStartsAt();
+	const mediaTrimBefore = useContext(Html5MediaTrimContext);
 	const lastSeekDueToShift = useRef<number | null>(null);
 	const lastSeek = useRef<number | null>(null);
 	const logLevel = useLogLevel();
@@ -119,7 +126,7 @@ export const useMediaPlayback = ({
 	const desiredUnclampedTime = getMediaTime({
 		frame,
 		playbackRate: localPlaybackRate,
-		startFrom: -mediaStartsAt,
+		startFrom: mediaTrimBefore,
 		fps,
 	});
 
@@ -142,7 +149,11 @@ export const useMediaPlayback = ({
 		mountTime,
 	});
 
-	const playbackRate = localPlaybackRate * globalPlaybackRate;
+	const sequenceContext = useContext(SequenceContext);
+	const playbackRate =
+		localPlaybackRate *
+		globalPlaybackRate *
+		(sequenceContext?.playbackRate ?? 1);
 
 	const acceptableTimeShiftButLessThanDuration = (() => {
 		// For short audio, a lower acceptable time shift is used

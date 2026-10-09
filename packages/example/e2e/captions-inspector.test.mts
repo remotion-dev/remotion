@@ -106,7 +106,7 @@ test.describe('captions inspector', () => {
 		);
 
 		const defaultCaptionsSequence = page
-			.getByTitle('Moving Pill Captions', {exact: true})
+			.getByRole('group', {name: 'Moving Pill Captions', exact: true})
 			.first();
 		const defaultCaption = page.getByRole('textbox', {name: 'Caption 1'});
 		await expect(async () => {
@@ -116,7 +116,7 @@ test.describe('captions inspector', () => {
 		await expect(defaultCaption).toBeEnabled();
 
 		const importCaptionsButton = page.getByRole('button', {
-			name: 'Import captions',
+			name: 'Import transcript',
 			exact: true,
 		});
 		const importCaptionsInput = page.getByLabel('Import captions file');
@@ -212,7 +212,7 @@ test.describe('captions inspector', () => {
 			.getByText('<MissingCaptions>', {exact: true})
 			.first();
 		const importCaptionsButton = page.getByRole('button', {
-			name: 'Import captions',
+			name: 'Import transcript',
 			exact: true,
 		});
 		await expect(async () => {

@@ -16,7 +16,12 @@ export type CommonVideoProps = {
 	 */
 	trimBefore: number | undefined;
 	/**
+	 * How many source frames should be played, starting at `trimBefore`.
+	 */
+	durationInFrames: number | undefined;
+	/**
 	 * Trim of the video from the right (end) in frames.
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
 	 */
 	trimAfter: number | undefined;
 	/**

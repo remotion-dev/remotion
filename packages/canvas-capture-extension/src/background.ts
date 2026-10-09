@@ -15,6 +15,11 @@ export const startBackground = () => {
 			command: 'toggle-controls',
 		};
 		try {
+			await browser.scripting.executeScript({
+				target: {tabId: tab.id},
+				files: ['/drag-image.js'],
+				world: 'MAIN',
+			});
 			try {
 				await browser.tabs.sendMessage(tab.id, request);
 			} catch {

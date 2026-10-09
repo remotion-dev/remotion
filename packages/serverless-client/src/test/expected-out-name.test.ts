@@ -17,6 +17,8 @@ type MockProvider = {
 };
 
 const testRenderMetadata: RenderMetadata<MockProvider> = {
+	separateAudioTo: null,
+	separateAudioOutputFileIsConditional: null,
 	outputFileIsConditional: null,
 	compositionId: 'react-svg',
 	estimatedRenderLambdaInvokations: 100,
@@ -59,6 +61,7 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 test('Should get a custom outname', () => {
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: testRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -81,6 +84,7 @@ test('Should save to a different outname', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -108,6 +112,7 @@ test('Should preserve custom provider regions outside the built-in AWS list', ()
 
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: {
@@ -141,6 +146,7 @@ test('For stills', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -163,6 +169,7 @@ test('Just a custom name', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -185,6 +192,7 @@ test('Should throw on invalid names', () => {
 	};
 	expect(() => {
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -204,6 +212,7 @@ test('Should allow outName an outname with a slash', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -227,6 +236,7 @@ test('Should allow outName an outname with colon', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,

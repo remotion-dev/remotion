@@ -256,7 +256,7 @@ export const DefaultEditorSettings: React.FC = () => {
 								values={editorValues}
 								selectedId={selectedEditor ?? NO_PREFERENCE_ID}
 								style={comboBoxStyle}
-								title="Default editor"
+								aria-label="Default editor"
 							/>
 						)}
 					</div>
@@ -277,7 +277,7 @@ export const DefaultEditorSettings: React.FC = () => {
 								values={codingAgentValues}
 								selectedId={selectedCodingAgent ?? NO_PREFERENCE_ID}
 								style={comboBoxStyle}
-								title="Default coding agent"
+								aria-label="Default coding agent"
 							/>
 						)}
 					</div>

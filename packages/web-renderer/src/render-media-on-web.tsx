@@ -2,6 +2,7 @@ import {
 	BufferTarget,
 	StreamTarget,
 	type MetadataTags,
+	type Quality,
 	type StreamTargetChunk,
 } from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
@@ -51,6 +52,7 @@ import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
 import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
+import {getEncodedDimensions} from './validate-dimensions';
 import {validateScale} from './validate-scale';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
@@ -131,7 +133,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	onProgress: RenderMediaOnWebProgressCallback | null;
 	hardwareAcceleration: WebRendererHardwareAcceleration;
 	keyframeIntervalInSeconds: number;
-	videoBitrate: number | WebRendererQuality;
+	videoBitrate: number | WebRendererQuality | Quality;
 	frameRange: FrameRange | null;
 	transparent: boolean;
 	onArtifact: WebRendererOnArtifact | null;
@@ -315,6 +317,46 @@ const internalRenderMediaOnWeb = async <
 		compositionWidth: composition.width ?? null,
 	});
 
+	const encodedDimensions = getEncodedDimensions({
+		width: resolved.width,
+		height: resolved.height,
+		scale,
+		codec: videoEnabled ? codec : null,
+	});
+	const sourceDimensions = {
+		width: Math.ceil(resolved.width * scale),
+		height: Math.ceil(resolved.height * scale),
+	};
+	const needsCrop =
+		encodedDimensions.width !== sourceDimensions.width ||
+		encodedDimensions.height !== sourceDimensions.height;
+	if (needsCrop && codec) {
+		const croppedPixelsOnRight =
+			sourceDimensions.width - encodedDimensions.width;
+		const croppedPixelsOnBottom =
+			sourceDimensions.height - encodedDimensions.height;
+		const croppedEdges = [
+			croppedPixelsOnRight > 0
+				? `${croppedPixelsOnRight} ${croppedPixelsOnRight === 1 ? 'pixel was' : 'pixels were'} removed from the right edge`
+				: null,
+			croppedPixelsOnBottom > 0
+				? `${croppedPixelsOnBottom} ${croppedPixelsOnBottom === 1 ? 'pixel was' : 'pixels were'} removed from the bottom edge`
+				: null,
+		].filter(Boolean);
+		const codecName =
+			codec === 'h264'
+				? 'H.264'
+				: codec === 'h265'
+					? 'H.265'
+					: codec === 'av1'
+						? 'AV1'
+						: codec.toUpperCase();
+		Internals.Log.warn(
+			{logLevel, tag: '@remotion/web-renderer'},
+			`The output was cropped from ${sourceDimensions.width}×${sourceDimensions.height} to ${encodedDimensions.width}×${encodedDimensions.height} because ${codecName} requires even dimensions. ${croppedEdges.join(' and ')}. Use even output dimensions to avoid cropping.`,
+		);
+	}
+
 	const realFrameRange = getRealFrameRange(
 		resolved.durationInFrames,
 		frameRange,
@@ -463,6 +505,17 @@ const internalRenderMediaOnWeb = async <
 								? videoBitrate
 								: getQualityForWebRendererQuality(videoBitrate),
 						sizeChangeBehavior: 'deny',
+						...(needsCrop
+							? {
+									transform: {
+										crop: {
+											left: 0,
+											top: 0,
+											...encodedDimensions,
+										},
+									},
+								}
+							: {}),
 						hardwareAcceleration,
 						latencyMode: 'quality',
 						keyFrameInterval: keyframeIntervalInSeconds,
@@ -484,6 +537,9 @@ const internalRenderMediaOnWeb = async <
 					// 1 packet per frame, + 33% buffer
 					// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
 					maximumPacketCount: Math.ceil(totalFrames * 1.33),
+					// Mediabunny passes this to `VideoEncoder` as `framerate` and uses it
+					// for the container timescale. Without it, Chromium assumes 30 fps.
+					frameRate: resolved.fps,
 				},
 			);
 		}
@@ -500,9 +556,13 @@ const internalRenderMediaOnWeb = async <
 			outputWithCleanup.output.addAudioTrack(
 				audioSampleSource.audioSampleSource,
 				{
-					// ~1 packet per 10ms, + 33% buffer
+					// ~1 packet per 10ms, + 33% buffer; short AAC renders
+					// need room for encoder flush packets beyond their duration.
 					// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
-					maximumPacketCount: Math.ceil(durationInSeconds * 100 * 1.33),
+					maximumPacketCount: Math.max(
+						8,
+						Math.ceil(durationInSeconds * 100 * 1.33),
+					),
 				},
 			);
 		}
@@ -610,8 +670,8 @@ const internalRenderMediaOnWeb = async <
 					frameToEncode = validateVideoFrame({
 						originalFrame: videoFrame,
 						returnedFrame,
-						expectedWidth: Math.round(resolved.width * scale),
-						expectedHeight: Math.round(resolved.height * scale),
+						expectedWidth: sourceDimensions.width,
+						expectedHeight: sourceDimensions.height,
 						expectedTimestamp: timestamp,
 					});
 					await waitForPageResponsiveness();

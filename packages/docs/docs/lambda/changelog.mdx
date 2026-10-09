@@ -194,9 +194,9 @@ Fixes regressions:
 Version hash: `3.0.0-lambda.338+118ffe2e9`
 Lambda version: '2022-02-04'
 
-Attention: Some Lambda functions are breaking from an AWS change, especially on `us-east-1` and `us-east-2`. We are worried that AWS is slowly rolling out a broken update to their Lambda functions. If you are affected or want to be on the safe side, [read these instructions](/docs/lambda/feb-2022-outage) to avoid the AWS issues.
+Attention: Some Lambda functions are breaking from an AWS change, especially on `us-east-1` and `us-east-2`. We are worried that AWS is slowly rolling out a broken update to their Lambda functions.
 
-- [Allows you to deploy as a `x86_64` Lambda function](/docs/lambda/feb-2022-outage)
+- Allows you to deploy as a `x86_64` Lambda function
 
 ### February 3rd, 2022
 
@@ -489,7 +489,7 @@ Version hash: `2.5.0-alpha.b52a746f`
 - Replace `estimatedLambdaInvokations` with `estimatedRenderLambdaInvokations`.
 - Rename `bucketSize` to `renderSize`. This property is reporting the size of the render, not the size of the bucket.
 - Added `downloadVideo()` API (not documented yet)
-- If you add a filename to the end of the render command `npx remotion lambda render [url] [comp-name] out.mp4`, the video will be downloaded to your computer!
+- If you add a filename to the end of the render command `npx remotion lambda render [url] [composition-id] out.mp4`, the video will be downloaded to your computer!
 - `npx remotion lambda render` has a progress bar now. To continue to see all details, use the `--log=verbose` flag!
 
 ### September 15th, 2021

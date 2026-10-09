@@ -7,17 +7,19 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {
 	getFieldsToShow,
 	SCHEMA_FIELD_GROUPS,
 } from '../../helpers/timeline-layout';
-import {ScissorsIcon} from '../../icons/scissors';
+import {SplitIcon} from '../../icons/split';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {getCurrentFrame} from '../Timeline/imperative-state';
 import {splitSelectedTimelineItems} from '../Timeline/split-selected-timeline-item';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -29,11 +31,14 @@ import {
 	InspectorMessage,
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './common';
 import {
 	MultiSequenceField,
 	type MultiSequenceTarget,
 } from './MultiSequenceField';
+import {SequencePrecomposeAction} from './SequencePrecomposeAction';
 import {scrollableContainer, sequenceHeaderDivider} from './styles';
 
 const selectionCountStyle: React.CSSProperties = {
@@ -48,12 +53,6 @@ const selectionCountStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-const actionIconStyle: React.CSSProperties = {
-	display: 'block',
-	height: 16,
-	width: 16,
-};
-
 export const MultiSequenceInspector: React.FC<{
 	readonly selections: readonly Extract<
 		TimelineSelection,
@@ -61,8 +60,8 @@ export const MultiSequenceInspector: React.FC<{
 	>[];
 	readonly readOnlyStudio: boolean;
 }> = ({selections, readOnlyStudio}) => {
-	const {sequences} = useContext(Internals.SequenceManager);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -106,6 +105,31 @@ export const MultiSequenceInspector: React.FC<{
 		}
 
 		return result;
+	}, [overrideIdToNodePathMappings, selections, sequences]);
+	const precomposeTargets = useMemo(() => {
+		const tracks = calculateTimeline({
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+		});
+		return selections.map(({nodePathInfo}) => {
+			const key = stringifySequenceExpandedRowKey(
+				nodePathInfo.sequenceSubscriptionKey,
+			);
+			const track = tracks.find(
+				(candidate) =>
+					candidate.nodePathInfo !== null &&
+					stringifySequenceExpandedRowKey(
+						candidate.nodePathInfo.sequenceSubscriptionKey,
+					) === key &&
+					candidate.nodePathInfo.index === nodePathInfo.index,
+			);
+			return {
+				nodePathInfo,
+				displayName: track?.sequence.displayName ?? null,
+				line: null,
+				singleChildComponent: track?.sequence.singleChildComponent ?? null,
+			};
+		});
 	}, [overrideIdToNodePathMappings, selections, sequences]);
 	const store = useMemo(() => {
 		const stores = (targets ?? []).map(
@@ -164,7 +188,7 @@ export const MultiSequenceInspector: React.FC<{
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 			propStatuses,
-			splitFrame: timelinePosition,
+			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
 		canSplit,
@@ -172,7 +196,6 @@ export const MultiSequenceInspector: React.FC<{
 		propStatuses,
 		selections,
 		sequences,
-		timelinePosition,
 	]);
 
 	return (
@@ -226,14 +249,23 @@ export const MultiSequenceInspector: React.FC<{
 				<InspectorQuickActionsSection>
 					<InspectorQuickAction
 						disabled={!canSplit}
+						iconContainerStyle={largeInspectorActionIconContainerStyle}
 						onClick={onSplit}
-						title={canSplit ? undefined : 'Studio is read-only'}
+						aria-label={canSplit ? undefined : 'Studio is read-only'}
 						renderIcon={(color) => (
-							<ScissorsIcon style={actionIconStyle} color={color} />
+							<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 						)}
 					>
 						Split selected
 					</InspectorQuickAction>
+					<SequencePrecomposeAction
+						targets={precomposeTargets}
+						sourceActionsDisabled={
+							previewServerState.type !== 'connected' ||
+							readOnlyStudio ||
+							!isStudioInteractivityEnabled()
+						}
+					/>
 				</InspectorQuickActionsSection>
 			</CollapsibleInspectorSection>
 		</div>

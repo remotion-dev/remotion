@@ -29,7 +29,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 		resolveDependencies: null,
 	});
 
-	const insertResult = await operations.insertSolid({
+	const insertResult = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -39,6 +39,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 			position: null,
 		},
 		from: null,
+		premountFor: null,
 	});
 	expect(insertResult.success).toBe(true);
 

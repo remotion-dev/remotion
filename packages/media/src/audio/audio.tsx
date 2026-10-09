@@ -9,8 +9,13 @@ import {
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
+import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
+import {
+	getMediaTrimAfter,
+	getVideoSequenceDuration,
+} from '../video/get-video-sequence-duration';
 import {AudioForPreview} from './audio-for-preview';
 import {AudioForRendering} from './audio-for-rendering';
 import type {AudioProps} from './props';
@@ -26,6 +31,7 @@ export const audioSchema: InteractivitySchema = {
 		keyframable: false,
 	},
 	...Internals.baseSchema,
+	trimAfter: Internals.trimAfterField,
 	...Internals.premountSchema,
 	volume: {
 		type: 'number',
@@ -85,30 +91,51 @@ const AudioInner: React.FC<
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
+	const effectiveTrimAfter = getMediaTrimAfter({
+		durationInFrames,
+		trimAfter: props.trimAfter,
+		trimBefore: props.trimBefore,
+	});
+	const audioSequenceDuration = getVideoSequenceDuration({
+		durationInFrames,
+		loop: props.loop ?? false,
+		playbackRate: props.playbackRate ?? 1,
+		trimAfter: effectiveTrimAfter,
+		trimBefore: props.trimBefore,
+	});
 	const sequenceDurationInFrames = Math.min(
-		durationInFrames ?? Infinity,
+		audioSequenceDuration ?? Infinity,
 		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
 	);
-
-	const basicInfo = Internals.useBasicMediaInTimeline({
-		src: props.src,
-		volume: props.volume,
-		playbackRate: props.playbackRate ?? 1,
-		trimBefore: props.trimBefore,
-		trimAfter: props.trimAfter,
-		sequenceDurationInFrames,
-		mediaType: 'audio',
-		displayName: name ?? '<Audio>',
-		mediaVolume,
-		mediaStartsAt,
-		loop: props.loop ?? false,
-		muted: props.muted ?? false,
-	});
-
-	// TODO: Redundant with what we do in the Studio
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
 		number | null
 	>(null);
+	const volume = useLoopedVolume({
+		volume: props.volume,
+		loop: props.loop ?? false,
+		behavior: props.loopVolumeCurveBehavior ?? 'repeat',
+		assetDurationInSeconds: mediaDurationInSeconds,
+		fps: videoConfig.fps,
+		startsAt: Math.min(0, mediaStartsAt + (from ?? 0)),
+		playbackRate: props.playbackRate ?? 1,
+		trimBefore: props.trimBefore,
+		trimAfter: effectiveTrimAfter,
+	});
+
+	const basicInfo = Internals.useBasicMediaInTimeline({
+		src: props.src,
+		volume,
+		playbackRate: props.playbackRate ?? 1,
+		trimBefore: props.trimBefore,
+		trimAfter: effectiveTrimAfter,
+		sequenceDurationInFrames,
+		displayName: name ?? '<Audio>',
+		mediaVolume,
+		mediaStartsAt,
+		mediaFrom: from ?? 0,
+		loop: props.loop ?? false,
+		muted: props.muted ?? false,
+	});
 
 	const loopDisplay = useMemo(
 		() =>
@@ -116,7 +143,7 @@ const AudioInner: React.FC<
 				loop: props.loop ?? false,
 				mediaDurationInSeconds,
 				playbackRate: props.playbackRate ?? 1,
-				trimAfter: props.trimAfter,
+				trimAfter: effectiveTrimAfter,
 				trimBefore: props.trimBefore,
 				sequenceDurationInFrames,
 				compFps: videoConfig.fps,
@@ -125,7 +152,7 @@ const AudioInner: React.FC<
 			props.loop,
 			mediaDurationInSeconds,
 			props.playbackRate,
-			props.trimAfter,
+			effectiveTrimAfter,
 			props.trimBefore,
 			sequenceDurationInFrames,
 			videoConfig.fps,
@@ -180,7 +207,11 @@ const AudioInner: React.FC<
 	}
 
 	return (
-		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+		<Freeze
+			frame={freezeFrame}
+			active={isPremountingOrPostmounting}
+			_remotionInternalIsPremounting={premountingActive}
+		>
 			<Sequence
 				layout="none"
 				from={from ?? 0}
@@ -202,20 +233,24 @@ const AudioInner: React.FC<
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
 			>
-				{environment.isRendering ? (
-					<AudioForRendering
-						{...otherProps}
-						style={premountingStyle ?? undefined}
-					/>
-				) : (
-					<AudioForPreview
-						name={name}
-						{...otherProps}
-						style={premountingStyle}
-						_remotionInternalStack={sourceStack}
-						setMediaDurationInSeconds={setMediaDurationInSeconds}
-					/>
-				)}
+				<Internals.SequenceContent>
+					{environment.isRendering ? (
+						<AudioForRendering
+							{...otherProps}
+							trimAfter={effectiveTrimAfter}
+							style={premountingStyle ?? undefined}
+						/>
+					) : (
+						<AudioForPreview
+							name={name}
+							{...otherProps}
+							trimAfter={effectiveTrimAfter}
+							style={premountingStyle}
+							_remotionInternalStack={sourceStack}
+							setMediaDurationInSeconds={setMediaDurationInSeconds}
+						/>
+					)}
+				</Internals.SequenceContent>
 			</Sequence>
 		</Freeze>
 	);

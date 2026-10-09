@@ -13,6 +13,7 @@ export const queueSequenceNodePathMutation = (
 
 	seenMutationIds.add(mutation.mutationId);
 	pendingMutations.push(mutation);
+
 	if (mutation.timelineSelection !== null) {
 		requestInsertedElementSelection({
 			compositionId: mutation.timelineSelection.compositionId,

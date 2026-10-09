@@ -6,6 +6,7 @@ let currentIsProductionKey: boolean | null = null;
 
 export const isProductionOption = {
 	name: 'Is Production',
+	addedIn: '4.0.409',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,7 +16,7 @@ export const isProductionOption = {
 		</>
 	),
 	ssrName: 'isProduction' as const,
-	docLink: 'https://www.remotion.dev/docs/licensing',
+	docLink: 'https://www.remotion.dev/docs/options/is-production',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {

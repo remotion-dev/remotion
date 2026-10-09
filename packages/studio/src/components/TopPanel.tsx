@@ -1,10 +1,14 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
+import {
+	SIDEBAR_RESPONSIVE_BREAKPOINTS,
+	useResponsiveSidebarStatus,
+} from '../helpers/use-responsive-sidebar-status';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
+import {CanvasTabs} from './CanvasTabs';
 import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
@@ -30,32 +34,15 @@ const row: React.CSSProperties = {
 	minHeight: 0,
 };
 
+const canvasPanel: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minHeight: 0,
+};
+
 const MAX_SIDEBAR_WIDTH = 350;
 const MIN_SIDEBAR_WIDTH = 250;
-
-export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
-	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
-	const isMobileLayout = useMobileLayout();
-	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
-
-	const actualStateLeft = useMemo((): 'expanded' | 'collapsed' => {
-		if (isMobileLayout) {
-			return 'collapsed';
-		}
-
-		if (sidebarCollapsedStateLeft === 'collapsed') {
-			return 'collapsed';
-		}
-
-		if (sidebarCollapsedStateLeft === 'expanded') {
-			return 'expanded';
-		}
-
-		return responsiveLeftStatus;
-	}, [isMobileLayout, sidebarCollapsedStateLeft, responsiveLeftStatus]);
-
-	return actualStateLeft;
-};
 
 const TopPanelInner: React.FC<{
 	readonly readOnlyStudio: boolean;
@@ -64,23 +51,19 @@ const TopPanelInner: React.FC<{
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
 	const {
+		rightSidebarTemporaryExpansion,
+		setRightSidebarTemporaryExpansion,
 		setSidebarCollapsedState,
-		sidebarCollapsedStateRight,
 		setSidebarCollapsedDuringDrag,
+		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
+	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINTS.right);
 
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
-	const actualStateLeft = useResponsiveSidebarStatus();
-
-	const actualStateRight = useMemo((): 'expanded' | 'collapsed' => {
-		if (sidebarCollapsedStateRight === 'collapsed') {
-			return 'collapsed';
-		}
-
-		return 'expanded';
-	}, [sidebarCollapsedStateRight]);
+	const actualStateLeft = useResponsiveSidebarStatus('left');
+	const actualStateRight = useResponsiveSidebarStatus('right');
 	useEffect(() => {
 		onMounted();
 	}, [onMounted]);
@@ -89,6 +72,9 @@ const TopPanelInner: React.FC<{
 		() => ({
 			flex: 1,
 			display: 'flex',
+			minHeight: 0,
+			overflow: 'hidden',
+			position: 'relative',
 			paddingTop: rulersAreVisible ? RULER_WIDTH : 0,
 			paddingLeft: rulersAreVisible ? RULER_WIDTH : 0,
 		}),
@@ -100,8 +86,23 @@ const TopPanelInner: React.FC<{
 	}, [setSidebarCollapsedState]);
 
 	const onCollapseRight = useCallback(() => {
+		if (
+			isNarrowLayout &&
+			rightSidebarTemporaryExpansion &&
+			sidebarCollapsedStateRight === 'responsive'
+		) {
+			setRightSidebarTemporaryExpansion(false);
+			return;
+		}
+
 		setSidebarCollapsedState({left: null, right: 'collapsed'});
-	}, [setSidebarCollapsedState]);
+	}, [
+		isNarrowLayout,
+		rightSidebarTemporaryExpansion,
+		setRightSidebarTemporaryExpansion,
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+	]);
 
 	return (
 		<ObserveDefaultProps
@@ -150,8 +151,11 @@ const TopPanelInner: React.FC<{
 								orientation="vertical"
 							>
 								<SplitterElement sticky={null} type="flexer">
-									<div ref={drawRef} style={canvasContainerStyle}>
-										<CanvasIfSizeIsAvailable />
+									<div style={canvasPanel}>
+										<CanvasTabs />
+										<div ref={drawRef} style={canvasContainerStyle}>
+											<CanvasIfSizeIsAvailable />
+										</div>
 									</div>
 								</SplitterElement>
 								{actualStateRight === 'expanded' ? (

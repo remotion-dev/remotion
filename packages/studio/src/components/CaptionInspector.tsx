@@ -4,6 +4,7 @@ import {LIGHT_TEXT} from '../helpers/colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {UploadIcon} from '../icons/upload';
 import {SetSelectedModalContext} from '../state/modals';
+import {ActionTooltip} from './ActionTooltip';
 import {CaptionTextEditor} from './CaptionTextEditor';
 import {InlineAction} from './InlineAction';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
@@ -12,9 +13,12 @@ import {sectionHeaderEnd} from './InspectorPanel/styles';
 import {showNotification} from './Notifications/NotificationCenter';
 import {parseCaptionFile} from './parse-caption-file';
 
-const importTooltip = `Import captions
-
-Supports Remotion Caption[] JSON. Files are processed locally.`;
+const transcriptFileTypes = {
+	extensions: ['.json', '.srt'],
+	description:
+		'Supports SRT, Remotion Caption[] JSON, ElevenLabs Speech-to-Text and segmented JSON, and OpenAI Whisper verbose JSON. Files are processed locally.',
+	importLabel: 'Import transcript file...',
+};
 
 const readOnlyStatus: React.CSSProperties = {
 	color: LIGHT_TEXT,
@@ -107,12 +111,21 @@ export const CaptionInspector: React.FC<{
 			mode: 'assets',
 			invocationTimestamp: Date.now(),
 			assetSelection: {
-				initialQuery: 'type:json',
+				initialQuery: '',
+				fileTypes: transcriptFileTypes,
 				onSelectFile: () => fileInput.current?.click(),
 				onSelected: (asset) => {
 					return importCaptions({
 						fileName: asset.name,
-						contents: fetch(asset.src).then((response) => response.text()),
+						contents: fetch(asset.src).then((response) => {
+							if (!response.ok) {
+								throw new Error(
+									`Could not read asset (HTTP ${response.status}). Check that the file is available.`,
+								);
+							}
+
+							return response.text();
+						}),
 					}).catch(() => undefined);
 				},
 			},
@@ -130,32 +143,42 @@ export const CaptionInspector: React.FC<{
 								<>
 									<input
 										ref={fileInput}
-										accept=".json"
+										accept=".json,.srt"
 										aria-label="Import captions file"
 										hidden
 										onChange={onFileSelected}
 										type="file"
 									/>
-									<InlineAction
-										aria-label="Import captions"
-										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-										disabled={isImporting}
-										onClick={openCaptionSelection}
-										renderAction={(color) => (
-											<UploadIcon
-												aria-hidden="true"
-												color={color}
-												focusable="false"
-												style={{height: 14, width: 14}}
-											/>
-										)}
-										title={importTooltip}
-										variant={null}
-									/>
+									<ActionTooltip
+										label="Import transcript"
+										shortcut={null}
+										delay={800}
+										dismissOnClick
+									>
+										<InlineAction
+											aria-label="Import transcript"
+											className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+											disabled={isImporting}
+											onClick={openCaptionSelection}
+											renderAction={(color) => (
+												<UploadIcon
+													aria-hidden="true"
+													color={color}
+													focusable="false"
+													style={{height: 14, width: 14}}
+												/>
+											)}
+											variant={null}
+										/>
+									</ActionTooltip>
 								</>
 							)}
 							{readOnly ? (
-								<div style={readOnlyStatus} title={readOnlyTitle ?? undefined}>
+								<div
+									role="group"
+									style={readOnlyStatus}
+									aria-label={readOnlyTitle ?? undefined}
+								>
 									Read only
 								</div>
 							) : null}

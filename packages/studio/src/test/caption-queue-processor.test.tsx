@@ -24,11 +24,10 @@ const getModelLoadCall = () => modelLoadCall;
 let modelIsCached = false;
 let modelLoadProgressCallback:
 	| ((progress: {
-			status: string;
 			file: string | null;
-			progress: number | null;
-			loadedBytes: number | null;
-			totalBytes: number | null;
+			progress: number;
+			loadedBytes: number;
+			totalBytes: number;
 	  }) => void)
 	| undefined;
 let resolveModelLoading: (() => void) | null = null;
@@ -96,7 +95,7 @@ mock.module('@remotion/whisper-webgpu', () => ({
 		cacheCheck = {model};
 		return Promise.resolve(modelIsCached);
 	},
-	loadWhisperModel: async ({
+	downloadWhisperModel: async ({
 		model,
 		onProgress,
 	}: {
@@ -109,14 +108,14 @@ mock.module('@remotion/whisper-webgpu', () => ({
 			resolveModelLoading = resolve;
 		});
 		modelLoadProgressCallback?.({
-			status: 'ready',
 			file: null,
 			progress: 1,
 			loadedBytes: 119_699_015,
 			totalBytes: 119_699_015,
 		});
-		return {alreadyLoaded: false};
+		return {alreadyDownloaded: false};
 	},
+	loadWhisperModel: () => Promise.resolve({alreadyLoaded: false}),
 	removeWhisperModel: () => Promise.resolve(),
 	toCaptions: () => ({
 		captions: [
@@ -236,6 +235,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 		let jobId = '';
 		act(() => {
 			jobId = getContext().addCaptionJob({
+				captionStyle: null,
 				displayName: 'interview.wav',
 				audioStreamIndex: 2,
 				requestInit: {
@@ -267,7 +267,6 @@ test('downloads a model in the queued job before transcribing', async () => {
 
 		act(() => {
 			modelLoadProgressCallback?.({
-				status: 'loading',
 				file: null,
 				progress: 0.5,
 				loadedBytes: 119_699_015 / 2,
@@ -309,6 +308,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 			expect(transcriptionCall).toEqual({
 				channelWaveform: resampledWaveform,
 				options: {
+					signal: expect.any(AbortSignal),
 					model: 'tiny',
 					language: 'de',
 					task: 'translate',
@@ -373,6 +373,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 		let inlineJobId = '';
 		act(() => {
 			inlineJobId = getContext().addCaptionJob({
+				captionStyle: null,
 				displayName: 'clip.mp4',
 				audioStreamIndex: null,
 				requestInit: null,
@@ -398,6 +399,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 						videoConfigValues: null,
 					},
 					durationInFrames: 90,
+					premountFor: 30,
 				},
 				src: '/static/clip.mp4',
 			});
@@ -416,6 +418,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 					fileName: '/project/Root.tsx',
 					nodePath: [0],
 					durationInFrames: 90,
+					premountFor: 30,
 					captions: [
 						{
 							text: 'Hello',
@@ -488,6 +491,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 				fileName: '/project/Browser.tsx',
 				nodePath: [0],
 				durationInFrames: 45,
+				premountFor: 30,
 				captions: (insertedRequests[0].body as {captions: unknown}).captions,
 			},
 		]);

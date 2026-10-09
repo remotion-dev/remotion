@@ -10,7 +10,6 @@ type ReactRefreshRuntime = {
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
-const studioOriginalSourcePrefix = 'studio-original://';
 
 const originalCreateElement = React.createElement;
 const originalJsx = JsxRuntime.jsx;
@@ -64,14 +63,20 @@ const enableProxy = <
 					: props?.children;
 				const source =
 					sourceArgumentIndex === null ? null : argArray[sourceArgumentIndex];
+				const existingStack = props?.[internalStackProp];
 				const stack =
-					source &&
+					existingStack ||
+					(source &&
 					typeof source.fileName === 'string' &&
 					typeof source.lineNumber === 'number' &&
 					typeof source.columnNumber === 'number'
-						? `Error\n    at remotionOriginalSource (${studioOriginalSourcePrefix}${encodeURIComponent(getSourceFileName(source.fileName))}:${source.lineNumber}:${source.columnNumber})`
-						: new Error().stack;
-				const newProps = props?.[internalStackProp]
+						? Internals.makeOriginalSourceStack({
+								fileName: getSourceFileName(source.fileName),
+								lineNumber: source.lineNumber,
+								columnNumber: source.columnNumber,
+							})
+						: new Error().stack);
+				const newProps = existingStack
 					? {...props}
 					: {
 							...(props ?? {}),

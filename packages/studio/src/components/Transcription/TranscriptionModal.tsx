@@ -16,6 +16,7 @@ import React, {
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {BLUE_DISABLED, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
+import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {Checkmark} from '../../icons/Checkmark';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import {GearIcon} from '../../icons/gear';
@@ -26,11 +27,13 @@ import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {Checkbox} from '../Checkbox';
+import {ElementLibraryFrame} from '../ElementLibraryFrame';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
+import {CancelButton} from '../NewComposition/CancelButton';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
@@ -57,6 +60,8 @@ import {
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
+import {SegmentedControl, type SegmentedControlItem} from '../SegmentedControl';
+import {useSettings} from '../SettingsContext';
 import {VerticalTab} from '../Tabs/vertical';
 import {useModelCacheStatus} from '../use-model-cache-status';
 import {useStaticFiles} from '../use-static-files';
@@ -79,8 +84,10 @@ const DEFAULT_TOP_K = 50;
 const DEFAULT_REPETITION_PENALTY = 1;
 const DEFAULT_NO_REPEAT_NGRAM_SIZE = 0;
 const MAX_CHUNK_LENGTH_IN_SECONDS = 30;
+const REMOTION_CAPTION_STYLES_URL =
+	'https://www.remotion.dev/elements/captions';
 
-type Tab = 'transcribe' | 'advanced' | 'models';
+type Tab = 'transcribe' | 'advanced' | 'models' | 'styles';
 
 type SupportState =
 	| {type: 'checking'}
@@ -155,6 +162,12 @@ const tooltipContent: React.CSSProperties = {
 	padding: 12,
 };
 
+const tooltipLine: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 13,
+	lineHeight: 1.5,
+};
+
 const tooltipInlineCode: React.CSSProperties = {
 	color: WHITE,
 	fontFamily: 'monospace',
@@ -198,7 +211,7 @@ const TranscriptionSettingLabel: React.FC<{
 				</label>
 			)}
 			<Spacing x={0.5} />
-			<InfoBubble title={`Learn more about ${name}`}>
+			<InfoBubble aria-label={`Learn more about ${name}`}>
 				<div style={tooltipContent}>{children}</div>
 			</InfoBubble>
 		</div>
@@ -326,7 +339,7 @@ const ModelSettings: React.FC<{
 					<Combobox
 						values={modelOptions}
 						selectedId={selectedModel}
-						title="Whisper model"
+						aria-label="Whisper model"
 						style={controlStyle}
 					/>
 				</div>
@@ -338,7 +351,7 @@ const ModelSettings: React.FC<{
 						<Combobox
 							values={languageOptions}
 							selectedId={selectedLanguage}
-							title="Spoken language"
+							aria-label="Spoken language"
 							style={controlStyle}
 						/>
 					</div>
@@ -351,7 +364,7 @@ const ModelSettings: React.FC<{
 						<Combobox
 							values={taskOptions}
 							selectedId={effectiveTask}
-							title="Task"
+							aria-label="Task"
 							style={controlStyle}
 						/>
 					</div>
@@ -447,7 +460,7 @@ const OutputSettings: React.FC<{
 												<InlineAction
 													onClick={openExistingOutput}
 													renderAction={renderOpenIcon}
-													title={`Open in ${fileManagerName}`}
+													aria-label={`Open in ${fileManagerName}`}
 													variant={null}
 												/>
 											)}
@@ -702,11 +715,29 @@ const AdvancedSettings: React.FC<{
 
 export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	audioStreamIndex,
+	captionStyle,
 	displayName,
 	requestInit,
 	src,
 	target,
 }) => {
+	const [libraryUrl, setLibraryUrl] = useState(REMOTION_CAPTION_STYLES_URL);
+	const {studioRuntimeConfig} = useSettings();
+	const libraryOptions: SegmentedControlItem[] = [
+		{url: REMOTION_CAPTION_STYLES_URL, displayName: 'Remotion Elements'},
+		...(studioRuntimeConfig?.elementLibraries ?? []).flatMap(
+			({captionStylesUrl, displayName: libraryName}) =>
+				captionStylesUrl === null ||
+				captionStylesUrl === REMOTION_CAPTION_STYLES_URL
+					? []
+					: [{url: captionStylesUrl, displayName: libraryName}],
+		),
+	].map(({url, displayName: libraryName}) => ({
+		key: url,
+		label: libraryName ?? new URL(url).host,
+		selected: url === libraryUrl,
+		onClick: () => setLibraryUrl(url),
+	}));
 	const [tab, setTab] = useState<Tab>('transcribe');
 	const isModelCached = useCallback(
 		(model: WhisperWebGpuModel) => isWhisperModelCached({model}),
@@ -773,7 +804,9 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	const queuedOutputExists = captionJobs.some(
 		(job) =>
 			job.target === null &&
-			(job.status === 'idle' || job.status === 'running') &&
+			(job.status === 'idle' ||
+				job.status === 'running' ||
+				job.status === 'saving') &&
 			job.outName.normalize('NFC').toLowerCase() === normalizedOutName,
 	);
 	const outputValidationMessage =
@@ -836,11 +869,15 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		}
 
 		addCaptionJob({
+			captionStyle,
 			src,
 			displayName,
 			audioStreamIndex,
 			requestInit,
-			outName: target === null ? outName : 'Basic captions',
+			outName:
+				target === null
+					? outName
+					: (captionStyle?.element.displayName ?? 'Basic captions'),
 			target,
 			model: selectedModel,
 			language: modelInfo.multilingual ? selectedLanguage : null,
@@ -862,6 +899,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		addCaptionJob,
 		audioStreamIndex,
 		canTranscribe,
+		captionStyle,
 		chunkLengthInSeconds,
 		displayName,
 		doSample,
@@ -894,9 +932,10 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 					<Button
 						onClick={onAddToQueue}
 						disabled={!canTranscribe}
-						title={transcribeDisabledReason}
+						aria-label={transcribeDisabledReason}
 						style={{
 							...buttonStyle,
+							flexShrink: 0,
 							backgroundColor: canTranscribe
 								? buttonStyle.backgroundColor
 								: BLUE_DISABLED,
@@ -920,6 +959,20 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						>
 							Transcribe
 						</VerticalTab>
+						{target === null ? null : (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'styles'}
+								onClick={() => setTab('styles')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<BrowseElementsIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Styles
+							</VerticalTab>
+						)}
 						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'models'}
@@ -994,6 +1047,107 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 							validationMessage={chunkValidationMessage}
 						/>
 					</div>
+					{tab === 'styles' && target !== null ? (
+						<div
+							style={{
+								...optionsPanel,
+								flexDirection: 'column',
+								overflow: 'hidden',
+							}}
+						>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8,
+									height: 44,
+									padding: '0 16px',
+									flexShrink: 0,
+								}}
+							>
+								{libraryOptions.length > 1 ? (
+									<div
+										role="group"
+										aria-label="Caption style library"
+										style={{display: 'flex', flexShrink: 0}}
+									>
+										<SegmentedControl
+											items={libraryOptions}
+											needsWrapping={false}
+											size="medium"
+										/>
+									</div>
+								) : null}
+								<div style={flexer} />
+								{captionStyle === null ? null : (
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: 2,
+											minWidth: 0,
+										}}
+									>
+										<div
+											style={{
+												fontSize: 13,
+												lineHeight: '16px',
+												minWidth: 0,
+												overflow: 'hidden',
+												textOverflow: 'ellipsis',
+												whiteSpace: 'nowrap',
+											}}
+											title={captionStyle.element.displayName}
+											role="status"
+										>
+											{captionStyle.element.displayName}
+										</div>
+										<InfoBubble
+											aria-label="Installation details"
+											horizontalAlignment="right"
+										>
+											<div style={tooltipContent}>
+												<div style={tooltipLine}>
+													Installs packages and runs code in your project.
+												</div>
+												<div style={tooltipLine}>
+													Source:{' '}
+													{'origin' in captionStyle.source
+														? (captionStyle.source.origin ??
+															'an unverified source')
+														: 'an unverified drag-and-drop payload'}
+												</div>
+												<div style={{...tooltipLine, overflowWrap: 'anywhere'}}>
+													Dependencies:{' '}
+													{captionStyle.element.dependencies
+														.map(({name, version}) =>
+															version === null ? name : `${name}@${version}`,
+														)
+														.join(', ') || 'None'}
+												</div>
+											</div>
+										</InfoBubble>
+										<CancelButton
+											aria-label="Reset caption style"
+											style={{width: 14, height: 14}}
+											onPress={() =>
+												setSelectedModal((modal) =>
+													modal?.type === 'transcribe'
+														? {...modal, captionStyle: null}
+														: modal,
+												)
+											}
+										/>
+									</div>
+								)}
+							</div>
+							<ElementLibraryFrame
+								name="Caption styles"
+								url={libraryUrl}
+								context="captions"
+							/>
+						</div>
+					) : null}
 					<Models
 						description={
 							'Models are downloaded automatically when needed.\nYou can also manage the browser cache here.'

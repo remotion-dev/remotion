@@ -31,7 +31,13 @@ test('routes effect mutations through the explicit Browser Studio capability', a
 	const effects: BrowserStudioEffectOperations = {
 		addEffect: (request) => {
 			calls.push(`add:${request.effectName}`);
-			return Promise.resolve({success: true});
+			return Promise.resolve({
+				success: true,
+				insertedEffect: {
+					effectIndex: request.sequenceNodePath.effectKeys.length,
+					nodePath: request.sequenceNodePath.nodePath,
+				},
+			});
 		},
 		deleteEffects: (request) => {
 			calls.push(`delete:${request.length}`);

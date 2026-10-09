@@ -30,9 +30,12 @@ const mockPackageManagerSpawn = () => {
 		calls.push({command, args, options});
 		const child = new EventEmitter() as ReturnType<typeof childProcess.spawn>;
 		const stdout = new PassThrough();
+		const stderr = new PassThrough();
 		child.stdout = stdout;
+		child.stderr = stderr;
 		queueMicrotask(() => {
 			stdout.end();
+			stderr.end();
 			child.emit('close', 0, null);
 		});
 		return child;
@@ -86,6 +89,63 @@ test('always aligns Remotion package versions', () => {
 	expect(
 		getPackageInstallSpec({name: '@remotion/effects', version: '1.0.0'}),
 	).toBe(`@remotion/effects@${VERSION}`);
+});
+
+test('propagates package manager stderr when installation fails', async () => {
+	const remotionRoot = await mkdtemp(
+		path.join(tmpdir(), 'remotion-install-failure-'),
+	);
+	await writeFile(path.join(remotionRoot, 'package-lock.json'), '');
+	const spawnSpy = spyOn(childProcess, 'spawn').mockImplementation((() => {
+		const child = new EventEmitter() as ReturnType<typeof childProcess.spawn>;
+		const stdout = new PassThrough();
+		const stderr = new PassThrough();
+		child.stdout = stdout;
+		child.stderr = stderr;
+		queueMicrotask(() => {
+			stderr.write(
+				'npm error code E401\nnpm error Unable to authenticate, your authentication token seems to be invalid.',
+			);
+			stdout.end();
+			stderr.end();
+			setTimeout(() => child.emit('close', 1, null), 0);
+		});
+		return child;
+	}) as typeof childProcess.spawn);
+	let invalidations = 0;
+
+	try {
+		await expect(
+			handleInstallPackage({
+				binariesDirectory: null,
+				configFile: null,
+				entryPoint: '',
+				getDefaultCodingAgent: () => null,
+				getDefaultEditor: () => null,
+				input: {
+					dependencies: [{name: '@private/package', version: null}],
+				},
+				invalidateBundle: () => {
+					invalidations++;
+					return Promise.resolve();
+				},
+				logLevel: 'error',
+				methods: {
+					addJob: () => undefined,
+					cancelJob: () => undefined,
+					removeJob: () => undefined,
+				},
+				publicDir: remotionRoot,
+				remotionRoot,
+				request: {} as IncomingMessage,
+				response: {} as ServerResponse,
+			}),
+		).rejects.toThrow(/E401[\s\S]*Unable to authenticate/);
+		expect(invalidations).toBe(0);
+	} finally {
+		spawnSpy.mockRestore();
+		await rm(remotionRoot, {force: true, recursive: true});
+	}
 });
 
 test('installs without running dependency lifecycle scripts', async () => {

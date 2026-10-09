@@ -1,5 +1,6 @@
 import {NoReactInternals} from 'remotion/no-react';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {validCodecs} from './codec';
 import {
 	codecSupportsCrf,
@@ -11,6 +12,7 @@ import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
+import {getExtensionOfFilename} from './get-extension-of-filename';
 import {validStillImageFormats, validVideoImageFormats} from './image-format';
 import {DEFAULT_JPEG_QUALITY} from './jpeg-quality';
 import {logLevels} from './log-level';
@@ -52,6 +54,8 @@ export {HardwareAccelerationOption} from './options/hardware-acceleration';
 export {ProResProfile} from './options/prores-profile';
 
 export const BrowserSafeApis = {
+	canUseParallelEncoding,
+	getExtensionOfFilename,
 	getFileExtensionFromCodec,
 	validCodecs,
 	validAudioCodecs,

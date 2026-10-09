@@ -35,7 +35,7 @@ export const ZodFieldValidation: React.FC<{
 				size="compact"
 			/>
 			<Spacing x={0.5} />
-			<InfoBubble title="Zod validation failure">
+			<InfoBubble aria-label="Zod validation failure">
 				<div style={stackTrace}>
 					<div style={stackTraceLabel}>Zod Validation has failed:</div>
 					{zodValidation.error.issues.map((error, index: number) => (

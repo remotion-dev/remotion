@@ -41,6 +41,7 @@ export const venetianBlindsSchema = {
 		min: 1,
 		max: 100,
 		step: 1,
+		integer: true,
 		default: DEFAULT_SLATS,
 		description: 'Slats',
 		hiddenFromList: false,

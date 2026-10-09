@@ -48,7 +48,7 @@ export const prepareAudio = async <
 	forceTranscode,
 }: {
 	input: Input;
-	baseOutput: Output<WebMOutputFormat, BaseTarget>;
+	baseOutput: Output<WebMOutputFormat, BaseTarget> | null;
 	foregroundOutput: Output<WebMOutputFormat, ForegroundTarget>;
 	destination: VideoMattingAudioDestination;
 	videoStartTimestamp: number;
@@ -109,11 +109,18 @@ export const prepareAudio = async <
 		};
 	}
 
-	const outputs =
+	if (
+		(destination === 'base' || destination === 'both') &&
+		baseOutput === null
+	) {
+		throw new Error('A base output is required for this audio destination.');
+	}
+
+	const outputs: Output<WebMOutputFormat, Target>[] =
 		destination === 'both'
-			? [baseOutput, foregroundOutput]
+			? [baseOutput!, foregroundOutput]
 			: destination === 'base'
-				? [baseOutput]
+				? [baseOutput!]
 				: [foregroundOutput];
 	const sourceCodec = await audioTrack.getCodec();
 	const canCopyPackets =

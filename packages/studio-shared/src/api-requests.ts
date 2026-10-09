@@ -19,6 +19,7 @@ import type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropSource,
 	ExtrapolateType,
 	InteractivitySchema,
 	InterpolateOutputOption,
@@ -27,7 +28,11 @@ import type {
 	SequencePropsSubscriptionKey,
 	VideoConfigValues,
 } from 'remotion';
-import type {RecastCodemod, VisualControlChange} from './codemods';
+import type {
+	CompositionDestination,
+	NewCompositionOptions,
+	VisualControlChange,
+} from './codemods';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
@@ -89,10 +94,15 @@ export type ElementDependency =
 	  };
 
 export type InstallableElement = {
+	assets: Array<
+		| {path: string; type: 'url'; url: string}
+		| {path: string; type: 'base64'; data: string}
+	>;
 	dependencies: ElementDependency[];
 	durationInFrames: number | null;
 	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
 	installationMode: ElementInstallationMode | null;
+	isCaptionStyle: boolean;
 	slug: string;
 	displayName: string;
 	sourceCode: string;
@@ -309,26 +319,78 @@ export type UndoRedoNavigation = {
 	redoRoute: string;
 };
 
-export type ApplyCodemodRequest = {
-	codemod: RecastCodemod;
-	dryRun: boolean;
+type CompositionEditRequest = {
 	symbolicatedStack: SymbolicatedStackFrame | null;
 	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
-export type SimpleDiff = {
-	additions: number;
-	deletions: number;
+export type AddCompositionRequest = CompositionEditRequest & {
+	options: NewCompositionOptions;
 };
 
-export type ApplyCodemodResponse =
+export type DuplicateCompositionRequest = CompositionEditRequest & {
+	idToDuplicate: string;
+	newId: string;
+	newHeight: number | null;
+	newWidth: number | null;
+	newFps: number | null;
+	newDurationInFrames: number | null;
+	tag: 'Still' | 'Composition';
+};
+
+export type RenameCompositionRequest = CompositionEditRequest & {
+	idToRename: string;
+	newId: string;
+};
+
+export type UpdateCompositionMetadataRequest = CompositionEditRequest & {
+	idToUpdate: string;
+	newDurationInFrames: number | null;
+	newFps: number | null;
+	newHeight: number | null;
+	newWidth: number | null;
+};
+
+export type DeleteCompositionRequest = CompositionEditRequest & {
+	idToDelete: string;
+};
+
+export type MoveCompositionRequest = CompositionEditRequest & {
+	compositionId: string;
+	destination: CompositionDestination;
+};
+
+export type AddFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+};
+
+export type RenameFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+	newName: string;
+};
+
+export type UnwrapFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+};
+
+export type MoveFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+	destination: CompositionDestination;
+};
+
+export type CompositionEditResponse =
 	| {
 			success: true;
-			diff: SimpleDiff;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
 			reason: string;
+			stack: string;
 	  };
 
 export type DeleteStaticFileRequest = {
@@ -396,7 +458,6 @@ export type SubscribeToSequencePropsRequest = {
 	assetKeys: string[];
 	effects: string[][];
 	clientId: string;
-	videoConfigValues: VideoConfigValues;
 };
 
 export type SubscribeToSequencePropsResponse =
@@ -410,15 +471,13 @@ export type SubscribeToSequencePropsResponse =
 			status: CanUpdateSequencePropsResponseFalse;
 	  };
 
-export type SubscribeToSequencePropsBatchRequest =
-	SubscribeToSequencePropsRequest & {
-		requests?: SubscribeToSequencePropsRequest[];
-	};
+export type SubscribeToSequencePropsBatchRequest = {
+	requests: SubscribeToSequencePropsRequest[];
+};
 
-export type SubscribeToSequencePropsBatchResponse =
-	SubscribeToSequencePropsResponse & {
-		results: SubscribeToSequencePropsResponse[];
-	};
+export type SubscribeToSequencePropsBatchResponse = {
+	results: SubscribeToSequencePropsResponse[];
+};
 
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
@@ -438,6 +497,7 @@ export type GoogleFontSourceEdit = {
 };
 
 export type SaveSequencePropSourceEdit =
+	| {type: 'playback-rate'}
 	| {
 			type: 'google-font';
 			font: GoogleFontSourceEdit;
@@ -474,6 +534,14 @@ export type CaptionPatch = {
 		confidence: number | null;
 		pageBreakAfter: boolean | null;
 	};
+	insertAfter: {
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+		pageBreakAfter: boolean | null;
+	} | null;
 	changes: Partial<{
 		text: string;
 		startMs: number;
@@ -507,13 +575,12 @@ export type SaveSequencePropsRequest = {
 export type SaveSequencePropsResult = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
-	props: Record<string, CanUpdateSequencePropStatus>;
+	props: Record<string, CanUpdateSequencePropSource>;
 };
 
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
 			results: SaveSequencePropsResult[];
 	  }
 	| {
@@ -577,6 +644,10 @@ export type AddEffectRequest = {
 export type AddEffectResponse =
 	| {
 			success: true;
+			insertedEffect: {
+				effectIndex: number;
+				nodePath: SequencePropsSubscriptionKey['nodePath'];
+			};
 	  }
 	| {
 			success: false;
@@ -624,7 +695,7 @@ export type ReorderSequencePosition = 'before' | 'after';
 
 export type ReorderSequenceRequest = {
 	fileName: string;
-	sourceNodePath: SequencePropsSubscriptionKey;
+	sourceNodePaths: SequencePropsSubscriptionKey[];
 	targetNodePath: SequencePropsSubscriptionKey;
 	position: ReorderSequencePosition;
 	clientId: string;
@@ -736,6 +807,7 @@ export type AddKeyframesRequest = {
 
 export type AddKeyframesResponse = {
 	success: true;
+	nodePathMutation: SequenceNodePathMutation | null;
 };
 
 export type KeyframeSettings =
@@ -844,16 +916,16 @@ export type PasteEffectsResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodeRequestItem = {
+export type DeleteNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DeleteJsxNodeRequest = {
-	nodes: DeleteJsxNodeRequestItem[];
+export type DeleteNodesRequest = {
+	nodes: DeleteNodesRequestItem[];
 };
 
-export type DeleteJsxNodeResponse =
+export type DeleteNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -864,16 +936,16 @@ export type DeleteJsxNodeResponse =
 			stack: string;
 	  };
 
-export type DuplicateJsxNodeRequestItem = {
+export type DuplicateNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DuplicateJsxNodeRequest = {
-	nodes: DuplicateJsxNodeRequestItem[];
+export type DuplicateNodesRequest = {
+	nodes: DuplicateNodesRequestItem[];
 };
 
-export type DuplicateJsxNodeResponse =
+export type DuplicateNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -884,18 +956,77 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type SplitJsxSequenceRequestItem = {
+export type NodeWrapper =
+	| 'AbsoluteFill'
+	| 'Sequence'
+	| 'HtmlInCanvas'
+	| 'HtmlInCanvasMotionBlur';
+
+export type WrapNodeRequest = {
+	fileName: string;
+	compositionId: string;
+	nodePath: SequenceNodePath;
+	wrapper: NodeWrapper | null;
+	width: number | null;
+	height: number | null;
+	timing: {
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
+};
+
+export type WrapNodeResponse =
+	| {
+			success: true;
+			canWrap: boolean;
+			canWrapHtmlInCanvas: boolean;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
+export type PrecomposeJsxNodesRequestItem = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+};
+
+export type PrecomposeJsxNodesRequest = {
+	nodes: PrecomposeJsxNodesRequestItem[];
+	compositionFile: string;
+	compositionId: string;
+	existingCompositionIds: string[];
+	metadata: {
+		width: number;
+		height: number;
+		fps: number;
+		durationInFrames: number;
+	};
+	dryRun: boolean;
+};
+
+export type PrecomposeJsxNodesResponse =
+	| {
+			success: true;
+			canPrecompose: boolean;
+			reason: string | null;
+			nodePathMutation: SequenceNodePathMutation | null;
+			newCompositionId: string | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
+export type SplitSequencesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
+	videoConfigValues: VideoConfigValues | null;
 };
 
-export type SplitJsxSequenceRequest = {
-	sequences: SplitJsxSequenceRequestItem[];
+export type SplitSequencesRequest = {
+	sequences: SplitSequencesRequestItem[];
 };
 
-export type SplitJsxSequenceResponse =
+export type SplitSequencesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -926,6 +1057,7 @@ export type InsertBasicCaptionsRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	durationInFrames: number | null;
+	premountFor: number | null;
 	captions: {
 		text: string;
 		startMs: number;
@@ -937,6 +1069,16 @@ export type InsertBasicCaptionsRequest = {
 };
 
 export type InsertBasicCaptionsResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
+
+export type ReplaceVideoSourceRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	src: string;
+};
+
+export type ReplaceVideoSourceResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
@@ -988,14 +1130,15 @@ export type InsertableCompositionElementPosition = {
 	y: number;
 };
 
-export type InsertJsxElementRequest = {
+export type InsertCompositionElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
+	premountFor: number | null;
 };
 
-export type InsertJsxElementResponse =
+export type InsertCompositionElementResponse =
 	| {
 			success: true;
 			insertedNodePath: Pick<
@@ -1035,6 +1178,10 @@ export type ElementInstallExpectedFileState =
 
 export type ElementInstallDestination =
 	| {
+			type: 'selected-media';
+			compositionFile: string;
+	  }
+	| {
 			type: 'current-composition';
 			compositionFile: string;
 			compositionId: string;
@@ -1067,19 +1214,30 @@ export type PrepareElementInstallResponse =
 
 export type InsertElementRequest = {
 	installationName: string | null;
-	compositionFile: string;
-	compositionId: string;
 	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
+	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
-	newComposition: {
-		codemod: Extract<RecastCodemod, {type: 'new-composition'}>;
-		symbolicatedStack: SymbolicatedStackFrame | null;
-	} | null;
-};
+} & (
+	| {
+			captionTarget: InsertBasicCaptionsRequest;
+			compositionFile: null;
+			compositionId: null;
+			newComposition: null;
+	  }
+	| {
+			captionTarget: null;
+			compositionFile: string;
+			compositionId: string;
+			newComposition: {
+				options: NewCompositionOptions;
+				symbolicatedStack: SymbolicatedStackFrame | null;
+			} | null;
+	  }
+);
 
 export type InsertElementFileConflict = {
 	filePath: string;
@@ -1121,8 +1279,8 @@ export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
 	createdAt: number;
-	compositionFile: string;
-	compositionId: string;
+	compositionFile: string | null;
+	compositionId: string | null;
 	element: InstallableElement;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
@@ -1158,6 +1316,13 @@ export type UpdateAvailableResponse = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
+	skillsUpdateDetails: {
+		outdatedSkills: {
+			name: string;
+			installedVersion: string | null;
+			reason: 'older-version' | 'missing-version' | 'invalid-version';
+		}[];
+	} | null;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };
@@ -1183,9 +1348,24 @@ export type InstallRemotionSkillRequest = {
 export type RemoveRemotionSkillRequest = {
 	skill: string;
 };
+export type UpgradeRemotionSkillRequest = {
+	skill: string;
+};
+export type OpenRemotionSkillRequest = {
+	skill: string;
+	scope: 'project' | 'global';
+};
 export type GetRemotionSkillsInfoResponse = {
+	studioServerStartedByAgent: boolean;
+	studioRestartSkill: 'remotion-studio' | 'remotion-best-practices' | null;
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
+	installations: {
+		name: string;
+		scope: 'project' | 'global';
+		version: string | null;
+		outdated: boolean;
+	}[];
 	skills: {
 		name: string;
 		installedInProject: boolean;
@@ -1215,6 +1395,7 @@ export type ConfigUpdate =
 	| {
 			setter: string;
 			type: 'delete';
+			value?: string;
 	  }
 	| {
 			setter: string;
@@ -1230,10 +1411,13 @@ export type UpdateConfigResponse =
 	| {success: true}
 	| {success: false; reason: string};
 
-export type GetDefaultEditorInfoRequest = {};
+export type GetDefaultEditorInfoRequest = {
+	recentlyUsedIds: readonly EditorPickerId[];
+};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
+	runningEditors: readonly EditorPickerId[] | null;
 	installedEditors: {
 		id: EditorPickerId;
 		name: string;
@@ -1241,9 +1425,12 @@ export type GetDefaultEditorInfoResponse = {
 	}[];
 };
 
-export type GetDefaultCodingAgentInfoRequest = {};
+export type GetDefaultCodingAgentInfoRequest = {
+	recentlyUsedIds: readonly DefaultCodingAgent[];
+};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
+	runningCodingAgents: readonly DefaultCodingAgent[] | null;
 	installedCodingAgents: {
 		id: DefaultCodingAgent;
 		name: string;
@@ -1257,6 +1444,15 @@ export type GetDefaultCodingAgentInfoResponse = {
 		id: GitClientId;
 		name: string;
 	}[];
+};
+
+export type GetAppInfoRequest = {
+	editor: GetDefaultEditorInfoRequest;
+	codingAgent: GetDefaultCodingAgentInfoRequest;
+};
+export type GetAppInfoResponse = {
+	editorInfo: GetDefaultEditorInfoResponse;
+	codingAgentInfo: GetDefaultCodingAgentInfoResponse;
 };
 
 export type PackageInstallSpec = {
@@ -1304,6 +1500,14 @@ export type LogStudioErrorResponse = {};
 // When adding a route, also update the Browser Studio parity checklist:
 // https://github.com/remotion-dev/remotion/issues/9807
 export type ApiRoutes = {
+	'/api/shared-memory-capture-support': {
+		Request: {
+			browserExecutable: string | null;
+			chromeMode: ChromeMode;
+			chromiumOptions: RequiredChromiumOptions;
+		};
+		Response: {supported: boolean};
+	};
 	'/api/invalidate-bundle': ReqAndRes<
 		Record<string, never>,
 		{didInvalidate: boolean}
@@ -1328,10 +1532,7 @@ export type ApiRoutes = {
 		OpenInCodingAgentRequest,
 		OpenInCodingAgentResponse
 	>;
-	'/api/default-coding-agent-info': ReqAndRes<
-		GetDefaultCodingAgentInfoRequest,
-		GetDefaultCodingAgentInfoResponse
-	>;
+	'/api/app-info': ReqAndRes<GetAppInfoRequest, GetAppInfoResponse>;
 	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/open-in-terminal': ReqAndRes<
@@ -1418,17 +1619,19 @@ export type ApiRoutes = {
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
-	'/api/delete-jsx-node': ReqAndRes<
-		DeleteJsxNodeRequest,
-		DeleteJsxNodeResponse
+	'/api/delete-nodes': ReqAndRes<DeleteNodesRequest, DeleteNodesResponse>;
+	'/api/duplicate-nodes': ReqAndRes<
+		DuplicateNodesRequest,
+		DuplicateNodesResponse
 	>;
-	'/api/duplicate-jsx-node': ReqAndRes<
-		DuplicateJsxNodeRequest,
-		DuplicateJsxNodeResponse
+	'/api/precompose-jsx-nodes': ReqAndRes<
+		PrecomposeJsxNodesRequest,
+		PrecomposeJsxNodesResponse
 	>;
-	'/api/split-jsx-sequence': ReqAndRes<
-		SplitJsxSequenceRequest,
-		SplitJsxSequenceResponse
+	'/api/wrap-node': ReqAndRes<WrapNodeRequest, WrapNodeResponse>;
+	'/api/split-sequences': ReqAndRes<
+		SplitSequencesRequest,
+		SplitSequencesResponse
 	>;
 	'/api/split-video-from-audio': ReqAndRes<
 		SplitVideoFromAudioRequest,
@@ -1438,9 +1641,13 @@ export type ApiRoutes = {
 		InsertBasicCaptionsRequest,
 		InsertBasicCaptionsResponse
 	>;
-	'/api/insert-jsx-element': ReqAndRes<
-		InsertJsxElementRequest,
-		InsertJsxElementResponse
+	'/api/replace-video-source': ReqAndRes<
+		ReplaceVideoSourceRequest,
+		ReplaceVideoSourceResponse
+	>;
+	'/api/insert-composition-element': ReqAndRes<
+		InsertCompositionElementRequest,
+		InsertCompositionElementResponse
 	>;
 	'/api/convert-figma-clipboard-to-svg': ReqAndRes<
 		ConvertFigmaClipboardToSvgRequest,
@@ -1479,7 +1686,39 @@ export type ApiRoutes = {
 		RemoveRemotionSkillRequest,
 		GetRemotionSkillsInfoResponse
 	>;
-	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
+	'/api/upgrade-remotion-skill': ReqAndRes<
+		UpgradeRemotionSkillRequest,
+		GetRemotionSkillsInfoResponse
+	>;
+	'/api/open-remotion-skill': ReqAndRes<OpenRemotionSkillRequest, void>;
+	'/api/add-composition': ReqAndRes<
+		AddCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/duplicate-composition': ReqAndRes<
+		DuplicateCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/rename-composition': ReqAndRes<
+		RenameCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/update-composition-metadata': ReqAndRes<
+		UpdateCompositionMetadataRequest,
+		CompositionEditResponse
+	>;
+	'/api/delete-composition': ReqAndRes<
+		DeleteCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/move-composition': ReqAndRes<
+		MoveCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/add-folder': ReqAndRes<AddFolderRequest, CompositionEditResponse>;
+	'/api/rename-folder': ReqAndRes<RenameFolderRequest, CompositionEditResponse>;
+	'/api/unwrap-folder': ReqAndRes<UnwrapFolderRequest, CompositionEditResponse>;
+	'/api/move-folder': ReqAndRes<MoveFolderRequest, CompositionEditResponse>;
 	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;
 	'/api/delete-static-file': ReqAndRes<
 		DeleteStaticFileRequest,
@@ -1497,10 +1736,6 @@ export type ApiRoutes = {
 	'/api/shutdown-studio': ReqAndRes<{}, ShutdownStudioResponse>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
-	'/api/default-editor-info': ReqAndRes<
-		GetDefaultEditorInfoRequest,
-		GetDefaultEditorInfoResponse
-	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
 		InstallPackageResponse

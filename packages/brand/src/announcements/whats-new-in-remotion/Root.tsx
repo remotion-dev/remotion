@@ -2,13 +2,9 @@ import type {CalculateMetadataFunction} from 'remotion';
 import {Composition, Folder} from 'remotion';
 import {CodeTransitionDemo} from './CodeTransitionDemo';
 import type {MyCompositionProps} from './Composition';
-import {
-	MyComposition,
-	MyCompositionSchema,
-	SILENCES,
-	VIDEO_FILES,
-} from './Composition';
+import {MyComposition, MyCompositionSchema} from './Composition';
 import './index.css';
+import {NumberedChapter} from './NumberedChapter';
 import {Scene1} from './Scene1';
 import {Scene2} from './Scene2';
 import {Scene3} from './Scene3';
@@ -21,21 +17,10 @@ import {Scene9} from './Scene9';
 import {Scene10} from './Scene10';
 import {Scene11} from './Scene11';
 
-const FPS = 30;
-
 const calculateMetadata: CalculateMetadataFunction<MyCompositionProps> = ({
 	props,
 }) => {
-	let totalFrames = 0;
-	for (const file of VIDEO_FILES) {
-		const silence = SILENCES[file];
-		const trimBefore = Math.floor(silence.leadingEnd * FPS);
-		const trimAfter = Math.ceil(silence.trailingStart * FPS);
-		totalFrames += trimAfter - trimBefore;
-	}
-
 	return {
-		durationInFrames: totalFrames,
 		defaultOutName: `whats-new-${props.platform}`,
 	};
 };
@@ -138,12 +123,12 @@ export const WhatsNewInRemotion: React.FC = () => {
 			<Composition
 				id="WhatsNew"
 				component={MyComposition}
-				durationInFrames={300}
-				fps={FPS}
+				durationInFrames={8327}
+				fps={30}
 				width={1920}
 				height={1080}
 				schema={MyCompositionSchema}
-				defaultProps={{platform: 'youtube'} satisfies MyCompositionProps}
+				defaultProps={{platform: 'youtube'}}
 				calculateMetadata={calculateMetadata}
 			/>
 
@@ -151,9 +136,18 @@ export const WhatsNewInRemotion: React.FC = () => {
 				id="CodeTransitionDemo"
 				component={CodeTransitionDemo}
 				durationInFrames={90}
-				fps={FPS}
+				fps={30}
 				width={1920}
 				height={1080}
+			/>
+			<Composition
+				id="WhatsNew-NumberedChapter"
+				component={NumberedChapter}
+				durationInFrames={150}
+				fps={30}
+				width={768}
+				height={1080}
+				defaultProps={{chapterNumber: 1, chapterTitle: 'Light Leaks'}}
 			/>
 		</>
 	);

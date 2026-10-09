@@ -6,6 +6,7 @@ let currentPort: number | null = null;
 
 export const portOption = {
 	name: 'Port',
+	addedIn: '2.1.3',
 	cliFlag,
 	description: () => (
 		<>
@@ -14,7 +15,7 @@ export const portOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setstudioport',
+	docLink: 'https://www.remotion.dev/docs/options/port',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

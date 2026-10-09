@@ -67,7 +67,6 @@ export const FullScreenToggle: React.FC<{
 		>
 			<ControlButton
 				id="fullscreen-toggle"
-				title=""
 				aria-label={accessibilityLabel}
 				aria-keyshortcuts={
 					shortcutsDisabled ? undefined : ariaKeyShortcuts || undefined

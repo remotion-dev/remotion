@@ -1,5 +1,8 @@
 import {getBrowserReactRefreshVirtualFiles} from '@remotion/browser-bundler/compiler';
-import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
+import {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from '@remotion/studio-shared';
 
 export const browserStudioVirtualFilePaths = {
 	browserRequireShim: '/__remotion_browser_studio__/browser-require-shim.js',
@@ -10,6 +13,7 @@ export const browserStudioVirtualFilePaths = {
 	setupSequenceStackTraces:
 		'/__remotion_browser_studio__/setup-sequence-stack-traces.ts',
 	studioPreviewEntry: '/__remotion_browser_studio__/studio-preview-entry.js',
+	studioBootstrap: '/__remotion_browser_studio__/studio-bootstrap.js',
 	jsxRuntime: '/__remotion_browser_studio__/jsx-runtime.ts',
 	jsxDevRuntime: '/__remotion_browser_studio__/jsx-dev-runtime.ts',
 	jsxImportSource: '/__remotion_browser_studio__',
@@ -33,6 +37,7 @@ if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
   const originalPerformReactRefresh = RemotionRefreshRuntime.performReactRefresh;
   RemotionRefreshRuntime.__remotionReactRefreshWrapped = true;
   RemotionRefreshRuntime.performReactRefresh = () => {
+    window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_STARTED_EVENT)}));
     const result = originalPerformReactRefresh();
     if (result !== null) {
       window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_FINISHED_EVENT)}));
@@ -41,6 +46,8 @@ if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
     return result;
   };
 }
+
+window.remotion_performReactRefresh = () => RemotionRefreshRuntime.performReactRefresh();
 `;
 
 const setupSequenceStackTraces = `import React from 'react';
@@ -54,7 +61,6 @@ Internals.setComponentIdentityResolver((component) => {
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
-const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
 
 const originalCreateElement = React.createElement;
 
@@ -75,14 +81,11 @@ export const enableProxy = (api, isCreateElement, sourceArgumentIndex) => {
           typeof source.fileName === 'string' &&
           typeof source.lineNumber === 'number' &&
           typeof source.columnNumber === 'number'
-            ? 'Error\\n    at browserStudioOriginal (' +
-              browserStudioOriginalSourcePrefix +
-              encodeURIComponent(source.fileName) +
-              ':' +
-              source.lineNumber +
-              ':' +
-              source.columnNumber +
-              ')'
+            ? Internals.makeOriginalSourceStack({
+                fileName: source.fileName,
+                lineNumber: source.lineNumber,
+                columnNumber: source.columnNumber,
+              })
             : new Error().stack;
         const newProps = props?.[internalStackProp]
           ? {...props}
@@ -152,7 +155,7 @@ globalThis.require = (id) => {
 };
 `;
 
-const studioPreviewEntry = `if (!globalThis.remotion_browserStudioVendor) {
+const studioBootstrap = `if (!globalThis.remotion_browserStudioVendor) {
   throw new Error('Browser Studio vendor bundle was not loaded');
 }
 
@@ -164,6 +167,10 @@ globalThis.remotion_browserStudioProjectHot = {
   status: () => module.hot.status(),
 };
 
+globalThis.remotion_browserStudioVendor.initializeStudioPreview();
+`;
+
+const studioPreviewEntry = `
 void globalThis.remotion_browserStudioVendor.startStudio();
 `;
 
@@ -183,6 +190,7 @@ export const getBrowserStudioVirtualFiles = (): Record<string, string> => {
 		[browserStudioVirtualFilePaths.setupSequenceStackTraces]:
 			setupSequenceStackTraces,
 		[browserStudioVirtualFilePaths.studioPreviewEntry]: studioPreviewEntry,
+		[browserStudioVirtualFilePaths.studioBootstrap]: studioBootstrap,
 		[browserStudioVirtualFilePaths.jsxRuntime]: jsxRuntime,
 		[browserStudioVirtualFilePaths.jsxDevRuntime]: jsxDevRuntime,
 		[browserStudioVirtualFilePaths.reactShim]: reactShim,

@@ -10,7 +10,6 @@
 
 # production
 /build
-/public/browser-bundler-preview.js
 
 # misc
 .DS_Store

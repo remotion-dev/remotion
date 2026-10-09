@@ -1,8 +1,11 @@
-import {setStudioDragData} from '@remotion/studio-protocol';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import Link from '@docusaurus/Link';
+import {isInsideStudio, setStudioDragData} from '@remotion/studio-protocol';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {BlueButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
 import {
 	createElementPayloadFromDefinition,
+	installElementInStudio,
 	setElementDragImage,
 } from './element-drag-data';
 import {
@@ -10,6 +13,7 @@ import {
 	getElementLibrarySections,
 	type ElementCategory,
 } from './element-library-data';
+import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ELEMENT_PREVIEW_BACKGROUND} from './ElementPreviewComposition';
 import styles from './ElementLibrary.module.css';
 
@@ -37,20 +41,20 @@ const usePrefersReducedMotion = () => {
 
 const ElementCard: React.FC<{
 	readonly definition: ElementDefinition;
+	readonly isCaptionPicker: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCode: string;
-}> = ({definition, prefersReducedMotion, sourceCode}) => {
+}> = ({definition, isCaptionPicker, prefersReducedMotion, sourceCode}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
+	const [isInstalling, setIsInstalling] = useState(false);
+	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
+	const [installFailureCount, setInstallFailureCount] = useState(0);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
 		!prefersReducedMotion && !playbackFailed && (isFocused || isPointerOver);
-	const elementPayload = useMemo(
-		() => createElementPayloadFromDefinition({definition, sourceCode}),
-		[definition, sourceCode],
-	);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -73,9 +77,7 @@ const ElementCard: React.FC<{
 		};
 	}, [shouldPlay]);
 
-	const activateFromPointer = (
-		event: React.PointerEvent<HTMLAnchorElement>,
-	) => {
+	const activateFromPointer = (event: React.PointerEvent<HTMLLIElement>) => {
 		if (event.pointerType === 'touch') {
 			return;
 		}
@@ -84,12 +86,50 @@ const ElementCard: React.FC<{
 		setIsPointerOver(true);
 	};
 
+	const installElement = async () => {
+		setIsInstalling(true);
+		try {
+			const result = await installElementInStudio({definition, sourceCode});
+			if (!result.success) {
+				setInstallFailureCount((count) => count + 1);
+				setIsInstallFallbackOpen(true);
+				return;
+			}
+
+			setIsInstallFallbackOpen(false);
+			setInstallFailureCount(0);
+			if (window.location.origin === 'https://www.remotion.dev') {
+				navigator.sendBeacon(
+					`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
+				);
+			}
+		} catch {
+			setInstallFailureCount((count) => count + 1);
+			setIsInstallFallbackOpen(true);
+		} finally {
+			setIsInstalling(false);
+		}
+	};
+
+	const Card = isCaptionPicker ? 'button' : Link;
+
 	return (
-		<li className={styles.cardItem}>
-			<a
+		<li
+			className={styles.cardItem}
+			onPointerEnter={activateFromPointer}
+			onPointerLeave={() => setIsPointerOver(false)}
+		>
+			<Card
 				className={styles.card}
 				draggable
-				href={getElementDocumentationUrl(definition)}
+				{...(isCaptionPicker
+					? {
+							type: 'button' as const,
+							onClick: installElement,
+							disabled: isInstalling,
+							'aria-label': `Select ${definition.displayName}`,
+						}
+					: {to: getElementDocumentationUrl(definition)})}
 				onBlur={() => setIsFocused(false)}
 				onFocus={() => {
 					setPlaybackFailed(false);
@@ -98,12 +138,14 @@ const ElementCard: React.FC<{
 				onDragStart={(event) => {
 					setStudioDragData({
 						dataTransfer: event.dataTransfer,
-						payload: elementPayload,
+						payload: createElementPayloadFromDefinition({
+							definition,
+							sourceCode,
+							installAssets: false,
+						}),
 					});
 					setElementDragImage(event.dataTransfer, posterRef.current);
 				}}
-				onPointerEnter={activateFromPointer}
-				onPointerLeave={() => setIsPointerOver(false)}
 			>
 				<div
 					aria-hidden="true"
@@ -136,16 +178,48 @@ const ElementCard: React.FC<{
 				<div className={styles.content}>
 					<span className={styles.title}>{definition.displayName}</span>
 				</div>
-			</a>
+			</Card>
+			<div aria-live="polite" className={styles.installAction}>
+				<BlueButton
+					aria-label={`Use – ${definition.displayName}`}
+					fullWidth={false}
+					loading={isInstalling}
+					onClick={installElement}
+					size="sm"
+					style={{padding: '5px 8px'}}
+					title="Install in the most recently focused Remotion Studio"
+				>
+					Use
+				</BlueButton>
+			</div>
+			<ElementInstallFallbackModal
+				definition={definition}
+				installFailureCount={installFailureCount}
+				isInstalling={isInstalling}
+				isOpen={isInstallFallbackOpen}
+				onClose={() => {
+					setIsInstallFallbackOpen(false);
+					setInstallFailureCount(0);
+				}}
+				onInstall={installElement}
+				posterRef={posterRef}
+				sourceCode={sourceCode}
+			/>
 		</li>
 	);
 };
 
 const ElementGrid: React.FC<{
 	readonly definitions: readonly ElementDefinition[];
+	readonly isCaptionPicker: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
-}> = ({definitions, prefersReducedMotion, sourceCodeBySlug}) => {
+}> = ({
+	definitions,
+	isCaptionPicker,
+	prefersReducedMotion,
+	sourceCodeBySlug,
+}) => {
 	return (
 		// The Algolia recordExtractor must remove this subtree before extracting records.
 		// This marker requires explicit crawler configuration; it is not built in.
@@ -166,6 +240,7 @@ const ElementGrid: React.FC<{
 					<ElementCard
 						key={definition.slug}
 						definition={definition}
+						isCaptionPicker={isCaptionPicker}
 						prefersReducedMotion={prefersReducedMotion}
 						sourceCode={sourceCode}
 					/>
@@ -181,6 +256,16 @@ export const ElementLibrary: React.FC<{
 }> = ({category, sourceCodeBySlug}) => {
 	const sections = getElementLibrarySections(category);
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const [isCaptionPicker, setIsCaptionPicker] = useState(false);
+
+	useLayoutEffect(() => {
+		setIsCaptionPicker(
+			isInsideStudio() &&
+				new URLSearchParams(window.location.search).get(
+					'remotion-studio-context',
+				) === 'captions',
+		);
+	}, []);
 
 	return (
 		<div className={styles.library}>
@@ -194,6 +279,7 @@ export const ElementLibrary: React.FC<{
 						>
 							<ElementGrid
 								definitions={section.definitions}
+								isCaptionPicker={isCaptionPicker}
 								prefersReducedMotion={prefersReducedMotion}
 								sourceCodeBySlug={sourceCodeBySlug}
 							/>
@@ -214,6 +300,7 @@ export const ElementLibrary: React.FC<{
 						</h2>
 						<ElementGrid
 							definitions={section.definitions}
+							isCaptionPicker={isCaptionPicker}
 							prefersReducedMotion={prefersReducedMotion}
 							sourceCodeBySlug={sourceCodeBySlug}
 						/>

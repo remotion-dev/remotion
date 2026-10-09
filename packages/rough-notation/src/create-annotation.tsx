@@ -1,11 +1,5 @@
-import React, {
-	createRef,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useState,
-} from 'react';
-import {continueRender, delayRender, useCurrentFrame} from 'remotion';
+import React, {createRef, useLayoutEffect, useMemo, useState} from 'react';
+import {useCurrentFrame, useDelayRender} from 'remotion';
 import {useElementSize} from './element-size';
 import {render} from './rough';
 import {
@@ -95,16 +89,18 @@ export const createAnnotation = () => {
 			roughness,
 		]);
 
-		const [initial] = useState(() => delayRender());
+		const {delayRender, continueRender} = useDelayRender();
 		const size = useElementSize(ref);
+		const isWaitingForSize = size === null;
 
-		useEffect(() => {
-			if (size === null) {
+		useLayoutEffect(() => {
+			if (!isWaitingForSize) {
 				return;
 			}
 
-			continueRender(initial);
-		}, [initial, size]);
+			const handle = delayRender('Waiting for rough annotation size');
+			return () => continueRender(handle);
+		}, [continueRender, delayRender, isWaitingForSize]);
 
 		const [svgChildren, setSvgChildren] = useState<React.ReactElement[]>([]);
 

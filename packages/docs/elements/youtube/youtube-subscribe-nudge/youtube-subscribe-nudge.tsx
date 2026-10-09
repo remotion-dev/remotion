@@ -8,6 +8,8 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
 } from 'remotion';
 
 loadFont('normal', {
@@ -15,8 +17,20 @@ loadFont('normal', {
 	weights: ['500', '600', '700', '800'],
 });
 
-export const YouTubeSubscribeNudge: React.FC = () => {
+const YouTubeSubscribeNudgeInner: React.FC<
+	InteractiveTransformProps & {
+		readonly clickSrc?: string;
+		readonly dingSrc?: string;
+		readonly avatarSrc?: string;
+	}
+> = ({
+	clickSrc = mouseClick,
+	dingSrc = ding,
+	avatarSrc = 'https://remotion.media/elements/social-endcard-remotion-logo.png',
+	style,
+}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<div
@@ -24,13 +38,14 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 				height: 240,
 				position: 'relative',
 				width: 760,
+				...style,
 			}}
 		>
 			<Audio
 				durationInFrames={12}
 				from={61}
 				name="Subscribe click"
-				src={mouseClick}
+				src={clickSrc}
 				trimBefore={3}
 				volume={0.5}
 			/>
@@ -38,37 +53,47 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 				durationInFrames={39}
 				from={81}
 				name="Bell chime"
-				src={ding}
+				src={dingSrc}
 				trimBefore={4}
 				volume={0.24}
 			/>
 			<div
 				style={{
 					height: 240,
-					opacity: interpolate(frame, [0, 24, 104, 119], [0, 1, 1, 0], {
-						easing: [
-							Easing.bezier(0.65, 0, 0.35, 1),
-							Easing.linear,
-							Easing.bezier(0.7, 0, 0.84, 0),
-						],
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
+					opacity: interpolate(
+						frame,
+						[0, 24, durationInFrames - 16, durationInFrames - 1],
+						[0, 1, 1, 0],
+						{
+							easing: [
+								Easing.bezier(0.65, 0, 0.35, 1),
+								Easing.linear,
+								Easing.bezier(0.7, 0, 0.84, 0),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
 					position: 'relative',
-					scale: interpolate(frame, [0, 24, 104, 119], [0.98, 1, 1, 0.97], {
-						easing: [
-							Easing.bezier(0.65, 0, 0.35, 1),
-							Easing.linear,
-							Easing.bezier(0.7, 0, 0.84, 0),
-						],
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-					}),
+					scale: interpolate(
+						frame,
+						[0, 24, durationInFrames - 16, durationInFrames - 1],
+						[0.98, 1, 1, 0.97],
+						{
+							easing: [
+								Easing.bezier(0.65, 0, 0.35, 1),
+								Easing.linear,
+								Easing.bezier(0.7, 0, 0.84, 0),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
+						},
+					),
 					transformOrigin: '50% 50%',
 					translate: interpolate(
 						frame,
-						[0, 24, 104, 119],
+						[0, 24, durationInFrames - 16, durationInFrames - 1],
 						['0px 14px', '0px 0px', '0px 0px', '0px 20px'],
 						{
 							easing: [
@@ -105,7 +130,7 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 						fit="cover"
 						height={88}
 						name="Avatar"
-						src="https://remotion.media/elements/social-endcard-remotion-logo.png"
+						src={avatarSrc}
 						style={{
 							backgroundColor: '#ffffff',
 							border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -389,3 +414,10 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 		</div>
 	);
 };
+
+export const YouTubeSubscribeNudge = Interactive.withSchema({
+	Component: YouTubeSubscribeNudgeInner,
+	componentName: '<YouTubeSubscribeNudge>',
+	schema: {},
+	wrapInSequence: true,
+});

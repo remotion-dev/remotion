@@ -1,19 +1,26 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {Circle} from '@remotion/rough-notation';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
 	weights: ['700'],
 	subsets: ['latin'],
 });
 
-export const CircleMarker: React.FC = () => {
+const CircleMarkerInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 
 	return (
 		<Interactive.Div
 			name="Container"
+			showInTimeline={false}
 			style={{
 				fontSize: 80,
 				fontWeight: 700,
@@ -21,6 +28,7 @@ export const CircleMarker: React.FC = () => {
 				color: '#171717',
 				fontFamily,
 				width: 800,
+				...style,
 			}}
 		>
 			<Interactive.Span>How much </Interactive.Span>
@@ -54,3 +62,10 @@ export const CircleMarker: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const CircleMarker = Interactive.withSchema({
+	Component: CircleMarkerInner,
+	componentName: '<CircleMarker>',
+	schema: {},
+	wrapInSequence: true,
+});

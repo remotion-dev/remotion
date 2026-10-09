@@ -8,10 +8,12 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
+import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
+import {useMediaPlayerMuted} from '../use-media-player-muted';
 import type {FallbackHtml5AudioProps} from './props';
 
 const {
@@ -84,6 +86,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [knownDuration, setKnownDuration] = useState<number | null>(null);
+	const [terminalError, setTerminalError] = useState<Error | null>(null);
 	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
 		useState(false);
 
@@ -94,9 +98,23 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 	const [mediaVolume] = useMediaVolumeState();
 
-	const volumePropFrame = useFrameForVolumeProp(
+	const unloopedVolumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
+	const volumePropFrame =
+		loop && videoConfig
+			? frameForVolumeProp({
+					behavior: loopVolumeCurveBehavior,
+					loop,
+					assetDurationInSeconds: knownDuration,
+					fps: videoConfig.fps,
+					frame,
+					startsAt: unloopedVolumePropFrame - frame,
+					playbackRate,
+					trimBefore,
+					trimAfter,
+				})
+			: unloopedVolumePropFrame;
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -114,14 +132,18 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		throw new TypeError('No `src` was passed to <NewAudioForPreview>.');
 	}
 
-	const currentTime = frame / videoConfig.fps;
+	const parentSequence = useContext(SequenceContext);
+	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
+	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
+	const sequenceDurationInFrames =
+		videoConfig.durationInFrames / sequencePlaybackRate;
+	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
 
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
 
-	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
@@ -131,17 +153,25 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		volume: userPreferredVolume,
 		audioEnabled: true,
 	});
+	const mediaPlayerMuted = useMediaPlayerMuted({
+		muted,
+		volume: userPreferredVolume,
+	});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
-	const initialPlaybackRate = useRef(playbackRate);
-	const initialMuted = useRef(effectiveMuted);
+	const initialPlaybackRate = useRef(effectivePlaybackRate);
+	const initialMuted = useRef(mediaPlayerMuted);
 	const initialVolume = useRef(userPreferredVolume);
-	const initialDurationInFrames = useRef(videoConfig.durationInFrames);
+	const initialDurationInFrames = useRef(sequenceDurationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
+	const onErrorRef = useRef(onError);
+	onErrorRef.current = onError;
+	const disallowFallbackRef = useRef(disallowFallbackToHtml5Audio);
+	disallowFallbackRef.current = disallowFallbackToHtml5Audio;
 
 	useCommonEffects({
 		mediaPlayerRef,
@@ -152,15 +182,15 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		frame,
 		trimBefore,
 		trimAfter,
-		effectiveMuted,
+		effectiveMuted: mediaPlayerMuted,
 		userPreferredVolume,
-		playbackRate,
+		playbackRate: effectivePlaybackRate,
 		toneFrequency: toneFrequency ?? 1,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
 		loop,
-		durationInFrames: videoConfig.durationInFrames,
+		durationInFrames: sequenceDurationInFrames,
 		isPremounting,
 		isPostmounting,
 		currentTime,
@@ -217,6 +247,21 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				tagType: 'audio',
 				getEffects: () => [],
 				getEffectChainState: () => null,
+				maxCanvasSinkFrameSize: null,
+				onError: (error) => {
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError: onErrorRef.current,
+						error,
+						disallowFallback: disallowFallbackRef.current,
+						isClientSideRendering: false,
+						clientSideError: error,
+					});
+					if (action === 'fallback') {
+						setShouldFallbackToNativeAudio(true);
+					} else {
+						setTerminalError(errorToUse);
+					}
+				},
 			});
 
 			mediaPlayerRef.current = player;
@@ -251,20 +296,12 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 						}
 					};
 
-					if (result.type === 'unknown-container-format') {
-						handleError(
-							new Error(`Unknown container format ${preloadedSrc}.`),
-							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
-						);
-						return;
-					}
-
-					if (result.type === 'network-error') {
-						handleError(
-							new Error(`Network error fetching ${preloadedSrc}.`),
-							`Network error fetching ${preloadedSrc}, falling back to <Html5Audio>`,
-						);
-						return;
+					if (
+						result.type === 'unknown-container-format' ||
+						result.type === 'network-error'
+					) {
+						// The catch below applies onError and the existing fallback policy.
+						throw result.error;
 					}
 
 					if (result.type === 'cannot-decode') {
@@ -294,6 +331,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);
+						setKnownDuration(result.durationInSeconds);
 
 						Internals.Log.trace(
 							{logLevel, tag: '@remotion/media'},
@@ -367,6 +405,10 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		initialRequestInit,
 		setMediaDurationInSeconds,
 	]);
+
+	if (terminalError) {
+		throw terminalError;
+	}
 
 	if (shouldFallbackToNativeAudio && !disallowFallbackToHtml5Audio) {
 		return (

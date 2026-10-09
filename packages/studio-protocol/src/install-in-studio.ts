@@ -7,7 +7,6 @@ import type {StudioProtocolFetcher} from './studio-discovery';
 import {
 	discoverStudios,
 	fetchWithTimeout,
-	focusedStudioMaxAge,
 	getInstallCapability,
 	isAbortError,
 	studioProtocolProbePorts,
@@ -36,7 +35,10 @@ export type InstallInStudioResult =
 			readonly status: 'awaiting-confirmation';
 			readonly target: {
 				readonly projectName: string | null;
-				readonly compositionId: string;
+				/**
+				 * @deprecated The installation destination is chosen in Studio. Use projectName or studioOrigin to identify the receiving Studio instead.
+				 */
+				readonly compositionId: string | null;
 				readonly studioOrigin: string;
 				readonly studioVersion: string;
 			};
@@ -90,14 +92,14 @@ const installInStudioResultSchema = z.union([
 		status: z.literal('awaiting-confirmation'),
 		target: z.object({
 			projectName: z.nullable(z.string()),
-			compositionId: z.string(),
+			compositionId: z.nullable(z.string()),
 			studioOrigin: z.string(),
 			studioVersion: z.string(),
 		}),
 	}),
 	z.object({
 		success: z.literal(false),
-		code: z.literal('no-installable-target'),
+		code: z.enum(['no-installable-target', 'request-rejected']),
 		message: z.string(),
 	}),
 ]);
@@ -168,6 +170,7 @@ export const isAllowedStudioProtocolPageOrigin = (
 export const installInStudioWithDependencies = async (
 	payload: StudioElementPayload,
 	dependencies: InstallInStudioDependencies,
+	fallbackPayload: StudioElementPayload | null = null,
 ): Promise<InstallInStudioResult> => {
 	if (!isAllowedStudioProtocolPageOrigin(dependencies.pageOrigin)) {
 		return failure(
@@ -215,20 +218,26 @@ export const installInStudioWithDependencies = async (
 
 		return failure(
 			'no-compatible-studio',
-			'Start Remotion Studio and open a composition, then try again.',
+			'Start Remotion Studio, then try again.',
 		);
 	}
 
 	const supportedStudios = discovery.studios.flatMap((studio) => {
 		const capability = getInstallCapability(studio.descriptor);
-		return capability?.payloadVersions.includes(1)
+		return capability?.payloadVersions.includes(payload.version) ||
+			(fallbackPayload !== null &&
+				capability?.payloadVersions.includes(fallbackPayload.version))
 			? [{...studio, capability}]
 			: [];
 	});
 	if (supportedStudios.length === 0) {
 		return failure(
-			'unsupported-protocol',
-			'The running Remotion Studio cannot install this Element payload version.',
+			payload.version === 2
+				? 'studio-upgrade-required'
+				: 'unsupported-protocol',
+			payload.version === 2
+				? 'Upgrade Remotion Studio to install Elements that include assets.'
+				: 'The running Remotion Studio cannot install this Element payload version.',
 		);
 	}
 
@@ -236,25 +245,41 @@ export const installInStudioWithDependencies = async (
 	const installable = supportedStudios
 		.filter(({capability}) => {
 			const {target} = capability;
-			return (
-				target !== null &&
-				target.expiresAt > now &&
-				now - target.lastFocusedAt < focusedStudioMaxAge
-			);
+			return target !== null && target.expiresAt > now;
 		})
 		.sort((a, b) => {
 			const focusDifference =
-				b.capability.target!.lastFocusedAt - a.capability.target!.lastFocusedAt;
+				(b.capability.target!.lastFocusedAt ?? 0) -
+				(a.capability.target!.lastFocusedAt ?? 0);
 			return focusDifference === 0
 				? b.discoveredAt - a.discoveredAt
 				: focusDifference;
 		});
 	const selected = installable[0];
 	const selectedTarget = selected?.capability.target;
-	if (!selected || selectedTarget === null || selectedTarget === undefined) {
+	if (
+		!selected ||
+		selectedTarget === null ||
+		selectedTarget === undefined ||
+		(selectedTarget.lastFocusedAt === null && installable.length > 1)
+	) {
 		return failure(
 			'no-installable-target',
-			'Focus a composition in a Remotion Studio that is not read-only, then try again.',
+			'Focus Remotion Studio, then try again.',
+		);
+	}
+
+	// Remove the v1 remote-URL fallback after 2026-10-23 (one-month
+	// transition window for Studios without Element asset support).
+	const selectedPayload = selected.capability.payloadVersions.includes(
+		payload.version,
+	)
+		? payload
+		: fallbackPayload;
+	if (selectedPayload === null) {
+		return failure(
+			'unsupported-protocol',
+			'The running Remotion Studio cannot install this Element payload version.',
 		);
 	}
 
@@ -265,7 +290,7 @@ export const installInStudioWithDependencies = async (
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
 			targetId: selectedTarget.id,
-			payload,
+			payload: selectedPayload,
 		} satisfies StudioProtocolInstallRequest;
 		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
@@ -369,28 +394,43 @@ const installInParentStudio = (
 
 export const installInStudio = async ({
 	payload,
+	fallbackPayload,
 }: {
 	readonly payload: StudioElementPayload;
+	readonly fallbackPayload?: StudioElementPayload;
 }): Promise<InstallInStudioResult> => {
 	const parentResult = await installInParentStudio(payload);
 	if (parentResult !== null) {
 		return parentResult;
 	}
 
-	return installInStudioWithDependencies(payload, {
-		fetchFn: fetch,
-		now: Date.now,
-		pageOrigin:
-			typeof globalThis.location === 'undefined'
-				? null
-				: globalThis.location.origin,
-		permissionQueryFn:
-			typeof globalThis.navigator === 'undefined' ||
-			typeof globalThis.navigator.permissions?.query !== 'function'
-				? null
-				: (descriptor) =>
-						// @ts-expect-error Chromium's loopback permission names are not in lib.dom yet.
-						globalThis.navigator.permissions.query(descriptor),
-		ports: studioProtocolProbePorts,
-	});
+	// Older embedded Studios silently ignore v2. Retry with v1 after the
+	// response timeout rather than preventing new parent Studios from using assets.
+	if (fallbackPayload !== undefined) {
+		const fallbackResult = await installInParentStudio(fallbackPayload);
+		if (fallbackResult !== null) {
+			return fallbackResult;
+		}
+	}
+
+	return installInStudioWithDependencies(
+		payload,
+		{
+			fetchFn: fetch,
+			now: Date.now,
+			pageOrigin:
+				typeof globalThis.location === 'undefined'
+					? null
+					: globalThis.location.origin,
+			permissionQueryFn:
+				typeof globalThis.navigator === 'undefined' ||
+				typeof globalThis.navigator.permissions?.query !== 'function'
+					? null
+					: (descriptor) =>
+							// @ts-expect-error Chromium's loopback permission names are not in lib.dom yet.
+							globalThis.navigator.permissions.query(descriptor),
+			ports: studioProtocolProbePorts,
+		},
+		fallbackPayload ?? null,
+	);
 };

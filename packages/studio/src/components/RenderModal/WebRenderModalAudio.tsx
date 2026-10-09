@@ -140,7 +140,7 @@ export const WebRenderModalAudio: React.FC<{
 							<Combobox
 								values={audioBitrateOptions}
 								selectedId={audioBitrate}
-								title="Audio Quality"
+								aria-label="Audio Quality"
 							/>
 						</div>
 					</div>
@@ -154,7 +154,7 @@ export const WebRenderModalAudio: React.FC<{
 								<Combobox
 									values={audioCodecOptions}
 									selectedId={audioCodec}
-									title="Audio Codec"
+									aria-label="Audio Codec"
 								/>
 							</div>
 						</div>

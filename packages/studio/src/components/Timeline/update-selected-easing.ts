@@ -1,12 +1,10 @@
 import {
-	canEditEasingForInterpolationFunction,
-	isSchemaFieldHoldOnly,
-	LINEAR_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
-export {canEditEasingForInterpolationFunction} from '@remotion/studio-shared';
+	CanvasInternals,
+	getCanvasKeyframeChangeOverride,
+	type CanvasKeyframeEasing,
+} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
-	CanUpdateSequencePropStatusEasing,
 	DragOverrideValue,
 	OverrideIdToNodePaths,
 	PropStatuses,
@@ -15,6 +13,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {callBatchUpdateKeyframeSettings} from './call-update-keyframe-settings';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
@@ -24,13 +23,17 @@ import type {
 	TimelineSelection,
 } from './TimelineSelection';
 
+const {canEditKeyframeEasing, getKeyframeSegmentEasing, getSchemaField} =
+	CanvasInternals;
+
 export type EasingSelection = TimelineEasingSelection;
-export type TimelineEasingValue = CanUpdateSequencePropStatusEasing;
+export type TimelineEasingValue = CanvasKeyframeEasing;
 export type SelectedEasingUpdate =
 	| {
 			readonly type: 'sequence';
 			readonly fileName: string;
 			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly fieldKey: string;
 			readonly schema: InteractivitySchema;
 			readonly segmentIndex: number;
@@ -41,6 +44,7 @@ export type SelectedEasingUpdate =
 			readonly type: 'effect';
 			readonly fileName: string;
 			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly effectIndex: number;
 			readonly fieldKey: string;
 			readonly schema: InteractivitySchema;
@@ -95,13 +99,10 @@ export const getSelectedEasingUpdate = ({
 		)?.[field.fieldKey];
 		if (
 			sequencePropStatus?.status !== 'keyframed' ||
-			isSchemaFieldHoldOnly({
-				schema: sequence.controls.schema,
-				key: field.fieldKey,
-			}) ||
-			!canEditEasingForInterpolationFunction(
-				sequencePropStatus.interpolationFunction,
-			)
+			!canEditKeyframeEasing({
+				field: getSchemaField(sequence.controls.schema, field.fieldKey),
+				propStatus: sequencePropStatus,
+			})
 		) {
 			return null;
 		}
@@ -110,12 +111,14 @@ export const getSelectedEasingUpdate = ({
 			type: 'sequence' as const,
 			fileName,
 			nodePath,
+			nodePathInfo: selection.nodePathInfo,
 			fieldKey: field.fieldKey,
 			schema: sequence.controls.schema,
 			segmentIndex: selection.segmentIndex,
-			currentEasing:
-				sequencePropStatus.easing[selection.segmentIndex] ??
-				LINEAR_KEYFRAME_EASING,
+			currentEasing: getKeyframeSegmentEasing(
+				sequencePropStatus,
+				selection.segmentIndex,
+			),
 			propStatus: sequencePropStatus,
 		};
 	}
@@ -136,13 +139,10 @@ export const getSelectedEasingUpdate = ({
 			: null;
 	if (
 		effectPropStatus?.status !== 'keyframed' ||
-		isSchemaFieldHoldOnly({
-			schema: effect.schema,
-			key: field.fieldKey,
-		}) ||
-		!canEditEasingForInterpolationFunction(
-			effectPropStatus.interpolationFunction,
-		)
+		!canEditKeyframeEasing({
+			field: getSchemaField(effect.schema, field.fieldKey),
+			propStatus: effectPropStatus,
+		})
 	) {
 		return null;
 	}
@@ -151,12 +151,15 @@ export const getSelectedEasingUpdate = ({
 		type: 'effect' as const,
 		fileName,
 		nodePath,
+		nodePathInfo: selection.nodePathInfo,
 		effectIndex: field.effectIndex,
 		fieldKey: field.fieldKey,
 		schema: effect.schema,
 		segmentIndex: selection.segmentIndex,
-		currentEasing:
-			effectPropStatus.easing[selection.segmentIndex] ?? LINEAR_KEYFRAME_EASING,
+		currentEasing: getKeyframeSegmentEasing(
+			effectPropStatus,
+			selection.segmentIndex,
+		),
 		propStatus: effectPropStatus,
 	};
 };
@@ -184,33 +187,27 @@ export const getSelectedEasingUpdates = ({
 		.filter((update): update is SelectedEasingUpdate => update !== null);
 };
 
+/** Previews an easing on the segment of a selected easing update. */
 export const makeEasingDragOverride = ({
-	status,
-	segmentIndex,
+	update,
 	easing,
 }: {
-	readonly status: CanUpdateSequencePropStatusKeyframed;
-	readonly segmentIndex: number;
+	readonly update: SelectedEasingUpdate;
 	readonly easing: TimelineEasingValue;
-}): DragOverrideValue => {
-	const nextEasing = [...status.easing];
-	while (nextEasing.length < status.keyframes.length - 1) {
-		nextEasing.push(LINEAR_KEYFRAME_EASING);
-	}
-
-	if (nextEasing.length > status.keyframes.length - 1) {
-		nextEasing.length = status.keyframes.length - 1;
-	}
-
-	nextEasing[segmentIndex] = easing;
-
-	return {
-		type: 'keyframed',
-		status: {
-			...status,
-			easing: nextEasing,
+}): DragOverrideValue | null => {
+	return getCanvasKeyframeChangeOverride({
+		propStatus: update.propStatus,
+		change: {
+			nodePathInfo: update.nodePathInfo,
+			key: update.fieldKey,
+			schema: update.schema,
+			operation: {
+				type: 'easing',
+				segmentIndex: update.segmentIndex,
+				easing,
+			},
 		},
-	};
+	});
 };
 
 export const getEasingSelections = (
