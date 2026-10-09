@@ -798,11 +798,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								durationInFrames={durationInFramesProp}
 								{...propsForSequence}
 								name={passedProps.name || '<TS.Sequence>'}
-								_remotionInternalDocumentationLink={
-									passedProps.name
-										? undefined
-										: 'https://www.remotion.dev/docs/transitions/transitionseries'
-								}
+								_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 								controls={controls ?? undefined}
 							>
 								<UppercaseNextPresentation
@@ -874,11 +870,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								durationInFrames={durationInFramesProp}
 								{...propsForSequence}
 								name={passedProps.name || '<TS.Sequence>'}
-								_remotionInternalDocumentationLink={
-									passedProps.name
-										? undefined
-										: 'https://www.remotion.dev/docs/transitions/transitionseries'
-								}
+								_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 								controls={controls ?? undefined}
 							>
 								<UppercasePrevPresentation
@@ -918,11 +910,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								durationInFrames={durationInFramesProp}
 								{...propsForSequence}
 								name={passedProps.name || '<TS.Sequence>'}
-								_remotionInternalDocumentationLink={
-									passedProps.name
-										? undefined
-										: 'https://www.remotion.dev/docs/transitions/transitionseries'
-								}
+								_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 								controls={controls ?? undefined}
 							>
 								<UppercaseNextPresentation
@@ -957,11 +945,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							durationInFrames={durationInFramesProp}
 							{...propsForSequence}
 							name={passedProps.name || '<TS.Sequence>'}
-							_remotionInternalDocumentationLink={
-								passedProps.name
-									? undefined
-									: 'https://www.remotion.dev/docs/transitions/transitionseries'
-							}
+							_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 							controls={controls ?? undefined}
 						>
 							{sequenceChildren}
@@ -1027,11 +1011,7 @@ const TransitionSeriesInner: FC<SequenceProps> = (props) => {
 		<TrackWithoutSchema
 			name={displayName}
 			layout={layout}
-			_remotionInternalDocumentationLink={
-				name === undefined
-					? 'https://www.remotion.dev/docs/transitions/transitionseries'
-					: undefined
-			}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 			{...otherProps}
 			controls={controls ?? undefined}
 		>

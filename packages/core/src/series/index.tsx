@@ -237,9 +237,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 							<SequenceWithoutSchemaWithRef
 								ref={ref}
 								name={name || '<Series.Sequence>'}
-								_remotionInternalDocumentationLink={
-									name ? undefined : 'https://www.remotion.dev/docs/series'
-								}
+								_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 								controls={controls ?? undefined}
 								from={currentStartFrame}
 								durationInFrames={durationInFramesProp}

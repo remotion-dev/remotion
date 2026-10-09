@@ -435,6 +435,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 					freeze={freeze}
 					hidden={hidden}
 					name={name ?? componentName}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive-with-schema"
 					showInTimeline={isCurrentComposition ? false : showInTimeline}
 					controls={controls}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
