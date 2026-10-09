@@ -790,19 +790,11 @@ export const experts: Expert[] = [
 		since: new Date('2026-10-09').getTime(),
 		description: (
 			<div>
-				I run{' '}
-				<a target={'_blank'} href="https://www.markstudios.com">
-					Mark Studios
-				</a>
-				, a video production agency in Palm Beach County, Florida. Our editing
-				pipeline uses Remotion for the graphics layer of client YouTube videos:
-				word-by-word burned captions, motion graphics timed to the
-				speaker&apos;s words, lower thirds and text cards, composited over an
-				ffmpeg cut, with optional rotoscope mattes so graphics pass behind the
-				presenter.
-				<br />
-				Available for graphics-driven edits, branded Remotion templates and
-				captioning work.
+				I didn&apos;t plan to start a creative agency. I started editing
+				because I cared about making great content, and once I got good at
+				it, people kept coming back for more. That became Mark Studios. We
+				use Remotion for the captions and graphics in our clients&apos;
+				YouTube videos.
 			</div>
 		),
 	},
