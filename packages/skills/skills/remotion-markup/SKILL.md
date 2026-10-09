@@ -246,7 +246,7 @@ const lowerThirdSchema = {
 
 export const LowerThird = Interactive.withSchema({
   Component: LowerThirdInner,
-  componentName: "<LowerThird>",
+  componentName: "LowerThird",
   schema: lowerThirdSchema,
   wrapInSequence: true,
 });
