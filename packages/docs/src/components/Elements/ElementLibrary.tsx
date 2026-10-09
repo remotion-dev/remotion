@@ -57,6 +57,7 @@ const ElementCard: React.FC<{
 		isFallbackOpen,
 		showFallback,
 	} = useStudioInstallFallback('Use');
+	const installTriggerRef = useRef<HTMLElement>(null);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
@@ -114,6 +115,11 @@ const ElementCard: React.FC<{
 		}
 	};
 
+	const onInstallClick = (event: React.MouseEvent<HTMLElement>) => {
+		installTriggerRef.current = event.currentTarget;
+		installElement();
+	};
+
 	const Card = isCaptionPicker ? 'button' : Link;
 
 	return (
@@ -128,7 +134,7 @@ const ElementCard: React.FC<{
 				{...(isCaptionPicker
 					? {
 							type: 'button' as const,
-							onClick: installElement,
+							onClick: onInstallClick,
 							disabled: isInstalling,
 							'aria-label': `Select ${definition.displayName}`,
 						}
@@ -187,7 +193,7 @@ const ElementCard: React.FC<{
 					aria-label={`Use – ${definition.displayName}`}
 					fullWidth={false}
 					loading={isInstalling}
-					onClick={installElement}
+					onClick={onInstallClick}
 					size="sm"
 					style={{padding: '5px 8px'}}
 					title="Install in the most recently focused Remotion Studio"
@@ -205,6 +211,7 @@ const ElementCard: React.FC<{
 				onInstall={installElement}
 				posterRef={posterRef}
 				sourceCode={sourceCode}
+				triggerRef={installTriggerRef}
 			/>
 		</li>
 	);
