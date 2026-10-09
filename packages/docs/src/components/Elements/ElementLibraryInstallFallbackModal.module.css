@@ -1,0 +1,79 @@
+.content {
+	padding: 20px;
+}
+
+.content .title {
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+.copyButton:focus-visible,
+.url:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.description p {
+	margin: 12px 0;
+}
+
+.manualTitle {
+	margin: 20px 0 8px;
+	font-size: inherit;
+}
+
+.instructions {
+	margin: 0 0 12px;
+}
+
+.urlField {
+	position: relative;
+}
+
+.url {
+	display: block;
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+	padding: 8px 44px 8px 10px;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 4px;
+	background: var(--ifm-color-emphasis-100);
+	color: inherit;
+	font: inherit;
+}
+
+.copyButton {
+	position: absolute;
+	top: 50%;
+	right: 4px;
+	display: flex;
+	width: 32px;
+	height: 32px;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transform: translateY(-50%);
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--ifm-color-emphasis-700);
+	cursor: pointer;
+}
+
+.copyButton:hover {
+	background: var(--ifm-color-emphasis-200);
+	color: var(--ifm-font-color-base);
+}
+
+.copyStatus {
+	margin: 8px 0 0;
+}
+
+.copyStatus:empty {
+	display: none;
+}
+
+.configHint {
+	margin: 16px 0 0;
+}
