@@ -25,6 +25,7 @@ import {
 	TimelineFieldValue,
 	UnsupportedStatus,
 } from '../Timeline/TimelineSchemaField';
+import {useClampSequenceTimingValue} from '../Timeline/use-clamp-sequence-timing-value';
 import {MultiSequenceNumberField} from './MultiSequenceNumberField';
 
 export type MultiSequenceTarget = {
@@ -37,6 +38,7 @@ export const MultiSequenceField: React.FC<{
 	readonly targets: MultiSequenceTarget[];
 	readonly readOnlyStudio: boolean;
 }> = ({field, targets, readOnlyStudio}) => {
+	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -67,10 +69,11 @@ export const MultiSequenceField: React.FC<{
 		previewServerState.type === 'connected' &&
 		staticValues;
 	const clear = useCallback(() => {
+		clearTimingLimits();
 		for (const target of targets) {
 			clearDragOverrides(target.nodePath);
 		}
-	}, [clearDragOverrides, targets]);
+	}, [clearDragOverrides, clearTimingLimits, targets]);
 	const targetsRef = useRef(targets);
 	targetsRef.current = targets;
 	useEffect(() => {
@@ -90,11 +93,13 @@ export const MultiSequenceField: React.FC<{
 				setDragOverrides(
 					target.nodePath,
 					field.key,
-					Internals.makeStaticDragOverride(nextValues[index]),
+					Internals.makeStaticDragOverride(
+						clampTimingValue(target.nodePath, field.key, nextValues[index]),
+					),
 				);
 			}
 		},
-		[editable, field.key, setDragOverrides, targets],
+		[clampTimingValue, editable, field.key, setDragOverrides, targets],
 	);
 	const save = useCallback(
 		async (
@@ -111,7 +116,11 @@ export const MultiSequenceField: React.FC<{
 						fileName: target.nodePath.absolutePath,
 						nodePath: target.nodePath,
 						fieldKey: field.key,
-						value: nextValues[index],
+						value: clampTimingValue(
+							target.nodePath,
+							field.key,
+							nextValues[index],
+						),
 						defaultValue:
 							field.typeName === 'string' ||
 							field.typeName === 'text-content' ||
@@ -138,7 +147,15 @@ export const MultiSequenceField: React.FC<{
 				clear();
 			}
 		},
-		[clear, editable, field, previewServerState, setPropStatuses, targets],
+		[
+			clampTimingValue,
+			clear,
+			editable,
+			field,
+			previewServerState,
+			setPropStatuses,
+			targets,
+		],
 	);
 	let content: React.ReactNode;
 	if (!editable) {

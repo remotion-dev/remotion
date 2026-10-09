@@ -48,6 +48,11 @@ import {
 } from './get-keyframed-sequence-drag-targets';
 import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
 import {
+	getMinimumSequenceDuration,
+	getTrimPlaybackRate,
+	getTimelineSequenceTimingLimits,
+} from './get-timeline-sequence-timing-limits';
+import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
 } from './save-sequence-prop';
@@ -244,6 +249,9 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly playbackRate: number;
 	readonly positionField: 'from' | null;
 	readonly ripplePrevious: TimelineSequenceDurationDragTarget | null;
+	readonly timingLimits: ReturnType<
+		typeof getTimelineSequenceTimingLimits
+	> | null;
 	readonly schema: InteractivitySchema;
 };
 
@@ -389,47 +397,6 @@ const isSeriesSequence = (sequence: TSequence) =>
 export const isCascadingSequence = (sequence: TSequence) =>
 	isSeriesSequence(sequence) || isTransitionSeriesSequence(sequence);
 
-const isTransitionSeriesTransition = (sequence: TSequence | undefined) =>
-	sequence?.controls?.componentIdentity ===
-	'dev.remotion.transitions.TransitionSeries.Transition';
-
-const getMinimumSequenceDuration = ({
-	sequence,
-	sequences,
-}: {
-	readonly sequence: TSequence;
-	readonly sequences: TSequence[];
-}) => {
-	if (!isTransitionSeriesSequence(sequence)) {
-		return 1;
-	}
-
-	const siblings = sortItemsByCommitOrder(
-		sequences.filter(
-			(candidate) =>
-				candidate.parent === sequence.parent &&
-				(isTransitionSeriesSequence(candidate) ||
-					isTransitionSeriesTransition(candidate)),
-		),
-		(candidate) => candidate.timelineOrder,
-	);
-	const sequenceIndex = siblings.findIndex(
-		(candidate) => candidate.id === sequence.id,
-	);
-	if (sequenceIndex === -1) {
-		return 1;
-	}
-
-	const previous = siblings[sequenceIndex - 1];
-	const next = siblings[sequenceIndex + 1];
-
-	return Math.max(
-		1,
-		isTransitionSeriesTransition(previous) ? previous.duration : 1,
-		isTransitionSeriesTransition(next) ? next.duration : 1,
-	);
-};
-
 export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 	const isInteractiveCascadingSequence = isCascadingSequence(sequence);
 	if (sequence.loopDisplay || sequence.timelineTrack?.role === 'track') {
@@ -464,33 +431,6 @@ export const isTimelineSequenceLeftEdgeDraggable = (sequence: TSequence) => {
 			sequence.type === 'audio' ||
 			sequence.type === 'video')
 	);
-};
-
-const playbackRateComponentIdentities = new Set([
-	'dev.remotion.gif.Gif',
-	'dev.remotion.media.Audio',
-	'dev.remotion.media.Video',
-	'dev.remotion.remotion.AnimatedImage',
-]);
-
-const getTrimPlaybackRate = ({
-	sequence,
-	runtimeValues,
-}: {
-	readonly sequence: TSequence;
-	readonly runtimeValues: Readonly<Record<string, unknown>>;
-}) => {
-	const componentIdentity = sequence.controls?.componentIdentity;
-	if (
-		componentIdentity === null ||
-		componentIdentity === undefined ||
-		!playbackRateComponentIdentities.has(componentIdentity)
-	) {
-		return sequence.sequencePlaybackRate;
-	}
-
-	const runtimePlaybackRate = runtimeValues.playbackRate;
-	return typeof runtimePlaybackRate === 'number' ? runtimePlaybackRate : 1;
 };
 
 export const getTimelineSequenceEndField = ({
@@ -611,10 +551,29 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 	const localDeltaFrames = deltaFrames * target.parentPlaybackRate;
 	// Only trims that started inside the parent are constrained to its start.
 	// Source-only and cascading trims do not change `from`.
-	const clampedDeltaFrames =
+	let clampedDeltaFrames =
 		!trimBeforeOnly && target.positionField !== null && target.initialFrom >= 0
 			? Math.max(-target.initialFrom, localDeltaFrames)
 			: localDeltaFrames;
+
+	if (target.timingLimits) {
+		clampedDeltaFrames = trimBeforeOnly
+			? Math.min(
+					(target.initialTrimBefore - target.timingLimits.minimumTrimBefore) /
+						target.playbackRate,
+					Math.max(
+						(target.initialTrimBefore - target.timingLimits.maximumTrimBefore) /
+							target.playbackRate,
+						clampedDeltaFrames,
+					),
+				)
+			: Math.max(
+					target.positionField === null
+						? -Infinity
+						: target.timingLimits.minimumFrom - target.initialFrom,
+					clampedDeltaFrames,
+				);
+	}
 
 	return getTimelineSequenceLeftEdgeDragValues({
 		initialDuration: target.initialDuration,
@@ -1086,9 +1045,20 @@ export const getTimelineSequenceDurationDragTargets = ({
 				}
 			}
 
+			const timingLimits = getTimelineSequenceTimingLimits({
+				track,
+				tracks,
+				sequences,
+				timelineDurationInFrames,
+			});
 			const constrainedMaximumDuration = Math.min(
+				timingLimits.maximumDuration,
 				mediaDurationDragLimits
-					? mediaDurationDragLimits.maximumDuration * track.keyframePlaybackRate
+					? Math.max(
+							initialDuration,
+							mediaDurationDragLimits.maximumDuration *
+								track.keyframePlaybackRate,
+						)
 					: Infinity,
 				(timelineDurationInFrames - track.cascadedStart) *
 					track.keyframePlaybackRate,
@@ -1097,9 +1067,10 @@ export const getTimelineSequenceDurationDragTargets = ({
 					: Infinity,
 				parentDurationLimit,
 			);
-			const maximumDuration = isMedia
-				? Math.max(minimumDuration, initialDuration, constrainedMaximumDuration)
-				: Math.max(minimumDuration, constrainedMaximumDuration);
+			const maximumDuration = Math.max(
+				minimumDuration,
+				constrainedMaximumDuration,
+			);
 
 			targets.set(key, {
 				parentPlaybackRate: getParentSequencePlaybackRate(
@@ -1339,6 +1310,12 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				playbackRate,
 				positionField,
 				ripplePrevious,
+				timingLimits: getTimelineSequenceTimingLimits({
+					track,
+					tracks,
+					sequences,
+					timelineDurationInFrames,
+				}),
 				schema: controls.schema,
 			});
 		}
