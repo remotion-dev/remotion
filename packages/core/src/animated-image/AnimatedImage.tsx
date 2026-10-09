@@ -212,8 +212,6 @@ const AnimatedImageContent = forwardRef<
 			continueRender,
 			delayRender,
 			cancelRender,
-			effectsOutputSize?.width,
-			effectsOutputSize?.height,
 		]);
 
 		useEffect(() => {
