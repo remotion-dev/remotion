@@ -241,9 +241,7 @@ const makeMediaInTimelineData = ({
 	playbackRate?: number;
 }): BasicMediaInTimelineReturnType =>
 	({
-		volumes: 1,
 		duration: 100,
-		doesVolumeChange: false,
 		muted: false,
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,

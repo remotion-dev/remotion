@@ -51,7 +51,7 @@ const CircleInner: React.FC<CircleProps> = ({radius = 80, color = '#0b84ff', sty
 
 export const Circle = Interactive.withSchema({
   Component: CircleInner,
-  componentName: '<Circle>',
+  componentName: 'Circle',
   schema: circleSchema,
   wrapInSequence: true,
 });
@@ -126,7 +126,7 @@ const SceneInner: React.FC = () => {
 
 export const Scene = Interactive.withSchema({
   Component: SceneInner,
-  componentName: '<Scene>',
+  componentName: 'Scene',
   schema: {},
   wrapInSequence: true,
   layout: 'absolute-fill',

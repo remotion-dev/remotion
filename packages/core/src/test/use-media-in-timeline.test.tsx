@@ -67,9 +67,7 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 	const {rerender, unmount} = renderHook(
 		({muted}: {readonly muted: boolean}) =>
 			useMediaInTimelineRegistration({
-				volume: 1,
 				src: 'test',
-				mediaVolume: 1,
 				mediaType: 'audio',
 				playbackRate: 1,
 				displayName: null,
@@ -79,7 +77,6 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 				premountDisplay: null,
 				postmountDisplay: null,
 				loopDisplay: undefined,
-				loopVolumeCurveBehavior: 'repeat',
 				documentationLink: null,
 				muted,
 			}),
@@ -122,9 +119,7 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 	const {result} = renderHook(
 		() =>
 			useMediaInTimelineRegistration({
-				volume: 1,
 				src: 'test.mp4',
-				mediaVolume: 1,
 				mediaType: 'video',
 				playbackRate: 1,
 				displayName: 'Intro',
@@ -134,7 +129,6 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 				premountDisplay: null,
 				postmountDisplay: null,
 				loopDisplay: undefined,
-				loopVolumeCurveBehavior: 'repeat',
 				documentationLink: 'https://www.remotion.dev/docs/html5-video',
 				muted: false,
 			}),

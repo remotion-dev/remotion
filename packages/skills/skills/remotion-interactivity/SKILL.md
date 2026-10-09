@@ -63,7 +63,7 @@ const sceneSchema = {
 
 export const Scene = Interactive.withSchema({
   Component: SceneInner,
-  componentName: '<Scene>',
+  componentName: 'Scene',
   schema: sceneSchema,
   wrapInSequence: true,
   layout: 'absolute-fill',

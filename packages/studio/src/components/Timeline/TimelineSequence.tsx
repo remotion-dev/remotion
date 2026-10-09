@@ -1,6 +1,5 @@
 import type {TimelineTrackData} from '@remotion/sdk';
 import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
-import type {WaveformVolume} from '@remotion/timeline-utils';
 import React, {
 	useCallback,
 	useContext,
@@ -23,6 +22,7 @@ import {
 	BLUE,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_BACKGROUND_COLOR,
+	TIMELINE_CAPTIONS_GRADIENT,
 	TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
 	TIMELINE_NEGATIVE_START_BORDER_COLOR,
 	TIMELINE_VIDEO_GRADIENT,
@@ -52,7 +52,6 @@ import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {SnowflakeIcon} from '../../icons/snowflake';
 import {SetSelectedModalContext} from '../../state/modals';
-import {ActionTooltip} from '../ActionTooltip';
 import {AudioWaveform} from '../AudioWaveform';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -73,6 +72,7 @@ import {
 	getKeyframePlaybackRate,
 } from './get-timeline-keyframes';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
+import {getTimelineSceneMask} from './get-timeline-scene-mask';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -80,6 +80,10 @@ import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
 import {timelineLayerLayoutsRef} from './timeline-refs';
+import {
+	PACKED_LABEL_BOTTOM,
+	TimelineSequenceLabel,
+} from './timeline-sequence-label';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 	TIMELINE_PACKED_TRACK_HEIGHT,
@@ -97,6 +101,7 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {TimelineSequenceCaptions} from './TimelineSequenceCaptions';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {TimelineSequenceMountIndicator} from './TimelineSequenceMountIndicator';
 import {
@@ -126,8 +131,6 @@ import {
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
-const PACKED_LABEL_HEIGHT = 15;
-const PACKED_LABEL_BOTTOM = 1;
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -218,7 +221,6 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 const TimelineSequenceFn: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
 	readonly labelStartFrame: number | null;
-	readonly paintEndFrame: number | null;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly keyframeDisplayOffset: number;
@@ -231,7 +233,6 @@ const TimelineSequenceFn: React.FC<{
 }> = ({
 	s,
 	labelStartFrame,
-	paintEndFrame,
 	connectedCompositions,
 	nodePathInfo,
 	keyframeDisplayOffset,
@@ -253,7 +254,6 @@ const TimelineSequenceFn: React.FC<{
 			windowWidth={windowWidth}
 			s={s}
 			labelStartFrame={labelStartFrame}
-			paintEndFrame={paintEndFrame}
 			connectedCompositions={connectedCompositions}
 			nodePathInfo={nodePathInfo}
 			keyframeDisplayOffset={keyframeDisplayOffset}
@@ -325,9 +325,9 @@ const TimelineSequenceNegativeStart = React.memo(
 const TimelineSequenceBar: React.FC<{
 	readonly s: TSequence;
 	readonly labelOffset: number;
+	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
-	readonly paintEndFrame: number | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly leftTrimHighlight: {
 		readonly left: number;
@@ -367,11 +367,11 @@ const TimelineSequenceBar: React.FC<{
 }> = ({
 	s,
 	labelOffset,
+	hasCaptionsSchema,
 	connectedComposition,
 	activeTrimEdge,
 	leftTrimHighlight,
 	annotationLocation,
-	paintEndFrame,
 	displayDurationInFrames,
 	selectionBounds,
 	premount,
@@ -447,25 +447,14 @@ const TimelineSequenceBar: React.FC<{
 			? sceneRange.end * frameIncrement - Number(style.marginLeft)
 			: Infinity;
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
-	// Packed scene clips overlap during transitions. Stop the outgoing paint at
-	// the incoming scene so its trailing gap cannot be covered by the next clip.
-	const packedRight =
-		paintEndFrame !== null && frameIncrement !== null
-			? paintEndFrame * frameIncrement - Number(style.marginLeft)
-			: Infinity;
-	const paintedEnd = Math.max(
-		0,
-		Math.min(Number(style.width), sceneRight, packedRight),
-	);
+	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
 	// Shared child rows need the same gap as Track clips, including when the
 	// scene clips their trailing edge. Only inset the paint: timing, hit areas,
 	// and trim handles keep their full width. Preserve tiny clips when zoomed out.
 	const visualRightInset =
 		(s.timelineTrack || sceneRange !== null) &&
 		transitionWidth === null &&
-		(rightEdgeVisible ||
-			sceneRight <= Number(style.width) ||
-			packedRight <= Number(style.width))
+		(rightEdgeVisible || sceneRight <= Number(style.width))
 			? Number(style.width) -
 				paintedEnd +
 				Math.min(1, Math.max(0, paintedEnd - paintedStart - 1))
@@ -482,8 +471,27 @@ const TimelineSequenceBar: React.FC<{
 			...style,
 			background: TRANSPARENT,
 			opacity: 1,
+			maskImage:
+				s.timelineTrack?.role === 'clip' && frameIncrement !== null
+					? getTimelineSceneMask({
+							sceneRange,
+							offsetInFrames: Number(style.marginLeft) / frameIncrement,
+							durationInFrames: Number(style.width) / frameIncrement,
+						})
+					: undefined,
+			clipPath:
+				s.timelineTrack?.role === 'clip' && sceneRange !== null
+					? `inset(0 ${Math.max(0, Number(style.width) - sceneRight)}px 0 ${Math.max(0, sceneLeft)}px)`
+					: undefined,
 		};
-	}, [style]);
+	}, [
+		style,
+		s.timelineTrack?.role,
+		frameIncrement,
+		sceneRange,
+		sceneLeft,
+		sceneRight,
+	]);
 
 	const premountIndicator = premount ? (
 		<div
@@ -544,7 +552,7 @@ const TimelineSequenceBar: React.FC<{
 				</svg>
 			)}
 
-			{s.timelineTrack ? (
+			{s.timelineTrack || hasCaptionsSchema ? (
 				<div
 					style={{
 						position: 'absolute',
@@ -574,37 +582,17 @@ const TimelineSequenceBar: React.FC<{
 							}}
 						/>
 					) : null}
-					<ActionTooltip
-						label={
-							s.timelineTrack.role === 'track' && frozenFrame !== null
-								? `${s.displayName} (frozen at frame ${frozenFrame})`
-								: s.displayName
-						}
-						shortcut={null}
-						delay={250}
-						dismissOnClick
-						triggerStyle={{
-							alignSelf: 'stretch',
-							minWidth: 0,
-							pointerEvents: 'auto',
-						}}
-					>
-						<span
-							style={{
-								flex: 1,
-								fontSize: 11,
-								lineHeight: `${PACKED_LABEL_HEIGHT}px`,
-								color: getTimelineColor(false, false),
-								maskImage:
-									'linear-gradient(to right, black calc(100% - 5px), transparent)',
-								minWidth: 0,
-								whiteSpace: 'nowrap',
-								overflow: 'hidden',
-								WebkitMaskImage:
-									'linear-gradient(to right, black calc(100% - 5px), transparent)',
-							}}
+					{hasCaptionsSchema ? (
+						<TimelineSequenceCaptions s={s} />
+					) : (
+						<TimelineSequenceLabel
+							label={
+								s.timelineTrack?.role === 'track' && frozenFrame !== null
+									? `${s.displayName} (frozen at frame ${frozenFrame})`
+									: s.displayName
+							}
 						>
-							{s.timelineTrack.role === 'track' && frozenFrame !== null ? (
+							{s.timelineTrack?.role === 'track' && frozenFrame !== null ? (
 								<SnowflakeIcon
 									aria-label={`Frozen at frame ${frozenFrame}`}
 									color={getTimelineColor(false, false)}
@@ -616,13 +604,14 @@ const TimelineSequenceBar: React.FC<{
 									}}
 								/>
 							) : null}
-							{s.timelineTrack.role === 'overlay' ? 'Overlay' : s.displayName}
-						</span>
-					</ActionTooltip>
+							{s.timelineTrack?.role === 'overlay' ? 'Overlay' : s.displayName}
+						</TimelineSequenceLabel>
+					)}
 				</div>
 			) : null}
 
-			{!s.timelineTrack &&
+			{!hasCaptionsSchema &&
+			!s.timelineTrack &&
 			s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.type !== 'image' &&
@@ -755,7 +744,6 @@ const TimelineSequenceBar: React.FC<{
 const TimelineSequenceInner: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
 	readonly labelStartFrame: number | null;
-	readonly paintEndFrame: number | null;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -769,7 +757,6 @@ const TimelineSequenceInner: React.FC<{
 }> = ({
 	s,
 	labelStartFrame,
-	paintEndFrame,
 	connectedCompositions,
 	windowWidth,
 	nodePathInfo,
@@ -1370,13 +1357,6 @@ const TimelineSequenceInner: React.FC<{
 	const displayDurationInFrames = s.loopDisplay
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
-	const registeredVolumeValue =
-		s.type === 'audio' || s.type === 'video' ? s.volume : 1;
-	const registeredVolume = useMemo((): WaveformVolume => {
-		return typeof registeredVolumeValue === 'number'
-			? registeredVolumeValue
-			: registeredVolumeValue.split(',').map((value) => Number(value));
-	}, [registeredVolumeValue]);
 	const keyframedTimelineVolume = useMemo((): readonly number[] | null => {
 		if (volumeKeyframeStatus === null) {
 			return null;
@@ -1424,7 +1404,7 @@ const TimelineSequenceInner: React.FC<{
 		s.loopDisplay?.startOffset,
 		volumeKeyframeStatus,
 	]);
-	const timelineVolume = keyframedTimelineVolume ?? registeredVolume;
+	const timelineVolume = keyframedTimelineVolume ?? 1;
 
 	const {
 		marginLeft,
@@ -1540,8 +1520,7 @@ const TimelineSequenceInner: React.FC<{
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const isMedia = s.type === 'audio' || s.type === 'video';
 	const layerHeight =
-		s.timelineTrack?.role === 'overlay' ||
-		s.timelineTrack?.role === 'transition'
+		s.timelineTrack?.role === 'overlay'
 			? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM
 			: s.timelineTrack
 				? TIMELINE_PACKED_TRACK_HEIGHT
@@ -1699,6 +1678,9 @@ const TimelineSequenceInner: React.FC<{
 		visibleLayout?.rightEdgeVisible === true &&
 		(s.autoDuration || endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
+	const hasCaptionsSchema = Object.values(s.controls?.schema ?? {}).some(
+		(field) => field.type === 'remotion-captions',
+	);
 	const style: React.CSSProperties = useMemo(() => {
 		const role = s.timelineTrack?.role;
 		return {
@@ -1709,7 +1691,9 @@ const TimelineSequenceInner: React.FC<{
 						? TIMELINE_AUDIO_GRADIENT
 						: s.type === 'video'
 							? TIMELINE_VIDEO_GRADIENT
-							: BLUE,
+							: hasCaptionsSchema
+								? TIMELINE_CAPTIONS_GRADIENT
+								: BLUE,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
@@ -1725,6 +1709,7 @@ const TimelineSequenceInner: React.FC<{
 			overflow: 'visible',
 		};
 	}, [
+		hasCaptionsSchema,
 		s.type,
 		s.timelineTrack,
 		showLeftBorderRadius,
@@ -1778,6 +1763,7 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceBar
 			s={s}
+			hasCaptionsSchema={hasCaptionsSchema}
 			labelOffset={
 				labelStartFrame === null
 					? 0
@@ -1788,7 +1774,6 @@ const TimelineSequenceInner: React.FC<{
 			}
 			connectedComposition={connectedCompositions[0] ?? null}
 			annotationLocation={originalLocation}
-			paintEndFrame={paintEndFrame}
 			activeTrimEdge={activeTrimEdge}
 			leftTrimHighlight={
 				visibleLayout.media?.offset === 0 ? visibleLayout.media : null
