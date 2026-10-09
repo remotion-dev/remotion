@@ -996,12 +996,15 @@ const TransitionSeriesInner: FC<SequenceProps> = (props) => {
 		name,
 		layout: passedLayout,
 		controls,
-		...otherProps
 	} = props as SequenceProps & {
 		readonly controls: SequenceControls | null;
 	};
 	const displayName = name ?? '<TransitionSeries>';
 	const layout = passedLayout ?? 'absolute-fill';
+	const trackProps =
+		props.layout === 'none'
+			? props
+			: {...props, layout: props.layout ?? ('absolute-fill' as const)};
 	if (
 		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
 		layout !== 'absolute-fill'
@@ -1014,10 +1017,9 @@ const TransitionSeriesInner: FC<SequenceProps> = (props) => {
 	return (
 		<TrackWithoutSchema
 			_remotionInternalAllowOverlap
-			name={displayName}
-			layout={layout}
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
-			{...otherProps}
+			{...trackProps}
+			name={displayName}
 			controls={controls ?? undefined}
 		>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>

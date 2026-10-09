@@ -60,8 +60,19 @@ const trackSchema = {
 
 // Series variants share the Track foundation while retaining their own
 // Sequence props, layout defaults, and interactivity schemas.
+export type TrackWithoutSchemaProps = Omit<
+	SequenceProps,
+	keyof AbsoluteFillLayout
+> &
+	(
+		| (AbsoluteFillLayout & {layout: 'absolute-fill'})
+		| ({layout?: 'none'} & {
+				[Key in Exclude<keyof AbsoluteFillLayout, 'layout'>]?: never;
+		  })
+	);
+
 export const TrackWithoutSchema: React.FC<
-	SequenceProps & {readonly _remotionInternalAllowOverlap: boolean}
+	TrackWithoutSchemaProps & {readonly _remotionInternalAllowOverlap: boolean}
 > = ({
 	name = 'Track',
 	children,
