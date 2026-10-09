@@ -56,6 +56,7 @@ import {
 	ZURICH_PHOTO_DURATION_IN_FRAMES,
 	ZurichPhoto,
 } from './how-can-remotion-be-free/ZurichPhoto';
+import {RemotionRoot as RollerSkisNewRoot} from './roller-skis-new/Root';
 import {RemotionRoot as RollerSkisRoot} from './roller-skis/Root';
 
 export const RemotionRoot: React.FC = () => {
@@ -325,6 +326,9 @@ export const RemotionRoot: React.FC = () => {
 						height={1920}
 					/>
 				</Folder>
+			</Folder>
+			<Folder name="RollerSkis-new">
+				<RollerSkisNewRoot />
 			</Folder>
 			<Folder name="RollerSkis">
 				<RollerSkisRoot />

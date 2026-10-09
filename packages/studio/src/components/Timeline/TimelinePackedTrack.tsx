@@ -16,8 +16,9 @@ const primaryRowHeight =
 export const TimelinePackedTrack: React.FC<{
 	readonly track: TimelineTrackWithDisplayGroup;
 	readonly items: readonly TimelineTrackWithDisplayGroup[];
+	readonly auxiliaryRowOffsets: readonly number[];
 	readonly auxiliaryRows: readonly (readonly TimelineTrackWithDisplayGroup[])[];
-}> = ({track, items, auxiliaryRows}) => {
+}> = ({track, items, auxiliaryRows, auxiliaryRowOffsets}) => {
 	const {dropIndicatorLeft, onClickCapture, onPointerDownCapture} =
 		useSeriesReorder(items);
 	const rows = useMemo(() => {
@@ -26,15 +27,11 @@ export const TimelinePackedTrack: React.FC<{
 			.sort((a, b) => a.sequence.from - b.sequence.from);
 		return [clips, ...auxiliaryRows].map((row, index) => ({
 			items: row,
-			top:
-				index === 0
-					? 0
-					: primaryRowHeight +
-						(index - 1) * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+			top: index === 0 ? 0 : auxiliaryRowOffsets[index - 1],
 			height:
 				index === 0 ? primaryRowHeight : TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 		}));
-	}, [auxiliaryRows, items]);
+	}, [auxiliaryRows, auxiliaryRowOffsets, items]);
 
 	return (
 		<div
@@ -43,9 +40,12 @@ export const TimelinePackedTrack: React.FC<{
 			onPointerDownCapture={onPointerDownCapture}
 			style={{
 				position: 'relative',
-				height:
-					primaryRowHeight +
-					auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+				height: Math.max(
+					primaryRowHeight,
+					...auxiliaryRowOffsets.map(
+						(offset) => offset + TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+					),
+				),
 			}}
 		>
 			{rows.map((row) => (
