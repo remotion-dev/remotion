@@ -1,21 +1,15 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Interactive,
-	Series,
-	useVideoConfig,
-	type InteractiveTransformProps,
-} from 'remotion';
+import {AbsoluteFill, Interactive, Series, useVideoConfig} from 'remotion';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 import {SpeedBadge} from '../elements/SpeedBadge';
 import {TitleCard} from '../elements/TitleCard';
 
-const GearUpInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const GearUpInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
 			<Series>
 				<Series.Sequence
 					name="Strapping in (6x)"
@@ -205,7 +199,8 @@ const GearUpInner: React.FC<InteractiveTransformProps> = ({style}) => {
 
 export const GearUp = Interactive.withSchema({
 	Component: GearUpInner,
-	componentName: '<GearUp>',
+	componentName: 'GearUp',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

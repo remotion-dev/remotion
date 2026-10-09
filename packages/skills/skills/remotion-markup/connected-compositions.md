@@ -7,7 +7,7 @@ Use connected composition when a section has its own layers or timing, will be r
 1. Put the scene's markup in a named React component.
    Multiple internal layers and sequences can live inside it.
 
-2. Prefer making the component interactive with `Interactive.withSchema({wrapInSequence: true})`, following [Remotion Interactivity](../remotion-interactivity/SKILL.md).
+2. Prefer making the component interactive with `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})`, following [Remotion Interactivity](../remotion-interactivity/SKILL.md).
    Render the exported component directly in the parent with inline timing and editable props.
    It does not need an additional `<Sequence>` to connect to its registration.
    For consecutive scenes or transitions, render one direct instance as the only child of a `<TransitionSeries.Sequence>`.
@@ -40,22 +40,21 @@ import {
 
 type ChapterProps = {
   readonly title: string;
-  readonly style?: React.CSSProperties;
 };
 
-const ChapterInner: React.FC<ChapterProps> = ({title, style}) => {
+const ChapterInner: React.FC<ChapterProps> = ({title}) => {
   // Frame 0 is the start of this chapter, wherever the parent places it.
   const frame = useCurrentFrame();
 
   return (
     <AbsoluteFill
+      name="Chapter background"
       style={{
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
         color: 'black',
         fontFamily: 'Helvetica, Arial, sans-serif',
-        ...style,
       }}
     >
       <h1
@@ -81,10 +80,11 @@ export const Chapter = Interactive.withSchema({
   componentName: 'Chapter',
   schema: chapterSchema,
   wrapInSequence: true,
+  layout: 'absolute-fill',
 });
 ```
 
-`ChapterInner` only declares `title` and `style`.
+`ChapterInner` only declares `title`. The Chapter background layer exposes the centering and background styles in the timeline; the wrapper handles instance styles and timing.
 Because of `wrapInSequence: true`, the exported `Chapter` additionally accepts the timing props of a `<Sequence>`: `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`, plus `premountFor`, `postmountFor` and crop props.
 These are handled by the wrapper and are not passed to `ChapterInner`.
 See [Prefer interactive components with their own timelines](../remotion-interactivity/SKILL.md#prefer-interactive-components-with-their-own-timelines).

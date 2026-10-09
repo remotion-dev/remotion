@@ -3,7 +3,13 @@ import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
 import {pushCut} from '@remotion/transitions/push-cut';
 import React from 'react';
-import {Track, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	Track,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {LightLeakOverlay} from './elements/LightLeakOverlay';
 import {Arrival} from './scenes/Arrival';
 import {BestCommute} from './scenes/BestCommute';
@@ -16,7 +22,7 @@ import {RideMontage} from './scenes/RideMontage';
 import {TheDecline} from './scenes/TheDecline';
 import {Uphill} from './scenes/Uphill';
 
-export const RollerSkiCommute: React.FC = () => {
+const RollerSkiCommuteInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
@@ -165,3 +171,11 @@ export const RollerSkiCommute: React.FC = () => {
 		</>
 	);
 };
+
+export const RollerSkiCommute = Interactive.withSchema({
+	Component: RollerSkiCommuteInner,
+	componentName: 'RollerSkiCommute',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

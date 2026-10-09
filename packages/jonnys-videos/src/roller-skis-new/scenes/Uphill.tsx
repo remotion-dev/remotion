@@ -1,24 +1,22 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
 	Series,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {Callout} from '../elements/Callout';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const UphillInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const UphillInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Incline"
@@ -1383,13 +1381,14 @@ const UphillInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				volume={0.5}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 export const Uphill = Interactive.withSchema({
 	Component: UphillInner,
-	componentName: '<Uphill>',
+	componentName: 'Uphill',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
