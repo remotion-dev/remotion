@@ -14,12 +14,34 @@ export type TimelineDisplayRow = {
 export const filterTimelineTrackContents = (
 	tracks: readonly TimelineTrackWithDisplayGroup[],
 	sequences: readonly TSequence[],
+	compactSeries: boolean,
 ): TimelineTrackWithDisplayGroup[] => {
 	const byId = new Map(sequences.map((sequence) => [sequence.id, sequence]));
 	const tracksById = new Map(tracks.map((track) => [track.sequence.id, track]));
 	const scopedDisplayGroupCounts = new Map<string, number>();
+	const hiddenSelfReferences = new Set<string>();
+	if (compactSeries) {
+		for (const {sequence} of tracks) {
+			const parent =
+				sequence.parent === null ? null : tracksById.get(sequence.parent);
+			if (
+				parent?.sequence.timelineTrack?.role === 'clip' &&
+				parent.sequence.showInTimeline &&
+				sequence.singleChildComponent !== null &&
+				sequence.singleChildComponent !== undefined &&
+				sequence.singleChildComponent === parent.sequence.singleChildComponent
+			) {
+				// The scene clip already represents this component's own wrapper.
+				hiddenSelfReferences.add(sequence.id);
+			}
+		}
+	}
 
 	const visibleTracks = tracks.flatMap((track) => {
+		if (hiddenSelfReferences.has(track.sequence.id)) {
+			return [];
+		}
+
 		if (
 			track.sequence.timelineTrack?.role === 'clip' &&
 			!track.sequence.showInTimeline
@@ -34,6 +56,10 @@ export const filterTimelineTrackContents = (
 			const ancestor = byId.get(parent);
 			if (!ancestor) {
 				break;
+			}
+
+			if (hiddenSelfReferences.has(ancestor.id)) {
+				hiddenAncestors += Number(ancestor.showInTimeline);
 			}
 
 			if (ancestor.timelineTrack) {
