@@ -6,6 +6,7 @@ import {
 	Interactive,
 	interpolate,
 	Series,
+	Track,
 	useCurrentFrame,
 	useVideoConfig,
 	type InteractiveTransformProps,
@@ -226,44 +227,46 @@ const BestCommuteInner: React.FC<InteractiveTransformProps> = ({style}) => {
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
-					<Video
-						name="Chickens"
-						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
-						}
-						from={347}
-						durationInFrames={38}
-						trimBefore={219}
-						muted
-						premountFor={fps}
-						objectFit="cover"
-						style={{position: 'absolute', width: '100%', height: '100%'}}
-					/>
-					<Video
-						name="Cows"
-						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
-						}
-						from={384}
-						durationInFrames={30}
-						trimBefore={1794}
-						muted
-						premountFor={fps}
-						objectFit="cover"
-						style={{position: 'absolute', width: '100%', height: '100%'}}
-					/>
-					<Video
-						name="Mountains"
-						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0461.MOV'
-						}
-						from={414}
-						trimBefore={6}
-						muted
-						premountFor={fps}
-						objectFit="cover"
-						style={{position: 'absolute', width: '100%', height: '100%'}}
-					/>
+					<Track name="Chickens, cows, mountains">
+						<Video
+							name="Chickens"
+							src={
+								'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
+							}
+							from={347}
+							durationInFrames={38}
+							trimBefore={219}
+							muted
+							premountFor={fps}
+							objectFit="cover"
+							style={{position: 'absolute', width: '100%', height: '100%'}}
+						/>
+						<Video
+							name="Cows"
+							src={
+								'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							}
+							from={384}
+							durationInFrames={30}
+							trimBefore={1794}
+							muted
+							premountFor={fps}
+							objectFit="cover"
+							style={{position: 'absolute', width: '100%', height: '100%'}}
+						/>
+						<Video
+							name="Mountains"
+							src={
+								'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0461.MOV'
+							}
+							from={414}
+							trimBefore={6}
+							muted
+							premountFor={fps}
+							objectFit="cover"
+							style={{position: 'absolute', width: '100%', height: '100%'}}
+						/>
+					</Track>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
