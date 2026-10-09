@@ -1710,7 +1710,7 @@ export const studioOperations = {
 	'/api/prepare-element-install': new StudioOperation<
 		PrepareElementInstallRequest,
 		PrepareElementInstallResponse
-	>({mutatesSource: true}),
+	>({mutatesSource: false}),
 	'/api/update-element-install-target': new StudioOperation<
 		UpdateElementInstallTargetRequest,
 		UpdateElementInstallTargetResponse
