@@ -23,6 +23,7 @@ import {
 	BLUE,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_BACKGROUND_COLOR,
+	TIMELINE_CAPTIONS_GRADIENT,
 	TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
 	TIMELINE_NEGATIVE_START_BORDER_COLOR,
 	TIMELINE_VIDEO_GRADIENT,
@@ -52,7 +53,6 @@ import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {SnowflakeIcon} from '../../icons/snowflake';
 import {SetSelectedModalContext} from '../../state/modals';
-import {ActionTooltip} from '../ActionTooltip';
 import {AudioWaveform} from '../AudioWaveform';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -81,6 +81,10 @@ import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
 import {timelineLayerLayoutsRef} from './timeline-refs';
 import {
+	PACKED_LABEL_BOTTOM,
+	TimelineSequenceLabel,
+} from './timeline-sequence-label';
+import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
@@ -97,6 +101,7 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {TimelineSequenceCaptions} from './TimelineSequenceCaptions';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {TimelineSequenceMountIndicator} from './TimelineSequenceMountIndicator';
 import {
@@ -126,8 +131,6 @@ import {
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
-const PACKED_LABEL_HEIGHT = 15;
-const PACKED_LABEL_BOTTOM = 1;
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -325,6 +328,7 @@ const TimelineSequenceNegativeStart = React.memo(
 const TimelineSequenceBar: React.FC<{
 	readonly s: TSequence;
 	readonly labelOffset: number;
+	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly paintEndFrame: number | null;
@@ -367,6 +371,7 @@ const TimelineSequenceBar: React.FC<{
 }> = ({
 	s,
 	labelOffset,
+	hasCaptionsSchema,
 	connectedComposition,
 	activeTrimEdge,
 	leftTrimHighlight,
@@ -544,7 +549,7 @@ const TimelineSequenceBar: React.FC<{
 				</svg>
 			)}
 
-			{s.timelineTrack ? (
+			{s.timelineTrack || hasCaptionsSchema ? (
 				<div
 					style={{
 						position: 'absolute',
@@ -574,40 +579,17 @@ const TimelineSequenceBar: React.FC<{
 							}}
 						/>
 					) : null}
-					<ActionTooltip
-						label={
-							s.timelineTrack.role === 'track' && frozenFrame !== null
-								? `${s.displayName} (frozen at frame ${frozenFrame})`
-								: s.displayName
-						}
-						shortcut={null}
-						delay={250}
-						dismissOnClick
-						triggerStyle={{
-							alignSelf: 'flex-start',
-							maxWidth: '100%',
-							minWidth: 0,
-							pointerEvents: 'auto',
-						}}
-					>
-						<span
-							style={{
-								flex: 1,
-								fontSize: 11,
-								lineHeight: `${PACKED_LABEL_HEIGHT}px`,
-								color: getTimelineColor(false, false),
-								maskImage:
-									'linear-gradient(to right, black calc(100% - 5px), transparent)',
-								minWidth: 0,
-								// Keep the fade in empty space unless the label is clipped.
-								paddingRight: 5,
-								whiteSpace: 'nowrap',
-								overflow: 'hidden',
-								WebkitMaskImage:
-									'linear-gradient(to right, black calc(100% - 5px), transparent)',
-							}}
+					{hasCaptionsSchema ? (
+						<TimelineSequenceCaptions s={s} />
+					) : (
+						<TimelineSequenceLabel
+							label={
+								s.timelineTrack?.role === 'track' && frozenFrame !== null
+									? `${s.displayName} (frozen at frame ${frozenFrame})`
+									: s.displayName
+							}
 						>
-							{s.timelineTrack.role === 'track' && frozenFrame !== null ? (
+							{s.timelineTrack?.role === 'track' && frozenFrame !== null ? (
 								<SnowflakeIcon
 									aria-label={`Frozen at frame ${frozenFrame}`}
 									color={getTimelineColor(false, false)}
@@ -619,13 +601,14 @@ const TimelineSequenceBar: React.FC<{
 									}}
 								/>
 							) : null}
-							{s.timelineTrack.role === 'overlay' ? 'Overlay' : s.displayName}
-						</span>
-					</ActionTooltip>
+							{s.timelineTrack?.role === 'overlay' ? 'Overlay' : s.displayName}
+						</TimelineSequenceLabel>
+					)}
 				</div>
 			) : null}
 
-			{!s.timelineTrack &&
+			{!hasCaptionsSchema &&
+			!s.timelineTrack &&
 			s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.type !== 'image' &&
@@ -1702,6 +1685,9 @@ const TimelineSequenceInner: React.FC<{
 		visibleLayout?.rightEdgeVisible === true &&
 		(s.autoDuration || endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
+	const hasCaptionsSchema = Object.values(s.controls?.schema ?? {}).some(
+		(field) => field.type === 'remotion-captions',
+	);
 	const style: React.CSSProperties = useMemo(() => {
 		const role = s.timelineTrack?.role;
 		return {
@@ -1712,7 +1698,9 @@ const TimelineSequenceInner: React.FC<{
 						? TIMELINE_AUDIO_GRADIENT
 						: s.type === 'video'
 							? TIMELINE_VIDEO_GRADIENT
-							: BLUE,
+							: hasCaptionsSchema
+								? TIMELINE_CAPTIONS_GRADIENT
+								: BLUE,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
@@ -1728,6 +1716,7 @@ const TimelineSequenceInner: React.FC<{
 			overflow: 'visible',
 		};
 	}, [
+		hasCaptionsSchema,
 		s.type,
 		s.timelineTrack,
 		showLeftBorderRadius,
@@ -1781,6 +1770,7 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceBar
 			s={s}
+			hasCaptionsSchema={hasCaptionsSchema}
 			labelOffset={
 				labelStartFrame === null
 					? 0
