@@ -1,7 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
@@ -17,7 +16,7 @@ const UphillInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Incline"
@@ -1382,7 +1381,7 @@ const UphillInner: React.FC = () => {
 				volume={0.5}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
