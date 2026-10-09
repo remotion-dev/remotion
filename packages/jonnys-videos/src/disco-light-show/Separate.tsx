@@ -1,9 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {useVideoConfig} from 'remotion';
+import {Interactive, useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
-export const Separate: React.FC = () => {
+const SeparateInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	return (
 		<>
@@ -23,3 +23,11 @@ export const Separate: React.FC = () => {
 		</>
 	);
 };
+
+export const Separate = Interactive.withSchema({
+	Component: SeparateInner,
+	componentName: '<Separate>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

@@ -10,12 +10,16 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const ForkDrop: React.FC = () => {
+const ForkDropInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill premountFor={fps} style={{overflow: 'hidden'}}>
+		<AbsoluteFill
+			showInTimeline={false}
+			premountFor={fps}
+			style={{overflow: 'hidden'}}
+		>
 			<CanvasImage
 				premountFor={fps}
 				name="Cursor chat window"
@@ -141,3 +145,11 @@ export const ForkDrop: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const ForkDrop = Interactive.withSchema({
+	Component: ForkDropInner,
+	componentName: '<ForkDrop>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

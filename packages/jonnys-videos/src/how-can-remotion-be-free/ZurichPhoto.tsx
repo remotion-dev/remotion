@@ -11,11 +11,11 @@ import {asset} from './assets';
 
 export const ZURICH_PHOTO_DURATION_IN_FRAMES = 48;
 
-export const ZurichPhoto: React.FC = () => {
+const ZurichPhotoInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
+		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
 			<Interactive.Div
 				name="Zurich full-screen photograph"
 				style={{
@@ -97,3 +97,11 @@ export const ZurichPhoto: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const ZurichPhoto = Interactive.withSchema({
+	Component: ZurichPhotoInner,
+	componentName: '<ZurichPhoto>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

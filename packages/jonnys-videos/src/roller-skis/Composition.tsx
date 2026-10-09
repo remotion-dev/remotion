@@ -4,6 +4,7 @@ import {vignette} from '@remotion/effects/vignette';
 import {Audio, Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
 import {
+	Interactive,
 	AbsoluteFill,
 	Composition,
 	Easing,
@@ -81,11 +82,12 @@ const WhiteYouTubeIcon: React.FC = () => (
 	</svg>
 );
 
-const OpeningTitleCard: React.FC = () => {
+const OpeningTitleCardInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				backgroundColor: '#000000',
 				color: '#ffffff',
@@ -118,7 +120,7 @@ const OpeningTitleCard: React.FC = () => {
 	);
 };
 
-const PresenterZoom: React.FC = () => {
+const PresenterZoomInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const zoom = interpolate(frame, [472, 516], [1, 1.09], {
@@ -127,8 +129,11 @@ const PresenterZoom: React.FC = () => {
 	});
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
-			<AbsoluteFill style={{transform: `scale(${zoom})`}}>
+		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
+			<AbsoluteFill
+				showInTimeline={false}
+				style={{transform: `scale(${zoom})`}}
+			>
 				<Video
 					src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
 					durationInFrames={436}
@@ -181,7 +186,7 @@ const PresenterZoom: React.FC = () => {
 	);
 };
 
-const TvColorBars: React.FC = () => {
+const TvColorBarsInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const top = [
 		'#e6e6e6',
@@ -203,7 +208,10 @@ const TvColorBars: React.FC = () => {
 	];
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#080808', overflow: 'hidden'}}>
+		<AbsoluteFill
+			showInTimeline={false}
+			style={{backgroundColor: '#080808', overflow: 'hidden'}}
+		>
 			<div style={{display: 'flex', height: '68%'}}>
 				{top.map((color, index) => (
 					<div key={index} style={{backgroundColor: color, flex: 1}} />
@@ -234,11 +242,12 @@ const TvColorBars: React.FC = () => {
 
 const STRAVA_BROLL_DURATION = 165;
 
-const StravaRidesBroll: React.FC = () => {
+const StravaRidesBrollInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				backgroundColor: '#000000',
 				opacity: interpolate(
@@ -254,7 +263,7 @@ const StravaRidesBroll: React.FC = () => {
 	);
 };
 
-export const PresenterIntroduction: React.FC = () => {
+const PresenterIntroductionInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
@@ -645,7 +654,7 @@ export const PresenterIntroduction: React.FC = () => {
 	);
 };
 
-const RollerSkiRoughCut: React.FC = () => {
+const RollerSkiRoughCutInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
@@ -3710,25 +3719,12 @@ const RollerSkiRoughCut: React.FC = () => {
 					durationInFrames={798}
 					premountFor={fps}
 				>
-					<Video
-						src={rollerSkiAsset('footage/webcam1790859120255.mp4')}
-						trimBefore={90}
-						style={{
-							...videoStyle,
-							transform: 'translateY(-55px) scale(1.12)',
-						}}
-						objectFit="cover"
-						premountFor={fps}
-						effects={[lut({content: studioLut})]}
-					/>
-					<Sequence
+					<StravaRidesBroll
 						name="Four Strava rides b-roll"
 						from={2 * FPS}
 						durationInFrames={STRAVA_BROLL_DURATION}
 						premountFor={fps}
-					>
-						<StravaRidesBroll />
-					</Sequence>
+					/>
 					<BasicCaptions
 						name="Closing thoughts captions"
 						captions={closingThoughtsBeforeCaptions}
@@ -4001,29 +3997,24 @@ const RollerSkiRoughCut: React.FC = () => {
 					/>
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
-			<Sequence
+			<YouTubeEndCard
 				name="Jonny Burger YouTube end card"
 				from={END_CARD_START}
 				durationInFrames={END_CARD_DURATION_IN_FRAMES}
 				premountFor={fps}
-			>
-				<AbsoluteFill
-					style={{
-						translate: interpolate(
-							frame,
-							[12115, 12139],
-							['1920px 0px', '0px 0px'],
-							{
-								easing: [Easing.bezier(0.22, 1, 0.36, 1)],
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							},
-						),
-					}}
-				>
-					<YouTubeEndCard />
-				</AbsoluteFill>
-			</Sequence>
+				style={{
+					translate: interpolate(
+						frame,
+						[12115, 12139],
+						['1920px 0px', '0px 0px'],
+						{
+							easing: [Easing.bezier(0.22, 1, 0.36, 1)],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			/>
 			<Audio
 				name="No School Today music"
 				src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
@@ -4057,3 +4048,51 @@ const RollerSkiRoughCut: React.FC = () => {
 		</>
 	);
 };
+
+const OpeningTitleCard = Interactive.withSchema({
+	Component: OpeningTitleCardInner,
+	componentName: '<OpeningTitleCard>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
+
+const PresenterZoom = Interactive.withSchema({
+	Component: PresenterZoomInner,
+	componentName: '<PresenterZoom>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
+
+const TvColorBars = Interactive.withSchema({
+	Component: TvColorBarsInner,
+	componentName: '<TvColorBars>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
+
+const StravaRidesBroll = Interactive.withSchema({
+	Component: StravaRidesBrollInner,
+	componentName: '<StravaRidesBroll>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
+
+export const PresenterIntroduction = Interactive.withSchema({
+	Component: PresenterIntroductionInner,
+	componentName: '<PresenterIntroduction>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
+
+const RollerSkiRoughCut = Interactive.withSchema({
+	Component: RollerSkiRoughCutInner,
+	componentName: '<RollerSkiRoughCut>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

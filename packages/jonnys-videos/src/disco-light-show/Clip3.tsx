@@ -1,10 +1,15 @@
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {Video} from '@remotion/media';
 import React from 'react';
-import {useVideoConfig, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {asset} from './assets';
 
-export const Clip3: React.FC = () => {
+const Clip3Inner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -36,3 +41,11 @@ export const Clip3: React.FC = () => {
 		</>
 	);
 };
+
+export const Clip3 = Interactive.withSchema({
+	Component: Clip3Inner,
+	componentName: '<Clip3>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

@@ -1,7 +1,7 @@
 import {Video} from '@remotion/media';
 import {
+	Interactive,
 	useVideoConfig,
-	Sequence,
 	interpolate,
 	useCurrentFrame,
 	Easing,
@@ -12,7 +12,7 @@ import {asset} from './assets';
 
 export const TEXT_BACKGROUND_DURATION_IN_FRAMES = 226;
 
-export const TextBackgroundComposition: React.FC = () => {
+const TextBackgroundCompositionInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -28,7 +28,7 @@ export const TextBackgroundComposition: React.FC = () => {
 				trimBefore={2916}
 				durationInFrames={TEXT_BACKGROUND_DURATION_IN_FRAMES}
 			/>
-			<Sequence
+			<ArrowLogo
 				premountFor={fps}
 				name="ArrowLogo"
 				width={1920}
@@ -90,10 +90,8 @@ export const TextBackgroundComposition: React.FC = () => {
 					}),
 				}}
 				from={94}
-			>
-				<ArrowLogo />
-			</Sequence>
-			<Sequence
+			/>
+			<ArrowLogoRemotion
 				premountFor={fps}
 				name="ArrowLogoRemotion"
 				width={1920}
@@ -120,9 +118,15 @@ export const TextBackgroundComposition: React.FC = () => {
 					transformOrigin: '50.46% 15.88%',
 				}}
 				from={134}
-			>
-				<ArrowLogoRemotion />
-			</Sequence>
+			/>
 		</>
 	);
 };
+
+export const TextBackgroundComposition = Interactive.withSchema({
+	Component: TextBackgroundCompositionInner,
+	componentName: '<TextBackgroundComposition>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

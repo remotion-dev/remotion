@@ -90,9 +90,9 @@ const OutcomeRow: React.FC<{item: string; index: number}> = ({item, index}) => {
 	);
 };
 
-export const UnrulyOutcome: React.FC = () => {
+const UnrulyOutcomeInner: React.FC = () => {
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
+		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
 			<div
 				style={{
 					display: 'flex',
@@ -111,3 +111,11 @@ export const UnrulyOutcome: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const UnrulyOutcome = Interactive.withSchema({
+	Component: UnrulyOutcomeInner,
+	componentName: '<UnrulyOutcome>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

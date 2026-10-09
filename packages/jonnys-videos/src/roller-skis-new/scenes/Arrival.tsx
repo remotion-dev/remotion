@@ -8,17 +8,16 @@ import {
 	Series,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {LocationLowerThird} from '../elements/LocationLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const ArrivalInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const ArrivalInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
 			<Series>
 				<Series.Sequence
 					name="Low angle"
@@ -256,4 +255,5 @@ export const Arrival = Interactive.withSchema({
 	componentName: '<Arrival>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

@@ -1,9 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {useVideoConfig} from 'remotion';
+import {Interactive, useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
-export const DragInDemo: React.FC = () => {
+const DragInDemoInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	return (
 		<>
@@ -26,3 +26,11 @@ export const DragInDemo: React.FC = () => {
 		</>
 	);
 };
+
+export const DragInDemo = Interactive.withSchema({
+	Component: DragInDemoInner,
+	componentName: '<DragInDemo>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

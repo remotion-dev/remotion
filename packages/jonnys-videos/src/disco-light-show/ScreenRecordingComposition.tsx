@@ -3,6 +3,7 @@ import {noise} from '@remotion/effects/noise';
 import {rings} from '@remotion/effects/rings';
 import {wave} from '@remotion/effects/wave';
 import {
+	Interactive,
 	AbsoluteFill,
 	interpolate,
 	Solid,
@@ -12,12 +13,12 @@ import {
 
 export const SCREEN_RECORDING_DURATION_IN_FRAMES = 280;
 
-export const ScreenRecordingComposition: React.FC = () => {
+const ScreenRecordingCompositionInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps, durationInFrames} = useVideoConfig();
 
 	return (
-		<AbsoluteFill premountFor={fps}>
+		<AbsoluteFill showInTimeline={false} premountFor={fps}>
 			<Solid
 				premountFor={fps}
 				width={1080}
@@ -69,3 +70,11 @@ export const ScreenRecordingComposition: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const ScreenRecordingComposition = Interactive.withSchema({
+	Component: ScreenRecordingCompositionInner,
+	componentName: '<ScreenRecordingComposition>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

@@ -1,18 +1,12 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Interactive,
-	Series,
-	useVideoConfig,
-	type InteractiveTransformProps,
-} from 'remotion';
+import {AbsoluteFill, Interactive, Series, useVideoConfig} from 'remotion';
 
-const OffWeGoInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const OffWeGoInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
 			<Series>
 				<Series.Sequence
 					name="Skiing away"
@@ -41,4 +35,5 @@ export const OffWeGo = Interactive.withSchema({
 	componentName: '<OffWeGo>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

@@ -71,7 +71,8 @@ The options for `Interactive.withSchema()` are:
 
 The component to wrap.
 
-It must accept a `style?: React.CSSProperties` prop and apply it to its visual root.
+With the default `layout: 'none'`, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root.
+With `layout: 'absolute-fill'`, the wrapper applies styles to a full-size container instead. `Component` must not declare `style`, `width`, or `height` props; these belong to the wrapper.
 
 ### `componentName`
 
@@ -89,13 +90,46 @@ Wraps the component in a [`<Sequence>`](/docs/sequence) automatically.
 Set this to `true`, unless you already have components from previous examples which handle wrapping in a `<Sequence>` manually.
 If set to false, you need to manually forward all props.
 
+### `layout`?<AvailableFrom v="4.0.535" />
+
+Requires `wrapInSequence: true`. Defaults to `'none'`, which forwards styles to `Component` without adding a container.
+
+Set to `'absolute-fill'` to give the component a full-size, absolutely positioned container. Styles, transforms, cropping, and premount styles apply to this container. It shares the component's timeline item, so no extra layout layer appears in Studio. The returned component also accepts `width` and `height` to size the container and set the dimensions reported by `useVideoConfig()`.
+
+The inner component can return a fragment and does not need to forward styles:
+
+```tsx twoslash title="Scene.tsx"
+import type React from 'react';
+import {Interactive} from 'remotion';
+
+const SceneInner: React.FC = () => (
+  <>
+    <div>Scene content</div>
+  </>
+);
+
+export const Scene = Interactive.withSchema({
+  Component: SceneInner,
+  componentName: '<Scene>',
+  schema: {},
+  wrapInSequence: true,
+  layout: 'absolute-fill',
+});
+
+const Example = () => <Scene style={{backgroundColor: 'black', opacity: 0.5}} />;
+```
+
+Keep `'none'` when styles need to apply directly to an element with its own size or layout, such as a text box, SVG, or button.
+
 ### Return value
 
 Returns a React component.
 
 ### Ref forwarding<AvailableFrom v="4.0.530" />
 
-If `Component` accepts a ref, the returned component preserves its ref type and forwards the ref directly to `Component`.
+With `layout: 'none'`, if `Component` accepts a ref, the returned component preserves its ref type and forwards the ref directly to `Component`.
+
+With `layout: 'absolute-fill'`, the ref points to the wrapper's `HTMLDivElement`.
 
 ## Compatibility
 

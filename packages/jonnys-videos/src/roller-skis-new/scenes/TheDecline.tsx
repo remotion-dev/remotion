@@ -8,17 +8,16 @@ import {
 	Series,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {Callout} from '../elements/Callout';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const TheDeclineInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const TheDeclineInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
 			<Series>
 				<Series.Sequence
 					name="Standing on top"
@@ -1049,4 +1048,5 @@ export const TheDecline = Interactive.withSchema({
 	componentName: '<TheDecline>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

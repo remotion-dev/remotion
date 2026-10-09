@@ -54,11 +54,11 @@ const ZeroMonth: React.FC<(typeof MONTHS)[number]> = ({x, delay}) => {
 	);
 };
 
-export const FirstCustomerChart: React.FC = () => {
+const FirstCustomerChartInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
+		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
 			<Interactive.Div
 				name="First customer chart"
 				style={{
@@ -353,3 +353,11 @@ export const FirstCustomerChart: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const FirstCustomerChart = Interactive.withSchema({
+	Component: FirstCustomerChartInner,
+	componentName: '<FirstCustomerChart>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

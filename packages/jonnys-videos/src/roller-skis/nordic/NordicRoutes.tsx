@@ -217,7 +217,7 @@ const RoutePanel = Interactive.withSchema({
 	wrapInSequence: true,
 });
 
-export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
+const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
 	whiteOverlay = false,
 }) => {
 	const frame = useCurrentFrame();
@@ -225,6 +225,7 @@ export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				backgroundColor: whiteOverlay ? 'transparent' : '#F7F6F2',
 				color: whiteOverlay ? '#FFFFFF' : '#292C29',
@@ -290,3 +291,11 @@ export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
 		</AbsoluteFill>
 	);
 };
+
+export const NordicRoutes = Interactive.withSchema({
+	Component: NordicRoutesInner,
+	componentName: '<NordicRoutes>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

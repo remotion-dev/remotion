@@ -18,14 +18,11 @@ import {
 	Interactive,
 	interpolate,
 	interpolateColors,
-	Sequence,
 	spring,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 import {
 	type CaptionPageLayout,
@@ -34,14 +31,13 @@ import {
 
 export const CAPTIONS_HEIGHT = 360;
 
-type AnimatedCaptionsProps = InteractiveBaseProps & {
+type AnimatedCaptionsProps = {
 	readonly captions: Caption[] | null;
 	readonly captionsSrc: string | null;
 	readonly voiceoverSrc: string | null;
 };
 
 const animatedCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 } as const satisfies InteractivitySchema;
 
@@ -82,7 +78,7 @@ type CaptionPageProps = {
 	) => void;
 };
 
-const CaptionPage: React.FC<CaptionPageProps> = ({
+const CaptionPageInner: React.FC<CaptionPageProps> = ({
 	focusProgress,
 	focusedTokenIndex,
 	page,
@@ -130,6 +126,7 @@ const CaptionPage: React.FC<CaptionPageProps> = ({
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			ref={containerRef}
 			style={{
 				alignItems: 'center',
@@ -184,6 +181,14 @@ const CaptionPage: React.FC<CaptionPageProps> = ({
 		</AbsoluteFill>
 	);
 };
+
+const CaptionPage = Interactive.withSchema({
+	Component: CaptionPageInner,
+	componentName: '<CaptionPage>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
 
 const AnimatedCaptionsContent: React.FC<{
 	readonly captions: Caption[];
@@ -367,7 +372,7 @@ const AnimatedCaptionsContent: React.FC<{
 					}),
 				]}
 			>
-				<AbsoluteFill>
+				<AbsoluteFill showInTimeline={false}>
 					{pages.map((page, index) => {
 						const pageKey = `${page.startMs}-${index}`;
 						const nextPage = pages[index + 1];
@@ -384,21 +389,18 @@ const AnimatedCaptionsContent: React.FC<{
 						const durationInFrames = Math.max(1, endFrame - startFrame);
 
 						return (
-							<Sequence
+							<CaptionPage
 								key={pageKey}
 								from={startFrame}
 								durationInFrames={durationInFrames}
 								premountFor={fps}
 								showInTimeline={false}
-							>
-								<CaptionPage
-									focusProgress={focusProgress}
-									focusedTokenIndex={focusedTokenIndex}
-									page={page}
-									pageKey={pageKey}
-									onWordFocusRegions={onWordFocusRegions}
-								/>
-							</Sequence>
+								focusProgress={focusProgress}
+								focusedTokenIndex={focusedTokenIndex}
+								page={page}
+								pageKey={pageKey}
+								onWordFocusRegions={onWordFocusRegions}
+							/>
 						);
 					})}
 				</AbsoluteFill>
@@ -442,38 +444,25 @@ const FetchedAnimatedCaptions: React.FC<{
 	);
 };
 
-const AnimatedCaptionsInner: React.FC<
-	AnimatedCaptionsProps & {readonly controls: SequenceControls | undefined}
-> = (props) => {
-	const {
-		captions,
-		captionsSrc,
-		controls,
-		name,
-		voiceoverSrc,
-		...interactiveProps
-	} = props;
+const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({
+	captions,
+	captionsSrc,
+	voiceoverSrc,
+}) => {
 	return (
-		<Sequence
-			layout="none"
-			{...interactiveProps}
-			controls={controls}
-			name={name ?? '<AnimatedCaptions>'}
-		>
-			<AbsoluteFill>
-				{captions ? (
-					<AnimatedCaptionsContent
-						captions={captions}
-						voiceoverSrc={voiceoverSrc}
-					/>
-				) : captionsSrc ? (
-					<FetchedAnimatedCaptions
-						captionsSrc={captionsSrc}
-						voiceoverSrc={voiceoverSrc}
-					/>
-				) : null}
-			</AbsoluteFill>
-		</Sequence>
+		<>
+			{captions ? (
+				<AnimatedCaptionsContent
+					captions={captions}
+					voiceoverSrc={voiceoverSrc}
+				/>
+			) : captionsSrc ? (
+				<FetchedAnimatedCaptions
+					captionsSrc={captionsSrc}
+					voiceoverSrc={voiceoverSrc}
+				/>
+			) : null}
+		</>
 	);
 };
 
@@ -481,5 +470,6 @@ export const AnimatedCaptions = Interactive.withSchema({
 	Component: AnimatedCaptionsInner,
 	componentName: '<AnimatedCaptions>',
 	schema: animatedCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<AnimatedCaptionsProps>;
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

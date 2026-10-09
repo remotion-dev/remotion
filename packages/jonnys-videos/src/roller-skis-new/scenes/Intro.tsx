@@ -8,17 +8,16 @@ import {
 	Series,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {LocationLowerThird} from '../elements/LocationLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const IntroInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const IntroInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
 			<Series>
 				<Series.Sequence
 					name="Good morning"
@@ -360,4 +359,5 @@ export const Intro = Interactive.withSchema({
 	componentName: '<Intro>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

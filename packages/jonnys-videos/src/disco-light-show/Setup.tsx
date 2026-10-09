@@ -1,8 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
-export const Setup: React.FC = () => {
+const SetupInner: React.FC = () => {
 	return (
 		<>
 			<Video
@@ -22,3 +23,11 @@ export const Setup: React.FC = () => {
 		</>
 	);
 };
+
+export const Setup = Interactive.withSchema({
+	Component: SetupInner,
+	componentName: '<Setup>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

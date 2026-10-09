@@ -6,12 +6,11 @@ import {
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 	type InteractivitySchema,
 } from 'remotion';
 import {fontFamily} from './font';
 
-type TitleCardProps = InteractiveTransformProps & {
+type TitleCardProps = {
 	readonly line1: string;
 	readonly line2: string;
 	readonly kicker: string;
@@ -23,18 +22,17 @@ const TitleCardInner: React.FC<TitleCardProps> = ({
 	line2,
 	kicker,
 	accentColor,
-	style,
 }) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
 				fontFamily,
-				...style,
 			}}
 		>
 			<AbsoluteFill
@@ -162,4 +160,5 @@ export const TitleCard = Interactive.withSchema({
 	componentName: '<TitleCard>',
 	schema: titleCardSchema,
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

@@ -9,7 +9,7 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const OneShot: React.FC = () => {
+const OneShotInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -59,3 +59,11 @@ export const OneShot: React.FC = () => {
 		</>
 	);
 };
+
+export const OneShot = Interactive.withSchema({
+	Component: OneShotInner,
+	componentName: '<OneShot>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

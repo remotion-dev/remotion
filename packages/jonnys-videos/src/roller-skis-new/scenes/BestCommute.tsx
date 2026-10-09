@@ -9,17 +9,16 @@ import {
 	Track,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {AwardBadge} from '../elements/AwardBadge';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const BestCommuteInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const BestCommuteInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
 			<Series>
 				<Series.Sequence
 					name="Tech bros"
@@ -517,4 +516,5 @@ export const BestCommute = Interactive.withSchema({
 	componentName: '<BestCommute>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

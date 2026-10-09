@@ -10,12 +10,16 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const TextBehindVideoStackComposition: React.FC = () => {
+const TextBehindVideoStackCompositionInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill premountFor={fps} style={{overflow: 'hidden'}}>
+		<AbsoluteFill
+			showInTimeline={false}
+			premountFor={fps}
+			style={{overflow: 'hidden'}}
+		>
 			<Interactive.Div
 				premountFor={fps}
 				name="Background video"
@@ -173,3 +177,11 @@ export const TextBehindVideoStack: React.FC = () => {
 		/>
 	);
 };
+
+export const TextBehindVideoStackComposition = Interactive.withSchema({
+	Component: TextBehindVideoStackCompositionInner,
+	componentName: '<TextBehindVideoStackComposition>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

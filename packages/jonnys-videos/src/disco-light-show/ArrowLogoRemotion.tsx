@@ -3,10 +3,15 @@ import {scale} from '@remotion/effects/scale';
 import {noise2D} from '@remotion/noise';
 import {Arrow} from '@remotion/shapes';
 import React from 'react';
-import {useVideoConfig, CanvasImage, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	CanvasImage,
+	useCurrentFrame,
+} from 'remotion';
 import {asset} from './assets';
 
-export const ArrowLogoRemotion: React.FC = () => {
+const ArrowLogoRemotionInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -60,3 +65,11 @@ export const ArrowLogoRemotion: React.FC = () => {
 		</>
 	);
 };
+
+export const ArrowLogoRemotion = Interactive.withSchema({
+	Component: ArrowLogoRemotionInner,
+	componentName: '<ArrowLogoRemotion>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

@@ -1,18 +1,12 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Interactive,
-	Series,
-	useVideoConfig,
-	type InteractiveTransformProps,
-} from 'remotion';
+import {AbsoluteFill, Interactive, Series, useVideoConfig} from 'remotion';
 
-const RideMontageInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const RideMontageInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
 			<Series>
 				<Series.Sequence
 					name="Under the trees"
@@ -66,4 +60,5 @@ export const RideMontage = Interactive.withSchema({
 	componentName: '<RideMontage>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

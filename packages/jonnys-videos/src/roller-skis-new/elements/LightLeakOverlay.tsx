@@ -1,8 +1,14 @@
 import {lightLeak} from '@remotion/effects/light-leak';
 import React from 'react';
-import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	interpolate,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
-export const LightLeakOverlay: React.FC = () => {
+const LightLeakOverlayInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, fps, height, width} = useVideoConfig();
 
@@ -25,3 +31,11 @@ export const LightLeakOverlay: React.FC = () => {
 		/>
 	);
 };
+
+export const LightLeakOverlay = Interactive.withSchema({
+	Component: LightLeakOverlayInner,
+	componentName: '<LightLeakOverlay>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

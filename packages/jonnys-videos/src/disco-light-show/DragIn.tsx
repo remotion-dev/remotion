@@ -3,7 +3,7 @@ import React from 'react';
 import {AbsoluteFill, Interactive} from 'remotion';
 import {asset} from './assets';
 
-export const DragIn: React.FC = () => {
+const DragInInner: React.FC = () => {
 	return (
 		<>
 			<Video
@@ -14,7 +14,7 @@ export const DragIn: React.FC = () => {
 					height: 1080,
 				}}
 			/>
-			<AbsoluteFill>
+			<AbsoluteFill showInTimeline={false}>
 				<Interactive.Div>FOLLOW ME</Interactive.Div>
 			</AbsoluteFill>
 			<Video
@@ -28,3 +28,11 @@ export const DragIn: React.FC = () => {
 		</>
 	);
 };
+
+export const DragIn = Interactive.withSchema({
+	Component: DragInInner,
+	componentName: '<DragIn>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

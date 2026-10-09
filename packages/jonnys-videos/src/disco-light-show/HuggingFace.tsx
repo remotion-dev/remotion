@@ -1,9 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {useVideoConfig} from 'remotion';
+import {Interactive, useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
-export const HuggingFace: React.FC = () => {
+const HuggingFaceInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	return (
 		<>
@@ -26,3 +26,11 @@ export const HuggingFace: React.FC = () => {
 		</>
 	);
 };
+
+export const HuggingFace = Interactive.withSchema({
+	Component: HuggingFaceInner,
+	componentName: '<HuggingFace>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

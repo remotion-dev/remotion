@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+	Interactive,
 	useVideoConfig,
 	CanvasImage,
 	interpolate,
@@ -7,7 +8,7 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const Mediabunny: React.FC = () => {
+const MediabunnyInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -34,3 +35,11 @@ export const Mediabunny: React.FC = () => {
 		</>
 	);
 };
+
+export const Mediabunny = Interactive.withSchema({
+	Component: MediabunnyInner,
+	componentName: '<Mediabunny>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

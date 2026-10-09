@@ -14,7 +14,6 @@ type BlueprintStageProps = {
 	readonly lineWidth: number;
 	readonly occluderColor?: string;
 	readonly stillTimeSeconds?: number;
-	readonly style?: React.CSSProperties;
 };
 
 const BlueprintStageInner: React.FC<BlueprintStageProps> = ({
@@ -22,7 +21,6 @@ const BlueprintStageInner: React.FC<BlueprintStageProps> = ({
 	lineWidth,
 	occluderColor,
 	stillTimeSeconds,
-	style,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps, width, height} = useVideoConfig();
@@ -62,9 +60,7 @@ const BlueprintStageInner: React.FC<BlueprintStageProps> = ({
 		pixelRatio,
 	]);
 
-	return (
-		<div ref={container} style={{position: 'absolute', inset: 0, ...style}} />
-	);
+	return <div ref={container} style={{position: 'absolute', inset: 0}} />;
 };
 
 const blueprintStageSchema = {
@@ -90,4 +86,5 @@ export const BlueprintStage = Interactive.withSchema({
 	componentName: '<BlueprintStage>',
 	schema: blueprintStageSchema,
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

@@ -137,9 +137,9 @@ const TierRow: React.FC<{index: number; label: string; rings: number}> = ({
 	);
 };
 
-export const PremiumVersion: React.FC = () => {
+const PremiumVersionInner: React.FC = () => {
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
+		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
 			<div
 				style={{
 					display: 'flex',
@@ -162,3 +162,11 @@ export const PremiumVersion: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const PremiumVersion = Interactive.withSchema({
+	Component: PremiumVersionInner,
+	componentName: '<PremiumVersion>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

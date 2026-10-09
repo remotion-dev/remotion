@@ -1,10 +1,11 @@
 import {AbsoluteFill, CanvasImage, Interactive} from 'remotion';
 import {rollerSkiAsset} from './assets';
 
-export const Thumbnail: React.FC = () => {
+const ThumbnailInner: React.FC = () => {
 	return (
 		<>
 			<AbsoluteFill
+				showInTimeline={false}
 				style={{
 					translate: '-91.1px 0px',
 				}}
@@ -59,3 +60,11 @@ export const Thumbnail: React.FC = () => {
 		</>
 	);
 };
+
+export const Thumbnail = Interactive.withSchema({
+	Component: ThumbnailInner,
+	componentName: '<Thumbnail>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
