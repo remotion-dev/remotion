@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
@@ -28,12 +27,7 @@ const SlideToSplitScreenInner: React.FC = () => {
 	});
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={{
-				overflow: 'hidden',
-			}}
-		>
+		<>
 			<div
 				style={{
 					height,
@@ -124,7 +118,7 @@ const SlideToSplitScreenInner: React.FC = () => {
 					<div style={{position: 'relative'}}>B</div>
 				</Interactive.Div>
 			</div>
-		</AbsoluteFill>
+		</>
 	);
 };
 

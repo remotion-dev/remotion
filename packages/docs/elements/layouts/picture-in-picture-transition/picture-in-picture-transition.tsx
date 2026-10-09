@@ -1,18 +1,11 @@
 import React from 'react';
-import {
-	AbsoluteFill,
-	Easing,
-	Img,
-	Interactive,
-	interpolate,
-	useCurrentFrame,
-} from 'remotion';
+import {Easing, Img, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
 const PictureInPictureTransitionInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}} showInTimeline={false}>
+		<>
 			<Interactive.Div
 				name="Scene B"
 				style={{
@@ -172,7 +165,7 @@ const PictureInPictureTransitionInner: React.FC = () => {
 				/>
 				<div style={{position: 'relative'}}>A</div>
 			</Interactive.Div>
-		</AbsoluteFill>
+		</>
 	);
 };
 
