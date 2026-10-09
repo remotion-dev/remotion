@@ -1,6 +1,5 @@
 import type {TimelineTrackData} from '@remotion/sdk';
 import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
-import type {WaveformVolume} from '@remotion/timeline-utils';
 import React, {
 	useCallback,
 	useContext,
@@ -1373,13 +1372,6 @@ const TimelineSequenceInner: React.FC<{
 	const displayDurationInFrames = s.loopDisplay
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
-	const registeredVolumeValue =
-		s.type === 'audio' || s.type === 'video' ? s.volume : 1;
-	const registeredVolume = useMemo((): WaveformVolume => {
-		return typeof registeredVolumeValue === 'number'
-			? registeredVolumeValue
-			: registeredVolumeValue.split(',').map((value) => Number(value));
-	}, [registeredVolumeValue]);
 	const keyframedTimelineVolume = useMemo((): readonly number[] | null => {
 		if (volumeKeyframeStatus === null) {
 			return null;
@@ -1427,7 +1419,7 @@ const TimelineSequenceInner: React.FC<{
 		s.loopDisplay?.startOffset,
 		volumeKeyframeStatus,
 	]);
-	const timelineVolume = keyframedTimelineVolume ?? registeredVolume;
+	const timelineVolume = keyframedTimelineVolume ?? 1;
 
 	const {
 		marginLeft,

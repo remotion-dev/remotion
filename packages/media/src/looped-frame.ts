@@ -1,5 +1,4 @@
-import {useMemo} from 'react';
-import {type LoopVolumeCurveBehavior, type VolumeProp} from 'remotion';
+import type {LoopVolumeCurveBehavior} from 'remotion';
 import {getTimeInSeconds} from './get-time-in-seconds';
 
 export const frameForVolumeProp = ({
@@ -46,49 +45,4 @@ export const frameForVolumeProp = ({
 	// A clipped first cycle starts its callback at zero, then later cycles reset
 	// at the same source boundaries as the video and audio.
 	return Math.max(0, Math.min(frame + startsAt, frameInLoop));
-};
-
-export const useLoopedVolume = ({
-	volume,
-	loop,
-	behavior,
-	assetDurationInSeconds,
-	fps,
-	startsAt,
-	playbackRate,
-	trimBefore,
-	trimAfter,
-}: Omit<Parameters<typeof frameForVolumeProp>[0], 'frame'> & {
-	volume: VolumeProp | undefined;
-}) => {
-	return useMemo(() => {
-		if (typeof volume !== 'function' || !loop || behavior === 'extend') {
-			return volume;
-		}
-
-		return (frame: number) =>
-			volume(
-				frameForVolumeProp({
-					behavior,
-					loop,
-					assetDurationInSeconds,
-					fps,
-					frame: frame - startsAt,
-					startsAt,
-					playbackRate,
-					trimBefore,
-					trimAfter,
-				}),
-			);
-	}, [
-		volume,
-		loop,
-		behavior,
-		assetDurationInSeconds,
-		fps,
-		startsAt,
-		playbackRate,
-		trimBefore,
-		trimAfter,
-	]);
 };
