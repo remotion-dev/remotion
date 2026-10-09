@@ -14,6 +14,10 @@ import {
 	sequenceSchemaDefaultLayoutNone,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {
+	OptimisticSequenceDeletion,
+	usePendingSequenceDeletions,
+} from '../optimistic-sequence-deletion.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {SequenceWithoutSchema} from '../Sequence.js';
 import {TrackWithoutSchema} from '../Track.js';
@@ -154,8 +158,12 @@ const validateSeriesSequenceProps = ({
 };
 
 const SeriesInner: FC<SeriesProps> = (props) => {
+	const pendingDeletions = usePendingSequenceDeletions();
 	const childrenValue = useMemo(() => {
-		const flattenedChildren = flattenChildren(props.children);
+		const flattenedChildren = flattenChildren(props.children).filter(
+			(child) =>
+				!OptimisticSequenceDeletion.isElementDeleted(child, pendingDeletions),
+		);
 		const renderChildren = (i: number, startFrame: number): React.ReactNode => {
 			if (i === flattenedChildren.length) {
 				return null;
@@ -259,7 +267,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 		};
 
 		return renderChildren(0, 0);
-	}, [props.children]);
+	}, [props.children, pendingDeletions]);
 
 	return (
 		<TrackWithoutSchema

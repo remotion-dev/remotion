@@ -145,6 +145,10 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
+import {
+	OptimisticSequenceDeletion,
+	usePendingSequenceDeletions,
+} from './optimistic-sequence-deletion.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -345,6 +349,8 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	OptimisticSequenceDeletion,
+	usePendingSequenceDeletions,
 	CommittedMetadataProvider,
 	withCommittedMetadata,
 	DefaultPremountContext,

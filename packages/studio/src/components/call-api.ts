@@ -1,7 +1,9 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
+import {enqueueStudioSourceMutation} from '../helpers/enqueue-studio-source-mutation';
 import {queueSequenceNodePathMutationFromApiResponse} from '../helpers/sequence-node-path-mutations';
+import {sourceMutationEndpoints} from '../helpers/source-mutation-endpoints';
 
-export const callApi = <Endpoint extends keyof ApiRoutes>(
+const callApiImmediately = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
 	body: ApiRoutes[Endpoint]['Request'],
 	signal?: AbortSignal,
@@ -34,4 +36,18 @@ export const callApi = <Endpoint extends keyof ApiRoutes>(
 				reject(err);
 			});
 	});
+};
+
+export const callApi = <Endpoint extends keyof ApiRoutes>(
+	endpoint: Endpoint,
+	body: ApiRoutes[Endpoint]['Request'],
+	signal?: AbortSignal,
+): Promise<ApiRoutes[Endpoint]['Response']> => {
+	if (!sourceMutationEndpoints.has(endpoint)) {
+		return callApiImmediately(endpoint, body, signal);
+	}
+
+	return enqueueStudioSourceMutation(endpoint, body, () =>
+		callApiImmediately(endpoint, body, signal),
+	);
 };
