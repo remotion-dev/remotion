@@ -1,6 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Interactive, Series, useVideoConfig} from 'remotion';
+import {Interactive, Series, useVideoConfig} from 'remotion';
 import {Callout} from '../elements/Callout';
 import {NameLowerThird} from '../elements/NameLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
@@ -9,7 +9,7 @@ const OfficeInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Mehmet"
@@ -906,7 +906,7 @@ const OfficeInner: React.FC = () => {
 				volume={0.35}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 

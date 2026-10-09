@@ -1,7 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
@@ -18,7 +17,7 @@ const BestCommuteInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Tech bros"
@@ -507,7 +506,7 @@ const BestCommuteInner: React.FC = () => {
 				volume={0.5}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 

@@ -1,7 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
@@ -17,7 +16,7 @@ const IntroInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Good morning"
@@ -350,7 +349,7 @@ const IntroInner: React.FC = () => {
 				volume={0.6}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
