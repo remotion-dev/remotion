@@ -1,21 +1,11 @@
 import React from 'react';
-import {
-	AbsoluteFill,
-	Easing,
-	Img,
-	Interactive,
-	interpolate,
-	useCurrentFrame,
-	type InteractiveTransformProps,
-} from 'remotion';
+import {Easing, Img, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
-const PictureInPictureTransitionInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
+const PictureInPictureTransitionInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden', ...style}} showInTimeline={false}>
+		<>
 			<Interactive.Div
 				name="Scene B"
 				style={{
@@ -175,13 +165,14 @@ const PictureInPictureTransitionInner: React.FC<InteractiveTransformProps> = ({
 				/>
 				<div style={{position: 'relative'}}>A</div>
 			</Interactive.Div>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 export const PictureInPictureTransition = Interactive.withSchema({
 	Component: PictureInPictureTransitionInner,
-	componentName: '<PictureInPictureTransition>',
+	componentName: 'PictureInPictureTransition',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

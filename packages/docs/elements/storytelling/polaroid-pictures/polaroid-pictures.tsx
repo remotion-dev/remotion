@@ -8,7 +8,6 @@ import {
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 
 loadFont('normal', {
@@ -16,7 +15,7 @@ loadFont('normal', {
 	subsets: ['latin'],
 });
 
-const PolaroidPicturesAnimation: React.FC = () => {
+const PolaroidPicturesInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
@@ -502,19 +501,10 @@ const PolaroidPicturesAnimation: React.FC = () => {
 	);
 };
 
-const PolaroidPicturesInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
-	return (
-		<AbsoluteFill style={style} showInTimeline={false}>
-			<PolaroidPicturesAnimation />
-		</AbsoluteFill>
-	);
-};
-
 export const PolaroidPictures = Interactive.withSchema({
 	Component: PolaroidPicturesInner,
-	componentName: '<PolaroidPictures>',
+	componentName: 'PolaroidPictures',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

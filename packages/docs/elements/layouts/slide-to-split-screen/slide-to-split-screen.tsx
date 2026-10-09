@@ -1,20 +1,16 @@
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 
 const DIVIDER_WIDTH = 15;
 
-const SlideToSplitScreenInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
+const SlideToSplitScreenInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {height, width} = useVideoConfig();
 	const bPanelWidth = width * 0.4;
@@ -31,18 +27,14 @@ const SlideToSplitScreenInner: React.FC<InteractiveTransformProps> = ({
 	});
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={{
-				overflow: 'hidden',
-				...style,
-			}}
-		>
+		<>
 			<div
 				style={{
 					height,
+					left: 0,
 					overflow: 'hidden',
 					position: 'absolute',
+					top: 0,
 					width: interpolate(splitProgress, [0, 1], [width, aPanelWidth]),
 				}}
 			>
@@ -85,6 +77,7 @@ const SlideToSplitScreenInner: React.FC<InteractiveTransformProps> = ({
 					height,
 					position: 'absolute',
 					right: 0,
+					top: 0,
 					translate: `${(1 - splitProgress) * (bPanelWidth + DIVIDER_WIDTH)}px 0px`,
 					width: bPanelWidth + DIVIDER_WIDTH,
 					willChange: 'transform',
@@ -128,13 +121,14 @@ const SlideToSplitScreenInner: React.FC<InteractiveTransformProps> = ({
 					<div style={{position: 'relative'}}>B</div>
 				</Interactive.Div>
 			</div>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 export const SlideToSplitScreen = Interactive.withSchema({
 	Component: SlideToSplitScreenInner,
-	componentName: '<SlideToSplitScreen>',
+	componentName: 'SlideToSplitScreen',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
