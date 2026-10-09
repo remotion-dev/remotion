@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {homedir} from 'node:os';
 import path from 'node:path';
 import chalk from 'chalk';
 import execa from 'execa';
@@ -229,6 +230,24 @@ export const init = async () => {
 
 	if (skillsInstallation !== null) {
 		await installSkills(projectRoot, skillsInstallation);
+
+		const projectSkills = path.join(projectRoot, '.claude', 'skills');
+		const globalSkills = path.join(homedir(), '.claude', 'skills');
+		if (projectSkills !== globalSkills && fs.existsSync(projectSkills)) {
+			const shadowedSkills = fs
+				.readdirSync(projectSkills)
+				.filter(
+					(name) =>
+						name.startsWith('remotion-') &&
+						fs.existsSync(path.join(projectSkills, name, 'SKILL.md')) &&
+						fs.existsSync(path.join(globalSkills, name, 'SKILL.md')),
+				);
+			if (shadowedSkills.length > 0) {
+				Log.warn(
+					`Claude Code loads global skills before project skills. The global Remotion skill${shadowedSkills.length === 1 ? '' : 's'} ${shadowedSkills.join(', ')} ${shadowedSkills.length === 1 ? 'shadows' : 'shadow'} this project's copy. Remove or update the global ${shadowedSkills.length === 1 ? 'copy' : 'copies'} in ${globalSkills}.`,
+				);
+			}
+		}
 	}
 
 	const relativeToCurrent = path.relative(process.cwd(), projectRoot);

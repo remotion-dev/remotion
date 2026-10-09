@@ -1,3 +1,6 @@
+import {existsSync, readdirSync} from 'node:fs';
+import {homedir} from 'node:os';
+import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
@@ -95,6 +98,23 @@ export const studioCommand = async (
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
+	}
+
+	const projectSkills = path.join(remotionRoot, '.claude', 'skills');
+	const globalSkills = path.join(homedir(), '.claude', 'skills');
+	if (projectSkills !== globalSkills && existsSync(projectSkills)) {
+		const shadowedSkills = readdirSync(projectSkills).filter(
+			(name) =>
+				name.startsWith('remotion-') &&
+				existsSync(path.join(projectSkills, name, 'SKILL.md')) &&
+				existsSync(path.join(globalSkills, name, 'SKILL.md')),
+		);
+		if (shadowedSkills.length > 0) {
+			Log.warn(
+				{indent: false, logLevel},
+				`Claude Code loads global skills before project skills. The global Remotion skill${shadowedSkills.length === 1 ? '' : 's'} ${shadowedSkills.join(', ')} ${shadowedSkills.length === 1 ? 'shadows' : 'shadow'} this project's copy. Remove or update the global ${shadowedSkills.length === 1 ? 'copy' : 'copies'} in ${globalSkills}.`,
+			);
+		}
 	}
 
 	const desiredPort =
