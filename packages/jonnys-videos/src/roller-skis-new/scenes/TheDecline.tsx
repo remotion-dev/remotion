@@ -1045,7 +1045,7 @@ const TheDeclineInner: React.FC = () => {
 
 export const TheDecline = Interactive.withSchema({
 	Component: TheDeclineInner,
-	componentName: '<TheDecline>',
+	componentName: 'TheDecline',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

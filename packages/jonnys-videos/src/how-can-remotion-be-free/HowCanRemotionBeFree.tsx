@@ -1477,7 +1477,7 @@ const HowCanRemotionBeFreeInner: React.FC = () => {
 
 export const HowCanRemotionBeFree = Interactive.withSchema({
 	Component: HowCanRemotionBeFreeInner,
-	componentName: '<HowCanRemotionBeFree>',
+	componentName: 'HowCanRemotionBeFree',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

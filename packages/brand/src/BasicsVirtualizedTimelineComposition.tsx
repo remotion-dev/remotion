@@ -557,7 +557,7 @@ const BasicsVirtualizedTimelineInner = ({
 
 export const BasicsVirtualizedTimelinePreview = Interactive.withSchema({
 	Component: BasicsVirtualizedTimelineInner,
-	componentName: '<BasicsVirtualizedTimelinePreview>',
+	componentName: 'BasicsVirtualizedTimelinePreview',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

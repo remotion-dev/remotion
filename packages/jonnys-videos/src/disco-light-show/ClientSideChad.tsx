@@ -277,7 +277,7 @@ const ClientSideChadInner: React.FC = () => {
 
 export const ClientSideChad = Interactive.withSchema({
 	Component: ClientSideChadInner,
-	componentName: '<ClientSideChad>',
+	componentName: 'ClientSideChad',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

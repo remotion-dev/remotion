@@ -62,7 +62,7 @@ const OneShotInner: React.FC = () => {
 
 export const OneShot = Interactive.withSchema({
 	Component: OneShotInner,
-	componentName: '<OneShot>',
+	componentName: 'OneShot',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

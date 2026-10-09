@@ -410,7 +410,7 @@ const BasicsSeriesTrimInner = ({
 
 export const BasicsSeriesTrimPreview = Interactive.withSchema({
 	Component: BasicsSeriesTrimInner,
-	componentName: '<BasicsSeriesTrimPreview>',
+	componentName: 'BasicsSeriesTrimPreview',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

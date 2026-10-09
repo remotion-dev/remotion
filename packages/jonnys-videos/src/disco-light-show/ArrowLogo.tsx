@@ -69,7 +69,7 @@ const ArrowLogoInner: React.FC = () => {
 
 export const ArrowLogo = Interactive.withSchema({
 	Component: ArrowLogoInner,
-	componentName: '<ArrowLogo>',
+	componentName: 'ArrowLogo',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

@@ -34,7 +34,7 @@ const LightLeakOverlayInner: React.FC = () => {
 
 export const LightLeakOverlay = Interactive.withSchema({
 	Component: LightLeakOverlayInner,
-	componentName: '<LightLeakOverlay>',
+	componentName: 'LightLeakOverlay',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

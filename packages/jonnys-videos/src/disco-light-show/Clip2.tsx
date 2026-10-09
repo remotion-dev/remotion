@@ -23,7 +23,7 @@ const Clip2Inner: React.FC = () => {
 
 export const Clip2 = Interactive.withSchema({
 	Component: Clip2Inner,
-	componentName: '<Clip2>',
+	componentName: 'Clip2',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

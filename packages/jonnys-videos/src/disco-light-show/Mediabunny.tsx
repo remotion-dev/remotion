@@ -38,7 +38,7 @@ const MediabunnyInner: React.FC = () => {
 
 export const Mediabunny = Interactive.withSchema({
 	Component: MediabunnyInner,
-	componentName: '<Mediabunny>',
+	componentName: 'Mediabunny',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

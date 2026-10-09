@@ -24,7 +24,7 @@ const CompilationInner: React.FC = () => {
 
 export const Compilation = Interactive.withSchema({
 	Component: CompilationInner,
-	componentName: '<Compilation>',
+	componentName: 'Compilation',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

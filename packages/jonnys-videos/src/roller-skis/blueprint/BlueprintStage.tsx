@@ -83,7 +83,7 @@ const blueprintStageSchema = {
 
 export const BlueprintStage = Interactive.withSchema({
 	Component: BlueprintStageInner,
-	componentName: '<BlueprintStage>',
+	componentName: 'BlueprintStage',
 	schema: blueprintStageSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',

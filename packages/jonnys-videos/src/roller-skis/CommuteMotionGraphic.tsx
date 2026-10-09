@@ -157,7 +157,7 @@ const CommuteMotionGraphicInner: React.FC = () => {
 
 export const CommuteMotionGraphic = Interactive.withSchema({
 	Component: CommuteMotionGraphicInner,
-	componentName: '<CommuteMotionGraphic>',
+	componentName: 'CommuteMotionGraphic',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

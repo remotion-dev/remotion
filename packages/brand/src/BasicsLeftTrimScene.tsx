@@ -23,7 +23,7 @@ const BasicsLeftTrimSceneInner = () => {
 
 export const BasicsLeftTrimScene = Interactive.withSchema({
 	Component: BasicsLeftTrimSceneInner,
-	componentName: '<BasicsLeftTrimScene>',
+	componentName: 'BasicsLeftTrimScene',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

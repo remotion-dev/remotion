@@ -32,7 +32,7 @@ const OffWeGoInner: React.FC = () => {
 
 export const OffWeGo = Interactive.withSchema({
 	Component: OffWeGoInner,
-	componentName: '<OffWeGo>',
+	componentName: 'OffWeGo',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

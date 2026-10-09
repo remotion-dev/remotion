@@ -369,7 +369,7 @@ const BasicsSourceOnlyTrimInner = ({
 
 export const BasicsSourceOnlyTrimPreview = Interactive.withSchema({
 	Component: BasicsSourceOnlyTrimInner,
-	componentName: '<BasicsSourceOnlyTrimPreview>',
+	componentName: 'BasicsSourceOnlyTrimPreview',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

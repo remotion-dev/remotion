@@ -175,7 +175,7 @@ const MasterWithEffectInner: React.FC = () => {
 
 export const MasterWithEffect = Interactive.withSchema({
 	Component: MasterWithEffectInner,
-	componentName: '<MasterWithEffect>',
+	componentName: 'MasterWithEffect',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

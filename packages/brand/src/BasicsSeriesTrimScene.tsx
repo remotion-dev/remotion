@@ -24,7 +24,7 @@ const BasicsSeriesTrimSceneInner = () => {
 
 export const BasicsSeriesTrimScene = Interactive.withSchema({
 	Component: BasicsSeriesTrimSceneInner,
-	componentName: '<BasicsSeriesTrimScene>',
+	componentName: 'BasicsSeriesTrimScene',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

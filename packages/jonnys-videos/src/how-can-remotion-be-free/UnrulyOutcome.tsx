@@ -114,7 +114,7 @@ const UnrulyOutcomeInner: React.FC = () => {
 
 export const UnrulyOutcome = Interactive.withSchema({
 	Component: UnrulyOutcomeInner,
-	componentName: '<UnrulyOutcome>',
+	componentName: 'UnrulyOutcome',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

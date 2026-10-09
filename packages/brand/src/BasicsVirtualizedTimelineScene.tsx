@@ -23,7 +23,7 @@ const BasicsVirtualizedTimelineSceneInner = () => {
 
 export const BasicsVirtualizedTimelineScene = Interactive.withSchema({
 	Component: BasicsVirtualizedTimelineSceneInner,
-	componentName: '<BasicsVirtualizedTimelineScene>',
+	componentName: 'BasicsVirtualizedTimelineScene',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

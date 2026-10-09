@@ -29,7 +29,7 @@ const DragInDemoInner: React.FC = () => {
 
 export const DragInDemo = Interactive.withSchema({
 	Component: DragInDemoInner,
-	componentName: '<DragInDemo>',
+	componentName: 'DragInDemo',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

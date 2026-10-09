@@ -33,7 +33,7 @@ const DragInInner: React.FC = () => {
 
 export const DragIn = Interactive.withSchema({
 	Component: DragInInner,
-	componentName: '<DragIn>',
+	componentName: 'DragIn',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

@@ -125,7 +125,7 @@ export const RollerSkiBlueprintCompositions: React.FC = () => {
 
 export const RollerSkiBlueprint = Interactive.withSchema({
 	Component: RollerSkiBlueprintInner,
-	componentName: '<RollerSkiBlueprint>',
+	componentName: 'RollerSkiBlueprint',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

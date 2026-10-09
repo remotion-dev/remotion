@@ -95,7 +95,7 @@ const BirthdayPartyCompilationInner: React.FC = () => {
 
 export const BirthdayPartyCompilation = Interactive.withSchema({
 	Component: BirthdayPartyCompilationInner,
-	componentName: '<BirthdayPartyCompilation>',
+	componentName: 'BirthdayPartyCompilation',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

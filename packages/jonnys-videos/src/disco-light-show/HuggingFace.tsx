@@ -29,7 +29,7 @@ const HuggingFaceInner: React.FC = () => {
 
 export const HuggingFace = Interactive.withSchema({
 	Component: HuggingFaceInner,
-	componentName: '<HuggingFace>',
+	componentName: 'HuggingFace',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

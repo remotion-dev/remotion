@@ -161,7 +161,7 @@ const promptSchema = {
 
 export const Prompt = Interactive.withSchema({
 	Component: PromptInner,
-	componentName: '<Prompt>',
+	componentName: 'Prompt',
 	schema: promptSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',

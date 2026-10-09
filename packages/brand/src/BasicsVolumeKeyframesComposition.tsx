@@ -1324,7 +1324,7 @@ const BasicsVolumeKeyframesInner = ({
 
 export const BasicsVolumeKeyframesPreview = Interactive.withSchema({
 	Component: BasicsVolumeKeyframesInner,
-	componentName: '<BasicsVolumeKeyframesPreview>',
+	componentName: 'BasicsVolumeKeyframesPreview',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

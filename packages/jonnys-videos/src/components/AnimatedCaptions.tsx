@@ -184,7 +184,7 @@ const CaptionPageInner: React.FC<CaptionPageProps> = ({
 
 const CaptionPage = Interactive.withSchema({
 	Component: CaptionPageInner,
-	componentName: '<CaptionPage>',
+	componentName: 'CaptionPage',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',
@@ -466,7 +466,7 @@ const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({
 
 export const AnimatedCaptions = Interactive.withSchema({
 	Component: AnimatedCaptionsInner,
-	componentName: '<AnimatedCaptions>',
+	componentName: 'AnimatedCaptions',
 	schema: animatedCaptionsSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',

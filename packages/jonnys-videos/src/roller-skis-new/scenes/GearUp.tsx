@@ -199,7 +199,7 @@ const GearUpInner: React.FC = () => {
 
 export const GearUp = Interactive.withSchema({
 	Component: GearUpInner,
-	componentName: '<GearUp>',
+	componentName: 'GearUp',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

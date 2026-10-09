@@ -356,7 +356,7 @@ const FirstCustomerChartInner: React.FC = () => {
 
 export const FirstCustomerChart = Interactive.withSchema({
 	Component: FirstCustomerChartInner,
-	componentName: '<FirstCustomerChart>',
+	componentName: 'FirstCustomerChart',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

@@ -70,7 +70,7 @@ const ScreenRecordingCompositionInner: React.FC = () => {
 
 export const ScreenRecordingComposition = Interactive.withSchema({
 	Component: ScreenRecordingCompositionInner,
-	componentName: '<ScreenRecordingComposition>',
+	componentName: 'ScreenRecordingComposition',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',
