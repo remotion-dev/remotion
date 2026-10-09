@@ -1,6 +1,7 @@
 import React, {useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {getTimelineSceneMask} from './get-timeline-scene-mask';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
@@ -108,6 +109,7 @@ const TimelineTracksInner: React.FC<{
 								auxiliaryRowOffsets={auxiliaryRowOffsets}
 							/>
 						);
+
 					return (
 						<div
 							key={virtualItem.key}
@@ -123,6 +125,14 @@ const TimelineTracksInner: React.FC<{
 										? windowWidth - TIMELINE_PADDING * 2
 										: undefined,
 								top: virtualItem.start,
+								// Fade the shared rows on either side of the transition midpoint.
+								maskImage: video
+									? getTimelineSceneMask({
+											sceneRange,
+											durationInFrames: video.durationInFrames,
+											offsetInFrames: 0,
+										})
+									: undefined,
 								clipPath:
 									sceneRange === null || !video
 										? undefined

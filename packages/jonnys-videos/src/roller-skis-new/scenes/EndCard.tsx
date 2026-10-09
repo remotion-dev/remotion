@@ -8,16 +8,15 @@ import {
 	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {fontFamily} from '../elements/font';
 
-const EndCardInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const EndCardInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', fontFamily, ...style}}>
+		<>
 			<Sequence name="Last frame" freeze={3328} premountFor={fps}>
 				<Video
 					name="IMG_0475"
@@ -39,7 +38,9 @@ const EndCardInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				/>
 			</Sequence>
 			<AbsoluteFill
+				showInTimeline={false}
 				style={{
+					fontFamily,
 					justifyContent: 'center',
 					alignItems: 'center',
 				}}
@@ -125,13 +126,14 @@ const EndCardInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				volume={0.6}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 export const EndCard = Interactive.withSchema({
 	Component: EndCardInner,
-	componentName: '<EndCard>',
+	componentName: 'EndCard',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

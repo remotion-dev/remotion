@@ -1,9 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {useVideoConfig} from 'remotion';
+import {Interactive, useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
-export const EffectShow: React.FC = () => {
+const EffectShowInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	return (
 		<>
@@ -25,3 +25,11 @@ export const EffectShow: React.FC = () => {
 		</>
 	);
 };
+
+export const EffectShow = Interactive.withSchema({
+	Component: EffectShowInner,
+	componentName: 'EffectShow',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

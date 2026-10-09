@@ -1,7 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
@@ -9,17 +8,16 @@ import {
 	Track,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {AwardBadge} from '../elements/AwardBadge';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const BestCommuteInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const BestCommuteInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Tech bros"
@@ -234,7 +232,7 @@ const BestCommuteInner: React.FC<InteractiveTransformProps> = ({style}) => {
 								'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
 							}
 							from={347}
-							durationInFrames={38}
+							durationInFrames={37}
 							trimBefore={219}
 							muted
 							premountFor={fps}
@@ -508,13 +506,14 @@ const BestCommuteInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				volume={0.5}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 export const BestCommute = Interactive.withSchema({
 	Component: BestCommuteInner,
-	componentName: '<BestCommute>',
+	componentName: 'BestCommute',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

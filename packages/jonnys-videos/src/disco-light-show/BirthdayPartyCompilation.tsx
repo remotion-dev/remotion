@@ -1,8 +1,8 @@
 import {Video} from '@remotion/media';
 import React from 'react';
 import {
+	Interactive,
 	useVideoConfig,
-	Sequence,
 	Solid,
 	interpolate,
 	useCurrentFrame,
@@ -13,12 +13,12 @@ import {Clip1} from './Clip1';
 import {Clip3} from './Clip3';
 import {Clip4} from './Clip4';
 
-export const BirthdayPartyCompilation: React.FC = () => {
+const BirthdayPartyCompilationInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Sequence
+			<Clip1
 				name="Clip1"
 				width={1080}
 				height={1920}
@@ -28,10 +28,8 @@ export const BirthdayPartyCompilation: React.FC = () => {
 				}}
 				from={93}
 				premountFor={fps}
-			>
-				<Clip1 />
-			</Sequence>
-			<Sequence
+			/>
+			<Clip3
 				name="Clip3"
 				width={1080}
 				height={1920}
@@ -41,10 +39,8 @@ export const BirthdayPartyCompilation: React.FC = () => {
 				}}
 				from={37}
 				premountFor={fps}
-			>
-				<Clip3 />
-			</Sequence>
-			<Sequence
+			/>
+			<Clip4
 				name="Clip4"
 				width={1080}
 				height={1920}
@@ -54,9 +50,7 @@ export const BirthdayPartyCompilation: React.FC = () => {
 				}}
 				from={134}
 				premountFor={fps}
-			>
-				<Clip4 />
-			</Sequence>
+			/>
 			<Video
 				src={asset('Setup.mp4')}
 				style={{
@@ -98,3 +92,11 @@ export const BirthdayPartyCompilation: React.FC = () => {
 		</>
 	);
 };
+
+export const BirthdayPartyCompilation = Interactive.withSchema({
+	Component: BirthdayPartyCompilationInner,
+	componentName: 'BirthdayPartyCompilation',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

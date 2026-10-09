@@ -1,6 +1,7 @@
 import {Video} from '@remotion/media';
 import React from 'react';
 import {
+	Interactive,
 	useVideoConfig,
 	CanvasImage,
 	interpolate,
@@ -9,7 +10,7 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const Fork: React.FC = () => {
+const ForkInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -67,3 +68,11 @@ export const Fork: React.FC = () => {
 		</>
 	);
 };
+
+export const Fork = Interactive.withSchema({
+	Component: ForkInner,
+	componentName: 'Fork',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

@@ -1,24 +1,24 @@
 import {Video} from '@remotion/media';
 import {
+	Interactive,
 	useVideoConfig,
 	Composition,
 	Easing,
 	interpolate,
 	useCurrentFrame,
-	Sequence,
 } from 'remotion';
 import {asset} from './assets';
 import {Clip5} from './Clip5';
 
 export const TEXT_BEHIND_VIDEO_SERIES_FIRST_20S_DURATION_IN_FRAMES = 190;
 
-export const TextBehindVideoSeriesFirst20sComposition: React.FC = () => {
+const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<>
-			<Sequence
+			<Clip5
 				premountFor={fps}
 				name="Clip5"
 				width={1080}
@@ -48,10 +48,8 @@ export const TextBehindVideoSeriesFirst20sComposition: React.FC = () => {
 					),
 				}}
 				from={-1}
-			>
-				<Clip5 />
-			</Sequence>
-			<Sequence
+			/>
+			<Clip5
 				premountFor={fps}
 				name="Clip5-copy"
 				width={1080}
@@ -81,9 +79,7 @@ export const TextBehindVideoSeriesFirst20sComposition: React.FC = () => {
 					),
 				}}
 				from={-1}
-			>
-				<Clip5 />
-			</Sequence>
+			/>
 			<Video
 				premountFor={fps}
 				name="Text behind video"
@@ -138,3 +134,11 @@ export const TextBehindVideoSeriesFirst20s: React.FC = () => {
 		/>
 	);
 };
+
+export const TextBehindVideoSeriesFirst20sComposition = Interactive.withSchema({
+	Component: TextBehindVideoSeriesFirst20sCompositionInner,
+	componentName: 'TextBehindVideoSeriesFirst20sComposition',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

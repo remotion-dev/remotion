@@ -3,7 +3,13 @@ import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
 import {pushCut} from '@remotion/transitions/push-cut';
 import React from 'react';
-import {Track, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	Track,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {LightLeakOverlay} from './elements/LightLeakOverlay';
 import {Arrival} from './scenes/Arrival';
 import {BestCommute} from './scenes/BestCommute';
@@ -16,7 +22,7 @@ import {RideMontage} from './scenes/RideMontage';
 import {TheDecline} from './scenes/TheDecline';
 import {Uphill} from './scenes/Uphill';
 
-export const RollerSkiCommute: React.FC = () => {
+const RollerSkiCommuteInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
@@ -112,14 +118,14 @@ export const RollerSkiCommute: React.FC = () => {
 						'https://remotion.media/jonnys-videos/roller-skis-new/music/sunset-render-deja-vu.mp3'
 					}
 					trimBefore={1207}
-					durationInFrames={4048}
+					durationInFrames={4042}
 					premountFor={fps}
 					volume={interpolate(
 						frame,
 						[
 							0, 20, 520, 529, 611, 617, 656, 662, 722, 728, 786, 792, 969, 984,
 							2000, 2006, 2052, 2058, 2480, 2492, 2990, 3002, 3238, 3242, 3281,
-							3300, 4036, 4048,
+							3300, 4036, 4042,
 						],
 						[
 							0, 0.07, 0.07, 0.5, 0.5, 0.14, 0.14, 0.5, 0.5, 0.14, 0.14, 0.5,
@@ -136,11 +142,11 @@ export const RollerSkiCommute: React.FC = () => {
 					}
 					from={4042}
 					trimBefore={3468}
-					durationInFrames={1720}
+					durationInFrames={1708}
 					premountFor={fps}
 					volume={interpolate(
 						frame,
-						[4042, 4046, 4392, 4404, 4689, 4699, 5740, 5762],
+						[4042, 4046, 4392, 4404, 4689, 4699, 5740, 5750],
 						[0, 0.55, 0.55, 0.1, 0.1, 0.07, 0.07, 0],
 						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 					)}
@@ -165,3 +171,11 @@ export const RollerSkiCommute: React.FC = () => {
 		</>
 	);
 };
+
+export const RollerSkiCommute = Interactive.withSchema({
+	Component: RollerSkiCommuteInner,
+	componentName: 'RollerSkiCommute',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

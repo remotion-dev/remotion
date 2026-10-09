@@ -1,24 +1,22 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
 	Series,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {LocationLowerThird} from '../elements/LocationLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const IntroInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const IntroInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Good morning"
@@ -351,13 +349,14 @@ const IntroInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				volume={0.6}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 export const Intro = Interactive.withSchema({
 	Component: IntroInner,
-	componentName: '<Intro>',
+	componentName: 'Intro',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

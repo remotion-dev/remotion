@@ -1,24 +1,22 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
 	Series,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 import {LocationLowerThird} from '../elements/LocationLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const ArrivalInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const ArrivalInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Low angle"
@@ -247,13 +245,14 @@ const ArrivalInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				volume={0.4}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 export const Arrival = Interactive.withSchema({
 	Component: ArrivalInner,
-	componentName: '<Arrival>',
+	componentName: 'Arrival',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

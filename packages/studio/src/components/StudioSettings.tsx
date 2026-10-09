@@ -495,7 +495,8 @@ export const StudioSettings: React.FC = () => {
 							>
 								Limits nearby hidden scenes, including nested sequences and
 								their ancestors. Visible, premounted, and postmounted scenes
-								always render. Set to 0 to disable hidden discovery. Default:{' '}
+								always render. Set to 0 to disable hidden discovery, or -1 for
+								unlimited discovery without admission delays. Default:{' '}
 								{Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
 							</div>
 						</InfoBubble>
@@ -511,7 +512,7 @@ export const StudioSettings: React.FC = () => {
 							}
 							integerOnly
 							max={Number.MAX_SAFE_INTEGER}
-							min={0}
+							min={-1}
 							onTextChange={() => undefined}
 							onValueChange={(value) =>
 								previewNumberSetting('experimentalSequenceActivityLimit', value)

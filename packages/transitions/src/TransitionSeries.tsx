@@ -129,14 +129,14 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly offset?: number;
 		readonly className?: string;
 	} & LayoutBasedProps &
-		Pick<
+		Omit<
 			SequencePropsWithoutDuration,
-			| 'name'
-			| 'showInTimeline'
-			| 'freeze'
-			| 'hidden'
-			| 'trimBefore'
-			| 'playbackRate'
+			// Series determines the start frame and does not support looping.
+			| 'from'
+			| 'loop'
+			| `_remotionInternal${string}`
+			// Preserve the version-specific layout props above.
+			| keyof AbsoluteFillLayout
 		>
 >;
 
@@ -192,14 +192,8 @@ const SeriesSequence = Interactive.withSchema({
 }) as FC<SeriesSequenceProps>;
 
 const transitionSeriesSchema = {
-	durationInFrames: Internals.sequenceSchema.durationInFrames,
-	name: Internals.sequenceSchema.name,
-	hidden: Internals.sequenceSchema.hidden,
-	showInTimeline: Internals.sequenceSchema.showInTimeline,
-	from: Internals.fromField,
-	playbackRate: Internals.sequenceSchema.playbackRate,
-	freeze: Internals.freezeField,
-	layout: Internals.sequenceSchema.layout,
+	...Internals.sequenceSchema,
+	...Internals.sequenceTimingSchema,
 } as const satisfies InteractivitySchema;
 
 type TransitionType<PresentationProps extends Record<string, unknown>> = {

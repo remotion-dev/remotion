@@ -2,6 +2,7 @@ import React, {useContext, useMemo, useState} from 'react';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	sequenceSchema,
+	sequenceTimingSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {
@@ -36,24 +37,7 @@ const {
 
 const trackSchema = {
 	...trackSequenceSchema,
-	from: {
-		...sequenceSchema.from,
-		description: 'From',
-		hiddenFromList: false,
-		keyframable: false,
-	},
-	durationInFrames: {
-		...sequenceSchema.durationInFrames,
-		description: 'Duration',
-		hiddenFromList: false,
-		keyframable: false,
-	},
-	trimBefore: {
-		...sequenceSchema.trimBefore,
-		description: 'Trim before',
-		hiddenFromList: false,
-		keyframable: false,
-	},
+	...sequenceTimingSchema,
 } as const satisfies InteractivitySchema;
 
 // Series variants share the Track foundation while retaining their own

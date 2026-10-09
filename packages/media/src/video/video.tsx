@@ -10,7 +10,6 @@ import {
 	type InteractivitySchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
 import {
@@ -286,7 +285,6 @@ const VideoInner: React.FC<
 		? (Internals.getStackForControls(controls) ?? undefined)
 		: undefined;
 	const fallbackLogLevel = Internals.useLogLevel();
-	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
 	const effectiveTrimAfter = getMediaTrimAfter({
@@ -308,29 +306,15 @@ const VideoInner: React.FC<
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
 		number | null
 	>(null);
-	const loopedVolume = useLoopedVolume({
-		volume,
-		loop: loop ?? false,
-		behavior: loopVolumeCurveBehavior ?? 'repeat',
-		assetDurationInSeconds: mediaDurationInSeconds,
-		fps: videoConfig.fps,
-		startsAt: Math.min(0, mediaStartsAt + (from ?? 0)),
-		playbackRate: playbackRate ?? 1,
-		trimBefore,
-		trimAfter: effectiveTrimAfter,
-	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
 		src,
-		volume: loopedVolume,
 		playbackRate: playbackRate ?? 1,
 		trimBefore,
 		trimAfter: effectiveTrimAfter,
 		sequenceDurationInFrames,
-		displayName: name ?? '<Video>',
-		mediaVolume,
 		mediaStartsAt,
-		mediaFrom: from ?? 0,
+		displayName: name ?? '<Video>',
 		loop: loop ?? false,
 		muted: muted ?? false,
 	});

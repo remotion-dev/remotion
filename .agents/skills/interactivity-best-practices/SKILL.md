@@ -5,7 +5,10 @@ description: Best practices for writing Remotion animations that stay intuitive 
 
 # Interactivity Best Practices
 
-Use the canonical interactivity best-practices page instead:
+For scene structure and custom interactive components, use
+[Remotion Interactivity](../remotion-interactivity/SKILL.md).
+
+For editable styles and animations, use the canonical best-practices page:
 [packages/docs/docs/studio/interactivity-best-practices.mdx](../../../packages/docs/docs/studio/interactivity-best-practices.mdx)
 
 To make an element or custom component interactive, use:

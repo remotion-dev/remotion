@@ -291,11 +291,37 @@ type WithSchema = {
 			>,
 			'Component' | 'supportsEffects'
 		> & {
+			readonly Component: ComponentWithoutReservedProps<
+				Component,
+				WithSchemaReservedKey | 'style' | 'width' | 'height'
+			>;
+			readonly wrapInSequence: true;
+			readonly layout: 'absolute-fill';
+		},
+	): React.FC<
+		React.ComponentPropsWithoutRef<Component> &
+			InteractiveBaseProps &
+			InteractivePremountProps &
+			InteractiveCropProps &
+			InteractiveTransformProps &
+			Pick<SequenceProps, 'width' | 'height'> & {
+				readonly ref?: React.Ref<HTMLDivElement>;
+			}
+	>;
+	<S extends InteractivitySchema, Component extends React.ElementType>(
+		options: Omit<
+			WithInteractivitySchemaOptions<
+				S,
+				React.ComponentPropsWithoutRef<Component>
+			>,
+			'Component' | 'supportsEffects'
+		> & {
 			readonly Component: ComponentAcceptingStyle<
 				Component,
 				WithSchemaReservedKey
 			>;
 			readonly wrapInSequence: true;
+			readonly layout?: 'none';
 		},
 	): React.FC<
 		React.ComponentPropsWithRef<Component> &
@@ -306,6 +332,7 @@ type WithSchema = {
 	<S extends InteractivitySchema, Props extends object>(
 		options: WithInteractivitySchemaOptions<S, Props> & {
 			readonly wrapInSequence?: false;
+			readonly layout?: never;
 		},
 	): React.ComponentType<Props>;
 };
@@ -317,6 +344,7 @@ type WithSchemaImplementationOptions = Omit<
 	readonly Component: React.ComponentType<object>;
 	readonly supportsEffects?: boolean;
 	readonly wrapInSequence?: false | true;
+	readonly layout?: 'none' | 'absolute-fill';
 };
 
 const withSchema: WithSchema = (untypedOptions: unknown) => {
@@ -337,6 +365,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		componentName,
 		schema,
 		wrapInSequence: _,
+		layout = 'none',
 		...rest
 	} = options;
 	type ComponentWrappedInSequenceProps = React.ComponentProps<
@@ -344,7 +373,8 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 	> &
 		InteractiveBaseProps &
 		InteractivePremountProps &
-		InteractiveCropProps & {
+		InteractiveCropProps &
+		Pick<SequenceProps, 'width' | 'height'> & {
 			readonly controls: SequenceControls | undefined;
 		};
 	const ComponentWrappedInSequence = forwardRef<
@@ -361,6 +391,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 				composition.id === canvasContent.compositionId &&
 				composition.componentFromProps === componentIdentity,
 		);
+		const {width, height, ...propsWithoutDimensions} = props;
 		const {
 			durationInFrames,
 			from,
@@ -377,7 +408,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			styleWhilePremounted,
 			styleWhilePostmounted,
 			...componentProps
-		} = props;
+		} = layout === 'absolute-fill' ? propsWithoutDimensions : props;
 		const {
 			cropLeft,
 			cropRight,
@@ -426,7 +457,15 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 					_remotionInternalSingleChildComponent={
 						isCurrentComposition ? null : componentIdentity
 					}
-					layout="none"
+					layout={layout}
+					{...(layout === 'absolute-fill'
+						? {
+								width,
+								height,
+								style: {overflow: 'hidden', ...croppedStyle},
+								ref: ref as React.ForwardedRef<HTMLDivElement>,
+							}
+						: {})}
 					durationInFrames={durationInFrames}
 					from={from}
 					trimBefore={trimBefore}
@@ -445,8 +484,9 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 				>
 					{React.createElement(Component, {
 						...componentPropsWithoutCropping,
-						style: croppedStyle ?? undefined,
-						ref,
+						...(layout === 'none'
+							? {style: croppedStyle ?? undefined, ref}
+							: {}),
 					} as React.ComponentProps<typeof Component>)}
 				</SequenceWithoutSchema>
 			</Freeze>
