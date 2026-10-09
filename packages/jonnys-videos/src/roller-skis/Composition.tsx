@@ -129,59 +129,54 @@ const PresenterZoomInner: React.FC = () => {
 	});
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
-			<AbsoluteFill
-				showInTimeline={false}
-				style={{transform: `scale(${zoom})`}}
-			>
-				<Video
-					src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
-					durationInFrames={436}
-					trimBefore={120}
-					style={videoStyle}
-					objectFit="cover"
-					premountFor={fps}
-					effects={[
-						lut({content: studioLut}),
-						vignette({
-							amount: interpolate(frame, [423, 466], [0, 0.55], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-
-							radius: 0.62,
-							feather: 0.35,
-							roundness: 1,
-							center: [0.5, 0.5],
-							color: '#000000',
+		<AbsoluteFill showInTimeline={false} style={{transform: `scale(${zoom})`}}>
+			<Video
+				src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
+				durationInFrames={436}
+				trimBefore={120}
+				style={videoStyle}
+				objectFit="cover"
+				premountFor={fps}
+				effects={[
+					lut({content: studioLut}),
+					vignette({
+						amount: interpolate(frame, [423, 466], [0, 0.55], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
 						}),
-					]}
-				/>
-				<Video
-					src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
-					from={436}
-					trimBefore={556}
-					style={videoStyle}
-					objectFit="cover"
-					premountFor={fps}
-					effects={[
-						lut({content: studioLut}),
-						vignette({
-							amount: interpolate(frame, [409, 485], [0, 0.55], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
 
-							radius: 0.63,
-							feather: 0.67,
-							roundness: 1,
-							center: [0.5, 0.5],
-							color: '#000000',
+						radius: 0.62,
+						feather: 0.35,
+						roundness: 1,
+						center: [0.5, 0.5],
+						color: '#000000',
+					}),
+				]}
+			/>
+			<Video
+				src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
+				from={436}
+				trimBefore={556}
+				style={videoStyle}
+				objectFit="cover"
+				premountFor={fps}
+				effects={[
+					lut({content: studioLut}),
+					vignette({
+						amount: interpolate(frame, [409, 485], [0, 0.55], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
 						}),
-					]}
-					toneFrequency={0.95}
-				/>
-			</AbsoluteFill>
+
+						radius: 0.63,
+						feather: 0.67,
+						roundness: 1,
+						center: [0.5, 0.5],
+						color: '#000000',
+					}),
+				]}
+				toneFrequency={0.95}
+			/>
 		</AbsoluteFill>
 	);
 };

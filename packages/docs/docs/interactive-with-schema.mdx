@@ -94,7 +94,7 @@ If set to false, you need to manually forward all props.
 
 Requires `wrapInSequence: true`. Defaults to `'none'`, which forwards styles to `Component` without adding a container.
 
-Set to `'absolute-fill'` to give the component a full-size, absolutely positioned container. Styles, transforms, cropping, and premount styles apply to this container. It shares the component's timeline item, so no extra layout layer appears in Studio. The returned component also accepts `width` and `height` to size the container and set the dimensions reported by `useVideoConfig()`.
+Set to `'absolute-fill'` to give the component a full-size, absolutely positioned container with `overflow: 'hidden'` by default. Set `style={{overflow: 'visible'}}` on the returned component to let content extend beyond its bounds. Styles, transforms, cropping, and premount styles apply to this container. It shares the component's timeline item, so no extra layout layer appears in Studio. The returned component also accepts `width` and `height` to size the container and set the dimensions reported by `useVideoConfig()`.
 
 The inner component can return a fragment and does not need to forward styles:
 
