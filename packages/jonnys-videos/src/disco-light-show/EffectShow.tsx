@@ -1,8 +1,10 @@
 import {Video} from '@remotion/media';
 import React from 'react';
+import {useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
 export const EffectShow: React.FC = () => {
+	const {fps} = useVideoConfig();
 	return (
 		<>
 			<Video
@@ -18,7 +20,7 @@ export const EffectShow: React.FC = () => {
 				}}
 				muted
 				trimBefore={151}
-				premountFor={30}
+				premountFor={fps}
 			/>
 		</>
 	);

@@ -1,11 +1,14 @@
 import {Video} from '@remotion/media';
 import React from 'react';
+import {useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
 export const HuggingFace: React.FC = () => {
+	const {fps} = useVideoConfig();
 	return (
 		<>
 			<Video
+				premountFor={fps}
 				src={asset('Screen Recording 2026-07-19 at 10.04.18.mov')}
 				style={{
 					position: 'absolute',

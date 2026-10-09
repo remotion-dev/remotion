@@ -1,12 +1,19 @@
 import React from 'react';
-import {Img, interpolate, useCurrentFrame} from 'remotion';
+import {
+	useVideoConfig,
+	CanvasImage,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {asset} from './assets';
 
 export const Mediabunny: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Img
+			<CanvasImage
+				premountFor={fps}
 				src={asset('mediabunny-logo.png')}
 				style={{
 					position: 'absolute',

@@ -14,11 +14,12 @@ export const SCREEN_RECORDING_DURATION_IN_FRAMES = 280;
 
 export const ScreenRecordingComposition: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
+	const {fps, durationInFrames} = useVideoConfig();
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill premountFor={fps}>
 			<Solid
+				premountFor={fps}
 				width={1080}
 				height={1920}
 				color={'#191919'}
