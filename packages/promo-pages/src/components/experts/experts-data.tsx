@@ -776,4 +776,34 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'mark-santos',
+		name: 'Mark Santos',
+		image: '/img/freelancers/mark-santos.jpg',
+		website: 'https://www.markstudios.com',
+		x: 'markksantos',
+		github: 'markksantos',
+		linkedin: 'in/markksantos/',
+		email: 'contact@markstudios.com',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-10-09').getTime(),
+		description: (
+			<div>
+				I run{' '}
+				<a target={'_blank'} href="https://www.markstudios.com">
+					Mark Studios
+				</a>
+				, a video production agency in Palm Beach County, Florida. Our editing
+				pipeline uses Remotion for the graphics layer of client YouTube videos:
+				word-by-word burned captions, motion graphics timed to the
+				speaker&apos;s words, lower thirds and text cards, composited over an
+				ffmpeg cut, with optional rotoscope mattes so graphics pass behind the
+				presenter.
+				<br />
+				Available for graphics-driven edits, branded Remotion templates and
+				captioning work.
+			</div>
+		),
+	},
 ];
