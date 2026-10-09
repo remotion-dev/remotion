@@ -56,7 +56,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		audioStreamIndex,
 		onVideoFrame,
-		preservePitch: _preservePitch,
+		preservePitch,
 		...props
 	},
 	ref,
@@ -136,6 +136,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			toneFrequency: toneFrequency ?? 1,
 			audioStartFrame,
 			audioStreamIndex: audioStreamIndex ?? 0,
+			preservePitch: preservePitch ?? true,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -153,6 +154,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		audioStartFrame,
 		sequencePlaybackRate,
 		audioStreamIndex,
+		preservePitch,
 	]);
 
 	useImperativeHandle(ref, () => {

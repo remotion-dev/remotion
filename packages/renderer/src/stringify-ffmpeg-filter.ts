@@ -41,6 +41,30 @@ const stringifyTrim = (trim: number) => {
 	return asString;
 };
 
+// When `preservePitch` is disabled, the speed change must not go through
+// `atempo` (which keeps the pitch). Changing the sample rate and then
+// resampling back to the target rate speeds up or slows down playback
+// while letting the pitch shift along with it (tape / chipmunk effect).
+const calculateSpeedChangeFilter = ({
+	playbackRate,
+	preservePitch,
+	sampleRate,
+}: {
+	playbackRate: number;
+	preservePitch: boolean;
+	sampleRate: number;
+}): string | null => {
+	if (playbackRate === 1) {
+		return null;
+	}
+
+	if (preservePitch) {
+		return calculateATempo(playbackRate);
+	}
+
+	return `asetrate=${sampleRate}*${playbackRate},aresample=${sampleRate}`;
+};
+
 const trimAndSetTempo = ({
 	assetDuration,
 	asset,
@@ -49,6 +73,7 @@ const trimAndSetTempo = ({
 	fps,
 	indent,
 	logLevel,
+	sampleRate,
 }: {
 	assetDuration: number | null;
 	trimLeftOffset: number;
@@ -57,6 +82,7 @@ const trimAndSetTempo = ({
 	fps: number;
 	indent: boolean;
 	logLevel: LogLevel;
+	sampleRate: number;
 }): {
 	actualTrimLeft: number;
 	filter: (string | null)[];
@@ -98,7 +124,11 @@ const trimAndSetTempo = ({
 
 	return {
 		filter: [
-			calculateATempo(asset.playbackRate),
+			calculateSpeedChangeFilter({
+				playbackRate: asset.playbackRate,
+				preservePitch: asset.preservePitch,
+				sampleRate,
+			}),
 			`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(trimRightOrAssetDuration)}`,
 		],
 		actualTrimLeft: trimLeft,
@@ -175,6 +205,7 @@ export const stringifyFfmpegFilter = ({
 		fps,
 		indent,
 		logLevel,
+		sampleRate,
 	});
 
 	const volumeFilter = ffmpegVolumeExpression({
