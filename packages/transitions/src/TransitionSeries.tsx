@@ -192,14 +192,8 @@ const SeriesSequence = Interactive.withSchema({
 }) as FC<SeriesSequenceProps>;
 
 const transitionSeriesSchema = {
-	durationInFrames: Internals.sequenceSchema.durationInFrames,
-	name: Internals.sequenceSchema.name,
-	hidden: Internals.sequenceSchema.hidden,
-	showInTimeline: Internals.sequenceSchema.showInTimeline,
-	from: Internals.fromField,
-	playbackRate: Internals.sequenceSchema.playbackRate,
-	freeze: Internals.freezeField,
-	layout: Internals.sequenceSchema.layout,
+	...Internals.sequenceSchema,
+	...Internals.sequenceTimingSchema,
 } as const satisfies InteractivitySchema;
 
 type TransitionType<PresentationProps extends Record<string, unknown>> = {
