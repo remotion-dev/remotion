@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {DelayRenderScope} from 'remotion';
+import {Internals, type DelayRenderScope} from 'remotion';
 import type {BackgroundKeepalive} from './background-keepalive';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
@@ -20,19 +20,14 @@ export const waitForReady = ({
 	keepalive: BackgroundKeepalive | null;
 }) => {
 	const start = performance.now();
-	let lastCheck = start;
-	let offlineTime = 0;
+	const suspensionStart = Internals.getDelayRenderSuspendedTime(scope);
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	let cancelled = false;
 
 	const check = () => {
 		const now = performance.now();
-		if ((scope.remotion_offlineMediaFetches ?? 0) > 0) {
-			offlineTime += now - lastCheck;
-		}
 
-		lastCheck = now;
 		if (cancelled) {
 			return;
 		}
@@ -61,7 +56,12 @@ export const waitForReady = ({
 			return;
 		}
 
-		if (now - start - offlineTime > timeoutInMilliseconds + 3000) {
+		if (
+			now -
+				start -
+				(Internals.getDelayRenderSuspendedTime(scope) - suspensionStart) >
+			timeoutInMilliseconds + 3000
+		) {
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(

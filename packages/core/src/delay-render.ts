@@ -23,7 +23,6 @@ export {
 
 export type DelayRenderScope = {
 	remotion_renderReady: boolean;
-	remotion_offlineMediaFetches?: number;
 	remotion_delayRenderTimeouts: {
 		[key: string]: {
 			label: string | null;
@@ -45,6 +44,36 @@ if (typeof window !== 'undefined') {
 
 	window.remotion_delayRenderHandles = [];
 }
+
+type TimeoutSuspensionState = {
+	active: number;
+	startedAt: number;
+	elapsed: number;
+	handles: Map<number, {suspend: () => () => void; cancel: () => void}>;
+};
+
+const timeoutSuspensions = new WeakMap<
+	DelayRenderScope,
+	TimeoutSuspensionState
+>();
+
+export const getDelayRenderSuspendedTime = (
+	scope: DelayRenderScope,
+): number => {
+	const state = timeoutSuspensions.get(scope);
+	return state
+		? state.elapsed + (state.active > 0 ? Date.now() - state.startedAt : 0)
+		: 0;
+};
+
+export const suspendDelayRenderTimeout = (
+	scope: DelayRenderScope,
+	handle: number,
+): (() => void) => {
+	return (
+		timeoutSuspensions.get(scope)?.handles.get(handle)?.suspend() ?? (() => {})
+	);
+};
 
 const defaultTimeout = 30000;
 
@@ -91,33 +120,34 @@ export const delayRenderInternal = ({
 		);
 		const retriesLeft = (options?.retries ?? 0) - (scope.remotion_attempt - 1);
 		let remaining = timeoutToUse;
-		let lastCheck = Date.now();
-		const isMediaExtraction =
-			label?.startsWith('Extracting frame at time ') ||
-			label?.startsWith('Extracting audio for frame ');
-		const checkTimeout = () => {
-			if (!scope.remotion_delayRenderTimeouts[handle]) {
+		let startedAt = Date.now();
+		let suspensionDepth = 0;
+		let registered = true;
+		const state = timeoutSuspensions.get(scope) ?? {
+			active: 0,
+			startedAt: 0,
+			elapsed: 0,
+			handles: new Map(),
+		};
+		timeoutSuspensions.set(scope, state);
+		const endSuspension = () => {
+			state.active--;
+			if (state.active === 0) {
+				state.elapsed += Date.now() - state.startedAt;
+			}
+		};
+		const cancel = () => {
+			if (!registered) {
 				return;
 			}
-
-			const now = Date.now();
-			if (
-				!environment.isClientSideRendering ||
-				!isMediaExtraction ||
-				!(scope.remotion_offlineMediaFetches! > 0)
-			) {
-				remaining -= now - lastCheck;
+			registered = false;
+			if (suspensionDepth > 0) {
+				endSuspension();
 			}
-
-			lastCheck = now;
-			if (remaining > 0) {
-				scope.remotion_delayRenderTimeouts[handle].timeout = setTimeout(
-					checkTimeout,
-					Math.min(remaining, 1000),
-				);
-				return;
-			}
-
+			state.handles.delete(handle);
+		};
+		const onTimeout = () => {
+			cancel();
 			const message = [
 				`A delayRender()`,
 				label ? `"${label}"` : null,
@@ -139,12 +169,38 @@ export const delayRenderInternal = ({
 				cancelRenderInternal(scope, Error(message));
 			}
 		};
-
 		scope.remotion_delayRenderTimeouts[handle] = {
 			label: label ?? null,
 			startTime: Date.now(),
-			timeout: setTimeout(checkTimeout, Math.min(timeoutToUse, 1000)),
+			timeout: setTimeout(onTimeout, remaining),
 		};
+		state.handles.set(handle, {
+			cancel,
+			suspend: () => {
+				if (suspensionDepth++ === 0) {
+					clearTimeout(scope.remotion_delayRenderTimeouts[handle].timeout);
+					remaining = Math.max(0, remaining - (Date.now() - startedAt));
+					if (state.active++ === 0) {
+						state.startedAt = Date.now();
+					}
+				}
+				let resumed = false;
+				return () => {
+					if (resumed || !registered) {
+						return;
+					}
+					resumed = true;
+					if (--suspensionDepth === 0) {
+						endSuspension();
+						startedAt = Date.now();
+						scope.remotion_delayRenderTimeouts[handle].timeout = setTimeout(
+							onTimeout,
+							remaining,
+						);
+					}
+				};
+			},
+		});
 	}
 
 	scope.remotion_renderReady = false;
@@ -206,6 +262,7 @@ export const continueRenderInternal = ({
 	const timeoutEntry = scope.remotion_delayRenderTimeouts[handle];
 	if (handleExists && environment.isRendering && timeoutEntry) {
 		const {label, startTime, timeout} = timeoutEntry;
+		timeoutSuspensions.get(scope)?.handles.get(handle)?.cancel();
 		clearTimeout(timeout);
 		const message = [
 			label ? `"${label}"` : 'A handle',
