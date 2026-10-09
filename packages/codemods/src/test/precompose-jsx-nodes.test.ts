@@ -48,13 +48,20 @@ const getStaticPropValue = (
 };
 
 test('precomposes the roller-skis presenter and captions without changing their timing', () => {
+	// This regression covers Series.Sequence extraction. The demo now uses
+	// TransitionSeries, whose direct children cannot currently be pre-composed.
 	const input = readFileSync(
 		new URL(
 			'../../../jonnys-videos/src/roller-skis/Composition.tsx',
 			import.meta.url,
 		),
 		'utf8',
-	);
+	)
+		.replace(
+			"import {TransitionSeries} from '@remotion/transitions';",
+			"import {Series} from 'remotion';",
+		)
+		.replaceAll('TransitionSeries', 'Series');
 	const project = {rootDir: '/', files: {[filePath]: input}};
 	const originalNodes = getNodes({project, filePath});
 	const selected = originalNodes.find(
