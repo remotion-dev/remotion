@@ -46,6 +46,8 @@ const {
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
 	experimentalTracksOption,
+	experimentalSequenceActivityOption,
+	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	audioLatencyHintOption,
 	ipv4Option,
@@ -179,6 +181,13 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			elementLibraries: ConfigInternals.getElementLibraries(),
+			experimentalSequenceActivityEnabled:
+				experimentalSequenceActivityOption.getValue({commandLine: parsedCli})
+					.value,
+			experimentalSequenceActivityLimit:
+				experimentalSequenceActivityLimitOption.getValue({
+					commandLine: parsedCli,
+				}).value,
 			experimentalTracksEnabled: experimentalTracksOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -211,6 +220,10 @@ export const studioCommand = async (
 				enableCrossSiteIsolation:
 					enableCrossSiteIsolationOption.getConfigValue(),
 				experimentalTracksEnabled: experimentalTracksOption.getConfigValue(),
+				experimentalSequenceActivityEnabled:
+					experimentalSequenceActivityOption.getConfigValue(),
+				experimentalSequenceActivityLimit:
+					experimentalSequenceActivityLimitOption.getConfigValue(),
 				interactivityEnabled: interactivityOption.getConfigValue(),
 				keyboardShortcutsEnabled: keyboardShortcutsOption.getConfigValue(),
 				logLevel: logLevelOption.getConfigValue(),

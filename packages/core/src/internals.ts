@@ -29,6 +29,10 @@ import {
 	CommittedMetadataProvider,
 	withCommittedMetadata,
 } from './committed-metadata.js';
+import {
+	getSingleChildComponent,
+	setComponentIdentityResolver,
+} from './component-identity.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {type CompProps} from './Composition.js';
 import type {
@@ -46,6 +50,7 @@ import {
 } from './CompositionManagerContext.js';
 import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import {CompositionRegistryProvider} from './CompositionRegistryProvider.js';
+import {createElementSourceProxy} from './create-element-source-proxy.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
@@ -74,13 +79,10 @@ import {
 import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
-	getSequenceComponent,
-	getSingleChildComponent,
 	getStackForControls,
 	makeOriginalSourceStack,
 	parseOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
-	setComponentIdentityResolver,
 	type OriginalSourceLocation,
 } from './enable-sequence-stack-traces.js';
 import {
@@ -118,6 +120,7 @@ import {
 	sequenceCropSchema,
 	sequencePremountSchema,
 	sequenceSchema,
+	sequenceTimingSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	textSchema,
@@ -145,6 +148,10 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
+import {
+	OptimisticSequenceDeletion,
+	usePendingSequenceDeletions,
+} from './optimistic-sequence-deletion.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -210,6 +217,7 @@ import {
 	SequenceRegistrationContext,
 	SequenceRegistryContext,
 	useActiveFromDragOverrideKeys,
+	useDragOverridesForNodePath,
 	useSequenceManagerSequences,
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
@@ -345,6 +353,9 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	OptimisticSequenceDeletion,
+	usePendingSequenceDeletions,
+	createElementSourceProxy,
 	CommittedMetadataProvider,
 	withCommittedMetadata,
 	DefaultPremountContext,
@@ -386,6 +397,7 @@ export const Internals = {
 	SequenceManagerRefContext,
 	SequenceRegistryContext,
 	useActiveFromDragOverrideKeys,
+	useDragOverridesForNodePath,
 	useSequenceManagerSequences,
 	SequenceRegistrationContext,
 	DisableSequenceRegistrationProvider,
@@ -395,6 +407,7 @@ export const Internals = {
 	SequenceStackTracesUpdateContext,
 	baseSchema,
 	sequenceSchema,
+	sequenceTimingSchema,
 	SequenceContent,
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivitySettingsContext,
@@ -480,7 +493,6 @@ export const Internals = {
 	BufferingProvider,
 	BufferingContextReact,
 	getComponentsToAddStacksTo,
-	getSequenceComponent,
 	getSingleChildComponent,
 	getStackForControls,
 	makeOriginalSourceStack,

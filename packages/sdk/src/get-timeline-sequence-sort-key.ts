@@ -25,6 +25,8 @@ export type TimelineTrackData = {
 	sequenceFrameOffset: number;
 	cascadedStart: number;
 	localStart: number;
+	parentVisibleStart: number;
+	parentVisibleEnd: number | null;
 };
 
 export type TimelineLoopDisplay = LoopDisplay & {

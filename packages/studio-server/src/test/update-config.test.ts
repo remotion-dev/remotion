@@ -15,6 +15,8 @@ import {
 const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
 	showPremounting: null,
 	defaultPremountInSeconds: null,
+	experimentalSequenceActivityEnabled: false,
+	experimentalSequenceActivityLimit: 20,
 	askAIEnabled: false,
 	bufferStateDelayInMilliseconds: null,
 	canvasTabsEnabled: true,

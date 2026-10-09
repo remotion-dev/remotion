@@ -164,10 +164,10 @@ export const runEffectChain = async ({
 
 	for (let runIndex = 0; runIndex < runs.length; runIndex++) {
 		const run = runs[runIndex];
-		const [a, b] = state.pool.getPair(run.backend);
-		let dst = a;
+		let canvasIndex: 0 | 1 = 0;
 
 		for (const eff of run.effects) {
+			const dst = state.pool.getCanvas(run.backend, canvasIndex);
 			const def = eff.definition as EffectDefinition<unknown, unknown>;
 			if (run.backend === 'webgl2') {
 				// Checked before `setup()`: a lost context cannot compile shaders,
@@ -196,7 +196,7 @@ export const runEffectChain = async ({
 			}
 
 			currentImage = dst;
-			dst = dst === a ? b : a;
+			canvasIndex = canvasIndex === 0 ? 1 : 0;
 		}
 
 		lastTarget = (currentImage as HTMLCanvasElement | null) ?? lastTarget;

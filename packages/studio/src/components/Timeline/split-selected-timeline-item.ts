@@ -82,6 +82,16 @@ export const getTimelineSequenceSplitEligibility = ({
 		};
 	}
 
+	if (
+		sequence.timelineTrack?.role === 'track' ||
+		sequence.controls?.componentIdentity === 'dev.remotion.remotion.Track'
+	) {
+		return {
+			canSplit: false,
+			reason: 'Track containers cannot be split from the Studio',
+		};
+	}
+
 	if (!Number.isInteger(splitFrame)) {
 		return {
 			canSplit: false,

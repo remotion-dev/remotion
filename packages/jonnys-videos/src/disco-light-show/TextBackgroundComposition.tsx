@@ -1,28 +1,35 @@
 import {Video} from '@remotion/media';
-import {Sequence, interpolate, useCurrentFrame, Easing} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	interpolate,
+	useCurrentFrame,
+	Easing,
+} from 'remotion';
 import {ArrowLogo} from './ArrowLogo';
 import {ArrowLogoRemotion} from './ArrowLogoRemotion';
 import {asset} from './assets';
 
 export const TEXT_BACKGROUND_DURATION_IN_FRAMES = 226;
 
-export const TextBackgroundComposition: React.FC = () => {
+const TextBackgroundCompositionInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Sequence>
-				<Video
-					src={asset('text-background.mov')}
-					style={{
-						width: 1920,
-						height: 1080,
-					}}
-					muted
-					trimBefore={2916}
-					durationInFrames={TEXT_BACKGROUND_DURATION_IN_FRAMES}
-				/>
-			</Sequence>
-			<Sequence
+			<Video
+				premountFor={fps}
+				src={asset('text-background.mov')}
+				style={{
+					width: 1920,
+					height: 1080,
+				}}
+				muted
+				trimBefore={2916}
+				durationInFrames={TEXT_BACKGROUND_DURATION_IN_FRAMES}
+			/>
+			<ArrowLogo
+				premountFor={fps}
 				name="ArrowLogo"
 				width={1920}
 				height={1080}
@@ -83,10 +90,9 @@ export const TextBackgroundComposition: React.FC = () => {
 					}),
 				}}
 				from={94}
-			>
-				<ArrowLogo />
-			</Sequence>
-			<Sequence
+			/>
+			<ArrowLogoRemotion
+				premountFor={fps}
 				name="ArrowLogoRemotion"
 				width={1920}
 				height={1080}
@@ -112,9 +118,15 @@ export const TextBackgroundComposition: React.FC = () => {
 					transformOrigin: '50.46% 15.88%',
 				}}
 				from={134}
-			>
-				<ArrowLogoRemotion />
-			</Sequence>
+			/>
 		</>
 	);
 };
+
+export const TextBackgroundComposition = Interactive.withSchema({
+	Component: TextBackgroundCompositionInner,
+	componentName: 'TextBackgroundComposition',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

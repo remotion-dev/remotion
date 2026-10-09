@@ -38,6 +38,7 @@ export type ThreeCanvasFrameRendererProps = {
 type ThreeCanvasInternalsProps = ThreeCanvasProps & {
 	readonly FrameRenderer: React.ComponentType<ThreeCanvasFrameRendererProps>;
 	readonly advanceOnCreated: boolean;
+	readonly documentationLink: string;
 };
 
 const Scale = ({
@@ -80,6 +81,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 		onCreated,
 		FrameRenderer,
 		advanceOnCreated,
+		documentationLink: _,
 		...rest
 	} = props;
 	const {isRendering} = useRemotionEnvironment();
@@ -227,6 +229,7 @@ export const ThreeCanvasInternals = ({
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<ThreeCanvas>'}
+				_remotionInternalDocumentationLink={props.documentationLink}
 				showInTimeline={showInTimeline ?? false}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
@@ -249,6 +252,7 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 			{...props}
 			FrameRenderer={ManualFrameRenderer}
 			advanceOnCreated
+			documentationLink="https://www.remotion.dev/docs/three-canvas"
 		/>
 	);
 };

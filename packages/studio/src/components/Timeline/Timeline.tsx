@@ -2,12 +2,17 @@ import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
+import {
+	addErrorToOverlay,
+	removeErrorFromOverlay,
+} from '../../error-overlay/runtime-error-store';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
@@ -15,6 +20,7 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {getTimelineTrackOverlapError} from '../../helpers/get-timeline-track-overlap-error';
 import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
@@ -344,6 +350,8 @@ const TimelineInner: React.FC = () => {
 				oldTrack.depth !== track.depth ||
 				oldTrack.cascadedStart !== track.cascadedStart ||
 				oldTrack.localStart !== track.localStart ||
+				oldTrack.parentVisibleStart !== track.parentVisibleStart ||
+				oldTrack.parentVisibleEnd !== track.parentVisibleEnd ||
 				oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
 				oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
 				oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||
@@ -416,7 +424,11 @@ const TimelineInner: React.FC = () => {
 	// instance without recalculating the timeline or losing its instance index.
 	const collapsed = useMemo(() => {
 		const seenDisplayGroups = new Set<string>();
-		return filterTimelineTrackContents(filtered, sequences).filter((track) => {
+		return filterTimelineTrackContents(
+			filtered,
+			sequences,
+			compactSeries,
+		).filter((track) => {
 			if (track.sequence.timelineTrack || track.displayGroup === null) {
 				return true;
 			}
@@ -428,14 +440,27 @@ const TimelineInner: React.FC = () => {
 			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
-	}, [filtered, sequences]);
+	}, [compactSeries, filtered, sequences]);
 
 	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
 		collapsed,
 		sequences,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
+		compactSeries,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
+	const trackOverlapError = useMemo(
+		() => getTimelineTrackOverlapError(timeline, durationInFrames),
+		[timeline, durationInFrames],
+	);
+	useEffect(() => {
+		if (trackOverlapError === null) {
+			return;
+		}
+
+		addErrorToOverlay(trackOverlapError, null);
+		return () => removeErrorFromOverlay(trackOverlapError);
+	}, [trackOverlapError, fastRefreshes]);
 	const pendingSelectionStart = useRef<{
 		selection: PendingInsertedElementSelection;
 		fastRefreshes: number;

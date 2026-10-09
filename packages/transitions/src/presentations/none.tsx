@@ -21,7 +21,11 @@ const NonePresentation: React.FC<
 		};
 	}, [passedProps.enterStyle, passedProps.exitStyle, presentationDirection]);
 
-	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
+	return (
+		<AbsoluteFill showInTimeline={false} style={style}>
+			{children}
+		</AbsoluteFill>
+	);
 };
 
 /*

@@ -1,7 +1,5 @@
 import type {TimelineTrackData} from '@remotion/sdk';
-import {CanvasInternals} from '@remotion/sdk';
 import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
-import type {WaveformVolume} from '@remotion/timeline-utils';
 import React, {
 	useCallback,
 	useContext,
@@ -24,6 +22,7 @@ import {
 	BLUE,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_BACKGROUND_COLOR,
+	TIMELINE_CAPTIONS_GRADIENT,
 	TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
 	TIMELINE_NEGATIVE_START_BORDER_COLOR,
 	TIMELINE_VIDEO_GRADIENT,
@@ -51,8 +50,8 @@ import {
 } from '../../helpers/timeline-layout';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
+import {SnowflakeIcon} from '../../icons/snowflake';
 import {SetSelectedModalContext} from '../../state/modals';
-import {ActionTooltip} from '../ActionTooltip';
 import {AudioWaveform} from '../AudioWaveform';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -73,7 +72,7 @@ import {
 	getKeyframePlaybackRate,
 } from './get-timeline-keyframes';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
-import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
+import {getTimelineSceneMask} from './get-timeline-scene-mask';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -81,6 +80,10 @@ import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
 import {timelineLayerLayoutsRef} from './timeline-refs';
+import {
+	PACKED_LABEL_BOTTOM,
+	TimelineSequenceLabel,
+} from './timeline-sequence-label';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 	TIMELINE_PACKED_TRACK_HEIGHT,
@@ -98,6 +101,7 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {TimelineSequenceCaptions} from './TimelineSequenceCaptions';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {TimelineSequenceMountIndicator} from './TimelineSequenceMountIndicator';
 import {
@@ -119,17 +123,14 @@ import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
+import {
+	useTimelineSequenceNaturalDuration,
+	useTimelineSequenceRegistry,
+} from './use-timeline-sequence-registry';
 
-const {
-	getTimelineVisibleDuration,
-	getTimelineVisibleStart,
-	sortItemsByCommitOrder,
-} = CanvasInternals;
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
-const PACKED_LABEL_HEIGHT = 15;
-const PACKED_LABEL_BOTTOM = 1;
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -227,6 +228,8 @@ const TimelineSequenceFn: React.FC<{
 	readonly sequenceFrameOffset: number;
 	readonly cascadedStart: number;
 	readonly localStart: number;
+	readonly parentVisibleStart: number;
+	readonly parentVisibleEnd: number | null;
 }> = ({
 	s,
 	labelStartFrame,
@@ -237,6 +240,8 @@ const TimelineSequenceFn: React.FC<{
 	sequenceFrameOffset,
 	cascadedStart,
 	localStart,
+	parentVisibleStart,
+	parentVisibleEnd,
 }) => {
 	const windowWidth = useContext(TimelineWidthContext);
 
@@ -256,6 +261,8 @@ const TimelineSequenceFn: React.FC<{
 			sequenceFrameOffset={sequenceFrameOffset}
 			cascadedStart={cascadedStart}
 			localStart={localStart}
+			parentVisibleStart={parentVisibleStart}
+			parentVisibleEnd={parentVisibleEnd}
 		/>
 	);
 };
@@ -318,6 +325,7 @@ const TimelineSequenceNegativeStart = React.memo(
 const TimelineSequenceBar: React.FC<{
 	readonly s: TSequence;
 	readonly labelOffset: number;
+	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
@@ -359,6 +367,7 @@ const TimelineSequenceBar: React.FC<{
 }> = ({
 	s,
 	labelOffset,
+	hasCaptionsSchema,
 	connectedComposition,
 	activeTrimEdge,
 	leftTrimHighlight,
@@ -462,8 +471,27 @@ const TimelineSequenceBar: React.FC<{
 			...style,
 			background: TRANSPARENT,
 			opacity: 1,
+			maskImage:
+				s.timelineTrack?.role === 'clip' && frameIncrement !== null
+					? getTimelineSceneMask({
+							sceneRange,
+							offsetInFrames: Number(style.marginLeft) / frameIncrement,
+							durationInFrames: Number(style.width) / frameIncrement,
+						})
+					: undefined,
+			clipPath:
+				s.timelineTrack?.role === 'clip' && sceneRange !== null
+					? `inset(0 ${Math.max(0, Number(style.width) - sceneRight)}px 0 ${Math.max(0, sceneLeft)}px)`
+					: undefined,
 		};
-	}, [style]);
+	}, [
+		style,
+		s.timelineTrack?.role,
+		frameIncrement,
+		sceneRange,
+		sceneLeft,
+		sceneRight,
+	]);
 
 	const premountIndicator = premount ? (
 		<div
@@ -509,22 +537,23 @@ const TimelineSequenceBar: React.FC<{
 						left: -(marqueeHorizontalBounds?.cropLeft ?? 0),
 						top: 0,
 						width: transitionWidth,
-						height: TIMELINE_PACKED_TRACK_HEIGHT,
+						height: Number(style.height),
 						pointerEvents: 'none',
 					}}
 				>
 					<polygon
-						points={`0,0 ${transitionWidth},0 0,${TIMELINE_PACKED_TRACK_HEIGHT}`}
+						points={`0,0 ${transitionWidth},0 0,${Number(style.height)}`}
 						fill={BLACK_ALPHA_22}
 					/>
 					<polygon
-						points={`${transitionWidth},0 ${transitionWidth},${TIMELINE_PACKED_TRACK_HEIGHT} 0,${TIMELINE_PACKED_TRACK_HEIGHT}`}
+						points={`${transitionWidth},0 ${transitionWidth},${Number(style.height)} 0,${Number(style.height)}`}
 						fill={WHITE_ALPHA_15}
 					/>
 				</svg>
 			)}
 
-			{s.timelineTrack && s.timelineTrack.role !== 'transition' ? (
+			{(s.timelineTrack || hasCaptionsSchema) &&
+			s.timelineTrack?.role !== 'transition' ? (
 				<div
 					style={{
 						position: 'absolute',
@@ -554,39 +583,36 @@ const TimelineSequenceBar: React.FC<{
 							}}
 						/>
 					) : null}
-					<ActionTooltip
-						label={s.displayName}
-						shortcut={null}
-						delay={250}
-						dismissOnClick
-						triggerStyle={{
-							alignSelf: 'stretch',
-							minWidth: 0,
-							pointerEvents: 'auto',
-						}}
-					>
-						<span
-							style={{
-								flex: 1,
-								fontSize: 11,
-								lineHeight: `${PACKED_LABEL_HEIGHT}px`,
-								color: getTimelineColor(false, false),
-								maskImage:
-									'linear-gradient(to right, black calc(100% - 5px), transparent)',
-								minWidth: 0,
-								whiteSpace: 'nowrap',
-								overflow: 'hidden',
-								WebkitMaskImage:
-									'linear-gradient(to right, black calc(100% - 5px), transparent)',
-							}}
+					{hasCaptionsSchema ? (
+						<TimelineSequenceCaptions s={s} />
+					) : (
+						<TimelineSequenceLabel
+							label={
+								s.timelineTrack?.role === 'track' && frozenFrame !== null
+									? `${s.displayName} (frozen at frame ${frozenFrame})`
+									: s.displayName
+							}
 						>
-							{s.timelineTrack.role === 'overlay' ? 'Overlay' : s.displayName}
-						</span>
-					</ActionTooltip>
+							{s.timelineTrack?.role === 'track' && frozenFrame !== null ? (
+								<SnowflakeIcon
+									aria-label={`Frozen at frame ${frozenFrame}`}
+									color={getTimelineColor(false, false)}
+									style={{
+										width: 12,
+										height: 12,
+										marginRight: 4,
+										verticalAlign: 'middle',
+									}}
+								/>
+							) : null}
+							{s.timelineTrack?.role === 'overlay' ? 'Overlay' : s.displayName}
+						</TimelineSequenceLabel>
+					)}
 				</div>
 			) : null}
 
-			{!s.timelineTrack &&
+			{!hasCaptionsSchema &&
+			!s.timelineTrack &&
 			s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.type !== 'image' &&
@@ -727,6 +753,8 @@ const TimelineSequenceInner: React.FC<{
 	readonly sequenceFrameOffset: number;
 	readonly cascadedStart: number;
 	readonly localStart: number;
+	readonly parentVisibleStart: number;
+	readonly parentVisibleEnd: number | null;
 }> = ({
 	s,
 	labelStartFrame,
@@ -738,13 +766,17 @@ const TimelineSequenceInner: React.FC<{
 	sequenceFrameOffset,
 	cascadedStart,
 	localStart,
+	parentVisibleStart,
+	parentVisibleEnd,
 }) => {
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
 	// if that is the case, it needs to be asynchronously determined
 
 	const video = Internals.useVideo();
-	const sequences = Internals.useSequenceManagerSequences();
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const registryEntry = useTimelineSequenceRegistry(s.id);
+	const originalSequence = registryEntry?.sequence ?? null;
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
 	);
@@ -772,29 +804,14 @@ const TimelineSequenceInner: React.FC<{
 			setActiveEdgeHighlight,
 		);
 	}, [edgeHighlightController, nodePath]);
-	const cascadingSequenceComponentIdentity = isCascadingSequence(s)
-		? s.controls?.componentIdentity
-		: null;
-	const adjacentCascadingSequences = useMemo(() => {
-		if (!cascadingSequenceComponentIdentity) {
-			return {previous: null, next: null};
-		}
-
-		const siblings = sortItemsByCommitOrder(
-			sequences.filter(
-				(candidate) =>
-					candidate.parent === s.parent &&
-					candidate.controls?.componentIdentity ===
-						cascadingSequenceComponentIdentity,
-			),
-			(candidate) => candidate.timelineOrder,
-		);
-		const index = siblings.findIndex((candidate) => candidate.id === s.id);
-		return {
-			previous: siblings[index - 1] ?? null,
-			next: siblings[index + 1] ?? null,
-		};
-	}, [cascadingSequenceComponentIdentity, s.id, s.parent, sequences]);
+	const naturalSequenceDuration = useTimelineSequenceNaturalDuration({
+		sequenceId: s.id,
+		enabled:
+			activeEdgeHighlight !== null && activeEdgeHighlight !== 'source-only',
+	});
+	const previousCascadingSequenceId = registryEntry?.previousSequenceId ?? null;
+	const previousCascadingOverrideId = registryEntry?.previousOverrideId ?? null;
+	const nextCascadingOverrideId = registryEntry?.nextOverrideId ?? null;
 	const startEdgeDrag = useCallback(
 		(
 			edge: TimelineEdgeHighlightEdge,
@@ -812,11 +829,10 @@ const TimelineSequenceInner: React.FC<{
 			}
 
 			if (highlightAdjacent) {
-				const adjacent =
+				const adjacentOverrideId =
 					edge === 'left'
-						? adjacentCascadingSequences.previous
-						: adjacentCascadingSequences.next;
-				const adjacentOverrideId = adjacent?.controls?.overrideId;
+						? previousCascadingOverrideId
+						: nextCascadingOverrideId;
 				const adjacentNodePath = adjacentOverrideId
 					? overrideIdToNodePathMappingsRef.current[adjacentOverrideId]
 					: null;
@@ -840,7 +856,8 @@ const TimelineSequenceInner: React.FC<{
 			);
 		},
 		[
-			adjacentCascadingSequences,
+			previousCascadingOverrideId,
+			nextCascadingOverrideId,
 			overrideIdToNodePathMappingsRef,
 			edgeHighlightController,
 		],
@@ -939,18 +956,13 @@ const TimelineSequenceInner: React.FC<{
 	}, [originalLocation]);
 
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
-	);
+	const dragOverrides = Internals.useDragOverridesForNodePath(nodePath);
 	const propStatusesForOverride = useMemo(() => {
 		return nodePath
 			? Internals.getPropStatusesCtx(propStatuses, nodePath)
 			: undefined;
 	}, [propStatuses, nodePath]);
-	const volumeDragOverride = useMemo(
-		() => (nodePath ? getDragOverrides(nodePath).volume : undefined),
-		[getDragOverrides, nodePath],
-	);
+	const volumeDragOverride = dragOverrides.volume;
 	const volumeKeyframeStatus = useMemo(() => {
 		if (volumeDragOverride?.type === 'keyframed') {
 			return volumeDragOverride.status;
@@ -964,8 +976,7 @@ const TimelineSequenceInner: React.FC<{
 		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.durationInFrames?.status === 'static',
 	);
-	// calculateTimeline replaces this rate with the cumulative ancestor rate.
-	const originalSequence = sequences.find((candidate) => candidate.id === s.id);
+	// Read the original rate before calculateTimeline applies ancestor rates.
 	const endField = useRuntimeValueSelector({
 		controls: s.controls,
 		selector: (runtimeValues) =>
@@ -992,11 +1003,8 @@ const TimelineSequenceInner: React.FC<{
 		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.trimBefore?.status === 'static',
 	);
-	const previousCascadingSequenceNodePath = adjacentCascadingSequences.previous
-		?.controls?.overrideId
-		? overrideIdToNodePathMappingsRef.current[
-				adjacentCascadingSequences.previous.controls.overrideId
-			]
+	const previousCascadingSequenceNodePath = previousCascadingOverrideId
+		? overrideIdToNodePathMappingsRef.current[previousCascadingOverrideId]
 		: null;
 	const previousCascadingSequenceCanResize = Boolean(
 		isStudioInteractivityEnabled() &&
@@ -1129,7 +1137,7 @@ const TimelineSequenceInner: React.FC<{
 
 		splitSelectedTimelineItems({
 			selections: selectedItems,
-			sequences,
+			sequences: sequencesRef.current,
 			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 			propStatuses,
 			splitFrame: getCurrentFrame(),
@@ -1140,7 +1148,7 @@ const TimelineSequenceInner: React.FC<{
 		propStatuses,
 		selectedItems,
 		selectedSequenceNodePathInfos,
-		sequences,
+		sequencesRef,
 	]);
 	const onDeleteSequenceFromSource = useCallback(() => {
 		if (
@@ -1215,7 +1223,7 @@ const TimelineSequenceInner: React.FC<{
 						getSequencesContextForAgents({
 							nodePathInfos: selectedSequenceNodePathInfos,
 							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-							sequences,
+							sequences: sequencesRef.current,
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
@@ -1328,7 +1336,7 @@ const TimelineSequenceInner: React.FC<{
 			selectedItems.length,
 			selectedSequenceNodePathInfos,
 			sequenceFrameOffset,
-			sequences,
+			sequencesRef,
 			setPropStatuses,
 			setSelectedModal,
 			validatedLocation?.source,
@@ -1350,13 +1358,6 @@ const TimelineSequenceInner: React.FC<{
 	const displayDurationInFrames = s.loopDisplay
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
-	const registeredVolumeValue =
-		s.type === 'audio' || s.type === 'video' ? s.volume : 1;
-	const registeredVolume = useMemo((): WaveformVolume => {
-		return typeof registeredVolumeValue === 'number'
-			? registeredVolumeValue
-			: registeredVolumeValue.split(',').map((value) => Number(value));
-	}, [registeredVolumeValue]);
 	const keyframedTimelineVolume = useMemo((): readonly number[] | null => {
 		if (volumeKeyframeStatus === null) {
 			return null;
@@ -1404,7 +1405,7 @@ const TimelineSequenceInner: React.FC<{
 		s.loopDisplay?.startOffset,
 		volumeKeyframeStatus,
 	]);
-	const timelineVolume = keyframedTimelineVolume ?? registeredVolume;
+	const timelineVolume = keyframedTimelineVolume ?? 1;
 
 	const {
 		marginLeft,
@@ -1514,15 +1515,8 @@ const TimelineSequenceInner: React.FC<{
 			),
 		) === Math.ceil(naturalMediaDuration);
 
-	const parentSequence = sequences.find(
-		(candidate) => candidate.id === s.parent,
-	);
-	const parentStart = parentSequence
-		? getTimelineVisibleStart(parentSequence, sequences)
-		: 0;
-	const parentEnd = parentSequence
-		? parentStart + getTimelineVisibleDuration(parentSequence, sequences)
-		: video.durationInFrames;
+	const parentStart = parentVisibleStart;
+	const parentEnd = parentVisibleEnd ?? video.durationInFrames;
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const isMedia = s.type === 'audio' || s.type === 'video';
@@ -1548,12 +1542,6 @@ const TimelineSequenceInner: React.FC<{
 			return null;
 		}
 
-		const naturalSequenceDuration = originalSequence
-			? getTimelineSequenceNaturalDuration({
-					sequence: originalSequence,
-					sequences,
-				})
-			: null;
 		const trimmedBefore = Math.max(
 			0,
 			isMedia
@@ -1691,6 +1679,9 @@ const TimelineSequenceInner: React.FC<{
 		visibleLayout?.rightEdgeVisible === true &&
 		(s.autoDuration || endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
+	const hasCaptionsSchema = Object.values(s.controls?.schema ?? {}).some(
+		(field) => field.type === 'remotion-captions',
+	);
 	const style: React.CSSProperties = useMemo(() => {
 		const role = s.timelineTrack?.role;
 		return {
@@ -1701,7 +1692,9 @@ const TimelineSequenceInner: React.FC<{
 						? TIMELINE_AUDIO_GRADIENT
 						: s.type === 'video'
 							? TIMELINE_VIDEO_GRADIENT
-							: BLUE,
+							: hasCaptionsSchema
+								? TIMELINE_CAPTIONS_GRADIENT
+								: BLUE,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
@@ -1717,6 +1710,7 @@ const TimelineSequenceInner: React.FC<{
 			overflow: 'visible',
 		};
 	}, [
+		hasCaptionsSchema,
 		s.type,
 		s.timelineTrack,
 		showLeftBorderRadius,
@@ -1732,14 +1726,14 @@ const TimelineSequenceInner: React.FC<{
 		durationCanResize &&
 		(!isMedia || Boolean(s.loopDisplay) || mediaDurationDragLimits !== null);
 	const isFirstCascadingSequence =
-		isCascadingSequence(s) && adjacentCascadingSequences.previous === null;
+		isCascadingSequence(s) && previousCascadingSequenceId === null;
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
 		(isFirstCascadingSequence
 			? trimBeforeCanUpdate
-			: adjacentCascadingSequences.previous
+			: previousCascadingSequenceId !== null
 				? previousCascadingSequenceCanResize
 				: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate);
 	const canShowSecondaryLeftEdgeAction =
@@ -1770,6 +1764,7 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceBar
 			s={s}
+			hasCaptionsSchema={hasCaptionsSchema}
 			labelOffset={
 				labelStartFrame === null
 					? 0

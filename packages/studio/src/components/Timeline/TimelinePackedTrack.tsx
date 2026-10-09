@@ -1,11 +1,13 @@
-import React, {useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
+import {getTimelineSceneRange} from './get-timeline-scene-range';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
+import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
 import {TimelineSequence} from './TimelineSequence';
 import {useSeriesReorder} from './use-series-reorder';
 
@@ -16,57 +18,26 @@ const primaryRowHeight =
 export const TimelinePackedTrack: React.FC<{
 	readonly track: TimelineTrackWithDisplayGroup;
 	readonly items: readonly TimelineTrackWithDisplayGroup[];
+	readonly auxiliaryRowOffsets: readonly number[];
 	readonly auxiliaryRows: readonly (readonly TimelineTrackWithDisplayGroup[])[];
-}> = ({track, items, auxiliaryRows}) => {
+}> = ({track, items, auxiliaryRows, auxiliaryRowOffsets}) => {
+	const parentSceneRange = useContext(TimelineSceneRangeContext);
 	const {dropIndicatorLeft, onClickCapture, onPointerDownCapture} =
 		useSeriesReorder(items);
-	const labelStartFrames = useMemo(() => {
-		const starts = new Map<string, number>();
-		let precedingTransition: TimelineTrackWithDisplayGroup['sequence'] | null =
-			null;
-		// Match transitions to their incoming clips before reordering for painting.
-		for (const {sequence} of items) {
-			if (sequence.timelineTrack?.role === 'transition') {
-				precedingTransition = sequence;
-			} else if (sequence.timelineTrack?.role === 'clip') {
-				if (
-					precedingTransition !== null &&
-					precedingTransition.from < sequence.from + sequence.duration &&
-					precedingTransition.from + precedingTransition.duration >
-						sequence.from
-				) {
-					starts.set(
-						sequence.id,
-						precedingTransition.from + precedingTransition.duration,
-					);
-				}
-
-				precedingTransition = null;
-			}
-		}
-
-		return starts;
-	}, [items]);
 	const rows = useMemo(() => {
-		const clips = items.filter(
-			(item) => item.sequence.timelineTrack?.role === 'clip',
+		const clips = items
+			.filter((item) => item.sequence.timelineTrack?.role === 'clip')
+			.sort((a, b) => a.sequence.from - b.sequence.from);
+		const transitions = items.filter(
+			(item) => item.sequence.timelineTrack?.role === 'transition',
 		);
-		const effects = items.filter(
-			(item) =>
-				item.sequence.timelineTrack?.role !== 'clip' &&
-				item.sequence.timelineTrack?.role !== 'overlay',
-		);
-		return [[...clips, ...effects], ...auxiliaryRows].map((row, index) => ({
+		return [[...clips, ...transitions], ...auxiliaryRows].map((row, index) => ({
 			items: row,
-			top:
-				index === 0
-					? 0
-					: primaryRowHeight +
-						(index - 1) * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+			top: index === 0 ? 0 : auxiliaryRowOffsets[index - 1],
 			height:
 				index === 0 ? primaryRowHeight : TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 		}));
-	}, [auxiliaryRows, items]);
+	}, [auxiliaryRows, auxiliaryRowOffsets, items]);
 
 	return (
 		<div
@@ -75,16 +46,23 @@ export const TimelinePackedTrack: React.FC<{
 			onPointerDownCapture={onPointerDownCapture}
 			style={{
 				position: 'relative',
-				height:
-					primaryRowHeight +
-					auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+				// Keep clip stacking inside the track, below the pinned timeline ruler.
+				isolation: 'isolate',
+				height: Math.max(
+					primaryRowHeight,
+					...auxiliaryRowOffsets.map(
+						(offset) => offset + TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+					),
+				),
 			}}
 		>
 			{rows.map((row) => (
 				<div
 					key={row.top}
 					aria-hidden="true"
-					data-timeline-track-row={row.top === 0 ? 'clips' : 'overlays'}
+					data-timeline-track-row={
+						row.top === 0 ? 'clips' : row.items[0]?.sequence.timelineTrack?.role
+					}
 					style={{
 						position: 'absolute',
 						top: row.top,
@@ -98,34 +76,63 @@ export const TimelinePackedTrack: React.FC<{
 			))}
 			{/* Keep clips under the same parent when timing edits move them to another row. */}
 			{rows.flatMap((row) =>
-				row.items.map((item) => (
-					<div
+				row.items.map((item, index) => (
+					<TimelineSceneRangeContext.Provider
 						key={item.sequence.id}
-						data-timeline-track-item-id={item.sequence.id}
-						style={{
-							position: 'absolute',
-							top: row.top,
-							left: 0,
-							// The clip supplies its own pixel width. Empty row space must
-							// not intercept clicks on other clips or the marquee.
-							width: 0,
-							height: row.height - TIMELINE_ITEM_BORDER_BOTTOM,
-						}}
+						value={
+							item.sequence.timelineTrack?.role === 'clip'
+								? getTimelineSceneRange({
+										sequence: item.sequence,
+										seriesItems: items.map((entry) => entry.sequence),
+										previous: row.items[index - 1]?.sequence ?? null,
+										next:
+											row.items[index + 1]?.sequence.timelineTrack?.role ===
+											'clip'
+												? row.items[index + 1].sequence
+												: null,
+										// The containing row already applies the parent fade.
+										range: parentSceneRange
+											? {
+													...parentSceneRange,
+													fadeInEnd: null,
+													fadeOutStart: null,
+												}
+											: null,
+									})
+								: parentSceneRange
+						}
 					>
-						<TimelineSequence
-							s={item.sequence}
-							labelStartFrame={labelStartFrames.get(item.sequence.id) ?? null}
-							cascadedStart={item.cascadedStart}
-							localStart={item.localStart}
-							connectedCompositions={
-								item.connectedCompositions ?? noConnectedCompositions
-							}
-							nodePathInfo={item.nodePathInfo}
-							keyframeDisplayOffset={item.keyframeDisplayOffset}
-							keyframePlaybackRate={item.keyframePlaybackRate}
-							sequenceFrameOffset={item.sequenceFrameOffset}
-						/>
-					</div>
+						<div
+							data-timeline-track-item-id={item.sequence.id}
+							style={{
+								position: 'absolute',
+								zIndex:
+									item.sequence.timelineTrack?.role === 'transition' ? 1 : 0,
+								top: row.top,
+								left: 0,
+								// The clip supplies its own pixel width. Empty row space must
+								// not intercept clicks on other clips or the marquee.
+								width: 0,
+								height: row.height - TIMELINE_ITEM_BORDER_BOTTOM,
+							}}
+						>
+							<TimelineSequence
+								s={item.sequence}
+								labelStartFrame={null}
+								cascadedStart={item.cascadedStart}
+								localStart={item.localStart}
+								parentVisibleStart={item.parentVisibleStart}
+								parentVisibleEnd={item.parentVisibleEnd}
+								connectedCompositions={
+									item.connectedCompositions ?? noConnectedCompositions
+								}
+								nodePathInfo={item.nodePathInfo}
+								keyframeDisplayOffset={item.keyframeDisplayOffset}
+								keyframePlaybackRate={item.keyframePlaybackRate}
+								sequenceFrameOffset={item.sequenceFrameOffset}
+							/>
+						</div>
+					</TimelineSceneRangeContext.Provider>
 				)),
 			)}
 			{dropIndicatorLeft === null ? null : (

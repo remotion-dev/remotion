@@ -2,6 +2,7 @@ import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import {noise} from '@remotion/effects/noise';
 import {scanlines} from '@remotion/effects/scanlines';
 import {
+	Interactive,
 	AbsoluteFill,
 	Easing,
 	HtmlInCanvas,
@@ -11,12 +12,12 @@ import {
 } from 'remotion';
 import {MyComponent} from './Composition';
 
-export const MasterWithEffect: React.FC = () => {
+const MasterWithEffectInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, height, width} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black'}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
 			<HtmlInCanvas
 				name="Master CRT screen"
 				width={width}
@@ -171,3 +172,11 @@ export const MasterWithEffect: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const MasterWithEffect = Interactive.withSchema({
+	Component: MasterWithEffectInner,
+	componentName: 'MasterWithEffect',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

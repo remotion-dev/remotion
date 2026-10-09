@@ -1,16 +1,24 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {Sequence, Solid, interpolate, useCurrentFrame, Easing} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	Solid,
+	interpolate,
+	useCurrentFrame,
+	Easing,
+} from 'remotion';
 import {asset} from './assets';
 import {Clip1} from './Clip1';
 import {Clip3} from './Clip3';
 import {Clip4} from './Clip4';
 
-export const BirthdayPartyCompilation: React.FC = () => {
+const BirthdayPartyCompilationInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Sequence
+			<Clip1
 				name="Clip1"
 				width={1080}
 				height={1920}
@@ -19,11 +27,9 @@ export const BirthdayPartyCompilation: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={93}
-				premountFor={30}
-			>
-				<Clip1 />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<Clip3
 				name="Clip3"
 				width={1080}
 				height={1920}
@@ -32,11 +38,9 @@ export const BirthdayPartyCompilation: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={37}
-				premountFor={30}
-			>
-				<Clip3 />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<Clip4
 				name="Clip4"
 				width={1080}
 				height={1920}
@@ -45,10 +49,8 @@ export const BirthdayPartyCompilation: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={134}
-				premountFor={30}
-			>
-				<Clip4 />
-			</Sequence>
+				premountFor={fps}
+			/>
 			<Video
 				src={asset('Setup.mp4')}
 				style={{
@@ -59,10 +61,11 @@ export const BirthdayPartyCompilation: React.FC = () => {
 				from={4}
 				durationInFrames={33}
 				trimBefore={11}
-				premountFor={30}
+				premountFor={fps}
 				muted
 			/>
 			<Solid
+				premountFor={fps}
 				width={1080}
 				height={1920}
 				color={'#ffffff'}
@@ -89,3 +92,11 @@ export const BirthdayPartyCompilation: React.FC = () => {
 		</>
 	);
 };
+
+export const BirthdayPartyCompilation = Interactive.withSchema({
+	Component: BirthdayPartyCompilationInner,
+	componentName: 'BirthdayPartyCompilation',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

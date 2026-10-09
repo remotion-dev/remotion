@@ -5,21 +5,23 @@ import {scale} from '@remotion/effects/scale';
 import {vignette} from '@remotion/effects/vignette';
 import React from 'react';
 import {
-	Img,
+	useVideoConfig,
+	CanvasImage,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
 	Easing,
-	CanvasImage,
 } from 'remotion';
 import {asset} from './assets';
 
-export const ClientSideChad: React.FC = () => {
+const ClientSideChadInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const title = 'BEN2-ONNX';
 	return (
 		<>
-			<Img
+			<CanvasImage
+				premountFor={fps}
 				src={asset('Screenshot 2026-07-19 at 18.11.15.png')}
 				style={{
 					position: 'absolute',
@@ -53,7 +55,8 @@ export const ClientSideChad: React.FC = () => {
 					grayscale({}),
 				]}
 			/>
-			<Img
+			<CanvasImage
+				premountFor={fps}
 				src={asset('images.png')}
 				style={{
 					position: 'absolute',
@@ -102,7 +105,8 @@ export const ClientSideChad: React.FC = () => {
 				]}
 				from={22}
 			/>
-			<Img
+			<CanvasImage
+				premountFor={fps}
 				src={asset('WebGPU_logo.svg.webp')}
 				style={{
 					position: 'absolute',
@@ -151,6 +155,7 @@ export const ClientSideChad: React.FC = () => {
 				from={22}
 			/>
 			<Interactive.Div
+				premountFor={fps}
 				name="BEN2-ONNX typewriter"
 				style={{
 					color: '#ffffff',
@@ -191,6 +196,7 @@ export const ClientSideChad: React.FC = () => {
 				{title}
 			</Interactive.Div>
 			<CanvasImage
+				premountFor={fps}
 				src={asset('mediabunny-logo (1).svg')}
 				style={{
 					position: 'absolute',
@@ -220,6 +226,7 @@ export const ClientSideChad: React.FC = () => {
 				from={22}
 			/>
 			<CanvasImage
+				premountFor={fps}
 				src={asset('image.png')}
 				style={{
 					position: 'absolute',
@@ -245,6 +252,7 @@ export const ClientSideChad: React.FC = () => {
 				]}
 			/>
 			<CanvasImage
+				premountFor={fps}
 				src={asset('image-1.png')}
 				style={{
 					position: 'absolute',
@@ -266,3 +274,11 @@ export const ClientSideChad: React.FC = () => {
 		</>
 	);
 };
+
+export const ClientSideChad = Interactive.withSchema({
+	Component: ClientSideChadInner,
+	componentName: 'ClientSideChad',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
