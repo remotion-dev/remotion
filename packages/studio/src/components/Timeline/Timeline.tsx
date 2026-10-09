@@ -344,6 +344,8 @@ const TimelineInner: React.FC = () => {
 				oldTrack.depth !== track.depth ||
 				oldTrack.cascadedStart !== track.cascadedStart ||
 				oldTrack.localStart !== track.localStart ||
+				oldTrack.parentVisibleStart !== track.parentVisibleStart ||
+				oldTrack.parentVisibleEnd !== track.parentVisibleEnd ||
 				oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
 				oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
 				oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||

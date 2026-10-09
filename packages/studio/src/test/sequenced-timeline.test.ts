@@ -41,6 +41,8 @@ test('Should calculate sequences correctly', () => {
 	expect(withoutKeyframeDisplayOffset(timeline)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			sequence: {
 				from: 0,
 				trimBefore: null,
@@ -68,6 +70,8 @@ test('Should calculate sequences correctly', () => {
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 486,
 			sequence: {
 				from: 0,
 				trimBefore: null,
@@ -95,6 +99,8 @@ test('Should calculate sequences correctly', () => {
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 486,
 			sequence: {
 				from: 0,
 				trimBefore: null,
@@ -122,6 +128,8 @@ test('Should calculate sequences correctly', () => {
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 486,
 			sequence: {
 				from: 0,
 				trimBefore: null,
@@ -149,6 +157,8 @@ test('Should calculate sequences correctly', () => {
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 486,
 			sequence: {
 				type: 'video',
 				src: 'http://localhost:5000/codep1-2.mp4',
@@ -185,6 +195,8 @@ test('Should calculate sequences correctly', () => {
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 486,
 			sequence: {
 				loopDisplay: undefined,
 				from: 0,
@@ -212,6 +224,8 @@ test('Should calculate sequences correctly', () => {
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 486,
 			sequence: {
 				loopDisplay: undefined,
 				type: 'video',

@@ -196,6 +196,10 @@ export const calculateTimeline = ({
 	for (let i = 0; i < timelineSequences.length; i++) {
 		const sequence = timelineSequences[i];
 		const timing = getTiming(sequence);
+		const parentTiming =
+			sequence.parent === null
+				? null
+				: getTiming(sequencesById.get(sequence.parent)!);
 		const {
 			cascadedStart,
 			parentPlaybackRate,
@@ -242,11 +246,11 @@ export const calculateTimeline = ({
 				let start = Math.max(0, origin);
 				let end = origin + durationInFrames * owner.loopDisplay.numberOfTimes;
 				if (owner.parent) {
-					const parentTiming = getTiming(sequencesById.get(owner.parent)!);
-					start = Math.max(start, parentTiming.visibleStart);
+					const loopParentTiming = getTiming(sequencesById.get(owner.parent)!);
+					start = Math.max(start, loopParentTiming.visibleStart);
 					end = Math.min(
 						end,
-						parentTiming.visibleStart + parentTiming.visibleDuration,
+						loopParentTiming.visibleStart + loopParentTiming.visibleDuration,
 					);
 				}
 
@@ -287,6 +291,10 @@ export const calculateTimeline = ({
 			depth: timing.depth,
 			cascadedStart,
 			localStart: sequence.from,
+			parentVisibleStart: parentTiming?.visibleStart ?? 0,
+			parentVisibleEnd: parentTiming
+				? parentTiming.visibleStart + parentTiming.visibleDuration
+				: null,
 			cascadedDuration: sequence.duration,
 			keyframeDisplayOffset: hasKeyframeRows
 				? cascadedStart - sequence.from / parentPlaybackRate

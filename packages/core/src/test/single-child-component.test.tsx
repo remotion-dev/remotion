@@ -3,7 +3,7 @@ import React from 'react';
 import {
 	getSingleChildComponent,
 	setComponentIdentityResolver,
-} from '../enable-sequence-stack-traces';
+} from '../component-identity';
 
 const Child: React.FC = () => null;
 const OtherChild: React.FC = () => null;

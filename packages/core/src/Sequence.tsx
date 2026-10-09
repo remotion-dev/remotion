@@ -13,6 +13,7 @@ import {
 	withCommittedMetadata,
 	type CommittedMetadata,
 } from './committed-metadata.js';
+import {getSingleChildComponent} from './component-identity.js';
 import type {
 	LoopDisplay,
 	SequenceControls,
@@ -194,8 +195,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalTimelineTrack: timelineTrackItem,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
+		_remotionInternalSingleChildComponent: childComponentOverride,
 		_remotionInternalDocumentationLink: documentationLink,
-		_remotionInternalSingleChildComponent: singleChildComponent,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
@@ -554,6 +555,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
+	const singleChildComponent = useMemo(
+		() =>
+			childComponentOverride === undefined
+				? getSingleChildComponent(children)
+				: childComponentOverride,
+		[children, childComponentOverride],
+	);
 	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);

@@ -1,13 +1,11 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
+import {resolveComponentIdentity} from './component-identity.js';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
 } from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
-import {
-	addSequenceStackTraces,
-	resolveComponentIdentity,
-} from './enable-sequence-stack-traces.js';
+import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {
 	backgroundSchema,
