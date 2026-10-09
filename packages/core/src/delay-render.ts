@@ -45,6 +45,36 @@ if (typeof window !== 'undefined') {
 	window.remotion_delayRenderHandles = [];
 }
 
+type TimeoutSuspensionState = {
+	active: number;
+	startedAt: number;
+	elapsed: number;
+	handles: Map<number, {suspend: () => () => void; cancel: () => void}>;
+};
+
+const timeoutSuspensions = new WeakMap<
+	DelayRenderScope,
+	TimeoutSuspensionState
+>();
+
+export const getDelayRenderSuspendedTime = (
+	scope: DelayRenderScope,
+): number => {
+	const state = timeoutSuspensions.get(scope);
+	return state
+		? state.elapsed + (state.active > 0 ? Date.now() - state.startedAt : 0)
+		: 0;
+};
+
+export const suspendDelayRenderTimeout = (
+	scope: DelayRenderScope,
+	handle: number,
+): (() => void) => {
+	return (
+		timeoutSuspensions.get(scope)?.handles.get(handle)?.suspend() ?? (() => {})
+	);
+};
+
 const defaultTimeout = 30000;
 
 export type DelayRenderOptions = {
@@ -89,32 +119,95 @@ export const delayRenderInternal = ({
 				defaultTimeout) - 2000,
 		);
 		const retriesLeft = (options?.retries ?? 0) - (scope.remotion_attempt - 1);
+		let remaining = timeoutToUse;
+		let startedAt = Date.now();
+		let suspensionDepth = 0;
+		let registered = true;
+		const state = timeoutSuspensions.get(scope) ?? {
+			active: 0,
+			startedAt: 0,
+			elapsed: 0,
+			handles: new Map(),
+		};
+		timeoutSuspensions.set(scope, state);
+		const endSuspension = () => {
+			state.active--;
+			if (state.active === 0) {
+				state.elapsed += Date.now() - state.startedAt;
+			}
+		};
+
+		const cancel = () => {
+			if (!registered) {
+				return;
+			}
+
+			registered = false;
+			if (suspensionDepth > 0) {
+				endSuspension();
+			}
+
+			state.handles.delete(handle);
+		};
+
+		const onTimeout = () => {
+			cancel();
+			const message = [
+				`A delayRender()`,
+				label ? `"${label}"` : null,
+				`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help.`,
+				retriesLeft > 0 ? DELAY_RENDER_RETRIES_LEFT + retriesLeft : null,
+				retriesLeft > 0 ? DELAY_RENDER_RETRY_TOKEN : null,
+				DELAY_RENDER_CALLSTACK_TOKEN,
+				called,
+			]
+				.filter(truthy)
+				.join(' ');
+
+			// in client-side rendering, don't throw (would be uncaught from setTimeout)
+			if (environment.isClientSideRendering) {
+				scope.remotion_cancelledError = getErrorStackWithMessage(
+					Error(message),
+				);
+			} else {
+				cancelRenderInternal(scope, Error(message));
+			}
+		};
+
 		scope.remotion_delayRenderTimeouts[handle] = {
 			label: label ?? null,
 			startTime: Date.now(),
-			timeout: setTimeout(() => {
-				const message = [
-					`A delayRender()`,
-					label ? `"${label}"` : null,
-					`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help.`,
-					retriesLeft > 0 ? DELAY_RENDER_RETRIES_LEFT + retriesLeft : null,
-					retriesLeft > 0 ? DELAY_RENDER_RETRY_TOKEN : null,
-					DELAY_RENDER_CALLSTACK_TOKEN,
-					called,
-				]
-					.filter(truthy)
-					.join(' ');
-
-				// in client-side rendering, don't throw (would be uncaught from setTimeout)
-				if (environment.isClientSideRendering) {
-					scope.remotion_cancelledError = getErrorStackWithMessage(
-						Error(message),
-					);
-				} else {
-					cancelRenderInternal(scope, Error(message));
-				}
-			}, timeoutToUse),
+			timeout: setTimeout(onTimeout, remaining),
 		};
+		state.handles.set(handle, {
+			cancel,
+			suspend: () => {
+				if (suspensionDepth++ === 0) {
+					clearTimeout(scope.remotion_delayRenderTimeouts[handle].timeout);
+					remaining = Math.max(0, remaining - (Date.now() - startedAt));
+					if (state.active++ === 0) {
+						state.startedAt = Date.now();
+					}
+				}
+
+				let resumed = false;
+				return () => {
+					if (resumed || !registered) {
+						return;
+					}
+
+					resumed = true;
+					if (--suspensionDepth === 0) {
+						endSuspension();
+						startedAt = Date.now();
+						scope.remotion_delayRenderTimeouts[handle].timeout = setTimeout(
+							onTimeout,
+							remaining,
+						);
+					}
+				};
+			},
+		});
 	}
 
 	scope.remotion_renderReady = false;
@@ -176,6 +269,7 @@ export const continueRenderInternal = ({
 	const timeoutEntry = scope.remotion_delayRenderTimeouts[handle];
 	if (handleExists && environment.isRendering && timeoutEntry) {
 		const {label, startTime, timeout} = timeoutEntry;
+		timeoutSuspensions.get(scope)?.handles.get(handle)?.cancel();
 		clearTimeout(timeout);
 		const message = [
 			label ? `"${label}"` : 'A handle',

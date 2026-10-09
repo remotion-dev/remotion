@@ -66,7 +66,7 @@ test.describe('captions inspector', () => {
 		);
 
 		const captionsSequence = page
-			.getByText('<AnimatedCaptions>', {exact: true})
+			.getByRole('group', {name: 'AnimatedCaptions', exact: true})
 			.first();
 		const pageBreakAfterFirstCaption = page.getByRole('button', {
 			name: 'Add page break after caption 1',
