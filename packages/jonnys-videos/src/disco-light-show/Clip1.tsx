@@ -1,9 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {useVideoConfig} from 'remotion';
+import {Interactive, useVideoConfig} from 'remotion';
 import {asset} from './assets';
 
-export const Clip1: React.FC = () => {
+const Clip1Inner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	return (
 		<>
@@ -24,3 +24,11 @@ export const Clip1: React.FC = () => {
 		</>
 	);
 };
+
+export const Clip1 = Interactive.withSchema({
+	Component: Clip1Inner,
+	componentName: 'Clip1',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

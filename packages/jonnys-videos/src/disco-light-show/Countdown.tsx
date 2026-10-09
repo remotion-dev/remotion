@@ -13,20 +13,19 @@ export const COUNTDOWN_DURATION_IN_FRAMES = 59;
 
 const CountdownPageInner: React.FC<{
 	readonly number: string;
-	readonly style: React.CSSProperties | null;
-}> = ({number, style}) => {
+}> = ({number}) => {
 	const {fps, durationInFrames} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			premountFor={fps}
 			style={{
 				alignItems: 'center',
 				justifyContent: 'center',
 				overflow: 'hidden',
 				pointerEvents: 'none',
-				...style,
 			}}
 		>
 			<Interactive.Div
@@ -75,24 +74,23 @@ const countdownPageSchema = {
 
 const CountdownPage = Interactive.withSchema({
 	Component: CountdownPageInner,
-	componentName: '<CountdownPage>',
+	componentName: 'CountdownPage',
 	schema: countdownPageSchema,
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
-export const Countdown: React.FC = () => {
+const CountdownInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	return (
-		<AbsoluteFill premountFor={fps}>
+		<>
 			<CountdownPage
-				style={null}
 				name="Countdown 3"
 				number="3"
 				durationInFrames={20}
 				premountFor={fps}
 			/>
 			<CountdownPage
-				style={null}
 				name="Countdown 2"
 				number="2"
 				from={20}
@@ -100,13 +98,20 @@ export const Countdown: React.FC = () => {
 				premountFor={fps}
 			/>
 			<CountdownPage
-				style={null}
 				name="Countdown 1"
 				number="1"
 				from={40}
 				durationInFrames={19}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const Countdown = Interactive.withSchema({
+	Component: CountdownInner,
+	componentName: 'Countdown',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

@@ -1,10 +1,10 @@
 import {Audio, Video} from '@remotion/media';
 import {
+	Interactive,
 	useVideoConfig,
 	Composition,
 	Easing,
 	Folder,
-	Sequence,
 	interpolate,
 	useCurrentFrame,
 	CanvasImage,
@@ -74,12 +74,12 @@ export const MyComposition = () => {
 	);
 };
 
-export const MyComponent: React.FC = () => {
+const MyComponentInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Sequence
+			<DiscoBallBg
 				premountFor={fps}
 				name="DiscoBallBg"
 				width={1080}
@@ -88,10 +88,8 @@ export const MyComponent: React.FC = () => {
 				style={{
 					position: 'absolute',
 				}}
-			>
-				<DiscoBallBg />
-			</Sequence>
-			<Sequence
+			/>
+			<TextBackgroundComposition
 				premountFor={fps}
 				name="Text background"
 				width={1920}
@@ -161,10 +159,8 @@ export const MyComponent: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<TextBackgroundComposition />
-			</Sequence>
-			<Sequence
+			/>
+			<BirthdayPartyCompilation
 				name="BirthdayPartyCompilation"
 				width={1080}
 				height={1920}
@@ -174,15 +170,13 @@ export const MyComponent: React.FC = () => {
 				}}
 				from={182}
 				premountFor={fps}
-			>
-				<BirthdayPartyCompilation />
-			</Sequence>
+			/>
 			<Audio
 				premountFor={fps}
 				name="Voiceover"
 				src={asset('text-behind-video-2.wav')}
 			/>
-			<Sequence
+			<AnimatedCaptions
 				premountFor={fps}
 				name="AnimatedCaptions"
 				width={1080}
@@ -192,10 +186,8 @@ export const MyComponent: React.FC = () => {
 					position: 'absolute',
 					translate: '0px 1132.3px',
 				}}
-			>
-				<AnimatedCaptions />
-			</Sequence>
-			<Sequence
+			/>
+			<AnimatedCaptions
 				premountFor={fps}
 				name="AnimatedCaptions"
 				width={1080}
@@ -207,10 +199,8 @@ export const MyComponent: React.FC = () => {
 					position: 'absolute',
 					translate: '0px 1132.3px',
 				}}
-			>
-				<AnimatedCaptions />
-			</Sequence>
-			<Sequence
+			/>
+			<AnimatedCaptions
 				premountFor={fps}
 				name="AnimatedCaptions"
 				width={1080}
@@ -240,10 +230,8 @@ export const MyComponent: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<AnimatedCaptions />
-			</Sequence>
-			<Sequence
+			/>
+			<AnimatedCaptionsBigWords
 				premountFor={fps}
 				name="AnimatedCaptionsBigWords"
 				width={1080}
@@ -274,10 +262,8 @@ export const MyComponent: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<AnimatedCaptionsBigWords />
-			</Sequence>
-			<Sequence
+			/>
+			<EffectShow
 				name="EffectShow"
 				width={1080}
 				height={1920}
@@ -321,10 +307,8 @@ export const MyComponent: React.FC = () => {
 				}}
 				from={337}
 				premountFor={fps}
-			>
-				<EffectShow />
-			</Sequence>
-			<Sequence
+			/>
+			<HuggingFace
 				name="HuggingFace"
 				width={1920}
 				height={1080}
@@ -368,10 +352,8 @@ export const MyComponent: React.FC = () => {
 				}}
 				from={537}
 				premountFor={fps}
-			>
-				<HuggingFace />
-			</Sequence>
-			<Sequence
+			/>
+			<ClientSideChad
 				name="ClientSideChad"
 				width={1080}
 				height={1920}
@@ -385,10 +367,8 @@ export const MyComponent: React.FC = () => {
 				}}
 				from={694}
 				premountFor={fps}
-			>
-				<ClientSideChad />
-			</Sequence>
-			<Sequence
+			/>
+			<Separate
 				name="Separate"
 				width={1080}
 				height={1920}
@@ -455,10 +435,8 @@ export const MyComponent: React.FC = () => {
 					),
 				}}
 				premountFor={fps}
-			>
-				<Separate />
-			</Sequence>
-			<Sequence
+			/>
+			<Fork
 				name="Fork"
 				width={1080}
 				height={1920}
@@ -513,10 +491,8 @@ export const MyComponent: React.FC = () => {
 				}}
 				from={953}
 				premountFor={fps}
-			>
-				<Fork />
-			</Sequence>
-			<Sequence
+			/>
+			<ForkDrop
 				premountFor={fps}
 				name="ForkDrop"
 				width={1080}
@@ -546,10 +522,8 @@ export const MyComponent: React.FC = () => {
 					),
 					scale: 1,
 				}}
-			>
-				<ForkDrop />
-			</Sequence>
-			<Sequence
+			/>
+			<OneShot
 				name="OneShot"
 				width={1080}
 				height={1080}
@@ -594,10 +568,8 @@ export const MyComponent: React.FC = () => {
 				}}
 				from={1093}
 				premountFor={fps}
-			>
-				<OneShot />
-			</Sequence>
-			<Sequence
+			/>
+			<VibeCoded
 				name="VibeCoded"
 				width={1080}
 				height={1080}
@@ -642,10 +614,8 @@ export const MyComponent: React.FC = () => {
 				from={1125}
 				premountFor={fps}
 				trimBefore={35}
-			>
-				<VibeCoded />
-			</Sequence>
-			<Sequence
+			/>
+			<Mediabunny
 				name="Mediabunny"
 				width={1080}
 				height={1920}
@@ -655,10 +625,8 @@ export const MyComponent: React.FC = () => {
 					position: 'absolute',
 				}}
 				premountFor={fps}
-			>
-				<Mediabunny />
-			</Sequence>
-			<Sequence
+			/>
+			<DragInDemo
 				premountFor={fps}
 				name="DragInDemo"
 				width={1080}
@@ -694,10 +662,8 @@ export const MyComponent: React.FC = () => {
 					),
 				}}
 				from={1245}
-			>
-				<DragInDemo />
-			</Sequence>
-			<Sequence
+			/>
+			<TextBehindVideoStackComposition
 				name="TextBehindVideoStack"
 				width={1080}
 				height={1920}
@@ -717,9 +683,7 @@ export const MyComponent: React.FC = () => {
 				}}
 				from={1337}
 				premountFor={fps}
-			>
-				<TextBehindVideoStackComposition />
-			</Sequence>
+			/>
 			<CanvasImage
 				premountFor={fps}
 				src={asset('Screenshot 2026-07-19 at 18.28.52.png')}
@@ -811,26 +775,30 @@ export const MyComponent: React.FC = () => {
 				premountFor={fps}
 				playbackRate={0.8}
 			/>
-			<Sequence
+			<TextBehindVideoSeriesFirst20sComposition
 				name="TextBehindVideoSeriesFirst20s"
 				from={1648}
 				premountFor={fps}
 				durationInFrames={TEXT_BEHIND_VIDEO_SERIES_FIRST_20S_DURATION_IN_FRAMES}
 				width={1080}
 				height={1920}
-			>
-				<TextBehindVideoSeriesFirst20sComposition />
-			</Sequence>
-			<Sequence
+			/>
+			<Countdown
 				premountFor={fps}
 				name="Countdown"
 				from={1556}
 				durationInFrames={COUNTDOWN_DURATION_IN_FRAMES}
 				width={1080}
 				height={1920}
-			>
-				<Countdown />
-			</Sequence>
+			/>
 		</>
 	);
 };
+
+export const MyComponent = Interactive.withSchema({
+	Component: MyComponentInner,
+	componentName: 'MyComponent',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

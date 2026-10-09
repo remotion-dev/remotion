@@ -1,21 +1,15 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Interactive,
-	Series,
-	useVideoConfig,
-	type InteractiveTransformProps,
-} from 'remotion';
+import {Interactive, Series, useVideoConfig} from 'remotion';
 import {Callout} from '../elements/Callout';
 import {NameLowerThird} from '../elements/NameLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
-const OfficeInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const OfficeInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', ...style}}>
+		<>
 			<Series>
 				<Series.Sequence
 					name="Mehmet"
@@ -912,13 +906,14 @@ const OfficeInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				volume={0.35}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 export const Office = Interactive.withSchema({
 	Component: OfficeInner,
-	componentName: '<Office>',
+	componentName: 'Office',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

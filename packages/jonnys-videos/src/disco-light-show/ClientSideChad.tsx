@@ -14,7 +14,7 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const ClientSideChad: React.FC = () => {
+const ClientSideChadInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const title = 'BEN2-ONNX';
@@ -274,3 +274,11 @@ export const ClientSideChad: React.FC = () => {
 		</>
 	);
 };
+
+export const ClientSideChad = Interactive.withSchema({
+	Component: ClientSideChadInner,
+	componentName: 'ClientSideChad',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

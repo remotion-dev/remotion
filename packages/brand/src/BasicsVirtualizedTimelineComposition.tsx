@@ -13,10 +13,8 @@ import {
 } from 'remotion';
 
 const BasicsVirtualizedTimelineInner = ({
-	style,
 	captureStyle,
 }: {
-	readonly style: React.CSSProperties | null;
 	readonly captureStyle: React.CSSProperties | null;
 }) => {
 	const frame = useCurrentFrame();
@@ -505,7 +503,8 @@ const BasicsVirtualizedTimelineInner = ({
 
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: '#111518', overflow: 'hidden', ...style}}
+			showInTimeline={false}
+			style={{backgroundColor: '#111518', overflow: 'hidden'}}
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
@@ -558,9 +557,10 @@ const BasicsVirtualizedTimelineInner = ({
 
 export const BasicsVirtualizedTimelinePreview = Interactive.withSchema({
 	Component: BasicsVirtualizedTimelineInner,
-	componentName: '<BasicsVirtualizedTimelinePreview>',
+	componentName: 'BasicsVirtualizedTimelinePreview',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsVirtualizedTimelineComposition = () => {
@@ -570,7 +570,7 @@ export const BasicsVirtualizedTimelineComposition = () => {
 			component={BasicsVirtualizedTimelinePreview}
 			width={1920}
 			height={1080}
-			defaultProps={{style: null, captureStyle: null}}
+			defaultProps={{captureStyle: null}}
 			fps={60}
 			durationInFrames={1189}
 		/>

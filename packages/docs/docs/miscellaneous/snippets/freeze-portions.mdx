@@ -7,11 +7,11 @@ crumb: 'Snippets'
 
 With the following snippet, two portions of a sequence are frozen and resumed afterwards from the point they were paused.
 
-```tsx twoslash
+```tsx twoslash title="FreezePortion.tsx"
 import React, {useMemo} from 'react';
 import {Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
 
-const CounterInner: React.FC<{style?: React.CSSProperties}> = ({style}) => {
+const CounterInner: React.FC = () => {
   return (
     <div
       style={{
@@ -21,7 +21,6 @@ const CounterInner: React.FC<{style?: React.CSSProperties}> = ({style}) => {
         fontSize: 60,
         height: '100%',
         justifyContent: 'center',
-        ...style,
       }}
     >
       {useCurrentFrame()}
@@ -34,6 +33,7 @@ export const Counter = Interactive.withSchema({
   componentName: 'Counter',
   schema: {},
   wrapInSequence: true,
+  layout: 'absolute-fill',
 });
 
 const FREEZES = [

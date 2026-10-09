@@ -1,17 +1,12 @@
-import type React from 'react';
 import {AbsoluteFill, Composition, Interactive, useVideoConfig} from 'remotion';
 import {BasicsPlaybackRatePreview} from './BasicsPlaybackRateComposition';
 import {BasicsTitlePanel} from './BasicsTitlePanel';
 
-const BasicsPlaybackRateSceneInner = ({
-	style,
-}: {
-	readonly style: React.CSSProperties | null;
-}) => {
+const BasicsPlaybackRateSceneInner = () => {
 	const {fps, width} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#111518', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#111518'}}>
 			<BasicsPlaybackRatePreview
 				trimBefore={0.9 * fps}
 				durationInFrames={4.5 * fps}
@@ -29,9 +24,10 @@ const BasicsPlaybackRateSceneInner = ({
 
 export const BasicsPlaybackRateScene = Interactive.withSchema({
 	Component: BasicsPlaybackRateSceneInner,
-	componentName: '<BasicsPlaybackRateScene>',
+	componentName: 'BasicsPlaybackRateScene',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsPlaybackRateSceneComposition = () => {
@@ -43,7 +39,6 @@ export const BasicsPlaybackRateSceneComposition = () => {
 			height={1080}
 			fps={60}
 			durationInFrames={180}
-			defaultProps={{style: null}}
 		/>
 	);
 };

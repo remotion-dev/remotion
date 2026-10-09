@@ -13,10 +13,8 @@ import {
 } from 'remotion';
 
 const BasicsPlaybackRateInner = ({
-	style,
 	captureStyle,
 }: {
-	readonly style: React.CSSProperties | null;
 	readonly captureStyle: React.CSSProperties | null;
 }) => {
 	const frame = useCurrentFrame();
@@ -337,7 +335,8 @@ const BasicsPlaybackRateInner = ({
 
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: '#111518', overflow: 'hidden', ...style}}
+			showInTimeline={false}
+			style={{backgroundColor: '#111518', overflow: 'hidden'}}
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
@@ -390,9 +389,10 @@ const BasicsPlaybackRateInner = ({
 
 export const BasicsPlaybackRatePreview = Interactive.withSchema({
 	Component: BasicsPlaybackRateInner,
-	componentName: '<BasicsPlaybackRatePreview>',
+	componentName: 'BasicsPlaybackRatePreview',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsPlaybackRateComposition = () => {
@@ -402,7 +402,7 @@ export const BasicsPlaybackRateComposition = () => {
 			component={BasicsPlaybackRatePreview}
 			width={1920}
 			height={1080}
-			defaultProps={{style: null, captureStyle: null}}
+			defaultProps={{captureStyle: null}}
 			fps={60}
 			durationInFrames={368}
 		/>

@@ -7,6 +7,7 @@ import {wave} from '@remotion/effects/wave';
 import {Video} from '@remotion/media';
 import React from 'react';
 import {
+	Interactive,
 	useVideoConfig,
 	Solid,
 	Sequence,
@@ -15,7 +16,7 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const DiscoBallBg: React.FC = () => {
+const DiscoBallBgInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -118,3 +119,11 @@ export const DiscoBallBg: React.FC = () => {
 		</>
 	);
 };
+
+export const DiscoBallBg = Interactive.withSchema({
+	Component: DiscoBallBgInner,
+	componentName: 'DiscoBallBg',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

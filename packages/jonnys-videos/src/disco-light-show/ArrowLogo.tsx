@@ -3,6 +3,7 @@ import {scale} from '@remotion/effects/scale';
 import {Arrow} from '@remotion/shapes';
 import React from 'react';
 import {
+	Interactive,
 	useVideoConfig,
 	CanvasImage,
 	interpolate,
@@ -10,7 +11,7 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const ArrowLogo: React.FC = () => {
+const ArrowLogoInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -65,3 +66,11 @@ export const ArrowLogo: React.FC = () => {
 		</>
 	);
 };
+
+export const ArrowLogo = Interactive.withSchema({
+	Component: ArrowLogoInner,
+	componentName: 'ArrowLogo',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

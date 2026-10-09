@@ -1,9 +1,14 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {useVideoConfig, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {asset} from './assets';
 
-export const VibeCoded: React.FC = () => {
+const VibeCodedInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
@@ -31,3 +36,11 @@ export const VibeCoded: React.FC = () => {
 		</>
 	);
 };
+
+export const VibeCoded = Interactive.withSchema({
+	Component: VibeCodedInner,
+	componentName: 'VibeCoded',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

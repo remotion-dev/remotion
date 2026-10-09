@@ -1,17 +1,12 @@
-import type React from 'react';
 import {AbsoluteFill, Composition, Interactive, useVideoConfig} from 'remotion';
 import {BasicsTitlePanel} from './BasicsTitlePanel';
 import {BasicsVirtualizedTimelinePreview} from './BasicsVirtualizedTimelineComposition';
 
-const BasicsVirtualizedTimelineSceneInner = ({
-	style,
-}: {
-	readonly style: React.CSSProperties | null;
-}) => {
+const BasicsVirtualizedTimelineSceneInner = () => {
 	const {fps, width} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#111518', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#111518'}}>
 			<BasicsVirtualizedTimelinePreview
 				trimBefore={4.5 * fps}
 				durationInFrames={3 * fps}
@@ -28,9 +23,10 @@ const BasicsVirtualizedTimelineSceneInner = ({
 
 export const BasicsVirtualizedTimelineScene = Interactive.withSchema({
 	Component: BasicsVirtualizedTimelineSceneInner,
-	componentName: '<BasicsVirtualizedTimelineScene>',
+	componentName: 'BasicsVirtualizedTimelineScene',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsVirtualizedTimelineSceneComposition = () => {
@@ -42,7 +38,6 @@ export const BasicsVirtualizedTimelineSceneComposition = () => {
 			height={1080}
 			fps={60}
 			durationInFrames={180}
-			defaultProps={{style: null}}
 		/>
 	);
 };
