@@ -21,9 +21,10 @@ export const thirdPartyElementLibraries = [
 		displayName: 'Lexington Themes',
 	},
 	{
-		bannerUrl: null,
+		bannerUrl:
+			'https://remotion.media/elements/third-party-libraries/snapcn.webp',
 		browseUrl: 'https://snapcn.dev/docs/components',
-		catalogUrl: 'https://snapcn.dev/docs/components',
+		libraryUrl: 'https://snapcn.dev/docs/components',
 		displayName: 'snapcn',
 	},
 ] as const satisfies readonly ThirdPartyElementLibrary[];
