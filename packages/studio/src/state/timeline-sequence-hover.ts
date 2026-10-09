@@ -3,8 +3,8 @@ import {
 	createCanvasHoverController,
 	useCanvasHover,
 	useCanvasSequenceHover,
-} from '@remotion/canvas';
-import type {CanvasHover, CanvasHoverController} from '@remotion/canvas';
+} from '@remotion/sdk';
+import type {CanvasHover, CanvasHoverController} from '@remotion/sdk';
 import {createContext, useContext} from 'react';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 

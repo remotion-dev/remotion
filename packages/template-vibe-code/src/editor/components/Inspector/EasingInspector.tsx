@@ -6,7 +6,7 @@ import {
   getCanvasKeyframeSettingsChange,
   type CanvasKeyframeEasing,
   type CanvasKeyframeSettings,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import { ChevronLeftIcon } from "lucide-react";
 import React, { useState } from "react";
 import type { ExtrapolateType, InterpolateOutputOption } from "remotion";

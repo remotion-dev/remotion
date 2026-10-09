@@ -1,7 +1,7 @@
 /* eslint-disable react/require-default-props */
 import {
 	forwardRef,
-	useEffect,
+	useLayoutEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
@@ -144,7 +144,7 @@ export const Canvas = forwardRef(
 		useImperativeHandle(ref, () => {
 			return canvasRef.current as HTMLCanvasElement;
 		}, []);
-		useEffect(() => {
+		useLayoutEffect(() => {
 			if (!size) {
 				return;
 			}

@@ -19,7 +19,7 @@ test('preserves the Player media playback rate across source changes and reloads
 	const shortVideoRef = React.createRef<HTMLVideoElement>();
 	let registered: TSequence[] = [];
 	const ObserveSequences: React.FC = () => {
-		registered = React.useContext(Internals.SequenceManager).sequences;
+		registered = Internals.useSequenceManagerSequences();
 		return null;
 	};
 
@@ -91,47 +91,22 @@ test('preserves the Player media playback rate across source changes and reloads
 				(sequence) => sequence.type === 'audio' || sequence.type === 'video',
 			);
 			expect(media).toHaveLength(2);
-			for (const sequence of media) {
-				expect(typeof sequence.volume).toBe('string');
-				expect(Number(String(sequence.volume).split(',')[20])).toBeCloseTo(
-					video.volume,
-				);
-			}
 
 			expect(video.volume).toBeCloseTo(0.35);
 			expect(audioRef.current!.volume).toBeCloseTo(0.35);
 			playerRef.current!.seekTo(40);
 			await expect.poll(() => video.currentTime).toBeCloseTo(1.33);
 			await expect.poll(() => audioRef.current?.currentTime).toBeCloseTo(1.33);
-			for (const sequence of media) {
-				expect(Number(String(sequence.volume).split(',')[30])).toBeCloseTo(
-					video.volume,
-				);
-			}
 
 			expect(video.volume).toBeCloseTo(0.425);
 			expect(audioRef.current!.volume).toBeCloseTo(0.425);
 			playerRef.current!.seekTo(10);
 			await expect.poll(() => video.currentTime).toBeCloseTo(0.43);
 			await expect.poll(() => audioRef.current?.currentTime).toBeCloseTo(0.43);
-			for (const sequence of media) {
-				expect(Number(String(sequence.volume).split(',')[0])).toBeCloseTo(
-					video.volume,
-				);
-			}
 
 			expect(video.volume).toBeCloseTo(0.2);
 			expect(audioRef.current!.volume).toBeCloseTo(0.2);
 			await expect.poll(() => shortVideoRef.current?.volume).toBe(0.25);
-			const shortSequence = registered.find(
-				(sequence) =>
-					sequence.type === 'video' && sequence.src.includes('short=true'),
-			);
-			expect(
-				shortSequence && 'volume' in shortSequence
-					? shortSequence.volume
-					: null,
-			).toBe('0.25,0.5,1.25,2.5');
 			playerRef.current!.seekTo(11);
 			await expect.poll(() => shortVideoRef.current?.volume).toBe(0.5);
 			playerRef.current!.seekTo(30);
@@ -158,7 +133,7 @@ test('seeks trimmed HTML5 loops across fractional boundaries under nested sequen
 	let registered: TSequence[] = [];
 
 	const ObserveSequences: React.FC = () => {
-		registered = React.useContext(Internals.SequenceManager).sequences;
+		registered = Internals.useSequenceManagerSequences();
 		return null;
 	};
 
@@ -285,22 +260,7 @@ test('seeks trimmed HTML5 loops across fractional boundaries under nested sequen
 				expect(audioRef.current!.playbackRate).toBeCloseTo(effectiveRate);
 				for (const type of ['video', 'audio'] as const) {
 					const layer = registered.find((sequence) => sequence.type === type);
-					expect(layer && 'volume' in layer && typeof layer.volume).toBe(
-						'string',
-					);
-					const samples = String(layer && 'volume' in layer ? layer.volume : '')
-						.split(',')
-						.map(Number);
-					expect(samples).toHaveLength(useThreeLevels ? 47 : 493);
-					expect(
-						samples[frame - (useThreeLevels ? 20 : 7)],
-						`${type} timeline volume at frame ${frame}, media rate ${mediaRate}`,
-					).toBeCloseTo(
-						type === 'video'
-							? videoRef.current!.volume
-							: audioRef.current!.volume,
-						8,
-					);
+					expect(layer).not.toHaveProperty('volume');
 				}
 			}
 

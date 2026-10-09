@@ -1,5 +1,5 @@
-import {CanvasInternals} from '@remotion/canvas';
-import React, {useContext, useMemo, useRef, useState} from 'react';
+import {CanvasInternals} from '@remotion/sdk';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -10,13 +10,14 @@ import {
 import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-click';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {isMac} from '../helpers/is-mac';
+import type {getSequenceAnnotationAttributes} from '../helpers/sequence-annotation';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
-	addEffectFromDragData,
-	getEffectDragData,
+	addEffectFromDrop,
 	hasEffectDragType,
-	hasExplicitEffectDragType,
+	isLutEffectDrop,
+	LUT_EFFECT_DROP_TARGET_ATTR,
 } from './effect-drag-and-drop';
 import {
 	forceSpecificCursor,
@@ -38,7 +39,6 @@ import type {
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -60,6 +60,9 @@ export const SELECTED_OUTLINE_KEY_ATTR =
 	'data-remotion-studio-selected-outline-key';
 
 const SelectedOutlinePolygonUnmemoized: React.FC<{
+	readonly annotationAttributes: ReturnType<
+		typeof getSequenceAnnotationAttributes
+	> | null;
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly containsSelection: boolean;
@@ -90,6 +93,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly showSelectedOutline: boolean;
 	readonly translateWithCommandKey: boolean;
 }> = ({
+	annotationAttributes,
 	compositionHeight,
 	compositionWidth,
 	containsSelection,
@@ -128,6 +132,23 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	const polygonRef = useRef<SVGPolygonElement>(null);
 	const {selectItems} = useTimelineSelection();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
+	useEffect(() => {
+		if (!effectDropHovered) {
+			return;
+		}
+
+		const clearEffectDropHover = () => setEffectDropHovered(false);
+		document.addEventListener('drop', clearEffectDropHover, {capture: true});
+		document.addEventListener('dragend', clearEffectDropHover, {capture: true});
+		return () => {
+			document.removeEventListener('drop', clearEffectDropHover, {
+				capture: true,
+			});
+			document.removeEventListener('dragend', clearEffectDropHover, {
+				capture: true,
+			});
+		};
+	}, [effectDropHovered]);
 	const visible = showSelectedOutline || hovered;
 	const getEffectDropTarget = React.useCallback(() => {
 		if (
@@ -269,31 +290,19 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 							change.type === 'keyframed',
 					);
 
-					Promise.all([
-						staticChanges.length > 0
-							? saveSequenceProps({
-									changes: staticChanges,
-									addedKeyframes: null,
-									movedKeyframes: null,
-									setPropStatuses,
-									clientId,
-									undoLabel:
-										changes.length > 1
-											? 'Move selected sequences'
-											: 'Move sequence',
-									redoLabel:
-										changes.length > 1
-											? 'Move selected sequences back'
-											: 'Move sequence back',
-								})
-							: Promise.resolve(),
-						callAddKeyframes({
-							sequenceKeyframes: keyframedChanges,
-							effectKeyframes: [],
-							setPropStatuses,
-							clientId,
-						}),
-					])
+					saveSequenceProps({
+						changes: staticChanges,
+						addedKeyframes: keyframedChanges,
+						movedKeyframes: null,
+						setPropStatuses,
+						clientId,
+						undoLabel:
+							changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
+						redoLabel:
+							changes.length > 1
+								? 'Move selected sequences back'
+								: 'Move sequence back',
+					})
 						.catch((err) => {
 							showNotification(
 								`Could not save sequence props: ${
@@ -401,7 +410,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 	const onEffectDrop = React.useCallback(
 		async (event: React.DragEvent<SVGPolygonElement>) => {
-			if (!hasEffectDragType(event.dataTransfer)) {
+			if (
+				!hasEffectDragType(event.dataTransfer) &&
+				!isLutEffectDrop(event.nativeEvent)
+			) {
 				return;
 			}
 
@@ -410,24 +422,12 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				return;
 			}
 
-			const dragData = getEffectDragData(event.dataTransfer);
-			if (!dragData) {
-				if (hasExplicitEffectDragType(event.dataTransfer)) {
-					event.preventDefault();
-					event.stopPropagation();
-					setEffectDropHovered(false);
-					showNotification('Could not read effect drag data', 3000);
-				}
-
-				return;
-			}
-
 			event.preventDefault();
 			event.stopPropagation();
 			setEffectDropHovered(false);
 
-			await addEffectFromDragData({
-				dragData,
+			await addEffectFromDrop({
+				dataTransfer: event.dataTransfer,
 				fileName: effectDrop.fileName,
 				nodePathInfo: effectDrop.nodePathInfo,
 				clientId: effectDrop.clientId,
@@ -440,9 +440,12 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	return (
 		<CanvasOutlinePolygon
 			ref={polygonRef}
+			{...annotationAttributes}
 			{...{
 				[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true',
 				[SELECTED_OUTLINE_KEY_ATTR]: outline.key,
+				[LUT_EFFECT_DROP_TARGET_ATTR]:
+					getEffectDropTarget() !== null ? 'true' : undefined,
 			}}
 			outline={outline}
 			directlySelected={directlySelected}

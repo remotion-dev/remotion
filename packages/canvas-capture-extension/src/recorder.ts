@@ -364,6 +364,7 @@ export class CanvasCaptureRecorder {
 	readonly #options: CanvasCaptureRecorderOptions;
 	#recording: RecordingState | null = null;
 	#recordingAction: Promise<void> = Promise.resolve();
+	#cursorPosition: {clientX: number; clientY: number} | null = null;
 	#disposed = false;
 
 	constructor(options: CanvasCaptureRecorderOptions) {
@@ -371,6 +372,11 @@ export class CanvasCaptureRecorder {
 		window.addEventListener('pointermove', this.#onCursorMove);
 		// Native HTML drag-and-drop suppresses pointermove events while dragging.
 		window.addEventListener('dragover', this.#onCursorMove, true);
+		window.addEventListener('wheel', this.#onCursorMove, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener('scroll', this.#recordCursorPosition, true);
 		window.addEventListener('pointerdown', this.#onPointerDown, true);
 		window.addEventListener('pointerup', this.#onPointerUp, true);
 	}
@@ -445,6 +451,7 @@ export class CanvasCaptureRecorder {
 			captureMetadata: null,
 			isFinalizing: false,
 		};
+		this.#recordCursorPosition();
 	};
 
 	stopRecording = async (): Promise<File | null> => {
@@ -519,6 +526,8 @@ export class CanvasCaptureRecorder {
 		this.#disposed = true;
 		window.removeEventListener('pointermove', this.#onCursorMove);
 		window.removeEventListener('dragover', this.#onCursorMove, true);
+		window.removeEventListener('wheel', this.#onCursorMove, true);
+		window.removeEventListener('scroll', this.#recordCursorPosition, true);
 		window.removeEventListener('pointerdown', this.#onPointerDown, true);
 		window.removeEventListener('pointerup', this.#onPointerUp, true);
 
@@ -535,24 +544,28 @@ export class CanvasCaptureRecorder {
 	};
 
 	#onCursorMove = (event: MouseEvent) => {
+		this.#cursorPosition = {clientX: event.clientX, clientY: event.clientY};
+		this.#recordCursorPosition();
+	};
+
+	#recordCursorPosition = () => {
 		const recording = this.#recording;
-		if (!recording || recording.isFinalizing) {
+		if (!recording || recording.isFinalizing || !this.#cursorPosition) {
 			return;
 		}
 
+		const {clientX, clientY} = this.#cursorPosition;
 		const rect = this.#options.getContentRect();
 		const density = this.#options.getDensity();
 		recording.mouseMovements.push({
 			timeInSeconds: (performance.now() - recording.startedAt) / 1000,
-			clientX: event.clientX,
-			clientY: event.clientY,
-			pageX: event.pageX,
-			pageY: event.pageY,
-			canvasX: (event.clientX - rect.left) * density,
-			canvasY: (event.clientY - rect.top) * density,
-			cursor: getCursorForElement(
-				document.elementFromPoint(event.clientX, event.clientY),
-			),
+			clientX,
+			clientY,
+			pageX: clientX + window.scrollX,
+			pageY: clientY + window.scrollY,
+			canvasX: (clientX - rect.left) * density,
+			canvasY: (clientY - rect.top) * density,
+			cursor: getCursorForElement(document.elementFromPoint(clientX, clientY)),
 		});
 	};
 

@@ -64,7 +64,6 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.rotate'],
 		effects: [],
-		videoConfigValues,
 	});
 	expect(status.props['style.rotate']).toMatchObject({
 		status: 'keyframed',
@@ -126,9 +125,13 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		videoConfigValues,
 	});
-	expect(status.props['style.scale']).toMatchObject({
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(
+			status.props,
+			videoConfigValues,
+		)['style.scale'],
+	).toMatchObject({
 		status: 'keyframed',
 		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
@@ -177,9 +180,13 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.opacity'],
 		effects: [],
-		videoConfigValues,
 	});
-	expect(status.props['style.opacity']).toMatchObject({
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(
+			status.props,
+			videoConfigValues,
+		)['style.opacity'],
+	).toMatchObject({
 		status: 'keyframed',
 		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
@@ -223,9 +230,13 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.opacity'],
 		effects: [],
-		videoConfigValues,
 	});
-	expect(status.props['style.opacity']).toMatchObject({
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(
+			status.props,
+			videoConfigValues,
+		)['style.opacity'],
+	).toMatchObject({
 		status: 'keyframed',
 		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
@@ -236,10 +247,43 @@ export const Example: React.FC = () => {
 				frameExpression: {
 					type: 'video-config-subtraction',
 					identifier: 'durationInFrames',
-					minuend: 120,
+					binding: {type: 'video-config', field: 'durationInFrames'},
 					subtrahend: 2,
 				},
 			},
+		],
+	});
+
+	const resized = await updateSequenceKeyframes({
+		input: output,
+		nodePath: updatedNodePath,
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'move', moves: [{fromFrame: 358, toFrame: 349}]},
+			},
+		],
+		videoConfigValues: {...videoConfigValues, durationInFrames: 360},
+	});
+	expect(resized.output).toContain('[0, durationInFrames - 11]');
+	const resizedStatus = computeSequencePropsStatusFromContent({
+		fileContents: resized.output,
+		nodePath: resized.updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+	});
+	// The same edited source must still evaluate in another mounted instance.
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(resizedStatus.props, {
+			...videoConfigValues,
+			durationInFrames: 400,
+		})['style.opacity'],
+	).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 0.35},
+			{frame: 389, value: 1},
 		],
 	});
 });
@@ -711,7 +755,6 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		videoConfigValues: null,
 	});
 	expect(status.props['style.scale']).toMatchObject({
 		status: 'keyframed',
@@ -1310,7 +1353,6 @@ export const Example: React.FC = () => {
 	expect(output).toContain('useCurrentFrame');
 	expect(output).toContain('interpolate');
 	const status = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -1487,7 +1529,6 @@ export default CenteredSolid;
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
 	const status = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -1757,7 +1798,6 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	expect(newValueStrings).toEqual(['320']);
 	expect(output).toContain('scale: 320');
 	const status = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -1999,7 +2039,6 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	expect(newValueStrings).toEqual(["'blue'"]);
 	expect(output).toContain("color={'blue'}");
 	const status = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,

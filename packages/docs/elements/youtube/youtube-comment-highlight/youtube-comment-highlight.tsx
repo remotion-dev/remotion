@@ -6,6 +6,8 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
 } from 'remotion';
 
 loadFont('normal', {
@@ -13,8 +15,11 @@ loadFont('normal', {
 	weights: ['500', '600', '700'],
 });
 
-export const YouTubeCommentHighlight: React.FC = () => {
+const YouTubeCommentHighlightInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<div
@@ -24,6 +29,7 @@ export const YouTubeCommentHighlight: React.FC = () => {
 				perspectiveOrigin: '50% 50%',
 				position: 'relative',
 				width: 1120,
+				...style,
 			}}
 		>
 			<div
@@ -46,7 +52,7 @@ export const YouTubeCommentHighlight: React.FC = () => {
 					transformOrigin: '50% 50%',
 					translate: interpolate(
 						frame,
-						[0, 48, 131, 179],
+						[0, 48, durationInFrames - 49, durationInFrames - 1],
 						['0px 760px', '0px 0px', '0px 0px', '0px 760px'],
 						{
 							easing: [
@@ -218,3 +224,10 @@ export const YouTubeCommentHighlight: React.FC = () => {
 		</div>
 	);
 };
+
+export const YouTubeCommentHighlight = Interactive.withSchema({
+	Component: YouTubeCommentHighlightInner,
+	componentName: '<YouTubeCommentHighlight>',
+	schema: {},
+	wrapInSequence: true,
+});

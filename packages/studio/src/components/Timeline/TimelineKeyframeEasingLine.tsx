@@ -1,4 +1,4 @@
-import {canvasKeyframeEasingPresets} from '@remotion/canvas';
+import {canvasKeyframeEasingPresets} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -8,6 +8,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {EasingPresetPreview} from './EasingEditorModal';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
@@ -89,7 +90,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			toFrame,
 			segmentIndex,
 		});
-	useTimelineMarqueeSelectableItem(selectionItem, buttonRef);
+	useTimelineMarqueeSelectableItem(selectionItem, buttonRef, null);
 	const interactiveStyle = useMemo(
 		() => ({
 			...style,
@@ -103,8 +104,8 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
@@ -124,7 +125,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			const promise = updateSelectedTimelineEasings({
 				selections: getTargetSelections(),
 				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				propStatuses: propStatusesRef.current,
 				setPropStatuses,
 				clientId: previewServerState.clientId,
@@ -134,7 +135,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		},
 		[
 			getTargetSelections,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			previewServerState,
 			propStatusesRef,
 			sequencesRef,

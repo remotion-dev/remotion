@@ -9,7 +9,7 @@ Prefer timing props directly on built-in interactive components and custom
 components made with `Interactive.withSchema({wrapInSequence: true})`.  
 Avoid wrapping a single timing-capable component in a redundant `<Sequence>`.
 Put `name`, `from`, `durationInFrames`, `loop`, `volume`, and `premountFor`
-directly on `<Audio>` whenever their combination gives the intended timing.
+directly on `<Audio>` from `@remotion/media` whenever their combination gives the intended timing.
 
 See [Remotion Interactivity](../remotion-interactivity/SKILL.md) for creating
 schema-wrapped components and [connected compositions](connected-compositions.md)
@@ -34,7 +34,7 @@ Set `premountFor={fps}` on every timed component that supports the prop, using
 `fps` from `useVideoConfig()`. This mounts it one second before its start in
 Studio, allowing media and other content to prepare. Put the prop directly on
 the timed component, including `<Audio>`, `<Video>`, interactive components,
-`<Sequence>`, `<Series.Sequence>`, `<TransitionSeries.Sequence>`, and
+`<Sequence>`, `<TransitionSeries.Sequence>`, and
 `<TransitionSeries.Overlay>`:
 
 ```tsx
@@ -46,7 +46,7 @@ parent starts. The composition cannot premount before frame 0.
 
 ## TransitionSeries
 
-Use `<TransitionSeries>` for consecutive scenes that may need transitions. Without a transition, the scenes play without overlap. Use `<Series>` from `remotion` when transitions are not needed.
+Use `<TransitionSeries>` for consecutive scenes, with or without transitions. Without a transition, the scenes play without overlap.
 
 ```tsx
 import { TransitionSeries } from "@remotion/transitions";

@@ -28,6 +28,7 @@ import {startCancellationPolling} from '../cancellation-polling';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
+import {renderImageSequenceChunk} from '../render-image-sequence-chunk';
 
 type Options = {
 	expectedBucketOwner: string | null;
@@ -121,6 +122,27 @@ const renderHandler = async <Provider extends CloudProvider>({
 
 	onBrowserInstance(browserInstance);
 
+	if (params.output.type === 'sequence') {
+		await renderImageSequenceChunk({
+			params,
+			browser: browserInstance.instance,
+			chromiumOptions,
+			serializedInputProps: await inputPropsPromise,
+			serializedResolvedProps: await resolvedPropsPromise,
+			expectedBucketOwner: options.expectedBucketOwner,
+			onStream,
+			logs,
+			cancelSignal,
+			providerSpecifics,
+			insideFunctionSpecifics,
+		});
+		return {};
+	}
+
+	if (params.codec === null) {
+		throw new Error('Media renders require a codec');
+	}
+
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
 
 	if (typeof params.chunk !== 'number') {
@@ -147,10 +169,12 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
 	const chunk = `localchunk-${String(params.chunk).padStart(8, '0')}`;
-	const defaultAudioCodec = RenderInternals.getDefaultAudioCodec({
-		codec: params.codec,
-		preferLossless: params.preferLossless,
-	});
+	const defaultAudioCodec =
+		params.audioCodec ??
+		RenderInternals.getDefaultAudioCodec({
+			codec: params.codec,
+			preferLossless: params.preferLossless,
+		});
 
 	const seamlessAudio = RenderInternals.canConcatAudioSeamlessly(
 		defaultAudioCodec,
@@ -342,6 +366,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			browserExecutable: providerSpecifics.getChromiumPath(),
 			cancelSignal: cancelSignal ?? undefined,
 			disallowParallelEncoding: false,
+			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 			ffmpegOverride: ({args}) => args,
 			indent: false,
 			onCtrlCExit: () => undefined,

@@ -8,7 +8,7 @@ export const disableGitSourceOption = {
 	cliFlag,
 	description: () =>
 		`Disables the Git Source being connected to the Remotion Studio. Clicking on stack traces and certain menu items will be disabled.`,
-	docLink: 'https://remotion.dev/docs/bundle',
+	docLink: 'https://www.remotion.dev/docs/options/disable-git-source',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
 			return {
@@ -23,6 +23,7 @@ export const disableGitSourceOption = {
 		};
 	},
 	name: 'Disable Git source',
+	addedIn: '4.0.182',
 	setConfig: () => {
 		throw new Error('Not implemented');
 	},

@@ -6,6 +6,8 @@ const baseStyle: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	minHeight: '100%',
+	// Keep timeline overlays below modals.
+	isolation: 'isolate',
 	overflowX: 'hidden',
 	backgroundColor: TIMELINE_BACKGROUND,
 };

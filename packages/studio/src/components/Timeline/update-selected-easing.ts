@@ -2,7 +2,7 @@ import {
 	CanvasInternals,
 	getCanvasKeyframeChangeOverride,
 	type CanvasKeyframeEasing,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	DragOverrideValue,

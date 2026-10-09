@@ -66,6 +66,7 @@ test('consumes an initial Element payload only once', () => {
 			...payload.element,
 			durationInFrames: 60,
 			installationMode: 'wrapped',
+			isCaptionStyle: false,
 		},
 		sourceOrigin: 'https://elements.example.test',
 	});
@@ -279,12 +280,6 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -375,12 +370,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -472,12 +461,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!currentSubscription.success) {
 		throw new Error('Expected the updated Video node path');
@@ -878,12 +861,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -896,6 +873,7 @@ registerRoot(Root);`,
 				nodePath: subscription.nodePath.nodePath,
 				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 				splitFrame: 10,
+				videoConfigValues: subscription.nodePath.videoConfigValues,
 			},
 		],
 	});
@@ -913,6 +891,7 @@ registerRoot(Root);`,
 				nodePath: subscription.nodePath.nodePath,
 				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 				splitFrame: 15,
+				videoConfigValues: subscription.nodePath.videoConfigValues,
 			},
 		],
 	});
@@ -966,6 +945,7 @@ const makeOperationsForProject = (project: VirtualProject) => {
 
 test('wraps JSX as an undoable virtual project mutation', async () => {
 	const fileName = '/project/src/Composition.tsx';
+	const compositionId = 'MyComp';
 	const initialContents = `import {AbsoluteFill} from 'remotion';
 
 export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
@@ -984,13 +964,25 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 
 	const result = await operations.wrapNode({
 		fileName,
+		compositionId,
 		nodePath,
 		wrapper: 'Sequence',
 		width: null,
 		height: null,
 		timing: null,
 	});
-	expect(result.success).toBe(true);
+	expect(result).toMatchObject({
+		success: true,
+		nodePathMutation: {
+			timelineSelection: {
+				compositionId,
+				absolutePath: fileName,
+				nodePath: getNodes({project: getProject(), filePath: fileName}).find(
+					({tagName}) => tagName === 'Sequence',
+				)?.nodePath,
+			},
+		},
+	});
 	expect(getProject().files[fileName]).toContain('<Sequence>');
 	expect(getProject().files[fileName]).toContain('<AbsoluteFill>');
 	expect(await operations.undo()).toMatchObject({success: true});
@@ -1032,12 +1024,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -1126,12 +1112,6 @@ export const Comp = () => {
 		assetKeys: [],
 		effects: [['amount']],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription');
@@ -1480,20 +1460,20 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 
 	const rootFile = getProject().files['/project/src/Root.tsx'];
 	const componentFile = getProject().files['/project/src/CanvasComp.tsx'];
-	expect(rootFile).toContain('<CanvasComp');
+	expect(rootFile).toContain('id="CanvasComp"');
+	expect(rootFile).toContain('component={CanvasComp}');
 	expect(rootFile).toContain('import { CanvasComp } from "./CanvasComp"');
 	expect(componentFile).toContain("src={staticFile('capture.mp4')}");
 	expect(componentFile).toContain('<MacOSCursor');
 	expect(componentFile).toContain('translate: interpolate(');
-	expect(componentFile).toContain("id={'CanvasComp'}");
-	expect(componentFile).toContain('width={1920}');
-	expect(componentFile).toContain('height={1080}');
+	expect(rootFile).toContain('width={1920}');
+	expect(rootFile).toContain('height={1080}');
 
 	const undoResult = await operations.undo();
 	expect(undoResult.success).toBe(true);
 	expect(getProject().files['/project/src/CanvasComp.tsx']).toBeUndefined();
 	expect(getProject().files['/project/src/Root.tsx']).not.toContain(
-		'<CanvasComp',
+		'id="CanvasComp"',
 	);
 });
 
@@ -1637,12 +1617,6 @@ registerRoot(Root);`,
 			assetKeys: [],
 			effects: [],
 			clientId: 'browser-studio',
-			videoConfigValues: {
-				durationInFrames: 60,
-				fps: 30,
-				height: 720,
-				width: 1280,
-			},
 		});
 		if (!subscription.success) {
 			throw new Error('Expected sequence props subscription to succeed');
@@ -1656,21 +1630,21 @@ registerRoot(Root);`,
 
 	const identicalFailure = await operations.reorderSequence({
 		fileName: 'src/Composition.tsx',
-		sourceNodePath: firstNodePath,
+		sourceNodePaths: [firstNodePath],
 		targetNodePath: firstNodePath,
 		position: 'after',
 		clientId: 'browser-studio',
 	});
 	expect(identicalFailure).toMatchObject({
 		success: false,
-		reason: 'Cannot reorder sequence: source and target are identical',
+		reason: 'Cannot reorder sequences relative to a selected sequence',
 		stack: expect.any(String),
 	});
 	expect(getProject().files[fileName]).toBe(initialContents);
 
 	const result = await operations.reorderSequence({
 		fileName: 'src/Composition.tsx',
-		sourceNodePath: firstNodePath,
+		sourceNodePaths: [firstNodePath],
 		targetNodePath: secondNodePath,
 		position: 'after',
 		clientId: 'browser-studio',
@@ -1909,12 +1883,6 @@ export const Comp = () => (
 		assetKeys: [],
 		effects: [['amount'], ['amount']],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription');

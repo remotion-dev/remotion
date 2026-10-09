@@ -13,6 +13,10 @@ import {
 } from '../preview-server/routes/update-config';
 
 const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
+	showPremounting: null,
+	defaultPremountInSeconds: null,
+	experimentalSequenceActivityEnabled: false,
+	experimentalSequenceActivityLimit: 20,
 	askAIEnabled: false,
 	bufferStateDelayInMilliseconds: null,
 	canvasTabsEnabled: true,
@@ -22,6 +26,7 @@ const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
 	elementLibraries: elementLibraryUrls.map((url) => ({
 		displayName: null,
 		url,
+		captionStylesUrl: null,
 	})),
 	interactivityEnabled: true,
 	keyboardShortcutsEnabled: true,

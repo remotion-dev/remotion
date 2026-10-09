@@ -31,6 +31,7 @@ import {
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
@@ -241,6 +242,7 @@ const CanvasImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
 		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);
@@ -634,25 +636,29 @@ const CanvasImageInner = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<CanvasImageContent
-						ref={actualRef}
-						src={src}
-						crossOrigin={crossOrigin}
-						width={width}
-						height={height}
-						fit={fit}
-						effects={effects}
-						controls={controls}
-						className={className}
-						style={croppedStyle ?? undefined}
-						id={id}
-						onError={onError}
-						pauseWhenLoading={pauseWhenLoading}
-						maxRetries={maxRetries}
-						delayRenderRetries={delayRenderRetries}
-						delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-						{...canvasProps}
-					/>
+					<SequenceContent>
+						<CanvasImageContent
+							ref={actualRef}
+							src={src}
+							crossOrigin={crossOrigin}
+							width={width}
+							height={height}
+							fit={fit}
+							effects={effects}
+							controls={controls}
+							className={className}
+							style={croppedStyle ?? undefined}
+							id={id}
+							onError={onError}
+							pauseWhenLoading={pauseWhenLoading}
+							maxRetries={maxRetries}
+							delayRenderRetries={delayRenderRetries}
+							delayRenderTimeoutInMilliseconds={
+								delayRenderTimeoutInMilliseconds
+							}
+							{...canvasProps}
+						/>
+					</SequenceContent>
 				</Sequence>
 			</Freeze>
 		);

@@ -98,7 +98,8 @@ Set a static volume (0 to 1):
 Use `useCurrentFrame()` and `interpolate()` for keyframed volume:
 
 ```tsx
-import { interpolate, useCurrentFrame } from "remotion";
+import { Video } from "@remotion/media";
+import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 const frame = useCurrentFrame();
 const { fps } = useVideoConfig();
@@ -114,7 +115,7 @@ return (
 );
 ```
 
-With Studio interactivity enabled, these keyframes can be edited and are shown as a volume curve in the timeline. A callback is still supported when the curve should be procedural or relative to the start of the media.
+With Studio interactivity enabled, these keyframes can be edited and are shown as a volume curve in the timeline.
 
 Use `muted` to silence the video entirely:
 
@@ -143,17 +144,19 @@ Use `loop` to loop the video indefinitely:
 <Video src={staticFile("video.mp4")} loop />
 ```
 
-Use `loopVolumeCurveBehavior` to control how the frame count behaves when looping:
-
-- `"repeat"`: Frame count resets to 0 each loop (for `volume` callback)
-- `"extend"`: Frame count continues incrementing
-
 ```tsx
+import { Video } from "@remotion/media";
+import { interpolate, staticFile, useCurrentFrame } from "remotion";
+
+const frame = useCurrentFrame();
+
 <Video
   src={staticFile("video.mp4")}
   loop
-  loopVolumeCurveBehavior="extend"
-  volume={(f) => interpolate(f, [0, 300], [1, 0])} // Fade out over multiple loops
+  volume={interpolate(frame, [0, 300], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  })}
 />
 ```
 

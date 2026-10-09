@@ -23,6 +23,8 @@ import {pickFilesToImport} from './import-assets';
 import {
 	InspectorQuickAction,
 	inspectorActionIconStyle,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './InspectorPanel/common';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -237,11 +239,12 @@ const WelcomeActions: React.FC = () => {
 							</InspectorQuickAction>
 							<InspectorQuickAction
 								disabled={false}
+								iconContainerStyle={largeInspectorActionIconContainerStyle}
 								onClick={browseElements}
 								renderIcon={(color) => (
 									<BrowseElementsIcon
 										color={color}
-										style={inspectorActionIconStyle}
+										style={largeInspectorActionIconStyle}
 									/>
 								)}
 							>

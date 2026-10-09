@@ -30,7 +30,7 @@ The same goes for the FFmpeg process.
 
 ## Lower the memory usage of Remotion
 
-You can decrease the cache size of Remotion using the [`offthreadVideoCacheSizeInBytes`](/docs/renderer/select-composition#offthreadvideocachesizeinbytes).
+You can decrease the cache size of Remotion using the [`offthreadVideoCacheSizeInBytes`](/docs/options/offthreadvideo-cache-size-in-bytes).
 
 ## Ensure your Remotion version is up to date
 
@@ -40,6 +40,10 @@ The last version with improvements is [`v4.0.171`](https://remotion.dev/changelo
 ## Lower the concurrency of Remotion
 
 Set a lower [`concurrency`](/docs/terminology/concurrency) to open less browser tabs at once and thus less memory.
+
+## Disallow parallel encoding
+
+[Parallel encoding](/docs/parallel-encoding) encodes video while frames are still being rendered, so the browser and FFmpeg need memory at the same time. Use the [`disallowParallelEncoding` option](/docs/options/disallow-parallel-encoding) to only start encoding once all frames are rendered. This lowers the peak memory usage, but may make rendering slower.
 
 ## Allocate more memory to your system
 

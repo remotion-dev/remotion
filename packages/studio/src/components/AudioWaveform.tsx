@@ -1,8 +1,8 @@
 import {
 	drawBars,
 	getVisibleWaveformVolume,
-	sliceVisibleWaveformPeaks,
 	subscribeToWaveformPeaks,
+	type WaveformDrawRange,
 	type WaveformVolume,
 } from '@remotion/timeline-utils';
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
@@ -32,13 +32,11 @@ const waveformCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
 	flexShrink: 0,
 	position: 'relative',
-	zIndex: 1,
 };
 
 const volumeCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
 	position: 'absolute',
-	zIndex: 0,
 };
 
 const AudioWaveformInner: React.FC<{
@@ -102,6 +100,8 @@ const AudioWaveformInner: React.FC<{
 			volume,
 		});
 	}, [displayDurationInFrames, displayOffsetInFrames, muted, volume]);
+	const waveformVolume =
+		shouldRenderVolumeOverlay && !muted ? 1 : visibleVolume;
 
 	// Layout effect so that a cache hit sets the peaks synchronously and the
 	// waveform is painted on the very first frame after mounting.
@@ -117,29 +117,25 @@ const AudioWaveformInner: React.FC<{
 		});
 	}, [src, waveformSampleRate]);
 
-	const portionPeaks = useMemo(() => {
-		if (!peaks) {
-			return null;
-		}
-
-		return sliceVisibleWaveformPeaks({
-			displayDurationInFrames,
-			displayOffsetInFrames: displayOffsetInFrames + loopDisplayOffsetInFrames,
-			durationInFrames,
-			fps: vidConf.fps,
-			loopDisplay,
-			peaks,
-			playbackRate,
-			startFrom,
-			waveformSampleRate,
-		});
+	const peakRange = useMemo((): WaveformDrawRange => {
+		const peaksPerFrame = (waveformSampleRate * playbackRate) / vidConf.fps;
+		const loop = loopDisplay !== undefined && loopDisplay.durationInFrames > 0;
+		return {
+			sourceStart: (startFrom / vidConf.fps) * waveformSampleRate,
+			sourceDuration:
+				(loop ? loopDisplay.durationInFrames : durationInFrames) *
+				peaksPerFrame,
+			displayStart:
+				(displayOffsetInFrames + loopDisplayOffsetInFrames) * peaksPerFrame,
+			displayDuration: displayDurationInFrames * peaksPerFrame,
+			loop,
+		};
 	}, [
 		displayDurationInFrames,
 		displayOffsetInFrames,
 		durationInFrames,
 		loopDisplay,
 		loopDisplayOffsetInFrames,
-		peaks,
 		playbackRate,
 		startFrom,
 		vidConf.fps,
@@ -166,16 +162,17 @@ const AudioWaveformInner: React.FC<{
 
 		drawBars({
 			canvas: canvasElement,
-			peaks: portionPeaks ?? EMPTY_PEAKS,
+			peaks: peaks ?? EMPTY_PEAKS,
+			range: peakRange,
 			color: resolveStudioColor(
 				WHITE_ALPHA_60,
 				getComputedStyle(canvasElement),
 			),
-			volume: visibleVolume,
+			volume: waveformVolume,
 			width: drawingWidth,
 			horizontalOffset,
 		});
-	}, [height, portionPeaks, visibleVolume, visualizationWidth]);
+	}, [height, peakRange, peaks, visualizationWidth, waveformVolume]);
 
 	useLayoutEffect(() => {
 		if (!shouldRenderVolumeOverlay || !peaks) {
@@ -219,20 +216,40 @@ const AudioWaveformInner: React.FC<{
 		context.moveTo(0, 0);
 		// The canvas only spans the virtualized range. Sampling by its physical
 		// width keeps drawing work bounded to the visible part of the timeline.
-		const numberOfPoints = Math.max(2, Math.ceil(drawingWidth));
+		const numberOfPoints = Math.min(
+			visibleVolume.length,
+			Math.max(1, Math.ceil(drawingWidth)),
+		);
 		for (let point = 0; point < numberOfPoints; point++) {
-			const progress = point / (numberOfPoints - 1);
-			const volumeIndex = progress * (visibleVolume.length - 1);
-			const leftIndex = Math.floor(volumeIndex);
-			const rightIndex = Math.ceil(volumeIndex);
-			const leftVolume = visibleVolume[leftIndex] ?? 1;
-			const rightVolume = visibleVolume[rightIndex] ?? leftVolume;
-			const interpolatedVolume =
-				leftVolume + (rightVolume - leftVolume) * (volumeIndex - leftIndex);
-			const x = progress * drawingWidth;
-			const unclampedY = (1 - interpolatedVolume / visualizationMaxVolume) * h;
+			const volumeIndex = Math.floor(
+				(point / numberOfPoints) * visibleVolume.length,
+			);
+			const nextVolumeIndex = Math.floor(
+				((point + 1) / numberOfPoints) * visibleVolume.length,
+			);
+			const firstFrame = Math.max(0, Math.floor(displayOffsetInFrames));
+			const x = Math.max(
+				0,
+				((firstFrame + volumeIndex - displayOffsetInFrames) /
+					displayDurationInFrames) *
+					drawingWidth,
+			);
+			const nextX =
+				point === numberOfPoints - 1
+					? drawingWidth
+					: Math.min(
+							drawingWidth,
+							((firstFrame + nextVolumeIndex - displayOffsetInFrames) /
+								displayDurationInFrames) *
+								drawingWidth,
+						);
+			const unclampedY =
+				(1 - (visibleVolume[volumeIndex] ?? 1) / visualizationMaxVolume) * h;
 			const y = Math.max(0, Math.min(h, unclampedY));
+			// Volume samples apply for one frame. Keep each value until the next
+			// frame boundary instead of blending a hold into a diagonal ramp.
 			context.lineTo(x, y);
+			context.lineTo(nextX, y);
 		}
 
 		context.lineTo(drawingWidth, 0);
@@ -243,6 +260,8 @@ const AudioWaveformInner: React.FC<{
 		);
 		context.fill();
 	}, [
+		displayDurationInFrames,
+		displayOffsetInFrames,
 		height,
 		peaks,
 		shouldRenderVolumeOverlay,

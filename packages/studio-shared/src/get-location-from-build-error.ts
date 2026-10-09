@@ -44,7 +44,10 @@ export const getLocationFromBuildError = (err: Error): ErrorLocation | null => {
 					return null;
 				}
 
-				if (s.includes('webpackMissingModule')) {
+				if (
+					s.includes('webpackMissingModule') ||
+					s.includes('__rspack_missing_module')
+				) {
 					return null;
 				}
 

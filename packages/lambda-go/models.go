@@ -20,6 +20,7 @@ type RemotionOptions struct {
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
+	SeparateAudioTo                interface{}            `json:"separateAudioTo"`
 	TimeoutInMilliseconds          int                    `json:"timeoutInMilliseconds"`
 	ChromiumOptions                interface{}            `json:"chromiumOptions"`
 	Scale                          int                    `json:"scale"`
@@ -53,20 +54,72 @@ type RemotionOptions struct {
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
 	GopSize                        *int                   `json:"gopSize"`
+	DisableSharedMemoryCapture     bool                   `json:"disableSharedMemoryCapture"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
 	IsProduction                   *bool                  `json:"isProduction"`
 	SampleRate                     int                    `json:"sampleRate"`
 }
 
+// RenderFramesOptions configures a PNG or JPEG image sequence render.
+type RenderFramesOptions struct {
+	ServeUrl                       string                 `json:"serveUrl" validate:"required"`
+	FunctionName                   string                 `json:"functionName" validate:"required"`
+	Region                         string                 `json:"region" validate:"required"`
+	Composition                    string                 `json:"composition" validate:"required"`
+	InputProps                     interface{}            `json:"inputProps"`
+	ImageFormat                    string                 `json:"imageFormat"`
+	OutputPrefix                   interface{}            `json:"outputPrefix"`
+	ImageSequencePattern           string                 `json:"imageSequencePattern"`
+	JpegQuality                    *int                   `json:"jpegQuality"`
+	FrameRange                     interface{}            `json:"frameRange"`
+	FramesPerLambda                *int                   `json:"framesPerLambda"`
+	Concurrency                    *int                   `json:"concurrency"`
+	ConcurrencyPerLambda           int                    `json:"concurrencyPerLambda"`
+	EveryNthFrame                  int                    `json:"everyNthFrame"`
+	EnvVariables                   interface{}            `json:"envVariables"`
+	Privacy                        string                 `json:"privacy"`
+	ChromiumOptions                interface{}            `json:"chromiumOptions"`
+	Scale                          float64                `json:"scale"`
+	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
+	Overwrite                      bool                   `json:"overwrite"`
+	MaxRetries                     *int                   `json:"maxRetries"`
+	Webhook                        interface{}            `json:"webhook"`
+	ForceWidth                     interface{}            `json:"forceWidth"`
+	ForceHeight                    interface{}            `json:"forceHeight"`
+	ForceFps                       interface{}            `json:"forceFps"`
+	ForceDurationInFrames          interface{}            `json:"forceDurationInFrames"`
+	RendererFunctionName           string                 `json:"rendererFunctionName"`
+	ForceBucketName                string                 `json:"forceBucketName"`
+	ForcePathStyle                 bool                   `json:"forcePathStyle"`
+	StorageClass                   interface{}            `json:"storageClass"`
+	IsProduction                   *bool                  `json:"isProduction"`
+	LicenseKey                     interface{}            `json:"licenseKey"`
+	LogLevel                       string                 `json:"logLevel"`
+	TimeoutInMilliseconds          int                    `json:"timeoutInMilliseconds"`
+	DeleteAfter                    *string                `json:"deleteAfter"`
+	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
+	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
+	MediaCacheSizeInBytes          interface{}            `json:"mediaCacheSizeInBytes"`
+	EnableCancellation             bool                   `json:"enableCancellation"`
+}
+
+// ImageSequenceOutputPrefix selects a custom bucket or S3-compatible provider.
+type ImageSequenceOutputPrefix struct {
+	BucketName       string      `json:"bucketName"`
+	KeyPrefix        string      `json:"keyPrefix"`
+	S3OutputProvider interface{} `json:"s3OutputProvider"`
+}
+
 type renderInternalOptions struct {
 	EnableCancellation             bool                   `json:"enableCancellation"`
 	RendererFunctionName           *string                `json:"rendererFunctionName"`
-	FramesPerLambda                *string                `json:"framesPerLambda"`
+	FramesPerLambda                *int                   `json:"framesPerLambda"`
 	Composition                    string                 `json:"composition" validate:"required"`
 	ServeUrl                       string                 `json:"serveUrl" validate:"required"`
 	InputProps                     interface{}            `json:"inputProps"`
 	Type                           string                 `json:"type,omitempty"`
-	Codec                          string                 `json:"codec"`
+	Output                         map[string]interface{} `json:"output"`
+	Codec                          *string                `json:"codec"`
 	ProResProfile                  interface{}            `json:"proResProfile"`
 	PixelFormat                    interface{}            `json:"pixelFormat"`
 	ImageFormat                    string                 `json:"imageFormat"`
@@ -80,9 +133,10 @@ type renderInternalOptions struct {
 	LogLevel                       string                 `json:"logLevel"`
 	FrameRange                     interface{}            `json:"frameRange"`
 	OutName                        interface{}            `json:"outName"`
+	SeparateAudioTo                interface{}            `json:"separateAudioTo"`
 	TimeoutInMilliseconds          int                    `json:"timeoutInMilliseconds"`
 	ChromiumOptions                interface{}            `json:"chromiumOptions"`
-	Scale                          int                    `json:"scale"`
+	Scale                          float64                `json:"scale"`
 	EveryNthFrame                  int                    `json:"everyNthFrame"`
 	NumberOfGifLoops               *int                   `json:"numberOfGifLoops,omitempty"`
 	ConcurrencyPerLambda           int                    `json:"concurrencyPerLambda"`
@@ -114,6 +168,7 @@ type renderInternalOptions struct {
 	Gl                             *string                `json:"gl,omitempty"`
 	X264Preset                     interface{}            `json:"x264Preset"`
 	GopSize                        *int                   `json:"gopSize"`
+	DisableSharedMemoryCapture     bool                   `json:"disableSharedMemoryCapture"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
 	IsProduction                   *bool                  `json:"isProduction"`
 	SampleRate                     int                    `json:"sampleRate"`
@@ -180,24 +235,43 @@ type FunctionErrorInfo struct {
 }
 
 type RenderProgress struct {
-	OverallProgress          float64             `json:"overallProgress"`
-	Chunks                   int                 `json:"chunks"`
-	Done                     bool                `json:"done"`
-	EncodingStatus           *EncodingStatus     `json:"encodingStatus,omitempty"`
-	Costs                    *Costs              `json:"costs,omitempty"`
-	RenderId                 string              `json:"renderId"`
-	RenderMetadata           *RenderMetadata     `json:"renderMetadata,omitempty"`
-	OutputFile               *string             `json:"outputFile,omitempty"`
-	OutKey                   *string             `json:"outKey,omitempty"`
-	TimeToFinish             *int                `json:"timeToFinish,omitempty"`
-	Errors                   []FunctionErrorInfo `json:"errors,omitempty"`
-	FatalErrorEncountered    bool                `json:"fatalErrorEncountered"`
-	CurrentTime              int64               `json:"currentTime"`
-	RenderSize               int64               `json:"renderSize"`
-	OutputSizeInBytes        *int64              `json:"outputSizeInBytes,omitempty"`
-	LambdasInvoked           int                 `json:"lambdasInvoked"`
-	FramesRendered           *int                `json:"framesRendered,omitempty"`
-	MostExpensiveFrameRanges []FrameRange        `json:"mostExpensiveFrameRanges,omitempty"`
+	OverallProgress          float64              `json:"overallProgress"`
+	Chunks                   int                  `json:"chunks"`
+	Done                     bool                 `json:"done"`
+	EncodingStatus           *EncodingStatus      `json:"encodingStatus,omitempty"`
+	Costs                    *Costs               `json:"costs,omitempty"`
+	RenderId                 string               `json:"renderId"`
+	RenderMetadata           *RenderMetadata      `json:"renderMetadata,omitempty"`
+	OutputFile               *string              `json:"outputFile,omitempty"`
+	SeparateAudio            *SeparateAudioOutput `json:"separateAudio"`
+	OutputSequence           *ImageSequenceOutput `json:"outputSequence"`
+	FramesUploaded           *int                 `json:"framesUploaded"`
+	OutKey                   *string              `json:"outKey,omitempty"`
+	TimeToFinish             *int                 `json:"timeToFinish,omitempty"`
+	Errors                   []FunctionErrorInfo  `json:"errors,omitempty"`
+	FatalErrorEncountered    bool                 `json:"fatalErrorEncountered"`
+	CurrentTime              int64                `json:"currentTime"`
+	RenderSize               int64                `json:"renderSize"`
+	OutputSizeInBytes        *int64               `json:"outputSizeInBytes,omitempty"`
+	LambdasInvoked           int                  `json:"lambdasInvoked"`
+	FramesRendered           *int                 `json:"framesRendered,omitempty"`
+	MostExpensiveFrameRanges []FrameRange         `json:"mostExpensiveFrameRanges,omitempty"`
+}
+
+type SeparateAudioOutput struct {
+	Url         string `json:"url"`
+	BucketName  string `json:"bucketName"`
+	Key         string `json:"key"`
+	SizeInBytes int64  `json:"sizeInBytes"`
+}
+
+type ImageSequenceOutput struct {
+	BucketName  string `json:"bucketName"`
+	KeyPrefix   string `json:"keyPrefix"`
+	ManifestKey string `json:"manifestKey"`
+	ManifestUrl string `json:"manifestUrl"`
+	ImageFormat string `json:"imageFormat"`
+	FrameCount  int    `json:"frameCount"`
 }
 
 type EncodingStatus struct {

@@ -1,10 +1,10 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
 import execa from 'execa';
 import {addTailwindRootCss, addTailwindToConfig} from './add-tailwind';
 import {createYarnYmlFile} from './add-yarn2-support';
 import {askSkills} from './ask-skills';
-import {askTailwind} from './ask-tailwind';
 import {createPublicFolder} from './create-public-folder';
 import {degit} from './degit';
 import {getCreateVideoHelp} from './help';
@@ -27,7 +27,7 @@ import {resolveProjectRoot} from './resolve-project-root';
 import {
 	getDirectoryArgument,
 	isHelpFlagSelected,
-	isNoTailwindFlagSelected,
+	isTailwindFlagSelected,
 	isTmpFlagSelected,
 	isYesFlagSelected,
 	selectTemplate,
@@ -159,13 +159,10 @@ export const init = async () => {
 		onError: Log.warn,
 	});
 
-	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
-		? isYesFlagSelected()
-			? !isNoTailwindFlagSelected()
-			: await askTailwind()
-		: false;
+	const shouldOverrideTailwind =
+		selectedTemplate.allowEnableTailwind && isTailwindFlagSelected();
 
-	const shouldInstallSkills = isYesFlagSelected() ? false : await askSkills();
+	const skillsInstallation = isYesFlagSelected() ? null : await askSkills();
 
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
@@ -203,13 +200,35 @@ export const init = async () => {
 		pkgManagerVersion,
 		projectRoot,
 	});
+	if (pkgManager === 'pnpm') {
+		const workspaceFile = path.join(projectRoot, 'pnpm-workspace.yaml');
+		if (!fs.existsSync(workspaceFile)) {
+			// pnpm 10 reads ignoredBuiltDependencies; pnpm 11 reads allowBuilds.
+			fs.writeFileSync(
+				workspaceFile,
+				'ignoredBuiltDependencies:\n  - esbuild\nallowBuilds:\n  esbuild: false\n',
+			);
+		}
+	}
+
+	Log.info('Installing dependencies...');
+	let installedDependencies = true;
+	try {
+		await execa.command(getInstallCommand(pkgManager), {
+			cwd: projectRoot,
+			stdio: 'inherit',
+		});
+	} catch (e) {
+		installedDependencies = false;
+		Log.error('Error installing dependencies:', e);
+	}
 
 	if (!isInsideGitRepo) {
 		await getGitStatus(projectRoot);
 	}
 
-	if (shouldInstallSkills) {
-		await installSkills(projectRoot);
+	if (skillsInstallation !== null) {
+		await installSkills(projectRoot, skillsInstallation);
 	}
 
 	const relativeToCurrent = path.relative(process.cwd(), projectRoot);
@@ -226,13 +245,16 @@ export const init = async () => {
 		Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
 	}
 
-	Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
+	if (!installedDependencies) {
+		Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
+	}
+
 	Log.info(' ' + chalk.blue(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
 	Log.info('To render a video, run:');
 	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
 	Log.info('');
-	Log.info('Links to get you started:');
+	Log.info('See the documentation:');
 	Log.info(
 		' ' +
 			chalk.blue(
@@ -240,16 +262,6 @@ export const init = async () => {
 					text: 'remotion.dev/docs',
 					url: 'https://www.remotion.dev/docs',
 					fallback: 'https://www.remotion.dev/docs',
-				}),
-			),
-	);
-	Log.info(
-		' ' +
-			chalk.blue(
-				makeHyperlink({
-					text: 'remotion.dev/prompts',
-					url: 'https://www.remotion.dev/prompts',
-					fallback: 'https://www.remotion.dev/prompts',
 				}),
 			),
 	);

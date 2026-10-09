@@ -18,12 +18,11 @@ Drag the slider below to adjust how close a pixel has to be to the key color to 
 import {colorKey} from '@remotion/effects/color-key';
 import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
 
 // ---cut---
 export const Greenscreen: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/greenscreen.mp4"
         effects={[
@@ -32,7 +31,7 @@ export const Greenscreen: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

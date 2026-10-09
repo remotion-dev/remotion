@@ -19,8 +19,10 @@ import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {darkModeOption} from './dark-mode';
 import {defaultCodingAgentOption} from './default-coding-agent';
 import {defaultEditorOption} from './default-editor';
+import {defaultPremountInSecondsOption} from './default-premount-in-seconds';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
+import {disableSharedMemoryCaptureOption} from './disable-shared-memory-capture';
 import {disableWebSecurityOption} from './disable-web-security';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {enableCancellationOption} from './enable-cancellation';
@@ -32,6 +34,9 @@ import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
 import {experimentalKeepAudioContextAliveOption} from './experimental-keep-audio-context-alive';
+import {experimentalSequenceActivityOption} from './experimental-sequence-activity';
+import {experimentalSequenceActivityLimitOption} from './experimental-sequence-activity-limit';
+import {experimentalTracksOption} from './experimental-tracks';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -82,6 +87,7 @@ import {runsOption} from './runs';
 import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {showPremountingOption} from './show-premounting';
 import {skipSkillsOption} from './skip-skills';
 import {stillFrameOption} from './still-frame';
 import {stillImageFormatOption} from './still-image-format';
@@ -98,6 +104,7 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	showPremountingOption,
 	allowHtmlInCanvasOption,
 	audioCodecOption,
 	benchmarkConcurrenciesOption,
@@ -119,6 +126,7 @@ export const allOptions = {
 	deleteAfterOption,
 	disableWebSecurityOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	folderExpiryOption,
 	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
@@ -162,6 +170,7 @@ export const allOptions = {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
 	publicLicenseKeyOption,
 	isProductionOption,
 	askAIOption,
@@ -171,6 +180,9 @@ export const allOptions = {
 	framesOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
+	experimentalTracksOption,
+	experimentalSequenceActivityOption,
+	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	stillImageFormatOption,

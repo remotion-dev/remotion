@@ -177,6 +177,10 @@ const ChannelInput: React.FC<ChannelInputProps> = ({
 
 		const clamped = Math.max(min, Math.min(max, parsed));
 		setDraft(String(Math.round(clamped)));
+		if (clamped === Math.round(value)) {
+			return;
+		}
+
 		onCommit(channel, clamped);
 	}, [channel, draft, max, min, onCommit, value]);
 
@@ -221,7 +225,12 @@ const HexInput: React.FC<{
 	const onBlur = useCallback(() => {
 		try {
 			const parsed = parseAnyColor(draft);
-			onCommit(formatRgba(parsed));
+			const next = formatRgba(parsed);
+			if (next === formatRgba(parseAnyColor(value))) {
+				return;
+			}
+
+			onCommit(next);
 		} catch {
 			setDraft(value);
 		}

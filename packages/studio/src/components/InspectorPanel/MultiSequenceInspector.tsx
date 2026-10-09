@@ -19,6 +19,7 @@ import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {getCurrentFrame} from '../Timeline/imperative-state';
 import {splitSelectedTimelineItems} from '../Timeline/split-selected-timeline-item';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -60,8 +61,7 @@ export const MultiSequenceInspector: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({selections, readOnlyStudio}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {sequences} = useContext(Internals.SequenceManager);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const sequences = Internals.useSequenceManagerSequences();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -188,7 +188,7 @@ export const MultiSequenceInspector: React.FC<{
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 			propStatuses,
-			splitFrame: timelinePosition,
+			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
 		canSplit,
@@ -196,7 +196,6 @@ export const MultiSequenceInspector: React.FC<{
 		propStatuses,
 		selections,
 		sequences,
-		timelinePosition,
 	]);
 
 	return (

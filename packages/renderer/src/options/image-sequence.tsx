@@ -6,6 +6,7 @@ let imageSequence = false;
 
 export const imageSequenceOption = {
 	name: 'Image Sequence',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -18,7 +19,7 @@ export const imageSequenceOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setimagesequence',
+	docLink: 'https://www.remotion.dev/docs/options/sequence',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {

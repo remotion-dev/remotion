@@ -82,7 +82,6 @@ export const updateMultipleNodeProps = <Project extends CodemodProject>({
 						project,
 						node: change.node,
 						keys,
-						videoConfig: change.videoConfig,
 					});
 			for (const key of keys) {
 				if (

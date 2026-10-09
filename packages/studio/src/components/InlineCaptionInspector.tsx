@@ -15,6 +15,7 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CaptionInspector} from './CaptionInspector';
+import {CaptionPlayheadHighlight} from './CaptionPlayheadHighlight';
 import {
 	saveInlineCaptionPatches,
 	saveSequenceProps,
@@ -132,7 +133,10 @@ export const InlineCaptionInspector: React.FC<{
 	readonly captions: Caption[];
 	readonly controls: SequenceRegistrationControls;
 	readonly expanded: boolean;
+	readonly getSequenceFrame: () => number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly onCaptionsRendered: () => void;
+	readonly onInitialCaptionScrollRef: React.RefObject<(() => void) | null>;
 	readonly onToggle: () => void;
 	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
@@ -140,7 +144,10 @@ export const InlineCaptionInspector: React.FC<{
 	captions,
 	controls,
 	expanded,
+	getSequenceFrame,
 	nodePath,
+	onCaptionsRendered,
+	onInitialCaptionScrollRef,
 	onToggle,
 	readOnlyStudio,
 	validatedLocation,
@@ -161,6 +168,7 @@ export const InlineCaptionInspector: React.FC<{
 	const canSave =
 		!readOnlyStudio && clientId !== null && captionStatus?.status === 'static';
 	const [draftCaptions, setDraftCaptions] = useState(captions);
+	const containerRef = useRef<HTMLDivElement>(null);
 	const savedCaptions = useRef(captions);
 	const runtimeSignature = serializeCaptions(captions);
 	const lastRuntimeSignature = useRef(runtimeSignature);
@@ -175,6 +183,12 @@ export const InlineCaptionInspector: React.FC<{
 		setDraftCaptions(captions);
 		clearDragOverrides(nodePath);
 	}, [captions, clearDragOverrides, nodePath, runtimeSignature]);
+
+	useEffect(() => {
+		if (expanded) {
+			onCaptionsRendered();
+		}
+	}, [draftCaptions, expanded, onCaptionsRendered]);
 
 	const updateCaptions = useCallback(
 		(nextCaptions: Caption[]) => {
@@ -290,16 +304,26 @@ export const InlineCaptionInspector: React.FC<{
 				: 'Captions are not ready for editing';
 
 	return (
-		<CaptionInspector
-			captions={draftCaptions}
-			expanded={expanded}
-			onTextChange={updateCaptions}
-			onTextSave={saveCaptions}
-			onTextCancel={cancelCaptions}
-			onToggle={onToggle}
-			readOnly={!canSave}
-			readOnlyTitle={canSave ? null : readOnlyTitle}
-			onReplaceCaptions={canSave ? replaceCaptions : null}
-		/>
+		<div ref={containerRef}>
+			<CaptionInspector
+				captions={draftCaptions}
+				expanded={expanded}
+				onTextChange={updateCaptions}
+				onTextSave={saveCaptions}
+				onTextCancel={cancelCaptions}
+				onToggle={onToggle}
+				readOnly={!canSave}
+				readOnlyTitle={canSave ? null : readOnlyTitle}
+				onReplaceCaptions={canSave ? replaceCaptions : null}
+			/>
+			{expanded ? (
+				<CaptionPlayheadHighlight
+					captions={draftCaptions}
+					containerRef={containerRef}
+					getSequenceFrame={getSequenceFrame}
+					onInitialCaptionScrollRef={onInitialCaptionScrollRef}
+				/>
+			) : null}
+		</div>
 	);
 };

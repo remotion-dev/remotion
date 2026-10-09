@@ -17,7 +17,7 @@ Enable the ANGLE OpenGL backend so Chromium can create a WebGL context.
 
 ### CLI
 
-Pass [`--gl=angle`](/docs/cli/render#--gl) to your render command:
+Pass [`--gl=angle`](/docs/options/gl) to your render command:
 
 ```bash
 npx remotion render MyComp out/video.mp4 --gl=angle
@@ -33,7 +33,7 @@ Config.setChromiumOpenGlRenderer('angle');
 
 ### Server-side rendering APIs
 
-Pass `gl: "angle"` in [`chromiumOptions`](/docs/renderer/render-media#gl):
+Pass [`gl: "angle"`](/docs/options/gl) in `chromiumOptions`:
 
 ```tsx twoslash
 const serveUrl = '/path/to/bundle';
@@ -57,7 +57,7 @@ await renderMedia({
 });
 ```
 
-This applies to [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`renderFrames()`](/docs/renderer/render-frames), [`getCompositions()`](/docs/renderer/get-compositions), and the [Lambda](/docs/lambda/rendermediaonlambda) and [Vercel](/docs/vercel/render-media-on-vercel) equivalents.
+This also applies to [`getCompositions()`](/docs/renderer/get-compositions) and the [Lambda](/docs/lambda/rendermediaonlambda) and [Vercel](/docs/vercel/render-media-on-vercel) APIs.
 
 ### Remotion Studio
 
@@ -65,11 +65,11 @@ When rendering from the Studio UI, open the render modal, expand **Advanced**, a
 
 ## Machines without a GPU
 
-If you are on a machine without a GPU (for example AWS Lambda), use [`--gl=swangle`](/docs/gl-options) instead. This is the default on Lambda.
+If you are on a machine without a GPU (for example AWS Lambda), use [`--gl=swangle`](/docs/options/gl) instead. This is the default on Lambda.
 
 ## Related
 
 - [OpenGL renderer backends](/docs/gl-options)
-- [`--gl` Chromium flag](/docs/chromium-flags#--gl)
+- [`--gl` option](/docs/options/gl)
 - [GPU rendering](/docs/gpu)
 - [`<HtmlInCanvas>` rendering guide](/docs/html-in-canvas#rendering)

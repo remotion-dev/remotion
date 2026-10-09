@@ -15,19 +15,44 @@ Choose the timeline structure based on the editing behavior:
 
 - Use independently positioned clips when moving or resizing one clip should
   not affect any other clip.
-- Use `<Series>` for consecutive clips when changing one clip's duration should
-  reposition every later clip.
-- Use `<TransitionSeries>` when consecutive clips also need transitions or
-  overlays.
+- Use `<TransitionSeries>` for consecutive clips when changing one clip's
+  duration should reposition every later clip. It also supports transitions
+  and overlays.
 
 Use `const {fps} = useVideoConfig()` in the enclosing composition and set
 `premountFor={fps}` on each timed clip, sequence, and overlay that supports it.
 When a clip is inside a series sequence, premount both the sequence and clip.
+For trims and other timing props expressed in seconds, use that same `fps`
+directly in each clip's JSX, for example `trimBefore={4 * fps}`. Do not use a
+separate fixed `FPS` constant: Studio must be able to update each clip's source
+expression when the user trims or splits it.
+
+## Clips with synchronized captions or overlays
+
+For a clip with synchronized captions or overlays, make a shared timing group
+the editable timeline item. Keep the video and its synchronized layers inside
+one `<Sequence>` for independently positioned clips, or inside the same
+`<TransitionSeries.Sequence>` for consecutive clips.
+
+Put the clip's `trimBefore`, `durationInFrames`, and `playbackRate` on that
+shared parent, plus `from` when using an independently positioned `<Sequence>`.
+Apply the shared timing once, rather than repeating it on the children.
+Moving, trimming, changing the speed, reordering, or deleting the group then
+affects all its layers together. A shared wrapper has a purpose here even
+though the children accept timing props themselves.
+
+Keep each clip's captions in an inline array on its own `<BasicCaptions>` node,
+with timestamps relative to the original media file. Do not put a combined
+caption overlay outside the clip groups. See
+[Displaying captions alongside video content](../remotion-captions/display-captions.md#displaying-captions-alongside-video-content)
+for the complete example.
 
 ## Independently positioned clips
 
-Place every `<Video>` directly in the composition and hardcode its timing
-props. `from={0}` may be omitted:
+For clips without synchronized captions or overlays, place each `<Video>`
+directly in the composition and write its timing props on the JSX node.
+Use literal frame counts when they are already known;
+`from={0}` may be omitted:
 
 ```tsx
 <Video
@@ -64,54 +89,59 @@ props. `from={0}` may be omitted:
 Moving or resizing one of these clips does not reposition later clips. Gaps and
 overlaps are therefore allowed.
 
-## Consecutive clips with `Series`
+## Consecutive clips with `TransitionSeries`
 
-Use `<Series>` when the clips should remain adjacent and do not need
-transitions:
+Use `<TransitionSeries>` when the clips should remain adjacent. No transition
+components are needed for consecutive playback. The example below has no
+synchronized captions; for captioned clips, put the captions inside each
+sequence and move the video's trim to that shared sequence as described above:
 
 ```tsx
-<Series>
-  <Series.Sequence name="Opening" durationInFrames={78} premountFor={fps}>
+import { TransitionSeries } from "@remotion/transitions";
+
+<TransitionSeries>
+  <TransitionSeries.Sequence name="Opening" durationInFrames={78} premountFor={fps}>
     <Video
       src="https://remotion.media/video.mp4"
       trimBefore={0}
       premountFor={fps}
     />
-  </Series.Sequence>
-  <Series.Sequence name="Interview" durationInFrames={66} premountFor={fps}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence name="Interview" durationInFrames={66} premountFor={fps}>
     <Video
       src="https://remotion.media/video.webm"
       trimBefore={12}
       premountFor={fps}
     />
-  </Series.Sequence>
-  <Series.Sequence name="Closing" durationInFrames={90} premountFor={fps}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence name="Closing" durationInFrames={90} premountFor={fps}>
     <Video
       src="https://remotion.media/video.mp4"
       trimBefore={72}
       premountFor={fps}
     />
-  </Series.Sequence>
-</Series>
+  </TransitionSeries.Sequence>
+</TransitionSeries>
 ```
 
-The `<Series.Sequence>` is the editable clip row. Changing its
+The `<TransitionSeries.Sequence>` is the editable clip row. Changing its
 `durationInFrames` repositions every later sequence. Do not set `from` on a
-`<Series.Sequence>`; the series calculates each start frame.
+`<TransitionSeries.Sequence>`; the series calculates each start frame.
 
 Keep every sequence as a separate JSX node with a hardcoded `name` and
 `durationInFrames`. The child may also be a custom clip or scene component:
 
 ```tsx
-<Series.Sequence name="Product demo" durationInFrames={150} premountFor={fps}>
+<TransitionSeries.Sequence name="Product demo" durationInFrames={150} premountFor={fps}>
   <ProductDemo />
-</Series.Sequence>
+</TransitionSeries.Sequence>
 ```
 
 ## Consecutive clips with transitions
 
 Use `<TransitionSeries>` when the timeline needs transitions or overlays.
-Preserve the same one-source-node-per-clip structure:
+Preserve the same one-source-node-per-clip structure. Put a clip's synchronized
+captions inside its sequence and apply shared timing to that parent:
 
 ```tsx
 <TransitionSeries name="Video timeline">

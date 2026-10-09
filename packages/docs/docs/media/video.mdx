@@ -13,14 +13,14 @@ This component has [native buffering support](/docs/player/buffer-state) enabled
 ## Example
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src={staticFile('video.webm')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -28,14 +28,13 @@ export const MyVideo = () => {
 You can load a video from an URL as well:
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src="https://remotion.media/BigBuckBunny.mp4" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -43,14 +42,13 @@ export const MyComposition = () => {
 You can also load HLS playlists (`.m3u8`):
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src="https://stream.mux.com/nqGuji1CJuoPoU3iprRRhiy3HXiQN0201HLyliOg44HOU.m3u8" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -96,14 +94,14 @@ You can still wrap `<Video>` in an outer [`<Sequence>`](/docs/sequence). Timing 
 :::
 
 ```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video from={30} durationInFrames={90} src={staticFile('video.webm')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -140,15 +138,15 @@ The video will play the range from `00:02:00` to `00:04:00`, meaning the video w
 For exact behavior, see [Timing and trimming](/docs/timing).
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src={staticFile('video.webm')} trimBefore={60} durationInFrames={60} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -166,30 +164,32 @@ Removes a portion of the video at the end (right side). If `durationInFrames` en
 Allows you to control the volume of the audio in it's entirety or frame by frame.  
 Read the page on [using audio](/docs/using-audio) to learn more.
 
+The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
+
 ```tsx twoslash title="Setting a static volume"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video volume={0.5} src={staticFile('video.webm')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
 
 ```tsx twoslash title="Changing the volume over time"
-import {AbsoluteFill, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 
 export const MyVideo = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
+    <>
       <Video volume={interpolate(frame, [0, 30], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={'https://remotion.media/video.mp4'} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -235,15 +235,15 @@ export const MyVideo = () => {
 Controls the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
 
 ```tsx twoslash title="Example of a video playing twice as fast"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video playbackRate={2} src={'https://remotion.media/video.mp4'} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -259,14 +259,14 @@ Changing `playbackRate` also changes the pitch of the video's audio. Pitch-prese
 You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
-import {AbsoluteFill, OffthreadVideo} from 'remotion';
+import {OffthreadVideo} from 'remotion';
 import {Video} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video muted src="https://remotion.media/BigBuckBunny.mp4" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -276,15 +276,15 @@ export const MyComposition = () => {
 You can pass any style you can pass to a native HTML `<canvas>` element.
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -302,15 +302,15 @@ Accepts `'contain'` (default), `'cover'`, `'fill'`, `'none'`, or `'scale-down'`.
 - `'scale-down'`: The video is sized as if `none` or `contain` were specified, whichever would result in a smaller size.
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src={staticFile('video.webm')} style={{width: '100%', height: '100%'}} objectFit="cover" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -351,15 +351,14 @@ Changing either limit recreates the preview player, so prefer a few fixed sizes 
 Makes the video loop indefinitely.
 
 ```tsx twoslash title="Example of a looped video"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video loop src="https://remotion.media/BigBuckBunny.mp4" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -371,9 +370,11 @@ This matches the behavior of [`<Html5Video>`](/docs/html5-video#loop).
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.354" />
 
-Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
+This prop only applies to [`volume`](#volume) callbacks, which are no longer recommended.
 
-Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+When [`loop`](#loop) is enabled, `"repeat"` (default) resets the callback frame to `0` on each iteration, while `"extend"` keeps it increasing across iterations.
+
+It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
 
 ### `showInTimeline?`
 
@@ -398,15 +399,14 @@ The callback is called with a [`CanvasImageSource`](https://developer.mozilla.or
 Select the audio stream to use. The default is `0`.
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -423,15 +423,14 @@ Accepts `"omit"`, `"same-origin"` (default behavior of `fetch()`) or `"include"`
 Set to `"include"` if you need to send cookies or authentication headers to a cross-origin video URL.
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video requestInit={{credentials: 'include'}} src="https://example.com/protected-video.mp4" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -444,15 +443,14 @@ Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range requ
 The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video requestInit={{cache: 'no-store'}} src="https://remotion.media/video.mp4" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

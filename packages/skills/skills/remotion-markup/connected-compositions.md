@@ -7,12 +7,25 @@ Use connected composition when a section has its own layers or timing, will be r
 1. Put the scene's markup in a named React component.
    Multiple internal layers and sequences can live inside it.
 
-2. Prefer making the component interactive with `Interactive.withSchema({wrapInSequence: true})`, following [Remotion Interactivity](../remotion-interactivity/SKILL.md).
+2. Prefer making the component interactive with `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})`, following [Remotion Interactivity](../remotion-interactivity/SKILL.md).
    Render the exported component directly in the parent with inline timing and editable props.
    It does not need an additional `<Sequence>` to connect to its registration.
-   For consecutive scenes or transitions, render one direct instance as the only child of a `<Series.Sequence>` or `<TransitionSeries.Sequence>`.
+   For consecutive scenes or transitions, render one direct instance as the only child of a `<TransitionSeries.Sequence>`.
 3. Register the **same component reference** with `<Composition component={...}>` in the root.
    Give it a unique `id` and the dimensions, fps, and natural duration needed to preview the scene on its own. A `<Folder>` can keep scene compositions together.
+
+## Make the component independent of its parent
+
+The parent is not mounted when a connected composition opens on its own.
+Define required styles such as `fontFamily` inside the component, and avoid
+parent-only context providers or mount side effects. Load custom fonts in its
+module or a shared module it imports; see [Google fonts](google-fonts.md) and
+[local fonts](local-fonts.md).
+
+When extracting markup, carry over these dependencies. Verify its appearance
+by opening it directly in a fresh Studio preview before opening the parent.
+
+## Example
 
 ```tsx
 // Chapter.tsx
@@ -27,20 +40,21 @@ import {
 
 type ChapterProps = {
   readonly title: string;
-  readonly style?: React.CSSProperties;
 };
 
-const ChapterInner: React.FC<ChapterProps> = ({title, style}) => {
+const ChapterInner: React.FC<ChapterProps> = ({title}) => {
   // Frame 0 is the start of this chapter, wherever the parent places it.
   const frame = useCurrentFrame();
 
   return (
     <AbsoluteFill
+      name="Chapter background"
       style={{
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
-        ...style,
+        color: 'black',
+        fontFamily: 'Helvetica, Arial, sans-serif',
       }}
     >
       <h1
@@ -58,18 +72,19 @@ const ChapterInner: React.FC<ChapterProps> = ({title, style}) => {
 };
 
 const chapterSchema = {
-  title: {type: 'text-content', default: '', description: 'Title'},
+  title: {type: 'string', default: '', description: 'Title'},
 } as const satisfies InteractivitySchema;
 
 export const Chapter = Interactive.withSchema({
   Component: ChapterInner,
-  componentName: '<Chapter>',
+  componentName: 'Chapter',
   schema: chapterSchema,
   wrapInSequence: true,
+  layout: 'absolute-fill',
 });
 ```
 
-`ChapterInner` only declares `title` and `style`.
+`ChapterInner` only declares `title`. The Chapter background layer exposes the centering and background styles in the timeline; the wrapper handles instance styles and timing.
 Because of `wrapInSequence: true`, the exported `Chapter` additionally accepts the timing props of a `<Sequence>`: `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`, plus `premountFor`, `postmountFor` and crop props.
 These are handled by the wrapper and are not passed to `ChapterInner`.
 See [Prefer interactive components with their own timelines](../remotion-interactivity/SKILL.md#prefer-interactive-components-with-their-own-timelines).
@@ -91,8 +106,7 @@ export const MyVideo = () => (
 );
 ```
 
-```tsx
-// Root.tsx
+```tsx title="src/Root.tsx"
 import {Composition, Folder} from 'remotion';
 import {MyVideo} from './MyVideo';
 import {Chapter} from './Chapter';

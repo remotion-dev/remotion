@@ -12,13 +12,13 @@ crumb: 'API'
 Use it when a regular element should be selectable and draggable in the preview:
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>Hello World</Interactive.Div>
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -91,7 +91,7 @@ Controls for cropping an element from each edge:
 
 [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema and applies the crop through the component's `style` prop.
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema. With [`layout: 'absolute-fill'`](/docs/interactive-with-schema#layout), the crop applies to its container; with the default layout, it applies through the component's `style` prop.
 
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
@@ -102,6 +102,23 @@ Controls for text-related style props:
 `style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
 
 Use it for components that accept a `style` prop and render text.
+
+### `Interactive.childrenSchema`<AvailableFrom v="4.0.535" />
+
+A schema fragment for editing a component's children content.
+
+Currently, it only supports [`string`](/docs/interactivity-schema#string) children.
+
+In the future, it may support richer content. Use it with components that accept `React.ReactNode` children. For string-only children, declare an explicit [`string`](/docs/interactivity-schema#string) field instead.
+
+```ts twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const labelSchema = {
+  ...Interactive.textSchema,
+  ...Interactive.childrenSchema,
+} as const satisfies InteractivitySchema;
+```
 
 ### `Interactive.backgroundSchema`<AvailableFrom v="4.0.497" />
 

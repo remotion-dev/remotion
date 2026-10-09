@@ -8,6 +8,7 @@ const cliFlag = 'pixel-format' as const;
 
 export const pixelFormatOption = {
 	name: 'Pixel format',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -19,7 +20,7 @@ export const pixelFormatOption = {
 		</>
 	),
 	ssrName: 'pixelFormat' as const,
-	docLink: 'https://www.remotion.dev/docs/config#setpixelformat',
+	docLink: 'https://www.remotion.dev/docs/options/pixel-format',
 	type: DEFAULT_PIXEL_FORMAT as PixelFormat,
 	getValue: (
 		{commandLine},

@@ -21,15 +21,19 @@ const cliFlag = 'jpeg-quality' as const;
 
 export const jpegQualityOption = {
 	name: 'JPEG Quality',
+	addedIn: '4.0.0',
 	cliFlag,
 	description: () => (
 		<>
 			Sets the quality of the generated JPEG images. Must be an integer between
 			0 and 100. Default: 80.
+			<br />
+			This option has no effect when{' '}
+			<a href="/docs/shared-memory-capture">shared-memory capture</a> is active.
 		</>
 	),
 	ssrName: 'jpegQuality',
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#jpeg-quality',
+	docLink: 'https://www.remotion.dev/docs/options/jpeg-quality',
 	type: 0 as number,
 	setConfig: setJpegQuality,
 	getValue: ({commandLine}) => {

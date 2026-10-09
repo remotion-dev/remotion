@@ -18,66 +18,70 @@
 	min-width: 0;
 }
 
-.previewAndSource {
+.previewSurface {
 	overflow: hidden;
 	border: 1px solid var(--ifm-color-emphasis-300);
 	border-radius: 12px;
 	background: var(--ifm-background-surface-color);
 }
 
-.sourceArea {
-	position: relative;
-	border-top: 1px solid var(--ifm-color-emphasis-300);
-	background: #282a36;
+.secondaryActions {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-top: 12px;
 }
 
-.sourceToggle {
-	border-radius: 8px;
-	font: inherit;
-	font-weight: 700;
-	min-height: 34px;
-	padding: 5px 10px;
-	font-size: 0.875rem;
-	border: 1px solid #4b4d57;
-	background: #18191f;
-	box-shadow: 0 2px 10px rgb(0 0 0 / 35%);
-	color: #fff;
-	cursor: pointer;
-}
-
-.sourceToggle:hover {
-	background: #23242c;
-}
-
-.sourceToggle:focus-visible,
+.secondaryAction:focus-visible,
+.sourceViewport:focus-visible,
 .contributor:focus-visible {
 	outline: 2px solid var(--ifm-color-primary);
 	outline-offset: 2px;
 }
 
-.sourceViewport {
-	background: #282a36;
-}
-
-.sourceViewportCollapsed {
-	height: 180px;
+.sourceDialog {
+	width: min(960px, calc(100vw - 32px));
+	max-width: none;
+	max-height: min(760px, calc(100dvh - 32px));
+	margin: auto;
+	padding: 0;
 	overflow: hidden;
-	pointer-events: none;
-	user-select: none;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 12px;
+	background: var(--ifm-background-surface-color);
+	color: var(--ifm-font-color-base);
 }
 
-.sourceReveal {
-	position: absolute;
-	inset: 0;
+.sourceDialog[open] {
+	display: flex;
+	flex-direction: column;
+}
+
+.sourceDialog::backdrop {
+	background: rgb(0 0 0 / 45%);
+}
+
+.sourceDialogHeader {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	background: linear-gradient(
-		to bottom,
-		rgb(40 42 54 / 5%) 0%,
-		rgb(40 42 54 / 72%) 58%,
-		#282a36 100%
-	);
+	justify-content: space-between;
+	gap: 16px;
+	flex: none;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.sourceDialogTitle {
+	min-width: 0;
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.sourceViewport {
+	min-height: 0;
+	overflow: auto;
+	background: #282a36;
 }
 
 .sourceViewport :global(.theme-code-block),
@@ -98,7 +102,44 @@
 .actionRow {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+}
+
+.secondaryAction {
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 8px;
+	min-width: 0;
+	min-height: 32px;
+	padding: 4px 0;
+	border: 0;
+	appearance: none;
+	background: transparent;
+	color: var(--ifm-color-emphasis-700);
+	cursor: pointer;
+	font: inherit;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.5;
+}
+
+.secondaryActionIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	flex: none;
+}
+
+.secondaryActionIcon svg {
+	flex: none;
+}
+
+.secondaryAction:hover {
+	color: var(--ifm-color-primary);
+	text-decoration: underline;
+	text-underline-offset: 2px;
 }
 
 .studioGuidance {
@@ -292,9 +333,16 @@
 	}
 }
 
+@media (pointer: coarse) {
+	.secondaryAction {
+		min-height: 48px;
+		padding: 8px;
+	}
+}
+
 @media (max-width: 600px) {
-	.sourceViewportCollapsed {
-		height: 160px;
+	.secondaryAction {
+		font-size: 1rem;
 	}
 
 	.contributors {

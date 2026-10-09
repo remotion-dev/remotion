@@ -355,8 +355,7 @@ describe('Element Library', () => {
 			});
 			expect(legacy.version).toBe(1);
 			expect(legacy.element.initialProps).toMatchObject({
-				audioSrc:
-					'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+				src: 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 			});
 			expect(modern.version).toBe(2);
 			expect(modern.element.assets).toEqual([
@@ -367,7 +366,7 @@ describe('Element Library', () => {
 				},
 			]);
 			expect(modern.element.initialProps).toMatchObject({
-				audioSrc: {
+				src: {
 					__remotion_element_asset:
 						'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
 				},

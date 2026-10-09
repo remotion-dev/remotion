@@ -33,6 +33,7 @@ import {
 } from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange, getRealFrameRanges} from './get-frame-to-render';
+import {getMp4BrandForExtension} from './get-mp4-brand';
 import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -56,6 +57,7 @@ import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {getPortConfig, isIpV6Supported} from './port-config';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
+import {probeSharedMemoryCapture} from './probe-shared-memory-capture';
 import {internalRenderFrames} from './render-frames';
 import {internalRenderMedia} from './render-media';
 import {internalRenderStill} from './render-still';
@@ -217,12 +219,14 @@ export const RenderInternals = {
 	SymbolicateableError,
 	getFramesToRender,
 	getExtensionOfFilename,
+	getMp4BrandForExtension,
 	getDesiredPort,
 	isPathInside,
 	execa,
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
 	canUseParallelEncoding,
+	probeSharedMemoryCapture,
 	mimeContentType,
 	mimeLookup,
 	validateConcurrency,

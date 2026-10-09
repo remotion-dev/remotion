@@ -17,6 +17,7 @@ const cliFlag = 'on-browser-download' as const;
 
 export const onBrowserDownloadOption = {
 	name: 'Browser download callback function',
+	addedIn: '4.0.137',
 	cliFlag,
 	description: () => (
 		<>
@@ -29,7 +30,7 @@ export const onBrowserDownloadOption = {
 		</>
 	),
 	ssrName: 'onBrowserDownload' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/ensure-browser',
+	docLink: 'https://www.remotion.dev/docs/options/on-browser-download',
 	type: undefined as unknown as OnBrowserDownload,
 	getValue: () => {
 		throw new Error('does not support config file');

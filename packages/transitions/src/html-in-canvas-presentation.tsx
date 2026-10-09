@@ -71,6 +71,7 @@ export const HtmlInCanvasPresentation = <
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
 		overrideId: null,
+		videoConfigValues: null,
 	});
 
 	const effectsRef = useRef(memoizedEffects);
@@ -300,7 +301,7 @@ export const HtmlInCanvasPresentation = <
 	}
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill showInTimeline={false}>
 			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
 				{children}
 			</canvas>

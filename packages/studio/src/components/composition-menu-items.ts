@@ -3,6 +3,7 @@ import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {copyText} from '../helpers/copy-text';
 import {
 	formatContextForAgents,
 	formatFileLocation,
@@ -19,7 +20,9 @@ import {
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
 import type {PreviewServerConnectionState} from '../helpers/preview-server-events';
+import {getVisibleAnnotationTarget} from '../helpers/request-codex-annotation';
 import type {ModalState} from '../state/modals';
+import {getAnnotateWithChatGPTMenuItems} from './get-annotate-with-chatgpt-menu-item';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -418,7 +421,7 @@ export const getCompositionMenuItems = ({
 					return;
 				}
 
-				navigator.clipboard.writeText(contextForAgents).catch((err) => {
+				copyText(contextForAgents).catch((err) => {
 					showNotification(
 						`Could not copy to clipboard: ${(err as Error).message}`,
 						1000,
@@ -431,6 +434,28 @@ export const getCompositionMenuItems = ({
 			value: 'copy-context-for-agents',
 			disabled: !contextForAgents,
 		},
+		...(composition
+			? getAnnotateWithChatGPTMenuItems({
+					id: 'annotate-composition',
+					getTarget: () =>
+						getVisibleAnnotationTarget(
+							Array.from(
+								document.querySelectorAll('[data-annotation-composition-id]'),
+							)
+								.reverse()
+								.filter(
+									(element) =>
+										element.getAttribute('data-annotation-composition-id') ===
+										composition.id,
+								),
+						),
+					initialComment: null,
+					metadata: {
+						composition: composition.id,
+						...(fileLocation ? {source: fileLocation} : {}),
+					},
+				})
+			: []),
 		{
 			id: 'copy-file-location',
 			keyHint: null,
@@ -442,8 +467,7 @@ export const getCompositionMenuItems = ({
 					return;
 				}
 
-				navigator.clipboard
-					.writeText(fileLocation)
+				copyText(fileLocation)
 					.then(() => {
 						showNotification('Copied file location to clipboard', 1000);
 					})
@@ -471,8 +495,7 @@ export const getCompositionMenuItems = ({
 				}
 
 				closeMenu();
-				navigator.clipboard
-					.writeText(composition.id)
+				copyText(composition.id)
 					.then(() => {
 						showNotification('Copied composition ID', 1000);
 					})

@@ -16,7 +16,10 @@ import {
 import {formatLogFileLocation} from './format-log-file-location';
 import {waitForLiveEventsListener} from './live-events';
 import {broadcastSequenceNodePathMutation} from './sequence-node-path-mutation';
-import {suppressBundlerUpdateForFile} from './watch-ignore-next-change';
+import {
+	prepareBundlerForFileWrite,
+	suppressBundlerUpdateForFile,
+} from './watch-ignore-next-change';
 
 export interface UndoEntryDescription {
 	undoMessage: string;
@@ -484,6 +487,7 @@ export function popUndo(): UndoResponse {
 		}
 
 		if (snapshot.oldContents === null) {
+			prepareBundlerForFileWrite(snapshot.filePath);
 			rmSync(snapshot.filePath, {force: true});
 		} else {
 			writeFileAndNotifyFileWatchers({

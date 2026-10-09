@@ -147,7 +147,8 @@ test('does not reinitialize MediaPlayer when onError or maxCanvasSinkFrameSize i
 			return (
 				renderedCanvas?.width === 1280 &&
 				renderedCanvas.height === 720 &&
-				committedRerenders >= 4
+				committedRerenders >= 4 &&
+				lastFrameSize !== ''
 			);
 		});
 

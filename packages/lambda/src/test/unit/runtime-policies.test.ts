@@ -47,6 +47,7 @@ test.each(['angle', null] as const)(
 			await rendererHandler<AwsProvider>({
 				params: {
 					type: 'renderer',
+					output: {type: 'media'},
 					chromiumOptions,
 					launchFunctionConfig: {version: VERSION},
 					inputProps: {type: 'payload', payload: '{}'},

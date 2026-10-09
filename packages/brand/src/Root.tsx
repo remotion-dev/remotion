@@ -12,6 +12,7 @@ import {
 	Applications,
 } from './Applications';
 import {AudioWaveform} from './AudioWaveform';
+import {BasicsShowcaseCompositions} from './BasicsShowcase';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
@@ -109,6 +110,7 @@ import './index.css';
 import {KeyframeMove} from './KeyframeMove';
 import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
+import {NestingCompositions} from './NestingCompositions';
 import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
@@ -770,6 +772,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 			</Folder>
 
 			<Folder name="CloseUps">
+				<BasicsShowcaseCompositions />
 				<CloseUp1 />
 				<CloseUp2 />
 				<CloseUp3 />
@@ -795,6 +798,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<KeyframeMove />
 				<PitchCorrection />
 				<RenderOnWeb />
+				<NestingCompositions />
 			</Folder>
 
 			<Folder name="StudioAssets">

@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.532",
+	"version": "4.0.534",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
@@ -63,7 +63,6 @@
 		"@remotion/starburst": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media": "workspace:*",
-		"@remotion/media-parser": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/motion-blur": "workspace:*",
 		"@remotion/noise": "workspace:*",
@@ -82,7 +81,6 @@
 		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
-		"@remotion/webcodecs": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/zod-types-v3": "workspace:*",
@@ -117,7 +115,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.55.1",
+		"@playwright/test": "1.60.0",
 		"sharp": "catalog:",
 		"@types/dom-webcodecs": "catalog:",
 		"eslint": "catalog:"

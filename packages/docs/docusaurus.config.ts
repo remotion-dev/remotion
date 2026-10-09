@@ -1,3 +1,4 @@
+import type {PluginOptions as DocsPluginOptions} from '@docusaurus/plugin-content-docs';
 import type {Config} from '@docusaurus/types';
 import elementSourceDependencies from './plugins/element-source-dependencies.js';
 import longContentHashes from './plugins/long-content-hashes.js';
@@ -331,6 +332,30 @@ const config: Config = {
 				docs: {
 					path: 'docs',
 					sidebarPath: './sidebars.ts',
+					sidebarItemsGenerator: ({
+						defaultSidebarItemsGenerator,
+						...args
+					}: Parameters<DocsPluginOptions['sidebarItemsGenerator']>[0]) => {
+						if (args.item.dirName !== 'options') {
+							return defaultSidebarItemsGenerator(args);
+						}
+
+						// Compute alphabetical positions at build time so adding an option
+						// does not change the front matter of every later option page.
+						const docs = args.docs
+							.filter(
+								(doc) =>
+									doc.id.startsWith('options/') && doc.id !== 'options/index',
+							)
+							.sort(
+								(a, b) =>
+									a.title.localeCompare(b.title, 'en') ||
+									a.id.localeCompare(b.id, 'en'),
+							)
+							.map((doc, index) => ({...doc, sidebarPosition: index + 1}));
+
+						return defaultSidebarItemsGenerator({...args, docs});
+					},
 					editUrl:
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 					showLastUpdateTime: showGitLastUpdate,

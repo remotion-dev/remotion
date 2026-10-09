@@ -61,16 +61,6 @@ export const startContent = () => {
 	const getFormatLabel = (format: CaptureFormat) =>
 		format === 'mp4' ? 'H.264 MP4' : 'VP9 WebM';
 
-	const getCropRelativeTo = (
-		selection: SelectionRectangle,
-		target: DOMRect,
-	): CaptureCrop => ({
-		left: selection.left - target.left,
-		top: selection.top - target.top,
-		width: Math.max(1, selection.width),
-		height: Math.max(1, selection.height),
-	});
-
 	const createController = (): ExtensionController => {
 		const host = document.createElement('div');
 		host.dataset.remotionCanvasCapture = 'true';
@@ -714,11 +704,10 @@ export const startContent = () => {
 			}
 
 			if (selectedTarget.type === 'whole-page') {
-				const pageRect = document.body.getBoundingClientRect();
 				return {
 					crop: {
-						left: -pageRect.left,
-						top: -pageRect.top,
+						left: 0,
+						top: 0,
 						width: window.innerWidth,
 						height: window.innerHeight,
 					},
@@ -909,17 +898,7 @@ export const startContent = () => {
 			interactionShield.style.display =
 				capture || startingRecording ? 'none' : 'block';
 			const target = resolveCaptureTarget();
-			let rect: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'> | null =
-				null;
-			if (target?.crop) {
-				const pageRect = document.body.getBoundingClientRect();
-				rect = {
-					left: pageRect.left + target.crop.left,
-					top: pageRect.top + target.crop.top,
-					width: target.crop.width,
-					height: target.crop.height,
-				};
-			}
+			const rect = target?.crop;
 
 			if (!rect) {
 				dimensionsZoomPopover.hidden = true;
@@ -1014,7 +993,7 @@ export const startContent = () => {
 			const closeLabel = state.recording
 				? 'Stop recording before clearing selection'
 				: state.hasCompletedRecording
-					? 'Discard recording and clear selection'
+					? 'Discard recording'
 					: state.hasTarget
 						? 'Clear selection'
 						: 'Close';
@@ -1094,7 +1073,7 @@ export const startContent = () => {
 			});
 			selectedTarget = {
 				type: 'page-crop',
-				crop: getCropRelativeTo(rect, document.body.getBoundingClientRect()),
+				crop: rect,
 			};
 			updateHighlight();
 		};
@@ -1151,11 +1130,7 @@ export const startContent = () => {
 			selectionLayer.style.display = 'none';
 			selectionBox.style.display = 'none';
 
-			const crop = getCropRelativeTo(
-				selection,
-				document.body.getBoundingClientRect(),
-			);
-			selectedTarget = {type: 'page-crop', crop};
+			selectedTarget = {type: 'page-crop', crop: selection};
 			controlsDismissed = false;
 
 			encoderSupportKey = null;
@@ -1196,7 +1171,6 @@ export const startContent = () => {
 
 		selectionLayer.addEventListener('pointerup', finishSelection);
 		selectionLayer.addEventListener('pointercancel', cancelSelection);
-		window.addEventListener('scroll', updateHighlight, true);
 		window.addEventListener('resize', () => {
 			updateHighlight();
 			const supportCheck = refreshEncoderSupport();
@@ -1507,13 +1481,16 @@ export const startContent = () => {
 				return;
 			}
 
-			if (selectedTarget || completedRecording) {
-				setStatus(
-					completedRecording
-						? 'Recording discarded. Choose an area or the whole page.'
-						: 'Choose an area or the whole page.',
-				);
+			if (completedRecording) {
 				completedRecording = null;
+				setStatus('Recording discarded. Ready to record again.');
+				updateHighlight();
+				updateControls();
+				return;
+			}
+
+			if (selectedTarget) {
+				setStatus('Choose an area or the whole page.');
 				selectedTarget = null;
 				encoderSupportCheckId++;
 				encoderSupport = 'unavailable';

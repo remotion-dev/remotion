@@ -29,6 +29,7 @@ const list: React.CSSProperties = {
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
+	backgroundColor: 'var(--remotion-active-caption-background, transparent)',
 	borderBottom: `1px solid ${LINE_COLOR}`,
 	display: 'grid',
 	gap: 8,
@@ -65,7 +66,7 @@ export const CaptionTextEditor: React.FC<{
 	readonly onSave: ((captions: Caption[]) => void) | null;
 	readonly onCancel: (() => void) | null;
 	readonly readOnly: boolean;
-}> = ({captions, onChange, onSave, onCancel, readOnly}) => {
+}> = React.memo(({captions, onChange, onSave, onCancel, readOnly}) => {
 	const listRef = useRef<HTMLDivElement>(null);
 	const cancelledBlurIndexes = useRef(new Set<number>());
 	const dirtyRef = useRef(false);
@@ -166,7 +167,7 @@ export const CaptionTextEditor: React.FC<{
 			`[data-caption-index="${index}"]`,
 		);
 		input?.focus();
-		input?.setSelectionRange(0, 0);
+		input?.setSelectionRange(1, 1);
 		input?.scrollIntoView({block: 'nearest'});
 	}, [captions]);
 
@@ -187,12 +188,13 @@ export const CaptionTextEditor: React.FC<{
 					((caption.endMs - caption.startMs) * splitIndex) /
 						caption.text.length,
 			);
+			const afterText = caption.text.slice(splitIndex).trimStart();
 			const {pageBreakAfter, ...captionWithoutPageBreak} = caption;
 			const nextCaptions = [
 				...currentCaptions.slice(0, index),
 				{
 					...captionWithoutPageBreak,
-					text: caption.text.slice(0, splitIndex),
+					text: caption.text.slice(0, splitIndex).trimEnd(),
 					endMs: splitTimestamp,
 					timestampMs:
 						caption.timestampMs === null
@@ -202,7 +204,7 @@ export const CaptionTextEditor: React.FC<{
 				},
 				{
 					...captionWithoutPageBreak,
-					text: caption.text.slice(splitIndex),
+					text: ` ${afterText}`,
 					startMs: splitTimestamp,
 					timestampMs:
 						caption.timestampMs === null
@@ -233,7 +235,7 @@ export const CaptionTextEditor: React.FC<{
 						: `Add page break after caption ${index + 1}`;
 
 					return (
-						<div key={key} style={row}>
+						<div key={key} data-caption-row-index={index} style={row}>
 							<div style={timing}>
 								{formatMilliseconds(caption.startMs)} →{' '}
 								{formatMilliseconds(caption.endMs)} ms
@@ -329,4 +331,6 @@ export const CaptionTextEditor: React.FC<{
 			</div>
 		</div>
 	);
-};
+});
+
+CaptionTextEditor.displayName = 'CaptionTextEditor';

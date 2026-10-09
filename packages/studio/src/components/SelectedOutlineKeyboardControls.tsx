@@ -1,8 +1,5 @@
-import {
-	CanvasInternals,
-	type CanvasOutlineNudgeDirection,
-} from '@remotion/canvas';
 import {PlayerInternals} from '@remotion/player';
+import {CanvasInternals, type CanvasOutlineNudgeDirection} from '@remotion/sdk';
 import type React from 'react';
 import {useCallback, useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
@@ -17,7 +14,6 @@ import type {
 	SelectedOutlineDragTarget,
 	SelectedOutlineKeyboardNudgeSession,
 } from './selected-outline-types';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
@@ -81,29 +77,19 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				change.type === 'keyframed',
 		);
 
-		Promise.all([
-			staticChanges.length > 0
-				? saveSequenceProps({
-						changes: staticChanges,
-						addedKeyframes: null,
-						movedKeyframes: null,
-						setPropStatuses,
-						clientId,
-						undoLabel:
-							changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
-						redoLabel:
-							changes.length > 1
-								? 'Move selected sequences back'
-								: 'Move sequence back',
-					})
-				: Promise.resolve(),
-			callAddKeyframes({
-				sequenceKeyframes: keyframedChanges,
-				effectKeyframes: [],
-				setPropStatuses,
-				clientId,
-			}),
-		])
+		saveSequenceProps({
+			changes: staticChanges,
+			addedKeyframes: keyframedChanges,
+			movedKeyframes: null,
+			setPropStatuses,
+			clientId,
+			undoLabel:
+				changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
+			redoLabel:
+				changes.length > 1
+					? 'Move selected sequences back'
+					: 'Move sequence back',
+		})
 			.catch((err) => {
 				showNotification(
 					`Could not save sequence props: ${

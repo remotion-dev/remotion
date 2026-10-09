@@ -3,6 +3,7 @@ import {callFf} from './call-ffmpeg';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getFastStartMuxer} from './get-fast-start-muxer';
+import {getMp4BrandForExtension} from './get-mp4-brand';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
@@ -46,6 +47,7 @@ export const muxVideoAndAudio = async ({
 	const fastStartMuxer = outputExtension
 		? getFastStartMuxer(outputExtension)
 		: null;
+	const mp4Brand = getMp4BrandForExtension(outputExtension);
 
 	const command = [
 		'-hide_banner',
@@ -69,12 +71,19 @@ export const muxVideoAndAudio = async ({
 		// result in slightly imprecise values like 95940000/3197999 instead of 30/1.
 		videoOutput ? '-r' : null,
 		videoOutput ? String(fps) : null,
+		// Keep the MP4/MOV video time base consistent with the initial encoding.
+		videoOutput ? '-video_track_timescale' : null,
+		videoOutput ? '90000' : null,
 		numberOfGifLoops === null ? null : '-loop',
 		numberOfGifLoops === null
 			? null
 			: convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops),
-		fastStartMuxer ? '-movflags' : null,
-		fastStartMuxer ? 'faststart' : null,
+		mp4Brand ? '-f' : null,
+		mp4Brand ? 'mp4' : null,
+		mp4Brand ? '-brand' : null,
+		mp4Brand,
+		fastStartMuxer || mp4Brand ? '-movflags' : null,
+		fastStartMuxer || mp4Brand ? 'faststart' : null,
 		...makeMetadataArgs(metadata ?? {}),
 		'-y',
 		output,

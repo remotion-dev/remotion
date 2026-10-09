@@ -22,11 +22,11 @@ The effect is anchored to a UV coordinate and radius. Pixels outside the radius 
 
 ```tsx twoslash title="MyComp.tsx"
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
-import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+import {CanvasImage, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <CanvasImage
         src={staticFile('image.png')}
         width={1280}
@@ -44,7 +44,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

@@ -3,7 +3,6 @@ import type {
 	EffectDefinition,
 	JsxComponentIdentity,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
@@ -15,15 +14,7 @@ export const SubscribeToNodePaths: FC<{
 	readonly schema: InteractivitySchema;
 	readonly getStack: () => string | null;
 	readonly effects: readonly EffectDefinition<unknown>[];
-	readonly videoConfigValues: VideoConfigValues | null;
-}> = ({
-	overrideId,
-	componentIdentity,
-	schema,
-	getStack,
-	effects,
-	videoConfigValues,
-}) => {
+}> = ({overrideId, componentIdentity, schema, getStack, effects}) => {
 	const {resolvedLocation, stack, preferMappedNodePath} =
 		useResolveStackAndReactToChange(getStack, overrideId);
 
@@ -43,7 +34,6 @@ export const SubscribeToNodePaths: FC<{
 		originalLocation: resolvedLocation,
 		preferMappedNodePath,
 		stack,
-		videoConfigValues,
 	});
 
 	return null;

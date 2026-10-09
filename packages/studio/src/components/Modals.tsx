@@ -2,6 +2,7 @@ import {
 	StudioProtocolInternals,
 	type AddElementLibraryToStudioResult,
 } from '@remotion/studio-protocol';
+import {normalizeHttpUrl} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -9,7 +10,7 @@ import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {AssetSelectorModal} from './AssetSelectorModal';
-import {BrowserStudioExperimentalNotice} from './BrowserStudioExperimentalNotice';
+import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
@@ -56,17 +57,25 @@ export const Modals: React.FC<{
 	const confirm = useConfirmationDialog();
 	const requestElementLibraryAddition = useCallback(
 		async ({
+			captionStylesUrl,
 			displayName,
 			origin,
 			url,
 		}: {
+			readonly captionStylesUrl: string | null;
 			readonly displayName: string | null;
 			readonly origin: string;
 			readonly url: string;
 		}) => {
 			const confirmed = await confirm({
 				title: 'Add Element Library',
-				message: <ElementLibraryAddConfirmation origin={origin} url={url} />,
+				message: (
+					<ElementLibraryAddConfirmation
+						origin={origin}
+						url={url}
+						captionStylesUrl={captionStylesUrl}
+					/>
+				),
 				confirmLabel: 'Add Element Library',
 				cancelLabel: 'Cancel',
 			});
@@ -89,7 +98,11 @@ export const Modals: React.FC<{
 						{
 							setter: 'addElementLibrary',
 							type: 'set',
-							value: displayName === null ? {url} : {url, displayName},
+							value: {
+								url,
+								...(displayName === null ? {} : {displayName}),
+								...(captionStylesUrl === null ? {} : {captionStylesUrl}),
+							},
 						},
 					],
 				});
@@ -182,18 +195,26 @@ export const Modals: React.FC<{
 				// The response below explains that the URL is invalid.
 			}
 
+			const captionStylesUrl =
+				request.captionStylesUrl === null
+					? null
+					: normalizeHttpUrl(request.captionStylesUrl);
+			const invalidCaptionStylesUrl =
+				request.captionStylesUrl !== null && captionStylesUrl === null;
+
 			const displayName = request.displayName?.trim() ?? null;
 			const canAddLibrary =
 				!isBrowserStudio &&
 				!readOnlyStudio &&
 				previewServerState.type === 'connected';
 			const result: AddElementLibraryToStudioResult =
-				normalizedUrl === null
+				normalizedUrl === null || invalidCaptionStylesUrl
 					? {
 							success: false,
 							code: 'invalid-url',
-							message:
-								'The Element Library URL must be an absolute HTTP or HTTPS URL.',
+							message: invalidCaptionStylesUrl
+								? 'The caption styles URL must be an absolute HTTP or HTTPS URL.'
+								: 'The Element Library URL must be an absolute HTTP or HTTPS URL.',
 						}
 					: displayName === ''
 						? {
@@ -223,6 +244,7 @@ export const Modals: React.FC<{
 				responsePort.close();
 				if (result.success && normalizedUrl !== null) {
 					requestElementLibraryAddition({
+						captionStylesUrl,
 						displayName,
 						origin: event.origin,
 						url: normalizedUrl,
@@ -252,7 +274,7 @@ export const Modals: React.FC<{
 	return (
 		<>
 			{modalContextType?.type === 'browser-studio-experimental-notice' ? (
-				<BrowserStudioExperimentalNotice />
+				<BrowserStudioExperimentingNotice />
 			) : null}
 			{modalContextType && modalContextType.type === 'new-comp' && (
 				<NewComposition

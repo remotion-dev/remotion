@@ -34,6 +34,7 @@ test('prefers the running editor when one is detected', () => {
 	expect(
 		getPreferredEditorId({
 			defaultEditor: null,
+			runningEditors: null,
 			installedEditors: [
 				{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
 				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
@@ -48,6 +49,7 @@ test('falls back if the detected editor is not in the installed list', () => {
 	expect(
 		getPreferredEditorId({
 			defaultEditor: null,
+			runningEditors: null,
 			installedEditors: [
 				{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
 				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
@@ -62,6 +64,7 @@ test('prefers the configured default editor before the detected editor', () => {
 	expect(
 		getPreferredEditorId({
 			defaultEditor: 'cursor',
+			runningEditors: null,
 			installedEditors: [
 				{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
 				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
@@ -76,6 +79,7 @@ test('returns null when no editor is installed', () => {
 	expect(
 		getPreferredEditorId({
 			defaultEditor: null,
+			runningEditors: null,
 			installedEditors: [],
 		}),
 	).toBe(null);
@@ -94,6 +98,7 @@ test('falls back to Zed, VS Code, Cursor, then alphabetical order', () => {
 	expect(
 		getPreferredEditorId({
 			defaultEditor: null,
+			runningEditors: null,
 			installedEditors: [
 				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
 				{id: 'vscode', name: 'Code', nameWithType: 'Code'},
@@ -105,6 +110,7 @@ test('falls back to Zed, VS Code, Cursor, then alphabetical order', () => {
 	expect(
 		getPreferredEditorId({
 			defaultEditor: null,
+			runningEditors: null,
 			installedEditors: [
 				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
 				{id: 'vscode', name: 'Code', nameWithType: 'Code'},
@@ -115,6 +121,7 @@ test('falls back to Zed, VS Code, Cursor, then alphabetical order', () => {
 	expect(
 		getPreferredEditorId({
 			defaultEditor: null,
+			runningEditors: null,
 			installedEditors: [
 				{id: 'webstorm', name: 'WebStorm', nameWithType: 'WebStorm'},
 				{

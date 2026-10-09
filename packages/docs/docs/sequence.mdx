@@ -5,44 +5,55 @@ title: <Sequence>
 crumb: 'API'
 ---
 
-import {SequenceForwardExample} from '../components/SequenceExamples/SequenceForward';
+`<Sequence>` is the base component for placing content on the timeline.  
+It provides timing props such as `from`, `durationInFrames` and `trimBefore`.
 
-```twoslash include example
-const BlueSquare: React.FC = () => <div></div>
-// - BlueSquare
-```
+These components use the same timing props:
 
-By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
+- [`Interactive` elements](/docs/interactive), such as `<Interactive.Div>`, and [`<AbsoluteFill>`](/docs/absolute-fill).
+- [`<Img>`](/docs/img), [`<CanvasImage>`](/docs/canvasimage), [`<AnimatedImage>`](/docs/animatedimage), [`<Solid>`](/docs/solid) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
+- [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) from `@remotion/motion-blur`.
+- [`<Gif>`](/docs/gif/gif), [`<Lottie>`](/docs/lottie), [`<ThreeCanvas>`](/docs/three-canvas) and [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas).
+- [`@remotion/shapes`](/docs/shapes), [`@remotion/rough-notation`](/docs/rough-notation/api) and [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor).
+- [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`.
+- Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) that expose these props.
 
-```tsx twoslash title="MyTrailer.tsx"
+See [Timing and trimming](/docs/timing) for examples of using these props directly on components.
+
+## Make a component inherit from Sequence
+
+Wrap a custom component with [`Interactive.withSchema()`](/docs/interactive-with-schema) to give it the timing props listed below.  
+You can then set those props directly on the component, and Studio shows it as a single timeline layer.  
+See the linked API page for an example.
+
+## Using `<Sequence>` directly
+
+It is not recommended anymore to use `<Sequence>` directly, but it is possible.  
+You will see this often in legacy Remotion code.
+
+```tsx twoslash title="SequenceExample.tsx"
 import {Sequence} from 'remotion';
 
-export const Intro = () => <></>;
-export const Clip = () => <></>;
-export const Outro = () => <></>;
-
-// ---cut---
-
-const MyTrailer = () => {
+const SequenceExample = () => {
   return (
     <>
       <Sequence durationInFrames={30}>
-        <Intro />
+        <div>Intro</div>
       </Sequence>
       <Sequence from={30} durationInFrames={30}>
-        <Clip />
+        <div>Clip</div>
       </Sequence>
       <Sequence from={60}>
-        <Outro />
+        <div>Outro</div>
       </Sequence>
     </>
   );
 };
 ```
 
-- `<Intro>` will show from frame 0–29.
-- `<Clip>` will show from frame 30 until frame 59.
-- `<Outro>` will show from frame 60 until the end of the composition.
+- Intro shows from frame 0–29.
+- Clip shows from frame 30 through frame 59.
+- Outro shows from frame 60 until the end of the composition.
 
 All children of a `<Sequence>` that call [`useCurrentFrame()`](/docs/use-current-frame) will receive a value that is shifted by [`from`](#from).
 
@@ -68,135 +79,38 @@ const MyTrailer = () => {
 
 Using the [`durationInFrames`](#durationinframes) prop, you can define for how long the children of a `<Sequence>` should be mounted.
 
-By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolute-fill) component. If you don't want this behavior, add [`layout="none"`](#layout) as a prop.
+By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolute-fill) component.  
+If you don't want this behavior, add [`layout="none"`](#layout) as a prop.
 
 ## Cascading
 
 You can nest sequences within each other and they will cascade.  
 For example, a sequence that starts at frame 60 which is inside a sequence that starts at frame 30 will have it's children start at frame 90.
 
-## Examples
-
-All the examples below are based on the following animation of a blue square:
-
-<SequenceForwardExample type="base" />
-
-<br />
-
-```tsx twoslash title="MyVideo.tsx"
-// @include: example-BlueSquare
-// ---cut---
-const MyVideo = () => {
-  return <BlueSquare />;
-};
-```
-
-### Delay
-
-If you would like to delay the content by say 30 frames, you can wrap it in <br/> `<Sequence from={30}>`.
-
-<SequenceForwardExample type="delay" />
-<br />
-
-```tsx twoslash title="delay.tsx"
-// @include: example-BlueSquare
-import {Sequence} from 'remotion';
-// ---cut---
-const MyVideo = () => {
-  return (
-    <Sequence from={30}>
-      <BlueSquare />
-    </Sequence>
-  );
-};
-```
-
-### Trim end
-
-Wrap your component in a `<Sequence>` with a finite `durationInFrames` prop to make it unmount after the duration has passed.
-
-<SequenceForwardExample type="clip" />
-<br />
-
-```tsx twoslash title="trim-end.tsx"
-// @include: example-BlueSquare
-import {Sequence} from 'remotion';
-// ---cut---
-const ClipExample: React.FC = () => {
-  return (
-    <Sequence durationInFrames={45}>
-      <BlueSquare />
-    </Sequence>
-  );
-};
-```
-
-### Trim start
-
-Pass `trimBefore` to trim the beginning of the content.
-The animation has already progressed by 15 frames when the content appears.
-
-<SequenceForwardExample type="trim-start" />
-<br />
-
-```tsx title="trim-start.tsx"
-const TrimStartExample: React.FC = () => {
-  return (
-    <Sequence trimBefore={15}>
-      <BlueSquare />
-    </Sequence>
-  );
-};
-```
-
-### Trim and delay
-
-Wrap the content in two `<Sequence>`'s.  
-To the inner one, pass a negative start value `from={-15}` to trim away the first 15 frames of the content.  
-To the outer one we pass a positive value `from={30}` to then shift it forwards by 30 frames.
-
-<SequenceForwardExample type="trim-and-delay" />
-<br />
-
-```tsx twoslash title="trim-and-delay.tsx"
-// @include: example-BlueSquare
-import {Sequence} from 'remotion';
-// ---cut---
-const TrimAndDelayExample: React.FC = () => {
-  return (
-    <Sequence from={30}>
-      <Sequence from={-15}>
-        <BlueSquare />
-      </Sequence>
-    </Sequence>
-  );
-};
-```
-
-## Play Sequences sequentially
-
-See the [`<Series />`](/docs/series) helper component, which helps you calculate markup that makes sequences play after each other.
-
 ## Props
 
-The Sequence component is a high order component and accepts, besides children, the following props:
+`<Sequence>` accepts children and the following props.  
+Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) also receive timing props.
 
 ### `from?`
 
 (optional from v3.2.36, _required_ in previous versions)
 
-At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
+At which frame it's children should assume the video starts.  
+When the sequence is at `frame`, it's children are at frame `0`.  
 From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
 
 ### `durationInFrames?`
 
-For how many frames of the child timeline the sequence should be displayed, starting at [`trimBefore`](#trimbefore). By default it will be `Infinity` to avoid limiting the duration of the sequence.
+For how many frames of the child timeline the sequence should be displayed, starting at [`trimBefore`](#trimbefore).  
+By default it will be `Infinity` to avoid limiting the duration of the sequence.
 
-The sequence occupies `durationInFrames / playbackRate` frames in its parent. When `loop` is enabled, `durationInFrames` is the loop length and the sequence repeats until its parent ends.
+The sequence occupies `durationInFrames / playbackRate` frames in its parent.  
+When `loop` is enabled, `durationInFrames` is the loop length and the sequence repeats until its parent ends.
 
 ### `trimBefore?`<AvailableFrom v="4.0.482" />
 
-Trims the beginning of the child timeline by the specified number of frames.
+Trims the beginning of the child timeline by the specified number of frames.  
 Default: `0`.
 
 The sequence still starts at [`from`](#from), but children using [`useCurrentFrame()`](/docs/use-current-frame) receive a frame that is advanced by `trimBefore`.
@@ -220,10 +134,11 @@ In the example above, `Child` mounts at composition frame `30` and receives fram
 
 ### `loop?`
 
-Repeats the child range selected by [`trimBefore`](#trimbefore) and [`durationInFrames`](#durationinframes) until the parent ends. Default: `false`.
+Repeats the child range selected by [`trimBefore`](#trimbefore) and [`durationInFrames`](#durationinframes) until the parent ends.  
+Default: `false`.
 
-Requires a finite `durationInFrames`, because a sequence has no intrinsic duration.
-Each cycle lasts `durationInFrames / playbackRate` frames in the parent timeline.
+Requires a finite `durationInFrames`, because a sequence has no intrinsic duration.  
+Each cycle lasts `durationInFrames / playbackRate` frames in the parent timeline.  
 Wrap it in an outer `<Sequence>` to set a finite total duration.
 
 ```tsx twoslash title="MyVideo.tsx"
@@ -245,13 +160,15 @@ export const MyVideo = () => {
 
 In the example above, `Child` receives frames `30` through `59` in a cycle of `15` composition frames, repeated six times.
 
-[`Loop.useLoop()`](/docs/loop#useloop) returns the current iteration inside a looping sequence.
+[`Loop.useLoop()`](/docs/loop#useloop) returns the current iteration inside a looping sequence.  
 To repeat a duration measured in the parent timeline, use [`<Loop>`](/docs/loop).
 
 ### `playbackRate?`<AvailableFrom v="4.0.528" />
 
-Changes the speed of the children, including their animations and media. Default: `1`.
-Use `2` for double speed or `0.5` for half speed. The value must be positive and finite, and must remain constant across frames.
+Changes the speed of the children, including their animations and media.  
+Default: `1`.  
+Use `2` for double speed or `0.5` for half speed.  
+The value must be positive and finite, and must remain constant across frames.
 
 `durationInFrames` and `trimBefore` are measured in the child timeline, so changing `playbackRate` changes the mounted duration.
 
@@ -267,19 +184,22 @@ export const MyVideo = () => (
 );
 ```
 
-At composition frame `30`, `Child` receives frame `10`. At frame `40`, it receives frame `30`: `(40 - 30) * 2 + 10`.
+At composition frame `30`, `Child` receives frame `10`.  
+At frame `40`, it receives frame `30`: `(40 - 30) * 2 + 10`.  
 The sequence remains visible through composition frame `59`.
 
-Nested playback rates multiply. A sequence with `playbackRate={2}` inside one with `playbackRate={0.5}` plays at the original speed.
+Nested playback rates multiply.  
+A sequence with `playbackRate={2}` inside one with `playbackRate={0.5}` plays at the original speed.  
 A media component's own `playbackRate` also multiplies with its parent sequences' rates.
 
-The rate applies to [`useCurrentFrame()`](/docs/use-current-frame) called inside descendant components. Animations calculated in the parent and passed as the sequence's `style` or as child props keep the parent's clock.
+The rate applies to [`useCurrentFrame()`](/docs/use-current-frame) called inside descendant components.  
+Animations calculated in the parent and passed as the sequence's `style` or as child props keep the parent's clock.
 
 See [Order of operations](/docs/timing#order-of-operations) for how the timing props combine.
 
 ### `freeze?`<AvailableFrom v="4.0.476" />
 
-Freezes the children of the sequence at the specified frame.
+Freezes the children of the sequence at the specified frame.  
 Pass `null` or omit the prop to keep the sequence unfrozen.
 
 ```tsx twoslash title="MyVideo.tsx"
@@ -302,23 +222,32 @@ This is equivalent to wrapping the children in [`<Freeze frame={20}>`](/docs/fre
 
 ### `height?`<AvailableFrom v="4.0.80"/>
 
-Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific height.
+Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components.  
+Useful for including a component that was designed for a specific height.
 
 ### `width?`<AvailableFrom v="4.0.80"/>
 
-Gives the sequence a specific `style={{width: width}}` style and overrides `width` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific width.
+Gives the sequence a specific `style={{width: width}}` style and overrides `width` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components.  
+Useful for including a component that was designed for a specific width.
 
 ### `name?`
 
-You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
+You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio.  
+This property is purely for helping you keep track of sequences in the timeline.
 
 ### `layout?`
 
-Either `"absolute-fill"` _(default)_ or `"none"`. By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
+Either `"absolute-fill"` _(default)_ or `"none"`.  
+By default, your sequences will be absolutely positioned, so they will overlay each other.  
+If you would like to opt out of it and handle layouting yourself, pass `layout="none"`.  
+Available since v1.4.
+
+Remotion Studio discovers selection outlines automatically. By default, it outlines the wrapper created by `<Sequence>`. With `layout="none"`, it outlines the rendered element or the bounds of multiple rendered roots.
 
 ### `cropLeft?`<AvailableFrom v="4.0.500" />
 
-Crops the Sequence from the left edge without changing its size or transform origin. The value is a ratio between `0` and `1`: `0` does not crop the edge, while `1` crops the full width.
+Crops the Sequence from the left edge without changing its size or transform origin.  
+The value is a ratio between `0` and `1`: `0` does not crop the edge, while `1` crops the full width.
 
 ### `cropRight?`<AvailableFrom v="4.0.500" />
 
@@ -339,7 +268,8 @@ If `cropTop` and `cropBottom` overlap, both edges meet in the center.
 All four crop props are only supported with `layout="absolute-fill"` and can be animated:
 
 :::note
-If inline [`border-radius`](https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius) styles are set using `style.borderRadius` or its four corner longhands, the cropped rectangle uses the same corner radii. Border radii applied through a CSS class are not inherited by the crop.
+If inline [`border-radius`](https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius) styles are set using `style.borderRadius` or its four corner longhands, the cropped rectangle uses the same corner radii.  
+Border radii applied through a CSS class are not inherited by the crop.
 :::
 
 ```tsx twoslash title="MyVideo.tsx"
@@ -362,23 +292,24 @@ export const MyVideo = () => {
 ### ~~`outlineRef?`~~<AvailableFrom v="4.0.479" />
 
 :::info Deprecated
-Remotion Studio discovers selection outlines automatically. Remove this prop.
+This prop has no effect since <AvailableFrom v="4.0.535" inline />. Remotion Studio discovers selection outlines automatically.
+Remove this prop.
 :::
-
-By default, the Studio outlines the wrapper created by `<Sequence>`. With `layout="none"`, it outlines the rendered element or the bounds of multiple rendered roots.
 
 ### `style?`<AvailableFrom v="3.0.27"/>
 
-CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+CSS styles to be applied to the container.  
+If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
 ### `className?`<AvailableFrom v="3.3.45"/>
 
-A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+A class name to be applied to the container.  
+If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
 ### `premountFor?`<AvailableFrom v="4.0.140" />
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
-From [v5.0](/docs/5-0-migration), the default value changes from `0` to `fps` (1 second).
+The default is controlled by [`defaultPremountInSeconds`](/docs/player/premounting#default-premount-duration), converted to frames. It is `0` seconds in v4 and `2` seconds in [v5.0](/docs/5-0-migration).
 
 ### `postmountFor?`<AvailableFrom v="4.0.340" />
 
@@ -392,8 +323,9 @@ The `style` is still applied, but `styleWhilePremounted` can override properties
 
 ### `styleWhilePostmounted?`<AvailableFrom v="4.0.340" />
 
-CSS styles to be applied to the container while the sequence is postmounted.
-The `style` is still applied, but `styleWhilePostmounted` can override properties. Defaults to no overrides.
+CSS styles to be applied to the container while the sequence is postmounted.  
+The `style` is still applied, but `styleWhilePostmounted` can override properties.  
+Defaults to no overrides.
 
 ### `showInTimeline?`<AvailableFrom v="4.0.110" />
 
@@ -409,7 +341,8 @@ The eye icon in the Studio timeline toggles this prop and persists it to your so
 
 ## Adding a ref
 
-You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Sequence>` from version `v3.2.13` on, if the sequence does not use `layout="none"`. If you use TypeScript, you need to type it with `HTMLDivElement`:
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Sequence>` from version `v3.2.13` on, if the sequence does not use `layout="none"`.  
+If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
 import {useRef} from 'react';
@@ -430,7 +363,8 @@ const MyComp = () => {
 ## Note for `@remotion/three`
 
 A `<Sequence>` by default will return a `<div>` component which is not allowed inside a [`<ThreeCanvas>`](/docs/three-canvas).  
-Avoid an error by passing `layout="none"` to `<Sequence>`. Example: `<Sequence layout="none">`.
+Avoid an error by passing `layout="none"` to `<Sequence>`.  
+Example: `<Sequence layout="none">`.
 
 ## Compatibility
 

@@ -5,6 +5,8 @@ import type {
 	ConfigUpdate,
 } from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {UndoIcon} from '../icons/undo';
 import {Button} from './Button';
@@ -44,10 +46,15 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	showPremounting: null,
+	defaultPremountInSeconds: null,
 	askAIEnabled: null,
 	audioLatencyHint: null,
 	beepOnFinish: null,
 	enableCrossSiteIsolation: null,
+	experimentalTracksEnabled: null,
+	experimentalSequenceActivityEnabled: null,
+	experimentalSequenceActivityLimit: null,
 	interactivityEnabled: null,
 	keyboardShortcutsEnabled: null,
 	logLevel: null,
@@ -63,8 +70,10 @@ const ConfigNumber = ({
 	onChange,
 	onChangeEnd,
 	value,
+	step,
 }: {
 	readonly defaultValue: number;
+	readonly step: number;
 	readonly name: string;
 	readonly onChange: (value: number | null) => void;
 	readonly onChangeEnd: (value: number | null) => void;
@@ -87,7 +96,7 @@ const ConfigNumber = ({
 					placeholder={`Default (${defaultValue})`}
 					rightAlign
 					status="ok"
-					step={1}
+					step={step}
 					value={value ?? defaultValue}
 				/>
 				<Button
@@ -110,7 +119,13 @@ export const StudioSettings: React.FC = () => {
 		useState<ConfigFileStudioSettings>(initialSettings);
 	const [committedNumberSettings, setCommittedNumberSettings] = useState<{
 		numberOfSharedAudioTags: number | null;
-	}>({numberOfSharedAudioTags: null});
+		defaultPremountInSeconds: number | null;
+		experimentalSequenceActivityLimit: number | null;
+	}>({
+		numberOfSharedAudioTags: null,
+		defaultPremountInSeconds: null,
+		experimentalSequenceActivityLimit: null,
+	});
 	const [editedSetters, setEditedSetters] = useState<Set<string>>(
 		() => new Set(),
 	);
@@ -126,6 +141,12 @@ export const StudioSettings: React.FC = () => {
 			studioRuntimeConfig.configFileStudioSettings ?? initialSettings,
 		);
 		setCommittedNumberSettings({
+			experimentalSequenceActivityLimit:
+				studioRuntimeConfig.configFileStudioSettings
+					?.experimentalSequenceActivityLimit ?? null,
+			defaultPremountInSeconds:
+				studioRuntimeConfig.configFileStudioSettings
+					?.defaultPremountInSeconds ?? null,
 			numberOfSharedAudioTags:
 				studioRuntimeConfig.configFileStudioSettings?.numberOfSharedAudioTags ??
 				null,
@@ -147,13 +168,26 @@ export const StudioSettings: React.FC = () => {
 		[],
 	);
 	const previewNumberSetting = useCallback(
-		(key: 'numberOfSharedAudioTags', value: number | null) => {
+		(
+			key:
+				| 'numberOfSharedAudioTags'
+				| 'defaultPremountInSeconds'
+				| 'experimentalSequenceActivityLimit',
+			value: number | null,
+		) => {
 			setSettings((current) => ({...current, [key]: value}));
 		},
 		[],
 	);
 	const commitNumberSetting = useCallback(
-		(key: 'numberOfSharedAudioTags', setter: string, value: number | null) => {
+		(
+			key:
+				| 'numberOfSharedAudioTags'
+				| 'defaultPremountInSeconds'
+				| 'experimentalSequenceActivityLimit',
+			setter: string,
+			value: number | null,
+		) => {
 			setSettings((current) => ({...current, [key]: value}));
 			setCommittedNumberSettings((current) => ({...current, [key]: value}));
 			setEditedSetters((current) => new Set(current).add(setter));
@@ -166,9 +200,12 @@ export const StudioSettings: React.FC = () => {
 			setter: string,
 			value: ConfigFileStudioSettings[keyof ConfigFileStudioSettings],
 		): ConfigUpdate =>
-			value === null ? {setter, type: 'delete'} : {setter, type: 'set', value};
+			value === null || value === undefined
+				? {setter, type: 'delete'}
+				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setShowPremounting', settings.showPremounting),
 			update('setAskAIEnabled', settings.askAIEnabled),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
 			update('setBeepOnFinish', settings.beepOnFinish),
@@ -177,8 +214,24 @@ export const StudioSettings: React.FC = () => {
 				'setNumberOfSharedAudioTags',
 				committedNumberSettings.numberOfSharedAudioTags,
 			),
+			update(
+				'setDefaultPremountInSeconds',
+				committedNumberSettings.defaultPremountInSeconds,
+			),
 			update('setRspack', settings.rspack),
 			update('setInteractivityEnabled', settings.interactivityEnabled),
+			update(
+				'setExperimentalTracksEnabled',
+				settings.experimentalTracksEnabled,
+			),
+			update(
+				'setExperimentalSequenceActivityEnabled',
+				settings.experimentalSequenceActivityEnabled,
+			),
+			update(
+				'setExperimentalSequenceActivityLimit',
+				committedNumberSettings.experimentalSequenceActivityLimit,
+			),
 			update('setCanvasTabsEnabled', settings.canvasTabsEnabled),
 			update('setLogLevel', settings.logLevel),
 		].filter((item) => editedSetters.has(item.setter));
@@ -272,6 +325,22 @@ export const StudioSettings: React.FC = () => {
 
 			<p style={sectionTitle}>Interface</p>
 			<label style={optionRow}>
+				<div style={label}>Show premounting in timeline</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={settings.showPremounting ?? true}
+						name="Show premounting in timeline"
+						onChange={(event) =>
+							changeSetting(
+								'showPremounting',
+								'setShowPremounting',
+								event.target.checked,
+							)
+						}
+					/>
+				</div>
+			</label>
+			<label style={optionRow}>
 				<div style={label}>Ask AI enabled</div>
 				<div style={rightRow}>
 					<Checkbox
@@ -320,6 +389,168 @@ export const StudioSettings: React.FC = () => {
 				</div>
 			</label>
 
+			<div style={optionRow}>
+				<div style={label}>
+					Experimental tracks
+					<InfoBubble
+						aria-label="About experimental tracks"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: 14,
+								lineHeight: 1.5,
+							}}
+						>
+							Groups Track, Series, and TransitionSeries clips on shared
+							timeline rows, with extra rows for overlays. Disabled by default.
+							Changes apply immediately after saving, without reloading Studio.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Experimental tracks">
+					<Checkbox
+						checked={settings.experimentalTracksEnabled === true}
+						name="Experimental tracks"
+						onChange={(event) =>
+							changeSetting(
+								'experimentalTracksEnabled',
+								'setExperimentalTracksEnabled',
+								event.target.checked ? true : null,
+							)
+						}
+					/>
+				</label>
+			</div>
+
+			<p style={sectionTitle}>Playback</p>
+			<ConfigNumber
+				defaultValue={NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS}
+				name="Default premount in seconds"
+				step={0.1}
+				onChange={(value) =>
+					previewNumberSetting('defaultPremountInSeconds', value)
+				}
+				onChangeEnd={(value) =>
+					commitNumberSetting(
+						'defaultPremountInSeconds',
+						'setDefaultPremountInSeconds',
+						value,
+					)
+				}
+				value={settings.defaultPremountInSeconds}
+			/>
+			<div style={optionRow}>
+				<div style={label}>
+					Sequence Activity (experimental)
+					<InfoBubble
+						aria-label="About experimental Sequence Activity"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: 14,
+								lineHeight: 1.5,
+							}}
+						>
+							Discovers layers in nearby scenes before they become visible. This
+							experimental feature may use more CPU. Changes apply immediately
+							and are saved in remotion.config.ts.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Sequence Activity (experimental)">
+					<Checkbox
+						checked={settings.experimentalSequenceActivityEnabled === true}
+						name="Sequence Activity (experimental)"
+						onChange={(event) =>
+							changeSetting(
+								'experimentalSequenceActivityEnabled',
+								'setExperimentalSequenceActivityEnabled',
+								event.target.checked ? true : null,
+							)
+						}
+					/>
+				</label>
+			</div>
+			{settings.experimentalSequenceActivityEnabled === true ? (
+				<div style={optionRow}>
+					<div style={label}>
+						Hidden activity limit (experimental)
+						<InfoBubble
+							aria-label="About the hidden activity limit"
+							horizontalAlignment="right"
+						>
+							<div
+								style={{
+									padding: 12,
+									maxWidth: 280,
+									fontSize: 14,
+									lineHeight: 1.5,
+								}}
+							>
+								Limits nearby hidden scenes, including nested sequences and
+								their ancestors. Visible, premounted, and postmounted scenes
+								always render. Set to 0 to disable hidden discovery, or -1 for
+								unlimited discovery without admission delays. Default:{' '}
+								{Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
+							</div>
+						</InfoBubble>
+					</div>
+					<div style={{...rightRow, gap: 6}}>
+						<InputDragger
+							aria-label="Hidden activity limit (experimental)"
+							buttonStyle={{textAlign: 'right', width: 140}}
+							formatter={() =>
+								settings.experimentalSequenceActivityLimit === null
+									? `Default (${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT})`
+									: String(settings.experimentalSequenceActivityLimit)
+							}
+							integerOnly
+							max={Number.MAX_SAFE_INTEGER}
+							min={-1}
+							onTextChange={() => undefined}
+							onValueChange={(value) =>
+								previewNumberSetting('experimentalSequenceActivityLimit', value)
+							}
+							onValueChangeEnd={(value) =>
+								commitNumberSetting(
+									'experimentalSequenceActivityLimit',
+									'setExperimentalSequenceActivityLimit',
+									value,
+								)
+							}
+							rightAlign
+							status="ok"
+							step={1}
+							value={
+								settings.experimentalSequenceActivityLimit ??
+								Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT
+							}
+						/>
+						<Button
+							disabled={settings.experimentalSequenceActivityLimit === null}
+							onClick={() =>
+								commitNumberSetting(
+									'experimentalSequenceActivityLimit',
+									'setExperimentalSequenceActivityLimit',
+									null,
+								)
+							}
+							size="compact"
+							style={{color: LIGHT_TEXT}}
+							aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
+						>
+							<UndoIcon style={resetIcon} />
+						</Button>
+					</div>
+				</div>
+			) : null}
+
 			<p style={sectionTitle}>Audio</p>
 			<ConfigSelect
 				defaultLabel="Playback"
@@ -337,6 +568,7 @@ export const StudioSettings: React.FC = () => {
 			<ConfigNumber
 				defaultValue={0}
 				name="Number of shared audio tags"
+				step={1}
 				onChange={(value) =>
 					previewNumberSetting('numberOfSharedAudioTags', value)
 				}

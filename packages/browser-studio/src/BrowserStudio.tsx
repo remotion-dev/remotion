@@ -1,6 +1,7 @@
 import type {RenderDefaults} from '@remotion/studio-shared';
 import {studioHtml} from '@remotion/studio-shared/studio-html';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	createBrowserStudioHmrAssetManager,
 	type BrowserStudioHmrBridge,
@@ -145,6 +146,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		repro: false,
 		sampleRate: 48_000,
 		scale: 1,
+		sharedMemoryCapture: null,
 		stillImageFormat: 'png',
 		userAgent: null,
 		videoBitrate: null,
@@ -168,6 +170,10 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
 	const [iframeLoaded, setIframeLoaded] = useState(false);
 	const [loadingProgress, setLoadingProgress] = useState<number | null>(null);
+	const [compileGeneration, setCompileGeneration] = useState(0);
+	const reloadBrowserStudio = useCallback(() => {
+		setCompileGeneration((generation) => generation + 1);
+	}, []);
 	const installedDependencyResolutionsRef = useRef<
 		Record<string, BrowserStudioDependencyResolution>
 	>({});
@@ -178,6 +184,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const initialElementRef = useRef(initialElement);
 	const lastSentProjectRef = useRef<BrowserStudioProps['project'] | null>(null);
 	const bundleUrlRef = useRef<string | null>(null);
+	const unsubscribeFromIframeEventsRef = useRef(new Set<() => void>());
 	const notifyStudioOfPointerLeave = useCallback(() => {
 		const contentWindow = iframeRef.current?.contentWindow;
 		contentWindow?.dispatchEvent(new Event(browserStudioPointerLeaveEvent));
@@ -364,6 +371,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 	useEffect(() => {
 		let didCancel = false;
+		const iframeEventUnsubscribers = unsubscribeFromIframeEventsRef.current;
 
 		const setCompileState = (nextState: CompileState) => {
 			if (didCancel) {
@@ -374,6 +382,9 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			onCompileStateChangeRef.current?.(nextState);
 		};
 
+		setIframeLoaded(false);
+		lastWrittenDocumentRef.current = null;
+		lastWrittenHtmlRef.current = null;
 		setIframeHtml(null);
 		setCompileState({status: 'compiling'});
 		const configuredDependencyResolutions = Object.fromEntries(
@@ -649,6 +660,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				logLevel: 'info',
 				mode: 'dev',
 				numberOfAudioTags: 0,
+				outputHash: null,
 				packageManager: 'unknown',
 				projectName: 'template-blank',
 				publicFiles,
@@ -662,6 +674,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				sampleRate: null,
 				staticHash: '',
 				studioRuntimeConfig: {
+					showPremounting: null,
+					defaultPremountInSeconds: null,
+					experimentalSequenceActivityEnabled: false,
+					experimentalSequenceActivityLimit:
+						NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 					askAIEnabled: false,
 					bufferStateDelayInMilliseconds: null,
 					defaultCodingAgent: null,
@@ -701,9 +718,21 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		return () => {
 			didCancel = true;
+			for (const unsubscribe of iframeEventUnsubscribers) {
+				unsubscribe();
+			}
+
+			iframeEventUnsubscribers.clear();
+			browserStudioOperations.clearPendingHmrEvent();
+			hmrAssetManager.dispose();
 			vendorBundleAbortController.abort();
 			if (vendorBundleUrl) {
 				URL.revokeObjectURL(vendorBundleUrl);
+			}
+
+			if (bundleUrlRef.current) {
+				URL.revokeObjectURL(bundleUrlRef.current);
+				bundleUrlRef.current = null;
 			}
 
 			workerRef.current = null;
@@ -712,6 +741,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		};
 	}, [
 		browserStudioOperations,
+		compileGeneration,
 		dependencyResolver,
 		hmrAssetManager,
 		publicFileManager,
@@ -813,11 +843,38 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		lastWrittenDocumentRef.current = contentDocument;
 		lastWrittenHtmlRef.current = iframeHtml;
+		const reloadCurrentStudio = () => {
+			if (
+				iframeRef.current?.contentWindow !== contentWindow ||
+				lastWrittenDocumentRef.current !== contentDocument
+			) {
+				return;
+			}
+
+			reloadBrowserStudio();
+		};
+
+		const iframeOperations = {
+			...browserStudioOperations,
+			subscribeToEvent: (
+				listener: Parameters<
+					typeof browserStudioOperations.subscribeToEvent
+				>[0],
+			) => {
+				const unsubscribe = browserStudioOperations.subscribeToEvent(listener);
+				unsubscribeFromIframeEventsRef.current.add(unsubscribe);
+				return () => {
+					unsubscribeFromIframeEventsRef.current.delete(unsubscribe);
+					unsubscribe();
+				};
+			},
+		};
 
 		contentDocument.open();
 		(contentWindow as BrowserStudioContentWindow).remotion_browserStudioHmr =
 			hmrAssetManager.bridge;
-		contentWindow.remotion_browserStudio = browserStudioOperations;
+		contentWindow.remotion_browserStudio = iframeOperations;
+		contentWindow.remotion_browserStudioReload = reloadCurrentStudio;
 		contentWindow.remotion_showBrowserStudioExperimentalNotice =
 			showExperimentalNotice;
 		contentDocument.write(iframeHtml);
@@ -828,7 +885,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			(
 				activeContentWindow as BrowserStudioContentWindow
 			).remotion_browserStudioHmr = hmrAssetManager.bridge;
-			activeContentWindow.remotion_browserStudio = browserStudioOperations;
+			activeContentWindow.remotion_browserStudio = iframeOperations;
+			activeContentWindow.remotion_browserStudioReload = reloadCurrentStudio;
 			activeContentWindow.remotion_showBrowserStudioExperimentalNotice =
 				showExperimentalNotice;
 			activeContentWindow.dispatchEvent(
@@ -841,6 +899,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		iframeHtml,
 		iframeLoaded,
 		iframeSrc,
+		reloadBrowserStudio,
 		showExperimentalNotice,
 	]);
 
@@ -848,6 +907,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		<div style={containerStyle}>
 			{iframeHtml ? (
 				<iframe
+					key={compileGeneration}
 					ref={iframeRef}
 					allow="cross-origin-isolated"
 					onLoad={() => setIframeLoaded(true)}

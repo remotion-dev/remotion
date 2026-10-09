@@ -55,6 +55,7 @@ export type RenderMediaOnLambdaInput = {
 	concurrency?: number;
 	frameRange?: SingleFrameRange;
 	outName?: OutNameInput<AwsProvider>;
+	separateAudioTo?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
@@ -158,7 +159,9 @@ export const internalRenderMediaOnLambdaRaw = async (
 };
 
 export const renderMediaOnLambdaOptionalToRequired = (
-	options: RenderMediaOnLambdaInput,
+	options: Omit<RenderMediaOnLambdaInput, 'codec'> & {
+		codec: ServerlessCodec | null;
+	},
 ): InnerRenderMediaOnLambdaInput => {
 	return {
 		enableCancellation: options.enableCancellation ?? false,
@@ -167,12 +170,14 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		audioCodec: options.audioCodec ?? null,
 		chromiumOptions: options.chromiumOptions ?? {},
 		codec: options.codec,
+		output: {type: 'media'},
 		colorSpace: options.colorSpace ?? null,
 		composition: options.composition,
 		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
 		concurrency: options.concurrency ?? null,
 		crf: options.crf,
 		gopSize: options.gopSize ?? null,
+		disableSharedMemoryCapture: options.disableSharedMemoryCapture ?? false,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
 		envVariables: options.envVariables ?? {},
 		everyNthFrame: options.everyNthFrame ?? 1,
@@ -194,6 +199,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		offthreadVideoCacheSizeInBytes:
 			options.offthreadVideoCacheSizeInBytes ?? null,
 		outName: options.outName ?? null,
+		separateAudioTo: options.separateAudioTo ?? null,
 		overwrite: options.overwrite,
 		pixelFormat: options.pixelFormat ?? undefined,
 		privacy: options.privacy ?? 'public',

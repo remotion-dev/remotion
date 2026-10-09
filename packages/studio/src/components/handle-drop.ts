@@ -14,7 +14,6 @@ import {getElementDragData} from './element-drag-and-drop';
 import {enqueueElementInstallRequest} from './element-install-request';
 import {
 	getElementPositionForDrop,
-	getFromForDrop,
 	hasSvgFile,
 	importAssets,
 	importRemoteAsset,
@@ -143,12 +142,9 @@ export const handleDrop = async ({
 				durationInFrames: element.element.durationInFrames ?? null,
 				initialProps: element.element.initialProps ?? null,
 				installationMode: element.element.installationMode ?? null,
+				isCaptionStyle: element.element.isCaptionStyle ?? false,
 			},
-			from: getFromForDrop({
-				durationInFrames: element.element.durationInFrames,
-				from,
-				preferCompositionStart,
-			}),
+			from,
 			position: getElementPositionForDrop({
 				dimensions: element.element.dimensions,
 				dropPosition,

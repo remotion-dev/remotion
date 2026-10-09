@@ -1,13 +1,13 @@
 import {Audio, Video} from '@remotion/media';
 import {
-	CalculateMetadataFunction,
+	Interactive,
+	useVideoConfig,
 	Composition,
 	Easing,
 	Folder,
-	Sequence,
 	interpolate,
 	useCurrentFrame,
-	Img,
+	CanvasImage,
 } from 'remotion';
 import {AnimatedCaptions} from './AnimatedCaptions';
 import {AnimatedCaptionsBigWords} from './AnimatedCaptionsBigWords';
@@ -39,13 +39,7 @@ import {
 import {TextBehindVideoStackComposition} from './TextBehindVideoStack';
 import {VibeCoded} from './VibeCoded';
 
-type Props = {};
-
 export const MASTER_DURATION_IN_FRAMES = 1816;
-
-const calculateMetadata: CalculateMetadataFunction<Props> = () => {
-	return {};
-};
 
 export const MyComposition = () => {
 	return (
@@ -57,7 +51,6 @@ export const MyComposition = () => {
 				fps={30}
 				width={1080}
 				height={1920}
-				calculateMetadata={calculateMetadata}
 			/>
 			<Folder name="backgrounds">
 				<Composition
@@ -81,11 +74,13 @@ export const MyComposition = () => {
 	);
 };
 
-export const MyComponent: React.FC<Props> = () => {
+const MyComponentInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Sequence
+			<DiscoBallBg
+				premountFor={fps}
 				name="DiscoBallBg"
 				width={1080}
 				height={1920}
@@ -93,10 +88,9 @@ export const MyComponent: React.FC<Props> = () => {
 				style={{
 					position: 'absolute',
 				}}
-			>
-				<DiscoBallBg />
-			</Sequence>
-			<Sequence
+			/>
+			<TextBackgroundComposition
+				premountFor={fps}
 				name="Text background"
 				width={1920}
 				height={1080}
@@ -165,10 +159,8 @@ export const MyComponent: React.FC<Props> = () => {
 						},
 					),
 				}}
-			>
-				<TextBackgroundComposition />
-			</Sequence>
-			<Sequence
+			/>
+			<BirthdayPartyCompilation
 				name="BirthdayPartyCompilation"
 				width={1080}
 				height={1920}
@@ -177,12 +169,15 @@ export const MyComponent: React.FC<Props> = () => {
 					position: 'absolute',
 				}}
 				from={182}
-				premountFor={30}
-			>
-				<BirthdayPartyCompilation />
-			</Sequence>
-			<Audio src={asset('text-behind-video-2.wav')} />
-			<Sequence
+				premountFor={fps}
+			/>
+			<Audio
+				premountFor={fps}
+				name="Voiceover"
+				src={asset('text-behind-video-2.wav')}
+			/>
+			<AnimatedCaptions
+				premountFor={fps}
 				name="AnimatedCaptions"
 				width={1080}
 				height={360}
@@ -191,10 +186,9 @@ export const MyComponent: React.FC<Props> = () => {
 					position: 'absolute',
 					translate: '0px 1132.3px',
 				}}
-			>
-				<AnimatedCaptions />
-			</Sequence>
-			<Sequence
+			/>
+			<AnimatedCaptions
+				premountFor={fps}
 				name="AnimatedCaptions"
 				width={1080}
 				height={360}
@@ -205,10 +199,9 @@ export const MyComponent: React.FC<Props> = () => {
 					position: 'absolute',
 					translate: '0px 1132.3px',
 				}}
-			>
-				<AnimatedCaptions />
-			</Sequence>
-			<Sequence
+			/>
+			<AnimatedCaptions
+				premountFor={fps}
 				name="AnimatedCaptions"
 				width={1080}
 				height={360}
@@ -237,10 +230,9 @@ export const MyComponent: React.FC<Props> = () => {
 						},
 					),
 				}}
-			>
-				<AnimatedCaptions />
-			</Sequence>
-			<Sequence
+			/>
+			<AnimatedCaptionsBigWords
+				premountFor={fps}
 				name="AnimatedCaptionsBigWords"
 				width={1080}
 				height={1920}
@@ -270,10 +262,8 @@ export const MyComponent: React.FC<Props> = () => {
 						},
 					),
 				}}
-			>
-				<AnimatedCaptionsBigWords />
-			</Sequence>
-			<Sequence
+			/>
+			<EffectShow
 				name="EffectShow"
 				width={1080}
 				height={1920}
@@ -316,11 +306,9 @@ export const MyComponent: React.FC<Props> = () => {
 					}),
 				}}
 				from={337}
-				premountFor={30}
-			>
-				<EffectShow />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<HuggingFace
 				name="HuggingFace"
 				width={1920}
 				height={1080}
@@ -363,11 +351,9 @@ export const MyComponent: React.FC<Props> = () => {
 					}),
 				}}
 				from={537}
-				premountFor={30}
-			>
-				<HuggingFace />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<ClientSideChad
 				name="ClientSideChad"
 				width={1080}
 				height={1920}
@@ -380,11 +366,9 @@ export const MyComponent: React.FC<Props> = () => {
 					}),
 				}}
 				from={694}
-				premountFor={30}
-			>
-				<ClientSideChad />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<Separate
 				name="Separate"
 				width={1080}
 				height={1920}
@@ -450,11 +434,9 @@ export const MyComponent: React.FC<Props> = () => {
 						},
 					),
 				}}
-				premountFor={30}
-			>
-				<Separate />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<Fork
 				name="Fork"
 				width={1080}
 				height={1920}
@@ -508,11 +490,10 @@ export const MyComponent: React.FC<Props> = () => {
 					),
 				}}
 				from={953}
-				premountFor={30}
-			>
-				<Fork />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<ForkDrop
+				premountFor={fps}
 				name="ForkDrop"
 				width={1080}
 				height={1920}
@@ -541,10 +522,8 @@ export const MyComponent: React.FC<Props> = () => {
 					),
 					scale: 1,
 				}}
-			>
-				<ForkDrop />
-			</Sequence>
-			<Sequence
+			/>
+			<OneShot
 				name="OneShot"
 				width={1080}
 				height={1080}
@@ -588,11 +567,9 @@ export const MyComponent: React.FC<Props> = () => {
 					}),
 				}}
 				from={1093}
-				premountFor={30}
-			>
-				<OneShot />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<VibeCoded
 				name="VibeCoded"
 				width={1080}
 				height={1080}
@@ -635,12 +612,10 @@ export const MyComponent: React.FC<Props> = () => {
 					scale: 0.9999999983052765,
 				}}
 				from={1125}
-				premountFor={30}
+				premountFor={fps}
 				trimBefore={35}
-			>
-				<VibeCoded />
-			</Sequence>
-			<Sequence
+			/>
+			<Mediabunny
 				name="Mediabunny"
 				width={1080}
 				height={1920}
@@ -649,11 +624,10 @@ export const MyComponent: React.FC<Props> = () => {
 				style={{
 					position: 'absolute',
 				}}
-				premountFor={30}
-			>
-				<Mediabunny />
-			</Sequence>
-			<Sequence
+				premountFor={fps}
+			/>
+			<DragInDemo
+				premountFor={fps}
 				name="DragInDemo"
 				width={1080}
 				height={1920}
@@ -688,10 +662,8 @@ export const MyComponent: React.FC<Props> = () => {
 					),
 				}}
 				from={1245}
-			>
-				<DragInDemo />
-			</Sequence>
-			<Sequence
+			/>
+			<TextBehindVideoStackComposition
 				name="TextBehindVideoStack"
 				width={1080}
 				height={1920}
@@ -710,11 +682,10 @@ export const MyComponent: React.FC<Props> = () => {
 					),
 				}}
 				from={1337}
-				premountFor={30}
-			>
-				<TextBehindVideoStackComposition />
-			</Sequence>
-			<Img
+				premountFor={fps}
+			/>
+			<CanvasImage
+				premountFor={fps}
 				src={asset('Screenshot 2026-07-19 at 18.28.52.png')}
 				style={{
 					position: 'absolute',
@@ -782,13 +753,15 @@ export const MyComponent: React.FC<Props> = () => {
 				durationInFrames={205}
 			/>
 			<Audio
+				name="Fork sound effect"
 				src={asset('fahhhh.mp3')}
 				from={1036}
-				premountFor={30}
+				premountFor={fps}
 				volume={0.1}
 				durationInFrames={772}
 			/>
 			<Video
+				name="Drumsticks"
 				src={asset('drumsticks.mp4')}
 				style={{
 					position: 'absolute',
@@ -799,28 +772,33 @@ export const MyComponent: React.FC<Props> = () => {
 				}}
 				from={1615}
 				durationInFrames={66}
-				premountFor={30}
+				premountFor={fps}
 				playbackRate={0.8}
 			/>
-			<Sequence
+			<TextBehindVideoSeriesFirst20sComposition
 				name="TextBehindVideoSeriesFirst20s"
 				from={1648}
-				premountFor={30}
+				premountFor={fps}
 				durationInFrames={TEXT_BEHIND_VIDEO_SERIES_FIRST_20S_DURATION_IN_FRAMES}
 				width={1080}
 				height={1920}
-			>
-				<TextBehindVideoSeriesFirst20sComposition />
-			</Sequence>
-			<Sequence
+			/>
+			<Countdown
+				premountFor={fps}
 				name="Countdown"
 				from={1556}
 				durationInFrames={COUNTDOWN_DURATION_IN_FRAMES}
 				width={1080}
 				height={1920}
-			>
-				<Countdown />
-			</Sequence>
+			/>
 		</>
 	);
 };
+
+export const MyComponent = Interactive.withSchema({
+	Component: MyComponentInner,
+	componentName: 'MyComponent',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

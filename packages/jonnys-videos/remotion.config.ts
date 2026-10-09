@@ -10,3 +10,8 @@ import {Config} from '@remotion/cli/config';
 Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
 Config.setChromiumOpenGlRenderer('angle');
+Config.setDefaultPremountInSeconds(2);
+Config.setExperimentalTracksEnabled(true);
+Config.setExperimentalSequenceActivityEnabled(true);
+Config.setShowPremounting(false);
+Config.setExperimentalSequenceActivityLimit(-1);

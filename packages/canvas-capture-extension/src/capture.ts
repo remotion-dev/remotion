@@ -1,4 +1,5 @@
 import type {CropRectangle} from 'mediabunny';
+import {captureDragImages} from './drag-image';
 import type {CaptureFormat} from './messages';
 import {
 	assertCanEncodeCapture,
@@ -14,6 +15,7 @@ import {
 const maxCanvasDimension = 32_767;
 const maxEncodedDimension = 32_766;
 
+// The capture window in viewport CSS pixels, independent of page scrolling.
 export type CaptureCrop = CropRectangle;
 
 export type CapturePreflight = {
@@ -49,25 +51,6 @@ const getWholePageSize = () => ({
 	),
 });
 
-const resolveCrop = (
-	crop: CaptureCrop | null,
-	sourceWidth: number,
-	sourceHeight: number,
-) => {
-	if (!crop) {
-		return null;
-	}
-
-	const left = Math.max(0, Math.min(crop.left, sourceWidth - 1));
-	const top = Math.max(0, Math.min(crop.top, sourceHeight - 1));
-	return {
-		left,
-		top,
-		width: Math.max(1, Math.min(crop.width, sourceWidth - left)),
-		height: Math.max(1, Math.min(crop.height, sourceHeight - top)),
-	};
-};
-
 const validateCaptureSize = ({
 	width,
 	height,
@@ -79,17 +62,15 @@ const validateCaptureSize = ({
 	readonly crop: CaptureCrop | null;
 	readonly scale: number;
 }) => {
-	const resolvedCrop = resolveCrop(crop, width, height) ?? {
+	const resolvedCrop = crop ?? {
 		left: 0,
 		top: 0,
 		width,
 		height,
 	};
-	const displayWidth = Math.max(1, Math.round(width * window.devicePixelRatio));
-	const displayHeight = Math.max(
-		1,
-		Math.round(height * window.devicePixelRatio),
-	);
+	const displayDensity = Math.max(window.devicePixelRatio, scale);
+	const displayWidth = Math.max(1, Math.round(width * displayDensity));
+	const displayHeight = Math.max(1, Math.round(height * displayDensity));
 	const outputSize = getScaledCanvasSize(
 		resolvedCrop.width,
 		resolvedCrop.height,
@@ -97,7 +78,7 @@ const validateCaptureSize = ({
 	);
 	if (displayWidth > maxCanvasDimension || displayHeight > maxCanvasDimension) {
 		throw new Error(
-			`The display canvas would be ${displayWidth}×${displayHeight} pixels; its maximum side is ${maxCanvasDimension.toLocaleString()} pixels.`,
+			`The display canvas would be ${displayWidth}×${displayHeight} pixels; its maximum side is ${maxCanvasDimension.toLocaleString()} pixels. Reduce the scale or page size.`,
 		);
 	}
 
@@ -145,13 +126,56 @@ const wrapWholePage = (): WrappedPage => {
 	content.style.position = 'absolute';
 	content.style.inset = '0';
 	content.style.display = 'block';
+	canvas.style.width = `${minimumSize.width}px`;
+	canvas.style.height = `${minimumSize.height}px`;
+	content.style.width = `${minimumSize.width}px`;
+	content.style.height = `${minimumSize.height}px`;
 
-	for (const child of [...body.childNodes]) {
-		content.appendChild(child);
-	}
-
+	const pageNodes = [...body.childNodes];
 	body.appendChild(canvas);
 	canvas.appendChild(content);
+	// Keep both parents connected so moveBefore() preserves scroll positions,
+	// focus, and other DOM state when moving the page into the capture subtree.
+	for (const child of pageNodes) {
+		content.moveBefore(child, null);
+	}
+
+	// Plain nested canvases can be clipped at the origin during HTML-in-canvas
+	// capture. Mark them as drawable to use Chromium's nested canvas paint path.
+	const originalCanvasContent = new Map<HTMLCanvasElement, string | null>();
+	const markCanvasesDrawable = (element: Element) => {
+		const canvases = [
+			...(element instanceof HTMLCanvasElement ? [element] : []),
+			...element.querySelectorAll('canvas'),
+		];
+		for (const nestedCanvas of canvases) {
+			if (nestedCanvas.getAttribute('content') === 'drawable') {
+				continue;
+			}
+
+			if (!originalCanvasContent.has(nestedCanvas)) {
+				originalCanvasContent.set(
+					nestedCanvas,
+					nestedCanvas.getAttribute('content'),
+				);
+			}
+
+			nestedCanvas.setAttribute('content', 'drawable');
+		}
+	};
+
+	markCanvasesDrawable(content);
+	const canvasObserver = new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			for (const node of mutation.addedNodes) {
+				if (node instanceof Element) {
+					markCanvasesDrawable(node);
+				}
+			}
+		}
+	});
+	canvasObserver.observe(content, {childList: true, subtree: true});
+
 	const initialSize = getPageSize(content, minimumSize);
 	canvas.style.width = `${initialSize.width}px`;
 	canvas.style.height = `${initialSize.height}px`;
@@ -189,8 +213,19 @@ const wrapWholePage = (): WrappedPage => {
 			return size;
 		},
 		restore: () => {
+			canvasObserver.disconnect();
+			for (const [nestedCanvas, originalContent] of originalCanvasContent) {
+				if (originalContent === null) {
+					nestedCanvas.removeAttribute('content');
+				} else {
+					nestedCanvas.setAttribute('content', originalContent);
+				}
+			}
+
+			originalCanvasContent.clear();
+
 			while (content.firstChild) {
-				body.insertBefore(content.firstChild, canvas);
+				body.moveBefore(content.firstChild, canvas);
 			}
 
 			canvas.remove();
@@ -215,6 +250,7 @@ export class PageCapture {
 	readonly #captureContext: OffscreenCanvasRenderingContext2D;
 	readonly #matteColors: readonly string[];
 	readonly #resizeObserver: ResizeObserver;
+	readonly #dragImages: ReturnType<typeof captureDragImages>;
 	#restored = false;
 	#paintError: unknown = null;
 
@@ -262,12 +298,9 @@ export class PageCapture {
 				this.#wrapped.canvas,
 				sourceSize.width,
 				sourceSize.height,
-				window.devicePixelRatio,
+				Math.max(window.devicePixelRatio, this.#scale),
 			);
-			const initialCrop = this.#resolveCrop(
-				sourceSize.width,
-				sourceSize.height,
-			) ?? {left: 0, top: 0, ...sourceSize};
+			const initialCrop = this.#crop ?? {left: 0, top: 0, ...sourceSize};
 			syncCanvasSize(
 				this.#captureCanvas,
 				initialCrop.width,
@@ -286,8 +319,13 @@ export class PageCapture {
 			getFilename: () => getFilename(format),
 		});
 		this.#wrapped.canvas.addEventListener('paint', this.#onPaint);
+		window.addEventListener('scroll', this.#requestPaint, true);
 		this.#resizeObserver = new ResizeObserver(this.#requestPaint);
 		this.#resizeObserver.observe(this.#wrapped.content);
+		this.#dragImages = captureDragImages({
+			density: Math.max(window.devicePixelRatio, scale),
+			requestPaint: this.#requestPaint,
+		});
 	}
 
 	start = async () => {
@@ -298,7 +336,7 @@ export class PageCapture {
 			this.#wrapped.canvas,
 			width,
 			height,
-			window.devicePixelRatio,
+			Math.max(window.devicePixelRatio, this.#scale),
 		);
 		await this.#recorder.startRecording();
 		this.#requestPaint();
@@ -328,8 +366,10 @@ export class PageCapture {
 		}
 
 		this.#restored = true;
+		this.#dragImages.dispose();
 		this.#resizeObserver.disconnect();
 		this.#wrapped.canvas.removeEventListener('paint', this.#onPaint);
+		window.removeEventListener('scroll', this.#requestPaint, true);
 		this.#recorder.dispose();
 		this.#wrapped.restore();
 	};
@@ -347,23 +387,13 @@ export class PageCapture {
 		this.#wrapped.canvas.requestPaint?.();
 	};
 
-	#resolveCrop = (sourceWidth: number, sourceHeight: number) => {
-		return resolveCrop(this.#crop, sourceWidth, sourceHeight);
-	};
-
 	#getRecordingRect = () => {
-		const contentRect = this.#wrapped.content.getBoundingClientRect();
-		const crop = this.#resolveCrop(contentRect.width, contentRect.height);
+		const crop = this.#crop;
 		if (!crop) {
-			return contentRect;
+			return this.#wrapped.content.getBoundingClientRect();
 		}
 
-		return new DOMRect(
-			contentRect.left + crop.left,
-			contentRect.top + crop.top,
-			crop.width,
-			crop.height,
-		);
+		return new DOMRect(crop.left, crop.top, crop.width, crop.height);
 	};
 
 	#draw = () => {
@@ -373,17 +403,21 @@ export class PageCapture {
 		}
 
 		this.#assertValidSize(width, height);
-		const crop = this.#resolveCrop(width, height) ?? {
-			left: 0,
-			top: 0,
-			width,
-			height,
-		};
+		const contentRect = this.#wrapped.content.getBoundingClientRect();
+		// Follow the viewport without shrinking the output at the page edges.
+		// drawImage clips any missing source pixels, leaving the matte visible.
+		const crop = this.#crop
+			? {
+					...this.#crop,
+					left: this.#crop.left - contentRect.left,
+					top: this.#crop.top - contentRect.top,
+				}
+			: {left: 0, top: 0, width, height};
 		syncDisplayCanvasSize(
 			this.#wrapped.canvas,
 			width,
 			height,
-			window.devicePixelRatio,
+			Math.max(window.devicePixelRatio, this.#scale),
 		);
 		syncCanvasSize(this.#captureCanvas, crop.width, crop.height, this.#scale);
 		resetCanvas(this.#context, this.#wrapped.canvas);
@@ -415,6 +449,11 @@ export class PageCapture {
 			this.#captureCanvas.height,
 		);
 
+		this.#dragImages.draw(this.#captureContext, this.#getRecordingRect(), {
+			canvas: this.#wrapped.canvas,
+			content: this.#wrapped.content,
+			backgroundColors: this.#matteColors,
+		});
 		this.#recorder.addFrame(this.#captureCanvas);
 	};
 

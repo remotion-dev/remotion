@@ -26,10 +26,12 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {usePremounting} from '../use-premounting.js';
+import type {VideoConfigValues} from '../video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
@@ -122,6 +124,7 @@ const SolidInner: React.FC<
 	InnerSolidProps & {
 		readonly overrideId: string | null;
 		readonly reference: React.Ref<HTMLCanvasElement>;
+		readonly videoConfigValues: VideoConfigValues | null;
 	}
 > = ({
 	color,
@@ -132,6 +135,7 @@ const SolidInner: React.FC<
 	style,
 	pixelDensity,
 	overrideId,
+	videoConfigValues,
 	reference,
 }) => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
@@ -147,6 +151,7 @@ const SolidInner: React.FC<
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: overrideId ?? null,
+		videoConfigValues,
 	});
 
 	const sourceCanvas = useMemo(() => {
@@ -359,17 +364,20 @@ const SolidOuter = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<SolidInner
-						reference={actualRef}
-						overrideId={controls?.overrideId ?? null}
-						color={color}
-						height={height}
-						width={width}
-						className={className}
-						style={croppedStyle ?? undefined}
-						effects={effects}
-						pixelDensity={pixelDensity}
-					/>
+					<SequenceContent>
+						<SolidInner
+							reference={actualRef}
+							videoConfigValues={controls?.videoConfigValues ?? null}
+							overrideId={controls?.overrideId ?? null}
+							color={color}
+							height={height}
+							width={width}
+							className={className}
+							style={croppedStyle ?? undefined}
+							effects={effects}
+							pixelDensity={pixelDensity}
+						/>
+					</SequenceContent>
 				</Sequence>
 			</Freeze>
 		);

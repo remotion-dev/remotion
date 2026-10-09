@@ -1,4 +1,4 @@
-import {forwardRef, useEffect, useRef, useState} from 'react';
+import {forwardRef, useLayoutEffect, useRef, useState} from 'react';
 import {Internals, useDelayRender} from 'remotion';
 import type {EffectDefinitionAndStack} from 'remotion';
 import {Canvas} from './canvas';
@@ -38,7 +38,7 @@ export const GifForRendering = forwardRef<
 		requestInitRef.current = requestInit;
 		const cacheKey = getGifCacheKey({resolvedSrc, requestInit});
 		const {delayRender, continueRender} = useDelayRender();
-		const [state, update] = useState<GifState>(() => {
+		const [state, update] = useState<GifState & {handle: number | null}>(() => {
 			const parsedGif = volatileGifCache.get(cacheKey);
 
 			if (parsedGif === undefined) {
@@ -47,26 +47,15 @@ export const GifForRendering = forwardRef<
 					frames: [],
 					width: 0,
 					height: 0,
+					handle: null,
 				};
 			}
 
-			return parsedGif as GifState;
+			return {...(parsedGif as GifState), handle: null};
 		});
 		const [error, setError] = useState<Error | null>(null);
 
-		const [renderHandle] = useState(() =>
-			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`, {
-				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-			}),
-		);
-
 		const logLevel = Internals.useLogLevel();
-
-		useEffect(() => {
-			return () => {
-				continueRender(renderHandle);
-			};
-		}, [renderHandle, continueRender]);
 
 		const index = useCurrentGifIndex({
 			delays: state.delays,
@@ -78,7 +67,7 @@ export const GifForRendering = forwardRef<
 		currentOnLoad.current = onLoad;
 		currentOnError.current = onError;
 
-		useEffect(() => {
+		useLayoutEffect(() => {
 			const controller = new AbortController();
 			let done = false;
 			let aborted = false;
@@ -98,6 +87,10 @@ export const GifForRendering = forwardRef<
 				requestInit: requestInitRef.current,
 			})
 				.then((parsed) => {
+					if (aborted) {
+						return;
+					}
+
 					Internals.Log.verbose(
 						{logLevel, tag: null},
 						'Parsed GIF in',
@@ -105,11 +98,9 @@ export const GifForRendering = forwardRef<
 						'ms',
 					);
 					currentOnLoad.current?.(parsed);
-					update(parsed);
+					update({...parsed, handle: newHandle});
 					volatileGifCache.set(cacheKey, parsed);
 					done = true;
-					continueRender(newHandle);
-					continueRender(renderHandle);
 				})
 				.catch((err) => {
 					if (aborted) {
@@ -133,10 +124,8 @@ export const GifForRendering = forwardRef<
 				}
 
 				continueRender(newHandle);
-				continueRender(renderHandle);
 			};
 		}, [
-			renderHandle,
 			logLevel,
 			cacheKey,
 			resolvedSrc,
@@ -144,6 +133,12 @@ export const GifForRendering = forwardRef<
 			continueRender,
 			delayRenderTimeoutInMilliseconds,
 		]);
+
+		useLayoutEffect(() => {
+			if (state.handle !== null) {
+				continueRender(state.handle);
+			}
+		}, [state, continueRender]);
 
 		if (error) {
 			Internals.Log.error({logLevel, tag: null}, error.stack);

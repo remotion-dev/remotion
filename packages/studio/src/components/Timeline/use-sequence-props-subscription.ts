@@ -7,7 +7,6 @@ import type {
 	JsxComponentIdentity,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -27,7 +26,6 @@ export const useSequencePropsSubscription = ({
 	effects,
 	preferMappedNodePath,
 	stack,
-	videoConfigValues,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
@@ -36,7 +34,6 @@ export const useSequencePropsSubscription = ({
 	originalLocation: OriginalPosition | null;
 	preferMappedNodePath: boolean;
 	stack: string | null;
-	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
@@ -94,8 +91,7 @@ export const useSequencePropsSubscription = ({
 			!shouldSubscribeToSourceFile(locationSource) ||
 			!locationLine ||
 			locationColumn === null ||
-			!schema ||
-			videoConfigValues === null
+			!schema
 		) {
 			return;
 		}
@@ -115,7 +111,7 @@ export const useSequencePropsSubscription = ({
 				: null,
 			clientId,
 			stack,
-			videoConfigValues,
+
 			applyOnce: (result) => {
 				if (!result.success) {
 					return;
@@ -171,6 +167,5 @@ export const useSequencePropsSubscription = ({
 		setPropStatuses,
 		setOverrideIdToNodePath,
 		stack,
-		videoConfigValues,
 	]);
 };

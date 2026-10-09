@@ -81,6 +81,9 @@ export type GetPartialAudioDataProps = {
 	signal: AbortSignal;
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const getPartialAudioData = async ({
 	src,
 	fromSeconds,

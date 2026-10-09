@@ -19,13 +19,12 @@ A mirror effect that can be applied to canvas-based components such as [`<Video>
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {mirror} from '@remotion/effects/mirror';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -35,7 +34,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

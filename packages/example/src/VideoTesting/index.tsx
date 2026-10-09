@@ -75,3 +75,35 @@ export const VideoTestingFrameAccuracy: React.FC = () => {
 		</div>
 	);
 };
+
+export const VideoTestingMediaFrameAccuracy: React.FC = () => {
+	return (
+		<div>
+			{(['webm', 'mp4'] as const).map((codec, index) => (
+				<div
+					key={codec}
+					style={{
+						position: 'absolute',
+						left: index * 540,
+						top: 0,
+						width: 540,
+						height: 540,
+						overflow: 'hidden',
+					}}
+				>
+					<div
+						style={{
+							position: 'relative',
+							width: 1080,
+							height: 1080,
+							transform: 'scale(0.5)',
+							transformOrigin: 'top left',
+						}}
+					>
+						<VideoTesting codec={codec} type="codec" />
+					</div>
+				</div>
+			))}
+		</div>
+	);
+};

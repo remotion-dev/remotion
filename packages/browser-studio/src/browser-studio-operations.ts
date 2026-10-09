@@ -24,7 +24,7 @@ import {
 	renameComposition as renameCompositionCodemod,
 	renameFolder as renameFolderCodemod,
 	reorderEffect as reorderEffectCodemod,
-	reorderNode,
+	reorderNodes,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences as splitSequencesCodemod,
@@ -218,6 +218,7 @@ const runBrowserCompositionEdit = (
 };
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
+	clearPendingHmrEvent: () => void;
 	emitEvent: (event: EventSourceEvent) => void;
 	resetHistory: () => void;
 };
@@ -279,7 +280,10 @@ const makeSequencePropsSubscriptionKey = ({
 	JSON.stringify({
 		clientId,
 		fileName,
-		nodePath,
+		nodePath: {
+			absolutePath: nodePath.absolutePath,
+			nodePath: nodePath.nodePath,
+		},
 		sequenceKeys,
 		assetKeys,
 		effectKeys,
@@ -453,6 +457,14 @@ const getElementInstallPlanForProject = async ({
 }: Parameters<BrowserStudioOperations['prepareElementInstall']>[0] & {
 	project: VirtualProject;
 }) => {
+	if (
+		destination.type === 'selected-media' &&
+		(element.isCaptionStyle !== true ||
+			element.installationMode !== 'component-owned-sequence')
+	) {
+		throw new Error('The Element must be a component-owned caption style');
+	}
+
 	const componentName =
 		StudioProtocolInternals.getElementComponentNameFromSourceCode(
 			element.sourceCode,
@@ -815,7 +827,6 @@ export const createBrowserStudioOperations = ({
 			componentIdentity: null,
 			keys: getAllSchemaKeys(mutation.schema),
 			effectKeys: [],
-			videoConfig: mutation.nodePath.videoConfigValues ?? undefined,
 		});
 		const nodePath = {
 			...mutation.nodePath,
@@ -849,7 +860,6 @@ export const createBrowserStudioOperations = ({
 			componentIdentity: null,
 			keys: [],
 			effectKeys: effects,
-			videoConfig: mutation.sequenceNodePath.videoConfigValues ?? undefined,
 		});
 
 		return (
@@ -902,7 +912,6 @@ export const createBrowserStudioOperations = ({
 				keys: request.keys,
 				assetKeys: request.assetKeys,
 				effects: request.effects,
-				videoConfigValues: request.videoConfigValues,
 			});
 		} catch {
 			return {
@@ -928,7 +937,6 @@ export const createBrowserStudioOperations = ({
 					keys: request.keys,
 					assetKeys: request.assetKeys,
 					effectKeys: request.effects,
-					videoConfig: request.videoConfigValues ?? undefined,
 				});
 				const nextEffectChain = nextStatus.effects
 					.map((effect) => (effect.canUpdate ? effect.callee : false))
@@ -1012,7 +1020,6 @@ export const createBrowserStudioOperations = ({
 			effectKeys: Array.from({length: effectIndex + 1}, (_, index) =>
 				index === effectIndex ? getAllSchemaKeys(schema) : [],
 			),
-			videoConfig: sequenceNodePath.videoConfigValues ?? undefined,
 		});
 		return (
 			status.effects[effectIndex] ?? {
@@ -1430,6 +1437,7 @@ export const createBrowserStudioOperations = ({
 
 	const wrapNode: BrowserStudioOperations['wrapNode'] = ({
 		fileName,
+		compositionId,
 		nodePath,
 		wrapper,
 		width,
@@ -1470,9 +1478,20 @@ export const createBrowserStudioOperations = ({
 							: {},
 				}),
 			});
+			const insertedNodePath =
+				result.nodePathRemappings.find(
+					(remapping) => remapping.oldNodePath === null,
+				)?.newNodePath ?? null;
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
-				timelineSelection: null,
+				timelineSelection:
+					insertedNodePath !== null
+						? {
+								compositionId,
+								absolutePath: filePath,
+								nodePath: insertedNodePath,
+							}
+						: null,
 				fileName,
 				mutate: (current) => applyCodemodChanges(current, result.changes),
 				nodePathMutationFiles: getNodePathMutationFiles(result),
@@ -1588,6 +1607,7 @@ export const createBrowserStudioOperations = ({
 					node: {filePath: sequence.fileName, nodePath: sequence.nodePath},
 					frame: sequence.splitFrame,
 					sequenceKeys: sequence.sequenceKeys,
+					videoConfig: sequence.videoConfigValues ?? undefined,
 				})),
 			});
 			const nodePathMutation = controller.applyMutation({
@@ -1870,7 +1890,7 @@ export const createBrowserStudioOperations = ({
 
 	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async ({
 		fileName,
-		sourceNodePath,
+		sourceNodePaths,
 		targetNodePath,
 		position,
 	}) => {
@@ -1880,9 +1900,12 @@ export const createBrowserStudioOperations = ({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderNode({
+			const result = await reorderNodes({
 				project,
-				node: {filePath: absolutePath, nodePath: sourceNodePath.nodePath},
+				nodes: sourceNodePaths.map((sourceNodePath) => ({
+					filePath: absolutePath,
+					nodePath: sourceNodePath.nodePath,
+				})),
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
 				position,
 			});
@@ -2277,6 +2300,7 @@ export const createBrowserStudioOperations = ({
 				readFileContents: (candidate) => project.files[candidate] ?? null,
 			});
 			const result = insertBasicCaptionsCodemod({
+				element: null,
 				input: project.files[absolutePath],
 				nodePath,
 				captions,
@@ -2444,6 +2468,7 @@ export const createBrowserStudioOperations = ({
 							...value.payload.element,
 							durationInFrames: value.payload.element.durationInFrames ?? null,
 							installationMode: value.payload.element.installationMode ?? null,
+							isCaptionStyle: value.payload.element.isCaptionStyle ?? false,
 						},
 						sourceOrigin: value.sourceOrigin,
 					};
@@ -2467,6 +2492,7 @@ export const createBrowserStudioOperations = ({
 		duplicateNodes,
 		wrapNode,
 		effects: effectOperations,
+		clearPendingHmrEvent: controller.clearPendingHmrEvent,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
 		getFileSource: controller.getFileSource,
@@ -2541,11 +2567,17 @@ export const createBrowserStudioOperations = ({
 
 				const plan = await getElementInstallPlanForProject({
 					installationName: request.installationName,
-					destination: {
-						type: 'current-composition',
-						compositionFile: request.compositionFile,
-						compositionId: request.compositionId,
-					},
+					destination:
+						request.captionTarget === null
+							? {
+									type: 'current-composition',
+									compositionFile: request.compositionFile,
+									compositionId: request.compositionId,
+								}
+							: {
+									type: 'selected-media',
+									compositionFile: request.captionTarget.fileName,
+								},
 					element,
 					project,
 				});
@@ -2655,47 +2687,84 @@ export const createBrowserStudioOperations = ({
 					request.element.dependencies,
 				);
 				const durationInFrames = request.element.durationInFrames ?? null;
-				const insertion = await insertIntoProject({
-					project,
-					request: {
-						compositionFile: request.compositionFile,
-						compositionId: request.compositionId,
-						element: {
-							componentName: plan.componentName,
-							importName: plan.componentName,
-							importPath: plan.importPath,
-							position: componentOwnsSequence ? request.position : null,
-							props: [
-								...Object.entries(request.element.initialProps ?? {}).map(
-									([name, value]) => ({name, value}),
-								),
-								...(componentOwnsSequence && durationInFrames !== null
-									? [
-											{
-												name: 'durationInFrames',
-												value: durationInFrames,
-											},
-										]
-									: []),
-								...(componentOwnsSequence
-									? [{name: 'name', value: request.element.displayName}]
-									: []),
-							],
-							type: 'component',
-						},
-						from: componentOwnsSequence ? request.from : null,
-						premountFor: request.premountFor,
-					},
-					wrapInSequence: componentOwnsSequence
-						? null
-						: {
-								dimensions: request.element.dimensions,
-								durationInFrames,
-								from: request.from,
-								name: request.element.displayName,
-								position: request.position,
+				let insertion: {
+					changes: CodemodFileChange[];
+					filePath: string;
+					nodePathRemappings: SequenceNodePathRemapping[];
+				};
+				if (request.captionTarget === null) {
+					insertion = await insertIntoProject({
+						project,
+						request: {
+							compositionFile: request.compositionFile,
+							compositionId: request.compositionId,
+							element: {
+								componentName: plan.componentName,
+								importName: plan.componentName,
+								importPath: plan.importPath,
+								position: componentOwnsSequence ? request.position : null,
+								props: [
+									...Object.entries(request.element.initialProps ?? {}).map(
+										([name, value]) => ({name, value}),
+									),
+									...(componentOwnsSequence && durationInFrames !== null
+										? [
+												{
+													name: 'durationInFrames',
+													value: durationInFrames,
+												},
+											]
+										: []),
+									...(componentOwnsSequence
+										? [{name: 'name', value: request.element.displayName}]
+										: []),
+								],
+								type: 'component',
 							},
-				});
+							from: componentOwnsSequence ? request.from : null,
+							premountFor: request.premountFor,
+						},
+						wrapInSequence: componentOwnsSequence
+							? null
+							: {
+									dimensions: request.element.dimensions,
+									durationInFrames,
+									from: request.from,
+									name: request.element.displayName,
+									position: request.position,
+								},
+					});
+				} else {
+					const filePath = plan.destinationCompositionFilePath;
+					const initialProps = {...element.initialProps};
+					if (element.dimensions !== null) {
+						initialProps.style = {
+							...element.dimensions,
+							...(typeof initialProps.style === 'object'
+								? initialProps.style
+								: {}),
+						};
+					}
+
+					const result = insertBasicCaptionsCodemod({
+						...request.captionTarget,
+						input: project.files[filePath],
+						importPath: plan.importPath,
+						element: {componentName: plan.componentName, initialProps},
+					});
+					insertion = {
+						changes: [
+							{
+								filePath,
+								previousContents: project.files[filePath],
+								nextContents: result.output,
+							},
+						],
+						filePath,
+						nodePathRemappings: result.nodePathRemappings,
+					};
+				}
+
 				const projectWithElement = applyCodemodChanges(project, [
 					...insertion.changes,
 					{

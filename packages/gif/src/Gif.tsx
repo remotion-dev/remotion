@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {
 	Freeze,
 	Internals,
@@ -119,6 +119,7 @@ const GifInner = ({
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: controls?.overrideId ?? null,
+		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 
 	const gifProps: RemotionGifProps & {
@@ -180,20 +181,26 @@ const GifWithIntrinsicDuration = (
 	onErrorRef.current = props.onError;
 	const requestInitRef = useRef(requestInit);
 	requestInitRef.current = requestInit;
-	const [handle] = useState(() =>
-		delayRender(`Finding duration of <Gif src="${src}" />`, {
-			timeoutInMilliseconds: props.delayRenderTimeoutInMilliseconds,
-		}),
-	);
-	const [durationInFrames, setDurationInFrames] = useState<number | null>(null);
-	const [failed, setFailed] = useState(false);
+	const [duration, setDuration] = useState<{
+		durationInFrames: number;
+		handle: number;
+	} | null>(null);
+	const [failedHandle, setFailedHandle] = useState<number | null>(null);
+	const {delayRenderTimeoutInMilliseconds} = props;
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		const handle = delayRender(`Finding duration of <Gif src="${src}" />`, {
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+		});
 		let cancelled = false;
 		getGifDurationInSeconds(src, {requestInit: requestInitRef.current})
-			.then((duration) => {
+			.then((durationInSeconds) => {
 				if (!cancelled) {
-					setDurationInFrames(Math.ceil(duration * fps) - (trimBefore ?? 0));
+					setDuration({
+						durationInFrames:
+							Math.ceil(durationInSeconds * fps) - (trimBefore ?? 0),
+						handle,
+					});
 				}
 			})
 			.catch((error) => {
@@ -203,7 +210,7 @@ const GifWithIntrinsicDuration = (
 
 				if (onErrorRef.current) {
 					onErrorRef.current(error);
-					setFailed(true);
+					setFailedHandle(handle);
 				} else {
 					cancelRender(error);
 				}
@@ -213,19 +220,31 @@ const GifWithIntrinsicDuration = (
 			cancelled = true;
 			continueRender(handle);
 		};
-	}, [cancelRender, continueRender, fps, handle, src, trimBefore]);
+	}, [
+		cancelRender,
+		continueRender,
+		delayRender,
+		delayRenderTimeoutInMilliseconds,
+		fps,
+		src,
+		trimBefore,
+	]);
 
-	useEffect(() => {
-		if (durationInFrames !== null || failed) {
-			continueRender(handle);
+	useLayoutEffect(() => {
+		if (duration !== null) {
+			continueRender(duration.handle);
 		}
-	}, [continueRender, durationInFrames, failed, handle]);
 
-	if (durationInFrames === null || failed) {
+		if (failedHandle !== null) {
+			continueRender(failedHandle);
+		}
+	}, [continueRender, duration, failedHandle]);
+
+	if (duration === null || failedHandle !== null) {
 		return null;
 	}
 
-	return <GifInner {...props} durationInFrames={durationInFrames} />;
+	return <GifInner {...props} durationInFrames={duration.durationInFrames} />;
 };
 
 const GifComponent = (

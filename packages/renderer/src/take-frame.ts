@@ -2,18 +2,12 @@ import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {screenshot} from './puppeteer-screenshot';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 
-export const takeFrame = async ({
-	freePage,
-	imageFormat,
-	jpegQuality,
-	width,
-	height,
-	output,
-	scale,
-	wantsBuffer,
-	timeoutInMilliseconds,
-}: {
+type TakeFrameOptions = {
 	freePage: Page;
 	imageFormat: VideoImageFormat | StillImageFormat;
 	jpegQuality: number | undefined;
@@ -23,15 +17,36 @@ export const takeFrame = async ({
 	scale: number;
 	wantsBuffer: boolean;
 	timeoutInMilliseconds: number;
-}): Promise<Buffer | null> => {
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
+};
+
+type TakeFrameResult<T extends RemotionSharedMemoryCapture | null> =
+	T extends null ? Buffer | null : CapturedFrame | null;
+
+export const takeFrame = async <T extends RemotionSharedMemoryCapture | null>({
+	freePage,
+	imageFormat,
+	jpegQuality,
+	width,
+	height,
+	output,
+	scale,
+	wantsBuffer,
+	timeoutInMilliseconds,
+	remotionSharedMemory,
+}: Omit<TakeFrameOptions, 'remotionSharedMemory'> & {
+	remotionSharedMemory: T;
+}): Promise<TakeFrameResult<T>> => {
 	if (imageFormat === 'none') {
-		return null;
+		return null as TakeFrameResult<T>;
 	}
 
+	const captureImageFormat =
+		remotionSharedMemory?.getImageFormat(imageFormat) ?? imageFormat;
 	if (
-		imageFormat === 'png' ||
-		imageFormat === 'pdf' ||
-		imageFormat === 'webp'
+		captureImageFormat === 'png' ||
+		captureImageFormat === 'pdf' ||
+		captureImageFormat === 'webp'
 	) {
 		await puppeteerEvaluateWithCatch({
 			pageFunction: () => {
@@ -56,14 +71,16 @@ export const takeFrame = async ({
 
 	const buf = await screenshot({
 		page: freePage,
-		omitBackground: imageFormat === 'png' || imageFormat === 'webp',
+		omitBackground:
+			captureImageFormat === 'png' || captureImageFormat === 'webp',
 		path: (wantsBuffer ? undefined : output) ?? undefined,
-		type: imageFormat,
+		type: captureImageFormat,
 		jpegQuality,
 		width,
 		height,
 		scale,
+		remotionSharedMemory,
 	});
 
-	return buf;
+	return buf as TakeFrameResult<T>;
 };

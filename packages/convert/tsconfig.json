@@ -40,12 +40,6 @@
 	},
 	"references": [
 		{
-			"path": "../media-parser"
-		},
-		{
-			"path": "../webcodecs"
-		},
-		{
 			"path": "../design"
 		}
 	]

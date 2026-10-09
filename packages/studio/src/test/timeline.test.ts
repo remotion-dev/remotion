@@ -73,6 +73,8 @@ test('Should calculate a basic timeline', () => {
 	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
@@ -156,6 +158,8 @@ test('Should follow order of nesting', () => {
 	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			sequence: {
 				displayName: 'Audio',
 				documentationLink: null,
@@ -183,6 +187,8 @@ test('Should follow order of nesting', () => {
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 100,
 			sequence: {
 				displayName: 'Audio',
 				documentationLink: null,
@@ -261,8 +267,6 @@ test('Should inherit loop display from parent for media tracks', () => {
 				controls: null,
 				loopDisplay: undefined,
 				src: 'video.mp4',
-				volume: 1,
-				doesVolumeChange: false,
 				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
@@ -406,8 +410,6 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				frozenMediaFrame: null,
 				mediaFrameAtSequenceZero: 0,
 				src: 'https://remotion.media/video.mp4',
-				volume: 1,
-				doesVolumeChange: false,
 				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,

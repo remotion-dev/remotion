@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
@@ -29,6 +29,7 @@ export const ZodTextareaEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({jsonPath, value, setValue, schema, onRemove, mayPad}) => {
+	const valueOnFocus = useRef(value);
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -46,8 +47,17 @@ export const ZodTextareaEditor: React.FC<{
 		[setValue],
 	);
 
+	const onFocus: React.FocusEventHandler<HTMLTextAreaElement> =
+		useCallback(() => {
+			valueOnFocus.current = value;
+		}, [value]);
+
 	const onBlur: React.FocusEventHandler<HTMLTextAreaElement> =
 		useCallback(() => {
+			if (valueOnFocus.current === value) {
+				return;
+			}
+
 			setValue(() => value, {shouldSave: true});
 		}, [setValue, value]);
 
@@ -69,6 +79,7 @@ export const ZodTextareaEditor: React.FC<{
 			<div style={fullWidth}>
 				<RemTextarea
 					onChange={onChange}
+					onFocus={onFocus}
 					onBlur={onBlur}
 					value={value}
 					status={zodValidation ? 'ok' : 'error'}

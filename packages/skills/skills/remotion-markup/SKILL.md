@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.532
+version: 4.0.534
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -15,6 +15,12 @@ If you detect a surprising change made in the meanwhile, don't overwrite it, ass
 
 ## General rules
 
+Inside a composition or scene component, get `fps` from `useVideoConfig()` for
+all seconds-to-frames calculations, including timing props such as `from`,
+`trimBefore`, `durationInFrames`, and `premountFor`. Keeping the expression on
+the JSX node, such as `trimBefore={4 * fps}`, lets Studio edit the timing and
+keeps it correct if the composition frame rate changes.
+
 Drive animations using `useCurrentFrame()` and `interpolate()`.  
 CSS `transition` or `animation` will not render correctly, they need to refactored.  
 Tailwind animation class will not render correctly, they need to be refactored.
@@ -22,14 +28,16 @@ Tailwind animation class will not render correctly, they need to be refactored.
 Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
-Prefer `Interactive.withSchema({wrapInSequence: true})` for custom visual components
-with editable props, and register reusable scenes as connected compositions.
+Prefer `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})`
+for scenes with editable props. Their inner markup can return a fragment; the
+wrapper handles layout and instance styles. Sized elements such as lower thirds
+can keep the default layout and forward `style` to their own root. Register
+reusable scenes as connected compositions.
 Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
 Give every timed component that supports `premountFor` one second of premounting:
 `premountFor={fps}`, where `fps` comes from `useVideoConfig()`. Apply this to
-media, interactive components, `<Sequence>`, `<Series.Sequence>`,
-`<TransitionSeries.Sequence>`, and `<TransitionSeries.Overlay>`, including
-timed components nested inside scenes. Premount the parent timeline item too
+media, interactive components, `<Sequence>`, `<TransitionSeries.Sequence>`,
+and `<TransitionSeries.Overlay>`, including timed components nested inside scenes. Premount the parent timeline item too
 when a nested item needs to mount before the parent starts. A component without
 `premountFor`, such as `<TransitionSeries.Transition>`, needs no substitute.
 
@@ -188,7 +196,7 @@ import type React from "react";
 import { Interactive, type InteractivitySchema } from "remotion";
 
 type LowerThirdProps = {
-  readonly children: string;
+  readonly children: React.ReactNode;
   readonly accentColor: string;
   readonly style?: React.CSSProperties;
 };
@@ -231,7 +239,7 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
 };
 
 const lowerThirdSchema = {
-  children: { type: "text-content", default: "", description: "Text" },
+  ...Interactive.childrenSchema,
   accentColor: {
     type: "color",
     default: "#0b84f3",
@@ -241,14 +249,13 @@ const lowerThirdSchema = {
 
 export const LowerThird = Interactive.withSchema({
   Component: LowerThirdInner,
-  componentName: "<LowerThird>",
+  componentName: "LowerThird",
   schema: lowerThirdSchema,
   wrapInSequence: true,
 });
 ```
 
-```tsx
-// Root.tsx
+```tsx title="src/Root.tsx"
 import { Composition } from "remotion";
 import { LowerThird } from "./LowerThird";
 import { MyScene } from "./MyScene";
@@ -305,6 +312,9 @@ When a scene or group of layers deserves its own editable timeline, follow [conn
 
 For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, preferably make it interactive with `Interactive.withSchema({wrapInSequence: true})`, and register the same exported component reference with a unique `<Composition>` in the root. Render the interactive component directly with its timing props, or as the only child of a sequence when that wrapper has a purpose. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
 
+Carry inherited styles such as `fontFamily` and font loading into the extracted
+component; see [parent independence](connected-compositions.md#make-the-component-independent-of-its-parent).
+
 ## Voiceover
 
 See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
@@ -331,14 +341,45 @@ When adding motion blur or a movement trail, read [motion-blur.md](motion-blur.m
 
 ## Visual and pixel effects
 
-When creating a visual effect, consider whether it is feasible using CSS and HTML, or whether a shader is needed.  
-Order or preference:
+When adding a visual effect, first identify the element or group it should affect.
+If the target component supports `effects` and a built-in effect below matches the
+request, prefer that effect over a CSS approximation. For example, apply
+`vignette()` directly to a `<Video>`'s `effects` prop when the vignette should
+affect that video.
 
-1. Regular HTML + CSS or other web techniques
-2. An effect applied to the element directly (`<Video>`, `<Img>`), or by wrapping the content in [`<HtmlInCanvas>`](html-in-canvas.md), which also accepts `effects`:
+These components accept `effects` directly:
 
-- A listed effect via [effects.md](effects.md)
-- A custom `createEffect()` via [effects.md](effects.md) when no preset is available.
+| Import from        | Components                                                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `remotion`         | `<Img>`, `<CanvasImage>`, `<AnimatedImage>`, `<Solid>`, `<HtmlInCanvas>`                                                      |
+| `@remotion/media`  | `<Video>`                                                                                                                     |
+| `@remotion/gif`    | `<Gif>`                                                                                                                       |
+| `@remotion/rive`   | `<RemotionRiveCanvas>`                                                                                                        |
+| `@remotion/shapes` | `<Arrow>`, `<Callout>`, `<Circle>`, `<Ellipse>`, `<Heart>`, `<Pie>`, `<Polygon>`, `<Rect>`, `<Spark>`, `<Star>`, `<Triangle>` |
+
+Ordinary HTML elements, `<Interactive.*>` DOM wrappers, `<AbsoluteFill>`, and
+`<Sequence>` do not accept `effects` directly. To apply effects to their content,
+wrap them in `<HtmlInCanvas>` and put the `effects` prop on the wrapper.
+
+For other elements, prefer regular HTML and CSS where suitable. Consider wrapping
+a group in [`<HtmlInCanvas>`](html-in-canvas.md) when post-processing the whole
+group is appropriate and the environment supports it.
+
+Read [effects.md](effects.md) before applying an effect for imports, parameters,
+and setup. It also covers reusable custom effects with `createEffect()` when no
+built-in effect matches.
+
+### Available effects
+
+Built-in effects from `@remotion/effects`:
+
+- Color and tone: `brightness()`, `colorCorrection()`, `colorKey()`, `contrast()`, `duotone()`, `exposure()`, `grayscale()`, `hue()`, `invert()`, `levels()`, `linearGradient()`, `linearGradientTint()`, `lut()`, `saturation()`, `shadowsHighlights()`, `thermalVision()`, `tint()`, `vibrance()`, `whiteBalance()`.
+- Blur and trails: `blur()`, `lightTrail()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `regionBlur()`, `zoomBlur()`.
+- Lighting: `dropShadow()`, `glow()`, `lightLeak()`, `shine()`, `starburst()`, `vignette()`.
+- Distortion and transforms: `barrelDistortion()`, `chromaticAberration()`, `cornerPin()`, `fisheye()`, `mirror()`, `noiseDisplacement()`, `scale()`, `skew()`, `tile()`, `uvTranslate()`, `wave()`, `xyTranslate()`.
+- Textures and patterns: `burlap()`, `checkerboard()`, `contourLines()`, `dotGrid()`, `emboss()`, `flannel()`, `gridlines()`, `halftone()`, `halftoneLinearGradient()`, `lines()`, `liquidContours()`, `noise()`, `paper()`, `pattern()`, `rings()`, `scanlines()`, `speckle()`, `tvSignalOff()`, `waves()`, `whiteNoise()`, `zigzag()`.
+- Edges: `outline()`, `roughenEdges()`, `shrinkwrap()`, `tear()`.
+- Pixelation and transitions: `evolve()`, `linearProgressivePixelate()`, `pixelate()`, `pixelDissolve()`, `radialProgressivePixelate()`, `venetianBlinds()`.
 
 ## 3D content
 

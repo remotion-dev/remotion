@@ -11,7 +11,7 @@ import {TailwindSupport} from '../components/TailwindSupport';
 
 ## Using the CLI
 
-The easiest way to get started with Tailwind is by scaffolding a new video using the CLI and selecting a template that supports adding Tailwind automatically.
+To scaffold a new video with TailwindCSS, pass [`--tailwind`](/docs/cli/create-video#--tailwind) to the CLI and select a supported template.
 
 <Tabs
 defaultValue="npm"
@@ -24,29 +24,29 @@ values={[
 }>
 <TabItem value="npm">
 
-```bash
-npx create-video@latest
+```bash title="Create a project with npm"
+npx create-video@latest --tailwind
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
-```bash
-pnpm create video
+```bash title="Create a project with pnpm"
+pnpm create video --tailwind
 ```
 
   </TabItem>
   <TabItem value="bun">
 
-```bash
-bun create video
+```bash title="Create a project with Bun"
+bun create video --tailwind
 ```
 
   </TabItem>
   <TabItem value="yarn">
 
-```bash
-yarn create video
+```bash title="Create a project with Yarn"
+yarn create video --tailwind
 ```
 
   </TabItem>
@@ -243,7 +243,3 @@ module.exports = {
 :::note
 Your package manager might show a peer dependency warning. You can safely ignore it or add `strict-peer-dependencies=false` to your `.npmrc` to suppress it.
 :::
-
-## See also
-
-- [TailwindCSS v2 (legacy)](/docs/tailwind-legacy)

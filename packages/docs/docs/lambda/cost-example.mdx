@@ -29,7 +29,7 @@ Rendering the [`HelloWorld`](https://github.com/remotion-dev/template-helloworld
 
 The video examples use Mediabunny's [`computeFrameRateMetrics()`](https://mediabunny.dev/api/InputVideoTrack#computeframeratemetrics) method to account for constant and variable frame rate videos.
 
-```tsx twoslash title="OffthreadRemoteVideo.tsx"
+```tsx twoslash title="src/Root.tsx"
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
@@ -62,7 +62,7 @@ export const getMediaMetadata = async (src: string) => {
   };
 };
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from 'react';
 import {Video} from '@remotion/media';
@@ -88,12 +88,9 @@ export const Component = () => {
   return <Video src={src} />;
 };
 
-export const VideoFromFileComp = () => {
+export const RemotionRoot = () => {
   return <Composition component={Component} id="VideoFromFile" calculateMetadata={calculateMetadataFn} />;
 };
-
-// In Root.tsx:
-// <VideoFromFileComp />
 ```
 
 [This](https://github.com/remotion-dev/remotion/blob/main/packages/example/public/bigbuckbunny.mp4) is the video file used.
@@ -105,7 +102,7 @@ Rendering a video inside your video increases the cost significantly.
 
 ## Rendering a 10 minute Remote HD Video
 
-```tsx twoslash title="OffthreadRemoteVideo.tsx"
+```tsx twoslash title="src/Root.tsx"
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
@@ -138,7 +135,7 @@ export const getMediaMetadata = async (src: string) => {
   };
 };
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from 'react';
 import {Video} from '@remotion/media';
@@ -164,12 +161,9 @@ export const Component = () => {
   return <Video src={src} />;
 };
 
-export const NewVideoComp = () => {
+export const RemotionRoot = () => {
   return <Composition component={Component} id="NewVideo" calculateMetadata={calculateMetadataFn} />;
 };
-
-// In Root.tsx:
-// <NewVideoComp />
 ```
 
 **Cold Lambda**: $0.108, 60.98sec  
@@ -177,7 +171,7 @@ export const NewVideoComp = () => {
 
 ## Rendering a 10 second Remote 4K Video
 
-```tsx twoslash title="OffthreadRemoteVideo.tsx"
+```tsx twoslash title="src/Root.tsx"
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
@@ -210,7 +204,7 @@ export const getMediaMetadata = async (src: string) => {
   };
 };
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from 'react';
 import {Video} from '@remotion/media';
@@ -236,12 +230,9 @@ export const Component = () => {
   return <Video src={src} />;
 };
 
-export const NewVideoComp = () => {
+export const RemotionRoot = () => {
   return <Composition component={Component} id="NewVideo" calculateMetadata={calculateMetadataFn} />;
 };
-
-// In Root.tsx:
-// <NewVideoComp />
 ```
 
 **Cold Lambda**: $0.014, 53.09sec  

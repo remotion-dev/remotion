@@ -1,4 +1,5 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
+import {openInCodingAgent} from '../helpers/open-in-app';
 import type {ApiHandler} from './api-types';
 import {addCompositionHandler} from './routes/add-composition';
 import {addEffectHandler} from './routes/add-effect';
@@ -7,17 +8,13 @@ import {addFolderHandler} from './routes/add-folder';
 import {addKeyframesHandler} from './routes/add-keyframes';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
+import {appInfoHandler} from './routes/app-info';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe-settings';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
 import {copyRenderOutputToAssetHandler} from './routes/copy-render-output-to-asset';
-import {
-	getDefaultCodingAgentInfoHandler,
-	openInCodingAgentHandler,
-} from './routes/default-coding-agent';
-import {getDefaultEditorInfoHandler} from './routes/default-editor';
 import {deleteCompositionHandler} from './routes/delete-composition';
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
@@ -34,6 +31,7 @@ import {insertElementHandler} from './routes/insert-element';
 import {
 	installRemotionSkillHandler,
 	removeRemotionSkillHandler,
+	upgradeRemotionSkillHandler,
 } from './routes/install-remotion-skill';
 import {invalidateBundleHandler} from './routes/invalidate-bundle';
 import {logStudioErrorHandler} from './routes/log-studio-error';
@@ -51,7 +49,10 @@ import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
 import {getReleaseNotesHandler} from './routes/release-notes';
-import {remotionSkillsInfoHandler} from './routes/remotion-skills-info';
+import {
+	openRemotionSkillHandler,
+	remotionSkillsInfoHandler,
+} from './routes/remotion-skills-info';
 import {handleRemoveRender} from './routes/remove-render';
 import {renameCompositionHandler} from './routes/rename-composition';
 import {renameFolderHandler} from './routes/rename-folder';
@@ -63,6 +64,7 @@ import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
+import {sharedMemoryCaptureSupportHandler} from './routes/shared-memory-capture-support';
 import {handleShutdownStudio} from './routes/shutdown-studio';
 import {splitSequencesHandler} from './routes/split-sequences';
 import {splitVideoFromAudioHandler} from './routes/split-video-from-audio';
@@ -95,6 +97,7 @@ export const allApiRoutes: {
 		ApiRoutes[key]['Response']
 	>;
 } = {
+	'/api/shared-memory-capture-support': sharedMemoryCaptureSupportHandler,
 	'/api/invalidate-bundle': invalidateBundleHandler,
 	'/api/composition-component-info': compositionComponentInfoHandler,
 	'/api/copy-render-output-to-asset': copyRenderOutputToAssetHandler,
@@ -109,7 +112,7 @@ export const allApiRoutes: {
 	'/api/open-in-terminal': openInTerminalHandler,
 	'/api/open-in-git-client': openInGitClientHandler,
 	'/api/open-in-editor': openInEditorHandler,
-	'/api/open-in-coding-agent': openInCodingAgentHandler,
+	'/api/open-in-coding-agent': openInCodingAgent,
 	'/api/register-client-render': registerClientRenderHandler,
 	'/api/unregister-client-render': unregisterClientRenderHandler,
 	'/api/update-default-props': updateDefaultPropsHandler,
@@ -159,14 +162,15 @@ export const allApiRoutes: {
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,
 	'/api/install-remotion-skill': installRemotionSkillHandler,
 	'/api/remove-remotion-skill': removeRemotionSkillHandler,
+	'/api/upgrade-remotion-skill': upgradeRemotionSkillHandler,
+	'/api/open-remotion-skill': openRemotionSkillHandler,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/rename-static-file': renameStaticFileHandler,
 	'/api/upgrade-remotion': handleUpgradeRemotion,
 	'/api/shutdown-studio': handleShutdownStudio,
 	'/api/restart-studio': handleRestartStudio,
-	'/api/default-coding-agent-info': getDefaultCodingAgentInfoHandler,
-	'/api/default-editor-info': getDefaultEditorInfoHandler,
+	'/api/app-info': appInfoHandler,
 	'/api/insert-composition-element': insertCompositionElementHandler,
 	'/api/insert-element': insertElementHandler,
 	'/api/prepare-element-install': prepareElementInstallHandler,

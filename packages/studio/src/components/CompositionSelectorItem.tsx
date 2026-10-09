@@ -310,7 +310,7 @@ export const CompositionSelectorItem: React.FC<{
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
-			paddingLeft: 12 + level * 8,
+			paddingLeft: 12 + level * 11,
 		};
 	}, [dropPosition, level, selected]);
 
@@ -855,6 +855,7 @@ export const CompositionSelectorItem: React.FC<{
 						aria-label={item.composition.id}
 						className={`__remotion-composition __remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 						data-compname={item.composition.id}
+						data-annotation-composition-id={item.composition.id}
 					>
 						<CompositionOrStillIcon
 							composition={item.composition}

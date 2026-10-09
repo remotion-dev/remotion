@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {useContext} from 'react';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';

@@ -1,3 +1,5 @@
+import type {WaveformMaxima} from './waveform-maxima';
+
 export type AudioWaveformWorkerLoadMessage = {
 	readonly type: 'load';
 	readonly requestId: number;
@@ -11,6 +13,7 @@ export type AudioWaveformWorkerPeaksMessage = {
 	readonly type: 'peaks';
 	readonly requestId: number;
 	readonly peaks: Float32Array;
+	readonly maxima: WaveformMaxima;
 	readonly final: boolean;
 	readonly averageVolume: number | null;
 };
