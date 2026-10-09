@@ -217,6 +217,7 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 const TimelineSequenceFn: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
 	readonly labelStartFrame: number | null;
+	readonly paintEndFrame: number | null;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly keyframeDisplayOffset: number;
@@ -229,6 +230,7 @@ const TimelineSequenceFn: React.FC<{
 }> = ({
 	s,
 	labelStartFrame,
+	paintEndFrame,
 	connectedCompositions,
 	nodePathInfo,
 	keyframeDisplayOffset,
@@ -250,6 +252,7 @@ const TimelineSequenceFn: React.FC<{
 			windowWidth={windowWidth}
 			s={s}
 			labelStartFrame={labelStartFrame}
+			paintEndFrame={paintEndFrame}
 			connectedCompositions={connectedCompositions}
 			nodePathInfo={nodePathInfo}
 			keyframeDisplayOffset={keyframeDisplayOffset}
@@ -323,6 +326,7 @@ const TimelineSequenceBar: React.FC<{
 	readonly labelOffset: number;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
+	readonly paintEndFrame: number | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly leftTrimHighlight: {
 		readonly left: number;
@@ -366,6 +370,7 @@ const TimelineSequenceBar: React.FC<{
 	activeTrimEdge,
 	leftTrimHighlight,
 	annotationLocation,
+	paintEndFrame,
 	displayDurationInFrames,
 	selectionBounds,
 	premount,
@@ -441,14 +446,25 @@ const TimelineSequenceBar: React.FC<{
 			? sceneRange.end * frameIncrement - Number(style.marginLeft)
 			: Infinity;
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
-	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
+	// Packed scene clips overlap during transitions. Stop the outgoing paint at
+	// the incoming scene so its trailing gap cannot be covered by the next clip.
+	const packedRight =
+		paintEndFrame !== null && frameIncrement !== null
+			? paintEndFrame * frameIncrement - Number(style.marginLeft)
+			: Infinity;
+	const paintedEnd = Math.max(
+		0,
+		Math.min(Number(style.width), sceneRight, packedRight),
+	);
 	// Shared child rows need the same gap as Track clips, including when the
 	// scene clips their trailing edge. Only inset the paint: timing, hit areas,
 	// and trim handles keep their full width. Preserve tiny clips when zoomed out.
 	const visualRightInset =
 		(s.timelineTrack || sceneRange !== null) &&
 		transitionWidth === null &&
-		(rightEdgeVisible || sceneRight <= Number(style.width))
+		(rightEdgeVisible ||
+			sceneRight <= Number(style.width) ||
+			packedRight <= Number(style.width))
 			? Number(style.width) -
 				paintedEnd +
 				Math.min(1, Math.max(0, paintedEnd - paintedStart - 1))
@@ -738,6 +754,7 @@ const TimelineSequenceBar: React.FC<{
 const TimelineSequenceInner: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
 	readonly labelStartFrame: number | null;
+	readonly paintEndFrame: number | null;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -751,6 +768,7 @@ const TimelineSequenceInner: React.FC<{
 }> = ({
 	s,
 	labelStartFrame,
+	paintEndFrame,
 	connectedCompositions,
 	windowWidth,
 	nodePathInfo,
@@ -1797,6 +1815,7 @@ const TimelineSequenceInner: React.FC<{
 			}
 			connectedComposition={connectedCompositions[0] ?? null}
 			annotationLocation={originalLocation}
+			paintEndFrame={paintEndFrame}
 			activeTrimEdge={activeTrimEdge}
 			leftTrimHighlight={
 				visibleLayout.media?.offset === 0 ? visibleLayout.media : null

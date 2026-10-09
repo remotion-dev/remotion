@@ -74,6 +74,7 @@ const TimelineTrackUnmemoized: React.FC<{
 				<TimelineSequence
 					s={track.sequence}
 					labelStartFrame={null}
+					paintEndFrame={null}
 					cascadedStart={track.cascadedStart}
 					localStart={track.localStart}
 					parentVisibleStart={track.parentVisibleStart}

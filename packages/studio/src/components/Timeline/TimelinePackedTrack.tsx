@@ -21,9 +21,9 @@ export const TimelinePackedTrack: React.FC<{
 	const {dropIndicatorLeft, onClickCapture, onPointerDownCapture} =
 		useSeriesReorder(items);
 	const rows = useMemo(() => {
-		const clips = items.filter(
-			(item) => item.sequence.timelineTrack?.role === 'clip',
-		);
+		const clips = items
+			.filter((item) => item.sequence.timelineTrack?.role === 'clip')
+			.sort((a, b) => a.sequence.from - b.sequence.from);
 		return [clips, ...auxiliaryRows].map((row, index) => ({
 			items: row,
 			top:
@@ -68,7 +68,7 @@ export const TimelinePackedTrack: React.FC<{
 			))}
 			{/* Keep clips under the same parent when timing edits move them to another row. */}
 			{rows.flatMap((row) =>
-				row.items.map((item) => (
+				row.items.map((item, index) => (
 					<div
 						key={item.sequence.id}
 						data-timeline-track-item-id={item.sequence.id}
@@ -85,6 +85,13 @@ export const TimelinePackedTrack: React.FC<{
 						<TimelineSequence
 							s={item.sequence}
 							labelStartFrame={null}
+							paintEndFrame={
+								row.top === 0 &&
+								(row.items[index + 1]?.sequence.from ?? -Infinity) >
+									item.sequence.from
+									? (row.items[index + 1]?.sequence.from ?? null)
+									: null
+							}
 							cascadedStart={item.cascadedStart}
 							localStart={item.localStart}
 							parentVisibleStart={item.parentVisibleStart}
