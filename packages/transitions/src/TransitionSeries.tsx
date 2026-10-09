@@ -129,14 +129,14 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly offset?: number;
 		readonly className?: string;
 	} & LayoutBasedProps &
-		Pick<
+		Omit<
 			SequencePropsWithoutDuration,
-			| 'name'
-			| 'showInTimeline'
-			| 'freeze'
-			| 'hidden'
-			| 'trimBefore'
-			| 'playbackRate'
+			// Series determines the start frame and does not support looping.
+			| 'from'
+			| 'loop'
+			| `_remotionInternal${string}`
+			// Preserve the version-specific layout props above.
+			| keyof AbsoluteFillLayout
 		>
 >;
 
