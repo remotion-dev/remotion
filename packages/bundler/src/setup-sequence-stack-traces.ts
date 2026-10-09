@@ -64,18 +64,23 @@ const enableProxy = <
 				const source =
 					sourceArgumentIndex === null ? null : argArray[sourceArgumentIndex];
 				const existingStack = props?.[internalStackProp];
+				const controlsStack =
+					!existingStack && first === sequenceComponent && props?.controls
+						? Internals.getStackForControls(props.controls)
+						: null;
 				const stack =
 					existingStack ||
-					(source &&
-					typeof source.fileName === 'string' &&
-					typeof source.lineNumber === 'number' &&
-					typeof source.columnNumber === 'number'
-						? Internals.makeOriginalSourceStack({
-								fileName: getSourceFileName(source.fileName),
-								lineNumber: source.lineNumber,
-								columnNumber: source.columnNumber,
-							})
-						: new Error().stack);
+					(controlsStack ??
+						(source &&
+						typeof source.fileName === 'string' &&
+						typeof source.lineNumber === 'number' &&
+						typeof source.columnNumber === 'number'
+							? Internals.makeOriginalSourceStack({
+									fileName: getSourceFileName(source.fileName),
+									lineNumber: source.lineNumber,
+									columnNumber: source.columnNumber,
+								})
+							: new Error().stack));
 				const newProps = existingStack
 					? {...props}
 					: {

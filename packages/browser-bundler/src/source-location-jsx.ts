@@ -1,6 +1,7 @@
 import type * as React from 'react';
 import type * as JSXDevRuntime from 'react/jsx-dev-runtime';
 import type * as JSXRuntime from 'react/jsx-runtime';
+import type {SequenceControls} from 'remotion';
 import {Internals} from 'remotion';
 
 type JsxFactory =
@@ -47,18 +48,25 @@ const withSourceLocation = <T extends JsxFactory>(
 				sourceArgumentIndex === null
 					? null
 					: (argArray[sourceArgumentIndex] as JsxSource | null | undefined);
+			const existingStack = props?.[internalStackProp];
+			const controlsStack =
+				!existingStack && component === sequenceComponent && props?.controls
+					? Internals.getStackForControls(props.controls as SequenceControls)
+					: null;
 			const stack =
-				source &&
-				typeof source.fileName === 'string' &&
-				typeof source.lineNumber === 'number' &&
-				typeof source.columnNumber === 'number'
-					? Internals.makeOriginalSourceStack({
-							fileName: source.fileName,
-							lineNumber: source.lineNumber,
-							columnNumber: source.columnNumber,
-						})
-					: new Error().stack;
-			const newProps: Record<string, unknown> = props?.[internalStackProp]
+				existingStack ||
+				(controlsStack ??
+					(source &&
+					typeof source.fileName === 'string' &&
+					typeof source.lineNumber === 'number' &&
+					typeof source.columnNumber === 'number'
+						? Internals.makeOriginalSourceStack({
+								fileName: source.fileName,
+								lineNumber: source.lineNumber,
+								columnNumber: source.columnNumber,
+							})
+						: new Error().stack));
+			const newProps: Record<string, unknown> = existingStack
 				? {...props}
 				: {...(props ?? {}), [internalStackProp]: stack};
 			if (component === sequenceComponent) {
