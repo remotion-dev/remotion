@@ -3,7 +3,7 @@ import type {AnyComposition, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 
 type Fiber = {
-	readonly alternate?: Fiber | null;
+	readonly alternate: Fiber | null;
 	readonly child: Fiber | null;
 	readonly memoizedProps: unknown;
 	readonly sibling: Fiber | null;
