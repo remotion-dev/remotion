@@ -263,7 +263,6 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 
 	return (
 		<TrackWithoutSchema
-			_remotionInternalAllowOverlap
 			layout="none"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 			{...props}

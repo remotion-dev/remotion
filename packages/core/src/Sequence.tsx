@@ -60,7 +60,6 @@ import {IsInsideSeriesContext} from './series/is-inside-series.js';
 import {useTimelinePosition} from './timeline-position-state.js';
 import {
 	TimelineTrackContext,
-	TrackValidationContext,
 	type TimelineTrackItem,
 } from './timeline-track-context.js';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
@@ -218,7 +217,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const env = useRemotionEnvironment();
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const timelineTrack = useContext(TimelineTrackContext);
-	const trackValidation = useContext(TrackValidationContext);
 	const timelineTrackRole = timelineTrackItem?.role ?? 'clip';
 	const seriesOffset = timelineTrackItem?.seriesOffset ?? null;
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
@@ -577,32 +575,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		currentFrameRef.current = currentFrame;
 	}, [currentFrame]);
 	const getCurrentFrame = useCallback(() => currentFrameRef.current, []);
-	const validateTrackClip =
-		timelineTrackRole === 'clip' && (showInTimeline || Boolean(isMedia));
-	const trackClipEnd = Math.min(
-		videoConfig.durationInFrames,
-		cumulatedFrom + (from + actualDurationInFrames) / parentPlaybackRate,
-	);
-	useLayoutEffect(() => {
-		if (!trackValidation || !validateTrackClip || trackClipEnd <= firstFrame) {
-			return;
-		}
-
-		return trackValidation.register({
-			id,
-			name: timelineClipName || controls?.componentName || '<Sequence>',
-			from: firstFrame,
-			end: trackClipEnd,
-		});
-	}, [
-		trackValidation,
-		validateTrackClip,
-		trackClipEnd,
-		firstFrame,
-		id,
-		timelineClipName,
-		controls?.componentName,
-	]);
 	const registeredTrimBefore = trimBefore === 0 ? null : trimBefore;
 	const parentCumulatedNegativeFrom =
 		parentSequence?.cumulatedNegativeFrom ?? 0;
@@ -1005,20 +977,16 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	// Keep the provider mounted when track grouping changes so clip state survives.
 	const sequence = (
-		<TrackValidationContext.Provider
-			value={validateTrackClip ? null : trackValidation}
+		<TimelineTrackContext.Provider
+			value={
+				timelineTrackRole === 'track' ||
+				(timelineTrackRole === 'clip' && !showInTimeline)
+					? timelineTrack
+					: null
+			}
 		>
-			<TimelineTrackContext.Provider
-				value={
-					timelineTrackRole === 'track' ||
-					(timelineTrackRole === 'clip' && !showInTimeline)
-						? timelineTrack
-						: null
-				}
-			>
-				{sequenceContent}
-			</TimelineTrackContext.Provider>
-		</TrackValidationContext.Provider>
+			{sequenceContent}
+		</TimelineTrackContext.Provider>
 	);
 
 	return sequence;

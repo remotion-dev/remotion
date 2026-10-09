@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	sequenceSchema,
@@ -12,8 +12,6 @@ import {
 import {
 	ExperimentalTracksEnabledContext,
 	TimelineTrackContext,
-	TrackValidationContext,
-	type TrackClip,
 } from './timeline-track-context.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -71,80 +69,37 @@ export type TrackWithoutSchemaProps = Omit<
 		  })
 	);
 
-export const TrackWithoutSchema: React.FC<
-	TrackWithoutSchemaProps & {readonly _remotionInternalAllowOverlap: boolean}
-> = ({
+export const TrackWithoutSchema: React.FC<TrackWithoutSchemaProps> = ({
 	name = 'Track',
 	children,
 	layout = 'none',
-	_remotionInternalAllowOverlap,
 	...props
 }) => {
 	const [id] = useState(() => String(Math.random()));
-	const clips = useRef(new Map<string, TrackClip>());
-	const [, setRevision] = useState(0);
-	const register = useCallback((clip: TrackClip) => {
-		clips.current.set(clip.id, clip);
-		setRevision((revision) => revision + 1);
-		return () => {
-			clips.current.delete(clip.id);
-			setRevision((revision) => revision + 1);
-		};
-	}, []);
-	const validation = useMemo(
-		() => (_remotionInternalAllowOverlap ? null : {register}),
-		[_remotionInternalAllowOverlap, register],
-	);
 	const tracksEnabled = useContext(ExperimentalTracksEnabledContext);
 	const value = useMemo(
 		() => (tracksEnabled ? {id, name} : null),
 		[id, name, tracksEnabled],
 	);
-	if (!_remotionInternalAllowOverlap) {
-		const ordered = [...clips.current.values()].sort((a, b) => a.from - b.from);
-		for (let index = 1; index < ordered.length; index++) {
-			const previous = ordered[index - 1];
-			const current = ordered[index];
-			const overlapEnd = Math.min(previous.end, current.end);
-			const overlap = overlapEnd - current.from;
-			const tolerance =
-				Number.EPSILON *
-				Math.max(1, Math.abs(overlapEnd), Math.abs(current.from)) *
-				4;
-			if (overlap > tolerance) {
-				throw new Error(
-					`<Track name="${name}"> contains overlapping items: "${previous.name}" (frames ${previous.from}–${previous.end}) and "${current.name}" (frames ${current.from}–${current.end}) overlap by ${overlap} frames, from frame ${current.from} up to frame ${overlapEnd} (exclusive). Items in a <Track> must not overlap. Shorten the earlier item's durationInFrames, move the later item's from, or put the items on separate Tracks. Use <Series> or <TransitionSeries> for overlaps managed by a series.`,
-				);
-			}
-		}
-	}
 
 	return (
-		<TrackValidationContext.Provider value={validation}>
-			<TimelineTrackContext.Provider value={value}>
-				<SequenceWithoutSchema
-					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/track"
-					{...props}
-					name={name}
-					layout={layout}
-					_remotionInternalTimelineTrack={{role: 'track', seriesOffset: null}}
-				>
-					{children}
-				</SequenceWithoutSchema>
-			</TimelineTrackContext.Provider>
-		</TrackValidationContext.Provider>
+		<TimelineTrackContext.Provider value={value}>
+			<SequenceWithoutSchema
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/track"
+				{...props}
+				name={name}
+				layout={layout}
+				_remotionInternalTimelineTrack={{role: 'track', seriesOffset: null}}
+			>
+				{children}
+			</SequenceWithoutSchema>
+		</TimelineTrackContext.Provider>
 	);
 };
 
 /** Groups clips on one Studio timeline row and applies Sequence timing. */
 export const Track = withInteractivitySchema<typeof trackSchema, TrackProps>({
-	Component: (props) => (
-		<TrackWithoutSchema
-			{...props}
-			layout="none"
-			_remotionInternalAllowOverlap={false}
-		/>
-	),
+	Component: (props) => <TrackWithoutSchema {...props} layout="none" />,
 	componentName: '<Track>',
 	componentIdentity: 'dev.remotion.remotion.Track',
 	schema: trackSchema,

@@ -1016,7 +1016,6 @@ const TransitionSeriesInner: FC<SequenceProps> = (props) => {
 
 	return (
 		<TrackWithoutSchema
-			_remotionInternalAllowOverlap
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 			{...trackProps}
 			name={displayName}
