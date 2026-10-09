@@ -31,8 +31,10 @@ const SlideToSplitScreenInner: React.FC = () => {
 			<div
 				style={{
 					height,
+					left: 0,
 					overflow: 'hidden',
 					position: 'absolute',
+					top: 0,
 					width: interpolate(splitProgress, [0, 1], [width, aPanelWidth]),
 				}}
 			>
@@ -75,6 +77,7 @@ const SlideToSplitScreenInner: React.FC = () => {
 					height,
 					position: 'absolute',
 					right: 0,
+					top: 0,
 					translate: `${(1 - splitProgress) * (bPanelWidth + DIVIDER_WIDTH)}px 0px`,
 					width: bPanelWidth + DIVIDER_WIDTH,
 					willChange: 'transform',
