@@ -76,6 +76,7 @@ export const studioCssVariables = `
   --remotion-studio-color-picker-hue-gradient: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
   --remotion-studio-timeline-audio-gradient: linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%);
   --remotion-studio-timeline-video-gradient: linear-gradient(to top, #8e44ad, #9b59b6);
+  --remotion-studio-timeline-captions-gradient: linear-gradient(to top, #b96516, #cc7828);
   --remotion-studio-focus-color: #555;
   --remotion-studio-color-picker-checker-color: var(--remotion-studio-white-alpha-15);
   --remotion-studio-info-blue-border-color: rgba(59, 130, 246, 0.4);
