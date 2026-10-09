@@ -136,16 +136,20 @@ export const delayRenderInternal = ({
 				state.elapsed += Date.now() - state.startedAt;
 			}
 		};
+
 		const cancel = () => {
 			if (!registered) {
 				return;
 			}
+
 			registered = false;
 			if (suspensionDepth > 0) {
 				endSuspension();
 			}
+
 			state.handles.delete(handle);
 		};
+
 		const onTimeout = () => {
 			cancel();
 			const message = [
@@ -169,6 +173,7 @@ export const delayRenderInternal = ({
 				cancelRenderInternal(scope, Error(message));
 			}
 		};
+
 		scope.remotion_delayRenderTimeouts[handle] = {
 			label: label ?? null,
 			startTime: Date.now(),
@@ -184,11 +189,13 @@ export const delayRenderInternal = ({
 						state.startedAt = Date.now();
 					}
 				}
+
 				let resumed = false;
 				return () => {
 					if (resumed || !registered) {
 						return;
 					}
+
 					resumed = true;
 					if (--suspensionDepth === 0) {
 						endSuspension();

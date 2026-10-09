@@ -23,6 +23,7 @@ export const makeOfflineMediaFetch = (
 					) {
 						throw error;
 					}
+
 					onWaitChanged?.(true);
 					try {
 						await new Promise<void>((resolve, reject) => {
@@ -31,10 +32,12 @@ export const makeOfflineMediaFetch = (
 								listeners.abort();
 								resolve();
 							};
+
 							const onAbort = () => {
 								listeners.abort();
 								reject(signal.reason);
 							};
+
 							window.addEventListener('online', onOnline, {
 								signal: listeners.signal,
 							});

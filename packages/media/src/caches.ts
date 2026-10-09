@@ -99,6 +99,7 @@ export const makeMediaCache = () => {
 			for (const entry of renderHandles) {
 				entry.resume?.();
 			}
+
 			renderHandles.clear();
 			try {
 				keyframeManagerInstance.dispose(logLevel);
