@@ -468,6 +468,53 @@ test('Sequence registers its wrapper element for Studio outlines', () => {
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(ref.current);
 });
 
+test('Sequence ignores outlineRef and outlines its wrapper', () => {
+	const registeredSequences: TSequence[] = [];
+	const outlineRef = React.createRef<HTMLDivElement>();
+	const wrapperRef = React.createRef<HTMLDivElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence ref={wrapperRef} outlineRef={outlineRef}>
+				<div ref={outlineRef}>hi</div>
+			</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+	expect(registeredSequences[0]?.refForOutline?.current).toBe(
+		wrapperRef.current,
+	);
+});
+
+test('Sequence layout="none" ignores outlineRef and registers automatic outlines', () => {
+	const registeredSequences: TSequence[] = [];
+	const outlineRef = React.createRef<HTMLDivElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence layout="none" outlineRef={outlineRef}>
+				<div ref={outlineRef}>hi</div>
+			</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	expect(outlineRef.current).toBeInstanceOf(HTMLDivElement);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
+});
+
 test('Series inherits Sequence controls', () => {
 	const registeredSequences: TSequence[] = [];
 

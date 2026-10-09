@@ -23,6 +23,7 @@ export type TrackProps = Omit<
 	| 'cropTop'
 	| 'cropBottom'
 	| `_remotionInternal${string}`
+	| 'outlineRef'
 >;
 
 // A packed row has no container bar to drag. Expose its linear timing in the

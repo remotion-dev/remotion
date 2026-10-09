@@ -162,6 +162,10 @@ export type SequencePropsWithoutDuration = {
 				type: 'image';
 				src: string;
 		  };
+	/**
+	 * @deprecated This prop has no effect. Remotion Studio discovers selection outlines automatically.
+	 */
+	readonly outlineRef?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
