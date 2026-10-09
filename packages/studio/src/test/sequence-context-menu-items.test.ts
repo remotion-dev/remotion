@@ -386,6 +386,7 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
 			},
 			documentationLink: 'https://www.remotion.dev/docs/interactive',
+			customOutlineRef: null,
 			refForOutline: {
 				current: {outerHTML: '<svg><circle /></svg>'},
 			},
@@ -466,6 +467,7 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
 			},
 			documentationLink: 'https://www.remotion.dev/docs/interactive',
+			customOutlineRef: null,
 			refForOutline: {
 				current: {outerHTML: '<svg><circle /></svg>'},
 			},

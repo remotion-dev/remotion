@@ -6,6 +6,7 @@ import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {apiCall} from './api-call.mts';
 import {
 	EXPANDED_SIDEBAR_STATE,
+	LOGS_FILE,
 	STUDIO_URL,
 	effectKeyframeE2eFile,
 } from './constants.mts';
@@ -278,10 +279,16 @@ test.describe('effect keyframes', () => {
 		await page.mouse.move(factorX, factorY);
 		await page.mouse.down();
 		await page.mouse.move(factorX + 5, factorY);
+		const buildLogOffset = fs.readFileSync(LOGS_FILE, 'utf-8').length;
 		await page.mouse.up();
 		await expect
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
 			.toContain('scale: 0.8');
+		await page.reload();
+		await expect
+			.poll(() => fs.readFileSync(LOGS_FILE, 'utf-8').slice(buildLogOffset))
+			.toContain('stage=compiler-done');
+		// Reload the completed bundle so Fast Refresh cannot invalidate the selection.
 		await page.reload();
 		await expect(async () => {
 			await page
@@ -303,7 +310,7 @@ test.describe('effect keyframes', () => {
 		await expect(async () => {
 			await page
 				.getByRole('group', {name: 'Timeline expansion', exact: true})
-				.first()
+				.last()
 				.click();
 			await expect(opacityRow).toHaveCount(1, {timeout: 1_000});
 		}).toPass({timeout: 15_000});

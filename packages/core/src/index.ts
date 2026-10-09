@@ -7,6 +7,9 @@ import type {
 	AnyCompMetadata,
 	AnyComposition,
 	AudioOrVideoAsset,
+	CustomSequenceLocalAxis,
+	CustomSequenceOutline,
+	CustomSequenceValueChange,
 	JsxComponentIdentity,
 	LoopDisplay,
 	SequenceControls,
@@ -344,6 +347,9 @@ export type _InternalTypes = {
 	VideoConfigWithSerializedProps: VideoConfigWithSerializedProps;
 	AnyCompMetadata: AnyCompMetadata;
 	AudioOrVideoAsset: AudioOrVideoAsset;
+	CustomSequenceLocalAxis: CustomSequenceLocalAxis;
+	CustomSequenceOutline: CustomSequenceOutline;
+	CustomSequenceValueChange: CustomSequenceValueChange;
 	TRenderAsset: TRenderAsset;
 	ProResProfile: ProResProfile;
 };

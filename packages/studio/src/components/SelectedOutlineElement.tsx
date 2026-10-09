@@ -124,6 +124,12 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			getLatestTargetByKey,
 			layoutTarget,
 		});
+	const selectedOutline = layoutTarget?.ref.current;
+	const hasCustomPositionControls =
+		selectedOutline !== null &&
+		selectedOutline !== undefined &&
+		!(selectedOutline instanceof Element) &&
+		selectedOutline.positionControls !== null;
 	const annotationLocation = useResolvedStack(
 		layoutTarget?.sequence.getStack() ?? null,
 	);
@@ -482,6 +488,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				compositionWidth={compositionWidth}
 				containsSelection={layoutTarget?.containsSelection === true}
 				directlySelected={layoutTarget?.selected === true}
+				disableDirectDrag={hasCustomPositionControls}
 				dragging={dragging}
 				getAllDragOutlines={getAllDragOutlines}
 				getAllDragTargets={getAllDragTargets}

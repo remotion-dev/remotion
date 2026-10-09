@@ -31,19 +31,40 @@ export const parseValidScaleValue = (value: unknown): ScaleValue | null => {
 		return parseScaleString(value);
 	}
 
+	if (
+		Array.isArray(value) &&
+		value.length === 3 &&
+		value.every((part) => typeof part === 'number' && Number.isFinite(part))
+	) {
+		return [value[0] as number, value[1] as number, value[2] as number];
+	}
+
 	return null;
 };
 
-export const parseScaleValue = (value: unknown): ScaleValue => {
+export const parseScaleValue = (
+	value: unknown,
+	dimensions: 2 | 3 = 2,
+): ScaleValue => {
+	if (dimensions === 3 && typeof value === 'number' && Number.isFinite(value)) {
+		return [value, value, value];
+	}
+
 	return parseValidScaleValue(value) ?? defaultScaleValue;
 };
 
-export const serializeScaleValue = ([x, y, z]: ScaleValue): number | string => {
+export const serializeScaleValue = (
+	[x, y, z]: ScaleValue,
+	dimensions: 2 | 3 = 2,
+): number | string => {
 	const normalizedX = normalizeNumber(x);
 	const normalizedY = normalizeNumber(y);
 	const normalizedZ = normalizeNumber(z);
 
-	if (normalizedX === normalizedY && normalizedZ === 1) {
+	if (
+		normalizedX === normalizedY &&
+		(dimensions === 3 ? normalizedY === normalizedZ : normalizedZ === 1)
+	) {
 		return normalizedX;
 	}
 
