@@ -4,4 +4,4 @@ Config.setRspack(true);
 Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
 Config.setAskAIEnabled(false);
-Config.setInteractivityEnabled(false);
+Config.setInteractivityEnabled(true);

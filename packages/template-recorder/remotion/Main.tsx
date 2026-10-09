@@ -87,7 +87,7 @@ export const Main: React.FC<MainProps> = ({
         scenesAndMetadata={scenesAndMetadata}
         canvasLayout={canvasLayout}
       />
-      {canvasLayout === "landscape" ? (
+      {canvasLayout === "landscape" || canvasLayout === "portrait" ? (
         <EmitSrtFile scenesAndMetadata={scenesAndMetadata} />
       ) : null}
       <div ref={captionEditorPortal} />

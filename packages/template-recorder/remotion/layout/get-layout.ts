@@ -6,6 +6,7 @@ import { getDimensionsForLayout } from "./dimensions";
 import { getCaptionsLayout } from "./get-captions-layout";
 import {
   getLandscapeDisplayAndWebcamLayout,
+  getPortraitDisplayAndWebcamLayout,
   getSquareBRollLayout,
   getSquareDisplayLayout,
 } from "./get-display-layout";
@@ -208,7 +209,7 @@ const getDisplayAndWebcamLayout = ({
       };
     }
 
-    if (canvasLayout === "landscape") {
+    if (canvasLayout === "landscape" || canvasLayout === "portrait") {
       const webcamLayout = fullscreenLayout(canvasSize);
       const bRollLayout = fullscreenLayout(canvasSize);
 
@@ -268,6 +269,15 @@ const getDisplayAndWebcamLayout = ({
       webcamSize,
       canvasLayout,
       canvasSize,
+      webcamPosition,
+    });
+  }
+
+  if (canvasLayout === "portrait") {
+    return getPortraitDisplayAndWebcamLayout({
+      webcamSize,
+      canvasSize,
+      displaySize,
       webcamPosition,
     });
   }
