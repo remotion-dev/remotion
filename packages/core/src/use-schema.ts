@@ -388,20 +388,12 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		merged[key] = value;
 	}
 
-	for (const [key, field] of Object.entries(schema)) {
-		if (
-			field.type === 'enum' &&
-			(key in overrideValues ||
-				// Inspector edits update the source status before hot reload supplies
-				// the new props. Remove the previous variant's props during this preview.
-				(propStatus?.[key]?.status === 'static' &&
-					(merged[key] ?? field.default) !==
-						(currentValue[key] ?? field.default)))
-		) {
+	for (const key of Object.keys(overrideValues)) {
+		if (schema[key]?.type === 'enum') {
 			const propsToDeleteForKey = findPropsToDelete({
 				schema,
 				key,
-				value: merged[key] ?? field.default,
+				value: merged[key],
 			});
 			for (const propToDelete of propsToDeleteForKey) {
 				propsToDelete.add(propToDelete);

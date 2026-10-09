@@ -15,23 +15,24 @@ import {
 } from './timeline-track-context.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
-type TrackContainerProps = AbsoluteFillLayout &
-	Pick<SequenceProps, 'cropLeft' | 'cropRight' | 'cropTop' | 'cropBottom'>;
-
 export type TrackProps = Omit<
 	SequenceProps,
-	keyof TrackContainerProps | `_remotionInternal${string}` | 'outlineRef'
-> &
-	(
-		| (TrackContainerProps & {layout: 'absolute-fill'})
-		| ({layout?: 'none'} & {
-				[Key in Exclude<keyof TrackContainerProps, 'layout'>]?: never;
-		  })
-	);
+	| keyof AbsoluteFillLayout
+	| 'cropLeft'
+	| 'cropRight'
+	| 'cropTop'
+	| 'cropBottom'
+	| `_remotionInternal${string}`
+	| 'outlineRef'
+>;
 
 // A packed row has no container bar to drag. Expose its linear timing in the
 // inspector, but keep looping and freezing as programmatic operations.
-const {freeze: _freeze, ...trackSequenceSchema} = sequenceSchema;
+const {
+	freeze: _freeze,
+	layout: _layout,
+	...trackSequenceSchema
+} = sequenceSchema;
 
 const trackSchema = {
 	...trackSequenceSchema,
@@ -52,22 +53,6 @@ const trackSchema = {
 		description: 'Trim before',
 		hiddenFromList: false,
 		keyframable: false,
-	},
-	layout: {
-		...sequenceSchema.layout,
-		default: 'none',
-		variants: {
-			...sequenceSchema.layout.variants,
-			'absolute-fill': {
-				...sequenceSchema.layout.variants['absolute-fill'],
-				// Switching to layout="none" must remove the entire container
-				// props, including CSS properties without individual controls.
-				style: {type: 'hidden'},
-				className: {type: 'hidden'},
-				styleWhilePremounted: {type: 'hidden'},
-				styleWhilePostmounted: {type: 'hidden'},
-			},
-		},
 	},
 } as const satisfies InteractivitySchema;
 
@@ -103,7 +88,7 @@ export const TrackWithoutSchema: React.FC<SequenceProps> = ({
 
 /** Groups clips on one Studio timeline row and applies Sequence timing. */
 export const Track = withInteractivitySchema<typeof trackSchema, TrackProps>({
-	Component: TrackWithoutSchema,
+	Component: (props) => <TrackWithoutSchema {...props} layout="none" />,
 	componentName: '<Track>',
 	componentIdentity: 'dev.remotion.remotion.Track',
 	schema: trackSchema,

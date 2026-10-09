@@ -72,73 +72,33 @@ Repeat the selected child range until the parent ends. Defaults to `false` and r
 
 Hold the children at a local frame. Defaults to `null`. See [`freeze`](/docs/sequence#freeze).
 
-### `layout?`
-
-Defaults to `"none"`, so the track adds no container element. Set `layout="absolute-fill"` to create a container for styling, cropping, premounting, or postmounting.
-
-### `style?`
-
-Styles for the container. Requires `layout="absolute-fill"`. See [`style`](/docs/sequence#style).
-
-### `className?`
-
-A CSS class for the container. Requires `layout="absolute-fill"`.
-
 ### `width?`
 
-Override the width returned by [`useVideoConfig()`](/docs/use-video-config). Also sets the container width when `layout="absolute-fill"`.
+Override the width returned by [`useVideoConfig()`](/docs/use-video-config) for children.
 
 ### `height?`
 
-Override the height returned by [`useVideoConfig()`](/docs/use-video-config). Also sets the container height when `layout="absolute-fill"`.
-
-### `cropLeft?`
-
-Crop the left edge as a fraction between `0` and `1`. Defaults to `0` and requires `layout="absolute-fill"`. See [cropping](/docs/sequence#cropleft).
-
-### `cropRight?`
-
-Crop the right edge. Same range, default, and layout requirement as `cropLeft`.
-
-### `cropTop?`
-
-Crop the top edge. Same range, default, and layout requirement as `cropLeft`.
-
-### `cropBottom?`
-
-Crop the bottom edge. Same range, default, and layout requirement as `cropLeft`.
-
-### `premountFor?`
-
-Mount the children before the track starts. Requires `layout="absolute-fill"`. See [`premountFor`](/docs/sequence#premountfor).
-
-### `postmountFor?`
-
-Keep the children mounted after the track ends. Defaults to `0` and requires `layout="absolute-fill"`. See [`postmountFor`](/docs/sequence#postmountfor).
-
-### `styleWhilePremounted?`
-
-Override container styles while premounted. Requires `layout="absolute-fill"`. See [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted).
-
-### `styleWhilePostmounted?`
-
-Override container styles while postmounted. Requires `layout="absolute-fill"`. See [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted).
+Override the height returned by [`useVideoConfig()`](/docs/use-video-config) for children.
 
 ### `controls?`
 
 Pass controls from [`Interactive.withSchema()`](/docs/interactive-with-schema) when using a track inside a custom interactive component.
 
+## Styling
+
+`<Track>` does not create a container element and has no `layout` prop. Wrap its children in a `<div>` or [`<AbsoluteFill>`](/docs/absolute-fill) to apply styles or a class name.
+
+Use [`<Sequence>`](/docs/sequence) for cropping, premounting, or postmounting. These container props are not supported on `<Track>`.
+
 ## Studio interactions<AvailableFrom v="4.0.535" />
 
-Select the track header to edit its start, duration, trim, playback rate, and layout in the inspector. With `layout="absolute-fill"`, the existing Sequence controls for transforms, opacity, background, borders, cropping, and premounting are available.
+Select the track header to edit From, Duration, Trim before, and Playback rate in the inspector.
 
-Switching to `layout="none"` removes the container's styles, class name, crop, and mounting props. Undo restores them.
-
-Child clips can be moved and trimmed using their own timeline handles. The track container's timing is edited in the inspector; splitting the container is unavailable.
+Child clips can be moved and trimmed using their own timeline handles. The track's timing is edited in the inspector; splitting a track is unavailable.
 
 Set `loop` and `freeze` in code. When either is active, the packed timeline displays one block for the track and hides its descendant rows. A repeated or frozen child does not have a single advancing interval that a packed clip could accurately represent.
 
-`className`, `width`, `height`, `postmountFor`, and the styles applied during premounting or postmounting remain code-only. Packed rows do not display premount bars.
+`width` and `height` remain code-only.
 
 ## Compatibility
 
