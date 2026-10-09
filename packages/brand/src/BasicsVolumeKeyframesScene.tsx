@@ -1,17 +1,12 @@
-import type React from 'react';
 import {AbsoluteFill, Composition, Interactive, useVideoConfig} from 'remotion';
 import {BasicsTitlePanel} from './BasicsTitlePanel';
 import {BasicsVolumeKeyframesPreview} from './BasicsVolumeKeyframesComposition';
 
-const BasicsVolumeKeyframesSceneInner = ({
-	style,
-}: {
-	readonly style: React.CSSProperties | null;
-}) => {
+const BasicsVolumeKeyframesSceneInner = () => {
 	const {fps, width} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#111518', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#111518'}}>
 			<BasicsVolumeKeyframesPreview
 				trimBefore={25.05 * fps}
 				durationInFrames={3 * fps}
@@ -31,6 +26,7 @@ export const BasicsVolumeKeyframesScene = Interactive.withSchema({
 	componentName: '<BasicsVolumeKeyframesScene>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsVolumeKeyframesSceneComposition = () => {
@@ -42,7 +38,6 @@ export const BasicsVolumeKeyframesSceneComposition = () => {
 			height={1080}
 			fps={60}
 			durationInFrames={180}
-			defaultProps={{style: null}}
 		/>
 	);
 };

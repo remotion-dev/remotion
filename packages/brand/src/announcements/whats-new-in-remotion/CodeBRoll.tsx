@@ -17,7 +17,6 @@ import {CodeTransition} from './CodeTransition';
 const THEME = 'github-light';
 
 type CodeBRollProps = {
-	readonly style?: React.CSSProperties;
 	readonly code: string;
 	/** Previous code for transition animation. Default: none */
 	readonly previousCode?: string;
@@ -32,7 +31,6 @@ const CodeBRollInner: React.FC<CodeBRollProps> = ({
 	previousCode,
 	lang = 'tsx',
 	topExplainer = '',
-	style,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -69,17 +67,20 @@ const CodeBRollInner: React.FC<CodeBRollProps> = ({
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			name="Code example fade"
 			style={{
 				opacity: interpolate(frame, [0, 6, 114, 120], [0, 1, 1, 0], {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
 				}),
-				...style,
 			}}
 		>
 			<ThemeProvider themeColors={data.themeColors}>
-				<AbsoluteFill style={{backgroundColor: data.themeColors.background}}>
+				<AbsoluteFill
+					showInTimeline={false}
+					style={{backgroundColor: data.themeColors.background}}
+				>
 					{data.previousHighlighted &&
 						transitionDelay > 0 &&
 						frame < transitionDelay && (
@@ -120,4 +121,5 @@ export const CodeBRoll = Interactive.withSchema({
 	componentName: '<CodeBRoll>',
 	schema: codeBRollSchema,
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

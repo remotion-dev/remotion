@@ -99,14 +99,30 @@ Set to `'absolute-fill'` to give the component a full-size, absolutely positione
 The inner component can return a fragment and does not need to forward styles:
 
 ```tsx twoslash title="Scene.tsx"
-import type React from 'react';
-import {Interactive} from 'remotion';
+import React from 'react';
+import {Video} from '@remotion/media';
+import {Interactive, useVideoConfig} from 'remotion';
 
-const SceneInner: React.FC = () => (
-  <>
-    <div>Scene content</div>
-  </>
-);
+const SceneInner: React.FC = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <>
+      <Video
+        src="https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0466.mp4"
+        premountFor={fps}
+        objectFit="cover"
+        style={{width: '100%', height: '100%'}}
+      />
+      <Interactive.Div
+        name="Title"
+        style={{position: 'absolute', left: 80, bottom: 80, color: 'white', fontSize: 80}}
+      >
+        Under the trees
+      </Interactive.Div>
+    </>
+  );
+};
 
 export const Scene = Interactive.withSchema({
   Component: SceneInner,
@@ -116,7 +132,9 @@ export const Scene = Interactive.withSchema({
   layout: 'absolute-fill',
 });
 
-const Example = () => <Scene style={{backgroundColor: 'black', opacity: 0.5}} />;
+const Example = () => (
+  <Scene from={30} durationInFrames={90} premountFor={30} style={{opacity: 0.5}} />
+);
 ```
 
 Keep `'none'` when styles need to apply directly to an element with its own size or layout, such as a text box, SVG, or button.

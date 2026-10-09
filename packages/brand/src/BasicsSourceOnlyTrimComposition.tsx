@@ -13,10 +13,8 @@ import {
 } from 'remotion';
 
 const BasicsSourceOnlyTrimInner = ({
-	style,
 	captureStyle,
 }: {
-	readonly style: React.CSSProperties | null;
 	readonly captureStyle: React.CSSProperties | null;
 }) => {
 	const frame = useCurrentFrame();
@@ -317,7 +315,8 @@ const BasicsSourceOnlyTrimInner = ({
 
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: '#111518', overflow: 'hidden', ...style}}
+			showInTimeline={false}
+			style={{backgroundColor: '#111518', overflow: 'hidden'}}
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
@@ -373,6 +372,7 @@ export const BasicsSourceOnlyTrimPreview = Interactive.withSchema({
 	componentName: '<BasicsSourceOnlyTrimPreview>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsSourceOnlyTrimComposition = () => {
@@ -382,7 +382,7 @@ export const BasicsSourceOnlyTrimComposition = () => {
 			component={BasicsSourceOnlyTrimPreview}
 			width={1920}
 			height={1080}
-			defaultProps={{style: null, captureStyle: null}}
+			defaultProps={{captureStyle: null}}
 			fps={60}
 			durationInFrames={375}
 		/>

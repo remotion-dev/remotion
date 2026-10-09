@@ -163,7 +163,7 @@ const AnimatedCaptionsBigWordsInner: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill showInTimeline={false} premountFor={fps}>
+		<>
 			<Audio
 				premountFor={fps}
 				src={asset(VOICEOVER_FILE)}
@@ -196,7 +196,7 @@ const AnimatedCaptionsBigWordsInner: React.FC = () => {
 					/>
 				);
 			})}
-		</AbsoluteFill>
+		</>
 	);
 };
 

@@ -372,38 +372,36 @@ const AnimatedCaptionsContent: React.FC<{
 					}),
 				]}
 			>
-				<AbsoluteFill showInTimeline={false}>
-					{pages.map((page, index) => {
-						const pageKey = `${page.startMs}-${index}`;
-						const nextPage = pages[index + 1];
-						const startFrame = Math.round((page.startMs / 1000) * fps);
-						const naturalEndFrame = Math.ceil(
-							((page.startMs + page.durationMs) / 1000) * fps,
-						);
-						const endFrame = nextPage
-							? Math.min(
-									Math.round((nextPage.startMs / 1000) * fps),
-									naturalEndFrame,
-								)
-							: naturalEndFrame;
-						const durationInFrames = Math.max(1, endFrame - startFrame);
+				{pages.map((page, index) => {
+					const pageKey = `${page.startMs}-${index}`;
+					const nextPage = pages[index + 1];
+					const startFrame = Math.round((page.startMs / 1000) * fps);
+					const naturalEndFrame = Math.ceil(
+						((page.startMs + page.durationMs) / 1000) * fps,
+					);
+					const endFrame = nextPage
+						? Math.min(
+								Math.round((nextPage.startMs / 1000) * fps),
+								naturalEndFrame,
+							)
+						: naturalEndFrame;
+					const durationInFrames = Math.max(1, endFrame - startFrame);
 
-						return (
-							<CaptionPage
-								key={pageKey}
-								from={startFrame}
-								durationInFrames={durationInFrames}
-								premountFor={fps}
-								showInTimeline={false}
-								focusProgress={focusProgress}
-								focusedTokenIndex={focusedTokenIndex}
-								page={page}
-								pageKey={pageKey}
-								onWordFocusRegions={onWordFocusRegions}
-							/>
-						);
-					})}
-				</AbsoluteFill>
+					return (
+						<CaptionPage
+							key={pageKey}
+							from={startFrame}
+							durationInFrames={durationInFrames}
+							premountFor={fps}
+							showInTimeline={false}
+							focusProgress={focusProgress}
+							focusedTokenIndex={focusedTokenIndex}
+							page={page}
+							pageKey={pageKey}
+							onWordFocusRegions={onWordFocusRegions}
+						/>
+					);
+				})}
 			</HtmlInCanvas>
 		</>
 	);

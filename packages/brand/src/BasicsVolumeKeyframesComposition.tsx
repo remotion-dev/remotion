@@ -13,10 +13,8 @@ import {
 } from 'remotion';
 
 const BasicsVolumeKeyframesInner = ({
-	style,
 	captureStyle,
 }: {
-	readonly style: React.CSSProperties | null;
 	readonly captureStyle: React.CSSProperties | null;
 }) => {
 	const frame = useCurrentFrame();
@@ -1272,7 +1270,8 @@ const BasicsVolumeKeyframesInner = ({
 
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: '#111518', overflow: 'hidden', ...style}}
+			showInTimeline={false}
+			style={{backgroundColor: '#111518', overflow: 'hidden'}}
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
@@ -1328,6 +1327,7 @@ export const BasicsVolumeKeyframesPreview = Interactive.withSchema({
 	componentName: '<BasicsVolumeKeyframesPreview>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsVolumeKeyframesComposition = () => {
@@ -1337,7 +1337,7 @@ export const BasicsVolumeKeyframesComposition = () => {
 			component={BasicsVolumeKeyframesPreview}
 			width={1920}
 			height={1080}
-			defaultProps={{style: null, captureStyle: null}}
+			defaultProps={{captureStyle: null}}
 			fps={60}
 			durationInFrames={1785}
 		/>

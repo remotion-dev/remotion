@@ -1,6 +1,6 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
 const DragInInner: React.FC = () => {
@@ -14,9 +14,11 @@ const DragInInner: React.FC = () => {
 					height: 1080,
 				}}
 			/>
-			<AbsoluteFill showInTimeline={false}>
-				<Interactive.Div>FOLLOW ME</Interactive.Div>
-			</AbsoluteFill>
+			<Interactive.Div
+				style={{position: 'absolute', top: 0, left: 0, right: 0}}
+			>
+				FOLLOW ME
+			</Interactive.Div>
 			<Video
 				src={asset('text-behind-video-foreground.webm')}
 				style={{

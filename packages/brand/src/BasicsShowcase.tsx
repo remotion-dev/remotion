@@ -41,42 +41,42 @@ export const BasicsShowcase = () => {
 				durationInFrames={3 * fps}
 				premountFor={fps}
 			>
-				<BasicsLeftTrimScene premountFor={fps} style={null} />
+				<BasicsLeftTrimScene premountFor={fps} />
 			</Series.Sequence>
 			<Series.Sequence
 				name="Source-only trim"
 				durationInFrames={3 * fps}
 				premountFor={fps}
 			>
-				<BasicsSourceOnlyTrimScene premountFor={fps} style={null} />
+				<BasicsSourceOnlyTrimScene premountFor={fps} />
 			</Series.Sequence>
 			<Series.Sequence
 				name="Series trimming"
 				durationInFrames={3 * fps}
 				premountFor={fps}
 			>
-				<BasicsSeriesTrimScene premountFor={fps} style={null} />
+				<BasicsSeriesTrimScene premountFor={fps} />
 			</Series.Sequence>
 			<Series.Sequence
 				name="Playback rate"
 				durationInFrames={3 * fps}
 				premountFor={fps}
 			>
-				<BasicsPlaybackRateScene premountFor={fps} style={null} />
+				<BasicsPlaybackRateScene premountFor={fps} />
 			</Series.Sequence>
 			<Series.Sequence
 				name="Volume keyframes"
 				durationInFrames={3 * fps}
 				premountFor={fps}
 			>
-				<BasicsVolumeKeyframesScene premountFor={fps} style={null} />
+				<BasicsVolumeKeyframesScene premountFor={fps} />
 			</Series.Sequence>
 			<Series.Sequence
 				name="Virtualized timeline"
 				durationInFrames={3 * fps}
 				premountFor={fps}
 			>
-				<BasicsVirtualizedTimelineScene premountFor={fps} style={null} />
+				<BasicsVirtualizedTimelineScene premountFor={fps} />
 			</Series.Sequence>
 		</Series>
 	);

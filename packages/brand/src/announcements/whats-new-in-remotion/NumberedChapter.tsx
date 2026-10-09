@@ -32,7 +32,6 @@ const loadFont = async () => {
 loadFont();
 
 type NumberedChapterProps = {
-	readonly style?: React.CSSProperties;
 	chapterNumber: number;
 	chapterTitle: string;
 };
@@ -40,17 +39,16 @@ type NumberedChapterProps = {
 const NumberedChapterInner: React.FC<NumberedChapterProps> = ({
 	chapterNumber,
 	chapterTitle,
-	style,
 }) => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				backgroundColor: 'white',
 				justifyContent: 'center',
 				alignItems: 'center',
-				...style,
 			}}
 		>
 			<Audio
@@ -147,4 +145,5 @@ export const NumberedChapter = Interactive.withSchema({
 	componentName: '<NumberedChapter>',
 	schema: numberedChapterSchema,
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

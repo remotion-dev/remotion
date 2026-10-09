@@ -22,7 +22,6 @@ const LINE_HEIGHT = 54;
 const POSTERIZE_FRAMES = 3;
 
 export type PromptProps = {
-	readonly style?: React.CSSProperties;
 	prompt: string;
 	thinkingIndex: number;
 };
@@ -50,7 +49,7 @@ const Cursor: React.FC<{frame: number}> = ({frame}) => {
 	);
 };
 
-const PromptInner: React.FC<PromptProps> = ({prompt, thinkingIndex, style}) => {
+const PromptInner: React.FC<PromptProps> = ({prompt, thinkingIndex}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const typingAnimationFrame =
@@ -75,11 +74,11 @@ const PromptInner: React.FC<PromptProps> = ({prompt, thinkingIndex, style}) => {
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				justifyContent: 'flex-end',
 				alignItems: 'center',
 				paddingBottom: 80,
-				...style,
 			}}
 		>
 			<Audio
@@ -165,4 +164,5 @@ export const Prompt = Interactive.withSchema({
 	componentName: '<Prompt>',
 	schema: promptSchema,
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

@@ -83,7 +83,7 @@ const CountdownPage = Interactive.withSchema({
 const CountdownInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	return (
-		<AbsoluteFill showInTimeline={false} premountFor={fps}>
+		<>
 			<CountdownPage
 				name="Countdown 3"
 				number="3"
@@ -104,7 +104,7 @@ const CountdownInner: React.FC = () => {
 				durationInFrames={19}
 				premountFor={fps}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 

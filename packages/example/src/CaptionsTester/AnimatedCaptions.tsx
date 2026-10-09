@@ -5,13 +5,8 @@ import {
 	AbsoluteFill,
 	Interactive,
 	interpolate,
-	Sequence,
 	spring,
-	type InteractiveBaseProps,
-	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
-	type SequenceProps,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -23,7 +18,6 @@ const SWITCH_CAPTIONS_EVERY_MS = 1100;
 const HIGHLIGHT_COLOR = '#6cf6ff';
 
 const animatedCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -41,10 +35,9 @@ const animatedCaptionsSchema = {
 		description: 'Caption area height',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
+const CaptionPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const absoluteTimeMs = page.startMs + (frame / fps) * 1000;
@@ -65,6 +58,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				alignItems: 'center',
 				justifyContent: 'center',
@@ -113,15 +107,19 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 	);
 };
 
-type AnimatedCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
-		readonly captions: Caption[];
-	};
+const CaptionPage = Interactive.withSchema({
+	Component: CaptionPageInner,
+	componentName: '<CaptionPage>',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
 
-const AnimatedCaptionsInner: React.FC<
-	AnimatedCaptionsProps & {readonly controls: SequenceControls | undefined}
-> = ({captions, controls, name, style, ...sequenceProps}) => {
+type AnimatedCaptionsProps = {
+	readonly captions: Caption[];
+};
+
+const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({captions}) => {
 	const {fps} = useVideoConfig();
 	const pages = useMemo(() => {
 		return createTikTokStyleCaptions({
@@ -131,12 +129,7 @@ const AnimatedCaptionsInner: React.FC<
 	}, [captions]);
 
 	return (
-		<Sequence
-			{...sequenceProps}
-			name={name ?? '<AnimatedCaptions>'}
-			style={style}
-			controls={controls}
-		>
+		<>
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];
 				const startFrame = Math.round((page.startMs / 1000) * fps);
@@ -152,18 +145,17 @@ const AnimatedCaptionsInner: React.FC<
 				const durationInFrames = Math.max(1, endFrame - startFrame);
 
 				return (
-					<Sequence
+					<CaptionPage
 						key={`${page.startMs}-${index}`}
 						from={startFrame}
 						durationInFrames={durationInFrames}
 						premountFor={fps}
 						showInTimeline={false}
-					>
-						<CaptionPage page={page} />
-					</Sequence>
+						page={page}
+					/>
 				);
 			})}
-		</Sequence>
+		</>
 	);
 };
 
@@ -171,5 +163,6 @@ export const AnimatedCaptions = Interactive.withSchema({
 	Component: AnimatedCaptionsInner,
 	componentName: '<AnimatedCaptions>',
 	schema: animatedCaptionsSchema,
-	supportsEffects: false,
+	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

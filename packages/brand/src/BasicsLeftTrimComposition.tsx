@@ -13,10 +13,8 @@ import {
 } from 'remotion';
 
 const BasicsLeftTrimInner = ({
-	style,
 	captureStyle,
 }: {
-	readonly style: React.CSSProperties | null;
 	readonly captureStyle: React.CSSProperties | null;
 }) => {
 	const frame = useCurrentFrame();
@@ -475,7 +473,8 @@ const BasicsLeftTrimInner = ({
 
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: '#111518', overflow: 'hidden', ...style}}
+			showInTimeline={false}
+			style={{backgroundColor: '#111518', overflow: 'hidden'}}
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
@@ -531,6 +530,7 @@ export const BasicsLeftTrimPreview = Interactive.withSchema({
 	componentName: '<BasicsLeftTrimPreview>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsLeftTrimComposition = () => {
@@ -540,7 +540,7 @@ export const BasicsLeftTrimComposition = () => {
 			component={BasicsLeftTrimPreview}
 			width={1920}
 			height={1080}
-			defaultProps={{style: null, captureStyle: null}}
+			defaultProps={{captureStyle: null}}
 			fps={60}
 			durationInFrames={552}
 		/>

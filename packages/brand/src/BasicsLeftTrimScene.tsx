@@ -1,17 +1,12 @@
-import type React from 'react';
 import {AbsoluteFill, Composition, Interactive, useVideoConfig} from 'remotion';
 import {BasicsLeftTrimPreview} from './BasicsLeftTrimComposition';
 import {BasicsTitlePanel} from './BasicsTitlePanel';
 
-const BasicsLeftTrimSceneInner = ({
-	style,
-}: {
-	readonly style: React.CSSProperties | null;
-}) => {
+const BasicsLeftTrimSceneInner = () => {
 	const {fps, width} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#111518', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#111518'}}>
 			<BasicsLeftTrimPreview
 				trimBefore={4.5 * fps}
 				durationInFrames={3 * fps}
@@ -31,6 +26,7 @@ export const BasicsLeftTrimScene = Interactive.withSchema({
 	componentName: '<BasicsLeftTrimScene>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsLeftTrimSceneComposition = () => {
@@ -42,7 +38,6 @@ export const BasicsLeftTrimSceneComposition = () => {
 			height={1080}
 			fps={60}
 			durationInFrames={180}
-			defaultProps={{style: null}}
 		/>
 	);
 };
