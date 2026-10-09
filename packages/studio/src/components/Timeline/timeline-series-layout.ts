@@ -106,6 +106,11 @@ export const getTimelineSeriesLayout = ({
 		null,
 	);
 	const groupIndexes = new Array<number>(rows.length);
+	const sharedChildPositions = new Array<{
+		readonly seriesIndex: number;
+		readonly role: 'clip' | 'overlay';
+		readonly offset: number;
+	} | null>(rows.length).fill(null);
 	const groups: {
 		readonly index: number;
 		readonly rows: number[];
@@ -191,6 +196,14 @@ export const getTimelineSeriesLayout = ({
 
 				for (const placement of placements) {
 					for (const childIndex of placement.rows) {
+						// A scene can move between lanes as neighboring scenes mount.
+						// Its child-collapse identity follows its position within the
+						// scene, independently of the lane used for an overlap.
+						sharedChildPositions[childIndex] ??= {
+							seriesIndex: index,
+							role,
+							offset: offsets[childIndex] - cursor,
+						};
 						offsets[childIndex] += placement.lane * laneHeight;
 					}
 				}
@@ -243,6 +256,7 @@ export const getTimelineSeriesLayout = ({
 		sceneRanges,
 		groupIndexes,
 		groups,
+		sharedChildPositions,
 		tracksEnd,
 		siblingIndexes,
 		afterDropLineOffsets: subtreeEnds.map((end, index) => end - offsets[index]),

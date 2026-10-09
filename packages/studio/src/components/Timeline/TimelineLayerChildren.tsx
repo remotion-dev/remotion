@@ -20,6 +20,8 @@ import {
 import {toggleBooleanMapKey} from '../../helpers/persist-boolean-map';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
+import {getTimelineSeriesLayout} from './timeline-series-layout';
+import {getTimelineDisplayRows} from './timeline-track-groups';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 
 // Reserve the same space before and after children register or unregister.
@@ -49,6 +51,7 @@ export const useTimelineLayerChildren = (
 	tracks: TimelineTrackWithDisplayGroup[],
 	sequences: TSequence[],
 	compositionId: string | null,
+	compactSeries: boolean,
 ) => {
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
 		try {
@@ -91,6 +94,7 @@ export const useTimelineLayerChildren = (
 		}
 
 		const keys = new Map<string, string>();
+		const identities = new Map<string, string>();
 		const parents = new Set<string>();
 		const ancestors = new Map<string, string[]>();
 		for (const track of tracks) {
@@ -116,15 +120,58 @@ export const useTimelineLayerChildren = (
 								.concat(track.sequence.id)
 								.map((id) => siblingIndices.get(id)),
 						];
+			const key = JSON.stringify([compositionId, identity]);
+			identities.set(track.sequence.id, key);
 			// Packed clips have no child-collapse control. Do not let a saved
 			// layer collapse make an explicit nested Track inaccessible.
 			if (!track.sequence.timelineTrack) {
-				keys.set(track.sequence.id, JSON.stringify([compositionId, identity]));
+				keys.set(track.sequence.id, key);
+			}
+		}
+
+		if (compactSeries) {
+			const rows = getTimelineDisplayRows(tracks);
+			// Use structural row positions before hiding children. Expanding fields
+			// or collapsing a layer must not change which layers share its state.
+			const layout = getTimelineSeriesLayout({
+				rows,
+				heights: rows.map(() => 1),
+				sequences,
+				compactSeries,
+				paddingStart: 0,
+			});
+			for (let index = 0; index < rows.length; index++) {
+				const position = layout.sharedChildPositions[index];
+				if (position === null) {
+					continue;
+				}
+
+				const {sequence} = rows[index].track;
+				if (!keys.has(sequence.id)) {
+					continue;
+				}
+
+				const seriesKey = identities.get(
+					rows[position.seriesIndex].track.sequence.id,
+				);
+				if (seriesKey === undefined) {
+					continue;
+				}
+
+				keys.set(
+					sequence.id,
+					JSON.stringify([
+						'series-row',
+						seriesKey,
+						position.role,
+						position.offset,
+					]),
+				);
 			}
 		}
 
 		return {keys, parents, ancestors};
-	}, [compositionId, sequences, tracks]);
+	}, [compactSeries, compositionId, sequences, tracks]);
 	const visibleTracks = useMemo(
 		() =>
 			tracks.filter((track) => {

@@ -544,7 +544,7 @@ const TimelineSequenceBar: React.FC<{
 				</svg>
 			)}
 
-			{s.timelineTrack ? (
+			{s.timelineTrack && s.timelineTrack.role !== 'transition' ? (
 				<div
 					style={{
 						position: 'absolute',
