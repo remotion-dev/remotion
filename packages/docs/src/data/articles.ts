@@ -11019,13 +11019,4 @@ export const articles = [
 		noAi: false,
 		slug: 'prompts/submit',
 	},
-	{
-		id: 'track',
-		title: '<Track>',
-		relativePath: 'docs/track.mdx',
-		compId: 'articles-docs-track',
-		crumb: 'remotion',
-		noAi: false,
-		slug: 'track',
-	},
 ];

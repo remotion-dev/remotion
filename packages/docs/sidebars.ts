@@ -184,7 +184,6 @@ const sidebars: SidebarsConfig = {
 				'solid',
 				'staticfile',
 				'still',
-				'track',
 				'use-buffer-state',
 				'use-current-frame',
 				'use-current-scale',
