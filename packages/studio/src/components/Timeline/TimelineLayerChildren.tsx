@@ -109,7 +109,10 @@ export const useTimelineLayerChildren = (
 			const key = JSON.stringify([compositionId, identity]);
 			// Packed clips have no child-collapse control. Do not let a saved
 			// layer collapse make an explicit nested Track inaccessible.
-			if (!track.sequence.timelineTrack) {
+			if (
+				!track.sequence.timelineTrack ||
+				track.sequence.timelineTrack.role === 'track'
+			) {
 				keys.set(track.sequence.id, key);
 			}
 		}
