@@ -776,4 +776,26 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'mark-santos',
+		name: 'Mark Santos',
+		image: '/img/freelancers/mark-santos.jpg',
+		website: 'https://www.markstudios.com',
+		x: 'markksantos',
+		github: 'markksantos',
+		linkedin: 'in/markksantos/',
+		email: 'contact@markstudios.com',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-10-09').getTime(),
+		description: (
+			<div>
+				I didn&apos;t plan to start a creative agency. I started editing
+				because I cared about making great content, and once I got good at
+				it, people kept coming back for more. That became Mark Studios. We
+				use Remotion for the captions and graphics in our clients&apos;
+				YouTube videos.
+			</div>
+		),
+	},
 ];
