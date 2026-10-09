@@ -173,6 +173,33 @@ export const init = async () => {
 			repoName: selectedTemplate.repoName,
 			dest: projectRoot,
 		});
+		const [nodeMajor = 0, nodeMinor = 0] = process.versions.node
+			.split('.')
+			.map(Number);
+		const supportsRspack =
+			pkgManager === 'bun' ||
+			(nodeMajor === 20 && nodeMinor >= 19) ||
+			(nodeMajor === 22 && nodeMinor >= 12) ||
+			nodeMajor > 22;
+		if (!supportsRspack) {
+			// Templates enable Rspack, but older Node.js versions need Webpack.
+			for (const name of ['remotion.config.ts', 'remotion.config.js']) {
+				const configFile = path.join(projectRoot, name);
+				if (!fs.existsSync(configFile)) {
+					continue;
+				}
+
+				const config = fs.readFileSync(configFile, 'utf-8');
+				const updatedConfig = config.replace(
+					/Config\.setRspack\(\s*true\s*\)/g,
+					'Config.setRspack(false)',
+				);
+				if (updatedConfig !== config) {
+					fs.writeFileSync(configFile, updatedConfig);
+				}
+			}
+		}
+
 		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
 		if (shouldOverrideTailwind) {
 			addTailwindToConfig(projectRoot);

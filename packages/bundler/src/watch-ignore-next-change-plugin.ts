@@ -5,6 +5,7 @@
 // timestamps are restored, the file is removed from changedFiles, and the original
 // callback is skipped (which would trigger _invalidate → compile). The watchpack
 // listeners are re-registered and unpaused so subsequent real changes still work.
+// Rspack's native watcher is resumed through watch() with no dependency changes.
 import path from 'node:path';
 import type {Compiler} from 'webpack';
 
@@ -29,8 +30,8 @@ type Watcher = {
 	pause: () => void;
 	getAggregatedRemovals?: () => Set<string>;
 	getAggregatedChanges?: () => Set<string>;
-	getFileTimeInfoEntries: () => Map<string, TimeInfoEntry>;
-	getContextTimeInfoEntries: () => Map<string, TimeInfoEntry>;
+	getFileTimeInfoEntries: (() => Map<string, TimeInfoEntry>) | undefined;
+	getContextTimeInfoEntries: (() => Map<string, TimeInfoEntry>) | undefined;
 	getInfo?: () => {
 		changes: Set<string>;
 		removals: Set<string>;
@@ -161,6 +162,7 @@ export class WatchIgnoreNextChangePlugin {
 				callback,
 				callbackUndelayed,
 			) => {
+				let watcher: Watcher;
 				const isAncestorOfIgnoredFile = (dir: string): boolean => {
 					for (const file of self.filesToIgnore) {
 						if (file.startsWith(dir + path.sep)) {
@@ -197,6 +199,18 @@ export class WatchIgnoreNextChangePlugin {
 					changedFiles,
 					removedFiles,
 				) => {
+					if (err) {
+						callback(
+							err,
+							fileTimestamps,
+							dirTimestamps,
+							changedFiles,
+							removedFiles,
+						);
+						return;
+					}
+
+					const resumeTime = Date.now();
 					const hasIgnoredFiles = self.filesToIgnore.size > 0;
 					const suppressedFiles: string[] = [];
 					const suppressedDirs: string[] = [];
@@ -289,6 +303,30 @@ export class WatchIgnoreNextChangePlugin {
 							'dirs:',
 							suppressedDirs,
 						);
+
+						if (
+							!watcher.getFileTimeInfoEntries &&
+							!watcher.getContextTimeInfoEntries
+						) {
+							// Native watchers pause before notifying us and do not expose
+							// Watchpack's timestamps or mutable paused state. Re-register
+							// the callbacks with empty deltas to resume the same watcher.
+							const unchangedDependencies = Object.assign(new Set<string>(), {
+								added: new Set<string>(),
+								removed: new Set<string>(),
+							});
+							watcher = originalWatch(
+								unchangedDependencies,
+								unchangedDependencies,
+								unchangedDependencies,
+								resumeTime,
+								options,
+								wrappedCallback,
+								wrappedCallbackUndelayed,
+							);
+							self.currentWatcher = watcher;
+							return;
+						}
 
 						// Don't call the callback — that would trigger _invalidate() → compile().
 						// Instead, re-register the watchpack listeners and unpause,
@@ -397,7 +435,7 @@ export class WatchIgnoreNextChangePlugin {
 					);
 				};
 
-				const watcher = originalWatch(
+				watcher = originalWatch(
 					files,
 					directories,
 					missing,
@@ -410,32 +448,36 @@ export class WatchIgnoreNextChangePlugin {
 				self.currentWatcher = watcher;
 
 				const originalGetFileTimeInfoEntries =
-					watcher.getFileTimeInfoEntries.bind(watcher);
-				watcher.getFileTimeInfoEntries = () => {
-					const entries = originalGetFileTimeInfoEntries();
-					for (const file of self.filesToIgnore) {
-						const prev = self.snapshotFileTimestamps.get(file);
-						if (prev !== undefined) {
-							entries.set(file, prev);
+					watcher.getFileTimeInfoEntries?.bind(watcher);
+				if (originalGetFileTimeInfoEntries) {
+					watcher.getFileTimeInfoEntries = () => {
+						const entries = originalGetFileTimeInfoEntries();
+						for (const file of self.filesToIgnore) {
+							const prev = self.snapshotFileTimestamps.get(file);
+							if (prev !== undefined) {
+								entries.set(file, prev);
+							}
 						}
-					}
 
-					return entries;
-				};
+						return entries;
+					};
+				}
 
 				const originalGetContextTimeInfoEntries =
-					watcher.getContextTimeInfoEntries.bind(watcher);
-				watcher.getContextTimeInfoEntries = () => {
-					const entries = originalGetContextTimeInfoEntries();
-					for (const dir of self.dirsToIgnore) {
-						const prev = self.snapshotDirTimestamps.get(dir);
-						if (prev !== undefined) {
-							entries.set(dir, prev);
+					watcher.getContextTimeInfoEntries?.bind(watcher);
+				if (originalGetContextTimeInfoEntries) {
+					watcher.getContextTimeInfoEntries = () => {
+						const entries = originalGetContextTimeInfoEntries();
+						for (const dir of self.dirsToIgnore) {
+							const prev = self.snapshotDirTimestamps.get(dir);
+							if (prev !== undefined) {
+								entries.set(dir, prev);
+							}
 						}
-					}
 
-					return entries;
-				};
+						return entries;
+					};
+				}
 
 				if (watcher.getInfo) {
 					const originalGetInfo = watcher.getInfo.bind(watcher);

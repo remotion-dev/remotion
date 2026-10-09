@@ -211,7 +211,12 @@ test(
 			module: {
 				...configuration.module,
 				rules: (configuration.module?.rules ?? []).map((rule) => {
-					if (!rule || rule === '...' || !Array.isArray(rule.use)) {
+					if (
+						!rule ||
+						rule === '...' ||
+						rule.use === undefined ||
+						!Array.isArray(rule.use)
+					) {
 						return rule;
 					}
 
