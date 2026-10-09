@@ -53,6 +53,12 @@ Config.setAllowHtmlInCanvasEnabled(true);
 
 Or start Studio with `--allow-html-in-canvas`. See [`setAllowHtmlInCanvasEnabled()`](/docs/config#setallowhtmlincanvasenabled) and [`npx remotion studio`](/docs/cli/studio#--allow-html-in-canvas).
 
+## Video capture performance
+
+When the browser supports transferable `captureElementImage()` snapshots, video exports can prepare the next frame while a worker draws the previous snapshot and constructs its `VideoFrame`. The renderer keeps at most two capture requests pending and uses the existing video encoder and audio mixer.
+
+This optimization applies to `renderMediaOnWeb()` exports without `onFrame` or `onArtifact` callbacks. Stills and exports with either callback keep their existing capture path. Speed improvements depend on the composition and browser.
+
 ## Check if HTML-in-canvas was used
 
 If HTML-in-canvas was used, you will see a warning in the browser console:
@@ -61,13 +67,13 @@ If HTML-in-canvas was used, you will see a warning in the browser console:
 Using Chromium experimental HTML-in-canvas (drawElementImage) for this frame. Pixels may differ from the built-in DOM composer. Set allowHtmlInCanvas: false to force software rasterization. See https://remotion.dev/docs/client-side-rendering/html-in-canvas
 ```
 
-If native capture starts but fails while capturing a frame, a warning is printed and the renderer falls back to the built-in DOM composer:
+If main-thread native capture starts but fails while capturing a frame, a warning is printed and the renderer falls back to the built-in DOM composer:
 
 ```
 Not using HTML-in-canvas: drawElementImage failed (...); falling back to the built-in DOM composer.
 ```
 
-If HTML-in-canvas is unavailable, disabled, or would require a nested capture in a browser without nesting support, the built-in DOM composer is selected.
+If HTML-in-canvas is unavailable, disabled, or would require a nested capture in a browser without nesting support, the built-in DOM composer is selected. Worker startup or frame-processing errors reject the video export and release the worker and pending frames.
 
 ## Compatibility
 

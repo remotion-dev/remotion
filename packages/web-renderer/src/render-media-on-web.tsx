@@ -19,6 +19,7 @@ import {createAudioSampleSource} from './create-audio-sample-source';
 import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import {supportsNativeHtmlInCanvas} from './html-in-canvas';
+import {createHtmlInCanvasWorker} from './html-in-canvas-worker';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import {
@@ -50,7 +51,11 @@ import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props'
 import {onlyOneMediaRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
-import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
+import {
+	createLayer,
+	getHtmlInCanvasFallbackReason,
+	type HtmlInCanvasLayerOutcome,
+} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {getEncodedDimensions} from './validate-dimensions';
 import {validateScale} from './validate-scale';
@@ -397,6 +402,19 @@ const internalRenderMediaOnWeb = async <
 		htmlInCanvasContext,
 	} = scaffold;
 
+	using htmlInCanvasWorker =
+		htmlInCanvasContext &&
+		videoEnabled &&
+		!onFrame &&
+		!onArtifact &&
+		typeof Worker !== 'undefined' &&
+		typeof htmlInCanvasContext.layoutCanvas.captureElementImage === 'function'
+			? createHtmlInCanvasWorker({
+					layoutCanvas: htmlInCanvasContext.layoutCanvas,
+					signal: signal ?? null,
+				})
+			: null;
+
 	if (allowHtmlInCanvas && !htmlInCanvasContext) {
 		if (!supportsNativeHtmlInCanvas()) {
 			onHtmlInCanvasLayerOutcome({
@@ -612,145 +630,194 @@ const internalRenderMediaOnWeb = async <
 			};
 		};
 
-		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
-			if (signal?.aborted) {
-				throw new Error('renderMediaOnWeb() was cancelled');
-			}
+		let pendingEncoding = Promise.resolve();
+		let activeEncodingPromises: Promise<void>[] = [];
+		let unsubmittedFrame: VideoFrame | Promise<VideoFrame> | null = null;
+		try {
+			for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
+				if (signal?.aborted) {
+					throw new Error('renderMediaOnWeb() was cancelled');
+				}
 
-			timeUpdater.current?.update(frame);
+				timeUpdater.current?.update(frame);
 
-			await waitForRenderReady();
+				await waitForRenderReady();
 
-			if (signal?.aborted) {
-				throw new Error('renderMediaOnWeb() was cancelled');
-			}
+				if (signal?.aborted) {
+					throw new Error('renderMediaOnWeb() was cancelled');
+				}
 
-			const timestamp = Math.round(
-				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
-			);
+				const timestamp = Math.round(
+					((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
+				);
 
-			let frameToEncode: VideoFrame | null = null;
-			let layerCanvas: OffscreenCanvas | null = null;
+				let frameToEncode: VideoFrame | Promise<VideoFrame> | null = null;
+				let layerCanvas: OffscreenCanvas | null = null;
 
-			if (videoEnabled) {
-				const createFrameStart = performance.now();
-				const layer = await createLayer({
-					element: div,
-					scale,
-					logLevel,
-					internalState,
-					onlyBackgroundClipText: false,
-					cutout: new DOMRect(0, 0, resolved.width, resolved.height),
-					htmlInCanvasContext,
-					onHtmlInCanvasLayerOutcome: htmlInCanvasContext
-						? onHtmlInCanvasLayerOutcome
-						: undefined,
-					waitForPageResponsiveness,
+				if (videoEnabled) {
+					const createFrameStart = performance.now();
+					const fallbackReason = htmlInCanvasWorker
+						? getHtmlInCanvasFallbackReason(div)
+						: null;
+					if (htmlInCanvasWorker && !fallbackReason) {
+						const captured = await htmlInCanvasWorker.capture({
+							element: div,
+							width: sourceDimensions.width,
+							height: sourceDimensions.height,
+							timestamp,
+						});
+						frameToEncode = captured.frame;
+						// The barrier below propagates failures after the next frame's snapshot.
+						captured.frame.catch(() => {});
+						onHtmlInCanvasLayerOutcome({native: true});
+					} else {
+						if (fallbackReason)
+							onHtmlInCanvasLayerOutcome({
+								native: false,
+								reason: fallbackReason,
+								shouldWarn: false,
+							});
+						const layer = await createLayer({
+							element: div,
+							scale,
+							logLevel,
+							internalState,
+							onlyBackgroundClipText: false,
+							cutout: new DOMRect(0, 0, resolved.width, resolved.height),
+							htmlInCanvasContext: htmlInCanvasWorker
+								? null
+								: htmlInCanvasContext,
+							onHtmlInCanvasLayerOutcome: htmlInCanvasContext
+								? onHtmlInCanvasLayerOutcome
+								: undefined,
+							waitForPageResponsiveness,
+						});
+						layerCanvas = layer.canvas;
+						frameToEncode = new VideoFrame(layer.canvas, {timestamp});
+					}
+
+					unsubmittedFrame = frameToEncode;
+					internalState.addCreateFrameTime(
+						performance.now() - createFrameStart,
+					);
+					if (signal?.aborted)
+						throw new Error('renderMediaOnWeb() was cancelled');
+					await waitForPageResponsiveness();
+
+					if (onFrame) {
+						const videoFrame = await frameToEncode;
+						const returnedFrame = await onFrame(videoFrame);
+						if (signal?.aborted) {
+							throw new Error('renderMediaOnWeb() was cancelled');
+						}
+
+						frameToEncode = validateVideoFrame({
+							originalFrame: videoFrame,
+							returnedFrame,
+							expectedWidth: sourceDimensions.width,
+							expectedHeight: sourceDimensions.height,
+							expectedTimestamp: timestamp,
+						});
+						unsubmittedFrame = frameToEncode;
+						await waitForPageResponsiveness();
+					}
+				}
+
+				const now = Date.now();
+				const timeToRenderInMilliseconds = now - timeOfLastFrame;
+				timeOfLastFrame = now;
+
+				progress.renderedFrames++;
+				recentFrameTimings.push(timeToRenderInMilliseconds);
+				if (recentFrameTimings.length > MAX_RECENT_FRAME_TIMINGS) {
+					recentFrameTimings.shift();
+				}
+
+				const recentTimingsSum = recentFrameTimings.reduce(
+					(sum, time) => sum + time,
+					0,
+				);
+				const newAverage = recentTimingsSum / recentFrameTimings.length;
+				const remainingFrames = totalFrames - progress.renderedFrames;
+				renderEstimatedTime = Math.round(remainingFrames * newAverage);
+
+				throttledOnProgress?.(getProgressPayload());
+
+				await pendingEncoding;
+				const audioCombineStart = performance.now();
+				const assets = collectAssets.current!.collectAssets();
+				if (onArtifact) {
+					await artifactsHandler.handle({
+						imageData: layerCanvas,
+						frame,
+						assets,
+						onArtifact,
+					});
+				}
+
+				await waitForPageResponsiveness();
+
+				if (audioSampleSource) {
+					audioMixer.addFrame({
+						assets,
+						timestamp,
+						isLastFrame: frame === realFrameRange[1],
+					});
+				}
+
+				internalState.addAudioMixingTime(performance.now() - audioCombineStart);
+
+				await waitForPageResponsiveness();
+
+				const addSampleStart = performance.now();
+				const encodingPromises: Promise<void>[] = [];
+				if (frameToEncode && videoSampleSource) {
+					encodingPromises.push(
+						Promise.resolve(frameToEncode).then((captured) =>
+							addVideoSampleAndCloseFrame(
+								captured,
+								videoSampleSource.videoSampleSource,
+							),
+						),
+					);
+				}
+
+				unsubmittedFrame = null;
+				encodingPromises.push(encodeReadyAudio());
+
+				activeEncodingPromises = encodingPromises;
+				pendingEncoding = Promise.all(encodingPromises).then(() => {
+					internalState.addAddSampleTime(performance.now() - addSampleStart);
+
+					progress.encodedFrames++;
+					if (progress.encodedFrames === totalFrames) {
+						doneIn = Date.now() - renderStart;
+					}
+
+					throttledOnProgress?.(getProgressPayload());
 				});
-				internalState.addCreateFrameTime(performance.now() - createFrameStart);
-				layerCanvas = layer.canvas;
+				pendingEncoding.catch(() => {});
+				if (!htmlInCanvasWorker) await pendingEncoding;
 
 				if (signal?.aborted) {
 					throw new Error('renderMediaOnWeb() was cancelled');
 				}
 
 				await waitForPageResponsiveness();
-
-				const videoFrame = new VideoFrame(layer.canvas, {
-					timestamp,
-				});
-
-				frameToEncode = videoFrame;
-				if (onFrame) {
-					const returnedFrame = await onFrame(videoFrame);
-					if (signal?.aborted) {
-						throw new Error('renderMediaOnWeb() was cancelled');
-					}
-
-					frameToEncode = validateVideoFrame({
-						originalFrame: videoFrame,
-						returnedFrame,
-						expectedWidth: sourceDimensions.width,
-						expectedHeight: sourceDimensions.height,
-						expectedTimestamp: timestamp,
-					});
-					await waitForPageResponsiveness();
-				}
 			}
 
-			const now = Date.now();
-			const timeToRenderInMilliseconds = now - timeOfLastFrame;
-			timeOfLastFrame = now;
-
-			progress.renderedFrames++;
-			recentFrameTimings.push(timeToRenderInMilliseconds);
-			if (recentFrameTimings.length > MAX_RECENT_FRAME_TIMINGS) {
-				recentFrameTimings.shift();
-			}
-
-			const recentTimingsSum = recentFrameTimings.reduce(
-				(sum, time) => sum + time,
-				0,
-			);
-			const newAverage = recentTimingsSum / recentFrameTimings.length;
-			const remainingFrames = totalFrames - progress.renderedFrames;
-			renderEstimatedTime = Math.round(remainingFrames * newAverage);
-
-			throttledOnProgress?.(getProgressPayload());
-
-			const audioCombineStart = performance.now();
-			const assets = collectAssets.current!.collectAssets();
-			if (onArtifact) {
-				await artifactsHandler.handle({
-					imageData: layerCanvas,
-					frame,
-					assets,
-					onArtifact,
-				});
-			}
-
-			await waitForPageResponsiveness();
-
-			if (audioSampleSource) {
-				audioMixer.addFrame({
-					assets,
-					timestamp,
-					isLastFrame: frame === realFrameRange[1],
-				});
-			}
-
-			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
-
-			await waitForPageResponsiveness();
-
-			const addSampleStart = performance.now();
-			const encodingPromises: Promise<void>[] = [];
-			if (frameToEncode && videoSampleSource) {
-				encodingPromises.push(
-					addVideoSampleAndCloseFrame(
-						frameToEncode,
-						videoSampleSource.videoSampleSource,
-					),
+			await pendingEncoding;
+		} finally {
+			if (unsubmittedFrame) {
+				await Promise.resolve(unsubmittedFrame).then(
+					(captured) => captured.close(),
+					() => {},
 				);
 			}
 
-			encodingPromises.push(encodeReadyAudio());
-
-			await Promise.all(encodingPromises);
-			internalState.addAddSampleTime(performance.now() - addSampleStart);
-
-			progress.encodedFrames++;
-			if (progress.encodedFrames === totalFrames) {
-				doneIn = Date.now() - renderStart;
-			}
-
-			throttledOnProgress?.(getProgressPayload());
-
-			if (signal?.aborted) {
-				throw new Error('renderMediaOnWeb() was cancelled');
-			}
-
-			await waitForPageResponsiveness();
+			// Sources must outlive any submission still using them, including on failure.
+			await pendingEncoding.catch(() => {});
+			await Promise.allSettled(activeEncodingPromises);
 		}
 
 		// Call progress one final time to ensure final state is reported

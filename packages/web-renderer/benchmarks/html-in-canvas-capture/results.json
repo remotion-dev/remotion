@@ -1,0 +1,659 @@
+{
+  "sourceHead": "f096ab1826cff02082e39c6f207964d0c84da419",
+  "baseline": "c320056a980972de109ef27a40bede9660a46931",
+  "dependencies": {
+    "electron": "44.3.0",
+    "react": "19.2.3",
+    "mediabunny": "1.56.1"
+  },
+  "assets": {
+    "second-60s.mp4": "28da871cc3b94a30e870e475005bcacbb80da475867cdb29076de03f9feba4d2",
+    "source-60s.mp4": "28da871cc3b94a30e870e475005bcacbb80da475867cdb29076de03f9feba4d2"
+  },
+  "comparisons": {
+    "fourPaths": {
+      "environment": {
+        "cores": 12,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.7977.78 Electron/44.3.0 Safari/537.36",
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Max, Unspecified Version)",
+        "htmlInCanvas": true,
+        "width": 1920,
+        "height": 1080,
+        "fps": 30,
+        "crossOriginIsolated": false
+      },
+      "meanSeconds": {
+        "baseline": 21.335724999999627,
+        "persistent": 21.185275000002235,
+        "persistent-overlap": 21.037300000000744,
+        "worker": 13.37210000000149
+      },
+      "runs": [
+        {
+          "mode": "baseline",
+          "round": -1,
+          "total": 20784.70000000298,
+          "phases": {
+            "wait": 1360.7999998629093,
+            "capture": 17821.100000180304,
+            "add": 151.89999998360872,
+            "audio": 51.1000000089407
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent",
+          "round": -1,
+          "total": 20871.5,
+          "phases": {
+            "wait": 1203,
+            "capture": 10056.6000001356,
+            "add": 80.79999991506338,
+            "audio": 128.00000005960464
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent-overlap",
+          "round": -1,
+          "total": 20762.20000000298,
+          "phases": {
+            "wait": 1217.1999999284744,
+            "capture": 18520.400000073016,
+            "add": 1603.6999999955297,
+            "audio": 37.89999996125698
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": -1,
+          "total": 13645,
+          "phases": {
+            "wait": 3243.399999856949,
+            "capture": 8762.000000052154,
+            "add": 13326.800000011921,
+            "audio": 37.599999971687794
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "baseline",
+          "round": 0,
+          "total": 21043.60000000149,
+          "phases": {
+            "wait": 1314.800000026822,
+            "capture": 18142.69999974221,
+            "add": 88,
+            "audio": 52.89999998360872
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent",
+          "round": 0,
+          "total": 20724.40000000596,
+          "phases": {
+            "wait": 1190.9000000879169,
+            "capture": 10256.499999798834,
+            "add": 74.09999993443489,
+            "audio": 117.69999995827675
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent-overlap",
+          "round": 0,
+          "total": 20653.39999999851,
+          "phases": {
+            "wait": 1124.7000000923872,
+            "capture": 18546.899999924004,
+            "add": 1461.1000000163913,
+            "audio": 32.00000002980232
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": 0,
+          "total": 13128.5,
+          "phases": {
+            "wait": 2977.89999987185,
+            "capture": 8961.200000159442,
+            "add": 12882.20000013709,
+            "audio": 36.199999898672104
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent",
+          "round": 1,
+          "total": 20897.39999999851,
+          "phases": {
+            "wait": 1198.5000000447035,
+            "capture": 10251.199999913573,
+            "add": 76.00000002980232,
+            "audio": 125.20000004768372
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent-overlap",
+          "round": 1,
+          "total": 21612.80000000447,
+          "phases": {
+            "wait": 1198.800000153482,
+            "capture": 19418.999999895692,
+            "add": 1497.799999885261,
+            "audio": 41.30000001937151
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": 1,
+          "total": 13600.20000000298,
+          "phases": {
+            "wait": 2444.0000000223517,
+            "capture": 9844.899999946356,
+            "add": 13285.199999988079,
+            "audio": 38.099999979138374
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "baseline",
+          "round": 1,
+          "total": 21156.19999999553,
+          "phases": {
+            "wait": 1269.6000000983477,
+            "capture": 18333,
+            "add": 88.09999996423721,
+            "audio": 53.40000004321337
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent-overlap",
+          "round": 2,
+          "total": 21255.5,
+          "phases": {
+            "wait": 1231.8999998271465,
+            "capture": 19050.40000011772,
+            "add": 1534.8000000491738,
+            "audio": 38.900000013411045
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": 2,
+          "total": 13233.60000000149,
+          "phases": {
+            "wait": 2512.10000000149,
+            "capture": 9490.399999961257,
+            "add": 12940.199999779463,
+            "audio": 39.200000166893005
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "baseline",
+          "round": 2,
+          "total": 21529.20000000298,
+          "phases": {
+            "wait": 1358.7000000625849,
+            "capture": 18586.700000077486,
+            "add": 88.40000009536743,
+            "audio": 52.899999998509884
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent",
+          "round": 2,
+          "total": 22089.20000000298,
+          "phases": {
+            "wait": 1314.8000000417233,
+            "capture": 11007.399999983609,
+            "add": 80.99999998509884,
+            "audio": 151.90000004321337
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": 3,
+          "total": 13526.10000000149,
+          "phases": {
+            "wait": 1957.500000193715,
+            "capture": 10055.300000101328,
+            "add": 13158.000000089407,
+            "audio": 46.29999998956919
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "baseline",
+          "round": 3,
+          "total": 21613.89999999851,
+          "phases": {
+            "wait": 1370.499999769032,
+            "capture": 18608.200000174344,
+            "add": 94.40000006556511,
+            "audio": 54.499999955296516
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent",
+          "round": 3,
+          "total": 21030.10000000149,
+          "phases": {
+            "wait": 1248.9000000208616,
+            "capture": 10213.999999910593,
+            "add": 82.6000000461936,
+            "audio": 142.7000001296401
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "persistent-overlap",
+          "round": 3,
+          "total": 20627.5,
+          "phases": {
+            "wait": 1235.500000052154,
+            "capture": 18435.6000001058,
+            "add": 1475.7999996244907,
+            "audio": 36.70000010728836
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        }
+      ],
+      "rawSha256": "2009ce4bec6bc95171c8abaa8501740da912d798996bbd23cb9e8d8df3016a51",
+      "encoderConfig": [
+        {
+          "codec": "avc1.640028",
+          "width": 1920,
+          "height": 1080,
+          "displayWidth": 1920,
+          "displayHeight": 1080,
+          "bitrate": 11571000,
+          "bitrateMode": "variable",
+          "alpha": "discard",
+          "latencyMode": "quality",
+          "hardwareAcceleration": "no-preference",
+          "avc": {
+            "format": "avc"
+          }
+        }
+      ]
+    },
+    "threadPlacement": {
+      "environment": {
+        "cores": 12,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.7977.78 Electron/44.3.0 Safari/537.36",
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Max, Unspecified Version)",
+        "htmlInCanvas": true,
+        "width": 1920,
+        "height": 1080,
+        "fps": 30,
+        "crossOriginIsolated": false
+      },
+      "meanSeconds": {
+        "main-snapshot": 22.98839999999665,
+        "worker": 14.89527499999851
+      },
+      "runs": [
+        {
+          "mode": "main-snapshot",
+          "round": -1,
+          "total": 24503.70000000298,
+          "phases": {
+            "wait": 2010.600000038743,
+            "capture": 21085.999999947846,
+            "add": 1024.299999922514,
+            "audio": 53.900000005960464
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": -1,
+          "total": 13657.5,
+          "phases": {
+            "wait": 2559.900000154972,
+            "capture": 9477.999999687076,
+            "add": 13267.5,
+            "audio": 45.69999999552965
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "main-snapshot",
+          "round": 0,
+          "total": 24224.29999999702,
+          "phases": {
+            "wait": 1842.7000001519918,
+            "capture": 21000.699999824166,
+            "add": 1002.5000000074506,
+            "audio": 51.30000002682209
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": 0,
+          "total": 14289.69999999553,
+          "phases": {
+            "wait": 2494.300000011921,
+            "capture": 9872.499999977648,
+            "add": 13924.000000014901,
+            "audio": 53.69999998062849
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": 1,
+          "total": 15763.60000000149,
+          "phases": {
+            "wait": 2740.6000000312924,
+            "capture": 10528.600000053644,
+            "add": 15361.899999924004,
+            "audio": 56.1000000089407
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "main-snapshot",
+          "round": 1,
+          "total": 23277.29999999702,
+          "phases": {
+            "wait": 1749.499999962747,
+            "capture": 20294.5000000149,
+            "add": 912.1000002399087,
+            "audio": 46.29999993741512
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "main-snapshot",
+          "round": 2,
+          "total": 21339.69999999553,
+          "phases": {
+            "wait": 1674.200000077486,
+            "capture": 18512.800000101328,
+            "add": 960.1999998837709,
+            "audio": 43.10000006109476
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": 2,
+          "total": 15060.60000000149,
+          "phases": {
+            "wait": 2398.200000092387,
+            "capture": 10383.199999824166,
+            "add": 14671.50000013411,
+            "audio": 55.29999992996454
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "worker",
+          "round": 3,
+          "total": 14467.19999999553,
+          "phases": {
+            "wait": 2800.1000001579523,
+            "capture": 9749.099999926984,
+            "add": 14117.199999891222,
+            "audio": 42.60000009089708
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 1800,
+          "maxRequests": 2,
+          "captureWorkers": 1,
+          "terminatedCaptureWorkers": 1,
+          "mainNativeDraws": 0,
+          "nativeDraws": 1800
+        },
+        {
+          "mode": "main-snapshot",
+          "round": 3,
+          "total": 23112.29999999702,
+          "phases": {
+            "wait": 1778.4999999254942,
+            "capture": 20119.799999967217,
+            "add": 888.1999999657273,
+            "audio": 46.69999997317791
+          },
+          "count": 1800,
+          "errors": [],
+          "workerFrames": 0,
+          "maxRequests": 0,
+          "captureWorkers": 0,
+          "terminatedCaptureWorkers": 0,
+          "mainNativeDraws": 1800,
+          "nativeDraws": 1800
+        }
+      ],
+      "rawSha256": "52ba145796187543696354e850d6a6a1bbf1bd408b8e870cd07e4d9fcae7fffa",
+      "encoderConfig": [
+        {
+          "codec": "avc1.640028",
+          "width": 1920,
+          "height": 1080,
+          "displayWidth": 1920,
+          "displayHeight": 1080,
+          "bitrate": 11571000,
+          "bitrateMode": "variable",
+          "alpha": "discard",
+          "latencyMode": "quality",
+          "hardwareAcceleration": "no-preference",
+          "avc": {
+            "format": "avc"
+          }
+        }
+      ]
+    }
+  }
+}
