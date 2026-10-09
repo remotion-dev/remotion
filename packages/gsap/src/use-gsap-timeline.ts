@@ -540,7 +540,15 @@ export const useGsapTimeline = <T extends Element>(
 
 				// Builders only describe motion. Reassert package ownership of playback.
 				state.controls.pause();
+			});
 
+			// Prime outside the context. Seeking makes GSAP create tweens of its
+			// own (the start state of a fromTo with immediateRender: false). Once
+			// the context records them, context.revert() undoes them before the
+			// tween that owns them, and the owner's revert then puts its
+			// from-values back on the element, where the next mount reads them as
+			// the element's own style. Left to their owners, they revert in order.
+			if (state.timeline && state.controls) {
 				// A fresh timeline is not path-independent: zero-duration tweens at
 				// the playhead render only once passed, and overlapping tweens
 				// record start values lazily at the first visited frame. Sweep the
@@ -582,7 +590,7 @@ export const useGsapTimeline = <T extends Element>(
 				state.controls.renderAt(
 					frameToSeconds(frameRef.current, fpsRef.current),
 				);
-			});
+			}
 
 			controlsRef.current = state.controls;
 		} catch (error) {
