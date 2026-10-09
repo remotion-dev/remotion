@@ -442,6 +442,7 @@ const TimelineInner: React.FC = () => {
 		collapsed,
 		sequences,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
+		compactSeries,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
 	const trackOverlapError = useMemo(

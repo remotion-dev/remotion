@@ -17,9 +17,10 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../../helpers/hoverable';
-import {toggleBooleanMapKey} from '../../helpers/persist-boolean-map';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
+import {getTimelineSeriesLayout} from './timeline-series-layout';
+import {getTimelineDisplayRows} from './timeline-track-groups';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 
 // Reserve the same space before and after children register or unregister.
@@ -49,6 +50,7 @@ export const useTimelineLayerChildren = (
 	tracks: TimelineTrackWithDisplayGroup[],
 	sequences: TSequence[],
 	compositionId: string | null,
+	compactSeries: boolean,
 ) => {
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
 		try {
@@ -68,18 +70,6 @@ export const useTimelineLayerChildren = (
 			return {};
 		}
 	});
-	const toggle = useCallback((key: string) => {
-		setCollapsed((previous) => {
-			const next = toggleBooleanMapKey(previous, key);
-			try {
-				window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-			} catch {
-				// Keep the control usable when storage is unavailable.
-			}
-
-			return next;
-		});
-	}, []);
 	const hierarchy = useMemo(() => {
 		const byId = new Map(sequences.map((sequence) => [sequence.id, sequence]));
 		const siblingIndices = new Map<string, number>();
@@ -116,15 +106,73 @@ export const useTimelineLayerChildren = (
 								.concat(track.sequence.id)
 								.map((id) => siblingIndices.get(id)),
 						];
+			const key = JSON.stringify([compositionId, identity]);
 			// Packed clips have no child-collapse control. Do not let a saved
 			// layer collapse make an explicit nested Track inaccessible.
 			if (!track.sequence.timelineTrack) {
-				keys.set(track.sequence.id, JSON.stringify([compositionId, identity]));
+				keys.set(track.sequence.id, key);
 			}
 		}
 
 		return {keys, parents, ancestors};
 	}, [compositionId, sequences, tracks]);
+	const toggle = useCallback(
+		(key: string) => {
+			const affectedKeys = new Set([key]);
+			if (compactSeries) {
+				const rows = getTimelineDisplayRows(tracks);
+				const index = rows.findIndex(
+					(row) => hierarchy.keys.get(row.track.sequence.id) === key,
+				);
+				// Find corresponding layers on click, before hiding any children.
+				const layout = getTimelineSeriesLayout({
+					rows,
+					heights: rows.map(() => 1),
+					sequences,
+					compactSeries,
+					paddingStart: 0,
+				});
+				if (index !== -1 && layout.sceneRanges[index] !== null) {
+					for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+						if (
+							layout.sceneRanges[rowIndex] === null ||
+							layout.groupIndexes[rowIndex] !== layout.groupIndexes[index] ||
+							layout.offsets[rowIndex] !== layout.offsets[index]
+						) {
+							continue;
+						}
+
+						const candidateKey = hierarchy.keys.get(
+							rows[rowIndex].track.sequence.id,
+						);
+						if (candidateKey !== undefined) {
+							affectedKeys.add(candidateKey);
+						}
+					}
+				}
+			}
+
+			setCollapsed((previous) => {
+				const next = {...previous};
+				for (const affectedKey of affectedKeys) {
+					if (previous[key]) {
+						delete next[affectedKey];
+					} else {
+						next[affectedKey] = true;
+					}
+				}
+
+				try {
+					window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+				} catch {
+					// Keep the control usable when storage is unavailable.
+				}
+
+				return next;
+			});
+		},
+		[compactSeries, hierarchy, sequences, tracks],
+	);
 	const visibleTracks = useMemo(
 		() =>
 			tracks.filter((track) => {
