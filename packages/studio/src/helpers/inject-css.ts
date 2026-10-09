@@ -1,6 +1,7 @@
 import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 import {
+	BACKGROUND,
 	BLACK,
 	BLUE,
 	BLUE_HOVERED,
@@ -17,8 +18,6 @@ const makeDefaultGlobalCSS = () => {
 
 	return `
 	  html {
-	    --remotion-cli-internals-blue: ${BLUE};
-	    --remotion-cli-internals-blue-hovered: ${BLUE_HOVERED};
 	    overscroll-behavior-y: none;
 	  }
 
@@ -26,6 +25,29 @@ const makeDefaultGlobalCSS = () => {
     overscroll-behavior-y: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
+  }
+
+  html.__remotion-slide-forward,
+  html.__remotion-slide-backward {
+    view-transition-name: none;
+    --remotion-slide-distance: 100%;
+  }
+
+  html.__remotion-slide-backward {
+    --remotion-slide-distance: -100%;
+  }
+
+  html.__remotion-slide-forward::view-transition,
+  html.__remotion-slide-backward::view-transition {
+    pointer-events: none;
+  }
+
+  @keyframes remotion-slide-out {
+    to { transform: translateX(calc(-1 * var(--remotion-slide-distance))); }
+  }
+
+  @keyframes remotion-slide-in {
+    from { transform: translateX(var(--remotion-slide-distance)); }
   }
 
   .remotion-splitter {
@@ -105,7 +127,7 @@ const makeDefaultGlobalCSS = () => {
 
 	  .__remotion_thumb {
 	    appearance: none;
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 100%;
 	    left: 0;
@@ -120,13 +142,13 @@ const makeDefaultGlobalCSS = () => {
 	  }
 
 	  .__remotion_thumb::-moz-range-track {
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 6px;
 	  }
 
 	  .__remotion_thumb::-webkit-slider-runnable-track {
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 6px;
 	  }
@@ -158,12 +180,35 @@ const makeDefaultGlobalCSS = () => {
 	  }
 
 	.__remotion_input_dragger:hover > span:first-child {
-    color: var(--remotion-cli-internals-blue-hovered) !important;
+    color: ${BLUE_HOVERED} !important;
   }
 
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {
-    color: var(--remotion-cli-internals-blue) !important;
+    color: ${BLUE} !important;
     transition: color 0.2s ease-in-out;
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar {
+    height: 0;
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar-track {
+    background-color: ${BACKGROUND};
+  }
+
+  @-moz-document url-prefix() {
+    .__remotion-horizontal-scrollbar.__remotion-canvas-tabs {
+      scrollbar-width: none;
+    }
+
+    .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover {
+      scrollbar-width: thin;
+      scrollbar-color: ${BLACK} ${BACKGROUND};
+    }
   }
 
   ${makeHoverableCSS()}

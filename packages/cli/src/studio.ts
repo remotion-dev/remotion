@@ -42,8 +42,12 @@ const {
 	askAIOption,
 	interactivityOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
+	experimentalTracksOption,
+	experimentalSequenceActivityOption,
+	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	audioLatencyHintOption,
 	ipv4Option,
@@ -55,6 +59,8 @@ const {
 	previewSampleRateOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
+	showPremountingOption,
 	publicLicenseKeyOption,
 	beepOnFinishOption,
 	logLevelOption,
@@ -164,11 +170,27 @@ export const studioCommand = async (
 
 		return {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			defaultPremountInSeconds: defaultPremountInSecondsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			showPremounting: showPremountingOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			keyboardShortcuts: ConfigInternals.getKeyboardShortcuts(),
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
 			}).value,
 			elementLibraries: ConfigInternals.getElementLibraries(),
+			experimentalSequenceActivityEnabled:
+				experimentalSequenceActivityOption.getValue({commandLine: parsedCli})
+					.value,
+			experimentalSequenceActivityLimit:
+				experimentalSequenceActivityLimitOption.getValue({
+					commandLine: parsedCli,
+				}).value,
+			experimentalTracksEnabled: experimentalTracksOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			interactivityEnabled: interactivityOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -185,12 +207,23 @@ export const studioCommand = async (
 			publicLicenseKey: publicLicenseKeyOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			canvasTabsEnabled: canvasTabsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			configFileStudioSettings: {
+				showPremounting: showPremountingOption.getConfigValue(),
+				defaultPremountInSeconds:
+					defaultPremountInSecondsOption.getConfigValue(),
 				askAIEnabled: askAIOption.getConfigValue(),
 				audioLatencyHint: audioLatencyHintOption.getConfigValue(),
 				beepOnFinish: beepOnFinishOption.getConfigValue(),
 				enableCrossSiteIsolation:
 					enableCrossSiteIsolationOption.getConfigValue(),
+				experimentalTracksEnabled: experimentalTracksOption.getConfigValue(),
+				experimentalSequenceActivityEnabled:
+					experimentalSequenceActivityOption.getConfigValue(),
+				experimentalSequenceActivityLimit:
+					experimentalSequenceActivityLimitOption.getConfigValue(),
 				interactivityEnabled: interactivityOption.getConfigValue(),
 				keyboardShortcutsEnabled: keyboardShortcutsOption.getConfigValue(),
 				logLevel: logLevelOption.getConfigValue(),
@@ -198,6 +231,7 @@ export const studioCommand = async (
 					StudioServerInternals.getConfiguredMaxTimelineTracks(),
 				numberOfSharedAudioTags: numberOfSharedAudioTagsOption.getConfigValue(),
 				rspack: rspackOption.getConfigValue(),
+				canvasTabsEnabled: canvasTabsOption.getConfigValue(),
 			},
 		};
 	};

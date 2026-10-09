@@ -349,7 +349,6 @@ export const deleteKeyframes = async ({
 			nodePath: keyframe.nodePath.nodePath,
 			componentIdentity: null,
 			effects: [],
-			videoConfigValues: keyframe.nodePath.videoConfigValues,
 		});
 
 		return {

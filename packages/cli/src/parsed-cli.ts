@@ -14,6 +14,7 @@ const {
 	colorSpaceOption,
 	concurrencyOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	offthreadVideoCacheSizeInBytesOption,
 	encodingBufferSizeOption,
 	encodingMaxRateOption,
@@ -33,9 +34,14 @@ const {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
+	showPremountingOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
+	experimentalTracksOption,
+	experimentalSequenceActivityOption,
+	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -53,6 +59,7 @@ const {
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	interactivityOption,
 	imageSequencePatternOption,
 	scaleOption,
@@ -108,6 +115,12 @@ export type CommandLineOptions = {
 		typeof defaultCodingAgentOption
 	>;
 	[defaultEditorOption.cliFlag]: TypeOfOption<typeof defaultEditorOption>;
+	[defaultPremountInSecondsOption.cliFlag]: TypeOfOption<
+		typeof defaultPremountInSecondsOption
+	>;
+	[showPremountingOption.cliFlag]: TypeOfOption<
+		typeof showPremountingOption
+	> | null;
 	[disableWebSecurityOption.cliFlag]: TypeOfOption<
 		typeof disableWebSecurityOption
 	> | null;
@@ -119,10 +132,22 @@ export type CommandLineOptions = {
 	[experimentalKeepAudioContextAliveOption.cliFlag]: TypeOfOption<
 		typeof experimentalKeepAudioContextAliveOption
 	> | null;
+	[experimentalSequenceActivityOption.cliFlag]: TypeOfOption<
+		typeof experimentalSequenceActivityOption
+	> | null;
+	[experimentalSequenceActivityLimitOption.cliFlag]: TypeOfOption<
+		typeof experimentalSequenceActivityLimitOption
+	>;
+	[experimentalTracksOption.cliFlag]: TypeOfOption<
+		typeof experimentalTracksOption
+	> | null;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
 	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
+	[disableSharedMemoryCaptureOption.cliFlag]: TypeOfOption<
+		typeof disableSharedMemoryCaptureOption
+	> | null;
 	[disallowParallelEncodingOption.cliFlag]: TypeOfOption<
 		typeof disallowParallelEncodingOption
 	> | null;
@@ -166,6 +191,7 @@ export type CommandLineOptions = {
 	[keyboardShortcutsOption.cliFlag]: TypeOfOption<
 		typeof keyboardShortcutsOption
 	> | null;
+	[canvasTabsOption.cliFlag]: TypeOfOption<typeof canvasTabsOption> | null;
 	[interactivityOption.cliFlag]: TypeOfOption<
 		typeof interactivityOption
 	> | null;
@@ -217,6 +243,7 @@ export type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
+	showPremountingOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
 	imageSequenceOption.cliFlag,
@@ -230,17 +257,21 @@ export const BooleanFlags = [
 	ignoreCertificateErrorsOption.cliFlag,
 	headlessOption.cliFlag,
 	keyboardShortcutsOption.cliFlag,
+	canvasTabsOption.cliFlag,
 	interactivityOption.cliFlag,
 	ipv4Option.cliFlag,
 	beepOnFinishOption.cliFlag,
 	disableGitSourceOption.cliFlag,
 	disallowParallelEncodingOption.cliFlag,
+	disableSharedMemoryCaptureOption.cliFlag,
 	forSeamlessAacConcatenationOption.cliFlag,
 	enableCancellationOption.cliFlag,
 	reproOption.cliFlag,
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
 	experimentalKeepAudioContextAliveOption.cliFlag,
+	experimentalTracksOption.cliFlag,
+	experimentalSequenceActivityOption.cliFlag,
 	bundleCacheOption.cliFlag,
 	rspackOption.cliFlag,
 	skipSkillsOption.cliFlag,
@@ -249,6 +280,7 @@ export const BooleanFlags = [
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
+		[showPremountingOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,
 		[bundleCacheOption.cliFlag]: null,
@@ -258,14 +290,18 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[ignoreCertificateErrorsOption.cliFlag]: null,
 		[headlessOption.cliFlag]: null,
 		[keyboardShortcutsOption.cliFlag]: null,
+		[canvasTabsOption.cliFlag]: null,
 		[interactivityOption.cliFlag]: null,
 		[ipv4Option.cliFlag]: null,
 		[beepOnFinishOption.cliFlag]: null,
 		[disallowParallelEncodingOption.cliFlag]: null,
+		[disableSharedMemoryCaptureOption.cliFlag]: null,
 		[reproOption.cliFlag]: null,
 		[isProductionOption.cliFlag]: null,
 		[forceNewStudioOption.cliFlag]: null,
 		[experimentalKeepAudioContextAliveOption.cliFlag]: null,
+		[experimentalTracksOption.cliFlag]: null,
+		[experimentalSequenceActivityOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
 		[enableCancellationOption.cliFlag]: null,
 		[rspackOption.cliFlag]: null,

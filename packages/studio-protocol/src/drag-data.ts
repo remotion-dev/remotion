@@ -66,9 +66,10 @@ export type MakeEffectDragDataInput = EffectDragData['effect'] & {
 
 export type MakeElementDragDataInput = Omit<
 	ElementDragData['element'],
-	'initialProps'
+	'assets' | 'initialProps'
 > & {
 	readonly type: 'element';
+	readonly assets?: ElementDragData['element']['assets'];
 	readonly durationInFrames: number;
 	readonly initialProps?: ElementDragData['element']['initialProps'];
 };
@@ -234,6 +235,7 @@ export const makeDragData = ((
 		case 'element':
 			return construct(
 				makeElementDragData({
+					assets: input.assets ?? [],
 					dependencies: input.dependencies,
 					dimensions: input.dimensions,
 					displayName: input.displayName,
@@ -242,6 +244,7 @@ export const makeDragData = ((
 					slug: input.slug,
 					sourceCode: input.sourceCode,
 					installationMode: input.installationMode,
+					isCaptionStyle: input.isCaptionStyle,
 				}),
 				{
 					type: input.type,

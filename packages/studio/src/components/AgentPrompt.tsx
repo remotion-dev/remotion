@@ -1,13 +1,8 @@
 import React, {useCallback, useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	BLACK_ALPHA_30,
-	BLUE,
-	BORDER_WHITE_ALPHA_12,
-	LIGHT_TEXT,
-	WHITE,
-} from '../helpers/colors';
+import {BLACK_ALPHA_30, BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {getSkillPrefix} from '../helpers/get-skill-prefix';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
 import {SkillsIcon} from '../icons/skills';
@@ -67,16 +62,16 @@ const promptHeader: React.CSSProperties = {
 	justifyContent: 'space-between',
 };
 const skillRowContainer: React.CSSProperties = {
-	borderTop: BORDER_WHITE_ALPHA_12,
 	marginTop: 10,
 };
 const skillError: React.CSSProperties = {marginTop: 10};
 
 export const AgentPrompt: React.FC<{
+	readonly action: React.ReactNode;
 	readonly availableText: string;
 	readonly promptDetails: string;
 	readonly skillId: string;
-}> = ({availableText, promptDetails, skillId}) => {
+}> = ({action, availableText, promptDetails, skillId}) => {
 	const {codingAgentInfo, remotionSkillsInfo, skillActionError} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const skill = remotionSkillsInfo?.skills.find(({name}) => name === skillId);
@@ -87,7 +82,7 @@ export const AgentPrompt: React.FC<{
 		!window.remotion_isReadOnlyStudio &&
 		previewServerState.type === 'connected' &&
 		remotionSkillsInfo !== null;
-	const skillName = `/${skillId}`;
+	const skillName = `${getSkillPrefix()}${skillId}`;
 	const prompt = `${skillName}${promptDetails}`;
 	const installCommand = 'npx remotion skills add';
 	const hasCodingAgent =
@@ -126,7 +121,7 @@ export const AgentPrompt: React.FC<{
 							role="list"
 							style={skillRowContainer}
 						>
-							<SkillSettingsRow isLast={false} skill={skill} />
+							<SkillSettingsRow skill={skill} />
 						</div>
 					) : (
 						<div style={commandField}>
@@ -135,7 +130,7 @@ export const AgentPrompt: React.FC<{
 								onClick={() => copy(installCommand, markInstallCopied)}
 								renderAction={renderInstallCopy}
 								style={copyAction}
-								title="Copy command"
+								aria-label="Copy command"
 								variant={null}
 							/>
 						</div>
@@ -157,14 +152,15 @@ export const AgentPrompt: React.FC<{
 						? availableText
 						: `Then ${availableText.toLowerCase()}`}
 				</div>
-				{hasCodingAgent ? (
-					<CodingAgentButton
-						label="Open in"
-						prompt={prompt}
-						size="compact"
-						style={null}
-					/>
-				) : null}
+				{action ??
+					(hasCodingAgent ? (
+						<CodingAgentButton
+							label="Open in"
+							prompt={prompt}
+							size="compact"
+							style={null}
+						/>
+					) : null)}
 			</div>
 			<div style={commandField}>
 				<pre style={code}>
@@ -186,7 +182,7 @@ export const AgentPrompt: React.FC<{
 					onClick={() => copy(prompt, markPromptCopied)}
 					renderAction={renderPromptCopy}
 					style={copyAction}
-					title="Copy prompt"
+					aria-label="Copy prompt"
 					variant={null}
 				/>
 			</div>

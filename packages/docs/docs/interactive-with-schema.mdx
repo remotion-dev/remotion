@@ -5,33 +5,21 @@ title: Interactive.withSchema()
 crumb: 'API'
 ---
 
-# Interactive.withSchema()<AvailableFrom v="4.0.479" />
+# Interactive.withSchema()<AvailableFrom v="4.0.530" />
 
-Wraps a React component so Remotion Studio can expose its props as timeline controls.
-
-Use it when you build a component that should behave like [`<Sequence>`](/docs/sequence), [`<Solid>`](/docs/solid) or [`<CanvasImage>`](/docs/canvasimage): The component appears in the timeline, can expose editable controls and can receive saved values from the Studio.
-
-## Example
+Wraps a React component so Remotion Studio shows it as interactive.
 
 ```tsx twoslash title="Circle.tsx"
-import {forwardRef, useImperativeHandle, useRef} from 'react';
-import {
-  Interactive,
-  Sequence,
-  type InteractiveBaseProps,
-  type InteractiveTransformProps,
-  type SequenceControls,
-  type InteractivitySchema,
-} from 'remotion';
+import type React from 'react';
+import {Interactive, type InteractivitySchema} from 'remotion';
 
-type CircleProps = InteractiveBaseProps &
-  InteractiveTransformProps & {
+type CircleProps = {
   readonly radius?: number;
   readonly color?: string;
+  readonly style?: React.CSSProperties;
 };
 
 const circleSchema = {
-  ...Interactive.baseSchema,
   radius: {
     type: 'number',
     min: 1,
@@ -45,64 +33,31 @@ const circleSchema = {
     default: '#0b84ff',
     description: 'Color',
   },
-  ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const CircleInner = forwardRef<
-  HTMLDivElement,
-  CircleProps & {
-    readonly controls: SequenceControls | undefined;
-  }
->(
-  (
-    {
-      radius = 80,
-      color = '#0b84ff',
-      name,
-      style,
-      controls,
-      ...sequenceProps
-    },
-    ref,
-  ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
-
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-    return (
-      <Sequence
-        layout="none"
-        {...sequenceProps}
-        name={name ?? '<Circle>'}
-        controls={controls}
-        outlineRef={outlineRef}
-      >
-        <div
-          ref={outlineRef}
-          style={{
-            ...style,
-            width: radius * 2,
-            height: radius * 2,
-            borderRadius: '50%',
-            backgroundColor: color,
-          }}
-        />
-      </Sequence>
-    );
-  },
-);
+const CircleInner: React.FC<CircleProps> = ({radius = 80, color = '#0b84ff', style}) => {
+  return (
+    <div
+      style={{
+        ...style,
+        width: radius * 2,
+        height: radius * 2,
+        borderRadius: '50%',
+        backgroundColor: color,
+      }}
+    />
+  );
+};
 
 export const Circle = Interactive.withSchema({
   Component: CircleInner,
-  componentName: '<Circle>',
+  componentName: 'Circle',
   schema: circleSchema,
-  supportsEffects: false,
+  wrapInSequence: true,
 });
 ```
 
-The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `Interactive.withSchema()` to the inner component and should be forwarded unchanged to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline. It also preserves the outer component's source location for Studio edits.
-
-If you use `<Sequence layout="none">`, pass [`outlineRef`](/docs/sequence#outlineref) so the Studio can draw a canvas outline around the rendered element.
+The exported `Circle` component accepts `CircleProps`, [timing props](/docs/timing), [premount props](/docs/interactive#interactivepremountprops) and [cropping props](/docs/interactive#interactivecropprops).
 
 ## API
 
@@ -110,42 +65,95 @@ If you use `<Sequence layout="none">`, pass [`outlineRef`](/docs/sequence#outlin
 import {Interactive} from 'remotion';
 ```
 
-Call `Interactive.withSchema()` with an options object.
+The options for `Interactive.withSchema()` are:
 
 ### `Component`
 
 The component to wrap.
 
-It must accept its public props plus `controls`.
+With the default `layout: 'none'`, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root.
+With `layout: 'absolute-fill'`, the wrapper applies styles to a full-size container instead. `Component` must not declare `style`, `width`, or `height` props; these belong to the wrapper.
 
-### `controls`
+### `componentName`
 
-The control state created by `Interactive.withSchema()`.
-
-Forward it to the `<Sequence>` that registers the component in the timeline.
+The component name used by Studio and in validation messages.
 
 ### `schema`
 
-An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio.
+An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio. Basic schemas like timing, premounting, cropping, and transforms are included by default and don't need to be specified
 
-As a rule, include [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) in every schema passed to `Interactive.withSchema()` so standard timeline controls remain available.
+See: [Make a component interactive](/docs/studio/make-component-interactive#create-a-schema)
 
-Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for Sequence-like timeline props. Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and should expose transform controls. Use [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) with `InteractiveCropProps` to opt the component into crop controls.
-For reliable source updates, follow [Interactivity best practices](/docs/studio/interactivity-best-practices): Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated layout props or `transform` strings.
+### `wrapInSequence`<AvailableFrom v="4.0.530" />
 
-### `supportsEffects`
+Wraps the component in a [`<Sequence>`](/docs/sequence) automatically.
+Set this to `true`, unless you already have components from previous examples which handle wrapping in a `<Sequence>` manually.
+If set to false, you need to manually forward all props.
 
-Set to `true` if this component supports an `effects` prop. Otherwise, set it to `false`.
+### `layout`?<AvailableFrom v="4.0.535" />
+
+Requires `wrapInSequence: true`. Defaults to `'none'`, which forwards styles to `Component` without adding a container.
+
+Set to `'absolute-fill'` to give the component a full-size, absolutely positioned container with `overflow: 'hidden'` by default. Set `style={{overflow: 'visible'}}` on the returned component to let content extend beyond its bounds. Styles, transforms, cropping, and premount styles apply to this container. It shares the component's timeline item, so no extra layout layer appears in Studio. The returned component also accepts `width` and `height` to size the container and set the dimensions reported by `useVideoConfig()`.
+
+The inner component can return a fragment and does not need to forward styles:
+
+```tsx twoslash title="Scene.tsx"
+import React from 'react';
+import {Video} from '@remotion/media';
+import {Interactive, useVideoConfig} from 'remotion';
+
+const SceneInner: React.FC = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <>
+      <Video
+        src="https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0466.mp4"
+        premountFor={fps}
+        objectFit="cover"
+        style={{width: '100%', height: '100%'}}
+      />
+      <Interactive.Div
+        name="Title"
+        style={{position: 'absolute', left: 80, bottom: 80, color: 'white', fontSize: 80}}
+      >
+        Under the trees
+      </Interactive.Div>
+    </>
+  );
+};
+
+export const Scene = Interactive.withSchema({
+  Component: SceneInner,
+  componentName: 'Scene',
+  schema: {},
+  wrapInSequence: true,
+  layout: 'absolute-fill',
+});
+
+const Example = () => (
+  <Scene from={30} durationInFrames={90} premountFor={30} style={{opacity: 0.5}} />
+);
+```
+
+Keep `'none'` when styles need to apply directly to an element with its own size or layout, such as a text box, SVG, or button.
 
 ### Return value
 
-Returns a component with the public props of `Component`.
+Returns a React component.
 
-## Behavior
+### Ref forwarding<AvailableFrom v="4.0.530" />
 
-During rendering, in the Player and in read-only Studio sessions, `Interactive.withSchema()` renders the component with the original props.
+With `layout: 'none'`, if `Component` accepts a ref, the returned component preserves its ref type and forwards the ref directly to `Component`.
 
-In editable Studio sessions, it reads the current prop values, applies timeline overrides and passes the merged props to the inner component.
+With `layout: 'absolute-fill'`, the ref points to the wrapper's `HTMLDivElement`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+Rendering support depends on `Component`. Editing timeline controls requires an editable Remotion Studio session.
 
 ## See also
 

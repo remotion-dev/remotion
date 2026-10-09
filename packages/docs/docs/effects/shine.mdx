@@ -21,7 +21,7 @@ Use it for stickers, badges, titles, and surfaces that should look reflective.
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {shine} from '@remotion/effects/shine';
 
@@ -33,7 +33,7 @@ export const MyComp: React.FC = () => {
   });
 
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -47,7 +47,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

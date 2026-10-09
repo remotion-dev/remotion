@@ -1,4 +1,8 @@
-import React, {useContext, useMemo} from 'react';
+import React, {createContext, useContext, useMemo} from 'react';
+import {
+	SequenceActivityDormantContext,
+	SequenceActivityTimelineContext,
+} from './sequence-activity-context.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useTimelineContext} from './timeline-position-state.js';
@@ -11,7 +15,13 @@ type FreezeProps = {
 	readonly frame: number;
 	readonly children: React.ReactNode;
 	readonly active?: boolean | ((f: number) => boolean);
+	readonly _remotionInternalIsPremounting?: boolean;
 };
+
+const NonPremountFreezeContext = createContext(false);
+
+export const useIsInsideNonPremountFreeze = () =>
+	useContext(NonPremountFreezeContext);
 
 /*
  * @description Freezes its children at the specified frame when rendering videos.
@@ -21,6 +31,7 @@ export const Freeze: React.FC<FreezeProps> = ({
 	frame: frameToFreeze,
 	children,
 	active = true,
+	_remotionInternalIsPremounting = false,
 }) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
@@ -60,24 +71,31 @@ export const Freeze: React.FC<FreezeProps> = ({
 	}, [active, frame]);
 
 	const timelineContext = useTimelineContext();
+	const activityDormant = useContext(SequenceActivityDormantContext);
 	const sequenceContext = useContext(SequenceContext);
+	const isInsideNonPremountFreeze = useIsInsideNonPremountFreeze();
 
 	const relativeFrom = sequenceContext?.relativeFrom ?? 0;
+	const playbackRate = sequenceContext?.playbackRate ?? 1;
+	const {audioAndVideoTags} = timelineContext;
 
-	const timelineValue: TimelineContextValue = useMemo(() => {
-		if (!isActive) {
-			return timelineContext;
-		}
-
+	// Advancing the outer timeline must not invalidate the frozen clock.
+	const frozenTimelineValue: TimelineContextValue = useMemo(() => {
 		return {
-			...timelineContext,
+			audioAndVideoTags,
 			isPlaying: () => false,
 			isInsideFreeze: true,
 			frame: {
-				[videoConfig.id]: frameToFreeze + relativeFrom,
+				[videoConfig.id]: frameToFreeze / playbackRate + relativeFrom,
 			},
 		};
-	}, [isActive, timelineContext, videoConfig.id, frameToFreeze, relativeFrom]);
+	}, [
+		audioAndVideoTags,
+		videoConfig.id,
+		frameToFreeze,
+		relativeFrom,
+		playbackRate,
+	]);
 
 	const newSequenceContext: SequenceContextType | null = useMemo(() => {
 		if (!sequenceContext) {
@@ -93,12 +111,24 @@ export const Freeze: React.FC<FreezeProps> = ({
 			cumulatedFrom: 0,
 		};
 	}, [sequenceContext, isActive]);
+	const providedTimeline = isActive ? frozenTimelineValue : timelineContext;
 
 	return (
-		<TimelineContext.Provider value={timelineValue}>
-			<SequenceContext.Provider value={newSequenceContext}>
-				{children}
-			</SequenceContext.Provider>
-		</TimelineContext.Provider>
+		<NonPremountFreezeContext.Provider
+			value={
+				isInsideNonPremountFreeze ||
+				(Boolean(isActive) && !_remotionInternalIsPremounting)
+			}
+		>
+			<TimelineContext.Provider value={providedTimeline}>
+				<SequenceActivityTimelineContext.Provider
+					value={activityDormant ? providedTimeline : null}
+				>
+					<SequenceContext.Provider value={newSequenceContext}>
+						{children}
+					</SequenceContext.Provider>
+				</SequenceActivityTimelineContext.Provider>
+			</TimelineContext.Provider>
+		</NonPremountFreezeContext.Provider>
 	);
 };

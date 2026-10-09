@@ -25,8 +25,8 @@ export type ExtractFrameViaBroadcastChannelResult =
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
-	| {type: 'network-error'}
-	| {type: 'unknown-container-format'};
+	| {type: 'network-error'; error: Error | null}
+	| {type: 'unknown-container-format'; error: Error | null};
 
 addBroadcastChannelListener();
 
@@ -91,131 +91,14 @@ export const extractFrameViaBroadcastChannel = async ({
 		});
 	}
 
-	await waitForMainTabToBeReady(window.remotion_broadcastChannel!);
-
-	const requestId = crypto.randomUUID();
-
-	const resolvePromise = new Promise<
-		| {
-				type: 'success';
-				frame: ImageBitmap | null;
-				audio: PcmS16AudioData | null;
-				durationInSeconds: number | null;
-		  }
-		| {type: 'cannot-decode'; durationInSeconds: number | null}
-		| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
-		| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
-		| {type: 'network-error'}
-		| {type: 'unknown-container-format'}
-	>((resolve, reject) => {
-		const onMessage = (event: MessageEvent) => {
-			const data = event.data as MessageFromMainTab;
-
-			if (!data) {
-				return;
-			}
-
-			if (data.type === 'main-tab-ready') {
-				return;
-			}
-
-			if (data.id !== requestId) {
-				return;
-			}
-
-			if (data.type === 'response-success') {
-				resolve({
-					type: 'success',
-					frame: data.frame ? data.frame : null,
-					audio: data.audio ? data.audio : null,
-					durationInSeconds: data.durationInSeconds
-						? data.durationInSeconds
-						: null,
-				});
-				window.remotion_broadcastChannel!.removeEventListener(
-					'message',
-					onMessage,
-				);
-				return;
-			}
-
-			if (data.type === 'response-error') {
-				reject(data.errorStack);
-				window.remotion_broadcastChannel!.removeEventListener(
-					'message',
-					onMessage,
-				);
-				return;
-			}
-
-			if (data.type === 'response-cannot-decode') {
-				resolve({
-					type: 'cannot-decode',
-					durationInSeconds: data.durationInSeconds,
-				});
-				window.remotion_broadcastChannel!.removeEventListener(
-					'message',
-					onMessage,
-				);
-				return;
-			}
-
-			if (data.type === 'response-cannot-decode-prores') {
-				resolve({
-					type: 'cannot-decode-prores',
-					durationInSeconds: data.durationInSeconds,
-				});
-				window.remotion_broadcastChannel!.removeEventListener(
-					'message',
-					onMessage,
-				);
-				return;
-			}
-
-			if (data.type === 'response-network-error') {
-				resolve({type: 'network-error'});
-				window.remotion_broadcastChannel!.removeEventListener(
-					'message',
-					onMessage,
-				);
-				return;
-			}
-
-			if (data.type === 'response-unknown-container-format') {
-				resolve({type: 'unknown-container-format'});
-				window.remotion_broadcastChannel!.removeEventListener(
-					'message',
-					onMessage,
-				);
-				return;
-			}
-
-			if (data.type === 'response-cannot-decode-alpha') {
-				resolve({
-					type: 'cannot-decode-alpha',
-					durationInSeconds: data.durationInSeconds,
-				});
-				window.remotion_broadcastChannel!.removeEventListener(
-					'message',
-					onMessage,
-				);
-				return;
-			}
-
-			throw new Error(
-				`Invalid message: ${JSON.stringify(data satisfies never)}`,
-			);
-		};
-
-		window.remotion_broadcastChannel!.addEventListener('message', onMessage);
-	});
-
+	const channel = window.remotion_broadcastChannel!;
+	let mainTabId = await waitForMainTabToBeReady(channel);
 	const request: ExtractFrameRequest = {
 		type: 'request',
 		sampleRate,
 		src,
 		timeInSeconds,
-		id: requestId,
+		id: crypto.randomUUID(),
 		logLevel,
 		durationInSeconds,
 		playbackRate,
@@ -230,27 +113,125 @@ export const extractFrameViaBroadcastChannel = async ({
 		credentials,
 		requestInit: normalizeMediaRequestInit(requestInit),
 	};
+	let cleanup = () => {};
 
-	window.remotion_broadcastChannel!.postMessage(request);
+	const resolvePromise = new Promise<ExtractFrameViaBroadcastChannelResult>(
+		(resolve, reject) => {
+			const onMessage = (event: MessageEvent) => {
+				const data = event.data as MessageFromMainTab;
 
-	let timeoutId: NodeJS.Timeout | undefined;
+				if (!data) {
+					return;
+				}
 
-	return Promise.race([
-		resolvePromise.then((res) => {
+				if (data.type === 'main-tab-ready') {
+					if (data.mainTabId !== mainTabId) {
+						mainTabId = data.mainTabId;
+						// The old tab may have closed with this request still pending.
+						channel.postMessage(request);
+					}
+
+					return;
+				}
+
+				if (data.id !== request.id) {
+					return;
+				}
+
+				if (data.type === 'response-success') {
+					resolve({
+						type: 'success',
+						frame: data.frame ? data.frame : null,
+						audio: data.audio ? data.audio : null,
+						durationInSeconds: data.durationInSeconds
+							? data.durationInSeconds
+							: null,
+					});
+					return;
+				}
+
+				if (data.type === 'response-error') {
+					reject(data.errorStack);
+					return;
+				}
+
+				if (data.type === 'response-cannot-decode') {
+					resolve({
+						type: 'cannot-decode',
+						durationInSeconds: data.durationInSeconds,
+					});
+					return;
+				}
+
+				if (data.type === 'response-cannot-decode-prores') {
+					resolve({
+						type: 'cannot-decode-prores',
+						durationInSeconds: data.durationInSeconds,
+					});
+					return;
+				}
+
+				if (
+					data.type === 'response-network-error' ||
+					data.type === 'response-unknown-container-format'
+				) {
+					const error = data.error ? new Error(data.error.message) : null;
+					if (error && data.error) {
+						error.name = data.error.name;
+						error.stack = data.error.stack ?? undefined;
+					}
+
+					resolve({
+						type:
+							data.type === 'response-network-error'
+								? 'network-error'
+								: 'unknown-container-format',
+						error,
+					});
+					return;
+				}
+
+				if (data.type === 'response-cannot-decode-alpha') {
+					resolve({
+						type: 'cannot-decode-alpha',
+						durationInSeconds: data.durationInSeconds,
+					});
+					return;
+				}
+
+				throw new Error(
+					`Invalid message: ${JSON.stringify(data satisfies never)}`,
+				);
+			};
+
+			channel.addEventListener('message', onMessage);
+			cleanup = () => channel.removeEventListener('message', onMessage);
+		},
+	);
+
+	let timeoutId: NodeJS.Timeout | null = null;
+	try {
+		channel.postMessage(request);
+		return await Promise.race([
+			resolvePromise,
+			new Promise<never>((_, reject) => {
+				timeoutId = setTimeout(
+					() => {
+						reject(
+							new Error(
+								`Timeout while extracting frame at time ${timeInSeconds}sec from ${src}`,
+							),
+						);
+					},
+					Math.max(3_000, window.remotion_puppeteerTimeout - 5_000),
+				);
+			}),
+		]);
+	} finally {
+		if (timeoutId !== null) {
 			clearTimeout(timeoutId);
-			return res;
-		}),
-		new Promise<never>((_, reject) => {
-			timeoutId = setTimeout(
-				() => {
-					reject(
-						new Error(
-							`Timeout while extracting frame at time ${timeInSeconds}sec from ${src}`,
-						),
-					);
-				},
-				Math.max(3_000, window.remotion_puppeteerTimeout - 5_000),
-			);
-		}),
-	]);
+		}
+
+		cleanup();
+	}
 };

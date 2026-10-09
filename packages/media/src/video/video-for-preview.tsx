@@ -1,5 +1,4 @@
 import React, {
-	useCallback,
 	useContext,
 	useEffect,
 	useLayoutEffect,
@@ -22,14 +21,16 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
+import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
+import {useMediaPlayerMuted} from '../use-media-player-muted';
 import type {
-	EffectsOutputSize,
 	FallbackOffthreadVideoProps,
+	MaxCanvasSinkFrameSize,
 	NativeVideoProps,
 	VideoObjectFit,
 } from './props';
@@ -76,11 +77,10 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly credentials: RequestCredentials | undefined;
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
+	readonly maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly effectsOutputSize: EffectsOutputSize | null;
-	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -112,11 +112,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	credentials,
 	requestInit,
 	objectFit: objectFitProp,
+	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
-	effectsOutputSize,
 	setMediaDurationInSeconds,
-	refForOutline,
 	...props
 }) => {
 	const src = usePreload(unpreloadedSrc);
@@ -131,6 +130,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [knownDuration, setKnownDuration] = useState<number | null>(null);
+	const [terminalError, setTerminalError] = useState<Error | null>(null);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
 		useState(false);
 
@@ -139,24 +140,25 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
-	const canvasRefCallback = useCallback(
-		(canvas: HTMLCanvasElement | null) => {
-			canvasRef.current = canvas;
-			refForOutline.current = canvas;
-		},
-		[refForOutline],
-	);
-
-	const fallbackVideoRef = useCallback(
-		(video: HTMLVideoElement | null) => {
-			refForOutline.current = video;
-		},
-		[refForOutline],
-	);
-
 	const [mediaVolume] = useMediaVolumeState();
 
-	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
+	const unloopedVolumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior,
+	);
+	const volumePropFrame =
+		loop && videoConfig
+			? frameForVolumeProp({
+					behavior: loopVolumeCurveBehavior,
+					loop,
+					assetDurationInSeconds: knownDuration,
+					fps: videoConfig.fps,
+					frame,
+					startsAt: unloopedVolumePropFrame - frame,
+					playbackRate,
+					trimBefore,
+					trimAfter,
+				})
+			: unloopedVolumePropFrame;
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -174,21 +176,28 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const effectsRef = useRef(effects);
 	effectsRef.current = effects;
-	const effectsOutputSizeRef = useRef(effectsOutputSize);
-	effectsOutputSizeRef.current = effectsOutputSize;
 
 	const onErrorRef = useRef(onError);
 	onErrorRef.current = onError;
+	const disallowFallbackRef = useRef(disallowFallbackToOffthreadVideo);
+	disallowFallbackRef.current = disallowFallbackToOffthreadVideo;
 
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
+
+	const maxCanvasSinkFrameSizeRef = useRef(maxCanvasSinkFrameSize);
+	maxCanvasSinkFrameSizeRef.current = maxCanvasSinkFrameSize;
 
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
-	const currentTime = frame / videoConfig.fps;
+	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
+	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
+	const sequenceDurationInFrames =
+		videoConfig.durationInFrames / sequencePlaybackRate;
+	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
 
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
@@ -200,17 +209,21 @@ const VideoForPreviewAssertedShowing: React.FC<
 		volume: userPreferredVolume,
 		audioEnabled: true,
 	});
+	const mediaPlayerMuted = useMediaPlayerMuted({
+		muted,
+		volume: userPreferredVolume,
+	});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
-	const initialPlaybackRate = useRef(playbackRate);
+	const initialPlaybackRate = useRef(effectivePlaybackRate);
 	const initialToneFrequency = useRef(toneFrequency);
-	const initialMuted = useRef(effectiveMuted);
+	const initialMuted = useRef(mediaPlayerMuted);
 	const initialVolume = useRef(userPreferredVolume);
-	const initialSequenceDuration = useRef(videoConfig.durationInFrames);
+	const initialSequenceDuration = useRef(sequenceDurationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 	const hasDrawnRealFrameRef = useRef(false);
 	const isPremountingRef = useRef(isPremounting);
@@ -248,8 +261,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
+		const currentCanvasRef = canvasRef;
 		return () => {
-			const canvas = canvasRef.current;
+			const canvas = currentCanvasRef.current;
 
 			if (
 				!canvas ||
@@ -303,7 +317,21 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
-				getEffectsOutputSize: () => effectsOutputSizeRef.current ?? null,
+				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
+				onError: (error) => {
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError: onErrorRef.current,
+						error,
+						disallowFallback: disallowFallbackRef.current,
+						isClientSideRendering: false,
+						clientSideError: error,
+					});
+					if (action === 'fallback') {
+						setShouldFallbackToNativeVideo(true);
+					} else {
+						setTerminalError(errorToUse);
+					}
+				},
 			});
 
 			mediaPlayerRef.current = player;
@@ -338,20 +366,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 						setShouldFallbackToNativeVideo(true);
 					};
 
-					if (result.type === 'unknown-container-format') {
-						handleError(
-							new Error(`Unknown container format ${preloadedSrc}.`),
-							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
-						);
-						return;
-					}
-
-					if (result.type === 'network-error') {
-						handleError(
-							new Error(`Network error fetching ${preloadedSrc}.`),
-							`Network error fetching ${preloadedSrc}, falling back to <OffthreadVideo>`,
-						);
-						return;
+					if (
+						result.type === 'unknown-container-format' ||
+						result.type === 'network-error'
+					) {
+						// The catch below applies onError and the existing fallback policy.
+						throw result.error;
 					}
 
 					if (result.type === 'cannot-decode') {
@@ -380,6 +400,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);
+						setKnownDuration(result.durationInSeconds);
 
 						hasDrawnRealFrameRef.current = true;
 					}
@@ -458,6 +479,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
+		// Compare the numbers, so that a new object with the same size does not
+		// recreate the player.
+		maxCanvasSinkFrameSize?.width,
+		maxCanvasSinkFrameSize?.height,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
@@ -477,15 +502,15 @@ const VideoForPreviewAssertedShowing: React.FC<
 		frame,
 		trimBefore,
 		trimAfter,
-		effectiveMuted,
+		effectiveMuted: mediaPlayerMuted,
 		userPreferredVolume,
-		playbackRate,
+		playbackRate: effectivePlaybackRate,
 		toneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
 		loop,
-		durationInFrames: videoConfig.durationInFrames,
+		durationInFrames: sequenceDurationInFrames,
 		isPremounting,
 		isPostmounting,
 		currentTime,
@@ -520,13 +545,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.redrawVideoEffects().catch(() => {
 			// Player may have been disposed between layout and the async redraw.
 		});
-	}, [
-		effects,
-		effectsOutputSize?.height,
-		effectsOutputSize?.width,
-		mediaPlayerReady,
-		mediaPlayerRef,
-	]);
+	}, [effects, mediaPlayerReady, mediaPlayerRef]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -536,13 +555,16 @@ const VideoForPreviewAssertedShowing: React.FC<
 		};
 	}, [objectFitProp, style]);
 
+	if (terminalError) {
+		throw terminalError;
+	}
+
 	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
 		// <Video> will fallback to <VideoForPreview> anyway
 		// not using <OffthreadVideo> because it does not support looping
 		return (
 			<Html5Video
 				{...props}
-				ref={fallbackVideoRef}
 				src={src}
 				style={actualStyle}
 				className={className}
@@ -569,7 +591,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	return (
 		<canvas
 			{...props}
-			ref={canvasRefCallback}
+			ref={canvasRef}
 			// Don't set width and height here.
 			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
 			// This will lead to inefficient resizes.

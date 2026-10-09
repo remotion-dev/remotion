@@ -55,7 +55,7 @@ export const NumberSetting: React.FC<{
 						{typeof hint === 'string' ? (
 							<OptionExplainerBubble id={hint} />
 						) : (
-							<InfoBubble title={hint.title}>{hint.content}</InfoBubble>
+							<InfoBubble aria-label={hint.title}>{hint.content}</InfoBubble>
 						)}
 					</>
 				) : null}

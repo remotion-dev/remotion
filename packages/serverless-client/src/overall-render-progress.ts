@@ -1,4 +1,4 @@
-import type {PostRenderData} from './constants';
+import type {PostRenderData, SeparateAudioOutput} from './constants';
 import type {RenderMetadata} from './render-metadata';
 import type {
 	ChunkRetry,
@@ -16,6 +16,8 @@ export type OverallRenderProgress<Provider extends CloudProvider> = {
 	chunks: number[];
 	framesRendered: number;
 	framesEncoded: number;
+	framesUploaded: number;
+	uploadedSizeInBytes: number;
 	combinedFrames: number;
 	timeToCombine: number | null;
 	timeToEncode: number | null;
@@ -23,6 +25,7 @@ export type OverallRenderProgress<Provider extends CloudProvider> = {
 	lambdasInvoked: number;
 	retries: ChunkRetry[];
 	postRenderData: PostRenderData<Provider> | null;
+	separateAudio: SeparateAudioOutput | null;
 	timings: ParsedTiming[];
 	renderMetadata: RenderMetadata<Provider> | null;
 	errors: FunctionErrorInfo[];

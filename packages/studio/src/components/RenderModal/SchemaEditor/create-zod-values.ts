@@ -1,4 +1,3 @@
-import {WHITE_FULL_HEX} from '../../../helpers/colors';
 import type {ZodTypesType} from '../../get-zod-if-possible';
 import {
 	type AnyZodSchema,
@@ -38,7 +37,7 @@ export const createZodValues = (
 	const description = getZodSchemaDescription(schema);
 	if (zodTypes) {
 		if (description === zodTypes.ZodZypesInternals.REMOTION_COLOR_BRAND) {
-			return WHITE_FULL_HEX;
+			return '#ffffff';
 		}
 
 		if (description === zodTypes.ZodZypesInternals.REMOTION_TEXTAREA_BRAND) {

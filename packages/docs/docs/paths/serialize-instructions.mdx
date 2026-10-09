@@ -4,7 +4,9 @@ title: serializeInstructions()
 crumb: "@remotion/paths"
 ---
 
-_Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.40_
+# serializeInstructions()<AvailableFrom v="3.3.40" />
+
+_Part of the [`@remotion/paths`](/docs/paths) package._
 
 Takes an array of [`Instruction`](/docs/paths/parse-path)'s and serializes it into an SVG path string.
 
@@ -26,6 +28,10 @@ const newPath = serializeInstructions([
 ```
 
 This function may throw if the instructions don't match the [`Instruction`](/docs/paths/parse-path) type, but it does not explicitly check for invalid input.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
 
 ## See also
 

@@ -9,7 +9,7 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineScaleDragOverrides,
+	clearSelectedOutlineDragOverrides,
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
@@ -30,7 +30,6 @@ import {
 	type SelectedOutlineScaleDragTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -189,7 +188,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				});
 
 				if (changes.length === 0) {
-					clearSelectedOutlineScaleDragOverrides({
+					clearSelectedOutlineDragOverrides({
 						clearDragOverrides,
 						dragStates,
 					});
@@ -205,31 +204,19 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 						change.type === 'keyframed',
 				);
 
-				Promise.all([
-					staticChanges.length > 0
-						? saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: scaleDrag.clientId,
-								undoLabel:
-									changes.length > 1
-										? 'Scale selected sequences'
-										: 'Scale sequence',
-								redoLabel:
-									changes.length > 1
-										? 'Scale selected sequences back'
-										: 'Scale sequence back',
-							})
-						: Promise.resolve(),
-					callAddKeyframes({
-						sequenceKeyframes: keyframedChanges,
-						effectKeyframes: [],
-						setPropStatuses,
-						clientId: scaleDrag.clientId,
-					}),
-				])
+				saveSequenceProps({
+					changes: staticChanges,
+					addedKeyframes: keyframedChanges,
+					movedKeyframes: null,
+					setPropStatuses,
+					clientId: scaleDrag.clientId,
+					undoLabel:
+						changes.length > 1 ? 'Scale selected sequences' : 'Scale sequence',
+					redoLabel:
+						changes.length > 1
+							? 'Scale selected sequences back'
+							: 'Scale sequence back',
+				})
 					.catch((err) => {
 						showNotification(
 							`Could not save sequence props: ${
@@ -239,7 +226,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 						);
 					})
 					.finally(() => {
-						clearSelectedOutlineScaleDragOverrides({
+						clearSelectedOutlineDragOverrides({
 							clearDragOverrides,
 							dragStates,
 						});

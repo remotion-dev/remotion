@@ -6,7 +6,7 @@ sidebar_label: Rendering from Python
 crumb: '@remotion/lambda'
 ---
 
-_available from v4.0.15_
+# Triggering renders from Python<AvailableFrom v="4.0.15" />
 
 To trigger a Lambda render using Python, install the `remotion-lambda` package using `pip`, by executing `pip install remotion-lambda` from your python project. Use the same version as the `remotion` version you are using from NPM, e.g. `pip install remotion-lambda==4.0.15` (see [newest version](https://remotion.dev/changelog)).
 
@@ -81,6 +81,100 @@ if render_response:
             render_id=render_response.render_id, bucket_name=render_response.bucket_name)
     print("Render done!", progress_response.outputFile)
 ```
+
+## Asynchronous rendering<AvailableFrom v="4.0.535" />
+
+Use `AsyncRemotionClient` in `asyncio` applications to make requests without blocking the event loop. It accepts the same constructor options as `RemotionClient`, returns the same response objects, and raises the same exceptions.
+
+Await `render_media_on_lambda()`, `render_still_on_lambda()`, `get_render_progress()`, and `cancel_render_on_lambda()`:
+
+```python title="render_media_async.py"
+import asyncio
+import os
+from remotion_lambda import AsyncRemotionClient, RenderMediaParams
+
+
+async def main():
+    client = AsyncRemotionClient(
+        region=os.environ['REMOTION_APP_REGION'],
+        serve_url=os.environ['REMOTION_APP_SERVE_URL'],
+        function_name=os.environ['REMOTION_APP_FUNCTION_NAME'],
+    )
+
+    response = await client.render_media_on_lambda(
+        RenderMediaParams(composition="react-svg")
+    )
+    if response is None:
+        return
+
+    while True:
+        progress = await client.get_render_progress(
+            render_id=response.render_id,
+            bucket_name=response.bucket_name,
+        )
+        if progress is None:
+            return
+        if progress.fatalErrorEncountered:
+            raise RuntimeError(progress.errors)
+        if progress.done:
+            print("Render done!", progress.outputFile)
+            return
+        await asyncio.sleep(1)
+
+
+asyncio.run(main())
+```
+
+Cancelling an awaited request does not stop the AWS request or the render. To cancel a render, start it with `enable_cancellation=True` and await `cancel_render_on_lambda()` with its render ID and bucket name.
+
+## Rendering an image sequence<AvailableFrom v="4.0.535" />
+
+Use `render_frames_on_lambda()` with `RenderFramesParams`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+
+```python title="render_frames.py"
+from remotion_lambda import RenderFramesParams
+
+render_params = RenderFramesParams(
+    composition="main",
+    frame_range=[0, 99],
+    frames_per_lambda=20,
+    output_prefix="exports/my-sequence/",
+    image_sequence_pattern="element-[frame].[ext]",
+)
+
+render_response = client.render_frames_on_lambda(render_params)
+if render_response:
+    print(render_response.render_id, render_response.bucket_name)
+```
+
+Poll `get_render_progress()` until `done` or `fatalErrorEncountered`. `framesUploaded` reports uploaded frames, and `outputSequence['manifestUrl']` points to the completed manifest. Use `ImageSequenceOutputPrefix(bucket_name=..., key_prefix=..., s3_output_provider=...)` as `output_prefix` to select another bucket or provider.
+
+## Configuring the AWS clients
+
+### config?<AvailableFrom v="4.0.380" />
+
+Pass a [`botocore.config.Config`](https://botocore.amazonaws.com/v1/documentation/api/latest/reference/config.html) object to `RemotionClient()` to configure connection and read timeouts, retries, proxies, and other botocore options. The configuration applies to both AWS Lambda and S3 requests.
+
+Connection and read timeouts default to 60 seconds each. To override them:
+
+```python title="configure_client.py"
+import os
+from botocore.config import Config
+from remotion_lambda import RemotionClient
+
+client = RemotionClient(
+    region=os.environ['REMOTION_APP_REGION'],
+    serve_url=os.environ['REMOTION_APP_SERVE_URL'],
+    function_name=os.environ['REMOTION_APP_FUNCTION_NAME'],
+    config=Config(
+        connect_timeout=5,
+        read_timeout=30,
+        retries={'total_max_attempts': 3, 'mode': 'standard'},
+    ),
+)
+```
+
+Both timeout values are in seconds.
 
 ## Cancelling a render<AvailableFrom v="4.0.515" />
 

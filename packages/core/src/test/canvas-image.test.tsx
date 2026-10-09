@@ -12,9 +12,11 @@ import type {
 import {Internals} from '../internals.js';
 import type {SequenceContextType} from '../SequenceContext.js';
 import {SequenceContext} from '../SequenceContext.js';
-import type {SequenceManagerContext} from '../SequenceManager.js';
-import {SequenceManager} from '../SequenceManager.js';
-import {WrapSequenceContext} from './wrap-sequence-context.js';
+import {SequenceManagerProvider} from '../SequenceManager.js';
+import {
+	ObserveSequenceRegistrations,
+	WrapSequenceContext,
+} from './wrap-sequence-context.js';
 
 type DrawImageCall = {
 	readonly canvas: HTMLCanvasElement;
@@ -112,6 +114,7 @@ const studioEnv = {
 };
 
 const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
+	playbackRate: 1,
 	absoluteFrom: 0,
 	cumulatedFrom: 0,
 	cumulatedNegativeFrom: 0,
@@ -171,29 +174,15 @@ const SequenceRegistrationWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 }> = ({children, onRegisterSequence}) => {
-	const registerSequence = React.useCallback(
-		(sequence: TSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-	const unregisterSequence = React.useCallback(() => undefined, []);
-	const sequenceManagerContext: SequenceManagerContext = React.useMemo(
-		() => ({
-			registerSequence,
-			unregisterSequence,
-			updateSequence: registerSequence,
-			sequences: [],
-		}),
-		[registerSequence, unregisterSequence],
-	);
-
 	return (
 		<WrapSequenceContext>
 			<Internals.RemotionEnvironmentContext value={studioEnv}>
-				<SequenceManager.Provider value={sequenceManagerContext}>
+				<SequenceManagerProvider>
+					<ObserveSequenceRegistrations
+						onRegisterSequence={onRegisterSequence}
+					/>
 					{children}
-				</SequenceManager.Provider>
+				</SequenceManagerProvider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>
 	);
@@ -262,10 +251,10 @@ test('<CanvasImage> forwards a canvas ref', async () => {
 	});
 });
 
-test('<CanvasImage> registers its canvas as the outline ref', async () => {
+test('<CanvasImage> registers an automatic canvas outline', async () => {
 	const registeredSequences: TSequence[] = [];
 
-	render(
+	const {container} = render(
 		<SequenceRegistrationWrapper
 			onRegisterSequence={(sequence) => {
 				registeredSequences.push(sequence);
@@ -275,11 +264,13 @@ test('<CanvasImage> registers its canvas as the outline ref', async () => {
 		</SequenceRegistrationWrapper>,
 	);
 
-	await waitFor(() => {
-		expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe(
-			'CANVAS',
-		);
-	});
+	await waitFor(() => expect(registeredSequences).toHaveLength(1));
+	expect(container.querySelector('canvas')).not.toBeNull();
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {

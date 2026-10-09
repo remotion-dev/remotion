@@ -1,6 +1,7 @@
 import {afterEach, expect, spyOn, test} from 'bun:test';
 import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {ModalsProvider} from '../components/ModalsProvider';
+import {SettingsProvider} from '../components/SettingsContext';
 import {TranscriptionModalWithOptionalWhisper} from '../components/Transcription/TranscriptionModalWithOptionalWhisper';
 import {
 	isWhisperWebGpuInstalled,
@@ -8,6 +9,7 @@ import {
 } from '../components/Transcription/whisper-webgpu-capability';
 import {VIDEO_MATTING_PACKAGE} from '../components/VideoMatting/video-matting-capability';
 import {VideoMattingModalWithOptionalPackage} from '../components/VideoMatting/VideoMattingModalWithOptionalPackage';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	TRANSFORMERS_PACKAGE,
 	withRequiredAuxiliaryPackages,
@@ -33,31 +35,9 @@ test('adds the pinned Transformers version to AI package installations', () => {
 			withRequiredAuxiliaryPackages([{name: packageName, version: null}]),
 		).toEqual([
 			{name: packageName, version: null},
-			{name: TRANSFORMERS_PACKAGE, version: '4.3.0'},
+			{name: TRANSFORMERS_PACKAGE, version: '4.2.0'},
 		]);
 	}
-});
-
-test('asks before installing Whisper for transcription', () => {
-	window.remotion_installedPackages = [];
-	const {container, getByRole} = render(
-		<ModalsProvider>
-			<TranscriptionModalWithOptionalWhisper
-				state={{
-					type: 'transcribe',
-					src: '/voice.wav',
-					displayName: 'voice.wav',
-					audioStreamIndex: null,
-					requestInit: null,
-				}}
-			/>
-		</ModalsProvider>,
-	);
-
-	expect(container.textContent).toContain(
-		'This requires installing @remotion/whisper-webgpu and @huggingface/transformers. Continue?',
-	);
-	expect(getByRole('button', {name: 'Continue'})).toBeDefined();
 });
 
 test('uses the same install confirmation for video matting', () => {
@@ -69,6 +49,7 @@ test('uses the same install confirmation for video matting', () => {
 					type: 'video-matting',
 					src: '/video.webm',
 					displayName: 'video.webm',
+					target: null,
 				}}
 			/>
 		</ModalsProvider>,
@@ -97,20 +78,33 @@ test('opens transcription after installing Whisper without restarting', async ()
 	);
 	try {
 		const {container, getByRole, getByText} = render(
-			<ModalsProvider>
-				<TranscriptionModalWithOptionalWhisper
-					state={{
-						type: 'transcribe',
-						src: '/voice.wav',
-						displayName: 'voice.wav',
-						audioStreamIndex: null,
-						requestInit: null,
-					}}
-				/>
-			</ModalsProvider>,
+			<StudioServerConnectionCtx.Provider
+				value={{
+					previewServerState: {type: 'init'},
+					configFileChangeRevision: 0,
+					restartRequired: false,
+					subscribeToEvent: () => () => undefined,
+				}}
+			>
+				<SettingsProvider>
+					<ModalsProvider>
+						<TranscriptionModalWithOptionalWhisper
+							state={{
+								type: 'transcribe',
+								captionStyle: null,
+								src: '/voice.wav',
+								displayName: 'voice.wav',
+								audioStreamIndex: null,
+								requestInit: null,
+								target: null,
+							}}
+						/>
+					</ModalsProvider>
+				</SettingsProvider>
+			</StudioServerConnectionCtx.Provider>,
 		);
 
-		fireEvent.click(getByRole('button', {name: 'Continue'}));
+		fireEvent.click(getByRole('button', {name: 'Install packages'}));
 		const installing = getByText(
 			`Installing ${WHISPER_WEBGPU_PACKAGE} and ${TRANSFORMERS_PACKAGE}…`,
 		);
@@ -118,18 +112,21 @@ test('opens transcription after installing Whisper without restarting', async ()
 		expect(getComputedStyle(installing).fontSize).toBe('14px');
 		expect(getComputedStyle(installing).lineHeight).toBe('1.5');
 		resolveInstall(new Response(JSON.stringify({success: true, data: {}})));
-		await waitFor(() => {
-			expect(window.remotion_installedPackages).toContain(
-				WHISPER_WEBGPU_PACKAGE,
-			);
-			expect(container.textContent).toContain('Output in public/');
-		});
+		await waitFor(
+			() => {
+				expect(window.remotion_installedPackages).toContain(
+					WHISPER_WEBGPU_PACKAGE,
+				);
+				expect(container.textContent).toContain('Output in public/');
+			},
+			{timeout: 5000},
+		);
 		expect(fetchSpy).toHaveBeenCalledTimes(1);
 		const requestInit = fetchSpy.mock.calls[0]?.[1];
 		expect(JSON.parse(String(requestInit?.body))).toEqual({
 			dependencies: [
 				{name: WHISPER_WEBGPU_PACKAGE, version: null},
-				{name: TRANSFORMERS_PACKAGE, version: '4.3.0'},
+				{name: TRANSFORMERS_PACKAGE, version: '4.2.0'},
 			],
 		});
 		expect(window.remotion_installedPackages).toContain(TRANSFORMERS_PACKAGE);

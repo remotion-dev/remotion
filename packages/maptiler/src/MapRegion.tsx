@@ -1,25 +1,26 @@
 import type {GeoJSONSource} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
 import {
-	forwardRef,
 	useContext,
 	useEffect,
-	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
-	useRef,
 	useState,
-	type ForwardRefRenderFunction,
-	type RefObject,
+	type FC,
 } from 'react';
 import {
 	Interactive,
+	Freeze,
 	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractivitySchema,
 	type SequenceControls,
 	useDelayRender,
 } from 'remotion';
 import {MapTilerContext} from './MapTilerContext';
+import {useMapPremounting} from './use-map-premounting';
 
 export type MapRegionFeature = {
 	type: 'Feature';
@@ -27,20 +28,25 @@ export type MapRegionFeature = {
 	geometry: {type: 'Polygon'; coordinates: number[][][]};
 };
 
-type MapRegionProps = InteractiveBaseProps & {
-	readonly controls?: SequenceControls;
-	readonly feature: MapRegionFeature;
-	readonly fill?: number;
-	readonly fillColor: string;
-	readonly glow?: number;
-	readonly id: string;
-	readonly progress?: number;
-	readonly strokeColor?: string;
-	readonly strokeWidth?: number;
-};
+type MapRegionProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly controls?: SequenceControls;
+		readonly feature: MapRegionFeature;
+		readonly fill?: number;
+		readonly fillColor: string;
+		readonly glow?: number;
+		readonly id: string;
+		readonly progress?: number;
+		readonly strokeColor?: string;
+		readonly strokeWidth?: number;
+	};
 
 const mapRegionSchema = {
 	...Interactive.baseSchema,
+	...{
+		premountFor: Interactive.premountSchema.premountFor,
+		postmountFor: Interactive.premountSchema.postmountFor,
+	},
 	fill: {
 		type: 'number',
 		min: 0,
@@ -116,9 +122,14 @@ const MapRegionDrawing = ({
 	const {map} = useContext(MapTilerContext);
 	const {continueRender, delayRender} = useDelayRender();
 	const [isReady, setIsReady] = useState(false);
-	const [loadingHandle] = useState(() =>
-		delayRender(`Loading ${feature.properties.name} geometry`),
-	);
+	useLayoutEffect(() => {
+		if (isReady) {
+			return;
+		}
+
+		const handle = delayRender(`Loading ${feature.properties.name} geometry`);
+		return () => continueRender(handle);
+	}, [continueRender, delayRender, feature.properties.name, isReady]);
 	const outline = useMemo(
 		() => lineString(feature.geometry.coordinates[0]),
 		[feature],
@@ -127,8 +138,13 @@ const MapRegionDrawing = ({
 	const fillSourceId = `${id}-fill`;
 	const outlineSourceId = `${id}-outline`;
 	const outlineGlowLayerId = `${id}-outline-glow`;
+	const applyPremountVisibility = useMapPremounting(() => [
+		fillSourceId,
+		outlineSourceId,
+		outlineGlowLayerId,
+	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!map) {
 			return;
 		}
@@ -204,18 +220,20 @@ const MapRegionDrawing = ({
 		map.setPaintProperty(outlineSourceId, 'line-color', strokeColor);
 		map.setPaintProperty(outlineSourceId, 'line-width', strokeWidth);
 
-		map.once('idle', () => {
-			setIsReady(true);
-			continueRender(loadingHandle);
-		});
+		applyPremountVisibility();
+		const onIdle = () => setIsReady(true);
+		map.once('idle', onIdle);
 		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+		};
 	}, [
+		applyPremountVisibility,
 		continueRender,
 		feature,
 		fillColor,
 		fillSourceId,
 		glow,
-		loadingHandle,
 		map,
 		outline,
 		outlineGlowLayerId,
@@ -224,7 +242,7 @@ const MapRegionDrawing = ({
 		strokeWidth,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!isReady || !map) {
 			return;
 		}
@@ -243,8 +261,13 @@ const MapRegionDrawing = ({
 			'fill-opacity',
 			Math.min(1, Math.max(0, fill)),
 		);
-		map.once('idle', () => continueRender(frameHandle));
+		const onIdle = () => continueRender(frameHandle);
+		map.once('idle', onIdle);
 		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+			continueRender(frameHandle);
+		};
 	}, [
 		continueRender,
 		delayRender,
@@ -292,17 +315,13 @@ const MapRegionDrawing = ({
 	return null;
 };
 
-const MapRegionBounds = ({
+const MapRegionBounds: FC<{readonly feature: MapRegionFeature}> = ({
 	feature,
-	refForOutline,
-}: {
-	readonly feature: MapRegionFeature;
-	readonly refForOutline: RefObject<HTMLDivElement | null>;
 }) => {
 	const {map} = useContext(MapTilerContext);
 
 	if (!map) {
-		return <div ref={refForOutline} />;
+		return <div />;
 	}
 
 	const points = feature.geometry.coordinates
@@ -315,7 +334,6 @@ const MapRegionBounds = ({
 
 	return (
 		<div
-			ref={refForOutline}
 			style={{
 				height: bottom - top,
 				left,
@@ -330,63 +348,85 @@ const MapRegionBounds = ({
 	);
 };
 
-const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
-	HTMLDivElement,
-	MapRegionProps
-> = (
-	{
-		feature,
-		fill = 0,
-		fillColor,
-		glow = 0.72,
-		id,
-		progress = 1,
-		strokeColor = '#8f1712',
-		strokeWidth = 9,
-		durationInFrames,
-		from,
-		trimBefore,
-		freeze,
-		hidden,
-		name,
-		showInTimeline,
-		controls,
-	},
-	ref,
-) => {
-	const refForOutline = useRef<HTMLDivElement>(null);
-
-	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
-
+const MapRegionInner: FC<MapRegionProps> = ({
+	feature,
+	fill = 0,
+	fillColor,
+	glow = 0.72,
+	id,
+	progress = 1,
+	strokeColor = '#8f1712',
+	strokeWidth = 9,
+	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+}) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? `<${feature.properties.name}>`}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-			outlineRef={refForOutline}
-		>
-			<MapRegionDrawing
-				feature={feature}
-				fill={fill}
-				fillColor={fillColor}
-				glow={glow}
-				id={id}
-				progress={progress}
-				strokeColor={strokeColor}
-				strokeWidth={strokeWidth}
-			/>
-			<MapRegionBounds feature={feature} refForOutline={refForOutline} />
-		</Sequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loop={loop}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? `<${feature.properties.name}>`}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<>
+					<MapRegionDrawing
+						feature={feature}
+						fill={fill}
+						fillColor={fillColor}
+						glow={glow}
+						id={id}
+						progress={progress}
+						strokeColor={strokeColor}
+						strokeWidth={strokeWidth}
+					/>
+					<MapRegionBounds feature={feature} />
+				</>
+			</Sequence>
+		</Freeze>
 	);
 };
-
-const MapRegionInner = forwardRef(MapRegionRefForwardingFunction);
 
 export const MapRegion = Interactive.withSchema({
 	Component: MapRegionInner,

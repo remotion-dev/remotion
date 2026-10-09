@@ -89,7 +89,6 @@ export const startReceiver = () => {
 		window.addEventListener('message', (event) => {
 			if (
 				isDelivering ||
-				event.source !== window ||
 				event.origin !== window.location.origin ||
 				typeof event.data !== 'object' ||
 				event.data === null ||

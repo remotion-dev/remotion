@@ -1,4 +1,8 @@
-import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
+import {getBrowserReactRefreshVirtualFiles} from '@remotion/browser-bundler/compiler';
+import {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from '@remotion/studio-shared';
 
 export const browserStudioVirtualFilePaths = {
 	browserRequireShim: '/__remotion_browser_studio__/browser-require-shim.js',
@@ -9,6 +13,7 @@ export const browserStudioVirtualFilePaths = {
 	setupSequenceStackTraces:
 		'/__remotion_browser_studio__/setup-sequence-stack-traces.ts',
 	studioPreviewEntry: '/__remotion_browser_studio__/studio-preview-entry.js',
+	studioBootstrap: '/__remotion_browser_studio__/studio-bootstrap.js',
 	jsxRuntime: '/__remotion_browser_studio__/jsx-runtime.ts',
 	jsxDevRuntime: '/__remotion_browser_studio__/jsx-dev-runtime.ts',
 	jsxImportSource: '/__remotion_browser_studio__',
@@ -16,13 +21,6 @@ export const browserStudioVirtualFilePaths = {
 };
 
 declare const __BROWSER_STUDIO_SETUP_ENVIRONMENT__: string | undefined;
-declare const __BROWSER_STUDIO_REACT_REFRESH_FILES__:
-	| {
-			entry: string;
-			runtime: string;
-			utils: string;
-	  }
-	| undefined;
 
 const getInjectedSetupEnvironment = () => {
 	if (typeof __BROWSER_STUDIO_SETUP_ENVIRONMENT__ === 'undefined') {
@@ -32,14 +30,6 @@ const getInjectedSetupEnvironment = () => {
 	return __BROWSER_STUDIO_SETUP_ENVIRONMENT__;
 };
 
-const getInjectedReactRefreshFiles = () => {
-	if (typeof __BROWSER_STUDIO_REACT_REFRESH_FILES__ === 'undefined') {
-		throw new Error('Browser Studio React Refresh files were not injected');
-	}
-
-	return __BROWSER_STUDIO_REACT_REFRESH_FILES__;
-};
-
 const notifyOnRefresh = `const RemotionRefreshRuntime = require('react-refresh/runtime');
 RemotionRefreshRuntime.__remotionReactRefreshWrapped ??= null;
 
@@ -47,6 +37,7 @@ if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
   const originalPerformReactRefresh = RemotionRefreshRuntime.performReactRefresh;
   RemotionRefreshRuntime.__remotionReactRefreshWrapped = true;
   RemotionRefreshRuntime.performReactRefresh = () => {
+    window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_STARTED_EVENT)}));
     const result = originalPerformReactRefresh();
     if (result !== null) {
       window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_FINISHED_EVENT)}));
@@ -55,6 +46,8 @@ if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
     return result;
   };
 }
+
+window.remotion_performReactRefresh = () => RemotionRefreshRuntime.performReactRefresh();
 `;
 
 const setupSequenceStackTraces = `import React from 'react';
@@ -65,56 +58,10 @@ Internals.setComponentIdentityResolver((component) => {
   return RefreshRuntime.getFamilyByType(component) ?? component;
 });
 
-const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
-const sequenceComponent = Internals.getSequenceComponent();
-const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
-const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
+export const enableProxy = (api, sourceArgumentIndex) =>
+  Internals.createElementSourceProxy(api, sourceArgumentIndex, (fileName) => fileName);
 
-const originalCreateElement = React.createElement;
-
-export const enableProxy = (api, isCreateElement, sourceArgumentIndex) => {
-  return new Proxy(api, {
-    apply(target, thisArg, argArray) {
-      if (componentsToAddStacksTo.includes(argArray[0])) {
-        const [first, props, ...rest] = argArray;
-        const children = isCreateElement
-          ? rest.length === 0
-            ? props?.children
-            : rest
-          : props?.children;
-        const source =
-          sourceArgumentIndex === null ? null : argArray[sourceArgumentIndex];
-        const stack =
-          source &&
-          typeof source.fileName === 'string' &&
-          typeof source.lineNumber === 'number' &&
-          typeof source.columnNumber === 'number'
-            ? 'Error\\n    at browserStudioOriginal (' +
-              browserStudioOriginalSourcePrefix +
-              encodeURIComponent(source.fileName) +
-              ':' +
-              source.lineNumber +
-              ':' +
-              source.columnNumber +
-              ')'
-            : new Error().stack;
-        const newProps = props?.[internalStackProp]
-          ? {...props}
-          : {...(props ?? {}), [internalStackProp]: stack};
-        if (first === sequenceComponent) {
-          newProps._remotionInternalSingleChildComponent =
-            Internals.getSingleChildComponent(children);
-        }
-
-        return Reflect.apply(target, thisArg, [first, newProps, ...rest]);
-      }
-
-      return Reflect.apply(target, thisArg, argArray);
-    },
-  });
-};
-
-React.createElement = enableProxy(originalCreateElement, true, null);
+React.createElement = enableProxy(React.createElement, null);
 `;
 
 const jsxRuntime = `import {
@@ -125,8 +72,8 @@ const jsxRuntime = `import {
 import {enableProxy} from './setup-sequence-stack-traces';
 
 export {Fragment};
-export const jsx = enableProxy(originalJsx, false, null);
-export const jsxs = enableProxy(originalJsxs, false, null);
+export const jsx = enableProxy(originalJsx, null);
+export const jsxs = enableProxy(originalJsxs, null);
 `;
 
 const jsxDevRuntime = `import {
@@ -136,7 +83,7 @@ const jsxDevRuntime = `import {
 import {enableProxy} from './setup-sequence-stack-traces';
 
 export {Fragment};
-export const jsxDEV = enableProxy(originalJsxDev, false, 4);
+export const jsxDEV = enableProxy(originalJsxDev, 4);
 `;
 
 const reactShim = `import * as React from 'react';
@@ -166,7 +113,7 @@ globalThis.require = (id) => {
 };
 `;
 
-const studioPreviewEntry = `if (!globalThis.remotion_browserStudioVendor) {
+const studioBootstrap = `if (!globalThis.remotion_browserStudioVendor) {
   throw new Error('Browser Studio vendor bundle was not loaded');
 }
 
@@ -178,23 +125,30 @@ globalThis.remotion_browserStudioProjectHot = {
   status: () => module.hot.status(),
 };
 
+globalThis.remotion_browserStudioVendor.initializeStudioPreview();
+`;
+
+const studioPreviewEntry = `
 void globalThis.remotion_browserStudioVendor.startStudio();
 `;
 
 export const getBrowserStudioVirtualFiles = (): Record<string, string> => {
-	const reactRefreshFiles = getInjectedReactRefreshFiles();
+	const reactRefreshFiles = getBrowserReactRefreshVirtualFiles({
+		entry: browserStudioVirtualFilePaths.reactRefreshEntry,
+		runtime: browserStudioVirtualFilePaths.reactRefreshRuntime,
+		utils: browserStudioVirtualFilePaths.reactRefreshUtils,
+	});
 
 	return {
+		...reactRefreshFiles,
 		[browserStudioVirtualFilePaths.browserRequireShim]: browserRequireShim,
-		[browserStudioVirtualFilePaths.reactRefreshEntry]: `${reactRefreshFiles.entry}\n${notifyOnRefresh}`,
-		[browserStudioVirtualFilePaths.reactRefreshRuntime]:
-			reactRefreshFiles.runtime,
-		[browserStudioVirtualFilePaths.reactRefreshUtils]: reactRefreshFiles.utils,
+		[browserStudioVirtualFilePaths.reactRefreshEntry]: `${reactRefreshFiles[browserStudioVirtualFilePaths.reactRefreshEntry]}\n${notifyOnRefresh}`,
 		[browserStudioVirtualFilePaths.setupEnvironment]:
 			getInjectedSetupEnvironment(),
 		[browserStudioVirtualFilePaths.setupSequenceStackTraces]:
 			setupSequenceStackTraces,
 		[browserStudioVirtualFilePaths.studioPreviewEntry]: studioPreviewEntry,
+		[browserStudioVirtualFilePaths.studioBootstrap]: studioBootstrap,
 		[browserStudioVirtualFilePaths.jsxRuntime]: jsxRuntime,
 		[browserStudioVirtualFilePaths.jsxDevRuntime]: jsxDevRuntime,
 		[browserStudioVirtualFilePaths.reactShim]: reactShim,

@@ -22,11 +22,11 @@ Renders a WebGL2-based retro starburst ray pattern on canvas-based components su
 
 ```tsx twoslash title="MyComp.tsx"
 import {starburst} from '@remotion/effects/starburst';
-import {AbsoluteFill, Solid} from 'remotion';
+import {Solid} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Solid
         width={1280}
         height={720}
@@ -40,7 +40,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

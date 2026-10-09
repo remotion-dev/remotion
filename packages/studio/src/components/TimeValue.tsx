@@ -16,6 +16,7 @@ import {
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {renderFrame} from '../state/render-frame';
+import {ActionTooltip} from './ActionTooltip';
 import {Flex, Spacing} from './layout';
 import {InputDragger} from './NewComposition/InputDragger';
 import {TimelineTickFormatContext} from './Timeline/TimelineTickFormatProvider';
@@ -60,7 +61,7 @@ const currentTimeButtonStyle = {
 	padding: 0,
 	border: 'none',
 	lineHeight: '21px',
-	'--remotion-cli-internals-blue-hovered': WHITE,
+	'--remotion-studio-blue-hovered': WHITE,
 } as React.CSSProperties;
 
 const currentTimeSubtitle: React.CSSProperties = {
@@ -168,21 +169,23 @@ export const TimeValue: React.FC = () => {
 					status="ok"
 					style={currentTimeInputStyle}
 				/>
-				<button
-					type="button"
-					className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-					style={currentTimeSubtitle}
-					onClick={toggleTickFormat}
-					aria-label="Show timeline ticks as frames"
-					aria-pressed={showFrames}
-					title={
-						showFrames
-							? 'Show timeline ticks as timecode'
-							: 'Show timeline ticks as frames'
-					}
+				<ActionTooltip
+					label="Toggle time format"
+					shortcut={null}
+					delay={800}
+					dismissOnClick
 				>
-					{frame}
-				</button>
+					<button
+						type="button"
+						className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+						style={currentTimeSubtitle}
+						onClick={toggleTickFormat}
+						aria-label="Show timeline ticks as frames"
+						aria-pressed={showFrames}
+					>
+						{frame}
+					</button>
+				</ActionTooltip>
 			</div>
 			<Spacing x={2} />
 			<Flex />

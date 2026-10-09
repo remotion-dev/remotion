@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
-	updateEffectKeyframesAst,
+	updateEffectKeyframes,
 	updateSequenceKeyframes,
 } from '../codemods/update-keyframes/update-keyframes';
 import {computeSequencePropsStatusFromContent} from '../preview-server/routes/can-update-sequence-props';
@@ -64,7 +64,6 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.rotate'],
 		effects: [],
-		videoConfigValues,
 	});
 	expect(status.props['style.rotate']).toMatchObject({
 		status: 'keyframed',
@@ -126,9 +125,13 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		videoConfigValues,
 	});
-	expect(status.props['style.scale']).toMatchObject({
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(
+			status.props,
+			videoConfigValues,
+		)['style.scale'],
+	).toMatchObject({
 		status: 'keyframed',
 		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
@@ -177,9 +180,13 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.opacity'],
 		effects: [],
-		videoConfigValues,
 	});
-	expect(status.props['style.opacity']).toMatchObject({
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(
+			status.props,
+			videoConfigValues,
+		)['style.opacity'],
+	).toMatchObject({
 		status: 'keyframed',
 		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
@@ -223,9 +230,13 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.opacity'],
 		effects: [],
-		videoConfigValues,
 	});
-	expect(status.props['style.opacity']).toMatchObject({
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(
+			status.props,
+			videoConfigValues,
+		)['style.opacity'],
+	).toMatchObject({
 		status: 'keyframed',
 		keyframeDisplayOffsetAdjustment: null,
 		keyframes: [
@@ -236,10 +247,43 @@ export const Example: React.FC = () => {
 				frameExpression: {
 					type: 'video-config-subtraction',
 					identifier: 'durationInFrames',
-					minuend: 120,
+					binding: {type: 'video-config', field: 'durationInFrames'},
 					subtrahend: 2,
 				},
 			},
+		],
+	});
+
+	const resized = await updateSequenceKeyframes({
+		input: output,
+		nodePath: updatedNodePath,
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {type: 'move', moves: [{fromFrame: 358, toFrame: 349}]},
+			},
+		],
+		videoConfigValues: {...videoConfigValues, durationInFrames: 360},
+	});
+	expect(resized.output).toContain('[0, durationInFrames - 11]');
+	const resizedStatus = computeSequencePropsStatusFromContent({
+		fileContents: resized.output,
+		nodePath: resized.updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+	});
+	// The same edited source must still evaluate in another mounted instance.
+	expect(
+		NoReactInternals.evaluateSourcePropStatuses(resizedStatus.props, {
+			...videoConfigValues,
+			durationInFrames: 400,
+		})['style.opacity'],
+	).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 0.35},
+			{frame: 389, value: 1},
 		],
 	});
 });
@@ -711,7 +755,6 @@ export const Example: React.FC = () => {
 		componentIdentity: null,
 		keys: ['style.scale'],
 		effects: [],
-		videoConfigValues: null,
 	});
 	expect(status.props['style.scale']).toMatchObject({
 		status: 'keyframed',
@@ -1310,7 +1353,6 @@ export const Example: React.FC = () => {
 	expect(output).toContain('useCurrentFrame');
 	expect(output).toContain('interpolate');
 	const status = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -1487,7 +1529,6 @@ export default CenteredSolid;
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
 	const status = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -1757,7 +1798,6 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	expect(newValueStrings).toEqual(['320']);
 	expect(output).toContain('scale: 320');
 	const status = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -1849,12 +1889,12 @@ test('updateSequenceKeyframes keeps a color interpolation when one keyframe rema
 	expect(output).toContain("color={interpolateColors(frame, [100], ['blue'])}");
 });
 
-test('updateEffectKeyframes converts a static value to a clamped interpolation', () => {
+test('updateEffectKeyframes converts a static value to a clamped interpolation', async () => {
 	const input = effectInput.replace(
 		'interpolate(frame, [0, 50, 100], [0.2, 0.5, 0.8])',
 		'0.2',
 	);
-	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+	const {output: serialized, oldValueStrings} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(
@@ -1877,8 +1917,8 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).not.toContain('perceptual-scale');
 });
 
-test('updateEffectKeyframes uses the schema keyframe output default', () => {
-	const {serialized} = updateEffectKeyframesAst({
+test('updateEffectKeyframes uses the schema keyframe output default', async () => {
+	const {output: serialized} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input: scaleEffectInput,
 		sequenceNodePath: lineColumnToNodePath(
@@ -1899,8 +1939,8 @@ test('updateEffectKeyframes uses the schema keyframe output default', () => {
 	expect(serialized).toContain("output: 'perceptual-scale'");
 });
 
-test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
-	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+test('updateEffectKeyframes adds a missing prop before keyframing it', async () => {
+	const {output: serialized, oldValueStrings} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input: waveEffectInput,
 		sequenceNodePath: lineColumnToNodePath(
@@ -1925,9 +1965,9 @@ test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
 	expect(serialized).toContain("extrapolateRight: 'clamp'");
 });
 
-test('updateEffectKeyframes adds props to a zero-argument effect', () => {
+test('updateEffectKeyframes adds props to a zero-argument effect', async () => {
 	const input = waveEffectInput.replace('wave({})', 'wave()');
-	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+	const {output: serialized, oldValueStrings} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
@@ -1946,8 +1986,8 @@ test('updateEffectKeyframes adds props to a zero-argument effect', () => {
 	expect(serialized).toContain('phase: interpolate(frame, [15], [45], {');
 });
 
-test('updateEffectKeyframes sets one easing segment and fills linear segments', () => {
-	const {serialized} = updateEffectKeyframesAst({
+test('updateEffectKeyframes sets one easing segment and fills linear segments', async () => {
+	const {output: serialized} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
@@ -1999,7 +2039,6 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	expect(newValueStrings).toEqual(["'blue'"]);
 	expect(output).toContain("color={'blue'}");
 	const status = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -2013,8 +2052,12 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	});
 });
 
-test('updateEffectKeyframes removes a keyframe from an effect prop interpolation', () => {
-	const {serialized, oldValueStrings, effectCallee} = updateEffectKeyframesAst({
+test('updateEffectKeyframes removes a keyframe from an effect prop interpolation', async () => {
+	const {
+		output: serialized,
+		oldValueStrings,
+		effectCallee,
+	} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
@@ -2043,8 +2086,8 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 	);
 });
 
-test('updateEffectKeyframes allows moving keyframes outside the sequence range', () => {
-	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+test('updateEffectKeyframes allows moving keyframes outside the sequence range', async () => {
+	const {output: serialized, newValueStrings} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
@@ -2074,8 +2117,8 @@ test('updateEffectKeyframes allows moving keyframes outside the sequence range',
 	);
 });
 
-test('updateEffectKeyframes replaces an existing keyframe when moving onto it', () => {
-	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+test('updateEffectKeyframes replaces an existing keyframe when moving onto it', async () => {
+	const {output: serialized, newValueStrings} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
@@ -2102,12 +2145,12 @@ test('updateEffectKeyframes replaces an existing keyframe when moving onto it', 
 	);
 });
 
-test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe', () => {
+test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe', async () => {
 	const input = effectInput.replace(
 		'interpolate(frame, [0, 50, 100], [0.2, 0.5, 0.8])',
 		'interpolate(frame, [0, 100], [0.2, 0.8])',
 	);
-	const {serialized} = updateEffectKeyframesAst({
+	const {output: serialized} = await updateEffectKeyframes({
 		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(
@@ -2130,31 +2173,35 @@ test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe
 	expect(serialized).toContain('amount: interpolate(frame, [0], [0.2])');
 });
 
-test('updateEffectKeyframes converts the last effect keyframe to a static value', () => {
+test('updateEffectKeyframes converts the last effect keyframe to a static value', async () => {
 	const input = effectInput.replace(
 		'interpolate(frame, [0, 50, 100], [0.2, 0.5, 0.8])',
 		'interpolate(frame, [40], [0.6])',
 	);
-	const {serialized, oldValueStrings, newValueStrings, effectCallee} =
-		updateEffectKeyframesAst({
-			videoConfigValues: null,
+	const {
+		output: serialized,
+		oldValueStrings,
+		newValueStrings,
+		effectCallee,
+	} = await updateEffectKeyframes({
+		videoConfigValues: null,
+		input,
+		sequenceNodePath: lineColumnToNodePath(
 			input,
-			sequenceNodePath: lineColumnToNodePath(
-				input,
-				getLine(input, '<HtmlInCanvas'),
-			),
-			effectIndex: 0,
-			updates: [
-				{
-					key: 'amount',
-					operation: {
-						type: 'remove',
-						frame: 40,
-						valueWhenLastKeyframeDeleted: null,
-					},
+			getLine(input, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		updates: [
+			{
+				key: 'amount',
+				operation: {
+					type: 'remove',
+					frame: 40,
+					valueWhenLastKeyframeDeleted: null,
 				},
-			],
-		});
+			},
+		],
+	});
 
 	expect(effectCallee).toBe('tint');
 	expect(oldValueStrings).toEqual(['interpolate(frame, [40], [0.6])']);

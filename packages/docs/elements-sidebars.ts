@@ -54,6 +54,7 @@ const sidebars: SidebarsConfig = {
 						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
 					defaultStyle: true,
 				},
+				'guidelines',
 				'libraries',
 			],
 		},

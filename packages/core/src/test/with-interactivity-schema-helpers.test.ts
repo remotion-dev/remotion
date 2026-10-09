@@ -20,6 +20,7 @@ import {
 	captionsSchema,
 	cropSchema,
 	extendSchemaWithSequenceName,
+	loopField,
 	premountSchema,
 	sequenceCropSchema,
 	sequencePremountSchema,
@@ -82,6 +83,20 @@ test('premount fields are not keyframable', () => {
 	expect(premountSchema.postmountFor.keyframable).toBe(false);
 });
 
+test('public base schemas expose a constant playback rate', () => {
+	for (const schema of [
+		Interactive.baseSchema,
+		Interactive.sequenceSchema,
+		sequenceSchemaWithoutFrom,
+	]) {
+		expect(schema.playbackRate).toMatchObject({
+			type: 'number',
+			default: 1,
+			keyframable: false,
+		});
+	}
+});
+
 test('Sequence crop fields are keyframable ratios', () => {
 	for (const field of Object.values(sequenceCropSchema)) {
 		expect(field).toMatchObject({
@@ -135,8 +150,14 @@ test('baseSchema exposes common timeline fields', () => {
 			'name',
 			'showInTimeline',
 			'trimBefore',
+			'playbackRate',
 		].sort(),
 	);
+	for (const schema of [imgSchema, canvasImageSchema, solidSchema]) {
+		expect('loop' in schema).toBe(false);
+	}
+
+	expect(animatedImageSchema.loop).toBe(loopField);
 });
 
 test('pixelDensity is exposed only by canvas-backed component schemas', () => {
@@ -226,6 +247,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'from',
 			'freeze',
 			'trimBefore',
+			'playbackRate',
 		].sort(),
 	);
 });
@@ -546,6 +568,7 @@ test('selectActiveKeys returns only the hidden + layout keys when layout=none', 
 			'durationInFrames',
 			'from',
 			'trimBefore',
+			'playbackRate',
 			'freeze',
 		].sort(),
 	);
@@ -567,6 +590,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'durationInFrames',
 			'from',
 			'trimBefore',
+			'playbackRate',
 			'freeze',
 			'style.translate',
 			'style.scale',
@@ -598,6 +622,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'durationInFrames',
 			'from',
 			'trimBefore',
+			'playbackRate',
 			'freeze',
 		].sort(),
 	);
@@ -649,6 +674,7 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 			'durationInFrames',
 			'from',
 			'trimBefore',
+			'playbackRate',
 			'freeze',
 		].sort(),
 	);

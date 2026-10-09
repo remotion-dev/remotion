@@ -1,7 +1,9 @@
+import type {ElementInstallRequest} from '@remotion/studio-shared';
 import type {
 	WhisperWebGpuModel,
 	WhisperWebGpuTask,
 } from '@remotion/whisper-webgpu';
+import type {SequencePropsSubscriptionKey} from 'remotion';
 
 export type CaptionJobProgress = {
 	message: string;
@@ -10,7 +12,8 @@ export type CaptionJobProgress = {
 
 type CaptionJobStatus =
 	| {status: 'idle'}
-	| {status: 'running'; progress: CaptionJobProgress}
+	| {status: 'cancelled'}
+	| {status: 'running' | 'saving'; progress: CaptionJobProgress}
 	| {status: 'done'; captionCount: number}
 	| {
 			status: 'failed';
@@ -18,11 +21,18 @@ type CaptionJobStatus =
 	  };
 
 export type AddCaptionJobParams = {
+	captionStyle: ElementInstallRequest | null;
 	src: string;
 	displayName: string;
 	audioStreamIndex: number | null;
 	requestInit: Omit<RequestInit, 'signal'> | null;
 	outName: string;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+		durationInFrames: number | null;
+		premountFor: number | null;
+	} | null;
 	model: WhisperWebGpuModel;
 	language: string | null;
 	task: WhisperWebGpuTask;

@@ -1,4 +1,8 @@
 import {expect, mock, test} from 'bun:test';
+import {existsSync} from 'node:fs';
+import {mkdtemp, readFile, rm, unlink} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 
 let pipelineInitialization:
 	| {
@@ -53,12 +57,52 @@ let cacheClear:
 			options: Record<string, unknown>;
 	  }
 	| undefined;
+let webGpuProbe:
+	| {
+			model: Uint8Array;
+			options: Record<string, unknown>;
+	  }
+	| undefined;
+let webGpuProbeError: Error | null = null;
+let webGpuProbeReleaseCalls = 0;
 
 const originalTransformersEnvironment = {
 	remoteHost: 'https://huggingface.co/',
 	remotePathTemplate: '{model}/resolve/{revision}/',
 };
 const transformersEnvironment = {...originalTransformersEnvironment};
+const downloadFiles = ['config.json', 'onnx/encoder_model.onnx'];
+const downloadRequests: string[] = [];
+let downloadCacheDir = '';
+let checkDownloadedFiles = false;
+for (const [key, value] of Object.entries({
+	useCustomCache: false,
+	customCache: null,
+	useBrowserCache: false,
+	useFSCache: true,
+	cacheDir: downloadCacheDir,
+	fetch: (url: string) => {
+		downloadRequests.push(url);
+		const middle = Math.floor(url.length / 2);
+		return Promise.resolve(
+			new Response(
+				new ReadableStream({
+					start(controller) {
+						controller.enqueue(new TextEncoder().encode(url.slice(0, middle)));
+						controller.enqueue(new TextEncoder().encode(url.slice(middle)));
+						controller.close();
+					},
+				}),
+			),
+		);
+	},
+})) {
+	Object.defineProperty(transformersEnvironment, key, {
+		configurable: true,
+		writable: true,
+		value,
+	});
+}
 
 const fakePipeline = Object.assign(
 	async (audio: Float32Array, options: Record<string, unknown>) => {
@@ -87,6 +131,16 @@ const fakePipeline = Object.assign(
 mock.module('@huggingface/transformers', () => ({
 	env: transformersEnvironment,
 	ModelRegistry: {
+		is_pipeline_cached_files: (_task: string, modelId: string) => {
+			const files = downloadFiles.map((file) => ({
+				file,
+				cached: existsSync(join(downloadCacheDir, modelId, file)),
+			}));
+			return Promise.resolve({
+				files,
+				allCached: files.every(({cached}) => cached),
+			});
+		},
 		clear_pipeline_cache: (
 			task: string,
 			modelId: string,
@@ -106,7 +160,13 @@ mock.module('@huggingface/transformers', () => ({
 				return Promise.reject(cacheCheckError);
 			}
 
-			return Promise.resolve(true);
+			return Promise.resolve(
+				checkDownloadedFiles
+					? downloadFiles.every((file) =>
+							existsSync(join(downloadCacheDir, modelId, file)),
+						)
+					: true,
+			);
 		},
 	},
 	pipeline: async (
@@ -163,6 +223,85 @@ mock.module('@huggingface/transformers', () => ({
 		return fakePipeline;
 	},
 }));
+
+mock.module('onnxruntime-node', () => ({
+	InferenceSession: {
+		create: (model: Uint8Array, options: Record<string, unknown>) => {
+			webGpuProbe = {model, options};
+			if (webGpuProbeError) {
+				return Promise.reject(webGpuProbeError);
+			}
+
+			return Promise.resolve({
+				release: () => {
+					webGpuProbeReleaseCalls++;
+					return Promise.resolve();
+				},
+			});
+		},
+	},
+}));
+
+test('downloads files without WebGPU and initializes only after download', async () => {
+	downloadCacheDir = await mkdtemp(
+		join(tmpdir(), 'remotion-whisper-download-'),
+	);
+	(
+		transformersEnvironment as typeof transformersEnvironment & {
+			cacheDir: string;
+		}
+	).cacheDir = downloadCacheDir;
+	checkDownloadedFiles = true;
+	downloadRequests.length = 0;
+	try {
+		const {downloadWhisperModel, loadWhisperModel} = await import('../index');
+		await expect(loadWhisperModel({model: 'tiny.en'})).rejects.toThrow(
+			'downloadWhisperModel() first',
+		);
+
+		const initializationsBeforeDownload = pipelineInitializationCount;
+		const progress: number[] = [];
+		const result = await downloadWhisperModel({
+			model: 'tiny.en',
+			onProgress: ({progress: value}) => progress.push(value),
+		});
+		expect(result.alreadyDownloaded).toBe(false);
+		expect(pipelineInitializationCount).toBe(initializationsBeforeDownload);
+		expect(downloadRequests).toEqual([
+			'https://remotion.media/models/whisper-tiny.en_timestamped-v1/config.json',
+			'https://remotion.media/models/whisper-tiny.en_timestamped-v1/onnx/encoder_model.onnx',
+		]);
+		expect(progress.at(-1)).toBe(1);
+		expect(
+			await readFile(
+				join(downloadCacheDir, 'whisper-tiny.en_timestamped-v1', 'config.json'),
+				'utf8',
+			),
+		).toBe(downloadRequests[0]);
+		await unlink(
+			join(
+				downloadCacheDir,
+				'whisper-tiny.en_timestamped-v1',
+				'onnx/encoder_model.onnx',
+			),
+		);
+		expect(
+			(await downloadWhisperModel({model: 'tiny.en'})).alreadyDownloaded,
+		).toBe(false);
+		expect(downloadRequests.slice(2)).toEqual([downloadRequests[1]]);
+
+		await using loaded = await loadWhisperModel({model: 'tiny.en'});
+		expect(loaded.alreadyLoaded).toBe(false);
+		expect(pipelineInitializationCount).toBe(initializationsBeforeDownload + 1);
+		expect(
+			(await downloadWhisperModel({model: 'tiny.en'})).alreadyDownloaded,
+		).toBe(true);
+		expect(downloadRequests).toHaveLength(3);
+	} finally {
+		checkDownloadedFiles = false;
+		await rm(downloadCacheDir, {recursive: true, force: true});
+	}
+});
 
 test('removes legacy Hugging Face Whisper entries from the shared browser cache', async () => {
 	const originalCaches = Object.getOwnPropertyDescriptor(globalThis, 'caches');
@@ -349,6 +488,22 @@ test('transcribes with word timestamps using WebGPU', async () => {
 		remotePathTemplate: 'models/{model}/',
 	});
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
+	expect(await canUseWhisperWebGpu()).toEqual({supported: true});
+	expect(webGpuProbe?.model).toHaveLength(130);
+	expect(webGpuProbe?.options).toEqual({executionProviders: ['webgpu']});
+	expect(webGpuProbeReleaseCalls).toBe(1);
+
+	webGpuProbeError = new Error('Failed to get a WebGPU adapter');
+	try {
+		expect(await canUseWhisperWebGpu()).toEqual({
+			supported: false,
+			reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
+			detailedReason:
+				'ONNX Runtime could not initialize WebGPU: Failed to get a WebGPU adapter',
+		});
+	} finally {
+		webGpuProbeError = null;
+	}
 
 	const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
 	const originalNavigator = Object.getOwnPropertyDescriptor(
@@ -455,7 +610,7 @@ test('restores the Transformers environment if a hosted model operation fails', 
 	}
 });
 
-test('reports model progress without reaching 100% before every file loads', async () => {
+test('reports initialization separately from download progress', async () => {
 	const {disposeWhisperModel, loadWhisperModel} = await import('../index');
 	const progressValues: Array<{
 		progress: number | null;
@@ -474,28 +629,38 @@ test('reports model progress without reaching 100% before every file loads', asy
 	});
 
 	expect(progressValues[0]).toEqual({
-		progress: 0,
-		loadedBytes: 0,
-		totalBytes: 1_698_504_047,
+		progress: null,
+		loadedBytes: null,
+		totalBytes: null,
 	});
 	expect(progressValues.at(-1)).toEqual({
 		progress: 1,
-		loadedBytes: 1_698_504_047,
-		totalBytes: 1_698_504_047,
+		loadedBytes: null,
+		totalBytes: null,
 	});
-	const downloading = progressValues.slice(0, -1);
-	expect(
-		downloading.every(({progress}) => progress !== null && progress < 1),
-	).toBe(true);
-	expect(downloading.map(({loadedBytes}) => loadedBytes)).toEqual([
-		0, 500_000_000, 600_000_000, 985_710_974,
-	]);
-	expect(downloading.map(({progress}) => progress)).toEqual(
-		[0, 500_000_000, 600_000_000, 985_710_974].map((loaded) =>
-			Math.min(loaded / 1_698_504_047, 0.99),
-		),
-	);
+	expect(progressValues).toHaveLength(2);
 	await disposeWhisperModel({model: 'medium.en'});
+});
+
+test('keeps a loaded model alive until every async disposable handle is released', async () => {
+	const {loadWhisperModel} = await import('../index');
+	const initializationsBeforeLoading = pipelineInitializationCount;
+	const disposalsBeforeLoading = disposeCalls;
+
+	{
+		await using firstLoad = await loadWhisperModel({model: 'tiny.en'});
+		expect(firstLoad.alreadyLoaded).toBe(false);
+		expect(pipelineInitializationCount).toBe(initializationsBeforeLoading + 1);
+
+		{
+			await using secondLoad = await loadWhisperModel({model: 'tiny.en'});
+			expect(secondLoad.alreadyLoaded).toBe(true);
+		}
+
+		expect(disposeCalls).toBe(disposalsBeforeLoading);
+	}
+
+	expect(disposeCalls).toBe(disposalsBeforeLoading + 1);
 });
 
 test('validates and forwards transcription settings through transcribe()', async () => {
@@ -668,7 +833,7 @@ test('shares concurrent initialization and keeps the model host scoped until eve
 	expect(disposeCalls).toBe(disposalsBeforeLoading);
 
 	releaseInitialization();
-	await expect(firstLoad).resolves.toEqual({alreadyLoaded: false});
+	await expect(firstLoad).resolves.toMatchObject({alreadyLoaded: false});
 	await expect(transcription).resolves.toMatchObject({model: 'base'});
 	expect(firstProgress.at(-1)).toBe(1);
 	expect(secondProgress).toEqual(firstProgress);

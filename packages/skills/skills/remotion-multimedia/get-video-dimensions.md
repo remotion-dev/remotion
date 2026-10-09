@@ -42,20 +42,26 @@ console.log(dimensions.height); // e.g. 1080
 
 ## Using with local files
 
-For local files, use `FileSource` instead of `UrlSource`:
+For a `File` from a file input or drag and drop, use `BlobSource` instead of `UrlSource`:
 
 ```tsx
-import { Input, ALL_FORMATS, FileSource } from "mediabunny";
+import { Input, ALL_FORMATS, BlobSource } from "mediabunny";
 
 const input = new Input({
   formats: ALL_FORMATS,
-  source: new FileSource(file), // File object from input or drag-drop
+  source: new BlobSource(file), // File object from input or drag-drop
 });
 
 const videoTrack = await input.getPrimaryVideoTrack();
+if (!videoTrack) {
+  throw new Error("No video track found");
+}
+
 const width = videoTrack.displayWidth;
 const height = videoTrack.displayHeight;
 ```
+
+In Node.js and Bun, use `new FilePathSource(path)` to read a file from disk, and call `input.dispose()` when done.
 
 ## Using with staticFile in Remotion
 

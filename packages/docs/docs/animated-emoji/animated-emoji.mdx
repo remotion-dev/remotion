@@ -9,8 +9,9 @@ crumb: "@remotion/animated-emoji"
 
 import {AvailableEmoji} from "./AvailableEmoji";
 
+# &lt;AnimatedEmoji&gt;<AvailableFrom v="4.0.187" />
+
 _Part of the [`@remotion/animated-emoji`](/docs/animated-emoji) package._
-_available from v4.0.187_
 
 Displays an animated emoji from [Google Fonts Animated Emoji](https://googlefonts.github.io/noto-emoji-animation/).
 
@@ -82,6 +83,12 @@ export const defaultCalculateEmojiSrc: CalculateEmojiSrc = ({
   return staticFile(`${emoji}-${scale}x.${extension}`);
 };
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+`<AnimatedEmoji>` uses [`<OffthreadVideo>`](/docs/offthreadvideo), which does not support [client-side rendering](/docs/client-side-rendering).
 
 ## See also
 

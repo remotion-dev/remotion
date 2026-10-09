@@ -96,6 +96,8 @@ Which frame should be rendered based on its number. Default: `0`. Frames are zer
 
 From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
+To render multiple stills in one call, use [`renderFrames()` with the `frames` option](/docs/renderer/render-frames#frames). For example, `frames: [0, 30, 90]` renders those three frames.<AvailableFrom v="4.0.502" inline />
+
 ### `imageFormat?`
 
 _string_ <TsType type="StillImageFormat" source="@remotion/renderer" href="/docs/renderer/types#stillimageformat" />

@@ -8,11 +8,6 @@ const examples = [
 			'The original Player testbed with custom controls and thumbnails.',
 	},
 	{
-		href: '/canvas',
-		name: 'Canvas layers',
-		description: 'A Player with a live list of mounted timeline layers.',
-	},
-	{
 		href: '/audio',
 		name: 'Audio',
 		description: 'Switch between compositions containing audio.',

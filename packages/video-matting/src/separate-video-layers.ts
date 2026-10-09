@@ -1,8 +1,8 @@
+import type * as NodeUrl from 'node:url';
 import {
 	ALL_FORMATS,
 	BlobSource,
-	CanvasSink,
-	CanvasSource,
+	FilePathSource,
 	Input,
 	type InputVideoTrack,
 	type Quality,
@@ -12,18 +12,17 @@ import {
 } from 'mediabunny';
 import {createVideoLayerOutput} from './create-video-layer-output';
 import {
+	createVideoMattingFrames,
+	type VideoMattingFrames,
+} from './create-video-matting-frames';
+import {importNodeModule} from './import-node-module';
+import {
 	type OnVideoMattingModelLoadProgress,
 	withLoadedVideoMattingPipeline,
 } from './load-video-matting-model';
 import {getVideoMattingModelInfo, type VideoMattingModel} from './models';
 import type {VideoLayerOutput, VideoLayerOutputOptions} from './output-target';
 import {prepareAudio, type PreparedVideoMattingAudio} from './prepare-audio';
-import {
-	createVideoMattingCanvas,
-	drawForegroundFrame,
-	drawOpaqueBaseFrame,
-	getVideoMattingCanvasContext,
-} from './video-matting-canvas';
 import {
 	resolveVideoMattingQuality,
 	type VideoMattingBitrate,
@@ -67,9 +66,26 @@ export type SeparateVideoLayersOptions = {
 	onProgress?: (progress: SeparateVideoLayersProgress) => void;
 };
 
-export type SeparateVideoLayersResult = {
+export type SeparateVideoLayersResult = AsyncDisposable & {
 	base: VideoLayerOutput;
 	foreground: VideoLayerOutput;
+	model: VideoMattingModel;
+	width: number;
+	height: number;
+	durationInSeconds: number;
+	processedFrames: number;
+};
+
+export type RemoveVideoBackgroundOptions = Omit<
+	SeparateVideoLayersOptions,
+	'audio' | 'outputs'
+> & {
+	audio?: 'keep' | 'none';
+	output?: VideoLayerOutputOptions;
+};
+
+export type RemoveVideoBackgroundResult = AsyncDisposable & {
+	video: VideoLayerOutput;
 	model: VideoMattingModel;
 	width: number;
 	height: number;
@@ -89,7 +105,7 @@ const createAbortError = (signal: AbortSignal): unknown => {
 		return signal.reason;
 	}
 
-	const error = new Error('Video layer separation was aborted.');
+	const error = new Error('Video matting was aborted.');
 	error.name = 'AbortError';
 	return error;
 };
@@ -152,9 +168,12 @@ const validateLayerOutputOptions = ({
 	}
 };
 
-const validateOptions = (options: SeparateVideoLayersOptions) => {
+const validateOptions = (
+	options: SeparateVideoLayersOptions,
+	operationName: 'separateVideoLayers' | 'removeVideoBackground',
+) => {
 	if (!options || typeof options !== 'object') {
-		throw new TypeError('separateVideoLayers() expects an options object.');
+		throw new TypeError(`${operationName}() expects an options object.`);
 	}
 
 	const isBlob = typeof Blob !== 'undefined' && options.src instanceof Blob;
@@ -233,7 +252,32 @@ const validateOptions = (options: SeparateVideoLayersOptions) => {
 	}
 };
 
-const makeInput = (src: string | URL | Blob): Input => {
+const makeInput = async (src: string | URL | Blob): Promise<Input> => {
+	if (
+		typeof window === 'undefined' &&
+		typeof process !== 'undefined' &&
+		process.release?.name === 'node' &&
+		(typeof src === 'string' || src instanceof URL)
+	) {
+		const path = String(src);
+		if (path.startsWith('file:')) {
+			const {fileURLToPath} =
+				await importNodeModule<typeof NodeUrl>('node:url');
+			return new Input({
+				formats: ALL_FORMATS,
+				source: new FilePathSource(fileURLToPath(path)),
+			});
+		}
+
+		// Treat Windows drive letters as paths, while preserving HTTP/data URLs.
+		if (/^[a-z]:[/\\]/i.test(path) || !/^[a-z][a-z\d+.-]*:/i.test(path)) {
+			return new Input({
+				formats: ALL_FORMATS,
+				source: new FilePathSource(path),
+			});
+		}
+	}
+
 	const source =
 		typeof src === 'string' || src instanceof URL
 			? new UrlSource(src)
@@ -245,9 +289,11 @@ const makeInput = (src: string | URL | Blob): Input => {
 const probeVideoInput = async ({
 	input,
 	videoQuality,
+	includeBase,
 }: {
 	input: Input;
 	videoQuality: Quality;
+	includeBase: boolean;
 }): Promise<{videoTrack: InputVideoTrack; width: number; height: number}> => {
 	if (!(await input.canRead())) {
 		throw new Error('The input is not a supported media file.');
@@ -276,12 +322,14 @@ const probeVideoInput = async ({
 	}
 
 	const [canEncodeBase, canEncodeForeground] = await Promise.all([
-		canEncodeVideo('vp9', {
-			width,
-			height,
-			quality: videoQuality,
-			alpha: 'discard',
-		}),
+		includeBase
+			? canEncodeVideo('vp9', {
+					width,
+					height,
+					quality: videoQuality,
+					alpha: 'discard',
+				})
+			: Promise.resolve(true),
 		canEncodeVideo('vp9', {
 			width,
 			height,
@@ -291,21 +339,25 @@ const probeVideoInput = async ({
 	]);
 	if (!canEncodeBase || !canEncodeForeground) {
 		throw new Error(
-			'This browser cannot encode the VP9 video streams required for video layer separation.',
+			'This environment cannot encode the VP9 video streams required for video matting.',
 		);
 	}
 
 	return {videoTrack, width, height};
 };
 
-export const separateVideoLayers = async (
+const runVideoMatting = async (
 	options: SeparateVideoLayersOptions,
-): Promise<SeparateVideoLayersResult> => {
-	validateOptions(options);
+	includeBase: boolean,
+): Promise<SeparateVideoLayersResult | RemoveVideoBackgroundResult> => {
+	validateOptions(
+		options,
+		includeBase ? 'separateVideoLayers' : 'removeVideoBackground',
+	);
 	throwIfAborted(options.signal);
 
 	const model = options.model ?? 'modnet';
-	const audio = options.audio ?? 'base';
+	const audio = options.audio ?? (includeBase ? 'base' : 'foreground');
 	const videoQuality = resolveVideoMattingQuality(
 		options.videoBitrate ?? 'very-high',
 	);
@@ -313,14 +365,16 @@ export const separateVideoLayers = async (
 		options.audioBitrate ?? 'medium',
 	);
 	const keyframeIntervalInSeconds = options.keyframeIntervalInSeconds ?? 1;
-	const input = makeInput(options.src);
+	const input = await makeInput(options.src);
 	const onInputAbort = () => input.dispose();
 	options.signal?.addEventListener('abort', onInputAbort, {once: true});
 
 	try {
+		throwIfAborted(options.signal);
 		const {videoTrack, width, height} = await probeVideoInput({
 			input,
 			videoQuality,
+			includeBase,
 		});
 		const [inputFirstVideoTimestamp, videoEndTimestamp] = await Promise.all([
 			videoTrack.getFirstTimestamp(),
@@ -342,23 +396,13 @@ export const separateVideoLayers = async (
 			signal: options.signal ?? null,
 			run: async (pipeline) => {
 				throwIfAborted(options.signal);
-				let iterator: AsyncGenerator<
-					{
-						canvas: HTMLCanvasElement | OffscreenCanvas;
-						timestamp: number;
-						duration: number;
-					},
-					void,
-					unknown
-				> | null = null;
+				let videoFrames: VideoMattingFrames | null = null;
 				let baseOutput: Awaited<
 					ReturnType<typeof createVideoLayerOutput<WebMOutputFormat>>
 				> | null = null;
 				let foregroundOutput: Awaited<
 					ReturnType<typeof createVideoLayerOutput<WebMOutputFormat>>
 				> | null = null;
-				let baseVideoSource: CanvasSource | null = null;
-				let foregroundVideoSource: CanvasSource | null = null;
 				let audioWriter: PreparedVideoMattingAudio | null = null;
 				let completed = false;
 				let abortCleanupPromise: Promise<void> | null = null;
@@ -382,17 +426,17 @@ export const separateVideoLayers = async (
 				options.signal?.addEventListener('abort', onAbort, {once: true});
 
 				try {
-					const canvasSink = new CanvasSink(videoTrack, {
-						alpha: true,
+					videoFrames = await createVideoMattingFrames({
+						videoTrack,
 						width,
 						height,
-						fit: 'fill',
-						poolSize: 1,
-					});
-					iterator = canvasSink.canvases(
+						videoQuality,
+						keyframeIntervalInSeconds,
 						videoStartTimestamp,
 						videoEndTimestamp,
-					);
+						includeBase,
+					});
+					const iterator = videoFrames.frames;
 					let nextFrame = await iterator.next();
 					if (nextFrame.done) {
 						throw new Error(
@@ -402,16 +446,13 @@ export const separateVideoLayers = async (
 
 					throwIfAborted(options.signal);
 
-					const baseCanvas = createVideoMattingCanvas({width, height});
-					const foregroundCanvas = createVideoMattingCanvas({width, height});
-					const baseContext = getVideoMattingCanvasContext(baseCanvas);
-					const foregroundContext =
-						getVideoMattingCanvasContext(foregroundCanvas);
+					if (includeBase) {
+						baseOutput = await createVideoLayerOutput({
+							format: new WebMOutputFormat(),
+							options: options.outputs?.base,
+						});
+					}
 
-					baseOutput = await createVideoLayerOutput({
-						format: new WebMOutputFormat(),
-						options: options.outputs?.base,
-					});
 					throwIfAborted(options.signal);
 					foregroundOutput = await createVideoLayerOutput({
 						format: new WebMOutputFormat(),
@@ -419,24 +460,15 @@ export const separateVideoLayers = async (
 					});
 					throwIfAborted(options.signal);
 
-					baseVideoSource = new CanvasSource(baseCanvas, {
-						codec: 'vp9',
-						quality: videoQuality,
-						keyFrameInterval: keyframeIntervalInSeconds,
-						alpha: 'discard',
-					});
-					foregroundVideoSource = new CanvasSource(foregroundCanvas, {
-						codec: 'vp9',
-						quality: videoQuality,
-						keyFrameInterval: keyframeIntervalInSeconds,
-						alpha: 'keep',
-					});
-					baseOutput.output.addVideoTrack(baseVideoSource);
-					foregroundOutput.output.addVideoTrack(foregroundVideoSource);
+					if (baseOutput && videoFrames.baseSource) {
+						baseOutput.output.addVideoTrack(videoFrames.baseSource);
+					}
+
+					foregroundOutput.output.addVideoTrack(videoFrames.foregroundSource);
 
 					audioWriter = await prepareAudio({
 						input,
-						baseOutput: baseOutput.output,
+						baseOutput: baseOutput?.output ?? null,
 						foregroundOutput: foregroundOutput.output,
 						destination: audio,
 						videoStartTimestamp,
@@ -447,7 +479,7 @@ export const separateVideoLayers = async (
 					throwIfAborted(options.signal);
 
 					await Promise.all([
-						baseOutput.output.start(),
+						baseOutput?.output.start(),
 						foregroundOutput.output.start(),
 					]);
 					throwIfAborted(options.signal);
@@ -478,26 +510,15 @@ export const separateVideoLayers = async (
 							continue;
 						}
 
-						const foregroundFrame = await pipeline(frame.canvas);
+						const foregroundFrame = await pipeline(frame.image);
 						throwIfAborted(options.signal);
 
-						drawOpaqueBaseFrame({
-							context: baseContext,
-							source: frame.canvas,
-							width,
-							height,
-						});
-						drawForegroundFrame({
-							context: foregroundContext,
-							result: foregroundFrame,
-							source: frame.canvas,
-							targetWidth: width,
-							targetHeight: height,
-						});
-
 						await Promise.all([
-							baseVideoSource.add(timing.timestamp, timing.duration),
-							foregroundVideoSource.add(timing.timestamp, timing.duration),
+							videoFrames.addFrame({
+								frame,
+								foreground: foregroundFrame,
+								...timing,
+							}),
 							audioWriter.writeAudioUntil(timing.timestamp + timing.duration),
 						]);
 
@@ -529,24 +550,30 @@ export const separateVideoLayers = async (
 						durationInSeconds,
 					});
 					await audioWriter.finishAudio();
-					baseVideoSource.close();
-					foregroundVideoSource.close();
+					videoFrames.baseSource?.close();
+					videoFrames.foregroundSource.close();
 					const [base, foreground] = await Promise.all([
-						baseOutput.finalize(),
+						baseOutput?.finalize() ?? Promise.resolve(null),
 						foregroundOutput.finalize(),
 					]);
 					throwIfAborted(options.signal);
 
 					completed = true;
-					return {
-						base,
-						foreground,
+					const separated = {
+						...(base ? {base, foreground} : {video: foreground}),
 						model,
 						width,
 						height,
 						durationInSeconds,
 						processedFrames,
-					};
+					} as SeparateVideoLayersResult | RemoveVideoBackgroundResult;
+					Object.defineProperty(separated, Symbol.asyncDispose, {
+						enumerable: false,
+						value: async () => {
+							await Promise.all([base?.dispose(), foreground.dispose()]);
+						},
+					});
+					return separated;
 				} catch (error) {
 					await cancelPendingMedia();
 
@@ -560,7 +587,7 @@ export const separateVideoLayers = async (
 					await abortCleanupPromise;
 					if (!completed) {
 						try {
-							await iterator?.return();
+							await videoFrames?.frames.return();
 						} catch {
 							// Cleanup must not replace the operation's original error.
 						}
@@ -581,3 +608,20 @@ export const separateVideoLayers = async (
 		input.dispose();
 	}
 };
+
+export const separateVideoLayers = async (
+	options: SeparateVideoLayersOptions,
+): Promise<SeparateVideoLayersResult> =>
+	(await runVideoMatting(options, true)) as SeparateVideoLayersResult;
+
+export const removeVideoBackground = async (
+	options: RemoveVideoBackgroundOptions,
+): Promise<RemoveVideoBackgroundResult> =>
+	(await runVideoMatting(
+		{
+			...options,
+			audio: options.audio === 'none' ? 'none' : 'foreground',
+			outputs: {foreground: options.output},
+		},
+		false,
+	)) as RemoveVideoBackgroundResult;

@@ -175,7 +175,7 @@ export const RenderModalBasic: React.FC<{
 						<Combobox
 							values={videoCodecOptions}
 							selectedId={codec}
-							title="Codec"
+							aria-label="Codec"
 						/>
 					</div>
 				</div>
@@ -206,7 +206,7 @@ export const RenderModalBasic: React.FC<{
 					<div style={label}>ProRes profile</div>
 					<div style={rightRow}>
 						<Combobox
-							title={'proResProfile' as string}
+							aria-label={'proResProfile' as string}
 							selectedId={proResProfile as string}
 							values={proResProfileOptions}
 						/>
@@ -243,7 +243,7 @@ export const RenderModalBasic: React.FC<{
 					<Combobox
 						values={logLevelOptions}
 						selectedId={logLevel}
-						title="Log Level"
+						aria-label="Log Level"
 					/>
 				</div>
 			</div>

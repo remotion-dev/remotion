@@ -6,6 +6,7 @@ const cliFlag = 'concurrencies' as const;
 
 export const benchmarkConcurrenciesOption = {
 	name: 'Benchmark concurrencies',
+	addedIn: '3.2.28',
 	cliFlag,
 	description: () => (
 		<>
@@ -18,7 +19,7 @@ export const benchmarkConcurrenciesOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/benchmark#--concurrencies',
+	docLink: 'https://www.remotion.dev/docs/options/concurrencies',
 	type: null as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

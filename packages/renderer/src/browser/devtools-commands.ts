@@ -19,6 +19,9 @@ import type {
 	NavigateResponse,
 	PrintPDFRequest,
 	PrintPDFResponse,
+	RemotionCreateFramePoolRequest,
+	RemotionCreateFramePoolResponse,
+	RemotionReleaseFrameRequest,
 	ReleaseObjectRequest,
 	SetAutoAttachRequest,
 	SetDefaultBackgroundColorOverrideRequest,
@@ -242,6 +245,18 @@ export interface Commands {
 	'Page.captureScreenshot': {
 		paramsType: [CaptureScreenshotRequest?];
 		returnType: CaptureScreenshotResponse;
+	};
+	'Page.remotionCreateFramePool': {
+		paramsType: [RemotionCreateFramePoolRequest];
+		returnType: RemotionCreateFramePoolResponse;
+	};
+	'Page.remotionReleaseFrame': {
+		paramsType: [RemotionReleaseFrameRequest];
+		returnType: void;
+	};
+	'Page.remotionDestroyFramePool': {
+		paramsType: [];
+		returnType: void;
 	};
 	'Page.printToPDF': {
 		paramsType: [PrintPDFRequest];

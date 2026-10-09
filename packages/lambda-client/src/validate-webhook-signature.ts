@@ -36,7 +36,14 @@ export const validateWebhookSignature = ({
 		throw new Error('No webhook signature was provided');
 	}
 
-	if (signatureHeader !== signature) {
+	const matches =
+		Buffer.byteLength(signatureHeader) === Buffer.byteLength(signature) &&
+		Crypto.timingSafeEqual(
+			Buffer.from(signatureHeader),
+			Buffer.from(signature),
+		);
+
+	if (!matches) {
 		throw new Error('Signatures do not match');
 	}
 };

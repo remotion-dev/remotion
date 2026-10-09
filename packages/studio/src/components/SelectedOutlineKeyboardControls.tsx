@@ -1,4 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
+import {CanvasInternals, type CanvasOutlineNudgeDirection} from '@remotion/sdk';
 import type React from 'react';
 import {useCallback, useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
@@ -6,40 +7,29 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	clearSelectedOutlineDragOverrides,
-	getSelectedOutlineDragChanges,
-	getSelectedOutlineDragStates,
-	getSelectedOutlineDragValues,
-	getSelectedOutlineKeyboardNudgeDeltas,
-	getSelectedOutlineKeyboardNudgeDirection,
-	type SelectedOutlineKeyboardNudgeDirection,
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
-import type {getSequencesWithSelectableOutlines} from './selected-outline-measurement';
-import {
-	getSelectedSequenceKeys,
-	getSequenceKeysContainingSelection,
-} from './selected-outline-measurement';
-import {
-	translateFieldKey,
-	type SelectedOutlineKeyboardNudgeSession,
-	type SelectedOutlineTarget,
+import type {
+	SelectedOutlineDragTarget,
+	SelectedOutlineKeyboardNudgeSession,
 } from './selected-outline-types';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
-import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
+
+const {
+	applyCanvasOutlineTranslateDelta,
+	createCanvasOutlineTranslateSession,
+	getCanvasOutlineNudgeDeltas,
+	getCanvasOutlineNudgeDirection,
+	getCanvasOutlineTranslateDragChanges,
+	getCanvasOutlineTranslateDragStates,
+} = CanvasInternals;
 
 export const SelectedOutlineKeyboardControls: React.FC<{
-	readonly getLatestOutlineTargetByKey: (
-		key: string,
-	) => SelectedOutlineTarget | undefined;
-	readonly getSelectableOutlines: () => ReturnType<
-		typeof getSequencesWithSelectableOutlines
-	>;
-}> = ({getLatestOutlineTargetByKey, getSelectableOutlines}) => {
-	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
+}> = ({getAllDragTargets}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -60,7 +50,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 		}
 
 		keyboardNudgeSessionRef.current = null;
-		const changes = getSelectedOutlineDragChanges({
+		const changes = getCanvasOutlineTranslateDragChanges({
 			dragStates: session.dragStates,
 			lastValues: session.lastValues,
 		});
@@ -73,6 +63,11 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 			return;
 		}
 
+		const [
+			{
+				target: {clientId},
+			},
+		] = session.dragStates;
 		const staticChanges = changes.filter(
 			(change): change is SelectedOutlineStaticDragChange =>
 				change.type === 'static',
@@ -82,29 +77,19 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				change.type === 'keyframed',
 		);
 
-		Promise.all([
-			staticChanges.length > 0
-				? saveSequenceProps({
-						changes: staticChanges,
-						addedKeyframes: null,
-						movedKeyframes: null,
-						setPropStatuses,
-						clientId: session.clientId,
-						undoLabel:
-							changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
-						redoLabel:
-							changes.length > 1
-								? 'Move selected sequences back'
-								: 'Move sequence back',
-					})
-				: Promise.resolve(),
-			callAddKeyframes({
-				sequenceKeyframes: keyframedChanges,
-				effectKeyframes: [],
-				setPropStatuses,
-				clientId: session.clientId,
-			}),
-		])
+		saveSequenceProps({
+			changes: staticChanges,
+			addedKeyframes: keyframedChanges,
+			movedKeyframes: null,
+			setPropStatuses,
+			clientId,
+			undoLabel:
+				changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
+			redoLabel:
+				changes.length > 1
+					? 'Move selected sequences back'
+					: 'Move sequence back',
+		})
 			.catch((err) => {
 				showNotification(
 					`Could not save sequence props: ${
@@ -132,10 +117,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 	}, []);
 
 	const seekWithArrowKey = useCallback(
-		(
-			event: KeyboardEvent,
-			direction: SelectedOutlineKeyboardNudgeDirection,
-		) => {
+		(event: KeyboardEvent, direction: CanvasOutlineNudgeDirection) => {
 			if (direction === 'up' || direction === 'down') {
 				return;
 			}
@@ -200,30 +182,15 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 
 	const onArrowKeyDown = useCallback(
 		(event: KeyboardEvent) => {
-			const direction = getSelectedOutlineKeyboardNudgeDirection(event.key);
+			const direction = getCanvasOutlineNudgeDirection(event.key);
 
 			if (direction === null) {
 				return;
 			}
 
-			const {selectedItems} = currentSelection.current;
-			const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
-			const sequenceKeysContainingSelection =
-				getSequenceKeysContainingSelection(selectedItems);
-			const selectableOutlines = getSelectableOutlines();
-			const allDragTargets = selectableOutlines.flatMap(({key}) => {
-				if (
-					!selectedSequenceKeys.has(key) &&
-					!sequenceKeysContainingSelection.has(key)
-				) {
-					return [];
-				}
+			const allDragTargets = getAllDragTargets();
 
-				const drag = getLatestOutlineTargetByKey(key)?.drag ?? null;
-				return drag === null ? [] : [drag];
-			});
-
-			if (selectedItems.length === 0 || allDragTargets.length === 0) {
+			if (allDragTargets.length === 0) {
 				seekWithArrowKey(event, direction);
 				return;
 			}
@@ -237,73 +204,30 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 
 			const activeSession =
 				keyboardNudgeSessionRef.current ??
-				((): SelectedOutlineKeyboardNudgeSession => {
-					const [firstDragTarget] = allDragTargets;
-					if (firstDragTarget === undefined) {
-						throw new Error('Expected a drag target');
-					}
-
-					return {
-						clientId: firstDragTarget.clientId,
-						deltaX: 0,
-						deltaY: 0,
-						dragStates: getSelectedOutlineDragStates({
-							dragTargets: allDragTargets,
-							getDragOverrides,
-							timelinePosition: getCurrentFrame(),
-						}),
-						lastValues: new Map(),
-					};
-				})();
+				createCanvasOutlineTranslateSession(
+					getCanvasOutlineTranslateDragStates({
+						dragTargets: allDragTargets,
+						getDragOverrides,
+						timelinePosition: getCurrentFrame(),
+					}),
+				);
 
 			keyboardNudgeSessionRef.current = activeSession;
-			const nextDeltas = getSelectedOutlineKeyboardNudgeDeltas({
-				deltaX: activeSession.deltaX,
-				deltaY: activeSession.deltaY,
-				direction,
-				shiftKey: event.shiftKey,
+			applyCanvasOutlineTranslateDelta({
+				session: activeSession,
+				...getCanvasOutlineNudgeDeltas({
+					deltaX: activeSession.deltaX,
+					deltaY: activeSession.deltaY,
+					direction,
+					shiftKey: event.shiftKey,
+				}),
+				setDragOverrides,
 			});
-			activeSession.deltaX = nextDeltas.deltaX;
-			activeSession.deltaY = nextDeltas.deltaY;
-
-			const lastValues = getSelectedOutlineDragValues({
-				dragStates: activeSession.dragStates,
-				deltaX: activeSession.deltaX,
-				deltaY: activeSession.deltaY,
-			});
-			activeSession.lastValues = lastValues;
-
-			for (const dragState of activeSession.dragStates) {
-				const value = lastValues.get(dragState.key);
-				if (value === undefined) {
-					throw new Error('Expected drag value to be available');
-				}
-
-				if (dragState.target.propStatus.status === 'keyframed') {
-					setDragOverrides(
-						dragState.target.nodePath,
-						translateFieldKey,
-						Internals.makeKeyframedDragOverride({
-							status: dragState.target.propStatus,
-							frame: dragState.sourceFrame,
-							value,
-						}),
-					);
-				} else {
-					setDragOverrides(
-						dragState.target.nodePath,
-						translateFieldKey,
-						Internals.makeStaticDragOverride(value),
-					);
-				}
-			}
 		},
 		[
-			currentSelection,
+			getAllDragTargets,
 			getCurrentFrame,
 			getDragOverrides,
-			getLatestOutlineTargetByKey,
-			getSelectableOutlines,
 			seekWithArrowKey,
 			setDragOverrides,
 		],
@@ -311,7 +235,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 
 	const onArrowKeyUp = useCallback(
 		(event: KeyboardEvent) => {
-			const direction = getSelectedOutlineKeyboardNudgeDirection(event.key);
+			const direction = getCanvasOutlineNudgeDirection(event.key);
 
 			if (direction === null || keyboardNudgeSessionRef.current === null) {
 				return;

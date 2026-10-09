@@ -33,10 +33,6 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Bolt.new'}</strong>
 					<div>Use Bolt.new to prompt Remotion videos</div>
 				</TOCItem>
-				<TOCItem link="/docs/ai/system-prompt">
-					<strong>{'System Prompt'}</strong>
-					<div>to teach LLMs Remotion rules</div>
-				</TOCItem>
 				<TOCItem link="/docs/ai/generate">
 					<strong>{'Code generation with LLMs'}</strong>
 					<div>Generate Remotion code by invoking AI</div>

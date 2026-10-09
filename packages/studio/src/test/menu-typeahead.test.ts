@@ -30,14 +30,25 @@ const values: ComboboxValue[] = [
 	},
 	{
 		type: 'item',
-		id: 'custom',
-		label: 'Not used',
-		value: 'fallback',
+		id: 'nested-folder',
+		label: null,
+		value: 'new-composition-folder-SocialMediaAnnouncements/webmcp',
 		onClick: () => undefined,
 		keyHint: null,
 		leftItem: null,
 		subMenu: null,
-		quickSwitcherLabel: 'Custom Label',
+		quickSwitcherLabel: 'webmcp',
+	},
+	{
+		type: 'item',
+		id: 'root-folder',
+		label: null,
+		value: 'new-composition-root-folder',
+		onClick: () => undefined,
+		keyHint: null,
+		leftItem: null,
+		subMenu: null,
+		quickSwitcherLabel: 'None',
 	},
 	{
 		type: 'item',
@@ -62,9 +73,10 @@ test('skips dividers, section headers, and disabled items', () => {
 	expect(findTypeaheadMenuItem({query: 'ban', values})).toBe(null);
 });
 
-test('matches only the visible string label (not value or quickSwitcherLabel)', () => {
-	expect(findTypeaheadMenuItem({query: 'custom', values})).toBe(null);
-	expect(findTypeaheadMenuItem({query: 'not', values})).toBe('custom');
+test('uses the visible string label, falling back for non-string labels', () => {
+	expect(findTypeaheadMenuItem({query: 'web', values})).toBe('nested-folder');
+	expect(findTypeaheadMenuItem({query: 'social', values})).toBe(null);
+	expect(findTypeaheadMenuItem({query: 'n', values})).toBe('root-folder');
 	expect(findTypeaheadMenuItem({query: 'diff', values})).toBe(null);
 	expect(findTypeaheadMenuItem({query: 'vis', values})).toBe('label-vs-value');
 });

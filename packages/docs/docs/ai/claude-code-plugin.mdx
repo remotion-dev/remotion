@@ -10,7 +10,27 @@ It can help you create and edit Remotion projects and includes [Remotion Agent S
 
 ## Installation
 
-Add the Remotion marketplace and install the plugin:
+### In the Claude desktop app
+
+Find the Remotion listing through the plugin directory in the [Claude desktop app](https://claude.com/download).
+
+<Step>1</Step> Select Code, open Customize in the sidebar, then select Plugins → Discover.
+
+[![Claude desktop with Customize open and Plugins and Discover selected](/img/claude-code-plugin/discover.jpg)](/img/claude-code-plugin/discover.jpg)
+
+<Step>2</Step> Search for `remotion`.<br/>Find the Remotion plugin from `remotion-dev/claude-code-plugin` and click Add next to it.
+
+[![Search results for remotion, with the Remotion plugin and its Add button at the top](/img/claude-code-plugin/search.jpg)](/img/claude-code-plugin/search.jpg)
+
+<Step>3</Step> Claude opens the installed plugin and confirms "Remotion is installed and ready to use."
+
+[![The installed Remotion plugin with its switch enabled and the installation confirmation visible](/img/claude-code-plugin/installed.jpg)](/img/claude-code-plugin/installed.jpg)
+
+<Step>4</Step> [Create your first video](#usage) with the plugin.
+
+### In the terminal
+
+To install from the terminal, add the Remotion marketplace and install the plugin:
 
 ```bash title="Terminal"
 claude plugin marketplace add remotion-dev/claude-code-plugin
@@ -21,11 +41,11 @@ Restart Claude Code after installing the plugin.
 
 ## Usage
 
-Ask Claude Code to create or edit a Remotion video. Claude Code automatically loads the relevant skills.
+Start a new Claude Code session in the folder where you want to create your video.
 
-You can also invoke the main skill directly:
+Invoke the plugin's `remotion-create` skill and append your prompt:
 
-<SuggestedPrompt prompt="/remotion-best-practices Make a promo video for a record store" />
+<SuggestedPrompt prompt="/remotion:remotion-create Make a promo video for a record store" />
 
 ## See also
 

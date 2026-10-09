@@ -1,8 +1,14 @@
 import {paper} from '@remotion/effects/paper';
 import React from 'react';
-import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	interpolate,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
-export const PaperTexture: React.FC = () => {
+const PaperTextureInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {height, width} = useVideoConfig();
 
@@ -25,3 +31,11 @@ export const PaperTexture: React.FC = () => {
 		/>
 	);
 };
+
+export const PaperTexture = Interactive.withSchema({
+	Component: PaperTextureInner,
+	componentName: 'PaperTexture',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

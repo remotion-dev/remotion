@@ -273,6 +273,12 @@ Every effect factory also accepts `disabled`.
 
 When `true`, the effect is skipped. Default: `false`.
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+Defining an effect does not require a browser. Applying it requires a canvas component and support for the selected `2d`, `webgl2` or `webgpu` backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
 ## See also
 
 - [`@remotion/effects`](/docs/effects/api)

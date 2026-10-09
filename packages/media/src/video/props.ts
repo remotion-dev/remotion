@@ -24,10 +24,9 @@ export type VideoObjectFit =
 	| 'none'
 	| 'scale-down';
 
-export type EffectsOutputSize = {
-	readonly width: number;
-	readonly height: number;
-};
+export type MaxCanvasSinkFrameSize =
+	| {width: number; height?: number}
+	| {width?: number; height: number};
 
 export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
@@ -47,6 +46,9 @@ type MandatoryVideoProps = {
 
 type OuterVideoProps = {
 	trimBefore: number | undefined;
+	/**
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
+	 */
 	trimAfter: number | undefined;
 };
 
@@ -65,6 +67,9 @@ type OptionalVideoProps = {
 	audioStreamIndex: number;
 	disallowFallbackToOffthreadVideo: boolean;
 	fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
+	/**
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
+	 */
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	toneFrequency: number;
@@ -79,9 +84,9 @@ type OptionalVideoProps = {
 	credentials: RequestCredentials | undefined;
 	requestInit: MediaRequestInit | undefined;
 	objectFit: VideoObjectFit;
+	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;
-	effectsOutputSize: EffectsOutputSize | undefined;
 };
 
 export type NativeVideoProps = Omit<
@@ -95,9 +100,8 @@ export type NativeVideoProps = Omit<
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects' | 'effectsOutputSize'> &
+	Omit<OptionalVideoProps, 'effects'> &
 	NativeVideoProps & {
-		effectsOutputSize: EffectsOutputSize | null;
 		effects: EffectDefinitionAndStack<unknown>[];
 		_remotionInternalStack: string | undefined;
 	};

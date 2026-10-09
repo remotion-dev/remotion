@@ -15,6 +15,7 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CaptionInspector} from './CaptionInspector';
+import {CaptionPlayheadHighlight} from './CaptionPlayheadHighlight';
 import {
 	saveInlineCaptionPatches,
 	saveSequenceProps,
@@ -31,7 +32,68 @@ const getCaptionPatches = ({
 	previous: Caption[];
 	next: Caption[];
 }): CaptionPatch[] | null => {
-	if (previous.length !== next.length) {
+	if (previous.length !== next.length && previous.length + 1 !== next.length) {
+		return null;
+	}
+
+	if (previous.length + 1 === next.length) {
+		for (const [index, before] of previous.entries()) {
+			if (
+				serializeCaptions(previous.slice(0, index)) !==
+					serializeCaptions(next.slice(0, index)) ||
+				serializeCaptions(previous.slice(index + 1)) !==
+					serializeCaptions(next.slice(index + 2))
+			) {
+				continue;
+			}
+
+			const after = next[index];
+			const inserted = next[index + 1];
+			if (!after || !inserted) {
+				return null;
+			}
+
+			const changes: CaptionPatch['changes'] = {};
+			if (before.text !== after.text) {
+				changes.text = after.text;
+			}
+
+			if (before.startMs !== after.startMs) {
+				changes.startMs = after.startMs;
+			}
+
+			if (before.endMs !== after.endMs) {
+				changes.endMs = after.endMs;
+			}
+
+			if (before.timestampMs !== after.timestampMs) {
+				changes.timestampMs = after.timestampMs;
+			}
+
+			if (before.confidence !== after.confidence) {
+				changes.confidence = after.confidence;
+			}
+
+			if (Boolean(before.pageBreakAfter) !== Boolean(after.pageBreakAfter)) {
+				changes.pageBreakAfter = Boolean(after.pageBreakAfter);
+			}
+
+			return [
+				{
+					index,
+					before: {
+						...before,
+						pageBreakAfter: before.pageBreakAfter ?? null,
+					},
+					changes,
+					insertAfter: {
+						...inserted,
+						pageBreakAfter: inserted.pageBreakAfter ?? null,
+					},
+				},
+			];
+		}
+
 		return null;
 	}
 
@@ -59,6 +121,7 @@ const getCaptionPatches = ({
 					pageBreakAfter: before.pageBreakAfter ?? null,
 				},
 				changes,
+				insertAfter: null,
 			});
 		}
 	}
@@ -70,7 +133,10 @@ export const InlineCaptionInspector: React.FC<{
 	readonly captions: Caption[];
 	readonly controls: SequenceRegistrationControls;
 	readonly expanded: boolean;
+	readonly getSequenceFrame: () => number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly onCaptionsRendered: () => void;
+	readonly onInitialCaptionScrollRef: React.RefObject<(() => void) | null>;
 	readonly onToggle: () => void;
 	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
@@ -78,7 +144,10 @@ export const InlineCaptionInspector: React.FC<{
 	captions,
 	controls,
 	expanded,
+	getSequenceFrame,
 	nodePath,
+	onCaptionsRendered,
+	onInitialCaptionScrollRef,
 	onToggle,
 	readOnlyStudio,
 	validatedLocation,
@@ -99,6 +168,7 @@ export const InlineCaptionInspector: React.FC<{
 	const canSave =
 		!readOnlyStudio && clientId !== null && captionStatus?.status === 'static';
 	const [draftCaptions, setDraftCaptions] = useState(captions);
+	const containerRef = useRef<HTMLDivElement>(null);
 	const savedCaptions = useRef(captions);
 	const runtimeSignature = serializeCaptions(captions);
 	const lastRuntimeSignature = useRef(runtimeSignature);
@@ -113,6 +183,12 @@ export const InlineCaptionInspector: React.FC<{
 		setDraftCaptions(captions);
 		clearDragOverrides(nodePath);
 	}, [captions, clearDragOverrides, nodePath, runtimeSignature]);
+
+	useEffect(() => {
+		if (expanded) {
+			onCaptionsRendered();
+		}
+	}, [draftCaptions, expanded, onCaptionsRendered]);
 
 	const updateCaptions = useCallback(
 		(nextCaptions: Caption[]) => {
@@ -228,16 +304,26 @@ export const InlineCaptionInspector: React.FC<{
 				: 'Captions are not ready for editing';
 
 	return (
-		<CaptionInspector
-			captions={draftCaptions}
-			expanded={expanded}
-			onTextChange={updateCaptions}
-			onTextSave={saveCaptions}
-			onTextCancel={cancelCaptions}
-			onToggle={onToggle}
-			readOnly={!canSave}
-			readOnlyTitle={canSave ? null : readOnlyTitle}
-			onReplaceCaptions={canSave ? replaceCaptions : null}
-		/>
+		<div ref={containerRef}>
+			<CaptionInspector
+				captions={draftCaptions}
+				expanded={expanded}
+				onTextChange={updateCaptions}
+				onTextSave={saveCaptions}
+				onTextCancel={cancelCaptions}
+				onToggle={onToggle}
+				readOnly={!canSave}
+				readOnlyTitle={canSave ? null : readOnlyTitle}
+				onReplaceCaptions={canSave ? replaceCaptions : null}
+			/>
+			{expanded ? (
+				<CaptionPlayheadHighlight
+					captions={draftCaptions}
+					containerRef={containerRef}
+					getSequenceFrame={getSequenceFrame}
+					onInitialCaptionScrollRef={onInitialCaptionScrollRef}
+				/>
+			) : null}
+		</div>
 	);
 };

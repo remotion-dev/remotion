@@ -5,7 +5,6 @@ import {BrainIcon} from '../icons/brain';
 import {CodeHike} from '../icons/code-hike';
 import {Cubes} from '../icons/cubes';
 import {ElectronIcon} from '../icons/electron';
-import {JSIcon} from '../icons/js';
 import {MusicIcon} from '../icons/music';
 import {NextIcon} from '../icons/next';
 import {OverlayIcon} from '../icons/overlay';
@@ -41,16 +40,6 @@ export const IconForTemplate: React.FC<{
 				style={{
 					height: scale * 36,
 					overflow: 'visible',
-				}}
-			/>
-		);
-	}
-
-	if (template.cliId === 'javascript') {
-		return (
-			<JSIcon
-				style={{
-					height: scale * 40,
 				}}
 			/>
 		);
@@ -132,11 +121,7 @@ export const IconForTemplate: React.FC<{
 		return <Recorder style={{height: scale * 36}} />;
 	}
 
-	if (
-		template.cliId === 'next' ||
-		template.cliId === 'next-no-tailwind' ||
-		template.cliId === 'next-pages-dir'
-	) {
+	if (template.cliId === 'next') {
 		return <NextIcon style={{height: scale * 36}} />;
 	}
 

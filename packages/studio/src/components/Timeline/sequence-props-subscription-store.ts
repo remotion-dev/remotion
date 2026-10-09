@@ -3,7 +3,6 @@ import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {
@@ -23,7 +22,7 @@ const makeKey = ({
 	sequenceKeys,
 	assetKeys,
 	effectKeys,
-	videoConfigValues,
+
 	stack,
 }: {
 	fileName: string;
@@ -33,10 +32,10 @@ const makeKey = ({
 	sequenceKeys: string[];
 	assetKeys: string[];
 	effectKeys: string[][];
-	videoConfigValues: VideoConfigValues;
+
 	stack: string | null;
 }): Key =>
-	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}\0${stack ?? ''}`;
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${stack ?? ''}`;
 
 type SubscribeResult = Awaited<ReturnType<typeof subscribeToSequenceProps>>;
 
@@ -86,7 +85,7 @@ export const acquireSequencePropsSubscription = ({
 	clientId,
 	applyOnce,
 	applyEach,
-	videoConfigValues,
+
 	stack,
 }: {
 	fileName: string;
@@ -99,7 +98,7 @@ export const acquireSequencePropsSubscription = ({
 	clientId: string;
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
-	videoConfigValues: VideoConfigValues;
+
 	stack: string | null;
 }): {release: () => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
@@ -113,7 +112,7 @@ export const acquireSequencePropsSubscription = ({
 		sequenceKeys,
 		assetKeys,
 		effectKeys,
-		videoConfigValues,
+
 		stack,
 	});
 	let entry = entries.get(key);
@@ -129,7 +128,6 @@ export const acquireSequencePropsSubscription = ({
 			assetKeys,
 			effects: effectKeys,
 			clientId,
-			videoConfigValues,
 		});
 		const created: Entry = {
 			refCount: 0,

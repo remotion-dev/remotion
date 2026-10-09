@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/sdk';
 import {
 	canMoveKeyframesWithoutCollisions,
 	moveKeyframesInPropStatus,
@@ -32,9 +33,11 @@ import {
 	callDeleteSequenceKeyframe,
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
-import {getEasingSelectionAfterKeyframeDelete} from '../Timeline/get-easing-selection-after-keyframe-delete';
-import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
-import {getCurrentFrame} from '../Timeline/imperative-state';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframePlaybackRate,
+	getKeyframeSourceFrame,
+} from '../Timeline/get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from '../Timeline/parse-keyframe-field-from-node-path';
 import {TimelineEffectPropValue} from '../Timeline/TimelineEffectPropItem';
 import {
@@ -43,20 +46,15 @@ import {
 	type TimelineSelection,
 } from '../Timeline/TimelineSelection';
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
-import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
-	InspectorQuickActionsSection,
 	InspectorBackAction,
 	InspectorDetailRow,
-	InspectorQuickAction,
 	InspectorMessage,
+	InspectorQuickAction,
+	InspectorQuickActionsSection,
 } from './common';
-import {
-	clampInspectorKeyframeDisplayFrame,
-	getInspectorKeyframeSourceFrame,
-} from './keyframe-inspector-frame';
+import {clampInspectorKeyframeDisplayFrame} from './keyframe-inspector-frame';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
-import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
 	detailsBeforeInlineAction,
 	detailsWithInlineAction,
@@ -65,6 +63,8 @@ import {
 	selectedContainer,
 } from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
+
+const {canEditKeyframeEasing} = CanvasInternals;
 
 type KeyframeEditorDetails =
 	| {
@@ -76,6 +76,7 @@ type KeyframeEditorDetails =
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 			readonly schema: InteractivitySchema;
 			readonly keyframeDisplayOffset: number;
+			readonly keyframePlaybackRate: number;
 			readonly sourceFrame: number;
 	  }
 	| {
@@ -88,6 +89,7 @@ type KeyframeEditorDetails =
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 			readonly schema: InteractivitySchema;
 			readonly keyframeDisplayOffset: number;
+			readonly keyframePlaybackRate: number;
 			readonly sourceFrame: number;
 			readonly validatedLocation: CodePosition;
 	  };
@@ -182,8 +184,11 @@ export const KeyframeInspector: React.FC<{
 			return null;
 		}
 
-		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
-		const {keyframeDisplayOffset} = track;
+		const nodePath = {
+			...selection.nodePathInfo.sequenceSubscriptionKey,
+			videoConfigValues: track.sequence.controls.videoConfigValues,
+		};
+		const {keyframeDisplayOffset, keyframePlaybackRate} = track;
 
 		if (keyframeField.type === 'sequence') {
 			const sequenceFields = getFieldsToShow({
@@ -212,19 +217,25 @@ export const KeyframeInspector: React.FC<{
 				field: sequenceField,
 				fieldLabel: sequenceField.description ?? sequenceField.key,
 				fileName: nodePath.absolutePath,
+				keyframePlaybackRate,
 				keyframeDisplayOffset: getKeyframeDisplayOffset({
 					propStatus: sequencePropStatus,
 					keyframeDisplayOffset,
+					keyframePlaybackRate,
 				}),
 				nodePath,
 				propStatus: sequencePropStatus,
 				schema: track.sequence.controls.schema,
-				sourceFrame:
-					selection.frame -
-					getKeyframeDisplayOffset({
+				sourceFrame: getKeyframeSourceFrame({
+					displayFrame: selection.frame,
+					propStatus: sequencePropStatus,
+					keyframeDisplayOffset: getKeyframeDisplayOffset({
 						propStatus: sequencePropStatus,
 						keyframeDisplayOffset,
+						keyframePlaybackRate,
 					}),
+					keyframePlaybackRate,
+				}),
 			};
 		}
 
@@ -264,19 +275,25 @@ export const KeyframeInspector: React.FC<{
 			field: effectField,
 			fieldLabel: effectField.description ?? effectField.key,
 			fileName: nodePath.absolutePath,
+			keyframePlaybackRate,
 			keyframeDisplayOffset: getKeyframeDisplayOffset({
 				propStatus: effectPropStatus,
 				keyframeDisplayOffset,
+				keyframePlaybackRate,
 			}),
 			nodePath,
 			propStatus: effectPropStatus,
 			schema: effect.schema,
-			sourceFrame:
-				selection.frame -
-				getKeyframeDisplayOffset({
+			sourceFrame: getKeyframeSourceFrame({
+				displayFrame: selection.frame,
+				propStatus: effectPropStatus,
+				keyframeDisplayOffset: getKeyframeDisplayOffset({
 					propStatus: effectPropStatus,
 					keyframeDisplayOffset,
+					keyframePlaybackRate,
 				}),
+				keyframePlaybackRate,
+			}),
 			validatedLocation: {
 				source: nodePath.absolutePath,
 				line: 1,
@@ -324,9 +341,11 @@ export const KeyframeInspector: React.FC<{
 				return;
 			}
 
-			const toFrame = getInspectorKeyframeSourceFrame({
+			const toFrame = getKeyframeSourceFrame({
 				displayFrame,
 				keyframeDisplayOffset: details.keyframeDisplayOffset,
+				keyframePlaybackRate: details.keyframePlaybackRate,
+				propStatus: details.propStatus,
 			});
 
 			if (displayFrame === selection.frame || toFrame === details.sourceFrame) {
@@ -382,9 +401,11 @@ export const KeyframeInspector: React.FC<{
 				durationInFrames: videoConfig.durationInFrames,
 				frame: value,
 			});
-			const toFrame = getInspectorKeyframeSourceFrame({
+			const toFrame = getKeyframeSourceFrame({
 				displayFrame,
 				keyframeDisplayOffset: details.keyframeDisplayOffset,
+				keyframePlaybackRate: details.keyframePlaybackRate,
+				propStatus: details.propStatus,
 			});
 
 			setDraftFrame(displayFrame);
@@ -468,20 +489,7 @@ export const KeyframeInspector: React.FC<{
 				return;
 			}
 
-			const easingSelection = canEditEasingForInterpolationFunction(
-				details.propStatus.interpolationFunction,
-			)
-				? getEasingSelectionAfterKeyframeDelete({
-						deletedSourceFrames: [details.sourceFrame],
-						keyframeDisplayOffset: details.keyframeDisplayOffset,
-						nodePathInfo: selection.nodePathInfo,
-						propStatus: details.propStatus,
-						timelinePosition: getCurrentFrame(),
-					})
-				: null;
-			if (easingSelection !== null) {
-				selectItems([easingSelection], {reveal: true});
-			} else if (parentSelection !== null) {
+			if (parentSelection !== null) {
 				selectItems([parentSelection], {reveal: true});
 			}
 
@@ -514,7 +522,6 @@ export const KeyframeInspector: React.FC<{
 			parentSelection,
 			previewServerState,
 			selectItems,
-			selection.nodePathInfo,
 			setPropStatuses,
 		],
 	);
@@ -525,22 +532,28 @@ export const KeyframeInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorSections track={track} />
 			<InspectorBackAction
 				disabled={parentSelection === null}
 				onClick={onSelectParent}
-				title="Back to property"
+				aria-label="Back to property"
 			>
 				{details.fieldLabel}
 			</InspectorBackAction>
 			<KeyframeEasingNavigator
 				currentSelection={selection}
-				includeEasings={canEditEasingForInterpolationFunction(
-					details.propStatus.interpolationFunction,
-				)}
+				includeEasings={canEditKeyframeEasing({
+					field: details.field.fieldSchema,
+					propStatus: details.propStatus,
+				})}
 				keyframes={details.propStatus.keyframes.map((keyframe) => ({
 					...keyframe,
-					frame: keyframe.frame + details.keyframeDisplayOffset,
+					frame:
+						keyframe.frame /
+							getKeyframePlaybackRate(
+								details.propStatus,
+								details.keyframePlaybackRate,
+							) +
+						details.keyframeDisplayOffset,
 				}))}
 				nodePathInfo={selection.nodePathInfo}
 			/>

@@ -110,6 +110,7 @@ export type EventSourceEvent =
 	  }
 	| {
 			type: 'element-library-add-request';
+			captionStylesUrl: string | null;
 			url: string;
 			displayName: string | null;
 			origin: string;

@@ -1,22 +1,26 @@
 import type {GetRemotionSkillsInfoResponse} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	BLUE,
-	BORDER_WHITE_ALPHA_12,
-	LIGHT_TEXT,
-	WHITE,
-} from '../helpers/colors';
+import {BLACK_ALPHA_22, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {getFileManagerName} from '../helpers/get-file-manager-name';
+import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
-import {CheckCircleFilled} from '../icons/check-circle-filled';
+import {BookIcon} from '../icons/book';
+import {CaretDown} from '../icons/caret';
 import {CloudDownloadIcon} from '../icons/cloud-download';
 import {CopyIcon} from '../icons/copy';
+import {FinderIcon} from '../icons/finder';
+import {SkillsIcon} from '../icons/skills';
 import {TrashIcon} from '../icons/trash';
+import {callApi} from './call-api';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {showNotification} from './Notifications/NotificationCenter';
+import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
 import {useSettings} from './SettingsContext';
 import {Spinner} from './Spinner';
 
@@ -40,7 +44,7 @@ const description: React.CSSProperties = {
 
 const commandField: React.CSSProperties = {
 	alignItems: 'center',
-	backgroundColor: 'rgba(0, 0, 0, 0.22)',
+	backgroundColor: BLACK_ALPHA_22,
 	borderRadius: 4,
 	display: 'flex',
 	marginTop: 8,
@@ -70,26 +74,19 @@ const list: React.CSSProperties = {
 
 const skillRow: React.CSSProperties = {
 	alignItems: 'center',
-	borderBottom: BORDER_WHITE_ALPHA_12,
 	display: 'flex',
 	gap: 10,
 	minHeight: 38,
-	padding: '0 10px',
 };
 
-const lastSkillRow: React.CSSProperties = {
-	...skillRow,
-	borderBottom: 'none',
-};
-
-const statusIcon: React.CSSProperties = {
+const skillIcon: React.CSSProperties = {
 	flexShrink: 0,
-	height: 14,
-	width: 14,
+	height: 16,
+	width: 16,
 };
 
 const skillName: React.CSSProperties = {
-	color: WHITE,
+	color: LIGHT_TEXT,
 	flex: 1,
 	fontFamily: 'monospace',
 	fontSize: 13,
@@ -112,30 +109,36 @@ const actionIcon: React.CSSProperties = {
 	width: 14,
 };
 
-const actionSlot: React.CSSProperties = {
-	alignItems: 'center',
-	display: 'inline-flex',
-	flexShrink: 0,
-	height: 24,
-	justifyContent: 'center',
-	width: 24,
-};
-
 const loading: React.CSSProperties = {
 	...description,
 	marginTop: 14,
 };
 
 export const SkillSettingsRow: React.FC<{
-	readonly isLast: boolean;
 	readonly skill: GetRemotionSkillsInfoResponse['skills'][number];
-}> = ({isLast, skill}) => {
-	const {installSkill, removeSkill, skillAction} = useSettings();
+}> = ({skill}) => {
+	const {
+		installSkill,
+		removeSkill,
+		upgradeSkill,
+		skillAction,
+		remotionSkillsInfo,
+	} = useSettings();
+	const installations = useMemo(
+		() =>
+			(remotionSkillsInfo?.installations ?? []).filter(
+				({name}) => name === skill.name,
+			),
+		[remotionSkillsInfo, skill.name],
+	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const canInstall =
-		!window.remotion_isReadOnlyStudio &&
-		previewServerState.type === 'connected';
+	const canManageSkills = canEditStudioConfig({
+		isBrowserStudio: getBrowserStudioOperations() !== null,
+		previewServerConnected: previewServerState.type === 'connected',
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
 	const installed = skill.installedInProject || skill.installedGlobally;
+	const upgradeAvailable = installations.some(({outdated}) => outdated);
 	const processingThisSkill = skillAction?.skill === skill.name;
 	const installedLocation =
 		skill.installedInProject && skill.installedGlobally
@@ -145,51 +148,178 @@ export const SkillSettingsRow: React.FC<{
 				: skill.installedGlobally
 					? 'Global'
 					: null;
-	const renderInstallAction: RenderInlineAction = useCallback((color) => {
-		return <CloudDownloadIcon color={color} style={actionIcon} />;
-	}, []);
-	const renderRemoveAction: RenderInlineAction = useCallback((color) => {
-		return <TrashIcon color={color} style={actionIcon} />;
-	}, []);
+	const menuItems = useMemo((): ComboboxValue[] => {
+		const items: ComboboxValue[] = [];
+		if (canManageSkills && installed && upgradeAvailable) {
+			items.push({
+				id: 'delete',
+				value: 'delete',
+				type: 'item',
+				label: 'Delete',
+				leftItem: <TrashIcon color={LIGHT_TEXT} style={actionIcon} />,
+				disabled: skillAction !== null,
+				onClick: () => removeSkill(skill.name),
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+			});
+		}
+
+		if (canManageSkills) {
+			const fileManagerName = getFileManagerName(
+				window.remotion_fileSystemPlatform,
+			);
+			for (const installation of installations) {
+				const label =
+					installations.length > 1
+						? `Open ${installation.scope} skill in ${fileManagerName}`
+						: `Open in ${fileManagerName}`;
+				items.push({
+					id: `open-${installation.scope}`,
+					value: `open-${installation.scope}`,
+					type: 'item',
+					label,
+					leftItem:
+						window.remotion_fileSystemPlatform === 'darwin' ? (
+							<FinderIcon size={16} />
+						) : null,
+					disabled: skillAction !== null,
+					onClick: () => {
+						callApi('/api/open-remotion-skill', {
+							skill: skill.name,
+							scope: installation.scope,
+						}).catch((err: Error) => {
+							showNotification(`Could not open skill: ${err.message}`, 3000);
+						});
+					},
+					keyHint: null,
+					quickSwitcherLabel: null,
+					subMenu: null,
+				});
+			}
+		}
+
+		items.push({
+			id: 'docs',
+			value: 'docs',
+			type: 'item',
+			label: 'View docs',
+			leftItem: <BookIcon color={LIGHT_TEXT} style={actionIcon} />,
+			onClick: () => {
+				window.open(
+					`https://www.remotion.dev/skills#${skill.name}`,
+					'_blank',
+					'noopener,noreferrer',
+				);
+			},
+			keyHint: null,
+			quickSwitcherLabel: null,
+			subMenu: null,
+		});
+		return items;
+	}, [
+		canManageSkills,
+		installed,
+		installations,
+		removeSkill,
+		skill.name,
+		skillAction,
+		upgradeAvailable,
+	]);
+	const segments = useMemo((): SegmentedButtonSegment[] => {
+		const result: SegmentedButtonSegment[] = [];
+		if (canManageSkills) {
+			const actionLabel = upgradeAvailable
+				? 'Upgrade'
+				: installed
+					? 'Delete'
+					: 'Install';
+			result.push({
+				ariaLabel: `${actionLabel} ${skill.name}`,
+				buttonId: null,
+				disabled: skillAction !== null,
+				idleColor: LIGHT_TEXT,
+				onClick: () =>
+					upgradeAvailable
+						? upgradeSkill(skill.name)
+						: installed
+							? removeSkill(skill.name)
+							: installSkill(skill.name),
+				onPointerDown: null,
+				renderContent: (color) =>
+					processingThisSkill ? (
+						<Spinner duration={0.5} size={14} />
+					) : installed && !upgradeAvailable ? (
+						<TrashIcon color={color} style={actionIcon} />
+					) : (
+						<>
+							<CloudDownloadIcon color={color} style={actionIcon} />
+							{upgradeAvailable ? (
+								<span
+									style={{fontSize: 12, lineHeight: '16px', color: 'inherit'}}
+								>
+									Upgrade
+								</span>
+							) : null}
+						</>
+					),
+				segmentId: 'primary',
+				style: upgradeAvailable
+					? {columnGap: 4, padding: '0 4px'}
+					: {padding: 0, width: 24},
+				tooltipLabel: actionLabel,
+				type: 'action',
+			});
+		}
+
+		result.push({
+			ariaLabel: `More actions for ${skill.name}`,
+			buttonId: null,
+			disabled: false,
+			idleColor: LIGHT_TEXT,
+			leaveLeftSpace: true,
+			onOpenChange: null,
+			renderContent: (color) => <CaretDown color={color} />,
+			segmentId: 'secondary',
+			selectedId: null,
+			style: {padding: 0, width: 20},
+			tooltipLabel: 'More actions',
+			type: 'menu',
+			values: menuItems,
+		});
+		return result;
+	}, [
+		canManageSkills,
+		installSkill,
+		installed,
+		menuItems,
+		processingThisSkill,
+		removeSkill,
+		skill.name,
+		skillAction,
+		upgradeAvailable,
+		upgradeSkill,
+	]);
 
 	return (
-		<div role="listitem" style={isLast ? lastSkillRow : skillRow}>
+		<div role="listitem" style={skillRow}>
+			<SkillsIcon aria-hidden color={LIGHT_TEXT} style={skillIcon} />
 			<span style={skillName}>/{skill.name}</span>
 			{processingThisSkill ? (
 				<span style={status}>
-					{skillAction.type === 'installing' ? 'Installing…' : 'Removing…'}
+					{skillAction.type === 'installing'
+						? 'Installing…'
+						: skillAction.type === 'upgrading'
+							? 'Upgrading…'
+							: 'Removing…'}
 				</span>
 			) : installedLocation ? (
-				<span style={status}>{installedLocation}</span>
-			) : null}
-			{installed ? (
-				<CheckCircleFilled aria-hidden style={{...statusIcon, fill: BLUE}} />
-			) : null}
-			{processingThisSkill ? (
-				<span style={actionSlot}>
-					<Spinner duration={0.5} size={14} />
+				<span style={status}>
+					{installedLocation}
+					{upgradeAvailable ? ' · Out of date' : ''}
 				</span>
-			) : installed && canInstall ? (
-				<InlineAction
-					title={
-						skill.installedInProject
-							? `Remove ${skill.name} from this project`
-							: `Remove ${skill.name} globally`
-					}
-					disabled={skillAction !== null}
-					onClick={() => removeSkill(skill.name)}
-					renderAction={renderRemoveAction}
-					variant={null}
-				/>
-			) : canInstall ? (
-				<InlineAction
-					title={`Install ${skill.name} in this project`}
-					disabled={skillAction !== null}
-					onClick={() => installSkill(skill.name)}
-					renderAction={renderInstallAction}
-					variant={null}
-				/>
 			) : null}
+			<SegmentedButton segments={segments} style={null} />
 		</div>
 	);
 };
@@ -197,9 +327,11 @@ export const SkillSettingsRow: React.FC<{
 export const SkillsSettings: React.FC = () => {
 	const {error, remotionSkillsInfo, skillActionError} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const canInstall =
-		!window.remotion_isReadOnlyStudio &&
-		previewServerState.type === 'connected';
+	const canInstall = canEditStudioConfig({
+		isBrowserStudio: getBrowserStudioOperations() !== null,
+		previewServerConnected: previewServerState.type === 'connected',
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
 	const {copied, markCopied} = useCopyFeedback();
 	const installedSkills = useMemo(() => {
 		return (
@@ -261,21 +393,15 @@ export const SkillsSettings: React.FC = () => {
 							variant={null}
 							onClick={onCopy}
 							renderAction={renderCopyAction}
-							title="Copy install command"
+							aria-label="Copy install command"
 						/>
 					</div>
 				</div>
 			) : null}
 			{remotionSkillsInfo ? (
 				<div style={list} role="list" aria-label="Remotion Agent Skills">
-					{remotionSkillsInfo.skills.map((skill, index) => {
-						return (
-							<SkillSettingsRow
-								key={skill.name}
-								isLast={index === remotionSkillsInfo.skills.length - 1}
-								skill={skill}
-							/>
-						);
+					{remotionSkillsInfo.skills.map((skill) => {
+						return <SkillSettingsRow key={skill.name} skill={skill} />;
 					})}
 				</div>
 			) : null}

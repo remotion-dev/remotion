@@ -1,0 +1,203 @@
+import type {Caption} from '@remotion/captions';
+import {createTikTokStyleCaptions} from '@remotion/captions';
+import {loadFont} from '@remotion/google-fonts/Figtree';
+import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
+import {createRoundedTextBox} from '@remotion/rounded-text-box';
+import React, {useEffect, useMemo, useState} from 'react';
+import {
+	cancelRender,
+	Interactive,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+	type SequenceProps,
+} from 'remotion';
+
+type RoundedCaptionsProps = InteractiveTransformProps &
+	Pick<SequenceProps, 'width'> & {
+		readonly captions: Caption[];
+		readonly combineTokensWithinMilliseconds: number | null;
+	};
+
+const defaultCombineTokensWithinMilliseconds = 2000;
+const defaultWidth = 900;
+const fontWeight = '700';
+const maxFontSize = 64;
+const lineHeight = 1.5;
+const horizontalPadding = 22;
+const borderRadius = 20;
+
+const roundedCaptionsSchema = {
+	...Interactive.captionsSchema,
+	width: {
+		type: 'number',
+		min: horizontalPadding * 2 + 1,
+		step: 1,
+		default: undefined,
+		description: 'Caption area width',
+		hiddenFromList: false,
+	},
+	combineTokensWithinMilliseconds: {
+		type: 'number',
+		min: 0,
+		step: 50,
+		default: defaultCombineTokensWithinMilliseconds,
+		description: 'Time between caption pages',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+const {fontFamily, waitUntilDone} = loadFont('normal', {
+	weights: [fontWeight],
+	subsets: ['latin'],
+});
+
+const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
+	captions,
+	combineTokensWithinMilliseconds: providedCombineTokensWithinMilliseconds,
+	style,
+	width = defaultWidth,
+}) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => setFontLoaded(true))
+			.catch((error) => cancelRender(error));
+	}, []);
+
+	const combineTokensWithinMilliseconds =
+		providedCombineTokensWithinMilliseconds ??
+		defaultCombineTokensWithinMilliseconds;
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const pages = useMemo(
+		() =>
+			createTikTokStyleCaptions({
+				captions,
+				combineTokensWithinMilliseconds,
+			}).pages,
+		[captions, combineTokensWithinMilliseconds],
+	);
+	const currentTimeMs = (frame / fps) * 1000;
+	const page = pages.find(
+		(candidate) =>
+			currentTimeMs >= candidate.startMs &&
+			currentTimeMs < candidate.startMs + candidate.durationMs,
+	);
+	const layout = useMemo(() => {
+		if (!fontLoaded || !page?.text.trim()) {
+			return null;
+		}
+
+		const paragraphs = page.text
+			.trim()
+			.split(/\r?\n/)
+			.map((line) => line.trim())
+			.filter(Boolean);
+		const maxLines = Math.max(2, paragraphs.length);
+		const fitted = paragraphs.map((text) =>
+			fitTextOnNLines({
+				text,
+				maxLines: paragraphs.length === 1 ? maxLines : 1,
+				maxBoxWidth: Math.max(1, width - horizontalPadding * 2),
+				fontFamily,
+				fontWeight,
+				maxFontSize,
+				validateFontIsLoaded: true,
+			}),
+		);
+		if (fitted.some((result) => result.lines.length === 0)) {
+			return null;
+		}
+
+		const fontSize = Math.min(...fitted.map((result) => result.fontSize));
+		const lines = fitted.flatMap((result) => result.lines);
+		const textMeasurements = lines.map((text) =>
+			measureText({
+				text,
+				fontFamily,
+				fontSize,
+				fontWeight,
+				additionalStyles: {lineHeight},
+				validateFontIsLoaded: true,
+			}),
+		);
+
+		return {
+			fontSize,
+			lines,
+			...createRoundedTextBox({
+				textMeasurements,
+				textAlign: 'center',
+				horizontalPadding,
+				borderRadius,
+			}),
+		};
+	}, [fontLoaded, page, width]);
+
+	return (
+		<div
+			style={{
+				alignItems: 'center',
+				display: 'flex',
+				justifyContent: 'center',
+				width,
+				...style,
+			}}
+		>
+			{layout ? (
+				<div
+					style={{
+						position: 'relative',
+						width: layout.boundingBox.width,
+						height: layout.boundingBox.height,
+						flexShrink: 0,
+					}}
+				>
+					<svg
+						viewBox={layout.boundingBox.viewBox}
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: layout.boundingBox.width,
+							height: layout.boundingBox.height,
+							overflow: 'visible',
+						}}
+					>
+						<path fill="#ffffff" d={layout.d} />
+					</svg>
+					<div style={{position: 'relative'}}>
+						{layout.lines.map((line, index) => (
+							<div
+								// eslint-disable-next-line react/no-array-index-key
+								key={index}
+								style={{
+									color: '#000000',
+									fontFamily,
+									fontSize: layout.fontSize,
+									fontWeight,
+									lineHeight,
+									paddingInline: horizontalPadding,
+									textAlign: 'center',
+									whiteSpace: 'pre',
+								}}
+							>
+								{line}
+							</div>
+						))}
+					</div>
+				</div>
+			) : null}
+		</div>
+	);
+};
+
+export const RoundedCaptions = Interactive.withSchema({
+	Component: RoundedCaptionsContent,
+	componentName: '<RoundedCaptions>',
+	schema: roundedCaptionsSchema,
+	wrapInSequence: true,
+});

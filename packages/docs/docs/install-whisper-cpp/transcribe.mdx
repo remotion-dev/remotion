@@ -219,6 +219,12 @@ export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
 Prefer relying on the `t_dtw` value for accurate timestamps over `offsets`.  
 Use [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions) to use our opinionated suggestion for postprocessing the captions.
 
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions="Native binary required" clientSideRendering="" serverSideRendering="" player="" studio="" hideBrowsers />
+
+Serverless functions need a compatible Whisper.cpp executable, the model, and enough writable storage and execution time for transcription.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/install-whisper-cpp/src/transcribe.ts)

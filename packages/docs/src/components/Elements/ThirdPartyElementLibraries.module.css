@@ -3,10 +3,12 @@
 }
 
 .list {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 16px;
+	align-items: start;
 	margin: 0 0 var(--ifm-leading);
 	padding: 0;
-	column-count: 1;
-	column-gap: 16px;
 	list-style: none;
 }
 
@@ -14,8 +16,6 @@
 	position: relative;
 	width: 100%;
 	min-width: 0;
-	margin: 0 0 16px;
-	break-inside: avoid;
 	overflow: hidden;
 	border: 1px solid var(--border-color);
 	border-radius: 14px;
@@ -94,104 +94,16 @@
 .addAction {
 	position: relative;
 	z-index: 1;
-	display: inline-flex;
-	flex: 0 0 auto;
-	gap: 4px;
-	align-items: center;
-	justify-content: center;
-	min-width: 54px;
-	height: 30px;
-	margin: 0;
-	padding: 0 9px 0 7px;
-	border: 0;
-	border-radius: 7px;
-	background: var(--ifm-color-emphasis-100);
-	color: var(--ifm-color-emphasis-800);
-	cursor: pointer;
-	font: inherit;
-	font-size: 0.8125rem;
-	font-weight: 600;
-	line-height: 1;
-}
-
-.addAction:hover:not(:disabled) {
-	background: var(--ifm-color-emphasis-200);
-	color: var(--ifm-color-primary);
-}
-
-.addActionIcon {
-	display: inline-grid;
-	width: 12px;
-	height: 16px;
-	flex: 0 0 auto;
-	place-items: center;
-	font-size: 1rem;
-	font-weight: 400;
-	line-height: 1rem;
-}
-
-.touchTarget {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: max(100%, 48px);
-	height: max(100%, 48px);
-	transform: translate(-50%, -50%);
-}
-
-.addAction:disabled {
-	cursor: default;
-	opacity: 0.65;
-}
-
-.addAction:focus-visible {
-	outline: 2px solid var(--ifm-color-primary);
-	outline-offset: 2px;
-}
-
-.loadingStatus,
-.successStatus,
-.errorStatus {
-	position: relative;
-	z-index: 1;
-	margin: 10px 0 0;
-	font-size: 0.875rem;
-	line-height: 1.45;
-}
-
-.loadingStatus {
-	color: var(--ifm-color-emphasis-700);
-}
-
-.successStatus {
-	color: var(--ifm-color-success-dark);
-}
-
-.errorStatus {
-	color: var(--ifm-color-danger-dark);
-}
-
-@media (pointer: fine) {
-	.touchTarget {
-		display: none;
-	}
 }
 
 @container third-party-libraries (min-width: 640px) {
 	.list {
-		column-count: 2;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
 @container third-party-libraries (max-width: 639px) {
 	.content {
 		padding: 16px;
-	}
-
-	.addAction {
-		height: 36px;
-		padding-right: 11px;
-		padding-left: 9px;
-		font-size: 1rem;
 	}
 }

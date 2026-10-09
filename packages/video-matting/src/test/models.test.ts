@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, mock, test} from 'bun:test';
 import {
 	canUseVideoMatting,
 	VideoMattingUnsupportedReason,
@@ -75,4 +75,38 @@ test('requires shader-f16 only for the fp16 BEN2 model', async () => {
 			delete (globalThis as {navigator?: unknown}).navigator;
 		}
 	}
+});
+
+test('checks native WebGPU inference and reports failures without requiring browser globals', async () => {
+	let failure: Error | null = null;
+	let releases = 0;
+	mock.module('onnxruntime-node', () => ({
+		Tensor: class {},
+		InferenceSession: {
+			create: () =>
+				Promise.resolve({
+					run: () =>
+						failure === null ? Promise.resolve({}) : Promise.reject(failure),
+					release: () => {
+						releases++;
+						return Promise.resolve();
+					},
+				}),
+		},
+	}));
+
+	expect(await canUseVideoMatting({model: 'modnet'})).toEqual({
+		supported: true,
+	});
+	expect(await canUseVideoMatting({model: 'ben2-base'})).toEqual({
+		supported: true,
+	});
+	failure = new Error('No supported adapter');
+	expect(await canUseVideoMatting()).toEqual({
+		supported: false,
+		reason: VideoMattingUnsupportedReason.WebGpuUnavailable,
+		detailedReason:
+			'ONNX Runtime could not run WebGPU inference for "modnet": No supported adapter',
+	});
+	expect(releases).toBe(3);
 });

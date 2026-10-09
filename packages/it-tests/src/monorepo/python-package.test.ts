@@ -4,7 +4,22 @@ import {readFileSync, writeFileSync} from 'fs';
 import path from 'path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 
-const PYTHON_OUTPUT_MARKER = 10;
+const PYTHON_OUTPUT_MARKER = 'REMOTION_PAYLOAD:';
+
+const parsePythonOutput = (pythonOutput: Buffer) => {
+	const outputLine = pythonOutput
+		.toString()
+		.split('\n')
+		.find((line) => line.startsWith(PYTHON_OUTPUT_MARKER));
+
+	if (!outputLine) {
+		throw new Error(
+			`Could not find ${PYTHON_OUTPUT_MARKER} in Python output: ${pythonOutput.toString()}`,
+		);
+	}
+
+	return JSON.parse(outputLine.slice(PYTHON_OUTPUT_MARKER.length));
+};
 const referenceVersion = readFileSync(
 	path.join(process.cwd(), '..', 'core', 'package.json'),
 	'utf-8',
@@ -45,10 +60,9 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			//stdio: "inherit",
 		},
 	);
-	const output = pythonOutput.toString().split('\n');
-	const toParse = output[PYTHON_OUTPUT_MARKER];
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			output: {type: 'media'},
 			enableCancellation: false,
 			requestHandler: null,
 			region: 'us-east-1',
@@ -89,6 +103,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			offthreadVideoCacheSizeInBytes: null,
 			offthreadVideoThreads: null,
 			outName: null,
+			separateAudioTo: null,
 			overwrite: false,
 			pixelFormat: undefined,
 			privacy: 'public',
@@ -108,6 +123,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			},
 			x264Preset: null,
 			gopSize: null,
+			disableSharedMemoryCapture: false,
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,
@@ -120,8 +136,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			isProduction: null,
 			sampleRate: 48000,
 		});
-	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
-	const parsedJson = JSON.parse(jsonOutput);
+	const parsedJson = parsePythonOutput(pythonOutput);
 
 	expect({
 		...parsedJson,
@@ -138,8 +153,6 @@ test('Python package should create the same progress payload as normal Lambda pa
 			//stdio: "inherit",
 		},
 	);
-	const output = pythonOutput.toString().split('\n');
-	const toParse = output[PYTHON_OUTPUT_MARKER];
 	const nativeVersion = LambdaClientInternals.getRenderProgressPayload({
 		region: 'us-east-1',
 		functionName: 'remotion-render',
@@ -153,8 +166,7 @@ test('Python package should create the same progress payload as normal Lambda pa
 			region: 'us-east-1',
 		},
 	});
-	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
-	const parsedJson = JSON.parse(jsonOutput);
+	const parsedJson = parsePythonOutput(pythonOutput);
 
 	expect(parsedJson).toEqual(nativeVersion);
 });
@@ -168,8 +180,6 @@ test('Python package should create the same renderStill payload as normal Lambda
 			//stdio: "inherit",
 		},
 	);
-	const output = pythonOutput.toString().split('\n');
-	const toParse = output[PYTHON_OUTPUT_MARKER];
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderStillPayload({
 			region: 'us-east-1',
@@ -208,8 +218,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 			mediaCacheSizeInBytes: null,
 			isProduction: null,
 		});
-	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
-	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);
+	const {streamed: _, ...parsedJson} = parsePythonOutput(pythonOutput);
 	const {streamed, ...assertValue} = nativeVersion;
 	expect(removeUndefined(parsedJson)).toEqual(removeUndefined(assertValue));
 });

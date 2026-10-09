@@ -1,6 +1,9 @@
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const getDefaultAudioCodec = ({
 	container,
 }: {

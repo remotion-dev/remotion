@@ -24,11 +24,10 @@ const getModelLoadCall = () => modelLoadCall;
 let modelIsCached = false;
 let modelLoadProgressCallback:
 	| ((progress: {
-			status: string;
 			file: string | null;
-			progress: number | null;
-			loadedBytes: number | null;
-			totalBytes: number | null;
+			progress: number;
+			loadedBytes: number;
+			totalBytes: number;
 	  }) => void)
 	| undefined;
 let resolveModelLoading: (() => void) | null = null;
@@ -96,7 +95,7 @@ mock.module('@remotion/whisper-webgpu', () => ({
 		cacheCheck = {model};
 		return Promise.resolve(modelIsCached);
 	},
-	loadWhisperModel: async ({
+	downloadWhisperModel: async ({
 		model,
 		onProgress,
 	}: {
@@ -109,14 +108,14 @@ mock.module('@remotion/whisper-webgpu', () => ({
 			resolveModelLoading = resolve;
 		});
 		modelLoadProgressCallback?.({
-			status: 'ready',
 			file: null,
 			progress: 1,
 			loadedBytes: 119_699_015,
 			totalBytes: 119_699_015,
 		});
-		return {alreadyLoaded: false};
+		return {alreadyDownloaded: false};
 	},
+	loadWhisperModel: () => Promise.resolve({alreadyLoaded: false}),
 	removeWhisperModel: () => Promise.resolve(),
 	toCaptions: () => ({
 		captions: [
@@ -188,6 +187,8 @@ test('downloads a model in the queued job before transcribing', async () => {
 		window,
 		'remotion_browserStudio',
 	);
+	const originalInstalledPackages = window.remotion_installedPackages;
+	const originalFetch = globalThis.fetch;
 	const writtenFiles: Array<{
 		contents: string | ArrayBuffer;
 		filePath: string;
@@ -234,6 +235,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 		let jobId = '';
 		act(() => {
 			jobId = getContext().addCaptionJob({
+				captionStyle: null,
 				displayName: 'interview.wav',
 				audioStreamIndex: 2,
 				requestInit: {
@@ -252,6 +254,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 				repetitionPenalty: 1.2,
 				noRepeatNgramSize: 3,
 				outName: 'captions/interview.json',
+				target: null,
 				src: '/static/interview.wav',
 			});
 		});
@@ -264,7 +267,6 @@ test('downloads a model in the queued job before transcribing', async () => {
 
 		act(() => {
 			modelLoadProgressCallback?.({
-				status: 'loading',
 				file: null,
 				progress: 0.5,
 				loadedBytes: 119_699_015 / 2,
@@ -306,6 +308,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 			expect(transcriptionCall).toEqual({
 				channelWaveform: resampledWaveform,
 				options: {
+					signal: expect.any(AbortSignal),
 					model: 'tiny',
 					language: 'de',
 					task: 'translate',
@@ -346,7 +349,156 @@ test('downloads a model in the queued job before transcribing', async () => {
 			},
 		]);
 		expect(disposalCalls).toBe(1);
+
+		const insertedRequests: Array<{endpoint: string; body: unknown}> = [];
+		window.remotion_installedPackages = ['@remotion/captions'];
+		Object.defineProperty(window, 'remotion_browserStudio', {
+			configurable: true,
+			value: null,
+		});
+		globalThis.fetch = ((endpoint: string, init: RequestInit) => {
+			insertedRequests.push({
+				endpoint,
+				body: JSON.parse(String(init.body)),
+			});
+			return Promise.resolve({
+				json: () =>
+					Promise.resolve({
+						success: true,
+						data: {success: true, nodePathMutation: null},
+					}),
+			}) as Promise<Response>;
+		}) as typeof fetch;
+		modelLoadCall = undefined;
+		let inlineJobId = '';
+		act(() => {
+			inlineJobId = getContext().addCaptionJob({
+				captionStyle: null,
+				displayName: 'clip.mp4',
+				audioStreamIndex: null,
+				requestInit: null,
+				language: null,
+				model: 'tiny',
+				chunkLengthInSeconds: 30,
+				strideLengthInSeconds: 5,
+				task: 'transcribe',
+				forceFullSequences: false,
+				doSample: false,
+				temperature: 1,
+				topK: 50,
+				repetitionPenalty: 1,
+				noRepeatNgramSize: 0,
+				outName: 'Basic captions',
+				target: {
+					fileName: '/project/Root.tsx',
+					nodePath: {
+						absolutePath: '/project/Root.tsx',
+						nodePath: [0],
+						sequenceKeys: [],
+						effectKeys: [],
+						videoConfigValues: null,
+					},
+					durationInFrames: 90,
+					premountFor: 30,
+				},
+				src: '/static/clip.mp4',
+			});
+		});
+		await waitFor(() => expect(modelLoadCall).toBeDefined());
+		act(() => resolveModelLoading?.());
+		await waitFor(() => {
+			expect(
+				getContext().captionJobs.find((job) => job.id === inlineJobId),
+			).toMatchObject({status: 'done', captionCount: 2});
+		});
+		expect(insertedRequests).toEqual([
+			{
+				endpoint: '/api/insert-basic-captions',
+				body: {
+					fileName: '/project/Root.tsx',
+					nodePath: [0],
+					durationInFrames: 90,
+					premountFor: 30,
+					captions: [
+						{
+							text: 'Hello',
+							startMs: 125,
+							endMs: 625,
+							timestampMs: 375,
+							confidence: null,
+						},
+						{
+							text: ' world.',
+							startMs: 750,
+							endMs: 1500,
+							timestampMs: 1125,
+							confidence: null,
+						},
+					],
+				},
+			},
+		]);
+		expect(writtenFiles).toHaveLength(1);
+
+		const browserRequests: unknown[] = [];
+		Object.defineProperty(window, 'remotion_browserStudio', {
+			configurable: true,
+			value: makeBrowserStudioOperations({
+				insertBasicCaptions: (request) => {
+					browserRequests.push(request);
+					return Promise.resolve({
+						success: true,
+						nodePathMutation: {
+							mutationId: 'captions-browser',
+							timelineSelection: null,
+							files: [],
+						},
+					});
+				},
+			}),
+		});
+		const previousJob = getContext().captionJobs.find(
+			(job) => job.id === inlineJobId,
+		);
+		if (!previousJob || previousJob.target === null) {
+			throw new Error('Inline captions job is missing');
+		}
+
+		const previousTarget = previousJob.target;
+
+		modelLoadCall = undefined;
+		let browserJobId = '';
+		act(() => {
+			browserJobId = getContext().addCaptionJob({
+				...previousJob,
+				src: '/static/browser-clip.mp4',
+				target: {
+					...previousTarget,
+					fileName: '/project/Browser.tsx',
+					durationInFrames: 45,
+				},
+			});
+		});
+		await waitFor(() => expect(modelLoadCall).toBeDefined());
+		act(() => resolveModelLoading?.());
+		await waitFor(() => {
+			expect(
+				getContext().captionJobs.find((job) => job.id === browserJobId),
+			).toMatchObject({status: 'done', captionCount: 2});
+		});
+		expect(browserRequests).toEqual([
+			{
+				fileName: '/project/Browser.tsx',
+				nodePath: [0],
+				durationInFrames: 45,
+				premountFor: 30,
+				captions: (insertedRequests[0].body as {captions: unknown}).captions,
+			},
+		]);
+		expect(insertedRequests).toHaveLength(1);
 	} finally {
+		globalThis.fetch = originalFetch;
+		window.remotion_installedPackages = originalInstalledPackages;
 		if (originalGpuDescriptor) {
 			Object.defineProperty(navigator, 'gpu', originalGpuDescriptor);
 		} else {

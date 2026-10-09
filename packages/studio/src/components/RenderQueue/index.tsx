@@ -15,6 +15,7 @@ const errorExplanation: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
+	userSelect: 'none',
 };
 
 const explainer: React.CSSProperties = {
@@ -90,6 +91,7 @@ export const RenderQueue: React.FC = () => {
 				const job = allJobs[i];
 				if (
 					isCaptionJob(job) &&
+					job.target === null &&
 					job.status === 'done' &&
 					canvasContent.asset === job.outName
 				) {
@@ -99,8 +101,7 @@ export const RenderQueue: React.FC = () => {
 				if (
 					isVideoMattingJob(job) &&
 					job.status === 'done' &&
-					(canvasContent.asset === job.baseOutName ||
-						canvasContent.asset === job.foregroundOutName)
+					canvasContent.asset === job.outName
 				) {
 					return i;
 				}
@@ -115,7 +116,7 @@ export const RenderQueue: React.FC = () => {
 			<div style={explainer}>
 				<Spacing y={5} />
 				<div style={errorExplanation}>
-					Renders, transcriptions and video matting jobs will show up here.
+					Renders, transcriptions and background removal jobs will show up here.
 				</div>
 				<Spacing y={2} block />
 			</div>

@@ -9,6 +9,7 @@ import {
 } from '../helpers/colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {EnterIcon} from '../icons/enter';
+import {ActionTooltip} from './ActionTooltip';
 import {InlineAction} from './InlineAction';
 import {RemotionInput} from './NewComposition/RemInput';
 
@@ -28,6 +29,7 @@ const list: React.CSSProperties = {
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
+	backgroundColor: 'var(--remotion-active-caption-background, transparent)',
 	borderBottom: `1px solid ${LINE_COLOR}`,
 	display: 'grid',
 	gap: 8,
@@ -64,10 +66,11 @@ export const CaptionTextEditor: React.FC<{
 	readonly onSave: ((captions: Caption[]) => void) | null;
 	readonly onCancel: (() => void) | null;
 	readonly readOnly: boolean;
-}> = ({captions, onChange, onSave, onCancel, readOnly}) => {
+}> = React.memo(({captions, onChange, onSave, onCancel, readOnly}) => {
 	const listRef = useRef<HTMLDivElement>(null);
 	const cancelledBlurIndexes = useRef(new Set<number>());
 	const dirtyRef = useRef(false);
+	const pendingFocusIndex = useRef<number | null>(null);
 	const latestRef = useRef({captions, onSave});
 	latestRef.current = {captions, onSave};
 	const captionRows = useMemo(() => {
@@ -153,6 +156,74 @@ export const CaptionTextEditor: React.FC<{
 		input?.scrollIntoView({block: 'nearest'});
 	}, []);
 
+	useEffect(() => {
+		const index = pendingFocusIndex.current;
+		if (index === null) {
+			return;
+		}
+
+		pendingFocusIndex.current = null;
+		const input = listRef.current?.querySelector<HTMLInputElement>(
+			`[data-caption-index="${index}"]`,
+		);
+		input?.focus();
+		input?.setSelectionRange(1, 1);
+		input?.scrollIntoView({block: 'nearest'});
+	}, [captions]);
+
+	const splitCaption = useCallback(
+		(index: number, characterIndex: number) => {
+			const currentCaptions = latestRef.current.captions;
+			const caption = currentCaptions[index];
+			if (!caption || caption.text.length === 0) {
+				return;
+			}
+
+			const splitIndex = Math.min(
+				Math.max(characterIndex, 0),
+				caption.text.length,
+			);
+			const splitTimestamp = Math.round(
+				caption.startMs +
+					((caption.endMs - caption.startMs) * splitIndex) /
+						caption.text.length,
+			);
+			const afterText = caption.text.slice(splitIndex).trimStart();
+			const {pageBreakAfter, ...captionWithoutPageBreak} = caption;
+			const nextCaptions = [
+				...currentCaptions.slice(0, index),
+				{
+					...captionWithoutPageBreak,
+					text: caption.text.slice(0, splitIndex).trimEnd(),
+					endMs: splitTimestamp,
+					timestampMs:
+						caption.timestampMs === null
+							? null
+							: Math.round((caption.startMs + splitTimestamp) / 2),
+					...(pageBreakAfter === undefined ? {} : {pageBreakAfter: false}),
+				},
+				{
+					...captionWithoutPageBreak,
+					text: ` ${afterText}`,
+					startMs: splitTimestamp,
+					timestampMs:
+						caption.timestampMs === null
+							? null
+							: Math.round((splitTimestamp + caption.endMs) / 2),
+					...(pageBreakAfter === undefined ? {} : {pageBreakAfter}),
+				},
+				...currentCaptions.slice(index + 1),
+			];
+
+			latestRef.current.captions = nextCaptions;
+			dirtyRef.current = true;
+			pendingFocusIndex.current = index + 1;
+			onChange(nextCaptions);
+			commitPending();
+		},
+		[commitPending, onChange],
+	);
+
 	return (
 		<div style={container}>
 			<div ref={listRef} style={list}>
@@ -164,7 +235,7 @@ export const CaptionTextEditor: React.FC<{
 						: `Add page break after caption ${index + 1}`;
 
 					return (
-						<div key={key} style={row}>
+						<div key={key} data-caption-row-index={index} style={row}>
 							<div style={timing}>
 								{formatMilliseconds(caption.startMs)} →{' '}
 								{formatMilliseconds(caption.endMs)} ms
@@ -183,6 +254,15 @@ export const CaptionTextEditor: React.FC<{
 								}}
 								onChange={(event) => updateText(index, event.target.value)}
 								onKeyDown={(event) => {
+									if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+										event.preventDefault();
+										splitCaption(
+											index,
+											event.currentTarget.selectionStart ??
+												event.currentTarget.value.length,
+										);
+									}
+
 									if (
 										event.key === 'ArrowDown' &&
 										index < captions.length - 1
@@ -215,29 +295,42 @@ export const CaptionTextEditor: React.FC<{
 								}}
 								value={caption.text}
 							/>
-							<InlineAction
-								aria-pressed={hasPageBreakAfter}
-								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-								disabled={readOnly}
-								onClick={() => {
-									updatePageBreakAfter(index, !hasPageBreakAfter);
-									commitPending();
-								}}
-								renderAction={(color) => (
-									<EnterIcon
-										aria-hidden="true"
-										color={hasPageBreakAfter ? BLUE : color}
-										focusable="false"
-										style={{height: 16, width: 16}}
-									/>
-								)}
-								title={pageBreakTitle}
-								variant={null}
-							/>
+							<ActionTooltip
+								label={
+									hasPageBreakAfter
+										? 'Remove break after this'
+										: 'Break after this'
+								}
+								shortcut={null}
+								delay={800}
+								dismissOnClick
+							>
+								<InlineAction
+									aria-pressed={hasPageBreakAfter}
+									className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+									disabled={readOnly}
+									onClick={() => {
+										updatePageBreakAfter(index, !hasPageBreakAfter);
+										commitPending();
+									}}
+									renderAction={(color) => (
+										<EnterIcon
+											aria-hidden="true"
+											color={hasPageBreakAfter ? BLUE : color}
+											focusable="false"
+											style={{height: 16, width: 16}}
+										/>
+									)}
+									aria-label={pageBreakTitle}
+									variant={null}
+								/>
+							</ActionTooltip>
 						</div>
 					);
 				})}
 			</div>
 		</div>
 	);
-};
+});
+
+CaptionTextEditor.displayName = 'CaptionTextEditor';

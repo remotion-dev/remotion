@@ -8,25 +8,7 @@ crumb: '@remotion/video-matting'
 
 Separates a video into an opaque base WebM and a foreground WebM with alpha.
 
-```ts twoslash title="separate-video.ts"
-import {separateVideoLayers} from '@remotion/video-matting';
-
-const file = new File([], 'input.mp4');
-
-const result = await separateVideoLayers({
-  src: file,
-  model: 'modnet',
-  audio: 'base',
-  onProgress: (progress) => {
-    console.log(progress);
-  },
-});
-
-const baseBlob = await result.base.getBlob();
-const foregroundBlob = await result.foreground.getBlob();
-
-await Promise.all([result.base.dispose(), result.foreground.dispose()]);
-```
+The downloaded model is loaded automatically if needed. Call [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model) first to cache the model files.
 
 Place inserted content between the base and foreground. The base remains opaque and includes the original subject; the foreground repeats the subject with alpha so it appears in front of the inserted content.
 
@@ -35,6 +17,8 @@ Place inserted content between the base and foreground. The base remains opaque 
 ### src
 
 A `string`, `URL`, or `Blob` containing the input video. A `File` may be passed because it extends `Blob`.
+
+In [Node.js](/docs/video-matting/node), strings can also be local file paths, and `file:` URLs are supported.
 
 ### model?
 
@@ -123,7 +107,7 @@ Aborting rejects the promise and cancels both outputs. Model inference may finis
 
 ### onModelLoadProgress?
 
-Called while model files are resolved and downloaded. Default: no callback.
+Called while a previously downloaded model is initialized. Default: no callback. Call [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model) first to download the files and receive download progress.
 
 To load the model separately, use [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model).
 
@@ -171,6 +155,10 @@ Returns a promise resolving to a `Blob`, unless `outputs.base.outputWritable` wa
 
 Releases temporary storage owned by the base output. Call it after `base.getBlob()` has resolved. The method is idempotent and has no effect for `arraybuffer` or custom writable outputs.
 
+#### `base[Symbol.asyncDispose]()`<AvailableFrom v="4.0.528" />
+
+Calls `base.dispose()` when an `await using` scope ends.
+
 ### foreground
 
 The foreground output with alpha.
@@ -182,6 +170,10 @@ Returns a promise resolving to a `Blob`, unless `outputs.foreground.outputWritab
 #### foreground.dispose()
 
 Releases temporary storage owned by the foreground output. Call it after `foreground.getBlob()` has resolved. The method is idempotent and has no effect for `arraybuffer` or custom writable outputs.
+
+#### `foreground[Symbol.asyncDispose]()`<AvailableFrom v="4.0.528" />
+
+Calls `foreground.dispose()` when an `await using` scope ends.
 
 ### model
 
@@ -203,13 +195,17 @@ The duration of the processed video in seconds.
 
 The number of video frames processed.
 
+### `[Symbol.asyncDispose]()`<AvailableFrom v="4.0.528" />
+
+Disposes both outputs when an `await using` scope ends. Retrieve any blobs before leaving the scope; blobs returned by `getBlob()` remain usable afterward. The loaded model remains in memory for reuse.
+
 ## Output format
 
 Both layers are WebM files encoded with VP9. The foreground preserves alpha. Audio is encoded as Opus when included.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs bun="" serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

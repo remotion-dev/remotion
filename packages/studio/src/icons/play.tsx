@@ -15,11 +15,11 @@ export const Play: React.FC<SVGProps<SVGSVGElement>> = ({
 		className="svg-inline--fa fa-play fa-w-14"
 		role="img"
 		xmlns="http://www.w3.org/2000/svg"
-		viewBox="0 0 448 512"
+		viewBox="0 0 14 14"
 	>
 		<path
 			fill={color}
-			d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+			d="M12.5 6.1 2.5 0.2C1.8 -0.2 1 0.3 1 1.1v11.8c0 0.8 0.8 1.3 1.5 0.9l10 -5.9c0.7 -0.4 0.7 -1.4 0 -1.8z"
 		/>
 	</svg>
 );

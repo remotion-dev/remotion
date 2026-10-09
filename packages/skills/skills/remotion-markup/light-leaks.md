@@ -93,13 +93,11 @@ import {TransitionSeries} from '@remotion/transitions';
 The overlay component can also be used outside of `<TransitionSeries>` as a decorative layer in any composition:
 
 ```tsx
-import {AbsoluteFill} from 'remotion';
-
 const MyComp: React.FC = () => (
-  <AbsoluteFill>
+  <>
     <MyContent />
     <LightLeakOverlay seed={3} />
-  </AbsoluteFill>
+  </>
 );
 ```
 

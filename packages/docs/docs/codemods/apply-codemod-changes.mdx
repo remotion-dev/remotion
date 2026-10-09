@@ -1,0 +1,61 @@
+---
+image: /generated/articles-docs-codemods-apply-codemod-changes.png
+title: 'applyCodemodChanges()'
+crumb: '@remotion/codemods'
+---
+
+# applyCodemodChanges()<AvailableFrom v="4.0.528" />
+
+Applies the file changes returned by a codemod to an in-memory project. The input project remains unchanged.
+
+```ts twoslash title="apply-changes.ts"
+import {applyCodemodChanges, updateNodeProps, type CodemodProject, type NodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: NodeReference;
+
+const result = updateNodeProps({
+  project,
+  node,
+  props: {'style.opacity': 0.5},
+});
+
+const nextProject = applyCodemodChanges(project, result.changes);
+console.log(nextProject.files);
+
+const undoChanges = result.changes.map((change) => ({
+  filePath: change.filePath,
+  previousContents: change.nextContents,
+  nextContents: change.previousContents,
+}));
+const restoredProject = applyCodemodChanges(nextProject, undoChanges);
+const redoneProject = applyCodemodChanges(restoredProject, result.changes);
+```
+
+Store each mutation's changes together as one undo entry. Undo with the inverted changes, and redo with the original changes. The editor owns the history stack.
+
+## Parameters
+
+### project
+
+The project whose files are to be updated. Additional project fields are preserved.
+
+### changes
+
+The `CodemodFileChange[]` returned by a mutation. Each entry contains `filePath`, `previousContents`, and `nextContents`. `null` in `previousContents` indicates a new file; `null` in `nextContents` removes a file.
+
+## Return value
+
+A new project with the changes applied. An empty `changes` array returns the original project.
+
+## Errors
+
+Throws if a file's current contents do not match `previousContents`, or if the array contains more than one change for the same file. All changes are checked before any are applied.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`@remotion/codemods`](/docs/codemods)

@@ -23,7 +23,7 @@ export const TableOfContents: React.FC = () => {
 			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/add-element-library-to-studio">
 				<strong>addElementLibraryToStudio()</strong>
-				<div>Add an Element catalog to a Studio project</div>
+				<div>Add an Element Library to a Studio project</div>
 			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/is-inside-studio">
 				<strong>isInsideStudio()</strong>

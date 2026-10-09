@@ -559,17 +559,15 @@ export const MacBookLoopScene = () => {
 			<AbsoluteFill>
 				<MacBookScene />
 			</AbsoluteFill>
-			<Sequence
+			<AbsoluteFill
 				durationInFrames={25}
 				freeze={0}
 				from={775}
-				layout="none"
 				name="Beginning crossfade"
+				style={{opacity: incomingOpacity}}
 			>
-				<AbsoluteFill style={{opacity: incomingOpacity}}>
-					<MacBookScene />
-				</AbsoluteFill>
-			</Sequence>
+				<MacBookScene />
+			</AbsoluteFill>
 		</>
 	);
 };

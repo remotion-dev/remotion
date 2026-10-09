@@ -21,7 +21,7 @@ Use it for wipes, reveals, and intro/outro animations on [`<Video>`](/docs/media
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {evolve} from '@remotion/effects/evolve';
 
@@ -33,7 +33,7 @@ export const MyComp: React.FC = () => {
   });
 
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -44,7 +44,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

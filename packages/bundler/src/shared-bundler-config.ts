@@ -21,6 +21,14 @@ export const shouldUseReactDomClient =
 		? true
 		: parseInt(reactDomVersion, 10) >= 18;
 
+// Remove once https://github.com/huggingface/transformers.js/issues/1759 is resolved.
+export const transformersImportMetaWarning = {
+	module:
+		/[\\/]@huggingface[\\/]transformers[\\/]dist[\\/]transformers\.web\.js$/,
+	message:
+		/Accessing import\.meta directly is unsupported|'import\.meta' cannot be used as a standalone expression/,
+};
+
 export const getResolveConfig = () => ({
 	extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx', '.mjs', '.cjs'],
 	alias: {
@@ -51,22 +59,13 @@ export const getResolveConfig = () => ({
 			'index.mjs',
 		),
 
-		...(NoReactInternals.ENABLE_V5_BREAKING_CHANGES
-			? {}
-			: {
-					'@remotion/media-parser/worker': path.resolve(
-						require.resolve('@remotion/media-parser'),
-						'..',
-						'esm',
-						'worker.mjs',
-					),
-				}),
 		// Studio entry points are also passed to the bundler as resolved CJS paths.
 		// Route both those paths and package imports through the same ESM build.
 		...Object.fromEntries(
 			[
 				'@remotion/studio',
 				'@remotion/studio/internals',
+				'@remotion/studio/previewBootstrap',
 				'@remotion/studio/previewEntry',
 				'@remotion/studio/renderEntry',
 			].flatMap((specifier) => {
@@ -128,7 +127,7 @@ export const getBaseConfig = (
 		watchOptions: {
 			poll: poll ?? undefined,
 			aggregateTimeout: 0,
-			ignored: ['**/.git/**', '**/.turbo/**', '**/node_modules/**'],
+			ignored: /(?:^|[\\/])(?:\.git|\.turbo|node_modules)[\\/]/,
 		},
 		// Higher source map quality in development to power line numbers for stack traces
 		devtool:

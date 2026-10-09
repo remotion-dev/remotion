@@ -35,6 +35,9 @@ import {
 	irisPresentationDemo,
 	lightLeakDemo,
 	linearBlurPresentationDemo,
+	motionBlurCameraDemo,
+	motionBlurHtmlInCanvasDemo,
+	motionBlurTrailDemo,
 	noiseDemo,
 	nonePresentationDemo,
 	opacityDemo,
@@ -49,12 +52,12 @@ import {
 	roughNotationBracketDemo,
 	roughNotationCircleDemo,
 	roughNotationCrossedOffDemo,
-	roundedTextBoxDemo,
 	roughNotationHighlightDemo,
 	roughNotationPosterizedProgressDemo,
 	roughNotationPosterizedSeedDemo,
 	roughNotationStrikeThroughDemo,
 	roughNotationUnderlineDemo,
+	roundedTextBoxDemo,
 	scaleDemo,
 	shaderDemo,
 	skewDemo,
@@ -115,6 +118,9 @@ const dragPreviewSource: React.CSSProperties = {
 };
 
 const demos: DemoType[] = [
+	motionBlurTrailDemo,
+	motionBlurCameraDemo,
+	motionBlurHtmlInCanvasDemo,
 	htmlInCanvasDemo2DBlur,
 	htmlInCanvasDemoWebGL,
 	htmlInCanvasDemoWebGPU,

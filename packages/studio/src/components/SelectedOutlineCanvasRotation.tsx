@@ -11,7 +11,7 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineRotationDragOverrides,
+	clearSelectedOutlineDragOverrides,
 	getSelectedOutline3DRotationDragValues,
 	getSelectedOutlineRotationDragChanges,
 	getSelectedOutlineRotationDragStates,
@@ -34,7 +34,6 @@ import {
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {svgPointToClientPoint} from './svg-point-to-client-point';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -244,7 +243,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 					lastValues,
 				});
 				if (changes.length === 0) {
-					clearSelectedOutlineRotationDragOverrides({
+					clearSelectedOutlineDragOverrides({
 						clearDragOverrides,
 						dragStates,
 					});
@@ -260,25 +259,15 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 						change.type === 'keyframed',
 				);
 
-				Promise.all([
-					staticChanges.length > 0
-						? saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: rotationDrag.clientId,
-								undoLabel: 'Rotate sequence',
-								redoLabel: 'Rotate sequence back',
-							})
-						: Promise.resolve(),
-					callAddKeyframes({
-						sequenceKeyframes: keyframedChanges,
-						effectKeyframes: [],
-						setPropStatuses,
-						clientId: rotationDrag.clientId,
-					}),
-				])
+				saveSequenceProps({
+					changes: staticChanges,
+					addedKeyframes: keyframedChanges,
+					movedKeyframes: null,
+					setPropStatuses,
+					clientId: rotationDrag.clientId,
+					undoLabel: 'Rotate sequence',
+					redoLabel: 'Rotate sequence back',
+				})
 					.catch((error) => {
 						showNotification(
 							`Could not save sequence props: ${
@@ -288,7 +277,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 						);
 					})
 					.finally(() => {
-						clearSelectedOutlineRotationDragOverrides({
+						clearSelectedOutlineDragOverrides({
 							clearDragOverrides,
 							dragStates,
 						});

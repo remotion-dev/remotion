@@ -1,4 +1,5 @@
 import {TraceMap, type SourceMapInput} from '@jridgewell/trace-mapping';
+import {Internals} from 'remotion';
 import {getOriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {
 	getLocationOfFunctionCall,
@@ -9,8 +10,20 @@ const traceMapCache: Partial<Record<string, TraceMap>> = {};
 const traceMapPromises: Partial<Record<string, Promise<TraceMap>>> = {};
 const traceMapsByOriginalSource = new Map<string, TraceMap>();
 const sourceMapFilesCache = new WeakMap<TraceMap, Record<string, string>>();
-const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
-const studioOriginalSourcePrefix = 'studio-original://';
+
+const isInternalSource = (source: string | null): boolean => {
+	if (source === null) {
+		return false;
+	}
+
+	const normalizedSource = source.replaceAll('\\', '/');
+	// Generated and Remotion runtime files are not authored sequence locations.
+	return (
+		/(?:^|\/)node_modules\//.test(normalizedSource) ||
+		/(?:^|\/)dist\/(?:[^/]+\/)*[^/]+\.(?:cjs|mjs|js)$/.test(normalizedSource) ||
+		/(?:^|\/)(?:packages\/)?core\/src\//.test(normalizedSource)
+	);
+};
 
 const getSourceMapCache = (fileName: string): Promise<TraceMap> => {
 	if (traceMapCache[fileName]) {
@@ -82,18 +95,17 @@ export const getOriginalLocationFromStack = async (
 		return null;
 	}
 
-	const originalSourcePrefix = [
-		browserStudioOriginalSourcePrefix,
-		studioOriginalSourcePrefix,
-	].find((prefix) => location.fileName.startsWith(prefix));
+	// Bundlers that record the JSX source location skip symbolication.
+	const originalSource = Internals.parseOriginalSourceStack(stack);
+	if (originalSource) {
+		if (isInternalSource(originalSource.fileName)) {
+			return null;
+		}
 
-	if (originalSourcePrefix) {
 		return {
-			column: location.columnNumber,
-			line: location.lineNumber,
-			source: decodeURIComponent(
-				location.fileName.slice(originalSourcePrefix.length),
-			),
+			column: originalSource.column,
+			line: originalSource.line,
+			source: originalSource.fileName,
 		};
 	}
 
@@ -103,5 +115,5 @@ export const getOriginalLocationFromStack = async (
 		location.lineNumber as number,
 		location.columnNumber as number,
 	);
-	return originalPosition;
+	return isInternalSource(originalPosition.source) ? null : originalPosition;
 };

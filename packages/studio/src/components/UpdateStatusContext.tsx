@@ -42,7 +42,8 @@ const UpdateStatusContext = createContext<UpdateStatusContextValue | null>(
 
 export const UpdateStatusProvider: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly skillsRevision: number;
+}> = ({children, skillsRevision}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [upgradeState, setUpgradeState] = useState<UpgradeState>('idle');
 	const [upgradeError, setUpgradeError] = useState<string | null>(null);
@@ -135,7 +136,7 @@ export const UpdateStatusProvider: React.FC<{
 			updateController.abort();
 			bugsController.abort();
 		};
-	}, [showUpdates]);
+	}, [showUpdates, skillsRevision]);
 
 	const value = useMemo<UpdateStatusContextValue>(() => {
 		return {

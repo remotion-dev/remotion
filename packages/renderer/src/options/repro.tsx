@@ -10,6 +10,7 @@ const cliFlag = 'repro' as const;
 
 export const reproOption = {
 	name: 'Create reproduction',
+	addedIn: '4.0.88',
 	cliFlag,
 	description: () => (
 		<>
@@ -17,7 +18,7 @@ export const reproOption = {
 		</>
 	),
 	ssrName: 'repro',
-	docLink: 'https://www.remotion.dev/docs/render-media#repro',
+	docLink: 'https://www.remotion.dev/docs/options/repro',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

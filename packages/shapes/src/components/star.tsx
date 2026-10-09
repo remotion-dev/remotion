@@ -14,6 +14,7 @@ const starSchema = makeShapeSchema({
 		description: 'Points',
 		min: 3,
 		step: 1,
+		integer: true,
 	}),
 	innerRadius: numberField({
 		defaultValue: 50,

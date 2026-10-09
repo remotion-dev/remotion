@@ -136,8 +136,12 @@ export const getDefaultContainerForCodec = (
 };
 
 export const getQualityForWebRendererQuality = (
-	quality: WebRendererQuality,
+	quality: WebRendererQuality | Quality,
 ): Quality => {
+	if (quality instanceof Quality) {
+		return quality;
+	}
+
 	return new Quality({quality, preferBitrate: true});
 };
 

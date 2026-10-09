@@ -1,5 +1,6 @@
 import React, {
 	createRef,
+	useCallback,
 	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
@@ -89,29 +90,39 @@ const TimelineSliderInner: React.FC = () => {
 
 	const zoomLevel = zoomMap[videoConfig.id] ?? null;
 
-	useLayoutEffect(() => {
-		const el = ref.current;
-		const measuredWidth = sliderAreaRef.current?.clientWidth;
-		const scrollable = scrollableRef.current;
-		if (
-			!el ||
-			!scrollable ||
-			measuredWidth === undefined ||
-			measuredWidth === 0
-		) {
-			return;
-		}
+	const draw = useCallback(
+		(frame: number) => {
+			const el = ref.current;
+			const measuredWidth = sliderAreaRef.current?.clientWidth;
+			const scrollable = scrollableRef.current;
+			if (
+				!el ||
+				!scrollable ||
+				measuredWidth === undefined ||
+				measuredWidth === 0
+			) {
+				return;
+			}
 
-		const draw = (frame: number) => {
 			el.style.transform = getTimelineSliderTransform({
 				durationInFrames: videoConfig.durationInFrames,
 				frame,
 				scrollLeft: scrollable.scrollLeft,
 				width: measuredWidth,
 			});
-		};
+		},
+		[videoConfig.durationInFrames],
+	);
 
+	useLayoutEffect(() => {
 		draw(timelinePosition);
+	}, [draw, timelinePosition, timelineWidth, zoomLevel]);
+
+	useLayoutEffect(() => {
+		const scrollable = scrollableRef.current;
+		if (!scrollable) {
+			return;
+		}
 
 		// Read the frame imperatively on scroll: during edge auto-scrolling, the
 		// scroll event can fire before React has committed the seek, and drawing
@@ -121,12 +132,7 @@ const TimelineSliderInner: React.FC = () => {
 		return () => {
 			scrollable.removeEventListener('scroll', onScroll);
 		};
-	}, [
-		timelinePosition,
-		videoConfig.durationInFrames,
-		timelineWidth,
-		zoomLevel,
-	]);
+	}, [draw]);
 
 	useImperativeHandle(redrawTimelineSliderFast, () => {
 		return {

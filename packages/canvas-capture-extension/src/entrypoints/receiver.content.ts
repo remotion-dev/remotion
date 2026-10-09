@@ -5,6 +5,8 @@ export default defineContentScript({
 	matches: [
 		'https://remotion.dev/convert*',
 		'https://www.remotion.dev/convert*',
+		'https://remotion.dev/new*',
+		'https://www.remotion.dev/new*',
 	],
 	runAt: 'document_start',
 	main: startReceiver,

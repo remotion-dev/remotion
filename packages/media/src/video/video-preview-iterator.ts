@@ -21,6 +21,11 @@ export const createVideoIterator = async (
 	let peekedFrame: WrappedCanvas | null = null;
 
 	const setLastReturnedFrame = (frame: WrappedCanvas) => {
+		if (destroyed) {
+			releaseStableFrame(frame);
+			return;
+		}
+
 		if (lastReturnedFrame !== frame) {
 			releaseStableFrame(lastReturnedFrame);
 		}
@@ -29,6 +34,11 @@ export const createVideoIterator = async (
 	};
 
 	const setPeekedFrame = (frame: WrappedCanvas | null) => {
+		if (destroyed) {
+			releaseStableFrame(frame);
+			return null;
+		}
+
 		peekedFrame = frame;
 		if (peekedFrame === null) {
 			iteratorEnded = true;
@@ -63,9 +73,11 @@ export const createVideoIterator = async (
 
 	const getFrameEndTimestamp = async ({
 		pendingFrameBehavior,
+		onWait,
 		shouldContinue,
 	}: {
 		pendingFrameBehavior: 'wait' | 'restart-iterator';
+		onWait: () => void;
 		shouldContinue: () => boolean;
 	}) => {
 		const peeked = peekIfReady();
@@ -84,6 +96,7 @@ export const createVideoIterator = async (
 			return {type: 'cancelled' as const};
 		}
 
+		onWait();
 		const awaitedPeeked = setPeekedFrame(await peeked.wait());
 		if (!shouldContinue()) {
 			return {type: 'cancelled' as const};
@@ -153,6 +166,7 @@ export const createVideoIterator = async (
 		time: number,
 		options: {
 			pendingFrameBehavior: 'wait' | 'restart-iterator';
+			onWait: () => void;
 			shouldContinue: () => boolean;
 		},
 	): Promise<
@@ -196,6 +210,7 @@ export const createVideoIterator = async (
 			}
 
 			const frameEndTimestamp = await getFrameEndTimestamp({
+				onWait: options.onWait,
 				pendingFrameBehavior: options.pendingFrameBehavior,
 				shouldContinue: options.shouldContinue,
 			});
@@ -246,13 +261,26 @@ export const createVideoIterator = async (
 				};
 			}
 
-			const frame = getNextOrNullIfNotAvailable();
+			let frame = getNextOrNullIfNotAvailable();
 
 			if (frame.type === 'need-to-wait-for-it') {
-				return {
-					type: 'not-satisfied' as const,
-					reason: 'iterator did not have frame ready',
-				};
+				if (options.pendingFrameBehavior === 'restart-iterator') {
+					return {
+						type: 'not-satisfied' as const,
+						reason: 'iterator did not have frame ready',
+					};
+				}
+
+				options.onWait();
+				const awaitedFrame = await frame.waitPromise();
+				if (!options.shouldContinue()) {
+					return {
+						type: 'not-satisfied',
+						reason: 'seek was superseded',
+					};
+				}
+
+				frame = {type: 'got-frame-or-end', frame: awaitedFrame};
 			}
 
 			if (frame.type === 'got-frame-or-end') {
@@ -273,6 +301,7 @@ export const createVideoIterator = async (
 
 				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
 				const frameEndTimestamp = await getFrameEndTimestamp({
+					onWait: options.onWait,
 					pendingFrameBehavior: options.pendingFrameBehavior,
 					shouldContinue: options.shouldContinue,
 				});

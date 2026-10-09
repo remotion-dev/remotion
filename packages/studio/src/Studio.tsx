@@ -1,14 +1,18 @@
+import {interpolatePaths} from '@remotion/paths';
 import React, {useLayoutEffect} from 'react';
 import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {Editor} from './components/Editor';
 import {EditorContexts} from './components/EditorContexts';
 import {ServerDisconnected} from './components/Notifications/ServerDisconnected';
+import {SequenceActivitySettingsProvider} from './components/SequenceActivitySettingsProvider';
 import {StaticFilesProvider} from './components/use-static-files';
 import {FastRefreshProvider} from './FastRefreshProvider';
 import {injectCSS} from './helpers/inject-css';
 import {ResolveCompositionConfigInStudio} from './ResolveCompositionConfigInStudio';
 import {CompositionListProvider} from './state/composition-list';
+
+Internals.setInterpolatePaths(interpolatePaths);
 
 declare global {
 	interface Window {
@@ -69,11 +73,14 @@ export const Studio: React.FC<{
 }> = ({rootComponent, readOnly}) => {
 	useLayoutEffect(() => {
 		injectCSS();
+		window.remotion_studioStartup?.dismiss();
 	}, []);
 
 	return (
 		<FastRefreshProvider>
-			<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+			<SequenceActivitySettingsProvider>
+				<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+			</SequenceActivitySettingsProvider>
 		</FastRefreshProvider>
 	);
 };

@@ -57,7 +57,7 @@ export const TimelineFieldLabel: React.FC<{
 
 	return (
 		<div style={labelRowStyle}>
-			<span style={fieldNameStyle} title={label}>
+			<span role="group" style={fieldNameStyle} aria-label={label}>
 				{label}
 			</span>
 		</div>

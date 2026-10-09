@@ -26,6 +26,7 @@ const cliFlag = 'color-space' as const;
 
 export const colorSpaceOption = {
 	name: 'Color space',
+	addedIn: '4.0.28',
 	cliFlag: 'color-space' as const,
 	description: () => (
 		<>
@@ -75,7 +76,7 @@ export const colorSpaceOption = {
 			previously it would only tag the metadata of the video.
 		</>
 	),
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#colorspace',
+	docLink: 'https://www.remotion.dev/docs/options/color-space',
 	ssrName: 'colorSpace',
 	type: DEFAULT_COLOR_SPACE as ColorSpace | null,
 	getValue: ({commandLine}) => {

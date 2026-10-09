@@ -9,8 +9,9 @@ import {
 	INPUT_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
-	getBackgroundFromHoverState,
+	WHITE_ALPHA_06,
 } from '../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../helpers/hoverable';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from './layout';
 
@@ -113,7 +114,7 @@ export const InlineEditableTitle: React.FC<{
 	readonly onClick?: () => void;
 	readonly onCommit: (newValue: string) => void;
 	readonly size?: 'default' | 'inspector';
-	readonly title?: string;
+	readonly 'aria-label'?: string;
 }> = ({
 	value,
 	canRename,
@@ -121,10 +122,9 @@ export const InlineEditableTitle: React.FC<{
 	onClick,
 	onCommit,
 	size = 'default',
-	title,
+	'aria-label': ariaLabel,
 }) => {
 	const [isEditing, setIsEditing] = useState(false);
-	const [isHovered, setIsHovered] = useState(false);
 	const [draftValue, setDraftValue] = useState(value);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const cancelledRef = useRef(false);
@@ -211,18 +211,21 @@ export const InlineEditableTitle: React.FC<{
 	);
 
 	const isInteractive = canRename || onClick !== undefined;
-	const backgroundColor = isEditing
-		? INPUT_BACKGROUND
-		: getBackgroundFromHoverState({
-				hovered: isHovered && isInteractive,
-				selected: false,
-			});
 	const isInspectorSize = size === 'inspector';
 
 	const innerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...(isInspectorSize ? inspectorTitleInner : titleInner),
-			backgroundColor,
+			...hoverableStyle({
+				idleBackground: isEditing ? INPUT_BACKGROUND : TRANSPARENT,
+				hoverBackground: isEditing
+					? INPUT_BACKGROUND
+					: isInteractive
+						? WHITE_ALPHA_06
+						: TRANSPARENT,
+				idleColor: WHITE,
+				hoverColor: WHITE,
+			}),
 			cursor: isEditing
 				? 'text'
 				: isInspectorSize
@@ -233,7 +236,7 @@ export const InlineEditableTitle: React.FC<{
 			userSelect: isEditing ? 'text' : 'none',
 			width: isEditing || isInspectorSize ? '100%' : undefined,
 		};
-	}, [backgroundColor, isEditing, isInspectorSize, isInteractive]);
+	}, [isEditing, isInspectorSize, isInteractive]);
 	const gridItemStyle = isInspectorSize
 		? inspectorTitleGridItem
 		: titleGridItem;
@@ -242,12 +245,12 @@ export const InlineEditableTitle: React.FC<{
 	return (
 		<div
 			style={isInspectorSize ? inspectorTitleWrapper : titleWrapper}
-			title={title ?? value}
+			aria-label={ariaLabel ?? value}
+			role="group"
 		>
 			<span
 				style={innerStyle}
-				onMouseEnter={() => setIsHovered(true)}
-				onMouseLeave={() => setIsHovered(false)}
+				className={HOVERABLE_CLASS_NAME}
 				onClick={isEditing || !isInteractive ? undefined : handleClick}
 			>
 				<span
@@ -262,6 +265,7 @@ export const InlineEditableTitle: React.FC<{
 				{isEditing ? (
 					<input
 						ref={focusInput}
+						aria-label={ariaLabel ?? value}
 						style={{...gridItemStyle, ...inputStyle}}
 						value={draftValue}
 						onChange={onChange}

@@ -22,7 +22,7 @@ export const TableOfContents: React.FC = () => {
 					<strong>preloadImage()</strong>
 					<div>Preload an image</div>
 				</TOCItem>
-				<TOCItem link="/docs/preload/preload-audio">
+				<TOCItem link="/docs/preload/resolve-redirect">
 					<strong>resolveRedirect()</strong>
 					<div>Get the definitive URL after all redirects</div>
 				</TOCItem>

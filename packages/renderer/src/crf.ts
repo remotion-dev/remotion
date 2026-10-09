@@ -92,6 +92,17 @@ export const validateQualitySettings = ({
 		);
 	}
 
+	// libvpx and libaom-av1 reject -maxrate and -bufsize without -b:v
+	if (
+		(encodingMaxRate || encodingBufferSize) &&
+		!videoBitrate &&
+		(codec === 'vp8' || codec === 'vp9' || codec === 'av1')
+	) {
+		throw new Error(
+			`The ${codec} codec needs "videoBitrate" when "encodingMaxRate" or "encodingBufferSize" is set.`,
+		);
+	}
+
 	const bufSizeArray = encodingBufferSize
 		? ['-bufsize', encodingBufferSize]
 		: [];

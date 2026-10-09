@@ -1,13 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {setCompositionDefaultProps} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 } from '@remotion/studio-shared';
-import {
-	getCompositionDefaultPropsLine,
-	updateDefaultProps,
-} from '../../codemods/update-default-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
@@ -47,16 +44,18 @@ export const updateDefaultPropsHandler: ApiHandler<
 			checkIfTypeScriptFile(projectInfo.rootFile);
 
 			const fileContents = readFileSync(projectInfo.rootFile, 'utf-8');
-			const logLine = getCompositionDefaultPropsLine({
-				input: fileContents,
+			const result = setCompositionDefaultProps({
+				project: {
+					files: {[projectInfo.rootFile]: fileContents},
+					rootDir: remotionRoot,
+				},
+				compositionFile: projectInfo.rootFile,
 				compositionId,
-			});
-			const {output} = updateDefaultProps({
-				compositionId,
-				input: fileContents,
-				newDefaultProps: JSON.parse(defaultProps),
+				defaultProps: JSON.parse(defaultProps),
 				enumPaths,
 			});
+			const {logLine} = result;
+			const output = result.changes[0]?.nextContents ?? fileContents;
 
 			pushToUndoStack({
 				filePath: projectInfo.rootFile,

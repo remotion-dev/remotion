@@ -116,6 +116,30 @@ func main() {
 }
 ```
 
+## Rendering an image sequence<AvailableFrom v="4.0.535" />
+
+Use `RenderFramesOnLambda()` with `RenderFramesOptions`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+
+```go title="render-frames.go"
+renderResponse, err := lambda_go_sdk.RenderFramesOnLambda(lambda_go_sdk.RenderFramesOptions{
+  ServeUrl: serveUrl,
+  FunctionName: functionName,
+  Region: region,
+  Composition: "main",
+  FrameRange: [2]int{0, 99},
+  FramesPerLambda: new(20),
+  OutputPrefix: "exports/my-sequence/",
+  ImageSequencePattern: "element-[frame].[ext]",
+})
+if err != nil {
+  log.Fatal(err)
+}
+
+fmt.Println(renderResponse.RenderId, renderResponse.BucketName)
+```
+
+Poll `GetRenderProgress()` until `Done` or `FatalErrorEncountered`. `FramesUploaded` reports uploaded frames, and `OutputSequence.ManifestUrl` points to the completed manifest. Pass an `ImageSequenceOutputPrefix` as `OutputPrefix` to select another bucket or provider.
+
 ## Cancelling a render<AvailableFrom v="4.0.515" />
 
 Set `EnableCancellation` when starting the render, then pass its response to `CancelRenderOnLambda()`:

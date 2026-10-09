@@ -13,6 +13,7 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
+import {getSequenceAnnotationAttributes} from '../helpers/sequence-annotation';
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
@@ -41,9 +42,11 @@ import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
+	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
+import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -114,12 +117,16 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {selectItems} = useTimelineSelection();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
 		useSelectedOutlineControlTarget({
 			getLatestTargetByKey,
 			layoutTarget,
 		});
+	const annotationLocation = useResolvedStack(
+		layoutTarget?.sequence.getStack() ?? null,
+	);
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -240,7 +247,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
-		const canRotate = !sourceEditDisabled;
+		const canRotate = !sourceEditDisabled && outline.path === null;
 		const outlineElement =
 			contextMenuTarget.sequence.refForOutline?.current ?? null;
 		return getSequenceContextMenuItems({
@@ -261,6 +268,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				? () => {
 						setSelectedModal({
 							type: 'settings',
+							initialStudioPane: null,
 							initialTab: 'apps',
 							initialPublicLicenseKey:
 								window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -353,7 +361,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 												type: 'add-effect',
 												clientId: previewServerState.clientId,
 												fileName: nodePath.absolutePath,
-												nodePath,
+												nodePathInfo: contextMenuTarget.nodePathInfo,
+												selectItems,
 											});
 										},
 										quickSwitcherLabel: null,
@@ -445,8 +454,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		resolveOriginalLocation,
 		setManuallyEnabled,
 		selectAsset,
+		selectItems,
 		setSelectedModal,
 		setPropStatuses,
+		outline.path,
 	]);
 	useLayoutEffect(() => {
 		registerContextMenuOpen(outline.key, onContextMenuOpen);
@@ -458,6 +469,15 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	return (
 		<>
 			<SelectedOutlinePolygon
+				annotationAttributes={
+					layoutTarget
+						? getSequenceAnnotationAttributes({
+								sequence: layoutTarget.sequence,
+								location: annotationLocation,
+								surface: 'outline',
+							})
+						: null
+				}
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
 				containsSelection={layoutTarget?.containsSelection === true}
@@ -482,7 +502,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					Boolean(controlTarget?.rotationDrag)
 				}
 			/>
-			{layoutTarget?.selectedForRotation && controlTarget?.rotationDrag ? (
+			{layoutTarget?.selectedForRotation &&
+			controlTarget?.rotationDrag &&
+			outline.path === null ? (
 				<SelectedOutlineCanvasRotation
 					getLatestTargetByKey={getLatestTargetByKey}
 					layoutTarget={layoutTarget}

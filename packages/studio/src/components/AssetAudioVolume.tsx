@@ -30,13 +30,14 @@ export const AssetAudioVolume: React.FC<{
 
 	return (
 		<span
+			role="group"
 			style={{
 				fontFamily: 'sans-serif',
 				fontSize: 13,
 				lineHeight: '20px',
 				color: LIGHT_TEXT,
 			}}
-			title="RMS level across all channels over the full audio track, including silence."
+			aria-label="RMS level across all channels over the full audio track, including silence."
 		>
 			{value}
 		</span>

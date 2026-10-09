@@ -19,7 +19,10 @@ import {useAudioEnabled} from '../use-media-enabled.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {RemotionAudioProps} from './props.js';
-import {useFrameForVolumeProp} from './use-audio-frame.js';
+import {
+	Html5MediaTrimContext,
+	useFrameForVolumeProp,
+} from './use-audio-frame.js';
 import {useMediaAudioState} from './use-media-audio-state.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
@@ -59,6 +62,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
+	const audioStartFrame = useContext(Html5MediaTrimContext);
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
 
@@ -111,13 +116,12 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			mediaFrame: frame,
-			playbackRate: props.playbackRate ?? 1,
+			// Render assets use composition frames; source trimming stays in media frames.
+			mediaFrame:
+				audioStartFrame + (frame - audioStartFrame) / sequencePlaybackRate,
+			playbackRate: (props.playbackRate ?? 1) * sequencePlaybackRate,
 			toneFrequency: toneFrequency ?? 1,
-			audioStartFrame: Math.max(
-				0,
-				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
-			),
+			audioStartFrame,
 			audioStreamIndex: audioStreamIndex ?? 0,
 		});
 		return () => unregisterRenderAsset(id);
@@ -134,7 +138,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		props.playbackRate,
 		toneFrequency,
-		sequenceContext?.cumulatedNegativeFrom,
+		audioStartFrame,
+		sequencePlaybackRate,
 		audioStreamIndex,
 	]);
 

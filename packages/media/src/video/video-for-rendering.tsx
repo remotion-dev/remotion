@@ -29,12 +29,10 @@ import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {
-	EffectsOutputSize,
 	FallbackOffthreadVideoProps,
 	NativeVideoProps,
 	VideoObjectFit,
 } from './props';
-import {resolveEffectsOutputSize} from './resolve-effects-output-size';
 import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
 type InnerVideoProps = NativeVideoProps & {
@@ -63,7 +61,6 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
 type FallbackToOffthreadVideo = {
@@ -96,7 +93,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	requestInit,
 	objectFit: objectFitProp,
 	effects,
-	effectsOutputSize,
 	...props
 }) => {
 	if (!src) {
@@ -114,6 +110,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	);
 	const startsAt = Internals.useMediaStartsAt();
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const startInVideo = sequenceContext
 		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
 		: 0;
@@ -177,9 +174,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			);
 		}
 
-		const timestamp = frame / fps;
+		const timestamp = frame / sequencePlaybackRate / fps;
 		const durationInSeconds = 1 / fps;
 
+		let cancelled = false;
 		const newHandle = delayRender(
 			`Extracting frame at time ${timestamp} from ${src}`,
 			{
@@ -193,7 +191,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
-			playbackRate,
+			playbackRate: playbackRate * sequencePlaybackRate,
 			logLevel,
 			includeAudio: shouldUseAudio,
 			includeVideo: videoEnabled,
@@ -209,7 +207,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			mediaCache,
 		})
 			.then(async (result) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					if (result.type === 'success') {
 						result.frame?.close();
 					}
@@ -253,6 +251,20 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						durationInSeconds: mediaDurationInSeconds,
 					});
 				};
+
+				if (
+					(result.type === 'unknown-container-format' ||
+						result.type === 'network-error') &&
+					result.error
+				) {
+					handleError(
+						result.error,
+						result.error,
+						`Failed to read ${src}: ${result.error.message}, falling back to <OffthreadVideo>`,
+						null,
+					);
+					return;
+				}
 
 				if (result.type === 'unknown-container-format') {
 					handleError(
@@ -325,49 +337,27 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					});
 					// Could be in headless mode
 					if (context) {
-						const outputSize =
-							effects.length > 0
-								? resolveEffectsOutputSize({
-										sourceWidth: imageBitmap.width,
-										sourceHeight: imageBitmap.height,
-										effectsOutputSize:
-											effectsOutputSize?.width === undefined ||
-											effectsOutputSize?.height === undefined
-												? null
-												: {
-														width: effectsOutputSize.width,
-														height: effectsOutputSize.height,
-													},
-									})
-								: {width: imageBitmap.width, height: imageBitmap.height};
-
-						context.canvas.width = outputSize.width;
-						context.canvas.height = outputSize.height;
+						context.canvas.width = imageBitmap.width;
+						context.canvas.height = imageBitmap.height;
 
 						context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
 
-						context.drawImage(
-							imageBitmap,
-							0,
-							0,
-							outputSize.width,
-							outputSize.height,
-						);
+						context.drawImage(imageBitmap, 0, 0);
 
 						if (effects.length > 0) {
 							const completed = await Internals.runEffectChain({
 								state: effectChainState.get(
-									outputSize.width,
-									outputSize.height,
+									imageBitmap.width,
+									imageBitmap.height,
 								)!,
 								source: context.canvas,
 								effects,
 								output: context.canvas,
-								width: outputSize.width,
-								height: outputSize.height,
+								width: imageBitmap.width,
+								height: imageBitmap.height,
 							});
 
-							if (!completed || mediaCache.isDisposed()) {
+							if (!completed || cancelled || mediaCache.isDisposed()) {
 								imageBitmap.close();
 								return;
 							}
@@ -398,6 +388,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					fps,
 					frame,
 					startsAt,
+					playbackRate,
+					trimBefore: trimBeforeValue,
+					trimAfter: trimAfterValue,
 				});
 
 				const volume = Internals.evaluateVolume({
@@ -427,7 +420,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				continueRender(newHandle);
 			})
 			.catch((err) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -435,6 +428,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			});
 
 		return () => {
+			cancelled = true;
 			continueRender(newHandle);
 			unregisterRenderAsset(id);
 		};
@@ -455,6 +449,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		shouldUseAudio,
 		onVideoFrame,
 		playbackRate,
+		sequencePlaybackRate,
 		registerRenderAsset,
 		src,
 		startInVideo,
@@ -475,8 +470,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		credentials,
 		effectChainState,
 		effects,
-		effectsOutputSize?.height,
-		effectsOutputSize?.width,
 		initialRequestInit,
 		mediaCache,
 	]);
@@ -531,6 +524,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					fallbackOffthreadVideoProps?.pauseWhenBuffering ?? false
 				}
 				trimAfter={trimAfterValue}
+				durationInFrames={undefined}
 				trimBefore={trimBeforeValue}
 				useWebAudioApi={fallbackOffthreadVideoProps?.useWebAudioApi ?? false}
 				preservePitch={fallbackOffthreadVideoProps?.preservePitch ?? true}

@@ -63,11 +63,13 @@ export const getWaveformPortion = ({
 			audioData.sampleRate,
 	);
 
-	const samplesBeforeStart = 0 - startSample;
-	const samplesAfterEnd = endSample - waveform.length;
+	// Only pad the part of the requested window that lies outside the audio
+	const samplesBeforeStart = Math.min(endSample, 0) - startSample;
+	const samplesAfterEnd = endSample - Math.max(startSample, waveform.length);
 
-	const clampedStart = Math.max(startSample, 0);
-	const clampedEnd = Math.min(waveform.length, endSample);
+	// A negative slice index would count from the end and leak real audio
+	const clampedStart = Math.min(Math.max(startSample, 0), waveform.length);
+	const clampedEnd = Math.min(Math.max(endSample, 0), waveform.length);
 
 	const padStart =
 		samplesBeforeStart > 0

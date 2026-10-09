@@ -5,6 +5,7 @@ import {
 	getCompositionContextMenuItems,
 	getCompositionMenuItems,
 } from '../components/composition-menu-items';
+import {makeSearchResults} from '../helpers/use-menu-structure';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -105,6 +106,7 @@ const commonArgs = {
 		defaultEditorName: 'Code',
 		editorInfo: {
 			defaultEditor: 'vscode' as const,
+			runningEditors: null,
 			installedEditors: [
 				{id: 'vscode' as const, name: 'Code', nameWithType: 'Code'},
 			],
@@ -322,6 +324,7 @@ test('interactive composition context menus list GitHub as an alternative', () =
 			...commonArgs.openInApps,
 			codingAgentInfo: {
 				defaultCodingAgent: 'cursor',
+				runningCodingAgents: null,
 				installedCodingAgents: [
 					{
 						id: 'cursor',
@@ -334,6 +337,7 @@ test('interactive composition context menus list GitHub as an alternative', () =
 			},
 			editorInfo: {
 				defaultEditor: 'vscode',
+				runningEditors: null,
 				installedEditors: [
 					{id: 'vscode', name: 'Code', nameWithType: 'Code'},
 					{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
@@ -378,5 +382,54 @@ test('interactive composition context menus list GitHub as an alternative', () =
 			'open-in-github',
 			'change-default-apps',
 		]),
+	);
+
+	const searchResults = makeSearchResults(
+		[
+			{
+				id: 'composition',
+				label: 'Composition',
+				leaveLeftPadding: false,
+				items,
+			},
+		],
+		() => undefined,
+	);
+	expect(searchResults.map((result) => result.title)).toContain(
+		'Composition: Open in Cursor',
+	);
+	expect(searchResults.map((result) => result.title)).toContain(
+		'Component: Open in Cursor',
+	);
+
+	const mobileSearchResults = makeSearchResults(
+		[
+			{
+				id: 'remotion',
+				label: 'Remotion',
+				leaveLeftPadding: false,
+				items: [
+					{
+						id: 'composition',
+						value: 'composition',
+						label: 'Composition',
+						quickSwitcherLabel: null,
+						type: 'item',
+						onClick: () => undefined,
+						keyHint: null,
+						leftItem: null,
+						subMenu: {
+							items,
+							leaveLeftSpace: true,
+							preselectIndex: 0,
+						},
+					},
+				],
+			},
+		],
+		() => undefined,
+	);
+	expect(mobileSearchResults.map((result) => result.title)).toContain(
+		'Composition: Open in Cursor',
 	);
 });

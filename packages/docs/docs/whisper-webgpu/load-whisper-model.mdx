@@ -6,16 +6,16 @@ crumb: '@remotion/whisper-webgpu'
 
 # loadWhisperModel()<AvailableFrom v="4.0.518" />
 
-Downloads a timestamped Whisper model from `remotion.media` and initializes it. Calling it before [`transcribe()`](/docs/whisper-webgpu/transcribe) lets you show model-loading progress.
+Initializes a previously downloaded Whisper model on WebGPU. Call [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) first.
+
+[`transcribe()`](/docs/whisper-webgpu/transcribe) loads the model automatically; call `loadWhisperModel()` when you want to initialize it before transcription.
 
 ```ts twoslash title="load-model.ts"
-import {loadWhisperModel} from '@remotion/whisper-webgpu';
+import {downloadWhisperModel, loadWhisperModel} from '@remotion/whisper-webgpu';
 
-const result = await loadWhisperModel({
+await downloadWhisperModel({model: 'small.en'});
+await using result = await loadWhisperModel({
   model: 'small.en',
-  onProgress: ({progress}) => {
-    console.log(progress);
-  },
 });
 
 console.log(result.alreadyLoaded);
@@ -29,22 +29,33 @@ One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-a
 
 ### onProgress?
 
-Called while model files are resolved and downloaded. `progress` is the aggregate download progress between `0` and `1` and never decreases.
+Called while the cached model is initialized. `progress` is `null` during initialization and `1` when ready. Use [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) for download progress.
+
+### signal?<AvailableFrom v="4.0.528" />
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling this call.
 
 ## Return value
 
-Returns whether the same model pipeline was already loaded in memory.
+### `alreadyLoaded`
 
-The browser manages its persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. This function also retains the initialized model in memory until [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) is called or the page closes.
+Whether the same model pipeline was already loaded in memory.
 
-Versions before 4.0.522 downloaded models from Hugging Face. A model cached by an earlier version is downloaded once more from `remotion.media`, then reused from the new cache entry when using the default Transformers.js cache settings.
+### `[Symbol.asyncDispose]()`<AvailableFrom v="4.0.528" />
+
+Releases this call's hold on the initialized model. The pipeline is disposed after every load handle is released and active transcriptions finish.
+
+Use `await using` to call this method automatically when leaving the current scope. Call [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) to dispose the pipeline explicitly regardless of retained load handles.
+
+[Transformers.js](https://huggingface.co/docs/transformers.js) manages the persistent model cache. Releasing the initialized pipeline does not delete the downloaded model files.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 
+- [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model)
 - [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model)
 - [`isWhisperModelCached()`](/docs/whisper-webgpu/is-whisper-model-cached)
 - [`removeWhisperModel()`](/docs/whisper-webgpu/remove-whisper-model)

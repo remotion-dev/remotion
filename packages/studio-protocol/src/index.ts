@@ -1,6 +1,7 @@
 import {
 	addElementLibraryToStudioWithDependencies,
 	parseStudioProtocolAddElementLibraryRequest,
+	parseStudioProtocolIframeAddElementLibraryRequest,
 } from './add-element-library-to-studio';
 import {
 	makeBrowserStudioUrl,
@@ -15,6 +16,9 @@ import {
 import {makeDragData, parseDragData} from './drag-data';
 import {getDragPreviewMetadata} from './drag-preview-metadata';
 import {
+	assertElementAssetReferences,
+	assertElementAssets,
+	isStaticFileRef,
 	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
 } from './element-drag-data';
@@ -26,6 +30,7 @@ import {
 	parseStudioProtocolInstallRequest,
 } from './install-in-studio';
 import {isValidPublicLicenseKey} from './license-key';
+import {resolveElementAssets} from './resolve-element-assets';
 import {
 	parseStudioProtocolSetLicenseKeyRequest,
 	setLicenseKeyInStudio,
@@ -75,14 +80,16 @@ export type {
 	EffectConfigValue,
 	EffectDragData,
 } from './effect-drag-data';
+export {staticFileRef} from './element-drag-data';
 export type {
+	ElementAsset,
+	StaticFileRef,
 	ElementDependency,
 	ElementDragData,
 	ElementInitialProps,
 	ElementInitialPropValue,
 	ElementInstallationMode,
 } from './element-drag-data';
-export type {RenderOutputDragData} from './render-output-drag-data';
 export {
 	createElementPayload,
 	type CreateElementPayloadInput,
@@ -94,6 +101,7 @@ export {
 	type InstallInStudioResult,
 } from './install-in-studio';
 export {isInsideStudio} from './is-inside-studio';
+export type {RenderOutputDragData} from './render-output-drag-data';
 export type {SfxDragData} from './sfx-drag-data';
 export type {
 	StudioProtocolDescriptor,
@@ -103,6 +111,9 @@ export type {
 export const StudioProtocolInternals = {
 	addElementLibraryToStudioWithDependencies,
 	areComponentProps,
+	assertElementAssetReferences,
+	assertElementAssets,
+	isStaticFileRef,
 	getDragPreviewMetadata,
 	getElementComponentNameFromSourceCode,
 	isComponentIdentifier,
@@ -118,9 +129,11 @@ export const StudioProtocolInternals = {
 	parseDragData,
 	parseStudioElementPayload,
 	parseStudioProtocolAddElementLibraryRequest,
+	parseStudioProtocolIframeAddElementLibraryRequest,
 	parseStudioProtocolIframeInstallRequest,
 	parseStudioProtocolDescriptor,
 	parseStudioProtocolInstallRequest,
 	parseStudioProtocolSetLicenseKeyRequest,
+	resolveElementAssets,
 	setLicenseKeyInStudio,
 };

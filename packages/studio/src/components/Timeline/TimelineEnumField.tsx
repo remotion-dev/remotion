@@ -63,7 +63,7 @@ export const TimelineEnumField: React.FC<{
 	return (
 		<Combobox
 			size="small"
-			title={field.key}
+			aria-label={field.key}
 			selectedId={current}
 			values={items}
 		/>

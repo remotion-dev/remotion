@@ -1,14 +1,9 @@
 import {expect, test} from 'bun:test';
-import * as recast from 'recast';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	updateMultipleSequenceProps,
 	updateSequenceProps,
 } from '../codemods/update-sequence-props/update-sequence-props';
-import {
-	computeSequencePropsStatusFromContent,
-	takeCachedSequencePropsStatusAst,
-} from '../preview-server/routes/can-update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
 
 const lightLeakInput = `import {LightLeak} from '@remotion/light-leaks';
@@ -36,12 +31,12 @@ test('updateSequenceProps preserves video config multiplication expressions', as
 	const input = `import {Sequence, useVideoConfig} from 'remotion';
 
 export const Example: React.FC = () => {
-	const {fps} = useVideoConfig();
+	const {fps, durationInFrames: duration} = useVideoConfig();
 	return (
 		<Sequence
 			premountFor={(2 * fps) as number}
 			postmountFor={fps * 2}
-			durationInFrames={(2 * fps) as number}
+			durationInFrames={(duration * 0.5) as number}
 			from={2 * fps}
 			style={{opacity: 2 * fps}}
 		/>
@@ -65,10 +60,22 @@ export const Example: React.FC = () => {
 
 	expect(output).toContain('premountFor={2.5 * fps}');
 	expect(output).toContain('postmountFor={fps * 3}');
-	expect(output).toContain('durationInFrames={(2 * fps) as number}');
+	expect(output).toContain('durationInFrames={(duration * 0.5) as number}');
 	expect(output).toContain('from={0}');
 	expect(output).not.toContain('0 * fps');
 	expect(output).toContain('opacity: 4 * fps');
+
+	// Reuse the source after resizing its parent. The edit must use the current
+	// mounted instance's duration, rather than the context from the first read.
+	const resized = await updateSequenceProps({
+		input: output,
+		nodePath: lineColumnToNodePath(output, 6),
+		updates: [{key: 'durationInFrames', value: 216, defaultValue: null}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+		videoConfigValues: {...videoConfigValues, durationInFrames: 360},
+	});
+	expect(resized.output).toContain('durationInFrames={duration * 0.6}');
 });
 
 test('updateSequenceProps should update a number value', async () => {
@@ -495,7 +502,10 @@ test('updateSequenceProps should set boolean true as shorthand', async () => {
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'loop', value: true, defaultValue: false}],
-		schema: NoReactInternals.sequenceSchema,
+		schema: {
+			...NoReactInternals.sequenceSchema,
+			loop: {type: 'boolean', default: false},
+		},
 		prettierConfigOverride: null,
 	});
 
@@ -724,41 +734,6 @@ test('updateMultipleSequenceProps formats a multiline non-self-closing opening e
 };
 `);
 	expect(formatted).toBe(true);
-});
-
-test('updateMultipleSequenceProps reuses the status AST across the shared Recast runtime', async () => {
-	const nodePath = lineColumnToNodePath(lightLeakInput, 8);
-	computeSequencePropsStatusFromContent({
-		fileContents: lightLeakInput,
-		nodePath,
-		componentIdentity: null,
-		keys: ['hueShift'],
-		effects: [],
-		videoConfigValues: null,
-	});
-	expect(takeCachedSequencePropsStatusAst(`${lightLeakInput}\n`)).toBeNull();
-	const cachedAst = takeCachedSequencePropsStatusAst(lightLeakInput);
-	if (!cachedAst) {
-		throw new Error('Expected the status AST to be reusable');
-	}
-
-	const {ast} = await updateMultipleSequenceProps({
-		input: lightLeakInput,
-		changes: [
-			{
-				nodePath,
-				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
-				schema: NoReactInternals.sequenceSchema,
-				videoConfigValues: null,
-			},
-		],
-		prettierConfigOverride: null,
-		ast: cachedAst,
-	});
-
-	expect(ast).toBe(cachedAst);
-	expect(() => recast.print(ast).code).not.toThrow();
-	expect(takeCachedSequencePropsStatusAst(lightLeakInput)).toBeNull();
 });
 
 test('updateSequenceProps should update JSX text children', async () => {

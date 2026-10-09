@@ -1,5 +1,6 @@
+import type {NewCompositionAsset} from '@remotion/studio-shared';
 import {formatBytes} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -8,19 +9,25 @@ import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
+import {installRequiredPackages} from '../helpers/install-required-package';
 import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
 } from '../helpers/render-codec-label';
+import {
+	getUniqueCompositionName,
+	useCreateComposition,
+} from '../helpers/use-create-composition';
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {BackgroundRemovalIcon} from '../icons/background-removal';
 import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
-import {SeparationIcon} from '../icons/separation';
 import {TranscriptionIcon} from '../icons/transcription';
 import {TrashIcon} from '../icons/trash';
+import {FilmIcon} from '../icons/video';
 import {SetSelectedModalContext} from '../state/modals';
 import {AssetAudioVolume} from './AssetAudioVolume';
 import {InlineEditableTitle} from './InlineEditableTitle';
@@ -33,6 +40,7 @@ import {
 } from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from './layout';
+import {getNewCompositionDefaults} from './NewComposition/get-new-composition-defaults';
 import {
 	getStaticFileRenameSelection,
 	useRenameStaticFile,
@@ -184,7 +192,10 @@ export const AssetInfo: React.FC<{
 	readonly onAssetClick?: () => void;
 	readonly readOnlyStudio: boolean;
 }> = ({assetName, contentSized = false, onAssetClick, readOnlyStudio}) => {
-	const {currentAssetMetadata} = useContext(Internals.CompositionManager);
+	const {compositions, currentAssetMetadata} = useContext(
+		Internals.CompositionManager,
+	);
+	const [isMakingComposition, setIsMakingComposition] = useState(false);
 	const volumeMetadata =
 		currentAssetMetadata?.asset === assetName ? currentAssetMetadata : null;
 	const connectionStatus = useContext(StudioServerConnectionCtx)
@@ -216,6 +227,136 @@ export const AssetInfo: React.FC<{
 		(readOnlyStudio || connectionStatus !== 'connected');
 	const fileName = assetName?.split('/').pop() ?? '';
 	const fileType = assetName ? getPreviewFileType(assetName) : null;
+	const defaultComposition = getNewCompositionDefaults(null, null);
+	const compositionFps =
+		fileType === 'video' &&
+		mediaMetadata !== null &&
+		mediaMetadata.fps !== null &&
+		Number.isFinite(mediaMetadata.fps) &&
+		mediaMetadata.fps > 0
+			? mediaMetadata.fps
+			: defaultComposition.fps;
+	const assetForComposition = useMemo((): NewCompositionAsset | null => {
+		if (assetName === null || fileType === null) {
+			return null;
+		}
+
+		if (fileType === 'image') {
+			if (imageMetadata === null) {
+				return null;
+			}
+
+			return {
+				type: 'image',
+				src: assetName,
+				durationInFrames: Math.round(compositionFps * 3),
+			};
+		}
+
+		if (
+			(fileType !== 'audio' && fileType !== 'video') ||
+			mediaMetadata === null ||
+			!Number.isFinite(mediaMetadata.duration) ||
+			mediaMetadata.duration <= 0
+		) {
+			return null;
+		}
+
+		return {
+			type: fileType,
+			src: assetName,
+			durationInFrames: Math.max(
+				1,
+				Math.ceil(mediaMetadata.duration * compositionFps),
+			),
+		};
+	}, [assetName, compositionFps, fileType, imageMetadata, mediaMetadata]);
+	const newCompositionId = useMemo(() => {
+		const nameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
+		return getUniqueCompositionName(compositions, nameWithoutExtension || null);
+	}, [compositions, fileName]);
+	const compositionSize = useMemo(() => {
+		if (fileType === 'image' && imageMetadata !== null) {
+			return {width: imageMetadata.width, height: imageMetadata.height};
+		}
+
+		if (
+			fileType === 'video' &&
+			mediaMetadata !== null &&
+			mediaMetadata.width !== null &&
+			mediaMetadata.height !== null
+		) {
+			return {
+				width: mediaMetadata.width,
+				height: mediaMetadata.height,
+			};
+		}
+
+		return {
+			width: defaultComposition.width,
+			height: defaultComposition.height,
+		};
+	}, [
+		defaultComposition.height,
+		defaultComposition.width,
+		fileType,
+		imageMetadata,
+		mediaMetadata,
+	]);
+	const {createComposition: makeComposition} = useCreateComposition({
+		asset: assetForComposition,
+		canvasCapture: null,
+		compositions,
+		durationInFrames:
+			assetForComposition?.durationInFrames ??
+			defaultComposition.durationInFrames,
+		folderName: null,
+		newId: newCompositionId,
+		parentName: null,
+		selectedFrameRate: compositionFps,
+		size: compositionSize,
+	});
+	const onMakeComposition = useCallback(async () => {
+		if (
+			assetForComposition === null ||
+			mutationsDisabled ||
+			isMakingComposition
+		) {
+			return;
+		}
+
+		setIsMakingComposition(true);
+		try {
+			if (assetForComposition.type !== 'image') {
+				await installRequiredPackages([
+					{name: '@remotion/media', version: null},
+				]);
+			}
+
+			const result = await makeComposition({
+				signal: new AbortController().signal,
+				symbolicatedStack: null,
+			});
+			if (!result.success) {
+				showNotification(
+					`Could not create composition: ${result.reason}`,
+					4000,
+				);
+			}
+		} catch (error) {
+			showNotification(
+				`Could not create composition: ${(error as Error).message}`,
+				4000,
+			);
+		} finally {
+			setIsMakingComposition(false);
+		}
+	}, [
+		assetForComposition,
+		isMakingComposition,
+		makeComposition,
+		mutationsDisabled,
+	]);
 	const onTranscribe = useCallback(() => {
 		if (src === null || mutationsDisabled) {
 			return;
@@ -223,10 +364,12 @@ export const AssetInfo: React.FC<{
 
 		setSelectedModal({
 			type: 'transcribe',
+			captionStyle: null,
 			src,
 			displayName: fileName,
 			audioStreamIndex: null,
 			requestInit: null,
+			target: null,
 		});
 	}, [fileName, mutationsDisabled, setSelectedModal, src]);
 	const onTrackMatting = useCallback(() => {
@@ -238,6 +381,7 @@ export const AssetInfo: React.FC<{
 			type: 'video-matting',
 			src,
 			displayName: fileName,
+			target: null,
 		});
 	}, [fileName, fileType, mutationsDisabled, setSelectedModal, src]);
 	const canRename =
@@ -326,7 +470,7 @@ export const AssetInfo: React.FC<{
 					onClick={onAssetClick}
 					onCommit={onRename}
 					size={contentSized ? 'default' : 'inspector'}
-					title={assetName}
+					aria-label={assetName}
 				/>
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (
@@ -402,6 +546,23 @@ export const AssetInfo: React.FC<{
 				sectionId="asset-actions"
 			>
 				<InspectorQuickActionsSection>
+					{fileType === 'audio' ||
+					fileType === 'image' ||
+					fileType === 'video' ? (
+						<InspectorQuickAction
+							disabled={
+								mutationsDisabled ||
+								assetForComposition === null ||
+								isMakingComposition
+							}
+							onClick={onMakeComposition}
+							renderIcon={(color) => (
+								<FilmIcon color={color} style={quickActionIconStyle} />
+							)}
+						>
+							Make composition
+						</InspectorQuickAction>
+					) : null}
 					{fileManagerAvailable ? (
 						<InspectorQuickAction
 							disabled={fileManagerDisabled}
@@ -416,7 +577,7 @@ export const AssetInfo: React.FC<{
 							Show in {fileManagerName}
 						</InspectorQuickAction>
 					) : null}
-					{src ? (
+					{src && mediaMetadata?.hasAudioTrack !== false ? (
 						<InspectorQuickAction
 							disabled={mutationsDisabled}
 							onClick={onTranscribe}
@@ -432,10 +593,13 @@ export const AssetInfo: React.FC<{
 							disabled={mutationsDisabled}
 							onClick={onTrackMatting}
 							renderIcon={(color) => (
-								<SeparationIcon color={color} style={quickActionIconStyle} />
+								<BackgroundRemovalIcon
+									color={color}
+									style={quickActionIconStyle}
+								/>
 							)}
 						>
-							Separate foreground
+							Remove background
 						</InspectorQuickAction>
 					) : null}
 					{src ? (

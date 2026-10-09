@@ -1,18 +1,22 @@
 import {
 	addElementLibraryToStudio,
+	isInsideStudio,
 	type AddElementLibraryToStudioErrorCode,
 } from '@remotion/studio-protocol';
-import React, {useCallback, useId, useState} from 'react';
+import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
+import {BlueButton} from '../../../components/layout/Button';
+import {ElementLibraryInstallFallbackModal} from './ElementLibraryInstallFallbackModal';
 import {
 	thirdPartyElementLibraries,
 	type ThirdPartyElementLibrary,
 } from './third-party-element-library-data';
+import {useStudioInstallFallback} from './use-studio-install-fallback';
 import styles from './ThirdPartyElementLibraries.module.css';
 
 type AddState =
 	| {readonly type: 'idle'}
 	| {readonly type: 'loading'}
-	| {readonly message: string; readonly type: 'awaiting-confirmation'}
+	| {readonly type: 'awaiting-confirmation'}
 	| {
 			readonly code: AddElementLibraryToStudioErrorCode | null;
 			readonly message: string;
@@ -20,12 +24,16 @@ type AddState =
 	  };
 
 const ThirdPartyElementLibraryItem: React.FC<{
+	readonly isEmbeddedInStudio: boolean;
 	readonly library: ThirdPartyElementLibrary;
 	readonly requestLibraryAddition: typeof addElementLibraryToStudio;
-}> = ({library, requestLibraryAddition}) => {
+}> = ({isEmbeddedInStudio, library, requestLibraryAddition}) => {
 	const [addState, setAddState] = useState<AddState>({type: 'idle'});
-	const statusId = useId();
+	const {buttonLabel, closeFallback, isFallbackOpen, showFallback} =
+		useStudioInstallFallback('Add to Studio');
+	const addButtonRef = useRef<HTMLButtonElement>(null);
 	const isLoading = addState.type === 'loading';
+	const isSent = addState.type === 'awaiting-confirmation';
 
 	const addToStudio = useCallback(async () => {
 		setAddState({type: 'loading'});
@@ -33,7 +41,7 @@ const ThirdPartyElementLibraryItem: React.FC<{
 		try {
 			const result = await requestLibraryAddition({
 				displayName: library.displayName,
-				url: library.catalogUrl,
+				url: library.libraryUrl,
 			});
 			if (!result.success) {
 				setAddState({
@@ -41,13 +49,12 @@ const ThirdPartyElementLibraryItem: React.FC<{
 					message: result.message,
 					type: 'error',
 				});
+				showFallback();
 				return;
 			}
 
-			setAddState({
-				message: `Request sent to ${result.target.projectName ?? 'Remotion Studio'}. Confirm adding ${library.displayName} inside Studio.`,
-				type: 'awaiting-confirmation',
-			});
+			closeFallback();
+			setAddState({type: 'awaiting-confirmation'});
 		} catch {
 			setAddState({
 				code: null,
@@ -55,39 +62,15 @@ const ThirdPartyElementLibraryItem: React.FC<{
 					'Could not send the request to Remotion Studio. Check that Studio is running, then try again.',
 				type: 'error',
 			});
+			showFallback();
 		}
-	}, [library.catalogUrl, library.displayName, requestLibraryAddition]);
-
-	let status: React.ReactNode = null;
-	if (addState.type === 'awaiting-confirmation') {
-		status = (
-			<p
-				aria-live="polite"
-				className={styles.successStatus}
-				id={statusId}
-				role="status"
-			>
-				{addState.message}
-			</p>
-		);
-	} else if (addState.type === 'error') {
-		status = (
-			<p className={styles.errorStatus} id={statusId} role="alert">
-				{addState.message}{' '}
-				{addState.code === 'no-compatible-studio' ? (
-					<a href="/docs/studio">How to start Studio.</a>
-				) : addState.code === 'studio-upgrade-required' ? (
-					<a href="/docs/upgrading">How to upgrade Remotion.</a>
-				) : null}
-			</p>
-		);
-	} else if (isLoading) {
-		status = (
-			<p aria-live="polite" className={styles.loadingStatus} id={statusId}>
-				Finding a compatible Remotion Studio…
-			</p>
-		);
-	}
+	}, [
+		closeFallback,
+		library.libraryUrl,
+		library.displayName,
+		requestLibraryAddition,
+		showFallback,
+	]);
 
 	return (
 		<li className={styles.card}>
@@ -103,44 +86,51 @@ const ThirdPartyElementLibraryItem: React.FC<{
 							className={styles.libraryLink}
 							href={library.browseUrl}
 							rel="noreferrer"
-							target="_blank"
+							target={isEmbeddedInStudio ? '_self' : '_blank'}
 						>
 							{library.displayName}
 						</a>
 					</h3>
-					<button
-						aria-describedby={addState.type === 'idle' ? undefined : statusId}
+					<BlueButton
+						ref={addButtonRef}
+						aria-busy={isLoading}
+						aria-live="polite"
 						aria-label={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
-								: `Add ${library.displayName} to Studio`
+								: isSent
+									? `Sent ${library.displayName} to Studio`
+									: `Add ${library.displayName} to Studio`
 						}
-						aria-busy={isLoading}
 						className={styles.addAction}
-						disabled={isLoading}
+						fullWidth={false}
+						loading={isLoading}
 						onClick={addToStudio}
+						size="sm"
+						style={{fontSize: '0.75rem', lineHeight: 1.25, padding: '5px 8px'}}
 						title={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
-								: `Add ${library.displayName} to Studio`
+								: isSent
+									? `Sent ${library.displayName} to Studio`
+									: `Add ${library.displayName} to Studio`
 						}
-						type="button"
 					>
-						{isLoading ? (
-							'…'
-						) : (
-							<>
-								<span aria-hidden="true" className={styles.addActionIcon}>
-									+
-								</span>
-								Add to Studio
-							</>
-						)}
-						<span aria-hidden="true" className={styles.touchTarget} />
-					</button>
+						{isSent ? 'Sent to Studio' : 'Add to Studio'}
+					</BlueButton>
 				</div>
-				{status}
 			</div>
+			{isFallbackOpen ? (
+				<ElementLibraryInstallFallbackModal
+					buttonLabel={buttonLabel}
+					failure={addState.type === 'error' ? addState : null}
+					isAdding={isLoading}
+					library={library}
+					onAdd={addToStudio}
+					onClose={closeFallback}
+					triggerRef={addButtonRef}
+				/>
+			) : null}
 		</li>
 	);
 };
@@ -148,12 +138,19 @@ const ThirdPartyElementLibraryItem: React.FC<{
 export const ThirdPartyElementLibraryList: React.FC<{
 	readonly requestLibraryAddition: typeof addElementLibraryToStudio;
 }> = ({requestLibraryAddition}) => {
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
+
+	useLayoutEffect(() => {
+		setIsEmbeddedInStudio(isInsideStudio());
+	}, []);
+
 	return (
 		<div className={styles.library}>
 			<ul className={styles.list} role="list">
 				{thirdPartyElementLibraries.map((library) => (
 					<ThirdPartyElementLibraryItem
-						key={library.catalogUrl}
+						key={library.libraryUrl}
+						isEmbeddedInStudio={isEmbeddedInStudio}
 						library={library}
 						requestLibraryAddition={requestLibraryAddition}
 					/>

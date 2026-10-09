@@ -1,36 +1,85 @@
 import {Video} from '@remotion/media';
-import {AbsoluteFill, interpolate, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {assetUrl} from './assets';
-import {SILENCES} from './Composition';
 import {NumberedChapter} from './NumberedChapter';
-import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
-
-const FILE = 'whats9.mov';
 
 export const Scene9: React.FC = () => {
-	const {fps} = useVideoConfig();
-	const silence = SILENCES[FILE];
-	const trimBefore = Math.floor(silence.leadingEnd * fps);
-	const trimAfter = Math.ceil(silence.trailingStart * fps);
-
-	const overlayProgress = useSlideInProgress({startAt: 0.5, holdDuration: 2.5});
-	const videoX = interpolate(overlayProgress, [0, 1], [0, -20]);
+	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill>
-			<AbsoluteFill style={{transform: `translateX(${videoX}%)`}}>
+			<Interactive.Div
+				name="Presenter position"
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					translate: interpolate(
+						frame,
+						[15, 45, 120, 150],
+						['0% 0px', '-20% 0px', '-20% 0px', '0% 0px'],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
 				<Video
-					src={assetUrl(FILE)}
-					trimBefore={trimBefore}
-					trimAfter={trimAfter}
+					name="Presenter video"
+					src={assetUrl('whats9.mov')}
+					trimBefore={45}
+					trimAfter={555}
 				/>
-			</AbsoluteFill>
-			<SlideInOverlay startAt={0.5} holdDuration={2.5}>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Chapter panel"
+				style={{
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					left: '60%',
+					width: '40%',
+					display: 'flex',
+					flexDirection: 'column',
+					overflow: 'hidden',
+					backgroundColor: 'white',
+					translate: interpolate(
+						frame,
+						[15, 45, 120, 150],
+						['102% 0px', '0% 0px', '0% 0px', '102% 0px'],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
 				<NumberedChapter
 					chapterNumber={8}
 					chapterTitle="Preview: Visual Mode"
 				/>
-			</SlideInOverlay>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };

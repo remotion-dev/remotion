@@ -45,6 +45,7 @@ test('converts an inspector display frame to the source keyframe frame', () => {
 		getInspectorKeyframeSourceFrame({
 			displayFrame: 40,
 			keyframeDisplayOffset: 12,
+			keyframePlaybackRate: 1,
 		}),
 	).toBe(28);
 });

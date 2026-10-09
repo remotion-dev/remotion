@@ -1,4 +1,4 @@
-import type {CustomCredentials} from './constants';
+import type {CustomCredentials, RenderOutput} from './constants';
 import {getExpectedOutName} from './expected-out-name';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
@@ -20,6 +20,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
+	output,
 }: {
 	region: Provider['region'];
 	renderMetadata: RenderMetadata<Provider>;
@@ -29,12 +30,14 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
 	requestHandler: Provider['requestHandler'] | null;
+	output: RenderOutput;
 }): Promise<OutputFileMetadata | null> => {
 	const {renderBucketName, key} = getExpectedOutName({
 		renderMetadata,
 		bucketName,
 		customCredentials,
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		output,
 	});
 
 	try {
@@ -53,6 +56,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 				bucketName,
 				customCredentials,
 				currentRegion,
+				output,
 			}).url,
 			sizeInBytes: metadata.ContentLength ?? null,
 		};

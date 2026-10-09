@@ -1,6 +1,8 @@
 import {
 	EFFECT_CATALOG,
 	getEffectDocumentationLink,
+	getEffectPreviewAlt,
+	getEffectPreviewSource,
 	type EffectCatalogItem,
 } from '@remotion/studio-shared';
 import React, {
@@ -12,13 +14,14 @@ import React, {
 	useState,
 } from 'react';
 import {
+	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_06,
 } from '../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../helpers/hoverable';
 import {useKeybinding} from '../helpers/use-keybinding';
-import {EffectsIcon} from '../icons/effects';
 import {ExternalLinkIcon} from '../icons/external-link';
 import {
 	type AddEffectModalState,
@@ -27,7 +30,6 @@ import {
 import {ContextMenu} from './ContextMenu';
 import {addEffectToSequence} from './effect-drag-and-drop';
 import {filterEffectCatalog} from './effect-picker-search';
-import {Spacing} from './layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {DismissableModal} from './NewComposition/DismissableModal';
@@ -39,7 +41,7 @@ import {
 } from './QuickSwitcher/shared';
 
 const container: React.CSSProperties = {
-	width: 400,
+	width: 440,
 };
 
 const panelStyle: React.CSSProperties = {
@@ -64,7 +66,6 @@ const aboutEffectsRow: React.CSSProperties = {
 
 const aboutEffectsLink: React.CSSProperties = {
 	alignItems: 'center',
-	color: LIGHT_TEXT,
 	cursor: 'default',
 	display: 'inline-flex',
 	fontFamily: 'sans-serif',
@@ -73,11 +74,12 @@ const aboutEffectsLink: React.CSSProperties = {
 	lineHeight: '14px',
 	minWidth: 0,
 	textDecoration: 'none',
-};
-
-const aboutEffectsLinkHovered: React.CSSProperties = {
-	...aboutEffectsLink,
-	color: WHITE,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 };
 
 const aboutEffectsLabel: React.CSSProperties = {
@@ -98,9 +100,13 @@ const aboutEffectsIcon: React.CSSProperties = {
 };
 
 const resultList: React.CSSProperties = {
-	height: 320,
+	height: 420,
+	display: 'grid',
+	gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+	alignContent: 'start',
+	gap: 4,
 	overflowY: 'auto',
-	paddingBottom: 10,
+	padding: '0 12px 10px',
 };
 
 const noResults: React.CSSProperties = {
@@ -112,41 +118,33 @@ const noResults: React.CSSProperties = {
 const resultContainer: React.CSSProperties = {
 	cursor: 'default',
 	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	paddingLeft: 16,
-	paddingRight: 16,
-	marginBottom: 1,
-	marginLeft: 4,
-	marginRight: 4,
+	flexDirection: 'column',
+	gap: 1,
+	padding: '3px 3px 1px',
+	minWidth: 0,
 	borderRadius: 4,
 };
 
-const iconStyle: React.CSSProperties = {
-	width: 18,
-	height: 18,
-	flexShrink: 0,
+const previewFrame: React.CSSProperties = {
+	width: '100%',
+	aspectRatio: '3 / 2',
+	position: 'relative',
+	backgroundColor: WHITE_ALPHA_06,
+	borderRadius: 3,
+	overflow: 'hidden',
 };
 
-const labelContainer: React.CSSProperties = {
-	flex: 1,
-	minWidth: 0,
-	overflow: 'hidden',
-	paddingTop: 5,
-	paddingBottom: 5,
+const preview: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
 };
 
 const label: React.CSSProperties = {
-	fontSize: QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
-};
-
-const category: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 11,
-	flexShrink: 0,
+	fontSize: QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE - 2,
+	overflowWrap: 'anywhere',
 };
 
 const EffectPickerResult: React.FC<{
@@ -154,7 +152,7 @@ const EffectPickerResult: React.FC<{
 	readonly selected: boolean;
 	readonly onSelected: (item: EffectCatalogItem) => void;
 }> = ({item, selected, onSelected}) => {
-	const [hovered, setHovered] = useState(false);
+	const [previewLoaded, setPreviewLoaded] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 
 	useScrollIntoViewOnSelected(ref, selected);
@@ -162,16 +160,14 @@ const EffectPickerResult: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...resultContainer,
-			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
+			...hoverableStyle({
+				idleBackground: selected ? WHITE_ALPHA_06 : TRANSPARENT,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
 		};
-	}, [hovered, selected]);
-
-	const labelStyle = useMemo((): React.CSSProperties => {
-		return {
-			...label,
-			color: selected || hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered, selected]);
+	}, [selected]);
 
 	const onClick = useCallback(() => {
 		onSelected(item);
@@ -203,20 +199,22 @@ const EffectPickerResult: React.FC<{
 			<div
 				ref={ref}
 				style={style}
+				className={HOVERABLE_CLASS_NAME}
 				onClick={onClick}
-				onMouseEnter={() => setHovered(true)}
-				onMouseLeave={() => setHovered(false)}
 			>
-				<EffectsIcon
-					color={selected || hovered ? WHITE : LIGHT_TEXT}
-					style={iconStyle}
-				/>
-				<Spacing x={1} />
-				<div style={labelContainer}>
-					<div style={labelStyle}>{item.label}</div>
+				<div style={previewFrame}>
+					<img
+						src={`https://www.remotion.dev${getEffectPreviewSource(item)}`}
+						alt={getEffectPreviewAlt(item)}
+						style={{
+							...preview,
+							visibility: previewLoaded ? 'visible' : 'hidden',
+						}}
+						loading="lazy"
+						onLoad={() => setPreviewLoaded(true)}
+					/>
 				</div>
-				<Spacing x={1} />
-				<div style={category}>{item.category}</div>
+				<div style={label}>{item.label}</div>
 			</div>
 		</ContextMenu>
 	);
@@ -226,7 +224,6 @@ const EffectPickerContent: React.FC<{
 	readonly state: AddEffectModalState;
 }> = ({state}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const [aboutEffectsHovered, setAboutEffectsHovered] = useState(false);
 	const [query, setQuery] = useState('');
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -246,19 +243,32 @@ const EffectPickerContent: React.FC<{
 				clientId: state.clientId,
 				effect: item.effect,
 				fileName: state.fileName,
-				nodePath: state.nodePath,
+				nodePathInfo: state.nodePathInfo,
+				selectItems: state.selectItems,
 			});
 		},
-		[setSelectedModal, state.clientId, state.fileName, state.nodePath],
+		[
+			setSelectedModal,
+			state.clientId,
+			state.fileName,
+			state.nodePathInfo,
+			state.selectItems,
+		],
 	);
 
-	const onArrowDown = useCallback(() => {
-		setSelectedIndex((i) => i + 1);
-	}, []);
+	const moveSelection = useCallback(
+		(offset: number) => {
+			if (results.length === 0) {
+				return;
+			}
 
-	const onArrowUp = useCallback(() => {
-		setSelectedIndex((i) => i - 1);
-	}, []);
+			setSelectedIndex(
+				(i) =>
+					(((i + offset) % results.length) + results.length) % results.length,
+			);
+		},
+		[results.length],
+	);
 
 	const onEnter = useCallback(() => {
 		if (selectedIndexRounded === -1) {
@@ -271,7 +281,7 @@ const EffectPickerContent: React.FC<{
 	useEffect(() => {
 		const downBinding = keybindings.registerKeybinding({
 			key: 'ArrowDown',
-			callback: onArrowDown,
+			callback: () => moveSelection(3),
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
@@ -280,7 +290,25 @@ const EffectPickerContent: React.FC<{
 		});
 		const upBinding = keybindings.registerKeybinding({
 			key: 'ArrowUp',
-			callback: onArrowUp,
+			callback: () => moveSelection(-3),
+			commandCtrlKey: false,
+			event: 'keydown',
+			preventDefault: true,
+			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const rightBinding = keybindings.registerKeybinding({
+			key: 'ArrowRight',
+			callback: () => moveSelection(1),
+			commandCtrlKey: false,
+			event: 'keydown',
+			preventDefault: true,
+			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const leftBinding = keybindings.registerKeybinding({
+			key: 'ArrowLeft',
+			callback: () => moveSelection(-1),
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
@@ -300,9 +328,11 @@ const EffectPickerContent: React.FC<{
 		return () => {
 			downBinding.unregister();
 			upBinding.unregister();
+			rightBinding.unregister();
+			leftBinding.unregister();
 			enterBinding.unregister();
 		};
-	}, [keybindings, onArrowDown, onArrowUp, onEnter]);
+	}, [keybindings, moveSelection, onEnter]);
 
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -320,16 +350,13 @@ const EffectPickerContent: React.FC<{
 						href="https://remotion.dev/effects"
 						target="_blank"
 						rel="noopener noreferrer"
-						style={
-							aboutEffectsHovered ? aboutEffectsLinkHovered : aboutEffectsLink
-						}
-						onMouseEnter={() => setAboutEffectsHovered(true)}
-						onMouseLeave={() => setAboutEffectsHovered(false)}
+						style={aboutEffectsLink}
+						className={HOVERABLE_CLASS_NAME}
 					>
 						<span style={aboutEffectsLabel}>About effects</span>
 						<ExternalLinkIcon
 							aria-hidden="true"
-							color={aboutEffectsHovered ? WHITE : LIGHT_TEXT}
+							color={CURRENT_COLOR}
 							style={aboutEffectsIcon}
 						/>
 					</a>

@@ -1,7 +1,4 @@
-import {
-	KEYFRAME_EASING_PRESETS,
-	LINEAR_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
+import {canvasKeyframeEasingPresets} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -11,6 +8,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {EasingPresetPreview} from './EasingEditorModal';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
@@ -92,7 +90,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			toFrame,
 			segmentIndex,
 		});
-	useTimelineMarqueeSelectableItem(selectionItem, buttonRef);
+	useTimelineMarqueeSelectableItem(selectionItem, buttonRef, null);
 	const interactiveStyle = useMemo(
 		() => ({
 			...style,
@@ -106,8 +104,8 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
@@ -127,7 +125,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			const promise = updateSelectedTimelineEasings({
 				selections: getTargetSelections(),
 				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				propStatuses: propStatusesRef.current,
 				setPropStatuses,
 				clientId: previewServerState.clientId,
@@ -137,7 +135,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		},
 		[
 			getTargetSelections,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			previewServerState,
 			propStatusesRef,
 			sequencesRef,
@@ -158,50 +156,27 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 				});
 			}
 
-			return [
-				{
-					type: 'item',
-					id: 'linear',
-					keyHint: null,
-					label: 'Linear',
-					leftItem: (
-						<EasingPresetPreview
-							color={LIGHT_TEXT}
-							easing={LINEAR_KEYFRAME_EASING}
-							height={18}
-							nonScalingStroke
-							strokeWidth={5}
-							width={18}
-						/>
-					),
-					disabled: previewServerState.type !== 'connected',
-					onClick: () => updateEasing(LINEAR_KEYFRAME_EASING),
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'linear',
-				},
-				...KEYFRAME_EASING_PRESETS.map((preset) => ({
-					type: 'item' as const,
-					id: preset.id,
-					keyHint: null,
-					label: preset.label,
-					leftItem: (
-						<EasingPresetPreview
-							color={LIGHT_TEXT}
-							easing={preset.easing}
-							height={18}
-							nonScalingStroke
-							strokeWidth={5}
-							width={18}
-						/>
-					),
-					disabled: previewServerState.type !== 'connected',
-					onClick: () => updateEasing(preset.easing),
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: preset.id,
-				})),
-			];
+			return canvasKeyframeEasingPresets.map((preset) => ({
+				type: 'item' as const,
+				id: preset.id,
+				keyHint: null,
+				label: preset.label,
+				leftItem: (
+					<EasingPresetPreview
+						color={LIGHT_TEXT}
+						easing={preset.easing}
+						height={18}
+						nonScalingStroke
+						strokeWidth={5}
+						width={18}
+					/>
+				),
+				disabled: previewServerState.type !== 'connected',
+				onClick: () => updateEasing(preset.easing),
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: preset.id,
+			}));
 		},
 		[onSelect, previewServerState.type, selectable, selected, updateEasing],
 	);
@@ -220,7 +195,6 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 				{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 				type="button"
 				style={interactiveStyle}
-				title={`Easing from frame ${fromFrame} to ${toFrame}`}
 				aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
 				onPointerDown={selectable ? onPointerDown : undefined}
 			>

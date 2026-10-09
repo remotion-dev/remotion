@@ -77,7 +77,7 @@ export const ZodStaticFileEditor: React.FC<{
 				<Combobox
 					values={comboBoxValues}
 					selectedId={value}
-					title={value}
+					aria-label={value}
 					size="small"
 				/>
 			</div>

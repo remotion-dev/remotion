@@ -1,18 +1,15 @@
-export const copyText = (cmd: string) => {
-	const permissionName = 'clipboard-write' as PermissionName;
+export const copyText = (text: string | Promise<string>): Promise<void> => {
+	if (typeof text === 'string') {
+		return navigator.clipboard.writeText(text);
+	}
 
-	return new Promise<void>((resolve, reject) => {
-		navigator.permissions
-			.query({name: permissionName})
-			.then((result) => {
-				if (result.state === 'granted' || result.state === 'prompt') {
-					navigator.clipboard.writeText(cmd).then(resolve).catch(reject);
-				} else {
-					reject(new Error('Permission to copy not granted'));
-				}
-			})
-			.catch((err) => {
-				reject(err);
-			});
-	});
+	// Safari rejects clipboard writes that happen after an async boundary, so
+	// pending text is handed to the clipboard synchronously within the gesture.
+	return navigator.clipboard.write([
+		new ClipboardItem({
+			'text/plain': text.then(
+				(resolved) => new Blob([resolved], {type: 'text/plain'}),
+			),
+		}),
+	]);
 };

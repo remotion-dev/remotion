@@ -32,6 +32,7 @@ const validateConcurrencyValue = (value: unknown, setting: string) => {
 
 export const concurrencyOption = {
 	name: 'Concurrency',
+	addedIn: '1.0.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -41,7 +42,7 @@ export const concurrencyOption = {
 		</>
 	),
 	ssrName: 'concurrency' as const,
-	docLink: 'https://www.remotion.dev/docs/config#setconcurrency',
+	docLink: 'https://www.remotion.dev/docs/options/concurrency',
 	type: null as Concurrency,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

@@ -53,9 +53,25 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 <Options id="disable-keyboard-shortcuts" />
 
+### `--disable-canvas-tabs`<AvailableFrom v="4.0.530" />
+
+<Options id="disable-canvas-tabs" />
+
 ### `--disable-interactivity`<AvailableFrom v="4.0.487" />
 
 <Options id="disable-interactivity" />
+
+### `--experimental-tracks`<AvailableFrom v="4.0.534" />
+
+<Options id="experimental-tracks" />
+
+### `--experimental-sequence-activity`<AvailableFrom v="4.0.535" />
+
+<Options id="experimental-sequence-activity" />
+
+### `--experimental-sequence-activity-limit`<AvailableFrom v="4.0.535" />
+
+<Options id="experimental-sequence-activity-limit" />
 
 ### `--allow-html-in-canvas`<AvailableFrom v="4.0.447" />
 
@@ -121,6 +137,22 @@ npx remotion studio --beep-on-finish
 
 ```sh
 npx remotion studio --ipv4
+```
+
+### `--default-premount-in-seconds`<AvailableFrom v="4.0.535" />
+
+<Options id="default-premount-in-seconds" />
+
+```bash title="Terminal"
+npx remotion studio --default-premount-in-seconds=2
+```
+
+### `--show-premounting`<AvailableFrom v="4.0.535" />
+
+<Options id="show-premounting" />
+
+```sh title="Terminal"
+npx remotion studio --show-premounting=false
 ```
 
 ### `--number-of-shared-audio-tags`<AvailableFrom v="3.3.2" />

@@ -1,10 +1,5 @@
 {
-	"include": [
-		"./src/**/*",
-		"./pages/index.tsx",
-		"./pages/player.tsx",
-		"./pages/canvas.tsx"
-	],
+	"include": ["./src/**/*", "./pages/index.tsx", "./pages/player.tsx"],
 	"compilerOptions": {
 		"strict": true,
 		"esModuleInterop": true,
@@ -17,16 +12,13 @@
 		"forceConsistentCasingInFileNames": true,
 		"noFallthroughCasesInSwitch": true,
 		"module": "esnext",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
 		"incremental": true
 	},
 	"references": [
-		{
-			"path": "../canvas"
-		},
 		{
 			"path": "../player"
 		},

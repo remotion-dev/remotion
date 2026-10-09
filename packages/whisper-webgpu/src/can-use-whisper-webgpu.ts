@@ -17,11 +17,26 @@ export type CanUseWhisperWebGpuResult =
 export const canUseWhisperWebGpu =
 	async (): Promise<CanUseWhisperWebGpuResult> => {
 		if (typeof window === 'undefined') {
+			if (typeof process !== 'undefined' && process.release?.name === 'node') {
+				try {
+					const {probeNodeWebGpu} = await import('./probe-node-webgpu');
+					await probeNodeWebGpu();
+					return {supported: true};
+				} catch (error) {
+					const message =
+						error instanceof Error ? error.message : String(error);
+					return {
+						supported: false,
+						reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
+						detailedReason: `ONNX Runtime could not initialize WebGPU: ${message}`,
+					};
+				}
+			}
+
 			return {
 				supported: false,
 				reason: WhisperWebGpuUnsupportedReason.WindowUndefined,
-				detailedReason:
-					'`window` is not defined. @remotion/whisper-webgpu is intended for browser environments.',
+				detailedReason: 'WebGPU is not available in this environment.',
 			};
 		}
 

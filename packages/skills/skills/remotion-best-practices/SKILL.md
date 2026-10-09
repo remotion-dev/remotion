@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.526
+version: 4.0.534
 ---
 
 ## Preserve user changes
@@ -34,13 +34,63 @@ For achieving multimedia tasks in the browser, such as trimming, cropping videos
 
 By structuring the Remotion markup well, we can allow users to interactively change things in the Studio and write back to code. If relevant: [Interactivity Best Practices](./remotion-interactivity/SKILL.md)
 
-## Rendering
+## Open the preview
 
-For advanced rendering beyond simple `npx remotion render`, see: [Rendering Best Practices](./remotion-render/SKILL.md)
+If the user asks to "make" a video, "create" a video, etc.
+Don't render the video by default unless they are very explicit. They want to instead see an interactive preview.
+As soon as the project can run, start Studio and open the preview in the browser before building or editing the composition. Keep it open while you work so the user can watch progress and steer.
 
-## Opening Remotion Studio
+### If you are using Cursor
+
+Run Studio without `--no-open` so it opens the browser automatically:
+
+```bash
+npx remotion studio
+```
+
+### If you are using another agent client with an in-app browser
+
+You can use the command above to let Studio open the browser, or run:
+
+```bash
+npx remotion studio --no-open
+```
+
+This will start a long-running process and print the server URL for the preview.  
+If the server is already started, it will print the URL.
+If you use `--no-open`, open the exact printed URL in the in-app browser and verify that Studio loads. Once a composition exists, verify that its video preview loads. If you cannot open it there, run Studio without `--no-open`.
+You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
+
+:::note
+The Studio supports WebMCP tools.
+:::
+
+### If you do not have an in-app browser
+
+This will open the Studio in the browser or refocus it if it is already open.
+
+```bash
+npx remotion studio
+```
+
+### More options
 
 To launch a project in Remotion Studio, open its exact local URL, or configure Studio CLI flags, load [Remotion Studio](./remotion-studio/SKILL.md).
+
+## Render the video
+
+Only render if the user is very explicit in asking for it.  
+E.g. "Render the video", "Export", "Give me the MP4".
+
+The preview also has a more intuitive rendering interface, so consider using it instead of the command line for rendering.
+
+```
+npx remotion render
+```
+
+For more options, see [Rendering](./remotion-render/SKILL.md).
+
+For advanced rendering beyond simple `npx remotion render`, see: [Rendering Best Practices](./remotion-render/SKILL.md)
 
 ## Captions
 

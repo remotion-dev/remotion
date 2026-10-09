@@ -185,6 +185,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	});
 
 	const renderMetadata: RenderMetadata<Provider> = {
+		separateAudioTo: null,
+		separateAudioOutputFileIsConditional: null,
 		outputFileIsConditional: null,
 		startedDate: Date.now(),
 		codec: null,
@@ -242,6 +244,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	const receivedArtifact: ReceivedArtifact<Provider>[] = [];
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+		output: 'main',
 		renderMetadata,
 		bucketName,
 		customCredentials: getCredentialsFromOutName(params.outName),
@@ -371,6 +374,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			logLevel: params.logLevel,
 			isStill: true,
 			isProduction: params.isProduction ?? true,
+			idempotencyKey: `cloud-still:${bucketName}:${renderId}`,
 		}),
 	]);
 
@@ -383,6 +387,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	});
 
 	const {key: outKey, url} = providerSpecifics.getOutputUrl({
+		output: 'main',
 		renderMetadata,
 		bucketName,
 		customCredentials,

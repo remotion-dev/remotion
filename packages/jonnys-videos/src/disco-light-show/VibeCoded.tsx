@@ -1,13 +1,20 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {asset} from './assets';
 
-export const VibeCoded: React.FC = () => {
+const VibeCodedInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<Video
+				premountFor={fps}
 				src={asset('Screen Recording 2026-07-19 at 17.43.33.mov')}
 				style={{
 					position: 'absolute',
@@ -29,3 +36,11 @@ export const VibeCoded: React.FC = () => {
 		</>
 	);
 };
+
+export const VibeCoded = Interactive.withSchema({
+	Component: VibeCodedInner,
+	componentName: 'VibeCoded',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

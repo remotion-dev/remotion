@@ -15,6 +15,11 @@ export const startBackground = () => {
 			command: 'toggle-controls',
 		};
 		try {
+			await browser.scripting.executeScript({
+				target: {tabId: tab.id},
+				files: ['/drag-image.js'],
+				world: 'MAIN',
+			});
 			try {
 				await browser.tabs.sendMessage(tab.id, request);
 			} catch {
@@ -50,14 +55,16 @@ export const startBackground = () => {
 			typeof message !== 'object' ||
 			message === null ||
 			!('type' in message) ||
-			message.type !== 'remotion-canvas-capture-open-convert' ||
+			message.type !== 'remotion-canvas-capture-open' ||
 			!('captureId' in message) ||
-			typeof message.captureId !== 'string'
+			typeof message.captureId !== 'string' ||
+			!('destination' in message) ||
+			(message.destination !== 'convert' && message.destination !== 'new')
 		) {
 			return;
 		}
 
-		const url = new URL('https://www.remotion.dev/convert');
+		const url = new URL(`https://www.remotion.dev/${message.destination}`);
 		url.searchParams.set('canvas-capture', message.captureId);
 		return browser.tabs.create({url: url.toString()});
 	});

@@ -1,62 +1,28 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import type {TSequence} from '../CompositionManager.js';
 import type {DelayRenderScope} from '../delay-render.js';
 import type {HtmlInCanvasOnPaintParams} from '../HtmlInCanvas.js';
 import {HtmlInCanvas, htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {Internals} from '../internals.js';
-import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
-	SequenceManager,
-	VisualModeDragOverridesContext,
+	SequenceManagerProvider,
 	VisualModePropStatusesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
-import {WrapSequenceContext} from './wrap-sequence-context.js';
-
-class TestDOMMatrix {
-	private readonly scaleX: number;
-	private readonly scaleY: number;
-
-	public constructor(scaleX = 1, scaleY = 1) {
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-	}
-
-	public scale(x: number, y: number) {
-		return new TestDOMMatrix(this.scaleX * x, this.scaleY * y);
-	}
-
-	public multiply(other: TestDOMMatrix) {
-		return new TestDOMMatrix(
-			this.scaleX * other.scaleX,
-			this.scaleY * other.scaleY,
-		);
-	}
-
-	public toString() {
-		return `matrix(${this.scaleX}, 0, 0, ${this.scaleY}, 0, 0)`;
-	}
-}
-
-Object.defineProperty(globalThis, 'DOMMatrix', {
-	configurable: true,
-	value: TestDOMMatrix,
-});
+import {
+	ObserveSequenceRegistrations,
+	WrapSequenceContext,
+} from './wrap-sequence-context.js';
 
 const stub2dContext = () => {
-	let currentTransform = new DOMMatrix();
-
 	return {
 		canvas: null as unknown as HTMLCanvasElement,
-		reset: () => {
-			currentTransform = new DOMMatrix();
-		},
-		scale: (x: number, y: number) => {
-			currentTransform = currentTransform.scale(x, y);
-		},
-		drawElementImage: () => currentTransform,
+		reset: () => undefined,
+		scale: () => undefined,
+		drawElementImage: () => undefined,
+		drawImage: () => undefined,
 		getImageData: () => ({
 			data: new Uint8ClampedArray(4),
 			width: 1,
@@ -182,39 +148,9 @@ const SequenceTestWrapper: React.FC<{
 	compositionDurationInFrames,
 	currentFrame,
 }) => {
-	const registerSequence = useCallback(
-		(sequence: TSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-
-	const unregisterSequence = useCallback(() => undefined, []);
-
-	const sequenceManagerContext: SequenceManagerContext = useMemo(() => {
-		return {
-			registerSequence,
-			sequences: [],
-			updateSequence: registerSequence,
-			unregisterSequence,
-		};
-	}, [registerSequence, unregisterSequence]);
-
 	const visualPropStatuses = useMemo(
 		() => ({
 			propStatuses: {},
-		}),
-		[],
-	);
-
-	const visualDragOverrides = useMemo(
-		() => ({
-			getDragOverrides: () => {
-				throw new Error('VisualModeDragOverridesContext not initialized');
-			},
-			getEffectDragOverrides: () => {
-				throw new Error('VisualModeDragOverridesContext not initialized');
-			},
 		}),
 		[],
 	);
@@ -245,17 +181,16 @@ const SequenceTestWrapper: React.FC<{
 					isStudio: true,
 				}}
 			>
-				<SequenceManager.Provider value={sequenceManagerContext}>
+				<SequenceManagerProvider>
+					<ObserveSequenceRegistrations
+						onRegisterSequence={onRegisterSequence}
+					/>
 					<VisualModePropStatusesContext.Provider value={visualPropStatuses}>
-						<VisualModeDragOverridesContext.Provider
-							value={visualDragOverrides}
-						>
-							<VisualModeSettersContext.Provider value={visualSetters}>
-								{children}
-							</VisualModeSettersContext.Provider>
-						</VisualModeDragOverridesContext.Provider>
+						<VisualModeSettersContext.Provider value={visualSetters}>
+							{children}
+						</VisualModeSettersContext.Provider>
 					</VisualModePropStatusesContext.Provider>
-				</SequenceManager.Provider>
+				</SequenceManagerProvider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>
 	);
@@ -300,7 +235,37 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	const canvas = container.querySelector('canvas');
 	expect(canvas).not.toBeNull();
 	expect(canvasRef.current).toBe(canvas);
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(canvas);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
+});
+
+test('<HtmlInCanvas> renders internal capture siblings directly in the canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas
+				width={120}
+				height={80}
+				_remotionInternalCanvasSiblings={
+					<div data-testid="second-sample">Second sample</div>
+				}
+			>
+				<div data-testid="first-sample">First sample</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas).not.toBeNull();
+	expect(canvas?.children.length).toBe(2);
+	expect(
+		canvas?.children[0]?.querySelector('[data-testid="first-sample"]'),
+	).not.toBeNull();
+	expect(canvas?.children[1]?.getAttribute('data-testid')).toBe(
+		'second-sample',
+	);
 });
 
 test('<HtmlInCanvas> applies crop props to its canvas', () => {
@@ -342,7 +307,7 @@ test('<HtmlInCanvas> throws when nested', () => {
 				</HtmlInCanvas>
 			</SequenceTestWrapper>,
 		),
-	).toThrow('<HtmlInCanvas> components cannot be nested.');
+	).toThrow('Nested <HtmlInCanvas> components require Chrome 157 or newer');
 });
 
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
@@ -387,7 +352,11 @@ test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
 	const nextCanvas = container.querySelector('canvas');
 	expect(nextCanvas).not.toBeNull();
 	expect(canvasRef.current).toBe(nextCanvas);
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(nextCanvas);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('<HtmlInCanvas> can use a higher backing density', async () => {
@@ -456,32 +425,6 @@ test('<HtmlInCanvas> tolerates layout effect re-runs on the same canvas', async 
 	expect(transferControlToOffscreenCalls).toBe(1);
 });
 
-test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', async () => {
-	const {container} = render(
-		<SequenceTestWrapper onRegisterSequence={() => undefined}>
-			<HtmlInCanvas width={50} height={50} pixelDensity={2}>
-				<div>Test</div>
-			</HtmlInCanvas>
-		</SequenceTestWrapper>,
-	);
-
-	await waitFor(() => {
-		expect(container.querySelector('canvas')?.getAttribute('width')).toBe(
-			'100',
-		);
-	});
-
-	const canvas = container.querySelector('canvas')!;
-	canvas.dispatchEvent(new Event('paint'));
-
-	const htmlInCanvasElement = canvas.querySelector('div');
-	await waitFor(() => {
-		expect(htmlInCanvasElement?.style.transform).toBe(
-			new DOMMatrix().toString(),
-		);
-	});
-});
-
 test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {
 	let gotWebGl2Context = false;
 	let paintCalled = false;
@@ -517,7 +460,53 @@ test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {
 	});
 });
 
-test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
+test('<HtmlInCanvas> keeps the visible ref when switching paint handlers and resizing', () => {
+	const canvasRef = React.createRef<HTMLCanvasElement>();
+	const Component: React.FC<{
+		readonly customPaint: boolean;
+		readonly size: number;
+	}> = ({customPaint, size}) => (
+		<React.StrictMode>
+			<SequenceTestWrapper isRendering onRegisterSequence={() => undefined}>
+				<HtmlInCanvas
+					ref={canvasRef}
+					width={size}
+					height={size}
+					pixelDensity={2}
+					onPaint={customPaint ? () => undefined : undefined}
+				>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>
+		</React.StrictMode>
+	);
+	const {container, rerender} = render(
+		<Component customPaint={false} size={50} />,
+	);
+	const preview = canvasRef.current;
+	expect(container.querySelectorAll('canvas')).toHaveLength(1);
+	expect(transferControlToOffscreenCalls).toBe(0);
+
+	rerender(<Component customPaint size={50} />);
+	const output = canvasRef.current;
+	expect(output).not.toBe(preview);
+	expect(container.querySelectorAll('canvas')).toHaveLength(2);
+	expect(output).toBe(container.querySelectorAll('canvas')[1]);
+	expect(transferControlToOffscreenCalls).toBe(1);
+
+	rerender(<Component customPaint size={60} />);
+	expect(canvasRef.current).not.toBe(output);
+	expect(canvasRef.current?.getAttribute('width')).toBe('120');
+	expect(canvasRef.current?.style.width).toBe('60px');
+	expect(transferControlToOffscreenCalls).toBe(2);
+
+	rerender(<Component customPaint={false} size={60} />);
+	expect(container.querySelectorAll('canvas')).toHaveLength(1);
+	expect(canvasRef.current).toBe(container.querySelector('canvas'));
+	expect(transferControlToOffscreenCalls).toBe(2);
+});
+
+test('<HtmlInCanvas> copies custom paint before releasing scoped delayRender handles', async () => {
 	const delayRenderScope: DelayRenderScope = {
 		remotion_attempt: 0,
 		remotion_delayRenderHandles: [],
@@ -525,6 +514,9 @@ test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
 		remotion_puppeteerTimeout: 30_000,
 		remotion_renderReady: true,
 	};
+	const canvasRef = React.createRef<HTMLCanvasElement>();
+	let paintedCanvas: OffscreenCanvas | null = null;
+	const copied: CanvasImageSource[] = [];
 	let resolvePaint!: () => void;
 	const paintPromise = new Promise<void>((resolve) => {
 		resolvePaint = resolve;
@@ -537,7 +529,15 @@ test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
 				isRendering
 				onRegisterSequence={() => undefined}
 			>
-				<HtmlInCanvas width={50} height={50} onPaint={() => paintPromise}>
+				<HtmlInCanvas
+					ref={canvasRef}
+					width={50}
+					height={50}
+					onPaint={({canvas: offscreenCanvas}) => {
+						paintedCanvas = offscreenCanvas;
+						return paintPromise;
+					}}
+				>
 					<div>Test</div>
 				</HtmlInCanvas>
 			</SequenceTestWrapper>
@@ -550,6 +550,17 @@ test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
 	expect(window.remotion_delayRenderHandles).toHaveLength(0);
 
 	const canvas = container.querySelector('canvas')!;
+	expect(canvasRef.current).not.toBe(canvas);
+	expect(canvasRef.current).toBe(container.querySelectorAll('canvas')[1]);
+	Object.defineProperty(canvasRef.current, 'getContext', {
+		value: () => ({
+			...stub2dContext(),
+			drawImage: (source: CanvasImageSource) => {
+				expect(delayRenderScope.remotion_renderReady).toBe(false);
+				copied.push(source);
+			},
+		}),
+	});
 	canvas.dispatchEvent(new Event('paint'));
 
 	await waitFor(() => {
@@ -558,10 +569,13 @@ test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
 	});
 	expect(window.remotion_delayRenderHandles).toHaveLength(0);
 
+	expect(copied).toHaveLength(0);
 	resolvePaint();
 	await waitFor(() => {
 		expect(delayRenderScope.remotion_delayRenderHandles).toHaveLength(0);
 		expect(delayRenderScope.remotion_renderReady).toBe(true);
+		expect(copied).toHaveLength(1);
+		expect(copied[0]).toBe(paintedCanvas!);
 	});
 });
 
@@ -699,12 +713,21 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 	const w = window as unknown as {remotion_cancelledError?: string};
 	w.remotion_cancelledError = undefined;
 
+	const originalUserAgent = Object.getOwnPropertyDescriptor(
+		navigator,
+		'userAgent',
+	);
+	Object.defineProperty(navigator, 'userAgent', {
+		configurable: true,
+		value: 'Chrome/157.0.0.0',
+	});
+
 	let captureCalls = 0;
 	Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
 		configurable: true,
 		value: () => {
 			captureCalls++;
-			if (captureCalls === 1) {
+			if (captureCalls === 2) {
 				throw new DOMException(
 					'No cached paint record for element',
 					'InvalidStateError',
@@ -735,7 +758,9 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 						paintCalled = true;
 					}}
 				>
-					<div>Test</div>
+					<HtmlInCanvas width={25} height={25}>
+						<div>Test</div>
+					</HtmlInCanvas>
 				</HtmlInCanvas>
 			</SequenceTestWrapper>,
 		);
@@ -745,18 +770,28 @@ test('<HtmlInCanvas> retries a missing paint record during client-side rendering
 		});
 
 		const canvas = container.querySelector('canvas')!;
+		canvas.querySelector('canvas')!.dispatchEvent(new Event('paint'));
+		await new Promise((resolve) => setTimeout(resolve, 0));
 		canvas.dispatchEvent(new Event('paint'));
 
 		expect(paintCalled).toBe(false);
+		// Skipping an unavailable record must also release the nested paint barrier.
+		expect(window.remotion_renderReady).toBe(true);
 		expect(w.remotion_cancelledError).toBeUndefined();
 
 		canvas.dispatchEvent(new Event('paint'));
 		await waitFor(() => {
 			expect(paintCalled).toBe(true);
 		});
-		expect(captureCalls).toBe(2);
+		expect(captureCalls).toBe(3);
 		expect(w.remotion_cancelledError).toBeUndefined();
 	} finally {
+		if (originalUserAgent) {
+			Object.defineProperty(navigator, 'userAgent', originalUserAgent);
+		} else {
+			Reflect.deleteProperty(navigator, 'userAgent');
+		}
+
 		if (originalDescriptor) {
 			Object.defineProperty(
 				HTMLCanvasElement.prototype,

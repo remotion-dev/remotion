@@ -28,6 +28,16 @@ const serializeMessage = (message: EventSourceEvent) => {
 };
 
 let printPortMessageTimeout: Timer | null = null;
+const configChangeListeners = new Set<() => void>();
+
+export const subscribeToConfigChanges = (
+	onChange: () => void,
+): (() => void) => {
+	configChangeListeners.add(onChange);
+	return () => {
+		configChangeListeners.delete(onChange);
+	};
+};
 
 export const clearPrintPortMessageTimeout = () => {
 	if (printPortMessageTimeout) {
@@ -99,6 +109,10 @@ export const makeLiveEventsRouter = (
 	};
 
 	const sendEventToClient = (event: EventSourceEvent) => {
+		if (event.type === 'config-file-changed') {
+			configChangeListeners.forEach((listener) => listener());
+		}
+
 		clients.forEach((client) => {
 			client.response.write(serializeMessage(event));
 		});

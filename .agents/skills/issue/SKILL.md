@@ -1,158 +1,42 @@
 ---
 name: issue
-description: Create or update GitHub issues with correct Remotion naming and safe multiline Markdown handling
+description: Create, edit, or comment on Remotion GitHub issues.
 ---
 
-Use this skill when creating, editing, or commenting on GitHub issues. For parent issues, sub-issues, blocked-by, and blocking relationships, use the [`issue-management`](../issue-management/SKILL.md) skill.
+## Titles
 
-## Issue title format
+Write a concise title that preserves the user's framing. An issue may describe a problem or give a directive; do not turn a problem into a prescribed solution unless the user supplied or explicitly requested one.
 
-Use concise, action-oriented titles.
-
-If the issue primarily affects a package, prefix the title with the package name:
+Prefix package-specific issues with the package name:
 
 ```text
-`@remotion/package`: Change description
+`@remotion/package`: Issue description
 ```
 
-Examples:
+For broader areas, use the corresponding prefix:
 
 ```text
-`@remotion/player`: Support keyboard shortcuts for fullscreen
-`@remotion/lambda`: Improve retry message for failed renders
-`@remotion/docs`: Add examples contribution guide
+Docs: Issue description
+Studio: Issue description
+Build: Issue description
+CI: Issue description
+Repo: Issue description
 ```
 
-If the issue affects the website/docs broadly, use:
+Avoid vague titles such as `Bug`, `Fix issue`, or `Examples follow-up`.
 
-```text
-Docs: Change description
-```
+## Markdown bodies and comments
 
-If the issue affects the Studio broadly, use:
+Never pass multiline Markdown inline through shell arguments. Write issue bodies and multiline comments to a temporary Markdown file, preferably with the `write` tool, and pass it with `--body-file`.
 
-```text
-Studio: Change description
-```
-
-If the issue affects the monorepo or infrastructure broadly, use:
-
-```text
-Build: Change description
-CI: Change description
-Repo: Change description
-```
-
-Avoid vague titles such as:
-
-```text
-Bug
-Fix issue
-Examples follow-up
-```
-
-Prefer:
-
-```text
-Docs: Add a skill for creating examples
-```
-
-## Never pass multiline Markdown inline
-
-Do not pass issue bodies, PR bodies, or long comments inline through shell arguments.
-
-Avoid:
+After creating or editing an issue, verify its title and body:
 
 ```bash
-gh issue create --title "Docs: Add examples skill" --body "Line one\n\nLine two"
+gh issue view <number> --json title,body
 ```
 
-This can accidentally send literal `\n` characters to GitHub instead of real newlines.
+Confirm that the content is correct and multiline Markdown contains real newlines rather than literal `\n` sequences.
 
-Instead, always write Markdown to a temporary file and pass it with `--body-file`.
+## Relationships
 
-## Creating an issue
-
-1. Write the issue body to a temp Markdown file:
-
-```bash
-cat > /tmp/remotion-issue-body.md <<'EOF'
-Summary of the issue.
-
-## Tasks
-
-- [ ] First task
-- [ ] Second task
-
-## Context
-
-Related to #1234.
-EOF
-```
-
-2. Create the issue using `--body-file`:
-
-```bash
-gh issue create \
-  --title 'Docs: Add a skill for creating examples' \
-  --body-file /tmp/remotion-issue-body.md
-```
-
-Prefer using the `write` tool to create the temp Markdown file instead of shell heredocs when operating as an agent.
-
-## Editing an issue body
-
-1. Write the full replacement body to a temp Markdown file.
-2. Edit the issue using `--body-file`:
-
-```bash
-gh issue edit 1234 --body-file /tmp/remotion-issue-body.md
-```
-
-After editing, verify that the body renders as intended:
-
-```bash
-gh issue view 1234 --json body --jq .body
-```
-
-Make sure the output contains real blank lines, not literal `\n` escape sequences.
-
-## Adding an issue comment
-
-For multiline comments, also use a file:
-
-```bash
-gh issue comment 1234 --body-file /tmp/remotion-issue-comment.md
-```
-
-## Creating or linking related issues
-
-For parent issues, sub-issues, blocked-by, and blocking relationships, use the [`issue-management`](../issue-management/SKILL.md) skill. Prefer the new `gh issue create` and `gh issue edit` relationship flags over hand-written GraphQL mutations.
-
-## Updating a PR or issue after linking a related issue
-
-If a PR or issue mentions follow-up work that is now tracked by a related issue, replace vague checklist items with the concrete issue number.
-
-Prefer:
-
-```md
-The Remotion skill for creating examples is tracked separately in sub-issue #8158, not in this PR.
-```
-
-Avoid:
-
-```md
-- [ ] Add a Remotion skill for creating an example
-```
-
-if that work is not part of the current PR.
-
-## Final verification checklist
-
-After creating or editing an issue:
-
-- [ ] View the issue body with `gh issue view <number> --json body --jq .body`
-- [ ] Confirm Markdown has real newlines
-- [ ] Confirm the title follows the package/docs/studio naming convention
-- [ ] Confirm issue references such as `#1234` are correct
-- [ ] If adding issue relationships, follow the `issue-management` skill and confirm the intended links
+For parent issues, sub-issues, blocked-by, and blocking relationships, use the [`issue-management`](../issue-management/SKILL.md) skill.

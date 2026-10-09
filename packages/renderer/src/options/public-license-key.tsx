@@ -6,6 +6,7 @@ let currentPublicLicenseKey: string | null = null;
 
 export const publicLicenseKeyOption = {
 	name: 'Public License Key',
+	addedIn: '4.0.398',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,7 +16,7 @@ export const publicLicenseKeyOption = {
 		</>
 	),
 	ssrName: 'publicLicenseKey' as const,
-	docLink: 'https://www.remotion.dev/docs/licensing',
+	docLink: 'https://www.remotion.dev/docs/options/public-license-key',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

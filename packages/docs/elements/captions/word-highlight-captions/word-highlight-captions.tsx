@@ -2,30 +2,19 @@ import type {Caption, TikTokPage, TikTokToken} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Montserrat';
 import {fitText} from '@remotion/layout-utils';
-import React, {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type WordHighlightCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+type WordHighlightCaptionsProps = InteractiveTransformProps &
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
@@ -36,10 +25,8 @@ const textColor = '#ffffff';
 const highlightColor = '#2563eb';
 const defaultCombineTokensWithinMilliseconds = 800;
 const defaultWidth = 682;
-const defaultHeight = 252;
 
 const wordHighlightCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -47,14 +34,6 @@ const wordHighlightCaptionsSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Caption area width',
-		hiddenFromList: false,
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
 		hiddenFromList: false,
 	},
 	combineTokensWithinMilliseconds: {
@@ -65,16 +44,12 @@ const wordHighlightCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
 	weights: [fontWeight],
 	subsets: ['latin'],
 });
-
-const frameToMilliseconds = (frame: number, fps: number) =>
-	(frame / fps) * 1000;
 
 const isTimeWithinHalfOpenInterval = (
 	timeMs: number,
@@ -199,17 +174,24 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const WordHighlightCaptionsContent: React.FC<{
-	readonly captionAreaWidth: number | null;
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-}> = ({
-	captionAreaWidth,
+const WordHighlightCaptionsContent: React.FC<WordHighlightCaptionsProps> = ({
 	captions,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
+	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+	style,
+	width = defaultWidth,
 }) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontLoaded(true);
+			})
+			.catch((error) => {
+				cancelRender(error instanceof Error ? error : new Error(String(error)));
+			});
+	}, []);
+
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -220,95 +202,33 @@ const WordHighlightCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	const currentTimeMs = frameToMilliseconds(frame, fps);
+	const currentTimeMs = (frame / fps) * 1000;
 	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
 	const page = pages[activePageIndex];
 
-	if (!fontLoaded || !page) {
-		return null;
-	}
-
 	return (
-		<CaptionPage
-			key={`${activePageIndex}-${page.startMs}`}
-			captionAreaWidth={captionAreaWidth}
-			currentTimeMs={currentTimeMs}
-			page={page}
-			pageIndex={activePageIndex}
-		/>
+		<div
+			style={{
+				width,
+				...style,
+			}}
+		>
+			{fontLoaded && page ? (
+				<CaptionPage
+					key={`${activePageIndex}-${page.startMs}`}
+					captionAreaWidth={width ?? null}
+					currentTimeMs={currentTimeMs}
+					page={page}
+					pageIndex={activePageIndex}
+				/>
+			) : null}
+		</div>
 	);
 };
 
-const WordHighlightCaptionsInner = forwardRef<
-	HTMLDivElement,
-	WordHighlightCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-			controls,
-			height = defaultHeight,
-			name,
-			style,
-			width = defaultWidth,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
-		const [fontLoaded, setFontLoaded] = useState(false);
-
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-		useEffect(() => {
-			waitUntilDone()
-				.then(() => {
-					setFontLoaded(true);
-				})
-				.catch((error) => {
-					cancelRender(
-						error instanceof Error ? error : new Error(String(error)),
-					);
-				});
-		}, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? '<WordHighlightCaptions>'}
-				outlineRef={outlineRef}
-			>
-				<div
-					ref={outlineRef}
-					style={{
-						height,
-						marginInline: 'auto',
-						width,
-						...style,
-					}}
-				>
-					<WordHighlightCaptionsContent
-						captionAreaWidth={width ?? null}
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						fontLoaded={fontLoaded}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
-
-const WordHighlightCaptionsLayer = Interactive.withSchema({
-	Component: WordHighlightCaptionsInner,
+export const WordHighlightCaptions = Interactive.withSchema({
+	Component: WordHighlightCaptionsContent,
 	componentName: '<WordHighlightCaptions>',
 	schema: wordHighlightCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<WordHighlightCaptionsProps>;
-
-export const WordHighlightCaptions = WordHighlightCaptionsLayer;
+	wrapInSequence: true,
+});

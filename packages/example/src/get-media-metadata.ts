@@ -23,22 +23,26 @@ export const getMediaMetadata = async (src: string) => {
 		source: new UrlSource(src),
 	});
 
-	const durationInSeconds = await input.computeDuration();
-	const videoTrack = await input.getPrimaryVideoTrack();
-	const dimensions = videoTrack
-		? {
-				width: await videoTrack.getDisplayWidth(),
-				height: await videoTrack.getDisplayHeight(),
-			}
-		: null;
-	const packetStats = await videoTrack?.computePacketStats(50);
-	const fps = packetStats
-		? snapToCommonFps(packetStats.averagePacketRate)
-		: null;
+	try {
+		const durationInSeconds = await input.computeDuration();
+		const videoTrack = await input.getPrimaryVideoTrack();
+		const dimensions = videoTrack
+			? {
+					width: await videoTrack.getDisplayWidth(),
+					height: await videoTrack.getDisplayHeight(),
+				}
+			: null;
+		const packetStats = await videoTrack?.computePacketStats(50);
+		const fps = packetStats
+			? snapToCommonFps(packetStats.averagePacketRate)
+			: null;
 
-	return {
-		durationInSeconds,
-		dimensions,
-		fps,
-	};
+		return {
+			durationInSeconds,
+			dimensions,
+			fps,
+		};
+	} finally {
+		input.dispose();
+	}
 };

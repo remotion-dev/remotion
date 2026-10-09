@@ -8,23 +8,25 @@ const row: React.CSSProperties = {
 
 export const LoopedTimelineIndicator: React.FC<{
 	readonly loops: number;
+	readonly phase: number;
 	readonly fullWidth: number;
 	readonly visibleOffset: number;
 	readonly visibleWidth: number;
-}> = ({loops, fullWidth, visibleOffset, visibleWidth}) => {
-	if (loops <= 1 || fullWidth <= 0 || visibleWidth <= 0) {
+}> = ({loops, phase, fullWidth, visibleOffset, visibleWidth}) => {
+	if (loops + phase <= 1 || fullWidth <= 0 || visibleWidth <= 0) {
 		return null;
 	}
 
 	const loopWidth = fullWidth / loops;
-	const lastBoundaryIndex = Math.ceil(loops) - 1;
+	const phaseWidth = phase * loopWidth;
+	const lastBoundaryIndex = Math.ceil(loops + phase) - 1;
 	const firstVisibleBoundaryIndex = Math.max(
 		1,
-		Math.floor(visibleOffset / loopWidth),
+		Math.floor((visibleOffset + phaseWidth) / loopWidth),
 	);
 	const lastVisibleBoundaryIndex = Math.min(
 		lastBoundaryIndex,
-		Math.ceil((visibleOffset + visibleWidth) / loopWidth),
+		Math.ceil((visibleOffset + visibleWidth + phaseWidth) / loopWidth),
 	);
 	const visibleBoundaryCount = Math.max(
 		0,
@@ -32,7 +34,10 @@ export const LoopedTimelineIndicator: React.FC<{
 	);
 	const boundaries = new Array(visibleBoundaryCount)
 		.fill(true)
-		.map((_, index) => (firstVisibleBoundaryIndex + index) * loopWidth);
+		.map(
+			(_, index) =>
+				(firstVisibleBoundaryIndex + index) * loopWidth - phaseWidth,
+		);
 
 	return (
 		<Internals.AbsoluteFillElement style={row}>

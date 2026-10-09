@@ -15,6 +15,9 @@ export type ExtractFramesProps = {
 
 export type ExtractFrames = (options: ExtractFramesProps) => Promise<void>;
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const extractFrames: ExtractFrames = (options: ExtractFramesProps) => {
 	return internalExtractFrames({
 		...options,

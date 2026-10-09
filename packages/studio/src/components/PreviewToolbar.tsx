@@ -1,7 +1,8 @@
-import React, {useCallback, useContext, useState} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
-import {BACKGROUND, BORDER_BLACK_ALPHA_50} from '../helpers/colors';
+import {BACKGROUND, BLACK_ALPHA_50} from '../helpers/colors';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {
 	useIsStill,
@@ -16,14 +17,13 @@ import {FullScreenToggle} from './FullscreenToggle';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
-import {OutlineToggle} from './OutlineToggle';
 import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {PreviewToolbarOverflowButton} from './PreviewToolbarOverflowButton';
+import {PreviewViewOptionsDropdown} from './PreviewViewOptionsDropdown';
 import {RenderButton} from './RenderButton';
-import {RulersAndGuidesToggle} from './RulersAndGuidesToggle';
 import {SizeSelector} from './SizeSelector';
 import {SnappingToggle} from './SnappingToggle';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
@@ -34,7 +34,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	position: 'relative',
 	justifyContent: 'center',
-	borderTop: BORDER_BLACK_ALPHA_50,
+	boxShadow: `inset 0 1px ${BLACK_ALPHA_50}`,
 	alignItems: 'center',
 	flexDirection: 'row',
 	background: BACKGROUND,
@@ -87,6 +87,25 @@ export const PreviewToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const size = PlayerInternals.useElementSize(ref, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
+	const width = Math.round(size?.width ?? 0);
+	const containerStyle = useMemo((): React.CSSProperties => {
+		return {
+			...container,
+			// Keep the two flexible gaps equal in whole pixels at odd widths.
+			paddingRight: width % 2,
+		};
+	}, [width]);
+	const playButtonStyle = useMemo((): React.CSSProperties => {
+		return {
+			...centeredPlayButton,
+			left: size === null ? '50%' : Math.floor(width / 2),
+		};
+	}, [size, width]);
 	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 
 	const {playerMuted} = useContext(Internals.MediaVolumeContext);
@@ -118,7 +137,7 @@ export const PreviewToolbar: React.FC<{
 	);
 
 	return (
-		<div style={container} className="css-reset">
+		<div ref={ref} style={containerStyle} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
 				{isMobileLayout ? null : (
@@ -164,12 +183,10 @@ export const PreviewToolbar: React.FC<{
 			<Flex />
 
 			{isVideoComposition && isMobileLayout ? (
-				<div style={centeredPlayButton}>{playPause}</div>
+				<div style={playButtonStyle}>{playPause}</div>
 			) : null}
 			{isVideoComposition && !isMobileLayout ? (
 				<>
-					<Spacing x={2} />
-					{playPause}
 					<Spacing x={2} />
 					<PreviewToolbarControl>
 						<LoopToggle loop={loop} setLoop={setLoop} />
@@ -177,11 +194,13 @@ export const PreviewToolbar: React.FC<{
 					<PreviewToolbarControl>
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
-					<Spacing x={2} />
+					<Spacing x={1} />
 					<PreviewToolbarControl>
 						<TimelineInOutPointToggle />
 					</PreviewToolbarControl>
-					<Spacing x={2} />
+					<Spacing x={3} />
+					{playPause}
+					<Spacing x={3} />
 				</>
 			) : null}
 			{showCanvasViewControls ? (
@@ -191,21 +210,18 @@ export const PreviewToolbar: React.FC<{
 							<CheckboardToggle />
 						</PreviewToolbarControl>
 					)}
-					{isMobileLayout || !showCompositionControls ? null : (
-						<PreviewToolbarControl>
-							<OutlineToggle />
-						</PreviewToolbarControl>
-					)}
-					{isMobileLayout ? null : (
-						<PreviewToolbarControl>
-							<RulersAndGuidesToggle showGuides={showCompositionControls} />
-						</PreviewToolbarControl>
-					)}
 					{readOnlyStudio ||
 					isMobileLayout ||
 					!showCompositionControls ? null : (
 						<PreviewToolbarControl>
 							<SnappingToggle />
+						</PreviewToolbarControl>
+					)}
+					{isMobileLayout ? null : (
+						<PreviewToolbarControl>
+							<PreviewViewOptionsDropdown
+								showCompositionControls={showCompositionControls}
+							/>
 						</PreviewToolbarControl>
 					)}
 				</>

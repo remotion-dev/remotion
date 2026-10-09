@@ -46,6 +46,7 @@ const renderWithCaptionJob = (job: CaptionJob) => {
 };
 
 const baseJob = {
+	captionStyle: null,
 	id: 'caption-job',
 	type: 'caption',
 	startedAt: 0,
@@ -54,6 +55,7 @@ const baseJob = {
 	audioStreamIndex: null,
 	requestInit: null,
 	outName: 'dialogue-captions.json',
+	target: null,
 	model: 'tiny.en',
 	language: null,
 	chunkLengthInSeconds: 30,

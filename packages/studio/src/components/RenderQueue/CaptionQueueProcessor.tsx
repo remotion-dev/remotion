@@ -2,6 +2,7 @@ import {
 	canUseWhisperWebGpu,
 	clearStaleModels,
 	disposeWhisperModel,
+	downloadWhisperModel,
 	isWhisperModelCached,
 	loadWhisperModel,
 	toCaptions,
@@ -9,6 +10,10 @@ import {
 } from '@remotion/whisper-webgpu';
 import {useCallback, useContext, useEffect} from 'react';
 import {writeStaticFile} from '../../api/write-static-file';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {installRequiredPackages} from '../../helpers/install-required-package';
+import {callApi} from '../call-api';
+import {installElement, prepareElementInstall} from '../element-install-api';
 import {resampleMediaTo16Khz} from '../Transcription/resample-media-to-16-khz';
 import type {CaptionJob} from './caption-job-types';
 import {RenderQueueContext} from './context';
@@ -19,19 +24,25 @@ export const CaptionQueueProcessor: React.FC = () => {
 		updateCaptionJobProgress,
 		markCaptionJobDone,
 		markCaptionJobFailed,
+		markCaptionJobCancelled,
+		markCaptionJobSaving,
+		getAbortController,
 		setProcessCaptionJobCallback,
 	} = useContext(RenderQueueContext);
 
 	const processJob = useCallback(
 		async (job: CaptionJob) => {
+			const {signal} = getAbortController(job.id);
 			let captionCount: number | null = null;
 			let processingError: Error | null = null;
 			try {
+				signal.throwIfAborted();
 				updateCaptionJobProgress(job.id, {
 					message: 'Checking WebGPU support...',
 					value: 0,
 				});
 				const support = await canUseWhisperWebGpu();
+				signal.throwIfAborted();
 				if (!support.supported) {
 					throw new Error(support.detailedReason);
 				}
@@ -41,16 +52,21 @@ export const CaptionQueueProcessor: React.FC = () => {
 					value: 0.02,
 				});
 				await clearStaleModels();
+				signal.throwIfAborted();
 				await loadModelForJob({
+					signal,
 					model: job.model,
 					progressStart: 0.03,
 					progressSpan: 0.27,
 					isModelCached: (model) => isWhisperModelCached({model}),
-					loadModel: (model, onProgress) =>
-						loadWhisperModel({
+					loadModel: async (model, onProgress) => {
+						await downloadWhisperModel({
+							signal,
 							model,
 							onProgress: (progress) => onProgress(progress.progress),
-						}),
+						});
+						await loadWhisperModel({model, signal});
+					},
 					updateProgress: (progress) =>
 						updateCaptionJobProgress(job.id, progress),
 				});
@@ -60,6 +76,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 					value: 0.3,
 				});
 				const channelWaveform = await resampleMediaTo16Khz({
+					signal,
 					src: job.src,
 					audioStreamIndex: job.audioStreamIndex,
 					requestInit: job.requestInit,
@@ -76,6 +93,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 					value: 0.5,
 				});
 				const transcription = await transcribe({
+					signal,
 					channelWaveform,
 					model: job.model,
 					task: job.task,
@@ -93,14 +111,126 @@ export const CaptionQueueProcessor: React.FC = () => {
 					whisperWebGpuOutput: transcription,
 				});
 
-				updateCaptionJobProgress(job.id, {
-					message: `Saving ${job.outName}...`,
-					value: 0.95,
-				});
-				await writeStaticFile({
-					contents: JSON.stringify(captions, null, 2),
-					filePath: job.outName,
-				});
+				signal.throwIfAborted();
+				markCaptionJobSaving(job.id);
+				if (job.target === null) {
+					updateCaptionJobProgress(job.id, {
+						message: `Saving ${job.outName}...`,
+						value: 0.95,
+					});
+					await writeStaticFile({
+						contents: JSON.stringify(captions, null, 2),
+						filePath: job.outName,
+					});
+				} else if (
+					job.captionStyle !== null &&
+					// The built-in path owns basic-captions.element.tsx, so the
+					// library's Basic Captions must not be installed under that name.
+					job.captionStyle.element.slug !== 'captions/basic-captions'
+				) {
+					const {element} = job.captionStyle;
+					updateCaptionJobProgress(job.id, {
+						message: `Adding ${element.displayName}...`,
+						value: 0.95,
+					});
+					const hash = await crypto.subtle.digest(
+						'SHA-256',
+						new TextEncoder().encode(element.sourceCode),
+					);
+					const sourceHash = Array.from(new Uint8Array(hash), (byte) =>
+						byte.toString(16).padStart(2, '0'),
+					).join('');
+					const baseName = element.slug.split('/').at(-1);
+					let installed = false;
+					for (let index = 0; index < 1000; index++) {
+						signal.throwIfAborted();
+						const installationName = `${baseName}${index === 0 ? '' : `-copy${index === 1 ? '' : `-${index}`}`}`;
+						const preflight = await prepareElementInstall({
+							installationName,
+							destination: {
+								type: 'selected-media',
+								compositionFile: job.target.fileName,
+							},
+							element,
+						});
+						if (!preflight.success) {
+							throw new Error(preflight.reason);
+						}
+
+						const {expectedFileState} = preflight.plan;
+						if (
+							expectedFileState.exists &&
+							expectedFileState.sourceHash !== sourceHash
+						) {
+							continue;
+						}
+
+						if (getBrowserStudioOperations() === null) {
+							await installRequiredPackages(element.dependencies);
+						}
+
+						signal.throwIfAborted();
+						const response = await installElement({
+							installationName,
+							compositionFile: null,
+							compositionId: null,
+							captionTarget: {
+								fileName: job.target.fileName,
+								nodePath: job.target.nodePath.nodePath,
+								durationInFrames: job.target.durationInFrames,
+								premountFor: job.target.premountFor,
+								captions,
+							},
+							element,
+							expectedFileState,
+							from: null,
+							premountFor: job.target.premountFor,
+							position: null,
+							overwriteExisting: expectedFileState.exists,
+							undoRedoNavigation: null,
+							newComposition: null,
+						});
+						if (!response.success) {
+							throw new Error(
+								response.type === 'error'
+									? response.reason
+									: `Element file changed: ${response.conflict.filePath}`,
+							);
+						}
+
+						installed = true;
+						break;
+					}
+
+					if (!installed) {
+						throw new Error(
+							'Could not find an available filename for the caption style',
+						);
+					}
+				} else {
+					updateCaptionJobProgress(job.id, {
+						message: 'Adding Basic captions...',
+						value: 0.95,
+					});
+					await installRequiredPackages([
+						{name: '@remotion/captions', version: null},
+					]);
+					const request = {
+						fileName: job.target.fileName,
+						nodePath: job.target.nodePath.nodePath,
+						durationInFrames: job.target.durationInFrames,
+						premountFor: job.target.premountFor,
+						captions,
+					};
+					const browserStudioOperations = getBrowserStudioOperations();
+					const response = browserStudioOperations
+						? await browserStudioOperations.insertBasicCaptions(request)
+						: await callApi('/api/insert-basic-captions', request);
+					if (!response.success) {
+						throw new Error(response.reason);
+					}
+				}
+
 				captionCount = captions.length;
 			} catch (error) {
 				processingError =
@@ -114,13 +244,22 @@ export const CaptionQueueProcessor: React.FC = () => {
 				// A cleanup failure should not hide a successfully written caption file.
 			}
 
-			if (processingError) {
+			if (signal.aborted) {
+				markCaptionJobCancelled(job.id);
+			} else if (processingError) {
 				markCaptionJobFailed(job.id, processingError);
 			} else {
 				markCaptionJobDone(job.id, captionCount ?? 0);
 			}
 		},
-		[markCaptionJobDone, markCaptionJobFailed, updateCaptionJobProgress],
+		[
+			getAbortController,
+			markCaptionJobCancelled,
+			markCaptionJobDone,
+			markCaptionJobFailed,
+			markCaptionJobSaving,
+			updateCaptionJobProgress,
+		],
 	);
 
 	useEffect(() => {

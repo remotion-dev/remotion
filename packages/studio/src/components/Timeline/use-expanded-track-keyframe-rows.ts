@@ -1,4 +1,3 @@
-import {canEditEasingForInterpolationFunction} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -11,7 +10,11 @@ import {
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
-import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
+import {
+	getNodeCanEditEasing,
+	getNodeHasKeyframes,
+	getNodeKeyframes,
+} from './get-node-keyframes';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
 import {getCurrentFrame} from './imperative-state';
 import {
@@ -74,57 +77,16 @@ const areTimelineTreeLayoutsEqual = (
 	});
 };
 
-const getNodeCanEditEasing = ({
-	node,
-	nodePath,
-	propStatuses,
-}: {
-	node: ReturnType<typeof flattenVisibleTreeNodes>[number]['node'];
-	nodePath: Parameters<typeof getNodeKeyframes>[0]['nodePath'];
-	propStatuses: Parameters<typeof getNodeKeyframes>[0]['propStatuses'];
-}) => {
-	if (node.kind !== 'field' || node.field === null) {
-		return false;
-	}
-
-	if (node.field.kind === 'sequence-field') {
-		const sequencePropStatus = Internals.getPropStatusesCtx(
-			propStatuses,
-			nodePath,
-		)?.[node.field.key];
-		return (
-			sequencePropStatus?.status === 'keyframed' &&
-			canEditEasingForInterpolationFunction(
-				sequencePropStatus.interpolationFunction,
-			)
-		);
-	}
-
-	const effectStatus = Internals.getEffectPropStatusesCtx({
-		propStatuses,
-		nodePath,
-		effectIndex: node.field.effectIndex,
-	});
-	const effectPropStatus =
-		effectStatus.type === 'can-update-effect'
-			? effectStatus.props[node.field.key]
-			: null;
-	return (
-		effectPropStatus?.status === 'keyframed' &&
-		canEditEasingForInterpolationFunction(
-			effectPropStatus.interpolationFunction,
-		)
-	);
-};
-
 export const useExpandedTrackKeyframeRows = ({
 	sequence,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	keyframeDisplayOffset: number;
+	keyframePlaybackRate: number;
 }): {
 	readonly rows: ExpandedTrackKeyframeRow[];
 	readonly expandedHeight: number;
@@ -217,6 +179,7 @@ export const useExpandedTrackKeyframeRows = ({
 						nodePath: nodePathInfo.sequenceSubscriptionKey,
 						propStatuses,
 						keyframeDisplayOffset,
+						keyframePlaybackRate,
 						getDragOverrides,
 						getEffectDragOverrides,
 						timelinePosition: getCurrentFrame(),
@@ -228,6 +191,7 @@ export const useExpandedTrackKeyframeRows = ({
 			getDragOverrides,
 			getEffectDragOverrides,
 			keyframeDisplayOffset,
+			keyframePlaybackRate,
 			nodePathInfo.sequenceSubscriptionKey,
 			propStatuses,
 		],

@@ -139,6 +139,7 @@ const renderImg = (
 };
 
 const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
+	playbackRate: 1,
 	absoluteFrom: 0,
 	cumulatedFrom: 0,
 	cumulatedNegativeFrom: 0,

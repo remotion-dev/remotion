@@ -28,7 +28,7 @@ import type {
 import type {ExecutionContext} from './ExecutionContext';
 import type {Frame} from './FrameManager';
 import type {JSHandle} from './JSHandle';
-import {isString} from './util';
+import {isString, valueFromRemoteObject} from './util';
 
 export class DOMWorld {
 	#frame: Frame;
@@ -227,11 +227,8 @@ class WaitTask {
 		const runCount = ++this.#runCount;
 		let success: JSHandle | null = null;
 		let error: Error | null = null;
-		const context = await this.#domWorld.executionContext();
-		if (this.#terminated || runCount !== this.#runCount) {
-			return;
-		}
-
+		const contextPromise = this.#domWorld.executionContext();
+		const context = await contextPromise;
 		if (this.#terminated || runCount !== this.#runCount) {
 			return;
 		}
@@ -256,23 +253,32 @@ class WaitTask {
 		}
 
 		// Ignore timeouts in pageScript - we track timeouts ourselves.
-		// If the frame's execution context has already changed, `frame.evaluate` will
-		// throw an error - ignore this predicate run altogether.
+		// Primitive results need no further CDP evaluation, but must still belong
+		// to the current execution context. Object handles are checked in the page.
 		if (
 			!error &&
-			(await this.#domWorld
-				.evaluate((s) => {
-					return !s;
-				}, success)
-				.catch(() => {
-					return true;
-				}))
+			(success && !success._remoteObject.objectId
+				? !valueFromRemoteObject(success._remoteObject) ||
+					!this.#domWorld._hasContext() ||
+					this.#domWorld.executionContext() !== contextPromise
+				: await this.#domWorld
+						.evaluate((s) => {
+							return !s;
+						}, success)
+						.catch(() => {
+							return true;
+						}))
 		) {
 			if (!success) {
 				throw new Error('Assertion: result handle is not available');
 			}
 
 			await success.dispose();
+			return;
+		}
+
+		if (this.#terminated || runCount !== this.#runCount) {
+			await success?.dispose();
 			return;
 		}
 

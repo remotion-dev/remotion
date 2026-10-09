@@ -28,6 +28,7 @@ const {
 	scaleOption,
 	crfOption,
 	gopSizeOption,
+	disableSharedMemoryCaptureOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	enforceAudioOption,
@@ -198,7 +199,7 @@ export const renderCommand = async (
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
-				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
+				'Passing the shorthand serve URL without a composition ID is currently not supported.\n Make sure to pass a composition ID after the shorthand serve URL or pass the complete serveURL without a composition ID to choose between all compositions.',
 			);
 		}
 
@@ -332,6 +333,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const crf = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const gopSize = gopSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -387,6 +391,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		proResProfile,
 		x264Preset,
 		gopSize,
+		disableSharedMemoryCapture,
 		crf,
 		pixelFormat,
 		imageFormat: imageFormat ?? undefined,

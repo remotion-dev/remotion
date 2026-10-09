@@ -1,8 +1,11 @@
 import React, {useMemo} from 'react';
 import {
 	Interactive,
+	Freeze,
 	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
@@ -34,7 +37,8 @@ type SharedAnnotationComponentProps = Readonly<
 
 type AnnotationInteractiveProps<Config> = SharedAnnotationComponentProps &
 	Readonly<Config> &
-	InteractiveBaseProps;
+	InteractiveBaseProps &
+	InteractivePremountProps;
 
 export type HighlightProps = AnnotationInteractiveProps<HighlightConfig>;
 export type UnderlineProps = AnnotationInteractiveProps<UnderlineConfig>;
@@ -48,7 +52,8 @@ export type CircleProps = AnnotationInteractiveProps<
 >;
 
 type InternalAnnotationProps = SharedAnnotationComponentProps &
-	InteractiveBaseProps & {
+	InteractiveBaseProps &
+	InteractivePremountProps & {
 		readonly color?: string;
 		readonly strokeWidth?: number;
 		readonly padding?: Partial<Padding>;
@@ -85,6 +90,7 @@ const iterationsSchema = (defaultValue: number): InteractivitySchema => ({
 		type: 'number',
 		min: 1,
 		step: 1,
+		integer: true,
 		default: defaultValue,
 		description: 'Iterations',
 		hiddenFromList: false,
@@ -158,6 +164,7 @@ const curveControlsSchema = {
 		type: 'number',
 		min: 1,
 		step: 1,
+		integer: true,
 		default: 9,
 		description: 'Curve Step Count',
 		hiddenFromList: false,
@@ -199,17 +206,9 @@ const underlinePaddingSchema = {
 	'padding.top': paddingSchema['padding.top'],
 } as const satisfies InteractivitySchema;
 
-const textContentSchema = {
-	children: {
-		type: 'text-content',
-		default: '',
-		description: 'Text',
-		keyframable: false,
-	},
-} as const satisfies InteractivitySchema;
-
 const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...Interactive.baseSchema,
+	...Interactive.premountSchema,
 	progress: {
 		type: 'number',
 		min: 0,
@@ -234,7 +233,7 @@ const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...roughJsControlsSchema(defaultRoughness),
 	...colorSchema,
 	...Interactive.textSchema,
-	...textContentSchema,
+	...Interactive.childrenSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Interactive.borderRadiusSchema,
@@ -356,7 +355,13 @@ const makeAnnotationComponent = ({
 		children,
 		durationInFrames,
 		from,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
 		trimBefore,
+		playbackRate,
+		loop,
 		freeze,
 		hidden,
 		name,
@@ -379,7 +384,6 @@ const makeAnnotationComponent = ({
 		const annotation = useMemo(() => {
 			return createAnnotation();
 		}, []);
-		const outlineRef = React.useRef<HTMLSpanElement | null>(null);
 		const config = (
 			disabled ? {type: 'none'} : {...configProps, type}
 		) as AnnotationConfig;
@@ -399,31 +403,63 @@ const makeAnnotationComponent = ({
 			/>
 		);
 
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = Internals.usePremounting({
+			from: from ?? 0,
+			durationInFrames: Internals.resolveSequenceDuration({
+				durationInFrames,
+				playbackRate,
+				loop,
+			}),
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? `<${componentName}>`}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls}
-				_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
-				outlineRef={outlineRef}
-			>
-				<span
-					ref={outlineRef}
-					style={{display: 'inline-block', position: 'relative'}}
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					from={from ?? 0}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					loop={loop}
+					durationInFrames={durationInFrames ?? Infinity}
+					freeze={freeze}
+					hidden={hidden}
+					name={name ?? `<${componentName}>`}
+					showInTimeline={showInTimeline ?? true}
+					controls={controls}
+					_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<annotation.Container>
-						{layer === 'behind' ? annotationElement : null}
-						<annotation.Tracker style={style}>{children}</annotation.Tracker>
-						{layer === 'on-top' ? annotationElement : null}
-					</annotation.Container>
-				</span>
-			</Sequence>
+					<span
+						style={{
+							display: 'inline-block',
+							position: 'relative',
+							...premountingStyle,
+						}}
+					>
+						<annotation.Container>
+							{layer === 'behind' ? annotationElement : null}
+							<annotation.Tracker style={style}>{children}</annotation.Tracker>
+							{layer === 'on-top' ? annotationElement : null}
+						</annotation.Container>
+					</span>
+				</Sequence>
+			</Freeze>
 		);
 	};
 

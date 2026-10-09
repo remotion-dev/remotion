@@ -13,12 +13,16 @@ export const getFileSource = (
 	}
 
 	const resolved = path.resolve(remotionRoot, p);
-	const relativeToProcessCwd = path.relative(remotionRoot, resolved);
-	if (relativeToProcessCwd.startsWith('..')) {
+	const relativeToRemotionRoot = path.relative(remotionRoot, resolved);
+	if (
+		relativeToRemotionRoot === '..' ||
+		relativeToRemotionRoot.startsWith(`..${path.sep}`) ||
+		path.isAbsolute(relativeToRemotionRoot)
+	) {
 		return Promise.reject(
-			new Error(`Not allowed to open ${relativeToProcessCwd}`),
+			new Error(`Not allowed to open ${relativeToRemotionRoot}`),
 		);
 	}
 
-	return fs.promises.readFile(p, 'utf-8');
+	return fs.promises.readFile(resolved, 'utf-8');
 };

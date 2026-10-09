@@ -36,6 +36,8 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 	let lambdaInvoked = true;
 	let renderedFrames = 0;
 	let encodedFrames = 0;
+	let uploadedFrames = 0;
+	let uploadedSizeInBytes = 0;
 	let writeQueue = Promise.resolve();
 	const artifacts: Array<{
 		key: string;
@@ -76,6 +78,8 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 		lambdaInvoked,
 		renderedFrames,
 		encodedFrames,
+		uploadedFrames,
+		uploadedSizeInBytes,
 		startedAt,
 	});
 
@@ -91,6 +95,16 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 		if (message.type === 'frames-rendered') {
 			renderedFrames = Math.max(renderedFrames, message.payload.rendered);
 			encodedFrames = Math.max(encodedFrames, message.payload.encoded);
+			await writeStatus(runningStatus());
+			return;
+		}
+
+		if (message.type === 'frames-uploaded') {
+			uploadedFrames = Math.max(uploadedFrames, message.payload.uploaded);
+			uploadedSizeInBytes = Math.max(
+				uploadedSizeInBytes,
+				message.payload.sizeInBytes,
+			);
 			await writeStatus(runningStatus());
 			return;
 		}
@@ -139,6 +153,8 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 				lambdaInvoked,
 				renderedFrames,
 				encodedFrames,
+				uploadedFrames,
+				uploadedSizeInBytes,
 				startedAt,
 				failedAt: Date.now(),
 				errorInfo: message.payload.errorInfo,
@@ -148,6 +164,19 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 		}
 
 		if (message.type === 'chunk-complete') {
+			if (params.output.type === 'sequence') {
+				await Promise.all(artifactUploads);
+				await writeStatus({
+					...runningStatus(),
+					state: 'completed',
+					lambdaInvoked: true,
+					completedAt: message.payload.rendered,
+					videoKey: null,
+					audioKey: null,
+					artifacts,
+				});
+			}
+
 			return;
 		}
 
@@ -226,6 +255,8 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 			lambdaInvoked: true,
 			renderedFrames,
 			encodedFrames,
+			uploadedFrames,
+			uploadedSizeInBytes,
 			startedAt,
 			completedAt,
 			videoKey,

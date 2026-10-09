@@ -1,4 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {
 	useCallback,
 	useContext,
@@ -12,15 +13,14 @@ import {
 	type GetDragOverrides,
 	type InteractivitySchema,
 	type RuntimeValueStore,
+	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../helpers/interactivity-enabled';
-import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {useIsFullscreen} from '../helpers/use-is-fullscreen';
 import {useRuntimeValueSnapshots} from '../helpers/use-runtime-values';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
@@ -38,7 +38,7 @@ import {
 	getSelectedSequenceKeys,
 	getSelectedTransformOriginInfo,
 	getSequenceKeysContainingSelection,
-	getSequencesWithSelectableOutlines,
+	type getSequencesWithSelectableOutlines,
 } from './selected-outline-measurement';
 import {orderOutlinesForRendering} from './selected-outline-order';
 import {
@@ -50,6 +50,7 @@ import {
 	translateFieldKey,
 	type SelectedOutlineCropDragTarget,
 	type SelectedOutlineCropFieldKey,
+	type SelectedOutlineDragTarget,
 	type SelectedOutlineLayoutTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
@@ -57,16 +58,25 @@ import {SelectedOutlineKeyboardControls} from './SelectedOutlineKeyboardControls
 import {SelectedOutlineRenderer} from './SelectedOutlineRenderer';
 import {getKeyframeDisplayOffset} from './Timeline/get-timeline-keyframes';
 import {
+	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 
+const {
+	calculateTimeline,
+	getCanvasSelectableOutlines,
+	getCanvasVisibleOutlineTargets,
+	getCanvasActiveOutlineTargets,
+	getCanvasOutlineActivity,
+	getCanvasOutlineLayoutTargets,
+} = CanvasInternals;
+
 export {orderOutlinesForRendering};
 
 export {
-	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getSelectedOutline3DRotationDragValues,
@@ -74,10 +84,6 @@ export {
 	getSelectedOutlineCropDragChanges,
 	getSelectedOutlineCropDragValues,
 	getSelectedOutlineCropFollowingTransformOrigin,
-	getSelectedOutlineDragChanges,
-	getSelectedOutlineDragValues,
-	getSelectedOutlineKeyboardNudgeDelta,
-	getSelectedOutlineKeyboardNudgeDeltas,
 	getSelectedOutlineRotationDragChanges,
 	getSelectedOutlineRotationDragStates,
 	getSelectedOutlineRotationDragValues,
@@ -87,7 +93,6 @@ export {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
-	isSelectedOutlineDragPastThreshold,
 	selectedOutlineTransformOriginSnapThresholdPx,
 	selectedOutlineUvSnapThresholdPx,
 	snapSelectedOutlineRotationDeltaDegrees,
@@ -105,7 +110,6 @@ export {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 } from './selected-outline-measurement';
-export {selectedOutlineDragThresholdPx} from './selected-outline-types';
 
 const getEffectiveCropValue = ({
 	activeSchema,
@@ -185,7 +189,9 @@ const getCropDragFields = ({
 	return fields as SelectedOutlineCropDragTarget['fields'];
 };
 
-type SelectableOutlines = ReturnType<typeof getSequencesWithSelectableOutlines>;
+type SelectableOutlines = Readonly<
+	ReturnType<typeof getSequencesWithSelectableOutlines>
+>;
 
 type CalculateOutlineTargetsOptions = {
 	readonly mode: 'controls' | 'layout';
@@ -262,44 +268,20 @@ const calculateOutlineTargets = ({
 	const previewInteractive =
 		connectedClientId !== null && studioInteractivityEnabled;
 
-	const firstNodePathInfoBySourceNode = new Map<string, SequenceNodePathInfo>();
-	const selectedSourceNodeKeys = new Set<string>();
-	for (const {key, nodePathInfo} of selectableOutlines) {
-		const sourceNodeKey = timelineSequenceNodePathToKey(
-			nodePathInfo.sequenceSubscriptionKey,
-		);
-		if (selectedSequenceKeys.has(key)) {
-			selectedSourceNodeKeys.add(sourceNodeKey);
-		}
-
-		const currentFirst = firstNodePathInfoBySourceNode.get(sourceNodeKey);
-		if (currentFirst === undefined || nodePathInfo.index < currentFirst.index) {
-			firstNodePathInfoBySourceNode.set(sourceNodeKey, nodePathInfo);
-		}
-	}
-
-	return selectableOutlines.flatMap((selectableOutline) => {
-		const {key, keyframeDisplayOffset, nodePathInfo, sequence} =
-			selectableOutline;
-		if (targetKey !== null && targetKey !== key) {
-			return [];
-		}
-
-		if (sequence.refForOutline === null) {
-			throw new Error('Expected sequence to have a ref for outline');
-		}
-
-		const selected = selectedSequenceKeys.has(key);
-		const containsSelection = sequenceKeysContainingSelection.has(key);
+	return getCanvasOutlineLayoutTargets({
+		selectableOutlines,
+		selectedSequenceKeys,
+		sequenceKeysContainingSelection,
+		targetKey,
+	}).flatMap((canvasLayoutTarget) => {
+		const {
+			key,
+			keyframeDisplayOffset,
+			keyframePlaybackRate,
+			nodePathInfo,
+			sequence,
+		} = canvasLayoutTarget;
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
-		const sourceNodeKey = timelineSequenceNodePathToKey(nodePath);
-		const showSelectedOutline =
-			containsSelection || selectedSourceNodeKeys.has(sourceNodeKey);
-		const selectionNodePathInfo =
-			firstNodePathInfoBySourceNode.get(sourceNodeKey);
-		if (selectionNodePathInfo === undefined) {
-			throw new Error('Expected a first sequence for the source node');
-		}
 
 		const {controls} = sequence;
 		const nodePropStatuses = Internals.getPropStatusesCtx(
@@ -310,10 +292,11 @@ const calculateOutlineTargets = ({
 			(status) => status.status === 'keyframed',
 		);
 		const nodeKeyframeDisplayOffset = getKeyframeDisplayOffset({
-			propStatus: firstKeyframedStatus,
+			propStatus: firstKeyframedStatus ?? null,
 			keyframeDisplayOffset,
+			keyframePlaybackRate,
 		});
-		const sourceFrame = targetTimelinePosition - nodeKeyframeDisplayOffset;
+
 		const dragOverrides = getDragOverrides(nodePath) ?? {};
 		const runtimeValues = controls
 			? (runtimeValuesByStore.get(controls.runtimeValues) ??
@@ -325,7 +308,9 @@ const calculateOutlineTargets = ({
 					currentRuntimeValueDotNotation: runtimeValues,
 					dragOverrides,
 					propStatus: nodePropStatuses,
-					frame: sourceFrame,
+					frame:
+						(targetTimelinePosition - keyframeDisplayOffset) *
+						keyframePlaybackRate,
 				})
 			: null;
 		const cropValues = {
@@ -333,7 +318,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.left,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -341,7 +328,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.right,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -349,7 +338,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.top,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -357,7 +348,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.bottom,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -369,6 +362,8 @@ const calculateOutlineTargets = ({
 		const selectedForRotation = selectedRotationInfo?.sequenceKey === key;
 		const selectedForUvHandles = selectedEffectsBySequenceKey.has(key);
 		const fieldSchema = activeSchema?.[translateFieldKey];
+		const pathFieldSchema = activeSchema?.d;
+		const pathPropStatus = nodePropStatuses?.d;
 		const propStatus = nodePropStatuses?.[translateFieldKey];
 		const scaleFieldSchema = activeSchema?.[scaleFieldKey];
 		const scalePropStatus = nodePropStatuses?.[scaleFieldKey];
@@ -383,33 +378,25 @@ const calculateOutlineTargets = ({
 				transformOriginPropStatus?.status === 'keyframed')
 				? String(
 						Internals.getEffectiveVisualModeValue({
-							propStatus: transformOriginPropStatus,
+							propStatus: transformOriginPropStatus ?? null,
 							dragOverrideValue: dragOverrides[transformOriginFieldKey],
 							defaultValue: transformOriginFieldSchema.default,
-							frame: sourceFrame,
+							frame:
+								(targetTimelinePosition - keyframeDisplayOffset) *
+								keyframePlaybackRate,
 							shouldResortToDefaultValueIfUndefined: true,
 						}) ?? transformOriginFieldSchema.default,
 					)
 				: '50% 50%';
 		const layoutTarget: SelectedOutlineLayoutTarget = {
-			key,
-			containsSelection,
+			...canvasLayoutTarget,
 			crop,
 			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
-			nodePathInfo,
-			ref: sequence.refForOutline,
-			selected,
 			selectedForCrop,
 			selectedForRotation,
 			selectedForTransformOrigin,
 			selectedForUvHandles,
-			showSelectedOutline,
 			transformOriginValue: transformOriginValueForRotation,
-			selection: {
-				type: 'sequence',
-				nodePathInfo: selectionNodePathInfo,
-			},
-			sequence,
 		};
 		if (mode === 'layout') {
 			return [layoutTarget];
@@ -461,15 +448,10 @@ const calculateOutlineTargets = ({
 					runtimeValue: runtimeValues[fieldKey],
 				}),
 			);
-		const transformOriginSourceFrame =
-			selectedTransformOriginInfo?.displayFrame === null ||
-			selectedTransformOriginInfo?.displayFrame === undefined
-				? sourceFrame
-				: selectedTransformOriginInfo.displayFrame -
-					getKeyframeDisplayOffset({
-						propStatus: transformOriginPropStatus,
-						keyframeDisplayOffset,
-					});
+		const transformOriginLocalFrame =
+			((selectedTransformOriginInfo?.displayFrame ?? targetTimelinePosition) -
+				keyframeDisplayOffset) *
+			keyframePlaybackRate;
 		const canTransformOriginStatus =
 			transformOriginPropStatus?.status === 'static' ||
 			(transformOriginPropStatus?.status === 'keyframed' &&
@@ -486,11 +468,11 @@ const calculateOutlineTargets = ({
 			fieldSchema?.type === 'translate' &&
 			canTransformOriginStatus &&
 			canTransformOriginTranslateStatus;
-		const cropSourceFrame =
-			selectedCropInfo?.displayFrame === null ||
-			selectedCropInfo?.displayFrame === undefined
-				? sourceFrame
-				: selectedCropInfo.displayFrame - nodeKeyframeDisplayOffset;
+		const cropSourceFrame = {
+			displayFrame: selectedCropInfo?.displayFrame ?? targetTimelinePosition,
+			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
+			keyframePlaybackRate,
+		};
 		const canCropDrag =
 			previewInteractive &&
 			selectedForCrop &&
@@ -499,6 +481,31 @@ const calculateOutlineTargets = ({
 		return [
 			{
 				...layoutTarget,
+				pathDrag:
+					previewInteractive &&
+					controls !== null &&
+					pathFieldSchema?.type === 'svg-path' &&
+					((pathPropStatus?.status === 'static' &&
+						typeof pathPropStatus.codeValue === 'string') ||
+						(pathPropStatus?.status === 'keyframed' &&
+							pathFieldSchema.keyframable !== false &&
+							pathPropStatus.interpolationFunction === 'interpolatePaths'))
+						? {
+								clientId: connectedClientId,
+								nodePath,
+								propStatus: pathPropStatus,
+								schema: controls.schema,
+								sourceFrame: {
+									displayFrame: targetTimelinePosition,
+									keyframeDisplayOffset: getKeyframeDisplayOffset({
+										propStatus: pathPropStatus,
+										keyframeDisplayOffset,
+										keyframePlaybackRate,
+									}),
+									keyframePlaybackRate,
+								},
+							}
+						: null,
 				canCrop: previewInteractive && controls !== null && cropFields !== null,
 				cropDrag: canCropDrag
 					? {
@@ -512,7 +519,7 @@ const calculateOutlineTargets = ({
 								transformOriginPropStatus !== undefined
 									? {
 											defaultValue: transformOriginFieldSchema.default,
-											propStatus: transformOriginPropStatus,
+											propStatus: transformOriginPropStatus ?? null,
 											value: transformOriginValueForRotation,
 										}
 									: null,
@@ -523,9 +530,12 @@ const calculateOutlineTargets = ({
 							propStatus,
 							clientId: connectedClientId,
 							fieldDefault: fieldSchema.default,
+							runtimeValue: runtimeValues[translateFieldKey],
+							keyframePlaybackRate,
 							keyframeDisplayOffset: getKeyframeDisplayOffset({
 								propStatus,
 								keyframeDisplayOffset,
+								keyframePlaybackRate,
 							}),
 							nodePath,
 							schema: controls.schema,
@@ -537,9 +547,11 @@ const calculateOutlineTargets = ({
 							clientId: connectedClientId,
 							fieldDefault: scaleFieldSchema.default,
 							fieldSchema: scaleFieldSchema,
+							keyframePlaybackRate,
 							keyframeDisplayOffset: getKeyframeDisplayOffset({
 								propStatus: scalePropStatus,
 								keyframeDisplayOffset,
+								keyframePlaybackRate,
 							}),
 							linked: getScaleLockState({
 								nodePath,
@@ -567,9 +579,11 @@ const calculateOutlineTargets = ({
 							clientId: connectedClientId,
 							fieldDefault: rotationFieldSchema.default,
 							fieldSchema: rotationFieldSchema,
+							keyframePlaybackRate,
 							keyframeDisplayOffset: getKeyframeDisplayOffset({
 								propStatus: rotationPropStatus,
 								keyframeDisplayOffset,
+								keyframePlaybackRate,
 							}),
 							nodePath,
 							schema: controls.schema,
@@ -580,19 +594,21 @@ const calculateOutlineTargets = ({
 				transformOriginDrag: canTransformOriginDrag
 					? {
 							clientId: connectedClientId,
+							keyframePlaybackRate,
 							keyframeDisplayOffset: getKeyframeDisplayOffset({
-								propStatus: transformOriginPropStatus,
+								propStatus: transformOriginPropStatus ?? null,
 								keyframeDisplayOffset,
+								keyframePlaybackRate,
 							}),
 							nodePath,
 							originDefault: transformOriginFieldSchema.default,
 							originPropStatus: transformOriginPropStatus,
 							originValue: String(
 								Internals.getEffectiveVisualModeValue({
-									propStatus: transformOriginPropStatus,
+									propStatus: transformOriginPropStatus ?? null,
 									dragOverrideValue: dragOverrides[transformOriginFieldKey],
 									defaultValue: transformOriginFieldSchema.default,
-									frame: transformOriginSourceFrame,
+									frame: transformOriginLocalFrame,
 									shouldResortToDefaultValueIfUndefined: true,
 								}) ?? transformOriginFieldSchema.default,
 							),
@@ -606,7 +622,7 @@ const calculateOutlineTargets = ({
 												rotationFieldSchema?.type === 'rotation-css'
 													? rotationFieldSchema.default
 													: '0deg',
-											frame: transformOriginSourceFrame,
+											frame: transformOriginLocalFrame,
 											shouldResortToDefaultValueIfUndefined: true,
 										}) ?? '0deg')
 									: '0deg',
@@ -622,13 +638,23 @@ const calculateOutlineTargets = ({
 													scaleFieldSchema?.type === 'scale'
 														? scaleFieldSchema.default
 														: 1,
-												frame: transformOriginSourceFrame,
+												frame: transformOriginLocalFrame,
 												shouldResortToDefaultValueIfUndefined: true,
 											}) ?? 1,
 										)
 									: '1',
 							schema: controls.schema,
-							sourceFrame: transformOriginSourceFrame,
+							sourceFrame: {
+								displayFrame:
+									selectedTransformOriginInfo?.displayFrame ??
+									targetTimelinePosition,
+								keyframeDisplayOffset: getKeyframeDisplayOffset({
+									propStatus: transformOriginPropStatus,
+									keyframeDisplayOffset,
+									keyframePlaybackRate,
+								}),
+								keyframePlaybackRate,
+							},
 							translateDefault: fieldSchema.default,
 							translatePropStatus: propStatus,
 							translateValue: String(
@@ -636,7 +662,7 @@ const calculateOutlineTargets = ({
 									propStatus,
 									dragOverrideValue: dragOverrides[translateFieldKey],
 									defaultValue: fieldSchema.default,
-									frame: transformOriginSourceFrame,
+									frame: transformOriginLocalFrame,
 									shouldResortToDefaultValueIfUndefined: true,
 								}) ?? fieldSchema.default,
 							),
@@ -658,8 +684,6 @@ type SelectedOutlineOverlayProps = {
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly scale: number;
-	readonly translationX: number;
-	readonly translationY: number;
 };
 
 type ActiveSelectedOutlineOverlayProps = Omit<
@@ -668,6 +692,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 > & {
 	readonly calculateOutlineTargetsForCurrentState: CalculateOutlineTargets;
 	readonly draggingOutline: boolean;
+	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
 	readonly getLatestOutlineTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
@@ -684,9 +709,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 	) => void;
 	readonly selectedSequenceKeys: ReadonlySet<string>;
 	readonly sequenceKeysContainingSelection: ReadonlySet<string>;
-	readonly sequences: React.ContextType<
-		typeof Internals.SequenceManager
-	>['sequences'];
+	readonly sequences: TSequence[];
 };
 
 const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
@@ -696,6 +719,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	compositionHeight,
 	compositionWidth,
 	draggingOutline,
+	getAllDragTargets,
 	getLatestOutlineTargetByKey,
 	getSelectableOutlines,
 	hoveredTimelineNodePathKey,
@@ -707,48 +731,28 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	selectedSequenceKeys,
 	sequenceKeysContainingSelection,
 	sequences,
-	translationX,
-	translationY,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const updateOutlinesRef = useRef<() => void>(() => undefined);
 	const selectableOutlines = useMemo(() => {
 		return getSelectableOutlines(timelinePosition);
 	}, [getSelectableOutlines, timelinePosition]);
-	const selectableOutlinesForLayout = useMemo(() => {
-		if (measureAllOutlines) {
-			return selectableOutlines;
-		}
-
-		// A timeline item can represent multiple connected canvas instances.
-		// Keep every instance of an active source node without calculating targets
-		// for unrelated timeline items while the canvas itself is inactive.
-		const activeNodePathKeys = new Set<string>();
-		for (const {key, nodePathInfo} of selectableOutlines) {
-			const nodePathKey = timelineSequenceNodePathToKey(
-				nodePathInfo.sequenceSubscriptionKey,
-			);
-			if (
-				selectedSequenceKeys.has(key) ||
-				sequenceKeysContainingSelection.has(key) ||
-				nodePathKey === hoveredTimelineNodePathKey
-			) {
-				activeNodePathKeys.add(nodePathKey);
-			}
-		}
-
-		return selectableOutlines.filter(({nodePathInfo}) =>
-			activeNodePathKeys.has(
-				timelineSequenceNodePathToKey(nodePathInfo.sequenceSubscriptionKey),
-			),
-		);
-	}, [
-		hoveredTimelineNodePathKey,
-		measureAllOutlines,
-		selectableOutlines,
-		selectedSequenceKeys,
-		sequenceKeysContainingSelection,
-	]);
+	const selectableOutlinesForLayout = useMemo(
+		() =>
+			getCanvasActiveOutlineTargets({
+				targets: selectableOutlines,
+				selectedSequenceKeys,
+				sequenceKeysContainingSelection,
+				hoveredNodePathKey: hoveredTimelineNodePathKey,
+				measureAll: measureAllOutlines,
+			}),
+		[
+			hoveredTimelineNodePathKey,
+			measureAllOutlines,
+			selectableOutlines,
+			selectedSequenceKeys,
+			sequenceKeysContainingSelection,
+		],
+	);
 	const outlineRuntimeControls = useMemo(() => {
 		return selectableOutlinesForLayout.flatMap(({key, sequence}) => {
 			if (
@@ -796,14 +800,12 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 		],
 	);
 
-	useLayoutEffect(() => {
-		updateOutlinesRef.current();
-	}, [scale, translationX, translationY]);
 	return (
 		<SelectedOutlineRenderer
 			compositionHeight={compositionHeight}
 			compositionWidth={compositionWidth}
 			dragging={draggingOutline}
+			getAllDragTargets={getAllDragTargets}
 			getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
 			outlineTargets={outlineTargets}
 			onDraggingChange={onDraggingChange}
@@ -811,7 +813,6 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			onSelect={onSelect}
 			scale={scale}
 			sequences={sequences}
-			updateOutlinesRef={updateOutlinesRef}
 		/>
 	);
 };
@@ -822,16 +823,10 @@ const ActiveSelectedOutlineOverlay = React.memo(
 
 const SelectedOutlineOverlayUnmemoized: React.FC<
 	SelectedOutlineOverlayProps
-> = ({
-	canvasHovered,
-	compositionHeight,
-	compositionWidth,
-	scale,
-	translationX,
-	translationY,
-}) => {
+> = ({canvasHovered, compositionHeight, compositionWidth, scale}) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const sequences = Internals.useSequenceManagerSequences();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -876,8 +871,13 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		() => getSelectedCropInfo(selectedItems),
 		[selectedItems],
 	);
-	const getSelectableOutlines = useCallback(
-		(timelinePosition: number) => {
+	const getSelectableOutlines = useMemo(() => {
+		// Resolve source identities once per sequence snapshot, on first demand.
+		// Playback only filters the cached candidates by their visible range.
+		let selectableOutlines: ReturnType<
+			typeof getSequencesWithSelectableOutlines
+		> | null = null;
+		return (timelinePosition: number | null) => {
 			if (
 				isFullscreen ||
 				!isStudioSelectionEnabled() ||
@@ -887,22 +887,30 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 				return [];
 			}
 
-			return getSequencesWithSelectableOutlines({
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				compositions,
-				timelinePosition,
+			selectableOutlines ??= getCanvasSelectableOutlines({
+				tracks: calculateTimeline({
+					sequences: [...sequences],
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					compositions,
+				}),
+				timelinePosition: null,
+				resolveSequenceNodePathInfo: null,
 			});
-		},
-		[
-			compositions,
-			editorShowOutlines,
-			isFullscreen,
-			overrideIdToNodePathMappings,
-			previewSelectionAvailable,
-			sequences,
-		],
-	);
+			return timelinePosition === null
+				? selectableOutlines
+				: getCanvasVisibleOutlineTargets({
+						targets: selectableOutlines,
+						timelinePosition,
+					});
+		};
+	}, [
+		compositions,
+		editorShowOutlines,
+		isFullscreen,
+		overrideIdToNodePathMappings,
+		previewSelectionAvailable,
+		sequences,
+	]);
 
 	const calculateOutlineTargetsForCurrentState =
 		useCallback<CalculateOutlineTargets>(
@@ -996,10 +1004,47 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 			getSelectableOutlinesAtFrame,
 		],
 	);
-	const getCurrentSelectableOutlines = useCallback(
-		() => getSelectableOutlinesAtFrame(getCurrentFrame()),
-		[getCurrentFrame, getSelectableOutlinesAtFrame],
-	);
+	const getAllDragTargets = useCallback((): SelectedOutlineDragTarget[] => {
+		// Selected layers can be outside the current frame and have no mounted DOM.
+		// Only outline measurement and snapping need to be restricted to visible layers.
+		const selectedKeys = getSequenceKeysContainingSelection(
+			currentSelection.current.selectedItems,
+		);
+		if (selectedKeys.size === 0) {
+			return [];
+		}
+
+		const selectableOutlines = getSelectableOutlines(null).filter(({key}) =>
+			selectedKeys.has(key),
+		);
+		const targets = calculateOutlineTargetsForCurrentState({
+			mode: 'controls',
+			runtimeValuesByStore: new Map(),
+			selectableOutlines,
+			targetKey: null,
+			targetTimelinePosition: getCurrentFrame(),
+		}) as SelectedOutlineTarget[];
+		const dragTargets = new Map<string, SelectedOutlineDragTarget>();
+		for (const {drag} of targets) {
+			if (drag === null) {
+				continue;
+			}
+
+			const sourceNodeKey = Internals.makeSequencePropsSubscriptionKey(
+				drag.nodePath,
+			);
+			if (!dragTargets.has(sourceNodeKey)) {
+				dragTargets.set(sourceNodeKey, drag);
+			}
+		}
+
+		return [...dragTargets.values()];
+	}, [
+		calculateOutlineTargetsForCurrentState,
+		currentSelection,
+		getCurrentFrame,
+		getSelectableOutlines,
+	]);
 	const onDraggingChange = useCallback(
 		(dragging: boolean) => {
 			setDraggingOutline(dragging);
@@ -1017,16 +1062,14 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		},
 		[selectItem],
 	);
-	const measurementActive =
-		canvasHovered ||
-		draggingOutline ||
-		canvasContextMenuOpen ||
-		sequenceKeysContainingSelection.size > 0 ||
-		hoveredSequence?.source === 'timeline';
-	const measureAllOutlines =
-		canvasHovered || draggingOutline || canvasContextMenuOpen;
-	const hoveredTimelineNodePathKey =
-		hoveredSequence?.source === 'timeline' ? hoveredSequence.nodePathKey : null;
+	const {measurementActive, measureAllOutlines, hoveredTimelineNodePathKey} =
+		getCanvasOutlineActivity({
+			canvasHovered,
+			dragging: draggingOutline,
+			contextMenuOpen: canvasContextMenuOpen,
+			hasSelection: sequenceKeysContainingSelection.size > 0,
+			hoveredSequence,
+		});
 	useLayoutEffect(() => {
 		if (measurementActive) {
 			return;
@@ -1039,10 +1082,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 
 	return (
 		<>
-			<SelectedOutlineKeyboardControls
-				getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
-				getSelectableOutlines={getCurrentSelectableOutlines}
-			/>
+			<SelectedOutlineKeyboardControls getAllDragTargets={getAllDragTargets} />
 			{measurementActive ? (
 				<ActiveSelectedOutlineOverlay
 					calculateOutlineTargetsForCurrentState={
@@ -1051,6 +1091,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					compositionHeight={compositionHeight}
 					compositionWidth={compositionWidth}
 					draggingOutline={draggingOutline}
+					getAllDragTargets={getAllDragTargets}
 					getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
 					getSelectableOutlines={getSelectableOutlines}
 					hoveredTimelineNodePathKey={hoveredTimelineNodePathKey}
@@ -1062,8 +1103,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					selectedSequenceKeys={selectedSequenceKeys}
 					sequenceKeysContainingSelection={sequenceKeysContainingSelection}
 					sequences={sequences}
-					translationX={translationX}
-					translationY={translationY}
 				/>
 			) : null}
 		</>

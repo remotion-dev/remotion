@@ -1,81 +1,107 @@
-If the video being created is a multi-scene video, it should be structured in a special way.
-Create a new folder and put each scene in a separate file.
+# Multi-scene videos
+
+Put each substantial scene in its own component and file.  
+Register those components as [connected compositions](connected-compositions.md) so each scene has an editable Studio timeline.
+
+Treat the parent timeline as an editable document: Author every scene that
+should be edited independently as a separate interactive component
+or `<TransitionSeries.Sequence>` JSX node. Keep its `name` and
+`durationInFrames` inline so the node has its own source-editing target.
+Programmatic rendering is suitable only when the generated scenes are
+intentionally controlled as one source template.
+
+Use `<TransitionSeries>` when the scenes may have transitions.  
+Install `@remotion/transitions` if it is missing.  
+Give each sequence an inline `durationInFrames` value so Studio can edit its timing.
+
+Example:
 
 ```tsx
-// SceneA.tsx
-export const SceneA: React.FC = () => {
- return // ...
-}
-```
-
-```tsx
-// SceneB.tsx
-export const SceneB: React.FC = () => {
-  return // ...
-} 
-```
-
-Install `@remotion/transitions` if not yet available:
-
-```
-npx remotion add @remotion/transitions
-```
-
 // MyVideo.tsx
-```tsx
 import {TransitionSeries} from '@remotion/transitions';
+import {useVideoConfig} from 'remotion';
+import {OpeningScene} from './OpeningScene';
+import {FeatureScene} from './FeatureScene';
 
-const MyVideo: React.FC = () => {
+export const MyVideo = () => {
+  const {fps} = useVideoConfig();
+
   return (
     <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={4 * fps} name="SceneA">
-        <SceneA />
+      <TransitionSeries.Sequence
+        name="Opening"
+        durationInFrames={90}
+        premountFor={fps}
+      >
+        <OpeningScene />
       </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence durationInFrames={4 * fps} name="SceneB">
-        <SceneB />
+      <TransitionSeries.Sequence
+        name="Feature"
+        durationInFrames={120}
+        premountFor={fps}
+      >
+        <FeatureScene />
       </TransitionSeries.Sequence>
     </TransitionSeries>
-  )
-}
+  );
+};
 ```
 
-It could also make sense to register each scene individually in the root file so it can be edited there.
-If a composition with the same component is registered, one can double click the sequence in the main composition and jump to that composition.
+Register the same scene components, plus the parent video, in the root:
 
-```tsx
-export const Root: React.FC = () => {
-  return (
-    <>
-      <Folder id="MyVideo-Scenes">
-        <Composition
-          id="Scene1"
-          component={Scene1}
-          durationInFrames={5 * fps}
-          fps={30}
-          width={1920}
-          height={1080}
-        />
-        <Composition
-          id="Scene2"
-          component={Scene2}
-          durationInFrames={5 * fps}
-          fps={30}
-          width={1920}
-          height={1080}
-        /> 
-      </Folder>
+```tsx title="src/Root.tsx"
+import {Composition, Folder} from 'remotion';
+import {OpeningScene} from './OpeningScene';
+import {FeatureScene} from './FeatureScene';
+import {ChapterElement} from './ChapterElement';
+import {MyVideo} from './MyVideo';
+
+export const RemotionRoot = () => (
+  <>
+    <Folder name="Elements">
       <Composition
-        id="MyVideo"
-        component={MyVideo}
-        durationInFrames={10 * fps}
-        fps={30}
+        id="ChapterElement"
+        component={ChapterElement}
         width={1920}
         height={1080}
-      /> 
-    </>
-  )
-}
+        fps={30}
+        durationInFrames={60}
+      />
+    </Folder>
+    <Folder name="Scenes">
+      <Composition
+        id="Opening"
+        component={OpeningScene}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={90}
+      />
+      <Composition
+        id="Feature"
+        component={FeatureScene}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={120}
+      />
+    </Folder>
+    <Composition
+      id="MyVideo"
+      component={MyVideo}
+      width={1920}
+      height={1080}
+      fps={30}
+      durationInFrames={210}
+    />
+  </>
+);
 ```
 
-This allows the user to trim the start and end of the durations visually and add [transitions](./transitions.md) later.
-Prefer inlining the `durationInFrames` values, because only then they are editable. It's okay if the value is redundant.
+Keep each scene's standalone metadata and `defaultProps` consistent with how it is used in the main video.
+
+With no transition, this example needs a 210-frame main composition.  
+If you add a transition, account for its overlap in the main duration; see [transitions](transitions.md).
+
+Use `<TransitionSeries>` for consecutive scenes that do not need transitions.
+For independently placed scenes, prefer components made with `Interactive.withSchema({wrapInSequence: true})` and put `from` and `durationInFrames` directly on each instance.

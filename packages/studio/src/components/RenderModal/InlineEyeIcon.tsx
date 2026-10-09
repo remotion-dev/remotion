@@ -1,5 +1,6 @@
 import {useCallback} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 
@@ -32,12 +33,16 @@ export const InlineEyeButton: React.FC<{
 		},
 		[enabled],
 	);
+	const label = enabled ? 'Show value' : 'Hide value';
 
 	return (
-		<InlineAction
-			renderAction={renderAction}
-			onClick={onClick}
-			variant={null}
-		/>
+		<ActionTooltip label={label} shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+				aria-label={label}
+			/>
+		</ActionTooltip>
 	);
 };

@@ -1,3 +1,4 @@
+import type {PluginOptions as DocsPluginOptions} from '@docusaurus/plugin-content-docs';
 import type {Config} from '@docusaurus/types';
 import elementSourceDependencies from './plugins/element-source-dependencies.js';
 import longContentHashes from './plugins/long-content-hashes.js';
@@ -23,6 +24,22 @@ const fasterConfig = isVercel
 
 const showGitLastUpdate =
 	process.env.REMOTION_DOCS_DISABLE_GIT_LAST_UPDATE !== '1';
+
+// Apply the class before the server-rendered layout is parsed so the docs
+// navigation cannot appear for one frame before React hydrates.
+const studioElementsEmbedScript = `
+(() => {
+	const pathname = window.location.pathname;
+	const isElementsPage =
+		pathname === '/elements' || pathname.startsWith('/elements/');
+	const isInsideStudio =
+		new URLSearchParams(window.location.search).get('remotion-studio') ===
+			'true' || window.parent !== window;
+
+	if (isElementsPage && isInsideStudio) {
+		document.body.classList.add('studio-elements-embed');
+	}
+})();`;
 
 const config: Config = {
 	title: 'Remotion | Make videos programmatically',
@@ -315,6 +332,30 @@ const config: Config = {
 				docs: {
 					path: 'docs',
 					sidebarPath: './sidebars.ts',
+					sidebarItemsGenerator: ({
+						defaultSidebarItemsGenerator,
+						...args
+					}: Parameters<DocsPluginOptions['sidebarItemsGenerator']>[0]) => {
+						if (args.item.dirName !== 'options') {
+							return defaultSidebarItemsGenerator(args);
+						}
+
+						// Compute alphabetical positions at build time so adding an option
+						// does not change the front matter of every later option page.
+						const docs = args.docs
+							.filter(
+								(doc) =>
+									doc.id.startsWith('options/') && doc.id !== 'options/index',
+							)
+							.sort(
+								(a, b) =>
+									a.title.localeCompare(b.title, 'en') ||
+									a.id.localeCompare(b.id, 'en'),
+							)
+							.map((doc, index) => ({...doc, sidebarPosition: index + 1}));
+
+						return defaultSidebarItemsGenerator({...args, docs});
+					},
 					editUrl:
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 					showLastUpdateTime: showGitLastUpdate,
@@ -348,6 +389,30 @@ const config: Config = {
 		],
 	],
 	plugins: [
+		() => ({
+			name: 'mark-studio-elements-embed-before-paint',
+			injectHtmlTags: () => ({
+				preBodyTags: [
+					{
+						tagName: 'script',
+						innerHTML: studioElementsEmbedScript,
+					},
+				],
+			}),
+		}),
+		// MapLibre's worker fallback uses a dynamic URL even when setWorkerUrl() is called.
+		() => ({
+			name: 'ignore-maplibre-worker-warning',
+			configureWebpack: () => ({
+				ignoreWarnings: [
+					{
+						module: /maplibre-gl\/dist\/maplibre-gl\.mjs$/,
+						message:
+							/Critical dependency: the request of a dependency is an expression/,
+					},
+				],
+			}),
+		}),
 		elementSourceDependencies,
 		longContentHashes,
 		[

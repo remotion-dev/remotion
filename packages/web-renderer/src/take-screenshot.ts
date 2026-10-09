@@ -1,5 +1,5 @@
 import type {LogLevel} from 'remotion';
-import {Internals} from 'remotion';
+import {HtmlInCanvas, Internals} from 'remotion';
 import {compose} from './compose';
 import {containsUrlMaskImage} from './drawing/mask-image';
 import type {HtmlInCanvasContext} from './html-in-canvas';
@@ -50,11 +50,14 @@ export const createLayer = async ({
 					'URL masks are loaded by the built-in DOM composer to guarantee deterministic rendering.',
 				shouldWarn: false,
 			});
-		} else if (containsLayoutSubtreeCanvas(element)) {
+		} else if (
+			containsLayoutSubtreeCanvas(element) &&
+			!HtmlInCanvas.isNestingSupported()
+		) {
 			onHtmlInCanvasLayerOutcome({
 				native: false,
 				reason:
-					'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture is unsupported, so the built-in DOM composer is used.',
+					'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture requires Chrome 157 or newer, so the built-in DOM composer is used.',
 				shouldWarn: false,
 			});
 		} else {

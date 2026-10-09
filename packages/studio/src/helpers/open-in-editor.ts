@@ -14,10 +14,11 @@ import type {
 	CodePosition,
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
+import {codingAgentHistory, editorHistory} from '../state/recently-used-apps';
 import {getBrowserStudioOperations} from './browser-studio-operations';
 import {useSyncExternalStore} from './use-sync-external-store';
 
-export const openInEditor = (
+export const openInEditor = async (
 	stack: SymbolicatedStackFrame,
 	editorId: EditorPickerId,
 ) => {
@@ -29,7 +30,7 @@ export const openInEditor = (
 		originalScriptCode,
 	} = stack;
 
-	return callApi('/api/open-in-editor', {
+	const response = await callApi('/api/open-in-editor', {
 		editorId,
 		stack: {
 			originalFileName,
@@ -39,13 +40,26 @@ export const openInEditor = (
 			originalScriptCode,
 		},
 	});
+	if (response.success) {
+		editorHistory.remember(editorId);
+	}
+
+	return response;
 };
 
-export const openInCodingAgent = (
+export const openInCodingAgent = async (
 	codingAgentId: DefaultCodingAgent,
 	prompt: string | null,
 ) => {
-	return callApi('/api/open-in-coding-agent', {codingAgentId, prompt});
+	const response = await callApi('/api/open-in-coding-agent', {
+		codingAgentId,
+		prompt,
+	});
+	if (response.success) {
+		codingAgentHistory.remember(codingAgentId);
+	}
+
+	return response;
 };
 
 export const openInTerminal = (
@@ -247,7 +261,7 @@ export const loadCompositionComponentInfo = async ({
 						}
 
 						const {resolveCompositionComponentLocation} =
-							await import('@remotion/studio-codemods/resolve-composition-component-location');
+							await import('@remotion/codemods/resolve-composition-component-location');
 						return {
 							canAddSequence: false,
 							location: resolveCompositionComponentLocation({

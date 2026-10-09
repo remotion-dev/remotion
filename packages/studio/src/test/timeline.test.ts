@@ -8,6 +8,7 @@ const getStack = () => null;
 const withoutKeyframeDisplayOffset = <
 	T extends {
 		keyframeDisplayOffset: number;
+		keyframePlaybackRate: number;
 		sequenceFrameOffset: number;
 		cascadedStart: number;
 		localStart: number;
@@ -18,6 +19,7 @@ const withoutKeyframeDisplayOffset = <
 	tracks.map(
 		({
 			keyframeDisplayOffset,
+			keyframePlaybackRate,
 			sequenceFrameOffset,
 			cascadedStart,
 			localStart,
@@ -63,6 +65,7 @@ test('Should calculate a basic timeline', () => {
 				loopDisplay: undefined,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
@@ -70,6 +73,8 @@ test('Should calculate a basic timeline', () => {
 	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
@@ -91,6 +96,7 @@ test('Should calculate a basic timeline', () => {
 				type: 'sequence',
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		},
@@ -121,6 +127,7 @@ test('Should follow order of nesting', () => {
 				loopDisplay: undefined,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 			{
@@ -143,6 +150,7 @@ test('Should follow order of nesting', () => {
 				isInsideSeries: false,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
@@ -150,6 +158,8 @@ test('Should follow order of nesting', () => {
 	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			sequence: {
 				displayName: 'Audio',
 				documentationLink: null,
@@ -170,12 +180,15 @@ test('Should follow order of nesting', () => {
 				isInsideSeries: false,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 			depth: 0,
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 100,
 			sequence: {
 				displayName: 'Audio',
 				documentationLink: null,
@@ -196,6 +209,7 @@ test('Should follow order of nesting', () => {
 				loopDisplay: undefined,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 			depth: 1,
@@ -210,6 +224,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 			{
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 				displayName: 'Loop',
 				documentationLink: null,
@@ -252,8 +267,6 @@ test('Should inherit loop display from parent for media tracks', () => {
 				controls: null,
 				loopDisplay: undefined,
 				src: 'video.mp4',
-				volume: 1,
-				doesVolumeChange: false,
 				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
@@ -261,6 +274,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 				mediaFrameAtSequenceZero: null,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
@@ -270,6 +284,8 @@ test('Should inherit loop display from parent for media tracks', () => {
 		durationInFrames: 100,
 		numberOfTimes: 3,
 		startOffset: -50,
+		phaseOffsetInFrames: 0,
+		mediaOffsetInFrames: 0,
 	});
 });
 
@@ -297,6 +313,7 @@ test('Should calculate sequence frame offset for negative from values', () => {
 				loopDisplay: undefined,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
@@ -331,6 +348,7 @@ test('Should calculate sequence frame offset for trimBefore values', () => {
 				loopDisplay: undefined,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
@@ -364,6 +382,7 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				loopDisplay: undefined,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 			{
@@ -386,12 +405,11 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				loopDisplay: undefined,
 				effects: [],
 				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 				frozenMediaFrame: null,
 				mediaFrameAtSequenceZero: 0,
 				src: 'https://remotion.media/video.mp4',
-				volume: 1,
-				doesVolumeChange: false,
 				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
@@ -434,6 +452,7 @@ test('Should hide descendants of sequences with connected compositions', () => {
 		effects: [],
 		effectRuntimeValues: null,
 		from: 0,
+		sequencePlaybackRate: 1,
 		frozenFrame: null,
 		getStack,
 		id,

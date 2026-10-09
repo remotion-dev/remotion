@@ -56,6 +56,11 @@ export const SelectedOutlineEditingHandles: React.FC<{
 		() => getSelectedOutlineControlLayout(outline.points),
 		[outline.points],
 	);
+	// Scale and rotation handles are placed on the bounding box of the element.
+	// For path outlines the rendered geometry follows the SVG path, so
+	// bounding-box handles would sit off the shape and misrepresent the
+	// transform. Translate and crop still apply to the element as a whole.
+	const showTransformHandles = outline.path === null;
 	const onContextMenuOpen = React.useCallback(() => {
 		return getContextMenuOpenByKey(outline.key)?.() ?? false;
 	}, [getContextMenuOpenByKey, outline.key]);
@@ -67,7 +72,8 @@ export const SelectedOutlineEditingHandles: React.FC<{
 				onDraggingChange={onDraggingChange}
 				target={controlTarget}
 			/>
-			{controlTarget?.cropDrag === null &&
+			{showTransformHandles &&
+			controlTarget?.cropDrag === null &&
 			(layoutTarget?.containsSelection || hovered)
 				? controlLayout.scaleEdges.map((edge) => (
 						<SelectedOutlineScaleEdgeLine
@@ -90,7 +96,8 @@ export const SelectedOutlineEditingHandles: React.FC<{
 						/>
 					))
 				: null}
-			{controlTarget?.cropDrag === null &&
+			{showTransformHandles &&
+			controlTarget?.cropDrag === null &&
 			(layoutTarget?.containsSelection || hovered)
 				? controlLayout.rotationCorners.map(({corner, point}) => (
 						<SelectedOutlineRotationCornerHandle

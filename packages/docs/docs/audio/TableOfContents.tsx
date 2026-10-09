@@ -42,10 +42,6 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Exporting audio'}</strong>
 					<div>Export audio</div>
 				</TOCItem>
-				<TOCItem link="/docs/audio/order-of-operations">
-					<strong>{'Order of operations'}</strong>
-					<div>Control the order of operations for audio elements</div>
-				</TOCItem>
 			</Grid>
 		</div>
 	);

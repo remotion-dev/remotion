@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {reorderNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderSequenceRequest,
 	ReorderSequenceResponse,
 } from '@remotion/studio-shared';
-import {reorderSequence} from '../../codemods/reorder-sequence';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -25,7 +25,7 @@ export const reorderSequenceHandler: ApiHandler<
 	ReorderSequenceRequest,
 	ReorderSequenceResponse
 > = ({
-	input: {fileName, sourceNodePath, targetNodePath, position, clientId},
+	input: {fileName, sourceNodePaths, targetNodePath, position, clientId},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -43,13 +43,25 @@ export const reorderSequenceHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, sequenceLabel, logLine, nodePathRemappings} =
-				await reorderSequence({
-					input: fileContents,
-					sourceNodePath: sourceNodePath.nodePath,
-					targetNodePath: targetNodePath.nodePath,
-					position,
-				});
+			const result = await reorderNodes({
+				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
+				nodes: sourceNodePaths.map((sourceNodePath) => ({
+					filePath: absolutePath,
+					nodePath: sourceNodePath.nodePath,
+				})),
+				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
+				position,
+			});
+			const output = result.changes[0]?.nextContents ?? fileContents;
+			const {sequenceLabel, logLine} = result.editDetails[0];
+			const nodePathRemappings = result.nodePathRemappings.map(
+				({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+					oldNodePath,
+					newNodePath,
+					oldJsxName,
+					newJsxName,
+				}),
+			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[
 					{

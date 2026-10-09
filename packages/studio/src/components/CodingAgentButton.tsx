@@ -7,6 +7,7 @@ import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {useSettings} from './SettingsContext';
 import {useConfigureDefaultApps} from './use-configure-default-apps';
+import {getPreferredCodingAgent} from './use-default-editor-info';
 
 const menuLabel: React.CSSProperties = {
 	color: 'inherit',
@@ -24,10 +25,7 @@ export const CodingAgentButton: React.FC<{
 	const {codingAgentInfo} = useSettings();
 	const configureDefaultApps = useConfigureDefaultApps();
 	const installedCodingAgents = codingAgentInfo?.installedCodingAgents ?? [];
-	const defaultCodingAgent =
-		installedCodingAgents.find(
-			(agent) => agent.id === codingAgentInfo?.defaultCodingAgent,
-		) ?? installedCodingAgents[0];
+	const defaultCodingAgent = getPreferredCodingAgent(codingAgentInfo);
 	const alternativeCodingAgents = installedCodingAgents.filter(
 		(agent) => agent.id !== defaultCodingAgent?.id,
 	);
@@ -88,7 +86,6 @@ export const CodingAgentButton: React.FC<{
 			}}
 			size={size}
 			style={style}
-			title={`${label} ${defaultCodingAgent.nameWithType}`}
 		>
 			<CodingAgentIcon
 				codingAgentId={defaultCodingAgent.id}

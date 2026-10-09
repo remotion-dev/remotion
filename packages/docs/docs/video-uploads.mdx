@@ -17,7 +17,6 @@ const upload = async (file: File) => {
 };
 // ---cut---
 import {Video} from '@remotion/media';
-import {AbsoluteFill} from 'remotion';
 
 type VideoProps = {
   videoURL: string;
@@ -25,9 +24,9 @@ type VideoProps = {
 
 export const MyComponent: React.FC<VideoProps> = ({videoURL}) => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src={videoURL} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

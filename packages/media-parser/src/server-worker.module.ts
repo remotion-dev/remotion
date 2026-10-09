@@ -2,6 +2,9 @@ import type {Options, ParseMediaFields} from './fields';
 import type {ParseMediaOnWorker, ParseMediaOnWorkerOptions} from './options';
 import {parseMediaOnWorkerImplementation} from './parse-media-on-worker-entry';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const parseMediaOnServerWorker: ParseMediaOnWorker = <
 	F extends Options<ParseMediaFields>,
 >(

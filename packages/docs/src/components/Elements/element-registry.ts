@@ -55,6 +55,10 @@ export const elementRegistry = {
 		category: 'captions',
 		displayName: 'Basic Captions',
 	},
+	'captions/rounded-captions': {
+		category: 'captions',
+		displayName: 'Rounded Captions',
+	},
 	'captions/moving-pill-captions': {
 		category: 'captions',
 		displayName: 'Moving Pill Captions',
@@ -138,6 +142,10 @@ export const elementRegistry = {
 	'storytelling/polaroid-pictures': {
 		category: 'storytelling',
 		displayName: 'Polaroid Pictures',
+	},
+	'storytelling/speed-lines': {
+		category: 'storytelling',
+		displayName: 'Speed Lines',
 	},
 	'text/news-article-highlight': {
 		category: 'storytelling',

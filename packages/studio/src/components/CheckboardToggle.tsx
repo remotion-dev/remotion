@@ -33,7 +33,6 @@ export const CheckboardToggle: React.FC = () => {
 			dismissOnClick={false}
 		>
 			<ControlButton
-				title=""
 				aria-label={accessibilityLabel}
 				aria-pressed={checkerboard}
 				aria-keyshortcuts={
@@ -47,27 +46,14 @@ export const CheckboardToggle: React.FC = () => {
 						aria-hidden="true"
 						focusable="false"
 						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 512 512"
+						viewBox="0 0 18 18"
 						style={{width: 18, height: 18}}
 						fill="none"
 					>
 						<path
 							fill={checkerboard ? BLUE : color}
-							d="M256 48h184c13.3 0 24 10.7 24 24v184H256V48zM48 256h208v208H72c-13.3 0-24-10.7-24-24V256z"
-						/>
-						<rect
-							x="48"
-							y="48"
-							width="416"
-							height="416"
-							rx="24"
-							stroke={checkerboard ? BLUE : color}
-							strokeWidth="32"
-						/>
-						<path
-							d="M256 48v416M48 256h416"
-							stroke={checkerboard ? BLUE : color}
-							strokeWidth="32"
+							fillRule="evenodd"
+							d="M3 2h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1H3a1 1 0 0 1 -1 -1V3a1 1 0 0 1 1 -1zM3 3h6v6H3zM9 9h6v6H9z"
 						/>
 					</svg>
 				)}
