@@ -234,7 +234,7 @@ const BestCommuteInner: React.FC<InteractiveTransformProps> = ({style}) => {
 								'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
 							}
 							from={347}
-							durationInFrames={38}
+							durationInFrames={37}
 							trimBefore={219}
 							muted
 							premountFor={fps}

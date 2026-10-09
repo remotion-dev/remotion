@@ -2,12 +2,17 @@ import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
+import {
+	addErrorToOverlay,
+	removeErrorFromOverlay,
+} from '../../error-overlay/runtime-error-store';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
@@ -15,6 +20,7 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {getTimelineTrackOverlapError} from '../../helpers/get-timeline-track-overlap-error';
 import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
@@ -439,6 +445,18 @@ const TimelineInner: React.FC = () => {
 		compactSeries,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
+	const trackOverlapError = useMemo(
+		() => getTimelineTrackOverlapError(timeline, durationInFrames),
+		[timeline, durationInFrames],
+	);
+	useEffect(() => {
+		if (trackOverlapError === null) {
+			return;
+		}
+
+		addErrorToOverlay(trackOverlapError, null);
+		return () => removeErrorFromOverlay(trackOverlapError);
+	}, [trackOverlapError, fastRefreshes]);
 	const pendingSelectionStart = useRef<{
 		selection: PendingInsertedElementSelection;
 		fastRefreshes: number;

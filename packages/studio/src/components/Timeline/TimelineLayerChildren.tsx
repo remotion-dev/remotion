@@ -132,14 +132,12 @@ export const useTimelineLayerChildren = (
 					compactSeries,
 					paddingStart: 0,
 				});
-				const position = layout.sharedChildPositions[index];
-				if (position) {
+				if (index !== -1 && layout.sceneRanges[index] !== null) {
 					for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
-						const candidate = layout.sharedChildPositions[rowIndex];
 						if (
-							candidate?.seriesIndex !== position.seriesIndex ||
-							candidate.role !== position.role ||
-							candidate.offset !== position.offset
+							layout.sceneRanges[rowIndex] === null ||
+							layout.groupIndexes[rowIndex] !== layout.groupIndexes[index] ||
+							layout.offsets[rowIndex] !== layout.offsets[index]
 						) {
 							continue;
 						}
