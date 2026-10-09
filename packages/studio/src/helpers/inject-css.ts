@@ -1,6 +1,7 @@
 import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 import {
+	BACKGROUND,
 	BLACK,
 	BLUE,
 	BLUE_HOVERED,
@@ -24,6 +25,29 @@ const makeDefaultGlobalCSS = () => {
     overscroll-behavior-y: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
+  }
+
+  html.__remotion-slide-forward,
+  html.__remotion-slide-backward {
+    view-transition-name: none;
+    --remotion-slide-distance: 100%;
+  }
+
+  html.__remotion-slide-backward {
+    --remotion-slide-distance: -100%;
+  }
+
+  html.__remotion-slide-forward::view-transition,
+  html.__remotion-slide-backward::view-transition {
+    pointer-events: none;
+  }
+
+  @keyframes remotion-slide-out {
+    to { transform: translateX(calc(-1 * var(--remotion-slide-distance))); }
+  }
+
+  @keyframes remotion-slide-in {
+    from { transform: translateX(var(--remotion-slide-distance)); }
   }
 
   .remotion-splitter {
@@ -172,6 +196,10 @@ const makeDefaultGlobalCSS = () => {
     height: 6px;
   }
 
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar-track {
+    background-color: ${BACKGROUND};
+  }
+
   @-moz-document url-prefix() {
     .__remotion-horizontal-scrollbar.__remotion-canvas-tabs {
       scrollbar-width: none;
@@ -179,6 +207,7 @@ const makeDefaultGlobalCSS = () => {
 
     .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover {
       scrollbar-width: thin;
+      scrollbar-color: ${BLACK} ${BACKGROUND};
     }
   }
 

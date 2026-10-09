@@ -8,6 +8,7 @@ const cliFlag = 'metadata' as const;
 
 export const metadataOption = {
 	name: 'Metadata',
+	addedIn: '4.0.216',
 	cliFlag,
 	description: (mode) => {
 		if (mode === 'ssr') {
@@ -31,7 +32,7 @@ export const metadataOption = {
 			</>
 		);
 	},
-	docLink: 'https://www.remotion.dev/docs/metadata',
+	docLink: 'https://www.remotion.dev/docs/options/metadata',
 	type: {} as Metadata,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

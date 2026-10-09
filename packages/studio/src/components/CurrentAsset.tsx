@@ -364,6 +364,7 @@ export const AssetInfo: React.FC<{
 
 		setSelectedModal({
 			type: 'transcribe',
+			captionStyle: null,
 			src,
 			displayName: fileName,
 			audioStreamIndex: null,

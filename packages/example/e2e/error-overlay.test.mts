@@ -45,36 +45,33 @@ test.describe('error overlay dismissal', () => {
 		const errorMessage = page.getByText('"radius" must be a finite number');
 		const openInEditorRequests: unknown[] = [];
 		const openInCodingAgentRequests: unknown[] = [];
-		await page.route('**/api/default-editor-info', async (route) => {
+		await page.route('**/api/app-info', async (route) => {
 			await route.fulfill({
 				json: {
 					success: true,
 					data: {
-						defaultEditor: 'zed',
-						installedEditors: [
-							{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
-							{id: 'vscode', name: 'Code', nameWithType: 'VS Code'},
-						],
-					},
-				},
-			});
-		});
-		await page.route('**/api/default-coding-agent-info', async (route) => {
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						defaultCodingAgent: 'codex',
-						installedCodingAgents: [
-							{id: 'codex', name: 'ChatGPT', nameWithType: 'ChatGPT'},
-							{
-								id: 'claude-code',
-								name: 'Claude',
-								nameWithType: 'Claude Code',
-							},
-						],
-						installedGitClients: [],
-						installedTerminals: [],
+						editorInfo: {
+							defaultEditor: 'zed',
+							runningEditors: [],
+							installedEditors: [
+								{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+								{id: 'vscode', name: 'Code', nameWithType: 'VS Code'},
+							],
+						},
+						codingAgentInfo: {
+							defaultCodingAgent: 'codex',
+							runningCodingAgents: [],
+							installedCodingAgents: [
+								{id: 'codex', name: 'ChatGPT', nameWithType: 'ChatGPT'},
+								{
+									id: 'claude-code',
+									name: 'Claude',
+									nameWithType: 'Claude Code',
+								},
+							],
+							installedGitClients: [],
+							installedTerminals: [],
+						},
 					},
 				},
 			});

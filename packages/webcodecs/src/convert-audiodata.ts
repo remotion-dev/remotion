@@ -17,6 +17,7 @@ export type ConvertAudioDataOptions = {
 /**
  * Converts an `AudioData` object to a new `AudioData` object with a different sample rate or format.
  * @see [Documentation](https://remotion.dev/docs/webcodecs/convert-audiodata)
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
  */
 export const convertAudioData = ({
 	audioData,

@@ -59,10 +59,10 @@ import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {
-	addEffectFromDragData,
-	getEffectDragData,
+	addEffectFromDrop,
 	hasEffectDragType,
-	hasExplicitEffectDragType,
+	isLutEffectDrop,
+	LUT_EFFECT_DROP_TARGET_ATTR,
 } from '../effect-drag-and-drop';
 import {
 	ExpandedTracksGetterContext,
@@ -96,6 +96,7 @@ import {
 	EDGE_SCROLL_VERTICAL_INCREMENT,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
+import {TIMELINE_PACKED_TRACK_HEIGHT} from './timeline-track-groups';
 import {TimelineDuplicateCount} from './TimelineDuplicateCount';
 import {
 	TimelineExpandArrowButton,
@@ -117,7 +118,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
-import {useTimelineVirtualization} from './TimelineVirtualization';
+import {useTimelineRowsRef} from './TimelineVirtualization';
 import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
@@ -132,12 +133,6 @@ const labelContainerStyle: React.CSSProperties = {
 	flex: 1,
 	flexDirection: 'row',
 	minWidth: 0,
-};
-
-const connectedCompositionIconStyle: React.CSSProperties = {
-	flexShrink: 0,
-	height: 12,
-	width: 12,
 };
 
 const effectDropHighlight: React.CSSProperties = {
@@ -353,6 +348,7 @@ const getSequencePointerDropTargetAtPoint = ({
 const SEQUENCE_REORDER_POINTER_THRESHOLD = 3;
 
 const TimelineSequenceItemInner: React.FC<{
+	readonly showBottomBorder: boolean;
 	readonly afterDropLineOffset: number;
 	readonly sequence: TSequence;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
@@ -365,6 +361,7 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly numberOfHiddenDuplicates: number;
 	readonly showProvisionalVisibilityToggle: boolean;
 }> = ({
+	showBottomBorder,
 	afterDropLineOffset,
 	connectedCompositions,
 	nestedDepth,
@@ -377,6 +374,7 @@ const TimelineSequenceItemInner: React.FC<{
 	numberOfHiddenDuplicates,
 	showProvisionalVisibilityToggle,
 }) => {
+	const isPackedTrack = sequence.timelineTrack?.role === 'track';
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
@@ -394,7 +392,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const canMutateEffects =
 		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {rows: timelineRows} = useTimelineVirtualization();
+	const timelineRowsRef = useTimelineRowsRef();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
@@ -420,6 +418,23 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [selected, selectedItems]);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
+	useEffect(() => {
+		if (!effectDropHovered) {
+			return;
+		}
+
+		const clearEffectDropHover = () => setEffectDropHovered(false);
+		document.addEventListener('drop', clearEffectDropHover, {capture: true});
+		document.addEventListener('dragend', clearEffectDropHover, {capture: true});
+		return () => {
+			document.removeEventListener('drop', clearEffectDropHover, {
+				capture: true,
+			});
+			document.removeEventListener('dragend', clearEffectDropHover, {
+				capture: true,
+			});
+		};
+	}, [effectDropHovered]);
 	const [isRenaming, setIsRenaming] = useState(false);
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
@@ -766,7 +781,7 @@ const TimelineSequenceItemInner: React.FC<{
 				const key = Internals.makeSequencePropsSubscriptionKey(
 					info.sequenceSubscriptionKey,
 				);
-				return timelineRows.find(
+				return timelineRowsRef.current.find(
 					(row) =>
 						row.track.nodePathInfo !== null &&
 						Internals.makeSequencePropsSubscriptionKey(
@@ -988,7 +1003,7 @@ const TimelineSequenceItemInner: React.FC<{
 			parentId,
 			selectedItems,
 			sequence.id,
-			timelineRows,
+			timelineRowsRef,
 			validatedLocation?.source,
 		],
 	);
@@ -1013,7 +1028,10 @@ const TimelineSequenceItemInner: React.FC<{
 			? sequence.src
 			: null;
 	const isExpanded =
-		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
+		!isPackedTrack &&
+		previewConnected &&
+		nodePathInfo !== null &&
+		getIsExpanded(nodePathInfo);
 
 	const codeHiddenStatus = propStatusesForOverride?.hidden;
 	const runtimeHidden = useRuntimeValue(sequence.controls, 'hidden');
@@ -1081,8 +1099,22 @@ const TimelineSequenceItemInner: React.FC<{
 	);
 
 	const outerHeight = useMemo(
-		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
-		[sequence.type],
+		() =>
+			(isPackedTrack
+				? TIMELINE_PACKED_TRACK_HEIGHT
+				: getTimelineLayerHeight(sequence.type)) + TIMELINE_ITEM_BORDER_BOTTOM,
+		[isPackedTrack, sequence.type],
+	);
+
+	const connectedCompositionIconStyle = useMemo(
+		(): React.CSSProperties => ({
+			flexShrink: 0,
+			height: 12,
+			// Center the icon on whole pixels, including in taller audio/video rows.
+			marginBottom: (outerHeight - TIMELINE_ITEM_BORDER_BOTTOM) % 2,
+			width: 12,
+		}),
+		[outerHeight],
 	);
 
 	const inner: React.CSSProperties = useMemo(() => {
@@ -1106,6 +1138,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [effectDropHovered, inner]);
 
 	const hasExpandableContent =
+		!isPackedTrack &&
 		isStudioInteractivityEnabled() &&
 		(Boolean(sequence.controls) || sequence.effects.length > 0);
 
@@ -1353,7 +1386,7 @@ const TimelineSequenceItemInner: React.FC<{
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
-					splitDisabled: !previewInteractive,
+					splitDisabled: !previewInteractive || isPackedTrack,
 					onDeleteSelectedSequences,
 					onDuplicateSelectedSequences,
 					onSplitSelectedSequences,
@@ -1492,8 +1525,10 @@ const TimelineSequenceItemInner: React.FC<{
 									subMenu: null,
 									value: 'rename-sequence',
 								},
-								...(splitMenuItem ? [splitMenuItem] : []),
-								...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+								...(!isPackedTrack && splitMenuItem ? [splitMenuItem] : []),
+								...(!isPackedTrack && freezeFrameMenuItem
+									? [freezeFrameMenuItem]
+									: []),
 							]
 						: [],
 				},
@@ -1514,6 +1549,7 @@ const TimelineSequenceItemInner: React.FC<{
 			duplicateDisabled,
 			editorInfo,
 			isProgrammaticallyDuplicated,
+			isPackedTrack,
 			keyframeDisplayOffset,
 			keyframePlaybackRate,
 			mediaSrc,
@@ -1598,20 +1634,8 @@ const TimelineSequenceItemInner: React.FC<{
 				previewServerState.type !== 'connected' ||
 				nodePathInfo === null ||
 				validatedLocation === null ||
-				!hasEffectDragType(e.dataTransfer)
+				(!hasEffectDragType(e.dataTransfer) && !isLutEffectDrop(e.nativeEvent))
 			) {
-				return;
-			}
-
-			const dragData = getEffectDragData(e.dataTransfer);
-			if (!dragData) {
-				if (hasExplicitEffectDragType(e.dataTransfer)) {
-					e.preventDefault();
-					e.stopPropagation();
-					setEffectDropHovered(false);
-					showNotification('Could not read effect drag data', 3000);
-				}
-
 				return;
 			}
 
@@ -1619,8 +1643,8 @@ const TimelineSequenceItemInner: React.FC<{
 			e.stopPropagation();
 			setEffectDropHovered(false);
 
-			await addEffectFromDragData({
-				dragData,
+			await addEffectFromDrop({
+				dataTransfer: e.dataTransfer,
 				fileName: validatedLocation.source,
 				nodePathInfo,
 				clientId: previewServerState.clientId,
@@ -1659,6 +1683,7 @@ const TimelineSequenceItemInner: React.FC<{
 			containsSelection={containsSelection}
 			hovered={hovered}
 			outerHeight={outerHeight}
+			showBottomBorder={showBottomBorder}
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
@@ -1733,6 +1758,9 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const annotatedTrackRow = (
 		<div
+			{...{
+				[LUT_EFFECT_DROP_TARGET_ATTR]: canDropEffect ? 'true' : undefined,
+			}}
 			{...getSequenceAnnotationAttributes({
 				sequence,
 				location: originalLocation,

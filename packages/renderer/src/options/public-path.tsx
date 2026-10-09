@@ -6,6 +6,7 @@ let currentPublicPath: string | null = null;
 
 export const publicPathOption = {
 	name: 'Public Path',
+	addedIn: '4.0.127',
 	cliFlag,
 	description: () => {
 		return (
@@ -18,7 +19,7 @@ export const publicPathOption = {
 		);
 	},
 	ssrName: 'publicPath' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer',
+	docLink: 'https://www.remotion.dev/docs/options/public-path',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

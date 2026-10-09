@@ -33,6 +33,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		Version:                        VERSION,
 		FrameRange:                     options.FrameRange,
 		OutName:                        options.OutName,
+		SeparateAudioTo:                options.SeparateAudioTo,
 		AudioBitrate:                   options.AudioBitrate,
 		VideoBitrate:                   options.VideoBitrate,
 		Webhook:                        options.Webhook,
@@ -44,6 +45,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		OffthreadVideoThreads:          options.OffthreadVideoThreads,
 		X264Preset:                     options.X264Preset,
 		GopSize:                        options.GopSize,
+		DisableSharedMemoryCapture:     options.DisableSharedMemoryCapture,
 		ForceWidth:                     options.ForceWidth,
 		BucketName:                     options.BucketName,
 		AudioCodec:                     options.AudioCodec,
@@ -51,6 +53,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		RendererFunctionName:           &options.RendererFunctionName,
 		DeleteAfter:                    options.DeleteAfter,
 		Type:                           "start",
+		Output:                         map[string]interface{}{"type": "media"},
 		JpegQuality:                    jpegQuality,
 	}
 
@@ -61,11 +64,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	if options.RendererFunctionName == "" {
 		internalParams.RendererFunctionName = nil
 	}
-	if options.Codec == "" {
-		internalParams.Codec = "h264"
-	} else {
-		internalParams.Codec = options.Codec
+	codec := options.Codec
+	if codec == "" {
+		codec = "h264"
 	}
+	internalParams.Codec = &codec
 	if options.EveryNthFrame == 0 {
 		internalParams.EveryNthFrame = 1
 	} else {
@@ -99,7 +102,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	if options.Scale == 0 {
 		internalParams.Scale = 1
 	} else {
-		internalParams.Scale = options.Scale
+		internalParams.Scale = float64(options.Scale)
 	}
 
 	if options.MaxRetries == 0 {
@@ -127,7 +130,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.TimeoutInMilliseconds = options.TimeoutInMilliseconds
 	}
-	if internalParams.Codec == "gif" {
+	if codec == "gif" {
 		internalParams.NumberOfGifLoops = &options.NumberOfGifLoops
 	}
 

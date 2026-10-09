@@ -1,6 +1,70 @@
 import {expect, test} from 'bun:test';
 import {insertBasicCaptions} from '../insert-basic-captions';
+import {parseAst} from '../sequence-props/parse-ast';
 import {lineContainingToNodePath} from './node-path-test-utils';
+
+test('caption imports avoid parameters, local declarations and destructuring', () => {
+	const fixtures = [
+		{
+			declarations: '',
+			parameter: 'BasicCaptions',
+			local: '',
+		},
+		{
+			declarations: '',
+			parameter: '',
+			local: 'const BasicCaptions = () => null;',
+		},
+		{
+			declarations: 'const {BasicCaptions} = components;',
+			parameter: '',
+			local: '',
+		},
+		{
+			declarations:
+				'const [BasicCaptions, {nested: BasicCaptions2}] = components;',
+			parameter: '',
+			local: '',
+		},
+		{
+			declarations: "import {BasicCaptions} from './basic-captions.element';",
+			parameter: 'BasicCaptions',
+			local: '',
+		},
+	];
+	for (const element of [
+		null,
+		{componentName: 'BasicCaptions', initialProps: null},
+	]) {
+		for (const {declarations, parameter, local} of fixtures) {
+			const input = `import {Video} from '@remotion/media';
+${declarations}
+export const Comp = (${parameter}) => {
+  ${local}
+  return <Video src="video.mp4" />;
+};`;
+			const {output} = insertBasicCaptions({
+				element,
+				input,
+				nodePath: lineContainingToNodePath(input, '<Video'),
+				captions: [],
+				durationInFrames: null,
+				premountFor: null,
+			});
+			const alias = declarations.includes('BasicCaptions2')
+				? 'BasicCaptions3'
+				: 'BasicCaptions2';
+			expect(output).toContain(`BasicCaptions as ${alias}`);
+			expect(output).toMatch(new RegExp(`<${alias}\\s+captions=\\{\\[\\]\\}`));
+			if (!declarations.startsWith('import')) {
+				expect(output).toContain(declarations);
+			}
+
+			expect(output).toContain(`export const Comp = (${parameter}) => {`);
+			parseAst(output);
+		}
+	}
+});
 
 const captions = [
 	{
@@ -31,6 +95,7 @@ export const Comp = () => (
 );
 `;
 	const {output} = insertBasicCaptions({
+		element: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Video'),
 		captions,
@@ -83,6 +148,7 @@ test('uses the source whitespace and configured trailing comma style', () => {
 		'',
 	].join('\r\n');
 	const {output} = insertBasicCaptions({
+		element: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Video'),
 		captions: [

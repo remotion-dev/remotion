@@ -87,6 +87,27 @@ while (!$renderProgressResponse->done) {
 print_r("Render is done!\n");
 ```
 
+## Rendering an image sequence<AvailableFrom v="4.0.535" />
+
+Use `renderFramesOnLambda()` with `RenderFramesParams`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+
+```php title="render-frames.php"
+use Remotion\LambdaPhp\RenderFramesParams;
+
+$params = new RenderFramesParams(
+  composition: 'main',
+  frameRange: [0, 99],
+  framesPerLambda: 20,
+  outputPrefix: 'exports/my-sequence/',
+  imageSequencePattern: 'element-[frame].[ext]',
+);
+
+$renderResponse = $client->renderFramesOnLambda($params);
+print_r($renderResponse);
+```
+
+Poll `getRenderProgress()` until `done` or `fatalErrorEncountered`. `framesUploaded` reports uploaded frames, and `outputSequence['manifestUrl']` points to the completed manifest. `outputPrefix` also accepts an array with `bucketName`, `keyPrefix`, and optional `s3OutputProvider`.
+
 ## Cancelling a render<AvailableFrom v="4.0.515" />
 
 Enable cancellation before starting the render, then call `cancelRenderOnLambda()`:

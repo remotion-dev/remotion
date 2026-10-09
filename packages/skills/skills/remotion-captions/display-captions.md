@@ -33,7 +33,7 @@ Fetch its source code from https://www.remotion.dev/elements/captions/basic-capt
 
 ## Displaying captions alongside video content
 
-Keep each clip's video and captions inside the same `<Sequence>`, `<Series.Sequence>`, or `<TransitionSeries.Sequence>`.  
+Keep each clip's video and captions inside the same `<Sequence>` or `<TransitionSeries.Sequence>`.
 Put the clip's `trimBefore`, `durationInFrames`, and `playbackRate` on that shared parent so trimming or changing the speed affects both.  
 For independently positioned clips, put `from` on the shared `<Sequence>` too.
 
@@ -50,30 +50,18 @@ Give the caption area a width and position it over the video. In this
 1920px-wide composition, the 900px caption area is centered by translating it
 `(1920 - 900) / 2 = 510` pixels from the left:
 
-```tsx
+```tsx title="src/MyComposition.tsx"
 import { Video } from "@remotion/media";
-import { Composition, Series, staticFile, useVideoConfig } from "remotion";
+import { TransitionSeries } from "@remotion/transitions";
+import { staticFile, useVideoConfig } from "remotion";
 import { BasicCaptions } from "./basic-captions";
 
 export const MyComposition: React.FC = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      component={MyComponent}
-      durationInFrames={750}
-      fps={30}
-      width={1920}
-      height={1080}
-    />
-  );
-};
-
-export const MyComponent: React.FC = () => {
   const { fps } = useVideoConfig();
 
   return (
-    <Series>
-      <Series.Sequence
+    <TransitionSeries>
+      <TransitionSeries.Sequence
         name="Opening"
         trimBefore={4 * fps}
         durationInFrames={20 * fps}
@@ -112,8 +100,8 @@ export const MyComponent: React.FC = () => {
             },
           ]}
         />
-      </Series.Sequence>
-      <Series.Sequence
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Sequence
         name="Next clip"
         trimBefore={1 * fps}
         durationInFrames={5 * fps}
@@ -152,8 +140,26 @@ export const MyComponent: React.FC = () => {
             },
           ]}
         />
-      </Series.Sequence>
-    </Series>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+```tsx title="src/Root.tsx"
+import { Composition } from "remotion";
+import { MyComposition } from "./MyComposition";
+
+export const RemotionRoot = () => {
+  return (
+    <Composition
+      id="MyComposition"
+      component={MyComposition}
+      durationInFrames={750}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
   );
 };
 ```

@@ -4,12 +4,16 @@ import {join} from 'path';
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
 import {validateCodec, VERSION} from '@remotion/serverless-client';
 import type {
 	CloudProvider,
 	PostRenderData,
 	ProviderSpecifics,
 	RenderMetadata,
+	ImageSequenceOutput,
+	ImageSequenceManifest,
+	RendererOutput,
 	ServerlessPayload,
 } from '@remotion/serverless-client';
 import {
@@ -19,6 +23,9 @@ import {
 	decompressInputProps,
 	DOCS_URL,
 	getCredentialsFromOutName,
+	getImageSequenceFrameKey,
+	inspectErrors,
+	rendersPrefix,
 	getExpectedOutName,
 	getNeedsToUpload,
 	MAX_FUNCTIONS_PER_RENDER,
@@ -36,6 +43,7 @@ import {
 	type OnArtifactFromRenderer,
 } from '../artifact-registry';
 import {cleanupProps} from '../cleanup-props';
+import {createPostRenderData} from '../create-post-render-data';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
 import {finishRender} from '../finish-render';
 import type {LaunchedBrowser} from '../get-browser-instance';
@@ -76,6 +84,69 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
+	}
+
+	if (params.codec !== null) {
+		validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
+	}
+
+	const separateAudioTo = params.separateAudioTo ?? null;
+
+	if (separateAudioTo !== null && params.codec === null) {
+		throw new Error(
+			'`separateAudioTo` cannot be used with image sequence renders.',
+		);
+	}
+
+	const separateAudioFilename =
+		typeof separateAudioTo === 'string'
+			? separateAudioTo
+			: (separateAudioTo?.key ?? null);
+	const audioCodec =
+		separateAudioFilename === null || params.codec === null
+			? params.audioCodec
+			: RenderInternals.resolveAudioCodec({
+					codec: params.codec,
+					setting: params.audioCodec,
+					preferLossless: params.preferLossless,
+					separateAudioTo: separateAudioFilename.toLowerCase(),
+				});
+	if (separateAudioTo !== null) {
+		if (NoReactAPIs.isAudioCodec(params.codec)) {
+			throw new Error(
+				'`separateAudioTo` was set, but this render was audio-only. This option is meant to be used for video renders.',
+			);
+		}
+
+		if (params.muted || audioCodec === null) {
+			throw new Error(
+				'`separateAudioTo` requires audio output. Audio output is disabled by the muted option or selected codec.',
+			);
+		}
+
+		const extension =
+			RenderInternals.getExtensionOfFilename(
+				separateAudioFilename,
+			)?.toLowerCase() ?? null;
+		if (
+			extension !== RenderInternals.getExtensionFromAudioCodec(audioCodec) &&
+			!(
+				audioCodec === 'aac' &&
+				RenderInternals.getMp4BrandForExtension(extension)
+			)
+		) {
+			throw new Error(
+				'`separateAudioTo` must use a supported audio extension: .wav, .aac, .mp3, .opus, .m4a, .m4b or .3gp.',
+			);
+		}
+
+		validateOutname({
+			outName: separateAudioTo,
+			codec: null,
+			audioCodecSetting: audioCodec,
+			separateAudioTo: null,
+			bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		});
 	}
 
 	const startedDate = Date.now();
@@ -186,10 +257,106 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.frameRange,
 	);
 
+	if (!Number.isInteger(params.everyNthFrame) || params.everyNthFrame < 1) {
+		throw new Error('everyNthFrame must be a positive integer');
+	}
+
 	const frameCount = RenderInternals.getFramesToRender(
 		realFrameRange,
 		params.everyNthFrame,
 	);
+
+	let rendererOutput: RendererOutput<Provider> = {type: 'media'};
+	let outputSequence: ImageSequenceOutput | null = null;
+	let {outName} = params;
+	if (params.output.type === 'sequence') {
+		if (params.imageFormat !== 'png' && params.imageFormat !== 'jpeg') {
+			throw new Error('Image sequences require imageFormat: "png" or "jpeg"');
+		}
+
+		const prefix = params.output.outputPrefix;
+		const rawPrefix =
+			typeof prefix === 'string'
+				? prefix
+				: (prefix?.keyPrefix ?? `${rendersPrefix(params.renderId)}/frames/`);
+		if (
+			rawPrefix.length === 0 ||
+			rawPrefix.startsWith('/') ||
+			rawPrefix
+				.split('/')
+				.some((segment) => segment === '.' || segment === '..') ||
+			rawPrefix.includes('\\') ||
+			Array.from(rawPrefix).some((character) => character.charCodeAt(0) < 32)
+		) {
+			throw new Error(
+				'outputPrefix must be a non-empty relative storage prefix without path traversal',
+			);
+		}
+
+		const keyPrefix = rawPrefix.replace(/\/+$/, '') + '/';
+		const imageSequencePattern =
+			params.output.imageSequencePattern ?? 'element-[frame].[ext]';
+		if (
+			!imageSequencePattern.includes('[frame]') ||
+			imageSequencePattern.includes('/') ||
+			imageSequencePattern.includes('\\') ||
+			Array.from(imageSequencePattern).some(
+				(character) => character.charCodeAt(0) < 32,
+			)
+		) {
+			throw new Error(
+				'imageSequencePattern must be a filename containing [frame]',
+			);
+		}
+
+		const destinationBucketName =
+			typeof prefix === 'object' && prefix !== null
+				? prefix.bucketName
+				: params.bucketName;
+		const destinationCredentials =
+			typeof prefix === 'object' && prefix !== null
+				? (prefix.s3OutputProvider ?? null)
+				: null;
+		rendererOutput = {
+			type: 'sequence',
+			bucketName: destinationBucketName,
+			keyPrefix,
+			imageFormat: params.imageFormat,
+			imageSequencePattern,
+			framePadding: String(frameCount[frameCount.length - 1]).length,
+			customCredentials: destinationCredentials,
+			storageClass: params.storageClass,
+			downloadBehavior: params.downloadBehavior,
+		};
+		const lastKey = getImageSequenceFrameKey({
+			...rendererOutput,
+			frame: frameCount[frameCount.length - 1],
+		});
+		if (
+			!lastKey.endsWith(`.${params.imageFormat}`) ||
+			Buffer.byteLength(lastKey) > 1024
+		) {
+			throw new Error(
+				'imageSequencePattern must use the selected image format and produce storage keys of at most 1024 bytes',
+			);
+		}
+
+		outName = {
+			bucketName: destinationBucketName,
+			key: `${keyPrefix}manifest.json`,
+			s3OutputProvider: destinationCredentials ?? undefined,
+		};
+		outputSequence = {
+			bucketName: destinationBucketName,
+			keyPrefix,
+			manifestKey: `${keyPrefix}manifest.json`,
+			manifestUrl: '',
+			imageFormat: params.imageFormat,
+			frameCount: frameCount.length,
+		};
+	} else if (params.codec === null) {
+		throw new Error('Media renders require a codec');
+	}
 
 	const framesPerLambda = validateFramesPerFunction({
 		framesPerFunction: params.framesPerFunction,
@@ -198,13 +365,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	});
 
 	validateOutname({
-		outName: params.outName,
+		outName,
 		codec: params.codec,
-		audioCodecSetting: params.audioCodec,
-		separateAudioTo: null,
+		audioCodecSetting: audioCodec,
+		separateAudioTo: separateAudioFilename?.toLowerCase() ?? null,
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
-	validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
@@ -285,12 +451,14 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			renderId: params.renderId,
 			imageFormat: params.imageFormat,
 			codec: params.codec,
+			output: rendererOutput,
 			crf: params.crf,
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
 			x264Preset: params.x264Preset,
 			gopSize: params.gopSize ?? null,
+			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
@@ -301,6 +469,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			everyNthFrame: params.everyNthFrame,
 			concurrencyPerLambda: params.concurrencyPerFunction,
 			muted: params.muted,
+			audioCodec,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
 			encodingMaxRate: params.encodingMaxRate,
@@ -335,15 +504,26 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.rendererFunctionName ??
 		insideFunctionSpecifics.getCurrentFunctionName();
 	const shouldRenderDirectly =
+		rendererOutput.type === 'media' &&
 		params.concurrency === 1 &&
 		params.rendererFunctionName === null &&
 		options.requestContext !== null;
 
 	const renderMetadata: RenderMetadata<Provider> = {
+		separateAudioTo:
+			removeOutnameCredentials(separateAudioTo ?? undefined) ?? null,
+		separateAudioOutputFileIsConditional:
+			separateAudioTo === null
+				? null
+				: !params.overwrite &&
+					providerSpecifics.supportsConditionalOutput({
+						customCredentials: getCredentialsFromOutName(separateAudioTo),
+					}) &&
+					providerSpecifics.writeFileIfNotExists !== null,
 		outputFileIsConditional:
 			!params.overwrite &&
 			providerSpecifics.supportsConditionalOutput({
-				customCredentials: getCredentialsFromOutName(params.outName ?? null),
+				customCredentials: getCredentialsFromOutName(outName),
 			}) &&
 			providerSpecifics.writeFileIfNotExists !== null,
 		startedDate,
@@ -356,25 +536,37 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		estimatedRenderLambdaInvokations: shouldRenderDirectly ? 0 : chunks.length,
 		compositionId: comp.id,
 		siteId: params.serveUrl,
-		codec: params.codec,
-		type: 'video',
-		imageFormat: params.imageFormat,
+		...(rendererOutput.type === 'sequence' && outputSequence !== null
+			? {
+					type: 'sequence' as const,
+					codec: null,
+					imageFormat: outputSequence.imageFormat,
+					muted: true as const,
+					outputSequence,
+					imageSequencePattern: rendererOutput.imageSequencePattern,
+					framePadding: rendererOutput.framePadding,
+				}
+			: {
+					type: 'video' as const,
+					codec: params.codec as NonNullable<typeof params.codec>,
+					imageFormat: params.imageFormat,
+					muted: params.muted,
+				}),
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda,
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
-		outName: removeOutnameCredentials(params.outName ?? undefined),
+		outName: removeOutnameCredentials(outName ?? undefined),
 		privacy: params.privacy,
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,
-		audioCodec: params.audioCodec,
+		audioCodec,
 		deleteAfter: params.deleteAfter,
 		numberOfGifLoops: params.numberOfGifLoops,
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: params.audioBitrate,
-		muted: params.muted,
 		metadata: params.metadata,
 		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
@@ -388,53 +580,175 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+		output: 'main',
 		renderMetadata,
 		bucketName: params.bucketName,
-		customCredentials:
-			typeof params.outName === 'string' ||
-			typeof params.outName === 'undefined'
-				? null
-				: (params.outName?.s3OutputProvider ?? null),
+		customCredentials: getCredentialsFromOutName(outName),
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
+	const separateAudioDestination =
+		separateAudioTo === null
+			? null
+			: getExpectedOutName({
+					output: 'separate-audio',
+					renderMetadata,
+					bucketName: params.bucketName,
+					customCredentials: getCredentialsFromOutName(separateAudioTo),
+					bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+				});
+	if (
+		separateAudioDestination !== null &&
+		separateAudioDestination.key === key &&
+		separateAudioDestination.renderBucketName === renderBucketName &&
+		(separateAudioDestination.customCredentials?.endpoint ?? null) ===
+			(customCredentials?.endpoint ?? null)
+	) {
+		throw new Error(
+			'`outName` and `separateAudioTo` must point to different output files.',
+		);
+	}
+
+	if (outputSequence !== null) {
+		outputSequence.manifestUrl = providerSpecifics.getOutputUrl({
+			output: 'main',
+			bucketName: params.bucketName,
+			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			customCredentials,
+			renderMetadata,
+		}).url;
+	}
 
 	if (!params.overwrite) {
 		const findOutputFile = insideFunctionSpecifics.timer(
 			'Checking if output file already exists',
 			params.logLevel,
 		);
-		const output = await findOutputFileInBucket({
-			bucketName: params.bucketName,
-			customCredentials,
-			renderMetadata,
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
-			providerSpecifics,
-			forcePathStyle: params.forcePathStyle,
-			requestHandler: null,
-		}).catch((err) => {
-			if (
-				err instanceof OutputFileAccessDeniedError &&
-				renderMetadata.outputFileIsConditional
-			) {
-				// The final conditional upload still enforces overwrite: false.
-				return null;
-			}
+		for (const destination of [
+			{
+				output: 'main' as const,
+				key,
+				renderBucketName,
+				customCredentials,
+				conditional: renderMetadata.outputFileIsConditional,
+			},
+			...(separateAudioDestination === null
+				? []
+				: [
+						{
+							output: 'separate-audio' as const,
+							...separateAudioDestination,
+							conditional: renderMetadata.separateAudioOutputFileIsConditional,
+						},
+					]),
+		]) {
+			const output = await findOutputFileInBucket({
+				output: destination.output,
+				bucketName: params.bucketName,
+				customCredentials: destination.customCredentials,
+				renderMetadata,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				requestHandler: null,
+			}).catch((err) => {
+				if (
+					err instanceof OutputFileAccessDeniedError &&
+					destination.conditional
+				) {
+					// The final conditional upload still enforces overwrite: false.
+					return null;
+				}
 
-			throw err;
-		});
-		if (output) {
-			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
-			);
+				throw err;
+			});
+			if (output) {
+				throw new TypeError(
+					`Output file "${destination.key}" in bucket "${destination.renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in ${params.output.type === 'sequence' ? 'renderFramesOnLambda()' : 'renderMediaOnLambda()'} to overwrite it.`,
+				);
+			}
 		}
 
 		findOutputFile.end();
 	}
 
-	overallProgress.setRenderMetadata(renderMetadata);
+	if (rendererOutput.type === 'sequence') {
+		const sequenceDestination = rendererOutput;
+		const reservationKey = `${rendererOutput.keyPrefix}.remotion-render.json`;
+		if (!params.overwrite) {
+			const keys = [
+				reservationKey,
+				...(params.output.type === 'sequence' &&
+				params.output.outputPrefix === null
+					? []
+					: frameCount.map((frame) =>
+							getImageSequenceFrameKey({...sequenceDestination, frame}),
+						)),
+			];
+			for (let index = 0; index < keys.length; index += 25) {
+				await Promise.all(
+					keys.slice(index, index + 25).map(async (frameKey) => {
+						try {
+							await providerSpecifics.headFile({
+								bucketName: renderBucketName,
+								key: frameKey,
+								region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+								customCredentials,
+								forcePathStyle: params.forcePathStyle,
+								requestHandler: null,
+							});
+						} catch (err) {
+							if (['NotFound', 'NoSuchKey'].includes((err as Error).name)) {
+								return;
+							}
+
+							throw err;
+						}
+
+						throw new Error(
+							`Image sequence output "${frameKey}" already exists. Set overwrite: true to replace it.`,
+						);
+					}),
+				);
+			}
+		}
+
+		const write =
+			!params.overwrite &&
+			providerSpecifics.supportsConditionalOutput({customCredentials}) &&
+			providerSpecifics.writeFileIfNotExists !== null
+				? providerSpecifics.writeFileIfNotExists
+				: providerSpecifics.writeFile;
+		await write({
+			bucketName: renderBucketName,
+			key: reservationKey,
+			body: JSON.stringify({renderId: params.renderId}),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			privacy: params.privacy,
+			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: null,
+			customCredentials,
+			forcePathStyle: params.forcePathStyle,
+			storageClass: params.storageClass,
+			requestHandler: null,
+		});
+		overallProgress.setRenderMetadata(renderMetadata);
+		if (params.overwrite) {
+			await providerSpecifics.deleteFile({
+				bucketName: renderBucketName,
+				key,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				customCredentials,
+				forcePathStyle: params.forcePathStyle,
+				requestHandler: null,
+			});
+		}
+	} else {
+		overallProgress.setRenderMetadata(renderMetadata);
+	}
 
 	const artifactRegistry = makeArtifactRegistry();
+	const artifactUploads: Promise<void>[] = [];
 
 	const onArtifact: OnArtifactFromRenderer = ({artifact, chunk, attempt}) => {
 		const artifactRegistration = artifactRegistry.registerArtifact({
@@ -455,7 +769,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			{indent: false, logLevel: params.logLevel},
 			'Writing artifact ' + artifact.filename + ' to S3',
 		);
-		providerSpecifics
+		const artifactUpload = providerSpecifics
 			.writeFile({
 				bucketName: renderBucketName,
 				key: storageKey,
@@ -505,13 +819,113 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 					err,
 				);
 			});
+		artifactUploads.push(artifactUpload);
 		return artifactRegistration;
 	};
 
 	let postRenderData: PostRenderData<Provider>;
-	if (shouldRenderDirectly) {
+	if (
+		rendererOutput.type === 'sequence' &&
+		renderMetadata.type === 'sequence'
+	) {
+		const sequenceDestination = rendererOutput;
+		const outdir = RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN);
+		await Promise.all(
+			lambdaPayloads.map((payload) =>
+				renderRendererFunctionWithRetry({
+					payload,
+					files: [],
+					functionName: rendererFunctionName,
+					outdir,
+					overallProgress,
+					logLevel: params.logLevel,
+					onArtifact,
+					providerSpecifics,
+					insideFunctionSpecifics,
+					requestHandler: null,
+					expectedBucketOwner: options.expectedBucketOwner,
+				}),
+			),
+		);
+		await Promise.all(artifactUploads);
+		const progress = overallProgress.get();
+		if (
+			progress.framesUploaded !== frameCount.length ||
+			progress.chunks.length !== chunks.length
+		) {
+			throw new Error(
+				'Cannot finish the image sequence before every chunk has uploaded all its frames',
+			);
+		}
+
+		const manifest: ImageSequenceManifest = {
+			renderId: params.renderId,
+			imageFormat: rendererOutput.imageFormat,
+			width: renderMetadata.dimensions.width,
+			height: renderMetadata.dimensions.height,
+			fps: comp.fps,
+			frameRange: realFrameRange,
+			everyNthFrame: params.everyNthFrame,
+			frames: frameCount.map((frame) => ({
+				frame,
+				key: getImageSequenceFrameKey({
+					...sequenceDestination,
+					frame,
+				}),
+			})),
+		};
+		const manifestBody = JSON.stringify(manifest);
+		await providerSpecifics.writeFile({
+			bucketName: renderBucketName,
+			key,
+			body: manifestBody,
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			privacy: params.privacy,
+			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: {type: 'play-in-browser'},
+			customCredentials,
+			forcePathStyle: params.forcePathStyle,
+			storageClass: params.storageClass,
+			requestHandler: null,
+		});
+		const cleanup = await cleanupProps({
+			inputProps: params.inputProps,
+			serializedResolvedProps,
+			providerSpecifics,
+			forcePathStyle: params.forcePathStyle,
+			insideFunctionSpecifics,
+		});
+		postRenderData = createPostRenderData({
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
+			renderMetadata,
+			errorExplanations: inspectErrors({errors: progress.errors}),
+			timeToDelete: cleanup.reduce((max, time) => Math.max(max, time), 0),
+			outputFile: {
+				url: renderMetadata.outputSequence.manifestUrl,
+				sizeInBytes: Buffer.byteLength(manifestBody),
+			},
+			timeToCombine: null,
+			overallProgress: progress,
+			timeToFinish: Date.now() - startTime,
+			outputSize:
+				progress.uploadedSizeInBytes + Buffer.byteLength(manifestBody),
+			providerSpecifics,
+		});
+		await overallProgress.setPostRenderData(postRenderData);
+		await providerSpecifics
+			.deleteFile({
+				bucketName: renderBucketName,
+				key: `${rendererOutput.keyPrefix}.remotion-render.json`,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				customCredentials,
+				forcePathStyle: params.forcePathStyle,
+				requestHandler: null,
+			})
+			.catch(() => undefined);
+	} else if (shouldRenderDirectly) {
 		const directRender = await renderWithSingleFunction({
-			params,
+			params: {...params, audioCodec},
 			composition: comp,
 			serializedInputPropsWithCustomSchema,
 			frameRange: realFrameRange,
@@ -524,6 +938,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		});
 		try {
 			postRenderData = await finishRender({
+				bucketName: params.bucketName,
+				separateAudioFile: directRender.separateAudioFile,
+				separateAudioCredentials:
+					separateAudioDestination?.customCredentials ?? null,
 				expectedBucketOwner: options.expectedBucketOwner,
 				renderBucketName,
 				customCredentials,
@@ -548,6 +966,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			await directRender.cleanup();
 		}
 	} else {
+		if (params.codec === null) {
+			throw new Error('Media renders require a codec');
+		}
+
 		const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 		if (existsSync(outdir)) {
 			rmSync(outdir, {
@@ -581,7 +1003,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 			numberOfFrames: comp.durationInFrames,
-			audioCodec: params.audioCodec,
+			audioCodec,
+			separateAudioFilename,
+			separateAudioCredentials:
+				separateAudioDestination?.customCredentials ?? null,
 			chunkCount: chunks.length,
 			codec: params.codec,
 			customCredentials,
@@ -884,9 +1309,11 @@ export const launchHandler = async <Provider extends CloudProvider>({
 						expectedBucketOwner: options.expectedBucketOwner,
 						bucketName: params.bucketName,
 						customData: params.webhook.customData ?? null,
-						outputUrl: postRenderData.outputFile,
+						outputUrl: postRenderData.outputFile ?? undefined,
 						lambdaErrors: postRenderData.errors,
-						outputFile: postRenderData.outputFile,
+						outputFile: postRenderData.outputFile ?? undefined,
+						separateAudio: postRenderData.separateAudio,
+						outputSequence: postRenderData.outputSequence,
 						timeToFinish: postRenderData.timeToFinish,
 						costs: postRenderData.cost,
 					},

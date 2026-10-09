@@ -6,7 +6,6 @@ import {
 import type {LogLevel} from 'remotion';
 import {Internals, type ScheduleAudioNodeResult} from 'remotion';
 import {
-	ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT,
 	isAlreadyQueued,
 	makeAudioIterator,
 	type AudioIterator,
@@ -427,7 +426,9 @@ export const audioIteratorManager = ({
 		unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
-		if (muted) {
+		// Audio iterators only schedule forward. Studio's reverse playback must
+		// stay silent instead of producing negative AudioBufferSourceNode offsets.
+		if (muted || playbackRate <= 0) {
 			return;
 		}
 
@@ -602,15 +603,16 @@ export const audioIteratorManager = ({
 						})
 					: newTime;
 			const queuedPeriod = audioBufferIterator.getQueuedPeriod();
+			// Queued timestamps are in media seconds, so convert the Player's
+			// AudioContext tolerance using the combined media and Player rate.
+			const anchorTolerance =
+				Internals.getAudioSyncAnchorTolerance(sharedAudioContext.audioContext) *
+				Math.abs(playbackRate);
 			// If there is a missing period, but we'd have no chance to schedule nodes,
 			// then let's not bother. Let's just leave the gap.
 			const queuedPeriodMinusLatency: QueuedPeriod | null = queuedPeriod
 				? {
-						from:
-							queuedPeriod.from -
-							ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT -
-							sharedAudioContext.audioContext.baseLatency -
-							sharedAudioContext.audioContext.outputLatency,
+						from: queuedPeriod.from - anchorTolerance,
 						until: queuedPeriod.until,
 					}
 				: null;

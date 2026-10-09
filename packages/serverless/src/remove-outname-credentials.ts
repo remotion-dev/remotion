@@ -21,6 +21,7 @@ export const removeOutnameCredentials = <Provider extends CloudProvider>(
 		s3OutputProvider: outname.s3OutputProvider
 			? {
 					endpoint: outname.s3OutputProvider.endpoint,
+					forcePathStyle: outname.s3OutputProvider.forcePathStyle ?? false,
 				}
 			: undefined,
 	};

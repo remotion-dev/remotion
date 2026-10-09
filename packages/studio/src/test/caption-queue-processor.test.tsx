@@ -235,6 +235,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 		let jobId = '';
 		act(() => {
 			jobId = getContext().addCaptionJob({
+				captionStyle: null,
 				displayName: 'interview.wav',
 				audioStreamIndex: 2,
 				requestInit: {
@@ -372,6 +373,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 		let inlineJobId = '';
 		act(() => {
 			inlineJobId = getContext().addCaptionJob({
+				captionStyle: null,
 				displayName: 'clip.mp4',
 				audioStreamIndex: null,
 				requestInit: null,

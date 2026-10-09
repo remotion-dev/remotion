@@ -160,6 +160,7 @@ export type AssetSelectionModalState = {
 
 export type TranscriptionModalState = {
 	type: 'transcribe';
+	captionStyle: ElementInstallRequest | null;
 	src: string;
 	displayName: string;
 	audioStreamIndex: number | null;

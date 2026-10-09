@@ -1,6 +1,7 @@
 import type {RenderDefaults} from '@remotion/studio-shared';
 import {studioHtml} from '@remotion/studio-shared/studio-html';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	createBrowserStudioHmrAssetManager,
 	type BrowserStudioHmrBridge,
@@ -145,6 +146,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		repro: false,
 		sampleRate: 48_000,
 		scale: 1,
+		sharedMemoryCapture: null,
 		stillImageFormat: 'png',
 		userAgent: null,
 		videoBitrate: null,
@@ -672,6 +674,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				sampleRate: null,
 				staticHash: '',
 				studioRuntimeConfig: {
+					showPremounting: null,
+					defaultPremountInSeconds: null,
+					experimentalSequenceActivityEnabled: false,
+					experimentalSequenceActivityLimit:
+						NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 					askAIEnabled: false,
 					bufferStateDelayInMilliseconds: null,
 					defaultCodingAgent: null,

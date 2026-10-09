@@ -1,8 +1,8 @@
 import {
 	drawBars,
 	getVisibleWaveformVolume,
-	sliceVisibleWaveformPeaks,
 	subscribeToWaveformPeaks,
+	type WaveformDrawRange,
 	type WaveformVolume,
 } from '@remotion/timeline-utils';
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
@@ -100,6 +100,8 @@ const AudioWaveformInner: React.FC<{
 			volume,
 		});
 	}, [displayDurationInFrames, displayOffsetInFrames, muted, volume]);
+	const waveformVolume =
+		shouldRenderVolumeOverlay && !muted ? 1 : visibleVolume;
 
 	// Layout effect so that a cache hit sets the peaks synchronously and the
 	// waveform is painted on the very first frame after mounting.
@@ -115,29 +117,25 @@ const AudioWaveformInner: React.FC<{
 		});
 	}, [src, waveformSampleRate]);
 
-	const portionPeaks = useMemo(() => {
-		if (!peaks) {
-			return null;
-		}
-
-		return sliceVisibleWaveformPeaks({
-			displayDurationInFrames,
-			displayOffsetInFrames: displayOffsetInFrames + loopDisplayOffsetInFrames,
-			durationInFrames,
-			fps: vidConf.fps,
-			loopDisplay,
-			peaks,
-			playbackRate,
-			startFrom,
-			waveformSampleRate,
-		});
+	const peakRange = useMemo((): WaveformDrawRange => {
+		const peaksPerFrame = (waveformSampleRate * playbackRate) / vidConf.fps;
+		const loop = loopDisplay !== undefined && loopDisplay.durationInFrames > 0;
+		return {
+			sourceStart: (startFrom / vidConf.fps) * waveformSampleRate,
+			sourceDuration:
+				(loop ? loopDisplay.durationInFrames : durationInFrames) *
+				peaksPerFrame,
+			displayStart:
+				(displayOffsetInFrames + loopDisplayOffsetInFrames) * peaksPerFrame,
+			displayDuration: displayDurationInFrames * peaksPerFrame,
+			loop,
+		};
 	}, [
 		displayDurationInFrames,
 		displayOffsetInFrames,
 		durationInFrames,
 		loopDisplay,
 		loopDisplayOffsetInFrames,
-		peaks,
 		playbackRate,
 		startFrom,
 		vidConf.fps,
@@ -164,16 +162,17 @@ const AudioWaveformInner: React.FC<{
 
 		drawBars({
 			canvas: canvasElement,
-			peaks: portionPeaks ?? EMPTY_PEAKS,
+			peaks: peaks ?? EMPTY_PEAKS,
+			range: peakRange,
 			color: resolveStudioColor(
 				WHITE_ALPHA_60,
 				getComputedStyle(canvasElement),
 			),
-			volume: visibleVolume,
+			volume: waveformVolume,
 			width: drawingWidth,
 			horizontalOffset,
 		});
-	}, [height, portionPeaks, visibleVolume, visualizationWidth]);
+	}, [height, peakRange, peaks, visualizationWidth, waveformVolume]);
 
 	useLayoutEffect(() => {
 		if (!shouldRenderVolumeOverlay || !peaks) {

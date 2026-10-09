@@ -33,6 +33,7 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	compositionDurationInFrames,
 	sampleRate,
 	outputExtension,
+	separateAudioFilename,
 }: {
 	onProgress: CombineChunksOnProgress;
 	codec: ServerlessCodec;
@@ -54,43 +55,59 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	frameRange: SingleFrameRange | null;
 	sampleRate: number;
 	outputExtension: string | null;
+	separateAudioFilename: string | null;
 }) => {
 	// .m4a, .m4b and .3gp need to be muxed into their container, otherwise the
 	// ADTS stream would be uploaded as-is under that name.
 	const extension = RenderInternals.getMp4BrandForExtension(outputExtension)
 		? (outputExtension as string)
-		: RenderInternals.getFileExtensionFromCodec(codec, audioCodec);
-	const outfile = join(
-		RenderInternals.tmpDir(REMOTION_CONCATENATED_TOKEN),
-		`concat.${extension}`,
-	);
+		: RenderInternals.getFileExtensionFromCodec(
+				codec,
+				separateAudioFilename === null ? audioCodec : null,
+			);
+	const outputDirectory = RenderInternals.tmpDir(REMOTION_CONCATENATED_TOKEN);
+	const separateAudioFile =
+		separateAudioFilename === null
+			? null
+			: join(
+					outputDirectory,
+					`audio.${RenderInternals.getExtensionOfFilename(separateAudioFilename)?.toLowerCase()}`,
+				);
+	const outfile = join(outputDirectory, `concat.${extension}`);
 	const combine = insideFunctionSpecifics.timer('Combine chunks', logLevel);
 
 	const audioFiles = files.filter((f) => f.endsWith('audio'));
 	const videoFiles = files.filter((f) => f.endsWith('video'));
 
-	await RenderInternals.internalCombineChunks({
-		outputLocation: outfile,
-		onProgress,
-		codec,
-		fps,
-		numberOfGifLoops,
-		audioBitrate,
-		indent: false,
-		logLevel,
-		binariesDirectory,
-		cancelSignal,
-		metadata,
-		audioFiles,
-		videoFiles,
-		framesPerChunk: framesPerLambda,
-		audioCodec,
-		preferLossless,
-		compositionDurationInFrames,
-		everyNthFrame,
-		frameRange,
-		sampleRate,
-	});
+	try {
+		await RenderInternals.internalCombineChunks({
+			separateAudioTo: separateAudioFile,
+			outputLocation: outfile,
+			onProgress,
+			codec,
+			fps,
+			numberOfGifLoops,
+			audioBitrate,
+			indent: false,
+			logLevel,
+			binariesDirectory,
+			cancelSignal,
+			metadata,
+			audioFiles,
+			videoFiles,
+			framesPerChunk: framesPerLambda,
+			audioCodec,
+			preferLossless,
+			compositionDurationInFrames,
+			everyNthFrame,
+			frameRange,
+			sampleRate,
+		});
+	} catch (err) {
+		await fs.promises.rm(outputDirectory, {recursive: true, force: true});
+		await fs.promises.rm(outdir, {recursive: true, force: true});
+		throw err;
+	}
 
 	combine.end();
 
@@ -98,5 +115,5 @@ export const concatVideos = async <Provider extends CloudProvider>({
 		recursive: true,
 		force: true,
 	});
-	return {outfile, cleanupChunksProm};
+	return {outfile, separateAudioFile, cleanupChunksProm};
 };

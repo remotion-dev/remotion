@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 
 export const UNRULY_OUTCOME_DURATION_IN_FRAMES = 70;
 
@@ -90,24 +90,30 @@ const OutcomeRow: React.FC<{item: string; index: number}> = ({item, index}) => {
 	);
 };
 
-export const UnrulyOutcome: React.FC = () => {
+const UnrulyOutcomeInner: React.FC = () => {
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					gap: 12,
-					left: 58,
-					position: 'absolute',
-					right: 58,
-					top: 135,
-				}}
-			>
-				{OUTCOMES.map((item, index) => (
-					<OutcomeRow key={item} item={item} index={index} />
-				))}
-			</div>
-		</AbsoluteFill>
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				gap: 12,
+				left: 58,
+				position: 'absolute',
+				right: 58,
+				top: 135,
+			}}
+		>
+			{OUTCOMES.map((item, index) => (
+				<OutcomeRow key={item} item={item} index={index} />
+			))}
+		</div>
 	);
 };
+
+export const UnrulyOutcome = Interactive.withSchema({
+	Component: UnrulyOutcomeInner,
+	componentName: 'UnrulyOutcome',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

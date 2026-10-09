@@ -10,6 +10,7 @@ import type {
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 } from './runtime-value-store.js';
+import type {TimelineTrackItem} from './timeline-track-context.js';
 import type {VideoConfigValues} from './video-config.js';
 
 export type TComposition<
@@ -72,12 +73,6 @@ type EnhancedTSequenceData =
 	| {
 			type: 'audio';
 			src: string;
-			// Volume is represented as a comma separated list - if it's a string
-			// React can more efficiently update and will not rerender if anonymous functions
-			// are passed.
-			// If not a function was passed, a number is being used
-			volume: string | number;
-			doesVolumeChange: boolean;
 			muted: boolean;
 			startMediaFrom: number;
 			mediaFrameAtSequenceZero: number | null;
@@ -87,8 +82,6 @@ type EnhancedTSequenceData =
 	| {
 			type: 'video';
 			src: string;
-			volume: string | number;
-			doesVolumeChange: boolean;
 			muted: boolean;
 			startMediaFrom: number;
 			mediaFrameAtSequenceZero: number | null;
@@ -140,6 +133,7 @@ export type TSequence = {
 	parent: string | null;
 	showInTimeline: boolean;
 	timelineOrder: number | null;
+	timelineTrack?: TimelineTrackItem;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
 	/** Read the committed child clock without updating timeline metadata each frame. */

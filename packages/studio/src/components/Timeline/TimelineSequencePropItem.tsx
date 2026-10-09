@@ -58,6 +58,7 @@ import {
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {Transform3DModeContext} from './Transform3DModeContext';
+import {useClampSequenceTimingValue} from './use-clamp-sequence-timing-value';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -109,6 +110,7 @@ const Value: React.FC<{
 	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
+	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const previewedKeyframes = useRef<
 		ReturnType<typeof getPlaybackRateKeyframeChanges>['previews']
 	>([]);
@@ -241,11 +243,13 @@ const Value: React.FC<{
 
 	const onSave = useCallback<TimelineFieldOnSave>(
 		(value, options) => {
+			value = clampTimingValue(nodePath, field.key, value);
 			if (!clientId) {
 				return Promise.reject(new Error('Not connected to studio server'));
 			}
 
 			const defaultValue =
+				field.fieldSchema.type === 'string' ||
 				field.fieldSchema.type === 'text-content'
 					? null
 					: field.fieldSchema.default !== undefined
@@ -305,6 +309,7 @@ const Value: React.FC<{
 			);
 		},
 		[
+			clampTimingValue,
 			propStatus,
 			clientId,
 			field.description,
@@ -325,6 +330,7 @@ const Value: React.FC<{
 				throw new Error('Cannot drag value');
 			}
 
+			value = clampTimingValue(nodePath, field.key, value);
 			const keyframeChanges = getPlaybackRateChanges(value);
 			unstable_batchedUpdates(() => {
 				for (const preview of previewedKeyframes.current) {
@@ -366,10 +372,12 @@ const Value: React.FC<{
 			nodePath,
 			field.key,
 			getPlaybackRateChanges,
+			clampTimingValue,
 		],
 	);
 
 	const onDragEnd = useCallback(() => {
+		clearTimingLimits();
 		if (nodePath === null) {
 			throw new Error('Cannot clear drag value');
 		}
@@ -384,13 +392,20 @@ const Value: React.FC<{
 		}
 
 		previewedKeyframes.current = [];
-	}, [clearDragOverrides, clearEffectDragOverrides, nodePath]);
+	}, [
+		clearDragOverrides,
+		clearEffectDragOverrides,
+		nodePath,
+		clearTimingLimits,
+	]);
 
 	return (
 		<TimelineFieldValue
 			field={field}
 			propStatus={propStatus}
-			onSave={onSave}
+			onSave={(value, options) =>
+				onSave(value, options).finally(clearTimingLimits)
+			}
 			onDragValueChange={onDragValueChange}
 			onDragEnd={onDragEnd}
 			effectiveValue={effectiveValue}
@@ -855,6 +870,7 @@ export const TimelineSequencePropItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			{hidePathValue ? (
 				<TimelineFieldLabel

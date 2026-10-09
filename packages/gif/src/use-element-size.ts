@@ -1,4 +1,10 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
 
 export type Size = {
 	width: number;
@@ -71,7 +77,7 @@ export const useElementSize = (
 		});
 	}, [ref]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!observer) {
 			return;
 		}

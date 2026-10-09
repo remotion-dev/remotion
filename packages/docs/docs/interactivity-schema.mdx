@@ -63,6 +63,25 @@ Text-related style props: `style.color`, `style.fontFamily`, `style.fontSize`, `
 
 `style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
 
+### `Interactive.childrenSchema`<AvailableFrom v="4.0.535" />
+
+A schema fragment for editing the content passed through a component's `children` prop.
+
+Currently, it uses a [`string`](#string) control labeled "Text", with a default of `''`. It edits a single JSX text child, a string literal expression such as `{'Hello'}`, or a literal `children="Hello"` prop. Nested markup and computed expressions are currently read-only.
+
+The fragment may evolve to support richer children content. Use it with components that accept `React.ReactNode` children. If your component requires string-only children, declare an explicit [`string`](#string) field instead.
+
+This fragment edits content. [`Interactive.textSchema`](#interactivetextschema) edits typography styles. `childrenSchema` is separate from `baseSchema` and must be added explicitly for custom components.
+
+```ts twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const labelSchema = {
+  ...Interactive.textSchema,
+  ...Interactive.childrenSchema,
+} as const satisfies InteractivitySchema;
+```
+
 ### `Interactive.backgroundSchema`<AvailableFrom v="4.0.497" />
 
 A color control for `style.backgroundColor`.
@@ -105,25 +124,31 @@ Shows an on/off control.
 
 Shows a color control. The value is a CSS color string.
 
-### `text-content`
+### `string`<AvailableFrom v="4.0.535" />
 
-Shows a text control for a string prop, such as a title.
+Shows a text control for a string prop, such as a title, prompt, or code snippet.
 
 Remotion Studio can edit a string literal, such as `title="Hello"`. Other expressions are shown as read-only.
 
-Text content fields are not keyframable.
+String fields are not keyframable.
 
 ```ts twoslash title="schema.ts"
 import type {InteractivitySchema} from 'remotion';
 
 export const schema = {
   title: {
-    type: 'text-content',
+    type: 'string',
     default: '',
     description: 'Title',
   },
 } as const satisfies InteractivitySchema;
 ```
+
+### ~~`text-content`~~
+
+:::info Deprecated
+Use [`string`](#string) instead. `text-content` remains supported as an alias with the same behavior.
+:::
 
 ### `asset`
 
@@ -300,7 +325,7 @@ Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `tr
 
 Boolean fields use hold keyframes: their value changes at the next keyframe without blending. Boolean keyframes are available from <AvailableFrom v="4.0.530" inline />.
 
-`array`, `asset`, `font-family`, `text-content` and `remotion-captions` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
+`array`, `asset`, `font-family`, `string`, `text-content` and `remotion-captions` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
 
 `enum` fields are not keyframable by default. From <AvailableFrom v="4.0.509" inline />, set `keyframable: true` to enable hold keyframes. Remotion Studio generates [`Easing.step1`](/docs/easing#step1) segments because enum values cannot be blended.
 

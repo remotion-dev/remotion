@@ -94,6 +94,8 @@ import {
 } from './timeline-scroll-logic';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
+import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const {
 	EMPTY_CANVAS_SELECTION,
@@ -687,7 +689,7 @@ const getSelectableTimelineItemsForTrack = ({
 		return [];
 	}
 
-	if (!getIsExpanded(nodePathInfo)) {
+	if (track.sequence.timelineTrack || !getIsExpanded(nodePathInfo)) {
 		return [sequenceSelection];
 	}
 
@@ -1788,6 +1790,9 @@ export const useTimelineMarqueeSelectableItem = (
 	horizontalBounds: {readonly cropLeft: number; readonly width: number} | null,
 ) => {
 	const selectionContext = useContext(TimelineRowSelectionContext);
+	const sceneRange = useContext(TimelineSceneRangeContext);
+	const timelineWidth = useContext(TimelineWidthContext);
+	const video = Internals.useUnsafeVideoConfig();
 	if (selectionContext === null) {
 		throw new Error(
 			'useTimelineMarqueeSelectableItem must be used inside TimelineSelectionProvider',
@@ -1803,20 +1808,53 @@ export const useTimelineMarqueeSelectableItem = (
 
 		return registerMarqueeSelectableItem(item, () => {
 			const rect = ref.current?.getBoundingClientRect() ?? null;
-			if (rect === null || horizontalBounds === null) {
+			if (rect === null) {
 				return rect;
 			}
 
 			// Sequence bars are cropped to the horizontal render window. Hit-test
 			// the full sequence so scrolling does not change its selectable bounds.
-			return new DOMRect(
-				rect.left - horizontalBounds.cropLeft,
-				rect.top,
-				horizontalBounds.width,
-				rect.height,
-			);
+			let left = rect.left - (horizontalBounds?.cropLeft ?? 0);
+			let right = left + (horizontalBounds?.width ?? rect.width);
+			if (sceneRange !== null) {
+				const scrollable = scrollableRef.current;
+				if (scrollable === null || timelineWidth === null || video === null) {
+					return null;
+				}
+
+				// CSS scene clipping also hides postmount tails and out-of-scene
+				// keyframes. They must not be selectable in the neighboring scene.
+				const frameWidth =
+					(timelineWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
+				const origin =
+					scrollable.getBoundingClientRect().left +
+					TIMELINE_PADDING -
+					scrollable.scrollLeft;
+				left = Math.max(
+					left,
+					origin + Math.max(0, sceneRange.from) * frameWidth,
+				);
+				right = Math.min(
+					right,
+					origin +
+						Math.min(video.durationInFrames, sceneRange.end) * frameWidth,
+				);
+				if (right <= left) {
+					return null;
+				}
+			}
+
+			return new DOMRect(left, rect.top, right - left, rect.height);
 		});
-	}, [horizontalBounds, item, ref, registerMarqueeSelectableItem]);
+	}, [
+		horizontalBounds,
+		item,
+		ref,
+		registerMarqueeSelectableItem,
+		sceneRange,
+		timelineWidth,
+		video,
+	]);
 };
 
 export const useTimelineRowSelection = (

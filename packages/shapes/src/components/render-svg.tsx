@@ -104,9 +104,7 @@ const RenderSvgWithTiming = ({
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? defaultName}
-				_remotionInternalDocumentationLink={
-					name === undefined ? documentationLink : undefined
-				}
+				_remotionInternalDocumentationLink={documentationLink}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}

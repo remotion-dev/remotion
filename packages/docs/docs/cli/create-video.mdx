@@ -37,7 +37,7 @@ Requires a template flag and a directory argument.
 
 When used:
 
-- TailwindCSS is installed if the template supports it (disable with `--no-tailwind`)
+- TailwindCSS is added only with [`--tailwind`](#--tailwind) for supported templates
 - Agent skills are not installed
 - The editor is not opened
 - If already inside a Git repository, the command fails
@@ -50,13 +50,19 @@ npx create-video --yes --blank my-video
 
 Alias for `--yes`.
 
+### `--tailwind`<AvailableFrom v="4.0.534" />
+
+Install [TailwindCSS](/docs/tailwind) for supported templates. Works with or without `--yes`. TailwindCSS is not added by default, and templates with their own TailwindCSS setup keep it.
+
+Before v4.0.534, `--yes` added TailwindCSS by default to supported templates unless `--no-tailwind` was passed.
+
+```bash title="Create a project with TailwindCSS"
+npx create-video --yes --blank --tailwind my-video
+```
+
 ### `--no-tailwind`<AvailableFrom v="4.0.439" />
 
-Skip automatic TailwindCSS installation for supported templates. Works with or without `--yes` and does not change templates with their own TailwindCSS setup.
-
-```bash
-npx create-video --yes --blank --no-tailwind my-video
-```
+Skip TailwindCSS installation. This is the default and does not affect templates with their own TailwindCSS setup.
 
 ### `--tmp`<AvailableFrom v="4.0.214" />
 
@@ -100,17 +106,17 @@ npx create-video --yes --blank my-video
 
 When using `--yes`:
 
-- TailwindCSS is installed if the template supports it. Pass [`--no-tailwind`](#--no-tailwind) to skip it.
+- TailwindCSS is added only with [`--tailwind`](#--tailwind) for supported templates.
 - [Agent skills](/docs/ai/skills) are not installed. You can add them manually afterwards by running [`npx skills add remotion-dev/skills`](/docs/cli/skills) in the project directory.
 - The editor is not opened after scaffolding.
 - The command fails if you are already inside a Git repository.
 
 ### Examples
 
-Without TailwindCSS:
+With TailwindCSS:
 
-```bash
-npx create-video --yes --blank --no-tailwind my-video
+```bash title="Create a project with TailwindCSS"
+npx create-video --yes --blank --tailwind my-video
 ```
 
 In a temporary directory:

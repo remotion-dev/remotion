@@ -2,27 +2,24 @@ import {useCallback, useContext, useMemo} from 'react';
 import {
 	Html5MediaTrimContext,
 	useMediaStartsAt,
-	type LoopVolumeCurveBehavior,
 } from './audio/use-audio-frame.js';
 import type {LoopDisplay, TSequence} from './CompositionManager.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getTimelineDuration} from './get-timeline-duration.js';
-import {Loop, LoopTimelineContext} from './loop/index.js';
 import {
 	SequenceOutlineContext,
 	SequenceOutlineInternals,
 } from './sequence-outline.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
+import {TimelineTrackContext} from './timeline-track-context.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
 import {useVideoConfig} from './use-video-config.js';
-import type {VolumeProp} from './volume-prop.js';
-import {evaluateVolume} from './volume-prop.js';
+
+const EMPTY_EFFECTS = [] as const;
 
 export const useBasicMediaInTimeline = ({
-	volume,
-	mediaVolume,
 	src,
 	displayName,
 	trimBefore,
@@ -30,12 +27,9 @@ export const useBasicMediaInTimeline = ({
 	playbackRate,
 	sequenceDurationInFrames,
 	mediaStartsAt,
-	mediaFrom,
 	loop,
 	muted,
 }: {
-	volume: VolumeProp | undefined;
-	mediaVolume: number;
 	src: string | undefined;
 	displayName: string | null;
 	trimBefore: number | undefined;
@@ -43,7 +37,6 @@ export const useBasicMediaInTimeline = ({
 	playbackRate: number;
 	sequenceDurationInFrames: number;
 	mediaStartsAt: number;
-	mediaFrom: number;
 	loop: boolean;
 	muted: boolean;
 }) => {
@@ -52,7 +45,6 @@ export const useBasicMediaInTimeline = ({
 	}
 
 	const parentSequence = useContext(SequenceContext);
-	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
 
 	const duration = getTimelineDuration({
 		compositionDurationInFrames: sequenceDurationInFrames,
@@ -63,70 +55,18 @@ export const useBasicMediaInTimeline = ({
 		loop,
 	});
 
-	const volumes: string | number = useMemo(() => {
-		if (typeof volume === 'number') {
-			return volume;
-		}
-
-		if (typeof volume !== 'function') {
-			return evaluateVolume({
-				frame: 0,
-				volume,
-				mediaVolume,
-			});
-		}
-
-		// Curves start at the first visible frame, just like the live volume callback.
-		// Sampling composition frames also preserves fractional local frames at slow rates.
-		return new Array(
-			Math.ceil(
-				Math.max(0, duration + Math.min(0, mediaStartsAt + mediaFrom)) /
-					sequencePlaybackRate,
-			),
-		)
-			.fill(true)
-			.map((_, i) => {
-				return evaluateVolume({
-					frame: i * sequencePlaybackRate,
-					volume,
-					mediaVolume,
-				});
-			})
-			.join(',');
-	}, [
-		duration,
-		mediaStartsAt,
-		mediaFrom,
-		volume,
-		mediaVolume,
-		sequencePlaybackRate,
-	]);
-
-	const doesVolumeChange = typeof volume === 'function';
-
 	const startMediaFrom = 0 - mediaStartsAt + (trimBefore ?? 0);
 
 	const memoizedResult = useMemo(() => {
 		return {
-			volumes,
 			duration,
-			doesVolumeChange,
 			finalDisplayName: displayName ?? getAssetDisplayName(src),
 			startMediaFrom,
 			src,
 			playbackRate,
 			muted,
 		};
-	}, [
-		volumes,
-		duration,
-		doesVolumeChange,
-		displayName,
-		src,
-		startMediaFrom,
-		playbackRate,
-		muted,
-	]);
+	}, [duration, displayName, src, startMediaFrom, playbackRate, muted]);
 
 	return memoizedResult;
 };
@@ -135,9 +75,7 @@ export type BasicMediaInTimelineReturnType = ReturnType<
 	typeof useBasicMediaInTimeline
 >;
 
-export const useMediaInTimeline = ({
-	volume,
-	mediaVolume,
+export const useMediaInTimelineRegistration = ({
 	src,
 	mediaType,
 	playbackRate,
@@ -148,12 +86,9 @@ export const useMediaInTimeline = ({
 	premountDisplay,
 	postmountDisplay,
 	loopDisplay,
-	loopVolumeCurveBehavior,
 	documentationLink,
 	muted,
 }: {
-	volume: VolumeProp | undefined;
-	mediaVolume: number;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
@@ -164,19 +99,19 @@ export const useMediaInTimeline = ({
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	loopDisplay: LoopDisplay | undefined;
-	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	documentationLink: string | null;
 	muted: boolean;
 }) => {
 	const parentSequence = useContext(SequenceContext);
+	const timelineTrack = useContext(TimelineTrackContext);
 	const mediaTrimBefore = useContext(Html5MediaTrimContext);
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const {durationInFrames} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
-	const loopContext = Loop.useLoop();
-	const loopTimeline = useContext(LoopTimelineContext);
 	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const {isStudio} = useRemotionEnvironment();
+	const stack = getStack();
+	const getStackForRegistration = useCallback(() => stack, [stack]);
 	const automaticOutlineRef = useMemo(
 		() =>
 			mediaType === 'video' && (isStudio || canvasOutlinesEnabled)
@@ -185,13 +120,7 @@ export const useMediaInTimeline = ({
 		[canvasOutlinesEnabled, isStudio, mediaType],
 	);
 
-	const {
-		volumes: basicVolumes,
-		duration,
-		finalDisplayName,
-	} = useBasicMediaInTimeline({
-		volume: loopContext && typeof volume === 'function' ? undefined : volume,
-		mediaVolume,
+	const {duration, finalDisplayName} = useBasicMediaInTimeline({
 		src,
 		displayName,
 		trimAfter: undefined,
@@ -199,74 +128,9 @@ export const useMediaInTimeline = ({
 		playbackRate,
 		sequenceDurationInFrames: durationInFrames,
 		mediaStartsAt,
-		mediaFrom: 0,
 		loop: false,
 		muted,
 	});
-	const doesVolumeChange = typeof volume === 'function';
-	const volumes = useMemo(() => {
-		if (!loopContext || !loopTimeline || typeof volume !== 'function') {
-			return basicVolumes;
-		}
-
-		const timeline = loopTimeline;
-		const loopDuration = loopContext.durationInFrames;
-		const sequenceRate = parentSequence?.playbackRate ?? 1;
-		const mediaOrigin = parentSequence
-			? parentSequence.cumulatedFrom + parentSequence.relativeFrom
-			: 0;
-		const mediaOffset =
-			mediaOrigin +
-			mediaTrimBefore / sequenceRate -
-			(timeline.startFrame +
-				(loopContext.iteration * loopDuration) / timeline.playbackRate);
-		const firstVisible = Math.max(0, timeline.firstVisibleFrame);
-		const firstCompositionFrame = Math.ceil(firstVisible);
-		return Array.from(
-			{
-				length: Math.max(
-					0,
-					Math.ceil(timeline.endFrame) - firstCompositionFrame,
-				),
-			},
-			(_, index) => {
-				const compositionFrame = firstCompositionFrame + index;
-				const loopsElapsed =
-					((compositionFrame - timeline.startFrame) * timeline.playbackRate) /
-					loopDuration;
-				const nearestIteration = Math.round(loopsElapsed);
-				const iteration =
-					Math.abs(loopsElapsed - nearestIteration) <=
-					Number.EPSILON * Math.max(1, Math.abs(loopsElapsed)) * 4
-						? nearestIteration
-						: Math.floor(loopsElapsed);
-				const iterationStart =
-					timeline.startFrame +
-					(iteration * loopDuration) / timeline.playbackRate +
-					mediaOffset;
-				const frame =
-					Math.max(
-						0,
-						compositionFrame - Math.max(firstVisible, iterationStart),
-					) *
-						sequenceRate +
-					(loopVolumeCurveBehavior === 'extend'
-						? (iteration * loopDuration * sequenceRate) / timeline.playbackRate
-						: 0);
-				return evaluateVolume({frame, volume, mediaVolume});
-			},
-		).join(',');
-	}, [
-		basicVolumes,
-		loopContext,
-		loopTimeline,
-		mediaTrimBefore,
-		mediaVolume,
-		parentSequence,
-		volume,
-		loopVolumeCurveBehavior,
-	]);
-
 	const getSequenceForRegistration = useCallback((): TSequence => {
 		if (!src) {
 			throw new Error('No src passed');
@@ -274,6 +138,15 @@ export const useMediaInTimeline = ({
 
 		return {
 			effectRuntimeValues: null,
+			...(timelineTrack
+				? {
+						timelineTrack: {
+							...timelineTrack,
+							role: 'clip' as const,
+							seriesOffset: null,
+						},
+					}
+				: {}),
 			type: mediaType,
 			src,
 			id,
@@ -283,21 +156,19 @@ export const useMediaInTimeline = ({
 			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
 			documentationLink,
-			volume: volumes,
 			muted,
 			showInTimeline: true,
 			timelineOrder: null,
 			startMediaFrom: mediaTrimBefore,
 			mediaFrameAtSequenceZero: mediaTrimBefore * (1 - playbackRate),
-			doesVolumeChange,
 			loopDisplay,
 			playbackRate,
 			sequencePlaybackRate: 1,
-			getStack,
+			getStack: getStackForRegistration,
 			premountDisplay,
 			postmountDisplay,
 			controls: null,
-			effects: [],
+			effects: EMPTY_EFFECTS,
 			refForOutline: automaticOutlineRef,
 			isInsideSeries: false,
 			frozenFrame: null,
@@ -306,14 +177,13 @@ export const useMediaInTimeline = ({
 	}, [
 		duration,
 		id,
-		parentSequence,
+		timelineTrack,
+		parentSequence?.id,
 		src,
-		volumes,
-		doesVolumeChange,
 		mediaType,
 		mediaTrimBefore,
 		playbackRate,
-		getStack,
+		getStackForRegistration,
 		premountDisplay,
 		postmountDisplay,
 		loopDisplay,
@@ -326,10 +196,10 @@ export const useMediaInTimeline = ({
 		isStudio ||
 		sequenceRegistrationEnabled ||
 		(typeof window !== 'undefined' && window.process?.env?.NODE_ENV === 'test');
-	useSequenceRegistration({
+	const registration = useSequenceRegistration({
 		getSequence:
 			registrationEnabled && showInTimeline ? getSequenceForRegistration : null,
 		id,
 	});
-	return automaticOutlineRef;
+	return {automaticOutlineRef, registration};
 };

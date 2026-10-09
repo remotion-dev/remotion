@@ -80,7 +80,7 @@ const RiseTextInner: React.FC<Props> = ({
 };
 
 const riseTextSchema = {
-	text: {type: 'text-content', default: '', description: 'Text'},
+	text: {type: 'string', default: '', description: 'Text'},
 	start: {
 		type: 'number',
 		default: 0,

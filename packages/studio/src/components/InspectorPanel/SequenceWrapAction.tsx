@@ -41,18 +41,32 @@ export const SequenceWrapAction: React.FC<{
 	};
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {sequence} = track;
 	const [busy, setBusy] = useState(false);
+	const canWrapInHtmlInCanvas =
+		sequence.type === 'sequence' &&
+		!nodePathInfo.supportsEffects &&
+		!htmlInCanvasComponentIdentities.has(
+			sequence.controls?.componentIdentity ?? '',
+		);
 
 	const onWrap = useCallback(
 		async (wrapper: HtmlInCanvasWrapper) => {
-			if (busy || sourceActionsDisabled) {
+			if (
+				busy ||
+				!canWrapInHtmlInCanvas ||
+				sourceActionsDisabled ||
+				canvasContent?.type !== 'composition'
+			) {
 				return;
 			}
+
+			const {compositionId} = canvasContent;
 
 			if (!isHtmlInCanvasSupported()) {
 				setSelectedModal({
@@ -130,6 +144,7 @@ export const SequenceWrapAction: React.FC<{
 			try {
 				const eligibility = await wrapNode({
 					fileName: nodePath.absolutePath,
+					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper: null,
 					width: null,
@@ -165,6 +180,7 @@ export const SequenceWrapAction: React.FC<{
 
 				const result = await wrapNode({
 					fileName: nodePath.absolutePath,
+					compositionId,
 					nodePath: nodePath.nodePath,
 					wrapper,
 					width,
@@ -182,6 +198,8 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
+			canWrapInHtmlInCanvas,
+			canvasContent,
 			nodePathInfo.sequenceSubscriptionKey,
 			overrideIdToNodePathMappingsRef,
 			sequence.controls?.componentName,
@@ -194,7 +212,11 @@ export const SequenceWrapAction: React.FC<{
 		],
 	);
 
-	if (sourceActionsDisabled) {
+	if (
+		!canWrapInHtmlInCanvas ||
+		sourceActionsDisabled ||
+		canvasContent?.type !== 'composition'
+	) {
 		return null;
 	}
 

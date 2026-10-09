@@ -14,19 +14,9 @@ export const declarationBindsName = (
 	declaration: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
 	name: string,
 ) => {
-	if (
-		declaration.type === 'FunctionDeclaration' ||
-		declaration.type === 'ClassDeclaration'
-	) {
-		return declaration.id?.name === name;
-	}
-
-	return declaration.declarations.some((variableDeclaration) => {
-		return (
-			variableDeclaration.id.type === 'Identifier' &&
-			variableDeclaration.id.name === name
-		);
-	});
+	return new recast.types.NodePath(
+		b.program([declaration as never]),
+	).scope.declares(name);
 };
 
 export const hasTopLevelBinding = ({ast, name}: {ast: File; name: string}) => {
@@ -119,6 +109,42 @@ const hasNamespaceSpecifier = (importDeclaration: ImportDeclaration) => {
 	);
 };
 
+const addNamedImport = ({
+	ast,
+	importedName,
+	sourcePath,
+	localName,
+}: {
+	ast: File;
+	importedName: string;
+	sourcePath: string;
+	localName: string;
+}) => {
+	const existingImport = findImportDeclarations(ast, sourcePath).find(
+		(candidateImportDeclaration) =>
+			candidateImportDeclaration.importKind !== 'type' &&
+			!hasNamespaceSpecifier(candidateImportDeclaration),
+	);
+	const specifier = b.importSpecifier(
+		b.identifier(importedName),
+		b.identifier(localName),
+	) as unknown as ImportSpecifier;
+
+	if (existingImport) {
+		existingImport.specifiers.push(specifier);
+	} else {
+		insertImportDeclaration(
+			ast,
+			b.importDeclaration(
+				[specifier as never],
+				b.stringLiteral(sourcePath),
+			) as unknown as ImportDeclaration,
+		);
+	}
+
+	return localName;
+};
+
 export const ensureNamedImport = ({
 	ast,
 	importedName,
@@ -149,35 +175,7 @@ export const ensureNamedImport = ({
 		}
 	}
 
-	const existingImport = existingImports.find(
-		(candidateImportDeclaration) =>
-			candidateImportDeclaration.importKind !== 'type' &&
-			!hasNamespaceSpecifier(candidateImportDeclaration),
-	);
-
-	if (existingImport) {
-		const importSpecifier = b.importSpecifier(
-			b.identifier(importedName),
-			b.identifier(localName),
-		) as unknown as ImportSpecifier;
-
-		existingImport.specifiers = [
-			...(existingImport.specifiers ?? []),
-			importSpecifier,
-		];
-		return localName;
-	}
-
-	const specifier = b.importSpecifier(
-		b.identifier(importedName),
-		b.identifier(localName),
-	) as unknown as ImportSpecifier;
-	const importDeclaration = b.importDeclaration(
-		[specifier as never],
-		b.stringLiteral(sourcePath),
-	) as unknown as ImportDeclaration;
-	insertImportDeclaration(ast, importDeclaration);
-	return localName;
+	return addNamedImport({ast, importedName, sourcePath, localName});
 };
 
 export const ensureNamedImports = ({
@@ -281,10 +279,12 @@ const findImportedLocalName = ({
 	ast,
 	importedName,
 	sourcePath,
+	excludedLocalNames,
 }: {
 	ast: File;
 	importedName: string;
 	sourcePath: string;
+	excludedLocalNames: ReadonlySet<string> | null;
 }) => {
 	for (const declaration of getImportDeclarations({ast, sourcePath})) {
 		if (declaration.importKind === 'type') {
@@ -295,7 +295,8 @@ const findImportedLocalName = ({
 			(specifier) =>
 				specifier.type === 'ImportSpecifier' &&
 				specifier.importKind !== 'type' &&
-				getImportedName(specifier) === importedName,
+				getImportedName(specifier) === importedName &&
+				!excludedLocalNames?.has(specifier.local.name),
 		);
 		if (existing) {
 			return existing.local?.name ?? importedName;
@@ -305,8 +306,8 @@ const findImportedLocalName = ({
 	return null;
 };
 
-// Reuses an existing import of the export, otherwise imports it under the
-// preferred local name, adding a numeric suffix when that name is taken.
+// Avoid bindings throughout the file because generated JSX may be inserted
+// into any scope. Reuse imports only when their local name is not shadowed.
 export const ensureOfficialNamedImport = ({
 	ast,
 	importedName,
@@ -318,18 +319,38 @@ export const ensureOfficialNamedImport = ({
 	sourcePath: string;
 	preferredLocalName: string;
 }) => {
-	const existing = findImportedLocalName({ast, importedName, sourcePath});
+	const boundNames = new Set<string>();
+	recast.types.visit(ast, {
+		visitNode(path) {
+			if (path.scope?.path === path && path.node.type !== 'Program') {
+				for (const name of Object.keys(path.scope.getBindings())) {
+					boundNames.add(name);
+				}
+			}
+
+			this.traverse(path);
+		},
+	});
+	const existing = findImportedLocalName({
+		ast,
+		importedName,
+		sourcePath,
+		excludedLocalNames: boundNames,
+	});
 	if (existing !== null) {
 		return existing;
 	}
 
 	let localName = preferredLocalName;
 	let suffix = 2;
-	while (hasTopLevelBinding({ast, name: localName})) {
+	while (
+		boundNames.has(localName) ||
+		hasTopLevelBinding({ast, name: localName})
+	) {
 		localName = `${preferredLocalName}${suffix++}`;
 	}
 
-	return ensureNamedImport({ast, importedName, sourcePath, localName});
+	return addNamedImport({ast, importedName, sourcePath, localName});
 };
 
 // Serialized values are written as literal `staticFile(...)` calls, so the
@@ -340,6 +361,7 @@ export const ensureStaticFileBinding = (ast: File) => {
 			ast,
 			importedName: 'staticFile',
 			sourcePath: 'remotion',
+			excludedLocalNames: null,
 		}) === 'staticFile'
 	) {
 		return;

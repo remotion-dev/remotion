@@ -283,7 +283,7 @@ const CompositionMetadataValue: React.FC<{
 				showFrames || fps === null
 					? String(Math.round(Number(newValue)))
 					: formatValue(newValue),
-			parse: (text: string) => parseCompositionDuration(text, fps),
+			parse: (text: string) => parseCompositionDuration(text, fps, showFrames),
 			invalidMessage: 'Enter a duration such as 5s, 1:30, or 150f.',
 			onCancel: () => setDragValue(null),
 		};

@@ -3,10 +3,12 @@
 }
 
 .list {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 16px;
+	align-items: start;
 	margin: 0 0 var(--ifm-leading);
 	padding: 0;
-	column-count: 1;
-	column-gap: 16px;
 	list-style: none;
 }
 
@@ -14,8 +16,6 @@
 	position: relative;
 	width: 100%;
 	min-width: 0;
-	margin: 0 0 16px;
-	break-inside: avoid;
 	overflow: hidden;
 	border: 1px solid var(--border-color);
 	border-radius: 14px;
@@ -96,31 +96,9 @@
 	z-index: 1;
 }
 
-.loadingStatus,
-.successStatus,
-.errorStatus {
-	position: relative;
-	z-index: 1;
-	margin: 10px 0 0;
-	font-size: 0.875rem;
-	line-height: 1.45;
-}
-
-.loadingStatus {
-	color: var(--ifm-color-emphasis-700);
-}
-
-.successStatus {
-	color: var(--ifm-color-success-dark);
-}
-
-.errorStatus {
-	color: var(--ifm-color-danger-dark);
-}
-
 @container third-party-libraries (min-width: 640px) {
 	.list {
-		column-count: 2;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 

@@ -2,6 +2,7 @@ import {
 	BufferTarget,
 	StreamTarget,
 	type MetadataTags,
+	type Quality,
 	type StreamTargetChunk,
 } from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
@@ -132,7 +133,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	onProgress: RenderMediaOnWebProgressCallback | null;
 	hardwareAcceleration: WebRendererHardwareAcceleration;
 	keyframeIntervalInSeconds: number;
-	videoBitrate: number | WebRendererQuality;
+	videoBitrate: number | WebRendererQuality | Quality;
 	frameRange: FrameRange | null;
 	transparent: boolean;
 	onArtifact: WebRendererOnArtifact | null;
@@ -536,6 +537,9 @@ const internalRenderMediaOnWeb = async <
 					// 1 packet per frame, + 33% buffer
 					// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
 					maximumPacketCount: Math.ceil(totalFrames * 1.33),
+					// Mediabunny passes this to `VideoEncoder` as `framerate` and uses it
+					// for the container timescale. Without it, Chromium assumes 30 fps.
+					frameRate: resolved.fps,
 				},
 			);
 		}

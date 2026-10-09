@@ -46,9 +46,9 @@ if (HtmlInCanvas.isSupported()) {
 
 Return value: _boolean_
 
-Returns `true` when HTML-in-canvas is enabled in Chrome or a Chromium-based browser version 157 or newer. Use it before nesting `<HtmlInCanvas>` components. Older versions throw an error when components are nested.
+Returns `true` when HTML-in-canvas is enabled and the browser supports nesting. Use it before nesting `<HtmlInCanvas>` components. Older versions throw an error when components are nested.
 
-Nested `<HtmlInCanvas>` components are currently intended for preview and client-side rendering. Remotion's server-side browser is Chrome 149, so this method returns `false` there.
+From Remotion <AvailableFrom v="4.0.534" inline />, the bundled server-side browser is Chromium 157.0.8080.0, so this method also returns `true` during server-side rendering.
 
 ## Using WebGL and WebGPU during renders
 
@@ -848,9 +848,9 @@ const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
 
 ## Nested HTML-in-canvas
 
-You can nest `<HtmlInCanvas>` components in Chrome 157 or newer when HTML-in-canvas is enabled. Check [`HtmlInCanvas.isNestingSupported()`](#htmlincanvasisnestingsupported) before rendering nested components. In older versions, nesting throws an error.
+You can nest `<HtmlInCanvas>` components in Chrome 157.0.8080.0 or newer when HTML-in-canvas is enabled. Check [`HtmlInCanvas.isNestingSupported()`](#htmlincanvasisnestingsupported) before rendering nested components. Unsupported browsers throw an error when components are nested.
 
-Nested compositions are currently intended for preview and client-side rendering. Remotion's server-side browser is Chrome 149 and does not support nesting yet.
+Server-side rendering supports nested compositions from Remotion <AvailableFrom v="4.0.534" inline />, which uses Chromium 157.0.8080.0.
 
 ## Compatibility
 

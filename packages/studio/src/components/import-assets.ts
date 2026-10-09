@@ -1375,6 +1375,7 @@ export const insertElement = async ({
 		}
 
 		const response = await installElement({
+			captionTarget: null,
 			installationName,
 			compositionFile,
 			compositionId,

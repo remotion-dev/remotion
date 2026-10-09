@@ -6,6 +6,8 @@ import {bundle} from '@remotion/bundler';
 import {getCompositions, renderStill} from '@remotion/renderer';
 import {readDir} from './get-pages.mjs';
 
+execSync('bun generate-option-docs.ts', {stdio: 'inherit'});
+
 const data: {
 	id: string;
 	title: string;

@@ -145,6 +145,7 @@ export const config: VercelConfig = {
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
 		routes.redirect('/api', '/docs/api', {permanent: false}),
+		routes.redirect('/options', '/docs/options', {permanent: false}),
 		routes.redirect('/terminology', '/docs/terminology', {permanent: false}),
 		routes.redirect(
 			'/hacktoberfest',

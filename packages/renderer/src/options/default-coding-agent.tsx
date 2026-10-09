@@ -34,6 +34,7 @@ const validateDefaultCodingAgent = (
 
 export const defaultCodingAgentOption = {
 	name: 'Default coding agent',
+	addedIn: '4.0.506',
 	cliFlag,
 	description: () => (
 		<>
@@ -42,7 +43,7 @@ export const defaultCodingAgentOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setdefaultcodingagent',
+	docLink: 'https://www.remotion.dev/docs/options/coding-agent',
 	type: null as DefaultCodingAgent | null,
 	getValue: ({commandLine}) => {
 		const cliValue = commandLine[cliFlag];

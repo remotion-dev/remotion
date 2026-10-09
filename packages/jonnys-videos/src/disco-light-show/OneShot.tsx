@@ -1,6 +1,7 @@
 import {grayscale} from '@remotion/effects/grayscale';
 import React from 'react';
 import {
+	useVideoConfig,
 	AnimatedImage,
 	Interactive,
 	interpolate,
@@ -8,11 +9,13 @@ import {
 } from 'remotion';
 import {asset} from './assets';
 
-export const OneShot: React.FC = () => {
+const OneShotInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<AnimatedImage
+				premountFor={fps}
 				src={asset('Eu0CBaxXpj8DK85e61.webp')}
 				style={{
 					position: 'absolute',
@@ -25,6 +28,7 @@ export const OneShot: React.FC = () => {
 				playbackRate={0.5}
 			/>
 			<Interactive.Div
+				premountFor={fps}
 				name="One-Shot title"
 				style={{
 					position: 'absolute',
@@ -55,3 +59,11 @@ export const OneShot: React.FC = () => {
 		</>
 	);
 };
+
+export const OneShot = Interactive.withSchema({
+	Component: OneShotInner,
+	componentName: 'OneShot',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

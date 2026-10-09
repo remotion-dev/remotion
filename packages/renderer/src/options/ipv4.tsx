@@ -6,12 +6,13 @@ const cliFlag = 'ipv4' as const;
 
 export const ipv4Option = {
 	name: 'IPv4',
+	addedIn: '4.0.125',
 	cliFlag,
 	description: () => (
 		<>Forces Remotion to bind to an IPv4 interface for the Studio server.</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/studio',
+	docLink: 'https://www.remotion.dev/docs/options/ipv4',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

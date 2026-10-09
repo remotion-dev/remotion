@@ -14,22 +14,33 @@ export const alignCanvasToDevicePixels = ({
 	const containerLeft =
 		canvas.parentElement?.getBoundingClientRect().left ??
 		canvas.getBoundingClientRect().left;
-	const {height, horizontalOffset, width} = getDevicePixelAlignedCanvasLayout({
+	const {devicePixelRatio} = window;
+	const {
+		height: devicePixelHeight,
+		horizontalOffset: devicePixelHorizontalOffset,
+		width: devicePixelWidth,
+	} = getDevicePixelAlignedCanvasLayout({
 		containerLeft,
 		cssHeight,
 		cssWidth,
-		devicePixelRatio: pixelRatio,
+		devicePixelRatio,
 	});
+	// Keep DOM geometry on the screen's pixel grid even when the canvas bitmap
+	// uses a higher resolution. Drawing offsets are expressed in bitmap pixels.
+	const resolutionScale = pixelRatio / devicePixelRatio;
+	const width = Math.ceil(devicePixelWidth * resolutionScale);
+	const height = Math.ceil(devicePixelHeight * resolutionScale);
+	const horizontalOffset = devicePixelHorizontalOffset * resolutionScale;
 
 	canvas.width = width;
 	canvas.height = height;
-	canvas.style.width = width / pixelRatio + 'px';
-	canvas.style.height = height / pixelRatio + 'px';
+	canvas.style.width = devicePixelWidth / devicePixelRatio + 'px';
+	canvas.style.height = devicePixelHeight / devicePixelRatio + 'px';
 	if (canvas.style.position === '') {
 		canvas.style.position = 'relative';
 	}
 
-	canvas.style.left = -horizontalOffset / pixelRatio + 'px';
+	canvas.style.left = -devicePixelHorizontalOffset / devicePixelRatio + 'px';
 
 	return {
 		height,

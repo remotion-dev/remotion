@@ -17,6 +17,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {BrowserLog} from '../browser-log';
 import {formatRemoteObject} from '../format-logs';
 import type {LogLevel} from '../log-level';
+import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
 import {truthy} from '../truthy';
 import {assert} from './assert';
@@ -284,6 +285,10 @@ export class Page extends EventEmitter {
 			lineNumber &&
 			this.sourceMapGetter()
 		) {
+			if (!isEqualOrBelowLogLevel(logLevel, log.logLevel)) {
+				return;
+			}
+
 			const origPosition = this.sourceMapGetter()?.originalPositionFor({
 				column: columnNumber ?? 0,
 				line: lineNumber,

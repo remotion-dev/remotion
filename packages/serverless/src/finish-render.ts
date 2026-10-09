@@ -11,7 +11,7 @@ import type {
 	WriteFileInput,
 	SerializedInputProps,
 } from '@remotion/serverless-client';
-import {inspectErrors} from '@remotion/serverless-client';
+import {getExpectedOutName, inspectErrors} from '@remotion/serverless-client';
 import {cleanupProps} from './cleanup-props';
 import {createPostRenderData} from './create-post-render-data';
 import type {OverallProgressHelper} from './overall-render-progress';
@@ -37,6 +37,9 @@ export const finishRender = async <Provider extends CloudProvider>({
 	requestHandler,
 	outputFile,
 	timeToCombine,
+	bucketName,
+	separateAudioFile,
+	separateAudioCredentials,
 }: {
 	expectedBucketOwner: string | null;
 	renderBucketName: string;
@@ -57,41 +60,106 @@ export const finishRender = async <Provider extends CloudProvider>({
 	requestHandler: Provider['requestHandler'] | null;
 	outputFile: string;
 	timeToCombine: number | null;
+	bucketName: string;
+	separateAudioFile: string | null;
+	separateAudioCredentials: CustomCredentials<Provider> | null;
 }): Promise<PostRenderData<Provider>> => {
 	const outputSize = fs.statSync(outputFile).size;
 
-	const writeToBucket = insideFunctionSpecifics.timer(
-		`Writing to bucket (${outputSize} bytes)`,
-		logLevel,
-	);
-
-	const writeOptions: WriteFileInput<Provider> = {
-		bucketName: renderBucketName,
-		key,
-		body: fs.createReadStream(outputFile),
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-		privacy,
-		expectedBucketOwner,
-		downloadBehavior,
-		customCredentials,
-		forcePathStyle,
-		storageClass,
-		requestHandler,
-	};
-
-	if (renderMetadata.outputFileIsConditional) {
-		if (!providerSpecifics.writeFileIfNotExists) {
-			throw new Error(
-				'The provider does not support conditional output uploads',
-			);
-		}
-
-		await providerSpecifics.writeFileIfNotExists(writeOptions);
-	} else {
-		await providerSpecifics.writeFile(writeOptions);
+	if (
+		(renderMetadata.separateAudioTo ?? null) !== null &&
+		separateAudioFile === null
+	) {
+		throw new Error('The separate audio output was not created.');
 	}
 
-	writeToBucket.end();
+	const separateAudioDestination =
+		separateAudioFile === null
+			? null
+			: getExpectedOutName({
+					output: 'separate-audio',
+					renderMetadata,
+					bucketName,
+					customCredentials: separateAudioCredentials,
+					bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+				});
+	for (const file of [
+		...(separateAudioFile === null || separateAudioDestination === null
+			? []
+			: [
+					{
+						output: 'separate-audio' as const,
+						file: separateAudioFile,
+						...separateAudioDestination,
+						conditional: renderMetadata.separateAudioOutputFileIsConditional,
+					},
+				]),
+		{
+			output: 'main' as const,
+			file: outputFile,
+			key,
+			renderBucketName,
+			customCredentials,
+			conditional: renderMetadata.outputFileIsConditional,
+		},
+	]) {
+		const sizeInBytes = fs.statSync(file.file).size;
+		const writeToBucket = insideFunctionSpecifics.timer(
+			`Writing to bucket (${sizeInBytes} bytes)`,
+			logLevel,
+		);
+		const body = fs.createReadStream(file.file);
+		const writeOptions: WriteFileInput<Provider> = {
+			bucketName: file.renderBucketName,
+			key: file.key,
+			body,
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			privacy,
+			expectedBucketOwner,
+			downloadBehavior:
+				file.output === 'separate-audio' && downloadBehavior.type === 'download'
+					? {...downloadBehavior, fileName: null}
+					: downloadBehavior,
+			customCredentials: file.customCredentials,
+			forcePathStyle,
+			storageClass,
+			requestHandler,
+		};
+		try {
+			if (file.conditional) {
+				if (providerSpecifics.writeFileIfNotExists === null) {
+					throw new Error(
+						'The provider does not support conditional output uploads',
+					);
+				}
+
+				await providerSpecifics.writeFileIfNotExists(writeOptions);
+			} else {
+				await providerSpecifics.writeFile(writeOptions);
+			}
+		} finally {
+			body.destroy();
+		}
+
+		writeToBucket.end();
+		if (file.output === 'separate-audio') {
+			const {url} = providerSpecifics.getOutputUrl({
+				output: 'separate-audio',
+				bucketName,
+				renderMetadata,
+				customCredentials: file.customCredentials,
+				currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			});
+			// Persist the audio upload before publishing the main file so progress
+			// recovery cannot finish a render with a missing audio output.
+			await overallProgress.setSeparateAudio({
+				url,
+				key: file.key,
+				bucketName: file.renderBucketName,
+				sizeInBytes,
+			});
+		}
+	}
 
 	const errorExplanations = inspectErrors({
 		errors: overallProgress.get().errors,
@@ -106,6 +174,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 	});
 
 	const {url: outputUrl} = providerSpecifics.getOutputUrl({
+		output: 'main',
 		bucketName: renderBucketName,
 		currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		customCredentials,
@@ -132,5 +201,9 @@ export const finishRender = async <Provider extends CloudProvider>({
 	await overallProgress.setPostRenderData(postRenderData);
 
 	fs.unlinkSync(outputFile);
+	if (separateAudioFile !== null) {
+		fs.unlinkSync(separateAudioFile);
+	}
+
 	return postRenderData;
 };

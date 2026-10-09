@@ -24,9 +24,7 @@ interface ConnectionCallback {
 	resolve: (value: {value: any; size: number}) => void;
 	reject: Function;
 	method: string;
-	returnSize: boolean;
-	stack: string;
-	fn: string;
+	params: object | null;
 }
 
 const ConnectionEmittedEvents = {
@@ -74,9 +72,7 @@ export class Connection extends EventEmitter {
 					resolve,
 					reject,
 					method,
-					returnSize: true,
-					stack: new Error().stack ?? '',
-					fn: method + JSON.stringify(params),
+					params: params ?? null,
 				});
 			},
 		);
@@ -130,10 +126,8 @@ export class Connection extends EventEmitter {
 
 				if (object.error) {
 					callback.reject(createProtocolError(callback.method, object));
-				} else if (callback.returnSize) {
-					callback.resolve({value: object.result, size: message.length});
 				} else {
-					callback.resolve(object.result);
+					callback.resolve({value: object.result, size: message.length});
 				}
 			}
 		} else {
@@ -245,7 +239,10 @@ export class CDPSession extends EventEmitter {
 			(resolve, reject) => {
 				if (this.#callbacks.size > 100) {
 					for (const callback of this.#callbacks.values()) {
-						Log.info({indent: false, logLevel: 'info'}, callback.fn);
+						Log.info(
+							{indent: false, logLevel: 'info'},
+							callback.method + JSON.stringify(callback.params),
+						);
 					}
 
 					throw new Error('Leak detected: Too many callbacks');
@@ -255,9 +252,7 @@ export class CDPSession extends EventEmitter {
 					resolve,
 					reject,
 					method,
-					returnSize: true,
-					stack: new Error().stack ?? '',
-					fn: method + JSON.stringify(params),
+					params: params ?? null,
 				});
 			},
 		);
@@ -269,10 +264,8 @@ export class CDPSession extends EventEmitter {
 			this.#callbacks.delete(object.id);
 			if (object.error) {
 				callback.reject(createProtocolError(callback.method, object));
-			} else if (callback.returnSize) {
-				callback.resolve({value: object.result, size});
 			} else {
-				callback.resolve(object.result);
+				callback.resolve({value: object.result, size});
 			}
 		} else {
 			this.emit(object.method, object.params);

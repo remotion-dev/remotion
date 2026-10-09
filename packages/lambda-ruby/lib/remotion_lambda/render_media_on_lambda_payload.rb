@@ -45,6 +45,7 @@ def get_render_media_on_lambda_payload(
   media_cache_size_in_bytes: nil,
   offthread_video_threads: nil,
   out_name: nil,
+  separate_audio_to: nil,
   overwrite: nil,
   pixel_format: nil,
   prefer_lossless: false,
@@ -58,6 +59,7 @@ def get_render_media_on_lambda_payload(
   webhook: nil,
   x264_preset: nil,
   gop_size: nil,
+  disable_shared_memory_capture: false,
   chromium_options: {},
   is_production: nil,
   sample_rate: 48000
@@ -108,6 +110,7 @@ payload = {
     mediaCacheSizeInBytes: media_cache_size_in_bytes,
     offthreadVideoThreads: offthread_video_threads,
     outName: out_name,
+    separateAudioTo: separate_audio_to,
     overwrite: resolve_overwrite(overwrite, VERSION),
     pixelFormat: pixel_format,
     preferLossless: prefer_lossless,
@@ -119,11 +122,13 @@ payload = {
     serveUrl: serve_url,
     timeoutInMilliseconds: timeout_in_milliseconds,
     type: "start",
+    output: {type: "media"},
     version: VERSION,
     videoBitrate: video_bitrate,
     webhook: webhook,
     x264Preset: x264_preset,
     gopSize: gop_size,
+    disableSharedMemoryCapture: disable_shared_memory_capture,
     bucketName: bucket_name,
     isProduction: is_production
   }

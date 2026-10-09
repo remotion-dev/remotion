@@ -87,7 +87,7 @@ import {Config} from '@remotion/cli/config';
 Config.setCachingEnabled(false);
 ```
 
-The [command line flag](/docs/cli/render#--bundle-cache) `--bundle-cache` will take precedence over this option.
+The [`--bundle-cache`](/docs/options/bundle-cache) flag takes precedence over this option.
 
 ## `setStudioPort()`<AvailableFrom v="4.0.61" />
 
@@ -99,7 +99,7 @@ import {Config} from '@remotion/cli/config';
 Config.setStudioPort(3003);
 ```
 
-The [command line flag](/docs/cli/studio#--port) `--port` will take precedence over this option.
+The [`--port`](/docs/options/port) flag takes precedence over this option.
 
 ## `setRendererPort()`<AvailableFrom v="4.0.61" />
 
@@ -111,7 +111,7 @@ import {Config} from '@remotion/cli/config';
 Config.setRendererPort(3004);
 ```
 
-The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
+The [`--port`](/docs/options/port) flag takes precedence over this option.
 
 ## `setPublicDir()`<AvailableFrom v="3.2.13" />
 
@@ -123,7 +123,7 @@ import {Config} from '@remotion/cli/config';
 Config.setPublicDir('./custom-public-dir');
 ```
 
-The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
+The [`--public-dir`](/docs/options/public-dir) flag takes precedence over this option.
 
 ## `setBundleOutDir()`<AvailableFrom v="4.0.426" />
 
@@ -135,7 +135,7 @@ import {Config} from '@remotion/cli/config';
 Config.setBundleOutDir('./custom-build-dir');
 ```
 
-The [command line flag](/docs/cli/bundle#--out-dir) `--out-dir` will take precedence over this option.
+The [`--out-dir`](/docs/options/out-dir) flag takes precedence over this option.
 
 ## `setBenchmarkRuns()`
 
@@ -147,7 +147,7 @@ import {Config} from '@remotion/cli/config';
 Config.setBenchmarkRuns(5);
 ```
 
-The [command line flag](/docs/cli/benchmark#--runs) `--runs` will take precedence over this option.
+The [`--runs`](/docs/options/runs) flag takes precedence over this option.
 
 ## `setBenchmarkConcurrencies()`<AvailableFrom v="4.0.430" />
 
@@ -159,7 +159,7 @@ import {Config} from '@remotion/cli/config';
 Config.setBenchmarkConcurrencies('1,4,8');
 ```
 
-The [command line flag](/docs/cli/benchmark#--concurrencies) `--concurrencies` will take precedence over this option.
+The [`--concurrencies`](/docs/options/concurrencies) flag takes precedence over this option.
 
 ## `setEntryPoint()`<AvailableFrom v="3.2.40" />
 
@@ -191,7 +191,7 @@ import {Config} from '@remotion/cli/config';
 Config.setLogLevel('verbose');
 ```
 
-The [command line flag](/docs/cli/render#--log) `--log` will take precedence over this option.
+The [`--log`](/docs/options/log) flag takes precedence over this option.
 
 ## `addElementLibrary()`<AvailableFrom v="4.0.517" />
 
@@ -203,6 +203,7 @@ import {Config} from '@remotion/cli/config';
 Config.addElementLibrary({
   url: 'https://example.com/elements',
   displayName: 'Acme Elements',
+  captionStylesUrl: 'https://example.com/elements/captions',
 });
 ```
 
@@ -211,6 +212,12 @@ Call `addElementLibrary()` once for each third-party Element Library. The `displ
 When at least one library is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
 
 Registering the Element Library does not install an individual Element's source code or dependencies. The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
+
+### captionStylesUrl?<AvailableFrom v="4.0.535" />
+
+An absolute HTTP or HTTPS URL for the library's caption styles page. When generating captions, Studio lists this library in the <kbd>Styles</kbd> tab and opens this URL instead of `url`. If omitted, the library appears only in Browse Elements.
+
+Studio adds [`remotion-studio-context=captions`](/docs/studio-protocol/add-element-library-to-studio#iframe-context) to the iframe URL so the library can display a focused caption picker without sidebars.
 
 ## `setMaxTimelineTracks()`<AvailableFrom v="2.1.10" />
 
@@ -232,7 +239,7 @@ import {Config} from '@remotion/cli/config';
 Config.setKeyboardShortcutsEnabled(false);
 ```
 
-The [command line flag](/docs/cli/studio#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
+The [`--disable-keyboard-shortcuts`](/docs/options/disable-keyboard-shortcuts) flag takes precedence over this option.
 
 ## `setKeyboardShortcuts()`<AvailableFrom v="4.0.523" />
 
@@ -264,7 +271,7 @@ import {Config} from '@remotion/cli/config';
 Config.setInteractivityEnabled(false);
 ```
 
-The [command line flag](/docs/cli/studio#--disable-interactivity) `--disable-interactivity` will take precedence over this option.
+The [`--disable-interactivity`](/docs/options/disable-interactivity) flag takes precedence over this option.
 
 ## `setCanvasTabsEnabled()`<AvailableFrom v="4.0.530" />
 
@@ -276,11 +283,83 @@ import {Config} from '@remotion/cli/config';
 Config.setCanvasTabsEnabled(false);
 ```
 
-The [command line flag](/docs/cli/studio#--disable-canvas-tabs) `--disable-canvas-tabs` will take precedence over this option.
+The [`--disable-canvas-tabs`](/docs/options/disable-canvas-tabs) flag takes precedence over this option.
+
+## `setExperimentalTracksEnabled()`<AvailableFrom v="4.0.534" />
+
+<Options id="experimental-tracks" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalTracksEnabled(true);
+```
+
+Changes apply immediately in the Studio without reloading the page.
+
+The [`--experimental-tracks`](/docs/options/experimental-tracks) flag takes precedence over this option.
+
+## `setExperimentalSequenceActivityEnabled()`<AvailableFrom v="4.0.535" />
+
+<Options id="experimental-sequence-activity" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalSequenceActivityEnabled(true);
+```
+
+Changes apply immediately in the Studio without reloading the page.
+
+The [`--experimental-sequence-activity`](/docs/options/experimental-sequence-activity) flag takes precedence over this option.
+
+## `setExperimentalSequenceActivityLimit()`<AvailableFrom v="4.0.535" />
+
+<Options id="experimental-sequence-activity-limit" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalSequenceActivityLimit(20);
+```
+
+Changes apply immediately in the Studio without reloading the page.
+
+The [`--experimental-sequence-activity-limit`](/docs/options/experimental-sequence-activity-limit) flag takes precedence over this option.
+
+## `setShowPremounting()`<AvailableFrom v="4.0.535" />
+
+<Options id="show-premounting" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setShowPremounting(false);
+```
+
+The [`--show-premounting`](/docs/options/show-premounting) flag takes precedence over this option.
+
+## `setDefaultPremountInSeconds()`<AvailableFrom v="4.0.535" />
+
+<Options id="default-premount-in-seconds" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDefaultPremountInSeconds(2);
+```
+
+The [`--default-premount-in-seconds`](/docs/options/default-premount-in-seconds) flag takes precedence over this option.
 
 ## `setDefaultEditor()`<AvailableFrom v="4.0.503" />
 
 <Options id="editor" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDefaultEditor('cursor');
+```
 
 See [Opening files in a code editor](/docs/studio/open-in-editor) for built-in editor IDs, custom editor configuration, and platform support.
 
@@ -296,7 +375,7 @@ Config.setDefaultCodingAgent('codex');
 
 Available coding agents: `codex`, `cursor`, `copilot`, and `claude-code`.
 
-The [`--coding-agent`](/docs/cli/studio#--coding-agent) command line flag takes precedence over this option.
+The [`--coding-agent`](/docs/options/coding-agent) flag takes precedence over this option.
 
 ## `setAllowHtmlInCanvasEnabled()`<AvailableFrom v="4.0.447" />
 
@@ -308,7 +387,7 @@ import {Config} from '@remotion/cli/config';
 Config.setAllowHtmlInCanvasEnabled(true);
 ```
 
-The [command line flag](/docs/cli/studio#--allow-html-in-canvas) `--allow-html-in-canvas` will take precedence over this option.
+The [`--allow-html-in-canvas`](/docs/options/allow-html-in-canvas) flag takes precedence over this option.
 
 ## `setRspack()`<AvailableFrom v="4.0.502" />
 
@@ -320,7 +399,7 @@ import {Config} from '@remotion/cli/config';
 Config.setRspack(true);
 ```
 
-The [command line flag](/docs/cli/studio#--rspack) `--rspack` will take precedence over this option.
+The [`--rspack`](/docs/options/rspack) flag takes precedence over this option.
 
 ## ~~`setExperimentalRspackEnabled()`~~<AvailableFrom v="4.0.426" />
 
@@ -340,7 +419,7 @@ import {Config} from '@remotion/cli/config';
 Config.setWebpackPollingInMilliseconds(1000);
 ```
 
-The [command line flag](/docs/cli/studio#--webpack-poll) `--webpack-poll` will take precedence over this option.
+The [`--webpack-poll`](/docs/options/webpack-poll) flag takes precedence over this option.
 
 ## `setNumberOfSharedAudioTags()`<AvailableFrom v="3.3.2" />
 
@@ -353,7 +432,7 @@ import {Config} from '@remotion/cli/config';
 Config.setNumberOfSharedAudioTags(5);
 ```
 
-The [command line flag](/docs/cli/studio#--number-of-shared-audio-tags) `--number-of-shared-audio-tags` will take precedence over this option.
+The [`--number-of-shared-audio-tags`](/docs/options/number-of-shared-audio-tags) flag takes precedence over this option.
 
 ## `setShouldOpenBrowser()`<AvailableFrom v="3.3.19" />
 
@@ -366,7 +445,7 @@ import {Config} from '@remotion/cli/config';
 Config.setShouldOpenBrowser(false);
 ```
 
-The [command line flag](/docs/cli/studio#--no-open) `--no-open` will take precedence over this option.
+The [`--no-open`](/docs/options/no-open) flag takes precedence over this option.
 
 ## `setBrowserExecutable()`<AvailableFrom v="1.5.0" />
 
@@ -378,7 +457,7 @@ import {Config} from '@remotion/cli/config';
 Config.setBrowserExecutable('/usr/bin/google-chrome-stable');
 ```
 
-The [command line flag](/docs/cli/render#--browser-executable) `--browser-executable` will take precedence over this option.
+The [`--browser-executable`](/docs/options/browser-executable) flag takes precedence over this option.
 
 ## `setDelayRenderTimeoutInMilliseconds()`<AvailableFrom v="2.6.3" />
 
@@ -392,7 +471,7 @@ import {Config} from '@remotion/cli/config';
 Config.setDelayRenderTimeoutInMilliseconds(60000);
 ```
 
-The [command line flag](/docs/cli/render#--timeout) `--timeout` will take precedence over this option.
+The [`--timeout`](/docs/options/timeout) flag takes precedence over this option.
 
 ## `setChromiumDisableWebSecurity()`<AvailableFrom v="2.6.5" />
 
@@ -406,7 +485,7 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumDisableWebSecurity(true);
 ```
 
-The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-security` will take precedence over this option.
+The [`--disable-web-security`](/docs/options/disable-web-security) flag takes precedence over this option.
 
 ## `setChromiumDarkMode()`<AvailableFrom v="4.0.381" />
 
@@ -431,7 +510,7 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumIgnoreCertificateErrors(true);
 ```
 
-The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
+The [`--ignore-certificate-errors`](/docs/options/ignore-certificate-errors) flag takes precedence over this option.
 
 ## `setChromiumHeadlessMode()`<AvailableFrom v="2.6.5" />
 
@@ -469,7 +548,7 @@ import {Config} from '@remotion/cli/config';
 Config.setChromeMode('chrome-for-testing');
 ```
 
-The [command line flag](/docs/cli/render#--chrome-mode) `--chrome-mode` will take precedence over this option.
+The [`--chrome-mode`](/docs/options/chrome-mode) flag takes precedence over this option.
 
 ## `setChromiumOpenGlRenderer()`
 
@@ -483,7 +562,7 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumOpenGlRenderer('angle');
 ```
 
-The [command line flag](/docs/cli/render#--gl) `--gl` will take precedence over this option.
+The [`--gl`](/docs/options/gl) flag takes precedence over this option.
 
 ## `setConcurrency()`
 
@@ -495,7 +574,7 @@ import {Config} from '@remotion/cli/config';
 Config.setConcurrency(8);
 ```
 
-The [command line flag](/docs/cli/render#--concurrency) `--concurrency` will take precedence over this option.
+The [`--concurrency`](/docs/options/concurrency) flag takes precedence over this option.
 
 :::tip
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
@@ -540,7 +619,7 @@ import {Config} from '@remotion/cli/config';
 Config.setScale(2);
 ```
 
-The [command line flag](/docs/cli/render#--scale) `--scale` will take precedence over this option.
+The [`--scale`](/docs/options/scale) flag takes precedence over this option.
 
 ## `setMuted()`<AvailableFrom v="3.2.1" />
 
@@ -552,11 +631,27 @@ import {Config} from '@remotion/cli/config';
 Config.setMuted(true);
 ```
 
-The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
+The [`--muted`](/docs/options/muted) flag takes precedence over this option.
+
+## `setDisableSharedMemoryCapture()`<AvailableFrom v="4.0.534" />
+
+<Options id="disable-shared-memory-capture" />
+
+See [Shared-memory capture](/docs/shared-memory-capture).
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDisableSharedMemoryCapture(true);
+```
+
+The [`--disable-shared-memory-capture`](/docs/options/disable-shared-memory-capture) flag takes precedence over this option. Pass `--disable-shared-memory-capture=false` to override a configured opt-out.
 
 ## `setDisallowParallelEncoding()`<AvailableFrom v="4.0.315" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower. Default `false`.
+
+See [parallel encoding](/docs/parallel-encoding) for when it is enabled and how it works.
 
 From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabled automatically based on the available memory. Set this option if the machine runs out of memory while rendering.
 
@@ -566,7 +661,7 @@ import {Config} from '@remotion/cli/config';
 Config.setDisallowParallelEncoding(true);
 ```
 
-The [command line flag](/docs/cli/render#--disallow-parallel-encoding) `--disallow-parallel-encoding` will take precedence over this option.
+The [`--disallow-parallel-encoding`](/docs/options/disallow-parallel-encoding) flag takes precedence over this option.
 
 ## `setEnforceAudioTrack()`<AvailableFrom v="3.2.1" />
 
@@ -578,7 +673,7 @@ import {Config} from '@remotion/cli/config';
 Config.setEnforceAudioTrack(true);
 ```
 
-The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
+The [`--enforce-audio-track`](/docs/options/enforce-audio-track) flag takes precedence over this option.
 
 ## `setSampleRate()`<AvailableFrom v="4.0.448" />
 
@@ -590,7 +685,7 @@ import {Config} from '@remotion/cli/config';
 Config.setSampleRate(44100);
 ```
 
-The [command line flag](/docs/cli/render#--sample-rate) `--sample-rate` will take precedence over this option.
+The [`--sample-rate`](/docs/options/sample-rate) flag takes precedence over this option.
 
 ## `setPreviewSampleRate()`<AvailableFrom v="4.0.470" />
 
@@ -602,7 +697,7 @@ import {Config} from '@remotion/cli/config';
 Config.setPreviewSampleRate(44100);
 ```
 
-The [command line flag](/docs/cli/studio#--preview-sample-rate) `--preview-sample-rate` will take precedence over this option.
+The [`--preview-sample-rate`](/docs/options/preview-sample-rate) flag takes precedence over this option.
 
 ## `setForSeamlessAacConcatenation()`<AvailableFrom v="4.0.123" />
 
@@ -614,7 +709,7 @@ import {Config} from '@remotion/cli/config';
 Config.setForSeamlessAacConcatenation(true);
 ```
 
-The [command line flag](/docs/cli/render#--for-seamless-aac-concatenation) `--for-seamless-aac-concatenation` will take precedence over this option.
+The [`--for-seamless-aac-concatenation`](/docs/options/for-seamless-aac-concatenation) flag takes precedence over this option.
 
 ## `setFrameRange()`<AvailableFrom v="2.0.0" />
 
@@ -655,7 +750,7 @@ Config.setFrameRange([
 ]);
 ```
 
-The [command line flag](/docs/cli/render#--frames) `--frames` will take precedence over this option.
+The [`--frames`](/docs/options/frames) flag takes precedence over this option.
 
 ## `setJpegQuality()`
 
@@ -667,7 +762,7 @@ import {Config} from '@remotion/cli/config';
 Config.setJpegQuality(90);
 ```
 
-The [command line flag](/docs/cli/render#--jpeg-quality) `--jpeg-quality` will take precedence over this option.
+The [`--jpeg-quality`](/docs/options/jpeg-quality) flag takes precedence over this option.
 
 ## `setDotEnvLocation()`
 
@@ -679,7 +774,7 @@ import {Config} from '@remotion/cli/config';
 Config.setDotEnvLocation('.my-env');
 ```
 
-The [command line flag](/docs/cli/render#--env-file) `--env-file` will take precedence over this option.
+The [`--env-file`](/docs/options/env-file) flag takes precedence over this option.
 
 ## `setEveryNthFrame()`
 
@@ -691,7 +786,7 @@ import {Config} from '@remotion/cli/config';
 Config.setEveryNthFrame(2);
 ```
 
-The [command line flag](/docs/cli/render#--every-nth-frame) `--every-nth-frame` will take precedence over this option.
+The [`--every-nth-frame`](/docs/options/every-nth-frame) flag takes precedence over this option.
 
 ## `setNumberOfGifLoops()`
 
@@ -703,7 +798,7 @@ import {Config} from '@remotion/cli/config';
 Config.setNumberOfGifLoops(2);
 ```
 
-The [command line flag](/docs/cli/render#--number-of-gif-loops) `--number-of-gif-loops` will take precedence over this option.
+The [`--number-of-gif-loops`](/docs/options/number-of-gif-loops) flag takes precedence over this option.
 
 ## `setOutputLocation()`<AvailableFrom v="3.1.6" />
 
@@ -741,7 +836,7 @@ import {Config} from '@remotion/cli/config';
 Config.setPixelFormat('yuv420p');
 ```
 
-The [command line flag](/docs/cli/render#--pixel-format) `--pixel-format` will take precedence over this option.
+The [`--pixel-format`](/docs/options/pixel-format) flag takes precedence over this option.
 
 ## `setCodec()`<AvailableFrom v="1.4.0" />
 
@@ -765,7 +860,7 @@ import {Config} from '@remotion/cli/config';
 Config.setCodec('h265');
 ```
 
-The [command line flag](/docs/cli/render#--codec) `--codec` will take precedence over this option.
+The [`--codec`](/docs/options/codec) flag takes precedence over this option.
 
 **See also**: [Encoding guide](/docs/encoding)
 
@@ -784,7 +879,7 @@ Choose the encoding of your audio.
 - Not all video containers support all audio codecs.
 - This option takes precedence if the `codec` option also specifies an audio codec.
 
-The [command line flag](/docs/cli/render#--audio-codec) `--audio-codec` will take precedence over this option.
+The [`--audio-codec`](/docs/options/audio-codec) flag takes precedence over this option.
 
 Refer to the [Encoding guide](/docs/encoding) to see defaults and supported combinations.
 
@@ -798,9 +893,9 @@ import {Config} from '@remotion/cli/config';
 Config.setProResProfile('4444');
 ```
 
-The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
+The [`--prores-profile`](/docs/options/prores-profile) flag takes precedence over this option.
 
-## `setX264Preset()`<AvailableFrom v="4.2.2" />
+## `setX264Preset()`<AvailableFrom v="4.0.22" />
 
 Set the Preset profile. This option is only valid if the codec has been set to `h264`.
 Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
@@ -812,7 +907,7 @@ import {Config} from '@remotion/cli/config';
 Config.setX264Preset('fast');
 ```
 
-The [command line flag](/docs/cli/render#--x264-preset) `--x264-preset` will take precedence over this option.
+The [`--x264-preset`](/docs/options/x264-preset) flag takes precedence over this option.
 
 **See also**: [Encoding guide](/docs/encoding), [Transparent videos](/docs/transparent-videos)
 
@@ -826,7 +921,7 @@ import {Config} from '@remotion/cli/config';
 Config.setGopSize(239);
 ```
 
-The [command line flag](/docs/cli/render#--gop) `--gop` will take precedence over this option.
+The [`--gop`](/docs/options/gop) flag takes precedence over this option.
 
 ## `setImageSequence()`<AvailableFrom v="1.4.0" />
 
@@ -838,7 +933,7 @@ import {Config} from '@remotion/cli/config';
 Config.setImageSequence(true);
 ```
 
-The [command line flag](/docs/cli/render#--sequence) `--sequence` will take precedence over this option.
+The [`--sequence`](/docs/options/sequence) flag takes precedence over this option.
 
 ## `overrideHeight()`<AvailableFrom v="3.2.40" />
 
@@ -850,7 +945,7 @@ import {Config} from '@remotion/cli/config';
 Config.overrideHeight(600);
 ```
 
-The [command line flag](/docs/cli/render#--height) `--height` will take precedence over this option.
+The [`--height`](/docs/options/height) flag takes precedence over this option.
 
 ## `overrideWidth()`<AvailableFrom v="3.2.40" />
 
@@ -862,7 +957,7 @@ import {Config} from '@remotion/cli/config';
 Config.overrideWidth(900);
 ```
 
-The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option.
+The [`--width`](/docs/options/width) flag takes precedence over this option.
 
 ## `overrideFps()`<AvailableFrom v="4.0.424" />
 
@@ -874,7 +969,7 @@ import {Config} from '@remotion/cli/config';
 Config.overrideFps(25);
 ```
 
-The [command line flag](/docs/cli/render#--fps) `--fps` will take precedence over this option.
+The [`--fps`](/docs/options/fps) flag takes precedence over this option.
 
 ## `overrideDuration()`<AvailableFrom v="4.0.424" />
 
@@ -886,7 +981,7 @@ import {Config} from '@remotion/cli/config';
 Config.overrideDuration(300);
 ```
 
-The [command line flag](/docs/cli/render#--duration) `--duration` will take precedence over this option.
+The [`--duration`](/docs/options/duration) flag takes precedence over this option.
 
 ## `setCrf()`<AvailableFrom v="1.4.0" />
 
@@ -912,7 +1007,7 @@ import {Config} from '@remotion/cli/config';
 Config.setCrf(16);
 ```
 
-The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
+The [`--crf`](/docs/options/crf) flag takes precedence over this option.
 
 :::note
 If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`setVideoBitrate()`](#setvideobitrate) option instead.
@@ -930,7 +1025,7 @@ import {Config} from '@remotion/cli/config';
 Config.setVideoBitrate('1M');
 ```
 
-The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
+The [`--video-bitrate`](/docs/options/video-bitrate) flag takes precedence over this option.
 
 ## `setEncodingBufferSize()`<AvailableFrom v="4.0.78" />
 
@@ -944,7 +1039,7 @@ import {Config} from '@remotion/cli/config';
 Config.setEncodingBufferSize('10000k');
 ```
 
-The [command line flag](/docs/cli/render#--buffer-size) `--buffer-size` will take precedence over this option.
+The [`--buffer-size`](/docs/options/buffer-size) flag takes precedence over this option.
 
 ## `setEncodingMaxRate()`<AvailableFrom v="4.0.78" />
 
@@ -958,7 +1053,7 @@ import {Config} from '@remotion/cli/config';
 Config.setEncodingMaxRate('5000k');
 ```
 
-The [command line flag](/docs/cli/render#--max-rate) `--max-rate` will take precedence over this option.
+The [`--max-rate`](/docs/options/max-rate) flag takes precedence over this option.
 
 ## `setAudioBitrate()`<AvailableFrom v="3.2.32" />
 
@@ -972,7 +1067,7 @@ import {Config} from '@remotion/cli/config';
 Config.setAudioBitrate('128K');
 ```
 
-The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
+The [`--audio-bitrate`](/docs/options/audio-bitrate) flag takes precedence over this option.
 
 ## `setAudioLatencyHint()`<AvailableFrom v="4.0.303" />
 
@@ -986,7 +1081,7 @@ import {Config} from '@remotion/cli/config';
 Config.setAudioLatencyHint('interactive');
 ```
 
-The `--audio-latency-hint` command line flag will take precedence over this option.
+The [`--audio-latency-hint`](/docs/options/audio-latency-hint) flag takes precedence over this option.
 
 ## `setExperimentalKeepAudioContextAlive()`<AvailableFrom v="4.0.508" />
 
@@ -1006,7 +1101,7 @@ import {Config} from '@remotion/cli/config';
 Config.setExperimentalKeepAudioContextAlive(true);
 ```
 
-Changing this option while the Studio is running reloads the page. The `--experimental-keep-audio-context-alive` command line flag will take precedence over this option.
+Changing this option while the Studio is running reloads the page. The [`--experimental-keep-audio-context-alive`](/docs/options/experimental-keep-audio-context-alive) flag takes precedence over this option.
 
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
@@ -1031,7 +1126,7 @@ import {Config} from '@remotion/cli/config';
 Config.setEnableCancellation(true);
 ```
 
-The `--enable-cancellation` command line flag will take precedence over this option.
+The [`--enable-cancellation`](/docs/options/enable-cancellation) flag takes precedence over this option.
 
 ## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 
@@ -1069,7 +1164,7 @@ import {Config} from '@remotion/cli/config';
 Config.setBeepOnFinish(true);
 ```
 
-The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
+The [`--beep-on-finish`](/docs/options/beep-on-finish) flag takes precedence over this option.
 
 ## `setEnableCrossSiteIsolation()`<AvailableFrom v="4.0.306" />
 
@@ -1083,7 +1178,7 @@ import {Config} from '@remotion/cli/config';
 Config.setEnableCrossSiteIsolation(true);
 ```
 
-The [command line flag](/docs/cli/studio#--cross-site-isolation) `--cross-site-isolation` will take precedence over this option.
+The [`--cross-site-isolation`](/docs/options/cross-site-isolation) flag takes precedence over this option.
 
 ## `setAskAIEnabled()`<AvailableFrom v="4.0.407" />
 
@@ -1097,7 +1192,7 @@ import {Config} from '@remotion/cli/config';
 Config.setAskAIEnabled(false);
 ```
 
-The [command line flag](/docs/cli/studio#--disable-ask-ai) `--disable-ask-ai` will take precedence over this option.
+The [`--disable-ask-ai`](/docs/options/disable-ask-ai) flag takes precedence over this option.
 
 ## `setForceNewStudioEnabled()`<AvailableFrom v="4.0.421" />
 
@@ -1111,7 +1206,7 @@ import {Config} from '@remotion/cli/config';
 Config.setForceNewStudioEnabled(true);
 ```
 
-The [command line flag](/docs/cli/studio#--force-new) `--force-new` will take precedence over this option.
+The [`--force-new`](/docs/options/force-new) flag takes precedence over this option.
 
 ## `setIPv4()`<AvailableFrom v="4.0.125" />
 
@@ -1125,7 +1220,7 @@ import {Config} from '@remotion/cli/config';
 Config.setIPv4(true);
 ```
 
-The [command line flag](/docs/cli/studio#--ipv4) `--ipv4` will take precedence over this option.
+The [`--ipv4`](/docs/options/ipv4) flag takes precedence over this option.
 
 ## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.111" />
 
@@ -1192,7 +1287,7 @@ Config.overrideFfmpegCommand(({args}) => {
 
 The function you pass must accept an object as it's only parameter which contains the following properties:
 
-- `type`: Either `"stitcher"` or `"pre-stitcher"`. For the `h264`, `h264-mkv` and `h265` codecs, Remotion uses a two-pass process for the video generation unless [parallel encoding is disallowed](#setdisallowparallelencoding). `pre-stitcher` is the encoding phase and `stitcher` is the muxing phase. If the override function is only called once with `stitcher`, then encoding and muxing is done in the same step. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+- `type`: Either `"stitcher"` or `"pre-stitcher"`. When [parallel encoding is enabled](#setdisallowparallelencoding), `pre-stitcher` encodes the video while frames are rendered, then `stitcher` muxes the encoded video and any audio into the output file. Otherwise, the function is called once with `stitcher`, which performs encoding and muxing together. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
 - `args`: An array of strings that is passed as arguments to the FFmpeg command.
 
 Your function must return a modified array of strings.
@@ -1220,7 +1315,7 @@ import {Config} from '@remotion/cli/config';
 Config.setPublicLicenseKey('your-license-key');
 ```
 
-The [command line flag](/docs/cli/studio#--public-license-key) `--public-license-key` will take precedence over this option.
+The [`--public-license-key`](/docs/options/public-license-key) flag takes precedence over this option.
 
 ## `setImageSequencePattern()`
 
@@ -1232,7 +1327,7 @@ import {Config} from '@remotion/cli/config';
 Config.setImageSequencePattern('frame_[frame]_custom.[ext]');
 ```
 
-The [command line flag](/docs/cli/render#--image-sequence-pattern) `--image-sequence-pattern` will take precedence over this option.
+The [`--image-sequence-pattern`](/docs/options/image-sequence-pattern) flag takes precedence over this option.
 
 ## ~~`setQuality()`~~
 
@@ -1287,7 +1382,7 @@ import {Config} from '@remotion/cli/config';
 Config.setPort(3003);
 ```
 
-The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option. If set on `npx remotion studio`, it will set the Studio port, otherwise the renderer port.
+The [`--port`](/docs/options/port) flag takes precedence over this option. If set on `npx remotion studio`, it will set the Studio port, otherwise the renderer port.
 
 ## ~~`setOutputFormat()`~~
 
@@ -1302,7 +1397,7 @@ import {Config} from '@remotion/cli/config';
 Config.setOutputFormat('mp4');
 ```
 
-The [command line flags](/docs/cli) `--sequence` and `--codec` will take precedence over this option.
+The [`--sequence`](/docs/options/sequence) and [`--codec`](/docs/options/codec) flags take precedence over this option.
 
 The [command line flag](/docs/cli) `--quality` will take precedence over this option.
 

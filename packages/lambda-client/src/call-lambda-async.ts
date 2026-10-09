@@ -19,9 +19,10 @@ export const callFunctionAsyncImplementation = async <
 	requestHandler,
 }: CallFunctionOptions<T, Provider>): Promise<void> => {
 	const stringifiedPayload = JSON.stringify(payload);
-	if (stringifiedPayload.length > 256 * 1024) {
+	const byteLength = Buffer.byteLength(stringifiedPayload);
+	if (byteLength > 256 * 1024) {
 		throw new Error(
-			`Payload is too big: ${stringifiedPayload.length} bytes. Maximum size is 256 KB. This should not happen, please report this to the Remotion team. Payload: ${stringifiedPayload}`,
+			`Payload is too big: ${byteLength} bytes. Maximum size is 256 KB. This should not happen, please report this to the Remotion team. Payload: ${stringifiedPayload}`,
 		);
 	}
 

@@ -14,7 +14,7 @@ The version should be the same version of the `@remotion/lambda` NPM package ver
 ## Notes
 
 - This module is experimental and might have breaking changes in minor versions. Check on this page for up-to-date examples.
-- The implemented methods are [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), [`getRenderProgressOnLambda()`](/docs/lambda/getrenderprogress), and [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda).
+- The implemented methods are [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), [`getRenderProgressOnLambda()`](/docs/lambda/getrenderprogress), and [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda).
 - We will maintain the Ruby SDK to ensure the fields stay in sync with the Node.js functions.
 - The fields in the input payload are `snake_case` versions of the Node.js field names.
 - Nested field names, e.g. `s3_output_provder.accessKeyId` have the original `camelCase` capitalization.
@@ -57,6 +57,26 @@ while true
   sleep 1
 end
 ```
+
+## Rendering an image sequence<AvailableFrom v="4.0.535" />
+
+Use `get_render_frames_on_lambda_payload()` and `render_frames_on_lambda()`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+
+```ruby title="Rendering an image sequence from Ruby"
+payload = get_render_frames_on_lambda_payload(
+  composition: "main",
+  serve_url: ENV.fetch('REMOTION_APP_SERVE_URL'),
+  frame_range: [0, 99],
+  frames_per_lambda: 20,
+  output_prefix: "exports/my-sequence/",
+  image_sequence_pattern: "element-[frame].[ext]",
+)
+
+res = client.render_frames_on_lambda(function_name, payload)
+puts res
+```
+
+Poll `get_render_progress()` until `done` or `fatalErrorEncountered`. `framesUploaded` reports uploaded frames, and `outputSequence['manifestUrl']` points to the completed manifest. `output_prefix` also accepts a hash with `bucketName`, `keyPrefix`, and optional `s3OutputProvider`.
 
 ## Cancelling a render<AvailableFrom v="4.0.515" />
 

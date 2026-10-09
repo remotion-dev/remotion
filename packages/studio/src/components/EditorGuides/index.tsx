@@ -24,13 +24,16 @@ const EditorGuides: React.FC<{
 		throw new Error('Expected to be in a composition');
 	}
 
-	const {guidesList} = useContext(EditorShowGuidesContext);
+	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 
 	const guidesForThisComposition = useMemo(() => {
 		return guidesList.filter((guide) => {
 			return guide.compositionId === canvasContent.compositionId;
 		});
 	}, [canvasContent.compositionId, guidesList]);
+	if (!editorShowGuides) {
+		return null;
+	}
 
 	return (
 		<>

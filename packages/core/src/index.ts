@@ -251,6 +251,7 @@ export * from './spring/index.js';
 export {staticFile} from './static-file.js';
 export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
+export {Track, type TrackProps} from './Track.js';
 export {useBufferState} from './use-buffer-state';
 export {useCurrentFrame} from './use-current-frame.js';
 export {
@@ -283,12 +284,10 @@ export {watchStaticFile} from './watch-static-file.js';
 export const Experimental = {
 	/**
 	 * @description This is a special component that will cause Remotion to only partially capture the frame of the video.
-	 * @see [Documentation](https://www.remotion.dev/docs/clipper)
 	 */
 	Clipper,
 	/**
 	 * @description This is a special component, that, when rendered, will skip rendering the frame altogether.
-	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,
 	useIsPlayer,

@@ -45,6 +45,8 @@ const {
 	stillImageFormatOption,
 	videoImageFormatOption,
 	sampleRateOption,
+	browserExecutableOption,
+	disableSharedMemoryCaptureOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
@@ -227,5 +229,13 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 		allowHtmlInCanvas,
 		sampleRate: sampleRateOption.getValue({commandLine: parsedCli}).value,
 		configFileRenderDefaults,
+		sharedMemoryCapture: {
+			browserExecutable: browserExecutableOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			disabled: disableSharedMemoryCaptureOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+		},
 	};
 };

@@ -11,6 +11,7 @@ import type {
 	SerializedInputProps,
 	ServerlessCodec,
 } from './constants';
+import type {ImageSequenceOutput} from './image-sequence';
 import type {CloudProvider} from './types';
 
 type Discriminated =
@@ -26,6 +27,17 @@ type Discriminated =
 			frameRange: [number, number];
 			everyNthFrame: number;
 			codec: ServerlessCodec;
+	  }
+	| {
+			type: 'sequence';
+			imageFormat: 'png' | 'jpeg';
+			codec: null;
+			muted: true;
+			frameRange: [number, number];
+			everyNthFrame: number;
+			outputSequence: ImageSequenceOutput;
+			imageSequencePattern: string;
+			framePadding: number;
 	  };
 
 type Dimensions = {
@@ -50,8 +62,10 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	region: Provider['region'];
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
+	separateAudioTo: OutNameInputWithoutCredentials | null;
 	// Whether the final upload must create a new object without overwriting.
 	outputFileIsConditional: boolean | null;
+	separateAudioOutputFileIsConditional: boolean | null;
 	privacy: Privacy;
 	deleteAfter: DeleteAfter | null;
 	numberOfGifLoops: number | null;

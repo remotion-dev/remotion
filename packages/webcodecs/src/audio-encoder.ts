@@ -26,6 +26,9 @@ export type AudioEncoderInit = {
 	onNewAudioSampleRate: (sampleRate: number) => void;
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const createAudioEncoder = ({
 	onChunk,
 	onError,

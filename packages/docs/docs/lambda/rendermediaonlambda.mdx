@@ -195,6 +195,12 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 Starting in Remotion 5.0, the default for H.264 Lambda renders is `veryfast`. In Remotion 4.0, the default is `medium`.
 
+### `disableSharedMemoryCapture?`<AvailableFrom v="4.0.534" />
+
+<Options id="disable-shared-memory-capture" />
+
+See [Shared-memory capture](/docs/shared-memory-capture).
+
 ### `gopSize?`<AvailableFrom v="4.0.466" />
 
 <Options id="gop" />
@@ -249,6 +255,32 @@ It can either be:
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
 - A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`. Make sure to include the file extension at the end of the string.
 - An object if you want to render to a different bucket or cloud provider - [see here for detailed instructions](/docs/lambda/custom-destination).
+
+### `separateAudioTo?`<AvailableFrom v="4.0.535" />
+
+Save the mixed audio as a separate file and omit the audio track from the video. By default, audio is included in the video.
+
+A string such as `"audio.wav"` saves to `renders/{renderId}/audio.wav` in the render bucket. An object with `bucketName`, `key` and an optional `s3OutputProvider` supports a [custom destination](/docs/lambda/custom-destination), using the same rules as [`outName`](/docs/lambda/rendermediaonlambda#outname).
+
+```ts twoslash title="Render video and audio separately"
+import {renderMediaOnLambda} from '@remotion/lambda/client';
+
+await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-4-0-535-mem2048mb-disk2048mb-120sec',
+  serveUrl: 'https://remotionlambda-example.s3.us-east-1.amazonaws.com/sites/my-site/index.html',
+  composition: 'MyVideo',
+  codec: 'h264',
+  outName: 'video.mp4',
+  separateAudioTo: 'audio.wav',
+});
+```
+
+The filename extension selects the audio format: `.wav` uses PCM, `.aac`, `.m4a`, `.m4b` and `.3gp` use AAC, `.mp3` uses MP3, and `.opus` uses Opus. Existing [audio codec compatibility rules](/docs/encoding/#audio-codec) apply. Conflicting `audioCodec` or `preferLossless` settings throw an error.
+
+A composition without audio produces a silent audio file. Audio-only renders, codecs without audio support, and `muted: true` cannot be combined with this option.
+
+Read [`getRenderProgress() -> separateAudio`](/docs/lambda/getrenderprogress#separateaudio) to get the audio destination. Both outputs must be uploaded before the render is complete.
 
 ### `timeoutInMilliseconds?`
 

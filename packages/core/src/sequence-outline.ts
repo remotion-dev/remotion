@@ -6,7 +6,6 @@ type OutlineRef = RefObject<Element | null>;
 
 export const SequenceOutlineContext = React.createContext(false);
 
-// Keep automatic groups separate from the public, single-element outlineRef.
 // A group only exposes .current when it has exactly one element, so consumers
 // that require an actual element never accidentally act on part of a group.
 const nodesByRef = new WeakMap<OutlineRef, readonly OutlineNode[]>();
@@ -29,10 +28,10 @@ export const SequenceOutlineInternals = {
 			return;
 		}
 
-		nodesByRef.set(ref, nodes);
 		ref.current =
 			nodes.length === 1 && nodes[0].nodeType === 1
 				? (nodes[0] as Element)
 				: null;
+		nodesByRef.set(ref, nodes);
 	},
 };

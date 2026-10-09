@@ -6,6 +6,7 @@ let input: boolean | null = false;
 
 export const preferLosslessAudioOption = {
 	name: 'Prefer lossless',
+	addedIn: '4.0.123',
 	cliFlag,
 	description: () => (
 		<>
@@ -14,7 +15,7 @@ export const preferLosslessAudioOption = {
 			<code>preferLossless</code>.
 		</>
 	),
-	docLink: 'https://www.remotion.dev/docs/encoding',
+	docLink: 'https://www.remotion.dev/docs/options/prefer-lossless',
 	type: false as boolean,
 	ssrName: 'preferLossless' as const,
 	getValue: ({commandLine}) => {

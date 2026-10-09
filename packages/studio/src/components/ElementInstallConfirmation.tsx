@@ -261,7 +261,8 @@ const makeSourceControlsVisible = (sourceCode: string) => {
 export const ElementLibraryAddConfirmation: React.FC<{
 	readonly origin: string;
 	readonly url: string;
-}> = ({origin, url}) => {
+	readonly captionStylesUrl: string | null;
+}> = ({origin, url, captionStylesUrl}) => {
 	return (
 		<p
 			style={{
@@ -277,6 +278,9 @@ export const ElementLibraryAddConfirmation: React.FC<{
 			{origin.replace(/^https?:\/\//, '')} wants to add{' '}
 			{url.replace(/^https?:\/\//, '')} as an Element library to{' '}
 			{window.remotion_projectName ?? 'this Studio project'}.
+			{captionStylesUrl === null ? null : (
+				<> Caption styles will be loaded from {captionStylesUrl}.</>
+			)}
 		</p>
 	);
 };

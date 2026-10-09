@@ -6,6 +6,7 @@ const cliFlag = 'max-rate' as const;
 
 export const encodingMaxRateOption = {
 	name: 'FFmpeg -maxrate flag',
+	addedIn: '4.0.78',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,8 +16,7 @@ export const encodingMaxRateOption = {
 		</>
 	),
 	ssrName: 'encodingMaxRate' as const,
-	docLink:
-		'https://www.remotion.dev/docs/renderer/render-media#encodingmaxrate',
+	docLink: 'https://www.remotion.dev/docs/options/max-rate',
 	type: '' as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

@@ -482,6 +482,7 @@ const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
         </FieldRow>
       );
 
+    case "string":
     case "text-content":
       return (
         <FieldRow

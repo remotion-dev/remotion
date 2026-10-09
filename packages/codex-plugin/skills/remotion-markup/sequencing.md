@@ -90,42 +90,42 @@ Always premount any `<Sequence>`!
 </Sequence>
 ```
 
-## Series
+## TransitionSeries
 
-Use `<Series>` when elements should play one after another without overlap.
+Use `<TransitionSeries>` when elements should play one after another without overlap.
 
 ```tsx
-import { Series } from "remotion";
+import { TransitionSeries } from "@remotion/transitions";
 
-<Series>
-  <Series.Sequence durationInFrames={45}>
+<TransitionSeries>
+  <TransitionSeries.Sequence durationInFrames={45}>
     <Intro />
-  </Series.Sequence>
-  <Series.Sequence durationInFrames={60}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <MainContent />
-  </Series.Sequence>
-  <Series.Sequence durationInFrames={30}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence durationInFrames={30}>
     <Outro />
-  </Series.Sequence>
-</Series>;
+  </TransitionSeries.Sequence>
+</TransitionSeries>;
 ```
 
-Same as with `<Sequence>`, the items will be wrapped in an absolute fill element by default when using `<Series.Sequence>`, unless the `layout` prop is set to `none`.
+Same as with `<Sequence>`, the items will be wrapped in an absolute fill element by default when using `<TransitionSeries.Sequence>`, unless the `layout` prop is set to `none`.
 
-### Series with overlaps
+### TransitionSeries with overlaps
 
 Use negative offset for overlapping sequences:
 
 ```tsx
-<Series>
-  <Series.Sequence durationInFrames={60}>
+<TransitionSeries>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneA />
-  </Series.Sequence>
-  <Series.Sequence offset={-15} durationInFrames={60}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence offset={-15} durationInFrames={60}>
     {/* Starts 15 frames before SceneA ends */}
     <SceneB />
-  </Series.Sequence>
-</Series>
+  </TransitionSeries.Sequence>
+</TransitionSeries>
 ```
 
 ## Frame References Inside Sequences

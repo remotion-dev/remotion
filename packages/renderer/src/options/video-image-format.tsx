@@ -10,6 +10,7 @@ const cliFlag = 'image-format' as const;
 
 export const videoImageFormatOption = {
 	name: 'Video Image Format',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -17,10 +18,14 @@ export const videoImageFormatOption = {
 			{validVideoImageFormats.map((f) => `"${f}"`).join(', ')}. Default:{' '}
 			<code>&quot;jpeg&quot;</code>. JPEG is faster, but does not support
 			transparency.
+			<br />
+			When <a href="/docs/shared-memory-capture">shared-memory capture</a> is
+			active, this option has no effect. The output pixel format determines
+			transparency.
 		</>
 	),
 	ssrName: 'imageFormat' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#imageformat',
+	docLink: 'https://www.remotion.dev/docs/options/video-image-format',
 	type: null as VideoImageFormat | null,
 	getValue: (
 		{commandLine},

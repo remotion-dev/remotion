@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {createPortal} from 'react-dom';
 import {TIMELINE_BACKGROUND_COLOR, WHITE_ALPHA_90} from '../helpers/colors';
+import {observeHover} from '../helpers/observe-hover';
 import {useZIndex} from '../state/z-index';
 import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {getPortal} from './Menu/portals';
@@ -71,6 +72,8 @@ export const ActionTooltip: React.FC<{
 	const triggerRef = useRef<HTMLSpanElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const activation = useRef<'hover' | 'focus' | null>(null);
+	const delayRef = useRef(delay);
 	// Dismissal must also cancel a tooltip that is waiting for its hover delay.
 	const [active, setActive] = useState(false);
 	const [visible, setVisible] = useState(false);
@@ -78,6 +81,10 @@ export const ActionTooltip: React.FC<{
 		null,
 	);
 	const {currentZIndex} = useZIndex();
+
+	useLayoutEffect(() => {
+		delayRef.current = delay;
+	}, [delay]);
 
 	useLayoutEffect(() => {
 		if (!visible) {
@@ -92,6 +99,7 @@ export const ActionTooltip: React.FC<{
 	}, [visible]);
 
 	const hide = useCallback(() => {
+		activation.current = null;
 		if (timer.current !== null) {
 			clearTimeout(timer.current);
 			timer.current = null;
@@ -112,32 +120,58 @@ export const ActionTooltip: React.FC<{
 		setVisible(true);
 	}, []);
 
-	const onPointerEnter = useCallback(
-		(event: React.PointerEvent<HTMLSpanElement>) => {
-			if (
-				event.pointerType === 'touch' ||
-				timer.current !== null ||
-				!event.currentTarget.contains(event.target as Node)
-			) {
-				return;
-			}
+	useLayoutEffect(() => {
+		const trigger = triggerRef.current;
+		if (!trigger) {
+			return;
+		}
 
-			// Keep adjacent controls instant, including crossing the gap between them.
-			if (
-				!delay ||
-				visibleTooltipCount > 0 ||
-				(lastTooltipHiddenAt !== null &&
-					Date.now() - lastTooltipHiddenAt < TOOLTIP_SKIP_DELAY_WINDOW)
-			) {
-				show();
-				return;
-			}
+		const unobserve = observeHover({
+			element: trigger,
+			onHoverChange: (hovered) => {
+				// Keyboard focus is independent of the pointer's location.
+				if (activation.current === 'focus') {
+					return;
+				}
 
-			setActive(true);
-			timer.current = setTimeout(show, delay);
-		},
-		[delay, show],
-	);
+				if (!hovered) {
+					hide();
+					return;
+				}
+
+				activation.current = 'hover';
+				const hoverDelay = delayRef.current;
+				// Keep adjacent controls instant, including crossing the gap between them.
+				if (
+					!hoverDelay ||
+					visibleTooltipCount > 0 ||
+					(lastTooltipHiddenAt !== null &&
+						Date.now() - lastTooltipHiddenAt < TOOLTIP_SKIP_DELAY_WINDOW)
+				) {
+					show();
+					return;
+				}
+
+				setActive(true);
+				timer.current = setTimeout(() => {
+					// Recheck before opening, even if the browser missed a leave event.
+					if (trigger.isConnected && trigger.matches(':hover')) {
+						show();
+					} else {
+						hide();
+					}
+				}, hoverDelay);
+			},
+		});
+		return () => {
+			unobserve();
+			activation.current = null;
+			if (timer.current !== null) {
+				clearTimeout(timer.current);
+				timer.current = null;
+			}
+		};
+	}, [hide, show]);
 
 	useEffect(() => {
 		if (!active) {
@@ -150,19 +184,35 @@ export const ActionTooltip: React.FC<{
 			}
 		};
 
-		window.addEventListener('keydown', onKeyDown);
-		window.addEventListener('blur', hide);
-		window.addEventListener('resize', hide);
-		window.addEventListener('scroll', hide, true);
+		const doc = triggerRef.current?.ownerDocument;
+		const win = doc?.defaultView;
+
+		if (!doc || !win) {
+			return;
+		}
+
+		const onVisibilityChange = () => {
+			if (doc.hidden) {
+				hide();
+			}
+		};
+
+		win.addEventListener('keydown', onKeyDown);
+		win.addEventListener('blur', hide);
+		win.addEventListener('resize', hide);
+		win.addEventListener('scroll', hide, true);
+		doc.addEventListener('visibilitychange', onVisibilityChange);
 		return () => {
 			if (timer.current !== null) {
 				clearTimeout(timer.current);
+				timer.current = null;
 			}
 
-			window.removeEventListener('keydown', onKeyDown);
-			window.removeEventListener('blur', hide);
-			window.removeEventListener('resize', hide);
-			window.removeEventListener('scroll', hide, true);
+			win.removeEventListener('keydown', onKeyDown);
+			win.removeEventListener('blur', hide);
+			win.removeEventListener('resize', hide);
+			win.removeEventListener('scroll', hide, true);
+			doc.removeEventListener('visibilitychange', onVisibilityChange);
 		};
 	}, [active, hide]);
 
@@ -215,16 +265,22 @@ export const ActionTooltip: React.FC<{
 			<span
 				ref={triggerRef}
 				style={{...defaultTriggerStyle, ...triggerStyle}}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={hide}
 				onPointerDownCapture={dismissOnClick ? hide : undefined}
 				onClickCapture={dismissOnClick ? hide : undefined}
 				onFocus={(event) => {
-					if (event.currentTarget.contains(event.target)) {
+					if (
+						event.currentTarget.contains(event.target) &&
+						event.target.matches(':focus-visible')
+					) {
+						activation.current = 'focus';
 						show();
 					}
 				}}
-				onBlur={hide}
+				onBlur={(event) => {
+					if (!event.currentTarget.contains(event.relatedTarget)) {
+						hide();
+					}
+				}}
 			>
 				{children}
 			</span>
