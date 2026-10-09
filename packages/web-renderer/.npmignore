@@ -8,3 +8,4 @@ vitest.config.ts
 vitest.html-in-canvas.config.ts
 .vitest-attachments
 dist/test
+benchmarks

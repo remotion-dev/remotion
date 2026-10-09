@@ -20,7 +20,10 @@ export const getHtmlInCanvasFallbackReason = (
 		return 'URL masks are loaded by the built-in DOM composer to guarantee deterministic rendering.';
 	}
 
-	if (containsLayoutSubtreeCanvas(element) && !HtmlInCanvas.isNestingSupported()) {
+	if (
+		containsLayoutSubtreeCanvas(element) &&
+		!HtmlInCanvas.isNestingSupported()
+	) {
 		return 'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture requires Chrome 157 or newer, so the built-in DOM composer is used.';
 	}
 
