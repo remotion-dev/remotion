@@ -1,3 +1,4 @@
+import Link from '@docusaurus/Link';
 import React, {type RefObject, useEffect, useId, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {ElementDefinition} from './element-definitions';
@@ -97,11 +98,12 @@ export const ElementInstallFallbackModal: React.FC<{
 					Use this element
 				</h3>
 				<p className={styles.description}>
-					Open a Remotion Studio, then click below.
+					<Link to="/docs/studio/">Open a Remotion Studio</Link>, then click
+					below.
 				</p>
 				<div className={styles.installAction}>
 					<ElementStudioAction
-						buttonLabel={installFailureCount > 1 ? 'Oops!' : 'Install'}
+						buttonLabel={installFailureCount > 1 ? 'Oops!' : 'Use'}
 						definition={definition}
 						loading={isInstalling}
 						onClick={onInstall}
