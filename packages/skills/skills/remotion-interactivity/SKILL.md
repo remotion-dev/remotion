@@ -17,7 +17,7 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 Use `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})` for scenes whose layers share the canvas. The wrapper provides their visual root and timeline item, so the inner component can return a fragment. Put timing, premounting, dimensions, and per-instance styles on the exported component.
 
-Keep decorative implementation details inside the component. An inner layout container can still provide alignment, clipping, or an animated group; a container that only fills the scene is usually unnecessary. Cards, text boxes, and SVGs with their own bounds can keep the default `layout: 'none'` and forward `style` to their visual root.
+Keep visuals that belong together in the same component, so they move and trim together. An inner layout container can still provide alignment, clipping, or an animated group; a container that only fills the scene is usually unnecessary. Cards, text boxes, and SVGs with their own bounds can keep the default `layout: 'none'` and forward `style` to their visual root.
 
 ```tsx title="Scene.tsx"
 import {Video} from '@remotion/media';
