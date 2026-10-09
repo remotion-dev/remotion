@@ -9,6 +9,7 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Interactive} from '../Interactive.js';
 import {
 	sequenceSchemaDefaultLayoutNone,
+	sequenceTimingSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {
@@ -284,7 +285,10 @@ const Series: React.ComponentType<SeriesProps> & {
 		Component: SeriesInner,
 		componentName: '<Series>',
 		componentIdentity: 'dev.remotion.remotion.Series',
-		schema: sequenceSchemaDefaultLayoutNone,
+		schema: {
+			...sequenceSchemaDefaultLayoutNone,
+			...sequenceTimingSchema,
+		},
 		supportsEffects: false,
 	}),
 	{
