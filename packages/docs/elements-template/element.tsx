@@ -1,15 +1,10 @@
 import React from 'react';
-import {
-	AbsoluteFill,
-	Interactive,
-	type InteractiveTransformProps,
-} from 'remotion';
+import {AbsoluteFill, Interactive} from 'remotion';
 
-const ElementComponentInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
+const ElementComponentInner: React.FC = () => {
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				alignItems: 'center',
 				backgroundColor: '#111827',
@@ -19,7 +14,6 @@ const ElementComponentInner: React.FC<InteractiveTransformProps> = ({
 				fontSize: 96,
 				fontWeight: 700,
 				justifyContent: 'center',
-				...style,
 			}}
 		>
 			Element
@@ -32,4 +26,5 @@ export const ElementComponent = Interactive.withSchema({
 	componentName: '<ElementComponent>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

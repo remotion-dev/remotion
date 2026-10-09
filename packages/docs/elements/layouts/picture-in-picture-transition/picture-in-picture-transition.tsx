@@ -6,16 +6,13 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
-	type InteractiveTransformProps,
 } from 'remotion';
 
-const PictureInPictureTransitionInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
+const PictureInPictureTransitionInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden', ...style}} showInTimeline={false}>
+		<AbsoluteFill style={{overflow: 'hidden'}} showInTimeline={false}>
 			<Interactive.Div
 				name="Scene B"
 				style={{
@@ -184,4 +181,5 @@ export const PictureInPictureTransition = Interactive.withSchema({
 	componentName: '<PictureInPictureTransition>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

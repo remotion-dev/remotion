@@ -1,14 +1,12 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 
 loadFont('normal', {
@@ -152,68 +150,64 @@ const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 	);
 };
 
-const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
+const ProductCollectionInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={style} showInTimeline={false}>
-			<Interactive.Div
-				name="Container"
-				style={{
-					WebkitFontSmoothing: 'antialiased',
-					boxSizing: 'border-box',
-					color: '#1d1d19',
-					fontFamily: 'Inter',
-					height: 660,
-					isolation: 'isolate',
-					left: 60,
-					opacity: interpolate(
-						frame,
-						[0, 10, durationInFrames - 8, durationInFrames - 1],
-						[0, 1, 1, 0],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					overflow: 'hidden',
-					position: 'absolute',
-					scale: interpolate(
-						frame,
-						[0, 16, durationInFrames - 8, durationInFrames - 1],
-						[0.97, 1, 1, 0.98],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-						},
-					),
-					top: 180,
-					transform: 'perspective(100px)',
-					translate: interpolate(
-						frame,
-						[0, 16, durationInFrames - 8, durationInFrames - 1],
-						['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
-						{
-							easing: Easing.bezier(0.16, 1, 0.3, 1),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
-					width: 900,
-					willChange: 'transform, opacity',
-				}}
-			>
-				<ProductCard count={3} index={0} label="A" />
-				<ProductCard count={3} index={1} label="B" />
-				<ProductCard count={3} index={2} label="C" />
-			</Interactive.Div>
-		</AbsoluteFill>
+		<Interactive.Div
+			name="Container"
+			style={{
+				WebkitFontSmoothing: 'antialiased',
+				boxSizing: 'border-box',
+				color: '#1d1d19',
+				fontFamily: 'Inter',
+				height: 660,
+				isolation: 'isolate',
+				left: 60,
+				opacity: interpolate(
+					frame,
+					[0, 10, durationInFrames - 8, durationInFrames - 1],
+					[0, 1, 1, 0],
+					{
+						easing: Easing.bezier(0.16, 1, 0.3, 1),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				),
+				overflow: 'hidden',
+				position: 'absolute',
+				scale: interpolate(
+					frame,
+					[0, 16, durationInFrames - 8, durationInFrames - 1],
+					[0.97, 1, 1, 0.98],
+					{
+						easing: Easing.bezier(0.16, 1, 0.3, 1),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						output: 'perceptual-scale',
+					},
+				),
+				top: 180,
+				transform: 'perspective(100px)',
+				translate: interpolate(
+					frame,
+					[0, 16, durationInFrames - 8, durationInFrames - 1],
+					['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
+					{
+						easing: Easing.bezier(0.16, 1, 0.3, 1),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				),
+				width: 900,
+				willChange: 'transform, opacity',
+			}}
+		>
+			<ProductCard count={3} index={0} label="A" />
+			<ProductCard count={3} index={1} label="B" />
+			<ProductCard count={3} index={2} label="C" />
+		</Interactive.Div>
 	);
 };
 
@@ -222,4 +216,5 @@ export const ProductCollection = Interactive.withSchema({
 	componentName: '<ProductCollection>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

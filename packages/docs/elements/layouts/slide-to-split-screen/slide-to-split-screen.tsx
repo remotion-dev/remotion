@@ -7,14 +7,11 @@ import {
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 
 const DIVIDER_WIDTH = 15;
 
-const SlideToSplitScreenInner: React.FC<InteractiveTransformProps> = ({
-	style,
-}) => {
+const SlideToSplitScreenInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {height, width} = useVideoConfig();
 	const bPanelWidth = width * 0.4;
@@ -35,7 +32,6 @@ const SlideToSplitScreenInner: React.FC<InteractiveTransformProps> = ({
 			showInTimeline={false}
 			style={{
 				overflow: 'hidden',
-				...style,
 			}}
 		>
 			<div
@@ -137,4 +133,5 @@ export const SlideToSplitScreen = Interactive.withSchema({
 	componentName: '<SlideToSplitScreen>',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
