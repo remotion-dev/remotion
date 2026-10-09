@@ -84,3 +84,8 @@ export type EffectsProp = ReadonlyArray<EffectDescriptor<unknown>>;
 export type EffectFactory<P> = {} extends P
 	? (params?: P & {readonly disabled?: boolean}) => EffectDescriptor<unknown>
 	: (params: P & {readonly disabled?: boolean}) => EffectDescriptor<unknown>;
+
+export type EffectsOutputSize = {
+	readonly width: number;
+	readonly height: number;
+};

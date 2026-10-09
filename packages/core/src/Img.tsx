@@ -14,7 +14,7 @@ import type {
 	CanvasImageProps,
 } from './canvas-image/props.js';
 import type {SequenceControls} from './CompositionManager.js';
-import type {EffectsProp} from './effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
@@ -68,6 +68,7 @@ export type ImgProps = NativeImgProps & {
 	readonly onImageError?: (error: Error) => void;
 	readonly src: string;
 	readonly effects?: EffectsProp;
+	readonly effectsOutputSize?: EffectsOutputSize;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
 } & Omit<InteractiveBaseProps, 'playbackRate'> &
@@ -90,6 +91,7 @@ type ImgContentProps = Omit<
 	| 'durationInFrames'
 	| 'freeze'
 	| 'effects'
+	| 'effectsOutputSize'
 	| 'premountFor'
 	| 'postmountFor'
 	| 'styleWhilePremounted'
@@ -353,7 +355,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	);
 };
 
-type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
+type NativeImgInnerProps = Omit<ImgProps, 'effects' | 'effectsOutputSize'> & {
 	readonly controls: SequenceControls | undefined;
 };
 
@@ -557,6 +559,7 @@ const ImgInner: React.FC<
 	}
 > = ({
 	effects = [],
+	effectsOutputSize,
 	ref,
 	hidden,
 	name,
@@ -648,6 +651,7 @@ const ImgInner: React.FC<
 			height={canvasHeight}
 			fit={canvasFit}
 			effects={effects}
+			effectsOutputSize={effectsOutputSize}
 			className={className}
 			style={style}
 			cropLeft={cropLeft}

@@ -18,6 +18,7 @@ import React, {
 } from 'react';
 import type {
 	EffectsProp,
+	EffectsOutputSize,
 	InteractiveBaseProps,
 	InteractivePremountProps,
 	InteractiveCropProps,
@@ -61,6 +62,7 @@ type RemotionRiveCanvasOwnProps = {
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
 	readonly effects?: EffectsProp;
+	readonly effectsOutputSize?: EffectsOutputSize;
 };
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
@@ -124,12 +126,13 @@ export const riveCanvasSchema: InteractivitySchema = {
 
 type RemotionRiveCanvasContentProps = Omit<
 	RemotionRiveCanvasOwnProps,
-	'effects'
+	'effects' | 'effectsOutputSize'
 > & {
 	readonly fit: RemotionRiveCanvasFit;
 	readonly alignment: RemotionRiveCanvasAlignment;
 	readonly enableRiveAssetCdn: boolean;
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly controls: SequenceControls | undefined;
 	readonly canvasRef: React.RefObject<HTMLCanvasElement | null>;
 };
@@ -150,6 +153,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		className,
 		style,
 		effects,
+		effectsOutputSize,
 		controls,
 		canvasRef,
 	},
@@ -176,7 +180,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		return document.createElement('canvas');
 	}, []);
 
-	const chainState = useEffectChainState();
+	const chainState = useEffectChainState(effectsOutputSize);
 
 	const memoizedEffects = useMemoizedEffects({
 		effects,
@@ -476,6 +480,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		className,
 		style,
 		effects = [],
+		effectsOutputSize,
 		controls,
 		durationInFrames,
 		name,
@@ -568,6 +573,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 					className={className}
 					style={croppedStyle ?? undefined}
 					effects={effects}
+					effectsOutputSize={effectsOutputSize ?? null}
 					controls={controls}
 					canvasRef={canvasRef}
 				/>

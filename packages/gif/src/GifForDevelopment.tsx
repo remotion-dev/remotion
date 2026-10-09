@@ -28,6 +28,7 @@ export const GifForDevelopment = forwardRef<
 			fit = 'fill',
 			requestInit,
 			effects,
+			effectsOutputSize = null,
 			...props
 		},
 		ref,
@@ -133,6 +134,7 @@ export const GifForDevelopment = forwardRef<
 				width={width}
 				height={height}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize}
 				{...props}
 				ref={ref}
 			/>

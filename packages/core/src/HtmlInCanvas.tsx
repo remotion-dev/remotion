@@ -8,7 +8,7 @@ import React, {
 	useRef,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
-import type {EffectsProp} from './effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {
@@ -450,6 +450,7 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly width: number;
 		readonly height: number;
 		readonly effects?: EffectsProp;
+		readonly effectsOutputSize?: EffectsOutputSize;
 		readonly children: React.ReactNode;
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
@@ -473,6 +474,7 @@ type HtmlInCanvasContentProps = {
 	readonly width: number;
 	readonly height: number;
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly children: React.ReactNode;
 	readonly canvasSiblings: React.ReactNode | null;
 	readonly onPaint: HtmlInCanvasOnPaint | undefined;
@@ -491,6 +493,7 @@ const HtmlInCanvasContent = forwardRef<
 			width,
 			height,
 			effects,
+			effectsOutputSize,
 			children,
 			canvasSiblings,
 			onPaint,
@@ -586,7 +589,7 @@ const HtmlInCanvasContent = forwardRef<
 			[ref, paintTargetMode],
 		);
 
-		const chainState = useEffectChainState();
+		const chainState = useEffectChainState(effectsOutputSize);
 
 		const memoizedEffects = useMemoizedEffects({
 			effects,
@@ -1026,6 +1029,7 @@ const HtmlInCanvasInner = forwardRef<
 			width,
 			height,
 			effects = [],
+			effectsOutputSize,
 			children,
 			onPaint,
 			onInit,
@@ -1121,6 +1125,7 @@ const HtmlInCanvasInner = forwardRef<
 						width={width}
 						height={height}
 						effects={effects}
+						effectsOutputSize={effectsOutputSize ?? null}
 						onPaint={onPaint}
 						onInit={onInit}
 						pixelDensity={pixelDensity}

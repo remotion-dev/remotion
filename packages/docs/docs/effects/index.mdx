@@ -35,6 +35,29 @@ Pass effects through the `effects` prop of these components:
 - [`<Heart>`](/docs/shapes/heart)
 - [`<Arrow>`](/docs/shapes/arrow)
 
+## Effect resolution<AvailableFrom v="4.0.535" />
+
+Use `effectsOutputSize` on any supported component to choose the pixel dimensions used by its effect chain:
+
+```tsx twoslash
+import {Video} from '@remotion/media';
+import {pixelate} from '@remotion/effects/pixelate';
+// ---cut---
+<Video
+  src="https://example.com/video.mp4"
+  effects={[pixelate({blockSize: 12})]}
+  effectsOutputSize={{width: 1920, height: 1080}}
+/>;
+```
+
+Both dimensions must be positive integers. The source is resized to this resolution before the effects run, and the result is composited back into the component's existing output canvas. CSS layout, cropping, and the output video's dimensions stay the same.
+
+This is useful when switching between an original video and a smaller proxy: keeping the effect resolution fixed keeps pixel-based parameters, such as pixelation block sizes, in the same coordinate space. It also applies to images, animated images, GIFs, Rive canvases, solids, HTML-in-canvas, and shapes.
+
+Omitting `effectsOutputSize` preserves the existing effect resolution. Empty or entirely disabled effect chains do not resize the source. To change the resolution, update the numeric width and height; passing a new object with the same values does not recreate the effect chain. Video previews redraw the current frame when these values change without restarting their decoder.
+
+A larger effect resolution increases processing and canvas memory. Resizing a low-resolution source cannot restore missing detail. This prop controls effect processing; [`maxCanvasSinkFrameSize`](/docs/media/video#maxcanvassinkframesize) separately controls decoded preview frame size.
+
 ## Effects
 
 <TableOfContents />
