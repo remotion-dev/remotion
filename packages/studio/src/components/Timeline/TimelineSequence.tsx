@@ -512,22 +512,22 @@ const TimelineSequenceBar: React.FC<{
 						left: -(marqueeHorizontalBounds?.cropLeft ?? 0),
 						top: 0,
 						width: transitionWidth,
-						height: TIMELINE_PACKED_TRACK_HEIGHT,
+						height: Number(style.height),
 						pointerEvents: 'none',
 					}}
 				>
 					<polygon
-						points={`0,0 ${transitionWidth},0 0,${TIMELINE_PACKED_TRACK_HEIGHT}`}
+						points={`0,0 ${transitionWidth},0 0,${Number(style.height)}`}
 						fill={BLACK_ALPHA_22}
 					/>
 					<polygon
-						points={`${transitionWidth},0 ${transitionWidth},${TIMELINE_PACKED_TRACK_HEIGHT} 0,${TIMELINE_PACKED_TRACK_HEIGHT}`}
+						points={`${transitionWidth},0 ${transitionWidth},${Number(style.height)} 0,${Number(style.height)}`}
 						fill={WHITE_ALPHA_15}
 					/>
 				</svg>
 			)}
 
-			{s.timelineTrack && s.timelineTrack.role !== 'transition' ? (
+			{s.timelineTrack ? (
 				<div
 					style={{
 						position: 'absolute',
@@ -1543,7 +1543,8 @@ const TimelineSequenceInner: React.FC<{
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const isMedia = s.type === 'audio' || s.type === 'video';
 	const layerHeight =
-		s.timelineTrack?.role === 'overlay'
+		s.timelineTrack?.role === 'overlay' ||
+		s.timelineTrack?.role === 'transition'
 			? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM
 			: s.timelineTrack
 				? TIMELINE_PACKED_TRACK_HEIGHT
