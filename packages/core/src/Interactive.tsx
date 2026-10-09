@@ -462,7 +462,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 						? {
 								width,
 								height,
-								style: croppedStyle ?? undefined,
+								style: {overflow: 'hidden', ...croppedStyle},
 								ref: ref as React.ForwardedRef<HTMLDivElement>,
 							}
 						: {})}
