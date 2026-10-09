@@ -124,40 +124,72 @@ test('uses next sample timestamp instead of reported duration while rendering', 
 	bank.prepareForDeletion('error', 'test');
 });
 
-test('starts at a fractional keyframe without reading the preceding frame', async () => {
-	// At 30000/1001 fps, rounding frame 61 to milliseconds moves the seek
-	// before its keyframe and can make the decoder process the previous GOP.
-	const keyframe = 61061 / 30000;
-	const duration = 1001 / 30000;
-	const timestamps = [keyframe - duration, keyframe, keyframe + duration];
-	const emitted: VideoSample[] = [];
-	const closes: ReturnType<typeof vi.spyOn>[] = [];
-	const sink = makeVideoSampleSink([]);
-	sink.samples = async function* (start = 0) {
-		const firstIndex = timestamps.findLastIndex((time) => time <= start);
-		for (const timestamp of timestamps.slice(firstIndex)) {
-			const sample = makeSample({timestamp, duration});
-			closes.push(vi.spyOn(sample, 'close'));
-			emitted.push(sample);
-			yield sample;
+// PR #12132: retain the fractional MP4 improvement without regressing WebM
+// keyframes whose stored timestamps round above the composition timestamp.
+test.each([
+	{
+		name: 'fractional MP4 boundary',
+		keyframe: 61061 / 30000,
+		duration: 1001 / 30000,
+		request: 61061 / 30000,
+		expectedReadCount: 1,
+	},
+	{
+		name: 'millisecond WebM boundary',
+		keyframe: 2.067,
+		duration: 1 / 30,
+		request: 62 / 30,
+		expectedReadCount: 1,
+	},
+	{
+		name: 'just before a fractional MP4 keyframe',
+		keyframe: 61061 / 30000,
+		duration: 1001 / 30000,
+		request: 61061 / 30000 - 0.0001,
+		expectedReadCount: 2,
+	},
+	{
+		name: 'just before a millisecond WebM keyframe',
+		keyframe: 2.067,
+		duration: 1 / 30,
+		request: 62 / 30 - 0.0001,
+		expectedReadCount: 1,
+	},
+])(
+	'starts at $name without unnecessary reads',
+	async ({keyframe, duration, request, expectedReadCount}) => {
+		const timestamps = [keyframe - duration, keyframe, keyframe + duration];
+		const emitted: VideoSample[] = [];
+		const closes: ReturnType<typeof vi.spyOn>[] = [];
+		const sink = makeVideoSampleSink([]);
+		sink.samples = async function* (start = 0) {
+			const firstIndex = timestamps.findLastIndex((time) => time <= start);
+			for (const timestamp of timestamps.slice(firstIndex)) {
+				const sample = makeSample({timestamp, duration});
+				closes.push(vi.spyOn(sample, 'close'));
+				emitted.push(sample);
+				yield sample;
+			}
+		};
+
+		const bank = await makeKeyframeBank({
+			logLevel: 'error',
+			src: 'fractional-keyframe.mp4',
+			videoSampleSink: sink,
+			initialTimestampRequest: request,
+		});
+		try {
+			const frame = await bank.getFrameFromTimestamp(request, 1 / duration);
+			expect(frame?.timestamp).toBe(keyframe);
+			expect(emitted.map((sample) => sample.timestamp)).toEqual(
+				timestamps.slice(2 - expectedReadCount, 2),
+			);
+		} finally {
+			bank.prepareForDeletion('error', 'test');
 		}
-	};
 
-	const bank = await makeKeyframeBank({
-		logLevel: 'error',
-		src: 'fractional-keyframe.mp4',
-		videoSampleSink: sink,
-		initialTimestampRequest: keyframe,
-	});
-	try {
-		const frame = await bank.getFrameFromTimestamp(keyframe, 30000 / 1001);
-		expect(frame?.timestamp).toBe(keyframe);
-		expect(emitted.map((sample) => sample.timestamp)).toEqual([keyframe]);
-	} finally {
-		bank.prepareForDeletion('error', 'test');
-	}
-
-	for (const close of closes) {
-		expect(close).toHaveBeenCalledTimes(1);
-	}
-});
+		for (const close of closes) {
+			expect(close).toHaveBeenCalledTimes(1);
+		}
+	},
+);
