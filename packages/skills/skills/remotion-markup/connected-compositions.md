@@ -48,7 +48,7 @@ const ChapterInner: React.FC<ChapterProps> = ({title}) => {
 
   return (
     <AbsoluteFill
-      showInTimeline={false}
+      name="Chapter background"
       style={{
         justifyContent: 'center',
         alignItems: 'center',
@@ -84,7 +84,7 @@ export const Chapter = Interactive.withSchema({
 });
 ```
 
-`ChapterInner` only declares `title`. Its inner container handles the chapter's centering and background; the wrapper handles instance styles and timing.
+`ChapterInner` only declares `title`. The Chapter background layer exposes the centering and background styles in the timeline; the wrapper handles instance styles and timing.
 Because of `wrapInSequence: true`, the exported `Chapter` additionally accepts the timing props of a `<Sequence>`: `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`, plus `premountFor`, `postmountFor` and crop props.
 These are handled by the wrapper and are not passed to `ChapterInner`.
 See [Prefer interactive components with their own timelines](../remotion-interactivity/SKILL.md#prefer-interactive-components-with-their-own-timelines).
