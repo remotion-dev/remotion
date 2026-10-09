@@ -143,16 +143,10 @@ export const getTimelineDisplayRows = (
 
 			const items = groupedItems.get(group.id) ?? [];
 			const auxiliaryRows: TimelineTrackWithDisplayGroup[][] = [];
-			// Transitions occupy their own row, followed by overlay rows.
-			const effects = [
-				...items.filter(
-					(item) => item.sequence.timelineTrack?.role === 'transition',
-				),
-				...items.filter(
-					(item) => item.sequence.timelineTrack?.role === 'overlay',
-				),
-			];
-			for (const item of effects) {
+			// Transitions paint over scene clips. Only overlays need extra rows.
+			for (const item of items.filter(
+				(candidate) => candidate.sequence.timelineTrack?.role === 'overlay',
+			)) {
 				const start = item.sequence.from;
 				const end =
 					item.sequence.from +
@@ -168,11 +162,7 @@ export const getTimelineDisplayRows = (
 							(sequence.postmountDisplay ?? 0);
 						return start < otherEnd && otherStart < end;
 					});
-					if (
-						overlaps ||
-						auxiliaryRows[index][0].sequence.timelineTrack?.role !==
-							item.sequence.timelineTrack?.role
-					) {
+					if (overlaps) {
 						// Later overlays paint above earlier ones. Keep them below every
 						// overlapping overlay, even if a higher row has free space.
 						rowIndex = index + 1;

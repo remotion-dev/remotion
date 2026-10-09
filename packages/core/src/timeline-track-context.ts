@@ -13,3 +13,15 @@ export type TimelineTrackItem = TimelineTrack & {
 export const TimelineTrackContext = createContext<TimelineTrack | null>(null);
 
 export const ExperimentalTracksEnabledContext = createContext(false);
+
+export type TrackClip = {
+	readonly id: string;
+	readonly name: string;
+	readonly from: number;
+	readonly end: number;
+};
+
+// Validation remains active when experimental timeline grouping is disabled.
+export const TrackValidationContext = createContext<{
+	readonly register: (clip: TrackClip) => () => void;
+} | null>(null);

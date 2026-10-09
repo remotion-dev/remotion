@@ -73,6 +73,7 @@ import {
 	getKeyframePlaybackRate,
 } from './get-timeline-keyframes';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
+import {getTimelineSceneMask} from './get-timeline-scene-mask';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -218,7 +219,6 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 const TimelineSequenceFn: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
 	readonly labelStartFrame: number | null;
-	readonly paintEndFrame: number | null;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly keyframeDisplayOffset: number;
@@ -231,7 +231,6 @@ const TimelineSequenceFn: React.FC<{
 }> = ({
 	s,
 	labelStartFrame,
-	paintEndFrame,
 	connectedCompositions,
 	nodePathInfo,
 	keyframeDisplayOffset,
@@ -253,7 +252,6 @@ const TimelineSequenceFn: React.FC<{
 			windowWidth={windowWidth}
 			s={s}
 			labelStartFrame={labelStartFrame}
-			paintEndFrame={paintEndFrame}
 			connectedCompositions={connectedCompositions}
 			nodePathInfo={nodePathInfo}
 			keyframeDisplayOffset={keyframeDisplayOffset}
@@ -327,7 +325,6 @@ const TimelineSequenceBar: React.FC<{
 	readonly labelOffset: number;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
-	readonly paintEndFrame: number | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly leftTrimHighlight: {
 		readonly left: number;
@@ -371,7 +368,6 @@ const TimelineSequenceBar: React.FC<{
 	activeTrimEdge,
 	leftTrimHighlight,
 	annotationLocation,
-	paintEndFrame,
 	displayDurationInFrames,
 	selectionBounds,
 	premount,
@@ -447,25 +443,14 @@ const TimelineSequenceBar: React.FC<{
 			? sceneRange.end * frameIncrement - Number(style.marginLeft)
 			: Infinity;
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
-	// Packed scene clips overlap during transitions. Stop the outgoing paint at
-	// the incoming scene so its trailing gap cannot be covered by the next clip.
-	const packedRight =
-		paintEndFrame !== null && frameIncrement !== null
-			? paintEndFrame * frameIncrement - Number(style.marginLeft)
-			: Infinity;
-	const paintedEnd = Math.max(
-		0,
-		Math.min(Number(style.width), sceneRight, packedRight),
-	);
+	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
 	// Shared child rows need the same gap as Track clips, including when the
 	// scene clips their trailing edge. Only inset the paint: timing, hit areas,
 	// and trim handles keep their full width. Preserve tiny clips when zoomed out.
 	const visualRightInset =
 		(s.timelineTrack || sceneRange !== null) &&
 		transitionWidth === null &&
-		(rightEdgeVisible ||
-			sceneRight <= Number(style.width) ||
-			packedRight <= Number(style.width))
+		(rightEdgeVisible || sceneRight <= Number(style.width))
 			? Number(style.width) -
 				paintedEnd +
 				Math.min(1, Math.max(0, paintedEnd - paintedStart - 1))
@@ -482,8 +467,27 @@ const TimelineSequenceBar: React.FC<{
 			...style,
 			background: TRANSPARENT,
 			opacity: 1,
+			maskImage:
+				s.timelineTrack?.role === 'clip' && frameIncrement !== null
+					? getTimelineSceneMask({
+							sceneRange,
+							offsetInFrames: Number(style.marginLeft) / frameIncrement,
+							durationInFrames: Number(style.width) / frameIncrement,
+						})
+					: undefined,
+			clipPath:
+				s.timelineTrack?.role === 'clip' && sceneRange !== null
+					? `inset(0 ${Math.max(0, Number(style.width) - sceneRight)}px 0 ${Math.max(0, sceneLeft)}px)`
+					: undefined,
 		};
-	}, [style]);
+	}, [
+		style,
+		s.timelineTrack?.role,
+		frameIncrement,
+		sceneRange,
+		sceneLeft,
+		sceneRight,
+	]);
 
 	const premountIndicator = premount ? (
 		<div
@@ -755,7 +759,6 @@ const TimelineSequenceBar: React.FC<{
 const TimelineSequenceInner: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
 	readonly labelStartFrame: number | null;
-	readonly paintEndFrame: number | null;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -769,7 +772,6 @@ const TimelineSequenceInner: React.FC<{
 }> = ({
 	s,
 	labelStartFrame,
-	paintEndFrame,
 	connectedCompositions,
 	windowWidth,
 	nodePathInfo,
@@ -1540,8 +1542,7 @@ const TimelineSequenceInner: React.FC<{
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const isMedia = s.type === 'audio' || s.type === 'video';
 	const layerHeight =
-		s.timelineTrack?.role === 'overlay' ||
-		s.timelineTrack?.role === 'transition'
+		s.timelineTrack?.role === 'overlay'
 			? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM
 			: s.timelineTrack
 				? TIMELINE_PACKED_TRACK_HEIGHT
@@ -1788,7 +1789,6 @@ const TimelineSequenceInner: React.FC<{
 			}
 			connectedComposition={connectedCompositions[0] ?? null}
 			annotationLocation={originalLocation}
-			paintEndFrame={paintEndFrame}
 			activeTrimEdge={activeTrimEdge}
 			leftTrimHighlight={
 				visibleLayout.media?.offset === 0 ? visibleLayout.media : null
