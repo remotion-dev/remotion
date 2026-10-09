@@ -60,7 +60,7 @@ const speedLinesSchema = {
 
 export const SpeedLines = Interactive.withSchema({
 	Component: SpeedLinesInner,
-	componentName: '<SpeedLines>',
+	componentName: 'SpeedLines',
 	schema: speedLinesSchema,
 	wrapInSequence: true,
 	layout: 'absolute-fill',

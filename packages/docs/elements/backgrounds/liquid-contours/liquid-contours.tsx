@@ -30,7 +30,7 @@ const LiquidContoursInner: React.FC = () => {
 
 export const LiquidContours = Interactive.withSchema({
 	Component: LiquidContoursInner,
-	componentName: '<LiquidContours>',
+	componentName: 'LiquidContours',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

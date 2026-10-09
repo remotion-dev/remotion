@@ -503,7 +503,7 @@ const PolaroidPicturesInner: React.FC = () => {
 
 export const PolaroidPictures = Interactive.withSchema({
 	Component: PolaroidPicturesInner,
-	componentName: '<PolaroidPictures>',
+	componentName: 'PolaroidPictures',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

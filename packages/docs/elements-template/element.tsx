@@ -23,7 +23,7 @@ const ElementComponentInner: React.FC = () => {
 
 export const ElementComponent = Interactive.withSchema({
 	Component: ElementComponentInner,
-	componentName: '<ElementComponent>',
+	componentName: 'ElementComponent',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

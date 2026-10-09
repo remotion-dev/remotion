@@ -37,7 +37,7 @@ const NotebookPaperInner: React.FC = () => {
 
 export const NotebookPaper = Interactive.withSchema({
 	Component: NotebookPaperInner,
-	componentName: '<NotebookPaper>',
+	componentName: 'NotebookPaper',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

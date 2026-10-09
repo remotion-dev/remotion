@@ -47,7 +47,7 @@ const ShineInner: React.FC = () => {
 
 export const Shine = Interactive.withSchema({
 	Component: ShineInner,
-	componentName: '<Shine>',
+	componentName: 'Shine',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

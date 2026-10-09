@@ -34,7 +34,7 @@ const PaperTextureInner: React.FC = () => {
 
 export const PaperTexture = Interactive.withSchema({
 	Component: PaperTextureInner,
-	componentName: '<PaperTexture>',
+	componentName: 'PaperTexture',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

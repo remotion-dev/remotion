@@ -30,7 +30,7 @@ const MovingWavesInner: React.FC = () => {
 
 export const MovingWaves = Interactive.withSchema({
 	Component: MovingWavesInner,
-	componentName: '<MovingWaves>',
+	componentName: 'MovingWaves',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

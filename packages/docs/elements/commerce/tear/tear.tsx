@@ -68,7 +68,7 @@ const TearInner: React.FC = () => {
 
 export const Tear = Interactive.withSchema({
 	Component: TearInner,
-	componentName: '<Tear>',
+	componentName: 'Tear',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',

@@ -335,7 +335,7 @@ const YouTubeEndCardInner: React.FC = () => {
 
 export const YouTubeEndCard = Interactive.withSchema({
 	Component: YouTubeEndCardInner,
-	componentName: '<YouTubeEndCard>',
+	componentName: 'YouTubeEndCard',
 	schema: {},
 	wrapInSequence: true,
 	layout: 'absolute-fill',
