@@ -584,7 +584,8 @@ const TimelineSequenceBar: React.FC<{
 						delay={250}
 						dismissOnClick
 						triggerStyle={{
-							alignSelf: 'stretch',
+							alignSelf: 'flex-start',
+							maxWidth: '100%',
 							minWidth: 0,
 							pointerEvents: 'auto',
 						}}
@@ -598,6 +599,8 @@ const TimelineSequenceBar: React.FC<{
 								maskImage:
 									'linear-gradient(to right, black calc(100% - 5px), transparent)',
 								minWidth: 0,
+								// Keep the fade in empty space unless the label is clipped.
+								paddingRight: 5,
 								whiteSpace: 'nowrap',
 								overflow: 'hidden',
 								WebkitMaskImage:
