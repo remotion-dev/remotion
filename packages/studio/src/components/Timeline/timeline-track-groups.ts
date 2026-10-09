@@ -39,8 +39,12 @@ export const filterTimelineTrackContents = (
 			if (ancestor.timelineTrack) {
 				if (
 					ancestor.timelineTrack.role === 'track' &&
-					!ancestor.showInTimeline
+					(!ancestor.showInTimeline ||
+						ancestor.loopDisplay !== undefined ||
+						ancestor.frozenFrame !== null)
 				) {
+					// Repeated or frozen child clocks cannot be represented by one
+					// advancing clip interval. Show the transformed container instead.
 					return [];
 				}
 
@@ -129,6 +133,14 @@ export const getTimelineDisplayRows = (
 		if (!group) {
 			rows.push({track, items: null, auxiliaryRows: []});
 		} else if (group.role === 'track') {
+			if (
+				track.sequence.loopDisplay !== undefined ||
+				track.sequence.frozenFrame !== null
+			) {
+				rows.push({track, items: [track], auxiliaryRows: []});
+				continue;
+			}
+
 			const items = groupedItems.get(group.id) ?? [];
 			const auxiliaryRows: TimelineTrackWithDisplayGroup[][] = [];
 			for (const item of items) {

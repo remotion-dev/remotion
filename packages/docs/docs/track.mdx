@@ -1,0 +1,151 @@
+---
+image: /generated/articles-docs-track.png
+title: '<Track>'
+crumb: 'remotion'
+---
+
+# &lt;Track&gt;<AvailableFrom v="4.0.534" />
+
+`<Track>` applies [`<Sequence>`](/docs/sequence) timing to its children and groups their clips on one Studio timeline row.
+Enable [`Config.setExperimentalTracksEnabled(true)`](/docs/config#setexperimentaltracksenabled) to use the packed timeline presentation.
+
+```tsx twoslash title="MyComposition.tsx"
+import {Sequence, Track} from 'remotion';
+
+export const MyComposition = () => (
+  <Track name="Scenes" from={30} trimBefore={15} playbackRate={2} durationInFrames={90}>
+    <Sequence durationInFrames={45}>
+      <div>Intro</div>
+    </Sequence>
+    <Sequence from={45} durationInFrames={90}>
+      <div>Main scene</div>
+    </Sequence>
+  </Track>
+);
+```
+
+The track is visible on composition frames 30–74. Its children start at local frame 15 and advance twice as fast: the intro ends at composition frame 45, and the main scene is clipped at frame 75.
+
+## Props
+
+### `children?`
+
+Content to group. Descendants that create timeline clips share the track row. Nested tracks create their own rows.
+
+### `name?`
+
+The track label. Defaults to `"Track"`.
+
+### `from?`
+
+The start frame in the parent timeline. Defaults to `0`. See [`<Sequence from>`](/docs/sequence#from).
+
+### `durationInFrames?`
+
+The number of child frames to display. Defaults to the remaining parent duration. See [`<Sequence durationInFrames>`](/docs/sequence#durationinframes).
+
+### `hidden?`
+
+Hide the track's content while keeping its timeline header. Defaults to `false`.
+
+### `showInTimeline?`
+
+Show the track and its children in the packed timeline. Defaults to `true`.
+
+## Inherited props<AvailableFrom v="4.0.535" />
+
+These props use the same behavior as [`<Sequence>`](/docs/sequence).
+
+### `trimBefore?`
+
+Advance the child clock without moving the track's start. Defaults to `0`. See [`trimBefore`](/docs/sequence#trimbefore).
+
+### `playbackRate?`
+
+Scale the child clock and the duration of its clips. Defaults to `1`. See [`playbackRate`](/docs/sequence#playbackrate).
+
+### `loop?`
+
+Repeat the selected child range until the parent ends. Defaults to `false` and requires a finite `durationInFrames`. See [`loop`](/docs/sequence#loop).
+
+### `freeze?`
+
+Hold the children at a local frame. Defaults to `null`. See [`freeze`](/docs/sequence#freeze).
+
+### `layout?`
+
+Defaults to `"none"`, so the track adds no container element. Set `layout="absolute-fill"` to create a container for styling, cropping, premounting, or postmounting.
+
+### `style?`
+
+Styles for the container. Requires `layout="absolute-fill"`. See [`style`](/docs/sequence#style).
+
+### `className?`
+
+A CSS class for the container. Requires `layout="absolute-fill"`.
+
+### `width?`
+
+Override the width returned by [`useVideoConfig()`](/docs/use-video-config). Also sets the container width when `layout="absolute-fill"`.
+
+### `height?`
+
+Override the height returned by [`useVideoConfig()`](/docs/use-video-config). Also sets the container height when `layout="absolute-fill"`.
+
+### `cropLeft?`
+
+Crop the left edge as a fraction between `0` and `1`. Defaults to `0` and requires `layout="absolute-fill"`. See [cropping](/docs/sequence#cropleft).
+
+### `cropRight?`
+
+Crop the right edge. Same range, default, and layout requirement as `cropLeft`.
+
+### `cropTop?`
+
+Crop the top edge. Same range, default, and layout requirement as `cropLeft`.
+
+### `cropBottom?`
+
+Crop the bottom edge. Same range, default, and layout requirement as `cropLeft`.
+
+### `premountFor?`
+
+Mount the children before the track starts. Requires `layout="absolute-fill"`. See [`premountFor`](/docs/sequence#premountfor).
+
+### `postmountFor?`
+
+Keep the children mounted after the track ends. Defaults to `0` and requires `layout="absolute-fill"`. See [`postmountFor`](/docs/sequence#postmountfor).
+
+### `styleWhilePremounted?`
+
+Override container styles while premounted. Requires `layout="absolute-fill"`. See [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted).
+
+### `styleWhilePostmounted?`
+
+Override container styles while postmounted. Requires `layout="absolute-fill"`. See [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted).
+
+### `controls?`
+
+Pass controls from [`Interactive.withSchema()`](/docs/interactive-with-schema) when using a track inside a custom interactive component.
+
+## Studio interactions<AvailableFrom v="4.0.535" />
+
+Select the track header to edit its start, duration, trim, playback rate, and layout in the inspector. With `layout="absolute-fill"`, the existing Sequence controls for transforms, opacity, background, borders, cropping, and premounting are available.
+
+Switching to `layout="none"` removes the container's styles, class name, crop, and mounting props. Undo restores them.
+
+Child clips can be moved and trimmed using their own timeline handles. The track container's timing is edited in the inspector; splitting the container is unavailable.
+
+Set `loop` and `freeze` in code. When either is active, the packed timeline displays one block for the track and hides its descendant rows. A repeated or frozen child does not have a single advancing interval that a packed clip could accurately represent.
+
+`className`, `width`, `height`, `postmountFor`, and the styles applied during premounting or postmounting remain code-only. Packed rows do not display premount bars.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari player studio clientSideRendering serverSideRendering hideServers />
+
+## See also
+
+- [`<Sequence>`](/docs/sequence)
+- [`<Series>`](/docs/series)
+- [Experimental timeline tracks](/docs/options/experimental-tracks)

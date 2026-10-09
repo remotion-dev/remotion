@@ -17,11 +17,11 @@ export const TrackSequenceProps: React.FC = () => {
 			style={{
 				position: 'absolute',
 				inset: 0,
-				padding: 48,
+				padding: 32,
 				backgroundColor: '#141b24',
 				color: '#eef3fa',
 				fontFamily: 'Arial, sans-serif',
-				fontSize: 24,
+				fontSize: 20,
 			}}
 		>
 			<div style={{fontSize: 36, fontWeight: 700, marginBottom: 16}}>
@@ -29,12 +29,12 @@ export const TrackSequenceProps: React.FC = () => {
 			</div>
 			<FrameClock label="Composition frame" />
 			<div style={{fontSize: 20, color: '#acb8c8', marginTop: 16}}>
-				Track: from 30, duration 90. Visible on composition frames 30–119.
+				Track: from 30, trim 15, duration 90, speed 2. Visible on frames 30–74.
 			</div>
 			<div
 				style={{
 					position: 'relative',
-					height: 280,
+					height: 260,
 					marginTop: 28,
 					border: '1px solid #445164',
 					borderRadius: 12,
@@ -42,42 +42,102 @@ export const TrackSequenceProps: React.FC = () => {
 				}}
 			>
 				<div style={{padding: 28, color: '#acb8c8'}}>
-					Track content is absent before frame 30 and from frame 120 onward.
+					Premounted on frames 15–29, postmounted on frames 75–89.
 				</div>
-				<Track name="Timed Track" from={30} durationInFrames={90}>
-					<div
-						style={{
-							position: 'absolute',
-							inset: 0,
-							padding: 28,
-							backgroundColor: '#243345',
-						}}
-					>
-						<FrameClock label="Track local frame" />
-						<div style={{marginTop: 24}}>
-							<Sequence name="Child A" durationInFrames={45} layout="none">
-								<div style={{color: '#7de1c0', marginBottom: 12}}>
-									Child A — Track frames 0–44
-								</div>
-								<FrameClock label="Child A local frame" />
-							</Sequence>
-							<Sequence
-								name="Child B clipped by Track"
-								from={45}
-								durationInFrames={90}
-								layout="none"
-							>
-								<div style={{color: '#e8bf7d', marginBottom: 12}}>
-									Child B — starts at Track frame 45
-								</div>
-								<FrameClock label="Child B local frame" />
-								<div style={{fontSize: 20, marginTop: 16}}>
-									Its 90-frame duration is clipped when the Track ends.
-								</div>
-							</Sequence>
-						</div>
+				<Track
+					name="Timed Track"
+					from={30}
+					trimBefore={15}
+					playbackRate={2}
+					durationInFrames={90}
+					layout="absolute-fill"
+					className="track-sequence-container"
+					premountFor={15}
+					postmountFor={15}
+					style={{display: 'block', padding: 28, backgroundColor: '#243345'}}
+					styleWhilePremounted={{opacity: 0.15}}
+					styleWhilePostmounted={{opacity: 0.15}}
+				>
+					<FrameClock label="Track local frame" />
+					<div style={{marginTop: 24}}>
+						<Sequence name="Child A" durationInFrames={45} layout="none">
+							<div style={{color: '#7de1c0', marginBottom: 12}}>
+								Child A — composition frames 30–44
+							</div>
+							<FrameClock label="Child A local frame" />
+						</Sequence>
+						<Sequence
+							name="Child B clipped by Track"
+							from={45}
+							durationInFrames={90}
+							layout="none"
+						>
+							<div style={{color: '#e8bf7d', marginBottom: 12}}>
+								Child B — composition frames 45–74
+							</div>
+							<FrameClock label="Child B local frame" />
+							<div style={{fontSize: 20, marginTop: 16}}>
+								Its 90-frame duration is clipped when the Track ends.
+							</div>
+						</Sequence>
 					</div>
 				</Track>
+			</div>
+			<div style={{display: 'flex', gap: 20, marginTop: 20}}>
+				<div style={{position: 'relative', width: 590, height: 140}}>
+					<Track
+						name="Looped Track (code only)"
+						from={15}
+						trimBefore={10}
+						durationInFrames={30}
+						playbackRate={2}
+						loop
+						layout="absolute-fill"
+						width={590}
+						height={140}
+						cropRight={0.02}
+						style={{display: 'block', padding: 20, backgroundColor: '#254a42'}}
+					>
+						<FrameClock label="Looped Track frame" />
+						<Sequence
+							name="Loop first half"
+							durationInFrames={25}
+							layout="none"
+						>
+							First half (local frames 10–24)
+						</Sequence>
+						<Sequence
+							name="Loop second half"
+							from={25}
+							durationInFrames={15}
+							layout="none"
+						>
+							Second half (local frames 25–39)
+						</Sequence>
+					</Track>
+				</div>
+				<div style={{position: 'relative', width: 590, height: 140}}>
+					<Track
+						name="Frozen Track (code only)"
+						from={15}
+						durationInFrames={90}
+						freeze={20}
+						layout="absolute-fill"
+						style={{display: 'block', padding: 20, backgroundColor: '#4a3c25'}}
+					>
+						<FrameClock label="Frozen Track frame" />
+						<Sequence
+							name="Frozen visible child"
+							durationInFrames={30}
+							layout="none"
+						>
+							Held inside the first child at frame 20.
+						</Sequence>
+						<Sequence name="Frozen inactive child" from={30} layout="none">
+							This child should stay hidden.
+						</Sequence>
+					</Track>
+				</div>
 			</div>
 			<div style={{marginTop: 28, fontSize: 20, color: '#acb8c8'}}>
 				The hidden Track keeps its timeline header. Its red content stays
