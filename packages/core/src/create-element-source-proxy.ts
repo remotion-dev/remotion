@@ -3,6 +3,8 @@ import type JsxRuntimeDev from 'react/jsx-dev-runtime';
 import type JsxRuntime from 'react/jsx-runtime';
 import {
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getStackForControls,
 	makeOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
 } from './enable-sequence-stack-traces.js';
@@ -28,18 +30,26 @@ export const createElementSourceProxy = <
 				const source =
 					sourceArgumentIndex === null ? null : argArray[sourceArgumentIndex];
 				const existingStack = props?.[internalStackProp];
+				// Internal wrappers already captured the authored location in their controls.
+				const controlsStack =
+					!existingStack &&
+					component === getSequenceComponent() &&
+					props?.controls
+						? getStackForControls(props.controls)
+						: null;
 				const stack =
 					existingStack ||
-					(source &&
-					typeof source.fileName === 'string' &&
-					typeof source.lineNumber === 'number' &&
-					typeof source.columnNumber === 'number'
-						? makeOriginalSourceStack({
-								fileName: getSourceFileName(source.fileName),
-								lineNumber: source.lineNumber,
-								columnNumber: source.columnNumber,
-							})
-						: new Error().stack);
+					(controlsStack ??
+						(source &&
+						typeof source.fileName === 'string' &&
+						typeof source.lineNumber === 'number' &&
+						typeof source.columnNumber === 'number'
+							? makeOriginalSourceStack({
+									fileName: getSourceFileName(source.fileName),
+									lineNumber: source.lineNumber,
+									columnNumber: source.columnNumber,
+								})
+							: new Error().stack));
 				const newProps = existingStack
 					? {...props}
 					: {

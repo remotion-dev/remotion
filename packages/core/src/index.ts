@@ -14,7 +14,10 @@ import type {
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	setSequenceComponent,
+} from './enable-sequence-stack-traces.js';
 import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
 import type {
@@ -329,6 +332,7 @@ export const Config = new Proxy(proxyObj, {
 
 Sequence.displayName = 'Sequence';
 addSequenceStackTraces(Sequence);
+setSequenceComponent(Sequence);
 addSequenceStackTraces(Composition);
 addSequenceStackTraces(Folder);
 

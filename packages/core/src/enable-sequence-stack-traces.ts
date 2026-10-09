@@ -1,6 +1,14 @@
 import type {SequenceControls} from './CompositionManager.js';
 
 const componentsToAddStacksTo: unknown[] = [];
+let sequenceComponent: unknown = null;
+
+export const setSequenceComponent = (component: unknown) => {
+	sequenceComponent = component;
+};
+
+export const getSequenceComponent = () => sequenceComponent;
+
 const stacksByControls = new WeakMap<SequenceControls, string>();
 export const REMOTION_INTERNAL_STACK_PROP = '_remotionInternalStack';
 
