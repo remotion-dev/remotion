@@ -5,6 +5,7 @@
     "jsx": "react-jsx",
     "rootDir": "./src",
     "outDir": "./dist",
+    "types": ["web"],
     "strict": true,
     "lib": ["es2015"],
     "esModuleInterop": true,

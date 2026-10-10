@@ -4,6 +4,7 @@
     "module": "Preserve",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
+    "types": ["node"],
     "strict": true,
     "noEmit": true,
     "lib": ["es2015", "DOM"],

@@ -4,6 +4,7 @@
     "module": "Preserve",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
+    "types": ["web"],
     "strict": true,
     "noEmit": true,
     "lib": ["ES2021"],

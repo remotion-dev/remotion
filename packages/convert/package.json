@@ -8,9 +8,9 @@
 		"build-page": "remix vite:build",
 		"build-spa": "remix vite:build -c vite-spa.config.ts && bun build-service-worker.ts",
 		"dev": "remix vite:dev",
-		"typecheck": "tsc",
+		"typecheck": "bun check",
 		"test": "bun test test",
-		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint app"
+		"lint": "bun check && eslint --cache --cache-location ./node_modules/.cache/eslint app"
 	},
 	"dependencies": {
 		"@mediabunny/mp3-encoder": "catalog:",

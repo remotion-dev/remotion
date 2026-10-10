@@ -61,13 +61,12 @@ type LambdaCommandLineOptions = {
 	['storage-class']: StorageClass | undefined;
 };
 
-export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
-	process.argv.slice(2),
-	{
+export const parsedLambdaCli: LambdaCommandLineOptions &
+	ReturnType<typeof CliInternals.minimist> =
+	CliInternals.minimist<LambdaCommandLineOptions>(process.argv.slice(2), {
 		boolean: LambdaBooleanFlags,
 		string: ['_'],
-	},
-);
+	});
 
 export const forceFlagProvided =
 	parsedLambdaCli.f ||
