@@ -81,7 +81,7 @@ Remotion is extensively documented over more than 1000 pages.
   - [Discord](https://remotion.dev/discord)
   - [Search](https://remotion.dev/search)
   - [Ask AI](https://remotion.dev/ai)
-  - [GitHub Issues](https://remotion.dev/issues)
+  - [GitHub Issues](https://github.com/remotion-dev/remotion/issues)
 
 ## Documentation
 

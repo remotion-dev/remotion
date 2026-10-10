@@ -28,7 +28,7 @@ The current Remotion version can be found in `packages/core/src/version.ts`. The
 
 ## Internal API optionality
 
-When adding or reviewing TypeScript parameters, React props, or type/interface members, make new internal inputs preferrably nullable (`T | null`), not optional (`?:`). Public exported APIs are exempt when requiring the input would be breaking.
+When adding or reviewing TypeScript parameters, React props, or type/interface members, make new internal inputs preferably nullable (`T | null`), not optional (`?:`). Public exported APIs are exempt when requiring the input would be breaking.
 
 ## Key services
 
