@@ -16,7 +16,6 @@
     "noUnusedLocals": true,
     "plugins": [{ "name": "next" }],
     "incremental": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
