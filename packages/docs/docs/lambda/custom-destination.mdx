@@ -51,6 +51,8 @@ If you like to use this feature:
 - The `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`
 - The bucketName must match `/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/`.
 
+With `overwrite: false`, the final conditional upload still prevents replacing an existing object if the output existence check cannot read the destination. If this check reports access denied, launch continues only for a destination that supports conditional output. Progress recovery also treats this output check as optional; the stored render progress remains authoritative. Other errors are still reported.
+
 This feature is not supported from the CLI.
 
 ## Saving to another cloud<AvailableFrom v="3.2.23" />
