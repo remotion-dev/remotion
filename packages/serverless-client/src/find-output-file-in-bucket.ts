@@ -9,7 +9,9 @@ export type OutputFileMetadata = {
 	sizeInBytes: number | null;
 };
 
-const outputFileAccessDenied = Symbol.for('remotion.OutputFileAccessDeniedError');
+const outputFileAccessDenied = Symbol.for(
+	'remotion.OutputFileAccessDeniedError',
+);
 
 export class OutputFileAccessDeniedError extends Error {
 	[outputFileAccessDenied] = true;

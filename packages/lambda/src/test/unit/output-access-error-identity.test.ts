@@ -18,7 +18,7 @@ import type {
 
 // Use the shipped CommonJS entrypoints, not source aliases. lambda-client
 // bundles its own serverless-client, while the handlers load another copy.
-const requirePackage = createRequire(import.meta.url);
+const requirePackage = createRequire(__filename);
 const {LambdaClientInternals} = requirePackage(
 	'@remotion/lambda-client',
 ) as typeof LambdaClientPackage;
@@ -108,7 +108,7 @@ const insideFunctionSpecifics = {
 	getCurrentRegionInFunction: () => region,
 	getCurrentMemorySizeInMb: () => 2048,
 	getCurrentFunctionName: () => 'render-worker',
-	getBrowserInstance: async () => ({instance: {}}),
+	getBrowserInstance: () => Promise.resolve({instance: {}}),
 	forgetBrowserEventLoop: () => undefined,
 	timer: () => ({end: () => undefined}),
 	normalizeChromiumOptions: null,
@@ -123,9 +123,9 @@ const makeFixture = (headError: unknown) => {
 			throw conflict;
 		}
 
-		const chunks: Buffer[] = [];
+		const chunks: Uint8Array[] = [];
 		for await (const chunk of body as Readable) {
-			chunks.push(Buffer.from(chunk));
+			chunks.push(Uint8Array.from(chunk));
 		}
 
 		output = Buffer.concat(chunks);
@@ -134,9 +134,9 @@ const makeFixture = (headError: unknown) => {
 	const writeFile = mock(
 		async ({body, bucketName: target}: {body: unknown; bucketName: string}) => {
 			if (target === destination) {
-				const chunks: Buffer[] = [];
+				const chunks: Uint8Array[] = [];
 				for await (const chunk of body as Readable) {
-					chunks.push(Buffer.from(chunk));
+					chunks.push(Uint8Array.from(chunk));
 				}
 
 				output = Buffer.concat(chunks);
@@ -152,8 +152,10 @@ const makeFixture = (headError: unknown) => {
 		writeFile,
 		writeFileIfNotExists,
 		supportsConditionalOutput: () => true,
-		readFile: async () =>
-			Readable.from([Buffer.from(JSON.stringify(storedProgress))]),
+		readFile: () =>
+			Promise.resolve(
+				Readable.from([Buffer.from(JSON.stringify(storedProgress))]),
+			),
 		getChromiumPath: () => null,
 		estimatePrice: () => 0,
 		parseFunctionName: () => null,
@@ -187,7 +189,9 @@ const getBundledHeadError = async (httpStatusCode: number) => {
 	const sdkError = Object.assign(new Error('Storage request failed'), {
 		$metadata: {httpStatusCode},
 	});
-	const send = spyOn(client, 'send').mockRejectedValue(sdkError);
+	const send = spyOn(client, 'send').mockImplementation(() =>
+		Promise.reject(sdkError),
+	);
 	try {
 		await LambdaClientInternals.awsImplementation.headFile({
 			...input,
@@ -309,6 +313,7 @@ const invokeProgress = (
 			version: VERSION,
 			logLevel: 'error',
 			forcePathStyle: false,
+			s3OutputProvider: null,
 		},
 		options: {
 			expectedBucketOwner: null,
@@ -361,18 +366,36 @@ test.each(['bundled', 'same package'] as const)(
 		const render = spyOn(
 			directRenderer,
 			'renderWithSingleFunction',
-		).mockImplementation(async ({overallProgress}: any) => {
-			const file = path.join(root, 'output.mp4');
-			fs.writeFileSync(file, 'rendered output');
-			overallProgress.setFrames({index: 0, rendered: 20, encoded: 20});
-			overallProgress.addChunkCompleted(0, Date.now(), Date.now());
-			overallProgress.setCombinedFrames(20);
-			return {
-				outputFile: file,
-				separateAudioFile: null,
-				cleanup: async () => undefined,
-			};
-		});
+		).mockImplementation(
+			({
+				overallProgress,
+			}: {
+				overallProgress: {
+					setFrames: (input: {
+						index: number;
+						rendered: number;
+						encoded: number;
+					}) => void;
+					addChunkCompleted: (
+						chunk: number,
+						start: number,
+						rendered: number,
+					) => void;
+					setCombinedFrames: (frames: number) => void;
+				};
+			}) => {
+				const file = path.join(root, 'output.mp4');
+				fs.writeFileSync(file, 'rendered output');
+				overallProgress.setFrames({index: 0, rendered: 20, encoded: 20});
+				overallProgress.addChunkCompleted(0, Date.now(), Date.now());
+				overallProgress.setCombinedFrames(20);
+				return Promise.resolve({
+					outputFile: file,
+					separateAudioFile: null,
+					cleanup: () => Promise.resolve(),
+				});
+			},
+		);
 		try {
 			await invokeLaunch(fixture);
 			expect(fixture.writeFileIfNotExists).toHaveBeenCalledTimes(1);
