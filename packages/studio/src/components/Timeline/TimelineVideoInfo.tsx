@@ -51,6 +51,7 @@ const MAX_FROZEN_FRAME_CACHE_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
 
 const TimelineVideoInfoSegment: React.FC<{
 	readonly src: string;
+	readonly showFilmstrip: boolean;
 	readonly visualizationWidth: number;
 	readonly startMediaFrom: number;
 	readonly mediaFrameAtSequenceZero: number | null;
@@ -71,6 +72,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	readonly extendLastFrame: boolean;
 }> = ({
 	src,
+	showFilmstrip,
 	visualizationWidth,
 	startMediaFrom,
 	mediaFrameAtSequenceZero,
@@ -101,7 +103,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	// for rendering frames
 	useLayoutEffect(() => {
 		const {current: canvas} = ref;
-		if (!canvas) {
+		if (!canvas || !showFilmstrip) {
 			return;
 		}
 
@@ -245,7 +247,9 @@ const TimelineVideoInfoSegment: React.FC<{
 				},
 				signal: controller.signal,
 			}).catch((e: unknown) => {
-				setError(e as Error);
+				if (!controller.signal.aborted) {
+					setError(e as Error);
+				}
 			});
 
 			return () => {
@@ -450,7 +454,9 @@ const TimelineVideoInfoSegment: React.FC<{
 				repeatTarget();
 			})
 			.catch((e: unknown) => {
-				setError(e as Error);
+				if (!controller.signal.aborted) {
+					setError(e as Error);
+				}
 			});
 
 		return () => {
@@ -465,6 +471,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		mediaStartFrame,
 		playbackRate,
 		resolvedSrc,
+		showFilmstrip,
 		src,
 		tiledLoop,
 		visualizationWidth,
@@ -496,7 +503,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	return (
 		<div style={segmentStyle}>
 			<div style={filmstripStyle}>
-				<canvas ref={ref} />
+				{showFilmstrip ? <canvas ref={ref} /> : null}
 			</div>
 			<div style={audioStyle}>
 				<AudioWaveform
@@ -556,6 +563,7 @@ const getVisibleSegments = ({
 
 const TimelineVideoInfoInner: React.FC<{
 	readonly src: string;
+	readonly showFilmstrip: boolean;
 	readonly visualizationWidth: number;
 	readonly displayOffsetInFrames: number;
 	readonly displayDurationInFrames: number;
@@ -572,6 +580,7 @@ const TimelineVideoInfoInner: React.FC<{
 	readonly extendLastFrame: boolean;
 }> = ({
 	src,
+	showFilmstrip,
 	visualizationWidth,
 	displayOffsetInFrames,
 	displayDurationInFrames,
@@ -654,6 +663,7 @@ const TimelineVideoInfoInner: React.FC<{
 			{tiledLoop ? (
 				<TimelineVideoInfoSegment
 					src={src}
+					showFilmstrip={showFilmstrip}
 					visualizationWidth={visualizationWidth}
 					startMediaFrom={startMediaFrom}
 					mediaFrameAtSequenceZero={mediaFrameAtSequenceZero}
@@ -672,6 +682,7 @@ const TimelineVideoInfoInner: React.FC<{
 					<TimelineVideoInfoSegment
 						key={segment.key}
 						src={src}
+						showFilmstrip={showFilmstrip}
 						visualizationWidth={segment.durationInFrames * pixelsPerFrame}
 						startMediaFrom={startMediaFrom}
 						mediaFrameAtSequenceZero={mediaFrameAtSequenceZero}

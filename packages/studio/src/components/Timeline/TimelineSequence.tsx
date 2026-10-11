@@ -123,6 +123,7 @@ import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
+import {useTimelineDetailVisibility} from './use-timeline-detail-visibility';
 import {
 	useTimelineSequenceNaturalDuration,
 	useTimelineSequenceRegistry,
@@ -327,6 +328,8 @@ const TimelineSequenceBar: React.FC<{
 	readonly s: TSequence;
 	readonly labelOffset: number;
 	readonly hasCaptionsSchema: boolean;
+	readonly showLabel: boolean;
+	readonly showIcon: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
@@ -369,6 +372,8 @@ const TimelineSequenceBar: React.FC<{
 	s,
 	labelOffset,
 	hasCaptionsSchema,
+	showLabel,
+	showIcon,
 	connectedComposition,
 	activeTrimEdge,
 	leftTrimHighlight,
@@ -553,7 +558,8 @@ const TimelineSequenceBar: React.FC<{
 				</svg>
 			)}
 
-			{(s.timelineTrack || hasCaptionsSchema) &&
+			{(showLabel || (showIcon && connectedComposition)) &&
+			(s.timelineTrack || hasCaptionsSchema) &&
 			s.timelineTrack?.role !== 'transition' ? (
 				<div
 					style={{
@@ -572,7 +578,7 @@ const TimelineSequenceBar: React.FC<{
 						WebkitUserSelect: 'none',
 					}}
 				>
-					{connectedComposition ? (
+					{showIcon && connectedComposition ? (
 						<CompositionOrStillIcon
 							composition={connectedComposition}
 							color={getTimelineColor(false, false)}
@@ -584,7 +590,7 @@ const TimelineSequenceBar: React.FC<{
 							}}
 						/>
 					) : null}
-					{hasCaptionsSchema ? (
+					{!showLabel ? null : hasCaptionsSchema ? (
 						<TimelineSequenceCaptions s={s} />
 					) : (
 						<TimelineSequenceLabel
@@ -612,7 +618,8 @@ const TimelineSequenceBar: React.FC<{
 				</div>
 			) : null}
 
-			{!hasCaptionsSchema &&
+			{showLabel &&
+			!hasCaptionsSchema &&
 			!s.timelineTrack &&
 			s.type !== 'audio' &&
 			s.type !== 'video' &&
@@ -663,6 +670,7 @@ const TimelineSequenceBar: React.FC<{
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
 			aria-label={s.displayName}
+			title={showLabel ? undefined : s.displayName}
 			data-track-item={s.timelineTrack?.role}
 			onPointerDownCapture={onPointerDownCapture}
 			onPointerDown={selectable ? onPointerDown : undefined}
@@ -1612,6 +1620,15 @@ const TimelineSequenceLayoutInner: React.FC<{
 		video,
 		windowWidth,
 	]);
+	// Use the full media width, excluding mount regions and the negative-start
+	// marker. Cropping at a viewport edge must not change a clip's detail level.
+	const mediaWidth = Math.max(
+		0,
+		width - negativeStartWidth - (premountWidth ?? 0) - (postmountWidth ?? 0),
+	);
+	const showDetails = useTimelineDetailVisibility(mediaWidth, 32);
+	const showIcon = useTimelineDetailVisibility(mediaWidth, 16);
+	const showFilmstrip = useTimelineDetailVisibility(mediaWidth, 48);
 	const visibleLayout = useMemo(() => {
 		if (renderWindow === null) {
 			return null;
@@ -1867,6 +1884,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 		<TimelineSequenceBar
 			s={s}
 			hasCaptionsSchema={hasCaptionsSchema}
+			showLabel={showDetails}
+			showIcon={showIcon}
 			labelOffset={
 				labelStartFrame === null
 					? 0
@@ -1966,7 +1985,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 				</>
 			}
 		>
-			{s.type === 'audio' && visibleLayout.media ? (
+			{s.type === 'audio' && showDetails && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
 					<AudioWaveform
 						src={s.src}
@@ -1984,9 +2003,10 @@ const TimelineSequenceLayoutInner: React.FC<{
 					/>
 				</div>
 			) : null}
-			{s.type === 'video' && visibleLayout.media ? (
+			{s.type === 'video' && showDetails && visibleLayout.media ? (
 				<TimelineVideoInfo
 					src={s.src}
+					showFilmstrip={showFilmstrip}
 					visualizationWidth={visibleLayout.media.width}
 					displayOffsetInFrames={mediaDisplayOffsetInFrames}
 					displayDurationInFrames={mediaDisplayDurationInFrames}
@@ -2003,7 +2023,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 					extendLastFrame={extendVideoLastFrame}
 				/>
 			) : null}
-			{s.type === 'image' && visibleLayout.media ? (
+			{s.type === 'image' && showFilmstrip && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
 					<TimelineImageInfo
 						src={s.src}
@@ -2011,7 +2031,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 					/>
 				</div>
 			) : null}
-			{s.loopDisplay === undefined ? null : (
+			{s.loopDisplay === undefined || !showDetails ? null : (
 				<LoopedTimelineIndicator
 					loops={s.loopDisplay.numberOfTimes}
 					phase={
