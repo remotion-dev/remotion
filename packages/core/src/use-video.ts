@@ -1,5 +1,5 @@
 import type {ComponentType, LazyExoticComponent} from 'react';
-import React, {createContext, useContext, useMemo} from 'react';
+import {useContext, useMemo} from 'react';
 import {
 	CompositionManager,
 	getAssetPreviewCompositionId,
@@ -7,7 +7,7 @@ import {
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import type {VideoConfig} from './video-config.js';
 
-type VideoContextValue =
+type ReturnType =
 	| (VideoConfig & {
 			component:
 				| LazyExoticComponent<ComponentType<Record<string, unknown>>>
@@ -17,12 +17,7 @@ type VideoContextValue =
 
 const AssetPreviewComposition = () => null;
 
-export const VideoContext = createContext<VideoContextValue>(null);
-
-// Share resolution across consumers. Place below editor props and metadata providers.
-export const VideoProvider: React.FC<{
-	readonly children: React.ReactNode;
-}> = ({children}) => {
+export const useVideo = (): ReturnType => {
 	const {
 		canvasContent,
 		compositions,
@@ -38,7 +33,7 @@ export const VideoProvider: React.FC<{
 	});
 	const resolved = useResolvedVideoConfig(selected?.id ?? null);
 
-	const video = useMemo((): VideoContextValue => {
+	return useMemo((): ReturnType => {
 		if (
 			canvasContent?.type === 'asset' &&
 			currentAssetMetadata?.asset === canvasContent.asset
@@ -83,12 +78,4 @@ export const VideoProvider: React.FC<{
 		resolved,
 		selected,
 	]);
-
-	return (
-		<VideoContext.Provider value={video}>{children}</VideoContext.Provider>
-	);
-};
-
-export const useVideo = (): VideoContextValue => {
-	return useContext(VideoContext);
 };

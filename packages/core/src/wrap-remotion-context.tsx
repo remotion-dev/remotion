@@ -35,11 +35,9 @@ import {
 	TimelineTrackContext,
 } from './timeline-track-context.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
-import {VideoContext} from './use-video.js';
 
 export function useRemotionContexts() {
 	const compositionManagerCtx = React.useContext(CompositionManager);
-	const videoContext = React.useContext(VideoContext);
 	const timelineContext = React.useContext(TimelineContext);
 	const setTimelineContext = React.useContext(SetTimelineContext);
 	const sequenceContext = React.useContext(SequenceContext);
@@ -78,7 +76,6 @@ export function useRemotionContexts() {
 	return useMemo(
 		() => ({
 			compositionManagerCtx,
-			videoContext,
 			timelineContext,
 			setTimelineContext,
 			sequenceContext,
@@ -102,7 +99,6 @@ export function useRemotionContexts() {
 		}),
 		[
 			compositionManagerCtx,
-			videoContext,
 			sequenceContext,
 			defaultPremountInSeconds,
 			experimentalTracksEnabled,
@@ -300,11 +296,7 @@ export const RemotionContextProvider = (
 																						contexts.defaultPremountInSeconds
 																					}
 																				>
-																					<VideoContext.Provider
-																						value={contexts.videoContext}
-																					>
-																						{children}
-																					</VideoContext.Provider>
+																					{children}
 																				</DefaultPremountContext.Provider>
 																			</TimelineTrackContext.Provider>
 																		</ExperimentalTracksEnabledContext.Provider>

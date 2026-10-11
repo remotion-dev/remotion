@@ -189,9 +189,7 @@ const SequenceRegistrationWrapper: React.FC<{
 										<Internals.CompositionManager.Provider
 											value={compositionContext}
 										>
-											<Internals.VideoProvider>
-												{children}
-											</Internals.VideoProvider>
+											{children}
 										</Internals.CompositionManager.Provider>
 									</Internals.SequenceManagerProvider>
 								</Internals.RemotionEnvironmentContext.Provider>

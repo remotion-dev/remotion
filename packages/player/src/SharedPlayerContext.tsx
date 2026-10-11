@@ -168,36 +168,34 @@ export const SharedPlayerContexts: React.FC<{
 								<Internals.CompositionManager.Provider
 									value={compositionManagerContext}
 								>
-									<Internals.VideoProvider>
-										<Internals.PrefetchProvider>
-											<Internals.DurationsContextProvider>
-												<Internals.MediaVolumeContext.Provider
-													value={mediaVolumeContextValue}
+									<Internals.PrefetchProvider>
+										<Internals.DurationsContextProvider>
+											<Internals.MediaVolumeContext.Provider
+												value={mediaVolumeContextValue}
+											>
+												<Internals.SetMediaVolumeContext.Provider
+													value={setMediaVolumeContextValue}
 												>
-													<Internals.SetMediaVolumeContext.Provider
-														value={setMediaVolumeContextValue}
-													>
-														<Internals.BufferingProvider>
-															<Internals.SharedAudioContextProvider
-																audioLatencyHint={audioLatencyHint}
-																audioEnabled={shouldCreateAudioContext}
-																previewSampleRate={sampleRate}
-																_experimentalKeepAudioContextAlive={
-																	_experimentalKeepAudioContextAlive
-																}
+													<Internals.BufferingProvider>
+														<Internals.SharedAudioContextProvider
+															audioLatencyHint={audioLatencyHint}
+															audioEnabled={shouldCreateAudioContext}
+															previewSampleRate={sampleRate}
+															_experimentalKeepAudioContextAlive={
+																_experimentalKeepAudioContextAlive
+															}
+														>
+															<Internals.SharedAudioTagsContextProvider
+																numberOfAudioTags={numberOfSharedAudioTags}
 															>
-																<Internals.SharedAudioTagsContextProvider
-																	numberOfAudioTags={numberOfSharedAudioTags}
-																>
-																	{children}
-																</Internals.SharedAudioTagsContextProvider>
-															</Internals.SharedAudioContextProvider>
-														</Internals.BufferingProvider>
-													</Internals.SetMediaVolumeContext.Provider>
-												</Internals.MediaVolumeContext.Provider>
-											</Internals.DurationsContextProvider>
-										</Internals.PrefetchProvider>
-									</Internals.VideoProvider>
+																{children}
+															</Internals.SharedAudioTagsContextProvider>
+														</Internals.SharedAudioContextProvider>
+													</Internals.BufferingProvider>
+												</Internals.SetMediaVolumeContext.Provider>
+											</Internals.MediaVolumeContext.Provider>
+										</Internals.DurationsContextProvider>
+									</Internals.PrefetchProvider>
 								</Internals.CompositionManager.Provider>
 							</Internals.TimelineContext.Provider>
 						</Internals.PlaybackRateContext.Provider>

@@ -127,11 +127,9 @@ export const getAssetsForMarkup = async (
 					>
 						<Internals.RenderAssetManagerProvider collectAssets={null}>
 							<Internals.CompositionManager.Provider value={value}>
-								<Internals.VideoProvider>
-									<Internals.RenderAssetManager.Provider value={assetContext}>
-										<Markup />
-									</Internals.RenderAssetManager.Provider>
-								</Internals.VideoProvider>
+								<Internals.RenderAssetManager.Provider value={assetContext}>
+									<Markup />
+								</Internals.RenderAssetManager.Provider>
 							</Internals.CompositionManager.Provider>
 						</Internals.RenderAssetManagerProvider>
 					</Internals.RemotionRootContexts>

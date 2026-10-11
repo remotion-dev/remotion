@@ -22,7 +22,6 @@ import {
 	SetTimelineContext,
 	TimelineContext,
 } from '../TimelineContext.js';
-import {VideoProvider} from '../use-video.js';
 
 const Comp: React.FC = () => null;
 
@@ -190,7 +189,7 @@ export const WrapSequenceContext: React.FC<{
 							<MaybePlaybackRateProvider>
 								<SequenceManagerProvider>
 									<CompositionManager.Provider value={compositionContext}>
-										<VideoProvider>{children}</VideoProvider>
+										{children}
 									</CompositionManager.Provider>
 								</SequenceManagerProvider>
 							</MaybePlaybackRateProvider>

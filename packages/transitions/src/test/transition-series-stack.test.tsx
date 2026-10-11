@@ -126,34 +126,32 @@ const SequenceTestWrapper: React.FC<{
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<Internals.VideoProvider>
-						<Internals.TimelineContext.Provider
-							value={makeTimelineContext(frame)}
+					<Internals.TimelineContext.Provider
+						value={makeTimelineContext(frame)}
+					>
+						<Internals.OverrideIdsToNodePathsGettersContext.Provider
+							value={overrideIdToNodePathContext}
 						>
-							<Internals.OverrideIdsToNodePathsGettersContext.Provider
-								value={overrideIdToNodePathContext}
-							>
-								<Internals.SequenceManagerProvider>
-									<ApplyVisualModeOverrides
-										mappings={overrideIdToNodePathMappings}
-										overrides={dragOverrides}
-									/>
-									<ObserveSequenceRegistrations
-										onRegisterSequence={onRegisterSequence}
-									/>
-									<Internals.VisualModePropStatusesContext.Provider
-										value={visualModePropStatuses}
+							<Internals.SequenceManagerProvider>
+								<ApplyVisualModeOverrides
+									mappings={overrideIdToNodePathMappings}
+									overrides={dragOverrides}
+								/>
+								<ObserveSequenceRegistrations
+									onRegisterSequence={onRegisterSequence}
+								/>
+								<Internals.VisualModePropStatusesContext.Provider
+									value={visualModePropStatuses}
+								>
+									<Internals.VisualModeSettersContext.Provider
+										value={visualModeSetters}
 									>
-										<Internals.VisualModeSettersContext.Provider
-											value={visualModeSetters}
-										>
-											{children}
-										</Internals.VisualModeSettersContext.Provider>
-									</Internals.VisualModePropStatusesContext.Provider>
-								</Internals.SequenceManagerProvider>
-							</Internals.OverrideIdsToNodePathsGettersContext.Provider>
-						</Internals.TimelineContext.Provider>
-					</Internals.VideoProvider>
+										{children}
+									</Internals.VisualModeSettersContext.Provider>
+								</Internals.VisualModePropStatusesContext.Provider>
+							</Internals.SequenceManagerProvider>
+						</Internals.OverrideIdsToNodePathsGettersContext.Provider>
+					</Internals.TimelineContext.Provider>
 				</Internals.CompositionManager.Provider>
 			</Internals.CanUseRemotionHooksProvider>
 		</Internals.RemotionEnvironmentContext>
