@@ -26,7 +26,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {useTimelineSelection} from '../Timeline/TimelineSelection';
+import {useCurrentTimelineSelectionStateAsRef} from '../Timeline/TimelineSelection';
 import Ruler from './Ruler';
 
 const originBlockStyles: React.CSSProperties = {
@@ -66,7 +66,7 @@ export const EditorRulers: React.FC<{
 		moveGuidePointerRef,
 		setDraggingGuideId,
 	} = useContext(EditorShowGuidesContext);
-	const {clearSelection, selectedItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const rulerMarkingGaps = useMemo(() => {
 		const minimumGap = MINIMUM_RULER_MARKING_GAP_PX;
@@ -229,11 +229,12 @@ export const EditorRulers: React.FC<{
 				return newGuides;
 			});
 
-			const deletedGuideWasSelected = selectedItems.some(
-				(item) => item.type === 'guide' && item.guideId === guideId,
-			);
+			const deletedGuideWasSelected =
+				currentSelection.current.selectedItems.some(
+					(item) => item.type === 'guide' && item.guideId === guideId,
+				);
 			if (shouldDeleteGuide && deletedGuideWasSelected) {
-				clearSelection();
+				currentSelection.current.clearSelection();
 			}
 
 			shouldDeleteGuideRef.current = false;
@@ -242,12 +243,11 @@ export const EditorRulers: React.FC<{
 			setDraggingGuideId(() => null);
 		},
 		[
-			clearSelection,
+			currentSelection,
 			shouldCreateGuideRef,
 			shouldDeleteGuideRef,
 			setDraggingGuideId,
 			setGuidesList,
-			selectedItems,
 		],
 	);
 

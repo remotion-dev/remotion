@@ -1551,8 +1551,7 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, getMarqueeSelectionCandidates, selectedItems, selectItems} =
-		useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
@@ -1560,6 +1559,12 @@ export const useTimelineMarqueeSelection = () => {
 
 	const onPointerDownCapture = useCallback(
 		(event: React.PointerEvent<HTMLDivElement>) => {
+			const {
+				canSelect,
+				getMarqueeSelectionCandidates,
+				selectedItems,
+				selectItems,
+			} = currentSelection.current;
 			if (!isHighestContext) {
 				return;
 			}
@@ -1772,13 +1777,7 @@ export const useTimelineMarqueeSelection = () => {
 				},
 			});
 		},
-		[
-			canSelect,
-			getMarqueeSelectionCandidates,
-			isHighestContext,
-			selectedItems,
-			selectItems,
-		],
+		[currentSelection, isHighestContext],
 	);
 
 	return {marqueeRect, onPointerDownCapture};

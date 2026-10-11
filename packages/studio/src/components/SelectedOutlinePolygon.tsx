@@ -47,7 +47,7 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
-import {useTimelineSelection} from './Timeline/TimelineSelection';
+import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
 
 const {
 	CanvasOutlinePolygon,
@@ -121,8 +121,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		[],
 	);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -130,7 +130,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const polygonRef = useRef<SVGPolygonElement>(null);
-	const {selectItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	useEffect(() => {
 		if (!effectDropHovered) {
@@ -234,7 +234,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				captureTarget: event.currentTarget,
 				dragStates: getCanvasOutlineTranslateDragStates({
 					dragTargets,
-					getDragOverrides,
+					getDragOverrides: dragOverridesRef.current.getDragOverrides,
 					timelinePosition: getCurrentFrame(),
 				}),
 				scale,
@@ -331,7 +331,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			editorSnapping,
 			getAllDragOutlines,
 			getAllDragTargets,
-			getDragOverrides,
+			dragOverridesRef,
 			getTarget,
 			guidesList,
 			onDraggingChange,
@@ -431,10 +431,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				fileName: effectDrop.fileName,
 				nodePathInfo: effectDrop.nodePathInfo,
 				clientId: effectDrop.clientId,
-				selectItems,
+				selectItems: currentSelection.current.selectItems,
 			});
 		},
-		[getEffectDropTarget, selectItems],
+		[currentSelection, getEffectDropTarget],
 	);
 
 	return (

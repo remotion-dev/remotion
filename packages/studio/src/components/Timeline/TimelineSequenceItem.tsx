@@ -114,7 +114,7 @@ import {
 	type TimelineSelection,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
-	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
@@ -402,7 +402,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected, selectedItems, selectItem} =
 		useTimelineRowSelection(nodePathInfo);
-	const {selectItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const selectedSequenceNodePathInfos = useMemo(() => {
 		if (
 			!selected ||
@@ -1312,14 +1312,14 @@ const TimelineSequenceItemInner: React.FC<{
 			clientId: previewServerState.clientId,
 			fileName: validatedLocation.source,
 			nodePathInfo,
-			selectItems,
+			selectItems: currentSelection.current.selectItems,
 		});
 	}, [
 		canAddEffect,
 		nodePathInfo,
 		previewServerState,
 		setSelectedModal,
-		selectItems,
+		currentSelection,
 		validatedLocation?.source,
 	]);
 
@@ -1648,14 +1648,14 @@ const TimelineSequenceItemInner: React.FC<{
 				fileName: validatedLocation.source,
 				nodePathInfo,
 				clientId: previewServerState.clientId,
-				selectItems,
+				selectItems: currentSelection.current.selectItems,
 			});
 		},
 		[
 			canDropEffect,
 			nodePathInfo,
 			previewServerState,
-			selectItems,
+			currentSelection,
 			validatedLocation,
 		],
 	);

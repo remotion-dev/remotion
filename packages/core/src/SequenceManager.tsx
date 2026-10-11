@@ -224,15 +224,21 @@ export const VisualModePropStatusesRefContext =
 		current: {},
 	});
 
+const defaultVisualModeDragOverrides: VisualModeDragOverrides = {
+	getDragOverrides: () => {
+		throw new Error('VisualModeDragOverridesContext not initialized');
+	},
+	getEffectDragOverrides: () => {
+		throw new Error('VisualModeDragOverridesContext not initialized');
+	},
+};
+
 export const VisualModeDragOverridesContext =
-	React.createContext<VisualModeDragOverrides>({
-		getDragOverrides: () => {
-			throw new Error('VisualModeDragOverridesContext not initialized');
-		},
-		getEffectDragOverrides: () => {
-			throw new Error('VisualModeDragOverridesContext not initialized');
-		},
-	});
+	React.createContext<VisualModeDragOverrides>(defaultVisualModeDragOverrides);
+
+export const VisualModeDragOverridesRefContext = React.createContext<
+	React.RefObject<VisualModeDragOverrides>
+>({current: defaultVisualModeDragOverrides});
 
 export const useDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
@@ -705,6 +711,11 @@ export const SequenceManagerProvider: React.FC<{
 			getEffectDragOverrides,
 		};
 	}, [getDragOverrides, getEffectDragOverrides]);
+	const dragOverridesRef = useRef(dragOverridesContext);
+	useIsomorphicLayoutEffect(() => {
+		// Interaction handlers read the latest committed overrides without subscribing.
+		dragOverridesRef.current = dragOverridesContext;
+	}, [dragOverridesContext]);
 
 	const settersContext: VisualModeSetters = useMemo(() => {
 		return {
@@ -739,13 +750,17 @@ export const SequenceManagerProvider: React.FC<{
 						<VisualModeDragOverridesContext.Provider
 							value={dragOverridesContext}
 						>
-							<VisualModeSettersContext.Provider value={settersContext}>
-								<VisualModeBatchSettersContext.Provider
-									value={batchSettersContext}
-								>
-									{children}
-								</VisualModeBatchSettersContext.Provider>
-							</VisualModeSettersContext.Provider>
+							<VisualModeDragOverridesRefContext.Provider
+								value={dragOverridesRef}
+							>
+								<VisualModeSettersContext.Provider value={settersContext}>
+									<VisualModeBatchSettersContext.Provider
+										value={batchSettersContext}
+									>
+										{children}
+									</VisualModeBatchSettersContext.Provider>
+								</VisualModeSettersContext.Provider>
+							</VisualModeDragOverridesRefContext.Provider>
 						</VisualModeDragOverridesContext.Provider>
 					</SequenceManagerScopeProviders>
 				</VisualModePropStatusesContext.Provider>
