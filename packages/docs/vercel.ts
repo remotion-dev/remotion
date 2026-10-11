@@ -10,20 +10,13 @@ const browserStudioAssetHeaders = [
 	...browserStudioIsolationHeaders,
 ];
 
-const bunVersion = '1.4.3';
-const bunInstallDirectory = `$HOME/.bun-remotion-${bunVersion}`;
-
 export const config: VercelConfig = {
-	// Vercel also installs before evaluating this file. Keep the project's
-	// dashboard Install Command in sync, without invoking its preinstalled Bun.
-	installCommand: `bash -eo pipefail -c '${[
-		`export BUN_INSTALL="${bunInstallDirectory}"`,
-		`test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v${bunVersion}`,
-		'ln -sf bun "$BUN_INSTALL/bin/bunx"',
-		'export PATH="$BUN_INSTALL/bin:$PATH"',
-		'bun install',
-	].join('; ')}'`,
-	buildCommand: `cd .. && PATH="${bunInstallDirectory}/bin:$PATH" timeout 20m "${bunInstallDirectory}/bin/bunx" turbo run build-docs --no-update-notifier --concurrency=2`,
+	// Vercel extracts these commands before evaluating this file; keep them literal
+	// and the dashboard Install Command in sync. Avoid its preinstalled Bun.
+	installCommand:
+		'bash -eo pipefail -c \'export BUN_INSTALL="$HOME/.bun-remotion-1.4.3"; test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v1.4.3; ln -sf bun "$BUN_INSTALL/bin/bunx"; export PATH="$BUN_INSTALL/bin:$PATH"; bun install\'',
+	buildCommand:
+		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
 		routes.header('/assets/(.*)', browserStudioAssetHeaders),
 		routes.header(
