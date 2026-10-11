@@ -40,7 +40,6 @@ import {
 	isPointerSessionRelease,
 	startDeferredCapturedPointerSession,
 } from '../../helpers/pointer-session';
-import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -1756,16 +1755,11 @@ const TimelineSequenceItemInner: React.FC<{
 		trackRow
 	);
 
-	const annotatedTrackRow = (
+	const trackRowWithDropTarget = (
 		<div
 			{...{
 				[LUT_EFFECT_DROP_TARGET_ATTR]: canDropEffect ? 'true' : undefined,
 			}}
-			{...getSequenceAnnotationAttributes({
-				sequence,
-				location: originalLocation,
-				surface: 'track',
-			})}
 		>
 			{reorderableTrackRow}
 		</div>
@@ -1775,10 +1769,10 @@ const TimelineSequenceItemInner: React.FC<{
 		<>
 			{previewConnected || window.remotion_isReadOnlyStudio ? (
 				<ContextMenu getItems={getContextMenuItems}>
-					{annotatedTrackRow}
+					{trackRowWithDropTarget}
 				</ContextMenu>
 			) : (
-				annotatedTrackRow
+				trackRowWithDropTarget
 			)}
 			{previewConnected &&
 			isStudioInteractivityEnabled() &&

@@ -11,7 +11,6 @@ import React, {
 } from 'react';
 import type {
 	_InternalTypes,
-	ResolvedStackLocation,
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
@@ -40,7 +39,6 @@ import {getTimelineSequenceLayout} from '../../helpers/get-timeline-sequence-lay
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
-import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
 import {getStudioShowPremounting} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -328,7 +326,6 @@ const TimelineSequenceBar: React.FC<{
 	readonly labelOffset: number;
 	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
-	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly leftTrimHighlight: {
 		readonly left: number;
@@ -372,7 +369,6 @@ const TimelineSequenceBar: React.FC<{
 	connectedComposition,
 	activeTrimEdge,
 	leftTrimHighlight,
-	annotationLocation,
 	displayDurationInFrames,
 	selectionBounds,
 	premount,
@@ -655,11 +651,6 @@ const TimelineSequenceBar: React.FC<{
 		<div
 			ref={ref}
 			role="group"
-			{...getSequenceAnnotationAttributes({
-				sequence: s,
-				location: annotationLocation,
-				surface: 'layer',
-			})}
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
 			aria-label={s.displayName}
@@ -1477,7 +1468,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		naturalMediaDuration,
 		maxMediaDuration,
 		effectiveMaxMediaDuration,
-		originalLocation,
 		validatedLocation,
 		nodePath,
 		fromCanUpdate,
@@ -1554,7 +1544,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 		naturalMediaDuration,
 		maxMediaDuration,
 		effectiveMaxMediaDuration,
-		originalLocation,
 		validatedLocation,
 		nodePath,
 		fromCanUpdate,
@@ -1881,7 +1870,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 						)
 			}
 			connectedComposition={connectedCompositions[0] ?? null}
-			annotationLocation={originalLocation}
 			activeTrimEdge={activeTrimEdge}
 			leftTrimHighlight={
 				visibleLayout.media?.offset === 0 ? visibleLayout.media : null

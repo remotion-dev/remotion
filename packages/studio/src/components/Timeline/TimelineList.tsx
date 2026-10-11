@@ -232,10 +232,7 @@ export const TimelineList: React.FC = () => {
 	}, [rows, virtualItems]);
 
 	return (
-		<div
-			style={{...container, height: tracksEnd}}
-			{...{'oai-annotation-container': ''}}
-		>
+		<div style={{...container, height: tracksEnd}}>
 			<style>{`.remotion-timeline-sequence-name-measure::before {
 				content: attr(data-name);
 				display: block;

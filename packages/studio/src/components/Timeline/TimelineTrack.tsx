@@ -1,7 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
-import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -16,14 +15,12 @@ import {
 } from './TimelineSelection';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineWidthContext} from './TimelineWidthProvider';
-import {useResolvedStack} from './use-resolved-stack';
 
 const emptyConnectedCompositions = [] as const;
 
 const TimelineTrackUnmemoized: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
-	const annotationLocation = useResolvedStack(track.sequence.getStack());
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
@@ -55,14 +52,7 @@ const TimelineTrackUnmemoized: React.FC<{
 
 	return (
 		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
-			<div
-				style={layerStyle}
-				{...getSequenceAnnotationAttributes({
-					sequence: track.sequence,
-					location: annotationLocation,
-					surface: 'track',
-				})}
-			>
+			<div style={layerStyle}>
 				{rowHighlightBackground && timelineWidth !== null ? (
 					<div
 						style={getTimelineSelectedTrackHighlightStyle(
