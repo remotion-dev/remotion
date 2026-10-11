@@ -135,6 +135,7 @@ import {
 } from './interactivity-schema.js';
 import {
 	interpolateKeyframedStatus,
+	prepareNumericKeyframedStatus,
 	setInterpolatePaths,
 } from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
@@ -545,6 +546,7 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	prepareNumericKeyframedStatus,
 	setInterpolatePaths,
 	makeStaticDragOverride,
 	makeKeyframedDragOverride,

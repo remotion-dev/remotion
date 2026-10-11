@@ -1356,15 +1356,20 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			keyframePlaybackRate,
 		);
 		const firstDisplayFrame = s.from + (s.loopDisplay?.startOffset ?? 0);
+		const evaluateVolume = Internals.prepareNumericKeyframedStatus({
+			forceSpringAllowTail: null,
+			status: volumeKeyframeStatus,
+		});
+		if (evaluateVolume === null) {
+			return null;
+		}
+
 		const curve: number[] = [];
 		for (let index = 0; index < Math.ceil(displayDurationInFrames); index++) {
-			const value = Internals.interpolateKeyframedStatus({
-				forceSpringAllowTail: null,
-				frame:
-					(firstDisplayFrame + index - resolvedDisplayOffset) *
+			const value = evaluateVolume(
+				(firstDisplayFrame + index - resolvedDisplayOffset) *
 					resolvedPlaybackRate,
-				status: volumeKeyframeStatus,
-			});
+			);
 			if (typeof value !== 'number' || !Number.isFinite(value)) {
 				return null;
 			}
