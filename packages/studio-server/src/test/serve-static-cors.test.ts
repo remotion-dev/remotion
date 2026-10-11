@@ -65,6 +65,7 @@ test('allows Remotion Convert to read public assets only', async () => {
 		expect(
 			outputResponse.headers.get('access-control-allow-origin'),
 		).toBeNull();
+		await outputResponse.text();
 
 		const unrelatedOriginResponse = await fetch(`${origin}/asset`, {
 			headers: {Origin: 'https://example.com'},
@@ -73,9 +74,12 @@ test('allows Remotion Convert to read public assets only', async () => {
 		expect(
 			unrelatedOriginResponse.headers.get('access-control-allow-origin'),
 		).toBeNull();
+		await unrelatedOriginResponse.text();
 	} finally {
 		await new Promise<void>((resolve, reject) => {
 			server.close((error) => (error ? reject(error) : resolve()));
+			// Do not wait for the client's keep-alive timeout during cleanup.
+			server.closeAllConnections();
 		});
 		rmSync(directory, {recursive: true});
 	}

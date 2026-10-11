@@ -30,7 +30,8 @@ type servicesCommandLineOptions = {
 	['render-id-override']: string;
 };
 
-export const parsedCloudrunCli =
+export const parsedCloudrunCli: servicesCommandLineOptions &
+	ReturnType<typeof CliInternals.minimist> =
 	CliInternals.minimist<servicesCommandLineOptions>(process.argv.slice(2), {
 		boolean: CloudrunBooleanFlags,
 		string: ['_'],
