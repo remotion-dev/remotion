@@ -40,6 +40,7 @@ const output = await build({
 		'react/jsx-runtime',
 		'react/jsx-runtime',
 		'react/jsx-dev-runtime',
+		'react-dom',
 		'@remotion/paths',
 		'@remotion/shapes',
 	],
