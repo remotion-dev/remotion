@@ -68,13 +68,10 @@ import {
 } from './get-sequence-context-menu-items';
 import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
 import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
-import {
-	getKeyframeDisplayOffset,
-	getKeyframePlaybackRate,
-} from './get-timeline-keyframes';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {getTimelineSceneMask} from './get-timeline-scene-mask';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
+import {getTimelineVolume} from './get-timeline-volume';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
@@ -1407,50 +1404,14 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const displayDurationInFrames = s.loopDisplay
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
-	const keyframedTimelineVolume = useMemo((): readonly number[] | null => {
-		if (volumeKeyframeStatus === null) {
-			return null;
-		}
-
-		if (
-			!Number.isFinite(displayDurationInFrames) ||
-			displayDurationInFrames <= 0
-		) {
-			return [];
-		}
-
-		const resolvedDisplayOffset = getKeyframeDisplayOffset({
-			propStatus: volumeKeyframeStatus,
+	const timelineVolume = useMemo(() => {
+		return getTimelineVolume({
+			status: volumeKeyframeStatus,
+			displayDurationInFrames,
+			firstDisplayFrame: s.from + (s.loopDisplay?.startOffset ?? 0),
 			keyframeDisplayOffset,
 			keyframePlaybackRate,
 		});
-		const resolvedPlaybackRate = getKeyframePlaybackRate(
-			volumeKeyframeStatus,
-			keyframePlaybackRate,
-		);
-		const firstDisplayFrame = s.from + (s.loopDisplay?.startOffset ?? 0);
-		const evaluateVolume = Internals.prepareNumericKeyframedStatus({
-			forceSpringAllowTail: null,
-			status: volumeKeyframeStatus,
-		});
-		if (evaluateVolume === null) {
-			return null;
-		}
-
-		const curve: number[] = [];
-		for (let index = 0; index < Math.ceil(displayDurationInFrames); index++) {
-			const value = evaluateVolume(
-				(firstDisplayFrame + index - resolvedDisplayOffset) *
-					resolvedPlaybackRate,
-			);
-			if (typeof value !== 'number' || !Number.isFinite(value)) {
-				return null;
-			}
-
-			curve.push(Math.max(0, value));
-		}
-
-		return curve;
 	}, [
 		displayDurationInFrames,
 		keyframeDisplayOffset,
@@ -1459,7 +1420,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		s.loopDisplay?.startOffset,
 		volumeKeyframeStatus,
 	]);
-	const timelineVolume = keyframedTimelineVolume ?? 1;
 
 	const isMedia = s.type === 'audio' || s.type === 'video';
 	const durationInFramesCodeValue =
