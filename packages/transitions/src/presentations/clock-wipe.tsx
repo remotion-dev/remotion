@@ -18,7 +18,13 @@ export type ClockWipeProps = {
 
 const ClockWipePresentation: React.FC<
 	TransitionPresentationComponentProps<ClockWipeProps>
-> = ({children, presentationDirection, presentationProgress, passedProps}) => {
+> = ({
+	children,
+	presentationDirection,
+	presentationProgress,
+	passedProps,
+	_remotionInternalIsActive = true,
+}) => {
 	const finishedRadius =
 		Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2;
 
@@ -63,8 +69,14 @@ const ClockWipePresentation: React.FC<
 	]);
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={outerStyle}>
-			<AbsoluteFill showInTimeline={false} style={style}>
+		<AbsoluteFill
+			showInTimeline={false}
+			style={_remotionInternalIsActive ? outerStyle : {display: 'contents'}}
+		>
+			<AbsoluteFill
+				showInTimeline={false}
+				style={_remotionInternalIsActive ? style : {display: 'contents'}}
+			>
 				{children}
 			</AbsoluteFill>
 		</AbsoluteFill>
@@ -78,5 +90,9 @@ const ClockWipePresentation: React.FC<
 export const clockWipe = (
 	props: ClockWipeProps,
 ): TransitionPresentation<ClockWipeProps> => {
-	return {component: ClockWipePresentation, props: props ?? {}};
+	return {
+		_remotionInternalSupportsInactive: true,
+		component: ClockWipePresentation,
+		props: props ?? {},
+	};
 };

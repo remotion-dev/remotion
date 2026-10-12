@@ -25,6 +25,7 @@ const SlidePresentation: React.FC<
 	children,
 	presentationProgress,
 	presentationDirection,
+	_remotionInternalIsActive = true,
 	passedProps: {direction = 'from-left', enterStyle, exitStyle},
 }) => {
 	const directionStyle = useMemo((): React.CSSProperties => {
@@ -96,7 +97,10 @@ const SlidePresentation: React.FC<
 	}, [directionStyle, enterStyle, exitStyle, presentationDirection]);
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={style}>
+		<AbsoluteFill
+			showInTimeline={false}
+			style={_remotionInternalIsActive ? style : {display: 'contents'}}
+		>
 			{children}
 		</AbsoluteFill>
 	);
@@ -110,6 +114,7 @@ export const slide = (
 	props?: SlideProps,
 ): TransitionPresentation<SlideProps> => {
 	return {
+		_remotionInternalSupportsInactive: true,
 		component: SlidePresentation,
 		props: props ?? {},
 	};

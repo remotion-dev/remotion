@@ -24,6 +24,7 @@ const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
 	children,
 	presentationDirection,
 	presentationProgress,
+	_remotionInternalIsActive = true,
 	passedProps: {
 		direction = 'from-left',
 		perspective = 1000,
@@ -79,8 +80,14 @@ const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
 	}, [outerEnterStyle, outerExitStyle, perspective, presentationDirection]);
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={outer}>
-			<AbsoluteFill showInTimeline={false} style={style}>
+		<AbsoluteFill
+			showInTimeline={false}
+			style={_remotionInternalIsActive ? outer : {display: 'contents'}}
+		>
+			<AbsoluteFill
+				showInTimeline={false}
+				style={_remotionInternalIsActive ? style : {display: 'contents'}}
+			>
 				{children}
 			</AbsoluteFill>
 		</AbsoluteFill>
@@ -92,5 +99,9 @@ const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
  */
 
 export const flip = (props?: FlipProps): TransitionPresentation<FlipProps> => {
-	return {component: Flip, props: props ?? {}};
+	return {
+		_remotionInternalSupportsInactive: true,
+		component: Flip,
+		props: props ?? {},
+	};
 };

@@ -18,7 +18,13 @@ export type IrisProps = {
 
 const IrisPresentation: React.FC<
 	TransitionPresentationComponentProps<IrisProps>
-> = ({children, presentationDirection, presentationProgress, passedProps}) => {
+> = ({
+	children,
+	presentationDirection,
+	presentationProgress,
+	passedProps,
+	_remotionInternalIsActive = true,
+}) => {
 	const maxRadius =
 		Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2;
 
@@ -68,8 +74,14 @@ const IrisPresentation: React.FC<
 	]);
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={outerStyle}>
-			<AbsoluteFill showInTimeline={false} style={style}>
+		<AbsoluteFill
+			showInTimeline={false}
+			style={_remotionInternalIsActive ? outerStyle : {display: 'contents'}}
+		>
+			<AbsoluteFill
+				showInTimeline={false}
+				style={_remotionInternalIsActive ? style : {display: 'contents'}}
+			>
 				{children}
 			</AbsoluteFill>
 		</AbsoluteFill>
@@ -81,5 +93,9 @@ const IrisPresentation: React.FC<
  * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/iris)
  */
 export const iris = (props: IrisProps): TransitionPresentation<IrisProps> => {
-	return {component: IrisPresentation, props: props ?? {}};
+	return {
+		_remotionInternalSupportsInactive: true,
+		component: IrisPresentation,
+		props: props ?? {},
+	};
 };

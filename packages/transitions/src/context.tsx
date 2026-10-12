@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 
 type EnteringState = {
 	enteringProgress: number;
@@ -12,14 +12,17 @@ export const EnteringContext = React.createContext<EnteringState | null>(null);
 export const ExitingContext = React.createContext<ExitingState | null>(null);
 
 export const WrapInEnteringProgressContext: React.FC<{
-	readonly presentationProgress: number;
+	readonly presentationProgress: number | null;
 	readonly children: React.ReactNode;
 }> = ({presentationProgress, children}) => {
-	const value: EnteringState = useMemo(() => {
-		return {
-			enteringProgress: presentationProgress,
-		};
-	}, [presentationProgress]);
+	const inheritedValue = useContext(EnteringContext);
+	const value: EnteringState | null = useMemo(() => {
+		return presentationProgress === null
+			? inheritedValue
+			: {
+					enteringProgress: presentationProgress,
+				};
+	}, [inheritedValue, presentationProgress]);
 
 	return (
 		<EnteringContext.Provider value={value}>
@@ -29,14 +32,17 @@ export const WrapInEnteringProgressContext: React.FC<{
 };
 
 export const WrapInExitingProgressContext: React.FC<{
-	readonly presentationProgress: number;
+	readonly presentationProgress: number | null;
 	readonly children: React.ReactNode;
 }> = ({presentationProgress, children}) => {
-	const value: ExitingState = useMemo(() => {
-		return {
-			exitingProgress: presentationProgress,
-		};
-	}, [presentationProgress]);
+	const inheritedValue = useContext(ExitingContext);
+	const value: ExitingState | null = useMemo(() => {
+		return presentationProgress === null
+			? inheritedValue
+			: {
+					exitingProgress: presentationProgress,
+				};
+	}, [inheritedValue, presentationProgress]);
 
 	return (
 		<ExitingContext.Provider value={value}>{children}</ExitingContext.Provider>
