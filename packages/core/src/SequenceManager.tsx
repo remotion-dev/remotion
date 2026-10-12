@@ -198,10 +198,10 @@ export type CanUpdateSequencePropsResponseTrue<Numeric = SourceNumericValue> = {
 	props: Record<string, CanUpdateSequencePropStatus<Numeric>>;
 	effects: CanUpdateEffectPropsResponse<Numeric>[];
 	/** Source ranges also include interpolations outside the editable schema. */
-	durationDependentKeyframes?: {
+	durationDependentKeyframes: {
 		readonly scope: SequenceNodePath;
 		readonly inputRanges: readonly (readonly SourceNumericValue[] | null)[];
-	};
+	} | null;
 };
 
 export type CanUpdateSequencePropsResponseFalse = {

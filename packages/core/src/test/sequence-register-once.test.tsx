@@ -761,6 +761,7 @@ test('Series.Sequence timing overrides cascade to later sequences', async () => 
 		},
 		propStatuses: {
 			[subscriptionKey]: {
+				durationDependentKeyframes: null,
 				canUpdate: true as const,
 				props: {
 					durationInFrames: {
@@ -1686,6 +1687,7 @@ test('Imperative sequence refs update without rerendering ref-only consumers', a
 		React.useEffect(() => {
 			registerSequence({id: 'imperative-sequence'} as TSequence);
 			setPropStatuses(nodePath, () => ({
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props: {},
 				effects: [],

@@ -97,7 +97,7 @@ export const getKeyframeDurationLimits = ({
 		const constraints = status?.canUpdate
 			? status.durationDependentKeyframes
 			: null;
-		if (!constraints) continue;
+		if (constraints === null) continue;
 
 		// A hook in the render function reads the context outside its outermost
 		// JSX element. Nested JSX sequences do not change that hook's clock.
