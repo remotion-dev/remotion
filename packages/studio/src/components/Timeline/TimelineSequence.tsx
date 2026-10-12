@@ -88,6 +88,7 @@ import {
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
+import {TimelineLayerFrameNumbersContext} from './TimelineLayerFrameNumbersProvider';
 import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
 import {
 	getTimelineColor,
@@ -391,6 +392,7 @@ const TimelineSequenceBar: React.FC<{
 	onClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const {showLayerFrameNumbers} = useContext(TimelineLayerFrameNumbersContext);
 	const sceneRange = useContext(TimelineSceneRangeContext);
 	const timelineWidth = useContext(TimelineWidthContext);
 	const video = Internals.useUnsafeVideoConfig();
@@ -608,7 +610,8 @@ const TimelineSequenceBar: React.FC<{
 				</div>
 			) : null}
 
-			{!hasCaptionsSchema &&
+			{showLayerFrameNumbers &&
+			!hasCaptionsSchema &&
 			!s.timelineTrack &&
 			s.type !== 'audio' &&
 			s.type !== 'video' &&
