@@ -309,7 +309,7 @@ If `layout` is set to `none`, there is no container and setting this style is no
 ### `premountFor?`<AvailableFrom v="4.0.140" />
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
-The default is `2` seconds in the [Studio](/docs/player/premounting#default-premounting-in-studio) and `0` seconds in the [Player](/docs/player/premounting#default-premounting-in-the-player), converted to frames. An explicit `premountFor` takes precedence.
+The [Studio default](/docs/player/premounting#default-premounting-in-studio) is `2` seconds starting in v4.0.535. The general default, used by the [Player](/docs/player/premounting#default-premounting-in-the-player), is `0` seconds in v4 and `2` seconds in [v5](/docs/5-0-migration#default-premount-duration-is-now-2-seconds). Seconds are converted to frames. An explicit `premountFor` takes precedence.
 
 ### `postmountFor?`<AvailableFrom v="4.0.340" />
 
