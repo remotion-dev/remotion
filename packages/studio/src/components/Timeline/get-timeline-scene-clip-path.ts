@@ -1,12 +1,15 @@
 import type {TimelineSceneRange} from './timeline-series-layout';
 
+// Child rows can have different media heights, but their seams must meet.
+export const TIMELINE_CHILD_TRANSITION_SEAM_Y = 7;
+
 type TimelineSceneClipOptions = {
 	readonly sceneRange: TimelineSceneRange | null;
 	readonly durationInFrames: number;
 	readonly offsetInFrames: number;
 	readonly pixelsPerFrame: number;
 	readonly height: number;
-	readonly seamFraction: number;
+	readonly seamY: number;
 	readonly cropHeight: number | null;
 };
 
@@ -16,7 +19,7 @@ export const getTimelineSceneShape = ({
 	offsetInFrames,
 	pixelsPerFrame,
 	height,
-	seamFraction,
+	seamY,
 	cropHeight,
 }: TimelineSceneClipOptions): {
 	readonly clipPath: string;
@@ -41,7 +44,7 @@ export const getTimelineSceneShape = ({
 		};
 	}
 
-	const middle = (Math.round(height * seamFraction) / height) * 100;
+	const middle = (Math.min(height, Math.round(seamY)) / height) * 100;
 	const outgoingInset =
 		sceneRange.transitionOutStart === null ? 0 : 1 / pixelsPerFrame;
 	const outgoingMiddle =

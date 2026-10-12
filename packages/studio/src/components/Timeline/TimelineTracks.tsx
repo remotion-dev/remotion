@@ -1,7 +1,10 @@
 import React, {useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {getTimelineSceneClipPath} from './get-timeline-scene-clip-path';
+import {
+	getTimelineSceneClipPath,
+	TIMELINE_CHILD_TRANSITION_SEAM_Y,
+} from './get-timeline-scene-clip-path';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
@@ -141,7 +144,7 @@ const TimelineTracksInner: React.FC<{
 													(windowWidth - TIMELINE_PADDING * 2) /
 													video.durationInFrames,
 												height: virtualItem.size,
-												seamFraction: 0.3,
+												seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
 												cropHeight: null,
 											})
 										: undefined,

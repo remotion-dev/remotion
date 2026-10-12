@@ -76,6 +76,7 @@ import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {
 	getTimelineSceneClipPath,
 	getTimelineSceneShape,
+	TIMELINE_CHILD_TRANSITION_SEAM_Y,
 } from './get-timeline-scene-clip-path';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
@@ -556,7 +557,10 @@ const TimelineSequenceBar: React.FC<{
 				s.timelineTrack?.role === 'clip'
 					? Number(style.height)
 					: (sceneClipHeight ?? Number(style.height)),
-			seamFraction: s.timelineTrack?.role === 'clip' ? 0.5 : 0.3,
+			seamY:
+				s.timelineTrack?.role === 'clip'
+					? Number(style.height) / 2
+					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
 			cropHeight: Number(style.height),
 		});
 	}, [
@@ -586,7 +590,10 @@ const TimelineSequenceBar: React.FC<{
 				s.timelineTrack?.role === 'clip'
 					? Number(style.height)
 					: (sceneClipHeight ?? Number(style.height)),
-			seamFraction: s.timelineTrack?.role === 'clip' ? 0.5 : 0.3,
+			seamY:
+				s.timelineTrack?.role === 'clip'
+					? Number(style.height) / 2
+					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
 			cropHeight: Number(style.height),
 		});
 	}, [
@@ -621,7 +628,7 @@ const TimelineSequenceBar: React.FC<{
 							durationInFrames: Number(style.width) / frameIncrement,
 							pixelsPerFrame: frameIncrement,
 							height: Number(style.height),
-							seamFraction: 0.5,
+							seamY: Number(style.height) / 2,
 							cropHeight: null,
 						})
 					: undefined,
