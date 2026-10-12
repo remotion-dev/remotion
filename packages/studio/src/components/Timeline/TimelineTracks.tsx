@@ -1,4 +1,4 @@
-import React, {useContext, useImperativeHandle, useMemo, useState} from 'react';
+import React, {useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {getTimelineSceneMask} from './get-timeline-scene-mask';
@@ -6,8 +6,8 @@ import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
-import {TimelinePremountPortalContext} from './TimelinePremountPortalContext';
 import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {TimelineSelectedPremounts} from './TimelineSelectedPremounts';
 import {TimelineTrack} from './TimelineTrack';
 import {TimelineViewportContext} from './TimelineViewport';
 import {useTimelineVirtualization} from './TimelineVirtualization';
@@ -30,48 +30,10 @@ const TimelineSceneTrackContent: React.FC<{
 	readonly sceneRange: TimelineSceneRange;
 }> = React.memo(({children, sceneRange}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
-	const video = Internals.useUnsafeVideoConfig();
-	const [premountContainer, setPremountContainer] =
-		useState<HTMLDivElement | null>(null);
-	const premountPortal = useMemo(() => {
-		return premountContainer === null
-			? null
-			: {container: premountContainer, top: 0};
-	}, [premountContainer]);
-	const clippedStyle = useMemo((): React.CSSProperties => {
-		return {
-			pointerEvents: 'auto',
-			// Keep scene content clipped while selected premount strips
-			// can extend into the preceding scene through the portal.
-			maskImage: video
-				? getTimelineSceneMask({
-						sceneRange,
-						durationInFrames: video.durationInFrames,
-						offsetInFrames: 0,
-					})
-				: undefined,
-			clipPath: video
-				? `inset(0 ${Math.max(0, 100 - (sceneRange.end / video.durationInFrames) * 100)}% 0 ${Math.max(0, (sceneRange.from / video.durationInFrames) * 100)}%)`
-				: undefined,
-		};
-	}, [sceneRange, video]);
 	const active = frame >= sceneRange.from && frame < sceneRange.end;
 	return (
 		<TimelineSceneRangeContext.Provider value={sceneRange}>
-			<TimelinePremountPortalContext.Provider value={premountPortal}>
-				<div style={{opacity: active ? 1 : 0.5}}>
-					<div style={clippedStyle}>{children}</div>
-					<div
-						ref={setPremountContainer}
-						style={{
-							position: 'absolute',
-							inset: 0,
-							pointerEvents: 'none',
-							zIndex: 1,
-						}}
-					/>
-				</div>
-			</TimelinePremountPortalContext.Provider>
+			<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
 		</TimelineSceneRangeContext.Provider>
 	);
 });
@@ -80,6 +42,7 @@ const TimelineTracksInner: React.FC<{
 	readonly hasBeenCut: boolean;
 }> = ({hasBeenCut}) => {
 	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
+	const video = Internals.useUnsafeVideoConfig();
 	const windowWidth = useContext(TimelineWidthContext);
 	const renderWindow = useContext(TimelineViewportContext);
 	useImperativeHandle(timelineDurationRef, () => ({
@@ -163,7 +126,18 @@ const TimelineTracksInner: React.FC<{
 										? windowWidth - TIMELINE_PADDING * 2
 										: undefined,
 								top: virtualItem.start,
-								pointerEvents: sceneRange === null ? undefined : 'none',
+								// Fade the shared rows on either side of the transition midpoint.
+								maskImage: video
+									? getTimelineSceneMask({
+											sceneRange,
+											durationInFrames: video.durationInFrames,
+											offsetInFrames: 0,
+										})
+									: undefined,
+								clipPath:
+									sceneRange === null || !video
+										? undefined
+										: `inset(0 ${Math.max(0, 100 - (sceneRange.end / video.durationInFrames) * 100)}% 0 ${Math.max(0, (sceneRange.from / video.durationInFrames) * 100)}%)`,
 							}}
 						>
 							{sceneRange === null ? (
@@ -176,6 +150,7 @@ const TimelineTracksInner: React.FC<{
 						</div>
 					);
 				})}
+				<TimelineSelectedPremounts />
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
 		</div>

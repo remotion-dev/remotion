@@ -7,7 +7,6 @@ import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
-import {TimelinePremountPortalContext} from './TimelinePremountPortalContext';
 import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
 import {TimelineSequence} from './TimelineSequence';
 import {useSeriesReorder} from './use-series-reorder';
@@ -23,7 +22,6 @@ export const TimelinePackedTrack: React.FC<{
 	readonly auxiliaryRows: readonly (readonly TimelineTrackWithDisplayGroup[])[];
 }> = ({track, items, auxiliaryRows, auxiliaryRowOffsets}) => {
 	const parentSceneRange = useContext(TimelineSceneRangeContext);
-	const premountPortal = useContext(TimelinePremountPortalContext);
 	const {dropIndicatorLeft, onClickCapture, onPointerDownCapture} =
 		useSeriesReorder(items);
 	const rows = useMemo(() => {
@@ -33,20 +31,13 @@ export const TimelinePackedTrack: React.FC<{
 		const transitions = items.filter(
 			(item) => item.sequence.timelineTrack?.role === 'transition',
 		);
-		return [[...clips, ...transitions], ...auxiliaryRows].map((row, index) => {
-			const top = index === 0 ? 0 : auxiliaryRowOffsets[index - 1];
-			return {
-				items: row,
-				top,
-				height:
-					index === 0 ? primaryRowHeight : TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
-				premountPortal:
-					premountPortal === null
-						? null
-						: {...premountPortal, top: premountPortal.top + top},
-			};
-		});
-	}, [auxiliaryRows, auxiliaryRowOffsets, items, premountPortal]);
+		return [[...clips, ...transitions], ...auxiliaryRows].map((row, index) => ({
+			items: row,
+			top: index === 0 ? 0 : auxiliaryRowOffsets[index - 1],
+			height:
+				index === 0 ? primaryRowHeight : TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+		}));
+	}, [auxiliaryRows, auxiliaryRowOffsets, items]);
 
 	return (
 		<div
@@ -125,25 +116,21 @@ export const TimelinePackedTrack: React.FC<{
 								height: row.height - TIMELINE_ITEM_BORDER_BOTTOM,
 							}}
 						>
-							<TimelinePremountPortalContext.Provider
-								value={row.premountPortal}
-							>
-								<TimelineSequence
-									s={item.sequence}
-									labelStartFrame={null}
-									cascadedStart={item.cascadedStart}
-									localStart={item.localStart}
-									parentVisibleStart={item.parentVisibleStart}
-									parentVisibleEnd={item.parentVisibleEnd}
-									connectedCompositions={
-										item.connectedCompositions ?? noConnectedCompositions
-									}
-									nodePathInfo={item.nodePathInfo}
-									keyframeDisplayOffset={item.keyframeDisplayOffset}
-									keyframePlaybackRate={item.keyframePlaybackRate}
-									sequenceFrameOffset={item.sequenceFrameOffset}
-								/>
-							</TimelinePremountPortalContext.Provider>
+							<TimelineSequence
+								s={item.sequence}
+								labelStartFrame={null}
+								cascadedStart={item.cascadedStart}
+								localStart={item.localStart}
+								parentVisibleStart={item.parentVisibleStart}
+								parentVisibleEnd={item.parentVisibleEnd}
+								connectedCompositions={
+									item.connectedCompositions ?? noConnectedCompositions
+								}
+								nodePathInfo={item.nodePathInfo}
+								keyframeDisplayOffset={item.keyframeDisplayOffset}
+								keyframePlaybackRate={item.keyframePlaybackRate}
+								sequenceFrameOffset={item.sequenceFrameOffset}
+							/>
 						</div>
 					</TimelineSceneRangeContext.Provider>
 				)),
