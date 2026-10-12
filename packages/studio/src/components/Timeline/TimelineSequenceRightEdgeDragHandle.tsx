@@ -1945,6 +1945,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly touchingPrevious: boolean;
 	readonly onHoverEnd: () => void;
 	readonly secondaryAction: 'source-only' | 'self-trim' | null;
+	readonly transitionEndOffset: number | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
@@ -1972,6 +1973,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	touchingPrevious,
 	onHoverEnd,
 	secondaryAction,
+	transitionEndOffset,
 	nodePathInfo,
 	windowWidth,
 	timelineDurationInFrames,
@@ -2199,7 +2201,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const handleRect = captureTarget.getBoundingClientRect();
 			const initialEdgeClientX = fillTarget
 				? handleRect.left + handleRect.width / 2
-				: captureTarget.parentElement!.getBoundingClientRect().left;
+				: captureTarget.parentElement!.getBoundingClientRect().left +
+					(mode === 'source-only' ? (transitionEndOffset ?? 0) : 0);
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
@@ -2626,6 +2629,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			windowWidth,
 			fillTarget,
 			isTransitionSeries,
+			transitionEndOffset,
 		],
 	);
 
@@ -2667,16 +2671,25 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const trimBeforeStyle: React.CSSProperties = {
 		...baseStyle,
 		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		left: edgeEnabled
-			? rollingEnabled
-				? edgeMode === 'rolling'
-					? 'min(6px, 12.5%)'
-					: 'calc(min(2px, 12.5%) + min(10px, 12.5%))'
-				: touchingPrevious
+		// Keep the incoming source trim inside the solid clip, beyond the overlap.
+		left:
+			transitionEndOffset !== null && secondaryAction === 'source-only'
+				? transitionEndOffset + HANDLE_INSET
+				: edgeEnabled
+					? rollingEnabled
+						? edgeMode === 'rolling'
+							? 'min(6px, 12.5%)'
+							: 'calc(min(2px, 12.5%) + min(10px, 12.5%))'
+						: touchingPrevious
+							? 'min(10px, 12.5%)'
+							: 'min(4px, 12.5%)'
+					: 0,
+		width:
+			transitionEndOffset !== null
+				? 10
+				: edgeEnabled
 					? 'min(10px, 12.5%)'
-					: 'min(4px, 12.5%)'
-			: 0,
-		width: edgeEnabled ? 'min(10px, 12.5%)' : 'min(14px, 25%)',
+					: 'min(14px, 25%)',
 		cursor:
 			secondaryAction === 'source-only' ? sourceOnlyCursor : trimBeforeCursor,
 		background: TRANSPARENT,

@@ -2116,6 +2116,15 @@ const TimelineSequenceLayoutInner: React.FC<{
 			? Math.round(outgoingTransitionStart * frameIncrement) -
 				visibleLayout.marginLeft
 			: null;
+	const incomingTransitionEnd = isTransitionSeriesSequence(s)
+		? (sceneRange?.transitionInEnd ?? null)
+		: null;
+	const transitionEndOffset =
+		incomingTransitionEnd !== null && visibleLayout?.media
+			? Math.round(incomingTransitionEnd * frameIncrement) -
+				visibleLayout.marginLeft -
+				visibleLayout.media.left
+			: null;
 	const rightTrimHandleVisible =
 		transitionStartOffset !== null
 			? transitionStartOffset >= 0 &&
@@ -2356,7 +2365,9 @@ const TimelineSequenceLayoutInner: React.FC<{
 		validatedLocation !== null &&
 		trimBeforeCanUpdate &&
 		(isMedia || durationCanUpdate) &&
-		(visibleLayout?.media?.width ?? 0) >= MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH;
+		(transitionEndOffset === null || transitionEndOffset >= 0) &&
+		(visibleLayout?.media?.width ?? 0) - (transitionEndOffset ?? 0) >=
+			MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH;
 	const secondaryLeftEdgeAction = canShowSecondaryLeftEdgeAction
 		? isMedia || isTransitionSeriesSequence(s)
 			? 'source-only'
@@ -2434,7 +2445,9 @@ const TimelineSequenceLayoutInner: React.FC<{
 						secondaryLeftEdgeAction ||
 						(s.timelineTrack?.role === 'transition' && rollingEnabled)) &&
 					(s.timelineTrack?.role === 'transition' ||
-						visibleLayout.media?.offset === 0) &&
+						visibleLayout.media?.offset === 0 ||
+						(secondaryLeftEdgeAction !== null &&
+							transitionEndOffset !== null)) &&
 					// Keep the captured handle mounted when a trim crosses frame zero.
 					(negativeStartWidth === 0 || activeTrimEdge === 'left') &&
 					nodePathInfo &&
@@ -2463,7 +2476,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 								sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
 								edgeEnabled={
 									s.timelineTrack?.role !== 'transition' &&
-									showLeftEdgeDragHandle
+									showLeftEdgeDragHandle &&
+									visibleLayout.media?.offset === 0
 								}
 								edgeMode={
 									isTransitionSeriesSequence(s) && rollingEnabled
@@ -2490,6 +2504,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 								touchingPrevious={previousTouchingSequence !== null}
 								onHoverEnd={clearEdgeHighlight}
 								secondaryAction={secondaryLeftEdgeAction}
+								transitionEndOffset={transitionEndOffset}
 								nodePathInfo={nodePathInfo}
 								windowWidth={windowWidth}
 								timelineDurationInFrames={video.durationInFrames ?? 1}
