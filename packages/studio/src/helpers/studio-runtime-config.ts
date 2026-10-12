@@ -73,7 +73,7 @@ export const getStudioShowPremounting = () => {
 };
 
 export const getStudioShowLayerFrameNumbers = () => {
-	return getStudioRuntimeConfig().showLayerFrameNumbers ?? false;
+	return getStudioRuntimeConfig().showLayerFrameNumbers;
 };
 
 export const getStudioSequenceActivitySettings = () => {
