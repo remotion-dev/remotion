@@ -35,7 +35,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   codec: 'h264',
   imageFormat: 'jpeg',
   maxRetries: 1,
-  privacy: 'public',
+  privacy: 'no-acl',
   outName: {
     key: 'my-output',
     bucketName: 'output-bucket',
@@ -45,15 +45,22 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 
 If you like to use this feature:
 
-- You must extend the [default Remotion role policy](/docs/lambda/permissions) (not user policy) to allow read and write access to that bucket.
+- You must extend the [default Remotion role policy](/docs/lambda/permissions) (not user policy) to allow `s3:PutObject` on the destination bucket's objects. See the [policy example](/docs/lambda/without-iam#render-into-a-different-bucket).
+- If you set `privacy` to `"public"` or `"private"`, also grant `s3:PutObjectAcl` on the destination bucket's objects.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
 - The `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`
 - The bucketName must match `/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/`.
 
-With `overwrite: false`, the final conditional upload still prevents replacing an existing object if the output existence check cannot read the destination. If this check reports access denied, launch continues only for a destination that supports conditional output. Progress recovery also treats this output check as optional; the stored render progress remains authoritative. Other errors are still reported.
-
 This feature is not supported from the CLI.
+
+### Write-only AWS S3 buckets<AvailableFrom v="4.0.535" />
+
+For [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), `s3:PutObject` is sufficient on the destination bucket when using `privacy: "no-acl"` and the Lambda execution role's credentials (without `s3OutputProvider`). With `overwrite: false`, the final upload prevents replacing an existing object even if Remotion cannot read the destination. A conflict is then reported after rendering, when the upload is attempted.
+
+Optionally grant `s3:GetObject` on `arn:aws:s3:::{bucketname}/*` and `s3:ListBucket` on `arn:aws:s3:::{bucketname}`. These permissions allow Remotion to detect existing output before rendering and recover completion by checking the output if the final progress update is missing. For compatibility with earlier Remotion versions, grant both permissions.
+
+When using `s3OutputProvider` with `overwrite: false`, read access is required because conditional uploads are not supported for these destinations.
 
 ## Saving to another cloud<AvailableFrom v="3.2.23" />
 
