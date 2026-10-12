@@ -2599,7 +2599,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		width:
 			rollingEnabled || touchingPrevious
 				? 'min(10px, 12.5%)'
-				: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${LEFT_EDGE_HANDLE_INSET}px, 12.5%))`,
+				: edgeMode === 'source-only'
+					? `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(14px, 25%))`
+					: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${LEFT_EDGE_HANDLE_INSET}px, 12.5%))`,
 		cursor:
 			edgeMode === 'ripple'
 				? cursor

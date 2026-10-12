@@ -511,6 +511,14 @@ const TimelineSequenceBar: React.FC<{
 		labelLeft = Math.max(labelLeft, afterTransition - Number(style.marginLeft));
 	}
 
+	if (isPackedClip && inheritedSceneRange !== null && frameIncrement !== null) {
+		const inheritedLeft =
+			Math.round(inheritedSceneRange.from * frameIncrement) +
+			Number(inheritedSceneRange.transitionInEnd !== null) -
+			Number(style.marginLeft);
+		labelLeft = Math.max(labelLeft, Math.max(0, inheritedLeft) + 4);
+	}
+
 	const labelEndFrame = Math.min(
 		sceneRange?.transitionOutStart ?? Infinity,
 		inheritedSceneRange?.transitionOutStart ?? Infinity,
