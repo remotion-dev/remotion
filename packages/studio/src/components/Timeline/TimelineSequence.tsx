@@ -505,17 +505,6 @@ const TimelineSequenceBar: React.FC<{
 		labelLeft = Math.max(labelLeft, afterTransition - Number(style.marginLeft));
 	}
 
-	const labelRight =
-		s.timelineTrack?.role === 'clip' &&
-		sceneRange !== null &&
-		sceneRange.transitionOutStart !== null &&
-		frameIncrement !== null
-			? Math.min(
-					Number(style.width),
-					sceneRange.transitionOutStart * frameIncrement -
-						Number(style.marginLeft),
-				)
-			: Number(style.width);
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
 	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
 	// Shared child rows need the same gap as Track clips, including when the
@@ -674,12 +663,13 @@ const TimelineSequenceBar: React.FC<{
 
 			{(s.timelineTrack || hasCaptionsSchema) &&
 			!isTransition &&
-			labelRight > labelLeft ? (
+			Number(style.width) > labelLeft ? (
 				<div
 					style={{
 						position: 'absolute',
 						left: labelLeft,
-						right: Math.max(0, Number(style.width) - labelRight),
+						// The containing scene clips the label along the transition diagonal.
+						right: 0,
 						bottom: PACKED_LABEL_BOTTOM,
 						display: 'flex',
 						flexDirection: labelFollowsTransitionMarker ? 'row' : 'column',
