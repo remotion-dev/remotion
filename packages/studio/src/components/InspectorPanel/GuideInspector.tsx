@@ -4,6 +4,7 @@ import {
 	EditorShowGuidesContext,
 	persistGuidesList,
 } from '../../state/editor-guides';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {InputDragger} from '../NewComposition/InputDragger';
 import type {TimelineSelection} from '../Timeline/TimelineSelection';
 import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
@@ -79,7 +80,7 @@ export const GuideInspector: React.FC<{
 	}
 
 	return (
-		<div style={selectedContainer}>
+		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<CollapsibleInspectorSection
 				collapsible
 				label={`${guide.orientation === 'vertical' ? 'Vertical' : 'Horizontal'} guide`}

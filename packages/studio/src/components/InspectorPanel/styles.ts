@@ -119,6 +119,8 @@ export const selectedContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	flex: 1,
 	minHeight: 0,
+	overflowX: 'hidden',
+	overflowY: 'auto',
 };
 
 export const centeredMessage: React.CSSProperties = {

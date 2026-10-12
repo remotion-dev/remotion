@@ -1,6 +1,5 @@
 import React, {useLayoutEffect, useRef, useState} from 'react';
 import {startSlideViewTransition} from '../../helpers/slide-view-transition';
-import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
@@ -10,20 +9,8 @@ import {EasingInspector} from './EasingInspector';
 import {GuideInspector} from './GuideInspector';
 import {isSequenceSectionSelection} from './inspector-selection';
 import {KeyframeInspector} from './KeyframeInspector';
-import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {SequenceSelectionInspector} from './SequenceSelectionInspector';
-import {scrollableContainer} from './styles';
-import {useTrackForSelection} from './use-track-for-selection';
-
-const headerStyle: React.CSSProperties = {
-	flexShrink: 0,
-};
-
-const contentStyle: React.CSSProperties = {
-	display: 'flex',
-	flex: '1 0 auto',
-	flexDirection: 'column',
-};
+import {container} from './styles';
 
 const SelectedInspectorContent: React.FC<{
 	readonly selection: TimelineSelection;
@@ -60,7 +47,6 @@ export const SelectedInspector: React.FC<{
 	const [displayedSelection, setDisplayedSelection] = useState(selection);
 	const displayedSelectionRef = useRef(selection);
 	const panelRef = useRef<HTMLDivElement>(null);
-	const track = useTrackForSelection(displayedSelection);
 
 	useLayoutEffect(() => {
 		const previous = displayedSelectionRef.current;
@@ -106,25 +92,11 @@ export const SelectedInspector: React.FC<{
 	}, [selection]);
 
 	return (
-		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			{track === null ? null : (
-				<div style={headerStyle}>
-					<SequenceInspectorSections
-						key={
-							track.nodePathInfo
-								? getTimelineSequenceSelectionKey(track.nodePathInfo)
-								: track.sequence.id
-						}
-						track={track}
-					/>
-				</div>
-			)}
-			<div ref={panelRef} style={contentStyle}>
-				<SelectedInspectorContent
-					selection={displayedSelection}
-					readOnlyStudio={readOnlyStudio}
-				/>
-			</div>
+		<div ref={panelRef} style={container}>
+			<SelectedInspectorContent
+				selection={displayedSelection}
+				readOnlyStudio={readOnlyStudio}
+			/>
 		</div>
 	);
 };

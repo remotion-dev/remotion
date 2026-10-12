@@ -17,6 +17,7 @@ import {
 	hasSequenceControls,
 	InspectorSequenceSection,
 } from '../InspectorSequenceSection';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {getMediaFileName} from '../public-output-name';
 import {splitVideoFromAudio} from '../split-video-from-audio-api';
@@ -43,7 +44,10 @@ import {
 	largeInspectorActionIconStyle,
 } from './common';
 import type {SequenceSectionSelection} from './inspector-selection';
-import {useSequenceInspectorSourceLocation} from './SequenceInspectorHeader';
+import {
+	SequenceInspectorSections,
+	useSequenceInspectorSourceLocation,
+} from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
@@ -454,8 +458,10 @@ const SequenceExpandedInspector: React.FC<{
 	return (
 		<div
 			style={selectedContainer}
+			className={VERTICAL_SCROLLBAR_CLASSNAME}
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
+			<SequenceInspectorSections track={track} />
 			{validatedLocation ? (
 				<>
 					<InspectorSequenceSection
