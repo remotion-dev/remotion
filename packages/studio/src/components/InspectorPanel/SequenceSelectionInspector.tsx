@@ -246,9 +246,13 @@ const SequenceSourceQuickActions: React.FC<{
 	}, [deleteTimelineItems, selection, sourceActionsDisabled]);
 	const splitVideoFromAudioDisabledReason = sourceActionsDisabled
 		? 'Studio is read-only'
-		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
-			? 'Programmatically duplicated sequences cannot be split from source'
-			: undefined;
+		: mediaMetadata?.hasAudioTrack !== true
+			? mediaMetadata?.hasAudioTrack === false
+				? 'This video has no audio track'
+				: 'Waiting for audio track metadata'
+			: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
+				? 'Programmatically duplicated sequences cannot be split from source'
+				: undefined;
 	const onSplitVideoFromAudio = useCallback(() => {
 		if (splitVideoFromAudioDisabledReason !== undefined) {
 			return;
