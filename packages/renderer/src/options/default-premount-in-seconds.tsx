@@ -13,11 +13,7 @@ export const defaultPremountInSecondsOption = {
 		<>
 			Set the default premount duration in seconds for timed components in the
 			Studio. Defaults to 2. Before v4.0.535, there was no premounting by
-			default. Must be a finite, non-negative number. The duration is converted
-			to frames using the composition FPS and rounded to the nearest frame. An
-			explicit <code>premountFor</code> prop takes precedence. Does not affect
-			rendering. In the Player, use the <code>defaultPremountInSeconds</code>{' '}
-			prop instead.
+			default.
 		</>
 	),
 	ssrName: null,
