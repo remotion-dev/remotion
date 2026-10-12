@@ -12,9 +12,7 @@ export const showPremountingOption = {
 	description: () => (
 		<>
 			Show premounting indicators for components on separate Studio timeline
-			rows. Defaults to <code>false</code>. Selecting a component&apos;s
-			&quot;Premount For&quot; property shows its premounted range regardless of
-			this setting.
+			rows. Defaults to <code>false</code>.
 		</>
 	),
 	ssrName: null,
