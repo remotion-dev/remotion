@@ -841,7 +841,7 @@ const TimelineSequenceBar: React.FC<{
 							top: transitionVerticalInset,
 							width: transitionBounds.width,
 							height: transitionHeight,
-							borderRadius: 4,
+							borderRadius: '4px 0 4px 0',
 							background: TIMELINE_BACKGROUND_COLOR,
 							pointerEvents: 'auto',
 							cursor: 'default',
