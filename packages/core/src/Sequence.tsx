@@ -839,12 +839,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				}
 			: null,
 	);
-	// Admission reflects the previous commit. A timing edit can trim an admitted
-	// sequence to zero before the activity budget publishes its next selection.
-	const renderActivity =
-		activityEnabled &&
-		actualDurationInFrames > 0 &&
-		(!activityDormant || admitted);
+	const renderActivity = activityEnabled && (!activityDormant || admitted);
 	const content = (activityEnabled ? renderActivity : contentVisible)
 		? children
 		: null;
