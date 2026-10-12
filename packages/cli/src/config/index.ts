@@ -686,12 +686,12 @@ type FlatConfig = RemotionConfigObject &
 		setDefaultEditor: (editor: DefaultEditor) => void;
 		/**
 		 * Set the default premount duration in seconds in Remotion Studio.
-		 * Default: 0 in v4, 2 in v5.
+		 * Default: 2.
 		 */
 		setDefaultPremountInSeconds: (seconds: number) => void;
 		/**
 		 * Show premounting indicators in the Studio timeline.
-		 * @default true
+		 * @default false
 		 */
 		setShowPremounting: (show: boolean) => void;
 		/**

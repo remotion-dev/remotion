@@ -328,7 +328,7 @@ export const StudioSettings: React.FC = () => {
 				<div style={label}>Show premounting in timeline</div>
 				<div style={rightRow}>
 					<Checkbox
-						checked={settings.showPremounting ?? true}
+						checked={settings.showPremounting ?? false}
 						name="Show premounting in timeline"
 						onChange={(event) =>
 							changeSetting(
@@ -427,7 +427,7 @@ export const StudioSettings: React.FC = () => {
 
 			<p style={sectionTitle}>Playback</p>
 			<ConfigNumber
-				defaultValue={NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS}
+				defaultValue={NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS}
 				name="Default premount in seconds"
 				step={0.1}
 				onChange={(value) =>

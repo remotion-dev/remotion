@@ -95,6 +95,7 @@ import {
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
+	useIsPremountingSelected,
 	useTimelineMarqueeSelectableItem,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
@@ -989,7 +990,11 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		)?.durationInFrames?.status === 'static',
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const showPremounting = getStudioShowPremounting();
+	const showPremountingSetting = getStudioShowPremounting();
+	const premountSelected = useIsPremountingSelected(
+		showPremountingSetting ? null : nodePathInfo,
+	);
+	const showPremounting = showPremountingSetting || premountSelected;
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
