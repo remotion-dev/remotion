@@ -45,7 +45,6 @@ const {
 	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalTracksOption,
 	experimentalSequenceActivityOption,
 	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
@@ -192,9 +191,6 @@ export const studioCommand = async (
 				experimentalSequenceActivityLimitOption.getValue({
 					commandLine: parsedCli,
 				}).value,
-			experimentalTracksEnabled: experimentalTracksOption.getValue({
-				commandLine: parsedCli,
-			}).value,
 			interactivityEnabled: interactivityOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -224,7 +220,6 @@ export const studioCommand = async (
 				beepOnFinish: beepOnFinishOption.getConfigValue(),
 				enableCrossSiteIsolation:
 					enableCrossSiteIsolationOption.getConfigValue(),
-				experimentalTracksEnabled: experimentalTracksOption.getConfigValue(),
 				experimentalSequenceActivityEnabled:
 					experimentalSequenceActivityOption.getConfigValue(),
 				experimentalSequenceActivityLimit:

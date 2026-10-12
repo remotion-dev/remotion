@@ -7,7 +7,6 @@ import {
 	AbsoluteFill,
 	Easing,
 	Interactive,
-	Internals,
 	interpolate,
 	Sequence,
 	Series,
@@ -381,26 +380,24 @@ export const KeyframeTrimTestbed = () => {
 					limit="Transition limit"
 					description="Shorten clip A with its right edge. The 20-frame fade sets its minimum."
 				>
-					<Internals.ExperimentalTracksEnabledContext.Provider value={false}>
-						<TransitionSeries name="8. Transition container">
-							<TransitionSeries.Sequence
-								name="8. Transition limit — clip A"
-								durationInFrames={60}
-							>
-								<Clock />
-							</TransitionSeries.Sequence>
-							<TransitionSeries.Transition
-								presentation={fade()}
-								timing={linearTiming({durationInFrames: 20})}
-							/>
-							<TransitionSeries.Sequence
-								name="8. Transition clip B"
-								durationInFrames={60}
-							>
-								<Clock />
-							</TransitionSeries.Sequence>
-						</TransitionSeries>
-					</Internals.ExperimentalTracksEnabledContext.Provider>
+					<TransitionSeries name="8. Transition container">
+						<TransitionSeries.Sequence
+							name="8. Transition limit — clip A"
+							durationInFrames={60}
+						>
+							<Clock />
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Transition
+							presentation={fade()}
+							timing={linearTiming({durationInFrames: 20})}
+						/>
+						<TransitionSeries.Sequence
+							name="8. Transition clip B"
+							durationInFrames={60}
+						>
+							<Clock />
+						</TransitionSeries.Sequence>
+					</TransitionSeries>
 				</Card>
 				<Card
 					title="9. Source beginning"
@@ -460,37 +457,33 @@ export const KeyframeTrimTestbed = () => {
 					limit="Green glow only · adjacent clip"
 					description="Extend clip A to frame 80, where clip B starts on the same track."
 				>
-					<Internals.ExperimentalTracksEnabledContext.Provider value>
-						<Track name="13. Adjacent clips">
-							<Sequence name="13. Adjacent clip — A" durationInFrames={50}>
-								<Clock />
-							</Sequence>
-							<Sequence
-								name="13. Adjacent clip — B"
-								from={80}
-								durationInFrames={50}
-								premountFor={fps * 6}
-							>
-								<Clock />
-							</Sequence>
-						</Track>
-					</Internals.ExperimentalTracksEnabledContext.Provider>
+					<Track name="13. Adjacent clips">
+						<Sequence name="13. Adjacent clip — A" durationInFrames={50}>
+							<Clock />
+						</Sequence>
+						<Sequence
+							name="13. Adjacent clip — B"
+							from={80}
+							durationInFrames={50}
+							premountFor={fps * 6}
+						>
+							<Clock />
+						</Sequence>
+					</Track>
 				</Card>
 				<Card
 					title="14. Inferred content ending"
 					limit="Green glow only · content end"
-					description="Extend the Series wrapper's right edge. Its two 45-frame children end at 90."
+					description="Its two 45-frame children give the Series a content duration of 90 frames."
 				>
-					<Internals.ExperimentalTracksEnabledContext.Provider value={false}>
-						<Series name="14. Content end" durationInFrames={50}>
-							<Series.Sequence name="14. Content A" durationInFrames={45}>
-								<Clock />
-							</Series.Sequence>
-							<Series.Sequence name="14. Content B" durationInFrames={45}>
-								<Clock />
-							</Series.Sequence>
-						</Series>
-					</Internals.ExperimentalTracksEnabledContext.Provider>
+					<Series name="14. Content end" durationInFrames={50}>
+						<Series.Sequence name="14. Content A" durationInFrames={45}>
+							<Clock />
+						</Series.Sequence>
+						<Series.Sequence name="14. Content B" durationInFrames={45}>
+							<Clock />
+						</Series.Sequence>
+					</Series>
 				</Card>
 				<Card
 					title="15. Unavailable media metadata"
