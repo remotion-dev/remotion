@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
@@ -126,7 +126,6 @@ const SequenceSourceQuickActions: React.FC<{
 		readonly line: number;
 	};
 }> = ({selection, track, validatedLocation}) => {
-	const {fps} = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
@@ -194,14 +193,12 @@ const SequenceSourceQuickActions: React.FC<{
 				durationInFrames: Number.isFinite(mediaSequence.duration)
 					? mediaSequence.duration
 					: null,
-				premountFor: fps,
 			},
 		});
 	}, [
 		selection.nodePathInfo,
 		setSelectedModal,
 		mediaSequence,
-		fps,
 		transcriptionDisabledReason,
 	]);
 	const onRemoveBackground = useCallback(() => {

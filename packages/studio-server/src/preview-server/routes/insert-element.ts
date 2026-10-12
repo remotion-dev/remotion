@@ -79,7 +79,6 @@ export const insertElementHandler: ApiHandler<
 		installationName,
 		expectedFileState,
 		from,
-		premountFor,
 		position,
 		overwriteExisting,
 		undoRedoNavigation,
@@ -373,7 +372,6 @@ export const insertElementHandler: ApiHandler<
 					position: componentOwnsSequence ? position : null,
 				},
 				from: componentOwnsSequence ? from : null,
-				premountFor,
 				prettierConfigOverride: null,
 				wrapInSequence: componentOwnsSequence
 					? null
