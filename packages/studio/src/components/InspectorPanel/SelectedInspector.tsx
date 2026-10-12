@@ -1,5 +1,6 @@
 import React, {useLayoutEffect, useRef, useState} from 'react';
 import {startSlideViewTransition} from '../../helpers/slide-view-transition';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
@@ -11,7 +12,7 @@ import {isSequenceSectionSelection} from './inspector-selection';
 import {KeyframeInspector} from './KeyframeInspector';
 import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {SequenceSelectionInspector} from './SequenceSelectionInspector';
-import {container} from './styles';
+import {scrollableContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 const headerStyle: React.CSSProperties = {
@@ -20,10 +21,8 @@ const headerStyle: React.CSSProperties = {
 
 const contentStyle: React.CSSProperties = {
 	display: 'flex',
-	flex: 1,
+	flex: '1 0 auto',
 	flexDirection: 'column',
-	minHeight: 0,
-	overflow: 'hidden',
 };
 
 const SelectedInspectorContent: React.FC<{
@@ -107,7 +106,7 @@ export const SelectedInspector: React.FC<{
 	}, [selection]);
 
 	return (
-		<div style={container}>
+		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			{track === null ? null : (
 				<div style={headerStyle}>
 					<SequenceInspectorSections

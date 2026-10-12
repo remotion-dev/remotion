@@ -17,7 +17,6 @@ import {
 	hasSequenceControls,
 	InspectorSequenceSection,
 } from '../InspectorSequenceSection';
-import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {getMediaFileName} from '../public-output-name';
 import {splitVideoFromAudio} from '../split-video-from-audio-api';
@@ -455,7 +454,6 @@ const SequenceExpandedInspector: React.FC<{
 	return (
 		<div
 			style={selectedContainer}
-			className={VERTICAL_SCROLLBAR_CLASSNAME}
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			{validatedLocation ? (

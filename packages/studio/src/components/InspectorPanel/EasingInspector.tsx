@@ -9,7 +9,6 @@ import {
 import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {Plus} from '../../icons/plus';
 import {renderFrame} from '../../state/render-frame';
-import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
 	callAddEffectKeyframe,
 	callAddSequenceKeyframe,
@@ -347,7 +346,7 @@ export const EasingInspector: React.FC<{
 	}
 
 	return (
-		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+		<div style={selectedContainer}>
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}

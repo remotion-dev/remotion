@@ -26,7 +26,6 @@ import {
 	type SchemaFieldInfo,
 } from '../../helpers/timeline-layout';
 import {useRuntimeValues} from '../../helpers/use-runtime-values';
-import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {
 	callDeleteEffectKeyframe,
@@ -531,7 +530,7 @@ export const KeyframeInspector: React.FC<{
 	}
 
 	return (
-		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+		<div style={selectedContainer}>
 			<InspectorBackAction
 				disabled={parentSelection === null}
 				onClick={onSelectParent}
