@@ -735,8 +735,8 @@ const TimelineSequenceBar: React.FC<{
 							style={{
 								color: getTimelineColor(false, false),
 								flexShrink: 0,
-								height: 12,
-								width: 12,
+								height: 10,
+								width: 10,
 							}}
 						/>
 					) : null}
