@@ -47,7 +47,9 @@ export const createElementSourceProxy = <
 							? makeOriginalSourceStack({
 									fileName: getSourceFileName(source.fileName),
 									lineNumber: source.lineNumber,
-									columnNumber: source.columnNumber,
+									// JSX development locations are one-based, like stack traces.
+									// Resolved source locations and AST lookups use zero-based columns.
+									columnNumber: source.columnNumber - 1,
 								})
 							: new Error().stack));
 				const newProps = existingStack
