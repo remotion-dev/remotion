@@ -9,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {createPortal} from 'react-dom';
 import type {
 	_InternalTypes,
 	SequencePropsSubscriptionKey,
@@ -88,6 +89,7 @@ import {
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
+import {TimelinePremountPortalContext} from './TimelinePremountPortalContext';
 import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
 import {
 	getTimelineColor,
@@ -129,6 +131,19 @@ import {
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
+
+const premountStyle: React.CSSProperties = {
+	position: 'absolute',
+	top: 0,
+	height: '100%',
+	background: `repeating-linear-gradient(
+		-45deg,
+		${TRANSPARENT},
+		${TRANSPARENT} 2px,
+		${WHITE_ALPHA_20} 2px,
+		${WHITE_ALPHA_20} 4px
+	)`,
+};
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -493,18 +508,9 @@ const TimelineSequenceBar: React.FC<{
 	const premountIndicator = premount ? (
 		<div
 			style={{
+				...premountStyle,
 				left: premount.left,
 				width: premount.width,
-				top: 0,
-				height: '100%',
-				background: `repeating-linear-gradient(
-								-45deg,
-								${TRANSPARENT},
-								${TRANSPARENT} 2px,
-								${WHITE_ALPHA_20} 2px,
-								${WHITE_ALPHA_20} 4px
-							)`,
-				position: 'absolute',
 			}}
 		/>
 	) : null;
@@ -989,7 +995,14 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		)?.durationInFrames?.status === 'static',
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const showPremounting = getStudioShowPremounting();
+	const premountNodePathInfo = useMemo((): SequenceNodePathInfo | null => {
+		return nodePathInfo === null
+			? null
+			: {...nodePathInfo, auxiliaryKeys: ['controls', 'premountFor']};
+	}, [nodePathInfo]);
+	const {selected: premountSelected} =
+		useTimelineRowSelection(premountNodePathInfo);
+	const showPremounting = getStudioShowPremounting() || premountSelected;
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -1473,6 +1486,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		fromCanUpdate,
 		durationCanUpdate,
 		trimBeforeCanUpdate,
+		premountSelected,
 		showPremounting,
 		previewConnected,
 		onSelect,
@@ -1549,6 +1563,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		fromCanUpdate,
 		durationCanUpdate,
 		trimBeforeCanUpdate,
+		premountSelected,
 		showPremounting,
 		previewConnected,
 		onSelect,
@@ -1566,6 +1581,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 		isFirstCascadingSequence,
 	} = state;
 	const renderWindow = useContext(TimelineViewportContext);
+	const premountPortal = useContext(TimelinePremountPortalContext);
+	const sceneRange = useContext(TimelineSceneRangeContext);
 	const isMedia = s.type === 'audio' || s.type === 'video';
 
 	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
@@ -1693,6 +1710,49 @@ const TimelineSequenceLayoutInner: React.FC<{
 			: s.timelineTrack
 				? TIMELINE_PACKED_TRACK_HEIGHT
 				: getTimelineLayerHeight(s.type);
+	const premountIndicator = (() => {
+		if (
+			(!s.timelineTrack && premountPortal === null) ||
+			!premountSelected ||
+			!s.premountDisplay ||
+			renderWindow === null
+		) {
+			return null;
+		}
+
+		const left = Math.max(
+			0,
+			(s.from - s.premountDisplay) * frameIncrement,
+			renderWindow.left - TIMELINE_PADDING,
+		);
+		const right = Math.min(
+			(s.timelineTrack
+				? s.from
+				: Math.min(s.from, sceneRange?.from ?? s.from)) * frameIncrement,
+			renderWindow.left - TIMELINE_PADDING + renderWindow.width,
+		);
+		if (right <= left) {
+			return null;
+		}
+
+		const indicator = (
+			<div
+				aria-hidden="true"
+				style={{
+					...premountStyle,
+					top: premountPortal?.top ?? 0,
+					left,
+					width: right - left,
+					height: layerHeight,
+					pointerEvents: 'none',
+					zIndex: 1,
+				}}
+			/>
+		);
+		return premountPortal === null
+			? indicator
+			: createPortal(indicator, premountPortal.container);
+	})();
 	const trimOutline = (() => {
 		if (
 			activeEdgeHighlight === null ||
@@ -1847,7 +1907,12 @@ const TimelineSequenceLayoutInner: React.FC<{
 		: null;
 
 	if ((maxMediaDuration === null && !s.loopDisplay) || visibleLayout === null) {
-		return trimOutline;
+		return (
+			<>
+				{trimOutline}
+				{premountIndicator}
+			</>
+		);
 	}
 
 	const mediaDisplayOffsetInFrames = visibleLayout.media
@@ -2026,6 +2091,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 			) : (
 				sequence
 			)}
+			{premountIndicator}
 		</>
 	);
 };
