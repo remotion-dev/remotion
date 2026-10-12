@@ -58,14 +58,20 @@ export const filterTimelineTrackContents = (
 	const hiddenSelfReferences = new Set<string>();
 	if (compactSeries) {
 		for (const {sequence} of tracks) {
-			const parent =
-				sequence.parent === null ? null : tracksById.get(sequence.parent);
+			let parent = sequence.parent === null ? null : byId.get(sequence.parent);
+			// Transition presentations insert hidden sequences around the scene.
+			// Its visible parent clip still represents the component's own wrapper.
+			while (parent && !parent.showInTimeline) {
+				parent = parent.parent === null ? undefined : byId.get(parent.parent);
+			}
+
 			if (
-				parent?.sequence.timelineTrack?.role === 'clip' &&
-				parent.sequence.showInTimeline &&
+				parent?.timelineTrack?.role === 'clip' &&
+				tracksById.has(parent.id) &&
+				parent.showInTimeline &&
 				sequence.singleChildComponent !== null &&
 				sequence.singleChildComponent !== undefined &&
-				sequence.singleChildComponent === parent.sequence.singleChildComponent
+				sequence.singleChildComponent === parent.singleChildComponent
 			) {
 				// The scene clip already represents this component's own wrapper.
 				hiddenSelfReferences.add(sequence.id);
