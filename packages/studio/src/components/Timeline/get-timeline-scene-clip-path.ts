@@ -10,6 +10,12 @@ type TimelineSceneClipOptions = {
 	readonly pixelsPerFrame: number;
 	readonly height: number;
 	readonly seamY: number;
+	readonly transitionCutout: {
+		readonly top: number;
+		readonly height: number;
+		readonly radius: number;
+		readonly minWidth: number;
+	} | null;
 	readonly cropHeight: number | null;
 };
 
@@ -20,10 +26,11 @@ export const getTimelineSceneShape = ({
 	pixelsPerFrame,
 	height,
 	seamY,
+	transitionCutout,
 	cropHeight,
 }: TimelineSceneClipOptions): {
 	readonly clipPath: string;
-	readonly points: string;
+	readonly path: string;
 	readonly edges: {readonly left: string | null; readonly right: string | null};
 } | null => {
 	if (
@@ -39,16 +46,36 @@ export const getTimelineSceneShape = ({
 	if (sceneRange.end <= sceneRange.from) {
 		return {
 			clipPath: 'inset(0 100% 0 0)',
-			points: '',
+			path: '',
 			edges: {left: null, right: null},
 		};
 	}
 
-	const middle = (Math.min(height, Math.round(seamY)) / height) * 100;
+	const incomingCutout =
+		transitionCutout !== null &&
+		sceneRange.transitionInEnd !== null &&
+		(sceneRange.transitionInEnd - sceneRange.from) * pixelsPerFrame >=
+			transitionCutout.minWidth;
+	const outgoingCutout =
+		transitionCutout !== null &&
+		sceneRange.transitionOutStart !== null &&
+		(sceneRange.end - sceneRange.transitionOutStart) * pixelsPerFrame >=
+			transitionCutout.minWidth;
+	const middle =
+		(Math.min(
+			height,
+			incomingCutout
+				? transitionCutout.top + transitionCutout.height
+				: Math.round(seamY),
+		) /
+			height) *
+		100;
 	const outgoingInset =
 		sceneRange.transitionOutStart === null ? 0 : 1 / pixelsPerFrame;
-	const outgoingMiddle =
-		middle - (sceneRange.transitionOutStart === null ? 0 : 100 / height);
+	const outgoingMiddle = outgoingCutout
+		? (transitionCutout.top / height) * 100
+		: (Math.min(height, Math.round(seamY)) / height) * 100 -
+			(sceneRange.transitionOutStart === null ? 0 : 100 / height);
 	// Snap the shared endpoints in timeline space, just like the transition
 	// target. Keep both vertical gaps inside those bounds.
 	const incomingStart =
@@ -219,25 +246,60 @@ export const getTimelineSceneShape = ({
 	if (points.length === 0) {
 		return {
 			clipPath: 'inset(0 100% 0 0)',
-			points: '',
+			path: '',
 			edges: {left: null, right: null},
 		};
 	}
 
+	let path = clippedPolygons
+		.map(
+			(polygon) =>
+				polygon
+					.map(
+						({x, y}, index) =>
+							`${index === 0 ? 'M' : 'L'}${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
+					)
+					.join(' ') + ' Z',
+		)
+		.join(' ');
+	let clipPath = `polygon(${points
+		.map(
+			({x, y}) =>
+				`${((x - offsetInFrames) / durationInFrames) * 100}% ${(y * height) / visibleHeight}%`,
+		)
+		.join(', ')})`;
+	if (
+		transitionCutout !== null &&
+		(incomingCutout || outgoingCutout) &&
+		incomingEnd <= outgoingStart
+	) {
+		const incomingStartX = (incomingStart - offsetInFrames) * pixelsPerFrame;
+		const incomingEndX = (incomingEnd - offsetInFrames) * pixelsPerFrame;
+		const outgoingStartX = (outgoingStart - offsetInFrames) * pixelsPerFrame;
+		const outgoingEndX = (outgoingEnd - offsetInFrames) * pixelsPerFrame;
+		const incomingY = (middle / 100) * height;
+		const outgoingY = (outgoingMiddle / 100) * height;
+		const {radius} = transitionCutout;
+		// Follow the visible cutout rather than drawing a hidden stroke through
+		// its center. The concave arcs match the marker's two rounded corners.
+		path = [
+			`M${outgoingEndX},0 L${outgoingEndX},${outgoingY}`,
+			outgoingCutout
+				? `L${outgoingStartX + radius},${outgoingY} A${radius},${radius} 0 0 0 ${outgoingStartX},${outgoingY + radius}`
+				: `L${outgoingStartX},${outgoingY}`,
+			`L${outgoingStartX},${height} L${incomingStartX},${height} L${incomingStartX},${incomingY}`,
+			incomingCutout
+				? `L${incomingEndX - radius},${incomingY} A${radius},${radius} 0 0 0 ${incomingEndX},${incomingY - radius}`
+				: `L${incomingEndX},${incomingY}`,
+			`L${incomingEndX},0 Z`,
+		].join(' ');
+		clipPath = `path('${path}')`;
+	}
+
 	return {
 		edges,
-		clipPath: `polygon(${points
-			.map(
-				({x, y}) =>
-					`${((x - offsetInFrames) / durationInFrames) * 100}% ${(y * height) / visibleHeight}%`,
-			)
-			.join(', ')})`,
-		points: points
-			.map(
-				({x, y}) =>
-					`${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
-			)
-			.join(' '),
+		clipPath,
+		path,
 	};
 };
 

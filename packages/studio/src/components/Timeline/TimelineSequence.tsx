@@ -561,6 +561,14 @@ const TimelineSequenceBar: React.FC<{
 			seamY: isPackedClip
 				? Number(style.height) / 2
 				: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+			transitionCutout: isPackedClip
+				? {
+						top: transitionVerticalInset,
+						height: transitionHeight,
+						radius: 4,
+						minWidth: minTransitionAreaWidth,
+					}
+				: null,
 			cropHeight: Number(style.height),
 		});
 	}, [
@@ -592,6 +600,7 @@ const TimelineSequenceBar: React.FC<{
 			seamY: isPackedClip
 				? Number(style.height) / 2
 				: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+			transitionCutout: null,
 			cropHeight: Number(style.height),
 		});
 	}, [
@@ -627,6 +636,7 @@ const TimelineSequenceBar: React.FC<{
 							pixelsPerFrame: frameIncrement,
 							height: Number(style.height),
 							seamY: Number(style.height) / 2,
+							transitionCutout: null,
 							cropHeight: null,
 						})
 					: undefined,
@@ -954,8 +964,8 @@ const TimelineSequenceBar: React.FC<{
 									pointerEvents: 'none',
 								}}
 							>
-								<polygon
-									points={selectionShape.points}
+								<path
+									d={selectionShape.path}
 									fill="none"
 									stroke={WHITE}
 									// Half the stroke is clipped, matching the 2px inset outline.

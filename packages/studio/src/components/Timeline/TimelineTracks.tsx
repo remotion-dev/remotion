@@ -145,6 +145,7 @@ const TimelineTracksInner: React.FC<{
 													video.durationInFrames,
 												height: virtualItem.size,
 												seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+												transitionCutout: null,
 												cropHeight: null,
 											})
 										: undefined,
