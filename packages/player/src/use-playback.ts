@@ -7,7 +7,6 @@ import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
-import {createPendingPlaybackFrame} from './pending-playback-frame.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
 import {type UsePlayerMethods, usePlayerMethods} from './use-player-methods.js';
 
@@ -57,7 +56,7 @@ export const usePlayback = ({
 		Internals.Timeline.useTimelineSetFrameWithoutSeek();
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
-	const {isBuffering, subscribeBuffering} = useContext(
+	const {isBuffering, subscribeBuffering, seek} = useContext(
 		Internals.SetTimelineContext,
 	);
 	const logLevel = Internals.useLogLevel();
@@ -203,7 +202,8 @@ export const usePlayback = ({
 			| null = null;
 		let startedTime = performance.now();
 		let framesAdvanced = 0;
-		const pendingFrame = createPendingPlaybackFrame();
+		let playbackFrame = getCurrentFrame();
+		let lastSeekRevision = seek?.revision.current ?? null;
 
 		const cancelQueuedFrame = () => {
 			if (reqAnimFrameCall !== null) {
@@ -238,7 +238,14 @@ export const usePlayback = ({
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
-			const currentFrame = pendingFrame.resolve(getCurrentFrame());
+			const seekRevision = seek?.revision.current ?? null;
+			if (seekRevision !== lastSeekRevision) {
+				playbackFrame = getCurrentFrame();
+				lastSeekRevision = seekRevision;
+			}
+
+			// React may not have committed the previous playback update yet.
+			const currentFrame = playbackFrame;
 			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
 				time,
 				currentFrame,
@@ -261,7 +268,7 @@ export const usePlayback = ({
 					: nextFrame;
 
 			if (frameToDisplay !== currentFrame && !isBuffering()) {
-				pendingFrame.request(currentFrame, frameToDisplay);
+				playbackFrame = frameToDisplay;
 				setFrameFromPlayback((c) => ({...c, [config.id]: frameToDisplay}));
 			}
 
@@ -378,6 +385,7 @@ export const usePlayback = ({
 		sharedAudioContext,
 		setPlayerMuted,
 		subscribeBuffering,
+		seek,
 		logLevel,
 		muted,
 	]);
