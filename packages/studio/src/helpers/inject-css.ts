@@ -183,6 +183,10 @@ const makeDefaultGlobalCSS = () => {
     color: ${BLUE_HOVERED} !important;
   }
 
+  .__remotion_input_dragger_input::selection {
+    background-color: #4E4E4E;
+  }
+
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {
     color: ${BLUE} !important;
     transition: color 0.2s ease-in-out;
