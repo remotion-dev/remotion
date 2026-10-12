@@ -60,12 +60,12 @@ import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
 } from './save-sequence-prop';
-import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	getTimelineTrimLimitReason,
 	getVisibleTimelineTrimLimitReason,
 	type TimelineTrimLimitReason,
 } from './timeline-trim-limit-reason';
+import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	getTimelineSequenceSelectionKey,
 	shouldSelectTimelineRowOnPointerDown,
