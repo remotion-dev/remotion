@@ -2447,7 +2447,13 @@ const TimelineSequenceLayoutInner: React.FC<{
 											position: 'absolute',
 											left: visibleLayout.media?.left ?? 0,
 											width: visibleLayout.media?.width ?? 0,
-											top: 0,
+											// The outgoing trim occupies the upper half of this boundary.
+											top:
+												isTransitionSeriesSequence(s) &&
+												sceneRange !== null &&
+												sceneRange.transitionInEnd !== null
+													? layerHeight / 2
+													: 0,
 											bottom: 0,
 											pointerEvents: 'none',
 										}
