@@ -55,6 +55,7 @@ import {
 	getEffectiveSequenceTimingValues,
 	getTimelineSequenceTimingLimits,
 } from './get-timeline-sequence-timing-limits';
+import {getTimelineTransitionNeighbors} from './get-timeline-transition-neighbors';
 import {loadKeyframeTrimConstraints} from './load-keyframe-trim-constraints';
 import {
 	saveSequenceProps,
@@ -1466,29 +1467,17 @@ export const getTimelineSequenceRollingEditTargets = ({
 		(rightTrack.sequence.timelineTrack?.role === 'transition' ||
 			isTransitionSeriesSequence(rightTrack.sequence))
 	) {
-		const siblings = sortItemsByCommitOrder(
-			tracks.filter(
-				(track) =>
-					track.sequence.parent === rightTrack.sequence.parent &&
-					track.sequence.timelineTrack?.id ===
-						rightTrack.sequence.timelineTrack?.id &&
-					(track.sequence.timelineTrack?.role === 'clip' ||
-						track.sequence.timelineTrack?.role === 'transition'),
-			),
-			(track) => track.sequence.timelineOrder,
-		);
-		const index = siblings.findIndex(
-			(track) => track.sequence.id === rightTrack.sequence.id,
-		);
-		const transitionIndex =
-			rightTrack.sequence.timelineTrack?.role === 'transition'
-				? index
-				: index - 1;
-		const previous = siblings[transitionIndex - 1];
-		const next = siblings[transitionIndex + 1];
+		const neighbors = getTimelineTransitionNeighbors({
+			sequenceId: rightTrack.sequence.id,
+			sequences,
+		});
+		const previous = neighbors
+			? tracks.find((track) => track.sequence.id === neighbors.previous.id)
+			: null;
+		const next = neighbors
+			? tracks.find((track) => track.sequence.id === neighbors.next.id)
+			: null;
 		if (
-			siblings[transitionIndex]?.sequence.timelineTrack?.role !==
-				'transition' ||
 			!previous?.nodePathInfo ||
 			!next?.nodePathInfo ||
 			!canUpdateTrimBefore({

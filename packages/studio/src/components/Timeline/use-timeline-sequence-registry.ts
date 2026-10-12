@@ -1,5 +1,5 @@
 import {CanvasInternals} from '@remotion/sdk';
-import {useCallback, useContext, useRef, type ContextType} from 'react';
+import {useCallback, useContext, type ContextType} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
@@ -190,78 +190,6 @@ export const useTimelineSequenceNaturalDuration = ({
 			: null;
 	}, [enabled, registry, sequenceId]);
 
-	return useSyncExternalStore(
-		enabled && registry !== null ? registry.subscribe : subscribeToNoRegistry,
-		getSnapshot,
-		getSnapshot,
-	);
-};
-
-type TransitionNeighbors = {
-	readonly previous: TSequence;
-	readonly next: TSequence;
-};
-const transitionNeighborsCache = new WeakMap<
-	SequenceRegistry,
-	{
-		readonly sequences: TSequence[];
-		readonly entries: Map<string, TransitionNeighbors | null>;
-	}
->();
-
-// Resolve edit-only relationships on hover, without indexing every transition
-// whenever an unrelated sequence registers or changes.
-export const useTimelineTransitionNeighbors = ({
-	sequenceId,
-	enabled,
-}: {
-	readonly sequenceId: string;
-	readonly enabled: boolean;
-}) => {
-	const registry = useContext(Internals.SequenceRegistryContext);
-	const previousValue = useRef<TransitionNeighbors | null>(null);
-	const getSnapshot = useCallback(() => {
-		// Keep an existing handle mounted if the pointer leaves during a drag.
-		if (!enabled || registry === null) return previousValue.current;
-		const sequences = registry.getSnapshot();
-		let cache = transitionNeighborsCache.get(registry);
-		if (cache?.sequences !== sequences) {
-			cache = {sequences, entries: new Map()};
-			transitionNeighborsCache.set(registry, cache);
-		}
-
-		if (!cache.entries.has(sequenceId)) {
-			const sequence = sequences.find((item) => item.id === sequenceId);
-			const siblings = sequence?.timelineTrack
-				? CanvasInternals.sortItemsByCommitOrder(
-						sequences.filter(
-							(item) =>
-								item.parent === sequence.parent &&
-								item.timelineTrack?.id === sequence.timelineTrack?.id &&
-								(item.timelineTrack?.role === 'clip' ||
-									item.timelineTrack?.role === 'transition'),
-						),
-						(item) => item.timelineOrder,
-					)
-				: [];
-			const index = siblings.findIndex((item) => item.id === sequenceId);
-			const transitionIndex =
-				sequence?.timelineTrack?.role === 'transition' ? index : index - 1;
-			const previous = siblings[transitionIndex - 1];
-			const next = siblings[transitionIndex + 1];
-			cache.entries.set(
-				sequenceId,
-				siblings[transitionIndex]?.timelineTrack?.role === 'transition' &&
-					previous?.timelineTrack?.role === 'clip' &&
-					next?.timelineTrack?.role === 'clip'
-					? {previous, next}
-					: null,
-			);
-		}
-
-		previousValue.current = cache.entries.get(sequenceId) ?? null;
-		return previousValue.current;
-	}, [enabled, registry, sequenceId]);
 	return useSyncExternalStore(
 		enabled && registry !== null ? registry.subscribe : subscribeToNoRegistry,
 		getSnapshot,

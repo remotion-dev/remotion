@@ -78,6 +78,7 @@ import {
 	TIMELINE_CHILD_TRANSITION_SEAM_Y,
 } from './get-timeline-scene-clip-path';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
+import {getTimelineTransitionNeighbors} from './get-timeline-transition-neighbors';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
@@ -139,7 +140,6 @@ import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-i
 import {
 	useTimelineSequenceNaturalDuration,
 	useTimelineSequenceRegistry,
-	useTimelineTransitionNeighbors,
 } from './use-timeline-sequence-registry';
 
 const NEGATIVE_START_BORDER_WIDTH = 1;
@@ -408,7 +408,6 @@ const TimelineSequenceBar: React.FC<{
 	) => void;
 	readonly onPointerDownCapture: React.PointerEventHandler<HTMLDivElement>;
 	readonly onPointerEnter: () => void;
-	readonly onPointerLeave: () => void;
 	readonly onClick: React.MouseEventHandler<HTMLDivElement> | null;
 }> = ({
 	s,
@@ -439,7 +438,6 @@ const TimelineSequenceBar: React.FC<{
 	onMoveDragPointerDown,
 	onPointerDownCapture,
 	onPointerEnter,
-	onPointerLeave,
 	onClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -891,7 +889,6 @@ const TimelineSequenceBar: React.FC<{
 			data-track-item={s.timelineTrack?.role}
 			onPointerDownCapture={onPointerDownCapture}
 			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
 		>
@@ -1079,15 +1076,17 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const registryEntry = useTimelineSequenceRegistry(s.id);
 	const isTransitionInteraction =
 		isTransitionSeriesSequence(s) || s.timelineTrack?.role === 'transition';
-	const [transitionHovered, setTransitionHovered] = useState(false);
-	const transitionNeighbors = useTimelineTransitionNeighbors({
-		sequenceId: s.id,
-		enabled: transitionHovered && isTransitionInteraction,
-	});
+	const [transitionNeighbors, setTransitionNeighbors] =
+		useState<ReturnType<typeof getTimelineTransitionNeighbors>>(null);
 	const onPointerEnter = useCallback(() => {
-		if (isTransitionInteraction) setTransitionHovered(true);
-	}, [isTransitionInteraction]);
-	const onPointerLeave = useCallback(() => setTransitionHovered(false), []);
+		if (!isTransitionInteraction) return;
+		setTransitionNeighbors(
+			getTimelineTransitionNeighbors({
+				sequenceId: s.id,
+				sequences: sequencesRef.current,
+			}),
+		);
+	}, [isTransitionInteraction, s.id, sequencesRef]);
 	const originalSequence = registryEntry?.sequence ?? null;
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -1924,7 +1923,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		showLeftEdgeDragHandle,
 		isFirstCascadingSequence,
 		onPointerEnter,
-		onPointerLeave,
 	};
 };
 
@@ -2008,7 +2006,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 		showLeftEdgeDragHandle,
 		isFirstCascadingSequence,
 		onPointerEnter,
-		onPointerLeave,
 	} = state;
 	const sceneRange = useContext(TimelineSceneRangeContext);
 	const inheritedSceneRange = useContext(TimelineInheritedSceneRangeContext);
@@ -2471,7 +2468,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 			onMoveDragPointerDown={onMoveDragPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
 			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
 			onClick={onSequenceClick}
 			edgeDragHandles={
 				<>
