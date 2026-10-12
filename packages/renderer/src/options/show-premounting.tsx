@@ -11,8 +11,8 @@ export const showPremountingOption = {
 	id: cliFlag,
 	description: () => (
 		<>
-			Show premounting indicators for components on separate Studio timeline
-			rows. Defaults to <code>false</code>.
+			Show premounting indicators in the Studio timeline. Defaults to{' '}
+			<code>false</code>.
 		</>
 	),
 	ssrName: null,
