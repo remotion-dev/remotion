@@ -1962,6 +1962,9 @@ const TimelineSequenceLayoutInner: React.FC<{
 		showLeftEdgeDragHandle,
 		isFirstCascadingSequence,
 	} = state;
+	const sceneRange = useContext(TimelineSceneRangeContext);
+	const inheritedSceneRange = useContext(TimelineInheritedSceneRangeContext);
+	const sceneClipHeight = useContext(TimelineSceneClipHeightContext);
 	const renderWindow = useContext(TimelineViewportContext);
 	const isMedia = s.type === 'audio' || s.type === 'video';
 
@@ -2145,40 +2148,121 @@ const TimelineSequenceLayoutInner: React.FC<{
 			return null;
 		}
 
+		const isPackedClip =
+			s.timelineTrack?.role === 'clip' && s.timelineTrack.seriesOffset !== null;
+		const outlineShapes = [
+			{key: 'sequence', range: sceneRange, packed: isPackedClip},
+			{
+				key: 'inherited',
+				range: inheritedSceneRange === sceneRange ? null : inheritedSceneRange,
+				packed: false,
+			},
+		].flatMap(({key, range, packed}) => {
+			if (
+				range === null ||
+				(range.transitionInEnd === null && range.transitionOutStart === null)
+			) {
+				return [];
+			}
+
+			const shape = getTimelineSceneShape({
+				// A packed clip can extend to its trim limits, while a parent's
+				// transition continues to constrain the shape of its children.
+				sceneRange: packed
+					? {
+							...range,
+							from: start,
+							end,
+							transitionInEnd:
+								range.transitionInEnd === null
+									? null
+									: start + (range.transitionInEnd - range.from),
+							transitionOutStart:
+								range.transitionOutStart === null
+									? null
+									: end - (range.end - range.transitionOutStart),
+						}
+					: range,
+				offsetInFrames: start,
+				durationInFrames: end - start,
+				pixelsPerFrame: frameIncrement,
+				height: packed ? layerHeight : (sceneClipHeight ?? layerHeight),
+				seamY: packed ? layerHeight / 2 : TIMELINE_CHILD_TRANSITION_SEAM_Y,
+				transitionCutout: packed
+					? {
+							top: transitionVerticalInset,
+							height: transitionHeight,
+							radius: 4,
+							minWidth: minTransitionAreaWidth,
+						}
+					: null,
+				cropHeight: layerHeight,
+			});
+			return shape === null ? [] : [{key, shape}];
+		});
+
 		return (
 			<>
-				{leftWidth > 0 ? (
-					<div
-						aria-hidden="true"
-						style={{
-							position: 'absolute',
-							left: start * frameIncrement,
-							width: leftWidth,
-							height: layerHeight,
-							zIndex: s.timelineTrack ? 1 : undefined,
-							border: `2px solid ${WHITE}`,
-							borderRight: 0,
-							borderRadius: '2px 0 0 2px',
-							pointerEvents: 'none',
-						}}
-					/>
-				) : null}
-				{rightWidth > 0 ? (
-					<div
-						aria-hidden="true"
-						style={{
-							position: 'absolute',
-							left: rightStart * frameIncrement,
-							width: rightWidth,
-							height: layerHeight,
-							zIndex: s.timelineTrack ? 1 : undefined,
-							border: `2px solid ${WHITE}`,
-							borderLeft: 0,
-							borderRadius: '0 2px 2px 0',
-							pointerEvents: 'none',
-						}}
-					/>
-				) : null}
+				{[
+					{edge: 'left', from: start, width: leftWidth},
+					{edge: 'right', from: rightStart, width: rightWidth},
+				].map(({edge, from, width: outlineWidth}) =>
+					outlineWidth > 0 ? (
+						<div
+							key={edge}
+							aria-hidden="true"
+							data-timeline-trim-outline={edge}
+							style={{
+								position: 'absolute',
+								left: from * frameIncrement,
+								width: outlineWidth,
+								height: layerHeight,
+								zIndex: s.timelineTrack ? 1 : undefined,
+								border:
+									outlineShapes.length > 0 ? undefined : `2px solid ${WHITE}`,
+								borderLeft: edge === 'right' ? 0 : undefined,
+								borderRight: edge === 'left' ? 0 : undefined,
+								borderRadius: edge === 'left' ? '2px 0 0 2px' : '0 2px 2px 0',
+								overflow: 'hidden',
+								pointerEvents: 'none',
+							}}
+						>
+							{outlineShapes.length > 0 ? (
+								<div
+									style={{
+										position: 'absolute',
+										left: (start - from) * frameIncrement,
+										width: (end - start) * frameIncrement,
+										height: layerHeight,
+										clipPath: outlineShapes[0].shape.clipPath,
+									}}
+								>
+									{outlineShapes.map(({key, shape}) => (
+										<svg
+											key={key}
+											style={{
+												position: 'absolute',
+												inset: 0,
+												width: '100%',
+												height: '100%',
+												clipPath: shape.clipPath,
+											}}
+										>
+											<path
+												d={shape.path}
+												fill="none"
+												stroke={WHITE}
+												strokeWidth={4}
+												strokeLinejoin="round"
+												vectorEffect="non-scaling-stroke"
+											/>
+										</svg>
+									))}
+								</div>
+							) : null}
+						</div>
+					) : null,
+				)}
 			</>
 		);
 	})();
