@@ -134,6 +134,7 @@ const studioOptions = options(
 		'number-of-shared-audio-tags',
 		'default-premount-in-seconds',
 		'show-premounting',
+		'show-layer-frame-numbers',
 		'experimental-keep-audio-context-alive',
 		'preview-sample-rate',
 		'cross-site-isolation',

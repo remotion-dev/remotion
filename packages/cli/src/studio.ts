@@ -60,6 +60,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	beepOnFinishOption,
@@ -176,6 +177,9 @@ export const studioCommand = async (
 			showPremounting: showPremountingOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			showLayerFrameNumbers: showLayerFrameNumbersOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			keyboardShortcuts: ConfigInternals.getKeyboardShortcuts(),
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
@@ -211,6 +215,7 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			configFileStudioSettings: {
+				showLayerFrameNumbers: showLayerFrameNumbersOption.getConfigValue(),
 				showPremounting: showPremountingOption.getConfigValue(),
 				defaultPremountInSeconds:
 					defaultPremountInSecondsOption.getConfigValue(),
