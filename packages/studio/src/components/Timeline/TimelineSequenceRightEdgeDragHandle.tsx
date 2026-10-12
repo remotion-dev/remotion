@@ -2127,6 +2127,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				metaKey: e.metaKey,
 				ctrlKey: e.ctrlKey,
 			});
+			if (fillTarget && selectionInteraction !== null) {
+				latestRef.current.onSelect(selectionInteraction);
+			}
+
 			const pxPerFrame =
 				timelineDurationInFrames > 0
 					? (windowWidth - TIMELINE_PADDING * 2) / timelineDurationInFrames
@@ -2210,11 +2214,14 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								stringifySequenceSubscriptionKey(target.nodePath) ===
 								draggedKey,
 						) ?? (fillTarget ? targets[0] : undefined);
-					onDragStart(
-						mode,
-						true,
-						targets.map((target) => target.nodePath),
-					);
+					if (!fillTarget) {
+						onDragStart(
+							mode,
+							true,
+							targets.map((target) => target.nodePath),
+						);
+					}
+
 					dragStateRef.current = {
 						initialClientX: downEvent.clientX,
 						latestDeltaFrames: 0,
@@ -2225,7 +2232,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						didMove: false,
 						pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 						pointerId: downEvent.pointerId,
-						selectionInteraction,
+						selectionInteraction: fillTarget ? null : selectionInteraction,
 						targets,
 						mode,
 					};
@@ -2240,6 +2247,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						}
 
 						const dx = pointerEvent.clientX - dragState.initialClientX;
+						if (fillTarget && !dragState.didMove) {
+							if (Math.abs(dx) < timelineSequenceEdgeDragThresholdPx) {
+								return;
+							}
+
+							onDragStart(
+								dragState.mode,
+								true,
+								dragState.targets.map((target) => target.nodePath),
+							);
+						}
+
 						const pointerDeltaFrames = Math.round(dx / dragState.pxPerFrame);
 						const deltaFrames =
 							dragState.mode === 'self-trim' &&
