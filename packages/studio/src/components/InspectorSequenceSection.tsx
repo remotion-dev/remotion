@@ -80,14 +80,6 @@ const container: React.CSSProperties = {
 	fontSize: 12,
 };
 
-const emptyState: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	lineHeight: 1.4,
-	padding: '0 12px',
-};
-
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
@@ -1060,13 +1052,7 @@ export const InspectorSequenceSection: React.FC<{
 		!showEffectsSection &&
 		inlineCaptions === null
 	) {
-		return (
-			<div style={container}>
-				<InspectorSection header="Controls">
-					<div style={emptyState}>No schema</div>
-				</InspectorSection>
-			</div>
-		);
+		return null;
 	}
 
 	return (
