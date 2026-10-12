@@ -121,7 +121,11 @@ test('<MacOSCursor> renders the default cursor when the cursor prop is omitted',
 				React.createElement(
 					Internals.TimelineContext.Provider,
 					{value: timeline},
-					React.createElement(MacOSCursor),
+					React.createElement(
+						Internals.VideoProvider,
+						null,
+						React.createElement(MacOSCursor),
+					),
 				),
 			),
 		),

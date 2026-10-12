@@ -52,16 +52,21 @@ const TimelineListTrack: React.FC<{
 					track.nodePathInfo === null && track.displayGroup !== null
 				}
 			/>
-			{row.auxiliaryRows.length > 0 ? (
+			{row.auxiliaryRowOffsets.map((offset) => (
 				<div
+					key={offset}
 					aria-hidden="true"
 					style={{
-						height:
-							row.auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+						position: 'absolute',
+						top: offset,
+						left: 0,
+						right: 0,
+						height: TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 						borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+						pointerEvents: 'none',
 					}}
 				/>
-			) : null}
+			))}
 		</div>
 	);
 });
@@ -227,10 +232,7 @@ export const TimelineList: React.FC = () => {
 	}, [rows, virtualItems]);
 
 	return (
-		<div
-			style={{...container, height: tracksEnd}}
-			{...{'oai-annotation-container': ''}}
-		>
+		<div style={{...container, height: tracksEnd}}>
 			<style>{`.remotion-timeline-sequence-name-measure::before {
 				content: attr(data-name);
 				display: block;

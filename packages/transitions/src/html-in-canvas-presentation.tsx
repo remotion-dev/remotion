@@ -301,7 +301,7 @@ export const HtmlInCanvasPresentation = <
 	}
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill showInTimeline={false}>
 			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
 				{children}
 			</canvas>

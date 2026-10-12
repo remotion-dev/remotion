@@ -3,12 +3,25 @@ import type {
 	MouseEventHandler,
 	PointerEventHandler,
 } from 'react';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {interpolate} from 'remotion';
-import {BLUE, BLUE_HOVERED, TRANSPARENT} from '../../helpers/colors';
+import {
+	BLUE,
+	BLUE_HOVERED,
+	TRANSPARENT,
+	WHITE_ALPHA_10,
+} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {
 	isPointerSessionRelease,
+	observePointerRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
@@ -59,14 +72,24 @@ type InputDraggerValidationResult =
 			readonly message: string;
 	  };
 
-export const inputDraggerContainerStyle: React.CSSProperties = {
+const inputDraggerStyle: React.CSSProperties = {
 	...inputBaseStyle,
+	lineHeight: 1.5,
+	padding: '4px 6px',
+	fontVariantNumeric: 'tabular-nums',
+};
+
+export const inputDraggerContainerStyle: React.CSSProperties = {
+	...inputDraggerStyle,
 	backgroundColor: TRANSPARENT,
 	borderColor: TRANSPARENT,
 	display: 'inline-block',
-	lineHeight: 1.5,
 	outline: 'none',
-	padding: '4px 6px',
+};
+
+const containerStyle: React.CSSProperties = {
+	display: 'inline-flex',
+	position: 'relative',
 };
 
 const compactInputDraggerStyle: React.CSSProperties = {
@@ -538,18 +561,40 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const [inputFallback, setInputFallback] = useState(false);
 	const [dragging, setDragging] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
+	const displayRef = useRef<HTMLSpanElement>(null);
 	const pointerDownRef = useRef(false);
+	const editingDisplayValueRef = useRef('');
+	const editingPaddingRightRef = useRef<string | null>(null);
 	const formattedInputValueRef = useRef<{text: string; value: number} | null>(
 		null,
 	);
 	const startEditing = useCallback(() => {
+		editingDisplayValueRef.current = formatter(value as number | string);
+		const text =
+			textEditing?.format(value as number | string) ?? String(value ?? '');
+		editingPaddingRightRef.current = null;
+		const display = displayRef.current;
+		if (
+			rightAlign &&
+			display?.firstChild &&
+			display.parentElement &&
+			editingDisplayValueRef.current.startsWith(text) &&
+			editingDisplayValueRef.current !== text
+		) {
+			// Keep numbers in place when their display-only unit (such as fps) disappears.
+			const suffix = document.createRange();
+			suffix.selectNodeContents(display);
+			suffix.setStart(display.firstChild, text.length);
+			const {paddingRight} = window.getComputedStyle(display.parentElement);
+			editingPaddingRightRef.current = `calc(${paddingRight} + ${suffix.getBoundingClientRect().width}px)`;
+		}
+
 		formattedInputValueRef.current = {
-			text:
-				textEditing?.format(value as number | string) ?? String(value ?? ''),
+			text,
 			value: deriveInputDraggerDragStartValue({min: _min, value}),
 		};
 		setInputFallback(true);
-	}, [_min, textEditing, value]);
+	}, [_min, formatter, rightAlign, textEditing, value]);
 	const parseText = useCallback(
 		(text: string) => {
 			// Preserve the exact value when a rounded display is left untouched.
@@ -850,74 +895,144 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		],
 	);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (inputFallback) {
+			fallbackRef.current?.focus({preventScroll: true});
 			fallbackRef.current?.select();
 		}
 	}, [inputFallback]);
 
-	if (inputFallback) {
-		return (
-			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
-				<RemotionInput
-					ref={fallbackRef}
-					autoFocus
-					onKeyDown={onInputKeyDown}
-					onBlur={onBlur}
-					onChange={onInputChange}
-					min={_min}
-					max={_max}
-					step={validationStep}
-					defaultValue={formattedInputValueRef.current?.text ?? value}
-					status={status}
-					rightAlign={rightAlign}
-					small={small}
-					{...props}
-					style={
-						small
-							? {
-									...compactInputDraggerStyle,
-									display: 'block',
-									...inputStyle,
-								}
-							: inputStyle
-					}
-					type="text"
-				/>
-			</HigherZIndex>
-		);
-	}
+	useEffect(() => {
+		if (!inputFallback) {
+			return;
+		}
 
-	return (
-		<button
-			ref={ref}
-			type="button"
-			aria-label={props['aria-label']}
-			className={'__remotion_input_dragger'}
-			style={
-				buttonStyle
-					? {
-							...(small
-								? compactInputDraggerContainerStyle
-								: inputDraggerContainerStyle),
-							...buttonStyle,
-						}
-					: small
-						? compactInputDraggerContainerStyle
-						: inputDraggerContainerStyle
+		const commitWithoutClickThrough = (event: PointerEvent) => {
+			const input = fallbackRef.current;
+			if (
+				event.button !== 0 ||
+				input === null ||
+				document.activeElement !== input ||
+				input.contains(event.target as Node)
+			) {
+				return;
 			}
-			onClick={onClick}
-			onFocus={onFocus}
-			onKeyDown={onKeyDown}
-			onPointerDown={onPointerDown}
-		>
-			<span style={span}>{formatter(value as string | number)}</span>
-			{formatterSubtitle ? (
-				<span style={formatterSubtitleStyle}>
-					{formatterSubtitle(value as string | number)}
+
+			// Commit before timeline selection handlers can hide the edited row.
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
+			const stopClick = (clickEvent: MouseEvent) => {
+				clickEvent.preventDefault();
+				clickEvent.stopImmediatePropagation();
+			};
+
+			window.addEventListener('click', stopClick, {capture: true, once: true});
+			observePointerRelease({
+				event,
+				onEnd: () => {
+					// The click follows pointerup, even though blurring unmounts the input.
+					setTimeout(() => {
+						window.removeEventListener('click', stopClick, true);
+					}, 0);
+				},
+			});
+			input.blur();
+		};
+
+		window.addEventListener('pointerdown', commitWithoutClickThrough, true);
+		return () => {
+			window.removeEventListener(
+				'pointerdown',
+				commitWithoutClickThrough,
+				true,
+			);
+		};
+	}, [inputFallback]);
+
+	// The first flex item determines the inline baseline, so keep the button first.
+	return (
+		<span style={{...containerStyle, width: inputStyle?.width}}>
+			<button
+				ref={ref}
+				type="button"
+				aria-label={props['aria-label']}
+				aria-hidden={inputFallback}
+				tabIndex={inputFallback ? -1 : undefined}
+				className={'__remotion_input_dragger'}
+				style={{
+					...(small
+						? compactInputDraggerContainerStyle
+						: inputDraggerContainerStyle),
+					textAlign: rightAlign ? 'right' : 'left',
+					...buttonStyle,
+					width: inputStyle?.width === undefined ? buttonStyle?.width : '100%',
+					// Reserve the same space while the editor is absolutely positioned above it.
+					visibility: inputFallback ? 'hidden' : undefined,
+				}}
+				onClick={onClick}
+				onFocus={onFocus}
+				onKeyDown={onKeyDown}
+				onPointerDown={onPointerDown}
+			>
+				<span ref={displayRef} style={span}>
+					{inputFallback
+						? editingDisplayValueRef.current
+						: formatter(value as string | number)}
 				</span>
+				{formatterSubtitle ? (
+					<span style={formatterSubtitleStyle}>
+						{formatterSubtitle(value as string | number)}
+					</span>
+				) : null}
+			</button>
+			{inputFallback ? (
+				<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
+					<RemotionInput
+						ref={fallbackRef}
+						onKeyDown={onInputKeyDown}
+						onBlur={onBlur}
+						onChange={onInputChange}
+						min={_min}
+						max={_max}
+						step={validationStep}
+						defaultValue={formattedInputValueRef.current?.text ?? value}
+						status={status}
+						rightAlign={rightAlign}
+						small={small}
+						{...props}
+						className={`__remotion_input_dragger_input ${props.className ?? ''}`}
+						style={{
+							...inputDraggerStyle,
+							...(small ? compactInputDraggerStyle : null),
+							...buttonStyle,
+							...formatterStyle,
+							userSelect: 'text',
+							WebkitUserSelect: 'text',
+							...inputStyle,
+							backgroundColor: TRANSPARENT,
+							borderRadius: 3,
+							paddingTop: 0,
+							paddingBottom: 0,
+							outline: 'none',
+							boxShadow: 'none',
+							...(status === 'ok' ? {borderColor: WHITE_ALPHA_10} : null),
+							...(editingPaddingRightRef.current === null
+								? null
+								: {paddingRight: editingPaddingRightRef.current}),
+							display: 'block',
+							position: 'absolute',
+							left: 0,
+							top: '50%',
+							transform: 'translateY(-50%)',
+							width: '100%',
+							height: 'auto',
+						}}
+						type="text"
+					/>
+				</HigherZIndex>
 			) : null}
-		</button>
+		</span>
 	);
 };
 

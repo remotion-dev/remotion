@@ -150,6 +150,8 @@ const {
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
 	experimentalTracksOption,
+	experimentalSequenceActivityOption,
+	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -663,6 +665,10 @@ type FlatConfig = RemotionConfigObject &
 		 * @default false
 		 */
 		setExperimentalTracksEnabled: (enabled: boolean) => void;
+		/** Enable experimental Sequence Activity in Studio. Default: false. */
+		setExperimentalSequenceActivityEnabled: (enabled: boolean) => void;
+		/** Set the hidden Sequence Activity limit in Studio. Default: 20. */
+		setExperimentalSequenceActivityLimit: (limit: number) => void;
 		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
@@ -680,12 +686,12 @@ type FlatConfig = RemotionConfigObject &
 		setDefaultEditor: (editor: DefaultEditor) => void;
 		/**
 		 * Set the default premount duration in seconds in Remotion Studio.
-		 * Default: 0 in v4, 2 in v5.
+		 * Default: 2.
 		 */
 		setDefaultPremountInSeconds: (seconds: number) => void;
 		/**
 		 * Show premounting indicators in the Studio timeline.
-		 * @default true
+		 * @default false
 		 */
 		setShowPremounting: (show: boolean) => void;
 		/**
@@ -819,6 +825,10 @@ export const Config: FlatConfig = {
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
 	setExperimentalTracksEnabled: experimentalTracksOption.setConfig,
+	setExperimentalSequenceActivityEnabled:
+		experimentalSequenceActivityOption.setConfig,
+	setExperimentalSequenceActivityLimit:
+		experimentalSequenceActivityLimitOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,

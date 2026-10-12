@@ -1,8 +1,8 @@
 import {Player, type PlayerRef} from '@remotion/player';
-import React from 'react';
+import React, {useContext} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
-import {Sequence} from 'remotion';
+import {Internals, Sequence} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {page} from 'vitest/browser';
 import {Video} from '../video/video';
@@ -149,10 +149,26 @@ test('plays while a video with audio is frozen on a future frame', async () => {
 	document.body.appendChild(container);
 	const playerRef = React.createRef<PlayerRef>();
 
+	const timeline =
+		React.createRef<React.ContextType<typeof Internals.SetTimelineContext>>();
+	let draws = 0;
+	const errors: Error[] = [];
+	let phase = 'waiting for the frozen video to be ready';
+
 	const FrozenVideoComposition: React.FC = () => {
+		timeline.current = useContext(Internals.SetTimelineContext);
 		return (
 			<Sequence freeze={150}>
-				<Video src="/bigbuckbunny.mp4" />
+				<Video
+					src="/bigbuckbunny.mp4"
+					disallowFallbackToOffthreadVideo
+					onVideoFrame={() => {
+						draws++;
+					}}
+					onError={(error) => {
+						errors.push(error);
+					}}
+				/>
 			</Sequence>
 		);
 	};
@@ -173,19 +189,30 @@ test('plays while a video with audio is frozen on a future frame', async () => {
 	);
 
 	try {
-		await waitFor(() => {
-			const renderedCanvas = container.querySelector('canvas');
-			return (
+		await waitFor(
+			() =>
 				playerRef.current !== null &&
-				renderedCanvas?.width === 1280 &&
-				renderedCanvas.height === 720
-			);
-		});
+				draws > 0 &&
+				timeline.current?.isBuffering() === false,
+		);
 
+		phase = 'clicking Play';
 		await page.getByRole('button', {name: 'Play video'}).click();
+		phase = 'waiting for the Player frame to advance';
 		await waitFor(() => (playerRef.current?.getCurrentFrame() ?? 0) > 0);
 
 		expect(playerRef.current?.getCurrentFrame()).toBeGreaterThan(0);
+	} catch (cause) {
+		throw new Error(
+			`Failed while ${phase}: ${JSON.stringify({
+				isPlaying: playerRef.current?.isPlaying() ?? null,
+				isBuffering: timeline.current?.isBuffering() ?? null,
+				frame: playerRef.current?.getCurrentFrame() ?? null,
+				draws,
+				mediaErrors: errors.map((error) => error.message),
+			})}`,
+			{cause},
+		);
 	} finally {
 		root.unmount();
 		container.remove();

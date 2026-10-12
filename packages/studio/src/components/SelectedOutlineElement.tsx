@@ -13,7 +13,6 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
-import {getSequenceAnnotationAttributes} from '../helpers/sequence-annotation';
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
@@ -42,11 +41,10 @@ import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
-	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
-import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -117,16 +115,13 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {selectItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
 		useSelectedOutlineControlTarget({
 			getLatestTargetByKey,
 			layoutTarget,
 		});
-	const annotationLocation = useResolvedStack(
-		layoutTarget?.sequence.getStack() ?? null,
-	);
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -362,7 +357,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 												clientId: previewServerState.clientId,
 												fileName: nodePath.absolutePath,
 												nodePathInfo: contextMenuTarget.nodePathInfo,
-												selectItems,
+												selectItems: currentSelection.current.selectItems,
 											});
 										},
 										quickSwitcherLabel: null,
@@ -454,7 +449,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		resolveOriginalLocation,
 		setManuallyEnabled,
 		selectAsset,
-		selectItems,
+		currentSelection,
 		setSelectedModal,
 		setPropStatuses,
 		outline.path,
@@ -469,15 +464,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	return (
 		<>
 			<SelectedOutlinePolygon
-				annotationAttributes={
-					layoutTarget
-						? getSequenceAnnotationAttributes({
-								sequence: layoutTarget.sequence,
-								location: annotationLocation,
-								surface: 'outline',
-							})
-						: null
-				}
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
 				containsSelection={layoutTarget?.containsSelection === true}

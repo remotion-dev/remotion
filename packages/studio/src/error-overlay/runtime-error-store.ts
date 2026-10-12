@@ -10,6 +10,18 @@ const listeners = new Set<() => void>();
 
 export const getRuntimeErrors = () => errors;
 
+export const removeErrorFromOverlay = (error: Error) => {
+	const remaining = errors.filter((record) => record.error !== error);
+	if (remaining.length === errors.length) {
+		return;
+	}
+
+	errors = remaining;
+	for (const listener of listeners) {
+		listener();
+	}
+};
+
 export const subscribeToRuntimeErrors = (listener: () => void) => {
 	listeners.add(listener);
 	// Read again after subscribing so errors between render and commit are kept.

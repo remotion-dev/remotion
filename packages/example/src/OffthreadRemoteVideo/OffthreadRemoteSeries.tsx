@@ -1,6 +1,6 @@
-import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
 import {CalculateMetadataFunction, OffthreadVideo, Series} from 'remotion';
+import {getMediaMetadata} from '../get-media-metadata';
 
 const fps = 30;
 const sources = [
@@ -17,24 +17,17 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 > = async () => {
 	const all = await Promise.all(
 		sources.map(async (src) => {
-			const {slowDurationInSeconds, dimensions} = await parseMedia({
-				src,
-				acknowledgeRemotionLicense: true,
-				fields: {
-					slowDurationInSeconds: true,
-					dimensions: true,
-				},
-			});
+			const {durationInSeconds, dimensions} = await getMediaMetadata(src);
 			return {
 				src,
-				slowDurationInSeconds,
+				durationInSeconds,
 				dimensions,
 			};
 		}),
 	);
 
 	const allDurations = all
-		.map((a) => a.slowDurationInSeconds)
+		.map((a) => a.durationInSeconds)
 		.reduce((a, b) => a + b, 0);
 	// get biggest dimension
 	const biggestDimension = all.reduce((a, b) => {
@@ -57,7 +50,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 		width: Math.floor(biggestDimension.dimensions!.width / 2) * 2,
 		height: Math.floor(biggestDimension.dimensions!.height / 2) * 2,
 		props: {
-			durations: all.map((a) => a.slowDurationInSeconds),
+			durations: all.map((a) => a.durationInSeconds),
 		},
 	};
 };

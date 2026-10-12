@@ -44,7 +44,10 @@ import {
 	largeInspectorActionIconStyle,
 } from './common';
 import type {SequenceSectionSelection} from './inspector-selection';
-import {useSequenceInspectorSourceLocation} from './SequenceInspectorHeader';
+import {
+	SequenceInspectorSections,
+	useSequenceInspectorSourceLocation,
+} from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
@@ -458,6 +461,7 @@ const SequenceExpandedInspector: React.FC<{
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
+			<SequenceInspectorSections track={track} />
 			{validatedLocation ? (
 				<>
 					<InspectorSequenceSection

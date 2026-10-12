@@ -28,14 +28,16 @@ Tailwind animation class will not render correctly, they need to be refactored.
 Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
-Prefer `Interactive.withSchema({wrapInSequence: true})` for custom visual components
-with editable props, and register reusable scenes as connected compositions.
+Prefer `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})`
+for scenes with editable props. Their inner markup can return a fragment; the
+wrapper handles layout and instance styles. Sized elements such as lower thirds
+can keep the default layout and forward `style` to their own root. Register
+reusable scenes as connected compositions.
 Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
 Give every timed component that supports `premountFor` one second of premounting:
 `premountFor={fps}`, where `fps` comes from `useVideoConfig()`. Apply this to
-media, interactive components, `<Sequence>`, `<Series.Sequence>`,
-`<TransitionSeries.Sequence>`, and `<TransitionSeries.Overlay>`, including
-timed components nested inside scenes. Premount the parent timeline item too
+media, interactive components, `<Sequence>`, `<TransitionSeries.Sequence>`,
+and `<TransitionSeries.Overlay>`, including timed components nested inside scenes. Premount the parent timeline item too
 when a nested item needs to mount before the parent starts. A component without
 `premountFor`, such as `<TransitionSeries.Transition>`, needs no substitute.
 
@@ -247,7 +249,7 @@ const lowerThirdSchema = {
 
 export const LowerThird = Interactive.withSchema({
   Component: LowerThirdInner,
-  componentName: "<LowerThird>",
+  componentName: "LowerThird",
   schema: lowerThirdSchema,
   wrapInSequence: true,
 });

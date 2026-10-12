@@ -12,11 +12,11 @@ import {CodeCard} from './CodeCard';
 
 // Timing follows src/blueprint/timeline.ts: drop and whip-in at frame 255,
 // cuts on the beat of the 113 BPM score.
-export const RollerSkiBlueprint: React.FC = () => {
+const RollerSkiBlueprintInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#FFFFFF'}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#FFFFFF'}}>
 			<Audio
 				name="Score · drop at 8.5 s"
 				src={rollerSkiAsset('blueprint/soundtrack.wav')}
@@ -122,3 +122,11 @@ export const RollerSkiBlueprintCompositions: React.FC = () => {
 		</Folder>
 	);
 };
+
+export const RollerSkiBlueprint = Interactive.withSchema({
+	Component: RollerSkiBlueprintInner,
+	componentName: 'RollerSkiBlueprint',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

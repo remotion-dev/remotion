@@ -1,9 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
-export const DragIn: React.FC = () => {
+const DragInInner: React.FC = () => {
 	return (
 		<>
 			<Video
@@ -14,9 +14,11 @@ export const DragIn: React.FC = () => {
 					height: 1080,
 				}}
 			/>
-			<AbsoluteFill>
-				<Interactive.Div>FOLLOW ME</Interactive.Div>
-			</AbsoluteFill>
+			<Interactive.Div
+				style={{position: 'absolute', top: 0, left: 0, right: 0}}
+			>
+				FOLLOW ME
+			</Interactive.Div>
 			<Video
 				src={asset('text-behind-video-foreground.webm')}
 				style={{
@@ -28,3 +30,11 @@ export const DragIn: React.FC = () => {
 		</>
 	);
 };
+
+export const DragIn = Interactive.withSchema({
+	Component: DragInInner,
+	componentName: 'DragIn',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

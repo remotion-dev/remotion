@@ -55,6 +55,8 @@ export const configMethodLifecycles = {
 	setExperimentalKeepAudioContextAlive: 'reload',
 	setExperimentalRspackEnabled: 'restart',
 	setExperimentalTracksEnabled: 'runtime',
+	setExperimentalSequenceActivityEnabled: 'runtime',
+	setExperimentalSequenceActivityLimit: 'runtime',
 	setForSeamlessAacConcatenation: 'runtime',
 	setForceNewStudioEnabled: 'restart',
 	setFrameRange: 'runtime',

@@ -6,25 +6,36 @@ import {rings} from '@remotion/effects/rings';
 import {wave} from '@remotion/effects/wave';
 import {Video} from '@remotion/media';
 import React from 'react';
-import {Solid, Sequence, useCurrentFrame, interpolate} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	Solid,
+	Sequence,
+	useCurrentFrame,
+	interpolate,
+} from 'remotion';
 import {asset} from './assets';
 
-export const DiscoBallBg: React.FC = () => {
+const DiscoBallBgInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<Solid
+				premountFor={fps}
 				color={'#1e1c1c'}
 				width={1080}
 				height={1920}
 				style={{position: 'absolute'}}
 			/>
 			<Sequence
+				premountFor={fps}
 				style={{
 					opacity: 0.1,
 				}}
 			>
 				<Solid
+					premountFor={fps}
 					width={1080}
 					height={1920}
 					color={'#010101'}
@@ -70,6 +81,7 @@ export const DiscoBallBg: React.FC = () => {
 				/>
 
 				<Solid
+					premountFor={fps}
 					width={1080}
 					height={1920}
 					color={'rgba(255, 255, 255, 0)'}
@@ -78,6 +90,7 @@ export const DiscoBallBg: React.FC = () => {
 					}}
 				/>
 				<Video
+					premountFor={fps}
 					src={asset('disco-ball-3d-loop.mov')}
 					style={{
 						position: 'absolute',
@@ -106,3 +119,11 @@ export const DiscoBallBg: React.FC = () => {
 		</>
 	);
 };
+
+export const DiscoBallBg = Interactive.withSchema({
+	Component: DiscoBallBgInner,
+	componentName: 'DiscoBallBg',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

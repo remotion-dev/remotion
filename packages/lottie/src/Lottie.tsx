@@ -218,6 +218,7 @@ export const Lottie = ({
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<Lottie>'}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/lottie/lottie"
 				showInTimeline={showInTimeline ?? false}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}

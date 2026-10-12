@@ -2,14 +2,22 @@ import {dropShadow} from '@remotion/effects/drop-shadow';
 import {scale} from '@remotion/effects/scale';
 import {Arrow} from '@remotion/shapes';
 import React from 'react';
-import {Img, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	CanvasImage,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {asset} from './assets';
 
-export const ArrowLogo: React.FC = () => {
+const ArrowLogoInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<Arrow
+				premountFor={fps}
 				length={300}
 				headWidth={185}
 				headLength={120}
@@ -34,7 +42,8 @@ export const ArrowLogo: React.FC = () => {
 					}),
 				]}
 			/>
-			<Img
+			<CanvasImage
+				premountFor={fps}
 				src={asset('claude-logo-png_seeklogo-554534 (1).png')}
 				style={{
 					position: 'absolute',
@@ -57,3 +66,11 @@ export const ArrowLogo: React.FC = () => {
 		</>
 	);
 };
+
+export const ArrowLogo = Interactive.withSchema({
+	Component: ArrowLogoInner,
+	componentName: 'ArrowLogo',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

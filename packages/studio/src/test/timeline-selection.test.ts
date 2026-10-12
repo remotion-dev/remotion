@@ -76,6 +76,7 @@ import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
+import {getTimelineSequenceTimingLimits} from '../components/Timeline/get-timeline-sequence-timing-limits';
 import {
 	getKeyframeClipboardDataFromSelections,
 	getPasteKeyframeTarget,
@@ -2219,8 +2220,6 @@ test('Looping timeline items cannot be resized or split', () => {
 		...loopedSequence,
 		type: 'video',
 		src: 'video.mp4',
-		volume: 1,
-		doesVolumeChange: false,
 		muted: false,
 		startMediaFrom: 0,
 		mediaFrameAtSequenceZero: 0,
@@ -3280,7 +3279,7 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
 
 	for (const [deltaFrames, expected] of [
-		[-100, -0],
+		[-100, 0],
 		[100, 79],
 	]) {
 		expect(
@@ -3627,6 +3626,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 		parentPlaybackRate: 1,
 		canSnapToTimelineStart: true,
 		minimumDeltaFrames: -100,
+		maximumDeltaFrames: Infinity,
 		initialTimelineStart: 8,
 		effectKeyframes: [],
 		fileName: nodePath.absolutePath,
@@ -3679,6 +3679,7 @@ test('Timeline from drag does not snap nested sequences to the timeline start', 
 					parentPlaybackRate: 1,
 					canSnapToTimelineStart: false,
 					minimumDeltaFrames: -100,
+					maximumDeltaFrames: Infinity,
 					initialTimelineStart: 8,
 					effectKeyframes: [],
 					fileName: nodePath.absolutePath,
@@ -3788,6 +3789,7 @@ test('Timeline from drag removes the prop at the default value', () => {
 				parentPlaybackRate: 1,
 				canSnapToTimelineStart: true,
 				minimumDeltaFrames: -100,
+				maximumDeltaFrames: Infinity,
 				initialTimelineStart: 8,
 				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
@@ -6645,6 +6647,8 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 				{
 					cascadedStart: 0,
 					localStart: 0,
+					parentVisibleStart: 0,
+					parentVisibleEnd: null,
 					depth: 0,
 					keyframeDisplayOffset: 0,
 					keyframePlaybackRate: 1,
@@ -9302,3 +9306,221 @@ test('Selected timeline rows do not reselect on pointer down without modifiers',
 		}),
 	).toBe(true);
 });
+
+test.each([
+	{
+		name: 'negative ancestor',
+		parentFrom: -30,
+		parentDuration: 300,
+		parentTrimBefore: 0,
+		childFrom: 10,
+		childDuration: 60,
+		deltaFrames: -10,
+		expectedFrom: 0,
+	},
+	{
+		name: 'trimmed ancestor',
+		parentFrom: 0,
+		parentDuration: 300,
+		parentTrimBefore: 30,
+		childFrom: 10,
+		childDuration: 60,
+		deltaFrames: -10,
+		expectedFrom: 0,
+	},
+	{
+		name: 'clipped trailing edge',
+		parentFrom: 0,
+		parentDuration: 60,
+		parentTrimBefore: 0,
+		childFrom: 40,
+		childDuration: 40,
+		deltaFrames: 10,
+		expectedFrom: 50,
+	},
+])('Timeline moves preserve existing ancestor clipping: $name', (scenario) => {
+	const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const parent = makeTimelineSequence({
+		schema: {},
+		id: 'parent',
+		overrideId: 'parent',
+		from: scenario.parentFrom,
+		duration: scenario.parentDuration,
+		trimBefore: scenario.parentTrimBefore,
+	});
+	const child = makeTimelineSequence({
+		schema: {},
+		id: 'child',
+		overrideId: 'child',
+		parentId: parent.id,
+		from: scenario.childFrom,
+		duration: scenario.childDuration,
+	});
+	const sequences = [parent, child];
+	const overrideIdsToNodePaths = {child: nodePath};
+	const propStatuses = makeFromPropStatuses([nodePath]);
+	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const limits = getTimelineSequenceTimingLimits({
+		track: tracks.find((t) => t.sequence.id === child.id)!,
+		tracks,
+		sequences,
+		propStatuses,
+		timelineDurationInFrames: 600,
+		movingSequenceIds: null,
+	});
+	// Re-entering the existing From in the inspector must preserve it.
+	expect(
+		Math.max(limits.minimumFrom, Math.min(limits.maximumFrom, child.from)),
+	).toBe(child.from);
+	expect(scenario.expectedFrom).toBeGreaterThanOrEqual(limits.minimumFrom);
+	expect(scenario.expectedFrom).toBeLessThanOrEqual(limits.maximumFrom);
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [],
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+	expect(targets).not.toBeNull();
+	const deltaFrames = getTimelineSequenceFromDragDelta({
+		targets: targets!,
+		deltaFrames: scenario.deltaFrames,
+		timelineDurationInFrames: 600,
+		pxPerFrame: 10,
+		snappingEnabled: false,
+	});
+	const changes = getTimelineSequenceFromDragChanges({
+		targets: targets!,
+		deltaFrames,
+	});
+	expect(changes.map((c) => c.value)).toEqual([scenario.expectedFrom]);
+	const movedTracks = calculateTimeline({
+		sequences: [parent, {...child, from: Number(changes[0].value)}],
+		overrideIdsToNodePaths,
+	});
+	expect(
+		movedTracks.find((t) => t.sequence.id === child.id)!.sequence.duration,
+	).toBeGreaterThanOrEqual(1);
+});
+
+test.each([
+	{parentPlaybackRate: 1, media: false},
+	{parentPlaybackRate: 2, media: false},
+	{parentPlaybackRate: 1, media: true},
+])(
+	'Timeline moves stop at Track neighbours after timing edits: %j',
+	({parentPlaybackRate, media}) => {
+		const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 1], []);
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const parent = makeTimelineSequence({
+			schema: {},
+			id: 'track',
+			overrideId: 'track',
+			from: 30,
+			duration: 400,
+			sequencePlaybackRate: parentPlaybackRate,
+			componentIdentity: 'dev.remotion.remotion.Track',
+		});
+		parent.timelineTrack = {
+			id: parent.id,
+			role: 'track',
+			name: 'Track',
+			seriesOffset: null,
+		};
+		const previous = makeTimelineSequence({
+			schema: {},
+			id: 'previous',
+			overrideId: 'previous',
+			parentId: parent.id,
+			duration: 80,
+		});
+		const child = makeTimelineSequence({
+			schema: Internals.sequenceSchema,
+			id: 'child',
+			overrideId: 'child',
+			parentId: parent.id,
+			from: 100,
+			duration: media ? 34 : 40,
+			type: media ? 'video' : 'sequence',
+			componentIdentity: media ? 'dev.remotion.media.Video' : null,
+			currentRuntimeValueDotNotation: media
+				? {durationInFrames: 42, playbackRate: 2, trimBefore: 30}
+				: {},
+		});
+		const next = makeTimelineSequence({
+			schema: {},
+			id: 'next',
+			overrideId: 'next',
+			parentId: parent.id,
+			from: 160,
+			duration: 60,
+		});
+		for (const item of [previous, child, next])
+			item.timelineTrack = {
+				id: parent.id,
+				role: 'clip',
+				name: 'Track',
+				seriesOffset: null,
+			};
+		const sequences = [parent, previous, child, next];
+		const overrideIdsToNodePaths = {child: nodePath};
+		const propStatuses = makeFromPropStatuses([nodePath]);
+		if (media) {
+			const status =
+				propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)];
+			if (!status.canUpdate) throw new Error('Expected editable media');
+			status.props.durationInFrames = {
+				status: 'static',
+				codeValue: 68,
+				keyframeDisplayOffsetAdjustment: null,
+			};
+		}
+
+		const targets = getTimelineSequenceFromDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [],
+			sequences,
+			overrideIdsToNodePaths,
+			propStatuses,
+		});
+		expect(targets).not.toBeNull();
+		for (const [requestedDelta, expectedFrom] of [
+			[-1000, 80],
+			[1000, media ? 126 : 120],
+		]) {
+			const deltaFrames = getTimelineSequenceFromDragDelta({
+				targets: targets!,
+				deltaFrames: requestedDelta,
+				timelineDurationInFrames: 600,
+				pxPerFrame: 10,
+				snappingEnabled: false,
+			});
+			const changes = getTimelineSequenceFromDragChanges({
+				targets: targets!,
+				deltaFrames,
+			});
+			expect(changes.map((c) => c.value)).toEqual([expectedFrom]);
+			const movedTracks = calculateTimeline({
+				sequences: [
+					parent,
+					previous,
+					{...child, from: Number(changes[0].value)},
+					next,
+				],
+				overrideIdsToNodePaths,
+			});
+			const moved = movedTracks.find(
+				(t) => t.sequence.id === child.id,
+			)!.sequence;
+			const before = movedTracks.find(
+				(t) => t.sequence.id === previous.id,
+			)!.sequence;
+			const after = movedTracks.find(
+				(t) => t.sequence.id === next.id,
+			)!.sequence;
+			expect(moved.from).toBeGreaterThanOrEqual(before.from + before.duration);
+			expect(moved.from + moved.duration).toBeLessThanOrEqual(after.from);
+		}
+	},
+);

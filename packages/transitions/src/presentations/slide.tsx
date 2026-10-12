@@ -95,7 +95,11 @@ const SlidePresentation: React.FC<
 		};
 	}, [directionStyle, enterStyle, exitStyle, presentationDirection]);
 
-	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
+	return (
+		<AbsoluteFill showInTimeline={false} style={style}>
+			{children}
+		</AbsoluteFill>
+	);
 };
 
 /*

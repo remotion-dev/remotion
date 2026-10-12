@@ -16,6 +16,9 @@ export type WebCodecsController = {
 	};
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const webcodecsController = (): WebCodecsController => {
 	const controller = mediaParserController();
 

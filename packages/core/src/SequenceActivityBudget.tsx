@@ -169,6 +169,9 @@ export const useSequenceActivityAdmission = (
 	candidate: ActivityCandidate | null,
 ) => {
 	const budget = useContext(ActivityBudgetContext);
+	const enabled = useContext(SequenceActivityContext);
+	const settings = useContext(SequenceActivitySettingsContext);
+	const unlimited = enabled && settings?.limit === -1;
 	const selected = useContext(ActivitySelectionContext);
 	const id = candidate?.id ?? null;
 	const parent = candidate?.parent ?? null;
@@ -187,5 +190,7 @@ export const useSequenceActivityAdmission = (
 			return budget.register(committedCandidate);
 		}
 	}, [budget, committedCandidate]);
-	return id !== null && selected.has(id);
+	// Unlimited discovery admits children on their first render, without waiting
+	// for their registration and a subsequent budget publication.
+	return id !== null && (unlimited || selected.has(id));
 };

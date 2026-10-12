@@ -7,6 +7,9 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: false,
+	experimentalSequenceActivityEnabled: false,
+	experimentalSequenceActivityLimit:
+		NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	bufferStateDelayInMilliseconds: null,
 	defaultCodingAgent: null,
 	defaultEditor: null,
@@ -60,10 +63,20 @@ export const getStudioBufferStateDelayInMilliseconds = () => {
 export const getStudioDefaultPremountInSeconds = () => {
 	return (
 		getStudioRuntimeConfig().defaultPremountInSeconds ??
-		NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS
+		NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS
 	);
 };
 
 export const getStudioShowPremounting = () => {
-	return getStudioRuntimeConfig().showPremounting ?? true;
+	return getStudioRuntimeConfig().showPremounting ?? false;
+};
+
+export const getStudioSequenceActivitySettings = () => {
+	const config = getStudioRuntimeConfig();
+	return {
+		enabled: config.experimentalSequenceActivityEnabled ?? false,
+		limit:
+			config.experimentalSequenceActivityLimit ??
+			NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	};
 };

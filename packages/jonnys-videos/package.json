@@ -10,7 +10,7 @@
 		"dev": "remotion studio",
 		"bundle": "remotion bundle",
 		"render": "remotion render",
-		"lint": "eslint src && tsgo --noEmit",
+		"lint": "eslint src && bun check",
 		"test": "bun test src",
 		"formatting": "oxfmt src remotion.config.ts --check",
 		"format": "oxfmt src remotion.config.ts"
@@ -25,6 +25,7 @@
 		"@remotion/media": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/transitions": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*",
@@ -32,7 +33,6 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-flat": "workspace:*",
-		"@typescript/native-preview": "catalog:",
 		"@types/react": "catalog:",
 		"@types/three": "catalog:",
 		"@types/web": "catalog:",

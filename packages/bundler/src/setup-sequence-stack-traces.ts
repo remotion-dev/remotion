@@ -7,10 +7,6 @@ type ReactRefreshRuntime = {
 	getFamilyByType: (component: unknown) => unknown;
 };
 
-const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
-const sequenceComponent = Internals.getSequenceComponent();
-const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
-
 const originalCreateElement = React.createElement;
 const originalJsx = JsxRuntime.jsx;
 const originalJsxs = JsxRuntime.jsxs;
@@ -41,60 +37,6 @@ const getSourceFileName = (fileName: string) => {
 	return `./${normalizedFileName.slice(normalizedRoot.length + 1)}`;
 };
 
-const enableProxy = <
-	T extends
-		| typeof React.createElement
-		| typeof JsxRuntime.jsx
-		| typeof JsxRuntimeDev.jsxDEV,
->(
-	api: T,
-	isCreateElement: boolean,
-	sourceArgumentIndex: number | null,
-): T => {
-	return new Proxy(api, {
-		apply(target, thisArg, argArray) {
-			const component = argArray[0];
-			if (componentsToAddStacksTo.includes(component)) {
-				const [first, props, ...rest] = argArray;
-				const children = isCreateElement
-					? rest.length === 0
-						? props?.children
-						: rest
-					: props?.children;
-				const source =
-					sourceArgumentIndex === null ? null : argArray[sourceArgumentIndex];
-				const existingStack = props?.[internalStackProp];
-				const stack =
-					existingStack ||
-					(source &&
-					typeof source.fileName === 'string' &&
-					typeof source.lineNumber === 'number' &&
-					typeof source.columnNumber === 'number'
-						? Internals.makeOriginalSourceStack({
-								fileName: getSourceFileName(source.fileName),
-								lineNumber: source.lineNumber,
-								columnNumber: source.columnNumber,
-							})
-						: new Error().stack);
-				const newProps = existingStack
-					? {...props}
-					: {
-							...(props ?? {}),
-							[internalStackProp]: stack,
-						};
-				if (first === sequenceComponent) {
-					newProps._remotionInternalSingleChildComponent =
-						Internals.getSingleChildComponent(children);
-				}
-
-				return Reflect.apply(target, thisArg, [first, newProps, ...rest]);
-			}
-
-			return Reflect.apply(target, thisArg, argArray);
-		},
-	});
-};
-
 let stackTracesEnabled = false;
 
 const enableSequenceStackTraces = () => {
@@ -103,11 +45,27 @@ const enableSequenceStackTraces = () => {
 	}
 
 	stackTracesEnabled = true;
-	React.createElement = enableProxy(originalCreateElement, true, null);
-	JsxRuntime.jsx = enableProxy(originalJsx, false, null);
-	JsxRuntime.jsxs = enableProxy(originalJsxs, false, null);
+	React.createElement = Internals.createElementSourceProxy(
+		originalCreateElement,
+		null,
+		getSourceFileName,
+	);
+	JsxRuntime.jsx = Internals.createElementSourceProxy(
+		originalJsx,
+		null,
+		getSourceFileName,
+	);
+	JsxRuntime.jsxs = Internals.createElementSourceProxy(
+		originalJsxs,
+		null,
+		getSourceFileName,
+	);
 	if (originalJsxDev) {
-		JsxRuntimeDev.jsxDEV = enableProxy(originalJsxDev, false, 4);
+		JsxRuntimeDev.jsxDEV = Internals.createElementSourceProxy(
+			originalJsxDev,
+			4,
+			getSourceFileName,
+		);
 	}
 };
 

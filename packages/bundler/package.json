@@ -28,7 +28,6 @@
 		"@remotion/studio": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/timeline-utils": "workspace:*",
-		"@remotion/media-parser": "workspace:*",
 		"style-loader": "4.0.0",
 		"webpack": "5.105.0"
 	},

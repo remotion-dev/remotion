@@ -252,13 +252,17 @@ export const usePlayback = ({
 
 			framesAdvanced += framesToAdvance;
 
-			if (
-				nextFrame !== currentFrame &&
-				(!hasEnded || moveToBeginningWhenEnded) &&
-				!isBuffering()
-			) {
-				pendingFrame.request(currentFrame, nextFrame);
-				setFrameFromPlayback((c) => ({...c, [config.id]: nextFrame}));
+			// A late callback can skip the endpoint. Hold that exact frame on end.
+			const frameToDisplay =
+				hasEnded && !moveToBeginningWhenEnded
+					? playbackRate > 0
+						? actualLastFrame
+						: actualFirstFrame
+					: nextFrame;
+
+			if (frameToDisplay !== currentFrame && !isBuffering()) {
+				pendingFrame.request(currentFrame, frameToDisplay);
+				setFrameFromPlayback((c) => ({...c, [config.id]: frameToDisplay}));
 			}
 
 			if (hasEnded) {

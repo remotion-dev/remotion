@@ -33,7 +33,7 @@ Fetch its source code from https://www.remotion.dev/elements/captions/basic-capt
 
 ## Displaying captions alongside video content
 
-Keep each clip's video and captions inside the same `<Sequence>`, `<Series.Sequence>`, or `<TransitionSeries.Sequence>`.  
+Keep each clip's video and captions inside the same `<Sequence>` or `<TransitionSeries.Sequence>`.
 Put the clip's `trimBefore`, `durationInFrames`, and `playbackRate` on that shared parent so trimming or changing the speed affects both.  
 For independently positioned clips, put `from` on the shared `<Sequence>` too.
 
@@ -52,15 +52,16 @@ Give the caption area a width and position it over the video. In this
 
 ```tsx title="src/MyComposition.tsx"
 import { Video } from "@remotion/media";
-import { Series, staticFile, useVideoConfig } from "remotion";
+import { TransitionSeries } from "@remotion/transitions";
+import { staticFile, useVideoConfig } from "remotion";
 import { BasicCaptions } from "./basic-captions";
 
 export const MyComposition: React.FC = () => {
   const { fps } = useVideoConfig();
 
   return (
-    <Series>
-      <Series.Sequence
+    <TransitionSeries>
+      <TransitionSeries.Sequence
         name="Opening"
         trimBefore={4 * fps}
         durationInFrames={20 * fps}
@@ -99,8 +100,8 @@ export const MyComposition: React.FC = () => {
             },
           ]}
         />
-      </Series.Sequence>
-      <Series.Sequence
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Sequence
         name="Next clip"
         trimBefore={1 * fps}
         durationInFrames={5 * fps}
@@ -139,8 +140,8 @@ export const MyComposition: React.FC = () => {
             },
           ]}
         />
-      </Series.Sequence>
-    </Series>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
   );
 };
 ```
