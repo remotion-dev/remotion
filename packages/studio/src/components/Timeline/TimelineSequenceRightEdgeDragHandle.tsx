@@ -560,6 +560,8 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 			? Math.max(-target.initialFrom, localDeltaFrames)
 			: localDeltaFrames;
 
+	// A left trim keeps the right edge fixed. Apply keyframe duration bounds
+	// separately from spatial/source end bounds, which constrain the right edge.
 	if (target.timingLimits) {
 		clampedDeltaFrames = trimBeforeOnly
 			? Math.min(
@@ -571,11 +573,17 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 						clampedDeltaFrames,
 					),
 				)
-			: Math.max(
-					target.positionField === null
-						? -Infinity
-						: target.timingLimits.minimumFrom - target.initialFrom,
-					clampedDeltaFrames,
+			: Math.min(
+					target.initialDuration -
+						target.timingLimits.keyframes.minimumDuration,
+					Math.max(
+						target.initialDuration -
+							target.timingLimits.keyframes.maximumDuration,
+						target.positionField === null
+							? -Infinity
+							: target.timingLimits.minimumFrom - target.initialFrom,
+						clampedDeltaFrames,
+					),
 				);
 	}
 
@@ -2005,18 +2013,30 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 													limits?.limitReasons.maximumTrimBefore ?? null,
 												],
 											])
-										: nextValues.durationInFrames === target.minimumDuration
-											? target.minimumDuration > 1
-												? 'Transition limit'
-												: 'Minimum duration'
-											: nextValues.trimBefore === 0
+										: (getTimelineTrimLimitReason(nextValues.durationInFrames, [
+												[
+													limits?.keyframes.minimumDuration ?? NaN,
+													limits?.keyframes.minimumReason ?? null,
+												],
+												[
+													limits?.keyframes.maximumDuration ?? NaN,
+													limits?.keyframes.maximumReason ?? null,
+												],
+												[
+													target.minimumDuration,
+													target.minimumDuration > 1
+														? 'Transition limit'
+														: 'Minimum duration',
+												],
+											]) ??
+											(nextValues.trimBefore === 0
 												? 'Source start'
 												: getTimelineTrimLimitReason(nextValues.from, [
 														[
 															limits?.minimumFrom ?? NaN,
 															limits?.limitReasons.minimumFrom ?? null,
 														],
-													]);
+													])));
 								limitReason ??=
 									getVisibleTimelineTrimLimitReason(targetLimitReason);
 							}

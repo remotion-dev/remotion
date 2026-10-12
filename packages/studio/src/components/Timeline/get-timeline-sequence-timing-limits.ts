@@ -314,6 +314,12 @@ export const getTimelineSequenceTimingLimits = ({
 				: 'Parent edge';
 	return {
 		playbackRate,
+		keyframes: {
+			minimumDuration: keyframeMinimumDuration,
+			maximumDuration: keyframeMaximumDuration,
+			minimumReason: keyframeLimits.minimumReason,
+			maximumReason: keyframeLimits.maximumReason,
+		},
 		minimumDuration,
 		maximumDuration: Math.max(minimumDuration, maximumDuration),
 		minimumFrom,

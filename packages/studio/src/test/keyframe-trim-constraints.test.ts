@@ -12,6 +12,8 @@ import {loadKeyframeTrimConstraints} from '../components/Timeline/load-keyframe-
 import {
 	getTimelineSequenceDurationDragChanges,
 	getTimelineSequenceDurationDragTargets,
+	getTimelineSequenceLeftEdgeDragChanges,
+	getTimelineSequenceLeftEdgeDragTargets,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {makeBrowserStudioOperations} from './make-browser-studio-operations';
@@ -235,6 +237,121 @@ test.each([
 
 	if (minimum === maximum)
 		expect(targets[0].minimumDurationReason).toBe('Computed keyframes');
+});
+
+test.each([
+	'dev.remotion.remotion.Sequence',
+	'dev.remotion.remotion.Series.Sequence',
+	'dev.remotion.transitions.TransitionSeries.Sequence',
+])('left-edge trims respect keyframe bounds for %s', (componentIdentity) => {
+	for (const {
+		range,
+		deltaFrames,
+		from,
+		trimBefore,
+		playbackRate,
+		expectedDuration,
+	} of [
+		{
+			range: '[0, durationInFrames - 50]',
+			deltaFrames: 40,
+			from: 0,
+			trimBefore: 0,
+			playbackRate: 1,
+			expectedDuration: 51,
+		},
+		{
+			range: '[0, durationInFrames - 50]',
+			deltaFrames: 40,
+			from: 0,
+			trimBefore: 0,
+			playbackRate: 2,
+			expectedDuration: 52,
+		},
+		{
+			range: '[0, durationInFrames, 100]',
+			deltaFrames: -40,
+			from: 30,
+			trimBefore: 30,
+			playbackRate: 1,
+			expectedDuration: 69,
+		},
+		{
+			range: '[0, Math.max(1, durationInFrames - 50)]',
+			deltaFrames: 40,
+			from: 0,
+			trimBefore: 0,
+			playbackRate: 1,
+			expectedDuration: 60,
+		},
+	]) {
+		const fixture = makeFixture(range, 'child', 60);
+		const parentPath = fixture.mappings.parent;
+		fixture.files[parentPath.absolutePath] =
+			`import {Sequence} from 'remotion'; export const App = () => <Sequence from={${from}} trimBefore={${trimBefore}} durationInFrames={60}><Content /></Sequence>;`;
+		const parentNode = getNodes({
+			project: {rootDir: '/trim-test', files: fixture.files},
+			filePath: parentPath.absolutePath,
+		})[0];
+		fixture.mappings.parent = {
+			...parentPath,
+			nodePath: parentNode.nodePath,
+			sequenceKeys: ['durationInFrames', 'from', 'trimBefore'],
+		};
+		fixture.propStatuses[
+			Internals.makeSequencePropsSubscriptionKey(fixture.mappings.parent)
+		] = getNodeProps({
+			project: {rootDir: '/trim-test', files: fixture.files},
+			node: parentNode,
+			keys: fixture.mappings.parent.sequenceKeys,
+			effectKeys: [],
+		});
+		fixture.sequences[0].from = from;
+		fixture.sequences[0].trimBefore = trimBefore;
+		fixture.sequences[0].duration = 60 / playbackRate;
+		fixture.sequences[0].sequencePlaybackRate = playbackRate;
+		fixture.sequences[0].controls!.componentIdentity = componentIdentity;
+		fixture.sequences[1].controls!.videoConfigValues = config(60 + trimBefore);
+		prepareSource(fixture);
+		const tracks = calculateTimeline({
+			sequences: fixture.sequences,
+			overrideIdsToNodePaths: fixture.mappings,
+		});
+		const targets = getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: tracks.find(
+				(track) => track.sequence.id === 'parent',
+			)!.nodePathInfo!,
+			selectedItems: [],
+			sequences: fixture.sequences,
+			overrideIdsToNodePaths: fixture.mappings,
+			propStatuses: fixture.propStatuses,
+			timelineDurationInFrames: 1000,
+			trimBeforeOnly: false,
+			rippleEdit: false,
+		});
+		expect(targets).not.toBeNull();
+		const changes = getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets!,
+			deltaFrames,
+			trimBeforeOnly: false,
+		});
+		expect(
+			changes.find((change) => change.fieldKey === 'durationInFrames')?.value ??
+				60,
+		).toBe(expectedDuration);
+		const appliedDelta = (60 - expectedDuration) / playbackRate;
+		expect(
+			changes.find((change) => change.fieldKey === 'trimBefore')?.value ??
+				trimBefore,
+		).toBe(trimBefore + appliedDelta * playbackRate);
+		if (componentIdentity === 'dev.remotion.remotion.Sequence') {
+			expect(
+				changes.find((change) => change.fieldKey === 'from')?.value ?? from,
+			).toBe(from + appliedDelta);
+		} else {
+			expect(changes.some((change) => change.fieldKey === 'from')).toBe(false);
+		}
+	}
 });
 
 test('converts descendant constraints through offsets and playback rates', () => {
