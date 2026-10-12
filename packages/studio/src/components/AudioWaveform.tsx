@@ -280,10 +280,11 @@ const AudioWaveformInner: React.FC<{
 
 	return (
 		<div style={getContainerStyle(height)}>
+			<canvas ref={waveformCanvas} style={waveformCanvasStyle} />
+			{/* Paint the volume shade over the waveform as well as its background. */}
 			{shouldRenderVolumeOverlay ? (
 				<canvas ref={volumeCanvas} style={volumeCanvasStyle} />
 			) : null}
-			<canvas ref={waveformCanvas} style={waveformCanvasStyle} />
 		</div>
 	);
 };

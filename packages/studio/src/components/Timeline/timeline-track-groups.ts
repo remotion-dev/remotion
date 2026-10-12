@@ -1,13 +1,49 @@
 import type {TSequence} from 'remotion';
+import {
+	getTimelineLayerHeight,
+	TIMELINE_ITEM_BORDER_BOTTOM,
+} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 
 export const TIMELINE_PACKED_TRACK_HEIGHT = 28;
 export const TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT = 24;
+export const TIMELINE_TRACK_MEDIA_LABEL_HEIGHT = 16;
+
+export const hasTimelineTrackMediaLabel = (sequence: TSequence): boolean =>
+	sequence.timelineTrack?.role === 'clip' &&
+	sequence.timelineTrack.seriesOffset === null &&
+	(sequence.type === 'audio' ||
+		sequence.type === 'video' ||
+		sequence.type === 'image');
+
+export const getTimelineSequenceHeight = (sequence: TSequence): number => {
+	if (sequence.timelineTrack?.role === 'overlay') {
+		return TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM;
+	}
+
+	if (
+		sequence.timelineTrack &&
+		(sequence.timelineTrack.role !== 'clip' ||
+			sequence.timelineTrack.seriesOffset !== null)
+	) {
+		return TIMELINE_PACKED_TRACK_HEIGHT;
+	}
+
+	return (
+		getTimelineLayerHeight(sequence.type) +
+		(hasTimelineTrackMediaLabel(sequence)
+			? TIMELINE_TRACK_MEDIA_LABEL_HEIGHT
+			: 0)
+	);
+};
 
 export type TimelineDisplayRow = {
 	readonly track: TimelineTrackWithDisplayGroup;
+	// Clips painted in this row, or null when the row paints its own sequence.
 	readonly items: readonly TimelineTrackWithDisplayGroup[] | null;
+	// Scenes whose contents can share space below this row.
+	readonly childScenes: readonly TimelineTrackWithDisplayGroup[] | null;
 	readonly auxiliaryRows: readonly (readonly TimelineTrackWithDisplayGroup[])[];
 };
 
@@ -157,13 +193,25 @@ export const getTimelineDisplayRows = (
 	for (const track of tracks) {
 		const group = track.sequence.timelineTrack;
 		if (!group) {
-			rows.push({track, items: null, auxiliaryRows: []});
+			rows.push({track, items: null, childScenes: null, auxiliaryRows: []});
+		} else if (group.role === 'clip' && group.seriesOffset === null) {
+			// Regular Track clips have their own bars and expandable properties
+			// below the container's row.
+			rows.push({track, items: null, childScenes: null, auxiliaryRows: []});
 		} else if (group.role === 'track') {
+			const packed =
+				track.sequence.controls?.componentIdentity !==
+				'dev.remotion.remotion.Track';
 			if (
 				track.sequence.loopDisplay !== undefined ||
 				track.sequence.frozenFrame !== null
 			) {
-				rows.push({track, items: [track], auxiliaryRows: []});
+				rows.push({
+					track,
+					items: packed ? [track] : null,
+					childScenes: null,
+					auxiliaryRows: [],
+				});
 				continue;
 			}
 
@@ -199,7 +247,12 @@ export const getTimelineDisplayRows = (
 				auxiliaryRows[rowIndex].push(item);
 			}
 
-			rows.push({track, items, auxiliaryRows});
+			rows.push({
+				track,
+				items: packed ? items : null,
+				childScenes: items,
+				auxiliaryRows,
+			});
 		}
 	}
 

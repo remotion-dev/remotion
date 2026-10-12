@@ -31,6 +31,7 @@ const TimelineListTrack: React.FC<{
 			style={{height, left: 0, position: 'absolute', top: start, width: '100%'}}
 		>
 			<TimelineSequenceItem
+				packed={row.items !== null}
 				showBottomBorder={row.auxiliaryRows.length === 0}
 				afterDropLineOffset={afterDropLineOffset}
 				siblingIndex={siblingIndex}
@@ -86,6 +87,10 @@ const TimelineSceneList: React.FC<{
 	const frame = Internals.Timeline.useTimelinePosition();
 	const lastFrame = useRef(frame);
 	const panels = useRef(new Map<string, HTMLDivElement>());
+	const transition = useRef<{
+		readonly pending: {updatePending: boolean};
+		readonly cancel: () => void;
+	} | null>(null);
 	const view = groups.map((group) => ({
 		id: group.id,
 		rows: group.items
@@ -104,8 +109,31 @@ const TimelineSceneList: React.FC<{
 	latest.current = {view, frame, previousFrame: lastFrame.current};
 
 	useLayoutEffect(() => {
+		return () => transition.current?.cancel();
+	}, []);
+
+	useLayoutEffect(() => {
 		const next = latest.current;
 		const previous = displayedViewRef.current;
+		const update = () => {
+			const currentView = latest.current.view;
+			displayedViewRef.current = currentView;
+			setDisplayedView(currentView);
+		};
+
+		// Activity discovery and virtualization can change another group's rows
+		// after the playhead has moved. Keep the pending snapshot intact and let
+		// its callback apply the latest rows instead of cancelling the slide.
+		if (transition.current !== null && next.frame === next.previousFrame) {
+			if (!transition.current.pending.updatePending) {
+				update();
+			}
+
+			return;
+		}
+
+		transition.current?.cancel();
+		transition.current = null;
 		const scrollBounds =
 			timelineVerticalScroll.current?.getBoundingClientRect();
 		const changingPanels = next.view.flatMap((group, index) => {
@@ -142,11 +170,6 @@ const TimelineSceneList: React.FC<{
 				},
 			];
 		});
-		const update = () => {
-			displayedViewRef.current = next.view;
-			setDisplayedView(next.view);
-		};
-
 		// Mounting, Activity discovery and layout edits are immediate. Animate
 		// only a playhead crossing between two discovered scene views.
 		if (changingPanels.length === 0 || next.frame === next.previousFrame) {
@@ -154,17 +177,23 @@ const TimelineSceneList: React.FC<{
 			return;
 		}
 
+		const pending = {
+			updatePending: true,
+		};
 		const cancel = startSlideViewTransition({
 			panels: changingPanels,
 			direction: next.frame > next.previousFrame ? 'forward' : 'backward',
-			update,
+			update: () => {
+				pending.updatePending = false;
+				update();
+			},
 		});
 		if (cancel === null) {
 			update();
 			return;
 		}
 
-		return cancel;
+		transition.current = {pending, cancel};
 	}, [key]);
 	useLayoutEffect(() => {
 		lastFrame.current = frame;

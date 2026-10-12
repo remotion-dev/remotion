@@ -45,7 +45,6 @@ import {
 } from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT_AUDIO,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
@@ -92,7 +91,8 @@ import {
 } from './timeline-sequence-label';
 import {timelineSourceOnlyCursor} from './timeline-source-only-cursor';
 import {
-	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+	getTimelineSequenceHeight,
+	hasTimelineTrackMediaLabel,
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
@@ -441,6 +441,8 @@ const TimelineSequenceBar: React.FC<{
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const isTransition = s.timelineTrack?.role === 'transition';
+	const isPackedClip =
+		s.timelineTrack?.role === 'clip' && s.timelineTrack.seriesOffset !== null;
 	useTimelineMarqueeSelectableItem(
 		selectionItem,
 		ref,
@@ -494,7 +496,7 @@ const TimelineSequenceBar: React.FC<{
 		2.5 + Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0));
 	let labelFollowsTransitionMarker = false;
 	if (
-		s.timelineTrack?.role === 'clip' &&
+		isPackedClip &&
 		sceneRange !== null &&
 		sceneRange.transitionInEnd !== null &&
 		frameIncrement !== null
@@ -553,21 +555,19 @@ const TimelineSequenceBar: React.FC<{
 				(Number(style.marginLeft) + selectionLeft) / frameIncrement,
 			durationInFrames: selectionWidth / frameIncrement,
 			pixelsPerFrame: frameIncrement,
-			height:
-				s.timelineTrack?.role === 'clip'
-					? Number(style.height)
-					: (sceneClipHeight ?? Number(style.height)),
-			seamY:
-				s.timelineTrack?.role === 'clip'
-					? Number(style.height) / 2
-					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+			height: isPackedClip
+				? Number(style.height)
+				: (sceneClipHeight ?? Number(style.height)),
+			seamY: isPackedClip
+				? Number(style.height) / 2
+				: TIMELINE_CHILD_TRANSITION_SEAM_Y,
 			cropHeight: Number(style.height),
 		});
 	}, [
 		containsSelection,
 		frameIncrement,
 		isTransition,
-		s.timelineTrack?.role,
+		isPackedClip,
 		sceneClipHeight,
 		sceneRange,
 		selected,
@@ -586,14 +586,12 @@ const TimelineSequenceBar: React.FC<{
 			offsetInFrames: Number(style.marginLeft) / frameIncrement,
 			durationInFrames: Number(style.width) / frameIncrement,
 			pixelsPerFrame: frameIncrement,
-			height:
-				s.timelineTrack?.role === 'clip'
-					? Number(style.height)
-					: (sceneClipHeight ?? Number(style.height)),
-			seamY:
-				s.timelineTrack?.role === 'clip'
-					? Number(style.height) / 2
-					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+			height: isPackedClip
+				? Number(style.height)
+				: (sceneClipHeight ?? Number(style.height)),
+			seamY: isPackedClip
+				? Number(style.height) / 2
+				: TIMELINE_CHILD_TRANSITION_SEAM_Y,
 			cropHeight: Number(style.height),
 		});
 	}, [
@@ -604,7 +602,7 @@ const TimelineSequenceBar: React.FC<{
 		style.marginLeft,
 		style.width,
 		style.height,
-		s.timelineTrack?.role,
+		isPackedClip,
 		sceneClipHeight,
 	]);
 	const transitionTrimEdge =
@@ -621,7 +619,7 @@ const TimelineSequenceBar: React.FC<{
 	const sceneClippingStyle: React.CSSProperties = useMemo(() => {
 		return {
 			clipPath:
-				s.timelineTrack?.role === 'clip' && frameIncrement !== null
+				isPackedClip && frameIncrement !== null
 					? getTimelineSceneClipPath({
 							sceneRange,
 							offsetInFrames: Number(style.marginLeft) / frameIncrement,
@@ -633,7 +631,7 @@ const TimelineSequenceBar: React.FC<{
 						})
 					: undefined,
 		};
-	}, [style, s.timelineTrack?.role, frameIncrement, sceneRange]);
+	}, [style, isPackedClip, frameIncrement, sceneRange]);
 
 	const actualStyle: React.CSSProperties = useMemo(
 		() => ({
@@ -691,6 +689,9 @@ const TimelineSequenceBar: React.FC<{
 						// The containing scene clips the label along the transition contour.
 						right: 0,
 						bottom: PACKED_LABEL_BOTTOM,
+						...(hasTimelineTrackMediaLabel(s)
+							? {top: getTimelineLayerHeight(s.type)}
+							: {}),
 						display: 'flex',
 						flexDirection: labelFollowsTransitionMarker ? 'row' : 'column',
 						alignItems: labelFollowsTransitionMarker ? 'center' : 'flex-start',
@@ -1979,9 +1980,11 @@ const TimelineSequenceLayoutInner: React.FC<{
 		return {
 			width: visibleLayout?.media?.width ?? 0,
 			marginLeft: visibleLayout?.media?.left ?? 0,
-			height: '100%',
+			height: hasTimelineTrackMediaLabel(s)
+				? getTimelineLayerHeight(s.type)
+				: '100%',
 		};
-	}, [visibleLayout]);
+	}, [s, visibleLayout]);
 	useLayoutEffect(() => {
 		if (
 			(maxMediaDuration === null && !s.loopDisplay) ||
@@ -2034,12 +2037,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 	const parentEnd = parentVisibleEnd ?? video.durationInFrames;
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
-	const layerHeight =
-		s.timelineTrack?.role === 'overlay'
-			? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM
-			: s.timelineTrack
-				? TIMELINE_PACKED_TRACK_HEIGHT
-				: getTimelineLayerHeight(s.type);
+	const layerHeight = getTimelineSequenceHeight(s);
 	const trimOutline = (() => {
 		if (
 			!isEdgeDragging ||
@@ -2369,23 +2367,31 @@ const TimelineSequenceLayoutInner: React.FC<{
 				</div>
 			) : null}
 			{s.type === 'video' && visibleLayout.media ? (
-				<TimelineVideoInfo
-					src={s.src}
-					visualizationWidth={visibleLayout.media.width}
-					displayOffsetInFrames={mediaDisplayOffsetInFrames}
-					displayDurationInFrames={mediaDisplayDurationInFrames}
-					startMediaFrom={s.startMediaFrom}
-					mediaFrameAtSequenceZero={mediaLoopStartFrame}
-					sequenceFrameOffset={0}
-					playbackRate={s.playbackRate * s.sequencePlaybackRate}
-					volume={timelineVolume}
-					muted={s.muted}
-					marginLeft={visibleLayout.media.left}
-					loopDisplay={s.loopDisplay}
-					loopDisplayOffsetInFrames={s.loopDisplay?.phaseOffsetInFrames ?? 0}
-					frozenMediaFrame={s.frozenMediaFrame}
-					extendLastFrame={extendVideoLastFrame}
-				/>
+				<div
+					style={{
+						height: hasTimelineTrackMediaLabel(s)
+							? getTimelineLayerHeight(s.type)
+							: '100%',
+					}}
+				>
+					<TimelineVideoInfo
+						src={s.src}
+						visualizationWidth={visibleLayout.media.width}
+						displayOffsetInFrames={mediaDisplayOffsetInFrames}
+						displayDurationInFrames={mediaDisplayDurationInFrames}
+						startMediaFrom={s.startMediaFrom}
+						mediaFrameAtSequenceZero={mediaLoopStartFrame}
+						sequenceFrameOffset={0}
+						playbackRate={s.playbackRate * s.sequencePlaybackRate}
+						volume={timelineVolume}
+						muted={s.muted}
+						marginLeft={visibleLayout.media.left}
+						loopDisplay={s.loopDisplay}
+						loopDisplayOffsetInFrames={s.loopDisplay?.phaseOffsetInFrames ?? 0}
+						frozenMediaFrame={s.frozenMediaFrame}
+						extendLastFrame={extendVideoLastFrame}
+					/>
+				</div>
 			) : null}
 			{s.type === 'image' && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
