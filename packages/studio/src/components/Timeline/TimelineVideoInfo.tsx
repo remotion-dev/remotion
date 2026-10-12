@@ -13,7 +13,6 @@ import {
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
 	snapCanvasPositionToDevicePixel,
-	type WaveformVolume,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/timeline-utils';
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
@@ -28,6 +27,7 @@ import {
 } from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
+import type {TimelineVolume} from './get-timeline-volume';
 import {getTimelineVideoFilmstripTimes} from './timeline-video-filmstrip-times';
 
 const outerStyle: React.CSSProperties = {
@@ -65,7 +65,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		readonly loopWidth: number;
 	} | null;
 	readonly playbackRate: number;
-	readonly volume: WaveformVolume;
+	readonly volume: TimelineVolume;
 	readonly muted: boolean;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
@@ -563,7 +563,7 @@ const TimelineVideoInfoInner: React.FC<{
 	readonly mediaFrameAtSequenceZero: number | null;
 	readonly sequenceFrameOffset: number;
 	readonly playbackRate: number;
-	readonly volume: WaveformVolume;
+	readonly volume: TimelineVolume;
 	readonly muted: boolean;
 	readonly marginLeft: number;
 	readonly loopDisplay: LoopDisplay | undefined;
@@ -638,6 +638,15 @@ const TimelineVideoInfoInner: React.FC<{
 	) => {
 		if (typeof volume === 'number') {
 			return volume;
+		}
+
+		if ('points' in volume) {
+			return {
+				points: volume.points.map((point) => ({
+					frame: point.frame - segmentDisplayOffsetInFrames,
+					value: point.value,
+				})),
+			};
 		}
 
 		return volume.slice(
