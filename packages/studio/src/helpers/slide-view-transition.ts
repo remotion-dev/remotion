@@ -44,12 +44,15 @@ export const startSlideViewTransition = ({
 		}
 		::view-transition-old(${name}), ::view-transition-new(${name}) {
 			animation-duration: 75ms;
-			animation-timing-function: ease-out;
+			animation-timing-function: ease-in-out;
 			animation-fill-mode: both;
 			mix-blend-mode: normal;
 		}
 		::view-transition-old(${name}) { animation-name: remotion-slide-out; }
-		::view-transition-new(${name}) { animation-name: remotion-slide-in; }
+		::view-transition-new(${name}) {
+			animation-name: remotion-slide-in;
+			animation-delay: 75ms;
+		}
 		@media (prefers-reduced-motion: reduce) {
 			::view-transition-old(${name}), ::view-transition-new(${name}) { animation: none; }
 		}

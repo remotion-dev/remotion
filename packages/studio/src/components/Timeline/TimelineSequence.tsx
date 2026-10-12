@@ -46,7 +46,6 @@ import {
 } from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT_AUDIO,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
@@ -89,8 +88,8 @@ import {
 } from './timeline-sequence-label';
 import {timelineSourceOnlyCursor} from './timeline-source-only-cursor';
 import {
-	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
-	TIMELINE_PACKED_TRACK_HEIGHT,
+	getTimelineSequenceHeight,
+	hasTimelineTrackMediaLabel,
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
@@ -591,6 +590,9 @@ const TimelineSequenceBar: React.FC<{
 							Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0)),
 						right: 0,
 						bottom: PACKED_LABEL_BOTTOM,
+						...(hasTimelineTrackMediaLabel(s)
+							? {top: getTimelineLayerHeight(s.type)}
+							: {}),
 						display: 'flex',
 						flexDirection: 'column',
 						alignItems: 'flex-start',
@@ -1737,9 +1739,11 @@ const TimelineSequenceLayoutInner: React.FC<{
 		return {
 			width: visibleLayout?.media?.width ?? 0,
 			marginLeft: visibleLayout?.media?.left ?? 0,
-			height: '100%',
+			height: hasTimelineTrackMediaLabel(s)
+				? getTimelineLayerHeight(s.type)
+				: '100%',
 		};
-	}, [visibleLayout]);
+	}, [s, visibleLayout]);
 	useLayoutEffect(() => {
 		if (
 			(maxMediaDuration === null && !s.loopDisplay) ||
@@ -1792,12 +1796,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 	const parentEnd = parentVisibleEnd ?? video.durationInFrames;
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
-	const layerHeight =
-		s.timelineTrack?.role === 'overlay'
-			? TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM
-			: s.timelineTrack
-				? TIMELINE_PACKED_TRACK_HEIGHT
-				: getTimelineLayerHeight(s.type);
+	const layerHeight = getTimelineSequenceHeight(s);
 	const trimOutline = (() => {
 		if (
 			!isEdgeDragging ||
@@ -2108,23 +2107,31 @@ const TimelineSequenceLayoutInner: React.FC<{
 				</div>
 			) : null}
 			{s.type === 'video' && visibleLayout.media ? (
-				<TimelineVideoInfo
-					src={s.src}
-					visualizationWidth={visibleLayout.media.width}
-					displayOffsetInFrames={mediaDisplayOffsetInFrames}
-					displayDurationInFrames={mediaDisplayDurationInFrames}
-					startMediaFrom={s.startMediaFrom}
-					mediaFrameAtSequenceZero={mediaLoopStartFrame}
-					sequenceFrameOffset={0}
-					playbackRate={s.playbackRate * s.sequencePlaybackRate}
-					volume={timelineVolume}
-					muted={s.muted}
-					marginLeft={visibleLayout.media.left}
-					loopDisplay={s.loopDisplay}
-					loopDisplayOffsetInFrames={s.loopDisplay?.phaseOffsetInFrames ?? 0}
-					frozenMediaFrame={s.frozenMediaFrame}
-					extendLastFrame={extendVideoLastFrame}
-				/>
+				<div
+					style={{
+						height: hasTimelineTrackMediaLabel(s)
+							? getTimelineLayerHeight(s.type)
+							: '100%',
+					}}
+				>
+					<TimelineVideoInfo
+						src={s.src}
+						visualizationWidth={visibleLayout.media.width}
+						displayOffsetInFrames={mediaDisplayOffsetInFrames}
+						displayDurationInFrames={mediaDisplayDurationInFrames}
+						startMediaFrom={s.startMediaFrom}
+						mediaFrameAtSequenceZero={mediaLoopStartFrame}
+						sequenceFrameOffset={0}
+						playbackRate={s.playbackRate * s.sequencePlaybackRate}
+						volume={timelineVolume}
+						muted={s.muted}
+						marginLeft={visibleLayout.media.left}
+						loopDisplay={s.loopDisplay}
+						loopDisplayOffsetInFrames={s.loopDisplay?.phaseOffsetInFrames ?? 0}
+						frozenMediaFrame={s.frozenMediaFrame}
+						extendLastFrame={extendVideoLastFrame}
+					/>
+				</div>
 			) : null}
 			{s.type === 'image' && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
