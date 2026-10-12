@@ -583,6 +583,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
 		newComposition: null,
+		compositionContext: null,
 	});
 
 	if (!inserted.success) {
@@ -646,6 +647,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		position: null,
 		undoRedoNavigation: null,
 		newComposition: null,
+		compositionContext: null,
 	};
 	expect(await operations.insertElement(installRequest)).toMatchObject({
 		success: false,
@@ -743,6 +745,7 @@ const makeElementAssetFixture = () => {
 				position: null,
 				undoRedoNavigation: null,
 				newComposition: null,
+				compositionContext: null,
 			}),
 	};
 };
@@ -888,6 +891,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 			undoRoute: '/MyComp',
 			redoRoute: '/ElementScene',
 		},
+		compositionContext: null,
 		newComposition: {
 			options: {
 				asset: null,
@@ -912,9 +916,10 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 	}
 
 	expect(project.files['/project/src/Root.tsx']).toContain('id="ElementScene"');
-	expect(project.files['/project/src/ElementScene.tsx']).toContain(
-		'<BrowserElement',
+	expect(project.files['/project/src/Root.tsx']).toContain(
+		'component={BrowserElement}',
 	);
+	expect(project.files['/project/src/ElementScene.tsx']).toBeUndefined();
 	expect(project.files['/project/src/browser-element.element.tsx']).toBe(
 		element.sourceCode,
 	);
@@ -943,7 +948,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 	expect(areBrowserStudioProjectsEqual(project, installedProject)).toBe(true);
 });
 
-test('installs component-owned Element timing and initial props', async () => {
+test('registers a legacy component-owned Element with instance timing and initial props', async () => {
 	let project = createBlankTemplateProject();
 	const operations = createBrowserStudioOperations({
 		dependencyVersions: {},
@@ -1007,6 +1012,7 @@ test('installs component-owned Element timing and initial props', async () => {
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
 		newComposition: null,
+		compositionContext: null,
 	});
 	if (!inserted.success) {
 		throw new Error(
@@ -1018,7 +1024,10 @@ test('installs component-owned Element timing and initial props', async () => {
 		element.sourceCode,
 	);
 	const composition = project.files['/project/src/Composition.tsx'];
-	expect(composition).not.toContain('<Sequence');
+	expect(composition).toContain('<Sequence');
+	expect(composition).toContain('id="Captions"');
+	expect(composition).toContain('component={Captions}');
+	expect(composition).toContain('defaultProps={{');
 	expect(composition).toContain('<Captions');
 	expect(composition).toContain('captions={[');
 	expect(project.publicFiles?.['captions/sound.bin']).toEqual(
@@ -1032,8 +1041,9 @@ test('installs component-owned Element timing and initial props', async () => {
 	expect(composition).toContain('color: "red"');
 	expect(composition).toContain('position: "absolute"');
 	expect(composition).toContain('translate: "24px 48px"');
-	expect(composition).not.toContain('translate: "1px 2px"');
-	expect(composition.match(/\bstyle=/g)).toHaveLength(1);
+	expect(composition).toContain('position: "relative"');
+	expect(composition).toContain('translate: "1px 2px"');
+	expect(composition.match(/\bstyle=/g)).toHaveLength(2);
 });
 
 test('rejects contradictory component-owned Element initial props', async () => {
@@ -1098,6 +1108,7 @@ test('rejects contradictory component-owned Element initial props', async () => 
 			position: {x: 24, y: 48},
 			undoRedoNavigation: null,
 			newComposition: null,
+			compositionContext: null,
 		});
 
 		expect(response).toMatchObject({

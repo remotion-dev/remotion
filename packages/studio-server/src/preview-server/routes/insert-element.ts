@@ -3,6 +3,7 @@ import {
 	existsSync,
 	lstatSync,
 	readFileSync,
+	realpathSync,
 	unlinkSync,
 	writeFileSync,
 } from 'node:fs';
@@ -16,13 +17,11 @@ import type {
 	InsertElementResponse,
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
-import {addCompositionToFile} from '../../codemods/add-composition-to-file';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {
 	assertNoSymlinks,
 	openFileForWritingWithoutSymlinks,
 } from '../../helpers/open-file-for-writing-without-symlinks';
-import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
@@ -51,27 +50,16 @@ const hasExpectedFileState = ({
 }: {
 	expected: ElementInstallExpectedFileState;
 	actual: ElementInstallExpectedFileState;
-}) => {
-	if (expected.exists !== actual.exists) {
-		return false;
-	}
-
-	if (!expected.exists) {
-		return true;
-	}
-
-	if (!actual.exists) {
-		return false;
-	}
-
-	return actual.sourceHash === expected.sourceHash;
-};
+}) =>
+	expected.exists === actual.exists &&
+	(!expected.exists ||
+		(actual.exists && actual.sourceHash === expected.sourceHash));
 
 export const insertElementHandler: ApiHandler<
 	InsertElementRequest,
 	InsertElementResponse
-> = async ({
-	input: {
+> = async ({input, entryPoint, remotionRoot, logLevel, publicDir}) => {
+	const {
 		compositionFile,
 		compositionId,
 		captionTarget,
@@ -83,12 +71,7 @@ export const insertElementHandler: ApiHandler<
 		overwriteExisting,
 		undoRedoNavigation,
 		newComposition,
-	},
-	entryPoint,
-	remotionRoot,
-	logLevel,
-	publicDir,
-}) => {
+	} = input;
 	let resolvedAssets: Array<{contents: Uint8Array; path: string}>;
 	try {
 		if (
@@ -136,129 +119,16 @@ export const insertElementHandler: ApiHandler<
 				throw new Error('from must be a non-negative integer');
 			}
 
-			const installationMode =
-				element.installationMode === null
-					? 'wrapped'
-					: element.installationMode;
-			const componentOwnsSequence =
-				installationMode === 'component-owned-sequence';
 			if (
-				componentOwnsSequence &&
-				element.initialProps !== null &&
-				['from', 'durationInFrames', 'name'].some((prop) =>
-					Object.hasOwn(element.initialProps ?? {}, prop),
-				)
+				newComposition !== null &&
+				newComposition.options.newId !== compositionId
 			) {
 				throw new Error(
-					'Component-owned Element initial props must not override from, durationInFrames, or name',
+					'New composition ID does not match installation target',
 				);
 			}
 
-			if (
-				componentOwnsSequence &&
-				element.initialProps?.style !== undefined &&
-				(element.initialProps.style === null ||
-					typeof element.initialProps.style !== 'object' ||
-					Array.isArray(element.initialProps.style))
-			) {
-				throw new Error(
-					'Component-owned Element initial style must be an object',
-				);
-			}
-
-			RenderInternals.Log.trace(
-				{indent: false, logLevel},
-				`[insert-element] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}" element="${element.slug}"`,
-			);
-
-			let compositionCreation: {
-				componentFilePath: string;
-				componentFileContents: string;
-				registrationFilePath: string;
-				registrationFileOldContents: string;
-				registrationFileNewContents: string;
-			} | null = null;
-			let sourceFileOverrides: ReadonlyMap<string, string> | null = null;
-
-			if (newComposition !== null) {
-				if (newComposition.options.newId !== compositionId) {
-					throw new Error(
-						'New composition ID does not match installation target',
-					);
-				}
-
-				const registrationFilePath = newComposition.symbolicatedStack
-					?.originalFileName
-					? resolveFileInsideProject({
-							remotionRoot,
-							fileName: newComposition.symbolicatedStack.originalFileName,
-							action: 'add a composition to',
-						}).absolutePath
-					: (await getProjectInfo(remotionRoot, entryPoint)).rootFile;
-				if (registrationFilePath === null) {
-					throw new Error('Cannot find file for composition in project');
-				}
-
-				checkIfTypeScriptFile(registrationFilePath);
-				if (
-					path.resolve(remotionRoot, compositionFile) !== registrationFilePath
-				) {
-					throw new Error(
-						'New composition source does not match installation target',
-					);
-				}
-
-				const componentFilePath = path.join(
-					path.dirname(registrationFilePath),
-					`${newComposition.options.componentName}.tsx`,
-				);
-				if (existsSync(componentFilePath)) {
-					throw new Error(
-						`Cannot create ${path.relative(
-							remotionRoot,
-							componentFilePath,
-						)} because it already exists`,
-					);
-				}
-
-				const registrationFileOldContents = readFileSync(
-					registrationFilePath,
-					'utf-8',
-				);
-				const codemodResult = await addCompositionToFile({
-					filePath: registrationFilePath,
-					options: newComposition.options,
-					remotionRoot,
-				});
-				const registrationFileNewContents =
-					codemodResult.changes.find(
-						(change) => change.filePath === registrationFilePath,
-					)?.nextContents ?? registrationFileOldContents;
-				const componentFileContents = codemodResult.changes.find(
-					(change) => change.filePath === componentFilePath,
-				)?.nextContents;
-
-				if (
-					componentFileContents === null ||
-					componentFileContents === undefined
-				) {
-					throw new Error('Could not create the composition component');
-				}
-
-				compositionCreation = {
-					componentFileContents,
-					componentFilePath,
-					registrationFileNewContents,
-					registrationFileOldContents,
-					registrationFilePath,
-				};
-				sourceFileOverrides = new Map([
-					[registrationFilePath, registrationFileNewContents],
-					[componentFilePath, componentFileContents],
-				]);
-			}
-
-			const installDestination =
+			const destination =
 				captionTarget !== null
 					? {
 							type: 'selected-media' as const,
@@ -270,13 +140,10 @@ export const insertElementHandler: ApiHandler<
 								compositionFile,
 								compositionId,
 							}
-						: {
-								type: 'new-composition' as const,
-								compositionFile,
-							};
+						: {type: 'new-composition' as const, compositionFile};
 			const plan = await getElementInstallPlan({
 				installationName,
-				destination: installDestination,
+				destination,
 				element,
 				entryPoint,
 				remotionRoot,
@@ -288,14 +155,13 @@ export const insertElementHandler: ApiHandler<
 					expected: expectedFileState,
 				})
 			) {
-				const {existingElementSource} = plan;
-				if (existingElementSource !== null) {
+				if (plan.existingElementSource !== null) {
 					return {
 						success: false,
 						type: 'file-conflict',
 						conflict: {
 							filePath: plan.filePath,
-							existingSource: existingElementSource,
+							existingSource: plan.existingElementSource,
 							incomingSource: element.sourceCode,
 						},
 					};
@@ -303,10 +169,6 @@ export const insertElementHandler: ApiHandler<
 
 				throw new Error('Element source changed during installation');
 			}
-
-			const elementSourcesDiffer =
-				plan.existingElementSource !== null &&
-				plan.existingElementSource !== element.sourceCode;
 
 			if (!overwriteExisting && plan.existingElementSource !== null) {
 				return {
@@ -320,141 +182,151 @@ export const insertElementHandler: ApiHandler<
 				};
 			}
 
-			if (
-				compositionCreation !== null &&
-				plan.elementFileName ===
-					path.join(
-						path.dirname(plan.safePaths.compositionFileName),
-						path.basename(compositionCreation.componentFilePath),
-					)
-			) {
-				throw new Error(
-					'Element source file conflicts with the new composition file',
-				);
-			}
-
-			const shouldWriteElementFile =
-				!plan.elementFileExists || elementSourcesDiffer;
-			const initialProps = {...element.initialProps};
-			if (componentOwnsSequence && element.dimensions !== null) {
-				initialProps.style = {
-					...element.dimensions,
-					...(typeof initialProps.style === 'object' ? initialProps.style : {}),
-				};
-			}
-
-			const insertionInput = {
-				remotionRoot,
-				compositionFile,
-				compositionId,
-				element: {
-					type: 'component' as const,
-					componentName: plan.componentName,
-					importName: plan.componentName,
-					importPath: plan.importPath,
-					props: [
-						...Object.entries(initialProps).map(([name, value]) => ({
-							name,
-							value,
-						})),
-						...(componentOwnsSequence && element.durationInFrames !== null
-							? [
-									{
-										name: 'durationInFrames',
-										value: element.durationInFrames,
-									},
-								]
-							: []),
-						...(componentOwnsSequence
-							? [{name: 'name', value: element.displayName}]
-							: []),
-					],
-					position: componentOwnsSequence ? position : null,
-				},
-				from: componentOwnsSequence ? from : null,
-				prettierConfigOverride: null,
-				wrapInSequence: componentOwnsSequence
-					? null
-					: {
-							dimensions: element.dimensions,
-							durationInFrames: element.durationInFrames,
-							from,
-							name: element.displayName,
-							position,
-						},
+			const files: Record<string, string> = {
+				[plan.safePaths.compositionFileName]: readFileSync(
+					plan.safePaths.compositionFileName,
+					'utf-8',
+				),
 			};
-			let inserted: {
-				fileName: string;
-				oldContents: string;
-				output: string;
-				logLine: number;
-				nodePathRemappings: SequenceNodePathRemapping[];
-			};
-			if (captionTarget === null) {
-				inserted = await insertJsxElementIntoComposition({
-					...insertionInput,
-					compositionFile,
-					compositionId,
-					sourceFileOverrides,
+			if (plan.existingElementSource !== null)
+				files[plan.elementFileName] = plan.existingElementSource;
+			const fileAliases = new Map([
+				[
+					plan.safePaths.compositionFileName,
+					plan.location?.fileName ?? plan.destinationCompositionFileName,
+				],
+			]);
+			let changes: Array<{
+				filePath: string;
+				previousContents: string | null;
+				nextContents: string | null;
+			}>;
+			let remappings: Array<{filePath: string} & SequenceNodePathRemapping>;
+			let installedCompositionId: string | null = null;
+			if (input.captionTarget === null) {
+				let registrationFile = input.newComposition?.symbolicatedStack
+					?.originalFileName
+					? resolveFileInsideProject({
+							remotionRoot,
+							fileName: input.newComposition.symbolicatedStack.originalFileName,
+							action: 'add a composition to',
+						}).absolutePath
+					: plan.destinationCompositionFileName;
+				checkIfTypeScriptFile(registrationFile);
+				assertNoSymlinks({
+					absolutePath: registrationFile,
+					rootDirectory: remotionRoot,
 				});
-			} else {
-				const fileName = plan.safePaths.compositionFileName;
-				const oldContents = readFileSync(fileName, 'utf-8');
-				inserted = {
-					...CodemodsInternals.insertBasicCaptions({
-						...captionTarget,
-						input: oldContents,
-						importPath: plan.importPath,
-						element: {componentName: plan.componentName, initialProps},
-					}),
-					fileName,
-					oldContents,
-				};
-			}
+				if (
+					input.newComposition !== null &&
+					registrationFile !== path.resolve(remotionRoot, input.compositionFile)
+				) {
+					throw new Error(
+						'New composition source does not match installation target',
+					);
+				}
 
-			if (
-				compositionCreation !== null &&
-				inserted.fileName !== compositionCreation.componentFilePath
-			) {
-				throw new Error(
-					'New composition component does not match installation target',
-				);
+				fileAliases.set(realpathSync(registrationFile), registrationFile);
+				registrationFile = realpathSync(registrationFile);
+				files[registrationFile] = readFileSync(registrationFile, 'utf-8');
+				// Include the root when known, so replacement can find an existing
+				// registration even if this copy is now inserted into another scene.
+				const {rootFile} = await getProjectInfo(remotionRoot, entryPoint);
+				if (rootFile !== null && rootFile !== registrationFile) {
+					const safeRootFile = resolveFileInsideProject({
+						remotionRoot,
+						fileName: rootFile,
+						action: 'read composition registrations from',
+					}).absolutePath;
+					assertNoSymlinks({
+						absolutePath: safeRootFile,
+						rootDirectory: remotionRoot,
+					});
+					fileAliases.set(realpathSync(safeRootFile), safeRootFile);
+					files[realpathSync(safeRootFile)] = readFileSync(
+						safeRootFile,
+						'utf-8',
+					);
+				}
+
+				const result = CodemodsInternals.installElementComposition({
+					project: {files, rootDir: plan.safePaths.remotionRoot},
+					request: input,
+					registrationFile,
+					elementFile: plan.elementFileName,
+					componentName: plan.componentName,
+					target:
+						plan.location === null
+							? null
+							: {
+									filePath: plan.safePaths.compositionFileName,
+									exportName: plan.location.exportName,
+								},
+				});
+				changes = result.changes.map((change) => ({
+					...change,
+					filePath: fileAliases.get(change.filePath) ?? change.filePath,
+				}));
+				remappings = result.nodePathRemappings.map((entry) => ({
+					...entry,
+					filePath: fileAliases.get(entry.filePath) ?? entry.filePath,
+				}));
+				installedCompositionId = result.compositionId;
+			} else {
+				const initialProps = CodemodsInternals.getElementInitialProps(element);
+
+				const fileName = plan.safePaths.compositionFileName;
+				const result = CodemodsInternals.insertBasicCaptions({
+					...input.captionTarget,
+					input: files[fileName],
+					importPath: plan.importPath,
+					element: {componentName: plan.componentName, initialProps},
+				});
+				changes = [
+					{
+						filePath: fileName,
+						previousContents: files[fileName],
+						nextContents: result.output,
+					},
+					...(plan.existingElementSource === element.sourceCode
+						? []
+						: [
+								{
+									filePath: plan.elementFileName,
+									previousContents: plan.existingElementSource,
+									nextContents: element.sourceCode,
+								},
+							]),
+				];
+				remappings = result.nodePathRemappings.map((entry) => ({
+					filePath: fileName,
+					...entry,
+				}));
 			}
 
 			const finalPlan = await getElementInstallPlan({
 				installationName,
-				destination: installDestination,
+				destination,
 				element,
 				entryPoint,
 				remotionRoot,
 			});
 			if (
 				finalPlan.safePaths.compositionFileName !==
-				plan.safePaths.compositionFileName
-			) {
-				throw new Error(
-					'Composition source changed during Element installation',
-				);
-			}
-
-			if (
+					plan.safePaths.compositionFileName ||
 				!hasExpectedFileState({
 					actual: finalPlan.expectedFileState,
 					expected: plan.expectedFileState,
 				})
 			) {
-				throw new Error('Element source changed during installation');
+				throw new Error('Source changed during Element installation');
 			}
 
-			if (
-				compositionCreation !== null &&
-				(readFileSync(compositionCreation.registrationFilePath, 'utf-8') !==
-					compositionCreation.registrationFileOldContents ||
-					existsSync(compositionCreation.componentFilePath))
-			) {
-				throw new Error(
-					'Composition source changed during Element installation',
-				);
+			for (const [file, contents] of Object.entries(files)) {
+				if (readFileSync(file, 'utf-8') !== contents)
+					throw new Error(
+						'Composition source changed during Element installation',
+					);
 			}
 
 			const assetsToCreate: Array<{
@@ -468,17 +340,14 @@ export const insertElementHandler: ApiHandler<
 					rootDirectory: path.resolve(publicDir),
 				});
 				if (existsSync(absolutePath)) {
-					if (!lstatSync(absolutePath).isFile()) {
+					if (!lstatSync(absolutePath).isFile())
 						throw new Error(
 							`Asset ${asset.path} already exists and is not a file`,
 						);
-					}
-
-					if (!readFileSync(absolutePath).equals(asset.contents)) {
+					if (!readFileSync(absolutePath).equals(asset.contents))
 						throw new Error(
 							`Asset ${asset.path} already exists with different contents`,
 						);
-					}
 				} else {
 					assetsToCreate.push({absolutePath, contents: asset.contents});
 				}
@@ -497,7 +366,7 @@ export const insertElementHandler: ApiHandler<
 					try {
 						unlinkSync(asset.absolutePath);
 					} catch {
-						// Keep the original write error.
+						/* Keep the original write error. */
 					}
 
 					throw error;
@@ -507,196 +376,91 @@ export const insertElementHandler: ApiHandler<
 				createdAssets.push(asset);
 			}
 
+			const mutationFiles = [
+				...new Set(remappings.map((entry) => entry.filePath)),
+			].map((absolutePath) => ({
+				absolutePath,
+				remappings: remappings
+					.filter((entry) => entry.filePath === absolutePath)
+					.map(({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath})),
+			}));
 			const nodePathMutation = broadcastSequenceNodePathMutation(
-				[
-					{
-						absolutePath: inserted.fileName,
-						remappings: inserted.nodePathRemappings,
-					},
-				],
+				mutationFiles,
 				null,
 			);
-
-			const writeSource = ({
-				content,
-				file,
-				metadata,
-			}: {
-				content: string;
-				file: string;
-				metadata: {skipSequencePropsUpdate: true} | null;
-			}) => {
-				const oldContents = existsSync(file)
-					? readFileSync(file, 'utf8')
-					: null;
-				changedSources.push({
-					filePath: file,
-					newContents: content,
-					oldContents,
-				});
-				writeFileAndNotifyFileWatchers({
-					file,
-					content,
-					originatorClientId: undefined,
-					metadata,
-				});
-			};
-
 			pushTransactionToUndoStack({
-				snapshots: [
-					...(compositionCreation === null
-						? []
-						: [
-								{
-									filePath: compositionCreation.registrationFilePath,
-									oldContents: compositionCreation.registrationFileOldContents,
-									newContents: compositionCreation.registrationFileNewContents,
-									logLine:
-										newComposition?.symbolicatedStack?.originalLineNumber ?? 1,
-									nodePathRemappings: null,
-								},
-							]),
-					...(shouldWriteElementFile
-						? [
-								{
-									filePath: plan.elementFileName,
-									oldContents: plan.existingElementSource,
-									newContents: element.sourceCode,
-									logLine: 1,
-									nodePathRemappings: null,
-								},
-							]
-						: []),
-					{
-						filePath: inserted.fileName,
-						oldContents:
-							compositionCreation === null ? inserted.oldContents : null,
-						newContents: inserted.output,
-						logLine: inserted.logLine,
-						nodePathRemappings: inserted.nodePathRemappings,
-					},
-				],
+				snapshots: changes.map((change) => ({
+					filePath: change.filePath,
+					oldContents: change.previousContents,
+					newContents: change.nextContents,
+					logLine: 1,
+					nodePathRemappings:
+						mutationFiles.find((file) => file.absolutePath === change.filePath)
+							?.remappings ?? null,
+				})),
 				logLevel,
 				remotionRoot,
-				description:
-					newComposition === null
-						? {
-								undoMessage: `↩️  Added ${element.displayName}`,
-								redoMessage: `↪️  Added ${element.displayName}`,
-							}
-						: {
-								undoMessage: `↩️  Installation of ${element.displayName} into composition "${compositionId}"`,
-								redoMessage: `↪️  Installation of ${element.displayName} into composition "${compositionId}"`,
-							},
+				description: {
+					undoMessage: `↩️  Installation of ${element.displayName}`,
+					redoMessage: `↪️  Installation of ${element.displayName}`,
+				},
 				entryType: 'insert-composition-element',
 				suppressHmrOnFileRestore: false,
 				undoRedoNavigation,
 			});
 			undoEntryPushed = true;
-			if (compositionCreation !== null) {
-				suppressUndoStackInvalidation(compositionCreation.registrationFilePath);
-			}
-
-			if (shouldWriteElementFile) {
-				suppressUndoStackInvalidation(plan.elementFileName);
-			}
-
-			suppressUndoStackInvalidation(inserted.fileName);
-
-			if (compositionCreation !== null) {
-				writeSource({
-					file: compositionCreation.registrationFilePath,
-					content: compositionCreation.registrationFileNewContents,
-					metadata: null,
+			for (const change of changes)
+				suppressUndoStackInvalidation(change.filePath);
+			for (const change of changes) {
+				if (change.nextContents === null)
+					throw new Error('Element installation must not delete source files');
+				changedSources.push({
+					filePath: change.filePath,
+					oldContents: change.previousContents,
+					newContents: change.nextContents,
+				});
+				writeFileAndNotifyFileWatchers({
+					file: change.filePath,
+					content: change.nextContents,
+					originatorClientId: undefined,
+					metadata:
+						change.filePath === plan.elementFileName
+							? null
+							: {skipSequencePropsUpdate: true},
 				});
 			}
 
-			if (shouldWriteElementFile) {
-				writeSource({
-					file: plan.elementFileName,
-					content: element.sourceCode,
-					metadata: null,
-				});
-			}
-
-			writeSource({
-				file: inserted.fileName,
-				content: inserted.output,
-				metadata: {skipSequencePropsUpdate: true},
-			});
-
-			if (newComposition !== null && compositionCreation !== null) {
-				RenderInternals.Log.info(
-					{indent: false, logLevel},
-					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
-						formatLogFileLocation({
-							remotionRoot,
-							absolutePath: compositionCreation.registrationFilePath,
-							line: newComposition.symbolicatedStack?.originalLineNumber ?? 1,
-						}),
-					)} Created composition "${compositionId}"`,
-				);
-			}
-
-			const compositionLocationLabel = formatLogFileLocation({
-				remotionRoot,
-				absolutePath: inserted.fileName,
-				line: inserted.logLine,
-			});
-			const elementLocationLabel = formatLogFileLocation({
-				remotionRoot,
-				absolutePath: plan.elementFileName,
-				line: 1,
-			});
-			const elementFileAction = elementSourcesDiffer
-				? 'Overwrote existing Element source'
-				: plan.elementFileExists
-					? 'Reused existing Element source'
-					: 'Created Element source';
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileAction}`,
-			);
-			RenderInternals.Log.info(
-				{indent: false, logLevel},
-				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${plan.componentName}>`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(formatLogFileLocation({remotionRoot, absolutePath: plan.elementFileName, line: 1}))} Installed ${element.displayName}${installedCompositionId === null ? '' : ` as composition "${installedCompositionId}"`}`,
 			);
 			printUndoHint(logLevel);
-
 			return {success: true, nodePathMutation};
 		} catch (err) {
-			if (undoEntryPushed) {
-				discardLastUndoEntryAfterFailedCommit();
-			}
-
+			if (undoEntryPushed) discardLastUndoEntryAfterFailedCommit();
 			for (const source of changedSources.reverse()) {
 				try {
-					if (readFileSync(source.filePath, 'utf8') !== source.newContents) {
+					if (readFileSync(source.filePath, 'utf8') !== source.newContents)
 						continue;
-					}
-
-					if (source.oldContents === null) {
-						unlinkSync(source.filePath);
-					} else {
+					if (source.oldContents === null) unlinkSync(source.filePath);
+					else
 						writeFileAndNotifyFileWatchers({
 							file: source.filePath,
 							content: source.oldContents,
 							originatorClientId: undefined,
 							metadata: null,
 						});
-					}
 				} catch {
-					// Preserve subsequent user changes and the original installation error.
+					/* Preserve subsequent user changes and the original error. */
 				}
 			}
 
 			for (const asset of createdAssets.reverse()) {
 				try {
-					if (readFileSync(asset.absolutePath).equals(asset.contents)) {
+					if (readFileSync(asset.absolutePath).equals(asset.contents))
 						unlinkSync(asset.absolutePath);
-					}
 				} catch {
-					// Preserve subsequent user changes and the original installation error.
+					/* Preserve subsequent user changes and the original error. */
 				}
 			}
 
@@ -704,7 +468,7 @@ export const insertElementHandler: ApiHandler<
 				success: false,
 				type: 'error',
 				reason: (err as Error).message,
-				stack: (err as Error).stack as string,
+				stack: (err as Error).stack ?? '',
 			};
 		}
 	});

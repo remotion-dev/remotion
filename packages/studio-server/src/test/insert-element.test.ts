@@ -26,8 +26,8 @@ import {prepareElementInstallHandler} from '../preview-server/routes/prepare-ele
 import {
 	clearUndoStackForTests,
 	getUndoStack,
-	popUndo,
 	popRedo,
+	popUndo,
 } from '../preview-server/undo-stack';
 
 const compositionSource = `import React from 'react';
@@ -164,6 +164,7 @@ const makeFixture = () => {
 			position: null,
 			undoRedoNavigation: null,
 			newComposition: null,
+			compositionContext: null,
 		});
 	};
 
@@ -301,6 +302,7 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 				position: null,
 				undoRedoNavigation: null,
 				newComposition: null,
+				compositionContext: null,
 			};
 			const invalidElement = {
 				...assetElement,
@@ -407,6 +409,7 @@ test('rejects oversized mixed Element assets before writing any files, regardles
 					position: null,
 					undoRedoNavigation: null,
 					newComposition: null,
+					compositionContext: null,
 				}),
 			).toMatchObject({success: false, type: 'error'});
 			expect(existsSync(fixture.publicDir)).toBe(false);
@@ -481,6 +484,7 @@ test('invalidates a new-composition install after an external component edit', a
 			overwriteExisting: false,
 			position: null,
 			undoRedoNavigation: null,
+			compositionContext: null,
 			newComposition: {
 				options: {
 					asset: null,
@@ -516,10 +520,13 @@ test('invalidates a new-composition install after an external component edit', a
 		expect(registration).toContain('const Target = () => <div>Hello</div>;');
 		expect(registration.match(/id="ElementScene"/g)).toHaveLength(1);
 
-		const componentFile = path.join(
-			path.dirname(fixture.compositionFile),
-			'ElementScene.tsx',
-		);
+		const componentFile = fixture.elementFile;
+		expect(registration).toContain('component={LowerThird}');
+		expect(
+			existsSync(
+				path.join(path.dirname(fixture.compositionFile), 'ElementScene.tsx'),
+			),
+		).toBe(false);
 		expect(getUndoStack()).toHaveLength(1);
 		// Wait for fs.watchFile to establish its polling baseline before editing.
 		await new Promise((resolve) => setTimeout(resolve, 500));
@@ -575,7 +582,7 @@ test('creates a new Element file without an overwrite conflict', async () => {
 	}
 });
 
-test('installs structured initial props on a component-owned Sequence', async () => {
+test('registers a legacy component-owned Element and preserves its initial props', async () => {
 	const fixture = makeFixture();
 	try {
 		const response = await fixture.callHandlerWithInput({
@@ -595,6 +602,7 @@ test('installs structured initial props on a component-owned Sequence', async ()
 			position: {x: 120, y: 80},
 			undoRedoNavigation: null,
 			newComposition: null,
+			compositionContext: null,
 		});
 
 		if (!response.success) {
@@ -609,7 +617,10 @@ test('installs structured initial props on a component-owned Sequence', async ()
 			incomingElementSource,
 		);
 		const composition = readFileSync(fixture.compositionFile, 'utf-8');
-		expect(composition).not.toContain('<Sequence');
+		expect(composition).toContain('<Sequence');
+		expect(composition).toContain('id="LowerThird"');
+		expect(composition).toContain('component={LowerThird}');
+		expect(composition).toContain('defaultProps={{');
 		expect(composition).toContain('<LowerThird');
 		expect(composition).toContain('durationInFrames={72}');
 		expect(composition).toContain('from={30}');
@@ -621,10 +632,10 @@ test('installs structured initial props on a component-owned Sequence', async ()
 		expect(composition).toContain('opacity: 0.8');
 		expect(composition).toContain("position: 'absolute'");
 		expect(composition).toContain("translate: '120px 80px'");
-		expect(composition).not.toContain("position: 'relative'");
-		expect(composition).not.toContain("translate: '1px 2px'");
-		expect(composition.match(/\bstyle=/g)).toHaveLength(1);
-		expect(composition.match(/text: 'First copy'/g)).toHaveLength(1);
+		expect(composition).toContain("position: 'relative'");
+		expect(composition).toContain("translate: '1px 2px'");
+		expect(composition.match(/\bstyle=/g)).toHaveLength(2);
+		expect(composition.match(/text: 'First copy'/g)).toHaveLength(2);
 		expect(incomingElementSource).not.toContain('First copy');
 	} finally {
 		fixture.cleanup();
@@ -655,6 +666,7 @@ test('rejects contradictory component-owned installation props', async () => {
 				position: {x: 120, y: 80},
 				undoRedoNavigation: null,
 				newComposition: null,
+				compositionContext: null,
 			});
 			expect(response).toMatchObject({success: false, type: 'error'});
 			expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
@@ -685,6 +697,7 @@ test('keeps wrapped installation and passes initial props to its child', async (
 			position: {x: 40, y: 50},
 			undoRedoNavigation: null,
 			newComposition: null,
+			compositionContext: null,
 		});
 		if (!response.success) {
 			throw new Error(
@@ -726,6 +739,7 @@ test('materializes independent props for two component-owned copies', async () =
 			position: null,
 			undoRedoNavigation: null,
 			newComposition: null,
+			compositionContext: null,
 		});
 		expect(first.success).toBe(true);
 		const second = await fixture.callHandlerWithInput({
@@ -740,12 +754,15 @@ test('materializes independent props for two component-owned copies', async () =
 			position: null,
 			undoRedoNavigation: null,
 			newComposition: null,
+			compositionContext: null,
 		});
 		expect(second.success).toBe(true);
 
 		const composition = readFileSync(fixture.compositionFile, 'utf-8');
 		expect(composition.match(/captions=\{\[/g)).toHaveLength(2);
-		expect(composition.match(/text: 'First copy'/g)).toHaveLength(2);
+		expect(composition.match(/text: 'First copy'/g)).toHaveLength(4);
+		expect(composition).toContain('id="LowerThird"');
+		expect(composition).toContain('id="SecondLowerThird"');
 		expect(composition).not.toContain('...structuredInitialProps');
 	} finally {
 		fixture.cleanup();
@@ -784,6 +801,7 @@ test('installs independent named copies into the same and another composition', 
 			overwriteExisting: false,
 			undoRedoNavigation: null,
 			newComposition: null,
+			compositionContext: null,
 		};
 		expect((await fixture.callHandlerWithInput(input)).success).toBe(true);
 		const secondComposition = readFileSync(fixture.compositionFile, 'utf-8');
@@ -915,6 +933,7 @@ test.each(['../outside', 'nested/name', 'Uppercase', '', 'name.element.tsx'])(
 					overwriteExisting: false,
 					undoRedoNavigation: null,
 					newComposition: null,
+					compositionContext: null,
 				}),
 			).toMatchObject({success: false, type: 'error'});
 			expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(

@@ -56,6 +56,7 @@ export type ElementDragData = {
 		dependencies: ElementDependency[];
 		durationInFrames?: number;
 		initialProps: ElementInitialProps | null;
+		/** @deprecated Elements are registered as compositions. Retained for legacy styling compatibility. */
 		installationMode?: ElementInstallationMode;
 		isCaptionStyle?: boolean;
 		slug: string;

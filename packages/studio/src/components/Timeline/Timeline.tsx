@@ -315,7 +315,7 @@ const TimelineInner: React.FC = () => {
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
-				showConnectedCompositionChildren: compactSeries,
+				showConnectedCompositionChildren: true,
 			}),
 		);
 		const previous = previousTimelineRef.current;
@@ -387,7 +387,6 @@ const TimelineInner: React.FC = () => {
 		videoConfigIsNull,
 		overrideIdToNodePathMappings,
 		compositions,
-		compactSeries,
 	]);
 	useLayoutEffect(() => {
 		previousTimelineRef.current = {

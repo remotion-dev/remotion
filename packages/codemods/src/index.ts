@@ -13,6 +13,10 @@ import {
 } from './insert-jsx-element';
 import {createElementFromInsertable} from './insertable-element';
 import {
+	getElementInitialProps,
+	installElementComposition,
+} from './install-element-composition';
+import {
 	computeCanUpdateDefaultPropsFromContent,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
@@ -171,6 +175,8 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	getElementInitialProps,
+	installElementComposition,
 	computeEffectPropsStatusesFromContent,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,

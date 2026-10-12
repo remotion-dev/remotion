@@ -187,6 +187,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 							overwriteExisting: expectedFileState.exists,
 							undoRedoNavigation: null,
 							newComposition: null,
+							compositionContext: null,
 						});
 						if (!response.success) {
 							throw new Error(

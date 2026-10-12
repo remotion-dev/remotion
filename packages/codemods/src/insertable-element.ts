@@ -36,7 +36,7 @@ const getPositionStyle = (
 });
 
 // Studio Elements reference their assets with `staticFileRef()` markers.
-const toCodemodValue = (value: unknown): CodemodValue => {
+export const toCodemodValue = (value: unknown): CodemodValue => {
 	if (StudioProtocolInternals.isStaticFileRef(value)) {
 		return staticFileValue(value.__remotion_element_asset);
 	}

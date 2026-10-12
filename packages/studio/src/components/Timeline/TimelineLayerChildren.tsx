@@ -63,7 +63,7 @@ export const useTimelineLayerChildren = (
 
 			return Object.fromEntries(
 				Object.entries(parsed).filter(
-					([, storedValue]) => storedValue === true,
+					([, storedValue]) => typeof storedValue === 'boolean',
 				),
 			);
 		} catch {
@@ -119,6 +119,17 @@ export const useTimelineLayerChildren = (
 
 		return {keys, parents, ancestors, byId};
 	}, [compositionId, sequences, tracks]);
+	const effectiveCollapsed = useMemo(() => {
+		const defaults: Record<string, boolean> = {};
+		for (const track of tracks) {
+			const key = hierarchy.keys.get(track.sequence.id);
+			if (key !== undefined && (track.connectedCompositions?.length ?? 0) > 0) {
+				defaults[key] = true;
+			}
+		}
+
+		return {...defaults, ...collapsed};
+	}, [collapsed, hierarchy, tracks]);
 	const toggle = useCallback(
 		(key: string) => {
 			const affectedKeys = new Set([key]);
@@ -158,11 +169,7 @@ export const useTimelineLayerChildren = (
 			setCollapsed((previous) => {
 				const next = {...previous};
 				for (const affectedKey of affectedKeys) {
-					if (previous[key]) {
-						delete next[affectedKey];
-					} else {
-						next[affectedKey] = true;
-					}
+					next[affectedKey] = !effectiveCollapsed[key];
 				}
 
 				try {
@@ -174,7 +181,7 @@ export const useTimelineLayerChildren = (
 				return next;
 			});
 		},
-		[compactSeries, hierarchy, sequences, tracks],
+		[compactSeries, effectiveCollapsed, hierarchy, sequences, tracks],
 	);
 	const visibleTracks = useMemo(
 		() =>
@@ -193,20 +200,20 @@ export const useTimelineLayerChildren = (
 						}
 
 						const key = hierarchy.keys.get(id);
-						return key !== undefined && collapsed[key];
+						return key !== undefined && effectiveCollapsed[key];
 					},
 				);
 			}),
-		[hierarchy, collapsed, tracks],
+		[hierarchy, effectiveCollapsed, tracks],
 	);
 	const value = useMemo(
 		() => ({
-			collapsed,
+			collapsed: effectiveCollapsed,
 			keys: hierarchy.keys,
 			parents: hierarchy.parents,
 			toggle,
 		}),
-		[collapsed, hierarchy, toggle],
+		[effectiveCollapsed, hierarchy, toggle],
 	);
 	return {visibleTracks, value};
 };

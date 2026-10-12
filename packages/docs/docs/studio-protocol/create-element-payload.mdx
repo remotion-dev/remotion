@@ -91,7 +91,7 @@ Assets use Element payload version 2. Asset-free payloads continue to use versio
 
 The preferred width and height, or `null` for an Element without fixed dimensions. Both values must be positive finite numbers.
 
-Studio uses these dimensions for the drag preview, drop position, and the generated `<Sequence>` when `installationMode` is `'wrapped'`. They are not passed to the component as `width` and `height` props when `installationMode` is `'component-owned-sequence'`.
+Studio uses these dimensions for the drag preview, drop position, composition registration, and the generated [`<Sequence>`](/docs/sequence). They are not passed to the component as `width` and `height` props. Legacy `'component-owned-sequence'` payloads also apply these dimensions to `style`.
 
 ### durationInFrames
 
@@ -99,29 +99,33 @@ The preferred duration shown while dragging. It must be a positive integer.
 
 ### initialProps?<AvailableFrom v="4.0.524" />
 
-Props to write onto the installed component invocation, in both installation modes. The default is `null`. In `'wrapped'` mode, the component invocation is inside the generated Sequence.
+Props to write onto the installed component invocation and the standalone composition's `defaultProps`. The default is `null`. The component invocation is inside the generated [`<Sequence>`](/docs/sequence).
 
 Use JSON-compatible values and valid JSX attribute names. Asset props can use [`staticFileRef()`](/docs/studio-protocol/static-file-ref), including inside nested objects and arrays. Studio turns these references into `staticFile()` expressions on the caller, not inside the Element source.
 
-For `component-owned-sequence`, omit `from`, `durationInFrames`, and `name` because Studio supplies them. In this mode, `style` must be an object.
+For legacy `component-owned-sequence` payloads, omit `from`, `durationInFrames`, and `name`; Studio supplies scene timing on the containing Sequence. In these payloads, `style` must be an object.
 
 Pass the corresponding values to the component preview, using hosted URLs instead of asset references. Element dimensions are not passed as component props in `component-owned-sequence` mode, so include `width` and `height` when the component needs them.
 
-### installationMode?<AvailableFrom v="4.0.506" />
+### ~~installationMode?~~<AvailableFrom v="4.0.506" />
 
-Controls how Studio installs the Element. The default is `'wrapped'`.
+:::info Deprecated
+Since <AvailableFrom v="4.0.536" inline />, Elements are registered as compositions on installation. Omit `installationMode` for new integrations.
+:::
 
-With `'wrapped'`, Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
+Both `'wrapped'` and `'component-owned-sequence'` remain accepted for existing libraries. Studio registers the copied component as a standalone composition and wraps its instances in a [`<Sequence>`](/docs/sequence) for timing, dimensions, and placement. The parent timeline item starts collapsed and can be expanded to inspect its children.
 
-With `'component-owned-sequence'`, Studio puts timing, name, and absolute positioning props on the component call without adding an outer Sequence. The component must provide its own Studio-editable Sequence and rendered dimensions.
+Legacy `'component-owned-sequence'` payloads preserve their initial style props and add the Element dimensions to `style`. The exported component and its Interactive schema are not rewritten. When omitted, the legacy value defaults to `'wrapped'`, or `'component-owned-sequence'` for caption styles.
 
-See [Design it for composition](/elements/guidelines#design-it-for-composition) for guidance on choosing a mode and wiring the component.
+Installing into a new composition creates only that composition, without an additional wrapper component file. Editing the copied Element source affects both its standalone composition and its instances. Other installed copies remain independent.
+
+See [Design it for composition](/elements/guidelines#design-it-for-composition).
 
 ### isCaptionStyle?<AvailableFrom v="4.0.535" />
 
 Set to `true` to let the Element be selected in the Styles tab when generating captions for a video or audio element. The default is `false`.
 
-Caption styles must use `installationMode: 'component-owned-sequence'`, accept a `captions` prop containing [`Caption[]`](/docs/captions/caption), and expose it through [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema). Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` to support `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `premountFor`, and `postmountFor`.
+Caption styles must accept a `captions` prop containing [`Caption[]`](/docs/captions/caption) and expose it through [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema). When `installationMode` is omitted, [`createElementPayload()`](/docs/studio-protocol/create-element-payload) supplies the legacy caption-style value automatically. Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` to support `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `premountFor`, and `postmountFor`.
 
 Studio replaces preview captions with the generated transcript. Timing props in `initialProps` are ignored: Studio copies timing from the selected media so the captions stay in sync. To place the captions at the bottom center, Studio adds `bottom: 120`, `left: '50%'`, and `transform: 'translateX(-50%)'` to `style`; values from `initialProps.style` take precedence. Other initial props are preserved. Choosing a style does not install it; clicking Generate captions starts transcription, after which Studio installs its source, dependencies, and assets. The flag describes compatibility, not trust: an Element can execute arbitrary code.
 

@@ -16,10 +16,10 @@ import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
+	CanUpdateSequencePropSource,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
-	CanUpdateSequencePropSource,
 	ExtrapolateType,
 	InteractivitySchema,
 	InterpolateOutputOption,
@@ -1217,6 +1217,13 @@ export type PrepareElementInstallResponse =
 	  };
 
 export type InsertElementRequest = {
+	compositionContext: {
+		width: number;
+		height: number;
+		fps: number;
+		durationInFrames: number;
+		compositionIds: string[];
+	} | null;
 	installationName: string | null;
 	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;

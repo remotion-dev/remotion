@@ -28,6 +28,7 @@ export type CreateElementPayloadInput = {
 	readonly dimensions: ComponentDimensions | null;
 	readonly durationInFrames: number;
 	readonly initialProps?: ElementInitialProps | null;
+	/** @deprecated Elements are registered as compositions. Retained for legacy styling compatibility. */
 	readonly installationMode?: ElementInstallationMode;
 	readonly isCaptionStyle?: boolean;
 };
@@ -104,6 +105,7 @@ const assertCreateElementPayloadInput = (
 
 	if (
 		input.isCaptionStyle &&
+		input.installationMode !== undefined &&
 		input.installationMode !== 'component-owned-sequence'
 	) {
 		throw new TypeError(
@@ -121,7 +123,9 @@ const assertCreateElementPayloadInput = (
 	if (
 		!hasValidElementInitialPropsForInstallationMode({
 			initialProps,
-			installationMode: input.installationMode,
+			installationMode:
+				input.installationMode ??
+				(input.isCaptionStyle ? 'component-owned-sequence' : 'wrapped'),
 		})
 	) {
 		throw new TypeError(
@@ -144,7 +148,9 @@ export const createElementPayload = (
 		initialProps: input.initialProps ?? null,
 		slug: input.slug,
 		sourceCode: input.sourceCode,
-		installationMode: input.installationMode ?? 'wrapped',
+		installationMode:
+			input.installationMode ??
+			(input.isCaptionStyle ? 'component-owned-sequence' : 'wrapped'),
 		isCaptionStyle: input.isCaptionStyle,
 	});
 	const payload: StudioElementPayload = {

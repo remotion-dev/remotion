@@ -535,6 +535,7 @@ const getElementInstallPlanForProject = async ({
 				};
 
 	return {
+		target,
 		componentName,
 		destinationCompositionFilePath,
 		elementFilePath,
@@ -2504,35 +2505,10 @@ export const createBrowserStudioOperations = ({
 				StudioProtocolInternals.assertElementAssets(request.element.assets);
 				StudioProtocolInternals.assertElementAssetReferences(request.element);
 				const {element} = request;
-				const installationMode = request.element.installationMode ?? 'wrapped';
-				const componentOwnsSequence =
-					installationMode === 'component-owned-sequence';
-				if (
-					componentOwnsSequence &&
-					request.element.initialProps !== null &&
-					['from', 'durationInFrames', 'name'].some((prop) =>
-						Object.hasOwn(request.element.initialProps ?? {}, prop),
-					)
-				) {
-					throw new Error(
-						'Component-owned Element initial props must not override from, durationInFrames, or name',
-					);
-				}
-
-				if (
-					componentOwnsSequence &&
-					request.element.initialProps?.style !== undefined &&
-					(request.element.initialProps.style === null ||
-						typeof request.element.initialProps.style !== 'object' ||
-						Array.isArray(request.element.initialProps.style))
-				) {
-					throw new Error(
-						'Component-owned Element initial style must be an object',
-					);
-				}
+				CodemodsInternals.getElementInitialProps(element);
 
 				const originalProject = getProject();
-				let project = originalProject;
+				const project = originalProject;
 				if (request.newComposition !== null) {
 					if (request.newComposition.options.newId !== request.compositionId) {
 						throw new Error(
@@ -2551,26 +2527,22 @@ export const createBrowserStudioOperations = ({
 							'New composition source does not match installation target',
 						);
 					}
-
-					project = applyCodemodChanges(
-						project,
-						getAddCompositionResult({
-							project,
-							compositionFile: absolutePath,
-							options: request.newComposition.options,
-						}).changes,
-					);
 				}
 
 				const plan = await getElementInstallPlanForProject({
 					installationName: request.installationName,
 					destination:
 						request.captionTarget === null
-							? {
-									type: 'current-composition',
-									compositionFile: request.compositionFile,
-									compositionId: request.compositionId,
-								}
+							? request.newComposition === null
+								? {
+										type: 'current-composition',
+										compositionFile: request.compositionFile,
+										compositionId: request.compositionId,
+									}
+								: {
+										type: 'new-composition',
+										compositionFile: request.compositionFile,
+									}
 							: {
 									type: 'selected-media',
 									compositionFile: request.captionTarget.fileName,
@@ -2683,64 +2655,49 @@ export const createBrowserStudioOperations = ({
 				const installedDependencies = await resolveElementDependencies(
 					request.element.dependencies,
 				);
-				const durationInFrames = request.element.durationInFrames ?? null;
 				let insertion: {
 					changes: CodemodFileChange[];
 					filePath: string;
 					nodePathRemappings: SequenceNodePathRemapping[];
 				};
+				let mutationFiles: Array<{
+					absolutePath: string;
+					remappings: SequenceNodePathRemapping[];
+				}> = [];
 				if (request.captionTarget === null) {
-					insertion = await insertIntoProject({
+					const result = CodemodsInternals.installElementComposition({
 						project,
-						request: {
-							compositionFile: request.compositionFile,
-							compositionId: request.compositionId,
-							element: {
-								componentName: plan.componentName,
-								importName: plan.componentName,
-								importPath: plan.importPath,
-								position: componentOwnsSequence ? request.position : null,
-								props: [
-									...Object.entries(request.element.initialProps ?? {}).map(
-										([name, value]) => ({name, value}),
-									),
-									...(componentOwnsSequence && durationInFrames !== null
-										? [
-												{
-													name: 'durationInFrames',
-													value: durationInFrames,
-												},
-											]
-										: []),
-									...(componentOwnsSequence
-										? [{name: 'name', value: request.element.displayName}]
-										: []),
-								],
-								type: 'component',
-							},
-							from: componentOwnsSequence ? request.from : null,
-						},
-						wrapInSequence: componentOwnsSequence
-							? null
-							: {
-									dimensions: request.element.dimensions,
-									durationInFrames,
-									from: request.from,
-									name: request.element.displayName,
-									position: request.position,
-								},
+						request,
+						registrationFile: plan.destinationCompositionFilePath,
+						elementFile: plan.elementFilePath,
+						componentName: plan.componentName,
+						target: plan.target,
 					});
+					mutationFiles = [
+						...new Set(
+							result.nodePathRemappings.map((entry) => entry.filePath),
+						),
+					].map((absolutePath) => ({
+						absolutePath,
+						remappings: result.nodePathRemappings
+							.filter((entry) => entry.filePath === absolutePath)
+							.map(({oldNodePath, newNodePath}) => ({
+								oldNodePath,
+								newNodePath,
+							})),
+					}));
+					const targetFile = plan.target?.filePath ?? plan.elementFilePath;
+					insertion = {
+						changes: result.changes,
+						filePath: targetFile,
+						nodePathRemappings:
+							mutationFiles.find((file) => file.absolutePath === targetFile)
+								?.remappings ?? [],
+					};
 				} else {
 					const filePath = plan.destinationCompositionFilePath;
-					const initialProps = {...element.initialProps};
-					if (element.dimensions !== null) {
-						initialProps.style = {
-							...element.dimensions,
-							...(typeof initialProps.style === 'object'
-								? initialProps.style
-								: {}),
-						};
-					}
+					const initialProps =
+						CodemodsInternals.getElementInitialProps(element);
 
 					const result = insertBasicCaptionsCodemod({
 						...request.captionTarget,
@@ -2763,11 +2720,15 @@ export const createBrowserStudioOperations = ({
 
 				const projectWithElement = applyCodemodChanges(project, [
 					...insertion.changes,
-					{
-						filePath: plan.elementFilePath,
-						previousContents: project.files[plan.elementFilePath] ?? null,
-						nextContents: element.sourceCode,
-					},
+					...(request.captionTarget === null
+						? []
+						: [
+								{
+									filePath: plan.elementFilePath,
+									previousContents: project.files[plan.elementFilePath] ?? null,
+									nextContents: element.sourceCode,
+								},
+							]),
 				]);
 				const nextProject = addDependenciesToProject({
 					dependencies: installedDependencies,
@@ -2790,12 +2751,15 @@ export const createBrowserStudioOperations = ({
 					timelineSelection: null,
 					fileName: insertion.filePath,
 					mutate: () => nextProject,
-					nodePathMutationFiles: [
-						{
-							absolutePath: insertion.filePath,
-							remappings: insertion.nodePathRemappings,
-						},
-					],
+					nodePathMutationFiles:
+						request.captionTarget === null
+							? mutationFiles
+							: [
+									{
+										absolutePath: insertion.filePath,
+										remappings: insertion.nodePathRemappings,
+									},
+								],
 				});
 				if (nodePathMutation === null) {
 					throw new Error('Could not insert Element');

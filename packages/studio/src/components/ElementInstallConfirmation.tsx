@@ -340,17 +340,20 @@ export const ElementInstallConfirmation: React.FC<{
 		Internals.CompositionManager,
 	);
 	const selectComposition = useSelectComposition();
-	const currentCompositionMetadata =
-		config === null ||
-		canvasContent?.type !== 'composition' ||
-		canvasContent.compositionId !== request.compositionId
-			? null
-			: {
-					durationInFrames: config.durationInFrames,
-					fps: config.fps,
-					height: config.height,
-					width: config.width,
-				};
+	const currentCompositionMetadata = useMemo(
+		() =>
+			config === null ||
+			canvasContent?.type !== 'composition' ||
+			canvasContent.compositionId !== request.compositionId
+				? null
+				: {
+						durationInFrames: config.durationInFrames,
+						fps: config.fps,
+						height: config.height,
+						width: config.width,
+					},
+		[config, canvasContent, request.compositionId],
+	);
 	const {currentZIndex} = useZIndex();
 	const [mode, setMode] = useState<'current-composition' | 'new-composition'>(
 		currentPlan === null || request.source.type === 'browser-studio-link'
@@ -785,6 +788,13 @@ export const ElementInstallConfirmation: React.FC<{
 							redoRoute: `/${newCompositionId}`,
 						}
 					: null,
+			compositionContext:
+				currentCompositionMetadata === null
+					? null
+					: {
+							...currentCompositionMetadata,
+							compositionIds: compositions.map((composition) => composition.id),
+						},
 			newComposition:
 				mode === 'new-composition'
 					? {
@@ -813,6 +823,8 @@ export const ElementInstallConfirmation: React.FC<{
 		}
 	}, [
 		activePlan,
+		currentCompositionMetadata,
+		compositions,
 		existingDestination,
 		installationName,
 		overwriteExisting,
@@ -924,6 +936,13 @@ export const ElementInstallConfirmation: React.FC<{
 								instead.
 							</p>
 						</div>
+					) : null}
+
+					{mode === 'current-composition' ? (
+						<p style={requestSourceDescriptionStyle}>
+							Also registers this Element as a composition for standalone
+							editing.
+						</p>
 					) : null}
 
 					{mode === 'new-composition' ? (

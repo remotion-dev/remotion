@@ -1335,6 +1335,7 @@ export const insertElement = async ({
 	overwriteExisting,
 	undoRedoNavigation,
 	newComposition,
+	compositionContext,
 }: {
 	installationName: string | null;
 	compositionFile: string;
@@ -1346,6 +1347,7 @@ export const insertElement = async ({
 	overwriteExisting: boolean;
 	undoRedoNavigation: InsertElementRequest['undoRedoNavigation'];
 	newComposition: InsertElementRequest['newComposition'];
+	compositionContext: InsertElementRequest['compositionContext'];
 }) => {
 	try {
 		if (getBrowserStudioOperations() === null) {
@@ -1364,6 +1366,7 @@ export const insertElement = async ({
 			position,
 			undoRedoNavigation,
 			newComposition,
+			compositionContext,
 		});
 
 		if (!response.success) {
