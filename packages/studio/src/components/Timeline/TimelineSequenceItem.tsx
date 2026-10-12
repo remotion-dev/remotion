@@ -347,6 +347,7 @@ const SEQUENCE_REORDER_POINTER_THRESHOLD = 3;
 
 const TimelineSequenceItemInner: React.FC<{
 	readonly showBottomBorder: boolean;
+	readonly packed: boolean;
 	readonly afterDropLineOffset: number;
 	readonly sequence: TSequence;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
@@ -360,6 +361,7 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly showProvisionalVisibilityToggle: boolean;
 }> = ({
 	showBottomBorder,
+	packed,
 	afterDropLineOffset,
 	connectedCompositions,
 	nestedDepth,
@@ -1026,8 +1028,7 @@ const TimelineSequenceItemInner: React.FC<{
 			? sequence.src
 			: null;
 	const isExpanded =
-		(!isPackedTrack ||
-			sequence.controls?.componentIdentity === 'dev.remotion.remotion.Track') &&
+		!packed &&
 		previewConnected &&
 		nodePathInfo !== null &&
 		getIsExpanded(nodePathInfo);
@@ -1134,8 +1135,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [effectDropHovered, inner]);
 
 	const hasExpandableContent =
-		(!isPackedTrack ||
-			sequence.controls?.componentIdentity === 'dev.remotion.remotion.Track') &&
+		!packed &&
 		isStudioInteractivityEnabled() &&
 		(Boolean(sequence.controls) || sequence.effects.length > 0);
 

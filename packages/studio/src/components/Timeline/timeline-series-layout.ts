@@ -50,11 +50,10 @@ export const getTimelineSeriesLayout = ({
 			const track = row.track.sequence.timelineTrack;
 			const registered = track ? registeredItems.get(track.id) : undefined;
 			if (
-				row.items === null ||
-				row.items.length === 0 ||
+				row.childScenes === null ||
+				row.childScenes.length === 0 ||
 				!registered ||
-				(row.track.sequence.controls?.componentIdentity !==
-					'dev.remotion.remotion.Track' &&
+				(row.items !== null &&
 					registered.some(
 						(item) =>
 							(item.timelineTrack?.role === 'clip' &&
@@ -65,7 +64,7 @@ export const getTimelineSeriesLayout = ({
 				continue;
 			}
 
-			const scenes = row.items
+			const scenes = row.childScenes
 				.filter(
 					({sequence}) =>
 						sequence.timelineTrack?.role === 'clip' ||
@@ -167,7 +166,8 @@ export const getTimelineSeriesLayout = ({
 					const next = roleScenes[sceneIndex + 1]?.sequence;
 					const sceneRange = getTimelineSceneRange({
 						sequence,
-						seriesItems: rows[index].items?.map((item) => item.sequence) ?? [],
+						seriesItems:
+							rows[index].childScenes?.map((item) => item.sequence) ?? [],
 						previous: previous ?? null,
 						next: next ?? null,
 						range,

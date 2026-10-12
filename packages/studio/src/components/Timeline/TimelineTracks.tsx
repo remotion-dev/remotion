@@ -99,9 +99,7 @@ const TimelineTracksInner: React.FC<{
 					const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} =
 						rows[virtualItem.index];
 					const trackContent =
-						items === null ||
-						track.sequence.controls?.componentIdentity ===
-							'dev.remotion.remotion.Track' ? (
+						items === null ? (
 							<TimelineTrack track={track} />
 						) : (
 							<TimelinePackedTrack

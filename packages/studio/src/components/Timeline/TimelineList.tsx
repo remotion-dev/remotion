@@ -31,6 +31,7 @@ const TimelineListTrack: React.FC<{
 			style={{height, left: 0, position: 'absolute', top: start, width: '100%'}}
 		>
 			<TimelineSequenceItem
+				packed={row.items !== null}
 				showBottomBorder={row.auxiliaryRows.length === 0}
 				afterDropLineOffset={afterDropLineOffset}
 				siblingIndex={siblingIndex}

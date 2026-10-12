@@ -125,7 +125,7 @@ export const useTimelineLayerChildren = (
 		(key: string) => {
 			const affectedKeys = new Set([key]);
 			if (compactSeries) {
-				const rows = getTimelineDisplayRows(tracks, null);
+				const rows = getTimelineDisplayRows(tracks);
 				const index = rows.findIndex(
 					(row) => hierarchy.keys.get(row.track.sequence.id) === key,
 				);
@@ -183,12 +183,14 @@ export const useTimelineLayerChildren = (
 			tracks.filter((track) => {
 				return !(hierarchy.ancestors.get(track.sequence.id) ?? []).some(
 					(id) => {
-						// Clips, transitions and overlays draw the packed track itself.
-						// Keep them when that track collapses, hiding only their contents.
+						// Keep packed Series bars when their contents collapse.
+						// Regular Track clips have their own rows and collapse normally.
 						const packedTrack = track.sequence.timelineTrack;
 						if (
 							packedTrack &&
 							packedTrack.role !== 'track' &&
+							(packedTrack.role !== 'clip' ||
+								packedTrack.seriesOffset !== null) &&
 							packedTrack.id === hierarchy.byId.get(id)?.timelineTrack?.id
 						) {
 							return false;

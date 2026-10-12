@@ -572,38 +572,19 @@ const TimelineInner: React.FC = () => {
 	]);
 
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
-	const displayRows = useMemo(() => {
-		const collapsedTrackIds = new Set<string>();
-		for (const {sequence} of visibleTracks) {
-			const key = layerChildrenValue.keys.get(sequence.id);
-			if (
-				sequence.timelineTrack?.role === 'track' &&
-				key !== undefined &&
-				layerChildrenValue.collapsed[key]
-			) {
-				collapsedTrackIds.add(sequence.timelineTrack.id);
-			}
-		}
-
-		return getTimelineDisplayRows(visibleTracks, collapsedTrackIds);
-	}, [layerChildrenValue, visibleTracks]);
+	const displayRows = useMemo(
+		() => getTimelineDisplayRows(visibleTracks),
+		[visibleTracks],
+	);
 	const shownRows = useMemo(() => {
 		return maxTimelineTracks !== null && displayRows.length > maxTimelineTracks
 			? displayRows.slice(0, maxTimelineTracks)
 			: displayRows;
 	}, [displayRows, maxTimelineTracks]);
-	const shown = useMemo(() => {
-		// A Track clip appears in its container's scene items and its own row,
-		// but selection and keyboard actions must only include it once.
-		const byId = new Map<string, TimelineTrackWithDisplayGroup>();
-		for (const row of shownRows) {
-			for (const track of [row.track, ...(row.items ?? [])]) {
-				byId.set(track.sequence.id, track);
-			}
-		}
-
-		return [...byId.values()];
-	}, [shownRows]);
+	const shown = useMemo(
+		() => shownRows.flatMap((row) => [row.track, ...(row.items ?? [])]),
+		[shownRows],
+	);
 
 	const hasBeenCut = displayRows.length > shownRows.length;
 
