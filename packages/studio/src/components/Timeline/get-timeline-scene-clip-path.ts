@@ -19,6 +19,7 @@ export const getTimelineSceneShape = ({
 }: TimelineSceneClipOptions): {
 	readonly clipPath: string;
 	readonly points: string;
+	readonly edges: {readonly left: string | null; readonly right: string | null};
 } | null => {
 	if (
 		sceneRange === null ||
@@ -31,7 +32,11 @@ export const getTimelineSceneShape = ({
 	}
 
 	if (sceneRange.end <= sceneRange.from) {
-		return {clipPath: 'inset(0 100% 0 0)', points: ''};
+		return {
+			clipPath: 'inset(0 100% 0 0)',
+			points: '',
+			edges: {left: null, right: null},
+		};
 	}
 
 	// Move only the outgoing diagonal inward by one perpendicular pixel, so
@@ -53,8 +58,31 @@ export const getTimelineSceneShape = ({
 		},
 		{x: sceneRange.from, y: 100},
 	];
-
+	const edgePoints = points.map(
+		({x, y}) =>
+			`${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
+	);
 	const visibleHeight = cropHeight ?? height;
+	const edges: {left: string | null; right: string | null} = {
+		left: null,
+		right: null,
+	};
+	for (const [edge, start, end, transition] of [
+		['left', 0, 3, sceneRange.transitionInEnd],
+		['right', 1, 2, sceneRange.transitionOutStart],
+	] as const) {
+		const bottomX =
+			points[start].x +
+			(points[end].x - points[start].x) * Math.min(1, visibleHeight / height);
+		if (
+			transition !== null &&
+			Math.max(points[start].x, bottomX) > offsetInFrames &&
+			Math.min(points[start].x, bottomX) < offsetInFrames + durationInFrames
+		) {
+			edges[edge] = `M${edgePoints[start]}L${edgePoints[end]}`;
+		}
+	}
+
 	// Intersect with the rendered bar without changing the parent row's slope.
 	// Expanded rows can be taller than the child bar whose outline is visible.
 	for (const {boundary, keepGreater, axis} of [
@@ -104,10 +132,15 @@ export const getTimelineSceneShape = ({
 	}
 
 	if (points.length === 0) {
-		return {clipPath: 'inset(0 100% 0 0)', points: ''};
+		return {
+			clipPath: 'inset(0 100% 0 0)',
+			points: '',
+			edges: {left: null, right: null},
+		};
 	}
 
 	return {
+		edges,
 		clipPath: `polygon(${points
 			.map(
 				({x, y}) =>

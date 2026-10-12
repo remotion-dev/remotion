@@ -571,10 +571,40 @@ const TimelineSequenceBar: React.FC<{
 		style.height,
 		style.marginLeft,
 	]);
+	const trimShape = useMemo(() => {
+		if (activeTrimEdge === null || isTransition || frameIncrement === null) {
+			return null;
+		}
+
+		return getTimelineSceneShape({
+			sceneRange,
+			offsetInFrames: Number(style.marginLeft) / frameIncrement,
+			durationInFrames: Number(style.width) / frameIncrement,
+			pixelsPerFrame: frameIncrement,
+			height:
+				s.timelineTrack?.role === 'clip'
+					? Number(style.height)
+					: (sceneClipHeight ?? Number(style.height)),
+			cropHeight: Number(style.height),
+		});
+	}, [
+		activeTrimEdge,
+		isTransition,
+		frameIncrement,
+		sceneRange,
+		style.marginLeft,
+		style.width,
+		style.height,
+		s.timelineTrack?.role,
+		sceneClipHeight,
+	]);
+	const diagonalTrimEdge =
+		activeTrimEdge === null ? null : (trimShape?.edges[activeTrimEdge] ?? null);
 	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
 	const trimHighlightColor = isAtTrimLimit ? RED : '#00E500';
 	const sequenceBackground =
 		activeTrimEdge === null ||
+		diagonalTrimEdge !== null ||
 		(activeTrimEdge === 'left' && leftTrimHighlight?.left !== negativeStartEnd)
 			? style.background
 			: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, ${trimHighlightColor} 0 2px, transparent 2px), ${style.background ?? TRANSPARENT}`;
@@ -720,7 +750,37 @@ const TimelineSequenceBar: React.FC<{
 			) : null}
 
 			{activeTrimEdge === null ||
-			(activeTrimEdge === 'left' && leftTrimHighlight === null) ? null : (
+			(activeTrimEdge === 'left' &&
+				leftTrimHighlight === null) ? null : diagonalTrimEdge !== null &&
+			  trimShape ? (
+				<svg
+					aria-hidden="true"
+					style={{
+						position: 'absolute',
+						left: 0,
+						top: 0,
+						width: Number(style.width),
+						height: Number(style.height),
+						clipPath: trimShape.clipPath,
+						overflow: 'hidden',
+						pointerEvents: 'none',
+					}}
+				>
+					<path
+						d={diagonalTrimEdge}
+						fill="none"
+						stroke={trimHighlightColor}
+						strokeWidth={EDGE_DRAG_HIGHLIGHT_WIDTH}
+						style={{filter: 'blur(4px)'}}
+					/>
+					<path
+						d={diagonalTrimEdge}
+						fill="none"
+						stroke={trimHighlightColor}
+						strokeWidth={4}
+					/>
+				</svg>
+			) : (
 				<div
 					aria-hidden="true"
 					style={{
