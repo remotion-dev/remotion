@@ -175,7 +175,6 @@ const TimelineContextMenuArea: React.FC<{
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
-				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,

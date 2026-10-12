@@ -84,12 +84,10 @@ const element: InsertElementRequest['element'] = {
 	sourceCode: incomingElementSource,
 };
 
-type InsertElementTestRequest = Omit<
-	Extract<InsertElementRequest, {captionTarget: null}>,
-	'premountFor'
-> & {
-	premountFor?: number | null;
-};
+type InsertElementTestRequest = Extract<
+	InsertElementRequest,
+	{captionTarget: null}
+>;
 
 const makeFixture = () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-element-'));
@@ -136,7 +134,7 @@ const makeFixture = () => {
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
-			input: {...input, premountFor: input.premountFor ?? null},
+			input,
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,

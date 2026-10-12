@@ -62,7 +62,6 @@ export const addCanvasCaptureComposition = <Project extends CodemodProject>({
 	const componentSource = generateCanvasCaptureComposition({
 		componentName: component.importName,
 		durationInFrames: metadata.durationInFrames,
-		fps: metadata.fps,
 		...capture,
 	});
 	parseAst(componentSource);
