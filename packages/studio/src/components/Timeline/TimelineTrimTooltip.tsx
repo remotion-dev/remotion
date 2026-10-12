@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useRef} from 'react';
 import {createPortal} from 'react-dom';
 import {BLACK_ALPHA_85, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {renderFrame} from '../../state/render-frame';
@@ -64,10 +64,15 @@ export const TimelineTrimTooltip: React.FC<{
 				14,
 		),
 	);
+	// Start centered on the trim edge, then grow to the left when the text changes.
+	const initialWidth = useRef(tooltipWidth).current;
 	const tooltipHeight = limitReason === null ? 36 : 50;
 	const left = Math.max(
 		8,
-		Math.min(state.x - tooltipWidth / 2, window.innerWidth - tooltipWidth - 8),
+		Math.min(
+			state.x + initialWidth / 2 - tooltipWidth,
+			window.innerWidth - tooltipWidth - 8,
+		),
 	);
 	const top = Math.max(
 		8,
