@@ -137,7 +137,13 @@ const Scene = Interactive.withSchema({
 });
 
 export const PremountedScene: React.FC = () => {
-  return <Scene from={60} durationInFrames={90} premountFor={30} />;
+  return (
+    <Scene
+      from={60}
+      durationInFrames={90}
+      premountFor={30}
+    />
+  );
 };
 ```
 
