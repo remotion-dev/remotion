@@ -112,18 +112,26 @@ Premounting is not shown for items that share a timeline track with other items.
 
 ## Premounting a whole scene
 
-Set `premountFor` on a container such as [`<AbsoluteFill>`](/docs/absolute-fill) to prepare its children together:
+Create a scene with [`Interactive.withSchema()`](/docs/interactive-with-schema) and `layout: 'absolute-fill'`, then set `premountFor` to prepare its children together:
 
 ```tsx twoslash title="PremountedScene.tsx"
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {Img, Interactive, staticFile} from 'remotion';
 
-export const PremountedScene: React.FC = () => {
-  return (
-    <AbsoluteFill from={60} durationInFrames={90} premountFor={30}>
+const Scene = Interactive.withSchema({
+  Component: () => (
+    <>
       <Img src={staticFile('logo.png')} width={200} />
       <h1>Welcome</h1>
-    </AbsoluteFill>
-  );
+    </>
+  ),
+  componentName: 'Scene',
+  schema: {},
+  wrapInSequence: true,
+  layout: 'absolute-fill',
+});
+
+export const PremountedScene: React.FC = () => {
+  return <Scene from={60} durationInFrames={90} premountFor={30} />;
 };
 ```
 
