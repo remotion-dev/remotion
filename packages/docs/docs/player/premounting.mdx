@@ -159,6 +159,12 @@ Loading an invisible component should not pause playback. Components that suppor
 
 If an asset is still loading when it becomes visible, it can trigger the buffer state according to its buffering settings.
 
+## Postmounting
+
+In addition to [`premountFor`](#individually-premount-items), there is also [`postmountFor`](/docs/img#postmountfor), which keeps the component mounted after it has ended.
+
+The use case for this is if you want to optimize reverse seeking or playback.
+
 ## See also
 
 - [Buffer state](/docs/player/buffer-state)
