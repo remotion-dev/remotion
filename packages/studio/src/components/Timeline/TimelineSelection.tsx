@@ -1872,6 +1872,46 @@ export const useTimelineRowSelection = (
 	});
 };
 
+export const useIsPremountingSelected = (
+	nodePathInfo: SequenceNodePathInfo | null,
+): boolean => {
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useIsPremountingSelected must be used inside TimelineSelectionProvider',
+		);
+	}
+
+	const sequenceSelectionKey = useMemo(
+		() =>
+			nodePathInfo === null
+				? null
+				: getTimelineSequenceSelectionKey(nodePathInfo),
+		[nodePathInfo],
+	);
+	const getIsPremountingSelected = useCallback(() => {
+		if (sequenceSelectionKey === null) {
+			return false;
+		}
+
+		return selectionContext
+			.getSnapshot()
+			.selectedItems.some(
+				(item) =>
+					item.type === 'sequence-prop' &&
+					item.key === 'premountFor' &&
+					getTimelineSequenceSelectionKey(item.nodePathInfo) ===
+						sequenceSelectionKey,
+			);
+	}, [selectionContext, sequenceSelectionKey]);
+
+	return useSyncExternalStore(
+		selectionContext.subscribe,
+		getIsPremountingSelected,
+		getIsPremountingSelected,
+	);
+};
+
 const useTimelineSelectionItem = <
 	TSelectionItem extends TimelineSelection | null,
 >({
