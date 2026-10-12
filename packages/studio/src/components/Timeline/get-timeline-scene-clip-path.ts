@@ -19,16 +19,19 @@ type TimelineSceneClipOptions = {
 	readonly cropHeight: number | null;
 };
 
-export const getTimelineSceneShape = ({
-	sceneRange,
-	durationInFrames,
-	offsetInFrames,
-	pixelsPerFrame,
-	height,
-	seamY,
-	transitionCutout,
-	cropHeight,
-}: TimelineSceneClipOptions): {
+export const getTimelineSceneShape = (
+	{
+		sceneRange,
+		durationInFrames,
+		offsetInFrames,
+		pixelsPerFrame,
+		height,
+		seamY,
+		transitionCutout,
+		cropHeight,
+	}: TimelineSceneClipOptions,
+	includeOutline: boolean,
+): {
 	readonly clipPath: string;
 	readonly path: string;
 	readonly edges: {readonly left: string | null; readonly right: string | null};
@@ -153,30 +156,31 @@ export const getTimelineSceneShape = ({
 		left: null,
 		right: null,
 	};
-	for (const [edge, contour, transition] of [
-		['left', incoming, sceneRange.transitionInEnd],
-		['right', outgoing, sceneRange.transitionOutStart],
-	] as const) {
-		if (
-			transition !== null &&
-			contour.some((point, index) => {
-				const next = contour[index + 1];
-				return (
-					next &&
-					Math.max(point.x, next.x) >= offsetInFrames &&
-					Math.min(point.x, next.x) <= offsetInFrames + durationInFrames &&
-					Math.min(point.y, next.y) < (visibleHeight / height) * 100
-				);
-			})
-		) {
-			edges[edge] = contour
-				.map(
-					({x, y}, index) =>
-						`${index === 0 ? 'M' : 'L'}${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
-				)
-				.join('');
+	if (includeOutline)
+		for (const [edge, contour, transition] of [
+			['left', incoming, sceneRange.transitionInEnd],
+			['right', outgoing, sceneRange.transitionOutStart],
+		] as const) {
+			if (
+				transition !== null &&
+				contour.some((point, index) => {
+					const next = contour[index + 1];
+					return (
+						next &&
+						Math.max(point.x, next.x) >= offsetInFrames &&
+						Math.min(point.x, next.x) <= offsetInFrames + durationInFrames &&
+						Math.min(point.y, next.y) < (visibleHeight / height) * 100
+					);
+				})
+			) {
+				edges[edge] = contour
+					.map(
+						({x, y}, index) =>
+							`${index === 0 ? 'M' : 'L'}${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
+					)
+					.join('');
+			}
 		}
-	}
 
 	// Intersect with the rendered bar without changing the parent row's contour.
 	// Expanded rows can be taller than the child bar whose outline is visible.
@@ -251,17 +255,19 @@ export const getTimelineSceneShape = ({
 		};
 	}
 
-	let path = clippedPolygons
-		.map(
-			(polygon) =>
-				polygon
-					.map(
-						({x, y}, index) =>
-							`${index === 0 ? 'M' : 'L'}${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
-					)
-					.join(' ') + ' Z',
-		)
-		.join(' ');
+	let path = includeOutline
+		? clippedPolygons
+				.map(
+					(polygon) =>
+						polygon
+							.map(
+								({x, y}, index) =>
+									`${index === 0 ? 'M' : 'L'}${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
+							)
+							.join(' ') + ' Z',
+				)
+				.join(' ')
+		: '';
 	let clipPath = `polygon(${points
 		.map(
 			({x, y}) =>
@@ -305,4 +311,4 @@ export const getTimelineSceneShape = ({
 
 export const getTimelineSceneClipPath = (
 	options: TimelineSceneClipOptions,
-): string | undefined => getTimelineSceneShape(options)?.clipPath;
+): string | undefined => getTimelineSceneShape(options, false)?.clipPath;

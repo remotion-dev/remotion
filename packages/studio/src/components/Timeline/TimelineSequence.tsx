@@ -139,6 +139,7 @@ import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-i
 import {
 	useTimelineSequenceNaturalDuration,
 	useTimelineSequenceRegistry,
+	useTimelineTransitionNeighbors,
 } from './use-timeline-sequence-registry';
 
 const NEGATIVE_START_BORDER_WIDTH = 1;
@@ -406,6 +407,8 @@ const TimelineSequenceBar: React.FC<{
 		e: React.PointerEvent<HTMLDivElement>,
 	) => void;
 	readonly onPointerDownCapture: React.PointerEventHandler<HTMLDivElement>;
+	readonly onPointerEnter: () => void;
+	readonly onPointerLeave: () => void;
 	readonly onClick: React.MouseEventHandler<HTMLDivElement> | null;
 }> = ({
 	s,
@@ -435,6 +438,8 @@ const TimelineSequenceBar: React.FC<{
 	frozenFrame,
 	onMoveDragPointerDown,
 	onPointerDownCapture,
+	onPointerEnter,
+	onPointerLeave,
 	onClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -595,28 +600,31 @@ const TimelineSequenceBar: React.FC<{
 				return [];
 			}
 
-			const shape = getTimelineSceneShape({
-				sceneRange: range,
-				offsetInFrames:
-					(Number(style.marginLeft) + selectionLeft) / frameIncrement,
-				durationInFrames: selectionWidth / frameIncrement,
-				pixelsPerFrame: frameIncrement,
-				height: packed
-					? Number(style.height)
-					: (sceneClipHeight ?? Number(style.height)),
-				seamY: packed
-					? Number(style.height) / 2
-					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
-				transitionCutout: packed
-					? {
-							top: transitionVerticalInset,
-							height: transitionHeight,
-							radius: 4,
-							minWidth: minTransitionAreaWidth,
-						}
-					: null,
-				cropHeight: Number(style.height),
-			});
+			const shape = getTimelineSceneShape(
+				{
+					sceneRange: range,
+					offsetInFrames:
+						(Number(style.marginLeft) + selectionLeft) / frameIncrement,
+					durationInFrames: selectionWidth / frameIncrement,
+					pixelsPerFrame: frameIncrement,
+					height: packed
+						? Number(style.height)
+						: (sceneClipHeight ?? Number(style.height)),
+					seamY: packed
+						? Number(style.height) / 2
+						: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+					transitionCutout: packed
+						? {
+								top: transitionVerticalInset,
+								height: transitionHeight,
+								radius: 4,
+								minWidth: minTransitionAreaWidth,
+							}
+						: null,
+					cropHeight: Number(style.height),
+				},
+				true,
+			);
 			return shape === null ? [] : [{key, shape}];
 		});
 	}, [
@@ -638,20 +646,23 @@ const TimelineSequenceBar: React.FC<{
 			return null;
 		}
 
-		return getTimelineSceneShape({
-			sceneRange,
-			offsetInFrames: Number(style.marginLeft) / frameIncrement,
-			durationInFrames: Number(style.width) / frameIncrement,
-			pixelsPerFrame: frameIncrement,
-			height: isPackedClip
-				? Number(style.height)
-				: (sceneClipHeight ?? Number(style.height)),
-			seamY: isPackedClip
-				? Number(style.height) / 2
-				: TIMELINE_CHILD_TRANSITION_SEAM_Y,
-			transitionCutout: null,
-			cropHeight: Number(style.height),
-		});
+		return getTimelineSceneShape(
+			{
+				sceneRange,
+				offsetInFrames: Number(style.marginLeft) / frameIncrement,
+				durationInFrames: Number(style.width) / frameIncrement,
+				pixelsPerFrame: frameIncrement,
+				height: isPackedClip
+					? Number(style.height)
+					: (sceneClipHeight ?? Number(style.height)),
+				seamY: isPackedClip
+					? Number(style.height) / 2
+					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+				transitionCutout: null,
+				cropHeight: Number(style.height),
+			},
+			true,
+		);
 	}, [
 		activeTrimEdge,
 		isTransition,
@@ -879,6 +890,8 @@ const TimelineSequenceBar: React.FC<{
 			aria-label={isTransition ? undefined : s.displayName}
 			data-track-item={s.timelineTrack?.role}
 			onPointerDownCapture={onPointerDownCapture}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
 		>
@@ -1064,6 +1077,17 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const video = Internals.useVideo();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const registryEntry = useTimelineSequenceRegistry(s.id);
+	const isTransitionInteraction =
+		isTransitionSeriesSequence(s) || s.timelineTrack?.role === 'transition';
+	const [transitionHovered, setTransitionHovered] = useState(false);
+	const transitionNeighbors = useTimelineTransitionNeighbors({
+		sequenceId: s.id,
+		enabled: transitionHovered && isTransitionInteraction,
+	});
+	const onPointerEnter = useCallback(() => {
+		if (isTransitionInteraction) setTransitionHovered(true);
+	}, [isTransitionInteraction]);
+	const onPointerLeave = useCallback(() => setTransitionHovered(false), []);
 	const originalSequence = registryEntry?.sequence ?? null;
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -1106,11 +1130,11 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const previousCascadingSequenceId = registryEntry?.previousSequenceId ?? null;
 	const previousCascadingOverrideId =
 		registryEntry?.previousOverrideId ??
-		registryEntry?.transitionPreviousSequence?.controls?.overrideId ??
+		transitionNeighbors?.previous.controls?.overrideId ??
 		null;
 	const nextCascadingOverrideId =
 		registryEntry?.nextOverrideId ??
-		registryEntry?.transitionNextSequence?.controls?.overrideId ??
+		transitionNeighbors?.next.controls?.overrideId ??
 		null;
 	const previousTouchingSequence =
 		registryEntry?.previousTouchingSequence ?? null;
@@ -1817,25 +1841,26 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const transitionRollingEnabled =
 		(s.timelineTrack?.role === 'transition' || isTransitionSeriesSequence(s)) &&
 		previewInteractive &&
-		[
-			registryEntry?.transitionPreviousSequence,
-			registryEntry?.transitionNextSequence,
-		].every((sequence) => {
-			const path = sequence?.controls?.overrideId
-				? overrideIdToNodePathMappingsRef.current[sequence.controls.overrideId]
-				: null;
-			return (
-				sequence &&
-				path &&
-				isTimelineSequenceDurationDraggable(sequence) &&
-				sequence.frozenFrame === null &&
-				Internals.getPropStatusesCtx(propStatuses, path)?.durationInFrames
-					?.status === 'static' &&
-				(sequence !== registryEntry?.transitionNextSequence ||
-					Internals.getPropStatusesCtx(propStatuses, path)?.trimBefore
-						?.status === 'static')
-			);
-		});
+		[transitionNeighbors?.previous, transitionNeighbors?.next].every(
+			(sequence) => {
+				const path = sequence?.controls?.overrideId
+					? overrideIdToNodePathMappingsRef.current[
+							sequence.controls.overrideId
+						]
+					: null;
+				return (
+					sequence &&
+					path &&
+					isTimelineSequenceDurationDraggable(sequence) &&
+					sequence.frozenFrame === null &&
+					Internals.getPropStatusesCtx(propStatuses, path)?.durationInFrames
+						?.status === 'static' &&
+					(sequence !== transitionNeighbors?.next ||
+						Internals.getPropStatusesCtx(propStatuses, path)?.trimBefore
+							?.status === 'static')
+				);
+			},
+		);
 	const rollingEnabled =
 		transitionRollingEnabled ||
 		Boolean(
@@ -1898,6 +1923,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
 		isFirstCascadingSequence,
+		onPointerEnter,
+		onPointerLeave,
 	};
 };
 
@@ -1980,6 +2007,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
 		isFirstCascadingSequence,
+		onPointerEnter,
+		onPointerLeave,
 	} = state;
 	const sceneRange = useContext(TimelineSceneRangeContext);
 	const inheritedSceneRange = useContext(TimelineInheritedSceneRangeContext);
@@ -2206,39 +2235,42 @@ const TimelineSequenceLayoutInner: React.FC<{
 				return [];
 			}
 
-			const shape = getTimelineSceneShape({
-				// A packed clip can extend to its trim limits, while a parent's
-				// transition continues to constrain the shape of its children.
-				sceneRange: packed
-					? {
-							...range,
-							from: start,
-							end,
-							transitionInEnd:
-								range.transitionInEnd === null
-									? null
-									: start + (range.transitionInEnd - range.from),
-							transitionOutStart:
-								range.transitionOutStart === null
-									? null
-									: end - (range.end - range.transitionOutStart),
-						}
-					: range,
-				offsetInFrames: start,
-				durationInFrames: end - start,
-				pixelsPerFrame: frameIncrement,
-				height: packed ? layerHeight : (sceneClipHeight ?? layerHeight),
-				seamY: packed ? layerHeight / 2 : TIMELINE_CHILD_TRANSITION_SEAM_Y,
-				transitionCutout: packed
-					? {
-							top: transitionVerticalInset,
-							height: transitionHeight,
-							radius: 4,
-							minWidth: minTransitionAreaWidth,
-						}
-					: null,
-				cropHeight: layerHeight,
-			});
+			const shape = getTimelineSceneShape(
+				{
+					// A packed clip can extend to its trim limits, while a parent's
+					// transition continues to constrain the shape of its children.
+					sceneRange: packed
+						? {
+								...range,
+								from: start,
+								end,
+								transitionInEnd:
+									range.transitionInEnd === null
+										? null
+										: start + (range.transitionInEnd - range.from),
+								transitionOutStart:
+									range.transitionOutStart === null
+										? null
+										: end - (range.end - range.transitionOutStart),
+							}
+						: range,
+					offsetInFrames: start,
+					durationInFrames: end - start,
+					pixelsPerFrame: frameIncrement,
+					height: packed ? layerHeight : (sceneClipHeight ?? layerHeight),
+					seamY: packed ? layerHeight / 2 : TIMELINE_CHILD_TRANSITION_SEAM_Y,
+					transitionCutout: packed
+						? {
+								top: transitionVerticalInset,
+								height: transitionHeight,
+								radius: 4,
+								minWidth: minTransitionAreaWidth,
+							}
+						: null,
+					cropHeight: layerHeight,
+				},
+				true,
+			);
 			return shape === null ? [] : [{key, shape}];
 		});
 
@@ -2438,6 +2470,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 			onClick={onSequenceClick}
 			edgeDragHandles={
 				<>

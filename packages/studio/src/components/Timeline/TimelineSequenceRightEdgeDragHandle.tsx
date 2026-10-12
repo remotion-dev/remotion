@@ -2004,8 +2004,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const [trimTooltip, setTrimTooltip] =
 		useState<TimelineTrimTooltipState | null>(null);
 	const [altKey, setAltKey] = useState(false);
+	const [hovered, setHovered] = useState(false);
 	useEffect(() => {
-		if (edgeMode !== 'rolling') return;
+		if (edgeMode !== 'rolling' || !hovered) return;
 		const onKey = (event: KeyboardEvent) => setAltKey(event.altKey);
 		const onBlur = () => setAltKey(false);
 		window.addEventListener('keydown', onKey);
@@ -2016,7 +2017,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			window.removeEventListener('keyup', onKey);
 			window.removeEventListener('blur', onBlur);
 		};
-	}, [edgeMode]);
+	}, [edgeMode, hovered]);
 
 	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
@@ -2231,18 +2232,19 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 									rippleEdit: mode === 'ripple',
 								})) ?? [])
 					: [];
-			const initialTargets = getTargets(propStatuses);
-
 			stopPointerSessionRef.current?.();
 			stopPointerSessionRef.current = startPreparedPointerSession({
 				event: downEvent,
 				captureTarget,
+				minimumMovement: isTransitionSeries
+					? timelineSequenceEdgeDragThresholdPx
+					: null,
 				prepare: () =>
 					loadKeyframeTrimConstraints({
 						propStatuses,
 						overrideIdsToNodePaths,
 						sequences,
-						affectedNodePaths: initialTargets.flatMap((target) =>
+						affectedNodePaths: getTargets(propStatuses).flatMap((target) =>
 							target.ripplePrevious
 								? target.positionField === null &&
 									target.rollingDuration === null
@@ -2704,6 +2706,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	};
 
 	const onLeave = () => {
+		setHovered(false);
+		setAltKey(false);
 		if (dragStateRef.current === null) {
 			onHoverEnd();
 		}
@@ -2754,7 +2758,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					}
 					style={edgeStyle}
 					onPointerEnter={(event) => {
-						if (edgeMode === 'rolling') setAltKey(event.altKey);
+						if (edgeMode === 'rolling') {
+							setHovered(true);
+							setAltKey(event.altKey);
+						}
+
 						onHover(
 							edgeMode === 'rolling' && event.altKey ? 'head-trim' : edgeMode,
 						);
@@ -3398,6 +3406,10 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				metaKey: e.metaKey,
 				ctrlKey: e.ctrlKey,
 			});
+			if (isTransitionSeries && selectionInteraction !== null) {
+				latestRef.current.onSelect(selectionInteraction);
+			}
+
 			const pxPerFrame =
 				timelineDurationInFrames > 0
 					? (windowWidth - TIMELINE_PADDING * 2) / timelineDurationInFrames
@@ -3438,18 +3450,21 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 							timelineDurationInFrames,
 						}) ?? [])
 					: [];
-			const initialTargets = getTargets(propStatuses);
-
 			stopPointerSessionRef.current?.();
 			stopPointerSessionRef.current = startPreparedPointerSession({
 				event: downEvent,
 				captureTarget,
+				minimumMovement: isTransitionSeries
+					? timelineSequenceEdgeDragThresholdPx
+					: null,
 				prepare: () =>
 					loadKeyframeTrimConstraints({
 						propStatuses,
 						overrideIdsToNodePaths,
 						sequences,
-						affectedNodePaths: initialTargets.map((target) => target.nodePath),
+						affectedNodePaths: getTargets(propStatuses).map(
+							(target) => target.nodePath,
+						),
 					}),
 				onCancel: () => {
 					stopPointerSessionRef.current = null;
@@ -3483,7 +3498,9 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						didMove: false,
 						pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 						pointerId: downEvent.pointerId,
-						selectionInteraction,
+						selectionInteraction: isTransitionSeries
+							? null
+							: selectionInteraction,
 						targets,
 					};
 					document.body.style.userSelect = 'none';
@@ -3654,6 +3671,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			timelineDurationInFrames,
 			windowWidth,
 			transitionStartOffset,
+			isTransitionSeries,
 			updateSnapFrameRef,
 		],
 	);

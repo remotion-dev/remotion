@@ -1,5 +1,5 @@
 import {CanvasInternals} from '@remotion/sdk';
-import {useCallback, useContext, type ContextType} from 'react';
+import {useCallback, useContext, useRef, type ContextType} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
@@ -17,8 +17,6 @@ type TimelineSequenceRegistryEntry = {
 	readonly nextOverrideId: string | null;
 	readonly previousTouchingSequence: TSequence | null;
 	readonly nextTouchingSequence: TSequence | null;
-	readonly transitionPreviousSequence: TSequence | null;
-	readonly transitionNextSequence: TSequence | null;
 };
 
 const indexedRegistries = new WeakMap<
@@ -93,20 +91,7 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 				.map((sequence) => sequence.timelineTrack!.id),
 		);
 		const clipsByTrack = new Map<string, TSequence[]>();
-		const transitionItemsByTrack = new Map<string, TSequence[]>();
 		for (const sequence of sequences) {
-			if (
-				sequence.timelineTrack &&
-				(sequence.timelineTrack.role === 'transition' ||
-					sequence.controls?.componentIdentity ===
-						'dev.remotion.transitions.TransitionSeries.Sequence')
-			) {
-				const items =
-					transitionItemsByTrack.get(sequence.timelineTrack.id) ?? [];
-				items.push(sequence);
-				transitionItemsByTrack.set(sequence.timelineTrack.id, items);
-			}
-
 			if (
 				sequence.timelineTrack?.role !== 'clip' ||
 				!normalTrackIds.has(sequence.timelineTrack.id) ||
@@ -143,34 +128,6 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 			}
 		}
 
-		const transitionNeighbors = new Map<
-			string,
-			{previous: TSequence; next: TSequence}
-		>();
-		for (const items of transitionItemsByTrack.values()) {
-			const sorted = CanvasInternals.sortItemsByCommitOrder(
-				items,
-				(item) => item.timelineOrder,
-			);
-			for (let index = 1; index < sorted.length - 1; index++) {
-				const item = sorted[index];
-				const previousItem = sorted[index - 1];
-				const nextItem = sorted[index + 1];
-				if (
-					item.timelineTrack?.role === 'transition' &&
-					previousItem.timelineTrack?.role === 'clip' &&
-					nextItem.timelineTrack?.role === 'clip' &&
-					previousItem.parent === item.parent &&
-					nextItem.parent === item.parent
-				) {
-					const neighbors = {previous: previousItem, next: nextItem};
-					// Both the transition marker and the incoming edge edit this join.
-					transitionNeighbors.set(item.id, neighbors);
-					transitionNeighbors.set(nextItem.id, neighbors);
-				}
-			}
-		}
-
 		const entries = new Map<string, TimelineSequenceRegistryEntry>();
 		for (const sequence of sequences) {
 			const adjacent = adjacentById.get(sequence.id);
@@ -181,10 +138,6 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 			const previousTouchingSequence =
 				touchingById.get(sequence.id)?.previous ?? null;
 			const nextTouchingSequence = touchingById.get(sequence.id)?.next ?? null;
-			const transitionPreviousSequence =
-				transitionNeighbors.get(sequence.id)?.previous ?? null;
-			const transitionNextSequence =
-				transitionNeighbors.get(sequence.id)?.next ?? null;
 			const previousEntry = previous?.entries.get(sequence.id);
 			entries.set(
 				sequence.id,
@@ -193,10 +146,7 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 					previousEntry.previousOverrideId === previousOverrideId &&
 					previousEntry.nextOverrideId === nextOverrideId &&
 					previousEntry.previousTouchingSequence === previousTouchingSequence &&
-					previousEntry.nextTouchingSequence === nextTouchingSequence &&
-					previousEntry.transitionPreviousSequence ===
-						transitionPreviousSequence &&
-					previousEntry.transitionNextSequence === transitionNextSequence
+					previousEntry.nextTouchingSequence === nextTouchingSequence
 					? previousEntry
 					: {
 							sequence,
@@ -205,8 +155,6 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 							nextOverrideId,
 							previousTouchingSequence,
 							nextTouchingSequence,
-							transitionPreviousSequence,
-							transitionNextSequence,
 						},
 			);
 		}
@@ -242,6 +190,78 @@ export const useTimelineSequenceNaturalDuration = ({
 			: null;
 	}, [enabled, registry, sequenceId]);
 
+	return useSyncExternalStore(
+		enabled && registry !== null ? registry.subscribe : subscribeToNoRegistry,
+		getSnapshot,
+		getSnapshot,
+	);
+};
+
+type TransitionNeighbors = {
+	readonly previous: TSequence;
+	readonly next: TSequence;
+};
+const transitionNeighborsCache = new WeakMap<
+	SequenceRegistry,
+	{
+		readonly sequences: TSequence[];
+		readonly entries: Map<string, TransitionNeighbors | null>;
+	}
+>();
+
+// Resolve edit-only relationships on hover, without indexing every transition
+// whenever an unrelated sequence registers or changes.
+export const useTimelineTransitionNeighbors = ({
+	sequenceId,
+	enabled,
+}: {
+	readonly sequenceId: string;
+	readonly enabled: boolean;
+}) => {
+	const registry = useContext(Internals.SequenceRegistryContext);
+	const previousValue = useRef<TransitionNeighbors | null>(null);
+	const getSnapshot = useCallback(() => {
+		// Keep an existing handle mounted if the pointer leaves during a drag.
+		if (!enabled || registry === null) return previousValue.current;
+		const sequences = registry.getSnapshot();
+		let cache = transitionNeighborsCache.get(registry);
+		if (cache?.sequences !== sequences) {
+			cache = {sequences, entries: new Map()};
+			transitionNeighborsCache.set(registry, cache);
+		}
+
+		if (!cache.entries.has(sequenceId)) {
+			const sequence = sequences.find((item) => item.id === sequenceId);
+			const siblings = sequence?.timelineTrack
+				? CanvasInternals.sortItemsByCommitOrder(
+						sequences.filter(
+							(item) =>
+								item.parent === sequence.parent &&
+								item.timelineTrack?.id === sequence.timelineTrack?.id &&
+								(item.timelineTrack?.role === 'clip' ||
+									item.timelineTrack?.role === 'transition'),
+						),
+						(item) => item.timelineOrder,
+					)
+				: [];
+			const index = siblings.findIndex((item) => item.id === sequenceId);
+			const transitionIndex =
+				sequence?.timelineTrack?.role === 'transition' ? index : index - 1;
+			const previous = siblings[transitionIndex - 1];
+			const next = siblings[transitionIndex + 1];
+			cache.entries.set(
+				sequenceId,
+				siblings[transitionIndex]?.timelineTrack?.role === 'transition' &&
+					previous?.timelineTrack?.role === 'clip' &&
+					next?.timelineTrack?.role === 'clip'
+					? {previous, next}
+					: null,
+			);
+		}
+
+		previousValue.current = cache.entries.get(sequenceId) ?? null;
+		return previousValue.current;
+	}, [enabled, registry, sequenceId]);
 	return useSyncExternalStore(
 		enabled && registry !== null ? registry.subscribe : subscribeToNoRegistry,
 		getSnapshot,

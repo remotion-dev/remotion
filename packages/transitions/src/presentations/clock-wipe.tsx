@@ -25,28 +25,36 @@ const ClockWipePresentation: React.FC<
 	passedProps,
 	_remotionInternalIsActive = true,
 }) => {
-	const finishedRadius =
-		Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2;
+	const translatedPath = useMemo(() => {
+		if (!_remotionInternalIsActive || presentationDirection === 'exiting') {
+			return null;
+		}
 
-	const {path} = makePie({
-		radius: finishedRadius,
-		progress: presentationProgress,
-	});
-
-	const translatedPath = translatePath(
-		path,
-		-(finishedRadius * 2 - passedProps.width) / 2,
-		-(finishedRadius * 2 - passedProps.height) / 2,
-	);
+		const finishedRadius =
+			Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2;
+		const {path} = makePie({
+			radius: finishedRadius,
+			progress: presentationProgress,
+		});
+		return translatePath(
+			path,
+			-(finishedRadius * 2 - passedProps.width) / 2,
+			-(finishedRadius * 2 - passedProps.height) / 2,
+		);
+	}, [
+		_remotionInternalIsActive,
+		presentationDirection,
+		presentationProgress,
+		passedProps.width,
+		passedProps.height,
+	]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
 			height: '100%',
 			clipPath:
-				presentationDirection === 'exiting'
-					? undefined
-					: `path("${translatedPath}")`,
+				translatedPath === null ? undefined : `path("${translatedPath}")`,
 			...(presentationDirection === 'entering'
 				? passedProps.innerEnterStyle
 				: passedProps.innerExitStyle),
