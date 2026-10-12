@@ -591,13 +591,13 @@ const TimelineSequenceBar: React.FC<{
 		s.timelineTrack?.role,
 		sceneClipHeight,
 	]);
-	const diagonalTrimEdge =
+	const transitionTrimEdge =
 		activeTrimEdge === null ? null : (trimShape?.edges[activeTrimEdge] ?? null);
 	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
 	const trimHighlightColor = isAtTrimLimit ? RED : '#00E500';
 	const sequenceBackground =
 		activeTrimEdge === null ||
-		diagonalTrimEdge !== null ||
+		transitionTrimEdge !== null ||
 		(activeTrimEdge === 'left' && leftTrimHighlight?.left !== negativeStartEnd)
 			? style.background
 			: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, ${trimHighlightColor} 0 2px, transparent 2px), ${style.background ?? TRANSPARENT}`;
@@ -671,7 +671,7 @@ const TimelineSequenceBar: React.FC<{
 					style={{
 						position: 'absolute',
 						left: labelLeft,
-						// The containing scene clips the label along the transition diagonal.
+						// The containing scene clips the label along the transition contour.
 						right: 0,
 						bottom: PACKED_LABEL_BOTTOM,
 						display: 'flex',
@@ -745,7 +745,7 @@ const TimelineSequenceBar: React.FC<{
 
 			{activeTrimEdge === null ||
 			(activeTrimEdge === 'left' &&
-				leftTrimHighlight === null) ? null : diagonalTrimEdge !== null &&
+				leftTrimHighlight === null) ? null : transitionTrimEdge !== null &&
 			  trimShape ? (
 				<svg
 					aria-hidden="true"
@@ -761,14 +761,14 @@ const TimelineSequenceBar: React.FC<{
 					}}
 				>
 					<path
-						d={diagonalTrimEdge}
+						d={transitionTrimEdge}
 						fill="none"
 						stroke={trimHighlightColor}
 						strokeWidth={EDGE_DRAG_HIGHLIGHT_WIDTH}
 						style={{filter: 'blur(4px)'}}
 					/>
 					<path
-						d={diagonalTrimEdge}
+						d={transitionTrimEdge}
 						fill="none"
 						stroke={trimHighlightColor}
 						strokeWidth={4}

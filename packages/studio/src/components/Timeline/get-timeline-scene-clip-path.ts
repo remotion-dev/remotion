@@ -39,97 +39,162 @@ export const getTimelineSceneShape = ({
 		};
 	}
 
-	// Move only the outgoing diagonal inward by one perpendicular pixel, so
-	// adjacent clips retain the same gap at any transition width or row height.
+	const middle = (Math.round(height / 2) / height) * 100;
 	const outgoingInset =
+		sceneRange.transitionOutStart === null ? 0 : 1 / pixelsPerFrame;
+	const outgoingMiddle =
+		middle - (sceneRange.transitionOutStart === null ? 0 : 100 / height);
+	const incomingEnd = sceneRange.transitionInEnd ?? sceneRange.from;
+	const outgoingStart =
+		(sceneRange.transitionOutStart ?? sceneRange.end) - outgoingInset;
+	const outgoingEnd = sceneRange.end - outgoingInset;
+	// The shared seam steps down from the top-right to the bottom-left. Inset
+	// each outgoing segment by one pixel to retain the gap around both corners.
+	const incoming =
+		sceneRange.transitionInEnd === null
+			? [
+					{x: sceneRange.from, y: 0},
+					{x: sceneRange.from, y: 100},
+				]
+			: [
+					{x: incomingEnd, y: 0},
+					{x: incomingEnd, y: middle},
+					{x: sceneRange.from, y: middle},
+					{x: sceneRange.from, y: 100},
+				];
+	const outgoing =
 		sceneRange.transitionOutStart === null
-			? 0
-			: Math.hypot(
-					(sceneRange.end - sceneRange.transitionOutStart) / height,
-					1 / pixelsPerFrame,
-				);
-	// The outgoing scene ends at the top; the incoming scene starts at the bottom.
-	let points = [
-		{x: sceneRange.transitionInEnd ?? sceneRange.from, y: 0},
-		{x: sceneRange.end - outgoingInset, y: 0},
-		{
-			x: (sceneRange.transitionOutStart ?? sceneRange.end) - outgoingInset,
-			y: 100,
-		},
-		{x: sceneRange.from, y: 100},
-	];
-	const edgePoints = points.map(
-		({x, y}) =>
-			`${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
-	);
+			? [
+					{x: outgoingEnd, y: 0},
+					{x: outgoingEnd, y: 100},
+				]
+			: [
+					{x: outgoingEnd, y: 0},
+					{x: outgoingEnd, y: outgoingMiddle},
+					{x: outgoingStart, y: outgoingMiddle},
+					{x: outgoingStart, y: 100},
+				];
+	// Overlapping transitions can leave two disconnected teeth. Keep them as
+	// separate contours instead of letting their horizontal edges cross.
+	const polygons =
+		incomingEnd > outgoingStart
+			? [
+					...(outgoingEnd > incomingEnd
+						? [
+								[
+									{x: incomingEnd, y: 0},
+									{x: outgoingEnd, y: 0},
+									{x: outgoingEnd, y: outgoingMiddle},
+									{x: incomingEnd, y: outgoingMiddle},
+								],
+							]
+						: []),
+					...(outgoingStart > sceneRange.from
+						? [
+								[
+									{x: sceneRange.from, y: middle},
+									{x: outgoingStart, y: middle},
+									{x: outgoingStart, y: 100},
+									{x: sceneRange.from, y: 100},
+								],
+							]
+						: []),
+				]
+			: [[...outgoing, ...incoming.toReversed()]];
 	const visibleHeight = cropHeight ?? height;
 	const edges: {left: string | null; right: string | null} = {
 		left: null,
 		right: null,
 	};
-	for (const [edge, start, end, transition] of [
-		['left', 0, 3, sceneRange.transitionInEnd],
-		['right', 1, 2, sceneRange.transitionOutStart],
+	for (const [edge, contour, transition] of [
+		['left', incoming, sceneRange.transitionInEnd],
+		['right', outgoing, sceneRange.transitionOutStart],
 	] as const) {
-		const bottomX =
-			points[start].x +
-			(points[end].x - points[start].x) * Math.min(1, visibleHeight / height);
 		if (
 			transition !== null &&
-			Math.max(points[start].x, bottomX) > offsetInFrames &&
-			Math.min(points[start].x, bottomX) < offsetInFrames + durationInFrames
+			contour.some((point, index) => {
+				const next = contour[index + 1];
+				return (
+					next &&
+					Math.max(point.x, next.x) >= offsetInFrames &&
+					Math.min(point.x, next.x) <= offsetInFrames + durationInFrames &&
+					Math.min(point.y, next.y) < (visibleHeight / height) * 100
+				);
+			})
 		) {
-			edges[edge] = `M${edgePoints[start]}L${edgePoints[end]}`;
+			edges[edge] = contour
+				.map(
+					({x, y}, index) =>
+						`${index === 0 ? 'M' : 'L'}${(x - offsetInFrames) * pixelsPerFrame},${(y / 100) * height}`,
+				)
+				.join('');
 		}
 	}
 
-	// Intersect with the rendered bar without changing the parent row's slope.
+	// Intersect with the rendered bar without changing the parent row's contour.
 	// Expanded rows can be taller than the child bar whose outline is visible.
-	for (const {boundary, keepGreater, axis} of [
-		{
-			boundary: Math.max(offsetInFrames, sceneRange.from),
-			keepGreater: true,
-			axis: 'x',
-		},
-		{
-			boundary: Math.min(offsetInFrames + durationInFrames, sceneRange.end),
-			keepGreater: false,
-			axis: 'x',
-		},
-		{boundary: (visibleHeight / height) * 100, keepGreater: false, axis: 'y'},
-	] as const) {
-		const clipped: typeof points = [];
-		for (let index = 0; index < points.length; index++) {
-			const point = points[index];
-			const previous = points[(index + points.length - 1) % points.length];
-			const inside = keepGreater
-				? point[axis] >= boundary
-				: point[axis] <= boundary;
-			const previousInside = keepGreater
-				? previous[axis] >= boundary
-				: previous[axis] <= boundary;
-			if (inside !== previousInside) {
-				const progress =
-					(boundary - previous[axis]) / (point[axis] - previous[axis]);
-				clipped.push({
-					x:
-						axis === 'x'
-							? boundary
-							: previous.x + (point.x - previous.x) * progress,
-					y:
-						axis === 'y'
-							? boundary
-							: previous.y + (point.y - previous.y) * progress,
-				});
+	const clippedPolygons = polygons
+		.map((polygon) => {
+			let clippedPoints = polygon;
+			for (const {boundary, keepGreater, axis} of [
+				{
+					boundary: Math.max(offsetInFrames, sceneRange.from),
+					keepGreater: true,
+					axis: 'x',
+				},
+				{
+					boundary: Math.min(offsetInFrames + durationInFrames, sceneRange.end),
+					keepGreater: false,
+					axis: 'x',
+				},
+				{
+					boundary: (visibleHeight / height) * 100,
+					keepGreater: false,
+					axis: 'y',
+				},
+			] as const) {
+				const clipped: typeof clippedPoints = [];
+				for (let index = 0; index < clippedPoints.length; index++) {
+					const point = clippedPoints[index];
+					const previous =
+						clippedPoints[
+							(index + clippedPoints.length - 1) % clippedPoints.length
+						];
+					const inside = keepGreater
+						? point[axis] >= boundary
+						: point[axis] <= boundary;
+					const previousInside = keepGreater
+						? previous[axis] >= boundary
+						: previous[axis] <= boundary;
+					if (inside !== previousInside) {
+						const progress =
+							(boundary - previous[axis]) / (point[axis] - previous[axis]);
+						clipped.push({
+							x:
+								axis === 'x'
+									? boundary
+									: previous.x + (point.x - previous.x) * progress,
+							y:
+								axis === 'y'
+									? boundary
+									: previous.y + (point.y - previous.y) * progress,
+						});
+					}
+
+					if (inside) {
+						clipped.push(point);
+					}
+				}
+
+				clippedPoints = clipped;
 			}
 
-			if (inside) {
-				clipped.push(point);
-			}
-		}
-
-		points = clipped;
-	}
+			return clippedPoints;
+		})
+		.filter((polygon) => polygon.length > 0);
+	// Closing both contours cancels the connecting segment in the fill. The
+	// selection stroke is clipped to that same fill, so it cannot bridge the gap.
+	const points = clippedPolygons.flatMap((polygon) => [...polygon, polygon[0]]);
 
 	if (points.length === 0) {
 		return {
