@@ -174,13 +174,6 @@ loadFont('normal', {
 
 **Required action**: Ensure custom fonts are loaded before calling these APIs, or pass `validateFontIsLoaded: false` explicitly to keep the previous behavior. See [layout utils best practices](/docs/layout-utils/best-practices).
 
-## Default premount duration is now 2 seconds
-
-The default [premount duration](/docs/player/premounting) for timed components changes from `0` to `2` seconds in the Studio and Player.
-This prepares assets before components appear. Explicit `premountFor` props continue to take precedence. Premounting does not affect rendering.
-
-**Required action**: To keep the v4 default, set [`Config.setDefaultPremountInSeconds(0)`](/docs/config#setdefaultpremountinseconds) for the Studio and [`defaultPremountInSeconds={0}`](/docs/player/player#defaultpremountinseconds) on the Player. You can also use [`--default-premount-in-seconds=0`](/docs/options/default-premount-in-seconds) or change the Studio settings. For an individual component, pass [`premountFor={0}`](/docs/sequence#premountfor).
-
 ## `<Player>` does not create shared audio tags by default
 
 The default [`numberOfSharedAudioTags`](/docs/player/player#numberofsharedaudiotags) value of the [`<Player>`](/docs/player/player) has changed from `5` to `0`.

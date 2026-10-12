@@ -11,9 +11,10 @@ export const showPremountingOption = {
 	id: cliFlag,
 	description: () => (
 		<>
-			Show premounting indicators in the Studio timeline. Defaults to{' '}
-			<code>true</code>; this may change in a future 4.x release. Set explicitly
-			to preserve your preference.
+			Show premounting indicators for components on separate Studio timeline
+			rows. Defaults to <code>false</code>. Selecting a component&apos;s
+			&quot;Premount For&quot; property shows its premounted range regardless of
+			this setting.
 		</>
 	),
 	ssrName: null,
@@ -24,7 +25,7 @@ export const showPremountingOption = {
 			return {value: commandLine[cliFlag] as boolean, source: 'cli'};
 		}
 
-		return {value: configuredShowPremounting ?? true, source: 'config'};
+		return {value: configuredShowPremounting ?? false, source: 'config'};
 	},
 	setConfig(value) {
 		if (typeof value !== 'boolean') {

@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # Show premounting in the Studio timeline<AvailableFrom v="4.0.535" />
 
-Show premounting indicators in the Studio timeline. Defaults to `true`; this may change in a future 4.x release. Set explicitly to preserve your preference.
+Show premounting indicators for components on separate Studio timeline rows. Defaults to `false`. Selecting a component's "Premount For" property shows its premounted range regardless of this setting.
 
 ## CLI flag
 
@@ -26,7 +26,7 @@ The following CLI commands accept this option:
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setShowPremounting(false);
+Config.setShowPremounting(true);
 ```
 
 ## See also

@@ -63,12 +63,12 @@ export const getStudioBufferStateDelayInMilliseconds = () => {
 export const getStudioDefaultPremountInSeconds = () => {
 	return (
 		getStudioRuntimeConfig().defaultPremountInSeconds ??
-		NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS
+		NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS
 	);
 };
 
 export const getStudioShowPremounting = () => {
-	return getStudioRuntimeConfig().showPremounting ?? true;
+	return getStudioRuntimeConfig().showPremounting ?? false;
 };
 
 export const getStudioSequenceActivitySettings = () => {
