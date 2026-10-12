@@ -112,6 +112,10 @@ To inspect one component while indicators are disabled, select it in the timelin
 
 Premounting is not shown for items that share a timeline track with other items.
 
+If you are outside the Studio, there is no indication.
+
+Use the developer tools in the browser to see if an item is mounted to the DOM.
+
 ## Premounting a whole scene
 
 Create a scene with [`Interactive.withSchema()`](/docs/interactive-with-schema) and `layout: 'absolute-fill'`, then set `premountFor` to prepare its children together:
