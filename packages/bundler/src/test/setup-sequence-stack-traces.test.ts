@@ -79,7 +79,7 @@ test('defers and idempotently enables source stack injection in production', asy
 			readonly _remotionInternalStack: string;
 		};
 		expect(sourceProps._remotionInternalStack).toBe(
-			'Error\n    at remotionOriginalSource (studio-original://.%2Fsrc%2FVideo.tsx:12:4)',
+			'Error\n    at remotionOriginalSource (studio-original://.%2Fsrc%2FVideo.tsx:12:3)',
 		);
 	} finally {
 		if (previousNodeEnv === undefined) {

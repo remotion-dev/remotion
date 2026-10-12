@@ -36,7 +36,7 @@ export const getCanvasSequenceSourceLocation = (
 	return {
 		fileName: location.fileName,
 		line: location.line,
-		column: Math.max(0, location.column - 1),
+		column: location.column,
 	};
 };
 
