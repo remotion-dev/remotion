@@ -1828,12 +1828,34 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
+			const getTargets = (statuses: PropStatuses) =>
+				canCalculateDelta
+					? (getTimelineSequenceLeftEdgeDragTargets({
+							draggedNodePathInfo: latestNodePathInfo,
+							selectedItems: latestSelectedItems,
+							sequences,
+							overrideIdsToNodePaths,
+							propStatuses: statuses,
+							timelineDurationInFrames,
+							trimBeforeOnly,
+							rippleEdit: mode === 'ripple',
+						}) ?? [])
+					: [];
+			const initialTargets = getTargets(propStatuses);
+
 			stopPointerSessionRef.current?.();
 			stopPointerSessionRef.current = startPreparedPointerSession({
 				event: downEvent,
 				captureTarget,
 				prepare: () =>
-					loadKeyframeTrimConstraints({propStatuses, overrideIdsToNodePaths}),
+					loadKeyframeTrimConstraints({
+						propStatuses,
+						overrideIdsToNodePaths,
+						sequences,
+						affectedNodePaths: initialTargets.map(
+							(target) => target.ripplePrevious?.nodePath ?? target.nodePath,
+						),
+					}),
 				onCancel: () => {
 					stopPointerSessionRef.current = null;
 					finishDrag(false);
@@ -1844,18 +1866,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						3000,
 					),
 				onReady: (preparedPropStatuses) => {
-					const targets = canCalculateDelta
-						? (getTimelineSequenceLeftEdgeDragTargets({
-								draggedNodePathInfo: latestNodePathInfo,
-								selectedItems: latestSelectedItems,
-								sequences,
-								overrideIdsToNodePaths,
-								propStatuses: preparedPropStatuses,
-								timelineDurationInFrames,
-								trimBeforeOnly,
-								rippleEdit: mode === 'ripple',
-							}) ?? [])
-						: [];
+					const targets = getTargets(preparedPropStatuses);
 					const draggedKey = stringifySequenceSubscriptionKey(
 						latestNodePathInfo.sequenceSubscriptionKey,
 					);
@@ -2771,12 +2782,34 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
+			const getTargets = (statuses: PropStatuses) =>
+				canCalculateDelta
+					? (getTimelineSequenceDurationDragTargets({
+							draggedNodePathInfo: latestNodePathInfo,
+							draggedSequenceMediaDurationDragLimits:
+								latestMediaDurationDragLimits,
+							selectedSequenceMediaDurationDragLimits:
+								mediaDurationDragLimitsRegistry?.current ?? null,
+							selectedItems: latestSelectedItems,
+							sequences,
+							overrideIdsToNodePaths,
+							propStatuses: statuses,
+							timelineDurationInFrames,
+						}) ?? [])
+					: [];
+			const initialTargets = getTargets(propStatuses);
+
 			stopPointerSessionRef.current?.();
 			stopPointerSessionRef.current = startPreparedPointerSession({
 				event: downEvent,
 				captureTarget,
 				prepare: () =>
-					loadKeyframeTrimConstraints({propStatuses, overrideIdsToNodePaths}),
+					loadKeyframeTrimConstraints({
+						propStatuses,
+						overrideIdsToNodePaths,
+						sequences,
+						affectedNodePaths: initialTargets.map((target) => target.nodePath),
+					}),
 				onCancel: () => {
 					stopPointerSessionRef.current = null;
 					finishDrag(false);
@@ -2787,20 +2820,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						3000,
 					),
 				onReady: (preparedPropStatuses) => {
-					const targets = canCalculateDelta
-						? (getTimelineSequenceDurationDragTargets({
-								draggedNodePathInfo: latestNodePathInfo,
-								draggedSequenceMediaDurationDragLimits:
-									latestMediaDurationDragLimits,
-								selectedSequenceMediaDurationDragLimits:
-									mediaDurationDragLimitsRegistry?.current ?? null,
-								selectedItems: latestSelectedItems,
-								sequences,
-								overrideIdsToNodePaths,
-								propStatuses: preparedPropStatuses,
-								timelineDurationInFrames,
-							}) ?? [])
-						: [];
+					const targets = getTargets(preparedPropStatuses);
 					const draggedKey = stringifySequenceSubscriptionKey(
 						latestNodePathInfo.sequenceSubscriptionKey,
 					);

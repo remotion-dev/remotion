@@ -20,12 +20,8 @@ export const useClampSequenceTimingValue = () => {
 			Promise<ReturnType<typeof getTimelineSequenceTimingLimits> | null>
 		>(),
 	);
-	const preparedPropsRef = useRef<ReturnType<
-		typeof loadKeyframeTrimConstraints
-	> | null>(null);
 	const clearTimingLimits = useCallback(() => {
 		limitsRef.current.clear();
-		preparedPropsRef.current = null;
 	}, []);
 	const clampTimingValue = useCallback(
 		async (
@@ -51,10 +47,12 @@ export const useClampSequenceTimingValue = () => {
 				const preparedProps =
 					fieldKey === 'from'
 						? Promise.resolve(propStatusesRef.current)
-						: (preparedPropsRef.current ??= loadKeyframeTrimConstraints({
+						: loadKeyframeTrimConstraints({
 								propStatuses: propStatusesRef.current,
 								overrideIdsToNodePaths: mappingsRef.current,
-							}));
+								sequences,
+								affectedNodePaths: [nodePath],
+							});
 				const matching = tracks.filter(
 					(track) =>
 						track.nodePathInfo &&
