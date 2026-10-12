@@ -85,6 +85,8 @@ const HANDLE_INSET = 6;
 const HANDLE_OUTSET = 8;
 const LEFT_EDGE_HANDLE_INSET = 4;
 const LEFT_EDGE_HANDLE_OUTSET = 4;
+const TRANSITION_RIGHT_HANDLE_INSET =
+	HANDLE_INSET + HANDLE_OUTSET + LEFT_EDGE_HANDLE_OUTSET + 1;
 const timelineSequenceEdgeDragThresholdPx = 4;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
@@ -3398,7 +3400,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const handleRect = captureTarget.getBoundingClientRect();
 			const initialEdgeClientX =
 				transitionStartOffset !== null
-					? handleRect.left + HANDLE_INSET
+					? handleRect.left + TRANSITION_RIGHT_HANDLE_INSET
 					: (captureTarget.parentElement?.getBoundingClientRect().right ??
 						handleRect.right - HANDLE_OUTSET);
 			const initialEdgeClientY = handleRect.top;
@@ -3648,16 +3650,11 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		// The outgoing edge is above the seam; incoming controls remain below it.
-		zIndex:
-			transitionStartOffset !== null
-				? 3
-				: isTransitionSeries
-					? 2
-					: baseStyle.zIndex,
+		// Keep the outgoing trim inside the solid clip, clear of the incoming edge.
+		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
 		left:
 			transitionStartOffset !== null
-				? transitionStartOffset - HANDLE_INSET
+				? transitionStartOffset - TRANSITION_RIGHT_HANDLE_INSET
 				: undefined,
 		right:
 			transitionStartOffset !== null
@@ -3665,7 +3662,6 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				: touchingNext
 					? 'min(2px, 12.5%)'
 					: -HANDLE_OUTSET,
-		bottom: transitionStartOffset !== null ? '50%' : baseStyle.bottom,
 		width:
 			transitionStartOffset !== null
 				? baseStyle.width
