@@ -92,8 +92,8 @@ const TimelineSceneList: React.FC<{
 			.filter(
 				({row}) =>
 					row.sceneRange !== null &&
-					frame >= row.sceneRange.from &&
-					frame < row.sceneRange.end,
+					frame >= row.sceneRange.activeFrom &&
+					frame < row.sceneRange.activeEnd,
 			)
 			.map(({row}) => row.track.sequence.id),
 	}));

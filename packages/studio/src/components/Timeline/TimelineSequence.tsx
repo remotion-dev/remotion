@@ -17,7 +17,6 @@ import type {
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
-	BLACK_ALPHA_22,
 	BLUE,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_BACKGROUND_COLOR,
@@ -27,8 +26,8 @@ import {
 	TIMELINE_VIDEO_GRADIENT,
 	TRANSPARENT,
 	WHITE,
-	WHITE_ALPHA_15,
 	WHITE_ALPHA_20,
+	WHITE_ALPHA_60,
 } from '../../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {
@@ -73,7 +72,10 @@ import {
 	getKeyframePlaybackRate,
 } from './get-timeline-keyframes';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
-import {getTimelineSceneMask} from './get-timeline-scene-mask';
+import {
+	getTimelineSceneClipPath,
+	getTimelineSceneShape,
+} from './get-timeline-scene-clip-path';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -91,7 +93,10 @@ import {
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
-import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {
+	TimelineSceneClipHeightContext,
+	TimelineSceneRangeContext,
+} from './TimelineSceneRangeContext';
 import {
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
@@ -133,6 +138,11 @@ import {
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
+const transitionVerticalInset = Math.round(TIMELINE_PACKED_TRACK_HEIGHT * 0.2);
+const transitionHeight =
+	TIMELINE_PACKED_TRACK_HEIGHT - transitionVerticalInset * 2;
+const transitionWidth = Math.round(transitionHeight * 1.5);
+const minTransitionAreaWidth = transitionWidth + 8;
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -397,12 +407,18 @@ const TimelineSequenceBar: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const showLayerFrameNumbers = getStudioShowLayerFrameNumbers();
 	const sceneRange = useContext(TimelineSceneRangeContext);
+	const sceneClipHeight = useContext(TimelineSceneClipHeightContext);
 	const timelineWidth = useContext(TimelineWidthContext);
 	const video = Internals.useUnsafeVideoConfig();
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
-	useTimelineMarqueeSelectableItem(selectionItem, ref, marqueeHorizontalBounds);
+	const isTransition = s.timelineTrack?.role === 'transition';
+	useTimelineMarqueeSelectableItem(
+		selectionItem,
+		ref,
+		isTransition ? null : marqueeHorizontalBounds,
+	);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -432,10 +448,6 @@ const TimelineSequenceBar: React.FC<{
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
 		: 0;
-	const transitionWidth =
-		s.timelineTrack?.role === 'transition'
-			? (marqueeHorizontalBounds?.width ?? Number(style.width))
-			: null;
 	const frameIncrement =
 		timelineWidth !== null && video !== null
 			? (timelineWidth - TIMELINE_PADDING * 2) / video.durationInFrames
@@ -448,6 +460,42 @@ const TimelineSequenceBar: React.FC<{
 		sceneRange !== null && frameIncrement !== null
 			? sceneRange.end * frameIncrement - Number(style.marginLeft)
 			: Infinity;
+	let labelLeft =
+		2.5 + Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0));
+	let labelFollowsTransitionMarker = false;
+	if (
+		s.timelineTrack?.role === 'clip' &&
+		sceneRange !== null &&
+		sceneRange.transitionInEnd !== null &&
+		frameIncrement !== null
+	) {
+		const incomingTransitionWidth =
+			(sceneRange.transitionInEnd - sceneRange.from) * frameIncrement;
+		labelFollowsTransitionMarker =
+			incomingTransitionWidth >= minTransitionAreaWidth;
+		const afterTransition = labelFollowsTransitionMarker
+			? Math.round(
+					((sceneRange.from + sceneRange.transitionInEnd) / 2) *
+						frameIncrement -
+						transitionWidth / 2,
+				) +
+				transitionWidth +
+				4
+			: sceneRange.transitionInEnd * frameIncrement + 2.5;
+		labelLeft = Math.max(labelLeft, afterTransition - Number(style.marginLeft));
+	}
+
+	const labelRight =
+		s.timelineTrack?.role === 'clip' &&
+		sceneRange !== null &&
+		sceneRange.transitionOutStart !== null &&
+		frameIncrement !== null
+			? Math.min(
+					Number(style.width),
+					sceneRange.transitionOutStart * frameIncrement -
+						Number(style.marginLeft),
+				)
+			: Number(style.width);
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
 	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
 	// Shared child rows need the same gap as Track clips, including when the
@@ -455,12 +503,55 @@ const TimelineSequenceBar: React.FC<{
 	// and trim handles keep their full width. Preserve tiny clips when zoomed out.
 	const visualRightInset =
 		(s.timelineTrack || sceneRange !== null) &&
-		transitionWidth === null &&
+		!isTransition &&
 		(rightEdgeVisible || sceneRight <= Number(style.width))
 			? Number(style.width) -
 				paintedEnd +
 				Math.min(1, Math.max(0, paintedEnd - paintedStart - 1))
 			: 0;
+	const selectionLeft = selectionBounds?.left ?? 0;
+	const selectionRight = Math.max(
+		visualRightInset,
+		Number(style.width) - selectionLeft - (selectionBounds?.width ?? 0),
+	);
+	const selectionWidth = Number(style.width) - selectionLeft - selectionRight;
+	const selectionShape = useMemo(() => {
+		if (
+			!(selected || containsSelection) ||
+			isTransition ||
+			frameIncrement === null ||
+			sceneRange === null ||
+			(sceneRange.transitionInEnd === null &&
+				sceneRange.transitionOutStart === null)
+		) {
+			return null;
+		}
+
+		return getTimelineSceneShape({
+			sceneRange,
+			offsetInFrames:
+				(Number(style.marginLeft) + selectionLeft) / frameIncrement,
+			durationInFrames: selectionWidth / frameIncrement,
+			pixelsPerFrame: frameIncrement,
+			height:
+				s.timelineTrack?.role === 'clip'
+					? Number(style.height)
+					: (sceneClipHeight ?? Number(style.height)),
+			cropHeight: Number(style.height),
+		});
+	}, [
+		containsSelection,
+		frameIncrement,
+		isTransition,
+		s.timelineTrack?.role,
+		sceneClipHeight,
+		sceneRange,
+		selected,
+		selectionLeft,
+		selectionWidth,
+		style.height,
+		style.marginLeft,
+	]);
 	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
 	const sequenceBackground =
 		activeTrimEdge === null ||
@@ -473,27 +564,20 @@ const TimelineSequenceBar: React.FC<{
 			...style,
 			background: TRANSPARENT,
 			opacity: 1,
-			maskImage:
+			pointerEvents: isTransition ? 'none' : style.pointerEvents,
+			clipPath:
 				s.timelineTrack?.role === 'clip' && frameIncrement !== null
-					? getTimelineSceneMask({
+					? getTimelineSceneClipPath({
 							sceneRange,
 							offsetInFrames: Number(style.marginLeft) / frameIncrement,
 							durationInFrames: Number(style.width) / frameIncrement,
+							pixelsPerFrame: frameIncrement,
+							height: Number(style.height),
+							cropHeight: null,
 						})
 					: undefined,
-			clipPath:
-				s.timelineTrack?.role === 'clip' && sceneRange !== null
-					? `inset(0 ${Math.max(0, Number(style.width) - sceneRight)}px 0 ${Math.max(0, sceneLeft)}px)`
-					: undefined,
 		};
-	}, [
-		style,
-		s.timelineTrack?.role,
-		frameIncrement,
-		sceneRange,
-		sceneLeft,
-		sceneRight,
-	]);
+	}, [style, isTransition, s.timelineTrack?.role, frameIncrement, sceneRange]);
 
 	const premountIndicator = premount ? (
 		<div
@@ -531,42 +615,19 @@ const TimelineSequenceBar: React.FC<{
 
 			{children}
 
-			{transitionWidth === null ? null : (
-				<svg
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: -(marqueeHorizontalBounds?.cropLeft ?? 0),
-						top: 0,
-						width: transitionWidth,
-						height: Number(style.height),
-						pointerEvents: 'none',
-					}}
-				>
-					<polygon
-						points={`0,0 ${transitionWidth},0 0,${Number(style.height)}`}
-						fill={BLACK_ALPHA_22}
-					/>
-					<polygon
-						points={`${transitionWidth},0 ${transitionWidth},${Number(style.height)} 0,${Number(style.height)}`}
-						fill={WHITE_ALPHA_15}
-					/>
-				</svg>
-			)}
-
 			{(s.timelineTrack || hasCaptionsSchema) &&
-			s.timelineTrack?.role !== 'transition' ? (
+			!isTransition &&
+			labelRight > labelLeft ? (
 				<div
 					style={{
 						position: 'absolute',
-						left:
-							2.5 +
-							Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0)),
-						right: 0,
+						left: labelLeft,
+						right: Math.max(0, Number(style.width) - labelRight),
 						bottom: PACKED_LABEL_BOTTOM,
 						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'flex-start',
+						flexDirection: labelFollowsTransitionMarker ? 'row' : 'column',
+						alignItems: labelFollowsTransitionMarker ? 'center' : 'flex-start',
+						gap: labelFollowsTransitionMarker ? 4 : 0,
 						overflow: 'hidden',
 						pointerEvents: 'none',
 						userSelect: 'none',
@@ -580,8 +641,10 @@ const TimelineSequenceBar: React.FC<{
 							style={{
 								color: getTimelineColor(false, false),
 								flexShrink: 0,
-								height: 10,
-								width: 10,
+								height: 12,
+								// Align the 12px icon within the 15px inline label row.
+								marginBottom: labelFollowsTransitionMarker ? 1 : 0,
+								width: 12,
 							}}
 						/>
 					) : null}
@@ -655,17 +718,64 @@ const TimelineSequenceBar: React.FC<{
 
 	return (
 		<div
-			ref={ref}
-			role="group"
-			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
+			ref={isTransition ? null : ref}
+			role={isTransition ? undefined : 'group'}
+			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: isTransition ? undefined : true}}
 			style={actualStyle}
-			aria-label={s.displayName}
+			aria-label={isTransition ? undefined : s.displayName}
 			data-track-item={s.timelineTrack?.role}
 			onPointerDownCapture={onPointerDownCapture}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
 		>
-			{negativeStart ? (
+			{isTransition ? (
+				frameIncrement === null ||
+				s.duration * frameIncrement < minTransitionAreaWidth ? null : (
+					<div
+						ref={ref}
+						role="group"
+						aria-label={s.displayName}
+						{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
+						data-timeline-transition-marker
+						style={{
+							position: 'absolute',
+							left:
+								Math.round(
+									(s.from + s.duration / 2) * frameIncrement -
+										transitionWidth / 2,
+								) - Number(style.marginLeft),
+							top: transitionVerticalInset,
+							width: transitionWidth,
+							height: transitionHeight,
+							borderRadius: 4,
+							background: TIMELINE_BACKGROUND_COLOR,
+							pointerEvents: 'auto',
+							cursor: 'default',
+							boxShadow:
+								selected || containsSelection
+									? `inset 0 0 0 2px ${WHITE}`
+									: undefined,
+						}}
+					>
+						<svg
+							aria-hidden="true"
+							width={transitionWidth}
+							height={transitionHeight}
+							viewBox="0 0 24 16"
+							style={{display: 'block'}}
+						>
+							<path
+								d="M7.5 4.5 16.5 11.5v-7l-9 7Z"
+								fill="none"
+								stroke={selected || containsSelection ? WHITE : WHITE_ALPHA_60}
+								strokeWidth={1}
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
+						</svg>
+					</div>
+				)
+			) : negativeStart ? (
 				<>
 					<TimelineSequenceNegativeStart
 						left={negativeStart.left}
@@ -716,24 +826,45 @@ const TimelineSequenceBar: React.FC<{
 					{content}
 				</div>
 			)}
-			{(selected || containsSelection) && selectionBounds ? (
-				<div
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						inset: 0,
-						left: selectionBounds.left,
-						right: Math.max(
-							visualRightInset,
-							Number(style.width) -
-								selectionBounds.left -
-								selectionBounds.width,
-						),
-						borderRadius: 'inherit',
-						boxShadow: `inset 0 0 0 2px ${WHITE}`,
-						pointerEvents: 'none',
-					}}
-				/>
+			{!isTransition && (selected || containsSelection) && selectionBounds ? (
+				selectionShape ? (
+					<svg
+						aria-hidden="true"
+						style={{
+							position: 'absolute',
+							left: selectionLeft,
+							top: 0,
+							width: selectionWidth,
+							height: Number(style.height),
+							clipPath: selectionShape.clipPath,
+							overflow: 'hidden',
+							pointerEvents: 'none',
+						}}
+					>
+						<polygon
+							points={selectionShape.points}
+							fill="none"
+							stroke={WHITE}
+							// Half the stroke is clipped, matching the 2px inset outline.
+							strokeWidth={4}
+							strokeLinejoin="round"
+							vectorEffect="non-scaling-stroke"
+						/>
+					</svg>
+				) : (
+					<div
+						aria-hidden="true"
+						style={{
+							position: 'absolute',
+							inset: 0,
+							left: selectionLeft,
+							right: selectionRight,
+							borderRadius: 'inherit',
+							boxShadow: `inset 0 0 0 2px ${WHITE}`,
+							pointerEvents: 'none',
+						}}
+					/>
+				)
 			) : null}
 			<div style={{pointerEvents: 'auto'}}>{edgeDragHandles}</div>
 		</div>

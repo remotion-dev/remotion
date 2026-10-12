@@ -190,7 +190,10 @@ import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
-import {BasicTransition} from './Transitions/BasicTransition';
+import {
+	BasicTransition,
+	BasicTransitionSceneB,
+} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
 import {
 	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
@@ -2457,7 +2460,15 @@ export const Index: React.FC = () => {
 					component={BasicTransition}
 					fps={30}
 					height={1080}
-					durationInFrames={300}
+					durationInFrames={336}
+					width={1920}
+				/>
+				<Composition
+					id="transition-scene-b"
+					component={BasicTransitionSceneB}
+					fps={30}
+					height={1080}
+					durationInFrames={30}
 					width={1920}
 				/>
 				<Composition

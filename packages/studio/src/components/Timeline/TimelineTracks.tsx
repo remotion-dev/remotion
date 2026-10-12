@@ -1,12 +1,15 @@
 import React, {useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {getTimelineSceneMask} from './get-timeline-scene-mask';
+import {getTimelineSceneClipPath} from './get-timeline-scene-clip-path';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
-import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {
+	TimelineSceneClipHeightContext,
+	TimelineSceneRangeContext,
+} from './TimelineSceneRangeContext';
 import {TimelineTrack} from './TimelineTrack';
 import {TimelineViewportContext} from './TimelineViewport';
 import {useTimelineVirtualization} from './TimelineVirtualization';
@@ -27,13 +30,16 @@ const timelineContent: React.CSSProperties = {
 const TimelineSceneTrackContent: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sceneRange: TimelineSceneRange;
-}> = React.memo(({children, sceneRange}) => {
+	readonly height: number;
+}> = React.memo(({children, sceneRange, height}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
-	const active = frame >= sceneRange.from && frame < sceneRange.end;
+	const active = frame >= sceneRange.activeFrom && frame < sceneRange.activeEnd;
 	return (
-		<TimelineSceneRangeContext.Provider value={sceneRange}>
-			<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
-		</TimelineSceneRangeContext.Provider>
+		<TimelineSceneClipHeightContext.Provider value={height}>
+			<TimelineSceneRangeContext.Provider value={sceneRange}>
+				<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
+			</TimelineSceneRangeContext.Provider>
+		</TimelineSceneClipHeightContext.Provider>
 	);
 });
 
@@ -125,24 +131,28 @@ const TimelineTracksInner: React.FC<{
 										? windowWidth - TIMELINE_PADDING * 2
 										: undefined,
 								top: virtualItem.start,
-								// Fade the shared rows on either side of the transition midpoint.
-								maskImage: video
-									? getTimelineSceneMask({
-											sceneRange,
-											durationInFrames: video.durationInFrames,
-											offsetInFrames: 0,
-										})
-									: undefined,
 								clipPath:
-									sceneRange === null || !video
-										? undefined
-										: `inset(0 ${Math.max(0, 100 - (sceneRange.end / video.durationInFrames) * 100)}% 0 ${Math.max(0, (sceneRange.from / video.durationInFrames) * 100)}%)`,
+									video && windowWidth !== null
+										? getTimelineSceneClipPath({
+												sceneRange,
+												durationInFrames: video.durationInFrames,
+												offsetInFrames: 0,
+												pixelsPerFrame:
+													(windowWidth - TIMELINE_PADDING * 2) /
+													video.durationInFrames,
+												height: virtualItem.size,
+												cropHeight: null,
+											})
+										: undefined,
 							}}
 						>
 							{sceneRange === null ? (
 								trackContent
 							) : (
-								<TimelineSceneTrackContent sceneRange={sceneRange}>
+								<TimelineSceneTrackContent
+									sceneRange={sceneRange}
+									height={virtualItem.size}
+								>
 									{trackContent}
 								</TimelineSceneTrackContent>
 							)}

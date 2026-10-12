@@ -2,6 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {getTimelineSceneRange} from './get-timeline-scene-range';
+import {getTimelineTransitionRanges} from './get-timeline-transition-ranges';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
@@ -24,19 +25,28 @@ export const TimelinePackedTrack: React.FC<{
 	const parentSceneRange = useContext(TimelineSceneRangeContext);
 	const {dropIndicatorLeft, onClickCapture, onPointerDownCapture} =
 		useSeriesReorder(items);
-	const rows = useMemo(() => {
+	const {rows, transitionRanges} = useMemo(() => {
 		const clips = items
 			.filter((item) => item.sequence.timelineTrack?.role === 'clip')
 			.sort((a, b) => a.sequence.from - b.sequence.from);
-		const transitions = items.filter(
-			(item) => item.sequence.timelineTrack?.role === 'transition',
-		);
-		return [[...clips, ...transitions], ...auxiliaryRows].map((row, index) => ({
-			items: row,
-			top: index === 0 ? 0 : auxiliaryRowOffsets[index - 1],
-			height:
-				index === 0 ? primaryRowHeight : TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
-		}));
+		const transitions = items
+			.filter((item) => item.sequence.timelineTrack?.role === 'transition')
+			.sort((a, b) => a.sequence.from - b.sequence.from);
+		return {
+			rows: [[...clips, ...transitions], ...auxiliaryRows].map(
+				(row, index) => ({
+					items: row,
+					top: index === 0 ? 0 : auxiliaryRowOffsets[index - 1],
+					height:
+						index === 0
+							? primaryRowHeight
+							: TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+				}),
+			),
+			transitionRanges: getTimelineTransitionRanges(
+				transitions.map((item) => item.sequence),
+			),
+		};
 	}, [auxiliaryRows, auxiliaryRowOffsets, items]);
 
 	return (
@@ -83,19 +93,19 @@ export const TimelinePackedTrack: React.FC<{
 							item.sequence.timelineTrack?.role === 'clip'
 								? getTimelineSceneRange({
 										sequence: item.sequence,
-										seriesItems: items.map((entry) => entry.sequence),
+										transitionRanges,
 										previous: row.items[index - 1]?.sequence ?? null,
 										next:
 											row.items[index + 1]?.sequence.timelineTrack?.role ===
 											'clip'
 												? row.items[index + 1].sequence
 												: null,
-										// The containing row already applies the parent fade.
+										// The containing row already clips the parent transition.
 										range: parentSceneRange
 											? {
 													...parentSceneRange,
-													fadeInEnd: null,
-													fadeOutStart: null,
+													transitionInEnd: null,
+													transitionOutStart: null,
 												}
 											: null,
 									})
