@@ -2715,7 +2715,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					onPointerEnter={() => onHover('rolling')}
 					onPointerLeave={onLeave}
 					onPointerDown={onPointerDown}
-					onClick={(e) => e.stopPropagation()}
+					onClick={fillTarget ? undefined : (e) => e.stopPropagation()}
 				/>
 			) : null}
 			{edgeEnabled ? (
