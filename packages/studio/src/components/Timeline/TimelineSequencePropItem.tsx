@@ -3,7 +3,13 @@ import {
 	isSchemaFieldKeyframable,
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import {unstable_batchedUpdates} from 'react-dom';
 import type {
 	CanUpdateSequencePropStatus,
@@ -242,8 +248,8 @@ const Value: React.FC<{
 			: null;
 
 	const onSave = useCallback<TimelineFieldOnSave>(
-		(value, options) => {
-			value = clampTimingValue(nodePath, field.key, value);
+		async (value, options) => {
+			value = await clampTimingValue(nodePath, field.key, value);
 			if (!clientId) {
 				return Promise.reject(new Error('Not connected to studio server'));
 			}
@@ -324,13 +330,35 @@ const Value: React.FC<{
 		],
 	);
 
+	const previewGeneration = useRef(0);
+	useEffect(
+		() => () => {
+			previewGeneration.current++;
+		},
+		[],
+	);
 	const onDragValueChange = useCallback<TimelineFieldOnDragValueChange>(
-		(value) => {
+		async (value) => {
 			if (nodePath === null) {
 				throw new Error('Cannot drag value');
 			}
 
-			value = clampTimingValue(nodePath, field.key, value);
+			const generation = ++previewGeneration.current;
+			try {
+				value = await clampTimingValue(nodePath, field.key, value);
+			} catch (error) {
+				if (generation === previewGeneration.current) {
+					Internals.Log.error(
+						{logLevel: 'error', tag: null},
+						'Could not check timing constraints',
+						error,
+					);
+				}
+
+				return;
+			}
+
+			if (generation !== previewGeneration.current) return;
 			const keyframeChanges = getPlaybackRateChanges(value);
 			unstable_batchedUpdates(() => {
 				for (const preview of previewedKeyframes.current) {
@@ -377,6 +405,7 @@ const Value: React.FC<{
 	);
 
 	const onDragEnd = useCallback(() => {
+		previewGeneration.current++;
 		clearTimingLimits();
 		if (nodePath === null) {
 			throw new Error('Cannot clear drag value');
