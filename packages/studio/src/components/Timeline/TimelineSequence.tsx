@@ -93,7 +93,6 @@ import {
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
-	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
 	useTimelineRowContainsSelection,
@@ -403,18 +402,12 @@ const TimelineSequenceBar: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				if (
-					shouldSelectTimelineRowOnPointerDown({
-						selected,
-						shiftKey: e.shiftKey,
-						metaKey: e.metaKey,
-						ctrlKey: e.ctrlKey,
-					})
-				) {
+				if (isTimelineSelectionModifierEvent(e)) {
 					onSelect({
 						shiftKey: e.shiftKey,
 						toggleKey: e.metaKey || e.ctrlKey,
 					});
+					return;
 				}
 
 				if (fromCanUpdate) {
@@ -422,7 +415,7 @@ const TimelineSequenceBar: React.FC<{
 				}
 			}
 		},
-		[fromCanUpdate, onMoveDragPointerDown, onSelect, selected],
+		[fromCanUpdate, onMoveDragPointerDown, onSelect],
 	);
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
@@ -1061,16 +1054,26 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	);
 	const onSequenceClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (dragAwareDoubleClick.consumePointerGestureWasDragged()) {
+				return;
+			}
+
+			if (
+				selectable &&
+				e.button === 0 &&
+				!isTimelineSelectionModifierEvent(e)
+			) {
+				onSelect();
+			}
+
 			if (!dragAwareDoubleClick.acceptClickAsDoubleClick(e)) {
 				return;
 			}
 
 			performSequenceDoubleClick(e);
 		},
-		[dragAwareDoubleClick, performSequenceDoubleClick],
+		[dragAwareDoubleClick, onSelect, performSequenceDoubleClick, selectable],
 	);
-	const canHandleSequenceDoubleClick =
-		connectedCompositions.length === 1 || canOpenSource;
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const deleteDisabled =
 		!previewInteractive || !s.controls || !canDeleteFromSource;
@@ -1479,7 +1482,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		selected,
 		getContextMenuItems,
 		frozenFrame,
-		canHandleSequenceDoubleClick,
 		onSequenceClick,
 		timelineVolume,
 		displayDurationInFrames,
@@ -1555,7 +1557,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 		selected,
 		getContextMenuItems,
 		frozenFrame,
-		canHandleSequenceDoubleClick,
 		onSequenceClick,
 		timelineVolume,
 		displayDurationInFrames,
@@ -1891,7 +1892,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
-			onClick={canHandleSequenceDoubleClick ? onSequenceClick : null}
+			onClick={onSequenceClick}
 			edgeDragHandles={
 				<>
 					{(showLeftEdgeDragHandle || secondaryLeftEdgeAction) &&

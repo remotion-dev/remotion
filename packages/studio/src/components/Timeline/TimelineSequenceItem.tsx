@@ -884,6 +884,15 @@ const TimelineSequenceItemInner: React.FC<{
 					if (!didDrag) {
 						didDrag = true;
 						capturePointer();
+						const draggedItem = {type: 'sequence', nodePathInfo} as const;
+
+						if (
+							!currentSelection.current.isSelected(draggedItem) &&
+							!currentSelection.current.containsSelection(nodePathInfo)
+						) {
+							currentSelection.current.selectItem(draggedItem);
+						}
+
 						previousUserSelect = document.body.style.userSelect;
 						previousWebkitUserSelect = document.body.style.webkitUserSelect;
 						document.body.style.userSelect = 'none';
@@ -995,6 +1004,7 @@ const TimelineSequenceItemInner: React.FC<{
 		},
 		[
 			canReorderSequence,
+			currentSelection,
 			isStill,
 			nodePath,
 			nodePathKey,
