@@ -92,6 +92,7 @@ export type TimelineSequenceLeftEdgeDragMode =
 	| 'ripple'
 	| 'source-only'
 	| 'self-trim'
+	| 'head-trim'
 	| 'rolling';
 
 export type TimelineSequenceMediaDurationDragLimits = {
@@ -260,7 +261,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly positionField: 'from' | null;
 	// Series trims resize the previous clip; positioned Track clips roll both edges.
 	readonly ripplePrevious: TimelineSequenceDurationDragTarget | null;
-	// A transition rolls two cascading durations without changing either source offset.
+	// A transition roll preserves the incoming source out by moving its source in.
 	readonly rollingDuration: TimelineSequenceDurationDragTarget | null;
 	readonly timingLimits: ReturnType<
 		typeof getTimelineSequenceTimingLimits
@@ -572,25 +573,31 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 
 	if (target.rollingDuration && target.ripplePrevious) {
 		const outgoing = target.ripplePrevious;
-		const current = target.rollingDuration;
+		// The incoming source out and timeline end stay fixed. Its duration limits
+		// for a fixed source in do not apply when duration and source in move together.
 		const appliedDelta = Math.max(
 			(outgoing.minimumDuration - outgoing.initialDuration) /
 				outgoing.parentPlaybackRate,
-			(current.initialDuration - current.maximumDuration) /
-				current.parentPlaybackRate,
+			-target.initialTrimBefore /
+				target.playbackRate /
+				target.parentPlaybackRate,
 			Math.min(
 				deltaFrames,
 				(outgoing.maximumDuration - outgoing.initialDuration) /
 					outgoing.parentPlaybackRate,
-				(current.initialDuration - current.minimumDuration) /
-					current.parentPlaybackRate,
+				(target.initialDuration - target.minimumDuration) /
+					target.parentPlaybackRate,
 			),
 		);
 		return {
 			durationInFrames:
 				target.initialDuration - appliedDelta * target.parentPlaybackRate,
 			from: target.initialFrom + appliedDelta * target.parentPlaybackRate,
-			trimBefore: target.initialTrimBefore,
+			trimBefore: Math.max(
+				0,
+				target.initialTrimBefore +
+					appliedDelta * target.parentPlaybackRate * target.playbackRate,
+			),
 		};
 	}
 
@@ -1452,7 +1459,11 @@ export const getTimelineSequenceRollingEditTargets = ({
 		tracks,
 		nodePathInfo: draggedNodePathInfo,
 	});
-	if (rightTrack?.sequence.timelineTrack?.role === 'transition') {
+	if (
+		rightTrack &&
+		(rightTrack.sequence.timelineTrack?.role === 'transition' ||
+			isTransitionSeriesSequence(rightTrack.sequence))
+	) {
 		const siblings = sortItemsByCommitOrder(
 			tracks.filter(
 				(track) =>
@@ -1467,11 +1478,21 @@ export const getTimelineSequenceRollingEditTargets = ({
 		const index = siblings.findIndex(
 			(track) => track.sequence.id === rightTrack.sequence.id,
 		);
-		const previous = siblings[index - 1];
-		const next = siblings[index + 1];
+		const transitionIndex =
+			rightTrack.sequence.timelineTrack?.role === 'transition'
+				? index
+				: index - 1;
+		const previous = siblings[transitionIndex - 1];
+		const next = siblings[transitionIndex + 1];
 		if (
+			siblings[transitionIndex]?.sequence.timelineTrack?.role !==
+				'transition' ||
 			!previous?.nodePathInfo ||
 			!next?.nodePathInfo ||
+			!canUpdateTrimBefore({
+				propStatuses,
+				nodePath: next.nodePathInfo.sequenceSubscriptionKey,
+			}) ||
 			!isTransitionSeriesSequence(previous.sequence) ||
 			!isTransitionSeriesSequence(next.sequence)
 		) {
@@ -1500,7 +1521,10 @@ export const getTimelineSequenceRollingEditTargets = ({
 				initialDuration: incoming.initialDuration,
 				initialFrom: 0,
 				initialTrimBefore: incoming.endField.trimBefore,
-				minimumDuration: incoming.minimumDuration,
+				minimumDuration: getMinimumSequenceDuration({
+					sequence: next.sequence,
+					sequences,
+				}),
 				nodePath: incoming.nodePath,
 				playbackRate: incoming.endField.playbackRate,
 				positionField: null,
@@ -1911,10 +1935,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly trimBeforeCursor: string;
 	readonly sourceOnlyCursor: string;
 	readonly edgeEnabled: boolean;
-	readonly edgeMode: 'ripple' | 'source-only' | 'self-trim';
+	readonly edgeMode: Exclude<TimelineSequenceLeftEdgeDragMode, 'head-trim'>;
 	readonly rollingEnabled: boolean;
 	readonly rollingOutset: number;
 	readonly fillTarget: boolean;
+	readonly isTransitionSeries: boolean;
 	readonly touchingPrevious: boolean;
 	readonly onHoverEnd: () => void;
 	readonly secondaryAction: 'source-only' | 'self-trim' | null;
@@ -1941,6 +1966,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	rollingEnabled,
 	rollingOutset,
 	fillTarget,
+	isTransitionSeries,
 	touchingPrevious,
 	onHoverEnd,
 	secondaryAction,
@@ -1973,6 +1999,20 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [trimTooltip, setTrimTooltip] =
 		useState<TimelineTrimTooltipState | null>(null);
+	const [altKey, setAltKey] = useState(false);
+	useEffect(() => {
+		if (edgeMode !== 'rolling') return;
+		const onKey = (event: KeyboardEvent) => setAltKey(event.altKey);
+		const onBlur = () => setAltKey(false);
+		window.addEventListener('keydown', onKey);
+		window.addEventListener('keyup', onKey);
+		window.addEventListener('blur', onBlur);
+		return () => {
+			window.removeEventListener('keydown', onKey);
+			window.removeEventListener('keyup', onKey);
+			window.removeEventListener('blur', onBlur);
+		};
+	}, [edgeMode]);
 
 	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
@@ -2111,7 +2151,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 			const mode =
 				e.currentTarget.dataset.trimMode === 'rolling'
-					? 'rolling'
+					? e.altKey && !fillTarget && isTransitionSeries
+						? 'head-trim'
+						: 'rolling'
 					: e.currentTarget.dataset.trimMode === 'source-only'
 						? 'source-only'
 						: e.currentTarget.dataset.trimMode === 'self-trim'
@@ -2135,7 +2177,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				metaKey: e.metaKey,
 				ctrlKey: e.ctrlKey,
 			});
-			if (fillTarget && selectionInteraction !== null) {
+			if (isTransitionSeries && selectionInteraction !== null) {
 				latestRef.current.onSelect(selectionInteraction);
 			}
 
@@ -2222,7 +2264,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								stringifySequenceSubscriptionKey(target.nodePath) ===
 								draggedKey,
 						) ?? (fillTarget ? targets[0] : undefined);
-					if (!fillTarget) {
+					if (!isTransitionSeries) {
 						onDragStart(
 							mode,
 							true,
@@ -2240,7 +2282,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						didMove: false,
 						pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 						pointerId: downEvent.pointerId,
-						selectionInteraction: fillTarget ? null : selectionInteraction,
+						selectionInteraction: isTransitionSeries
+							? null
+							: selectionInteraction,
 						targets,
 						mode,
 					};
@@ -2255,7 +2299,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						}
 
 						const dx = pointerEvent.clientX - dragState.initialClientX;
-						if (fillTarget && !dragState.didMove) {
+						if (isTransitionSeries && !dragState.didMove) {
 							if (Math.abs(dx) < timelineSequenceEdgeDragThresholdPx) {
 								return;
 							}
@@ -2579,6 +2623,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			sourceOnlyCursor,
 			windowWidth,
 			fillTarget,
+			isTransitionSeries,
 		],
 	);
 
@@ -2591,11 +2636,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	const edgeStyle: React.CSSProperties = {
 		...baseStyle,
-		left: rollingEnabled
-			? 'min(2px, 12.5%)'
-			: touchingPrevious
-				? 0
-				: -LEFT_EDGE_HANDLE_OUTSET,
+		left:
+			rollingEnabled && edgeMode !== 'rolling'
+				? 'min(2px, 12.5%)'
+				: touchingPrevious
+					? 0
+					: -LEFT_EDGE_HANDLE_OUTSET,
 		width:
 			rollingEnabled || touchingPrevious
 				? 'min(10px, 12.5%)'
@@ -2603,11 +2649,15 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					? `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(14px, 25%))`
 					: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${LEFT_EDGE_HANDLE_INSET}px, 12.5%))`,
 		cursor:
-			edgeMode === 'ripple'
-				? cursor
-				: edgeMode === 'source-only'
-					? sourceOnlyCursor
-					: trimBeforeCursor,
+			edgeMode === 'rolling'
+				? altKey
+					? trimBeforeCursor
+					: cursor
+				: edgeMode === 'ripple'
+					? cursor
+					: edgeMode === 'source-only'
+						? sourceOnlyCursor
+						: trimBeforeCursor,
 		background: TRANSPARENT,
 		pointerEvents: 'auto',
 	};
@@ -2615,7 +2665,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		...baseStyle,
 		left: edgeEnabled
 			? rollingEnabled
-				? 'calc(min(2px, 12.5%) + min(10px, 12.5%))'
+				? edgeMode === 'rolling'
+					? 'min(6px, 12.5%)'
+					: 'calc(min(2px, 12.5%) + min(10px, 12.5%))'
 				: touchingPrevious
 					? 'min(10px, 12.5%)'
 					: 'min(4px, 12.5%)'
@@ -2640,7 +2692,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	return (
 		<>
-			{rollingEnabled ? (
+			{rollingEnabled && edgeMode !== 'rolling' ? (
 				<div
 					role="separator"
 					aria-orientation="vertical"
@@ -2667,13 +2719,27 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					role="separator"
 					aria-orientation="vertical"
 					aria-label={
-						edgeMode === 'source-only'
-							? 'Drag to adjust source start'
-							: 'Drag to trim start'
+						edgeMode === 'rolling'
+							? altKey
+								? 'Drag to trim start'
+								: 'Drag to roll edit'
+							: edgeMode === 'source-only'
+								? 'Drag to adjust source start'
+								: 'Drag to trim start'
 					}
 					data-trim-mode={edgeMode}
+					title={
+						edgeMode === 'rolling'
+							? 'Drag to roll edit. Option/Alt-drag to trim start.'
+							: undefined
+					}
 					style={edgeStyle}
-					onPointerEnter={() => onHover(edgeMode)}
+					onPointerEnter={(event) => {
+						if (edgeMode === 'rolling') setAltKey(event.altKey);
+						onHover(
+							edgeMode === 'rolling' && event.altKey ? 'head-trim' : edgeMode,
+						);
+					}}
 					onPointerLeave={onLeave}
 					onPointerDown={onPointerDown}
 					onClick={(e) => e.stopPropagation()}

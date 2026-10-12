@@ -163,10 +163,10 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 					previousItem.parent === item.parent &&
 					nextItem.parent === item.parent
 				) {
-					transitionNeighbors.set(item.id, {
-						previous: previousItem,
-						next: nextItem,
-					});
+					const neighbors = {previous: previousItem, next: nextItem};
+					// Both the transition marker and the incoming edge edit this join.
+					transitionNeighbors.set(item.id, neighbors);
+					transitionNeighbors.set(nextItem.id, neighbors);
 				}
 			}
 		}

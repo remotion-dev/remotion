@@ -1188,8 +1188,14 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		(
 			isDragging: boolean,
 			targetNodePaths: readonly SequencePropsSubscriptionKey[],
-		) => startEdgeDrag('right', true, isDragging, targetNodePaths),
-		[startEdgeDrag],
+		) =>
+			startEdgeDrag(
+				'right',
+				!isTransitionSeriesSequence(s),
+				isDragging,
+				targetNodePaths,
+			),
+		[startEdgeDrag, s],
 	);
 	const clearEdgeHighlight = useCallback(() => {
 		edgeHighlightController?.setHighlights([]);
@@ -1809,7 +1815,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		? overrideIdToNodePathMappingsRef.current[previousTouchingOverrideId]
 		: null;
 	const transitionRollingEnabled =
-		s.timelineTrack?.role === 'transition' &&
+		(s.timelineTrack?.role === 'transition' || isTransitionSeriesSequence(s)) &&
 		previewInteractive &&
 		[
 			registryEntry?.transitionPreviousSequence,
@@ -1824,7 +1830,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				isTimelineSequenceDurationDraggable(sequence) &&
 				sequence.frozenFrame === null &&
 				Internals.getPropStatusesCtx(propStatuses, path)?.durationInFrames
-					?.status === 'static'
+					?.status === 'static' &&
+				(sequence !== registryEntry?.transitionNextSequence ||
+					Internals.getPropStatusesCtx(propStatuses, path)?.trimBefore
+						?.status === 'static')
 			);
 		});
 	const rollingEnabled =
@@ -2332,7 +2341,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		(isMedia || durationCanUpdate) &&
 		(visibleLayout?.media?.width ?? 0) >= MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH;
 	const secondaryLeftEdgeAction = canShowSecondaryLeftEdgeAction
-		? isMedia
+		? isMedia || isTransitionSeriesSequence(s)
 			? 'source-only'
 			: 'self-trim'
 		: null;
@@ -2428,11 +2437,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 							}
 						>
 							<TimelineSequenceLeftEdgeDragHandle
-								cursor={
-									s.timelineTrack?.role === 'transition'
-										? 'default'
-										: `${timelineTrimEdgeCursor}, ew-resize`
-								}
+								cursor={`${timelineTrimEdgeCursor}, ew-resize`}
 								trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 								sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
 								edgeEnabled={
@@ -2440,14 +2445,20 @@ const TimelineSequenceLayoutInner: React.FC<{
 									showLeftEdgeDragHandle
 								}
 								edgeMode={
-									isFirstCascadingSequence
-										? 'source-only'
-										: isCascadingSequence(s)
-											? 'ripple'
-											: 'self-trim'
+									isTransitionSeriesSequence(s) && rollingEnabled
+										? 'rolling'
+										: isFirstCascadingSequence
+											? 'source-only'
+											: isCascadingSequence(s)
+												? 'ripple'
+												: 'self-trim'
 								}
 								rollingEnabled={rollingEnabled}
 								fillTarget={s.timelineTrack?.role === 'transition'}
+								isTransitionSeries={
+									isTransitionSeriesSequence(s) ||
+									s.timelineTrack?.role === 'transition'
+								}
 								rollingOutset={Math.min(
 									2,
 									((previousTouchingSequence?.duration ?? 0) /
@@ -2482,7 +2493,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 						<TimelineSequenceRightEdgeDragHandle
 							touchingNext={nextTouchingSequence !== null}
 							onHoverEnd={clearEdgeHighlight}
-							cursor={`${isCascadingSequence(s) ? timelineTrimEdgeCursor : timelineRightEdgeCursor}, ew-resize`}
+							cursor={`${isCascadingSequence(s) && !isTransitionSeriesSequence(s) ? timelineTrimEdgeCursor : timelineRightEdgeCursor}, ew-resize`}
 							nodePathInfo={nodePathInfo}
 							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}
