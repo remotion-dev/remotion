@@ -98,6 +98,7 @@ import {
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
+	TimelineInheritedSceneRangeContext,
 	TimelineSceneClipHeightContext,
 	TimelineSceneRangeContext,
 } from './TimelineSceneRangeContext';
@@ -434,6 +435,7 @@ const TimelineSequenceBar: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const showLayerFrameNumbers = getStudioShowLayerFrameNumbers();
 	const sceneRange = useContext(TimelineSceneRangeContext);
+	const inheritedSceneRange = useContext(TimelineInheritedSceneRangeContext);
 	const sceneClipHeight = useContext(TimelineSceneClipHeightContext);
 	const timelineWidth = useContext(TimelineWidthContext);
 	const video = Internals.useUnsafeVideoConfig();
@@ -535,45 +537,62 @@ const TimelineSequenceBar: React.FC<{
 		Number(style.width) - selectionLeft - (selectionBounds?.width ?? 0),
 	);
 	const selectionWidth = Number(style.width) - selectionLeft - selectionRight;
-	const selectionShape = useMemo(() => {
+	const selectionShapes = useMemo(() => {
 		if (
 			!(selected || containsSelection) ||
 			isTransition ||
-			frameIncrement === null ||
-			sceneRange === null ||
-			(sceneRange.transitionInEnd === null &&
-				sceneRange.transitionOutStart === null)
+			frameIncrement === null
 		) {
-			return null;
+			return [];
 		}
 
-		return getTimelineSceneShape({
-			sceneRange,
-			offsetInFrames:
-				(Number(style.marginLeft) + selectionLeft) / frameIncrement,
-			durationInFrames: selectionWidth / frameIncrement,
-			pixelsPerFrame: frameIncrement,
-			height: isPackedClip
-				? Number(style.height)
-				: (sceneClipHeight ?? Number(style.height)),
-			seamY: isPackedClip
-				? Number(style.height) / 2
-				: TIMELINE_CHILD_TRANSITION_SEAM_Y,
-			transitionCutout: isPackedClip
-				? {
-						top: transitionVerticalInset,
-						height: transitionHeight,
-						radius: 4,
-						minWidth: minTransitionAreaWidth,
-					}
-				: null,
-			cropHeight: Number(style.height),
+		// A nested series has its own clip shape inside the parent scene's
+		// contour. Stroke both boundaries; their containing clips intersect them.
+		return [
+			{key: 'sequence', range: sceneRange, packed: isPackedClip},
+			{
+				key: 'inherited',
+				range: inheritedSceneRange === sceneRange ? null : inheritedSceneRange,
+				packed: false,
+			},
+		].flatMap(({key, range, packed}) => {
+			if (
+				range === null ||
+				(range.transitionInEnd === null && range.transitionOutStart === null)
+			) {
+				return [];
+			}
+
+			const shape = getTimelineSceneShape({
+				sceneRange: range,
+				offsetInFrames:
+					(Number(style.marginLeft) + selectionLeft) / frameIncrement,
+				durationInFrames: selectionWidth / frameIncrement,
+				pixelsPerFrame: frameIncrement,
+				height: packed
+					? Number(style.height)
+					: (sceneClipHeight ?? Number(style.height)),
+				seamY: packed
+					? Number(style.height) / 2
+					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+				transitionCutout: packed
+					? {
+							top: transitionVerticalInset,
+							height: transitionHeight,
+							radius: 4,
+							minWidth: minTransitionAreaWidth,
+						}
+					: null,
+				cropHeight: Number(style.height),
+			});
+			return shape === null ? [] : [{key, shape}];
 		});
 	}, [
 		containsSelection,
 		frameIncrement,
 		isTransition,
 		isPackedClip,
+		inheritedSceneRange,
 		sceneClipHeight,
 		sceneRange,
 		selected,
@@ -945,30 +964,33 @@ const TimelineSequenceBar: React.FC<{
 					{!isTransition &&
 					(selected || containsSelection) &&
 					selectionBounds ? (
-						selectionShape ? (
-							<svg
-								aria-hidden="true"
-								style={{
-									position: 'absolute',
-									left: selectionLeft,
-									top: 0,
-									width: selectionWidth,
-									height: Number(style.height),
-									clipPath: selectionShape.clipPath,
-									overflow: 'hidden',
-									pointerEvents: 'none',
-								}}
-							>
-								<path
-									d={selectionShape.path}
-									fill="none"
-									stroke={WHITE}
-									// Half the stroke is clipped, matching the 2px inset outline.
-									strokeWidth={4}
-									strokeLinejoin="round"
-									vectorEffect="non-scaling-stroke"
-								/>
-							</svg>
+						selectionShapes.length > 0 ? (
+							selectionShapes.map(({key, shape}) => (
+								<svg
+									key={key}
+									aria-hidden="true"
+									style={{
+										position: 'absolute',
+										left: selectionLeft,
+										top: 0,
+										width: selectionWidth,
+										height: Number(style.height),
+										clipPath: shape.clipPath,
+										overflow: 'hidden',
+										pointerEvents: 'none',
+									}}
+								>
+									<path
+										d={shape.path}
+										fill="none"
+										stroke={WHITE}
+										// Half the stroke is clipped, matching the 2px inset outline.
+										strokeWidth={4}
+										strokeLinejoin="round"
+										vectorEffect="non-scaling-stroke"
+									/>
+								</svg>
+							))
 						) : (
 							<div
 								aria-hidden="true"

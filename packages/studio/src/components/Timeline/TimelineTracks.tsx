@@ -10,6 +10,7 @@ import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
 import {
+	TimelineInheritedSceneRangeContext,
 	TimelineSceneClipHeightContext,
 	TimelineSceneRangeContext,
 } from './TimelineSceneRangeContext';
@@ -39,9 +40,11 @@ const TimelineSceneTrackContent: React.FC<{
 	const active = frame >= sceneRange.activeFrom && frame < sceneRange.activeEnd;
 	return (
 		<TimelineSceneClipHeightContext.Provider value={height}>
-			<TimelineSceneRangeContext.Provider value={sceneRange}>
-				<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
-			</TimelineSceneRangeContext.Provider>
+			<TimelineInheritedSceneRangeContext.Provider value={sceneRange}>
+				<TimelineSceneRangeContext.Provider value={sceneRange}>
+					<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
+				</TimelineSceneRangeContext.Provider>
+			</TimelineInheritedSceneRangeContext.Provider>
 		</TimelineSceneClipHeightContext.Provider>
 	);
 });
