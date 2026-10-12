@@ -118,6 +118,7 @@ import {
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
+import {KeyframeTrimTestbed} from './KeyframeTrimTestbed';
 import {Layers} from './Layers';
 import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
@@ -3138,6 +3139,14 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="keyframe-trim-testbed"
+					component={KeyframeTrimTestbed}
+					width={1920}
+					height={1440}
+					fps={30}
+					durationInFrames={180}
+				/>
 				<Composition
 					id="SourceSubscriptionChurn"
 					component={SourceSubscriptionChurn}

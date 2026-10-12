@@ -4,6 +4,7 @@ import {optimisticUpdateForEffectPropStatuses} from '../optimistic-update-for-ef
 
 test('optimisticUpdateForEffectPropStatuses updates the matching effect prop', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [
@@ -76,6 +77,7 @@ test('optimisticUpdateForEffectPropStatuses is a no-op when sequence is not upda
 
 test('optimisticUpdateForEffectPropStatuses is a no-op when effect index not found', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [],
@@ -94,6 +96,7 @@ test('optimisticUpdateForEffectPropStatuses is a no-op when effect index not fou
 
 test('optimisticUpdateForEffectPropStatuses applies when effect props are unset (zero-arg style)', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [

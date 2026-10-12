@@ -144,9 +144,7 @@ test(
 			const label = document.querySelector<HTMLElement>(
 				'[aria-label="<Sequence>"]',
 			);
-			label?.parentElement?.parentElement?.dispatchEvent(
-				new PointerEvent('pointerdown', {bubbles: true, button: 0}),
-			);
+			label?.click();
 
 			for (let attempt = 0; attempt < 100; attempt++) {
 				const inspectorSourceLocation = document.querySelector(

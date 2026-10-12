@@ -10,7 +10,7 @@ import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {
 	getTimelineRowHighlightBackground,
-	shouldSelectTimelineRowOnPointerDown,
+	isTimelineSelectionModifierEvent,
 	TIMELINE_SELECTED_BACKGROUND,
 } from './TimelineSelection';
 
@@ -132,14 +132,7 @@ export const TimelineRowChrome: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				if (
-					shouldSelectTimelineRowOnPointerDown({
-						selected,
-						shiftKey: e.shiftKey,
-						metaKey: e.metaKey,
-						ctrlKey: e.ctrlKey,
-					})
-				) {
+				if (isTimelineSelectionModifierEvent(e)) {
 					onSelect({
 						shiftKey: e.shiftKey,
 						toggleKey: e.metaKey || e.ctrlKey,
@@ -147,7 +140,7 @@ export const TimelineRowChrome: React.FC<{
 				}
 			}
 		},
-		[onSelect, selected],
+		[onSelect],
 	);
 
 	const onContextMenu = useCallback(
@@ -160,7 +153,7 @@ export const TimelineRowChrome: React.FC<{
 		[onSelect, selected],
 	);
 
-	const performDoubleClickIfNotInteractive = useCallback(
+	const onClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			const {target} = e;
 			if (
@@ -175,19 +168,21 @@ export const TimelineRowChrome: React.FC<{
 				return;
 			}
 
-			onDoubleClick?.(e);
-		},
-		[onDoubleClick],
-	);
-	const onClick = useCallback(
-		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (
+				selectable &&
+				e.button === 0 &&
+				!isTimelineSelectionModifierEvent(e)
+			) {
+				onSelect();
+			}
+
 			if (!doubleClickTracker.acceptClickAsDoubleClick(e)) {
 				return;
 			}
 
-			performDoubleClickIfNotInteractive(e);
+			onDoubleClick?.(e);
 		},
-		[doubleClickTracker, performDoubleClickIfNotInteractive],
+		[doubleClickTracker, onDoubleClick, onSelect, selectable],
 	);
 
 	const highlightBackground = getTimelineRowHighlightBackground({

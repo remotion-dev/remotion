@@ -130,6 +130,8 @@ test('serializes transcription modal settings into caption jobs', async () => {
 					>
 						<SidebarContext.Provider
 							value={{
+								leftSidebarOverlayOpen: false,
+								setLeftSidebarOverlayOpen: () => undefined,
 								rightSidebarTemporaryExpansion: false,
 								setRightSidebarTemporaryExpansion: () => undefined,
 								sidebarCollapsedDuringDrag: null,

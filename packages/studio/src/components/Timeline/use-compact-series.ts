@@ -3,15 +3,8 @@ import {Internals} from 'remotion';
 import {getStudioShowPremounting} from '../../helpers/studio-runtime-config';
 
 export const useCompactSeries = () => {
-	const experimentalTracks = useContext(
-		Internals.ExperimentalTracksEnabledContext,
-	);
 	const activitySettings = useContext(
 		Internals.SequenceActivitySettingsContext,
 	);
-	return (
-		experimentalTracks &&
-		activitySettings?.enabled === true &&
-		!getStudioShowPremounting()
-	);
+	return activitySettings?.enabled === true && !getStudioShowPremounting();
 };

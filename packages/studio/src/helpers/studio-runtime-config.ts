@@ -38,10 +38,6 @@ export const getStudioInteractivityEnabled = () => {
 	return getStudioRuntimeConfig().interactivityEnabled;
 };
 
-export const getStudioExperimentalTracksEnabled = () => {
-	return getStudioRuntimeConfig().experimentalTracksEnabled ?? false;
-};
-
 export const getStudioKeyboardShortcutsEnabled = () => {
 	return getStudioRuntimeConfig().keyboardShortcutsEnabled;
 };

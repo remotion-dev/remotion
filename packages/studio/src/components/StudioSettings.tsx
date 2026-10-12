@@ -53,7 +53,6 @@ const initialSettings: ConfigFileStudioSettings = {
 	audioLatencyHint: null,
 	beepOnFinish: null,
 	enableCrossSiteIsolation: null,
-	experimentalTracksEnabled: null,
 	experimentalSequenceActivityEnabled: null,
 	experimentalSequenceActivityLimit: null,
 	interactivityEnabled: null,
@@ -222,10 +221,6 @@ export const StudioSettings: React.FC = () => {
 			),
 			update('setRspack', settings.rspack),
 			update('setInteractivityEnabled', settings.interactivityEnabled),
-			update(
-				'setExperimentalTracksEnabled',
-				settings.experimentalTracksEnabled,
-			),
 			update(
 				'setExperimentalSequenceActivityEnabled',
 				settings.experimentalSequenceActivityEnabled,
@@ -406,42 +401,6 @@ export const StudioSettings: React.FC = () => {
 					/>
 				</div>
 			</label>
-
-			<div style={optionRow}>
-				<div style={label}>
-					Experimental tracks
-					<InfoBubble
-						aria-label="About experimental tracks"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: 14,
-								lineHeight: 1.5,
-							}}
-						>
-							Groups Track, Series, and TransitionSeries clips on shared
-							timeline rows, with extra rows for overlays. Disabled by default.
-							Changes apply immediately after saving, without reloading Studio.
-						</div>
-					</InfoBubble>
-				</div>
-				<label style={rightRow} aria-label="Experimental tracks">
-					<Checkbox
-						checked={settings.experimentalTracksEnabled === true}
-						name="Experimental tracks"
-						onChange={(event) =>
-							changeSetting(
-								'experimentalTracksEnabled',
-								'setExperimentalTracksEnabled',
-								event.target.checked ? true : null,
-							)
-						}
-					/>
-				</label>
-			</div>
 
 			<p style={sectionTitle}>Playback</p>
 			<ConfigNumber

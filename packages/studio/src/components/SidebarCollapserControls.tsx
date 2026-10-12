@@ -5,6 +5,7 @@ import {
 	TRANSPARENT,
 	WHITE_ALPHA_80,
 } from '../helpers/colors';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {
 	areKeyboardShortcutsDisabled,
@@ -39,6 +40,8 @@ export const SidebarCollapserControl: React.FC<{
 	readonly side: 'left' | 'right';
 }> = ({side}) => {
 	const {
+		leftSidebarOverlayOpen,
+		setLeftSidebarOverlayOpen,
 		rightSidebarTemporaryExpansion,
 		setRightSidebarTemporaryExpansion,
 		setSidebarCollapsedState,
@@ -48,7 +51,11 @@ export const SidebarCollapserControl: React.FC<{
 	} = useContext(SidebarContext);
 	const keybindings = useKeybinding();
 	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINTS.right);
-	const leftSidebarStatus = useResponsiveSidebarStatus('left');
+	const mobileLayout = useMobileLayout();
+	const responsiveLeftSidebarStatus = useResponsiveSidebarStatus('left');
+	const leftSidebarStatus = leftSidebarOverlayOpen
+		? 'expanded'
+		: responsiveLeftSidebarStatus;
 	const rightSidebarStatus = useResponsiveSidebarStatus('right');
 
 	const leftIcon = useCallback(
@@ -86,6 +93,11 @@ export const SidebarCollapserControl: React.FC<{
 	);
 
 	const toggleLeft = useCallback(() => {
+		if (mobileLayout || leftSidebarOverlayOpen) {
+			setLeftSidebarOverlayOpen((open) => !open);
+			return;
+		}
+
 		setSidebarCollapsedState({
 			left: (s) => {
 				if (s === 'responsive') {
@@ -96,7 +108,13 @@ export const SidebarCollapserControl: React.FC<{
 			},
 			right: null,
 		});
-	}, [leftSidebarStatus, setSidebarCollapsedState]);
+	}, [
+		leftSidebarOverlayOpen,
+		leftSidebarStatus,
+		mobileLayout,
+		setLeftSidebarOverlayOpen,
+		setSidebarCollapsedState,
+	]);
 
 	const toggleRight = useCallback(() => {
 		if (
@@ -128,6 +146,19 @@ export const SidebarCollapserControl: React.FC<{
 	]);
 
 	const toggleBoth = useCallback(() => {
+		if (mobileLayout || leftSidebarOverlayOpen) {
+			if (leftSidebarStatus === rightSidebarStatus) {
+				toggleLeft();
+				toggleRight();
+			} else if (rightSidebarStatus === 'expanded') {
+				toggleRight();
+			} else {
+				toggleLeft();
+			}
+
+			return;
+		}
+
 		if (rightSidebarStatus === leftSidebarStatus) {
 			const closeTemporaryRightSidebar =
 				isNarrowLayout &&
@@ -164,7 +195,9 @@ export const SidebarCollapserControl: React.FC<{
 		}
 	}, [
 		isNarrowLayout,
+		leftSidebarOverlayOpen,
 		leftSidebarStatus,
+		mobileLayout,
 		rightSidebarStatus,
 		rightSidebarTemporaryExpansion,
 		setRightSidebarTemporaryExpansion,
@@ -242,7 +275,10 @@ export const SidebarCollapserControl: React.FC<{
 	const expanded =
 		(side === 'left' ? leftSidebarStatus : rightSidebarStatus) === 'expanded' &&
 		sidebarCollapsedDuringDrag !== side;
-	const label = `${expanded ? 'Collapse' : 'Expand'} ${side} sidebar`;
+	const label =
+		side === 'left' && (mobileLayout || leftSidebarOverlayOpen)
+			? `${expanded ? 'Close' : 'Open'} compositions`
+			: `${expanded ? 'Collapse' : 'Expand'} ${side} sidebar`;
 
 	const colorStyle = useCallback((color: string): React.CSSProperties => {
 		return {
@@ -294,6 +330,10 @@ export const SidebarCollapserControl: React.FC<{
 			/>
 		</ActionTooltip>
 	);
+
+	if (side === 'left' && (mobileLayout || leftSidebarOverlayOpen)) {
+		return control;
+	}
 
 	return (
 		<ContextMenu

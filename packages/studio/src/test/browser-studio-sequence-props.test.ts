@@ -60,6 +60,7 @@ test('routes sequence prop operations through Browser Studio', async () => {
 				success: true,
 				nodePath,
 				status: {
+					durationDependentKeyframes: null,
 					canUpdate: true,
 					props: {
 						from: {
@@ -161,6 +162,7 @@ test('batches server sequence prop subscriptions into one request', async () => 
 								},
 							},
 							status: {
+								durationDependentKeyframes: null,
 								canUpdate: true,
 								props: {
 									from: {
