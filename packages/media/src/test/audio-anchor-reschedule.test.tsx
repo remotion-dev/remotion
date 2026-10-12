@@ -62,7 +62,11 @@ test('replaces queued audio after a suspension re-anchors a stationary Player', 
 		vi.spyOn(context, 'state', 'get').mockReturnValue('suspended');
 		context.dispatchEvent(new Event('statechange'));
 		await vi.waitFor(() => {
-			expect(oldNodes.every(({stop}) => stop.mock.calls.length > 0)).toBe(true);
+			for (const {start, stop} of oldNodes) {
+				if (start.mock.calls.length > 0) expect(stop).toHaveBeenCalled();
+				else expect(stop).not.toHaveBeenCalled();
+			}
+
 			const replacements = createdNodes
 				.slice(oldNodeCount)
 				.filter(({node}) => node.buffer !== null);
@@ -82,6 +86,89 @@ test('replaces queued audio after a suspension re-anchors a stationary Player', 
 		root.unmount();
 		container.remove();
 		createBufferSourceSpy.mockRestore();
+		vi.restoreAllMocks();
+	}
+});
+
+test('paused seeks unschedule unstarted nodes while playing cleanup still stops started nodes', async () => {
+	const nodes: {
+		node: AudioBufferSourceNode;
+		start: ReturnType<typeof vi.spyOn>;
+		stop: ReturnType<typeof vi.spyOn>;
+	}[] = [];
+	const {createBufferSource} = AudioContext.prototype;
+	const spy = vi
+		.spyOn(AudioContext.prototype, 'createBufferSource')
+		.mockImplementation(function (this: AudioContext) {
+			const node = createBufferSource.call(this);
+			nodes.push({
+				node,
+				start: vi.spyOn(node, 'start'),
+				stop: vi.spyOn(node, 'stop'),
+			});
+			return node;
+		});
+	const Composition: React.FC = () => (
+		<Audio src="/voice-note.m4a" disallowFallbackToHtml5Audio />
+	);
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+	const root = createRoot(container);
+	const playerRef = React.createRef<PlayerRef>();
+	root.render(
+		<Player
+			ref={playerRef}
+			acknowledgeRemotionLicense
+			component={Composition}
+			compositionWidth={100}
+			compositionHeight={100}
+			durationInFrames={300}
+			fps={30}
+			inputProps={{}}
+		/>,
+	);
+	try {
+		await vi.waitFor(() =>
+			expect(
+				nodes.filter(({node}) => node.buffer !== null).length,
+			).toBeGreaterThan(5),
+		);
+		const pending = nodes.filter(({node}) => node.buffer !== null);
+		expect(pending.every(({start}) => start.mock.calls.length === 0)).toBe(
+			true,
+		);
+		const beforeSeek = nodes.length;
+		playerRef.current!.seekTo(30);
+		await vi.waitFor(() =>
+			expect(
+				nodes.slice(beforeSeek).filter(({node}) => node.buffer !== null).length,
+			).toBeGreaterThan(5),
+		);
+		for (const {stop} of pending) expect(stop).not.toHaveBeenCalled();
+		playerRef.current!.play();
+		await vi.waitFor(() =>
+			expect(
+				nodes.some(
+					({node, start}) =>
+						node.buffer !== null && start.mock.calls.length > 0,
+				),
+			).toBe(true),
+		);
+		const started = nodes.filter(
+			({node, start}) => node.buffer !== null && start.mock.calls.length > 0,
+		);
+		root.unmount();
+		await vi.waitFor(() => {
+			for (const {stop} of started) expect(stop).toHaveBeenCalled();
+		});
+		for (const {node, start, stop} of nodes) {
+			if (node.buffer !== null && start.mock.calls.length === 0)
+				expect(stop).not.toHaveBeenCalled();
+		}
+	} finally {
+		if (container.hasChildNodes()) root.unmount();
+		container.remove();
+		spy.mockRestore();
 		vi.restoreAllMocks();
 	}
 });

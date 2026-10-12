@@ -20,7 +20,7 @@ export type QueuedPeriod = {
 export type MakeAudioIteratorOptions = {
 	startFromSecond: number;
 	iterator: AsyncGenerator<AudioBufferSlice, void, unknown>;
-	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+	unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean | void;
 };
 
 export const makeAudioIterator = ({
@@ -34,7 +34,10 @@ export const makeAudioIterator = ({
 
 	const cleanupAudioQueue = () => {
 		for (const {node} of queuedAudioNodes) {
-			unscheduleAudioNode(node);
+			if (unscheduleAudioNode(node) === true) {
+				continue;
+			}
+
 			try {
 				node.stop();
 			} catch {

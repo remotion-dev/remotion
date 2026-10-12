@@ -92,7 +92,7 @@ type SharedAudioContextValue = {
 	resumeAsAutoPlay: () => Promise<void>;
 	suspend: () => Promise<void>;
 	getIsResumingAudioContext: () => Promise<AudioContextResumeResult> | null;
-	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+	unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean;
 	_experimentalKeepAudioContextAlive: boolean;
 };
 
@@ -273,7 +273,7 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 
 	const unscheduleAudioNode = useCallback((node: AudioBufferSourceNode) => {
-		nodesToResume.current.delete(node);
+		return nodesToResume.current.delete(node);
 	}, []);
 
 	const scheduleAudioNode = useMemo(() => {
