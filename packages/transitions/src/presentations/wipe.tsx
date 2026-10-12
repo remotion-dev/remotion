@@ -77,7 +77,6 @@ const WipePresentation: React.FC<
 	children,
 	presentationProgress,
 	presentationDirection,
-	_remotionInternalIsActive = true,
 	passedProps: {
 		direction = 'from-left',
 		innerEnterStyle,
@@ -116,14 +115,8 @@ const WipePresentation: React.FC<
 	}, [outerEnterStyle, outerExitStyle, presentationDirection]);
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={_remotionInternalIsActive ? outerStyle : {display: 'contents'}}
-		>
-			<AbsoluteFill
-				showInTimeline={false}
-				style={_remotionInternalIsActive ? style : {display: 'contents'}}
-			>
+		<AbsoluteFill showInTimeline={false} style={outerStyle}>
+			<AbsoluteFill showInTimeline={false} style={style}>
 				{children}
 			</AbsoluteFill>
 		</AbsoluteFill>
@@ -136,7 +129,6 @@ const WipePresentation: React.FC<
  */
 export const wipe = (props?: WipeProps): TransitionPresentation<WipeProps> => {
 	return {
-		_remotionInternalSupportsInactive: true,
 		component: WipePresentation,
 		props: props ?? {},
 	};

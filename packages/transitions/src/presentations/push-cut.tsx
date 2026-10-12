@@ -85,7 +85,6 @@ const PushCutPresentation: React.FC<
 	presentationDurationInFrames,
 	presentationProgress,
 	passedProps,
-	_remotionInternalIsActive = true,
 }) => {
 	const {
 		cutProgress = 5 / 11,
@@ -171,17 +170,11 @@ const PushCutPresentation: React.FC<
 	}, [innerEnterStyle, innerExitStyle, isEntering, scale, transformOrigin]);
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={_remotionInternalIsActive ? outerStyle : {display: 'contents'}}
-		>
-			<AbsoluteFill
-				showInTimeline={false}
-				style={_remotionInternalIsActive ? innerStyle : {display: 'contents'}}
-			>
+		<AbsoluteFill showInTimeline={false} style={outerStyle}>
+			<AbsoluteFill showInTimeline={false} style={innerStyle}>
 				{children}
 			</AbsoluteFill>
-			{_remotionInternalIsActive && flashOpacity > 0 ? (
+			{flashOpacity > 0 ? (
 				<AbsoluteFill
 					showInTimeline={false}
 					style={{
@@ -207,7 +200,6 @@ export const pushCut = (
 	validateProps(passedProps);
 
 	return {
-		_remotionInternalSupportsInactive: true,
 		component: PushCutPresentation,
 		props: passedProps,
 	};

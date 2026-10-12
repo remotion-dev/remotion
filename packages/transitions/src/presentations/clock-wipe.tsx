@@ -18,43 +18,29 @@ export type ClockWipeProps = {
 
 const ClockWipePresentation: React.FC<
 	TransitionPresentationComponentProps<ClockWipeProps>
-> = ({
-	children,
-	presentationDirection,
-	presentationProgress,
-	passedProps,
-	_remotionInternalIsActive = true,
-}) => {
-	const translatedPath = useMemo(() => {
-		if (!_remotionInternalIsActive || presentationDirection === 'exiting') {
-			return null;
-		}
+> = ({children, presentationDirection, presentationProgress, passedProps}) => {
+	const finishedRadius =
+		Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2;
 
-		const finishedRadius =
-			Math.sqrt(passedProps.width ** 2 + passedProps.height ** 2) / 2;
-		const {path} = makePie({
-			radius: finishedRadius,
-			progress: presentationProgress,
-		});
-		return translatePath(
-			path,
-			-(finishedRadius * 2 - passedProps.width) / 2,
-			-(finishedRadius * 2 - passedProps.height) / 2,
-		);
-	}, [
-		_remotionInternalIsActive,
-		presentationDirection,
-		presentationProgress,
-		passedProps.width,
-		passedProps.height,
-	]);
+	const {path} = makePie({
+		radius: finishedRadius,
+		progress: presentationProgress,
+	});
+
+	const translatedPath = translatePath(
+		path,
+		-(finishedRadius * 2 - passedProps.width) / 2,
+		-(finishedRadius * 2 - passedProps.height) / 2,
+	);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
 			height: '100%',
 			clipPath:
-				translatedPath === null ? undefined : `path("${translatedPath}")`,
+				presentationDirection === 'exiting'
+					? undefined
+					: `path("${translatedPath}")`,
 			...(presentationDirection === 'entering'
 				? passedProps.innerEnterStyle
 				: passedProps.innerExitStyle),
@@ -77,14 +63,8 @@ const ClockWipePresentation: React.FC<
 	]);
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={_remotionInternalIsActive ? outerStyle : {display: 'contents'}}
-		>
-			<AbsoluteFill
-				showInTimeline={false}
-				style={_remotionInternalIsActive ? style : {display: 'contents'}}
-			>
+		<AbsoluteFill showInTimeline={false} style={outerStyle}>
+			<AbsoluteFill showInTimeline={false} style={style}>
 				{children}
 			</AbsoluteFill>
 		</AbsoluteFill>
@@ -98,9 +78,5 @@ const ClockWipePresentation: React.FC<
 export const clockWipe = (
 	props: ClockWipeProps,
 ): TransitionPresentation<ClockWipeProps> => {
-	return {
-		_remotionInternalSupportsInactive: true,
-		component: ClockWipePresentation,
-		props: props ?? {},
-	};
+	return {component: ClockWipePresentation, props: props ?? {}};
 };

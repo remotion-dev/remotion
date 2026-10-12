@@ -12,12 +12,7 @@ export type NoneProps = {
 
 const NonePresentation: React.FC<
 	TransitionPresentationComponentProps<NoneProps>
-> = ({
-	children,
-	presentationDirection,
-	passedProps,
-	_remotionInternalIsActive = true,
-}) => {
+> = ({children, presentationDirection, passedProps}) => {
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...(presentationDirection === 'entering'
@@ -27,10 +22,7 @@ const NonePresentation: React.FC<
 	}, [passedProps.enterStyle, passedProps.exitStyle, presentationDirection]);
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={_remotionInternalIsActive ? style : {display: 'contents'}}
-		>
+		<AbsoluteFill showInTimeline={false} style={style}>
 			{children}
 		</AbsoluteFill>
 	);
@@ -42,7 +34,6 @@ const NonePresentation: React.FC<
  */
 export const none = (props?: NoneProps): TransitionPresentation<NoneProps> => {
 	return {
-		_remotionInternalSupportsInactive: true,
 		component: NonePresentation,
 		props: props ?? {},
 	};

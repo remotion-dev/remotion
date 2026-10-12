@@ -26,8 +26,6 @@ export type TransitionPresentation<
 		TransitionPresentationComponentProps<PresentationProps>
 	>;
 	props: PresentationProps;
-	/** @internal Keeps the presentation mounted when its visual effect is inactive. */
-	readonly _remotionInternalSupportsInactive?: boolean;
 };
 
 export type TransitionPresentationComponentProps<
@@ -41,8 +39,6 @@ export type TransitionPresentationComponentProps<
 	onElementImage: (elementImage: OffscreenCanvas, draw: DrawFunction) => void;
 	onUnmount: () => void;
 	bothEnteringAndExiting: boolean;
-	/** @internal Defaults to true for presentations rendered directly. */
-	readonly _remotionInternalIsActive?: boolean;
 };
 
 export type TransitionSeriesOverlayProps = Pick<

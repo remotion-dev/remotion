@@ -13,13 +13,7 @@ export type FadeProps = {
 
 const FadePresentation: React.FC<
 	TransitionPresentationComponentProps<FadeProps>
-> = ({
-	children,
-	presentationDirection,
-	presentationProgress,
-	passedProps,
-	_remotionInternalIsActive = true,
-}) => {
+> = ({children, presentationDirection, presentationProgress, passedProps}) => {
 	const isEntering = presentationDirection === 'entering';
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -42,10 +36,7 @@ const FadePresentation: React.FC<
 	]);
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={_remotionInternalIsActive ? style : {display: 'contents'}}
-		>
+		<AbsoluteFill showInTimeline={false} style={style}>
 			{children}
 		</AbsoluteFill>
 	);
@@ -57,7 +48,6 @@ const FadePresentation: React.FC<
 
 export const fade = (props?: FadeProps): TransitionPresentation<FadeProps> => {
 	return {
-		_remotionInternalSupportsInactive: true,
 		component: FadePresentation,
 		props: props ?? {},
 	};

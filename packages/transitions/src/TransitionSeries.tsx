@@ -782,25 +782,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						);
 					}
 
-					// Built-in presentations can leave their effects inactive without
-					// replacing the child tree and discarding premounted media.
-					const renderNextPresentation =
-						next &&
-						(nextProgress !== null ||
-							(next.props.presentation ?? slide())
-								._remotionInternalSupportsInactive);
-					const renderPrevPresentation =
-						prev &&
-						(prevProgress !== null ||
-							(prev.props.presentation ?? slide())
-								._remotionInternalSupportsInactive);
-
-					if (
-						next &&
-						prev &&
-						renderNextPresentation &&
-						renderPrevPresentation
-					) {
+					if (next && prev && nextProgress !== null && prevProgress !== null) {
 						const nextPresentation = next.props.presentation ?? slide();
 						const prevPresentation = prev.props.presentation ?? slide();
 
@@ -820,20 +802,17 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								<UppercaseNextPresentation
 									passedProps={nextPresentation.props ?? {}}
 									presentationDirection="exiting"
-									presentationProgress={nextProgress ?? 0}
-									_remotionInternalIsActive={nextProgress !== null}
+									presentationProgress={nextProgress}
 									presentationDurationInFrames={next.props.timing.getDurationInFrames(
 										{fps},
 									)}
-									onElementImage={(elementImage, draw) => {
-										onPrevElementImage(elementImage, nextProgress, draw, i + 1);
+									onElementImage={() => {
+										throw new Error('Should not call when exiting');
 									}}
 									onUnmount={() => {
-										onPrevElementImage(null, null, null, i + 1);
+										throw new Error('Should not call when exiting');
 									}}
-									bothEnteringAndExiting={
-										nextProgress !== null && prevProgress !== null
-									}
+									bothEnteringAndExiting
 								>
 									<WrapInExitingProgressContext
 										presentationProgress={nextProgress}
@@ -841,21 +820,17 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 										<UppercasePrevPresentation
 											passedProps={prevPresentation.props ?? {}}
 											presentationDirection="entering"
-											presentationProgress={prevProgress ?? 1}
-											_remotionInternalIsActive={prevProgress !== null}
+											presentationProgress={prevProgress}
 											presentationDurationInFrames={prev.props.timing.getDurationInFrames(
 												{fps},
 											)}
 											onElementImage={(elementImage, draw) => {
-												if (nextProgress !== null) {
-													onPrevElementImage(
-														elementImage,
-														nextProgress,
-														draw,
-														i + 1,
-													);
-												}
-
+												onPrevElementImage(
+													elementImage,
+													nextProgress,
+													draw,
+													i + 1,
+												);
 												onNextElementImage(
 													elementImage,
 													prevProgress,
@@ -867,9 +842,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 												onPrevElementImage(null, null, null, i + 1);
 												onNextElementImage(null, null, null, i - 1);
 											}}
-											bothEnteringAndExiting={
-												nextProgress !== null && prevProgress !== null
-											}
+											bothEnteringAndExiting
 										>
 											<WrapInEnteringProgressContext
 												presentationProgress={prevProgress}
@@ -883,7 +856,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						);
 					}
 
-					if (renderPrevPresentation && prev) {
+					if (prevProgress !== null && prev) {
 						const prevPresentation = prev.props.presentation ?? slide();
 
 						const UppercasePrevPresentation = prevPresentation.component;
@@ -901,8 +874,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								<UppercasePrevPresentation
 									passedProps={prevPresentation.props ?? {}}
 									presentationDirection="entering"
-									presentationProgress={prevProgress ?? 1}
-									_remotionInternalIsActive={prevProgress !== null}
+									presentationProgress={prevProgress}
 									presentationDurationInFrames={prev.props.timing.getDurationInFrames(
 										{fps},
 									)}
@@ -924,7 +896,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						);
 					}
 
-					if (renderNextPresentation && next) {
+					if (nextProgress !== null && next) {
 						const nextPresentation = next.props.presentation ?? slide();
 
 						const UppercaseNextPresentation = nextPresentation.component;
@@ -942,8 +914,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								<UppercaseNextPresentation
 									passedProps={nextPresentation.props ?? {}}
 									presentationDirection="exiting"
-									presentationProgress={nextProgress ?? 0}
-									_remotionInternalIsActive={nextProgress !== null}
+									presentationProgress={nextProgress}
 									presentationDurationInFrames={next.props.timing.getDurationInFrames(
 										{fps},
 									)}
