@@ -48,6 +48,7 @@ export const SequenceWrapAction: React.FC<{
 	);
 	const {sequence} = track;
 	const [busy, setBusy] = useState(false);
+	const isTransition = sequence.timelineTrack?.role === 'transition';
 	const canWrapInHtmlInCanvas =
 		sequence.type === 'sequence' &&
 		!nodePathInfo.supportsEffects &&
@@ -59,6 +60,7 @@ export const SequenceWrapAction: React.FC<{
 		async (wrapper: HtmlInCanvasWrapper) => {
 			if (
 				busy ||
+				isTransition ||
 				!canWrapInHtmlInCanvas ||
 				sourceActionsDisabled ||
 				canvasContent?.type !== 'composition'
@@ -198,6 +200,7 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
+			isTransition,
 			canWrapInHtmlInCanvas,
 			canvasContent,
 			nodePathInfo.sequenceSubscriptionKey,
@@ -223,7 +226,7 @@ export const SequenceWrapAction: React.FC<{
 	return (
 		<>
 			<InspectorQuickAction
-				disabled={busy || sourceActionsDisabled}
+				disabled={busy || sourceActionsDisabled || isTransition}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={() => onWrap('HtmlInCanvas')}
 				renderIcon={(color) => (
@@ -237,7 +240,7 @@ export const SequenceWrapAction: React.FC<{
 				HTML-in-canvas
 			</InspectorQuickAction>
 			<InspectorQuickAction
-				disabled={busy || sourceActionsDisabled}
+				disabled={busy || sourceActionsDisabled || isTransition}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={() => onWrap('HtmlInCanvasMotionBlur')}
 				renderIcon={(color) => (

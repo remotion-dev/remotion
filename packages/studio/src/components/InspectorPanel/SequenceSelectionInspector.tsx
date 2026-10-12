@@ -156,6 +156,8 @@ const SequenceSourceQuickActions: React.FC<{
 	});
 	const sourceActionsDisabled =
 		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
+	const isTransition = track.sequence.timelineTrack?.role === 'transition';
+	const duplicateDisabled = sourceActionsDisabled || isTransition;
 	const mediaSequence =
 		track.sequence.type === 'video' || track.sequence.type === 'audio'
 			? track.sequence
@@ -229,14 +231,14 @@ const SequenceSourceQuickActions: React.FC<{
 		videoMattingDisabledReason,
 	]);
 	const onDuplicate = useCallback(() => {
-		if (sourceActionsDisabled) {
+		if (duplicateDisabled) {
 			return;
 		}
 
 		duplicateSequencesFromSource([selection.nodePathInfo], confirm).catch(
 			() => undefined,
 		);
-	}, [confirm, selection.nodePathInfo, sourceActionsDisabled]);
+	}, [confirm, duplicateDisabled, selection.nodePathInfo]);
 	const onDelete = useCallback(() => {
 		if (sourceActionsDisabled) {
 			return;
@@ -346,7 +348,7 @@ const SequenceSourceQuickActions: React.FC<{
 				</InspectorQuickAction>
 			) : null}
 			<InspectorQuickAction
-				disabled={sourceActionsDisabled}
+				disabled={duplicateDisabled}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={onDuplicate}
 				renderIcon={(color) => (
@@ -372,6 +374,7 @@ const SequenceSourceQuickActions: React.FC<{
 						displayName: track.sequence.displayName,
 						line: validatedLocation.line,
 						singleChildComponent: track.sequence.singleChildComponent,
+						isTransition,
 					},
 				]}
 				sourceActionsDisabled={sourceActionsDisabled}
@@ -509,6 +512,8 @@ const SequenceExpandedInspector: React.FC<{
 										displayName: track.sequence.displayName,
 										line: null,
 										singleChildComponent: track.sequence.singleChildComponent,
+										isTransition:
+											track.sequence.timelineTrack?.role === 'transition',
 									},
 								]}
 								sourceActionsDisabled={
