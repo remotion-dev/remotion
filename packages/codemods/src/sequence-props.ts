@@ -2361,6 +2361,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 
 	return {
 		canUpdate: true as const,
+		durationDependentKeyframes: null,
 		props: Object.fromEntries(
 			Object.entries(filteredProps).map(([key, status]) => [
 				key,

@@ -259,8 +259,6 @@ Config.setKeyboardShortcuts({
 
 The `commandOrControl` modifier uses Command on macOS and Control on other platforms. The `shift` and `alt` modifiers are also supported. Pass an array to assign multiple bindings to one command.
 
-Studio can also update these values from the Keyboard Shortcuts settings screen. Changes made there are written to `remotion.config.ts`.
-
 ## `setInteractivityEnabled()`<AvailableFrom v="4.0.487" />
 
 <Options id="disable-interactivity" />
@@ -295,8 +293,6 @@ import {Config} from '@remotion/cli/config';
 Config.setExperimentalTracksEnabled(true);
 ```
 
-Changes apply immediately in the Studio without reloading the page.
-
 The [`--experimental-tracks`](/docs/options/experimental-tracks) flag takes precedence over this option.
 
 ## `setExperimentalSequenceActivityEnabled()`<AvailableFrom v="4.0.535" />
@@ -308,8 +304,6 @@ import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setExperimentalSequenceActivityEnabled(true);
 ```
-
-Changes apply immediately in the Studio without reloading the page.
 
 The [`--experimental-sequence-activity`](/docs/options/experimental-sequence-activity) flag takes precedence over this option.
 
@@ -323,9 +317,19 @@ import {Config} from '@remotion/cli/config';
 Config.setExperimentalSequenceActivityLimit(20);
 ```
 
-Changes apply immediately in the Studio without reloading the page.
-
 The [`--experimental-sequence-activity-limit`](/docs/options/experimental-sequence-activity-limit) flag takes precedence over this option.
+
+## `setShowLayerFrameNumbers()`<AvailableFrom v="4.0.535" />
+
+<Options id="show-layer-frame-numbers" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setShowLayerFrameNumbers(true);
+```
+
+The [`--show-layer-frame-numbers`](/docs/options/show-layer-frame-numbers) flag takes precedence over this option.
 
 ## `setShowPremounting()`<AvailableFrom v="4.0.535" />
 
@@ -334,7 +338,7 @@ The [`--experimental-sequence-activity-limit`](/docs/options/experimental-sequen
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setShowPremounting(false);
+Config.setShowPremounting(true);
 ```
 
 The [`--show-premounting`](/docs/options/show-premounting) flag takes precedence over this option.

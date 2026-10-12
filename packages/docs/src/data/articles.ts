@@ -1450,6 +1450,15 @@ export const articles = [
 		slug: 'options/sequence',
 	},
 	{
+		id: 'options/show-layer-frame-numbers',
+		title: 'Show frame numbers of layer',
+		relativePath: 'docs/options/show-layer-frame-numbers.mdx',
+		compId: 'articles-docs-options-show-layer-frame-numbers',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/show-layer-frame-numbers',
+	},
+	{
 		id: 'options/show-premounting',
 		title: 'Show premounting in the Studio timeline',
 		relativePath: 'docs/options/show-premounting.mdx',

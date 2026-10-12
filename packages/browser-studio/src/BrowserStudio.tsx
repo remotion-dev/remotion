@@ -674,6 +674,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				sampleRate: null,
 				staticHash: '',
 				studioRuntimeConfig: {
+					showLayerFrameNumbers: false,
 					showPremounting: null,
 					defaultPremountInSeconds: null,
 					experimentalSequenceActivityEnabled: false,

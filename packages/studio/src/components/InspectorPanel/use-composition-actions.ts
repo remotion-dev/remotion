@@ -116,7 +116,6 @@ export const useCompositionActions = () => {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
-				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -264,7 +263,6 @@ export const useCompositionActions = () => {
 					compositionFile,
 					compositionId: currentCompositionId,
 					dropPosition: null,
-					fps: videoConfig.fps,
 					from: null,
 					preferCompositionStart: null,
 				});

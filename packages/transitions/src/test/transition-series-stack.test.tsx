@@ -430,6 +430,7 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 		},
 		propStatuses: {
 			[subscriptionKey]: {
+				durationDependentKeyframes: null,
 				canUpdate: true as const,
 				props: {
 					durationInFrames: {

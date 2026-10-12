@@ -178,13 +178,11 @@ export const CaptionQueueProcessor: React.FC = () => {
 								fileName: job.target.fileName,
 								nodePath: job.target.nodePath.nodePath,
 								durationInFrames: job.target.durationInFrames,
-								premountFor: job.target.premountFor,
 								captions,
 							},
 							element,
 							expectedFileState,
 							from: null,
-							premountFor: job.target.premountFor,
 							position: null,
 							overwriteExisting: expectedFileState.exists,
 							undoRedoNavigation: null,
@@ -219,7 +217,6 @@ export const CaptionQueueProcessor: React.FC = () => {
 						fileName: job.target.fileName,
 						nodePath: job.target.nodePath.nodePath,
 						durationInFrames: job.target.durationInFrames,
-						premountFor: job.target.premountFor,
 						captions,
 					};
 					const browserStudioOperations = getBrowserStudioOperations();

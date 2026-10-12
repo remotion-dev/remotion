@@ -12,8 +12,7 @@ export const showPremountingOption = {
 	description: () => (
 		<>
 			Show premounting indicators in the Studio timeline. Defaults to{' '}
-			<code>true</code>; this may change in a future 4.x release. Set explicitly
-			to preserve your preference.
+			<code>false</code>.
 		</>
 	),
 	ssrName: null,
@@ -24,7 +23,7 @@ export const showPremountingOption = {
 			return {value: commandLine[cliFlag] as boolean, source: 'cli'};
 		}
 
-		return {value: configuredShowPremounting ?? true, source: 'config'};
+		return {value: configuredShowPremounting ?? false, source: 'config'};
 	},
 	setConfig(value) {
 		if (typeof value !== 'boolean') {

@@ -141,6 +141,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
 	showPremountingOption,
 	askAIOption,
 	publicLicenseKeyOption,
@@ -686,14 +687,19 @@ type FlatConfig = RemotionConfigObject &
 		setDefaultEditor: (editor: DefaultEditor) => void;
 		/**
 		 * Set the default premount duration in seconds in Remotion Studio.
-		 * Default: 0 in v4, 2 in v5.
+		 * Default: 2.
 		 */
 		setDefaultPremountInSeconds: (seconds: number) => void;
 		/**
 		 * Show premounting indicators in the Studio timeline.
-		 * @default true
+		 * @default false
 		 */
 		setShowPremounting: (show: boolean) => void;
+		/**
+		 * Show the current frame number inside sequence layers in the Studio timeline.
+		 * @default false
+		 */
+		setShowLayerFrameNumbers: (show: boolean) => void;
 		/**
 		 * Set the coding agent used by Remotion Studio.
 		 */
@@ -927,6 +933,7 @@ export const Config: FlatConfig = {
 	setDefaultEditor: defaultEditorOption.setConfig,
 	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
 	setShowPremounting: showPremountingOption.setConfig,
+	setShowLayerFrameNumbers: showLayerFrameNumbersOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,
