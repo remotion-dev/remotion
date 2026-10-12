@@ -2293,6 +2293,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		visibleLayout?.rightEdgeVisible === true &&
 		(s.autoDuration || endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
+	const isTransitionClip = isTransitionSeriesSequence(s);
 	const style: React.CSSProperties = useMemo(() => {
 		const role = s.timelineTrack?.role;
 		return {
@@ -2311,8 +2312,10 @@ const TimelineSequenceLayoutInner: React.FC<{
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
 			borderBottomRightRadius: showRightBorderRadius ? 2 : 0,
 			position: 'absolute',
-			isolation: s.timelineTrack ? 'isolate' : undefined,
-			zIndex: rollingEnabled ? 2 : undefined,
+			// Transition clip handles share the track's stacking context so the next
+			// clip and the transition overlay cannot cover a trim edge.
+			isolation: s.timelineTrack && !isTransitionClip ? 'isolate' : undefined,
+			zIndex: rollingEnabled && !isTransitionClip ? 2 : undefined,
 			height: layerHeight,
 			top: s.timelineTrack ? 0 : undefined,
 			marginLeft: visibleLayout?.marginLeft ?? 0,
@@ -2323,6 +2326,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		};
 	}, [
 		hasCaptionsSchema,
+		isTransitionClip,
 		s.type,
 		s.timelineTrack,
 		rollingEnabled,
@@ -2495,6 +2499,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceRightEdgeDragHandle
+							isTransitionSeries={isTransitionSeriesSequence(s)}
 							touchingNext={nextTouchingSequence !== null}
 							onHoverEnd={clearEdgeHighlight}
 							cursor={`${isCascadingSequence(s) && !isTransitionSeriesSequence(s) ? timelineTrimEdgeCursor : timelineRightEdgeCursor}, ew-resize`}

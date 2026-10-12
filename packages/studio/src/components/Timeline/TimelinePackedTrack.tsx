@@ -118,7 +118,12 @@ export const TimelinePackedTrack: React.FC<{
 							style={{
 								position: 'absolute',
 								zIndex:
-									item.sequence.timelineTrack?.role === 'transition' ? 1 : 0,
+									item.sequence.timelineTrack?.role === 'transition'
+										? 1
+										: item.sequence.controls?.componentIdentity ===
+											  'dev.remotion.transitions.TransitionSeries.Sequence'
+											? undefined
+											: 0,
 								top: row.top,
 								left: 0,
 								// The clip supplies its own pixel width. Empty row space must

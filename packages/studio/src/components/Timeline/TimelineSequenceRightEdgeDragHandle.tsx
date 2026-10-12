@@ -2636,6 +2636,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	const edgeStyle: React.CSSProperties = {
 		...baseStyle,
+		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
 		left:
 			rollingEnabled && edgeMode !== 'rolling'
 				? 'min(2px, 12.5%)'
@@ -2663,6 +2664,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	};
 	const trimBeforeStyle: React.CSSProperties = {
 		...baseStyle,
+		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
 		left: edgeEnabled
 			? rollingEnabled
 				? edgeMode === 'rolling'
@@ -3186,6 +3188,7 @@ export const useTimelineSequenceFromDrag = ({
 
 const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly cursor: string;
+	readonly isTransitionSeries: boolean;
 	readonly touchingNext: boolean;
 	readonly onHoverEnd: () => void;
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -3204,6 +3207,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly selected: boolean;
 }> = ({
 	cursor,
+	isTransitionSeries,
 	touchingNext,
 	onHoverEnd,
 	nodePathInfo,
@@ -3639,6 +3643,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
+		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
 		right: touchingNext ? 'min(2px, 12.5%)' : -HANDLE_OUTSET,
 		width: touchingNext ? 'min(10px, 12.5%)' : baseStyle.width,
 		cursor,
