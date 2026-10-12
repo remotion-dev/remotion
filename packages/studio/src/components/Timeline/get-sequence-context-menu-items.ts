@@ -356,10 +356,11 @@ export const getSequenceContextMenuItems = (
 					contextMenuTarget,
 				]),
 			initialComment: null,
-			metadata: getSequenceAnnotationMetadata({
-				sequence,
-				location: originalLocation,
-			}),
+			getMetadata: () =>
+				getSequenceAnnotationMetadata({
+					sequence,
+					location: originalLocation,
+				}),
 		}),
 		assetLinkInfo
 			? {

@@ -38,26 +38,3 @@ export const getSequenceAnnotationMetadata = ({
 
 	return metadata;
 };
-
-export const getSequenceAnnotationAttributes = ({
-	sequence,
-	location,
-	surface,
-}: {
-	readonly sequence: TSequence;
-	readonly location: ResolvedStackLocation | null;
-	readonly surface: 'outline' | 'layer' | 'track';
-}) => {
-	const metadata = getSequenceAnnotationMetadata({sequence, location});
-	return {
-		'data-remotion-annotation-surface': surface,
-		'data-remotion-layer': metadata.layer,
-		'data-remotion-sequence-type': sequence.type,
-		'data-remotion-from': metadata.from,
-		'data-remotion-duration': metadata.duration,
-		'data-remotion-source': metadata.source,
-		'data-remotion-line': metadata.line,
-		'oai-annotatable': metadata.layer,
-		'oai-annotation-metadata': JSON.stringify(metadata),
-	};
-};

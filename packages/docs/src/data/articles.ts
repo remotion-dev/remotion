@@ -8679,6 +8679,17 @@ export const articles = [
 		slug: 'studio-protocol/static-file-ref',
 	},
 	{
+		id: 'studio-protocol/subscribe-to-caption-style-selection',
+		title: 'subscribeToCaptionStyleSelection()',
+		relativePath:
+			'docs/studio-protocol/subscribe-to-caption-style-selection.mdx',
+		compId:
+			'articles-docs-studio-protocol-subscribe-to-caption-style-selection',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/subscribe-to-caption-style-selection',
+	},
+	{
 		id: 'studio/api',
 		title: '@remotion/studio',
 		relativePath: 'docs/studio/api.mdx',

@@ -163,12 +163,18 @@ export const acquireSequencePropsSubscription = ({
 
 	entry.refCount++;
 	const acquired = entry;
-
-	acquired.promise.then(applyEach).catch(() => {
-		// Error already logged by the first acquirer.
-	});
-
 	let released = false;
+
+	acquired.promise
+		.then((result) => {
+			if (!released) {
+				applyEach(result);
+			}
+		})
+		.catch(() => {
+			// Error already logged by the first acquirer.
+		});
+
 	return {
 		release: () => {
 			if (released) {

@@ -653,7 +653,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				requestHandler: null,
 			}).catch((err) => {
 				if (
-					err instanceof OutputFileAccessDeniedError &&
+					OutputFileAccessDeniedError.isInstance(err) &&
 					destination.conditional
 				) {
 					// The final conditional upload still enforces overwrite: false.

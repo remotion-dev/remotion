@@ -609,7 +609,7 @@ export const TimelineEffectPropItem: React.FC<{
 				id: 'annotate-effect-property',
 				getTarget: () => annotationTarget.current,
 				initialComment: markupSkillAvailable ? '$remotion-markup' : null,
-				metadata: {
+				getMetadata: () => ({
 					layer: nodePath.nodePath.join('.'),
 					layerKeys: JSON.stringify(nodePath.sequenceKeys),
 					effectIndex: field.effectIndex,
@@ -622,7 +622,7 @@ export const TimelineEffectPropItem: React.FC<{
 							location: validatedLocation,
 							root: window.remotion_cwd,
 						}) ?? validatedLocation.source,
-				},
+				}),
 			}),
 			{
 				type: 'divider',

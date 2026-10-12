@@ -13,7 +13,7 @@
 		"generate": "bun generate.ts",
 		"bundle": "bun run build.ts",
 		"clean": "bun clean.ts",
-		"lint": "eslint src && tsc",
+		"lint": "eslint src && bun check",
 		"test": "bun test src/seo-build.test.ts",
 		"formatting": "prettier src --check"
 	},
@@ -32,7 +32,6 @@
 		"@types/bun": "catalog:",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
-		"@typescript/native-preview": "catalog:",
 		"eslint": "catalog:",
 		"prettier": "catalog:"
 	}
