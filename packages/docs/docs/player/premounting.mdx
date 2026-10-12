@@ -60,7 +60,7 @@ export const MyPlayer: React.FC = () => {
 };
 ```
 
-An [explicit `premountFor`](#components-which-support-premounting) overrides the default. Pass `premountFor={0}` to disable premounting for a component.
+An [explicit `premountFor`](#individually-premount-items) overrides the default. Pass `premountFor={0}` to disable premounting for a component.
 
 ## Components which support premounting
 
@@ -74,6 +74,8 @@ The following components support premounting:
 - [Shape components](/docs/shapes), [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor), [rough-notation components](/docs/rough-notation/api)
 - [`<ThreeCanvas>`](/docs/three-canvas), [`<ThreeWebGPUCanvas>`](/docs/three-webgpu-canvas)
 - [`<Sequence>`](/docs/sequence)
+
+## Individually premount items
 
 Use [`premountFor`](/docs/img#premountfor) to individually control the premounting duration in frames for each component.
 
