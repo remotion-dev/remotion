@@ -145,8 +145,8 @@ const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
 const transitionVerticalInset = Math.round(TIMELINE_PACKED_TRACK_HEIGHT * 0.2);
 const transitionHeight =
 	TIMELINE_PACKED_TRACK_HEIGHT - transitionVerticalInset * 2;
-const transitionWidth = Math.round(transitionHeight * 1.5);
-const minTransitionAreaWidth = transitionWidth + 8;
+const transitionIconWidth = Math.round(transitionHeight * 1.5);
+const minTransitionAreaWidth = transitionIconWidth + 8;
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -472,6 +472,15 @@ const TimelineSequenceBar: React.FC<{
 		timelineWidth !== null && video !== null
 			? (timelineWidth - TIMELINE_PADDING * 2) / video.durationInFrames
 			: null;
+	const transitionBounds =
+		isTransition && frameIncrement !== null
+			? {
+					left: Math.round(s.from * frameIncrement) - Number(style.marginLeft),
+					width:
+						Math.round((s.from + s.duration) * frameIncrement) -
+						Math.round(s.from * frameIncrement),
+				}
+			: null;
 	const sceneLeft =
 		sceneRange !== null && frameIncrement !== null
 			? sceneRange.from * frameIncrement - Number(style.marginLeft)
@@ -494,13 +503,7 @@ const TimelineSequenceBar: React.FC<{
 		labelFollowsTransitionMarker =
 			incomingTransitionWidth >= minTransitionAreaWidth;
 		const afterTransition = labelFollowsTransitionMarker
-			? Math.round(
-					((sceneRange.from + sceneRange.transitionInEnd) / 2) *
-						frameIncrement -
-						transitionWidth / 2,
-				) +
-				transitionWidth +
-				4
+			? Math.round(sceneRange.transitionInEnd * frameIncrement) + 4
 			: sceneRange.transitionInEnd * frameIncrement + 2.5;
 		labelLeft = Math.max(labelLeft, afterTransition - Number(style.marginLeft));
 	}
@@ -806,6 +809,7 @@ const TimelineSequenceBar: React.FC<{
 			onClick={onClick ?? undefined}
 		>
 			{isTransition ? (
+				transitionBounds === null ||
 				frameIncrement === null ||
 				s.duration * frameIncrement < minTransitionAreaWidth ? null : (
 					<div
@@ -816,13 +820,9 @@ const TimelineSequenceBar: React.FC<{
 						data-timeline-transition-marker
 						style={{
 							position: 'absolute',
-							left:
-								Math.round(
-									(s.from + s.duration / 2) * frameIncrement -
-										transitionWidth / 2,
-								) - Number(style.marginLeft),
+							left: transitionBounds.left,
 							top: transitionVerticalInset,
-							width: transitionWidth,
+							width: transitionBounds.width,
 							height: transitionHeight,
 							borderRadius: 4,
 							background: TIMELINE_BACKGROUND_COLOR,
@@ -836,10 +836,16 @@ const TimelineSequenceBar: React.FC<{
 					>
 						<svg
 							aria-hidden="true"
-							width={transitionWidth}
+							width={transitionIconWidth}
 							height={transitionHeight}
 							viewBox="0 0 24 16"
-							style={{display: 'block'}}
+							style={{
+								position: 'absolute',
+								left: Math.round(
+									(transitionBounds.width - transitionIconWidth) / 2,
+								),
+								top: 0,
+							}}
 						>
 							<path
 								d="M7.5 4.5 16.5 11.5v-7l-9 7Z"
