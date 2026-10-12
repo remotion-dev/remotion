@@ -41,6 +41,66 @@ const getExtractedMode = (entryMode: number, isDir: boolean): number => {
 	return isDir ? 0o755 : 0o644;
 };
 
+const assertSymlinkTargetStaysInside = async ({
+	rootDirectory,
+	parentDirectory,
+	target,
+	entryName,
+}: {
+	rootDirectory: string;
+	parentDirectory: string;
+	target: string;
+	entryName: string;
+}): Promise<void> => {
+	const outOfBound = () => {
+		return new Error(
+			`Out of bound symlink target "${target}" found while processing file ${entryName}`,
+		);
+	};
+
+	if (path.isAbsolute(target) || path.win32.isAbsolute(target)) {
+		throw outOfBound();
+	}
+
+	// Resolve the target the way the operating system will: walk it segment by
+	// segment from the symlink's canonical parent directory and follow any
+	// symlink that a previous entry already created. `path.resolve` cannot be
+	// used here because it collapses `..` lexically, which would hide a `..`
+	// that jumps out of a symlinked directory.
+	let resolved = parentDirectory;
+
+	for (const segment of target.split(path.sep === '\\' ? /[\\/]+/ : '/')) {
+		if (segment === '' || segment === '.') {
+			continue;
+		}
+
+		if (segment === '..') {
+			resolved = path.dirname(resolved);
+		} else {
+			resolved = path.join(resolved, segment);
+
+			try {
+				resolved = await realpath(resolved);
+			} catch (error) {
+				const code = (error as NodeJS.ErrnoException).code;
+				if (code !== 'ENOENT' && code !== 'ENOTDIR') {
+					throw error;
+				}
+			}
+		}
+
+		const relative = path.relative(rootDirectory, resolved);
+
+		if (
+			relative === '..' ||
+			relative.startsWith(`..${path.sep}`) ||
+			path.isAbsolute(relative)
+		) {
+			throw outOfBound();
+		}
+	}
+};
+
 const extractEntry = async ({
 	entry,
 	zipfile,
@@ -100,6 +160,14 @@ const extractEntry = async ({
 
 	if (symlinkEntry) {
 		const link = (await buffer(readStream)).toString();
+
+		await assertSymlinkTargetStaysInside({
+			rootDirectory: dir,
+			parentDirectory: canonicalDestDir,
+			target: link,
+			entryName: entry.fileName,
+		});
+
 		await symlink(link, dest);
 		return;
 	}
