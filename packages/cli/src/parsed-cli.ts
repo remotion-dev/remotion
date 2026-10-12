@@ -35,6 +35,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
@@ -118,6 +119,9 @@ export type CommandLineOptions = {
 	[defaultPremountInSecondsOption.cliFlag]: TypeOfOption<
 		typeof defaultPremountInSecondsOption
 	>;
+	[showLayerFrameNumbersOption.cliFlag]: TypeOfOption<
+		typeof showLayerFrameNumbersOption
+	> | null;
 	[showPremountingOption.cliFlag]: TypeOfOption<
 		typeof showPremountingOption
 	> | null;
@@ -243,6 +247,7 @@ export type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
+	showLayerFrameNumbersOption.cliFlag,
 	showPremountingOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
@@ -280,6 +285,7 @@ export const BooleanFlags = [
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
+		[showLayerFrameNumbersOption.cliFlag]: null,
 		[showPremountingOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,

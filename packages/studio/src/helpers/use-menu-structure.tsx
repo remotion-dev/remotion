@@ -17,7 +17,6 @@ import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitch
 import {openInFileExplorer} from '../components/RenderQueue/actions';
 import {getSidebarMenuItems} from '../components/sidebar-menu-items';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
-import {TimelineLayerFrameNumbersContext} from '../components/Timeline/TimelineLayerFrameNumbersProvider';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {useOpenInMenuApps} from '../components/use-open-in-menu-apps';
@@ -369,9 +368,6 @@ const useMenuStructureBase = ({
 		EditorShowGuidesContext,
 	);
 	const {editorSnapping, setEditorSnapping} = useContext(EditorSnappingContext);
-	const {showLayerFrameNumbers, setShowLayerFrameNumbers} = useContext(
-		TimelineLayerFrameNumbersContext,
-	);
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {connectionStatus: type, openInApps} = useOpenInMenuApps();
 	const {defaultEditorId, defaultEditorName} = openInApps;
@@ -642,22 +638,6 @@ const useMenuStructureBase = ({
 						quickSwitcherLabel: editorShowGuides
 							? 'Hide Guides'
 							: 'Show Guides',
-					},
-					{
-						id: 'show-layer-frame-numbers',
-						keyHint: null,
-						label: 'Show frame numbers of layer',
-						onClick: () => {
-							closeMenu();
-							setShowLayerFrameNumbers((current) => !current);
-						},
-						type: 'item' as const,
-						value: 'show-layer-frame-numbers',
-						leftItem: showLayerFrameNumbers ? <Checkmark /> : null,
-						subMenu: null,
-						quickSwitcherLabel: showLayerFrameNumbers
-							? 'Hide frame numbers of layer'
-							: 'Show frame numbers of layer',
 					},
 					{
 						id: 'enable-snapping',
@@ -1155,7 +1135,6 @@ const useMenuStructureBase = ({
 		editorShowRulers,
 		editorShowGuides,
 		editorSnapping,
-		showLayerFrameNumbers,
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
@@ -1190,7 +1169,6 @@ const useMenuStructureBase = ({
 		setEditorShowRulers,
 		setEditorShowGuides,
 		setEditorSnapping,
-		setShowLayerFrameNumbers,
 		setSidebarCollapsedState,
 		setCheckerboard,
 		setSelectedModal,

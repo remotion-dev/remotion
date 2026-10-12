@@ -87,6 +87,7 @@ import {runsOption} from './runs';
 import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {showLayerFrameNumbersOption} from './show-layer-frame-numbers';
 import {showPremountingOption} from './show-premounting';
 import {skipSkillsOption} from './skip-skills';
 import {stillFrameOption} from './still-frame';
@@ -104,6 +105,7 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	showLayerFrameNumbersOption,
 	showPremountingOption,
 	allowHtmlInCanvasOption,
 	audioCodecOption,

@@ -327,6 +327,20 @@ Changes apply immediately in the Studio without reloading the page.
 
 The [`--experimental-sequence-activity-limit`](/docs/options/experimental-sequence-activity-limit) flag takes precedence over this option.
 
+## `setShowLayerFrameNumbers()`<AvailableFrom v="4.0.535" />
+
+<Options id="show-layer-frame-numbers" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setShowLayerFrameNumbers(true);
+```
+
+Changes apply immediately in the Studio without reloading the page. You can also change this in the Studio's Interface settings.
+
+The [`--show-layer-frame-numbers`](/docs/options/show-layer-frame-numbers) flag takes precedence over this option.
+
 ## `setShowPremounting()`<AvailableFrom v="4.0.535" />
 
 <Options id="show-premounting" />

@@ -39,7 +39,10 @@ import {getTimelineSequenceLayout} from '../../helpers/get-timeline-sequence-lay
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
-import {getStudioShowPremounting} from '../../helpers/studio-runtime-config';
+import {
+	getStudioShowLayerFrameNumbers,
+	getStudioShowPremounting,
+} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -88,7 +91,6 @@ import {
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
-import {TimelineLayerFrameNumbersContext} from './TimelineLayerFrameNumbersProvider';
 import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
 import {
 	getTimelineColor,
@@ -392,7 +394,7 @@ const TimelineSequenceBar: React.FC<{
 	onClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
-	const {showLayerFrameNumbers} = useContext(TimelineLayerFrameNumbersContext);
+	const showLayerFrameNumbers = getStudioShowLayerFrameNumbers();
 	const sceneRange = useContext(TimelineSceneRangeContext);
 	const timelineWidth = useContext(TimelineWidthContext);
 	const video = Internals.useUnsafeVideoConfig();

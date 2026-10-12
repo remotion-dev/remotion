@@ -96,6 +96,7 @@ export const configMethodLifecycles = {
 	setSampleRate: 'runtime',
 	setScale: 'runtime',
 	setShouldOpenBrowser: 'restart',
+	setShowLayerFrameNumbers: 'runtime',
 	setShowPremounting: 'runtime',
 	setStillImageFormat: 'runtime',
 	setStudioPort: 'restart',

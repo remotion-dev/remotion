@@ -11,7 +11,6 @@ import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selecti
 import {Timeline} from './Timeline/Timeline';
 import {TimelineEmptyState} from './Timeline/TimelineEmptyState';
 import {TimelineKeyframeDragStateProvider} from './Timeline/TimelineKeyframeDragState';
-import {TimelineLayerFrameNumbersProvider} from './Timeline/TimelineLayerFrameNumbersProvider';
 import {
 	TimelineSelectionProvider,
 	useCurrentTimelineSelectionStateAsRef,
@@ -92,22 +91,20 @@ export const EditorContent: React.FC<{
 	);
 
 	return (
-		<TimelineLayerFrameNumbersProvider>
-			<TimelineTickFormatProvider>
-				<TimelineSelectionProvider>
-					<WebMcp />
-					<Transform3DModeStateProvider>
-						<StudioClearSelectionArea>
-							<InitialCompositionLoader />
-							<MenuToolbar readOnlyStudio={readOnlyStudio} />
-							<GlobalKeybindings />
-							<TimelineKeyframeDragStateProvider>
-								{content}
-							</TimelineKeyframeDragStateProvider>
-						</StudioClearSelectionArea>
-					</Transform3DModeStateProvider>
-				</TimelineSelectionProvider>
-			</TimelineTickFormatProvider>
-		</TimelineLayerFrameNumbersProvider>
+		<TimelineTickFormatProvider>
+			<TimelineSelectionProvider>
+				<WebMcp />
+				<Transform3DModeStateProvider>
+					<StudioClearSelectionArea>
+						<InitialCompositionLoader />
+						<MenuToolbar readOnlyStudio={readOnlyStudio} />
+						<GlobalKeybindings />
+						<TimelineKeyframeDragStateProvider>
+							{content}
+						</TimelineKeyframeDragStateProvider>
+					</StudioClearSelectionArea>
+				</Transform3DModeStateProvider>
+			</TimelineSelectionProvider>
+		</TimelineTickFormatProvider>
 	);
 };
