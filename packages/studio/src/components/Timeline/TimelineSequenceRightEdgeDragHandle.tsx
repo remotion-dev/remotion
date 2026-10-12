@@ -562,6 +562,14 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 	readonly deltaFrames: number;
 	readonly trimBeforeOnly: boolean;
 }) => {
+	if (deltaFrames === 0) {
+		return {
+			durationInFrames: target.initialDuration,
+			from: target.initialFrom,
+			trimBefore: target.initialTrimBefore,
+		};
+	}
+
 	if (target.rollingDuration && target.ripplePrevious) {
 		const outgoing = target.ripplePrevious;
 		const current = target.rollingDuration;
