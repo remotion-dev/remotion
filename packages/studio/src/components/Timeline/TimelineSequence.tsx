@@ -120,6 +120,7 @@ import {
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
+	isTransitionSeriesSequence,
 	TimelineSequenceLeftEdgeDragHandle,
 	type TimelineSequenceLeftEdgeDragMode,
 	TimelineSequenceMediaDurationDragLimitsContext,
@@ -1009,7 +1010,12 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const isAtTrimLimit = activeHighlight?.isAtLimit ?? false;
 	const isEdgeDragging = activeHighlight?.isDragging ?? false;
 	const activeTrimEdge =
-		activeEdgeHighlight === 'source-only' ? 'left' : activeEdgeHighlight;
+		!isEdgeDragging &&
+		(isTransitionSeriesSequence(s) || s.timelineTrack?.role === 'transition')
+			? null
+			: activeEdgeHighlight === 'source-only'
+				? 'left'
+				: activeEdgeHighlight;
 	useEffect(() => {
 		if (!nodePath) {
 			return;
