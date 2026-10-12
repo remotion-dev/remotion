@@ -1,6 +1,5 @@
 const timelineLeftEdgeCursorSvg = `<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#shadow)">
-<path d="M3 16L12 10V22L3 16Z" fill="black" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
 <path d="M23 4.5H18C16.9 4.5 16 5.4 16 6.5V25.5C16 26.6 16.9 27.5 18 27.5H23" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M23 4.5H18C16.9 4.5 16 5.4 16 6.5V25.5C16 26.6 16.9 27.5 18 27.5H23" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
@@ -11,4 +10,4 @@ const timelineLeftEdgeCursorSvg = `<svg width="24" height="24" viewBox="0 0 32 3
 </defs>
 </svg>`;
 
-export const timelineLeftEdgeCursor = `url("data:image/svg+xml,${encodeURIComponent(timelineLeftEdgeCursorSvg)}") 2.25 12`;
+export const timelineLeftEdgeCursor = `url("data:image/svg+xml,${encodeURIComponent(timelineLeftEdgeCursorSvg)}") 12 12`;
