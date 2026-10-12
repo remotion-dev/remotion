@@ -47,6 +47,7 @@ export const useSequencePropsSubscription = ({
 	);
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
+	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const [refreshToken, setRefreshToken] = useState(0);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
@@ -85,7 +86,10 @@ export const useSequencePropsSubscription = ({
 	}, [overrideId]);
 
 	useEffect(() => {
+		// Optimistic deletion can remount siblings with stacks from the old source.
+		// Wait for HMR before resolving those locations against the updated file.
 		if (
+			pendingDeletions.size > 0 ||
 			!clientId ||
 			!locationSource ||
 			!shouldSubscribeToSourceFile(locationSource) ||
@@ -162,6 +166,7 @@ export const useSequencePropsSubscription = ({
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
 		preferMappedNodePath,
+		pendingDeletions,
 		refreshToken,
 		schema,
 		setPropStatuses,

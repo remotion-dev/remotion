@@ -83,6 +83,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   composition: 'MyVideo',
   serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   codec: 'h264',
+  privacy: 'no-acl',
   outName: {
     key: 'my-output',
     bucketName: 'output-bucket',
@@ -106,7 +107,7 @@ In the example above, `renderMediaOnLambda()` is configured to output the render
   - Click "Create inline policy"
   - Click the "JSON" tab
 
-Add the policy below to grant `s3:PutObject` on the destination bucket's objects.
+Add the policy below to grant `s3:PutObject` on the destination bucket's objects. This is the minimum destination policy for the example above with Remotion 4.0.535 or later. See [write-only AWS S3 buckets](/docs/lambda/custom-destination#write-only-aws-s3-buckets).
 
 ```json title="Destination bucket policy"
 {
@@ -126,6 +127,10 @@ Add the policy below to grant `s3:PutObject` on the destination bucket's objects
 - Click `Save changes`
 
 The Lambda function can now move the rendered video to the other bucket when the render process is completed.
+
+Optionally grant `s3:GetObject` on `arn:aws:s3:::{bucketname}/*` and `s3:ListBucket` on `arn:aws:s3:::{bucketname}` to detect existing output before rendering and recover completion if the final progress update is missing. For compatibility with earlier Remotion versions, grant both permissions.
+
+If you set `privacy` to `"public"` or `"private"` instead of `"no-acl"`, also grant `s3:PutObjectAcl` on `arn:aws:s3:::{bucketname}/*`.
 
 ## See also
 

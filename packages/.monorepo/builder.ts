@@ -1,5 +1,5 @@
-import {build} from 'bun';
 import path from 'path';
+import {build} from 'bun';
 import {Exports, validateExports} from './validate-exports';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -140,6 +140,9 @@ export const buildPackage = async ({
 					target,
 					format,
 					splitting: action === 'build-shared' || (splitting ?? false),
+					// Consumers rebundle these library chunks. Their bundler owns
+					// preloading; Bun's import.meta.url helper breaks HTTP imports in Rspack.
+					modulePreload: false,
 				});
 
 				for (const file of output.outputs) {

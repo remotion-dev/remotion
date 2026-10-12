@@ -25,6 +25,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>addElementLibraryToStudio()</strong>
 				<div>Add an Element Library to a Studio project</div>
 			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/subscribe-to-caption-style-selection">
+				<strong>subscribeToCaptionStyleSelection()</strong>
+				<div>Subscribe to your website’s selected caption style</div>
+			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/is-inside-studio">
 				<strong>isInsideStudio()</strong>
 				<div>Check whether a library is embedded in Studio</div>

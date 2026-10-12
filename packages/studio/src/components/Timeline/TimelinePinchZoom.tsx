@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {getTimelineZoom} from '../../helpers/get-timeline-max-zoom';
 import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
 import {EditorZoomGesturesContext} from '../../state/editor-zoom-gestures';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
+import {TimelineZoomImperativeContext} from '../../state/timeline-zoom';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {viewportClientXToScrollContentX} from './timeline-scroll-logic';
 
@@ -23,20 +23,18 @@ type WebKitGestureEvent = UIEvent & {
 export const TimelinePinchZoom: FC = () => {
 	const isVideoComposition = useIsVideoComposition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const {zoom, setZoom} = useContext(TimelineZoomCtx);
+	const {getZoom, setZoom} = useContext(TimelineZoomImperativeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 
-	const zoomRef = useRef(zoom);
-	zoomRef.current = zoom;
 	const getCurrentTimelineZoom = useCallback(
 		(compositionId: string) => {
 			return getTimelineZoom({
 				durationInFrames: videoConfig?.durationInFrames ?? 1,
 				timelineViewportWidth: scrollableRef.current?.clientWidth ?? 0,
-				zoom: zoomRef.current[compositionId] ?? null,
+				zoom: getZoom(compositionId),
 			});
 		},
-		[videoConfig?.durationInFrames],
+		[getZoom, videoConfig?.durationInFrames],
 	);
 
 	const pinchBaseZoomRef = useRef<number | null>(null);
