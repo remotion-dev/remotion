@@ -1,4 +1,3 @@
-import type {WaveformVolume} from '@remotion/timeline-utils';
 import type {CanUpdateSequencePropStatusKeyframed} from 'remotion';
 import {Internals} from 'remotion';
 import {
@@ -7,8 +6,10 @@ import {
 } from './get-timeline-keyframes';
 
 export type TimelineVolume =
-	| WaveformVolume
+	| {readonly type: 'constant'; readonly value: number}
+	| {readonly type: 'sampled'; readonly samples: readonly number[]}
 	| {
+			readonly type: 'linear';
 			readonly points: readonly {
 				readonly frame: number;
 				readonly value: number;
@@ -29,14 +30,14 @@ export const getTimelineVolume = ({
 	readonly keyframePlaybackRate: number;
 }): TimelineVolume => {
 	if (status === null) {
-		return 1;
+		return {type: 'constant', value: 1};
 	}
 
 	if (
 		!Number.isFinite(displayDurationInFrames) ||
 		displayDurationInFrames <= 0
 	) {
-		return [];
+		return {type: 'sampled', samples: []};
 	}
 
 	const resolvedDisplayOffset = getKeyframeDisplayOffset({
@@ -53,7 +54,7 @@ export const getTimelineVolume = ({
 		status,
 	});
 	if (evaluateVolume === null) {
-		return 1;
+		return {type: 'constant', value: 1};
 	}
 
 	if (
@@ -89,7 +90,7 @@ export const getTimelineVolume = ({
 					resolvedPlaybackRate,
 			);
 			if (value === null || !Number.isFinite(value)) {
-				return 1;
+				return {type: 'constant', value: 1};
 			}
 
 			const previousPoint = points.at(-1);
@@ -108,7 +109,7 @@ export const getTimelineVolume = ({
 			previousValue = value;
 		}
 
-		return {points};
+		return {type: 'linear', points};
 	}
 
 	const curve: number[] = [];
@@ -118,11 +119,11 @@ export const getTimelineVolume = ({
 				resolvedPlaybackRate,
 		);
 		if (value === null || !Number.isFinite(value)) {
-			return 1;
+			return {type: 'constant', value: 1};
 		}
 
 		curve.push(Math.max(0, value));
 	}
 
-	return curve;
+	return {type: 'sampled', samples: curve};
 };

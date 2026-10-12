@@ -635,13 +635,14 @@ const TimelineVideoInfoInner: React.FC<{
 	const getSegmentVolume = (
 		segmentDisplayOffsetInFrames: number,
 		segmentDurationInFrames: number,
-	) => {
-		if (typeof volume === 'number') {
+	): TimelineVolume => {
+		if (volume.type === 'constant') {
 			return volume;
 		}
 
-		if ('points' in volume) {
+		if (volume.type === 'linear') {
 			return {
+				type: 'linear',
 				points: volume.points.map((point) => ({
 					frame: point.frame - segmentDisplayOffsetInFrames,
 					value: point.value,
@@ -649,13 +650,16 @@ const TimelineVideoInfoInner: React.FC<{
 			};
 		}
 
-		return volume.slice(
-			Math.max(0, Math.floor(segmentDisplayOffsetInFrames)),
-			Math.min(
-				volume.length,
-				Math.ceil(segmentDisplayOffsetInFrames + segmentDurationInFrames),
+		return {
+			type: 'sampled',
+			samples: volume.samples.slice(
+				Math.max(0, Math.floor(segmentDisplayOffsetInFrames)),
+				Math.min(
+					volume.samples.length,
+					Math.ceil(segmentDisplayOffsetInFrames + segmentDurationInFrames),
+				),
 			),
-		);
+		};
 	};
 
 	return (

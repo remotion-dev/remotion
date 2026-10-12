@@ -1,6 +1,5 @@
 import {
 	drawBars,
-	getVisibleWaveformVolume,
 	subscribeToWaveformPeaks,
 	type WaveformDrawRange,
 } from '@remotion/timeline-utils';
@@ -79,39 +78,53 @@ const AudioWaveformInner: React.FC<{
 
 	const waveformCanvas = useRef<HTMLCanvasElement>(null);
 	const volumeCanvas = useRef<HTMLCanvasElement>(null);
-	const shouldRenderVolumeOverlay = typeof volume !== 'number';
+	const shouldRenderVolumeOverlay = volume.type !== 'constant';
 	const visualizationMaxVolume = useMemo(() => {
-		if (typeof volume === 'number') {
-			return Math.max(1, volume);
+		if (volume.type === 'constant') {
+			return Math.max(1, volume.value);
 		}
 
-		if ('points' in volume) {
+		if (volume.type === 'linear') {
 			return volume.points.reduce(
 				(highest, point) => Math.max(highest, point.value),
 				1,
 			);
 		}
 
-		return volume.reduce((highest, value) => {
+		return volume.samples.reduce((highest, value) => {
 			return Number.isFinite(value) ? Math.max(highest, value) : highest;
 		}, 1);
 	}, [volume]);
 	const visibleVolume = useMemo((): TimelineVolume => {
 		if (muted) {
-			return 0;
+			return {type: 'constant', value: 0};
 		}
 
-		if (typeof volume !== 'number' && 'points' in volume) {
+		if (volume.type !== 'sampled') {
 			return volume;
 		}
 
-		return getVisibleWaveformVolume({
-			displayDurationInFrames,
-			displayOffsetInFrames,
-			volume,
-		});
+		if (
+			!Number.isFinite(displayDurationInFrames) ||
+			displayDurationInFrames <= 0
+		) {
+			return {type: 'sampled', samples: []};
+		}
+
+		// Samples already cover the composition timeline, including media loops.
+		return {
+			type: 'sampled',
+			samples: volume.samples.slice(
+				Math.max(0, Math.floor(displayOffsetInFrames)),
+				Math.min(
+					volume.samples.length,
+					Math.ceil(displayOffsetInFrames + displayDurationInFrames),
+				),
+			),
+		};
 	}, [displayDurationInFrames, displayOffsetInFrames, muted, volume]);
-	const waveformVolume = typeof visibleVolume === 'number' ? visibleVolume : 1;
+	const waveformVolume =
+		visibleVolume.type === 'constant' ? visibleVolume.value : 1;
 
 	// Layout effect so that a cache hit sets the peaks synchronously and the
 	// waveform is painted on the very first frame after mounting.
@@ -212,14 +225,14 @@ const AudioWaveformInner: React.FC<{
 		}
 
 		context.clearRect(0, 0, w, h);
-		if (typeof visibleVolume === 'number' || drawingWidth <= 0 || h <= 0) {
+		if (visibleVolume.type === 'constant' || drawingWidth <= 0 || h <= 0) {
 			return;
 		}
 
 		context.setTransform(1, 0, 0, 1, horizontalOffset, 0);
 		context.beginPath();
 		context.moveTo(0, 0);
-		if ('points' in visibleVolume) {
+		if (visibleVolume.type === 'linear') {
 			for (const point of visibleVolume.points) {
 				context.lineTo(
 					((point.frame - displayOffsetInFrames) / displayDurationInFrames) *
@@ -234,15 +247,15 @@ const AudioWaveformInner: React.FC<{
 			// The canvas only spans the virtualized range. Sampling by its physical
 			// width keeps drawing work bounded to the visible part of the timeline.
 			const numberOfPoints = Math.min(
-				visibleVolume.length,
+				visibleVolume.samples.length,
 				Math.max(1, Math.ceil(drawingWidth)),
 			);
 			for (let point = 0; point < numberOfPoints; point++) {
 				const volumeIndex = Math.floor(
-					(point / numberOfPoints) * visibleVolume.length,
+					(point / numberOfPoints) * visibleVolume.samples.length,
 				);
 				const nextVolumeIndex = Math.floor(
-					((point + 1) / numberOfPoints) * visibleVolume.length,
+					((point + 1) / numberOfPoints) * visibleVolume.samples.length,
 				);
 				const firstFrame = Math.max(0, Math.floor(displayOffsetInFrames));
 				const x = Math.max(
@@ -261,7 +274,10 @@ const AudioWaveformInner: React.FC<{
 									drawingWidth,
 							);
 				const unclampedY =
-					(1 - (visibleVolume[volumeIndex] ?? 1) / visualizationMaxVolume) * h;
+					(1 -
+						(visibleVolume.samples[volumeIndex] ?? 1) /
+							visualizationMaxVolume) *
+					h;
 				const y = Math.max(0, Math.min(h, unclampedY));
 				// Volume samples apply for one frame. Keep each value until the next
 				// frame boundary instead of blending a hold into a diagonal ramp.
