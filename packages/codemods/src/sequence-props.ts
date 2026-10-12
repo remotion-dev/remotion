@@ -31,7 +31,6 @@ import {NoReactInternals} from 'remotion/no-react';
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {computeEffectPropStatus} from './sequence-props/can-update-effect-props';
 import {getCssShorthandForLonghand} from './sequence-props/css-shorthand-properties';
-import {getDurationDependentKeyframes} from './sequence-props/duration-dependent-keyframes';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
 import {toImportAgnosticNodePath} from './sequence-props/import-agnostic-node-path';
 import {
@@ -2325,11 +2324,6 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 			ast,
 			videoConfigValues: videoConfigIdentifierValues,
 		});
-	const durationDependentKeyframes = getDurationDependentKeyframes({
-		ast,
-		jsxPath,
-		videoConfigIdentifierValues,
-	});
 	const addDefaultKeyframeDisplayOffsetAdjustment = (
 		status: CanUpdateSequencePropSource,
 	): CanUpdateSequencePropSource => {
@@ -2367,7 +2361,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 
 	return {
 		canUpdate: true as const,
-		durationDependentKeyframes,
+		durationDependentKeyframes: null,
 		props: Object.fromEntries(
 			Object.entries(filteredProps).map(([key, status]) => [
 				key,

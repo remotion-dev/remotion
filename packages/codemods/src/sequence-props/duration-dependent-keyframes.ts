@@ -3,10 +3,16 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropsResponseTrue,
 	SourceNumericValue,
+	SequenceNodePath,
 } from 'remotion';
-import {getNodePathForRecastPath} from '../sequence-props';
+import {
+	findJsxElementPathAtNodePath,
+	getNodePathForRecastPath,
+} from '../sequence-props';
+import {getReadOnlySourceSnapshot} from '../sequence-props-snapshot';
 import {getKeyframeInterpolationFunctionForCallee} from './keyframe-interpolation-function';
 import {parseVideoConfigNumericExpression} from './video-config-numeric-expression';
+import {getVideoConfigIdentifiers} from './video-config-values';
 import type {VideoConfigIdentifierValues} from './video-config-values';
 
 type DurationDependentKeyframes = NonNullable<
@@ -185,4 +191,28 @@ export const getDurationDependentKeyframes = ({
 			: null;
 	cache.set(scopeNode, result);
 	return result;
+};
+
+// Kept separate from prop subscriptions: scanning the render scope is only
+// needed when a timing edit begins.
+export const getDurationDependentKeyframesFromContent = ({
+	fileContents,
+	nodePath,
+}: {
+	fileContents: string;
+	nodePath: SequenceNodePath;
+}): DurationDependentKeyframes | null => {
+	const snapshot = getReadOnlySourceSnapshot(fileContents);
+	const jsxPath = findJsxElementPathAtNodePath(snapshot.ast, nodePath);
+	if (!jsxPath)
+		throw new Error('Could not find the sequence to check keyframes');
+	const videoConfigIdentifierValues =
+		snapshot.videoConfigIdentifierValues ??
+		getVideoConfigIdentifiers({ast: snapshot.ast});
+	snapshot.videoConfigIdentifierValues = videoConfigIdentifierValues;
+	return getDurationDependentKeyframes({
+		ast: snapshot.ast,
+		jsxPath,
+		videoConfigIdentifierValues,
+	});
 };

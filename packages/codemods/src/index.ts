@@ -23,6 +23,7 @@ import {
 } from './internals';
 import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
 import {computeEffectPropsStatusesFromContent} from './sequence-props/can-update-effect-props';
+import {getDurationDependentKeyframesFromContent} from './sequence-props/duration-dependent-keyframes';
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
@@ -172,6 +173,7 @@ export type {
 
 export const CodemodsInternals = {
 	computeEffectPropsStatusesFromContent,
+	getDurationDependentKeyframesFromContent,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	basicCaptionsElementSource,
