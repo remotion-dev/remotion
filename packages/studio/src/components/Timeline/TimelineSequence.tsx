@@ -2437,7 +2437,11 @@ const TimelineSequenceLayoutInner: React.FC<{
 							}
 						>
 							<TimelineSequenceLeftEdgeDragHandle
-								cursor={`${timelineTrimEdgeCursor}, ew-resize`}
+								cursor={
+									s.timelineTrack?.role === 'transition'
+										? 'default'
+										: `${timelineTrimEdgeCursor}, ew-resize`
+								}
 								trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 								sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
 								edgeEnabled={
