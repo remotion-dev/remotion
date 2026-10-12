@@ -3189,6 +3189,7 @@ export const useTimelineSequenceFromDrag = ({
 const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly cursor: string;
 	readonly isTransitionSeries: boolean;
+	readonly transitionStartOffset: number | null;
 	readonly touchingNext: boolean;
 	readonly onHoverEnd: () => void;
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -3208,6 +3209,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 }> = ({
 	cursor,
 	isTransitionSeries,
+	transitionStartOffset,
 	touchingNext,
 	onHoverEnd,
 	nodePathInfo,
@@ -3395,8 +3397,10 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const propStatuses = propStatusesRef.current;
 			const handleRect = captureTarget.getBoundingClientRect();
 			const initialEdgeClientX =
-				captureTarget.parentElement?.getBoundingClientRect().right ??
-				handleRect.right - HANDLE_OUTSET;
+				transitionStartOffset !== null
+					? handleRect.left + HANDLE_INSET
+					: (captureTarget.parentElement?.getBoundingClientRect().right ??
+						handleRect.right - HANDLE_OUTSET);
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
@@ -3630,6 +3634,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			sequencesRef,
 			timelineDurationInFrames,
 			windowWidth,
+			transitionStartOffset,
 			updateSnapFrameRef,
 		],
 	);
@@ -3643,9 +3648,30 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		right: touchingNext ? 'min(2px, 12.5%)' : -HANDLE_OUTSET,
-		width: touchingNext ? 'min(10px, 12.5%)' : baseStyle.width,
+		// The outgoing edge is above the seam; incoming controls remain below it.
+		zIndex:
+			transitionStartOffset !== null
+				? 3
+				: isTransitionSeries
+					? 2
+					: baseStyle.zIndex,
+		left:
+			transitionStartOffset !== null
+				? transitionStartOffset - HANDLE_INSET
+				: undefined,
+		right:
+			transitionStartOffset !== null
+				? undefined
+				: touchingNext
+					? 'min(2px, 12.5%)'
+					: -HANDLE_OUTSET,
+		bottom: transitionStartOffset !== null ? '50%' : baseStyle.bottom,
+		width:
+			transitionStartOffset !== null
+				? baseStyle.width
+				: touchingNext
+					? 'min(10px, 12.5%)'
+					: baseStyle.width,
 		cursor,
 		background: TRANSPARENT,
 	};

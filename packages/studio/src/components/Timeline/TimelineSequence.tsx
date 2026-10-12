@@ -2108,6 +2108,19 @@ const TimelineSequenceLayoutInner: React.FC<{
 	const parentEnd = parentVisibleEnd ?? video.durationInFrames;
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
+	const outgoingTransitionStart = isTransitionSeriesSequence(s)
+		? (sceneRange?.transitionOutStart ?? null)
+		: null;
+	const transitionStartOffset =
+		outgoingTransitionStart !== null && visibleLayout !== null
+			? Math.round(outgoingTransitionStart * frameIncrement) -
+				visibleLayout.marginLeft
+			: null;
+	const rightTrimHandleVisible =
+		transitionStartOffset !== null
+			? transitionStartOffset >= 0 &&
+				transitionStartOffset <= (visibleLayout?.width ?? 0)
+			: visibleLayout?.rightEdgeVisible;
 	const layerHeight = getTimelineSequenceHeight(s);
 	const trimOutline = (() => {
 		if (
@@ -2495,11 +2508,12 @@ const TimelineSequenceLayoutInner: React.FC<{
 					) : null}
 					{s.timelineTrack?.role !== 'transition' &&
 					showRightEdgeDragHandle &&
-					visibleLayout.rightEdgeVisible &&
+					rightTrimHandleVisible &&
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceRightEdgeDragHandle
 							isTransitionSeries={isTransitionSeriesSequence(s)}
+							transitionStartOffset={transitionStartOffset}
 							touchingNext={nextTouchingSequence !== null}
 							onHoverEnd={clearEdgeHighlight}
 							cursor={`${isCascadingSequence(s) && !isTransitionSeriesSequence(s) ? timelineTrimEdgeCursor : timelineRightEdgeCursor}, ew-resize`}
@@ -2508,15 +2522,16 @@ const TimelineSequenceLayoutInner: React.FC<{
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
 							initialEdgeFrame={
+								outgoingTransitionStart ??
 								s.from +
-								Math.max(
-									0,
-									Math.min(
-										displayDurationInFrames,
-										effectiveMaxMediaDuration ?? Infinity,
-										video.durationInFrames - s.from,
-									),
-								)
+									Math.max(
+										0,
+										Math.min(
+											displayDurationInFrames,
+											effectiveMaxMediaDuration ?? Infinity,
+											video.durationInFrames - s.from,
+										),
+									)
 							}
 							fps={video.fps}
 							onDragStart={startRightEdgeDrag}
