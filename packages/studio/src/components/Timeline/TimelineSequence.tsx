@@ -511,6 +511,20 @@ const TimelineSequenceBar: React.FC<{
 		labelLeft = Math.max(labelLeft, afterTransition - Number(style.marginLeft));
 	}
 
+	const labelEndFrame = Math.min(
+		sceneRange?.transitionOutStart ?? Infinity,
+		inheritedSceneRange?.transitionOutStart ?? Infinity,
+	);
+	const labelRight =
+		frameIncrement === null || !Number.isFinite(labelEndFrame)
+			? 0
+			: Math.max(
+					0,
+					Number(style.width) -
+						(Math.round(labelEndFrame * frameIncrement) -
+							Number(style.marginLeft)),
+				);
+
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
 	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
 	const sceneOwnsRightGap =
@@ -708,13 +722,13 @@ const TimelineSequenceBar: React.FC<{
 
 			{(s.timelineTrack || hasCaptionsSchema) &&
 			!isTransition &&
-			Number(style.width) > labelLeft ? (
+			Number(style.width) - labelRight > labelLeft ? (
 				<div
 					style={{
 						position: 'absolute',
 						left: labelLeft,
-						// The containing scene clips the label along the transition contour.
-						right: 0,
+						// Finish the label's fade before the transition cuts into the row.
+						right: labelRight,
 						bottom: PACKED_LABEL_BOTTOM,
 						...(hasTimelineTrackMediaLabel(s)
 							? {top: getTimelineLayerHeight(s.type)}
