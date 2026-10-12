@@ -799,6 +799,7 @@ const TimelineSequenceBar: React.FC<{
 								strokeLinejoin="round"
 							/>
 						</svg>
+						{edgeDragHandles}
 					</div>
 				)
 			) : (
@@ -905,7 +906,9 @@ const TimelineSequenceBar: React.FC<{
 					) : null}
 				</div>
 			)}
-			<div style={{pointerEvents: 'auto'}}>{edgeDragHandles}</div>
+			{isTransition ? null : (
+				<div style={{pointerEvents: 'auto'}}>{edgeDragHandles}</div>
+			)}
 		</div>
 	);
 };
@@ -962,8 +965,14 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		enabled: isEdgeDragging && activeEdgeHighlight !== 'source-only',
 	});
 	const previousCascadingSequenceId = registryEntry?.previousSequenceId ?? null;
-	const previousCascadingOverrideId = registryEntry?.previousOverrideId ?? null;
-	const nextCascadingOverrideId = registryEntry?.nextOverrideId ?? null;
+	const previousCascadingOverrideId =
+		registryEntry?.previousOverrideId ??
+		registryEntry?.transitionPreviousSequence?.controls?.overrideId ??
+		null;
+	const nextCascadingOverrideId =
+		registryEntry?.nextOverrideId ??
+		registryEntry?.transitionNextSequence?.controls?.overrideId ??
+		null;
 	const previousTouchingSequence =
 		registryEntry?.previousTouchingSequence ?? null;
 	const nextTouchingSequence = registryEntry?.nextTouchingSequence ?? null;
@@ -1660,21 +1669,42 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const previousTouchingNodePath = previousTouchingOverrideId
 		? overrideIdToNodePathMappingsRef.current[previousTouchingOverrideId]
 		: null;
-	const rollingEnabled = Boolean(
-		showLeftEdgeDragHandle &&
-		!s.loopDisplay &&
-		previousTouchingSequence &&
-		!previousTouchingSequence.loopDisplay &&
-		previousTouchingNodePath &&
-		isTimelineSequenceDurationDraggable(previousTouchingSequence) &&
-		previousTouchingSequence.frozenFrame === null &&
-		s.frozenFrame === null &&
-		(!('frozenMediaFrame' in previousTouchingSequence) ||
-			previousTouchingSequence.frozenMediaFrame === null) &&
-		(!('frozenMediaFrame' in s) || s.frozenMediaFrame === null) &&
-		Internals.getPropStatusesCtx(propStatuses, previousTouchingNodePath)
-			?.durationInFrames?.status === 'static',
-	);
+	const transitionRollingEnabled =
+		s.timelineTrack?.role === 'transition' &&
+		previewInteractive &&
+		[
+			registryEntry?.transitionPreviousSequence,
+			registryEntry?.transitionNextSequence,
+		].every((sequence) => {
+			const path = sequence?.controls?.overrideId
+				? overrideIdToNodePathMappingsRef.current[sequence.controls.overrideId]
+				: null;
+			return (
+				sequence &&
+				path &&
+				isTimelineSequenceDurationDraggable(sequence) &&
+				sequence.frozenFrame === null &&
+				Internals.getPropStatusesCtx(propStatuses, path)?.durationInFrames
+					?.status === 'static'
+			);
+		});
+	const rollingEnabled =
+		transitionRollingEnabled ||
+		Boolean(
+			showLeftEdgeDragHandle &&
+			!s.loopDisplay &&
+			previousTouchingSequence &&
+			!previousTouchingSequence.loopDisplay &&
+			previousTouchingNodePath &&
+			isTimelineSequenceDurationDraggable(previousTouchingSequence) &&
+			previousTouchingSequence.frozenFrame === null &&
+			s.frozenFrame === null &&
+			(!('frozenMediaFrame' in previousTouchingSequence) ||
+				previousTouchingSequence.frozenMediaFrame === null) &&
+			(!('frozenMediaFrame' in s) || s.frozenMediaFrame === null) &&
+			Internals.getPropStatusesCtx(propStatuses, previousTouchingNodePath)
+				?.durationInFrames?.status === 'static',
+		);
 	const hasCaptionsSchema = Object.values(s.controls?.schema ?? {}).some(
 		(field) => field.type === 'remotion-captions',
 	);
@@ -2136,27 +2166,37 @@ const TimelineSequenceLayoutInner: React.FC<{
 			onClick={onSequenceClick}
 			edgeDragHandles={
 				<>
-					{(showLeftEdgeDragHandle || secondaryLeftEdgeAction) &&
-					visibleLayout.media?.offset === 0 &&
+					{(showLeftEdgeDragHandle ||
+						secondaryLeftEdgeAction ||
+						(s.timelineTrack?.role === 'transition' && rollingEnabled)) &&
+					(s.timelineTrack?.role === 'transition' ||
+						visibleLayout.media?.offset === 0) &&
 					// Keep the captured handle mounted when a trim crosses frame zero.
 					(negativeStartWidth === 0 || activeTrimEdge === 'left') &&
 					nodePathInfo &&
 					validatedLocation ? (
 						<div
-							style={{
-								position: 'absolute',
-								left: visibleLayout.media.left,
-								width: visibleLayout.media.width,
-								top: 0,
-								bottom: 0,
-								pointerEvents: 'none',
-							}}
+							style={
+								s.timelineTrack?.role === 'transition'
+									? {position: 'absolute', inset: 0, pointerEvents: 'none'}
+									: {
+											position: 'absolute',
+											left: visibleLayout.media?.left ?? 0,
+											width: visibleLayout.media?.width ?? 0,
+											top: 0,
+											bottom: 0,
+											pointerEvents: 'none',
+										}
+							}
 						>
 							<TimelineSequenceLeftEdgeDragHandle
 								cursor={`${timelineTrimEdgeCursor}, ew-resize`}
 								trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 								sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
-								edgeEnabled={showLeftEdgeDragHandle}
+								edgeEnabled={
+									s.timelineTrack?.role !== 'transition' &&
+									showLeftEdgeDragHandle
+								}
 								edgeMode={
 									isFirstCascadingSequence
 										? 'source-only'
@@ -2165,6 +2205,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 											: 'self-trim'
 								}
 								rollingEnabled={rollingEnabled}
+								fillTarget={s.timelineTrack?.role === 'transition'}
 								rollingOutset={Math.min(
 									2,
 									((previousTouchingSequence?.duration ?? 0) /
@@ -2178,7 +2219,10 @@ const TimelineSequenceLayoutInner: React.FC<{
 								nodePathInfo={nodePathInfo}
 								windowWidth={windowWidth}
 								timelineDurationInFrames={video.durationInFrames ?? 1}
-								initialEdgeFrame={s.from}
+								initialEdgeFrame={
+									s.from +
+									(s.timelineTrack?.role === 'transition' ? s.duration / 2 : 0)
+								}
 								fps={video.fps}
 								onDragStart={startLeftEdgeDrag}
 								onDragEnd={endEdgeDrag}
@@ -2188,7 +2232,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 							/>
 						</div>
 					) : null}
-					{showRightEdgeDragHandle &&
+					{s.timelineTrack?.role !== 'transition' &&
+					showRightEdgeDragHandle &&
 					visibleLayout.rightEdgeVisible &&
 					nodePathInfo &&
 					validatedLocation ? (

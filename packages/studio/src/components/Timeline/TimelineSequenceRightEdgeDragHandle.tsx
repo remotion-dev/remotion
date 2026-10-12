@@ -260,6 +260,8 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly positionField: 'from' | null;
 	// Series trims resize the previous clip; positioned Track clips roll both edges.
 	readonly ripplePrevious: TimelineSequenceDurationDragTarget | null;
+	// A transition rolls two cascading durations without changing either source offset.
+	readonly rollingDuration: TimelineSequenceDurationDragTarget | null;
 	readonly timingLimits: ReturnType<
 		typeof getTimelineSequenceTimingLimits
 	> | null;
@@ -560,6 +562,30 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 	readonly deltaFrames: number;
 	readonly trimBeforeOnly: boolean;
 }) => {
+	if (target.rollingDuration && target.ripplePrevious) {
+		const outgoing = target.ripplePrevious;
+		const current = target.rollingDuration;
+		const appliedDelta = Math.max(
+			(outgoing.minimumDuration - outgoing.initialDuration) /
+				outgoing.parentPlaybackRate,
+			(current.initialDuration - current.maximumDuration) /
+				current.parentPlaybackRate,
+			Math.min(
+				deltaFrames,
+				(outgoing.maximumDuration - outgoing.initialDuration) /
+					outgoing.parentPlaybackRate,
+				(current.initialDuration - current.minimumDuration) /
+					current.parentPlaybackRate,
+			),
+		);
+		return {
+			durationInFrames:
+				target.initialDuration - appliedDelta * target.parentPlaybackRate,
+			from: target.initialFrom + appliedDelta * target.parentPlaybackRate,
+			trimBefore: target.initialTrimBefore,
+		};
+	}
+
 	// Track rolling edits share one delta so neither edge can clamp independently.
 	const previous = target.positionField !== null ? target.ripplePrevious : null;
 	const sharedDeltaFrames = previous
@@ -638,7 +664,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 		if (target.ripplePrevious && !trimBeforeOnly) {
 			const previous = target.ripplePrevious;
 			const appliedDelta =
-				target.positionField === null
+				target.positionField === null && target.rollingDuration === null
 					? deltaFrames
 					: (nextValues.from - target.initialFrom) / target.parentPlaybackRate;
 			const nextDuration = getTimelineSequenceDurationDragValue({
@@ -661,7 +687,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 				});
 			}
 
-			if (target.positionField === null) {
+			if (target.positionField === null && target.rollingDuration === null) {
 				return changes;
 			}
 		}
@@ -1378,6 +1404,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				playbackRate,
 				positionField,
 				ripplePrevious,
+				rollingDuration: null,
 				timingLimits: getTimelineSequenceTimingLimits({
 					propStatuses,
 					movingSequenceIds: null,
@@ -1417,6 +1444,73 @@ export const getTimelineSequenceRollingEditTargets = ({
 		tracks,
 		nodePathInfo: draggedNodePathInfo,
 	});
+	if (rightTrack?.sequence.timelineTrack?.role === 'transition') {
+		const siblings = sortItemsByCommitOrder(
+			tracks.filter(
+				(track) =>
+					track.sequence.parent === rightTrack.sequence.parent &&
+					track.sequence.timelineTrack?.id ===
+						rightTrack.sequence.timelineTrack?.id &&
+					(track.sequence.timelineTrack?.role === 'clip' ||
+						track.sequence.timelineTrack?.role === 'transition'),
+			),
+			(track) => track.sequence.timelineOrder,
+		);
+		const index = siblings.findIndex(
+			(track) => track.sequence.id === rightTrack.sequence.id,
+		);
+		const previous = siblings[index - 1];
+		const next = siblings[index + 1];
+		if (
+			!previous?.nodePathInfo ||
+			!next?.nodePathInfo ||
+			!isTransitionSeriesSequence(previous.sequence) ||
+			!isTransitionSeriesSequence(next.sequence)
+		) {
+			return null;
+		}
+
+		const durations = [previous, next].map(
+			(track) =>
+				getTimelineSequenceDurationDragTargets({
+					draggedNodePathInfo: track.nodePathInfo!,
+					draggedSequenceMediaDurationDragLimits: null,
+					selectedSequenceMediaDurationDragLimits: null,
+					selectedItems: [],
+					sequences,
+					overrideIdsToNodePaths,
+					propStatuses,
+					timelineDurationInFrames,
+				})?.[0],
+		);
+		const [outgoing, incoming] = durations;
+		if (!outgoing || !incoming) return null;
+		return [
+			{
+				parentPlaybackRate: incoming.parentPlaybackRate,
+				fileName: incoming.fileName,
+				initialDuration: incoming.initialDuration,
+				initialFrom: 0,
+				initialTrimBefore: incoming.endField.trimBefore,
+				minimumDuration: incoming.minimumDuration,
+				nodePath: incoming.nodePath,
+				playbackRate: incoming.endField.playbackRate,
+				positionField: null,
+				ripplePrevious: outgoing,
+				rollingDuration: incoming,
+				timingLimits: getTimelineSequenceTimingLimits({
+					track: next,
+					tracks,
+					sequences,
+					timelineDurationInFrames,
+					movingSequenceIds: null,
+					propStatuses,
+				}),
+				schema: incoming.schema,
+			},
+		];
+	}
+
 	if (
 		!rightTrack ||
 		rightTrack.sequence.timelineTrack?.role !== 'clip' ||
@@ -1812,6 +1906,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly edgeMode: 'ripple' | 'source-only' | 'self-trim';
 	readonly rollingEnabled: boolean;
 	readonly rollingOutset: number;
+	readonly fillTarget: boolean;
 	readonly touchingPrevious: boolean;
 	readonly onHoverEnd: () => void;
 	readonly secondaryAction: 'source-only' | 'self-trim' | null;
@@ -1837,6 +1932,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	edgeMode,
 	rollingEnabled,
 	rollingOutset,
+	fillTarget,
 	touchingPrevious,
 	onHoverEnd,
 	secondaryAction,
@@ -2045,8 +2141,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const overrideIdsToNodePaths = overrideIdToNodePathMappingsRef.current;
 			const propStatuses = propStatusesRef.current;
 			const handleRect = captureTarget.getBoundingClientRect();
-			const initialEdgeClientX =
-				captureTarget.parentElement!.getBoundingClientRect().left;
+			const initialEdgeClientX = fillTarget
+				? handleRect.left + handleRect.width / 2
+				: captureTarget.parentElement!.getBoundingClientRect().left;
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
@@ -2086,7 +2183,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						sequences,
 						affectedNodePaths: initialTargets.flatMap((target) =>
 							target.ripplePrevious
-								? target.positionField === null
+								? target.positionField === null &&
+									target.rollingDuration === null
 									? [target.ripplePrevious.nodePath]
 									: [target.nodePath, target.ripplePrevious.nodePath]
 								: [target.nodePath],
@@ -2106,10 +2204,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					const draggedKey = stringifySequenceSubscriptionKey(
 						latestNodePathInfo.sequenceSubscriptionKey,
 					);
-					const draggedTarget = targets.find(
-						(target) =>
-							stringifySequenceSubscriptionKey(target.nodePath) === draggedKey,
-					);
+					const draggedTarget =
+						targets.find(
+							(target) =>
+								stringifySequenceSubscriptionKey(target.nodePath) ===
+								draggedKey,
+						) ?? (fillTarget ? targets[0] : undefined);
 					onDragStart(
 						mode,
 						true,
@@ -2177,7 +2277,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								const nextDuration = getTimelineSequenceDurationDragValue({
 									initialDuration: previous.initialDuration,
 									deltaFrames:
-										(target.positionField === null
+										(target.positionField === null &&
+										target.rollingDuration === null
 											? deltaFrames
 											: (getTimelineSequenceLeftEdgeDragValuesForTarget({
 													target,
@@ -2212,7 +2313,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 										durationInFrames: previous.initialDuration,
 									}),
 								});
-								if (target.positionField === null) continue;
+								if (
+									target.positionField === null &&
+									target.rollingDuration === null
+								)
+									continue;
 							}
 
 							const nextValues = getTimelineSequenceLeftEdgeDragValuesForTarget(
@@ -2338,7 +2443,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								const nextDuration = getTimelineSequenceDurationDragValue({
 									initialDuration: ripplePrevious.initialDuration,
 									deltaFrames:
-										(draggedTarget.positionField === null
+										(draggedTarget.positionField === null &&
+										draggedTarget.rollingDuration === null
 											? deltaFrames
 											: (getTimelineSequenceLeftEdgeDragValuesForTarget({
 													target: draggedTarget,
@@ -2386,7 +2492,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 									edgeFrame: initialTimelineEdge + edgeDelta,
 									x:
 										initialEdgeClientX +
-										(edgeDelta / draggedTarget.parentPlaybackRate) *
+										(edgeDelta /
+											(fillTarget ? 1 : draggedTarget.parentPlaybackRate)) *
 											dragState.pxPerFrame,
 									y: initialEdgeClientY,
 								});
@@ -2444,6 +2551,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			trimBeforeCursor,
 			sourceOnlyCursor,
 			windowWidth,
+			fillTarget,
 		],
 	);
 
@@ -2511,8 +2619,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					data-trim-mode="rolling"
 					style={{
 						...baseStyle,
-						left: -rollingOutset,
-						width: `calc(${rollingOutset}px + min(2px, 12.5%))`,
+						left: fillTarget ? 0 : -rollingOutset,
+						width: fillTarget
+							? '100%'
+							: `calc(${rollingOutset}px + min(2px, 12.5%))`,
 						cursor,
 						background: TRANSPARENT,
 						pointerEvents: 'auto',
