@@ -64,77 +64,21 @@ afterAll(() => {
 });
 
 test(
-	'MDX, PostCSS, and custom loaders work through a shared Rspack override',
-	async () => {
-		const fixtureDirectory = path.join(
-			import.meta.dir,
-			'fixtures',
-			'portable-overrides',
-		);
-		const customLoader = path.join(fixtureDirectory, 'custom-loader.cjs');
-		const bundlerOverride: BundlerOverrideFn = (configuration) => ({
-			...configuration,
-			module: {
-				...configuration.module,
-				rules: [
-					...(configuration.module?.rules ?? []).map((rule) => {
-						if (
-							!rule ||
-							rule === '...' ||
-							!rule.test?.toString().includes('.css')
-						) {
-							return rule;
-						}
-
-						const use = Array.isArray(rule.use)
-							? rule.use
-							: rule.use
-								? [rule.use]
-								: [];
-
-						return {
-							...rule,
-							use: [
-								...use,
-								{
-									loader: 'postcss-loader',
-									options: {
-										postcssOptions: {plugins: ['postcss-size']},
-									},
-								},
-							],
-						};
-					}),
-					{
-						test: /\.mdx?$/,
-						use: [{loader: '@mdx-js/loader', options: {}}],
-					},
-					{test: /\.custom$/, use: [customLoader]},
-				],
-			},
-		});
-
-		const result = await bundleFixture({
-			entryPoint: path.join(fixtureDirectory, 'entry.ts'),
-			bundlerOverride,
-			rspack: true,
-		});
-
-		expect(result).toContain('MDX portable override sentinel');
-		expect(result).toContain('width: 321px');
-		expect(result).toContain('height: 181px');
-		expect(result).toContain('CUSTOM_LOADER:custom loader input');
-	},
-	{timeout: 60_000},
-);
-
-test(
-	'SCSS, Tailwind v3, and Babel helpers work through a shared Rspack override',
+	'portable and backend-specific overrides work across Rspack and Webpack',
 	async () => {
 		const fixtureDirectory = path.join(
 			import.meta.dir,
 			'fixtures',
 			'portable-helpers',
+		);
+		const portableOverridesDirectory = path.join(
+			import.meta.dir,
+			'fixtures',
+			'portable-overrides',
+		);
+		const customLoader = path.join(
+			portableOverridesDirectory,
+			'custom-loader.cjs',
 		);
 		let scriptLoaders: string[] = [];
 		const bundlerOverride: BundlerOverrideFn = (configuration) => {
@@ -167,10 +111,50 @@ test(
 						: [];
 				});
 			}
-			return withHelpers;
+			return {
+				...withHelpers,
+				module: {
+					...withHelpers.module,
+					rules: [
+						...(withHelpers.module?.rules ?? []).map((rule) => {
+							if (
+								!rule ||
+								rule === '...' ||
+								!rule.test?.toString().includes('.css')
+							) {
+								return rule;
+							}
+
+							const use = Array.isArray(rule.use)
+								? rule.use
+								: rule.use
+									? [rule.use]
+									: [];
+
+							return {
+								...rule,
+								use: [
+									...use,
+									{
+										loader: 'postcss-loader',
+										options: {
+											postcssOptions: {plugins: ['postcss-size']},
+										},
+									},
+								],
+							};
+						}),
+						{
+							test: /\.mdx?$/,
+							use: [{loader: '@mdx-js/loader', options: {}}],
+						},
+						{test: /\.custom$/, use: [customLoader]},
+					],
+				},
+			};
 		};
 
-		const result = await bundleFixture({
+		const portableResult = await bundleFixture({
 			entryPoint: path.join(fixtureDirectory, 'entry.tsx'),
 			bundlerOverride,
 			rspack: true,
@@ -178,20 +162,18 @@ test(
 
 		expect(scriptLoaders[0]).toContain('babel-loader');
 		expect(scriptLoaders).not.toContain('builtin:swc-loader');
-		expect(result).toContain('BABEL_LOADER_SENTINEL');
-		expect(result).toContain('scss-global-sentinel');
-		expect(result).toContain('#123456');
-		expect(result).toContain('moduleClass');
-		expect(result).toContain('#654321');
-		expect(result).toContain('.text-red-500');
-	},
-	{timeout: 60_000},
-);
+		expect(portableResult).toContain('BABEL_LOADER_SENTINEL');
+		expect(portableResult).toContain('scss-global-sentinel');
+		expect(portableResult).toContain('#123456');
+		expect(portableResult).toContain('moduleClass');
+		expect(portableResult).toContain('#654321');
+		expect(portableResult).toContain('.text-red-500');
+		expect(portableResult).toContain('MDX portable override sentinel');
+		expect(portableResult).toContain('width: 321px');
+		expect(portableResult).toContain('height: 181px');
+		expect(portableResult).toContain('CUSTOM_LOADER:custom loader input');
 
-test(
-	'Rspack supports a custom JSX import source through the SWC loader',
-	async () => {
-		const fixtureDirectory = path.join(
+		const rspackSpecificDirectory = path.join(
 			import.meta.dir,
 			'fixtures',
 			'rspack-specific-overrides',
@@ -203,7 +185,7 @@ test(
 				alias: {
 					...configuration.resolve?.alias,
 					'custom-jsx-runtime/jsx-runtime': path.join(
-						fixtureDirectory,
+						rspackSpecificDirectory,
 						'jsx-runtime.ts',
 					),
 				},
@@ -252,30 +234,27 @@ test(
 					};
 				}),
 			},
+			plugins: [
+				...(configuration.plugins ?? []),
+				new RspackDefinePlugin({
+					BUNDLER_PLUGIN_SENTINEL: JSON.stringify(
+						'RSPACK_DEFINE_PLUGIN_SENTINEL',
+					),
+				}),
+			],
 		});
 
-		const result = await bundleFixture({
-			entryPoint: path.join(fixtureDirectory, 'entry.tsx'),
+		const rspackResult = await bundleFixture({
+			entryPoint: path.join(rspackSpecificDirectory, 'entry.tsx'),
 			rspack: true,
 			rspackOverride,
 		});
 
-		expect(result).toContain('CUSTOM_JSX_RUNTIME_SENTINEL');
-	},
-	{timeout: 60_000},
-);
+		expect(rspackResult).toContain('CUSTOM_JSX_RUNTIME_SENTINEL');
+		expect(rspackResult).toContain('RSPACK_DEFINE_PLUGIN_SENTINEL');
 
-test(
-	'Webpack and Rspack use their own DefinePlugin implementations',
-	async () => {
-		const entryPoint = path.join(
-			import.meta.dir,
-			'fixtures',
-			'rspack-specific-overrides',
-			'entry.tsx',
-		);
 		const webpackResult = await bundleFixture({
-			entryPoint,
+			entryPoint: path.join(rspackSpecificDirectory, 'entry.tsx'),
 			rspack: false,
 			webpackOverride: (configuration) => ({
 				...configuration,
@@ -289,24 +268,8 @@ test(
 				],
 			}),
 		});
-		const rspackResult = await bundleFixture({
-			entryPoint,
-			rspack: true,
-			rspackOverride: (configuration) => ({
-				...configuration,
-				plugins: [
-					...(configuration.plugins ?? []),
-					new RspackDefinePlugin({
-						BUNDLER_PLUGIN_SENTINEL: JSON.stringify(
-							'RSPACK_DEFINE_PLUGIN_SENTINEL',
-						),
-					}),
-				],
-			}),
-		});
 
 		expect(webpackResult).toContain('WEBPACK_DEFINE_PLUGIN_SENTINEL');
-		expect(rspackResult).toContain('RSPACK_DEFINE_PLUGIN_SENTINEL');
 	},
 	{timeout: 60_000},
 );

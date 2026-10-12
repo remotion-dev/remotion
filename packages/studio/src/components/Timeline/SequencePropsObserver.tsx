@@ -106,8 +106,8 @@ export const SequencePropsObserver = () => {
 						continue;
 					}
 
-					// Prop statuses follow source nodes to their new paths. Override IDs
-					// normally follow React's runtime instances, which may be reused when the
+					// Source nodes and React's runtime instances can move independently.
+					// Override IDs follow runtime instances, which may be reused when the
 					// same JSX component takes over an old path. A different component remounts,
 					// so move the old mapping with its source node and resubscribe instead.
 					const runtimeNodePathSource = file.remappings.find(
@@ -179,12 +179,18 @@ export const SequencePropsObserver = () => {
 			}
 
 			const nextNodePath = wasDeleted ? null : {...previousNodePath, nodePath};
+			const nodePathChanged =
+				JSON.stringify(nodePath) !== previousNodePathString;
 			const previousStatusKey =
 				Internals.makeSequencePropsSubscriptionKey(previousNodePath);
 			statusRemappings.push({
 				previousNodePath,
 				nodePath: nextNodePath,
-				result: propStatusesRef.current[previousStatusKey] ?? null,
+				// A reused runtime instance still renders the old JSX until Refresh.
+				// Let it use its JSX values instead of a shifted sibling's source props.
+				result: nodePathChanged
+					? null
+					: (propStatusesRef.current[previousStatusKey] ?? null),
 			});
 
 			overrideUpdates.push({
@@ -193,7 +199,9 @@ export const SequencePropsObserver = () => {
 			});
 			if (
 				!wasDeleted &&
-				(!runtimeNodePathExists || runtimeNodePathNeedsRefresh)
+				(nodePathChanged ||
+					!runtimeNodePathExists ||
+					runtimeNodePathNeedsRefresh)
 			) {
 				overrideIdsToRefresh.add(overrideId);
 			}

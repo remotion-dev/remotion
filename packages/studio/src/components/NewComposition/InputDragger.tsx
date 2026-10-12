@@ -5,6 +5,7 @@ import type {
 } from 'react';
 import React, {
 	useCallback,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -20,6 +21,7 @@ import {
 import {noop} from '../../helpers/noop';
 import {
 	isPointerSessionRelease,
+	observePointerRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
@@ -898,6 +900,54 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			fallbackRef.current?.focus({preventScroll: true});
 			fallbackRef.current?.select();
 		}
+	}, [inputFallback]);
+
+	useEffect(() => {
+		if (!inputFallback) {
+			return;
+		}
+
+		const commitWithoutClickThrough = (event: PointerEvent) => {
+			const input = fallbackRef.current;
+			if (
+				event.button !== 0 ||
+				input === null ||
+				document.activeElement !== input ||
+				input.contains(event.target as Node)
+			) {
+				return;
+			}
+
+			// Commit before timeline selection handlers can hide the edited row.
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
+			const stopClick = (clickEvent: MouseEvent) => {
+				clickEvent.preventDefault();
+				clickEvent.stopImmediatePropagation();
+			};
+
+			window.addEventListener('click', stopClick, {capture: true, once: true});
+			observePointerRelease({
+				event,
+				onEnd: () => {
+					// The click follows pointerup, even though blurring unmounts the input.
+					setTimeout(() => {
+						window.removeEventListener('click', stopClick, true);
+					}, 0);
+				},
+			});
+			input.blur();
+		};
+
+		window.addEventListener('pointerdown', commitWithoutClickThrough, true);
+		return () => {
+			window.removeEventListener(
+				'pointerdown',
+				commitWithoutClickThrough,
+				true,
+			);
+		};
 	}, [inputFallback]);
 
 	// The first flex item determines the inline baseline, so keep the button first.
