@@ -59,6 +59,11 @@ import {
 	type SaveSequencePropChange,
 } from './save-sequence-prop';
 import {
+	getTimelineTrimLimitReason,
+	getVisibleTimelineTrimLimitReason,
+	type TimelineTrimLimitReason,
+} from './timeline-trim-limit-reason';
+import {
 	getTimelineSequenceSelectionKey,
 	shouldSelectTimelineRowOnPointerDown,
 	useCurrentTimelineSelectionStateAsRef,
@@ -110,7 +115,6 @@ export const getTimelineSequenceMediaDurationDragLimits = ({
 	displayStart,
 	effectiveMaxMediaDuration,
 	explicitDurationInFrames,
-	hasImplicitDuration,
 	naturalMediaDuration,
 	timelineDurationInFrames,
 }: {
@@ -119,7 +123,6 @@ export const getTimelineSequenceMediaDurationDragLimits = ({
 	readonly displayStart: number;
 	readonly effectiveMaxMediaDuration: number | null;
 	readonly explicitDurationInFrames: number | null;
-	readonly hasImplicitDuration: boolean;
 	readonly naturalMediaDuration: number | null;
 	readonly timelineDurationInFrames: number;
 }): TimelineSequenceMediaDurationDragLimits | null => {
@@ -160,18 +163,12 @@ export const getTimelineSequenceMediaDurationDragLimits = ({
 	const initialDuration = hasInvisibleExplicitTail
 		? containerEdgeDuration
 		: (explicitDurationInFrames ?? displayedMediaEdgeDuration);
-	const naturalMaximumDuration =
-		// Keeping duration omitted represents the media's natural end. An
-		// explicit duration is only useful once its edge is before that end.
-		Math.ceil(displayStart + naturalMediaDuration - cascadedStart) -
-		(hasImplicitDuration ? 1 : 0);
+	const naturalMaximumDuration = Math.ceil(
+		displayStart + naturalMediaDuration - cascadedStart,
+	);
 	const maximumDuration = hasInvisibleExplicitTail
 		? Math.min(naturalMaximumDuration, containerEdgeDuration)
 		: naturalMaximumDuration;
-
-	if (hasImplicitDuration && initialDuration > maximumDuration) {
-		return null;
-	}
 
 	return {initialDuration, maximumDuration};
 };
@@ -228,6 +225,8 @@ type TimelineSequenceDurationDragTargetBase = {
 	readonly initialDuration: number;
 	readonly maximumDuration: number;
 	readonly minimumDuration: number;
+	readonly minimumDurationReason: TimelineTrimLimitReason;
+	readonly maximumDurationReason: TimelineTrimLimitReason;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly endField: TimelineSequenceEndField;
@@ -1015,10 +1014,19 @@ export const getTimelineSequenceDurationDragTargets = ({
 				return null;
 			}
 
+			const timingLimits = getTimelineSequenceTimingLimits({
+				propStatuses,
+				movingSequenceIds: null,
+				track,
+				tracks,
+				sequences,
+				timelineDurationInFrames,
+			});
 			const minimumDuration = Math.max(
 				(track.sequence.from + 1 - track.cascadedStart) *
 					track.keyframePlaybackRate,
 				getMinimumSequenceDuration({sequence: originalSequence, sequences}),
+				timingLimits.minimumDuration,
 			);
 			const initialDuration = mediaDurationDragLimits
 				? mediaDurationDragLimits.initialDuration * track.keyframePlaybackRate
@@ -1055,28 +1063,25 @@ export const getTimelineSequenceDurationDragTargets = ({
 				}
 			}
 
-			const timingLimits = getTimelineSequenceTimingLimits({
-				propStatuses,
-				movingSequenceIds: null,
-				track,
-				tracks,
-				sequences,
-				timelineDurationInFrames,
-			});
-			const constrainedMaximumDuration = Math.min(
-				timingLimits.maximumDuration,
-				mediaDurationDragLimits
-					? Math.max(
-							initialDuration,
-							mediaDurationDragLimits.maximumDuration *
-								track.keyframePlaybackRate,
-						)
-					: Infinity,
+			const mediaMaximumDuration = mediaDurationDragLimits
+				? Math.max(
+						initialDuration,
+						mediaDurationDragLimits.maximumDuration *
+							track.keyframePlaybackRate,
+					)
+				: Infinity;
+			const compositionMaximumDuration =
 				(timelineDurationInFrames - track.cascadedStart) *
-					track.keyframePlaybackRate,
+				track.keyframePlaybackRate;
+			const naturalMaximumDuration =
 				naturalDuration !== null && naturalDuration >= minimumDuration
 					? naturalDuration
-					: Infinity,
+					: Infinity;
+			const constrainedMaximumDuration = Math.min(
+				timingLimits.maximumDuration,
+				mediaMaximumDuration,
+				compositionMaximumDuration,
+				naturalMaximumDuration,
 				parentDurationLimit,
 			);
 			const maximumDuration = Math.max(
@@ -1092,6 +1097,17 @@ export const getTimelineSequenceDurationDragTargets = ({
 				fileName: nodePath.absolutePath,
 				initialDuration,
 				maximumDuration,
+				minimumDurationReason: timingLimits.limitReasons.minimumDuration,
+				maximumDurationReason: getTimelineTrimLimitReason(maximumDuration, [
+					[
+						timingLimits.maximumDuration,
+						timingLimits.limitReasons.maximumDuration,
+					],
+					[mediaMaximumDuration, 'Source end'],
+					[compositionMaximumDuration, 'Composition edge'],
+					[naturalMaximumDuration, 'Content end'],
+					[parentDurationLimit, 'Parent edge'],
+				]),
 				...(naturalDuration !== null && maximumDuration === naturalDuration
 					? {naturalDuration, initiallyExplicit: !originalSequence.autoDuration}
 					: {}),
@@ -1606,6 +1622,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		targetNodePaths: readonly SequencePropsSubscriptionKey[],
 	) => void;
 	readonly onDragEnd: (wasDragged: boolean) => void;
+	readonly onLimitChange: (isAtLimit: boolean) => void;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
 }> = ({
@@ -1621,6 +1638,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	fps,
 	onDragStart,
 	onDragEnd,
+	onLimitChange,
 	onSelect,
 	selected,
 }) => {
@@ -1647,6 +1665,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		lastPreviewDeltaFrames: number;
 		previousPreviewValues: Map<string, Map<string, number>>;
 		lastTooltipDelta: number | null;
+		lastTooltipReason: TimelineTrimLimitReason | null;
 		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
@@ -1664,6 +1683,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		onDragEnd,
+		onLimitChange,
 		onSelect,
 	});
 	latestRef.current = {
@@ -1675,6 +1695,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		onDragEnd,
+		onLimitChange,
 		onSelect,
 	};
 
@@ -1830,6 +1851,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				lastPreviewDeltaFrames: 0,
 				previousPreviewValues: new Map(),
 				lastTooltipDelta: null,
+				lastTooltipReason: null,
 				didMove: false,
 				pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 				pointerId: e.pointerId,
@@ -1877,6 +1899,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				dragState.lastPreviewDeltaFrames = deltaFrames;
 
 				const updates: DragOverrideUpdate[] = [];
+				let limitReason: TimelineTrimLimitReason | null = null;
 				for (const target of dragState.targets) {
 					if (target.ripplePrevious) {
 						const previous = target.ripplePrevious;
@@ -1886,6 +1909,14 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 							maximumDuration: previous.maximumDuration,
 							minimumDuration: previous.minimumDuration,
 						});
+						if (nextDuration === previous.minimumDuration)
+							limitReason ??= getVisibleTimelineTrimLimitReason(
+								previous.minimumDurationReason,
+							);
+						if (nextDuration === previous.maximumDuration)
+							limitReason ??= getVisibleTimelineTrimLimitReason(
+								previous.maximumDurationReason,
+							);
 						queueStaticDragOverrideIfChanged({
 							updates,
 							previousValues: dragState.previousPreviewValues,
@@ -1908,6 +1939,49 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						deltaFrames,
 						trimBeforeOnly: dragState.mode === 'source-only',
 					});
+					// Probe both directions through the same clamp, including source-only
+					// trims and parent/neighbor bounds. No separate limit math to drift.
+					const targetIsAtLimit = [-1, 1].some((direction) => {
+						const adjacent = getTimelineSequenceLeftEdgeDragValuesForTarget({
+							target,
+							deltaFrames: deltaFrames + direction / target.parentPlaybackRate,
+							trimBeforeOnly: dragState.mode === 'source-only',
+						});
+						return (
+							adjacent.durationInFrames === nextValues.durationInFrames &&
+							adjacent.from === nextValues.from &&
+							adjacent.trimBefore === nextValues.trimBefore
+						);
+					});
+					if (targetIsAtLimit) {
+						const limits = target.timingLimits;
+						const targetLimitReason =
+							dragState.mode === 'source-only'
+								? getTimelineTrimLimitReason(nextValues.trimBefore, [
+										[
+											limits?.minimumTrimBefore ?? NaN,
+											limits?.limitReasons.minimumTrimBefore ?? null,
+										],
+										[
+											limits?.maximumTrimBefore ?? NaN,
+											limits?.limitReasons.maximumTrimBefore ?? null,
+										],
+									])
+								: nextValues.durationInFrames === target.minimumDuration
+									? target.minimumDuration > 1
+										? 'Transition limit'
+										: 'Minimum duration'
+									: nextValues.trimBefore === 0
+										? 'Source start'
+										: getTimelineTrimLimitReason(nextValues.from, [
+												[
+													limits?.minimumFrom ?? NaN,
+													limits?.limitReasons.minimumFrom ?? null,
+												],
+											]);
+						limitReason ??=
+							getVisibleTimelineTrimLimitReason(targetLimitReason);
+					}
 
 					if (
 						dragState.mode !== 'source-only' &&
@@ -1944,6 +2018,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					});
 				}
 
+				latestRef.current.onLimitChange(limitReason !== null);
 				if (updates.length > 0) {
 					if (latestRef.current.batchSetters) {
 						latestRef.current.batchSetters.setDragOverridesBatch(updates);
@@ -1989,9 +2064,14 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						(draggedTarget.positionField === null && ripplePrevious === null)
 							? 0
 							: appliedDelta;
-					if (dragState.lastTooltipDelta !== appliedDelta) {
+					if (
+						dragState.lastTooltipDelta !== appliedDelta ||
+						dragState.lastTooltipReason !== limitReason
+					) {
 						dragState.lastTooltipDelta = appliedDelta;
+						dragState.lastTooltipReason = limitReason;
 						setTrimTooltip({
+							limitReason,
 							deltaFrames: appliedDelta,
 							edgeFrame: initialTimelineEdge + edgeDelta,
 							x:
@@ -2470,6 +2550,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		targetNodePaths: readonly SequencePropsSubscriptionKey[],
 	) => void;
 	readonly onDragEnd: (wasDragged: boolean) => void;
+	readonly onLimitChange: (isAtLimit: boolean) => void;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
 }> = ({
@@ -2482,6 +2563,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	fps,
 	onDragStart,
 	onDragEnd,
+	onLimitChange,
 	onSelect,
 	selected,
 }) => {
@@ -2512,6 +2594,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		lastPreviewDeltaFrames: number;
 		previousPreviewValues: Map<string, Map<string, number>>;
 		lastTooltipDelta: number | null;
+		lastTooltipReason: TimelineTrimLimitReason | null;
 		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
@@ -2530,6 +2613,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		onDragEnd,
+		onLimitChange,
 		onSelect,
 		updateSnapFrameRef,
 	});
@@ -2543,6 +2627,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		onDragEnd,
+		onLimitChange,
 		onSelect,
 		updateSnapFrameRef,
 	};
@@ -2682,6 +2767,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				lastPreviewDeltaFrames: 0,
 				previousPreviewValues: new Map(),
 				lastTooltipDelta: null,
+				lastTooltipReason: null,
 				didMove: false,
 				pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 				pointerId: e.pointerId,
@@ -2723,6 +2809,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				dragState.lastPreviewDeltaFrames = deltaFrames;
 
 				const updates: DragOverrideUpdate[] = [];
+				let limitReason: TimelineTrimLimitReason | null = null;
 				for (const target of dragState.targets) {
 					const previewValue = getTimelineSequenceDurationDragValue({
 						initialDuration: target.initialDuration,
@@ -2730,6 +2817,14 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						maximumDuration: target.maximumDuration,
 						minimumDuration: target.minimumDuration,
 					});
+					if (previewValue === target.minimumDuration)
+						limitReason ??= getVisibleTimelineTrimLimitReason(
+							target.minimumDurationReason,
+						);
+					if (previewValue === target.maximumDuration)
+						limitReason ??= getVisibleTimelineTrimLimitReason(
+							target.maximumDurationReason,
+						);
 
 					queueStaticDragOverrideIfChanged({
 						updates,
@@ -2747,6 +2842,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 					});
 				}
 
+				latestRef.current.onLimitChange(limitReason !== null);
 				if (updates.length > 0) {
 					if (latestRef.current.batchSetters) {
 						latestRef.current.batchSetters.setDragOverridesBatch(updates);
@@ -2777,9 +2873,14 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 							? initialTimelineEdge + appliedDelta
 							: null,
 					);
-					if (dragState.lastTooltipDelta !== appliedDelta) {
+					if (
+						dragState.lastTooltipDelta !== appliedDelta ||
+						dragState.lastTooltipReason !== limitReason
+					) {
 						dragState.lastTooltipDelta = appliedDelta;
+						dragState.lastTooltipReason = limitReason;
 						setTrimTooltip({
+							limitReason,
 							deltaFrames: appliedDelta,
 							edgeFrame: initialTimelineEdge + appliedDelta,
 							x:

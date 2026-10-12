@@ -7,7 +7,12 @@ import type {
 import {Internals} from 'remotion';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {getCachedMediaMetadata} from '../../helpers/use-media-metadata';
+import {getKeyframeDurationLimits} from './get-keyframe-duration-limits';
 import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
+import {
+	getTimelineTrimLimitReason,
+	type TimelineTrimLimitReason,
+} from './timeline-trim-limit-reason';
 const {sortItemsByCommitOrder} = CanvasInternals;
 const isTransitionSeriesTransition = (sequence: TSequence | undefined) =>
 	sequence?.controls?.componentIdentity ===
@@ -129,10 +134,27 @@ export const getTimelineSequenceTimingLimits = ({
 		typeof runtimeValues.trimBefore === 'number'
 			? runtimeValues.trimBefore
 			: (sequence.trimBefore ?? 0);
+	const keyframeLimits = getKeyframeDurationLimits({
+		sequence,
+		sequences,
+		tracks,
+		propStatuses,
+	});
+	const transitionMinimumDuration = getMinimumSequenceDuration({
+		sequence,
+		sequences,
+	});
+	const keyframeMinimumDuration = Math.ceil(
+		(keyframeLimits.minimumEnd - trimBefore) / sequence.sequencePlaybackRate,
+	);
+	const keyframeMaximumDuration = Math.floor(
+		(keyframeLimits.maximumEnd - trimBefore) / sequence.sequencePlaybackRate,
+	);
 	const minimumDuration = Math.max(
 		(track.sequence.from + 1 - track.cascadedStart) *
 			track.keyframePlaybackRate,
-		getMinimumSequenceDuration({sequence, sequences}),
+		transitionMinimumDuration,
+		keyframeMinimumDuration,
 	);
 	let initialDuration =
 		typeof runtimeValues.durationInFrames === 'number' &&
@@ -229,6 +251,7 @@ export const getTimelineSequenceTimingLimits = ({
 	const reservedDuration =
 		inferredDuration || loops ? minimumDuration : initialDuration;
 	const maximumDuration = Math.min(
+		keyframeMaximumDuration,
 		spatialMaximumDuration,
 		loops
 			? Infinity
@@ -252,30 +275,98 @@ export const getTimelineSequenceTimingLimits = ({
 			? parentEnd + (initialDuration - 1) / track.keyframePlaybackRate
 			: parentEnd,
 	);
+	const minimumFrom =
+		sequence.from +
+		(minimumMoveStart - track.cascadedStart) * track.keyframePlaybackRate;
+	const minimumTrimBefore = Math.max(
+		keyframeLimits.minimumEnd - initialDuration * sequence.sequencePlaybackRate,
+		isMedia && inferredDuration && !Number.isFinite(sourceEnd)
+			? trimBefore
+			: inferredDuration && !loops && Number.isFinite(sourceEnd)
+				? Math.max(0, sourceEnd - spatialMaximumDuration * playbackRate)
+				: 0,
+	);
+	const maximumTrimBefore = Math.min(
+		keyframeLimits.maximumEnd - initialDuration * sequence.sequencePlaybackRate,
+		isMedia && !Number.isFinite(sourceEnd)
+			? trimBefore
+			: Math.max(0, sourceEnd - reservedDuration * playbackRate),
+	);
+	const spatialLimitReason: TimelineTrimLimitReason =
+		maximumEnd === maximumNeighbourEnd
+			? 'Adjacent clip'
+			: parentEnd === timelineDurationInFrames
+				? 'Composition edge'
+				: 'Parent edge';
+	const minimumDurationReason = getTimelineTrimLimitReason(minimumDuration, [
+		[keyframeMinimumDuration, keyframeLimits.minimumReason],
+		[
+			transitionMinimumDuration,
+			transitionMinimumDuration > 1 ? 'Transition limit' : 'Minimum duration',
+		],
+		[minimumDuration, 'Minimum duration'],
+	]);
+	const minimumFromReason: TimelineTrimLimitReason =
+		minimumMoveStart === minimumNeighbourStart
+			? 'Adjacent clip'
+			: sequence.parent === null
+				? 'Composition edge'
+				: 'Parent edge';
 	return {
 		playbackRate,
 		minimumDuration,
 		maximumDuration: Math.max(minimumDuration, maximumDuration),
-		minimumFrom:
-			sequence.from +
-			(minimumMoveStart - track.cascadedStart) * track.keyframePlaybackRate,
+		minimumFrom,
 		maximumFrom:
 			sequence.from +
 			(maximumMoveEnd - track.cascadedStart) * track.keyframePlaybackRate -
 			initialDuration,
-		minimumTrimBefore:
-			isMedia && inferredDuration && !Number.isFinite(sourceEnd)
-				? trimBefore
-				: inferredDuration && !loops && Number.isFinite(sourceEnd)
-					? Math.max(0, sourceEnd - spatialMaximumDuration * playbackRate)
-					: 0,
-		maximumTrimBefore:
-			isMedia && !Number.isFinite(sourceEnd)
-				? trimBefore
-				: Math.max(0, sourceEnd - reservedDuration * playbackRate),
+		minimumTrimBefore,
+		maximumTrimBefore,
+		limitReasons: {
+			minimumDuration: minimumDurationReason,
+			maximumDuration: getTimelineTrimLimitReason(
+				Math.max(minimumDuration, maximumDuration),
+				[
+					[keyframeMaximumDuration, keyframeLimits.maximumReason],
+					[spatialMaximumDuration, spatialLimitReason],
+					[minimumDuration, minimumDurationReason],
+					[maximumDuration, isMedia ? 'Source end' : 'Content end'],
+				],
+			),
+			minimumFrom: minimumFromReason,
+			minimumTrimBefore: getTimelineTrimLimitReason(minimumTrimBefore, [
+				[
+					keyframeLimits.minimumEnd -
+						initialDuration * sequence.sequencePlaybackRate,
+					keyframeLimits.minimumReason,
+				],
+				[0, 'Source start'],
+				[
+					minimumTrimBefore,
+					isMedia && !Number.isFinite(sourceEnd)
+						? 'Unknown media duration'
+						: spatialLimitReason,
+				],
+			]),
+			maximumTrimBefore: getTimelineTrimLimitReason(maximumTrimBefore, [
+				[
+					keyframeLimits.maximumEnd -
+						initialDuration * sequence.sequencePlaybackRate,
+					keyframeLimits.maximumReason,
+				],
+				[
+					maximumTrimBefore,
+					isMedia && !Number.isFinite(sourceEnd)
+						? 'Unknown media duration'
+						: 'Source end',
+				],
+			]),
+		},
 		maximumTrimAfter:
 			inferredDuration && !loops
 				? Math.min(
+						keyframeLimits.maximumEnd,
 						sourceMaximumTrimAfter,
 						trimBefore + spatialMaximumDuration * playbackRate,
 					)

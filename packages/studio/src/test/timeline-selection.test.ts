@@ -2105,6 +2105,8 @@ test('Timeline duration drag supports interactive video clips', () => {
 			initialDuration: 78,
 			maximumDuration: 1000,
 			minimumDuration: 1,
+			minimumDurationReason: 'Minimum duration',
+			maximumDurationReason: 'Composition edge',
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
 			schema: Internals.baseSchema,
 			endField: {fieldKey: 'durationInFrames', trimBefore: 0, playbackRate: 1},
@@ -2256,7 +2258,6 @@ test('Media duration drag limits account for a negative from', () => {
 		displayDurationInFrames: 108,
 		displayStart: 0,
 		explicitDurationInFrames: 300,
-		hasImplicitDuration: false,
 		naturalMediaDuration: 33,
 		timelineDurationInFrames: 1000,
 	};
@@ -2277,14 +2278,13 @@ test('Media duration drag limits account for a negative from', () => {
 	).toEqual({initialDuration: 300, maximumDuration: 225});
 });
 
-test('Implicit media cannot be resized once its edge reaches the asset end', () => {
+test('Implicit media can be shortened once its edge reaches the asset end', () => {
 	const common = {
 		cascadedStart: -34,
 		displayDurationInFrames: 266,
 		displayStart: 0,
 		effectiveMaxMediaDuration: null,
 		explicitDurationInFrames: null,
-		hasImplicitDuration: true,
 		timelineDurationInFrames: 300,
 	};
 
@@ -2294,14 +2294,14 @@ test('Implicit media cannot be resized once its edge reaches the asset end', () 
 			// The video holds its last frame until the composition ends.
 			naturalMediaDuration: 220,
 		}),
-	).toBe(null);
+	).toEqual({initialDuration: 300, maximumDuration: 254});
 	expect(
 		getTimelineSequenceMediaDurationDragLimits({
 			...common,
 			// The composition ends before the source video does.
 			naturalMediaDuration: 400,
 		}),
-	).toEqual({initialDuration: 300, maximumDuration: 433});
+	).toEqual({initialDuration: 300, maximumDuration: 434});
 });
 
 test('Timeline duration drag clamps explicit audio and video to the asset end', () => {

@@ -19,6 +19,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLACK_ALPHA_22,
 	BLUE,
+	RED,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_CAPTIONS_GRADIENT,
@@ -137,16 +138,22 @@ type TimelineEdgeHighlight = {
 	readonly edge: TimelineEdgeHighlightEdge;
 };
 
+type TimelineEdgeHighlightState = {
+	readonly edge: TimelineEdgeHighlightEdge;
+	readonly isAtLimit: boolean;
+};
+
 const TimelineEdgeHighlightContext = React.createContext<{
 	readonly register: (
 		nodePathKey: string,
 		listener: React.Dispatch<
-			React.SetStateAction<TimelineEdgeHighlightEdge | null>
+			React.SetStateAction<TimelineEdgeHighlightState | null>
 		>,
 	) => () => void;
 	readonly setHighlights: (
 		highlights: readonly TimelineEdgeHighlight[],
 	) => void;
+	readonly setLimitReached: (isAtLimit: boolean) => void;
 } | null>(null);
 
 export const TimelineEdgeHighlightProvider: React.FC<{
@@ -155,11 +162,11 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 	// Keep the context value stable so highlighting boundaries does not re-render
 	// every timeline sequence through a context broadcast.
 	const value = useMemo(() => {
-		let highlights = new Map<string, TimelineEdgeHighlightEdge>();
+		let highlights = new Map<string, TimelineEdgeHighlightState>();
 		const listeners = new Map<
 			string,
 			Set<
-				React.Dispatch<React.SetStateAction<TimelineEdgeHighlightEdge | null>>
+				React.Dispatch<React.SetStateAction<TimelineEdgeHighlightState | null>>
 			>
 		>();
 
@@ -167,7 +174,7 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 			register: (
 				nodePathKey: string,
 				listener: React.Dispatch<
-					React.SetStateAction<TimelineEdgeHighlightEdge | null>
+					React.SetStateAction<TimelineEdgeHighlightState | null>
 				>,
 			) => {
 				const listenersForNodePath = listeners.get(nodePathKey) ?? new Set();
@@ -187,7 +194,7 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 				const nextHighlightMap = new Map(
 					nextHighlights.map((highlight) => [
 						highlight.nodePathKey,
-						highlight.edge,
+						{edge: highlight.edge, isAtLimit: false},
 					]),
 				);
 				const changedNodePathKeys = new Set([
@@ -197,7 +204,10 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 				for (const nodePathKey of changedNodePathKeys) {
 					const previousEdge = highlights.get(nodePathKey) ?? null;
 					const nextEdge = nextHighlightMap.get(nodePathKey) ?? null;
-					if (previousEdge !== nextEdge) {
+					if (
+						previousEdge?.edge !== nextEdge?.edge ||
+						previousEdge?.isAtLimit !== nextEdge?.isAtLimit
+					) {
 						for (const listener of listeners.get(nodePathKey) ?? []) {
 							listener(nextEdge);
 						}
@@ -205,6 +215,16 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 				}
 
 				highlights = nextHighlightMap;
+			},
+			setLimitReached: (isAtLimit: boolean) => {
+				for (const [nodePathKey, highlight] of highlights) {
+					if (highlight.isAtLimit === isAtLimit) continue;
+					const next = {...highlight, isAtLimit};
+					highlights.set(nodePathKey, next);
+					for (const listener of listeners.get(nodePathKey) ?? []) {
+						listener(next);
+					}
+				}
 			},
 		};
 	}, []);
@@ -327,6 +347,7 @@ const TimelineSequenceBar: React.FC<{
 	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
+	readonly isAtTrimLimit: boolean;
 	readonly leftTrimHighlight: {
 		readonly left: number;
 		readonly width: number;
@@ -368,6 +389,7 @@ const TimelineSequenceBar: React.FC<{
 	hasCaptionsSchema,
 	connectedComposition,
 	activeTrimEdge,
+	isAtTrimLimit,
 	leftTrimHighlight,
 	displayDurationInFrames,
 	selectionBounds,
@@ -457,11 +479,12 @@ const TimelineSequenceBar: React.FC<{
 				Math.min(1, Math.max(0, paintedEnd - paintedStart - 1))
 			: 0;
 	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
+	const trimHighlightColor = isAtTrimLimit ? RED : '#00E500';
 	const sequenceBackground =
 		activeTrimEdge === null ||
 		(activeTrimEdge === 'left' && leftTrimHighlight?.left !== negativeStartEnd)
 			? style.background
-			: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, #00E500 0 2px, #00E50000 2px), ${style.background ?? TRANSPARENT}`;
+			: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, ${trimHighlightColor} 0 2px, transparent 2px), ${style.background ?? TRANSPARENT}`;
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -640,7 +663,7 @@ const TimelineSequenceBar: React.FC<{
 								? Math.min(EDGE_DRAG_HIGHLIGHT_WIDTH, leftTrimHighlight.width)
 								: `min(${EDGE_DRAG_HIGHLIGHT_WIDTH}px, 100%)`,
 						pointerEvents: 'none',
-						background: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, #00E500, #00E50000)`,
+						background: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, ${trimHighlightColor}, transparent)`,
 					}}
 				/>
 			)}
@@ -764,8 +787,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		() => createDragAwareDoubleClickTracker(),
 		[],
 	);
-	const [activeEdgeHighlight, setActiveEdgeHighlight] =
-		useState<TimelineEdgeHighlightEdge | null>(null);
+	const [activeHighlight, setActiveHighlight] =
+		useState<TimelineEdgeHighlightState | null>(null);
+	const activeEdgeHighlight = activeHighlight?.edge ?? null;
+	const isAtTrimLimit = activeHighlight?.isAtLimit ?? false;
 	const activeTrimEdge =
 		activeEdgeHighlight === 'source-only' ? 'left' : activeEdgeHighlight;
 	useEffect(() => {
@@ -775,7 +800,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 
 		return edgeHighlightController?.register(
 			stringifySequenceSubscriptionKey(nodePath),
-			setActiveEdgeHighlight,
+			setActiveHighlight,
 		);
 	}, [edgeHighlightController, nodePath]);
 	const naturalSequenceDuration = useTimelineSequenceNaturalDuration({
@@ -859,6 +884,12 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			dragAwareDoubleClick.endPointerGesture(wasDragged);
 		},
 		[dragAwareDoubleClick, edgeHighlightController],
+	);
+	const onTrimLimitChange = useCallback(
+		(isAtLimit: boolean) => {
+			edgeHighlightController?.setLimitReached(isAtLimit);
+		},
+		[edgeHighlightController],
 	);
 
 	const mediaMetadata = useMediaMetadata(
@@ -1380,10 +1411,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const timelineVolume = keyframedTimelineVolume ?? 1;
 
 	const isMedia = s.type === 'audio' || s.type === 'video';
-	const hasImplicitMediaDuration =
-		(s.type === 'audio' || s.type === 'video') &&
-		propStatusesForOverride?.durationInFrames?.status === 'static' &&
-		propStatusesForOverride.durationInFrames.codeValue === undefined;
 	const durationInFramesCodeValue =
 		propStatusesForOverride?.durationInFrames?.status === 'static'
 			? propStatusesForOverride.durationInFrames.codeValue
@@ -1403,7 +1430,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					explicitDurationInFrames === null
 						? null
 						: explicitDurationInFrames / s.playbackRate,
-				hasImplicitDuration: hasImplicitMediaDuration,
 				naturalMediaDuration,
 				timelineDurationInFrames: video.durationInFrames,
 			})
@@ -1458,6 +1484,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		dragAwareDoubleClick,
 		activeEdgeHighlight,
 		activeTrimEdge,
+		isAtTrimLimit,
+		onTrimLimitChange,
 		naturalSequenceDuration,
 		startLeftEdgeDrag,
 		startRightEdgeDrag,
@@ -1534,6 +1562,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 		dragAwareDoubleClick,
 		activeEdgeHighlight,
 		activeTrimEdge,
+		isAtTrimLimit,
+		onTrimLimitChange,
 		naturalSequenceDuration,
 		startLeftEdgeDrag,
 		startRightEdgeDrag,
@@ -1871,6 +1901,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 			}
 			connectedComposition={connectedCompositions[0] ?? null}
 			activeTrimEdge={activeTrimEdge}
+			isAtTrimLimit={isAtTrimLimit}
 			leftTrimHighlight={
 				visibleLayout.media?.offset === 0 ? visibleLayout.media : null
 			}
@@ -1923,6 +1954,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 								fps={video.fps}
 								onDragStart={startLeftEdgeDrag}
 								onDragEnd={endEdgeDrag}
+								onLimitChange={onTrimLimitChange}
 								onSelect={onSelect}
 								selected={selected}
 							/>
@@ -1952,6 +1984,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 							fps={video.fps}
 							onDragStart={startRightEdgeDrag}
 							onDragEnd={endEdgeDrag}
+							onLimitChange={onTrimLimitChange}
 							onSelect={onSelect}
 							selected={selected}
 						/>
