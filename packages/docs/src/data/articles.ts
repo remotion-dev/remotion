@@ -1027,15 +1027,6 @@ export const articles = [
 		slug: 'options/experimental-sequence-activity-limit',
 	},
 	{
-		id: 'options/experimental-tracks',
-		title: 'Enable experimental timeline tracks',
-		relativePath: 'docs/options/experimental-tracks.mdx',
-		compId: 'articles-docs-options-experimental-tracks',
-		crumb: 'Options',
-		noAi: false,
-		slug: 'options/experimental-tracks',
-	},
-	{
 		id: 'options/for-seamless-aac-concatenation',
 		title: 'For seamless AAC concatenation',
 		relativePath: 'docs/options/for-seamless-aac-concatenation.mdx',
@@ -9318,6 +9309,15 @@ export const articles = [
 		crumb: 'Getting started',
 		noAi: false,
 		slug: 'timing',
+	},
+	{
+		id: 'track',
+		title: '<Track>',
+		relativePath: 'docs/track.mdx',
+		compId: 'articles-docs-track',
+		crumb: 'API',
+		noAi: false,
+		slug: 'track',
 	},
 	{
 		id: 'transforms',

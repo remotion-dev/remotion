@@ -150,7 +150,6 @@ const {
 	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalTracksOption,
 	experimentalSequenceActivityOption,
 	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
@@ -661,11 +660,6 @@ type FlatConfig = RemotionConfigObject &
 		 * Omitted actions use their default shortcut. Set an action to null to disable it.
 		 */
 		setKeyboardShortcuts: (shortcuts: StudioKeyboardShortcuts) => void;
-		/**
-		 * Enable experimental timeline tracks in the Remotion Studio.
-		 * @default false
-		 */
-		setExperimentalTracksEnabled: (enabled: boolean) => void;
 		/** Enable experimental Sequence Activity in Studio. Default: false. */
 		setExperimentalSequenceActivityEnabled: (enabled: boolean) => void;
 		/** Set the hidden Sequence Activity limit in Studio. Default: 20. */
@@ -830,7 +824,6 @@ export const Config: FlatConfig = {
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
-	setExperimentalTracksEnabled: experimentalTracksOption.setConfig,
 	setExperimentalSequenceActivityEnabled:
 		experimentalSequenceActivityOption.setConfig,
 	setExperimentalSequenceActivityLimit:
