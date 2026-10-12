@@ -510,10 +510,17 @@ const TimelineSequenceBar: React.FC<{
 
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
 	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
+	const sceneOwnsRightGap =
+		sceneRange !== null &&
+		sceneRange.transitionOutStart !== null &&
+		// The scene contour already includes the pixel-aligned outgoing gap.
+		// Allow for floating-point error when the bar ends at the same frame.
+		sceneRight <= Number(style.width) + 0.0001;
 	// Shared child rows need the same gap as Track clips, including when the
 	// scene clips their trailing edge. Only inset the paint: timing, hit areas,
 	// and trim handles keep their full width. Preserve tiny clips when zoomed out.
 	const visualRightInset =
+		!sceneOwnsRightGap &&
 		(s.timelineTrack || sceneRange !== null) &&
 		!isTransition &&
 		(rightEdgeVisible || sceneRight <= Number(style.width))

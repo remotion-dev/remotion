@@ -44,23 +44,38 @@ export const getTimelineSceneShape = ({
 		sceneRange.transitionOutStart === null ? 0 : 1 / pixelsPerFrame;
 	const outgoingMiddle =
 		middle - (sceneRange.transitionOutStart === null ? 0 : 100 / height);
-	const incomingEnd = sceneRange.transitionInEnd ?? sceneRange.from;
+	// Snap the shared endpoints in timeline space, just like the transition
+	// target. Keep both vertical gaps inside those bounds.
+	const incomingStart =
+		sceneRange.transitionInEnd === null
+			? sceneRange.from
+			: (Math.round(sceneRange.from * pixelsPerFrame) + 1) / pixelsPerFrame;
+	const incomingEnd =
+		sceneRange.transitionInEnd === null
+			? sceneRange.from
+			: Math.round(sceneRange.transitionInEnd * pixelsPerFrame) /
+				pixelsPerFrame;
 	const outgoingStart =
-		(sceneRange.transitionOutStart ?? sceneRange.end) - outgoingInset;
-	const outgoingEnd = sceneRange.end - outgoingInset;
-	// The shared seam steps down from the top-right to the bottom-left. Inset
-	// each outgoing segment by one pixel to retain the gap around both corners.
+		sceneRange.transitionOutStart === null
+			? sceneRange.end
+			: Math.round(sceneRange.transitionOutStart * pixelsPerFrame) /
+				pixelsPerFrame;
+	const outgoingEnd =
+		sceneRange.transitionOutStart === null
+			? sceneRange.end
+			: Math.round(sceneRange.end * pixelsPerFrame) / pixelsPerFrame -
+				outgoingInset;
 	const incoming =
 		sceneRange.transitionInEnd === null
 			? [
-					{x: sceneRange.from, y: 0},
-					{x: sceneRange.from, y: 100},
+					{x: incomingStart, y: 0},
+					{x: incomingStart, y: 100},
 				]
 			: [
 					{x: incomingEnd, y: 0},
 					{x: incomingEnd, y: middle},
-					{x: sceneRange.from, y: middle},
-					{x: sceneRange.from, y: 100},
+					{x: incomingStart, y: middle},
+					{x: incomingStart, y: 100},
 				];
 	const outgoing =
 		sceneRange.transitionOutStart === null
@@ -89,13 +104,13 @@ export const getTimelineSceneShape = ({
 								],
 							]
 						: []),
-					...(outgoingStart > sceneRange.from
+					...(outgoingStart > incomingStart
 						? [
 								[
-									{x: sceneRange.from, y: middle},
+									{x: incomingStart, y: middle},
 									{x: outgoingStart, y: middle},
 									{x: outgoingStart, y: 100},
-									{x: sceneRange.from, y: 100},
+									{x: incomingStart, y: 100},
 								],
 							]
 						: []),
