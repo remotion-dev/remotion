@@ -1,9 +1,42 @@
 import type {TSequence} from 'remotion';
+import {
+	getTimelineLayerHeight,
+	TIMELINE_ITEM_BORDER_BOTTOM,
+} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 
 export const TIMELINE_PACKED_TRACK_HEIGHT = 28;
 export const TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT = 24;
+export const TIMELINE_TRACK_MEDIA_LABEL_HEIGHT = 16;
+
+export const hasTimelineTrackMediaLabel = (sequence: TSequence): boolean =>
+	sequence.timelineTrack?.role === 'clip' &&
+	sequence.timelineTrack.seriesOffset === null &&
+	(sequence.type === 'audio' ||
+		sequence.type === 'video' ||
+		sequence.type === 'image');
+
+export const getTimelineSequenceHeight = (sequence: TSequence): number => {
+	if (sequence.timelineTrack?.role === 'overlay') {
+		return TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM;
+	}
+
+	if (
+		sequence.timelineTrack &&
+		(sequence.timelineTrack.role !== 'clip' ||
+			sequence.timelineTrack.seriesOffset !== null)
+	) {
+		return TIMELINE_PACKED_TRACK_HEIGHT;
+	}
+
+	return (
+		getTimelineLayerHeight(sequence.type) +
+		(hasTimelineTrackMediaLabel(sequence)
+			? TIMELINE_TRACK_MEDIA_LABEL_HEIGHT
+			: 0)
+	);
+};
 
 export type TimelineDisplayRow = {
 	readonly track: TimelineTrackWithDisplayGroup;
@@ -140,6 +173,7 @@ export const filterTimelineTrackContents = (
 
 export const getTimelineDisplayRows = (
 	tracks: readonly TimelineTrackWithDisplayGroup[],
+	collapsedTrackIds: ReadonlySet<string> | null,
 ): TimelineDisplayRow[] => {
 	const rows: TimelineDisplayRow[] = [];
 	const groupedItems = new Map<string, TimelineTrackWithDisplayGroup[]>();
@@ -157,6 +191,14 @@ export const getTimelineDisplayRows = (
 	for (const track of tracks) {
 		const group = track.sequence.timelineTrack;
 		if (!group) {
+			rows.push({track, items: null, auxiliaryRows: []});
+		} else if (
+			group.role === 'clip' &&
+			group.seriesOffset === null &&
+			!collapsedTrackIds?.has(group.id)
+		) {
+			// Regular Track clips have their own bars and expandable properties
+			// below the container's row.
 			rows.push({track, items: null, auxiliaryRows: []});
 		} else if (group.role === 'track') {
 			if (

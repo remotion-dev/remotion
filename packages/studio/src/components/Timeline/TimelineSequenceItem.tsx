@@ -42,7 +42,6 @@ import {
 } from '../../helpers/pointer-session';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
-	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
@@ -95,7 +94,7 @@ import {
 	EDGE_SCROLL_VERTICAL_INCREMENT,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
-import {TIMELINE_PACKED_TRACK_HEIGHT} from './timeline-track-groups';
+import {getTimelineSequenceHeight} from './timeline-track-groups';
 import {TimelineDuplicateCount} from './TimelineDuplicateCount';
 import {
 	TimelineExpandArrowButton,
@@ -1027,7 +1026,8 @@ const TimelineSequenceItemInner: React.FC<{
 			? sequence.src
 			: null;
 	const isExpanded =
-		!isPackedTrack &&
+		(!isPackedTrack ||
+			sequence.controls?.componentIdentity === 'dev.remotion.remotion.Track') &&
 		previewConnected &&
 		nodePathInfo !== null &&
 		getIsExpanded(nodePathInfo);
@@ -1098,11 +1098,8 @@ const TimelineSequenceItemInner: React.FC<{
 	);
 
 	const outerHeight = useMemo(
-		() =>
-			(isPackedTrack
-				? TIMELINE_PACKED_TRACK_HEIGHT
-				: getTimelineLayerHeight(sequence.type)) + TIMELINE_ITEM_BORDER_BOTTOM,
-		[isPackedTrack, sequence.type],
+		() => getTimelineSequenceHeight(sequence) + TIMELINE_ITEM_BORDER_BOTTOM,
+		[sequence],
 	);
 
 	const connectedCompositionIconStyle = useMemo(
@@ -1137,7 +1134,8 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [effectDropHovered, inner]);
 
 	const hasExpandableContent =
-		!isPackedTrack &&
+		(!isPackedTrack ||
+			sequence.controls?.componentIdentity === 'dev.remotion.remotion.Track') &&
 		isStudioInteractivityEnabled() &&
 		(Boolean(sequence.controls) || sequence.effects.length > 0);
 

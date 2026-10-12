@@ -83,12 +83,14 @@ export const TimelineVirtualizationProvider: React.FC<{
 	});
 	const trackHeights = useMemo(
 		() =>
-			timeline.map((row, index) =>
-				row.items === null
-					? individualHeights[index]
-					: TIMELINE_PACKED_TRACK_HEIGHT +
-						TIMELINE_ITEM_BORDER_BOTTOM +
-						row.auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+			timeline.map(
+				(row, index) =>
+					(row.items === null ||
+					row.track.sequence.controls?.componentIdentity ===
+						'dev.remotion.remotion.Track'
+						? individualHeights[index]
+						: TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM) +
+					row.auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 			),
 		[individualHeights, timeline],
 	);

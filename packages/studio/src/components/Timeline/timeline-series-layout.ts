@@ -53,12 +53,14 @@ export const getTimelineSeriesLayout = ({
 				row.items === null ||
 				row.items.length === 0 ||
 				!registered ||
-				registered.some(
-					(item) =>
-						(item.timelineTrack?.role === 'clip' &&
-							item.timelineTrack.seriesOffset !== 0) ||
-						!item.showInTimeline,
-				)
+				(row.track.sequence.controls?.componentIdentity !==
+					'dev.remotion.remotion.Track' &&
+					registered.some(
+						(item) =>
+							(item.timelineTrack?.role === 'clip' &&
+								item.timelineTrack.seriesOffset !== 0) ||
+							!item.showInTimeline,
+					))
 			) {
 				continue;
 			}
@@ -81,7 +83,10 @@ export const getTimelineSeriesLayout = ({
 	const childrenByScene = new Map<string, number[]>();
 	const roots: number[] = [];
 	for (let index = 0; index < rows.length; index++) {
-		let {parent} = rows[index].track.sequence;
+		const {sequence} = rows[index].track;
+		// A regular Track's clip label shares the same scene space as its
+		// descendants. Series only display the descendants of their scenes.
+		let parent = seriesByScene.has(sequence.id) ? sequence.id : sequence.parent;
 		while (parent !== null && !seriesByScene.has(parent)) {
 			parent = byId.get(parent)?.parent ?? null;
 		}

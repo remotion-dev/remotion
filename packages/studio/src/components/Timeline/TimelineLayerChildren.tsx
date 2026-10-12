@@ -107,11 +107,13 @@ export const useTimelineLayerChildren = (
 								.map((id) => siblingIndices.get(id)),
 						];
 			const key = JSON.stringify([compositionId, identity]);
-			// Packed clips have no child-collapse control. Do not let a saved
-			// layer collapse make an explicit nested Track inaccessible.
+			// Series clips have no child-collapse control. Regular Track clips
+			// have their own child rows and can collapse their nested contents.
 			if (
 				!track.sequence.timelineTrack ||
-				track.sequence.timelineTrack.role === 'track'
+				track.sequence.timelineTrack.role === 'track' ||
+				(track.sequence.timelineTrack.role === 'clip' &&
+					track.sequence.timelineTrack.seriesOffset === null)
 			) {
 				keys.set(track.sequence.id, key);
 			}
@@ -123,7 +125,7 @@ export const useTimelineLayerChildren = (
 		(key: string) => {
 			const affectedKeys = new Set([key]);
 			if (compactSeries) {
-				const rows = getTimelineDisplayRows(tracks);
+				const rows = getTimelineDisplayRows(tracks, null);
 				const index = rows.findIndex(
 					(row) => hierarchy.keys.get(row.track.sequence.id) === key,
 				);
