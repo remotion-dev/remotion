@@ -2369,7 +2369,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		(visibleLayout?.media?.width ?? 0) - (transitionEndOffset ?? 0) >=
 			MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH;
 	const secondaryLeftEdgeAction = canShowSecondaryLeftEdgeAction
-		? isMedia || isTransitionSeriesSequence(s)
+		? isMedia
 			? 'source-only'
 			: 'self-trim'
 		: null;

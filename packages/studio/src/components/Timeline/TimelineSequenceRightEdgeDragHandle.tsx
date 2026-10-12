@@ -2202,7 +2202,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const initialEdgeClientX = fillTarget
 				? handleRect.left + handleRect.width / 2
 				: captureTarget.parentElement!.getBoundingClientRect().left +
-					(mode === 'source-only' ? (transitionEndOffset ?? 0) : 0);
+					(mode === 'source-only' || mode === 'self-trim'
+						? (transitionEndOffset ?? 0)
+						: 0);
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
@@ -2671,9 +2673,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const trimBeforeStyle: React.CSSProperties = {
 		...baseStyle,
 		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		// Keep the incoming source trim inside the solid clip, beyond the overlap.
+		// Keep the incoming head trim inside the solid clip, beyond the overlap.
 		left:
-			transitionEndOffset !== null && secondaryAction === 'source-only'
+			transitionEndOffset !== null
 				? transitionEndOffset + HANDLE_INSET
 				: edgeEnabled
 					? rollingEnabled
@@ -2769,7 +2771,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					aria-label={
 						secondaryAction === 'source-only'
 							? 'Drag to adjust source start'
-							: 'Drag to trim start without ripple'
+							: isTransitionSeries
+								? 'Drag to trim source start'
+								: 'Drag to trim start without ripple'
 					}
 					data-trim-mode={secondaryAction}
 					style={trimBeforeStyle}
