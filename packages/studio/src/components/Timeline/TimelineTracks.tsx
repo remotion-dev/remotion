@@ -141,6 +141,7 @@ const TimelineTracksInner: React.FC<{
 													(windowWidth - TIMELINE_PADDING * 2) /
 													video.durationInFrames,
 												height: virtualItem.size,
+												seamFraction: 0.3,
 												cropHeight: null,
 											})
 										: undefined,

@@ -556,6 +556,7 @@ const TimelineSequenceBar: React.FC<{
 				s.timelineTrack?.role === 'clip'
 					? Number(style.height)
 					: (sceneClipHeight ?? Number(style.height)),
+			seamFraction: s.timelineTrack?.role === 'clip' ? 0.5 : 0.3,
 			cropHeight: Number(style.height),
 		});
 	}, [
@@ -585,6 +586,7 @@ const TimelineSequenceBar: React.FC<{
 				s.timelineTrack?.role === 'clip'
 					? Number(style.height)
 					: (sceneClipHeight ?? Number(style.height)),
+			seamFraction: s.timelineTrack?.role === 'clip' ? 0.5 : 0.3,
 			cropHeight: Number(style.height),
 		});
 	}, [
@@ -619,6 +621,7 @@ const TimelineSequenceBar: React.FC<{
 							durationInFrames: Number(style.width) / frameIncrement,
 							pixelsPerFrame: frameIncrement,
 							height: Number(style.height),
+							seamFraction: 0.5,
 							cropHeight: null,
 						})
 					: undefined,

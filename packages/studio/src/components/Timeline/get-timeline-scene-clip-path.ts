@@ -6,6 +6,7 @@ type TimelineSceneClipOptions = {
 	readonly offsetInFrames: number;
 	readonly pixelsPerFrame: number;
 	readonly height: number;
+	readonly seamFraction: number;
 	readonly cropHeight: number | null;
 };
 
@@ -15,6 +16,7 @@ export const getTimelineSceneShape = ({
 	offsetInFrames,
 	pixelsPerFrame,
 	height,
+	seamFraction,
 	cropHeight,
 }: TimelineSceneClipOptions): {
 	readonly clipPath: string;
@@ -39,7 +41,7 @@ export const getTimelineSceneShape = ({
 		};
 	}
 
-	const middle = (Math.round(height / 2) / height) * 100;
+	const middle = (Math.round(height * seamFraction) / height) * 100;
 	const outgoingInset =
 		sceneRange.transitionOutStart === null ? 0 : 1 / pixelsPerFrame;
 	const outgoingMiddle =
