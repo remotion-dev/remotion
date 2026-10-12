@@ -144,7 +144,9 @@ const getAutoScrollSpeed = ({
 	return 0;
 };
 
-export const CompositionSelector: React.FC = () => {
+export const CompositionSelector: React.FC<{
+	readonly onCompositionSelected: (() => void) | null;
+}> = ({onCompositionSelected}) => {
 	const {compositions, canvasContent, folders} = useContext(
 		Internals.CompositionManager,
 	);
@@ -176,6 +178,13 @@ export const CompositionSelector: React.FC = () => {
 
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
+	const onSelectComposition = useCallback(
+		(composition: Parameters<typeof selectComposition>[0], push: boolean) => {
+			selectComposition(composition, push);
+			onCompositionSelected?.();
+		},
+		[onCompositionSelected, selectComposition],
+	);
 
 	const items = useMemo(() => {
 		const tree = createFolderTree(compositions, folders, foldersExpanded);
@@ -403,7 +412,7 @@ export const CompositionSelector: React.FC = () => {
 									? canvasContent.compositionId
 									: null
 							}
-							selectComposition={selectComposition}
+							selectComposition={onSelectComposition}
 							toggleFolder={toggleFolder}
 							clearRootDragHover={clearRootDragHover}
 							canReorder={compositionSortOrder === 'registration'}
