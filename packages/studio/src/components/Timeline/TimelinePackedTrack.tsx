@@ -2,7 +2,6 @@ import React, {useContext, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {getTimelineSceneRange} from './get-timeline-scene-range';
-import {getTimelineTransitionRanges} from './get-timeline-transition-ranges';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
@@ -43,9 +42,11 @@ export const TimelinePackedTrack: React.FC<{
 							: TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 				}),
 			),
-			transitionRanges: getTimelineTransitionRanges(
-				transitions.map((item) => item.sequence),
-			),
+			transitionRanges: transitions.map(({sequence}) => ({
+				id: sequence.id,
+				from: sequence.from,
+				end: sequence.from + sequence.duration,
+			})),
 		};
 	}, [auxiliaryRows, auxiliaryRowOffsets, items]);
 
