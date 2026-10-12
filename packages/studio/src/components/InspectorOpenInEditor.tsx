@@ -225,7 +225,7 @@ export const InspectorOpenInEditor: React.FC<{
 								'[aria-label="Inspector source location"]',
 							) ?? null,
 						initialComment: null,
-						metadata: {
+						getMetadata: () => ({
 							selection: annotationName,
 							...(location?.source
 								? {
@@ -236,7 +236,7 @@ export const InspectorOpenInEditor: React.FC<{
 											}) ?? location.source,
 									}
 								: {}),
-						},
+						}),
 					})
 				: []),
 		];

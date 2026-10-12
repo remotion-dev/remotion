@@ -191,30 +191,32 @@ test('parent previews keep source subscriptions stable while mounted instances e
 							currentAssetMetadata: null,
 						}}
 					>
-						<Internals.AbsoluteTimeContext.Provider value={timeline}>
-							<Internals.TimelineContext.Provider value={timeline}>
-								<Internals.SequenceManagerProvider>
-									<SequencePropsSubscriptionProvider>
-										<ExpandedTracksProvider>
-											<StudioServerConnectionCtx.Provider
-												value={{
-													previewServerState: {
-														type: 'connected',
-														clientId: 'test',
-													},
-													configFileChangeRevision: 0,
-													restartRequired: false,
-													subscribeToEvent: () => () => undefined,
-												}}
-											>
-												<Fixture />
-												<Subscriptions />
-											</StudioServerConnectionCtx.Provider>
-										</ExpandedTracksProvider>
-									</SequencePropsSubscriptionProvider>
-								</Internals.SequenceManagerProvider>
-							</Internals.TimelineContext.Provider>
-						</Internals.AbsoluteTimeContext.Provider>
+						<Internals.VideoProvider>
+							<Internals.AbsoluteTimeContext.Provider value={timeline}>
+								<Internals.TimelineContext.Provider value={timeline}>
+									<Internals.SequenceManagerProvider>
+										<SequencePropsSubscriptionProvider>
+											<ExpandedTracksProvider>
+												<StudioServerConnectionCtx.Provider
+													value={{
+														previewServerState: {
+															type: 'connected',
+															clientId: 'test',
+														},
+														configFileChangeRevision: 0,
+														restartRequired: false,
+														subscribeToEvent: () => () => undefined,
+													}}
+												>
+													<Fixture />
+													<Subscriptions />
+												</StudioServerConnectionCtx.Provider>
+											</ExpandedTracksProvider>
+										</SequencePropsSubscriptionProvider>
+									</Internals.SequenceManagerProvider>
+								</Internals.TimelineContext.Provider>
+							</Internals.AbsoluteTimeContext.Provider>
+						</Internals.VideoProvider>
 					</Internals.CompositionManager.Provider>
 				</Internals.CanUseRemotionHooksProvider>
 			</Internals.RemotionEnvironmentContext.Provider>,

@@ -11,7 +11,10 @@ import {
 } from '../../helpers/get-timeline-max-zoom';
 import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
 import {CanvasZoomIcon, CanvasZoomOutIcon} from '../../icons/canvas-zoom';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
+import {
+	TimelineZoomCtx,
+	TimelineZoomImperativeContext,
+} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
 import {ControlButton} from '../ControlButton';
@@ -94,7 +97,7 @@ const TimelineZoomSlider: React.FC<{
 const TimelineZoomControlsInner: React.FC<{
 	readonly sliderMaxWidth?: number;
 }> = ({sliderMaxWidth}) => {
-	const {setZoom} = useContext(TimelineZoomCtx);
+	const {setZoom} = useContext(TimelineZoomImperativeContext);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
 		triggerOnWindowResize: true,

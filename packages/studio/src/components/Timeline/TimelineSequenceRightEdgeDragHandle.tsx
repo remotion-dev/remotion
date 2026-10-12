@@ -37,6 +37,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import type {
 	MoveEffectKeyframeChange,
 	MoveSequenceKeyframeChange,
@@ -1631,8 +1632,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -1662,7 +1663,6 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		batchSetters,
 		clearDragOverrides,
 		previewServerState,
-		overrideIdToNodePathMappings,
 		onDragEnd,
 		onSelect,
 	});
@@ -1674,7 +1674,6 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		batchSetters,
 		clearDragOverrides,
 		previewServerState,
-		overrideIdToNodePathMappings,
 		onDragEnd,
 		onSelect,
 	};
@@ -1794,17 +1793,14 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					: 0;
 			const canCalculateDelta = Number.isFinite(pxPerFrame) && pxPerFrame > 0;
 
-			const {
-				nodePathInfo: latestNodePathInfo,
-				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
-			} = latestRef.current;
+			const {nodePathInfo: latestNodePathInfo} = latestRef.current;
 			const {selectedItems: latestSelectedItems} = currentSelection.current;
 			const targets = canCalculateDelta
 				? (getTimelineSequenceLeftEdgeDragTargets({
 						draggedNodePathInfo: latestNodePathInfo,
 						selectedItems: latestSelectedItems,
 						sequences: sequencesRef.current,
-						overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+						overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 						propStatuses: propStatusesRef.current,
 						timelineDurationInFrames,
 						trimBeforeOnly,
@@ -2046,6 +2042,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		},
 		[
 			currentSelection,
+			overrideIdToNodePathMappingsRef,
 			cursor,
 			finishDrag,
 			onDragStart,
@@ -2148,8 +2145,8 @@ export const useTimelineSequenceFromDrag = ({
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -2175,7 +2172,6 @@ export const useTimelineSequenceFromDrag = ({
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
 		previewServerState,
-		overrideIdToNodePathMappings,
 		editorSnapping,
 		onDragEnd,
 	});
@@ -2188,7 +2184,6 @@ export const useTimelineSequenceFromDrag = ({
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
 		previewServerState,
-		overrideIdToNodePathMappings,
 		editorSnapping,
 		onDragEnd,
 	};
@@ -2288,10 +2283,7 @@ export const useTimelineSequenceFromDrag = ({
 				return;
 			}
 
-			const {
-				nodePathInfo: latestNodePathInfo,
-				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
-			} = latestRef.current;
+			const {nodePathInfo: latestNodePathInfo} = latestRef.current;
 			const {selectedItems: latestSelectedItems} = currentSelection.current;
 			if (latestNodePathInfo === null) {
 				return;
@@ -2301,7 +2293,7 @@ export const useTimelineSequenceFromDrag = ({
 				draggedNodePathInfo: latestNodePathInfo,
 				selectedItems: latestSelectedItems,
 				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				propStatuses: propStatusesRef.current,
 			});
 			if (targets === null || targets.length === 0) {
@@ -2444,6 +2436,7 @@ export const useTimelineSequenceFromDrag = ({
 		},
 		[
 			currentSelection,
+			overrideIdToNodePathMappingsRef,
 			finishDrag,
 			propStatusesRef,
 			sequencesRef,
@@ -2501,8 +2494,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -2536,7 +2529,6 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		batchSetters,
 		clearDragOverrides,
 		previewServerState,
-		overrideIdToNodePathMappings,
 		onDragEnd,
 		onSelect,
 		updateSnapFrameRef,
@@ -2550,7 +2542,6 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		batchSetters,
 		clearDragOverrides,
 		previewServerState,
-		overrideIdToNodePathMappings,
 		onDragEnd,
 		onSelect,
 		updateSnapFrameRef,
@@ -2655,7 +2646,6 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const {
 				nodePathInfo: latestNodePathInfo,
 				mediaDurationDragLimits: latestMediaDurationDragLimits,
-				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
 			} = latestRef.current;
 			const {selectedItems: latestSelectedItems} = currentSelection.current;
 			const targets = canCalculateDelta
@@ -2667,7 +2657,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 							mediaDurationDragLimitsRegistry?.current ?? null,
 						selectedItems: latestSelectedItems,
 						sequences: sequencesRef.current,
-						overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+						overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 						propStatuses: propStatusesRef.current,
 						timelineDurationInFrames,
 					}) ?? [])
@@ -2840,6 +2830,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		},
 		[
 			currentSelection,
+			overrideIdToNodePathMappingsRef,
 			cursor,
 			finishDrag,
 			mediaDurationDragLimitsRegistry,

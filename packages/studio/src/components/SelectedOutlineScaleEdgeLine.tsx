@@ -66,8 +66,8 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	onSelect,
 	target,
 }) => {
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -110,7 +110,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? getAllScaleDragTargets() : [scaleDrag],
-				getDragOverrides,
+				getDragOverrides: dragOverridesRef.current.getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
 			let lastValues = new Map<string, number | string>();
@@ -245,7 +245,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 			containsSelection,
 			getAllScaleDragTargets,
 			edgeInfo,
-			getDragOverrides,
+			dragOverridesRef,
 			onDraggingChange,
 			onSelect,
 			scaleDrag,

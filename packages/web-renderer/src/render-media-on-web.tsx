@@ -730,6 +730,7 @@ const internalRenderMediaOnWeb = async <
 					addVideoSampleAndCloseFrame(
 						frameToEncode,
 						videoSampleSource.videoSampleSource,
+						1 / resolved.fps,
 					),
 				);
 			}
