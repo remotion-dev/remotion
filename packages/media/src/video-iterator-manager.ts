@@ -44,6 +44,7 @@ export const isSequentialMediaTimeAdvance = ({
 };
 
 export const videoIteratorManager = async ({
+	getIsDisposed,
 	delayPlaybackHandleIfNotPremounting,
 	canvas,
 	context,
@@ -58,6 +59,7 @@ export const videoIteratorManager = async ({
 	getEffectChainState,
 	maxCanvasSinkFrameSize,
 }: {
+	getIsDisposed: () => boolean;
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
@@ -89,7 +91,7 @@ export const videoIteratorManager = async ({
 
 	const displayWidth = await videoTrack.getDisplayWidth();
 	const displayHeight = await videoTrack.getDisplayHeight();
-	if (canvas) {
+	if (canvas && !getIsDisposed()) {
 		if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
 			canvas.width = displayWidth;
 			canvas.height = displayHeight;
@@ -348,11 +350,15 @@ export const videoIteratorManager = async ({
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
+			if (destroyed) {
+				return;
+			}
+
 			destroyed = true;
 			clearLastDrawnFrame();
 			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();
-			if (context && canvas) {
+			if (context && canvas && framesRendered > 0) {
 				context.clearRect(0, 0, canvas.width, canvas.height);
 			}
 
