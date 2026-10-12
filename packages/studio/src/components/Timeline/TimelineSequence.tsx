@@ -494,7 +494,6 @@ const TimelineSequenceBar: React.FC<{
 			: Infinity;
 	let labelLeft =
 		2.5 + Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0));
-	let labelFollowsTransitionMarker = false;
 	if (
 		isPackedClip &&
 		sceneRange !== null &&
@@ -503,11 +502,10 @@ const TimelineSequenceBar: React.FC<{
 	) {
 		const incomingTransitionWidth =
 			(sceneRange.transitionInEnd - sceneRange.from) * frameIncrement;
-		labelFollowsTransitionMarker =
-			incomingTransitionWidth >= minTransitionAreaWidth;
-		const afterTransition = labelFollowsTransitionMarker
-			? Math.round(sceneRange.transitionInEnd * frameIncrement) + 4
-			: sceneRange.transitionInEnd * frameIncrement + 2.5;
+		const afterTransition =
+			incomingTransitionWidth >= minTransitionAreaWidth
+				? Math.round(sceneRange.transitionInEnd * frameIncrement) + 4
+				: sceneRange.transitionInEnd * frameIncrement + 2.5;
 		labelLeft = Math.max(labelLeft, afterTransition - Number(style.marginLeft));
 	}
 
@@ -703,9 +701,8 @@ const TimelineSequenceBar: React.FC<{
 							? {top: getTimelineLayerHeight(s.type)}
 							: {}),
 						display: 'flex',
-						flexDirection: labelFollowsTransitionMarker ? 'row' : 'column',
-						alignItems: labelFollowsTransitionMarker ? 'center' : 'flex-start',
-						gap: labelFollowsTransitionMarker ? 4 : 0,
+						flexDirection: 'column',
+						alignItems: 'flex-start',
 						overflow: 'hidden',
 						pointerEvents: 'none',
 						userSelect: 'none',
@@ -720,8 +717,6 @@ const TimelineSequenceBar: React.FC<{
 								color: getTimelineColor(false, false),
 								flexShrink: 0,
 								height: 12,
-								// Align the 12px icon within the 15px inline label row.
-								marginBottom: labelFollowsTransitionMarker ? 1 : 0,
 								width: 12,
 							}}
 						/>
