@@ -364,6 +364,10 @@ const TimelineSequenceNegativeStart = React.memo(
 const TimelineSequenceBar: React.FC<{
 	readonly s: TSequence;
 	readonly labelOffset: number;
+	readonly captionLabelBounds: {
+		readonly left: number;
+		readonly width: number;
+	} | null;
 	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
@@ -406,6 +410,7 @@ const TimelineSequenceBar: React.FC<{
 }> = ({
 	s,
 	labelOffset,
+	captionLabelBounds,
 	hasCaptionsSchema,
 	connectedComposition,
 	activeTrimEdge,
@@ -495,7 +500,9 @@ const TimelineSequenceBar: React.FC<{
 			? sceneRange.end * frameIncrement - Number(style.marginLeft)
 			: Infinity;
 	let labelLeft =
-		2.5 + Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0));
+		2.5 +
+		(captionLabelBounds?.left ??
+			Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0)));
 	if (
 		isPackedClip &&
 		sceneRange !== null &&
@@ -523,15 +530,18 @@ const TimelineSequenceBar: React.FC<{
 		sceneRange?.transitionOutStart ?? Infinity,
 		inheritedSceneRange?.transitionOutStart ?? Infinity,
 	);
-	const labelRight =
-		frameIncrement === null || !Number.isFinite(labelEndFrame)
+	const labelRight = Math.max(
+		captionLabelBounds === null
 			? 0
-			: Math.max(
-					0,
-					Number(style.width) -
-						(Math.round(labelEndFrame * frameIncrement) -
-							Number(style.marginLeft)),
-				);
+			: Number(style.width) -
+					captionLabelBounds.left -
+					captionLabelBounds.width,
+		frameIncrement === null || !Number.isFinite(labelEndFrame)
+			? -Infinity
+			: Number(style.width) -
+					(Math.round(labelEndFrame * frameIncrement) -
+						Number(style.marginLeft)),
+	);
 
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
 	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
@@ -2349,6 +2359,24 @@ const TimelineSequenceLayoutInner: React.FC<{
 							0,
 							labelStartFrame * frameIncrement - visibleLayout.marginLeft,
 						)
+			}
+			captionLabelBounds={
+				hasCaptionsSchema
+					? {
+							// Anchor the transcript and its fade to the full media range.
+							// The cropped render window must not restart the text.
+							left:
+								marginLeft +
+								negativeStartWidth +
+								(premountWidth ?? 0) -
+								visibleLayout.marginLeft,
+							width:
+								width -
+								negativeStartWidth -
+								(premountWidth ?? 0) -
+								(postmountWidth ?? 0),
+						}
+					: null
 			}
 			connectedComposition={connectedCompositions[0] ?? null}
 			activeTrimEdge={activeTrimEdge}
