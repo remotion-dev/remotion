@@ -12,8 +12,9 @@ To make your component interactive too, wrap it with [`Interactive.withSchema()`
 
 ## Create the component
 
-Create any component. Make sure it accepts `style` and passes it on to its visual root.<br />
-Styles for transforming, premounting, and cropping will be injected.
+For a scene that fills its parent, use [`layout: 'absolute-fill'`](/docs/interactive-with-schema#layout) when wrapping it with `Interactive.withSchema()`. Its inner component can return a fragment; the wrapper handles styles, transforms, premounting, and cropping.
+
+A component with its own size, like the badge below, keeps the default layout and forwards `style` to its visual root.
 
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
@@ -140,7 +141,7 @@ const badgeSchema = {
 
 export const Badge = Interactive.withSchema({
   Component: BadgeInner,
-  componentName: '<Badge>',
+  componentName: 'Badge',
   schema: badgeSchema,
   wrapInSequence: true,
 });

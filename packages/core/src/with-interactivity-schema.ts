@@ -25,6 +25,10 @@ import {
 	extendSchemaWithSequenceName,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {
+	OptimisticSequenceDeletion,
+	usePendingSequenceDeletions,
+} from './optimistic-sequence-deletion.js';
 import {createRuntimeValueStore} from './runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
@@ -229,6 +233,7 @@ export const withInteractivitySchema = <
 		} = props as Props & {readonly _remotionInternalStack?: string};
 		const cleanProps = propsWithoutInternalStack as Props;
 		const env = useRemotionEnvironment();
+		const pendingDeletions = usePendingSequenceDeletions();
 		const canUseRemotionHooks = useContext(CanUseRemotionHooks);
 		const disableInteractivity = useContext(DisableInteractivityContext);
 		const enableInteractivity = useContext(EnableInteractivityContext);
@@ -385,6 +390,13 @@ export const withInteractivitySchema = <
 			videoConfigValues,
 		]);
 
+		// Keep source identities available to parents that inspect their children
+		// before rendering them (Series and TransitionSeries).
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			OptimisticSequenceDeletion.register(internalStack ?? null, nodePath);
+		}, [internalStack, nodePath]);
+
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {merged: valuesDotNotation, propsToDelete} = useMemo(() => {
@@ -424,6 +436,10 @@ export const withInteractivitySchema = <
 			schemaKeys: activeKeys,
 			propsToDelete,
 		});
+
+		if (OptimisticSequenceDeletion.isDeleted(nodePath, pendingDeletions)) {
+			return null;
+		}
 
 		return React.createElement(Component, {
 			...mergedProps,

@@ -1,3 +1,4 @@
+import {Interactive} from 'remotion';
 import {
 	AnimatedCaptions as SharedAnimatedCaptions,
 	CAPTIONS_HEIGHT,
@@ -8,7 +9,7 @@ export const VOICEOVER_FILE = 'text-behind-video-2.wav';
 export const CAPTIONS_DURATION_IN_FRAMES = 1816;
 export {CAPTIONS_HEIGHT};
 
-export const AnimatedCaptions: React.FC = () => {
+const AnimatedCaptionsInner: React.FC = () => {
 	return (
 		<SharedAnimatedCaptions
 			captions={[
@@ -1173,3 +1174,11 @@ export const AnimatedCaptions: React.FC = () => {
 		/>
 	);
 };
+
+export const AnimatedCaptions = Interactive.withSchema({
+	Component: AnimatedCaptionsInner,
+	componentName: 'AnimatedCaptions',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

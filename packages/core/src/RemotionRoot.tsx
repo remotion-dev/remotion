@@ -12,6 +12,7 @@ import {PrefetchProvider} from './prefetch-state.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 import {TimelineContextProvider} from './TimelineContext.js';
 import {MediaEnabledProvider} from './use-media-enabled.js';
+import {VideoProvider} from './use-video.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 
 export const RemotionRootContexts: React.FC<{
@@ -62,7 +63,7 @@ export const RemotionRootContexts: React.FC<{
 											<SharedAudioTagsContextProvider
 												numberOfAudioTags={numberOfAudioTags}
 											>
-												{children}
+												<VideoProvider>{children}</VideoProvider>
 											</SharedAudioTagsContextProvider>
 										</SharedAudioContextProvider>
 									</BufferingProvider>

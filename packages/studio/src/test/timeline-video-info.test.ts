@@ -403,8 +403,6 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 		startMediaFrom: 5,
 		frozenMediaFrame: null,
 		muted: false,
-		doesVolumeChange: false,
-		volume: 1,
 	};
 	const track = calculateTimeline({
 		sequences: [outer, inner, media],

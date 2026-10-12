@@ -11,12 +11,13 @@
 		"testmonorepo": "bun test src/monorepo --run --timeout 40000",
 		"testtemplates": "bun test src/templates --timeout 400000",
 		"testlambda": "exit 0",
-		"lint": "tsc -d",
+		"lint": "tsgo --noEmit",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src"
 	},
 	"private": true,
 	"devDependencies": {
+		"@typescript/native-preview": "catalog:",
 		"@mdx-js/loader": "2.3.0",
 		"@remotion/babel-loader": "workspace:*",
 		"@types/node": "catalog:",

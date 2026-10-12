@@ -299,6 +299,34 @@ Changes apply immediately in the Studio without reloading the page.
 
 The [`--experimental-tracks`](/docs/options/experimental-tracks) flag takes precedence over this option.
 
+## `setExperimentalSequenceActivityEnabled()`<AvailableFrom v="4.0.535" />
+
+<Options id="experimental-sequence-activity" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalSequenceActivityEnabled(true);
+```
+
+Changes apply immediately in the Studio without reloading the page.
+
+The [`--experimental-sequence-activity`](/docs/options/experimental-sequence-activity) flag takes precedence over this option.
+
+## `setExperimentalSequenceActivityLimit()`<AvailableFrom v="4.0.535" />
+
+<Options id="experimental-sequence-activity-limit" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalSequenceActivityLimit(20);
+```
+
+Changes apply immediately in the Studio without reloading the page.
+
+The [`--experimental-sequence-activity-limit`](/docs/options/experimental-sequence-activity-limit) flag takes precedence over this option.
+
 ## `setShowPremounting()`<AvailableFrom v="4.0.535" />
 
 <Options id="show-premounting" />

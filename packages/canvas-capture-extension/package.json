@@ -7,7 +7,7 @@
 		"dev": "bunx --bun wxt",
 		"formatting": "oxfmt src wxt.config.ts --check",
 		"format": "oxfmt src wxt.config.ts",
-		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && tsgo --noEmit",
+		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && bun check",
 		"make": "bunx --bun wxt build"
 	},
 	"dependencies": {
@@ -18,7 +18,6 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@typescript/native-preview": "catalog:",
 		"@types/node": "catalog:",
 		"eslint": "catalog:",
 		"vite": "7.3.6",

@@ -1,12 +1,286 @@
-import {Internals} from 'remotion';
+import {Player} from '@remotion/player';
+import {createRoot} from 'react-dom/client';
+import {HtmlInCanvas, Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {createScaffold} from '../create-scaffold';
 import {supportsNativeHtmlInCanvas} from '../html-in-canvas';
 import {makeInternalState} from '../internal-state';
+import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {createLayer, type HtmlInCanvasLayerOutcome} from '../take-screenshot';
 import {backgroundColor} from './fixtures/background-color';
+import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
+import {
+	htmlInCanvasBackends,
+	htmlInCanvasFrameMatrix,
+	htmlInCanvasNestedFrames,
+} from './fixtures/html-in-canvas-frames';
+
+const readPixels = (
+	source: CanvasImageSource,
+	width: number,
+	height: number,
+) => {
+	const canvas = document.createElement('canvas');
+	canvas.width = width;
+	canvas.height = height;
+	const ctx = canvas.getContext('2d')!;
+	ctx.fillStyle = 'red';
+	ctx.fillRect(0, 0, width, height);
+	ctx.drawImage(source, 0, 0);
+	return ctx.getImageData(0, 0, width, height).data;
+};
+
+const countDifferentPixels = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
+	expect(a.length).toBe(b.length);
+	let different = 0;
+	for (let i = 0; i < a.length; i += 4) {
+		if (
+			a[i] !== b[i] ||
+			a[i + 1] !== b[i + 1] ||
+			a[i + 2] !== b[i + 2] ||
+			a[i + 3] !== b[i + 3]
+		) {
+			different++;
+		}
+	}
+
+	return different;
+};
+
+for (const allowHtmlInCanvas of [false, true]) {
+	test(
+		`captures nested custom paint and effects, native=${allowHtmlInCanvas}`,
+		{timeout: 60_000},
+		async (t) => {
+			if (!HtmlInCanvas.isNestingSupported()) {
+				t.skip();
+				return;
+			}
+
+			let captured = 48;
+			await renderMediaOnWeb({
+				composition: htmlInCanvasNestedFrames,
+				inputProps: {
+					backend: '2d',
+					preserveDrawingBuffer: false,
+					mountAt: 50,
+					pixelDensity: 2,
+				},
+				allowHtmlInCanvas,
+				licenseKey: 'free-license',
+				logLevel: 'error',
+				frameRange: [48, 55],
+				container: 'webm',
+				videoCodec: 'vp9',
+				hardwareAcceleration: 'prefer-software',
+				muted: true,
+				onFrame: (frame) => {
+					const pixels = readPixels(frame, 100, 100);
+					const color =
+						captured < 50
+							? [0, 0, 0, 255]
+							: [255 - ((captured * 37 + 17) % 255), 255, 255, 255];
+					const index = (10 * 100 + 10) * 4;
+					// The invert filter can round a channel by one; a stale frame differs by 37.
+					expect(
+						Math.max(
+							...color.map((value, channel) =>
+								Math.abs(pixels[index + channel] - value),
+							),
+						),
+						`nested frame ${captured}`,
+					).toBeLessThanOrEqual(1);
+					captured++;
+					return frame;
+				},
+			});
+			expect(captured).toBe(56);
+		},
+	);
+
+	for (const mountAt of [0, 50]) {
+		test(
+			`captures all custom backends at mount ${mountAt}, native=${allowHtmlInCanvas} (#12074)`,
+			{timeout: 60_000},
+			async (t) => {
+				if (!supportsNativeHtmlInCanvas()) {
+					t.skip();
+					return;
+				}
+
+				const start = Math.max(0, mountAt - 2);
+				const {width, height} = htmlInCanvasFrameMatrix;
+				let captured = start;
+				await renderMediaOnWeb({
+					composition: htmlInCanvasFrameMatrix,
+					inputProps: {mountAt, pixelDensity: 2},
+					allowHtmlInCanvas,
+					licenseKey: 'free-license',
+					logLevel: 'error',
+					frameRange: [start, mountAt + 5],
+					container: 'webm',
+					videoCodec: 'vp9',
+					hardwareAcceleration: 'prefer-software',
+					muted: true,
+					onFrame: (frame) => {
+						const pixels = readPixels(frame, width, height);
+						const color =
+							captured < mountAt
+								? [255, 255, 255, 255]
+								: [(captured * 37 + 17) % 255, 0, 0, 255];
+						for (const [
+							column,
+							{backend, preserveDrawingBuffer},
+						] of htmlInCanvasBackends.entries()) {
+							const label = `${backend}, preserve=${preserveDrawingBuffer}, frame ${captured}`;
+							const left = column * 100;
+							const index = (10 * width + left + 10) * 4;
+							expect(Array.from(pixels.slice(index, index + 4)), label).toEqual(
+								color,
+							);
+							if (backend === 'incremental' && captured >= mountAt) {
+								const retained = (10 * width + left + 50) * 4;
+								expect(
+									Array.from(pixels.slice(retained, retained + 4)),
+									`retained pixels: ${label}`,
+								).toEqual([0, 0, 255, 255]);
+							}
+
+							const right = (10 * width + left + 70) * 4;
+							expect(
+								Array.from(pixels.slice(right, right + 4)),
+								`resized frame: ${label}`,
+							).toEqual(
+								captured >= mountAt && (captured === 1 || captured === 51)
+									? backend === 'incremental'
+										? [0, 0, 255, 255]
+										: color
+									: [255, 255, 255, 255],
+							);
+						}
+
+						captured++;
+						return frame;
+					},
+				});
+				expect(captured).toBe(mountAt + 6);
+			},
+		);
+	}
+
+	for (const offset of [false, true]) {
+		test(
+			`captures custom blur in stills and every video frame (#${offset ? 12053 : 9917}, native=${allowHtmlInCanvas})`,
+			{timeout: 60_000},
+			async (t) => {
+				if (!supportsNativeHtmlInCanvas()) {
+					t.skip();
+					return;
+				}
+
+				const {width, height} = htmlInCanvasBlur;
+				const container = document.createElement('div');
+				document.body.appendChild(container);
+				const root = createRoot(container);
+				let painted: Uint8ClampedArray | null = null;
+				const onPainted = (canvas: OffscreenCanvas) => {
+					painted = readPixels(canvas, width, height);
+				};
+
+				let preview: Uint8ClampedArray;
+				try {
+					root.render(
+						<Player
+							acknowledgeRemotionLicense
+							component={htmlInCanvasBlur.component}
+							compositionWidth={width}
+							compositionHeight={height}
+							fps={30}
+							durationInFrames={60}
+							inputProps={{filter: 'blur(8px)', offset, onPainted}}
+							style={{width, height}}
+						/>,
+					);
+					await vi.waitFor(() => {
+						expect(painted).not.toBeNull();
+						expect(
+							painted!.filter((value, i) => i % 4 === 0 && value < 250).length,
+						).toBeGreaterThan(1000);
+						const canvas = container.querySelector('canvas');
+						expect(canvas).not.toBeNull();
+						expect(
+							countDifferentPixels(
+								readPixels(canvas!, width, height),
+								painted!,
+							),
+						).toBe(0);
+					});
+					preview = readPixels(
+						container.querySelector('canvas')!,
+						width,
+						height,
+					);
+				} finally {
+					root.unmount();
+					container.remove();
+				}
+
+				const options = {
+					composition: htmlInCanvasBlur,
+					inputProps: {filter: 'blur(8px)', offset, onPainted: null},
+					allowHtmlInCanvas,
+					licenseKey: 'free-license',
+					isProduction: false,
+					logLevel: 'error',
+					delayRenderTimeoutInMilliseconds: 10_000,
+				} as const;
+				const unblurred = await renderStillOnWeb({
+					...options,
+					inputProps: {...options.inputProps, filter: 'none'},
+					frame: 0,
+				});
+				expect(
+					countDifferentPixels(
+						readPixels(await unblurred.canvas(), width, height),
+						preview,
+					),
+				).toBeGreaterThan(1000);
+				// The original still failure was intermittent; each capture mounts anew.
+				for (let attempt = 0; attempt < 6; attempt++) {
+					const still = await renderStillOnWeb({...options, frame: 0});
+					expect(
+						countDifferentPixels(
+							readPixels(await still.canvas(), width, height),
+							preview,
+						),
+						`still ${attempt}`,
+					).toBe(0);
+				}
+
+				let frameCount = 0;
+				await renderMediaOnWeb({
+					...options,
+					frameRange: [0, 2],
+					container: 'webm',
+					videoCodec: 'vp9',
+					hardwareAcceleration: 'prefer-software',
+					muted: true,
+					onFrame: (frame) => {
+						expect(
+							countDifferentPixels(readPixels(frame, width, height), preview),
+							`video frame ${frameCount}`,
+						).toBe(0);
+						frameCount++;
+						return frame;
+					},
+				});
+				expect(frameCount).toBe(3);
+			},
+		);
+	}
+}
 
 test('uses the DOM composer by default', async () => {
 	const contextPrototype =
@@ -117,7 +391,10 @@ test('uses native HTML-in-canvas only when explicitly enabled', async () => {
 	}
 });
 
-test('does not create a nested HTML-in-canvas capture', async () => {
+test('does not create a nested HTML-in-canvas capture before Chrome 157', async () => {
+	const userAgent = vi
+		.spyOn(navigator, 'userAgent', 'get')
+		.mockReturnValue('Chrome/156.0.0.0');
 	const element = document.createElement('div');
 	const nestedLayoutCanvas = document.createElement(
 		'canvas',
@@ -171,6 +448,7 @@ test('does not create a nested HTML-in-canvas capture', async () => {
 			shouldWarn: false,
 		});
 	} finally {
+		userAgent.mockRestore();
 		internalState[Symbol.dispose]();
 		element.remove();
 	}

@@ -1437,3 +1437,19 @@ export function interpolate(
 	return interpolateNumber({input, inputRange, outputRange, options});
 }
 /* eslint-enable no-redeclare */
+
+export const prepareNumericInterpolation = ({
+	inputRange,
+	outputRange,
+	options,
+}: {
+	inputRange: readonly number[];
+	outputRange: readonly number[];
+	options: Omit<InterpolateOptions, 'outputType'>;
+}): ((input: number) => number) => {
+	// Validate the fixed inputs once, using the same checks as interpolate().
+	interpolate(inputRange[0], inputRange, outputRange, options);
+
+	return (input) =>
+		interpolateNumber({input, inputRange, outputRange, options});
+};

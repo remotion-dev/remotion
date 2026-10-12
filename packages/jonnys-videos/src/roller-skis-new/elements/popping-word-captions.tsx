@@ -1,0 +1,278 @@
+import type {Caption, TikTokPage, TikTokToken} from '@remotion/captions';
+import {createTikTokStyleCaptions} from '@remotion/captions';
+import {loadFont} from '@remotion/google-fonts/Montserrat';
+import {fitText} from '@remotion/layout-utils';
+import React, {useEffect, useMemo, useState} from 'react';
+import {
+	cancelRender,
+	Interactive,
+	interpolate,
+	spring,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+	type SequenceProps,
+} from 'remotion';
+
+type PoppingWordCaptionsProps = InteractiveTransformProps &
+	Pick<SequenceProps, 'width'> & {
+		readonly captions: Caption[];
+		readonly combineTokensWithinMilliseconds: number | null;
+	};
+
+const desiredFontSize = 80;
+const fontWeight = '700';
+const textColor = '#ffffff';
+const highlightColor = '#2563eb';
+const activeWordScale = 1.03;
+const defaultCombineTokensWithinMilliseconds = 800;
+const defaultWidth = 682;
+
+const poppingWordCaptionsSchema = {
+	...Interactive.captionsSchema,
+	width: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: undefined,
+		description: 'Caption area width',
+		hiddenFromList: false,
+	},
+	combineTokensWithinMilliseconds: {
+		type: 'number',
+		min: 0,
+		step: 50,
+		default: defaultCombineTokensWithinMilliseconds,
+		description: 'Time between caption pages',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+const {fontFamily, waitUntilDone} = loadFont('normal', {
+	weights: [fontWeight],
+	subsets: ['latin'],
+});
+
+const isTimeWithinHalfOpenInterval = (
+	timeMs: number,
+	fromMs: number,
+	toMs: number,
+) => timeMs >= fromMs && timeMs < toMs;
+
+const getActivePageIndex = (
+	pages: readonly Pick<TikTokPage, 'startMs' | 'durationMs'>[],
+	timeMs: number,
+) =>
+	pages.findIndex((page) =>
+		isTimeWithinHalfOpenInterval(
+			timeMs,
+			page.startMs,
+			page.startMs + page.durationMs,
+		),
+	);
+
+const getActiveTokenIndex = (
+	tokens: readonly Pick<TikTokToken, 'fromMs' | 'toMs'>[],
+	timeMs: number,
+) =>
+	tokens.findIndex((token) =>
+		isTimeWithinHalfOpenInterval(timeMs, token.fromMs, token.toMs),
+	);
+
+const getTokenScale = ({
+	currentTimeMs,
+	fps,
+	token,
+}: {
+	readonly currentTimeMs: number;
+	readonly fps: number;
+	readonly token: Pick<TikTokToken, 'fromMs' | 'toMs'>;
+}) => {
+	if (!isTimeWithinHalfOpenInterval(currentTimeMs, token.fromMs, token.toMs)) {
+		return 1;
+	}
+
+	const tokenDurationInFrames = ((token.toMs - token.fromMs) / 1000) * fps;
+	const tokenLocalFrame = ((currentTimeMs - token.fromMs) / 1000) * fps;
+	const animationDurationInFrames = Math.min(4, tokenDurationInFrames / 2);
+	const enterProgress = spring({
+		config: {damping: 200},
+		durationInFrames: animationDurationInFrames,
+		fps,
+		frame: tokenLocalFrame,
+	});
+	const exitProgress = interpolate(
+		tokenLocalFrame,
+		[tokenDurationInFrames - animationDurationInFrames, tokenDurationInFrames],
+		[1, 0],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+
+	return 1 + Math.min(enterProgress, exitProgress) * (activeWordScale - 1);
+};
+
+const CaptionPage: React.FC<{
+	readonly captionAreaWidth: number | null;
+	readonly currentTimeMs: number;
+	readonly fps: number;
+	readonly page: TikTokPage;
+	readonly pageIndex: number;
+}> = ({captionAreaWidth, currentTimeMs, fps, page, pageIndex}) => {
+	const {width: compositionWidth} = useVideoConfig();
+	const availableWidth = captionAreaWidth ?? compositionWidth;
+	const fontSize = useMemo(() => {
+		const maximumTokenWidth = Math.max(1, availableWidth / activeWordScale);
+		const tokenFontSizes = page.tokens
+			.map((token) => token.text.trim())
+			.filter(Boolean)
+			.map(
+				(text) =>
+					fitText({
+						fontFamily,
+						fontWeight,
+						text,
+						validateFontIsLoaded: true,
+						withinWidth: maximumTokenWidth,
+					}).fontSize,
+			);
+
+		return Math.min(
+			desiredFontSize,
+			fitText({
+				fontFamily,
+				fontWeight,
+				text: page.text,
+				validateFontIsLoaded: true,
+				withinWidth: availableWidth,
+			}).fontSize,
+			...tokenFontSizes,
+		);
+	}, [availableWidth, page.text, page.tokens]);
+	const activeTokenIndex = getActiveTokenIndex(page.tokens, currentTimeMs);
+	const textStrokeWidth = fontSize / 7;
+
+	return (
+		<div
+			style={{
+				alignItems: 'center',
+				display: 'flex',
+				height: '100%',
+				justifyContent: 'center',
+				width: '100%',
+			}}
+		>
+			<div
+				style={{
+					color: textColor,
+					fontFamily,
+					fontSize,
+					fontWeight,
+					lineHeight: 1.5,
+					paintOrder: 'stroke fill',
+					textAlign: 'center',
+					WebkitTextStroke: `${textStrokeWidth}px #000000`,
+					whiteSpace: 'normal',
+					width: '100%',
+				}}
+			>
+				{page.tokens.map((token, tokenIndex) => {
+					const isActive = tokenIndex === activeTokenIndex;
+					const visibleText = token.text.trim();
+					const visibleTextIndex = token.text.indexOf(visibleText);
+					const leadingWhitespace = visibleText
+						? token.text.slice(0, visibleTextIndex)
+						: token.text;
+					const trailingWhitespace = visibleText
+						? token.text.slice(visibleTextIndex + visibleText.length)
+						: '';
+
+					return (
+						<React.Fragment
+							key={`${pageIndex}-${page.startMs}-${token.fromMs}-${tokenIndex}`}
+						>
+							{leadingWhitespace}
+							<span
+								style={{
+									color: isActive ? highlightColor : textColor,
+									display: 'inline-block',
+									scale: getTokenScale({currentTimeMs, fps, token}),
+									transformOrigin: 'center bottom',
+									whiteSpace: 'pre',
+								}}
+							>
+								{visibleText}
+							</span>
+							{trailingWhitespace}
+						</React.Fragment>
+					);
+				})}
+			</div>
+		</div>
+	);
+};
+
+const PoppingWordCaptionsContent: React.FC<PoppingWordCaptionsProps> = ({
+	captions,
+	combineTokensWithinMilliseconds,
+	style,
+	width = defaultWidth,
+}) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontLoaded(true);
+			})
+			.catch((error) => {
+				cancelRender(error instanceof Error ? error : new Error(String(error)));
+			});
+	}, []);
+
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const pages = useMemo(
+		() =>
+			createTikTokStyleCaptions({
+				captions,
+				combineTokensWithinMilliseconds:
+					combineTokensWithinMilliseconds ??
+					defaultCombineTokensWithinMilliseconds,
+			}).pages,
+		[captions, combineTokensWithinMilliseconds],
+	);
+	const currentTimeMs = (frame / fps) * 1000;
+	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
+	const page = pages[activePageIndex];
+
+	return (
+		<div
+			style={{
+				width,
+				...style,
+			}}
+		>
+			{fontLoaded && page ? (
+				<CaptionPage
+					key={`${activePageIndex}-${page.startMs}`}
+					captionAreaWidth={width ?? null}
+					currentTimeMs={currentTimeMs}
+					fps={fps}
+					page={page}
+					pageIndex={activePageIndex}
+				/>
+			) : null}
+		</div>
+	);
+};
+
+export const PoppingWordCaptions = Interactive.withSchema({
+	Component: PoppingWordCaptionsContent,
+	componentName: '<PoppingWordCaptions>',
+	schema: poppingWordCaptionsSchema,
+	wrapInSequence: true,
+});

@@ -383,8 +383,6 @@ const VideoForPreviewRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [_remotionInternalStack]);
 
 	const {automaticOutlineRef, registration} = useMediaInTimelineRegistration({
-		volume,
-		mediaVolume,
 		mediaType: 'video',
 		src,
 		playbackRate: playbackRate ?? 1,
@@ -395,7 +393,6 @@ const VideoForPreviewRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay: undefined,
-		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
 		documentationLink: onlyWarnForMediaSeekingError
 			? 'https://www.remotion.dev/docs/offthreadvideo'
 			: 'https://www.remotion.dev/docs/html5-video',

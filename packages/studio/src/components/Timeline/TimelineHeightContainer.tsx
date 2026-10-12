@@ -6,10 +6,9 @@ const baseStyle: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	minHeight: '100%',
-	// Keep the sticky ruler and timeline overlays below modals.
+	// Keep timeline overlays below modals.
 	isolation: 'isolate',
-	// Clip horizontally without creating a scroll container for the sticky ruler.
-	overflowX: 'clip',
+	overflowX: 'hidden',
 	backgroundColor: TIMELINE_BACKGROUND,
 };
 

@@ -90,6 +90,8 @@ const requestWriteRoute = async ({
 		getStudioRuntimeConfig: () => ({
 			showPremounting: null,
 			defaultPremountInSeconds: null,
+			experimentalSequenceActivityEnabled: false,
+			experimentalSequenceActivityLimit: 20,
 			askAIEnabled: false,
 			bufferStateDelayInMilliseconds: null,
 			canvasTabsEnabled: true,

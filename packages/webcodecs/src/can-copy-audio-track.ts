@@ -6,6 +6,9 @@ import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
 import {isSameAudioCodec} from './is-different-video-codec';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const canCopyAudioTrack = ({
 	inputCodec,
 	outputContainer,

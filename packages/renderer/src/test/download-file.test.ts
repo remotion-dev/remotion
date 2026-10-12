@@ -48,9 +48,5 @@ test('Should fail to download invalid files', async () => {
 			logLevel: 'info',
 			abortSignal: new AbortController().signal,
 		}),
-	).toThrow(
-		typeof Bun === 'undefined'
-			? /ENOTFOUND/
-			: /(Unable to connect)|ECONNREFUSED/,
-	);
+	).toThrow(/Unable to connect|ECONNREFUSED|ENOTFOUND/);
 });

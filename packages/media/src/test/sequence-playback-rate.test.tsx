@@ -407,7 +407,7 @@ test('client rendering reads the next trimmed audio loop within a frame', async 
 	}
 });
 
-test('trimmed loop volume matches live playback and complete Studio curves for repeat and extend', async () => {
+test('trimmed loop volume matches live playback for repeat and extend', async () => {
 	const environment = {
 		isRendering: false,
 		isClientSideRendering: false,
@@ -509,16 +509,7 @@ test('trimmed loop volume matches live playback and complete Studio curves for r
 					`${behavior} ${behavior === 'repeat' ? 'audio' : 'video'}`,
 			)!;
 			assert(sequence.type === 'audio' || sequence.type === 'video');
-			expect(typeof sequence.volume).toBe('string');
-			const curve = (sequence.volume as string).split(',').map(Number);
-			expect(curve).toHaveLength(30);
-			for (let i = 0; i < curve.length; i++) {
-				const frame =
-					behavior === 'extend'
-						? i * 2
-						: Math.min(i * 2, (70 + i * 2) % (27 / 0.7));
-				expect(curve[i]).toBeCloseTo(0.25 + frame / 200);
-			}
+			expect(sequence).not.toHaveProperty('volume');
 		}
 
 		for (const frame of [11, 13, 14, 20, 33, 38, 14]) {

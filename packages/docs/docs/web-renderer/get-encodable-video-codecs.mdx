@@ -34,9 +34,12 @@ Optional configuration object.
 
 #### `videoBitrate?`
 
-_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+_number | string | Quality_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
 
 A number (bits per second) or quality preset (`"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`).
+
+Since v4.0.535, you can also pass a Mediabunny [`Quality`](/docs/web-renderer/render-media-on-web#mediabunny-quality) instance.
+Pass the same value to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) later on as well.
 
 ## Return value
 

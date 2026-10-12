@@ -79,8 +79,10 @@ const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
 	}, [outerEnterStyle, outerExitStyle, perspective, presentationDirection]);
 
 	return (
-		<AbsoluteFill style={outer}>
-			<AbsoluteFill style={style}>{children}</AbsoluteFill>
+		<AbsoluteFill showInTimeline={false} style={outer}>
+			<AbsoluteFill showInTimeline={false} style={style}>
+				{children}
+			</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };

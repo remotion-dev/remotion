@@ -14,12 +14,34 @@ export type TimelineDisplayRow = {
 export const filterTimelineTrackContents = (
 	tracks: readonly TimelineTrackWithDisplayGroup[],
 	sequences: readonly TSequence[],
+	compactSeries: boolean,
 ): TimelineTrackWithDisplayGroup[] => {
 	const byId = new Map(sequences.map((sequence) => [sequence.id, sequence]));
 	const tracksById = new Map(tracks.map((track) => [track.sequence.id, track]));
 	const scopedDisplayGroupCounts = new Map<string, number>();
+	const hiddenSelfReferences = new Set<string>();
+	if (compactSeries) {
+		for (const {sequence} of tracks) {
+			const parent =
+				sequence.parent === null ? null : tracksById.get(sequence.parent);
+			if (
+				parent?.sequence.timelineTrack?.role === 'clip' &&
+				parent.sequence.showInTimeline &&
+				sequence.singleChildComponent !== null &&
+				sequence.singleChildComponent !== undefined &&
+				sequence.singleChildComponent === parent.sequence.singleChildComponent
+			) {
+				// The scene clip already represents this component's own wrapper.
+				hiddenSelfReferences.add(sequence.id);
+			}
+		}
+	}
 
 	const visibleTracks = tracks.flatMap((track) => {
+		if (hiddenSelfReferences.has(track.sequence.id)) {
+			return [];
+		}
+
 		if (
 			track.sequence.timelineTrack?.role === 'clip' &&
 			!track.sequence.showInTimeline
@@ -36,11 +58,19 @@ export const filterTimelineTrackContents = (
 				break;
 			}
 
+			if (hiddenSelfReferences.has(ancestor.id)) {
+				hiddenAncestors += Number(ancestor.showInTimeline);
+			}
+
 			if (ancestor.timelineTrack) {
 				if (
 					ancestor.timelineTrack.role === 'track' &&
-					!ancestor.showInTimeline
+					(!ancestor.showInTimeline ||
+						ancestor.loopDisplay !== undefined ||
+						ancestor.frozenFrame !== null)
 				) {
+					// Repeated or frozen child clocks cannot be represented by one
+					// advancing clip interval. Show the transformed container instead.
 					return [];
 				}
 
@@ -129,13 +159,20 @@ export const getTimelineDisplayRows = (
 		if (!group) {
 			rows.push({track, items: null, auxiliaryRows: []});
 		} else if (group.role === 'track') {
+			if (
+				track.sequence.loopDisplay !== undefined ||
+				track.sequence.frozenFrame !== null
+			) {
+				rows.push({track, items: [track], auxiliaryRows: []});
+				continue;
+			}
+
 			const items = groupedItems.get(group.id) ?? [];
 			const auxiliaryRows: TimelineTrackWithDisplayGroup[][] = [];
-			for (const item of items) {
-				if (item.sequence.timelineTrack?.role !== 'overlay') {
-					continue;
-				}
-
+			// Transitions paint over scene clips. Only overlays need extra rows.
+			for (const item of items.filter(
+				(candidate) => candidate.sequence.timelineTrack?.role === 'overlay',
+			)) {
 				const start = item.sequence.from;
 				const end =
 					item.sequence.from +

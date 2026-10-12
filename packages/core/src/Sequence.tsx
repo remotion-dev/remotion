@@ -13,6 +13,7 @@ import {
 	withCommittedMetadata,
 	type CommittedMetadata,
 } from './committed-metadata.js';
+import {getSingleChildComponent} from './component-identity.js';
 import type {
 	LoopDisplay,
 	SequenceControls,
@@ -163,8 +164,7 @@ export type SequencePropsWithoutDuration = {
 				src: string;
 		  };
 	/**
-	 * @deprecated Remotion Studio discovers rendered elements automatically.
-	 * Remove this prop.
+	 * @deprecated This prop has no effect. Remotion Studio discovers selection outlines automatically.
 	 */
 	readonly outlineRef?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;
@@ -195,12 +195,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalTimelineTrack: timelineTrackItem,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
+		_remotionInternalSingleChildComponent: childComponentOverride,
 		_remotionInternalDocumentationLink: documentationLink,
-		_remotionInternalSingleChildComponent: singleChildComponent,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
-		outlineRef: passedRefForOutline,
 		cropLeft,
 		cropRight,
 		cropTop,
@@ -436,16 +435,14 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
 	const automaticOutlineRef = useMemo(
 		() =>
-			shouldDiscoverOutline && layout === 'none' && !passedRefForOutline
+			shouldDiscoverOutline && layout === 'none'
 				? SequenceOutlineInternals.createRef()
 				: null,
-		[shouldDiscoverOutline, layout, passedRefForOutline],
+		[shouldDiscoverOutline, layout],
 	);
 	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
 	const refForOutline =
-		other.layout === 'none'
-			? (passedRefForOutline ?? automaticOutlineRef)
-			: (passedRefForOutline ?? wrapperRefForOutline);
+		layout === 'none' ? automaticOutlineRef : wrapperRefForOutline;
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
@@ -558,6 +555,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
+	const singleChildComponent = useMemo(
+		() =>
+			childComponentOverride === undefined
+				? getSingleChildComponent(children)
+				: childComponentOverride,
+		[children, childComponentOverride],
+	);
 	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);
@@ -712,7 +716,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				effectRuntimeValues,
 				displayName: timelineClipName,
 				documentationLink: resolvedDocumentationLink,
-				doesVolumeChange: isMedia.data.doesVolumeChange,
 				duration: actualDurationInFrames,
 				from,
 				trimBefore: registeredTrimBefore,
@@ -729,7 +732,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				getCurrentFrame,
 				startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
 				mediaFrameAtSequenceZero,
-				volume: isMedia.data.volumes,
 				muted: isMedia.data.muted,
 				refForOutline: refForOutline ?? null,
 				isInsideSeries,

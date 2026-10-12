@@ -1,20 +1,27 @@
 import React from 'react';
 import {
+	useVideoConfig,
 	AbsoluteFill,
 	Easing,
-	Img,
+	CanvasImage,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
 import {asset} from './assets';
 
-export const ForkDrop: React.FC = () => {
+const ForkDropInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
-			<Img
+		<AbsoluteFill
+			showInTimeline={false}
+			premountFor={fps}
+			style={{overflow: 'hidden'}}
+		>
+			<CanvasImage
+				premountFor={fps}
 				name="Cursor chat window"
 				src={asset('Screenshot 2026-07-19 at 16.26.01.png')}
 				style={{
@@ -26,6 +33,7 @@ export const ForkDrop: React.FC = () => {
 				}}
 			/>
 			<Interactive.Div
+				premountFor={fps}
 				name="Chat drop highlight"
 				style={{
 					position: 'absolute',
@@ -52,6 +60,7 @@ export const ForkDrop: React.FC = () => {
 				}}
 			/>
 			<Interactive.Div
+				premountFor={fps}
 				name="Forked Hugging Face page"
 				style={{
 					position: 'absolute',
@@ -86,13 +95,15 @@ export const ForkDrop: React.FC = () => {
 					transformOrigin: '50% 50%',
 				}}
 			>
-				<Img
+				<CanvasImage
+					premountFor={fps}
 					src={asset('Screenshot 2026-07-19 at 14.35.33.png')}
 					style={{width: 1428, height: 786}}
 					showInTimeline={false}
 				/>
 			</Interactive.Div>
-			<Img
+			<CanvasImage
+				premountFor={fps}
 				name="Dragging fork"
 				src={asset('elegant-silver-fork-free-png.webp')}
 				style={{
@@ -134,3 +145,11 @@ export const ForkDrop: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const ForkDrop = Interactive.withSchema({
+	Component: ForkDropInner,
+	componentName: 'ForkDrop',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

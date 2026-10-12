@@ -1,6 +1,7 @@
 import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {getSourceMutationRevision} from '../../helpers/source-mutation-queue';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
 import {deleteNodes} from '../delete-nodes-api';
 import {deleteEffects as deleteEffectsApi} from '../effect-operations-api';
@@ -53,7 +54,7 @@ export const deleteSequencesFromSource = async (
 		return false;
 	}
 
-	return deleteNodes({
+	const deletion = deleteNodes({
 		nodes: nodePathInfos.map((nodePathInfo) => {
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
@@ -62,13 +63,15 @@ export const deleteSequencesFromSource = async (
 				nodePath: nodePath.nodePath,
 			};
 		}),
-	})
+	});
+	const revision = getSourceMutationRevision();
+	return deletion
 		.then((result) => {
 			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 
-			return result.success;
+			return result.success && revision === getSourceMutationRevision();
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);

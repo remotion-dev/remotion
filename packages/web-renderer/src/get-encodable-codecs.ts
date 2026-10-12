@@ -1,6 +1,7 @@
 import {
 	getEncodableAudioCodecs as mediabunnyGetEncodableAudioCodecs,
 	getEncodableVideoCodecs as mediabunnyGetEncodableVideoCodecs,
+	type Quality,
 } from 'mediabunny';
 import {
 	codecToMediabunnyCodec,
@@ -17,7 +18,7 @@ import {ensureFlacEncoderRegistered} from './register-flac-encoder';
 import {ensureMp3EncoderRegistered} from './register-mp3-encoder';
 
 export type GetEncodableVideoCodecsOptions = {
-	videoBitrate?: number | WebRendererQuality;
+	videoBitrate?: number | WebRendererQuality | Quality;
 };
 
 export type GetEncodableAudioCodecsOptions = {

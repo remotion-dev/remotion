@@ -40,7 +40,6 @@ import {
 	isPointerSessionRelease,
 	startDeferredCapturedPointerSession,
 } from '../../helpers/pointer-session';
-import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -114,7 +113,7 @@ import {
 	type TimelineSelection,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
-	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
@@ -402,7 +401,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected, selectedItems, selectItem} =
 		useTimelineRowSelection(nodePathInfo);
-	const {selectItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const selectedSequenceNodePathInfos = useMemo(() => {
 		if (
 			!selected ||
@@ -1312,14 +1311,14 @@ const TimelineSequenceItemInner: React.FC<{
 			clientId: previewServerState.clientId,
 			fileName: validatedLocation.source,
 			nodePathInfo,
-			selectItems,
+			selectItems: currentSelection.current.selectItems,
 		});
 	}, [
 		canAddEffect,
 		nodePathInfo,
 		previewServerState,
 		setSelectedModal,
-		selectItems,
+		currentSelection,
 		validatedLocation?.source,
 	]);
 
@@ -1648,14 +1647,14 @@ const TimelineSequenceItemInner: React.FC<{
 				fileName: validatedLocation.source,
 				nodePathInfo,
 				clientId: previewServerState.clientId,
-				selectItems,
+				selectItems: currentSelection.current.selectItems,
 			});
 		},
 		[
 			canDropEffect,
 			nodePathInfo,
 			previewServerState,
-			selectItems,
+			currentSelection,
 			validatedLocation,
 		],
 	);
@@ -1756,16 +1755,11 @@ const TimelineSequenceItemInner: React.FC<{
 		trackRow
 	);
 
-	const annotatedTrackRow = (
+	const trackRowWithDropTarget = (
 		<div
 			{...{
 				[LUT_EFFECT_DROP_TARGET_ATTR]: canDropEffect ? 'true' : undefined,
 			}}
-			{...getSequenceAnnotationAttributes({
-				sequence,
-				location: originalLocation,
-				surface: 'track',
-			})}
 		>
 			{reorderableTrackRow}
 		</div>
@@ -1775,10 +1769,10 @@ const TimelineSequenceItemInner: React.FC<{
 		<>
 			{previewConnected || window.remotion_isReadOnlyStudio ? (
 				<ContextMenu getItems={getContextMenuItems}>
-					{annotatedTrackRow}
+					{trackRowWithDropTarget}
 				</ContextMenu>
 			) : (
-				annotatedTrackRow
+				trackRowWithDropTarget
 			)}
 			{previewConnected &&
 			isStudioInteractivityEnabled() &&

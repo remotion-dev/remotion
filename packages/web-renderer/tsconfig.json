@@ -7,6 +7,9 @@
 		"target": "ES2022",
 		"module": "ESNext",
 		"moduleResolution": "bundler",
+		"paths": {
+			"vitest": ["./node_modules/vitest"]
+		},
 		"declaration": true,
 		"emitDeclarationOnly": true
 	},

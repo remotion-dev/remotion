@@ -29,7 +29,6 @@
 		"allowJs": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"baseUrl": ".",
 		"paths": {
 			"~/*": ["./app/*"],
 			"@/*": ["./app/*"]
@@ -39,12 +38,6 @@
 		"noEmit": true
 	},
 	"references": [
-		{
-			"path": "../media-parser"
-		},
-		{
-			"path": "../webcodecs"
-		},
 		{
 			"path": "../design"
 		}
