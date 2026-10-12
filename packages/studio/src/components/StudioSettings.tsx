@@ -46,6 +46,7 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	showLayerFrameNumbers: null,
 	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: null,
@@ -205,6 +206,7 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
 			update('setShowPremounting', settings.showPremounting),
 			update('setAskAIEnabled', settings.askAIEnabled),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
@@ -324,6 +326,22 @@ export const StudioSettings: React.FC = () => {
 			/>
 
 			<p style={sectionTitle}>Interface</p>
+			<label style={optionRow}>
+				<div style={label}>Show frame numbers of layer</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={settings.showLayerFrameNumbers ?? false}
+						name="Show frame numbers of layer"
+						onChange={(event) =>
+							changeSetting(
+								'showLayerFrameNumbers',
+								'setShowLayerFrameNumbers',
+								event.target.checked,
+							)
+						}
+					/>
+				</div>
+			</label>
 			<label style={optionRow}>
 				<div style={label}>Show premounting in timeline</div>
 				<div style={rightRow}>
