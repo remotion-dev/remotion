@@ -65,6 +65,7 @@ import {
 	getVisibleTimelineTrimLimitReason,
 	type TimelineTrimLimitReason,
 } from './timeline-trim-limit-reason';
+import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	getTimelineSequenceSelectionKey,
 	shouldSelectTimelineRowOnPointerDown,
@@ -2289,6 +2290,8 @@ export const useTimelineSequenceFromDrag = ({
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {setDraggedKeyframes, clearDraggedKeyframes} =
+		useTimelineKeyframeDragState();
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const updateSnapFrameRef = useContext(TimelineSnapIndicatorContext);
 
@@ -2300,6 +2303,11 @@ export const useTimelineSequenceFromDrag = ({
 		didMove: boolean;
 		pxPerFrame: number;
 		targets: readonly TimelineSequenceFromDragTarget[];
+		selectionBeforeDrag: readonly TimelineSelection[];
+		animationSelections: readonly Extract<
+			TimelineSelection,
+			{type: 'keyframe' | 'easing'}
+		>[];
 	} | null>(null);
 
 	const latestRef = useRef({
@@ -2337,6 +2345,7 @@ export const useTimelineSequenceFromDrag = ({
 			updateSnapFrameRef?.current(null);
 			dragStateRef.current = null;
 			latestRef.current.onDragEnd(dragState.didMove);
+			clearDraggedKeyframes();
 			document.body.style.userSelect = '';
 			document.body.style.webkitUserSelect = '';
 			const {
@@ -2368,6 +2377,33 @@ export const useTimelineSequenceFromDrag = ({
 					targets: dragState.targets,
 				});
 				return;
+			}
+
+			if (dragState.animationSelections.length > 0) {
+				currentSelection.current.selectItems(
+					dragState.selectionBeforeDrag.map((selection) => {
+						if (
+							!dragState.animationSelections.some((item) => item === selection)
+						) {
+							return selection;
+						}
+
+						if (selection.type === 'keyframe') {
+							return {
+								...selection,
+								frame: selection.frame + dragState.latestDeltaFrames,
+							};
+						}
+
+						return selection.type === 'easing'
+							? {
+									...selection,
+									fromFrame: selection.fromFrame + dragState.latestDeltaFrames,
+									toFrame: selection.toFrame + dragState.latestDeltaFrames,
+								}
+							: selection;
+					}),
+				);
 			}
 
 			const savePromise = saveSequenceProps({
@@ -2405,7 +2441,7 @@ export const useTimelineSequenceFromDrag = ({
 					});
 				});
 		},
-		[updateSnapFrameRef],
+		[clearDraggedKeyframes, currentSelection, updateSnapFrameRef],
 	);
 
 	const onPointerDown = useCallback(
@@ -2441,6 +2477,8 @@ export const useTimelineSequenceFromDrag = ({
 
 			stopPointerSessionRef.current?.();
 			e.preventDefault();
+			const draggedSelectionKey =
+				getTimelineSequenceSelectionKey(latestNodePathInfo);
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
@@ -2448,6 +2486,18 @@ export const useTimelineSequenceFromDrag = ({
 				didMove: false,
 				pxPerFrame,
 				targets,
+				selectionBeforeDrag: latestSelectedItems,
+				animationSelections: latestSelectedItems.filter(
+					(
+						selection,
+					): selection is Extract<
+						TimelineSelection,
+						{type: 'keyframe' | 'easing'}
+					> =>
+						(selection.type === 'keyframe' || selection.type === 'easing') &&
+						getTimelineSequenceSelectionKey(selection.nodePathInfo) ===
+							draggedSelectionKey,
+				),
 			};
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
@@ -2482,6 +2532,16 @@ export const useTimelineSequenceFromDrag = ({
 						// remain targeted at the bar.
 						capturePointer();
 						dragState.didMove = true;
+						const draggedItem: TimelineSelection = {
+							type: 'sequence',
+							nodePathInfo: latestNodePathInfo,
+						};
+						if (
+							!currentSelection.current.isSelected(draggedItem) &&
+							!currentSelection.current.containsSelection(latestNodePathInfo)
+						) {
+							currentSelection.current.selectItem(draggedItem);
+						}
 					}
 
 					updateSnapFrameRef?.current(dragState.didMove ? snapFrame : null);
@@ -2491,6 +2551,21 @@ export const useTimelineSequenceFromDrag = ({
 					}
 
 					dragState.lastPreviewDeltaFrames = deltaFrames;
+					if (dragState.animationSelections.length > 0) {
+						setDraggedKeyframes(
+							dragState.animationSelections.flatMap((selection) =>
+								selection.type === 'keyframe'
+									? [
+											{
+												nodePathInfo: selection.nodePathInfo,
+												frame: selection.frame + deltaFrames,
+											},
+										]
+									: [],
+							),
+						);
+					}
+
 					const updates: DragOverrideUpdate[] = [];
 					const effectUpdates: EffectDragOverrideUpdate[] = [];
 
@@ -2579,6 +2654,7 @@ export const useTimelineSequenceFromDrag = ({
 			finishDrag,
 			propStatusesRef,
 			sequencesRef,
+			setDraggedKeyframes,
 			timelineDurationInFrames,
 			updateSnapFrameRef,
 			windowWidth,
