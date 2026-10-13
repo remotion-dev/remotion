@@ -85,19 +85,24 @@ import {Composition} from 'remotion';
 
 export const RemotionRoot: React.FC = () => {
   return (
-    <Composition
-      id="MyComposition"
-      durationInFrames={150}
-      fps={30}
-      width={1920}
-      height={1080}
-      component={MyComposition}
-    />
+    <>
+      <Composition
+        id="MyComposition"
+        durationInFrames={150}
+        fps={30}
+        width={1920}
+        height={1080}
+        component={MyComposition}
+      />
+      <Composition
+        id="MyCompositionPortrait"
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        component={MyComposition}
+      />
+    </>
   );
 };
 ```
-
-:::note
-You can register multiple compositions in `src/Root.tsx` by wrapping them in a React Fragment:  
-`<><Composition/><Composition/></>`. See also: [How to combine compositions?](/docs/miscellaneous/snippets/combine-compositions)
-:::
