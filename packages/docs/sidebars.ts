@@ -1168,17 +1168,6 @@ const sidebars: SidebarsConfig = {
 			items: ['getting-started', 'your-first-video'],
 		},
 		{
-			type: 'category',
-			label: 'Create videos with code',
-			link: {type: 'doc', id: 'create-videos-with-code'},
-			items: [
-				'the-fundamentals',
-				'timing',
-				'animating-properties',
-				'reusability',
-			],
-		},
-		{
 			type: 'link',
 			label: 'Templates',
 			href: '/templates',
@@ -1205,6 +1194,17 @@ const sidebars: SidebarsConfig = {
 				'light-leaks',
 				'text-highlights',
 				'starburst',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Create videos with code',
+			link: {type: 'doc', id: 'create-videos-with-code'},
+			items: [
+				'the-fundamentals',
+				'timing',
+				'animating-properties',
+				'reusability',
 			],
 		},
 		{
