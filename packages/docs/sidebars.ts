@@ -1165,9 +1165,12 @@ const sidebars: SidebarsConfig = {
 		{
 			type: 'category',
 			label: 'Getting started',
+			items: ['getting-started', 'your-first-video'],
+		},
+		{
+			type: 'category',
+			label: 'Create videos with code',
 			items: [
-				'getting-started',
-				'your-first-video',
 				'the-fundamentals',
 				'timing',
 				'animating-properties',
