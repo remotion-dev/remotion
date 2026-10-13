@@ -113,7 +113,7 @@ Pass the corresponding values to the component preview, using hosted URLs instea
 Since <AvailableFrom v="4.0.536" inline />, Elements are registered as compositions on installation. Omit `installationMode` for new integrations.
 :::
 
-Both `'wrapped'` and `'component-owned-sequence'` remain accepted for existing libraries. Studio copies the component without changing its implementation and creates a small composition adapter with an editable JSX usage. It registers that adapter as a standalone composition and wraps its instances in a [`<Sequence>`](/docs/sequence) for timing, dimensions, and placement. The parent timeline item starts collapsed and can be expanded to inspect its children.
+Both `'wrapped'` and `'component-owned-sequence'` remain accepted for existing libraries. Studio copies the component without changing its implementation and creates a small composition adapter with an editable JSX usage. It registers that adapter as a standalone composition and wraps its instances in a [`<Sequence>`](/docs/sequence) for timing, dimensions, and placement. Timeline visibility and expansion follow the existing Studio settings.
 
 Legacy `'component-owned-sequence'` payloads preserve their initial style props and add the Element dimensions to `style`. The exported component and its Interactive schema are not rewritten. When omitted, the legacy value defaults to `'wrapped'`, or `'component-owned-sequence'` for caption styles.
 

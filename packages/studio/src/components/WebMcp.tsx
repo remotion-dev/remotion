@@ -380,7 +380,7 @@ export const WebMcp: FC = () => {
 				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				compositions: compositionsRef.current,
-				showConnectedCompositionChildren: true,
+				showConnectedCompositionChildren: compactSeriesRef.current,
 			}).filter((timelineTrack) =>
 				shouldShowTrackInTimeline(timelineTrack, durationInFrames),
 			);

@@ -564,14 +564,19 @@ const resolveImportPath = ({
 		environment.dirname(fromFile),
 		importPath,
 	);
-	const candidates = environment.extname(basePath)
-		? [basePath]
-		: [
-				...extensionsToProbe.map((extension) => `${basePath}${extension}`),
-				...extensionsToProbe.map((extension) =>
-					environment.join(basePath, `index${extension}`),
-				),
-			];
+	// Element adapters omit .tsx but keep .composition in the import path.
+	// A dotted basename is not necessarily a source-file extension.
+	const candidates = [
+		basePath,
+		...(extensionsToProbe.includes(environment.extname(basePath))
+			? []
+			: [
+					...extensionsToProbe.map((extension) => `${basePath}${extension}`),
+					...extensionsToProbe.map((extension) =>
+						environment.join(basePath, `index${extension}`),
+					),
+				]),
+	];
 
 	const existingFile = candidates.find(environment.fileExists);
 	if (!existingFile) {

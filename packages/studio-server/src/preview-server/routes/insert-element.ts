@@ -3,10 +3,10 @@ import {
 	existsSync,
 	lstatSync,
 	readFileSync,
-	realpathSync,
 	unlinkSync,
 	writeFileSync,
 } from 'node:fs';
+import {realpath} from 'node:fs/promises';
 import path from 'node:path';
 import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
@@ -235,8 +235,12 @@ export const insertElementHandler: ApiHandler<
 					);
 				}
 
-				fileAliases.set(realpathSync(registrationFile), registrationFile);
-				registrationFile = realpathSync(registrationFile);
+				// Use the same canonicalization as the installation plan. On Windows,
+				// sync realpath can retain a short (8.3) path while async realpath
+				// expands it, splitting edits of one physical file into two entries.
+				const canonicalRegistrationFile = await realpath(registrationFile);
+				fileAliases.set(canonicalRegistrationFile, registrationFile);
+				registrationFile = canonicalRegistrationFile;
 				files[registrationFile] = readFileSync(registrationFile, 'utf-8');
 				// Include the root when known, so replacement can find an existing
 				// registration even if this copy is now inserted into another scene.
@@ -251,11 +255,9 @@ export const insertElementHandler: ApiHandler<
 						absolutePath: safeRootFile,
 						rootDirectory: remotionRoot,
 					});
-					fileAliases.set(realpathSync(safeRootFile), safeRootFile);
-					files[realpathSync(safeRootFile)] = readFileSync(
-						safeRootFile,
-						'utf-8',
-					);
+					const canonicalRootFile = await realpath(safeRootFile);
+					fileAliases.set(canonicalRootFile, safeRootFile);
+					files[canonicalRootFile] = readFileSync(safeRootFile, 'utf-8');
 				}
 
 				const result = CodemodsInternals.installElementComposition({

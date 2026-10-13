@@ -1415,7 +1415,7 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 				return {
 					composition:
 						browserWindow.__browserStudioProject.files[
-							'/project/src/LinkedElementComposition.tsx'
+							'/project/src/linked-element.composition.tsx'
 						],
 					element:
 						browserWindow.__browserStudioProject.files[
@@ -1425,7 +1425,7 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 			}),
 		)
 		.toEqual({
-			composition: expect.stringContaining('<LinkedElement />'),
+			composition: expect.stringContaining('<Element {...props} />'),
 			element: expect.stringContaining("import {Rect} from '@remotion/shapes'"),
 		});
 	expect(

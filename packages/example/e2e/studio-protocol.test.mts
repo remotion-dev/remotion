@@ -477,7 +477,13 @@ const CloseupPlaceholder = () => {
 			path.join(temporaryProject, 'src', 'Composition.tsx'),
 			'utf8',
 		);
-		expect(compositionSource).toContain('protocol-element.element');
+		expect(compositionSource).toContain('protocol-element.composition');
+		expect(
+			fs.readFileSync(
+				elementFile.replace('.element.tsx', '.composition.tsx'),
+				'utf8',
+			),
+		).toContain('<Element {...props} />');
 		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 		expect(compositionSource).toMatch(
 			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s+assetSrc=\{staticFile\(["']protocol-element\/data\.bin["']\)\}\s*\/>\s*<\/Sequence>/,
@@ -772,7 +778,7 @@ const CloseupPlaceholder = () => {
 
 		const newCompositionFile = path.join(
 			closeupDirectory,
-			'ProtocolElementScene.tsx',
+			'protocol-element.composition.tsx',
 		);
 		const newCompositionElementFile = path.join(
 			closeupDirectory,
@@ -820,7 +826,10 @@ const CloseupPlaceholder = () => {
 			studioPage
 				.getByRole('group', {name: 'Inspector source location'})
 				.first(),
-		).toContainText('Protocol Element', {timeout: 30_000});
+		).toContainText('ProtocolElementScene', {timeout: 30_000});
+		await expect(
+			studioPage.getByText('Installed through protocol', {exact: true}),
+		).toBeVisible();
 
 		await studioPage.getByRole('button', {name: /^Undo/}).click();
 		await expect(studioPage).toHaveURL(`${studioUrl}/MyComp`, {

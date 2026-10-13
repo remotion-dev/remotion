@@ -534,6 +534,19 @@ test('invalidates a new-composition install after an external component edit', a
 			),
 		).toBe(false);
 		expect(getUndoStack()).toHaveLength(1);
+		expect(
+			await fixture.prepareInstall(
+				{
+					type: 'current-composition',
+					compositionFile: 'Root.tsx',
+					compositionId: 'ElementScene',
+				},
+				{...element, slug: 'another-lower-third'},
+			),
+		).toMatchObject({
+			success: true,
+			plan: {filePath: 'another-lower-third.element.tsx'},
+		});
 		// Wait for fs.watchFile to establish its polling baseline before editing.
 		await new Promise((resolve) => setTimeout(resolve, 500));
 		writeFileSync(
