@@ -13,6 +13,7 @@ import {
 } from './insert-jsx-element';
 import {createElementFromInsertable} from './insertable-element';
 import {
+	getElementCompositionFilePath,
 	getElementInitialProps,
 	installElementComposition,
 } from './install-element-composition';
@@ -175,6 +176,7 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	getElementCompositionFilePath,
 	getElementInitialProps,
 	installElementComposition,
 	computeEffectPropsStatusesFromContent,

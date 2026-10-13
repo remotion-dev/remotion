@@ -490,7 +490,20 @@ test('duplicates compositions as an undoable project mutation', async () => {
 });
 
 test('imports an Element with pinned Remotion dependencies as one undoable mutation', async () => {
-	const initialProject = createBlankTemplateProject();
+	const blankProject = createBlankTemplateProject();
+	const initialProject: VirtualProject = {
+		...blankProject,
+		files: {
+			...blankProject.files,
+			'/project/src/Composition.tsx': blankProject.files[
+				'/project/src/Composition.tsx'
+			].replace(
+				'export const MyComponent: React.FC<Props> = () => {\n  return null;\n};',
+				'import {MyComponent} from "./Scene";',
+			),
+			'/project/src/Scene.tsx': 'export const MyComponent = () => null;\n',
+		},
+	};
 	let project = initialProject;
 	const resolvedDependencyNames: string[][] = [];
 	const operations = createBrowserStudioOperations({
@@ -593,27 +606,28 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 	}
 
 	expect(resolvedDependencyNames).toEqual([['@remotion/shapes', 'zod']]);
+	expect(project.files['/project/src/Composition.tsx']).toMatch(
+		/import\s*\{[^}]*\bstaticFile\b[^}]*\}\s*from\s*["']remotion["']/,
+	);
 	const installedElementSource =
 		project.files['/project/src/lower-third.element.tsx'];
 	expect(installedElementSource).toBe(element.sourceCode);
-	expect(project.files['/project/src/Composition.tsx']).toMatch(
+	expect(project.files['/project/src/Scene.tsx']).toMatch(
 		/logoSrc=\{staticFile\(["']elements\/lower-third\.bin["']\)\}/,
 	);
 	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
 		new Uint8Array([0, 1, 2]),
 	);
-	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'import { LowerThird } from "./lower-third.element";',
+	expect(project.files['/project/src/Scene.tsx']).toContain(
+		'import { LowerThird } from "./lower-third.composition";',
 	);
-	expect(project.files['/project/src/Composition.tsx']).toContain('<Sequence');
-	expect(project.files['/project/src/Composition.tsx']).toContain('from={12}');
-	expect(project.files['/project/src/Composition.tsx']).toContain(
+	expect(project.files['/project/src/Scene.tsx']).toContain('<Sequence');
+	expect(project.files['/project/src/Scene.tsx']).toContain('from={12}');
+	expect(project.files['/project/src/Scene.tsx']).toContain(
 		'name="Lower Third"',
 	);
-	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'label="Starter"',
-	);
-	expect(project.files['/project/src/Composition.tsx']).toContain(
+	expect(project.files['/project/src/Scene.tsx']).toContain('label="Starter"');
+	expect(project.files['/project/src/Scene.tsx']).toContain(
 		'translate: "24px 48px"',
 	);
 	const packageJson = JSON.parse(project.files['/project/package.json']) as {
@@ -625,6 +639,9 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 	expect((await operations.undo()).success).toBe(true);
 	expect(project.files['/project/src/Composition.tsx']).toBe(
 		initialProject.files['/project/src/Composition.tsx'],
+	);
+	expect(project.files['/project/src/Scene.tsx']).toBe(
+		initialProject.files['/project/src/Scene.tsx'],
 	);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBeUndefined();
 	expect(project.files['/project/package.json']).toBe(
@@ -676,12 +693,10 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		customizedSource,
 	);
-	expect(project.files['/project/src/Composition.tsx']).toContain(
+	expect(project.files['/project/src/Scene.tsx']).toContain(
 		'LowerThird as LowerThird2',
 	);
-	expect(project.files['/project/src/Composition.tsx']).toContain(
-		'<LowerThird2',
-	);
+	expect(project.files['/project/src/Scene.tsx']).toContain('<LowerThird2');
 	expect(
 		(
 			await operations.insertElement({
@@ -920,6 +935,9 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		'component={BrowserElement}',
 	);
 	expect(project.files['/project/src/ElementScene.tsx']).toBeUndefined();
+	expect(
+		project.files['/project/src/browser-element.composition.tsx'],
+	).toContain('<Element {...props} />');
 	expect(project.files['/project/src/browser-element.element.tsx']).toBe(
 		element.sourceCode,
 	);

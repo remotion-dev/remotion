@@ -12,7 +12,7 @@ import {getRegistrationInsertionResult} from './folder-editing';
 import {findProjectFile} from './internals';
 import type {CodemodInsertionResult} from './node-references';
 import {getRegistrationInsertionSourceEdit} from './registration-source-edits';
-import {ensureNamedImport} from './sequence-props/imports';
+import {ensureOfficialNamedImport} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
 import {
 	applySourceEdits,
@@ -79,20 +79,20 @@ export const addComposition = <Project extends CodemodProject>({
 	}
 
 	const snapshots = captureImportSnapshots(ast);
-	const tag = ensureNamedImport({
+	const tag = ensureOfficialNamedImport({
 		ast,
 		importedName: 'Composition',
 		sourcePath: 'remotion',
-		localName: 'Composition',
+		preferredLocalName: 'Composition',
 	});
 	const componentName =
 		component.importPath === null
 			? component.importName
-			: ensureNamedImport({
+			: ensureOfficialNamedImport({
 					ast,
 					importedName: component.importName,
 					sourcePath: component.importPath,
-					localName: component.importName,
+					preferredLocalName: component.importName,
 				});
 	const b = recast.types.builders;
 	const insertion = b.jsxElement(

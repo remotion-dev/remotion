@@ -204,6 +204,15 @@ export const insertElementHandler: ApiHandler<
 			let remappings: Array<{filePath: string} & SequenceNodePathRemapping>;
 			let installedCompositionId: string | null = null;
 			if (input.captionTarget === null) {
+				const adapterFile = CodemodsInternals.getElementCompositionFilePath(
+					plan.elementFileName,
+				);
+				assertNoSymlinks({
+					absolutePath: adapterFile,
+					rootDirectory: plan.safePaths.remotionRoot,
+				});
+				if (existsSync(adapterFile))
+					files[adapterFile] = readFileSync(adapterFile, 'utf-8');
 				let registrationFile = input.newComposition?.symbolicatedStack
 					?.originalFileName
 					? resolveFileInsideProject({
@@ -327,6 +336,15 @@ export const insertElementHandler: ApiHandler<
 					throw new Error(
 						'Composition source changed during Element installation',
 					);
+			}
+
+			for (const change of changes) {
+				const currentContents = existsSync(change.filePath)
+					? readFileSync(change.filePath, 'utf-8')
+					: null;
+				if (currentContents !== change.previousContents) {
+					throw new Error('Source changed during Element installation');
+				}
 			}
 
 			const assetsToCreate: Array<{

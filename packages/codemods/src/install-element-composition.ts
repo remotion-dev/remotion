@@ -1,5 +1,6 @@
 import type {ElementInitialProps} from '@remotion/studio-protocol';
 import type {InsertElementRequest} from '@remotion/studio-shared';
+import * as recast from 'recast';
 import {addComposition} from './add-composition';
 import {addElement} from './add-element';
 import {applyCodemodChanges, type CodemodProject} from './codemod-project';
@@ -10,8 +11,28 @@ import {
 	createElementFromInsertable,
 	toCodemodValue,
 } from './insertable-element';
-import type {CodemodNodeResult, NodePathRemapping} from './node-references';
+import {
+	getNodeEditResult,
+	getUnchangedStructureRemappings,
+	type NodeReference,
+	type CodemodNodeResult,
+	type NodePathRemapping,
+} from './node-references';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {resolveCompositionComponent} from './resolve-composition-component';
+import {findJsxElementAtNodePath} from './sequence-props';
+import {
+	ensureNamedImport,
+	ensureOfficialNamedImport,
+	getImportedName,
+} from './sequence-props/imports';
+import {parseAst} from './sequence-props/parse-ast';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+	type SourceEdit,
+} from './source-edits';
 import {updateNodeProps} from './update-node-props';
 
 const getElementImportPath = (fromFile: string, elementFile: string) => {
@@ -67,8 +88,12 @@ export const getElementInitialProps = (
 	return initialProps;
 };
 
-// Shared by the filesystem and virtual-project installers. Registration and
-// insertion use the same copied export; the library's source is never rewritten.
+export const getElementCompositionFilePath = (elementFile: string) =>
+	elementFile.replace(/\.element\.tsx$/, '.composition.tsx');
+
+// Shared by the filesystem and virtual-project installers. The copied export
+// stays unchanged. Its composition adapter provides an authored JSX usage for
+// Visual Mode, instead of hiding the Element's controls at the composition root.
 export const installElementComposition = ({
 	project,
 	request,
@@ -86,6 +111,27 @@ export const installElementComposition = ({
 }) => {
 	const {element, newComposition} = request;
 	const initialProps = getElementInitialProps(element);
+	const compositionComponentFile = getElementCompositionFilePath(elementFile);
+	const compositionComponentName =
+		componentName === 'React' ? 'ReactComposition' : componentName;
+	if (
+		target?.filePath === compositionComponentFile &&
+		target.exportName === compositionComponentName
+	) {
+		throw new Error(
+			'Cannot insert an Element into its own composition. Choose a different installation name.',
+		);
+	}
+
+	const elementAlias =
+		compositionComponentName === 'Element' ? 'InstalledElement' : 'Element';
+	const compositionSource = `import React from 'react';
+import {${componentName} as ${elementAlias}} from '${getElementImportPath(compositionComponentFile, elementFile)}';
+
+export const ${compositionComponentName} = (
+\tprops: React.ComponentProps<typeof ${elementAlias}>,
+) => <${elementAlias} {...props} />;
+`;
 	let nextProject = {
 		...project,
 		files: {...project.files, [elementFile]: element.sourceCode},
@@ -136,6 +182,8 @@ export const installElementComposition = ({
 	const ids = new Set(request.compositionContext?.compositionIds ?? []);
 	let existingId: string | null = null;
 	let existingRegistrationFile: string | null = null;
+	let directRegistration: NodeReference | null = null;
+	let hasAdapterRegistration = false;
 	let targetMetadata: Partial<CompositionMetadata> = {};
 	for (const node of compositionNodes) {
 		const {props} = getNodeProps({
@@ -162,7 +210,6 @@ export const installElementComposition = ({
 			}
 		}
 
-		if (newComposition !== null) continue;
 		try {
 			const resolved = resolveCompositionComponent({
 				project: nextProject,
@@ -170,16 +217,161 @@ export const installElementComposition = ({
 				compositionId: id,
 			});
 			if (
+				resolved.filePath === compositionComponentFile &&
+				resolved.exportName === compositionComponentName
+			) {
+				hasAdapterRegistration = true;
+				if (newComposition === null) {
+					existingId = id;
+					existingRegistrationFile = node.filePath;
+					directRegistration = null;
+				}
+			} else if (
+				newComposition === null &&
+				!hasAdapterRegistration &&
 				resolved.filePath === elementFile &&
 				resolved.exportName === componentName
 			) {
 				existingId = id;
 				existingRegistrationFile = node.filePath;
+				directRegistration = node;
 			}
 		} catch {
 			// Unrelated lazy or external compositions need not be resolvable in
 			// the subset of source files loaded for this installation.
 		}
+	}
+
+	const previousAdapter = project.files[compositionComponentFile];
+	if (
+		previousAdapter !== undefined &&
+		!hasAdapterRegistration &&
+		previousAdapter !== compositionSource
+	) {
+		throw new Error(
+			`Composition adapter already exists at ${compositionComponentFile}. Choose a different installation name.`,
+		);
+	}
+
+	nextProject.files[compositionComponentFile] =
+		previousAdapter ?? compositionSource;
+
+	if (directRegistration !== null) {
+		// Upgrade a direct registration made by the earlier installer without
+		// replacing its ID, metadata, default props, or folder placement.
+		const {filePath} = directRegistration;
+		const input = nextProject.files[filePath];
+		const ast = parseAst(input);
+		const attr = findJsxElementAtNodePath(
+			ast,
+			directRegistration.nodePath,
+		)?.attributes.find(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.name === 'component',
+		);
+		if (
+			attr?.type !== 'JSXAttribute' ||
+			attr.value?.type !== 'JSXExpressionContainer' ||
+			!attr.value.expression.loc
+		) {
+			throw new Error('Could not locate the existing Element registration');
+		}
+
+		const snapshots = captureImportSnapshots(ast);
+		const importEdits: SourceEdit[] = [];
+		const oldBinding =
+			attr.value.expression.type === 'Identifier'
+				? attr.value.expression.name
+				: null;
+		let transferredBinding: string | null = null;
+		for (const declaration of ast.program.body) {
+			if (
+				declaration.type !== 'ImportDeclaration' ||
+				declaration.loc === null ||
+				declaration.loc === undefined
+			)
+				continue;
+			const specifier = declaration.specifiers.find(
+				(entry) =>
+					entry.type === 'ImportSpecifier' &&
+					entry.local.name === oldBinding &&
+					getImportedName(entry) === componentName,
+			);
+			if (specifier === undefined) continue;
+			// Transfer the existing binding, including other uses in the root
+			// file, rather than leaving behind an unused Element import.
+			declaration.specifiers = declaration.specifiers.filter(
+				(entry) => entry !== specifier,
+			);
+			importEdits.push({
+				start: recastLocToOffset(input, declaration.loc.start),
+				end: recastLocToOffset(input, declaration.loc.end),
+				replacement:
+					declaration.specifiers.length === 0
+						? ''
+						: recast.print(declaration).code,
+			});
+			if (declaration.specifiers.length === 0)
+				ast.program.body = ast.program.body.filter(
+					(entry) => entry !== declaration,
+				);
+			transferredBinding = oldBinding;
+			break;
+		}
+
+		const localName =
+			transferredBinding === null
+				? ensureOfficialNamedImport({
+						ast,
+						importedName: compositionComponentName,
+						preferredLocalName: compositionComponentName,
+						sourcePath: getElementImportPath(
+							filePath,
+							compositionComponentFile,
+						),
+					})
+				: ensureNamedImport({
+						ast,
+						importedName: compositionComponentName,
+						localName: transferredBinding,
+						sourcePath: getElementImportPath(
+							filePath,
+							compositionComponentFile,
+						),
+					});
+		const output = applySourceEdits({
+			input,
+			edits: [
+				...importEdits,
+				{
+					start: recastLocToOffset(input, attr.value.expression.loc.start),
+					end: recastLocToOffset(input, attr.value.expression.loc.end),
+					replacement: localName,
+				},
+				...getInsertImportSourceEdits({
+					ast,
+					input,
+					snapshots,
+					prettierConfigOverride: null,
+				}),
+			],
+		});
+		apply(
+			getNodeEditResult({
+				project: nextProject,
+				edits: [
+					{
+						filePath,
+						output,
+						nodePathRemappings: getUnchangedStructureRemappings({
+							input,
+							output,
+						}),
+					},
+				],
+			}),
+		);
 	}
 
 	targetMetadata = request.compositionContext ?? targetMetadata;
@@ -251,9 +443,12 @@ export const installElementComposition = ({
 			element: createElementFromInsertable({
 				element: {
 					type: 'component',
-					componentName,
-					importName: componentName,
-					importPath: getElementImportPath(target.filePath, elementFile),
+					componentName: compositionComponentName,
+					importName: compositionComponentName,
+					importPath: getElementImportPath(
+						target.filePath,
+						compositionComponentFile,
+					),
 					props: Object.entries(instanceProps).map(([name, value]) => ({
 						name,
 						value,
@@ -281,8 +476,11 @@ export const installElementComposition = ({
 			compositionFile: registrationFile,
 			compositionId,
 			component: {
-				importName: componentName,
-				importPath: getElementImportPath(registrationFile, elementFile),
+				importName: compositionComponentName,
+				importPath: getElementImportPath(
+					registrationFile,
+					compositionComponentFile,
+				),
 			},
 			metadata,
 			folder: options?.folderName
@@ -303,6 +501,7 @@ export const installElementComposition = ({
 
 	return {
 		compositionId,
+		compositionComponentFile,
 		changes: Object.entries(nextProject.files).flatMap(
 			([filePath, nextContents]) =>
 				project.files[filePath] === nextContents

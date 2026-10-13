@@ -93,7 +93,7 @@ test('new compositions append to fragments and folders and wrap standalone roots
 			'<>\n  <Composition id="Old" />\n  INSERT\n</>',
 		],
 	] as const) {
-		const input = `import {Composition, Folder} from 'remotion';\nexport const Root = () => (${root});\n`;
+		const input = `import {Composition, Folder} from 'remotion';\nimport {Fresh} from './ExistingFresh';\nexport const Existing = Fresh;\nexport const Root = () => (${root});\n`;
 		const result = addComposition({
 			project: {rootDir: '/', files: {[compositionFile]: input}},
 			compositionFile,
@@ -104,9 +104,9 @@ test('new compositions append to fragments and folders and wrap standalone roots
 				folderName === null ? undefined : {name: folderName, parentName: null},
 		});
 		const inserted =
-			'<Composition\n    id="Fresh"\n    component={Fresh}\n    durationInFrames={90}\n    fps={30}\n    width={1920}\n    height={1080}\n  />';
+			'<Composition\n    id="Fresh"\n    component={Fresh2}\n    durationInFrames={90}\n    fps={30}\n    width={1920}\n    height={1080}\n  />';
 		expect(getChangedContents(result, compositionFile)).toBe(
-			"import {Fresh} from './Fresh';\n" +
+			"import {Fresh as Fresh2} from './Fresh';\n" +
 				input.replace(root, expected.replace('INSERT', inserted)),
 		);
 	}

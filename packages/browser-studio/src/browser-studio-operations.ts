@@ -2686,7 +2686,8 @@ export const createBrowserStudioOperations = ({
 								newNodePath,
 							})),
 					}));
-					const targetFile = plan.target?.filePath ?? plan.elementFilePath;
+					const targetFile =
+						plan.target?.filePath ?? result.compositionComponentFile;
 					insertion = {
 						changes: result.changes,
 						filePath: targetFile,

@@ -34,7 +34,7 @@ The caption Elements show the distinction: moving a pill between words, popping 
 
 Prefer exposing the Element's layers so users can inspect and edit them with [Studio interactivity](/docs/studio/interactivity).
 
-Since <AvailableFrom v="4.0.536" inline />, Studio registers each installed copy as a [composition](/docs/terminology#composition). Its instances have a collapsed, expandable timeline group, and the standalone composition provides a separate timeline for editing the copied source.
+Since <AvailableFrom v="4.0.536" inline />, Studio registers each installed copy as a [composition](/docs/terminology#composition). Studio keeps the copied `.element.tsx` source unchanged and creates a `.composition.tsx` adapter with an editable JSX usage of the Element. Both the registered composition and its instances use this adapter. Its instances have a collapsed, expandable timeline group, and the standalone composition provides a separate timeline for selecting the Element and editing its source or children.
 
 You do not need to choose an installation mode. Plain components can expose editable primitives internally. Use [`Interactive.withSchema()`](/docs/interactive-with-schema) when the Element has meaningful Inspector controls, such as a generative effect or canvas-based object. A schema-enabled component keeps its existing controls; registration does not automatically expose hidden implementation details.
 

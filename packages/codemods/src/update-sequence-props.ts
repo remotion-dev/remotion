@@ -97,16 +97,26 @@ const ensureImportsForUpdates = ({
 	ast: File;
 	updates: SequencePropUpdate[];
 }) => {
-	if (
-		updates.some(
-			({value, defaultValue}) =>
-				typeof value === 'string' &&
-				value.startsWith(NoReactInternals.FILE_TOKEN) &&
+	for (const {value, defaultValue} of updates) {
+		const pending: unknown[] = [value];
+		const visited = new Set<object>();
+		while (pending.length > 0) {
+			const item = pending.pop();
+			if (
+				typeof item === 'string' &&
+				item.startsWith(NoReactInternals.FILE_TOKEN) &&
 				(defaultValue === null ||
-					JSON.stringify(value) !== JSON.stringify(defaultValue)),
-		)
-	) {
-		ensureStaticFileBinding(ast);
+					JSON.stringify(value) !== JSON.stringify(defaultValue))
+			) {
+				ensureStaticFileBinding(ast);
+				return;
+			}
+
+			if (typeof item === 'object' && item !== null && !visited.has(item)) {
+				visited.add(item);
+				pending.push(...Object.values(item));
+			}
+		}
 	}
 };
 

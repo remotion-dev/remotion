@@ -523,6 +523,12 @@ test('invalidates a new-composition install after an external component edit', a
 		const componentFile = fixture.elementFile;
 		expect(registration).toContain('component={LowerThird}');
 		expect(
+			readFileSync(
+				fixture.elementFile.replace('.element.tsx', '.composition.tsx'),
+				'utf-8',
+			),
+		).toContain('<Element {...props} />');
+		expect(
 			existsSync(
 				path.join(path.dirname(fixture.compositionFile), 'ElementScene.tsx'),
 			),
@@ -772,6 +778,21 @@ test('materializes independent props for two component-owned copies', async () =
 test('installs independent named copies into the same and another composition', async () => {
 	const fixture = makeFixture();
 	try {
+		const targetFile = path.join(
+			path.dirname(fixture.compositionFile),
+			'Target.tsx',
+		);
+		writeFileSync(
+			targetFile,
+			'export const Target = () => <div>Hello</div>;\n',
+		);
+		writeFileSync(
+			fixture.compositionFile,
+			compositionSource.replace(
+				'const Target = () => <div>Hello</div>;',
+				"import {Target} from './Target';",
+			),
+		);
 		expect((await fixture.callHandler(false)).success).toBe(true);
 		// Even identical source must not be implicitly reused.
 		expect(await fixture.callHandler(false)).toMatchObject({
@@ -780,6 +801,7 @@ test('installs independent named copies into the same and another composition', 
 		});
 		writeFileSync(fixture.elementFile, existingElementSource);
 		const firstComposition = readFileSync(fixture.compositionFile, 'utf-8');
+		const firstTarget = readFileSync(targetFile, 'utf-8');
 		const root = path.dirname(fixture.compositionFile);
 		const secondFile = path.join(root, 'speaker-name.element.tsx');
 		const thirdFile = path.join(root, 'guest-name.element.tsx');
@@ -806,9 +828,10 @@ test('installs independent named copies into the same and another composition', 
 		expect((await fixture.callHandlerWithInput(input)).success).toBe(true);
 		const secondComposition = readFileSync(fixture.compositionFile, 'utf-8');
 		expect(secondComposition).toContain('LowerThird as LowerThird2');
-		expect(secondComposition).toContain('./speaker-name.element');
-		expect(secondComposition).toContain('<LowerThird2');
-		expect(secondComposition).toContain('<LowerThird ');
+		expect(secondComposition).toContain('./speaker-name.composition');
+		expect(secondComposition).toContain('component={LowerThird2}');
+		expect(readFileSync(targetFile, 'utf-8')).toContain('<LowerThird2');
+		expect(readFileSync(targetFile, 'utf-8')).toContain('<LowerThird ');
 		expect(readFileSync(secondFile, 'utf-8')).toBe(incomingElementSource);
 
 		expect(popUndo().success).toBe(true);
@@ -816,6 +839,7 @@ test('installs independent named copies into the same and another composition', 
 		expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
 			firstComposition,
 		);
+		expect(readFileSync(targetFile, 'utf-8')).toBe(firstTarget);
 		expect(popRedo().success).toBe(true);
 		expect(readFileSync(secondFile, 'utf-8')).toBe(incomingElementSource);
 		expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
@@ -833,7 +857,7 @@ test('installs independent named copies into the same and another composition', 
 			).success,
 		).toBe(true);
 		expect(readFileSync(otherComposition, 'utf-8')).toContain(
-			'./guest-name.element',
+			'./guest-name.composition',
 		);
 		expect(readFileSync(thirdFile, 'utf-8')).toBe(incomingElementSource);
 		writeFileSync(
