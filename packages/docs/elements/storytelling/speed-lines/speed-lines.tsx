@@ -11,13 +11,9 @@ import {
 
 type SpeedLinesProps = {
 	readonly color?: string;
-	readonly style?: React.CSSProperties;
 };
 
-const SpeedLinesInner: React.FC<SpeedLinesProps> = ({
-	color = '#ffffff',
-	style,
-}) => {
+const SpeedLinesInner: React.FC<SpeedLinesProps> = ({color = '#ffffff'}) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const seed = Math.floor(frame / 2);
@@ -38,24 +34,22 @@ const SpeedLinesInner: React.FC<SpeedLinesProps> = ({
 	});
 
 	return (
-		<AbsoluteFill style={style} showInTimeline={false}>
-			<AbsoluteFill
-				name="Speed lines fade"
-				style={{
-					opacity: interpolate(
-						frame,
-						[0, 3, durationInFrames - 5, durationInFrames - 1],
-						[0, 0.85, 0.85, 0],
-						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-					),
-				}}
-			>
-				<svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-					{lines.map((d, i) => (
-						<path key={i} d={d} fill={color} />
-					))}
-				</svg>
-			</AbsoluteFill>
+		<AbsoluteFill
+			name="Speed lines fade"
+			style={{
+				opacity: interpolate(
+					frame,
+					[0, 3, durationInFrames - 5, durationInFrames - 1],
+					[0, 0.85, 0.85, 0],
+					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+				),
+			}}
+		>
+			<svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+				{lines.map((d, i) => (
+					<path key={i} d={d} fill={color} />
+				))}
+			</svg>
 		</AbsoluteFill>
 	);
 };
@@ -66,7 +60,8 @@ const speedLinesSchema = {
 
 export const SpeedLines = Interactive.withSchema({
 	Component: SpeedLinesInner,
-	componentName: '<SpeedLines>',
+	componentName: 'SpeedLines',
 	schema: speedLinesSchema,
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
