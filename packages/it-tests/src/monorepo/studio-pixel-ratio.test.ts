@@ -23,12 +23,12 @@ test('Studio canvas uses the device pixel ratio by default', () => {
 			devicePixelRatio: 2,
 		};
 		const {getStudioPixelRatio} = await import(${JSON.stringify(modulePath)});
-		console.log(getStudioPixelRatio());
+		const initialPixelRatio = getStudioPixelRatio();
 		window.devicePixelRatio = 3;
-		console.log(getStudioPixelRatio());
+		process.stdout.write(JSON.stringify([initialPixelRatio, getStudioPixelRatio()]));
 		`,
 	]);
 
 	expect(result.exitCode).toBe(0);
-	expect(result.stdout.toString().trim()).toBe('2\n3');
+	expect(JSON.parse(result.stdout.toString())).toEqual([2, 3]);
 });
