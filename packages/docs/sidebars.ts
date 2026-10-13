@@ -1200,7 +1200,7 @@ const sidebars: SidebarsConfig = {
 				'components',
 				'timing',
 				'animating-properties',
-				'reusability',
+				'composing',
 			],
 		},
 		{

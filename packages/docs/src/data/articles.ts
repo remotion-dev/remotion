@@ -7887,13 +7887,13 @@ export const articles = [
 		slug: 'sequence',
 	},
 	{
-		id: 'reusability',
-		title: 'Making components reusable',
-		relativePath: 'docs/sequences.mdx',
-		compId: 'articles-docs-sequences',
+		id: 'composing',
+		title: 'Composing components',
+		relativePath: 'docs/composing.mdx',
+		compId: 'articles-docs-composing',
 		crumb: 'The power of React',
 		noAi: false,
-		slug: 'reusability',
+		slug: 'composing',
 	},
 	{
 		id: 'series',

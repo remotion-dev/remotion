@@ -65,6 +65,12 @@ export const config: VercelConfig = {
 		]),
 	],
 	redirects: [
+		routes.redirect('/docs/reusability', '/docs/composing', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/reusability.md', '/docs/composing.md', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/the-fundamentals', '/docs/idea', {
 			permanent: true,
 		}),
