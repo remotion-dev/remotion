@@ -19,26 +19,21 @@ Example:
 ```tsx
 // MyVideo.tsx
 import {TransitionSeries} from '@remotion/transitions';
-import {useVideoConfig} from 'remotion';
 import {OpeningScene} from './OpeningScene';
 import {FeatureScene} from './FeatureScene';
 
 export const MyVideo = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <TransitionSeries>
       <TransitionSeries.Sequence
         name="Opening"
         durationInFrames={90}
-        premountFor={fps}
       >
         <OpeningScene />
       </TransitionSeries.Sequence>
       <TransitionSeries.Sequence
         name="Feature"
         durationInFrames={120}
-        premountFor={fps}
       >
         <FeatureScene />
       </TransitionSeries.Sequence>
