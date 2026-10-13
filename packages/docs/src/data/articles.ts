@@ -9195,7 +9195,7 @@ export const articles = [
 	},
 	{
 		id: 'the-fundamentals',
-		title: 'The fundamentals',
+		title: 'The core idea',
 		relativePath: 'docs/the-fundamentals.mdx',
 		compId: 'articles-docs-the-fundamentals',
 		crumb: 'Getting started',
