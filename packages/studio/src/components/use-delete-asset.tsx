@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import {useCallback} from 'react';
 import {deleteStaticFile} from '../api/delete-static-file';
 import {useConfirmationDialog} from './ConfirmationDialog';

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {SVGProps} from 'react';
 import React, {useMemo} from 'react';
 import {FAIL_COLOR, WARNING_COLOR, WHITE} from '../../helpers/colors';

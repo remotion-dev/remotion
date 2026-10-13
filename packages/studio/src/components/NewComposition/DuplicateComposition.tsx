@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {ChangeEventHandler} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';

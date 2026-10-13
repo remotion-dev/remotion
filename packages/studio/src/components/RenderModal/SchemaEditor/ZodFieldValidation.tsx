@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {InfoBubble} from '../InfoBubble';

@@ -1,8 +1,17 @@
+/** @jsxImportSource ./scene-jsx */
 import React from 'react';
-import {Internals} from 'remotion';
 import {LoopedIndicator} from './LoopedIndicator';
 
 const row: React.CSSProperties = {
+	position: 'absolute',
+	top: 0,
+	left: 0,
+	right: 0,
+	bottom: 0,
+	width: '100%',
+	height: '100%',
+	display: 'flex',
+	flexDirection: 'column',
 	overflow: 'hidden',
 };
 
@@ -40,7 +49,7 @@ export const LoopedTimelineIndicator: React.FC<{
 		);
 
 	return (
-		<Internals.AbsoluteFillElement style={row}>
+		<div style={row}>
 			{boundaries.map((boundary) => {
 				return (
 					<div
@@ -57,6 +66,6 @@ export const LoopedTimelineIndicator: React.FC<{
 					</div>
 				);
 			})}
-		</Internals.AbsoluteFillElement>
+		</div>
 	);
 };

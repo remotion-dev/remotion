@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React, {useMemo} from 'react';
 import {LINE_COLOR} from '../../../helpers/colors';
 import {VERTICAL_GUIDE_HEIGHT} from './SchemaSeparationLine';

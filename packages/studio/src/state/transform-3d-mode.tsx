@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import React, {createContext, useCallback, useMemo, useState} from 'react';
 
 type Transform3DModeState = {

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {CanvasInternals} from '@remotion/sdk';
 import {
 	stringifySequenceExpandedRowKey,
@@ -3034,7 +3035,7 @@ export const useTimelineSequenceFromDrag = ({
 			// the global session listeners exist.
 			stopPointerSessionRef.current = startDeferredCapturedPointerSession({
 				event: e.nativeEvent,
-				captureTarget: e.currentTarget.ownerDocument.body,
+				captureTarget: e.currentTarget,
 				onMove: (moveEvent, capturePointer) => {
 					const dragState = dragStateRef.current;
 					if (!dragState) {

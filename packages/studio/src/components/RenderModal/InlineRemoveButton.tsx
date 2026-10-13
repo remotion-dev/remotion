@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import {useCallback} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
 import {ActionTooltip} from '../ActionTooltip';

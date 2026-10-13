@@ -1,7 +1,8 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
 import {INPUT_BACKGROUND, LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {createStudioPortal} from '../../helpers/create-studio-portal';
+/** @jsxImportSource ../Timeline/scene-jsx */
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
 import {outerPortal} from '../Menu/styles';
@@ -28,7 +29,7 @@ export const InfoBubble: React.FC<{
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
 	const {tabIndex, currentZIndex} = useZIndex();
-	const size = PlayerInternals.useElementSize(ref, {
+	const size = useSceneElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -145,7 +146,7 @@ export const InfoBubble: React.FC<{
 				</svg>
 			</button>
 			{portalStyle
-				? ReactDOM.createPortal(
+				? createStudioPortal(
 						<div style={outerPortal} className="css-reset">
 							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 								<div style={portalStyle}>

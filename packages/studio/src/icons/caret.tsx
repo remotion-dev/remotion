@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import React, {useMemo} from 'react';
 import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 

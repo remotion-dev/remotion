@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {PointerEvent, SetStateAction} from 'react';
 import React, {
 	useCallback,

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {
 	createRef,
 	useCallback,
@@ -12,6 +13,7 @@ import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-o
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {getCurrentDuration, getCurrentFrame} from './imperative-state';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
+import {isTimelineSceneNode} from './timeline-scene-node';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -37,7 +39,9 @@ const PLAYHEAD_LINE_WIDTH = 1;
 const line: React.CSSProperties = {
 	height: '100vh',
 	width: PLAYHEAD_LINE_WIDTH,
-	position: 'fixed',
+	position: 'absolute',
+	left: 0,
+	top: 0,
 	backgroundColor: TIMELINE_PLAYHEAD_COLOR,
 };
 
@@ -117,6 +121,11 @@ const TimelineSliderInner: React.FC = () => {
 	useLayoutEffect(() => {
 		draw(timelinePosition);
 	}, [draw, timelinePosition, timelineWidth, zoomLevel]);
+	useLayoutEffect(() => {
+		const node = ref.current;
+		if (!isTimelineSceneNode(node)) return;
+		return node.store.subscribeLayout(() => draw(getCurrentFrame()));
+	}, [draw]);
 
 	useLayoutEffect(() => {
 		const scrollable = scrollableRef.current;

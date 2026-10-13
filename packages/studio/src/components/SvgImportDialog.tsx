@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import React, {useCallback, useContext, useEffect, useRef} from 'react';
 import type {SvgImportDialogState} from '../state/modals';
 import {SetSelectedModalContext} from '../state/modals';

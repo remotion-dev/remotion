@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import {
 	forEachWaveformBar,
 	getDevicePixelAlignedCanvasLayout,

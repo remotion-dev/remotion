@@ -1,5 +1,4 @@
 import React, {
-	createContext,
 	createRef,
 	useContext,
 	useEffect,
@@ -12,57 +11,39 @@ import {flushSync} from 'react-dom';
 import {BACKGROUND} from '../../helpers/colors';
 import {resolveStudioColor} from '../../helpers/resolve-studio-color';
 import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
-import {getTimelineDomPaintEntries} from './get-timeline-dom-paint-entries';
-import type {TimelineDomVisual} from './get-timeline-dom-paint-entries';
-import type {
+import {
 	createPixiTimelineRenderer,
-	TimelineCanvasDraw,
-	TimelinePaintNode,
-	TimelineReorderPreview,
-	TimelineSceneTransition,
+	type TimelineCanvasDraw,
+	type TimelineReorderPreview,
+	type TimelineSceneTransition,
 } from './pixi-timeline-renderer';
-import {sortTimelinePaintEntries} from './sort-timeline-paint-entries';
-import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
-import {useTimelineVirtualization} from './TimelineVirtualization';
+import {jsx} from './scene-jsx/jsx-runtime';
+import {TimelineSceneContext} from './timeline-scene-context';
+import {
+	attachTimelineSceneEvents,
+	selectTimelineSceneNode,
+	setTimelineSceneSelectionRange,
+} from './timeline-scene-events';
+import {createTimelineSceneLayout} from './timeline-scene-layout';
+import {
+	isTimelineSceneNode,
+	TimelineSceneNode,
+	type TimelineSceneStore,
+} from './timeline-scene-node';
+import {getTimelineScenePaintNodes} from './timeline-scene-paint';
 
-type PaintEntry = {
-	element: HTMLElement;
-	background: string;
-	drawing: TimelineCanvasDraw | null;
-};
-type PaintStore = {
-	entries: Map<HTMLElement, PaintEntry>;
-	invalidate: () => void;
-	repaint: () => void;
-};
-type ScrollPosition = {
-	x: number;
-	y: number;
-	scrollsX: boolean;
-	stickyY: boolean;
-};
-type MeasuredNode = {
-	node: TimelinePaintNode;
-	position: ScrollPosition;
-	scrollLeft: number;
-	scrollTop: number;
-	clips: (ScrollPosition & {
-		width: number;
-		height: number;
-		clipsX: boolean;
-		clipsY: boolean;
-	})[];
-	paths: (ScrollPosition & {path: string})[];
-};
-const TimelineCanvasContext = createContext<PaintStore | null>(null);
 const reorderPreviewRef = createRef<
-	((rect: DOMRect) => TimelineReorderPreview | null) | null
+	| ((
+			rects: readonly {rect: DOMRect; offsetY: number}[],
+	  ) => TimelineReorderPreview | null)
+	| null
 >();
-export const createTimelineReorderPreview = (
-	rect: DOMRect,
-): TimelineReorderPreview | null => reorderPreviewRef.current?.(rect) ?? null;
-
-type TimelineSceneTransitionOptions = {
+export const createTimelineReorderPreview = (rect: DOMRect) =>
+	reorderPreviewRef.current?.([{rect, offsetY: 0}]) ?? null;
+export const createTimelineRowReorderPreview = (
+	rects: readonly {rect: DOMRect; offsetY: number}[],
+) => reorderPreviewRef.current?.(rects) ?? null;
+type SceneTransitionOptions = {
 	readonly panels: readonly {
 		readonly element: HTMLElement;
 		readonly clipY: {readonly top: number; readonly bottom: number};
@@ -71,783 +52,350 @@ type TimelineSceneTransitionOptions = {
 	readonly update: () => void;
 };
 const sceneTransitionRef = createRef<
-	((options: TimelineSceneTransitionOptions) => (() => void) | null) | null
+	((options: SceneTransitionOptions) => (() => void) | null) | null
 >();
-export const startTimelineSceneTransition = (
-	options: TimelineSceneTransitionOptions,
-): (() => void) | null => sceneTransitionRef.current?.(options) ?? null;
+export const startTimelineSceneTransition = (options: SceneTransitionOptions) =>
+	sceneTransitionRef.current?.(options) ?? null;
 
-// The invisible DOM retains browser layout, focus, hit testing and accessibility.
-// One retained WebGL scene paints every timeline surface above it.
 export const TimelineCanvasProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const {totalSize} = useTimelineVirtualization();
 	const hostRef = useRef<HTMLDivElement>(null);
-	const layoutRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [ready, setReady] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
-	const store = useMemo<PaintStore>(
-		() => ({
-			entries: new Map(),
+	const store = useMemo(() => {
+		const listeners = new Set<() => void>();
+		const next: TimelineSceneStore = {
+			canvas: null,
+			canvasRect: null,
+			root: null as unknown as TimelineSceneNode,
 			invalidate: () => undefined,
 			repaint: () => undefined,
-		}),
-		[],
-	);
+			subscribeLayout: (listener) => {
+				listeners.add(listener);
+				return () => {
+					listeners.delete(listener);
+				};
+			},
+			notifyLayout: () => {
+				for (const listener of listeners) listener();
+			},
+			focus: () => undefined,
+			blur: () => undefined,
+			click: () => undefined,
+			select: selectTimelineSceneNode,
+			setSelectionRange: (node, start, end) =>
+				setTimelineSceneSelectionRange(node, start, end, null),
+		};
+		next.root = new TimelineSceneNode('root', next);
+		next.root.setProps({
+			style: {
+				display: 'flex',
+				flexDirection: 'column',
+				position: 'relative',
+				backgroundColor: BACKGROUND,
+			},
+		});
+		return next;
+	}, []);
 	useEffect(() => {
 		const host = hostRef.current;
-		const layout = layoutRef.current;
 		const canvas = canvasRef.current;
-		const verticalScroll = timelineVerticalScroll.current;
-		if (!host || !layout || !canvas || !verticalScroll) return;
+		if (!host || !canvas) return;
+		store.canvas = canvas;
 		let disposed = false;
-		let failed = false;
+		let initializationFailed = false;
+		let frame: number | null = null;
+		let dirty = true;
+		let revision = 0;
+		let size = {width: 0, height: 0};
 		let renderer: Awaited<
 			ReturnType<typeof createPixiTimelineRenderer>
 		> | null = null;
-		let animationFrame: number | null = null;
-		let layoutDirty = true;
-		let scrollRevision = 0;
-		let cancelSceneTransition: (() => void) | null = null;
-		let ordered: HTMLElement[] = [];
-		const measured = new Map<HTMLElement, MeasuredNode>();
-		const dirty = new Set<HTMLElement>();
+		let layout: Awaited<ReturnType<typeof createTimelineSceneLayout>> | null =
+			null;
+		let cancelTransition: (() => void) | null = null;
+		const events = attachTimelineSceneEvents({
+			canvas,
+			root: store.root,
+			invalidate: () => store.invalidate(),
+		});
+		store.focus = (node) => events.focus(node, null);
+		store.blur = events.blur;
+		store.click = events.click;
 		const draw = () => {
-			animationFrame = null;
-			if (disposed || failed || renderer === null) return;
+			frame = null;
+			if (disposed || !renderer || !layout) return;
 			try {
-				const bounds = host.getBoundingClientRect();
-				const verticalBounds = verticalScroll.getBoundingClientRect();
-				const top = Math.max(0, verticalBounds.top - bounds.top);
-				const height = Math.max(
-					0,
-					Math.min(bounds.bottom, verticalBounds.bottom) -
-						Math.max(bounds.top, verticalBounds.top),
-				);
 				const width = host.clientWidth;
-				if (width === 0 || height === 0) return;
-				const scrollable = scrollableRef.current;
-				const scrollLeft = scrollable?.scrollLeft ?? 0;
-				const {scrollTop} = verticalScroll;
-				if (layoutDirty || dirty.size > 0) {
-					const styles = new Map<Element, CSSStyleDeclaration>();
-					const rects = new Map<Element, DOMRect>();
-					const getStyle = (element: Element) => {
-						const cached = styles.get(element);
-						if (cached) return cached;
-						const style = getComputedStyle(element);
-						styles.set(element, style);
-						return style;
-					};
-
-					const position = (element: HTMLElement): ScrollPosition => {
-						const cached = rects.get(element);
-						const rect = cached ?? element.getBoundingClientRect();
-						rects.set(element, rect);
-						let stickyY = false;
-						let scrollsX = Boolean(
-							scrollable &&
-							element !== scrollable &&
-							scrollable.contains(element),
-						);
-						for (
-							let parent: HTMLElement | null = element;
-							parent && parent !== host;
-							parent = parent.parentElement
-						) {
-							const parentPosition = getStyle(parent).position;
-							if (!(parent instanceof HTMLElement)) continue;
-							if (
-								(parentPosition === 'absolute' || parentPosition === 'fixed') &&
-								(!parent.offsetParent ||
-									!scrollable?.contains(parent.offsetParent))
-							)
-								scrollsX = false;
-							if (
-								parentPosition === 'sticky' ||
-								((parentPosition === 'absolute' ||
-									parentPosition === 'fixed') &&
-									(!parent.offsetParent || !host.contains(parent.offsetParent)))
-							)
-								stickyY = true;
-						}
-
-						return {
-							x: rect.left - bounds.left,
-							y: rect.top - bounds.top,
-							scrollsX,
-							stickyY,
-						};
-					};
-
-					const roots = layoutDirty
-						? [layout]
-						: [...dirty].filter(
-								(element) =>
-									![...dirty].some(
-										(other) => other !== element && other.contains(element),
-									),
-							);
-					if (layoutDirty) measured.clear();
-					for (const root of roots) {
-						for (const element of measured.keys()) {
-							if (
-								!element.isConnected ||
-								root === element ||
-								root.contains(element)
-							)
-								measured.delete(element);
-						}
-
-						const entries = new Map<
-							HTMLElement,
-							PaintEntry & {dom: TimelineDomVisual | null}
-						>();
-						for (const entry of getTimelineDomPaintEntries(root, styles, rects))
-							entries.set(entry.element, {...entry, drawing: null});
-						for (const entry of store.entries.values()) {
-							if (root === entry.element || root.contains(entry.element))
-								entries.set(entry.element, {
-									...entry,
-									dom: entries.get(entry.element)?.dom ?? null,
-								});
-						}
-
-						for (const {
-							element,
-							background,
-							drawing,
-							dom,
-						} of entries.values()) {
-							if (!element.isConnected) continue;
-							const pos = position(element);
-							const rect = rects.get(element)!;
-							if (rect.width <= 0 || rect.height <= 0) continue;
-							const style = getStyle(element);
-							let opacity = 1;
-							const clips: MeasuredNode['clips'] = [];
-							const paths: MeasuredNode['paths'] = [];
-							for (
-								let ancestor: HTMLElement | null = element;
-								ancestor && ancestor !== host;
-								ancestor = ancestor.parentElement
-							) {
-								const computed = getStyle(ancestor);
-								if (ancestor !== layout) opacity *= Number(computed.opacity);
-								if (
-									computed.display === 'none' ||
-									computed.visibility === 'hidden'
-								)
-									opacity = 0;
-								const clipsX = /hidden|clip|scroll|auto/.test(
-									computed.overflowX,
-								);
-								const clipsY = /hidden|clip|scroll|auto/.test(
-									computed.overflowY,
-								);
-								const inset = computed.clipPath.match(/^inset\(([^)]+)\)$/);
-								const path = computed.clipPath.match(/^path\(["'](.+)["']\)$/);
-								const polygon = computed.clipPath.match(/^polygon\((.+)\)$/);
-								if (!clipsX && !clipsY && !inset && !path && !polygon) continue;
-								const ancestorPos = position(ancestor);
-								const ancestorRect = rects.get(ancestor)!;
-								if (clipsX || clipsY)
-									clips.push({
-										...ancestorPos,
-										width:
-											ancestor === element
-												? ancestorRect.width
-												: ancestor.clientWidth,
-										height:
-											ancestor === element
-												? ancestorRect.height
-												: ancestor.clientHeight,
-										clipsX,
-										clipsY,
-									});
-								if (path || polygon) {
-									paths.push({
-										...ancestorPos,
-										path: path
-											? path[1]
-											: polygon![1]
-													.split(',')
-													.map((point, index) => {
-														const coordinates = point
-															.trim()
-															.split(/\s+/)
-															.map(
-																(value, axis) =>
-																	parseFloat(value) *
-																	(value.endsWith('%')
-																		? (axis === 0
-																				? ancestorRect.width
-																				: ancestorRect.height) / 100
-																		: 1),
-															);
-														return `${index === 0 ? 'M' : 'L'}${coordinates[0]},${coordinates[1]}`;
-													})
-													.join(' ') + ' Z',
-									});
-								}
-
-								if (inset) {
-									const parts = inset[1].split(/\s+/);
-									const values = [
-										parts[0],
-										parts[1] ?? parts[0],
-										parts[2] ?? parts[0],
-										parts[3] ?? parts[1] ?? parts[0],
-									].map(
-										(part, index) =>
-											parseFloat(part) *
-											(part.endsWith('%')
-												? (index % 2 === 0
-														? ancestorRect.height
-														: ancestorRect.width) / 100
-												: 1),
-									);
-									clips.push({
-										...ancestorPos,
-										x: ancestorPos.x + values[3],
-										y: ancestorPos.y + values[0],
-										width: ancestorRect.width - values[3] - values[1],
-										height: ancestorRect.height - values[0] - values[2],
-										clipsX: true,
-										clipsY: true,
-									});
-								}
-							}
-
-							const radii = [
-								style.borderTopLeftRadius,
-								style.borderTopRightRadius,
-								style.borderBottomLeftRadius,
-								style.borderBottomRightRadius,
-							].map((radius) =>
-								Math.min(
-									rect.width / 2,
-									rect.height / 2,
-									parseFloat(radius) || 0,
-								),
-							);
-							measured.set(element, {
-								position: pos,
-								scrollLeft,
-								scrollTop,
-								clips,
-								paths,
-								node: {
-									id: element,
-									x: pos.x,
-									y: pos.y,
-									width: rect.width,
-									height: rect.height,
-									opacity,
-									background: resolveStudioColor(background, style),
-									drawing,
-									dom,
-									resolveColor: (color) => resolveStudioColor(color, style),
-									radii: {
-										topLeft: radii[0],
-										topRight: radii[1],
-										bottomLeft: radii[2],
-										bottomRight: radii[3],
-									},
-									clip: null,
-									pathClips: [],
-								},
-							});
-						}
-					}
-
-					if (
-						layoutDirty ||
-						ordered.length !== measured.size ||
-						ordered.some((element) => !measured.has(element))
-					) {
-						ordered = sortTimelinePaintEntries(
-							[...measured.keys()].map((element) => ({element})),
-							host,
-							styles,
-						).map(({element}) => element);
-					}
-
-					layoutDirty = false;
-					dirty.clear();
+				const height = host.clientHeight;
+				if (!width || !height) return;
+				// Shared scene geometry reads never need to query browser layout.
+				store.canvasRect = canvas.getBoundingClientRect();
+				if (size.width !== width || size.height !== height) {
+					size = {width, height};
+					dirty = true;
 				}
 
-				const nodes: TimelinePaintNode[] = ordered.map((element) => {
-					const entry = measured.get(element)!;
-					const project = (point: ScrollPosition) => ({
-						x: point.x - (point.scrollsX ? scrollLeft - entry.scrollLeft : 0),
-						y: point.y + (point.stickyY ? scrollTop - entry.scrollTop : 0),
-					});
-					const pos = project(entry.position);
-					let left = -Infinity;
-					let right = Infinity;
-					let clipTop = -Infinity;
-					let bottom = Infinity;
-					for (const clip of entry.clips) {
-						const projected = project(clip);
-						if (clip.clipsX) {
-							left = Math.max(left, projected.x);
-							right = Math.min(right, projected.x + clip.width);
-						}
-
-						if (clip.clipsY) {
-							clipTop = Math.max(clipTop, projected.y);
-							bottom = Math.min(bottom, projected.y + clip.height);
-						}
-					}
-
-					// Only ancestor overflow clips content: icons, outlines and shadows may
-					// intentionally extend beyond their own layout boxes.
-					const viewportClip =
-						entry.clips.length === 0
-							? null
-							: {
-									left: Math.max(0, left),
-									top: Math.max(top, clipTop),
-									right: Math.min(width, right),
-									bottom: Math.min(top + height, bottom),
-								};
-					return {
-						...entry.node,
-						...pos,
-						clip: viewportClip,
-						pathClips: entry.paths.map((path) => ({
-							...project(path),
-							path: path.path,
-						})),
-					};
-				});
-				const canvasParent = canvas.offsetParent?.getBoundingClientRect();
-				canvas.style.top = `${verticalBounds.top - (canvasParent?.top ?? 0)}px`;
-				canvas.style.left = `${bounds.left - (canvasParent?.left ?? 0)}px`;
-				renderer.render(nodes, {
+				if (dirty) {
+					dirty = false;
+					layout.layout(store.root, width, height);
+					store.notifyLayout();
+				} else layout.project(store.root, width, height);
+				const computed = getComputedStyle(canvas);
+				const resolveColor = (color: string) =>
+					resolveStudioColor(color, computed);
+				renderer.render(getTimelineScenePaintNodes(store.root, resolveColor), {
 					width,
 					height,
 					left: 0,
-					top,
+					top: 0,
 					resolution: getStudioPixelRatio(),
-					scrollRevision,
+					scrollRevision: revision,
 				});
+				events.refresh();
 			} catch (err) {
-				failed = true;
 				setError(err instanceof Error ? err : new Error(String(err)));
-				renderer?.destroy();
-				renderer = null;
 			}
 		};
 
-		const createPreview = (rect: DOMRect): TimelineReorderPreview | null => {
-			if (!renderer || disposed || failed) return null;
-			if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+		const schedule = () => {
+			if (!disposed && frame === null) frame = requestAnimationFrame(draw);
+		};
+
+		store.repaint = () => {
+			schedule();
+		};
+
+		store.invalidate = () => {
+			dirty = true;
+			revision++;
+			schedule();
+		};
+
+		const flushDraw = () => {
+			if (frame !== null) cancelAnimationFrame(frame);
 			draw();
-			if (!renderer) return null;
+		};
+
+		const preview = (rects: readonly {rect: DOMRect; offsetY: number}[]) => {
+			if (!renderer || disposed) return null;
+			flushDraw();
 			const bounds = canvas.getBoundingClientRect();
-			const left = Math.max(bounds.left, rect.left);
-			const top = Math.max(bounds.top, rect.top);
-			const width = Math.min(bounds.right, rect.right) - left;
-			const height = Math.min(bounds.bottom, rect.bottom) - top;
-			if (width <= 0 || height <= 0) return null;
-			const preview = renderer.createPreview({
-				x: left - bounds.left,
-				y: top - bounds.top,
-				width,
-				height,
-			});
-			if (!preview) return null;
+			const result = renderer.createPreviewGroup(
+				rects.map(({rect, offsetY}) => ({
+					rect: {
+						x: rect.left - bounds.left,
+						y: rect.top - bounds.top,
+						width: rect.width,
+						height: rect.height,
+					},
+					offsetY,
+				})),
+			);
+			if (!result) return null;
 			schedule();
 			return {
-				move: (deltaX) => {
-					preview.move(deltaX);
+				move: (x: number, y: number | null) => {
+					result.move(x, y);
 					schedule();
 				},
 				destroy: () => {
-					preview.destroy();
+					result.destroy();
 					schedule();
 				},
 			};
 		};
 
-		reorderPreviewRef.current = createPreview;
-		const startSceneTransition = ({
+		reorderPreviewRef.current = preview;
+		const startTransition = ({
 			panels,
 			direction,
 			update,
-		}: TimelineSceneTransitionOptions) => {
+		}: SceneTransitionOptions) => {
 			if (
 				!renderer ||
 				disposed ||
-				failed ||
 				window.matchMedia('(prefers-reduced-motion: reduce)').matches
-			) {
+			)
 				return null;
-			}
-
-			cancelSceneTransition?.();
-			let frame: number | null = null;
-			let transition: TimelineSceneTransition | null = null;
+			cancelTransition?.();
+			let animation: number | null = null;
+			let snapshot: TimelineSceneTransition | null = null;
 			let cancelled = false;
 			const cancel = () => {
 				if (cancelled) return;
 				cancelled = true;
-				if (frame !== null) cancelAnimationFrame(frame);
-				transition?.destroy();
-				if (cancelSceneTransition === cancel) cancelSceneTransition = null;
+				if (animation !== null) cancelAnimationFrame(animation);
+				snapshot?.destroy();
+				if (cancelTransition === cancel) cancelTransition = null;
 				schedule();
 			};
 
-			cancelSceneTransition = cancel;
-			frame = requestAnimationFrame(() => {
-				frame = null;
-				if (cancelled || disposed || failed || !renderer) return;
-				try {
-					if (animationFrame !== null) cancelAnimationFrame(animationFrame);
-					draw();
-					if (!renderer) return;
-					const bounds = canvas.getBoundingClientRect();
-					const regions = panels.flatMap(({element, clipY}) => {
-						const rect = element.getBoundingClientRect();
-						const left = Math.max(bounds.left, rect.left);
-						const top = Math.max(bounds.top, rect.top + clipY.top);
-						const width = Math.min(bounds.right, rect.right) - left;
-						const height =
-							Math.min(bounds.bottom, rect.bottom - clipY.bottom) - top;
-						if (width <= 0 || height <= 0) return [];
-						return [
-							{
-								x: left - bounds.left,
-								y: top - bounds.top,
-								width,
-								height,
-								slideDistance: rect.width * 0.15,
-								background: resolveStudioColor(
-									BACKGROUND,
-									getComputedStyle(element),
-								),
-							},
-						];
-					});
-					if (regions.length === 0) {
-						flushSync(update);
-						layoutDirty = true;
-						cancel();
-						return;
-					}
-
-					transition = renderer.createSceneTransition(regions, direction);
-					// Run outside React's commit so both snapshots bracket a complete update.
+			cancelTransition = cancel;
+			animation = requestAnimationFrame(() => {
+				animation = null;
+				if (!renderer || disposed || cancelled) return;
+				flushDraw();
+				const bounds = canvas.getBoundingClientRect();
+				const computed = getComputedStyle(canvas);
+				const regions = panels.flatMap(({element, clipY}) => {
+					const rect = element.getBoundingClientRect();
+					const x = Math.max(0, rect.left - bounds.left);
+					const y = Math.max(0, rect.top + clipY.top - bounds.top);
+					const width = Math.min(bounds.width, rect.right - bounds.left) - x;
+					const height =
+						Math.min(bounds.height, rect.bottom - clipY.bottom - bounds.top) -
+						y;
+					return width > 0 && height > 0
+						? [
+								{
+									x,
+									y,
+									width,
+									height,
+									slideDistance: rect.width * 0.15,
+									background: resolveStudioColor(BACKGROUND, computed),
+								},
+							]
+						: [];
+				});
+				if (regions.length === 0) {
 					flushSync(update);
-					layoutDirty = true;
-					if (animationFrame !== null) cancelAnimationFrame(animationFrame);
-					draw();
-					if (cancelled || disposed || failed) return;
-					transition.captureNext();
-					const startedAt = performance.now();
-					const tick = (now: number) => {
-						frame = null;
-						if (cancelled || disposed || failed) return;
-						if (
-							window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-							!transition?.advance(now - startedAt)
-						) {
-							cancel();
-						}
-
-						if (animationFrame !== null) cancelAnimationFrame(animationFrame);
-						draw();
-						if (!cancelled) frame = requestAnimationFrame(tick);
-					};
-
-					frame = requestAnimationFrame(tick);
-				} catch (err) {
 					cancel();
-					setError(err instanceof Error ? err : new Error(String(err)));
+					return;
 				}
+
+				snapshot = renderer.createSceneTransition(regions, direction);
+				flushSync(update);
+				dirty = true;
+				flushDraw();
+				snapshot.captureNext();
+				const start = performance.now();
+				const tick = (now: number) => {
+					if (disposed || cancelled) return;
+					if (!snapshot?.advance(now - start)) cancel();
+					flushDraw();
+					if (!cancelled) animation = requestAnimationFrame(tick);
+				};
+
+				animation = requestAnimationFrame(tick);
 			});
 			return cancel;
 		};
 
-		sceneTransitionRef.current = startSceneTransition;
-		const schedule = () => {
-			if (!disposed && !failed && animationFrame === null)
-				animationFrame = requestAnimationFrame(draw);
-		};
-
-		const invalidate = () => {
-			layoutDirty = true;
-			schedule();
-		};
-
-		const scroll = () => {
-			scrollRevision++;
-			schedule();
-		};
-
-		const input = (event: Event) => {
-			if (
-				event.target instanceof HTMLElement &&
-				layout.contains(event.target)
-			) {
-				dirty.add(event.target);
-				schedule();
-			}
-		};
-
-		const selection = () => {
-			if (
-				document.activeElement instanceof HTMLElement &&
-				layout.contains(document.activeElement)
-			) {
-				dirty.add(document.activeElement);
-				schedule();
-			}
-		};
-
-		store.invalidate = invalidate;
-		store.repaint = schedule;
-		const resizeObserver = new ResizeObserver(invalidate);
-		resizeObserver.observe(host);
-		resizeObserver.observe(verticalScroll);
-		const mutations = new MutationObserver((records) => {
-			for (const record of records) {
-				const target =
-					record.target instanceof Element
-						? record.target
-						: record.target.parentElement;
-				if (!target) continue;
-				if (
-					record.type === 'childList' &&
-					[...record.addedNodes, ...record.removedNodes].some(
-						(node) => node.nodeType !== Node.TEXT_NODE,
-					)
-				) {
-					layoutDirty = true;
-					break;
-				}
-
-				// Transform updates move a retained subtree. Other style changes may
-				// reflow siblings and therefore require a fresh layout snapshot.
-				if (
-					record.type === 'attributes' &&
-					['class', 'size', 'width', 'height', 'data-name'].includes(
-						record.attributeName ?? '',
-					)
-				) {
-					layoutDirty = true;
-					break;
-				}
-
-				if (record.type === 'attributes' && record.attributeName === 'style') {
-					const withoutTransform = (value: string) =>
-						value.replace(/transform:[^;]*;?/g, '');
-					if (
-						withoutTransform(record.oldValue ?? '') !==
-						withoutTransform(target.getAttribute('style') ?? '')
-					) {
-						layoutDirty = true;
-						break;
-					}
-				}
-
-				dirty.add(
-					(target.closest('svg') ??
-						(record.type === 'characterData' || record.type === 'childList'
-							? (target.parentElement ?? target)
-							: target)) as HTMLElement,
-				);
-			}
-
-			schedule();
-		});
-		mutations.observe(layout, {
+		sceneTransitionRef.current = startTransition;
+		const resize = new ResizeObserver(store.invalidate);
+		resize.observe(host);
+		const theme = new MutationObserver(store.repaint);
+		theme.observe(document.documentElement, {
 			attributes: true,
-			attributeOldValue: true,
-			childList: true,
-			characterData: true,
-			subtree: true,
+			attributeFilter: ['class', 'style', 'data-theme'],
 		});
-		const themeObserver = new MutationObserver(invalidate);
-		themeObserver.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ['style', 'class'],
-		});
-		themeObserver.observe(document.head, {
-			childList: true,
-			subtree: true,
-			characterData: true,
-		});
-		// Capture scroll also catches a newly mounted horizontal viewport.
-		layout.addEventListener('scroll', scroll, true);
-		verticalScroll.addEventListener('scroll', scroll);
-		for (const event of ['input', 'focusin', 'focusout', 'select', 'keyup'])
-			layout.addEventListener(event, input);
-		for (const event of ['pointerover', 'pointerout'])
-			layout.addEventListener(event, invalidate);
-		layout.addEventListener('load', input, true);
-		layout.addEventListener('error', input, true);
-		document.addEventListener('selectionchange', selection);
-		window.addEventListener('resize', invalidate);
-		import('./pixi-timeline-renderer')
-			.then(async (module) => {
-				const instance = await module.createPixiTimelineRenderer(canvas);
-				if (disposed) {
-					instance.destroy();
-					return;
-				}
-
-				renderer = instance;
-				invalidate();
+		Promise.all([
+			createPixiTimelineRenderer(canvas).then((nextRenderer) => {
+				if (disposed || initializationFailed) nextRenderer.destroy();
+				else renderer = nextRenderer;
+			}),
+			createTimelineSceneLayout().then((nextLayout) => {
+				if (disposed || initializationFailed) nextLayout.destroy();
+				else layout = nextLayout;
+			}),
+		])
+			.then(() => {
+				if (disposed) return;
+				setReady(true);
+				schedule();
 			})
-			.catch((err: unknown) => {
-				if (!disposed)
-					setError(err instanceof Error ? err : new Error(String(err)));
+			.catch((err) => {
+				initializationFailed = true;
+				renderer?.destroy();
+				renderer = null;
+				layout?.destroy();
+				layout = null;
+				if (!disposed) setError(err);
 			});
 		return () => {
 			disposed = true;
-			if (reorderPreviewRef.current === createPreview)
-				reorderPreviewRef.current = null;
-			if (sceneTransitionRef.current === startSceneTransition)
-				sceneTransitionRef.current = null;
-			cancelSceneTransition?.();
+			cancelTransition?.();
+			if (frame !== null) cancelAnimationFrame(frame);
+			resize.disconnect();
+			theme.disconnect();
+			events.dispose();
+			renderer?.destroy();
+			renderer = null;
+			layout?.destroy();
+			layout = null;
+			store.canvas = null;
+			store.canvasRect = null;
 			store.invalidate = () => undefined;
 			store.repaint = () => undefined;
-			if (animationFrame !== null) cancelAnimationFrame(animationFrame);
-			resizeObserver.disconnect();
-			mutations.disconnect();
-			themeObserver.disconnect();
-			layout.removeEventListener('scroll', scroll, true);
-			verticalScroll.removeEventListener('scroll', scroll);
-			for (const event of ['input', 'focusin', 'focusout', 'select', 'keyup'])
-				layout.removeEventListener(event, input);
-			for (const event of ['pointerover', 'pointerout'])
-				layout.removeEventListener(event, invalidate);
-			layout.removeEventListener('load', input, true);
-			layout.removeEventListener('error', input, true);
-			document.removeEventListener('selectionchange', selection);
-			window.removeEventListener('resize', invalidate);
-			renderer?.destroy();
+			if (reorderPreviewRef.current === preview)
+				reorderPreviewRef.current = null;
+			if (sceneTransitionRef.current === startTransition)
+				sceneTransitionRef.current = null;
 		};
 	}, [store]);
 	if (error) throw error;
 	return (
-		<TimelineCanvasContext.Provider value={store}>
-			<div
-				ref={hostRef}
-				style={{
-					height: totalSize,
-					display: 'flex',
-					flex: 1,
-					minHeight: '100%',
-					isolation: 'isolate',
-				}}
-			>
-				<div
-					ref={layoutRef}
-					data-timeline-layout="true"
-					style={{
-						display: 'flex',
-						flex: 1,
-						minWidth: 0,
-						minHeight: '100%',
-						opacity: 0,
-					}}
-				>
-					{children}
-				</div>
-				<canvas
-					ref={canvasRef}
-					aria-hidden="true"
-					data-timeline-pixi="true"
-					style={{
-						position: 'absolute',
-						pointerEvents: 'none',
-						top: 0,
-						left: 0,
-						zIndex: 1,
-					}}
-				/>
-			</div>
-		</TimelineCanvasContext.Provider>
-	);
-};
-
-export const useTimelineCanvasInvalidation = (): (() => void) => {
-	const store = useContext(TimelineCanvasContext);
-	return useMemo(() => () => store?.repaint(), [store]);
-};
-
-// DOM boxes remain the source of layout and pointer/accessibility semantics.
-// Layout boxes register their native GPU backgrounds.
-export const TimelinePaint: React.FC<{
-	readonly style: React.CSSProperties;
-	readonly children: React.ReactNode;
-}> = ({style, children}) => {
-	const store = useContext(TimelineCanvasContext);
-	const ref = useRef<HTMLDivElement>(null);
-	const background = String(
-		style.background ?? style.backgroundColor ?? 'transparent',
-	);
-	useLayoutEffect(() => {
-		const element = ref.current;
-		if (!element || !store) {
-			return;
-		}
-
-		store.entries.set(element, {
-			element,
-			background,
-			drawing: null,
-		});
-		store.invalidate();
-		return () => {
-			store.entries.delete(element);
-			store.invalidate();
-		};
-	}, [background, store]);
-	return (
 		<div
-			ref={ref}
-			data-timeline-canvas-background="true"
+			ref={hostRef}
+			data-timeline-scene="true"
 			style={{
-				...style,
-				background: 'transparent',
-				backgroundColor: 'transparent',
+				position: 'relative',
+				display: 'flex',
+				flex: 1,
+				height: '100%',
+				minHeight: 0,
+				minWidth: 0,
+				overflow: 'hidden',
 			}}
 		>
-			{children}
+			<canvas
+				ref={canvasRef}
+				data-timeline-pixi="true"
+				tabIndex={0}
+				aria-label="Timeline"
+				style={{
+					position: 'absolute',
+					inset: 0,
+					outline: 'none',
+					touchAction: 'none',
+				}}
+			/>
+			{ready ? (
+				<TimelineSceneContext.Provider value={store.root}>
+					{children}
+				</TimelineSceneContext.Provider>
+			) : null}
 		</div>
 	);
 };
 
-export type {TimelineCanvasDraw} from './pixi-timeline-renderer';
+export const useTimelineCanvasInvalidation = () => {
+	const node = useContext(TimelineSceneContext);
+	return useMemo(() => () => node?.store.repaint(), [node]);
+};
 
+export const TimelinePaint: React.FC<{
+	readonly style: React.CSSProperties;
+	readonly children: React.ReactNode;
+}> = ({style, children}) => jsx('div', {style, children});
+
+export type {TimelineCanvasDraw} from './pixi-timeline-renderer';
 export const useTimelineCanvasDrawing = (
 	ref: React.RefObject<HTMLElement | null>,
 	drawing: TimelineCanvasDraw | null,
-): void => {
-	const store = useContext(TimelineCanvasContext);
+) => {
 	useLayoutEffect(() => {
-		const element = ref.current;
-		if (!element || !store || drawing === null) {
-			return;
-		}
-
-		element.setAttribute('data-timeline-canvas-content', 'true');
-		store.entries.set(element, {
-			element,
-			background: 'transparent',
-			drawing,
-		});
-		store.invalidate();
+		const node = ref.current;
+		if (!isTimelineSceneNode(node)) return;
+		node.drawing = drawing;
+		node.store.repaint();
 		return () => {
-			element.removeAttribute('data-timeline-canvas-content');
-			store.entries.delete(element);
-			store.invalidate();
+			node.drawing = null;
+			node.store.repaint();
 		};
-	}, [drawing, ref, store]);
+	}, [drawing, ref]);
 };

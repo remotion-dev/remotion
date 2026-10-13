@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React from 'react';
 import {ActionTooltip} from '../ActionTooltip';
 import {getTimelineColor} from './TimelineSelection';

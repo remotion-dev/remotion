@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import React, {useCallback, useContext} from 'react';
 import {BORDER_BLACK, WHITE} from '../helpers/colors';
 import {SetSelectedModalContext} from '../state/modals';

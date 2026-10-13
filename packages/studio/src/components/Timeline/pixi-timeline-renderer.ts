@@ -13,8 +13,8 @@ import {
 	WebGLRenderer,
 } from 'pixi.js';
 import {Easing} from 'remotion';
-import {drawTimelineDomVisual} from './draw-timeline-dom-visual';
-import type {TimelineDomVisual} from './get-timeline-dom-paint-entries';
+import {drawTimelineSceneVisual} from './draw-timeline-scene-visual';
+import type {TimelineSceneVisual} from './timeline-scene-visual';
 
 export type TimelineCanvasDraw = {
 	readonly revision: unknown;
@@ -30,7 +30,7 @@ export type TimelineCanvasDraw = {
 };
 
 export type TimelineReorderPreview = {
-	readonly move: (deltaX: number) => void;
+	readonly move: (deltaX: number, deltaY: number | null) => void;
 	readonly destroy: () => void;
 };
 
@@ -56,7 +56,7 @@ export type TimelinePaintNode = {
 	readonly opacity: number;
 	readonly background: string;
 	readonly drawing: TimelineCanvasDraw | null;
-	readonly dom: TimelineDomVisual | null;
+	readonly visual: TimelineSceneVisual | null;
 	readonly resolveColor: (color: string) => string;
 	readonly radii: {
 		readonly topLeft: number;
@@ -230,9 +230,9 @@ type PaintedNode = {
 	readonly content: Container;
 	readonly graphics: Graphics;
 	readonly drawingChildren: Container;
-	readonly domGraphics: Graphics;
-	readonly domChildren: Container;
-	domMask: Sprite | null;
+	readonly visualGraphics: Graphics;
+	readonly visualChildren: Container;
+	visualMask: Sprite | null;
 	readonly clip: Graphics;
 	readonly pathClips: {
 		readonly container: Container;
@@ -240,7 +240,7 @@ type PaintedNode = {
 		path: string | null;
 	}[];
 	backgroundKey: string;
-	domKey: string;
+	visualKey: string;
 	scrollRevision: number | null;
 	hasDrawing: boolean;
 	drawingRevision: unknown;
@@ -276,6 +276,9 @@ export const createPixiTimelineRenderer = async (
 		},
 	) => void;
 	createPreview: (rect: TimelineSnapshotRect) => TimelineReorderPreview | null;
+	createPreviewGroup: (
+		rects: readonly {rect: TimelineSnapshotRect; offsetY: number}[],
+	) => TimelineReorderPreview | null;
 	createSceneTransition: (
 		panels: readonly (TimelineSnapshotRect & {
 			readonly background: string;
@@ -321,7 +324,7 @@ export const createPixiTimelineRenderer = async (
 	scene.addChild(stage, overlays);
 	const paintedNodes = new Map<object, PaintedNode>();
 	const transitions = new Set<() => void>();
-	let preview: Sprite | null = null;
+	let preview: Container | null = null;
 	let destroyed = false;
 	const captureRegion = (rect: TimelineSnapshotRect) => {
 		const texture = RenderTexture.create({
@@ -349,6 +352,43 @@ export const createPixiTimelineRenderer = async (
 		}
 
 		return texture;
+	};
+
+	const createPreviewGroup = (
+		rects: readonly {rect: TimelineSnapshotRect; offsetY: number}[],
+	): TimelineReorderPreview | null => {
+		const visible = rects.filter(({rect}) => rect.width > 0 && rect.height > 0);
+		if (destroyed || visible.length === 0) return null;
+		preview?.destroy({children: true, texture: true, textureSource: true});
+		const container = new Container();
+		container.alpha = 0.8;
+		try {
+			for (const {rect, offsetY} of visible) {
+				const sprite = new Sprite(captureRegion(rect));
+				sprite.position.set(rect.x, rect.y + offsetY);
+				container.addChild(sprite);
+			}
+		} catch (error) {
+			container.destroy({children: true, texture: true, textureSource: true});
+			throw error;
+		}
+
+		overlays.addChild(container);
+		preview = container;
+		return {
+			move: (deltaX, deltaY) => {
+				if (!container.destroyed) container.position.set(deltaX, deltaY ?? 0);
+			},
+			destroy: () => {
+				if (!container.destroyed)
+					container.destroy({
+						children: true,
+						texture: true,
+						textureSource: true,
+					});
+				if (preview === container) preview = null;
+			},
+		};
 	};
 
 	return {
@@ -414,31 +454,9 @@ export const createPixiTimelineRenderer = async (
 				destroy: finish,
 			};
 		},
-		createPreview: (rect) => {
-			if (destroyed || rect.width <= 0 || rect.height <= 0) {
-				return null;
-			}
+		createPreview: (rect) => createPreviewGroup([{rect, offsetY: 0}]),
+		createPreviewGroup,
 
-			preview?.destroy({texture: true, textureSource: true});
-			const texture = captureRegion(rect);
-			const sprite = new Sprite(texture);
-			sprite.position.set(rect.x, rect.y);
-			sprite.alpha = 0.8;
-			overlays.addChild(sprite);
-			preview = sprite;
-			return {
-				move: (deltaX) => {
-					if (!sprite.destroyed) sprite.x = rect.x + deltaX;
-				},
-				destroy: () => {
-					if (!sprite.destroyed) {
-						sprite.destroy({texture: true, textureSource: true});
-					}
-
-					if (preview === sprite) preview = null;
-				},
-			};
-		},
 		render: (nodes, viewport) => {
 			if (destroyed) {
 				return;
@@ -465,11 +483,16 @@ export const createPixiTimelineRenderer = async (
 					const content = new Container();
 					const graphics = new Graphics();
 					const drawingChildren = new Container();
-					const domGraphics = new Graphics();
-					const domChildren = new Container();
+					const visualGraphics = new Graphics();
+					const visualChildren = new Container();
 					const clipGraphics = new Graphics();
 					clipGraphics.visible = false;
-					content.addChild(graphics, drawingChildren, domGraphics, domChildren);
+					content.addChild(
+						graphics,
+						drawingChildren,
+						visualGraphics,
+						visualChildren,
+					);
 					container.addChild(content, clipGraphics);
 					stage.addChild(container);
 					painted = {
@@ -477,13 +500,13 @@ export const createPixiTimelineRenderer = async (
 						content,
 						graphics,
 						drawingChildren,
-						domGraphics,
-						domChildren,
-						domMask: null,
+						visualGraphics,
+						visualChildren,
+						visualMask: null,
 						clip: clipGraphics,
 						pathClips: [],
 						backgroundKey: '',
-						domKey: '',
+						visualKey: '',
 						scrollRevision: null,
 						hasDrawing: false,
 						drawingRevision: null,
@@ -764,35 +787,35 @@ export const createPixiTimelineRenderer = async (
 					}
 				}
 
-				const domKey = JSON.stringify([
-					node.dom,
+				const visualKey = JSON.stringify([
+					node.visual,
 					node.width,
 					node.height,
 					node.radii,
 					viewport.resolution,
-					node.dom?.scrollbar ? viewport.scrollRevision : null,
+					node.visual?.scrollbars.length ? viewport.scrollRevision : null,
 				]);
-				if (painted.domKey !== domKey) {
-					painted.domKey = domKey;
+				if (painted.visualKey !== visualKey) {
+					painted.visualKey = visualKey;
 					painted.content.mask = null;
-					painted.domMask?.destroy({texture: true, textureSource: true});
-					painted.domMask = null;
-					painted.domGraphics.clear();
-					for (const child of painted.domChildren.removeChildren()) {
+					painted.visualMask?.destroy({texture: true, textureSource: true});
+					painted.visualMask = null;
+					painted.visualGraphics.clear();
+					for (const child of painted.visualChildren.removeChildren()) {
 						child.destroy({children: true, texture: true, textureSource: true});
 					}
 
-					if (node.dom) {
-						drawTimelineDomVisual({
-							graphics: painted.domGraphics,
-							children: painted.domChildren,
-							visual: node.dom,
+					if (node.visual) {
+						drawTimelineSceneVisual({
+							graphics: painted.visualGraphics,
+							children: painted.visualChildren,
+							visual: node.visual,
 							width: node.width,
 							height: node.height,
 							radius: Math.max(...Object.values(node.radii)),
 							resolution: viewport.resolution,
 						});
-						if (node.dom.alphaMasks.length > 0) {
+						if (node.visual.alphaMasks.length > 0) {
 							const textureWidth = Math.min(
 								4096,
 								Math.max(2, Math.ceil(node.width * viewport.resolution)),
@@ -808,7 +831,7 @@ export const createPixiTimelineRenderer = async (
 							for (let index = 0; index < textureWidth; index++) {
 								const x = ((index + 0.5) / textureWidth) * node.width;
 								let alpha = 1;
-								for (const mask of node.dom.alphaMasks) {
+								for (const mask of node.visual.alphaMasks) {
 									const progress = Math.max(
 										0,
 										Math.min(
@@ -838,7 +861,7 @@ export const createPixiTimelineRenderer = async (
 								mask.height = node.height;
 								painted.content.addChild(mask);
 								painted.content.mask = mask;
-								painted.domMask = mask;
+								painted.visualMask = mask;
 							}
 						}
 					}
@@ -929,7 +952,7 @@ export const createPixiTimelineRenderer = async (
 			}
 
 			paintedNodes.clear();
-			preview?.destroy({texture: true, textureSource: true});
+			preview?.destroy({children: true, texture: true, textureSource: true});
 			preview = null;
 			scene.destroy({children: true});
 			renderer.destroy({removeView: false});

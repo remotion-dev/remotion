@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import {
 	getConfigFileChangeMessage,
 	type EventSourceEvent,

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useContext, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';

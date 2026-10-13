@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import type {TimelineTrackData} from '@remotion/sdk';
 import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import React, {
@@ -83,6 +84,7 @@ import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
 import {timelineLayerLayoutsRef} from './timeline-refs';
 import {timelineRightEdgeCursor} from './timeline-right-edge-cursor';
+import {isTimelineSceneNode} from './timeline-scene-node';
 import {
 	PACKED_LABEL_BOTTOM,
 	TimelineSequenceLabel,
@@ -1585,8 +1587,9 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	]);
 	const getContextMenuItems = useCallback(
 		(event: MouseEvent) => {
-			const contextMenuTarget =
-				event.target instanceof Element
+			const contextMenuTarget = isTimelineSceneNode(event.target)
+				? event.target.closest(`[${TIMELINE_MARQUEE_ITEM_ATTR}]`)
+				: event.target instanceof Element
 					? event.target.closest<HTMLElement>(`[${TIMELINE_MARQUEE_ITEM_ATTR}]`)
 					: null;
 			if (assetContextMenu !== null) {

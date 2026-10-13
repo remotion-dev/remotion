@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {
 	EditorPickerId,

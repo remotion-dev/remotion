@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {BLUE, LIGHT_TEXT} from '../../helpers/colors';

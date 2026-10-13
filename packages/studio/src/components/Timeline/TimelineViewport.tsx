@@ -4,6 +4,7 @@ import React, {
 	useLayoutEffect,
 	useState,
 } from 'react';
+import {isTimelineSceneNode} from './timeline-scene-node';
 
 type TimelineRenderWindow = {
 	readonly left: number;
@@ -69,6 +70,7 @@ export const TimelineViewportProvider: React.FC<{
 	useLayoutEffect(() => {
 		let element: HTMLDivElement | null = null;
 		let resizeObserver: ResizeObserver | null = null;
+		let unsubscribe: (() => void) | null = null;
 		updateTimelineViewport = update;
 		const animationFrame = requestAnimationFrame(() => {
 			element = scrollable.current;
@@ -76,8 +78,13 @@ export const TimelineViewportProvider: React.FC<{
 				return;
 			}
 
-			resizeObserver = new ResizeObserver(update);
-			resizeObserver.observe(element);
+			if (isTimelineSceneNode(element)) {
+				unsubscribe = element.store.subscribeLayout(update);
+			} else {
+				resizeObserver = new ResizeObserver(update);
+				resizeObserver.observe(element);
+			}
+
 			update();
 			element.addEventListener('scroll', update);
 		});
@@ -89,6 +96,7 @@ export const TimelineViewportProvider: React.FC<{
 
 			cancelAnimationFrame(animationFrame);
 			resizeObserver?.disconnect();
+			unsubscribe?.();
 			element?.removeEventListener('scroll', update);
 		};
 	}, [scrollable, update]);

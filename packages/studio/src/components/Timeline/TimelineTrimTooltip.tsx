@@ -1,6 +1,7 @@
 import React, {useContext, useRef} from 'react';
-import {createPortal} from 'react-dom';
 import {BLACK_ALPHA_85, LIGHT_TEXT, WHITE} from '../../helpers/colors';
+/** @jsxImportSource ./scene-jsx */
+import {createStudioPortal} from '../../helpers/create-studio-portal';
 import {renderFrame} from '../../state/render-frame';
 import {useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
@@ -82,7 +83,7 @@ export const TimelineTrimTooltip: React.FC<{
 		),
 	);
 
-	return createPortal(
+	return createStudioPortal(
 		<div
 			aria-hidden="true"
 			className="css-reset"

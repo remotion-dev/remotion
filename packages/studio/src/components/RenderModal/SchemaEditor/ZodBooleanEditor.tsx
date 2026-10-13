@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React, {useCallback} from 'react';
 import {Checkbox} from '../../Checkbox';
 import {Fieldset} from './Fieldset';

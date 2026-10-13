@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {createContext, useCallback, useContext, useMemo} from 'react';
 import {staticFile, type CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import type {UpdateAvailableResponse} from '@remotion/studio-shared';
 import React, {
 	createContext,

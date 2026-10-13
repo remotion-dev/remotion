@@ -1,8 +1,9 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
 import {formatRgba} from '../../helpers/color-conversion';
 import {CURRENT_COLOR, LIGHT_TEXT, TRANSPARENT} from '../../helpers/colors';
+import {createStudioPortal} from '../../helpers/create-studio-portal';
+/** @jsxImportSource ../Timeline/scene-jsx */
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {EyedropperIcon} from '../../icons/eyedropper';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
@@ -103,7 +104,7 @@ export const ColorPicker: React.FC<Props> = ({
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const {tabIndex, currentZIndex} = useZIndex();
 
-	const size = PlayerInternals.useElementSize(triggerRef, {
+	const size = useSceneElementSize(triggerRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -319,7 +320,7 @@ export const ColorPicker: React.FC<Props> = ({
 				) : null}
 			</span>
 			{portalStyle
-				? ReactDOM.createPortal(
+				? createStudioPortal(
 						<div style={fullScreenOverlay}>
 							<div style={outerPortal} className="css-reset">
 								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>

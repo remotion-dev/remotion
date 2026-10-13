@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -619,59 +620,57 @@ const TimelineInner: React.FC = () => {
 							{isStudioInteractivityEnabled() ? (
 								<TimelineSelectAllKeybindings timeline={shown} />
 							) : null}
-							<TimelineCanvasProvider>
-								<TimelineHeightContainer>
-									{isStill ? (
-										<TimelineList />
-									) : (
-										<TimelineWidthProvider>
-											<TimelinePinchZoom />
-											<SplitterContainer
-												orientation="vertical"
-												defaultFlex={0.2}
-												id="names-to-timeline"
-												maxFlex={0.5}
-												minFlex={0.15}
-												maxFlexerSize={null}
-												minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
-												maxAntiFlexerSize={null}
-												minAntiFlexerSize={null}
+							<TimelineHeightContainer>
+								{isStill ? (
+									<TimelineList />
+								) : (
+									<TimelineWidthProvider>
+										<TimelinePinchZoom />
+										<SplitterContainer
+											orientation="vertical"
+											defaultFlex={0.2}
+											id="names-to-timeline"
+											maxFlex={0.5}
+											minFlex={0.15}
+											maxFlexerSize={null}
+											minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
+											maxAntiFlexerSize={null}
+											minAntiFlexerSize={null}
+										>
+											<SplitterElement
+												type="flexer"
+												sticky={<TimelineTimePlaceholders />}
 											>
-												<SplitterElement
-													type="flexer"
-													sticky={<TimelineTimePlaceholders />}
-												>
-													<TimelineList />
-												</SplitterElement>
-												<SplitterHandle
-													onCollapse={noop}
-													onCollapseDuringDrag={null}
-													allowToCollapse="none"
-												/>
-												<SplitterElement
-													type="anti-flexer"
-													sticky={
-														<>
-															<TimelineTimeIndicators />
-															<TimelineSlider />
-														</>
-													}
-												>
-													<TimelineScrollable>
-														<TimelineTracks hasBeenCut={hasBeenCut} />
-														<TimelinePlayCursorSyncer />
-														<TimelineInOutPointer />
-														<TimelineDragHandler />
-														{isStudioInteractivityEnabled() ? (
-															<TimelineInOutDragHandler />
-														) : null}
-													</TimelineScrollable>
-												</SplitterElement>
-											</SplitterContainer>
-										</TimelineWidthProvider>
-									)}
-								</TimelineHeightContainer>
-							</TimelineCanvasProvider>
+												<TimelineList />
+											</SplitterElement>
+											<SplitterHandle
+												onCollapse={noop}
+												onCollapseDuringDrag={null}
+												allowToCollapse="none"
+											/>
+											<SplitterElement
+												type="anti-flexer"
+												sticky={
+													<>
+														<TimelineTimeIndicators />
+														<TimelineSlider />
+													</>
+												}
+											>
+												<TimelineScrollable>
+													<TimelineTracks hasBeenCut={hasBeenCut} />
+													<TimelinePlayCursorSyncer />
+													<TimelineInOutPointer />
+													<TimelineDragHandler />
+													{isStudioInteractivityEnabled() ? (
+														<TimelineInOutDragHandler />
+													) : null}
+												</TimelineScrollable>
+											</SplitterElement>
+										</SplitterContainer>
+									</TimelineWidthProvider>
+								)}
+							</TimelineHeightContainer>
 						</TimelineVirtualizationProvider>
 					</TimelineSelectableItemsProvider>
 				</TimelineKeyframeTracksProvider>
@@ -687,7 +686,9 @@ export const Timeline: React.FC = () => {
 		<TimelineEdgeHighlightProvider>
 			<TimelineSequenceMediaDurationDragLimitsProvider>
 				<TimelineSnapIndicatorProvider>
-					<MemoizedTimelineInner />
+					<TimelineCanvasProvider>
+						<MemoizedTimelineInner />
+					</TimelineCanvasProvider>
 				</TimelineSnapIndicatorProvider>
 			</TimelineSequenceMediaDurationDragLimitsProvider>
 		</TimelineEdgeHighlightProvider>

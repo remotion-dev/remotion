@@ -6,13 +6,13 @@ import {
 	installableMap,
 } from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
-import ReactDOM from 'react-dom';
 import {VERSION} from 'remotion';
 import {installPackages} from '../api/install-package';
 import {restartStudio} from '../api/restart-studio';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BORDER_WHITE_ALPHA_12, LIGHT_TEXT} from '../helpers/colors';
+import {createStudioPortal} from '../helpers/create-studio-portal';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {SetSelectedModalContext} from '../state/modals';
 import {Checkbox} from './Checkbox';
@@ -263,7 +263,7 @@ export const InstallPackageSettings: React.FC<{
 				)}
 			</div>
 			{footerContainer
-				? ReactDOM.createPortal(
+				? createStudioPortal(
 						<ModalFooterContainer style={footer}>
 							<Row align="center">
 								{state.type === 'idle' ? (

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import type {CanUpdateSequencePropStatus, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {ComboboxValue} from '../NewComposition/ComboBox';

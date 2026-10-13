@@ -1887,6 +1887,7 @@
         "prismjs": "1.30.0",
         "remotion": "workspace:*",
         "semver": "7.5.3",
+        "yoga-layout": "3.2.1",
         "zod": "catalog:",
       },
       "devDependencies": {

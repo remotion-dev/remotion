@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React, {useMemo} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../../helpers/colors';
 import {Spacing} from '../../layout';

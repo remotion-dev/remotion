@@ -1,6 +1,5 @@
 import {interpolatePaths} from '@remotion/paths';
 import React, {useLayoutEffect} from 'react';
-import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {Editor} from './components/Editor';
 import {EditorContexts} from './components/EditorContexts';
@@ -8,6 +7,7 @@ import {ServerDisconnected} from './components/Notifications/ServerDisconnected'
 import {SequenceActivitySettingsProvider} from './components/SequenceActivitySettingsProvider';
 import {StaticFilesProvider} from './components/use-static-files';
 import {FastRefreshProvider} from './FastRefreshProvider';
+import {createStudioPortal} from './helpers/create-studio-portal';
 import {injectCSS} from './helpers/inject-css';
 import {ResolveCompositionConfigInStudio} from './ResolveCompositionConfigInStudio';
 import {CompositionListProvider} from './state/composition-list';
@@ -55,7 +55,7 @@ const StudioInner: React.FC<{
 							</CompositionListProvider>
 							{readOnly
 								? null
-								: createPortal(
+								: createStudioPortal(
 										<ServerDisconnected />,
 										getServerDisconnectedDomElement() as HTMLElement,
 									)}

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import type {AnyZodSchema} from './zod-schema-type';
 import {getUnionOptions, getZodSchemaType} from './zod-schema-type';
 import type {JSONPath} from './zod-types';

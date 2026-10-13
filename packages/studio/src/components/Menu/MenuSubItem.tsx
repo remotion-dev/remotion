@@ -1,11 +1,12 @@
-import {PlayerInternals} from '@remotion/player';
 import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
 import {LIGHT_TEXT, TRANSPARENT, WHITE_ALPHA_06} from '../../helpers/colors';
+import {createStudioPortal} from '../../helpers/create-studio-portal';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {observeHover} from '../../helpers/observe-hover';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
+/** @jsxImportSource ../Timeline/scene-jsx */
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
 import {KeyboardShortcutLabel} from '../KeyboardShortcutLabel';
@@ -93,7 +94,7 @@ export const MenuSubItem: React.FC<{
 	const hoveredRef = useRef(false);
 	const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const ref = useRef<HTMLDivElement>(null);
-	const size = PlayerInternals.useElementSize(ref, {
+	const size = useSceneElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -237,7 +238,7 @@ export const MenuSubItem: React.FC<{
 					<KeyboardShortcutLabel shortcut={keyHint} style={keyHintCss} />
 				) : null}
 				{portalStyle && subMenu
-					? ReactDOM.createPortal(
+					? createStudioPortal(
 							<SubMenuComponent
 								onQuitFullMenu={onQuitMenu}
 								subMenu={subMenu}

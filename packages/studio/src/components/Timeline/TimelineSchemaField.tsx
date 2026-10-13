@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback, useContext} from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,

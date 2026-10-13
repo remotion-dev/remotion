@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import type {HTMLAttributes} from 'react';
 import React, {useMemo} from 'react';
 

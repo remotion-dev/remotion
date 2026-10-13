@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 export const EllipsisIcon: React.FC<{
 	svgProps: React.SVGProps<SVGSVGElement>;
 	fill: string;

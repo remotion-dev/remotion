@@ -24,6 +24,8 @@ import {getPreferredEditorId} from '../use-default-editor-info';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import type {TimelineAssetLinkInfo} from './timeline-asset-link';
 import {openTimelineAssetLink} from './timeline-asset-link';
+import type {TimelineSceneNode} from './timeline-scene-node';
+import {isTimelineSceneNode} from './timeline-scene-node';
 
 const normalizeMenuDividers = (items: ComboboxValue[]): ComboboxValue[] => {
 	const normalized: ComboboxValue[] = [];
@@ -237,7 +239,7 @@ export const getSequenceContextMenuItems = (
 		readonly sequence: TSequence;
 		readonly sourceActions?: readonly ComboboxValue[];
 	},
-	contextMenuTarget: HTMLElement | null = null,
+	contextMenuTarget: HTMLElement | TimelineSceneNode | null = null,
 ): ComboboxValue[] => {
 	const isInteractiveSvg =
 		sequence.controls?.componentIdentity === interactiveSvgComponentIdentity;
@@ -353,7 +355,9 @@ export const getSequenceContextMenuItems = (
 			getTarget: () =>
 				getVisibleAnnotationTarget([
 					sequence.refForOutline?.current,
-					contextMenuTarget,
+					isTimelineSceneNode(contextMenuTarget)
+						? contextMenuTarget.store.canvas
+						: contextMenuTarget,
 				]),
 			initialComment: null,
 			getMetadata: () =>

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useMemo} from 'react';
 import {LIGHT_GRAY, TRANSPARENT, WHITE} from '../../helpers/colors';
 import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';

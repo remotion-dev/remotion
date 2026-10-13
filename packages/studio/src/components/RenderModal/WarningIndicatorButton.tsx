@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {SVGProps} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import {

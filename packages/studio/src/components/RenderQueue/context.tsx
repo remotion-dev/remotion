@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {CompletedClientRender, RenderJob} from '@remotion/studio-shared';
 import React, {
 	createRef,

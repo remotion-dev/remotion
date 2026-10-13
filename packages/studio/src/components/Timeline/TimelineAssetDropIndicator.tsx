@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import {RULER_COLOR} from '../../helpers/colors';

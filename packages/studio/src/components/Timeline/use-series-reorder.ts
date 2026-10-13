@@ -13,6 +13,7 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {reorderSequence} from '../reorder-sequence-api';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {scrollableRef} from './timeline-refs';
+import {isTimelineSceneNode} from './timeline-scene-node';
 import {
 	SCROLL_INCREMENT,
 	startTimelineEdgeAutoScroll,
@@ -53,18 +54,19 @@ export const useSeriesReorder = (
 				previewServerState.type !== 'connected' ||
 				timelineWidth === null ||
 				video === null ||
-				!(e.target instanceof Element) ||
+				!(isTimelineSceneNode(e.target) || e.target instanceof Element) ||
 				e.target.closest('button, input, textarea, select, [role="separator"]')
 			) {
 				return;
 			}
 
-			const clipElement = e.target.closest<HTMLDivElement>(
-				'[data-track-item="clip"]',
-			);
-			const itemId = clipElement?.closest<HTMLElement>(
-				'[data-timeline-track-item-id]',
-			)?.dataset.timelineTrackItemId;
+			const clipElement = isTimelineSceneNode(e.target)
+				? e.target.closest('[data-track-item="clip"]')
+				: e.target.closest<HTMLDivElement>('[data-track-item="clip"]');
+			const itemElement = isTimelineSceneNode(clipElement)
+				? clipElement.closest('[data-timeline-track-item-id]')
+				: clipElement?.closest<HTMLElement>('[data-timeline-track-item-id]');
+			const itemId = itemElement?.dataset.timelineTrackItemId;
 			const draggedItem = items.find((item) => item.sequence.id === itemId);
 			if (
 				!clipElement ||
@@ -255,7 +257,7 @@ export const useSeriesReorder = (
 					}
 
 					event.preventDefault();
-					preview?.move(clientX - startX);
+					preview?.move(clientX - startX, null);
 
 					updateDropTarget();
 					autoScroll.update({clientX, clientY});

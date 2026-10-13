@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {createRef, useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
 import {WHITE_ALPHA_70, WHITE_ALPHA_10} from '../../helpers/colors';

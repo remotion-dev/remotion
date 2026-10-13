@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useContext, useLayoutEffect, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {SELECTED_OUTLINE_SNAP_COLOR} from '../../helpers/colors';

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {ChromeMode} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {UiOpenGlOptions} from '@remotion/studio-shared';

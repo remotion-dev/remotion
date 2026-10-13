@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useContext, useMemo} from 'react';
 import {interpolateColors, random} from 'remotion';
 import {SplitterContext} from './SplitterContext';
@@ -50,6 +51,8 @@ export const SplitterElement: React.FC<{
 	const stickStyle: React.CSSProperties = useMemo(() => {
 		return {
 			position: 'absolute',
+			// Pane headers stay above positioned track handles while rows scroll.
+			zIndex: 20,
 			left: (type === 'flexer' ? 0 : context.flexValue) * 100 + '%',
 			width:
 				(type === 'flexer' ? context.flexValue : 1 - context.flexValue) * 100 +

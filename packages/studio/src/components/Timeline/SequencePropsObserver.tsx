@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {
 	REACT_REFRESH_STARTED_EVENT,
 	type EventSourceEvent,

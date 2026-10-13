@@ -1,6 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {BACKGROUND, SHADOW_BLACK} from '../helpers/colors';
+import {createStudioPortal} from '../helpers/create-studio-portal';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import {getPortal} from './Menu/portals';
@@ -75,7 +75,7 @@ export default function MobilePanel({
 		[onClose],
 	);
 
-	return ReactDOM.createPortal(
+	return createStudioPortal(
 		<div style={overlay} className="css-reset" onPointerDown={onPointerDown}>
 			<HigherZIndex onEscape={onClose} onOutsideClick={onOutsideClick}>
 				<div

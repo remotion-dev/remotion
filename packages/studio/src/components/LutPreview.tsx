@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
 	BACKGROUND,
@@ -13,6 +12,7 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../helpers/hoverable';
+import {useSceneElementSize} from '../helpers/use-scene-element-size';
 import {useZIndex} from '../state/z-index';
 
 const sampleImage = 'https://remotion.media/transition-bg-blue.jpg';
@@ -105,7 +105,7 @@ export const LutPreview: React.FC<{readonly src: string}> = ({src}) => {
 	const [state, setState] = useState<PreviewState>({type: 'loading'});
 	const [position, setPosition] = useState(50);
 	const {tabIndex} = useZIndex();
-	const size = PlayerInternals.useElementSize(containerRef, {
+	const size = useSceneElementSize(containerRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});

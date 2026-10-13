@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback, useMemo, useRef} from 'react';
 import type {
 	ArrayFieldSchema,

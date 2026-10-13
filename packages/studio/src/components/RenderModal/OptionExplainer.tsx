@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {AnyRemotionOption} from '@remotion/renderer';
 import React from 'react';
 import {BLUE, INPUT_BACKGROUND, LIGHT_TEXT, WHITE} from '../../helpers/colors';

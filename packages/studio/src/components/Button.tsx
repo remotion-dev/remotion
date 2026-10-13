@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import React, {forwardRef, useMemo} from 'react';
 import {
 	LIGHT_TEXT,

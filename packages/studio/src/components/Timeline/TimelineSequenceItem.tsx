@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {
 	getCanvasSequenceReorderInsertionIndex,
 	getCanvasSequenceReorderSelection,
@@ -91,10 +92,17 @@ import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
+	getFocusedTimelineSceneNode,
+	sceneNodesFromPoint,
+} from './timeline-scene-events';
+import type {TimelineSceneNode} from './timeline-scene-node';
+import {isTimelineSceneNode} from './timeline-scene-node';
+import {
 	EDGE_SCROLL_VERTICAL_INCREMENT,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
 import {getTimelineSequenceHeight} from './timeline-track-groups';
+import {createTimelineRowReorderPreview} from './TimelineCanvas';
 import {TimelineDuplicateCount} from './TimelineDuplicateCount';
 import {
 	TimelineExpandArrowButton,
@@ -315,7 +323,7 @@ type SequencePointerDropTarget = {
 };
 
 const sequencePointerDropTargets = new Map<
-	HTMLDivElement,
+	Element | TimelineSceneNode,
 	SequencePointerDropTarget
 >();
 
@@ -326,12 +334,10 @@ const getSequencePointerDropTargetAtPoint = ({
 	readonly clientX: number;
 	readonly clientY: number;
 }) => {
-	for (const element of document.elementsFromPoint(clientX, clientY)) {
-		let current: Element | null = element;
+	for (const element of sceneNodesFromPoint(clientX, clientY)) {
+		let current: TimelineSceneNode | null = element;
 		while (current) {
-			const dropTarget = sequencePointerDropTargets.get(
-				current as HTMLDivElement,
-			);
+			const dropTarget = sequencePointerDropTargets.get(current);
 			if (dropTarget) {
 				return dropTarget;
 			}
@@ -749,7 +755,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const onSequencePointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (!(e.target instanceof Element)) {
+			if (!(isTimelineSceneNode(e.target) || e.target instanceof Element)) {
 				return;
 			}
 
@@ -825,7 +831,8 @@ const TimelineSequenceItemInner: React.FC<{
 			const startX = e.clientX;
 			const startY = e.clientY;
 			let currentClientY = startY;
-			let dragPreview: HTMLDivElement | null = null;
+			let dragPreview: ReturnType<typeof createTimelineRowReorderPreview> =
+				null;
 			let activeDropTarget: SequencePointerDropTarget | null = null;
 			let activeDrop: Extract<SequenceDropTarget, {type: 'valid'}> | null =
 				null;
@@ -906,72 +913,35 @@ const TimelineSequenceItemInner: React.FC<{
 									: [],
 							),
 						);
-						dragPreview = document.createElement('div');
-						dragPreview.setAttribute('aria-hidden', 'true');
-						dragPreview.setAttribute(
-							'data-remotion-sequence-reorder-preview',
-							'true',
-						);
 						let draggedRowOffset = 0;
 						let previewHeight = 0;
+						const previewRows: {rect: DOMRect; offsetY: number}[] = [];
 						for (const row of orderedSourceRows) {
 							const key = Internals.makeSequencePropsSubscriptionKey(
 								row.track.nodePathInfo!.sequenceSubscriptionKey,
 							);
-							const renderedRow = renderedRows.get(key);
-							const rowHeight =
-								renderedRow?.getBoundingClientRect().height ??
-								sourceRect.height;
-							const previewRow = renderedRow
-								? (renderedRow.cloneNode(true) as HTMLDivElement)
-								: document.createElement('div');
-							previewRow.removeAttribute('data-remotion-sequence-reorder-row');
-							if (!renderedRow) {
-								previewRow.textContent =
-									row.track.sequence.displayName ||
-									row.track.sequence.controls?.componentName ||
-									'<Sequence>';
-								Object.assign(previewRow.style, {
-									alignItems: 'center',
-									backgroundColor: '#20242c',
-									color: WHITE,
-									display: 'flex',
-									fontFamily: 'Arial, Helvetica, sans-serif',
-									fontSize: '12px',
-									paddingLeft: '12px',
-								});
-							}
-
-							Object.assign(previewRow.style, {
-								boxSizing: 'border-box',
-								height: `${rowHeight}px`,
-								width: '100%',
-							});
+							const rect = renderedRows.get(key)?.getBoundingClientRect();
 							if (row.track.sequence.id === sequence.id) {
 								draggedRowOffset = previewHeight;
 							}
 
-							previewHeight += rowHeight;
-							dragPreview.appendChild(previewRow);
+							if (rect) {
+								previewRows.push({rect, offsetY: previewHeight});
+							}
+
+							previewHeight += rect?.height ?? sourceRect.height;
 						}
 
-						Object.assign(dragPreview.style, {
-							display: 'flex',
-							flexDirection: 'column',
-							left: `${sourceRect.left}px`,
-							margin: '0',
-							opacity: '0.8',
-							pointerEvents: 'none',
-							position: 'fixed',
-							top: `${sourceRect.top - draggedRowOffset}px`,
-							width: `${sourceRect.width}px`,
-							zIndex: '2147483647',
-						});
-						document.body.appendChild(dragPreview);
+						dragPreview = createTimelineRowReorderPreview(
+							previewRows.map(({rect, offsetY}) => ({
+								rect,
+								offsetY: sourceRect.top - draggedRowOffset + offsetY - rect.top,
+							})),
+						);
 					}
 
 					pointerEvent.preventDefault();
-					dragPreview!.style.transform = `translate3d(0, ${pointerEvent.clientY - startY}px, 0)`;
+					dragPreview?.move(0, pointerEvent.clientY - startY);
 					updateDropTarget(pointerEvent.clientY);
 					autoScroll.update({clientX: startX, clientY: pointerEvent.clientY});
 				},
@@ -983,7 +953,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 					autoScroll.stop();
 					activeDropTarget?.setDropIndicator(null);
-					dragPreview?.remove();
+					dragPreview?.destroy();
 					stopSequencePointerSession.current = null;
 
 					if (!didDrag) {
@@ -1247,6 +1217,9 @@ const TimelineSequenceItemInner: React.FC<{
 			}
 
 			if (
+				['INPUT', 'TEXTAREA', 'BUTTON', 'SELECT'].includes(
+					getFocusedTimelineSceneNode()?.tagName ?? '',
+				) ||
 				document.activeElement instanceof HTMLInputElement ||
 				document.activeElement instanceof HTMLTextAreaElement ||
 				document.activeElement instanceof HTMLButtonElement
@@ -1374,7 +1347,10 @@ const TimelineSequenceItemInner: React.FC<{
 	const getContextMenuItems = useCallback(
 		(event: MouseEvent) => {
 			const contextMenuTarget =
-				event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+				isTimelineSceneNode(event.currentTarget) ||
+				event.currentTarget instanceof HTMLElement
+					? event.currentTarget
+					: null;
 			if (assetContextMenu !== null) {
 				return assetContextMenu;
 			}

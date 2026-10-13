@@ -1,7 +1,5 @@
-import {PlayerInternals} from '@remotion/player';
 import type {GoogleFontSourceEdit} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {
 	BACKGROUND,
@@ -17,12 +15,15 @@ import {
 	WHITE_ALPHA_06,
 	WHITE_ALPHA_08,
 } from '../../helpers/colors';
+/** @jsxImportSource ./scene-jsx */
+import {createStudioPortal} from '../../helpers/create-studio-portal';
 import {installRequiredPackages} from '../../helpers/install-required-package';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {CaretDown} from '../../icons/caret';
 import {Checkmark} from '../../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
@@ -189,7 +190,7 @@ const errorText: React.CSSProperties = {
 const portalStyle = ({
 	size,
 }: {
-	size: NonNullable<ReturnType<typeof PlayerInternals.useElementSize>>;
+	size: NonNullable<ReturnType<typeof useSceneElementSize>>;
 }): React.CSSProperties => {
 	const margin = 10;
 	const spaceToBottom =
@@ -449,7 +450,7 @@ export const TimelineFontFamilyField: React.FC<{
 	const inputRef = useRef<HTMLInputElement>(null);
 	const listRef = useRef<HTMLDivElement>(null);
 	const {tabIndex, currentZIndex} = useZIndex();
-	const size = PlayerInternals.useElementSize(buttonRef, {
+	const size = useSceneElementSize(buttonRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -759,7 +760,7 @@ export const TimelineFontFamilyField: React.FC<{
 			</button>
 			{saveError === null ? null : <div style={errorText}>{saveError}</div>}
 			{opened && size
-				? ReactDOM.createPortal(
+				? createStudioPortal(
 						<div
 							style={fullScreenOverlay}
 							onPointerDown={(event) => event.stopPropagation()}

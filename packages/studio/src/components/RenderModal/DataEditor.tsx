@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps} from 'remotion';

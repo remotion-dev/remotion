@@ -1,9 +1,10 @@
-import {PlayerInternals} from '@remotion/player';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
 import {WHITE} from '../helpers/colors';
+import {createStudioPortal} from '../helpers/create-studio-portal';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
+/** @jsxImportSource ./Timeline/scene-jsx */
+import {useSceneElementSize} from '../helpers/use-scene-element-size';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {InlineAction, type InlineActionProps} from './InlineAction';
 import {
@@ -55,7 +56,7 @@ const InlineDropdownMenu = ({
 	readonly currentZIndex: number;
 	readonly onHide: () => void;
 }) => {
-	const size = PlayerInternals.useElementSize(triggerRef, {
+	const size = useSceneElementSize(triggerRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -118,7 +119,7 @@ const InlineDropdownMenu = ({
 		return null;
 	}
 
-	return ReactDOM.createPortal(
+	return createStudioPortal(
 		<div style={fullScreenOverlay}>
 			<div style={outerPortal} className="css-reset">
 				<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>

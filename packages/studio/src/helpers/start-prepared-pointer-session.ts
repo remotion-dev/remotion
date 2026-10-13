@@ -1,4 +1,7 @@
-import type {PointerSessionEndReason} from './pointer-session';
+import type {
+	PointerSessionEndReason,
+	TimelinePointerCaptureTarget,
+} from './pointer-session';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
@@ -19,7 +22,7 @@ export const startPreparedPointerSession = <T>({
 	onError,
 }: {
 	event: PointerEvent;
-	captureTarget: Element;
+	captureTarget: TimelinePointerCaptureTarget;
 	minimumMovement: number | null;
 	prepare: () => Promise<T>;
 	onReady: (prepared: T) => PreparedPointerHandlers;

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React from 'react';
 import {WHITE_ALPHA_05} from '../../helpers/colors';
 

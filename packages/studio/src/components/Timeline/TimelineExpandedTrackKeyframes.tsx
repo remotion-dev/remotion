@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React from 'react';
 import type {TSequence} from 'remotion';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';

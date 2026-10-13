@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {BLACK, TRANSPARENT, WHITE_ALPHA_72} from '../../helpers/colors';
 import {

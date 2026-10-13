@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React, {useCallback, useMemo, useRef} from 'react';
 import {ColorPicker} from '../../ColorPicker/ColorPicker';
 import {Row, Spacing} from '../../layout';

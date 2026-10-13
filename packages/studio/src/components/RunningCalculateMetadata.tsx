@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';

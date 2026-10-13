@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React, {useCallback, useMemo} from 'react';
 import {Fieldset} from './Fieldset';
 import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';

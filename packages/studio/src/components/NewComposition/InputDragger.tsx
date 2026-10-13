@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {
 	InputHTMLAttributes,
 	MouseEventHandler,
@@ -30,6 +31,9 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
+import {getTimelineSceneEditor} from '../Timeline/timeline-scene-events';
+import {isTimelineSceneNode} from '../Timeline/timeline-scene-node';
+import {measureTimelineSceneText} from '../Timeline/timeline-scene-paint';
 import type {RemInputStatus} from './RemInput';
 import {RemotionInput, inputBaseStyle} from './RemInput';
 
@@ -576,17 +580,27 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		const display = displayRef.current;
 		if (
 			rightAlign &&
-			display?.firstChild &&
+			display &&
 			display.parentElement &&
 			editingDisplayValueRef.current.startsWith(text) &&
 			editingDisplayValueRef.current !== text
 		) {
 			// Keep numbers in place when their display-only unit (such as fps) disappears.
-			const suffix = document.createRange();
-			suffix.selectNodeContents(display);
-			suffix.setStart(display.firstChild, text.length);
-			const {paddingRight} = window.getComputedStyle(display.parentElement);
-			editingPaddingRightRef.current = `calc(${paddingRight} + ${suffix.getBoundingClientRect().width}px)`;
+			if (isTimelineSceneNode(display)) {
+				const {style} = display.parentElement!;
+				const padding = String(style.padding ?? 0).split(/\s+/);
+				const paddingRight = style.paddingRight ?? padding[1] ?? padding[0];
+				const suffixWidth =
+					measureTimelineSceneText(editingDisplayValueRef.current, display) -
+					measureTimelineSceneText(text, display);
+				editingPaddingRightRef.current = `calc(${typeof paddingRight === 'number' || paddingRight === '0' ? `${paddingRight}px` : paddingRight} + ${suffixWidth}px)`;
+			} else if (display.firstChild) {
+				const suffix = document.createRange();
+				suffix.selectNodeContents(display);
+				suffix.setStart(display.firstChild, text.length);
+				const {paddingRight} = window.getComputedStyle(display.parentElement);
+				editingPaddingRightRef.current = `calc(${paddingRight} + ${suffix.getBoundingClientRect().width}px)`;
+			}
 		}
 
 		formattedInputValueRef.current = {
@@ -908,7 +922,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		}
 
 		const commitWithoutClickThrough = (event: PointerEvent) => {
-			const input = fallbackRef.current;
+			const input = isTimelineSceneNode(fallbackRef.current)
+				? getTimelineSceneEditor(fallbackRef.current)
+				: fallbackRef.current;
 			if (
 				event.button !== 0 ||
 				input === null ||

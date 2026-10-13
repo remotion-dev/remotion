@@ -2,7 +2,7 @@ export const observeHover = ({
 	element,
 	onHoverChange,
 }: {
-	element: HTMLElement;
+	element: HTMLElement | TimelineSceneNode;
 	onHoverChange: (hovered: boolean) => void;
 }): (() => void) => {
 	const {ownerDocument} = element;
@@ -35,7 +35,13 @@ export const observeHover = ({
 
 	const onPointerOver = (event: PointerEvent) => {
 		// Recover if the previous target never received its leave event.
-		if (!event.composedPath().includes(element)) {
+		const isInside = isTimelineSceneNode(element)
+			? event.target === element.store.canvas &&
+				sceneNodesFromPoint(event.clientX, event.clientY).some((node) =>
+					element.contains(node),
+				)
+			: event.composedPath().includes(element);
+		if (!isInside) {
 			onPointerLeave(event);
 		}
 	};
@@ -72,14 +78,24 @@ export const observeHover = ({
 		onHoverChange(true);
 	};
 
-	element.addEventListener('pointerenter', onPointerEnter);
-	element.addEventListener('pointerleave', onPointerLeave);
+	element.addEventListener('pointerenter', onPointerEnter as EventListener);
+	element.addEventListener('pointerleave', onPointerLeave as EventListener);
 	// Recover entry after a window blur or a missed enter event.
-	element.addEventListener('pointermove', onPointerEnter);
+	element.addEventListener('pointermove', onPointerEnter as EventListener);
 	return () => {
 		globalListeners?.abort();
-		element.removeEventListener('pointerenter', onPointerEnter);
-		element.removeEventListener('pointerleave', onPointerLeave);
-		element.removeEventListener('pointermove', onPointerEnter);
+		element.removeEventListener(
+			'pointerenter',
+			onPointerEnter as EventListener,
+		);
+		element.removeEventListener(
+			'pointerleave',
+			onPointerLeave as EventListener,
+		);
+		element.removeEventListener('pointermove', onPointerEnter as EventListener);
 	};
 };
+
+import {sceneNodesFromPoint} from '../components/Timeline/timeline-scene-events';
+import type {TimelineSceneNode} from '../components/Timeline/timeline-scene-node';
+import {isTimelineSceneNode} from '../components/Timeline/timeline-scene-node';

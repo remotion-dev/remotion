@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import type {GitClientId} from '@remotion/studio-shared';
 import React from 'react';
 

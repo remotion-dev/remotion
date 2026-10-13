@@ -1,6 +1,7 @@
 import type {StudioKeyboardShortcutAction} from '@remotion/studio-shared';
 import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {keyboardEventMatchesAction} from '../components/keyboard-shortcuts';
+import {getFocusedTimelineSceneNode} from '../components/Timeline/timeline-scene-events';
 import type {KeyEventType, RegisteredKeybinding} from '../state/keybindings';
 import {KeybindingContext} from '../state/keybindings';
 import {useZIndex} from '../state/z-index';
@@ -64,6 +65,14 @@ export const useKeybinding = () => {
 
 				if (matches && getStudioKeyboardShortcutsEnabled()) {
 					if (!options.triggerIfInputFieldFocused) {
+						const focusedSceneNode = getFocusedTimelineSceneNode();
+						if (
+							focusedSceneNode !== null &&
+							['INPUT', 'TEXTAREA', 'SELECT'].includes(focusedSceneNode.tagName)
+						) {
+							return;
+						}
+
 						const {activeElement} = document;
 						if (activeElement instanceof HTMLInputElement) {
 							return;

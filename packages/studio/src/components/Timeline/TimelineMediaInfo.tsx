@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useMemo} from 'react';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_30} from '../../helpers/colors';

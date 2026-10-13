@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {AnyRemotionOption} from '@remotion/renderer';
 import type {AvailableOptions} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';

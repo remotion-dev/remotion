@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useContext, useEffect, useRef} from 'react';
 import {
 	isPointerSessionRelease,

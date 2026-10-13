@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import type {SVGProps} from 'react';
 import {ClipboardIcon} from './clipboard';
 

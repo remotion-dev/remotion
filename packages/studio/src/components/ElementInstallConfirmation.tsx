@@ -8,7 +8,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
@@ -19,6 +18,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_12,
 } from '../helpers/colors';
+import {createStudioPortal} from '../helpers/create-studio-portal';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -867,7 +867,7 @@ export const ElementInstallConfirmation: React.FC<{
 		[submit],
 	);
 
-	return createPortal(
+	return createStudioPortal(
 		<ModalContainer
 			ariaLabelledBy={elementInstallTitleId}
 			onOutsideClick={cancel}

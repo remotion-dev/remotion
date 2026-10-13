@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,

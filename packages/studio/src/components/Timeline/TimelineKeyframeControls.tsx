@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {CanvasInternals} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {

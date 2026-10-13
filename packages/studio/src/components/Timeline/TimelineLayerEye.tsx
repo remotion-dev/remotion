@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback} from 'react';
 import {
 	BLACK_ALPHA_40,
@@ -7,6 +8,11 @@ import {
 } from '../../helpers/colors';
 import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import type {RenderInlineAction} from '../InlineAction';
+import {sceneNodesFromPoint} from './timeline-scene-events';
+import {
+	isTimelineSceneNode,
+	type TimelineSceneNode,
+} from './timeline-scene-node';
 
 const eyeIcon: React.CSSProperties = {
 	width: 12,
@@ -39,8 +45,8 @@ export const timelineLayerIconContainer: React.CSSProperties = {
 
 let layerPointedDown: null | 'enable' | 'disable' = null;
 let stopLayerPointerSession: (() => void) | null = null;
-let lastPaintedLayerEye: Element | null = null;
-const layerEyeActions = new WeakMap<Element, () => void>();
+let lastPaintedLayerEye: Element | TimelineSceneNode | null = null;
+const layerEyeActions = new WeakMap<Element | TimelineSceneNode, () => void>();
 const TIMELINE_LAYER_EYE_ATTR = 'data-timeline-layer-eye';
 
 export const TimelineLayerEye: React.FC<{
@@ -101,16 +107,22 @@ export const TimelineLayerEye: React.FC<{
 			}
 
 			stopLayerPointerSession?.();
+			const source = e.currentTarget;
 			layerPointedDown = hidden ? 'enable' : 'disable';
 			onInvoked(layerPointedDown);
-			lastPaintedLayerEye = e.currentTarget;
+			lastPaintedLayerEye = source;
 			stopLayerPointerSession = startCapturedPointerSession({
 				event: e,
-				captureTarget: e.currentTarget,
+				captureTarget: source,
 				onMove: (moveEvent) => {
-					const pointedElement = document
-						.elementFromPoint(moveEvent.clientX, moveEvent.clientY)
-						?.closest(`[${TIMELINE_LAYER_EYE_ATTR}]`);
+					const pointedElement = isTimelineSceneNode(source)
+						? sceneNodesFromPoint(
+								moveEvent.clientX,
+								moveEvent.clientY,
+							)[0]?.closest(`[${TIMELINE_LAYER_EYE_ATTR}]`)
+						: document
+								.elementFromPoint(moveEvent.clientX, moveEvent.clientY)
+								?.closest(`[${TIMELINE_LAYER_EYE_ATTR}]`);
 					if (!pointedElement || pointedElement === lastPaintedLayerEye) {
 						return;
 					}

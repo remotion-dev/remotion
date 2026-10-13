@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useCallback} from 'react';
 import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
 import {Spacing} from '../layout';

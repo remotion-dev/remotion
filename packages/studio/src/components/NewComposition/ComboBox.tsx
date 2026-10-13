@@ -1,6 +1,4 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
 import {
 	BLACK_ALPHA_60,
 	INPUT_BACKGROUND,
@@ -8,9 +6,12 @@ import {
 	SELECTED_BACKGROUND,
 	WHITE,
 } from '../../helpers/colors';
+import {createStudioPortal} from '../../helpers/create-studio-portal';
 import {INPUT_HOVER_CLASS_NAME} from '../../helpers/hoverable';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
+/** @jsxImportSource ../Timeline/scene-jsx */
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {CaretDown} from '../../icons/caret';
 import {Checkmark} from '../../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
@@ -128,7 +129,7 @@ export const Combobox: React.FC<{
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
 	const {tabIndex, currentZIndex} = useZIndex();
-	const size = PlayerInternals.useElementSize(ref, {
+	const size = useSceneElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -329,7 +330,7 @@ export const Combobox: React.FC<{
 				/>
 			</button>
 			{portalStyle
-				? ReactDOM.createPortal(
+				? createStudioPortal(
 						<div style={fullScreenOverlay} onPointerDown={onOverlayPointerDown}>
 							<div style={outerPortal} className="css-reset">
 								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>

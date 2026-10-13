@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React, {createContext, useContext, useMemo} from 'react';
 
 export const SCHEMA_EDITOR_FIELDSET_PADDING = 6;

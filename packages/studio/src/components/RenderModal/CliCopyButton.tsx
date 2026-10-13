@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import {useCallback, useMemo, useState} from 'react';
 import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';

@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {
 	useContext,
 	useLayoutEffect,
@@ -6,6 +5,8 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+/** @jsxImportSource ../Timeline/scene-jsx */
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
@@ -69,7 +70,7 @@ export const SplitterContainer: React.FC<{
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isDragging = useRef<SplitterDragState>(false);
-	const size = PlayerInternals.useElementSize(ref, {
+	const size = useSceneElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});

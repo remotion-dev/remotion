@@ -1,8 +1,9 @@
-import {PlayerInternals} from '@remotion/player';
+/** @jsxImportSource ./Timeline/scene-jsx */
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
+import {useSceneElementSize} from '../helpers/use-scene-element-size';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {
 	getNextMenuTreeId,
@@ -19,6 +20,8 @@ import {
 } from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {MenuContent} from './NewComposition/MenuContent';
+import {TimelineDomBoundary} from './Timeline/timeline-scene-context';
+import type {TimelineSceneNode} from './Timeline/timeline-scene-node';
 
 type OpenState =
 	| {
@@ -83,13 +86,15 @@ const notifyContextMenuOpened = (id: number) => {
 };
 
 const ContextMenuPortal: React.FC<{
-	readonly anchorRef: React.RefObject<HTMLElement | null> | null;
+	readonly anchorRef: React.RefObject<
+		HTMLElement | TimelineSceneNode | null
+	> | null;
 	readonly onHide: () => void;
 	readonly opened: OpenedState;
 }> = ({anchorRef, onHide, opened}) => {
 	const [menuTreeId] = useState(getNextMenuTreeId);
 	const {currentZIndex} = useZIndex();
-	const size = PlayerInternals.useElementSize(anchorRef ?? document.body, {
+	const size = useSceneElementSize(anchorRef ?? document.body, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -186,34 +191,36 @@ const ContextMenuPortal: React.FC<{
 	}
 
 	return ReactDOM.createPortal(
-		<div style={contextMenuFullScreenOverlay}>
-			<div style={contextMenuOuterPortal} className="css-reset">
-				<HigherZIndex
-					onOutsideClick={onHide}
-					onEscape={onHide}
-					outsideClickButton="primary"
-				>
-					<div
-						data-remotion-menu-tree-id={menuTreeId}
-						style={portalStyle}
-						onPointerDown={onMenuPointerDown}
+		<TimelineDomBoundary>
+			<div style={contextMenuFullScreenOverlay}>
+				<div style={contextMenuOuterPortal} className="css-reset">
+					<HigherZIndex
+						onOutsideClick={onHide}
+						onEscape={onHide}
+						outsideClickButton="primary"
 					>
-						<MenuTreeContext.Provider value={menuTreeId}>
-							<MenuContent
-								onNextMenu={noop}
-								onPreviousMenu={noop}
-								values={opened.values}
-								onHide={onHide}
-								leaveLeftSpace
-								preselectIndex={false}
-								topItemCanBeUnselected={false}
-								fixedHeight={null}
-							/>
-						</MenuTreeContext.Provider>
-					</div>
-				</HigherZIndex>
+						<div
+							data-remotion-menu-tree-id={menuTreeId}
+							style={portalStyle}
+							onPointerDown={onMenuPointerDown}
+						>
+							<MenuTreeContext.Provider value={menuTreeId}>
+								<MenuContent
+									onNextMenu={noop}
+									onPreviousMenu={noop}
+									values={opened.values}
+									onHide={onHide}
+									leaveLeftSpace
+									preselectIndex={false}
+									topItemCanBeUnselected={false}
+									fixedHeight={null}
+								/>
+							</MenuTreeContext.Provider>
+						</div>
+					</HigherZIndex>
+				</div>
 			</div>
-		</div>,
+		</TimelineDomBoundary>,
 		getPortal(currentZIndex),
 	);
 };
@@ -229,7 +236,7 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 		},
 		forwardedRef,
 	) => {
-		const ref = useRef<HTMLDivElement>(null);
+		const ref = useRef<HTMLDivElement | TimelineSceneNode>(null);
 		const [id] = useState(() => nextContextMenuId++);
 		const invocationRef = useRef(0);
 		const getItemsRef = useRef(getItems);
@@ -258,7 +265,8 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 				return;
 			}
 
-			const onClick = async (e: MouseEvent) => {
+			const onClick = async (event: Event) => {
+				const e = event as MouseEvent;
 				e.preventDefault();
 				e.stopPropagation();
 
@@ -342,7 +350,9 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 ContextMenu.displayName = 'ContextMenu';
 
 export const ContextMenuForTarget: React.FC<{
-	readonly triggerRef: React.RefObject<HTMLElement | SVGElement | null>;
+	readonly triggerRef: React.RefObject<
+		HTMLElement | SVGElement | TimelineSceneNode | null
+	>;
 	readonly getItems: ContextMenuItemsFactory;
 	readonly onOpenChange?: (open: boolean) => void;
 }> = ({triggerRef, getItems, onOpenChange = undefined}) => {

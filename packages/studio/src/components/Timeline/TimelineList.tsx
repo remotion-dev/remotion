@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';

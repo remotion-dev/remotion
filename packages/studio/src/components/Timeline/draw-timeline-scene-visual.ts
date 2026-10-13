@@ -4,13 +4,94 @@ import {
 	Graphics,
 	GraphicsPath,
 	ImageSource,
+	Polygon,
 	Sprite,
 	Text,
 	Texture,
 } from 'pixi.js';
-import type {TimelineDomVisual} from './get-timeline-dom-paint-entries';
+import type {TimelineSceneVisual} from './timeline-scene-visual';
 
-export const drawTimelineDomVisual = ({
+const fillSvgPath = (
+	target: Graphics,
+	graphicsPath: GraphicsPath,
+	path: TimelineSceneVisual['paths'][number],
+) => {
+	const {shapePrimitives} = graphicsPath.shapePath;
+	if (shapePrimitives.length <= 1) {
+		target.path(graphicsPath).fill({color: path.fill, alpha: path.fillAlpha});
+		return;
+	}
+
+	// Pixi's automatic hole detection only checks whether a contour is inside
+	// the preceding one. SVG permits the inner contour first and islands inside
+	// holes, so resolve nesting and winding before submitting the vector fills.
+	const contours = shapePrimitives.flatMap(({shape}) => {
+		if (!(shape instanceof Polygon)) return [];
+		const {points} = shape;
+		let signedArea = 0;
+		for (let index = 0; index < points.length; index += 2) {
+			const next = (index + 2) % points.length;
+			signedArea +=
+				points[index] * points[next + 1] - points[next] * points[index + 1];
+		}
+
+		return signedArea === 0
+			? []
+			: [{shape, signedArea, winding: 0, group: null as number | null}];
+	});
+	contours.sort(
+		(left, right) => Math.abs(right.signedArea) - Math.abs(left.signedArea),
+	);
+	const groups: {shape: Polygon; holes: Polygon[]}[] = [];
+	for (let index = 0; index < contours.length; index++) {
+		const contour = contours[index];
+		let parent: (typeof contours)[number] | null = null;
+		for (let previous = index - 1; previous >= 0; previous--) {
+			if (contours[previous].shape.containsPolygon(contour.shape)) {
+				parent = contours[previous];
+				break;
+			}
+		}
+
+		const outsideWinding = parent?.winding ?? 0;
+		contour.winding =
+			path.fillRule === 'evenodd'
+				? 1 - outsideWinding
+				: outsideWinding + Math.sign(contour.signedArea);
+		contour.group = parent?.group ?? null;
+		if (outsideWinding === 0 && contour.winding !== 0) {
+			contour.group = groups.length;
+			groups.push({shape: contour.shape, holes: []});
+		} else if (
+			outsideWinding !== 0 &&
+			contour.winding === 0 &&
+			contour.group !== null
+		) {
+			groups[contour.group].holes.push(contour.shape);
+		}
+	}
+
+	// Pixi transforms the outer polygon during triangulation but reads cutout
+	// points directly. Bake the same SVG matrix into both to keep holes aligned.
+	target.resetTransform();
+	const [a, b, c, d, tx, ty] = path.matrix;
+	for (const group of groups) {
+		for (const [index, shape] of [group.shape, ...group.holes].entries()) {
+			const points = shape.points.map((value, point) =>
+				point % 2 === 0
+					? a * value + c * shape.points[point + 1] + tx
+					: b * shape.points[point - 1] + d * value + ty,
+			);
+			target.beginPath().poly(points);
+			if (index === 0) target.fill({color: path.fill, alpha: path.fillAlpha});
+			else target.cut();
+		}
+	}
+
+	target.setTransform(...path.matrix);
+};
+
+export const drawTimelineSceneVisual = ({
 	graphics,
 	children,
 	visual,
@@ -21,7 +102,7 @@ export const drawTimelineDomVisual = ({
 }: {
 	readonly graphics: Graphics;
 	readonly children: Container;
-	readonly visual: TimelineDomVisual;
+	readonly visual: TimelineSceneVisual;
 	readonly width: number;
 	readonly height: number;
 	readonly radius: number;
@@ -53,7 +134,17 @@ export const drawTimelineDomVisual = ({
 						: 1;
 		const imageWidth = image.fit === 'fill' ? width : image.width * scale;
 		const imageHeight = image.fit === 'fill' ? height : image.height * scale;
-		const position = image.position.split(/\s+/);
+		const position = image.position.split(/\s+/).map(
+			(value) =>
+				({
+					left: '0%',
+					top: '0%',
+					center: '50%',
+					right: '100%',
+					bottom: '100%',
+				})[value] ?? value,
+		);
+		if (position.length === 1) position.push('50%');
 		const [x, y] = [width - imageWidth, height - imageHeight].map(
 			(remaining, index) =>
 				parseFloat(position[index]) *
@@ -79,7 +170,12 @@ export const drawTimelineDomVisual = ({
 			border.color === borders[0].color &&
 			border.style === borders[0].style,
 	);
-	if (uniformBorder && borders[0].width > 0 && borders[0].style !== 'none') {
+	if (
+		uniformBorder &&
+		borders.length > 0 &&
+		borders[0].width > 0 &&
+		borders[0].style !== 'none'
+	) {
 		const border = borders[0];
 		graphics
 			.roundRect(
@@ -93,6 +189,7 @@ export const drawTimelineDomVisual = ({
 	} else {
 		for (let side = 0; side < 4; side++) {
 			const border = borders[side];
+			if (!border) continue;
 			if (
 				border.width <= 0 ||
 				border.style === 'none' ||
@@ -162,16 +259,23 @@ export const drawTimelineDomVisual = ({
 
 	// Studio's selection rings use inset shadows. Soft outer shadows remain
 	// vector rings with decreasing alpha, so they do not need DOM rasterization.
-	const shadowPattern =
-		/(rgba?\([^)]+\)|#[\da-f]+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+(-?[\d.]+)px(?:\s+(-?[\d.]+)px)?(\s+inset)?/gi;
 	const insetOffsets = new Set<string>();
-	for (const shadow of visual.shadow.matchAll(shadowPattern)) {
-		const color = shadow[1];
-		const x = Number(shadow[2]);
-		const y = Number(shadow[3]);
-		const blur = Number(shadow[4]);
-		const spread = Number(shadow[5] ?? 0);
-		const inset = Boolean(shadow[6]);
+	// Explicit React styles retain the authored order (often "inset 0 0 0
+	// 2px color"), so do not rely on browser-computed color-first shadows.
+	for (const shadow of visual.shadow.split(/,(?![^()]*\))/)) {
+		const color = shadow.match(
+			/(?:rgba?|hsla?)\([^)]+\)|#[\da-f]+|\b(?:black|white|transparent)\b/i,
+		)?.[0];
+		if (!color) continue;
+		const offsets = shadow
+			.replace(color, '')
+			.replace(/\binset\b/, '')
+			.trim()
+			.split(/\s+/)
+			.map(parseFloat);
+		const [x = 0, y = 0, blur = 0, spread = 0] = offsets;
+		const inset = /\binset\b/.test(shadow);
+
 		if (inset) {
 			if (blur === 0 && spread === 0) {
 				// FOCUS_BOX_SHADOW uses four one-pixel offset inset shadows.
@@ -224,27 +328,31 @@ export const drawTimelineDomVisual = ({
 
 	for (const path of visual.paths) {
 		const target = new Graphics();
-		target.setTransform(...path.matrix).path(new GraphicsPath(path.path, true));
+		const graphicsPath = new GraphicsPath(path.path, false);
+		target.setTransform(...path.matrix);
 		if (path.fill !== 'none' && path.fillAlpha > 0)
-			target.fill({color: path.fill, alpha: path.fillAlpha});
+			fillSvgPath(target, graphicsPath, path);
 		if (path.stroke !== 'none' && path.strokeWidth > 0 && path.strokeAlpha > 0)
-			target.stroke({
-				color: path.stroke,
-				alpha: path.strokeAlpha,
-				width: path.strokeWidth,
-				cap:
-					path.lineCap === 'round'
-						? 'round'
-						: path.lineCap === 'square'
-							? 'square'
-							: 'butt',
-				join:
-					path.lineJoin === 'round'
-						? 'round'
-						: path.lineJoin === 'bevel'
-							? 'bevel'
-							: 'miter',
-			});
+			target
+				.beginPath()
+				.path(graphicsPath)
+				.stroke({
+					color: path.stroke,
+					alpha: path.strokeAlpha,
+					width: path.strokeWidth,
+					cap:
+						path.lineCap === 'round'
+							? 'round'
+							: path.lineCap === 'square'
+								? 'square'
+								: 'butt',
+					join:
+						path.lineJoin === 'round'
+							? 'round'
+							: path.lineJoin === 'bevel'
+								? 'bevel'
+								: 'miter',
+				});
 		target.resetTransform();
 		if (path.blur > 0) {
 			const filter = new BlurFilter({strength: path.blur, quality: 3});
@@ -309,22 +417,18 @@ export const drawTimelineDomVisual = ({
 		graphics.rect(caret.x, caret.y, 1, caret.height).fill(caret.color);
 	}
 
-	if (visual.scrollbar) {
-		const {
-			left,
-			width: visibleWidth,
-			totalWidth,
-		} = visual.scrollbar.getScroll();
+	for (const scrollbar of visual.scrollbars) {
+		const {left, width: visibleWidth, totalWidth} = scrollbar.getScroll();
 		const thumbWidth = Math.max(20, (visibleWidth * visibleWidth) / totalWidth);
 		const x =
 			(left / (totalWidth - visibleWidth)) * (visibleWidth - thumbWidth);
 		graphics
 			.rect(
-				x,
-				height - visual.scrollbar.thickness,
-				thumbWidth,
-				visual.scrollbar.thickness,
+				scrollbar.vertical ? width - scrollbar.thickness : x,
+				scrollbar.vertical ? x : height - scrollbar.thickness,
+				scrollbar.vertical ? scrollbar.thickness : thumbWidth,
+				scrollbar.vertical ? thumbWidth : scrollbar.thickness,
 			)
-			.fill(visual.scrollbar.color);
+			.fill(scrollbar.color);
 	}
 };

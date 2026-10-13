@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import type {SVGProps} from 'react';
 import React from 'react';
 

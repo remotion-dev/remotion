@@ -1,5 +1,8 @@
+/** @jsxImportSource ./scene-jsx */
 import {
 	defaultRangeExtractor,
+	observeElementRect,
+	observeElementOffset,
 	type Range,
 	useVirtualizer,
 	type VirtualItem,
@@ -18,6 +21,7 @@ import {Internals} from 'remotion';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {timelineVerticalScroll} from './timeline-refs';
+import {isTimelineSceneNode} from './timeline-scene-node';
 import {
 	getTimelineSeriesLayout,
 	type TimelineSceneRange,
@@ -216,6 +220,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 
 		let element: HTMLDivElement | null = null;
 		let resizeObserver: ResizeObserver | null = null;
+		let unsubscribe: (() => void) | null = null;
 		const update = () => {
 			if (element === null || element.clientHeight === 0) {
 				return;
@@ -240,14 +245,20 @@ export const TimelineVirtualizationProvider: React.FC<{
 				return;
 			}
 
-			resizeObserver = new ResizeObserver(update);
-			resizeObserver.observe(element);
+			if (isTimelineSceneNode(element)) {
+				unsubscribe = element.store.subscribeLayout(update);
+			} else {
+				resizeObserver = new ResizeObserver(update);
+				resizeObserver.observe(element);
+			}
+
 			element.addEventListener('scroll', update, {passive: true});
 			update();
 		});
 		return () => {
 			cancelAnimationFrame(animationFrame);
 			resizeObserver?.disconnect();
+			unsubscribe?.();
 			element?.removeEventListener('scroll', update);
 		};
 	}, [hasSharedRows]);
@@ -287,6 +298,24 @@ export const TimelineVirtualizationProvider: React.FC<{
 	);
 
 	const virtualizer = useVirtualizer({
+		observeElementRect: (instance, callback) => {
+			const element = instance.scrollElement;
+			if (!isTimelineSceneNode(element))
+				return observeElementRect(instance, callback);
+			const update = () =>
+				callback({width: element.clientWidth, height: element.clientHeight});
+			update();
+			return element.store.subscribeLayout(update);
+		},
+		observeElementOffset: (instance, callback) => {
+			const element = instance.scrollElement;
+			if (!isTimelineSceneNode(element))
+				return observeElementOffset(instance, callback);
+			const update = () => callback(element.scrollTop, false);
+			update();
+			element.addEventListener('scroll', update);
+			return () => element.removeEventListener('scroll', update);
+		},
 		count: layout.groups.length,
 		estimateSize,
 		getItemKey,

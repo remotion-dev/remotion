@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React from 'react';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';

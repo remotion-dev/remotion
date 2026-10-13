@@ -68,6 +68,7 @@ import {
 	getSequencePropClipboardDataFromSelection,
 	propStatusToClipboardParam,
 } from './sequence-prop-clipboard';
+import {getFocusedTimelineSceneNode} from './timeline-scene-events';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelectionCanSelect,
@@ -1004,7 +1005,10 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 			const {activeElement} = document;
 			if (
 				activeElement instanceof HTMLInputElement ||
-				activeElement instanceof HTMLTextAreaElement
+				activeElement instanceof HTMLTextAreaElement ||
+				['INPUT', 'TEXTAREA', 'SELECT'].includes(
+					getFocusedTimelineSceneNode()?.tagName ?? '',
+				)
 			) {
 				return;
 			}

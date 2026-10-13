@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';

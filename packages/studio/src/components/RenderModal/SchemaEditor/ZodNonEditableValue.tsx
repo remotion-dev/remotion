@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React from 'react';
 import {WHITE_ALPHA_30} from '../../../helpers/colors';
 import {Fieldset} from './Fieldset';

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React from 'react';
 import type {TSequence} from 'remotion';
 import {useCurrentFrame} from 'remotion';

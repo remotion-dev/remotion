@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React from 'react';
 import type {AnyZodSchema} from './zod-schema-type';
 import {getInnerType} from './zod-schema-type';

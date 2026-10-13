@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {CanvasInternals} from '@remotion/sdk';
 import React, {useContext} from 'react';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';

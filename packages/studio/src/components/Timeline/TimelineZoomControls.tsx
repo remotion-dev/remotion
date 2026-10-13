@@ -1,4 +1,4 @@
-import {PlayerInternals} from '@remotion/player';
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {BLACK} from '../../helpers/colors';
@@ -10,6 +10,7 @@ import {
 	timelineZoomToSliderValue,
 } from '../../helpers/get-timeline-max-zoom';
 import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {CanvasZoomIcon, CanvasZoomOutIcon} from '../../icons/canvas-zoom';
 import {
 	TimelineZoomCtx,
@@ -99,7 +100,7 @@ const TimelineZoomControlsInner: React.FC<{
 }> = ({sliderMaxWidth}) => {
 	const {setZoom} = useContext(TimelineZoomImperativeContext);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
+	const timelineSize = useSceneElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useCallback, useContext} from 'react';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';

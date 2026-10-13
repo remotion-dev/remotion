@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import type {SVGProps} from 'react';
 import {CURRENT_COLOR_LOWERCASE} from '../helpers/colors';
 

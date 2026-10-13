@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import type {Text} from 'pixi.js';
 import React, {useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
@@ -304,7 +305,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 					showFrames: displayFrames,
 					tickScale,
 				} = settings;
-				const computedStyle = getComputedStyle(element);
+				const fontFamily = 'Arial, Helvetica, sans-serif';
 				const labelColor = resolveColor(LIGHT_TEXT);
 				const {scrollLeft} = scrollable;
 				const width = Math.min(nodeWidth, scrollable.clientWidth);
@@ -373,7 +374,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 								resolution: pixelRatio,
 								style: {
 									fontSize: TICK_LABEL_FONT_SIZE,
-									fontFamily: computedStyle.fontFamily,
+									fontFamily,
 									fill: labelColor,
 								},
 							});
@@ -386,7 +387,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 							label.resolution = pixelRatio;
 						}
 
-						label.style.fontFamily = computedStyle.fontFamily;
+						label.style.fontFamily = fontFamily;
 						label.style.fill = labelColor;
 						label.position.set(x, 7);
 						visibleLabels.add(second);

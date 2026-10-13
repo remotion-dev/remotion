@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback, useContext, useMemo} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
@@ -6,6 +7,7 @@ import {
 	getTimelineRowIndentWidth,
 	getTimelineRowLeftChromeWidth,
 } from './timeline-row-layout';
+import {isTimelineSceneNode} from './timeline-scene-node';
 import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {
@@ -156,13 +158,18 @@ export const TimelineRowChrome: React.FC<{
 	const onClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			const {target} = e;
+			const interactiveTarget =
+				isTimelineSceneNode(target) || target instanceof Element
+					? target.closest(
+							'button, input, select, textarea, a, [contenteditable="true"]',
+						)
+					: null;
 			if (
-				target instanceof Element &&
-				e.currentTarget.contains(
-					target.closest(
-						'button, input, select, textarea, a, [contenteditable="true"]',
-					),
-				)
+				interactiveTarget &&
+				(isTimelineSceneNode(e.currentTarget)
+					? e.currentTarget.contains(interactiveTarget)
+					: interactiveTarget instanceof Node &&
+						e.currentTarget.contains(interactiveTarget))
 			) {
 				e.stopPropagation();
 				return;

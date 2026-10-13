@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import {useState, type CSSProperties, type ReactNode} from 'react';
 import {CURRENT_COLOR, LIGHT_TEXT, WHITE} from '../helpers/colors';
 

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {

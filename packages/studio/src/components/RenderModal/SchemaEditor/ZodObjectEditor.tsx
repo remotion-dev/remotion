@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import {useCallback} from 'react';
 import React, {useMemo, useState} from 'react';
 import {fieldsetLabel} from '../layout';

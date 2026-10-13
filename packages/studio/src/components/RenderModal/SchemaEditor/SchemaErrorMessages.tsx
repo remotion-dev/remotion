@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 // Schema error messages for studio editor
 import type {CSSProperties, ReactNode} from 'react';
 import {BACKGROUND, BLUE, LIGHT_TEXT} from '../../../helpers/colors';

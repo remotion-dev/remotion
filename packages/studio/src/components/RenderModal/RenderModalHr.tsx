@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React from 'react';
 import {BORDER_BLACK} from '../../helpers/colors';
 

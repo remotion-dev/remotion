@@ -17,6 +17,8 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {useSvgImportDialog} from '../SvgImportDialog';
 import {getCurrentFrame} from './imperative-state';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
+import {sceneNodesFromPoint} from './timeline-scene-events';
+import {isTimelineSceneNode} from './timeline-scene-node';
 import {
 	getFrameFromTimelineDrop,
 	getTimelineContentWidth,
@@ -24,6 +26,19 @@ import {
 import {useResolvedStack} from './use-resolved-stack';
 
 const isEventTargetInsideElement = (event: DragEvent, element: HTMLElement) => {
+	if (isTimelineSceneNode(element)) {
+		if (isTimelineSceneNode(event.target)) {
+			return element.contains(event.target);
+		}
+
+		return (
+			event.target === element.store.canvas &&
+			sceneNodesFromPoint(event.clientX, event.clientY).some((node) =>
+				element.contains(node),
+			)
+		);
+	}
+
 	return event.target instanceof Node && element.contains(event.target);
 };
 

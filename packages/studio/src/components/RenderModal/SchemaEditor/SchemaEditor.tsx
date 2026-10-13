@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';

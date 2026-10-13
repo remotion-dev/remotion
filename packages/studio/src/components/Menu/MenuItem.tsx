@@ -1,17 +1,18 @@
-import {PlayerInternals} from '@remotion/player';
 import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useRef} from 'react';
-import ReactDOM from 'react-dom';
 import {
 	WHITE,
 	WHITE_ALPHA_80,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
+import {createStudioPortal} from '../../helpers/create-studio-portal';
 import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
+/** @jsxImportSource ../Timeline/scene-jsx */
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {MENU_TOOLBAR_HEIGHT} from '../menu-toolbar-height';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -79,7 +80,7 @@ export const MenuItem: React.FC<{
 	menu,
 }) => {
 	const ref = useRef<HTMLButtonElement>(null);
-	const size = PlayerInternals.useElementSize(ref, {
+	const size = useSceneElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -198,7 +199,7 @@ export const MenuItem: React.FC<{
 				{itemName}
 			</button>
 			{portalStyle
-				? ReactDOM.createPortal(
+				? createStudioPortal(
 						<div className="css-reset" style={outerStyle}>
 							<HigherZIndex onEscape={onItemQuit} onOutsideClick={onItemQuit}>
 								<div style={portalStyle} onPointerDown={onMenuPointerDown}>

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import {useCallback, useMemo} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {AnyZodSchema} from './zod-schema-type';

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';

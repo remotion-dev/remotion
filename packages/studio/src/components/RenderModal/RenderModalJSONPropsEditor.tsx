@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useCallback, useEffect, useMemo} from 'react';
 import {useContext} from 'react';
 import type {SerializedJSONWithCustomFields} from 'remotion';

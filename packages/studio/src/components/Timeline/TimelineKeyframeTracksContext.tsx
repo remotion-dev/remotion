@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {createContext, useContext, useRef} from 'react';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useContext, useMemo} from 'react';
 import {WHITE_ALPHA_80} from '../../helpers/colors';
 import {

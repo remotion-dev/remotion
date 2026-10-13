@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {AvailableOptions} from '@remotion/renderer/client';
 import React, {useCallback} from 'react';
 import {Spacing} from '../layout';

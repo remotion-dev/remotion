@@ -5,13 +5,15 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {createPortal} from 'react-dom';
 import {TIMELINE_BACKGROUND_COLOR, WHITE_ALPHA_90} from '../helpers/colors';
+/** @jsxImportSource ./Timeline/scene-jsx */
+import {createStudioPortal} from '../helpers/create-studio-portal';
 import {observeHover} from '../helpers/observe-hover';
 import {useZIndex} from '../state/z-index';
 import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {getPortal} from './Menu/portals';
 import {SHADOW_TOWARDS_TOP} from './Menu/styles';
+import {isTimelineSceneNode} from './Timeline/timeline-scene-node';
 
 const defaultTriggerStyle: React.CSSProperties = {display: 'inline-flex'};
 
@@ -184,7 +186,8 @@ export const ActionTooltip: React.FC<{
 			}
 		};
 
-		const doc = triggerRef.current?.ownerDocument;
+		const trigger = triggerRef.current;
+		const doc = trigger?.ownerDocument;
 		const win = doc?.defaultView;
 
 		if (!doc || !win) {
@@ -202,7 +205,22 @@ export const ActionTooltip: React.FC<{
 		win.addEventListener('resize', hide);
 		win.addEventListener('scroll', hide, true);
 		doc.addEventListener('visibilitychange', onVisibilityChange);
+		const initialBounds = trigger?.getBoundingClientRect();
+		const unsubscribe = isTimelineSceneNode(trigger)
+			? trigger.store.subscribeLayout(() => {
+					const bounds = trigger.getBoundingClientRect();
+					if (
+						bounds.left !== initialBounds?.left ||
+						bounds.top !== initialBounds.top ||
+						bounds.width !== initialBounds.width ||
+						bounds.height !== initialBounds.height
+					) {
+						hide();
+					}
+				})
+			: null;
 		return () => {
+			unsubscribe?.();
 			if (timer.current !== null) {
 				clearTimeout(timer.current);
 				timer.current = null;
@@ -285,7 +303,7 @@ export const ActionTooltip: React.FC<{
 				{children}
 			</span>
 			{visible
-				? createPortal(
+				? createStudioPortal(
 						<div
 							ref={tooltipRef}
 							role="tooltip"

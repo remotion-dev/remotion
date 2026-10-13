@@ -35,16 +35,16 @@
 	},
 	"dependencies": {
 		"@jridgewell/trace-mapping": "0.3.31",
-		"@remotion/sdk": "workspace:*",
 		"@remotion/captions": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"@remotion/elevenlabs": "workspace:*",
-		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
+		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/codemods": "workspace:*",
+		"@remotion/sdk": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/timeline-utils": "workspace:*",
@@ -58,6 +58,7 @@
 		"prismjs": "1.30.0",
 		"remotion": "workspace:*",
 		"semver": "7.5.3",
+		"yoga-layout": "3.2.1",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

@@ -1,10 +1,13 @@
+/** @jsxImportSource ./scene-jsx */
 import React from 'react';
 import {TIMELINE_PLAYHEAD_COLOR} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
 	width: 20,
 	height: 20,
-	position: 'fixed',
+	position: 'absolute',
+	left: 0,
+	top: 0,
 	marginLeft: -8,
 };
 

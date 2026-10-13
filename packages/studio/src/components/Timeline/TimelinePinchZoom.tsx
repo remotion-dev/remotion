@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {useCallback, useContext, useEffect, useRef, type FC} from 'react';
 import {Internals} from 'remotion';
 import {getTimelineZoom} from '../../helpers/get-timeline-max-zoom';

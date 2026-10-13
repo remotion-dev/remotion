@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React, {useMemo} from 'react';
 import {useCallback} from 'react';
 import {Checkmark} from '../../../icons/Checkmark';

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
@@ -17,6 +18,7 @@ import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -71,7 +73,7 @@ const getClientXWithScroll = (x: number) => {
 
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
-	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
+	const timelineSize = useSceneElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -130,7 +132,7 @@ export const TimelineDragHandler: React.FC = () => {
 
 const TimelineDragHandlerInner: React.FC = () => {
 	const videoConfig = useVideoConfig();
-	const size = PlayerInternals.useElementSize(scrollableRef, {
+	const size = useSceneElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});

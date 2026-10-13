@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import React, {useCallback, useMemo, useState} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';

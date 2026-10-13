@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import type {EditorPickerId} from '@remotion/studio-shared';
 import React from 'react';
 import {CURRENT_COLOR} from '../helpers/colors';

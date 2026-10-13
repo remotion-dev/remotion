@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import React from 'react';
 import {AppsIcon} from '../icons/apps';

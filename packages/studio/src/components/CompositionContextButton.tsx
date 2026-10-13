@@ -1,3 +1,4 @@
+/** @jsxImportSource ./Timeline/scene-jsx */
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';

@@ -10,7 +10,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {createPortal} from 'react-dom';
 import type {CanvasContent} from 'remotion';
 import {Internals, staticFile} from 'remotion';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
@@ -22,6 +21,7 @@ import {
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
 import {LIGHT_TEXT, RULER_COLOR} from '../helpers/colors';
+import {createStudioPortal} from '../helpers/create-studio-portal';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {Dimensions} from '../helpers/is-current-selected-still';
@@ -437,7 +437,7 @@ const AssetMediaComposition: React.FC<{
 		height: '100%',
 	};
 
-	return createPortal(
+	return createStudioPortal(
 		<Internals.CanUseRemotionHooksProvider>
 			<Internals.DisableInteractivityProvider>
 				<div data-testid="asset-media-preview" style={style}>

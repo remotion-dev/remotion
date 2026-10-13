@@ -14,11 +14,34 @@ import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-k
 import {installRequiredPackages} from '../helpers/install-required-package';
 import {addEffect} from './effect-operations-api';
 import {showNotification} from './Notifications/NotificationCenter';
+import {sceneNodesFromPoint} from './Timeline/timeline-scene-events';
+import {isTimelineSceneNode} from './Timeline/timeline-scene-node';
 import type {useTimelineSelection} from './Timeline/TimelineSelection';
 
 export const LUT_ASSET_DRAG_TYPE = 'application/vnd.remotion.lut';
 export const LUT_EFFECT_DROP_TARGET_ATTR =
 	'data-remotion-lut-effect-drop-target';
+
+const getEffectDropTarget = (event: DragEvent) => {
+	if (isTimelineSceneNode(event.target)) {
+		return event.target;
+	}
+
+	if (!(event.target instanceof Element)) {
+		return null;
+	}
+
+	if (event.target.tagName === 'CANVAS') {
+		const sceneTarget = sceneNodesFromPoint(event.clientX, event.clientY).find(
+			(node) => node.store.canvas === event.target,
+		);
+		if (sceneTarget) {
+			return sceneTarget;
+		}
+	}
+
+	return event.target;
+};
 
 export const hasExplicitEffectDragType = (dataTransfer: DataTransfer) => {
 	return (
@@ -35,10 +58,11 @@ export const hasEffectDragType = (dataTransfer: DataTransfer) => {
 };
 
 export const isLutEffectDrop = (event: DragEvent) => {
-	const {dataTransfer, target} = event;
+	const {dataTransfer} = event;
+	const target = getEffectDropTarget(event);
 	if (
 		dataTransfer === null ||
-		!(target instanceof Element) ||
+		target === null ||
 		target.closest(`[${LUT_EFFECT_DROP_TARGET_ATTR}="true"]`) === null
 	) {
 		return false;
@@ -57,13 +81,14 @@ export const isLutEffectDrop = (event: DragEvent) => {
 };
 
 export const isEffectDragOverTarget = (event: DragEvent) => {
+	const target = getEffectDropTarget(event);
 	return (
 		event.dataTransfer !== null &&
 		(hasEffectDragType(event.dataTransfer) ||
 			// File names are unavailable during native file drags until the drop.
 			Array.from(event.dataTransfer.types).includes('Files')) &&
-		event.target instanceof Element &&
-		event.target.closest(`[${LUT_EFFECT_DROP_TARGET_ATTR}="true"]`) !== null
+		target !== null &&
+		target.closest(`[${LUT_EFFECT_DROP_TARGET_ATTR}="true"]`) !== null
 	);
 };
 

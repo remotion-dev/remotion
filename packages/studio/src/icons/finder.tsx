@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import React from 'react';
 
 export const FinderIcon: React.FC<{

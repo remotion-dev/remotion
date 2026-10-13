@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {useMemo, type FC} from 'react';
 import type {
 	EffectDefinition,

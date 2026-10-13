@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React from 'react';
 import {WHITE_ALPHA_20, WHITE_ALPHA_60} from '../../helpers/colors';
 

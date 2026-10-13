@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useEffect} from 'react';
 import {
 	NOTIFICATION_BACKGROUND,

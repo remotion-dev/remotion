@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React from 'react';
 
 export type SplitterDragState = false | {x: number; y: number};

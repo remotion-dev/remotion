@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';

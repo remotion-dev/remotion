@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import type {
 	CanvasSelectionInteraction,
 	CanvasSelectionItem,
@@ -87,6 +88,7 @@ import {
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
+import {isTimelineSceneNode} from './timeline-scene-node';
 import {
 	EDGE_SCROLL_VERTICAL_INCREMENT,
 	SCROLL_INCREMENT,
@@ -1577,7 +1579,9 @@ export const useTimelineMarqueeSelection = () => {
 				return;
 			}
 
-			if (!(event.target instanceof Element)) {
+			if (
+				!(isTimelineSceneNode(event.target) || event.target instanceof Element)
+			) {
 				return;
 			}
 

@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {canvasKeyframeEasingPresets} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import type {PropsWithChildren} from 'react';
 import React, {
 	forwardRef,

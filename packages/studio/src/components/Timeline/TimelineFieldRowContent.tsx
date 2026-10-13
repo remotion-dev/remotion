@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useContext} from 'react';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useContext, useEffect, useMemo} from 'react';
 import type {_InternalTypes, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';

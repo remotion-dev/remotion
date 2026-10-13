@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useMemo} from 'react';
 import {TIMELINE_INDENT} from './timeline-indent';
 

@@ -1,5 +1,5 @@
+/** @jsxImportSource ./scene-jsx */
 import React from 'react';
-import {Internals} from 'remotion';
 import {
 	LIGHT_COLOR,
 	LOOPED_INDICATOR_DROP_SHADOW,
@@ -34,6 +34,15 @@ const verticalLine: React.CSSProperties = {
 };
 
 const centerContainer: React.CSSProperties = {
+	position: 'absolute',
+	top: 0,
+	left: 0,
+	right: 0,
+	bottom: 0,
+	width: '100%',
+	height: '100%',
+	display: 'flex',
+	flexDirection: 'column',
 	justifyContent: 'center',
 	alignItems: 'center',
 };
@@ -41,12 +50,12 @@ const centerContainer: React.CSSProperties = {
 export const LoopedIndicator: React.FC = () => {
 	return (
 		<div style={width}>
-			<Internals.AbsoluteFillElement style={centerContainer}>
+			<div style={centerContainer}>
 				<div style={verticalLine} />
-			</Internals.AbsoluteFillElement>
-			<Internals.AbsoluteFillElement style={centerContainer}>
+			</div>
+			<div style={centerContainer}>
 				<Icon />
-			</Internals.AbsoluteFillElement>
+			</div>
 		</div>
 	);
 };

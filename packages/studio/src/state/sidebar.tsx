@@ -1,3 +1,4 @@
+/** @jsxImportSource ../components/Timeline/scene-jsx */
 import React, {createContext, useMemo, useState} from 'react';
 
 export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';

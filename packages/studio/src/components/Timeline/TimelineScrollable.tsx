@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {useMemo} from 'react';
 import {
 	BORDER_TIMELINE_MARQUEE_BLUE,

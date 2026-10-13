@@ -1,3 +1,4 @@
+/** @jsxImportSource ../../Timeline/scene-jsx */
 import {useMemo, useRef} from 'react';
 import React, {useCallback} from 'react';
 import {InputDragger} from '../../NewComposition/InputDragger';

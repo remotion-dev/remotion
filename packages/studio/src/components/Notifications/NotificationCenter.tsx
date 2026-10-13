@@ -4,8 +4,9 @@ import React, {
 	useImperativeHandle,
 	useState,
 } from 'react';
-import ReactDOM from 'react-dom';
 import {TRANSPARENT} from '../../helpers/colors';
+/** @jsxImportSource ../Timeline/scene-jsx */
+import {createStudioPortal} from '../../helpers/create-studio-portal';
 import {useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
 import {Notification} from './Notification';
@@ -110,7 +111,7 @@ export const NotificationCenter: React.FC = () => {
 		};
 	}, [addNotification]);
 
-	return ReactDOM.createPortal(
+	return createStudioPortal(
 		<div style={container}>
 			{notifications.map((n) => {
 				return (

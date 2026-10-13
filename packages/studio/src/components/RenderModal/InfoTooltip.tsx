@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {useMemo} from 'react';
 import {BLACK_HEX, WHITE} from '../../helpers/colors';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';

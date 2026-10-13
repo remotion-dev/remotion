@@ -1,12 +1,11 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
 import {
 	CURRENT_COLOR,
 	TRANSPARENT,
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
+import {createStudioPortal} from '../helpers/create-studio-portal';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -14,6 +13,7 @@ import {
 } from '../helpers/hoverable';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
+import {useSceneElementSize} from '../helpers/use-scene-element-size';
 import {Checkmark} from '../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {ActionTooltip} from './ActionTooltip';
@@ -221,7 +221,7 @@ const SegmentedButtonMenu: React.FC<{
 	const ref = useRef<HTMLButtonElement>(null);
 	const {currentZIndex, tabIndex} = useZIndex();
 	const isMobileLayout = useMobileLayout();
-	const size = PlayerInternals.useElementSize(ref, {
+	const size = useSceneElementSize(ref, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
@@ -370,7 +370,7 @@ const SegmentedButtonMenu: React.FC<{
 				</ActionTooltip>
 			)}
 			{portalStyle
-				? ReactDOM.createPortal(
+				? createStudioPortal(
 						<div
 							style={fullScreenOverlay}
 							onPointerDown={(event) => event.stopPropagation()}

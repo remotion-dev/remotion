@@ -1,4 +1,3 @@
-import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
@@ -6,6 +5,7 @@ import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
@@ -45,7 +45,7 @@ export const TimelineInOutDragHandler: React.FC = () => {
 
 const TimelineInOutDragHandlerInner: React.FC = () => {
 	const videoConfig = useVideoConfig();
-	const size = PlayerInternals.useElementSize(scrollableRef, {
+	const size = useSceneElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});

@@ -1,3 +1,4 @@
+/** @jsxImportSource ../Timeline/scene-jsx */
 import React, {
 	forwardRef,
 	useEffect,
@@ -14,6 +15,8 @@ import {
 	INPUT_HORIZONTAL_PADDING,
 	getInputBorderColor,
 } from '../NewComposition/RemInput';
+import {getTimelineSceneEditor} from '../Timeline/timeline-scene-events';
+import {isTimelineSceneNode} from '../Timeline/timeline-scene-node';
 
 type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLTextAreaElement>,
@@ -71,16 +74,18 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 		const onFocus = () => setIsFocused(true);
 		const onBlur = () => setIsFocused(false);
 		const onKeyDown = (e: KeyboardEvent) => {
-			if (!inputRef.current) {
-				return;
-			}
-
-			if (inputRef.current !== document.activeElement) {
+			const input = isTimelineSceneNode(inputRef.current)
+				? getTimelineSceneEditor(inputRef.current)
+				: inputRef.current;
+			if (
+				!(input instanceof HTMLTextAreaElement) ||
+				input !== document.activeElement
+			) {
 				return;
 			}
 
 			if (e.code === 'Escape') {
-				inputRef.current.blur();
+				input.blur();
 				return;
 			}
 
@@ -92,7 +97,7 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 
 			if (e.code === 'Enter') {
 				e.preventDefault();
-				const {selectionStart, selectionEnd, value} = inputRef.current;
+				const {selectionStart, selectionEnd, value} = input;
 				if (selectionStart !== selectionEnd) {
 					return;
 				}

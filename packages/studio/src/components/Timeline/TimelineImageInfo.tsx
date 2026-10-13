@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import {
 	CanvasSource,
 	Graphics,

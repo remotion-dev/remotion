@@ -1,3 +1,4 @@
+/** @jsxImportSource ./scene-jsx */
 import React, {createContext, useEffect, useMemo, useState} from 'react';
 
 const STORAGE_KEY = 'remotion.timelineShowFrames';

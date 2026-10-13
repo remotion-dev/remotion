@@ -1,10 +1,10 @@
-import {PlayerInternals} from '@remotion/player';
 import {createContext, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {
 	getTimelineWidth,
 	getTimelineZoom,
 } from '../../helpers/get-timeline-max-zoom';
+import {useSceneElementSize} from '../../helpers/use-scene-element-size';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 
@@ -16,7 +16,7 @@ export const TimelineWidthContext =
 export const TimelineWidthProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const size = PlayerInternals.useElementSize(scrollableRef, {
+	const size = useSceneElementSize(scrollableRef, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
