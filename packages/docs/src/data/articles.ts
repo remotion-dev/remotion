@@ -2980,6 +2980,15 @@ export const articles = [
 		slug: 'create-effect',
 	},
 	{
+		id: 'create-videos-with-code',
+		title: 'Create videos with code',
+		relativePath: 'docs/create-videos-with-code.mdx',
+		compId: 'articles-docs-create-videos-with-code',
+		crumb: null,
+		noAi: false,
+		slug: 'create-videos-with-code',
+	},
+	{
 		id: 'authoring-packages',
 		title: 'Authoring a Remotion library',
 		relativePath: 'docs/creating-a-library.mdx',

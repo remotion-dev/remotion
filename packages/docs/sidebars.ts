@@ -1170,6 +1170,7 @@ const sidebars: SidebarsConfig = {
 		{
 			type: 'category',
 			label: 'Create videos with code',
+			link: {type: 'doc', id: 'create-videos-with-code'},
 			items: [
 				'the-fundamentals',
 				'timing',
