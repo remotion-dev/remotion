@@ -9,7 +9,22 @@ export type OutputFileMetadata = {
 	sizeInBytes: number | null;
 };
 
-export class OutputFileAccessDeniedError extends Error {}
+const outputFileAccessDenied = Symbol.for(
+	'remotion.OutputFileAccessDeniedError',
+);
+
+export class OutputFileAccessDeniedError extends Error {
+	[outputFileAccessDenied] = true;
+
+	static isInstance(error: unknown): error is OutputFileAccessDeniedError {
+		// lambda-client bundles its own copy of this class.
+		return (
+			error instanceof Error &&
+			outputFileAccessDenied in error &&
+			error[outputFileAccessDenied] === true
+		);
+	}
+}
 
 export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	region,

@@ -5,17 +5,7 @@ import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
-import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
-import {
-	useKeyboardShortcutAriaKeyShortcuts,
-	useKeyboardShortcutLabel,
-} from '../helpers/use-keyboard-shortcut-label';
 import {useToolbarMenuStructure} from '../helpers/use-menu-structure';
-import {SearchIcon} from '../icons/search';
-import {SetSelectedModalContext} from '../state/modals';
-import {ActionTooltip} from './ActionTooltip';
-import type {RenderInlineAction} from './InlineAction';
-import {InlineAction} from './InlineAction';
 import {Row} from './layout';
 import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
@@ -58,7 +48,6 @@ export const MenuToolbar: React.FC<{
 }> = React.memo(({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const browserStudioOperations = getBrowserStudioOperations();
 	const canUndoAndRedo =
 		!readOnlyStudio ||
@@ -93,6 +82,7 @@ export const MenuToolbar: React.FC<{
 						minWidth: '330px',
 					}),
 			display: 'flex',
+			flexShrink: 0,
 			alignItems: 'center',
 			justifyContent: 'flex-start',
 		};
@@ -156,25 +146,6 @@ export const MenuToolbar: React.FC<{
 		e.stopPropagation();
 	}, []);
 
-	const openQuickSwitcher = useCallback(() => {
-		setSelectedModal({
-			type: 'quick-switcher',
-			mode: 'compositions',
-			invocationTimestamp: Date.now(),
-			assetSelection: null,
-			compositionSelection: null,
-		});
-	}, [setSelectedModal]);
-
-	const renderSearchIcon: RenderInlineAction = useCallback((color) => {
-		return <SearchIcon color={color} width={18} height={18} />;
-	}, []);
-
-	const quickSwitcherShortcut = useKeyboardShortcutLabel('quickSwitcher');
-	const quickSwitcherAriaShortcut =
-		useKeyboardShortcutAriaKeyShortcuts('quickSwitcher');
-	const shortcutsDisabled = areKeyboardShortcutsDisabled();
-
 	return (
 		<Row
 			align="center"
@@ -183,28 +154,7 @@ export const MenuToolbar: React.FC<{
 			onPointerDown={onPointerDown}
 		>
 			<div style={fixedWidthLeft}>
-				{mobileLayout ? (
-					<ActionTooltip
-						label="Quick switcher"
-						shortcut={shortcutsDisabled ? null : quickSwitcherShortcut}
-						delay={800}
-						dismissOnClick
-					>
-						<InlineAction
-							variant={null}
-							onClick={openQuickSwitcher}
-							renderAction={renderSearchIcon}
-							aria-label="Quick switcher"
-							aria-keyshortcuts={
-								shortcutsDisabled
-									? undefined
-									: quickSwitcherAriaShortcut || undefined
-							}
-						/>
-					</ActionTooltip>
-				) : (
-					<SidebarCollapserControl side="left" />
-				)}
+				<SidebarCollapserControl side="left" />
 				<div style={menuItems}>
 					{structure.map((s) => {
 						const props = {

@@ -38,7 +38,6 @@ export const insertBasicCaptions = ({
 	captions,
 	element,
 	durationInFrames,
-	premountFor,
 	importPath = './basic-captions.element',
 	prettierConfigOverride = null,
 }: {
@@ -57,7 +56,6 @@ export const insertBasicCaptions = ({
 		pageBreakAfter?: boolean;
 	}[];
 	durationInFrames: number | null;
-	premountFor: number | null;
 	importPath?: string;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): {
@@ -65,13 +63,6 @@ export const insertBasicCaptions = ({
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 } => {
-	if (
-		premountFor !== null &&
-		(!Number.isInteger(premountFor) || premountFor < 0)
-	) {
-		throw new Error('premountFor must be a non-negative integer');
-	}
-
 	const ast = parseAst(input);
 	const captured = captureJsxNodePaths(ast);
 	const importSnapshots = captureImportSnapshots(ast);
@@ -133,10 +124,6 @@ export const insertBasicCaptions = ({
 			attribute.startsWith('durationInFrames'),
 		)
 			? [{name: 'durationInFrames', value: durationInFrames}]
-			: []),
-		...(premountFor !== null &&
-		!copiedAttributes.some((attribute) => attribute.startsWith('premountFor'))
-			? [{name: 'premountFor', value: premountFor}]
 			: []),
 	];
 
@@ -257,7 +244,6 @@ export const insertBasicCaptions = ({
 					],
 				},
 				from: null,
-				premountFor: null,
 				wrapInSequence: null,
 			}),
 		});

@@ -1027,15 +1027,6 @@ export const articles = [
 		slug: 'options/experimental-sequence-activity-limit',
 	},
 	{
-		id: 'options/experimental-tracks',
-		title: 'Enable experimental timeline tracks',
-		relativePath: 'docs/options/experimental-tracks.mdx',
-		compId: 'articles-docs-options-experimental-tracks',
-		crumb: 'Options',
-		noAi: false,
-		slug: 'options/experimental-tracks',
-	},
-	{
 		id: 'options/for-seamless-aac-concatenation',
 		title: 'For seamless AAC concatenation',
 		relativePath: 'docs/options/for-seamless-aac-concatenation.mdx',
@@ -1448,6 +1439,15 @@ export const articles = [
 		crumb: 'Options',
 		noAi: false,
 		slug: 'options/sequence',
+	},
+	{
+		id: 'options/show-layer-frame-numbers',
+		title: 'Show frame numbers of layer',
+		relativePath: 'docs/options/show-layer-frame-numbers.mdx',
+		compId: 'articles-docs-options-show-layer-frame-numbers',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/show-layer-frame-numbers',
 	},
 	{
 		id: 'options/show-premounting',
@@ -2980,6 +2980,15 @@ export const articles = [
 		slug: 'create-effect',
 	},
 	{
+		id: 'create-videos-with-code',
+		title: 'Create videos with code',
+		relativePath: 'docs/create-videos-with-code.mdx',
+		compId: 'articles-docs-create-videos-with-code',
+		crumb: 'Wait, you read the code?',
+		noAi: false,
+		slug: 'create-videos-with-code',
+	},
+	{
 		id: 'authoring-packages',
 		title: 'Authoring a Remotion library',
 		relativePath: 'docs/creating-a-library.mdx',
@@ -4481,6 +4490,15 @@ export const articles = [
 		crumb: 'API - remotion',
 		noAi: false,
 		slug: 'html5-video',
+	},
+	{
+		id: 'idea',
+		title: 'The core idea',
+		relativePath: 'docs/idea.mdx',
+		compId: 'articles-docs-idea',
+		crumb: 'Getting started',
+		noAi: false,
+		slug: 'idea',
 	},
 	{
 		id: 'iframe',
@@ -7138,15 +7156,6 @@ export const articles = [
 		slug: 'presigned-urls',
 	},
 	{
-		id: 'preview',
-		title: 'Preview your video',
-		relativePath: 'docs/preview.mdx',
-		compId: 'articles-docs-preview',
-		crumb: 'Timeline basics',
-		noAi: false,
-		slug: 'preview',
-	},
-	{
 		id: 'privacy',
 		title: 'Privacy Policy of Remotion (v5.0)',
 		relativePath: 'docs/privacy.mdx',
@@ -8679,6 +8688,17 @@ export const articles = [
 		slug: 'studio-protocol/static-file-ref',
 	},
 	{
+		id: 'studio-protocol/subscribe-to-caption-style-selection',
+		title: 'subscribeToCaptionStyleSelection()',
+		relativePath:
+			'docs/studio-protocol/subscribe-to-caption-style-selection.mdx',
+		compId:
+			'articles-docs-studio-protocol-subscribe-to-caption-style-selection',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/subscribe-to-caption-style-selection',
+	},
+	{
 		id: 'studio/api',
 		title: '@remotion/studio',
 		relativePath: 'docs/studio/api.mdx',
@@ -9183,15 +9203,6 @@ export const articles = [
 		slug: 'text-highlights',
 	},
 	{
-		id: 'the-fundamentals',
-		title: 'The fundamentals',
-		relativePath: 'docs/the-fundamentals.mdx',
-		compId: 'articles-docs-the-fundamentals',
-		crumb: 'Getting started',
-		noAi: false,
-		slug: 'the-fundamentals',
-	},
-	{
 		id: 'third-party',
 		title: 'Third party integrations',
 		relativePath: 'docs/third-party.mdx',
@@ -9298,6 +9309,15 @@ export const articles = [
 		crumb: 'Getting started',
 		noAi: false,
 		slug: 'timing',
+	},
+	{
+		id: 'track',
+		title: '<Track>',
+		relativePath: 'docs/track.mdx',
+		compId: 'articles-docs-track',
+		crumb: 'API',
+		noAi: false,
+		slug: 'track',
 	},
 	{
 		id: 'transforms',
@@ -10856,6 +10876,15 @@ export const articles = [
 		crumb: 'Troubleshooting',
 		noAi: false,
 		slug: 'wrong-composition-mount',
+	},
+	{
+		id: 'your-first-video',
+		title: 'Your first video',
+		relativePath: 'docs/your-first-video.mdx',
+		compId: 'articles-docs-your-first-video',
+		crumb: 'Get started',
+		noAi: false,
+		slug: 'your-first-video',
 	},
 	{
 		id: 'zod-types/index',

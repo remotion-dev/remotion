@@ -776,10 +776,6 @@ export const ElementInstallConfirmation: React.FC<{
 			// The insert operation revalidates this even if the name preflight is pending.
 			expectedFileState: activePlan?.expectedFileState ?? {exists: false},
 			from: mode === 'new-composition' ? null : request.from,
-			premountFor:
-				mode === 'new-composition'
-					? newCompositionValues.fps
-					: (currentCompositionMetadata?.fps ?? null),
 			overwriteExisting,
 			position: mode === 'new-composition' ? null : request.position,
 			undoRedoNavigation:
@@ -833,8 +829,6 @@ export const ElementInstallConfirmation: React.FC<{
 		selectComposition,
 		newCompositionValues.folder.folderName,
 		newCompositionValues.folder.parentName,
-		newCompositionValues.fps,
-		currentCompositionMetadata?.fps,
 	]);
 
 	const cancel = useCallback(() => {

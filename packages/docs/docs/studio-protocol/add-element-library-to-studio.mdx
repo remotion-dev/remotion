@@ -57,6 +57,10 @@ const isCaptionPicker =
 
 Preserve these query parameters when navigating within your library. The context is a display hint, not an authorization signal. Selecting a style sends its Element payload through [`installInStudio()`](/docs/studio-protocol/install-in-studio); Studio uses it for captions instead of installing it immediately.
 
+### Selected caption style<AvailableFrom v="4.0.535" />
+
+Caption libraries can show Studio's current selection and update it when the user selects a style or clicks Reset. Use [`subscribeToCaptionStyleSelection()`](/docs/studio-protocol/subscribe-to-caption-style-selection) to receive the selected slug.
+
 ## Return value
 
 Returns a promise with a discriminated union.

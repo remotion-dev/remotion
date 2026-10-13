@@ -14,7 +14,6 @@ export const CanvasCaptureComposition = () => {
 	return (
 		<AbsoluteFill
 			durationInFrames={500}
-			premountFor={60}
 			style={{
 				width: 3026,
 				height: 1386,

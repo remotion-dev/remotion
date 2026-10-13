@@ -1,5 +1,9 @@
 import type {TSequence} from 'remotion';
 import {getTimelineSceneRange} from './get-timeline-scene-range';
+import {
+	getTimelineTransitionRanges,
+	type TimelineTransitionRange,
+} from './get-timeline-transition-ranges';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
@@ -9,8 +13,11 @@ import {
 export type TimelineSceneRange = {
 	readonly from: number;
 	readonly end: number;
-	readonly fadeInEnd: number | null;
-	readonly fadeOutStart: number | null;
+	// Labels hand off at transition midpoints; clipping spans the full overlap.
+	readonly activeFrom: number;
+	readonly activeEnd: number;
+	readonly transitionInEnd: number | null;
+	readonly transitionOutStart: number | null;
 };
 
 // Keep sequence rows and their identities intact. Only their vertical positions
@@ -43,6 +50,7 @@ export const getTimelineSeriesLayout = ({
 	}
 
 	const scenesBySeries = new Map<number, TimelineTrackWithDisplayGroup[]>();
+	const transitionsBySeries = new Map<number, TimelineTransitionRange[]>();
 	const seriesByScene = new Map<string, number>();
 	if (compactSeries) {
 		for (let index = 0; index < rows.length; index++) {
@@ -50,20 +58,21 @@ export const getTimelineSeriesLayout = ({
 			const track = row.track.sequence.timelineTrack;
 			const registered = track ? registeredItems.get(track.id) : undefined;
 			if (
-				row.items === null ||
-				row.items.length === 0 ||
+				row.childScenes === null ||
+				row.childScenes.length === 0 ||
 				!registered ||
-				registered.some(
-					(item) =>
-						(item.timelineTrack?.role === 'clip' &&
-							item.timelineTrack.seriesOffset !== 0) ||
-						!item.showInTimeline,
-				)
+				(row.items !== null &&
+					registered.some(
+						(item) =>
+							(item.timelineTrack?.role === 'clip' &&
+								item.timelineTrack.seriesOffset !== 0) ||
+							!item.showInTimeline,
+					))
 			) {
 				continue;
 			}
 
-			const scenes = row.items
+			const scenes = row.childScenes
 				.filter(
 					({sequence}) =>
 						sequence.timelineTrack?.role === 'clip' ||
@@ -72,6 +81,12 @@ export const getTimelineSeriesLayout = ({
 				.sort((a, b) => a.sequence.from - b.sequence.from);
 
 			scenesBySeries.set(index, scenes);
+			transitionsBySeries.set(
+				index,
+				getTimelineTransitionRanges(
+					row.childScenes.map((item) => item.sequence),
+				),
+			);
 			for (const scene of scenes) {
 				seriesByScene.set(scene.sequence.id, index);
 			}
@@ -81,7 +96,10 @@ export const getTimelineSeriesLayout = ({
 	const childrenByScene = new Map<string, number[]>();
 	const roots: number[] = [];
 	for (let index = 0; index < rows.length; index++) {
-		let {parent} = rows[index].track.sequence;
+		const {sequence} = rows[index].track;
+		// A regular Track's clip label shares the same scene space as its
+		// descendants. Series only display the descendants of their scenes.
+		let parent = seriesByScene.has(sequence.id) ? sequence.id : sequence.parent;
 		while (parent !== null && !seriesByScene.has(parent)) {
 			parent = byId.get(parent)?.parent ?? null;
 		}
@@ -162,7 +180,7 @@ export const getTimelineSeriesLayout = ({
 					const next = roleScenes[sceneIndex + 1]?.sequence;
 					const sceneRange = getTimelineSceneRange({
 						sequence,
-						seriesItems: rows[index].items?.map((item) => item.sequence) ?? [],
+						transitionRanges: transitionsBySeries.get(index) ?? [],
 						previous: previous ?? null,
 						next: next ?? null,
 						range,

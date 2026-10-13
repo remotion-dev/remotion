@@ -120,6 +120,7 @@ import {
 	sequenceCropSchema,
 	sequencePremountSchema,
 	sequenceSchema,
+	sequenceTimingSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	textSchema,
@@ -134,6 +135,7 @@ import {
 } from './interactivity-schema.js';
 import {
 	interpolateKeyframedStatus,
+	prepareNumericKeyframedStatus,
 	setInterpolatePaths,
 } from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
@@ -220,6 +222,7 @@ import {
 	useSequenceManagerSequences,
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
+	VisualModeDragOverridesRefContext,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
 	VisualModeSettersContext,
@@ -242,10 +245,7 @@ import {
 	useTimelineContext,
 	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
-import {
-	ExperimentalTracksEnabledContext,
-	TimelineTrackContext,
-} from './timeline-track-context.js';
+import {TimelineTrackContext} from './timeline-track-context.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -299,7 +299,7 @@ import {
 import {useSyncExternalStore} from './use-sync-external-store.js';
 import {useTimelineSeek} from './use-timeline-seek.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
-import {useVideo} from './use-video.js';
+import {useVideo, VideoProvider} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
 import {
 	resolveTrimProps,
@@ -391,6 +391,7 @@ export const Internals = {
 	VisualModePropStatusesRefContext,
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
+	VisualModeDragOverridesRefContext,
 	VisualModeSettersContext,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
@@ -406,6 +407,7 @@ export const Internals = {
 	SequenceStackTracesUpdateContext,
 	baseSchema,
 	sequenceSchema,
+	sequenceTimingSchema,
 	SequenceContent,
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivitySettingsContext,
@@ -423,6 +425,7 @@ export const Internals = {
 	CompositionManagerProvider,
 	CompositionRegistryProvider,
 	useVideo,
+	VideoProvider,
 	getRoot,
 	useMediaVolumeState,
 	usePlayerMutedState,
@@ -431,7 +434,6 @@ export const Internals = {
 	truthy,
 	SequenceContext,
 	TimelineTrackContext,
-	ExperimentalTracksEnabledContext,
 	TrackWithoutSchema,
 	PremountContext,
 	usePremounting,
@@ -540,6 +542,7 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	prepareNumericKeyframedStatus,
 	setInterpolatePaths,
 	makeStaticDragOverride,
 	makeKeyframedDragOverride,

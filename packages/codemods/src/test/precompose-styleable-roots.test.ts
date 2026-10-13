@@ -77,7 +77,7 @@ export const Video = () => (
 
 export const Video = () => (
   <AbsoluteFill>
-    <TitleCard name="Title card" from={60} durationInFrames={120} premountFor={30} />
+    <TitleCard name="Title card" from={60} durationInFrames={120} />
     <Interactive.P name="Footer" style={{position: 'absolute', bottom: 40}}>remotion.dev</Interactive.P>
   </AbsoluteFill>
 );
@@ -161,7 +161,7 @@ export const Video = () => (
 			(node) => node.tagName === tag && node.parentNodePath !== null,
 		);
 		expect(after.files[filePath]).toContain(
-			'<Precomposition name={"Precomposition"} premountFor={30} />',
+			'<Precomposition name={"Precomposition"} />',
 		);
 		expect(after.files[filePath])
 			.toContain(`function PrecompositionContent({style: precomposeStyle}: {style?: import('react').CSSProperties}) {
@@ -198,7 +198,7 @@ export const Video = () => (
 	});
 }
 
-test('retains a trimmed Series.Sequence and premounts its single visual root', () => {
+test('retains a trimmed Series.Sequence without adding premounting', () => {
 	const input = `import {Interactive, Series} from 'remotion';
 export const Video = () => (
   <Series>
@@ -221,20 +221,20 @@ export const Video = () => (
 	const {props} = getNodeProps({
 		project: after,
 		node: sequence,
-		keys: ['durationInFrames', 'trimBefore', 'offset', 'premountFor'],
+		keys: ['durationInFrames', 'trimBefore', 'offset'],
 	});
 	for (const [key, value] of Object.entries({
 		durationInFrames: 120,
 		trimBefore: 10,
 		offset: -5,
-		premountFor: 30,
 	})) {
 		expect(props[key]).toMatchObject({status: 'static', codeValue: value});
 	}
 
 	expect(after.files[filePath]).toContain(
-		'<ProductReveal name={"Product reveal"} premountFor={30} />',
+		'<ProductReveal name={"Product reveal"} />',
 	);
+	expect(after.files[filePath]).not.toContain('premountFor');
 	expect(after.files[filePath])
 		.toContain(`function ProductRevealContent({style: precomposeStyle}: {style?: import('react').CSSProperties}) {
   return (

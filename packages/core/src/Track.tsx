@@ -1,7 +1,8 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	sequenceSchema,
+	sequenceTimingSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {
@@ -9,10 +10,7 @@ import {
 	type AbsoluteFillLayout,
 	type SequenceProps,
 } from './Sequence.js';
-import {
-	ExperimentalTracksEnabledContext,
-	TimelineTrackContext,
-} from './timeline-track-context.js';
+import {TimelineTrackContext} from './timeline-track-context.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 export type TrackProps = Omit<
@@ -36,24 +34,7 @@ const {
 
 const trackSchema = {
 	...trackSequenceSchema,
-	from: {
-		...sequenceSchema.from,
-		description: 'From',
-		hiddenFromList: false,
-		keyframable: false,
-	},
-	durationInFrames: {
-		...sequenceSchema.durationInFrames,
-		description: 'Duration',
-		hiddenFromList: false,
-		keyframable: false,
-	},
-	trimBefore: {
-		...sequenceSchema.trimBefore,
-		description: 'Trim before',
-		hiddenFromList: false,
-		keyframable: false,
-	},
+	...sequenceTimingSchema,
 } as const satisfies InteractivitySchema;
 
 // Series variants share the Track foundation while retaining their own
@@ -76,11 +57,7 @@ export const TrackWithoutSchema: React.FC<TrackWithoutSchemaProps> = ({
 	...props
 }) => {
 	const [id] = useState(() => String(Math.random()));
-	const tracksEnabled = useContext(ExperimentalTracksEnabledContext);
-	const value = useMemo(
-		() => (tracksEnabled ? {id, name} : null),
-		[id, name, tracksEnabled],
-	);
+	const value = useMemo(() => ({id, name}), [id, name]);
 
 	return (
 		<TimelineTrackContext.Provider value={value}>

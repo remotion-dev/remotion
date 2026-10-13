@@ -1,11 +1,10 @@
 ---
-image: /generated/articles-docs-the-fundamentals.png
-id: the-fundamentals
-title: The fundamentals
+image: /generated/articles-docs-idea.png
+id: idea
+slug: /idea
+title: The core idea
 crumb: Getting started
 ---
-
-## React components
 
 ```twoslash include example
 import { AbsoluteFill, useCurrentFrame } from "remotion";
@@ -29,7 +28,8 @@ export const MyComposition = () => {
 // - MyComposition
 ```
 
-The idea of Remotion is to give you a frame number and a blank canvas, to which you can render anything you want using [React](https://react.dev). This is an example React component that renders the current frame as text:
+The idea of Remotion is to give you a frame number and a blank canvas, to which you can render anything you want using [React](https://react.dev). <br />
+This is an example React component that renders the current frame as text:
 
 ```tsx twoslash title="MyComposition.tsx"
 // @include: example-MyComposition
@@ -41,43 +41,43 @@ A video is a function of images over time. If you change content every frame, yo
 
 A video has 4 properties:
 
-- `width` in pixels.
-- `height` in pixels.
-- `durationInFrames`: the total number of frames in the video.
-- `fps`: framerate of the video.
+- `width` and `height` in pixels.
+- `durationInFrames`
+- `fps`, standing for "frames per second".
 
 You can obtain these values from the [`useVideoConfig()`](/docs/use-video-config) hook:
 
 ```tsx twoslash
-import {AbsoluteFill, useVideoConfig} from 'remotion';
+import {Interactive, useVideoConfig} from 'remotion';
 
 export const MyComposition = () => {
   const {fps, durationInFrames, width, height} = useVideoConfig();
 
   return (
-    <AbsoluteFill
+    <Interactive.Div
       style={{
         justifyContent: 'center',
         alignItems: 'center',
         fontSize: 60,
         backgroundColor: 'white',
+        position: 'absolute',
+        height: '100%',
+        width: '100%',
       }}
     >
       This {width}x{height}px video is {durationInFrames / fps} seconds long.
-    </AbsoluteFill>
+    </Interactive.Div>
   );
 };
 ```
 
-:::note
 A video's first frame is `0` and its last frame is `durationInFrames - 1`.
-:::
 
 ## Compositions
 
 A composition is the combination of a React component and video metadata.
 
-By rendering a [`<Composition>`](/docs/composition) component in `src/Root.tsx`, you can register a renderable video and make it visible in the Remotion sidebar.
+Register compositions to make a component renderable into a video and make it visible in the Remotion Studio composition list.
 
 ```tsx twoslash title="src/Root.tsx"
 import {Composition} from 'remotion';
@@ -86,19 +86,24 @@ import {Composition} from 'remotion';
 
 export const RemotionRoot: React.FC = () => {
   return (
-    <Composition
-      id="MyComposition"
-      durationInFrames={150}
-      fps={30}
-      width={1920}
-      height={1080}
-      component={MyComposition}
-    />
+    <>
+      <Composition
+        id="MyComposition"
+        durationInFrames={150}
+        fps={30}
+        width={1920}
+        height={1080}
+        component={MyComposition}
+      />
+      <Composition
+        id="MyCompositionPortrait"
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        component={MyComposition}
+      />
+    </>
   );
 };
 ```
-
-:::note
-You can register multiple compositions in `src/Root.tsx` by wrapping them in a React Fragment:  
-`<><Composition/><Composition/></>`. See also: [How to combine compositions?](/docs/miscellaneous/snippets/combine-compositions)
-:::

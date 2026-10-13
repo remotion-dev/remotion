@@ -49,7 +49,6 @@ export const Comp = (${parameter}) => {
 				nodePath: lineContainingToNodePath(input, '<Video'),
 				captions: [],
 				durationInFrames: null,
-				premountFor: null,
 			});
 			const alias = declarations.includes('BasicCaptions2')
 				? 'BasicCaptions3'
@@ -100,7 +99,6 @@ export const Comp = () => (
 		nodePath: lineContainingToNodePath(input, '<Video'),
 		captions,
 		durationInFrames: 177.45,
-		premountFor: 30,
 	});
 
 	expect(output).toBe(`import { BasicCaptions } from "./basic-captions.element";
@@ -129,7 +127,6 @@ export const Comp = () => (
         },
       ]}
       durationInFrames={177.45}
-      premountFor={30}
     />
   </>
 );
@@ -159,7 +156,6 @@ test('uses the source whitespace and configured trailing comma style', () => {
 			},
 		],
 		durationInFrames: 90,
-		premountFor: null,
 		prettierConfigOverride: {trailingComma: 'none'},
 	});
 

@@ -46,13 +46,13 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	showLayerFrameNumbers: null,
 	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: null,
 	audioLatencyHint: null,
 	beepOnFinish: null,
 	enableCrossSiteIsolation: null,
-	experimentalTracksEnabled: null,
 	experimentalSequenceActivityEnabled: null,
 	experimentalSequenceActivityLimit: null,
 	interactivityEnabled: null,
@@ -205,6 +205,7 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
 			update('setShowPremounting', settings.showPremounting),
 			update('setAskAIEnabled', settings.askAIEnabled),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
@@ -220,10 +221,6 @@ export const StudioSettings: React.FC = () => {
 			),
 			update('setRspack', settings.rspack),
 			update('setInteractivityEnabled', settings.interactivityEnabled),
-			update(
-				'setExperimentalTracksEnabled',
-				settings.experimentalTracksEnabled,
-			),
 			update(
 				'setExperimentalSequenceActivityEnabled',
 				settings.experimentalSequenceActivityEnabled,
@@ -325,10 +322,26 @@ export const StudioSettings: React.FC = () => {
 
 			<p style={sectionTitle}>Interface</p>
 			<label style={optionRow}>
+				<div style={label}>Show frame numbers of layer</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={settings.showLayerFrameNumbers ?? false}
+						name="Show frame numbers of layer"
+						onChange={(event) =>
+							changeSetting(
+								'showLayerFrameNumbers',
+								'setShowLayerFrameNumbers',
+								event.target.checked,
+							)
+						}
+					/>
+				</div>
+			</label>
+			<label style={optionRow}>
 				<div style={label}>Show premounting in timeline</div>
 				<div style={rightRow}>
 					<Checkbox
-						checked={settings.showPremounting ?? true}
+						checked={settings.showPremounting ?? false}
 						name="Show premounting in timeline"
 						onChange={(event) =>
 							changeSetting(
@@ -389,45 +402,9 @@ export const StudioSettings: React.FC = () => {
 				</div>
 			</label>
 
-			<div style={optionRow}>
-				<div style={label}>
-					Experimental tracks
-					<InfoBubble
-						aria-label="About experimental tracks"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: 14,
-								lineHeight: 1.5,
-							}}
-						>
-							Groups Track, Series, and TransitionSeries clips on shared
-							timeline rows, with extra rows for overlays. Disabled by default.
-							Changes apply immediately after saving, without reloading Studio.
-						</div>
-					</InfoBubble>
-				</div>
-				<label style={rightRow} aria-label="Experimental tracks">
-					<Checkbox
-						checked={settings.experimentalTracksEnabled === true}
-						name="Experimental tracks"
-						onChange={(event) =>
-							changeSetting(
-								'experimentalTracksEnabled',
-								'setExperimentalTracksEnabled',
-								event.target.checked ? true : null,
-							)
-						}
-					/>
-				</label>
-			</div>
-
 			<p style={sectionTitle}>Playback</p>
 			<ConfigNumber
-				defaultValue={NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS}
+				defaultValue={NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS}
 				name="Default premount in seconds"
 				step={0.1}
 				onChange={(value) =>

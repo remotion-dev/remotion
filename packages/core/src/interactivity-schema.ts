@@ -625,6 +625,28 @@ export const trimBeforeField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
+// Packed timeline containers expose timing through the inspector.
+export const sequenceTimingSchema = {
+	from: {
+		...fromField,
+		description: 'From',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	durationInFrames: {
+		...durationInFramesField,
+		description: 'Duration',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	trimBefore: {
+		...trimBeforeField,
+		description: 'Trim before',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
+
 export const trimAfterField = {
 	type: 'number',
 	default: undefined,

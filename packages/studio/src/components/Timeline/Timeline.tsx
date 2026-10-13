@@ -175,7 +175,6 @@ const TimelineContextMenuArea: React.FC<{
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
-				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -424,7 +423,11 @@ const TimelineInner: React.FC = () => {
 	// instance without recalculating the timeline or losing its instance index.
 	const collapsed = useMemo(() => {
 		const seenDisplayGroups = new Set<string>();
-		return filterTimelineTrackContents(filtered, sequences).filter((track) => {
+		return filterTimelineTrackContents(
+			filtered,
+			sequences,
+			compactSeries,
+		).filter((track) => {
 			if (track.sequence.timelineTrack || track.displayGroup === null) {
 				return true;
 			}
@@ -436,12 +439,13 @@ const TimelineInner: React.FC = () => {
 			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
-	}, [filtered, sequences]);
+	}, [compactSeries, filtered, sequences]);
 
 	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
 		collapsed,
 		sequences,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
+		compactSeries,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
 	const trackOverlapError = useMemo(

@@ -25,6 +25,7 @@ import {
 	TimelineFieldValue,
 	UnsupportedStatus,
 } from '../Timeline/TimelineSchemaField';
+import {useClampSequenceTimingValue} from '../Timeline/use-clamp-sequence-timing-value';
 import {MultiSequenceNumberField} from './MultiSequenceNumberField';
 
 export type MultiSequenceTarget = {
@@ -37,6 +38,7 @@ export const MultiSequenceField: React.FC<{
 	readonly targets: MultiSequenceTarget[];
 	readonly readOnlyStudio: boolean;
 }> = ({field, targets, readOnlyStudio}) => {
+	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -66,35 +68,58 @@ export const MultiSequenceField: React.FC<{
 		isStudioInteractivityEnabled() &&
 		previewServerState.type === 'connected' &&
 		staticValues;
+	const previewGeneration = useRef(0);
 	const clear = useCallback(() => {
+		previewGeneration.current++;
+		clearTimingLimits();
 		for (const target of targets) {
 			clearDragOverrides(target.nodePath);
 		}
-	}, [clearDragOverrides, targets]);
+	}, [clearDragOverrides, clearTimingLimits, targets]);
 	const targetsRef = useRef(targets);
 	targetsRef.current = targets;
 	useEffect(() => {
+		const generation = previewGeneration;
 		return () => {
+			generation.current++;
 			for (const target of targetsRef.current) {
 				clearDragOverrides(target.nodePath);
 			}
 		};
 	}, [clearDragOverrides]);
 	const preview = useCallback(
-		(nextValues: unknown[]) => {
+		async (nextValues: unknown[]) => {
 			if (!editable) {
 				return;
 			}
 
+			const generation = ++previewGeneration.current;
+			let clamped: unknown[];
+			try {
+				clamped = await Promise.all(
+					targets.map((target, index) =>
+						clampTimingValue(target.nodePath, field.key, nextValues[index]),
+					),
+				);
+			} catch (error) {
+				if (generation === previewGeneration.current)
+					showNotification(
+						`Could not check timing constraints: ${(error as Error).message}`,
+						3000,
+					);
+				return;
+			}
+
+			if (generation !== previewGeneration.current) return;
 			for (const [index, target] of targets.entries()) {
 				setDragOverrides(
 					target.nodePath,
 					field.key,
-					Internals.makeStaticDragOverride(nextValues[index]),
+					Internals.makeStaticDragOverride(clamped[index]),
 				);
 			}
 		},
-		[editable, field.key, setDragOverrides, targets],
+		[clampTimingValue, editable, field.key, setDragOverrides, targets],
 	);
 	const save = useCallback(
 		async (
@@ -106,12 +131,17 @@ export const MultiSequenceField: React.FC<{
 			}
 
 			try {
+				const clamped = await Promise.all(
+					targets.map((target, index) =>
+						clampTimingValue(target.nodePath, field.key, nextValues[index]),
+					),
+				);
 				await saveSequenceProps({
 					changes: targets.map((target, index) => ({
 						fileName: target.nodePath.absolutePath,
 						nodePath: target.nodePath,
 						fieldKey: field.key,
-						value: nextValues[index],
+						value: clamped[index],
 						defaultValue:
 							field.typeName === 'string' ||
 							field.typeName === 'text-content' ||
@@ -138,7 +168,15 @@ export const MultiSequenceField: React.FC<{
 				clear();
 			}
 		},
-		[clear, editable, field, previewServerState, setPropStatuses, targets],
+		[
+			clampTimingValue,
+			clear,
+			editable,
+			field,
+			previewServerState,
+			setPropStatuses,
+			targets,
+		],
 	);
 	let content: React.ReactNode;
 	if (!editable) {

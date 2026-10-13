@@ -250,7 +250,7 @@ export const TimelineEffectItem: React.FC<{
 				id: 'annotate-effect',
 				getTarget: () => annotationTarget.current,
 				initialComment: markupSkillAvailable ? '$remotion-markup' : null,
-				metadata: {
+				getMetadata: () => ({
 					layer: nodePath.nodePath.join('.'),
 					layerKeys: JSON.stringify(nodePath.sequenceKeys),
 					effect: label,
@@ -260,7 +260,7 @@ export const TimelineEffectItem: React.FC<{
 							location: validatedLocation,
 							root: window.remotion_cwd,
 						}) ?? validatedLocation.source,
-				},
+				}),
 			}),
 		];
 
