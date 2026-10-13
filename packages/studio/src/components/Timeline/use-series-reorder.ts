@@ -17,6 +17,7 @@ import {
 	SCROLL_INCREMENT,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
+import {createTimelineReorderPreview} from './TimelineCanvas';
 import {
 	isTimelineSelectionModifierEvent,
 	useCurrentTimelineSelectionStateAsRef,
@@ -123,7 +124,7 @@ export const useSeriesReorder = (
 			let clientX = startX;
 			let clientY = startY;
 			let didDrag = false;
-			let preview: HTMLDivElement | null = null;
+			let preview: ReturnType<typeof createTimelineReorderPreview> = null;
 			let previousUserSelect = '';
 			let previousWebkitUserSelect = '';
 			let dropTarget: {
@@ -173,7 +174,7 @@ export const useSeriesReorder = (
 
 				// Once a seam has been reached, the glow supplies the feedback for
 				// the rest of the gesture, even if the pointer leaves the seam.
-				preview?.remove();
+				preview?.destroy();
 				preview = null;
 				const insertionIndex =
 					seamIndex - sourceIndexes.filter((index) => index < seamIndex).length;
@@ -250,32 +251,11 @@ export const useSeriesReorder = (
 						previousWebkitUserSelect = document.body.style.webkitUserSelect;
 						document.body.style.userSelect = 'none';
 						document.body.style.webkitUserSelect = 'none';
-						preview = clipElement.cloneNode(true) as HTMLDivElement;
-						preview.setAttribute('aria-hidden', 'true');
-						preview.setAttribute('data-series-reorder-preview', 'true');
-						Object.assign(preview.style, {
-							position: 'fixed',
-							left: `${sourceRect.left}px`,
-							top: `${sourceRect.top}px`,
-							marginLeft: '0',
-							width: `${sourceRect.width}px`,
-							height: `${sourceRect.height}px`,
-							opacity: '0.8',
-							pointerEvents: 'none',
-							zIndex: '2147483647',
-						});
-						// Edge handles on the clone must not intercept drop gestures.
-						for (const child of preview.querySelectorAll<HTMLElement>('*')) {
-							child.style.pointerEvents = 'none';
-						}
-
-						document.body.appendChild(preview);
+						preview = createTimelineReorderPreview(sourceRect);
 					}
 
 					event.preventDefault();
-					if (preview) {
-						preview.style.transform = `translateX(${clientX - startX}px)`;
-					}
+					preview?.move(clientX - startX);
 
 					updateDropTarget();
 					autoScroll.update({clientX, clientY});
@@ -289,7 +269,7 @@ export const useSeriesReorder = (
 					}
 
 					autoScroll.stop();
-					preview?.remove();
+					preview?.destroy();
 					setDropIndicatorLeft(null);
 					stopPointerSession.current = null;
 					if (!didDrag) {

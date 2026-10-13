@@ -7,6 +7,7 @@ import {
 	fillWithCachedFrames,
 	frameDatabase,
 	getAspectRatioFromCache,
+	getDevicePixelAlignedCanvasLayout,
 	getFrameDatabaseKeyPrefix,
 	getLoopDisplaySegments,
 	getTimestampFromFrameDatabaseKey,
@@ -15,10 +16,10 @@ import {
 	snapCanvasPositionToDevicePixel,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/timeline-utils';
+import {CanvasSource, Sprite, Texture} from 'pixi.js';
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
-import {alignCanvasToDevicePixels} from '../../helpers/align-canvas-to-device-pixels';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
 import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {
@@ -29,6 +30,11 @@ import {AudioWaveform} from '../AudioWaveform';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import type {TimelineVolume} from './get-timeline-volume';
 import {getTimelineVideoFilmstripTimes} from './timeline-video-filmstrip-times';
+import type {TimelineCanvasDraw} from './TimelineCanvas';
+import {
+	useTimelineCanvasDrawing,
+	useTimelineCanvasInvalidation,
+} from './TimelineCanvas';
 
 const outerStyle: React.CSSProperties = {
 	width: '100%',
@@ -45,6 +51,13 @@ const filmstripContainerStyle: React.CSSProperties = {
 	borderTopLeftRadius: 2,
 	fontSize: 10,
 	fontFamily: 'Arial, Helvetica',
+};
+
+const filmstripDrawingStyle: React.CSSProperties = {
+	height: '100%',
+	width: '100%',
+	position: 'relative',
+	flexShrink: 0,
 };
 
 const MAX_FROZEN_FRAME_CACHE_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
@@ -86,7 +99,52 @@ const TimelineVideoInfoSegment: React.FC<{
 }) => {
 	const {fps} = useVideoConfig();
 	const resolvedSrc = Internals.usePreload(src);
-	const ref = useRef<HTMLCanvasElement>(null);
+	const ref = useRef<HTMLDivElement>(null);
+	const bitmap = useRef<{
+		canvas: HTMLCanvasElement;
+		left: number;
+		width: number;
+		height: number;
+	} | null>(null);
+	const revision = useRef(0);
+	const invalidate = useTimelineCanvasInvalidation();
+	const drawing = useMemo<TimelineCanvasDraw>(
+		() => ({
+			onScroll: false,
+			get revision() {
+				return revision.current;
+			},
+			// The shared renderer provides vector and child containers separately.
+			// eslint-disable-next-line max-params
+			draw: (_graphics, _width, _height, _resolveColor, _Text, children) => {
+				for (const child of children.removeChildren()) {
+					child.destroy({children: true, texture: true, textureSource: true});
+				}
+
+				const {current} = bitmap;
+				if (current === null) {
+					return;
+				}
+
+				const sprite = new Sprite(
+					new Texture({
+						source: new CanvasSource({
+							resource: current.canvas,
+							width: current.canvas.width,
+							height: current.canvas.height,
+							resolution: 1,
+						}),
+					}),
+				);
+				sprite.x = current.left;
+				sprite.width = current.width;
+				sprite.height = current.height;
+				children.addChild(sprite);
+			},
+		}),
+		[],
+	);
+	useTimelineCanvasDrawing(ref, drawing);
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
 	const mediaStartFrame =
@@ -100,31 +158,52 @@ const TimelineVideoInfoSegment: React.FC<{
 
 	// for rendering frames
 	useLayoutEffect(() => {
-		const {current: canvas} = ref;
-		if (!canvas) {
+		const element = ref.current;
+		if (!element) {
 			return;
 		}
 
+		const publish = () => {
+			revision.current++;
+			invalidate();
+		};
+
+		if (error) {
+			bitmap.current = null;
+			publish();
+			return;
+		}
+
+		// Frame extraction retains its decoded-frame cache. Only the presentation
+		// bitmap is detached; the shared timeline canvas owns its GPU texture.
+		const canvas = document.createElement('canvas');
 		const ctx = canvas.getContext('2d');
 		if (!ctx) {
 			return;
 		}
 
-		if (error) {
-			ctx.resetTransform();
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			return;
-		}
-
 		const controller = new AbortController();
 		const pixelRatio = getStudioPixelRatio();
-		const {horizontalOffset} = alignCanvasToDevicePixels({
-			canvas,
+		const {devicePixelRatio} = window;
+		const layout = getDevicePixelAlignedCanvasLayout({
+			containerLeft: element.getBoundingClientRect().left,
 			cssHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 			cssWidth: visualizationWidth,
-			pixelRatio,
+			devicePixelRatio,
 		});
+		const resolutionScale = pixelRatio / devicePixelRatio;
+		const horizontalOffset = layout.horizontalOffset * resolutionScale;
+		canvas.width = Math.max(1, Math.ceil(layout.width * resolutionScale));
+		canvas.height = Math.max(1, Math.ceil(layout.height * resolutionScale));
+		bitmap.current = {
+			canvas,
+			left: -layout.horizontalOffset / devicePixelRatio,
+			width: layout.width / devicePixelRatio,
+			height: layout.height / devicePixelRatio,
+		};
+		aspectRatio.current = getAspectRatioFromCache(src);
 		ctx.setTransform(1, 0, 0, 1, horizontalOffset, 0);
+		publish();
 
 		const clearCanvas = () => {
 			ctx.save();
@@ -148,6 +227,8 @@ const TimelineVideoInfoSegment: React.FC<{
 				});
 				ctx.drawImage(frame, left, 0, right - left, canvas.height);
 			}
+
+			publish();
 		};
 
 		const getCachedFrozenFrame = (timestamp: number) => {
@@ -210,6 +291,11 @@ const TimelineVideoInfoSegment: React.FC<{
 				},
 				src: resolvedSrc,
 				onVideoSample: (sample) => {
+					if (controller.signal.aborted) {
+						sample.close();
+						return;
+					}
+
 					let frame: VideoFrame | undefined;
 					try {
 						frame = sample.toVideoFrame();
@@ -245,7 +331,9 @@ const TimelineVideoInfoSegment: React.FC<{
 				},
 				signal: controller.signal,
 			}).catch((e: unknown) => {
-				setError(e as Error);
+				if (!controller.signal.aborted) {
+					setError(e as Error);
+				}
 			});
 
 			return () => {
@@ -278,6 +366,7 @@ const TimelineVideoInfoSegment: React.FC<{
 			: visualizationWidth * pixelRatio;
 		const repeatTarget = () => {
 			if (!tiledLoop) {
+				publish();
 				return;
 			}
 
@@ -305,6 +394,7 @@ const TimelineVideoInfoSegment: React.FC<{
 			clearCanvas();
 			ctx.fillStyle = pattern;
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			publish();
 		};
 
 		if (aspectRatio.current !== null) {
@@ -376,6 +466,11 @@ const TimelineVideoInfoSegment: React.FC<{
 			},
 			src: resolvedSrc,
 			onVideoSample: (sample) => {
+				if (controller.signal.aborted) {
+					sample.close();
+					return;
+				}
+
 				let frame: VideoFrame | undefined;
 				try {
 					frame = sample.toVideoFrame();
@@ -450,7 +545,9 @@ const TimelineVideoInfoSegment: React.FC<{
 				repeatTarget();
 			})
 			.catch((e: unknown) => {
-				setError(e as Error);
+				if (!controller.signal.aborted) {
+					setError(e as Error);
+				}
 			});
 
 		return () => {
@@ -462,6 +559,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		extendLastFrame,
 		fps,
 		frozenMediaFrame,
+		invalidate,
 		mediaStartFrame,
 		playbackRate,
 		resolvedSrc,
@@ -496,7 +594,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	return (
 		<div style={segmentStyle}>
 			<div style={filmstripStyle}>
-				<canvas ref={ref} />
+				<div ref={ref} style={filmstripDrawingStyle} />
 			</div>
 			<div style={audioStyle}>
 				<AudioWaveform

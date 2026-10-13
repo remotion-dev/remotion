@@ -1,19 +1,19 @@
 import {
-	drawBars,
+	forEachWaveformBar,
+	getDevicePixelAlignedCanvasLayout,
 	subscribeToWaveformPeaks,
+	WAVEFORM_CLIPPING_COLOR,
 	type WaveformDrawRange,
 } from '@remotion/timeline-utils';
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
-import {alignCanvasToDevicePixels} from '../helpers/align-canvas-to-device-pixels';
 import {BLACK_ALPHA_60, WHITE_ALPHA_60} from '../helpers/colors';
 import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
-import {resolveStudioColor} from '../helpers/resolve-studio-color';
 import {getStudioPixelRatio} from '../helpers/studio-pixel-ratio';
 import type {TimelineVolume} from './Timeline/get-timeline-volume';
-
-const EMPTY_PEAKS = new Float32Array(0);
+import type {TimelineCanvasDraw} from './Timeline/pixi-timeline-renderer';
+import {useTimelineCanvasDrawing} from './Timeline/TimelineCanvas';
 
 const getContainerStyle = (height: number): React.CSSProperties => {
 	return {
@@ -25,17 +25,6 @@ const getContainerStyle = (height: number): React.CSSProperties => {
 		height,
 		overflow: 'hidden',
 	};
-};
-
-const waveformCanvasStyle: React.CSSProperties = {
-	pointerEvents: 'none',
-	flexShrink: 0,
-	position: 'relative',
-};
-
-const volumeCanvasStyle: React.CSSProperties = {
-	pointerEvents: 'none',
-	position: 'absolute',
 };
 
 const AudioWaveformInner: React.FC<{
@@ -76,9 +65,7 @@ const AudioWaveformInner: React.FC<{
 		vidConf.fps * TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
 	);
 
-	const waveformCanvas = useRef<HTMLCanvasElement>(null);
-	const volumeCanvas = useRef<HTMLCanvasElement>(null);
-	const shouldRenderVolumeOverlay = volume.type !== 'constant';
+	const waveformContainer = useRef<HTMLDivElement>(null);
 	const visualizationMaxVolume = useMemo(() => {
 		if (volume.type === 'constant') {
 			return Math.max(1, volume.value);
@@ -164,145 +151,167 @@ const AudioWaveformInner: React.FC<{
 		vidConf.fps,
 		waveformSampleRate,
 	]);
-
-	// Drawing must happen in a layout effect: when the timeline zooms, the
-	// canvas CSS box resizes in the same commit, and painting the bitmap
-	// before the browser paints avoids showing a stretched stale waveform.
-	useLayoutEffect(() => {
-		const {current: canvasElement} = waveformCanvas;
-		if (!canvasElement) {
-			return;
+	const waveformDrawing = useMemo((): TimelineCanvasDraw | null => {
+		if (!peaks || error) {
+			return null;
 		}
 
-		const pixelRatio = getStudioPixelRatio();
-		const {horizontalOffset} = alignCanvasToDevicePixels({
-			canvas: canvasElement,
-			cssHeight: height,
-			cssWidth: visualizationWidth,
-			pixelRatio,
-		});
-		const drawingWidth = visualizationWidth * pixelRatio;
+		return {
+			onScroll: false,
+			revision: {
+				peaks,
+				peakRange,
+				waveformVolume,
+				visualizationWidth,
+				height,
+				visibleVolume,
+				visualizationMaxVolume,
+			},
+			draw: (graphics, cssWidth, cssHeight, resolveColor) => {
+				const pixelRatio = getStudioPixelRatio();
+				const {devicePixelRatio} = window;
+				const layout = getDevicePixelAlignedCanvasLayout({
+					containerLeft:
+						waveformContainer.current?.getBoundingClientRect().left ?? 0,
+					cssWidth,
+					cssHeight,
+					devicePixelRatio,
+				});
+				const resolutionScale = pixelRatio / devicePixelRatio;
+				const horizontalOffset = layout.horizontalOffset * resolutionScale;
+				const drawingWidth = visualizationWidth * pixelRatio;
+				const drawingHeight = Math.ceil(layout.height * resolutionScale);
 
-		drawBars({
-			canvas: canvasElement,
-			peaks: peaks ?? EMPTY_PEAKS,
-			range: peakRange,
-			color: resolveStudioColor(
-				WHITE_ALPHA_60,
-				getComputedStyle(canvasElement),
-			),
-			volume: waveformVolume,
-			width: drawingWidth,
-			horizontalOffset,
-		});
-	}, [height, peakRange, peaks, visualizationWidth, waveformVolume]);
+				const clippingBars: {x: number; y: number; height: number}[] = [];
+				forEachWaveformBar({
+					peaks,
+					range: peakRange,
+					volume: waveformVolume,
+					width: drawingWidth,
+					height: drawingHeight,
+					horizontalOffset,
+					canvasWidth: Math.ceil(layout.width * resolutionScale),
+					onBar: ({x, barY, barEnd, clipTopEnd, clipBotStart}) => {
+						const left = (x - horizontalOffset) / pixelRatio;
+						if (clipBotStart > clipTopEnd) {
+							graphics.rect(
+								left,
+								clipTopEnd / pixelRatio,
+								1 / pixelRatio,
+								(clipBotStart - clipTopEnd) / pixelRatio,
+							);
+						}
 
-	useLayoutEffect(() => {
-		if (!shouldRenderVolumeOverlay || !peaks) {
-			return;
-		}
+						if (clipTopEnd > barY) {
+							clippingBars.push({
+								x: left,
+								y: barY / pixelRatio,
+								height: (clipTopEnd - barY) / pixelRatio,
+							});
+						}
 
-		const {current: volumeCanvasElement} = volumeCanvas;
-		if (!volumeCanvasElement) {
-			return;
-		}
+						if (barEnd > clipBotStart) {
+							clippingBars.push({
+								x: left,
+								y: clipBotStart / pixelRatio,
+								height: (barEnd - clipBotStart) / pixelRatio,
+							});
+						}
+					},
+				});
+				// Batch each color into one fill instead of writing every bitmap pixel.
+				graphics.fill({color: resolveColor(WHITE_ALPHA_60), alpha: 1});
+				if (clippingBars.length > 0) {
+					for (const bar of clippingBars) {
+						graphics.rect(bar.x, bar.y, 1 / pixelRatio, bar.height);
+					}
 
-		const pixelRatio = getStudioPixelRatio();
-		const {
-			height: h,
-			horizontalOffset,
-			width: w,
-		} = alignCanvasToDevicePixels({
-			canvas: volumeCanvasElement,
-			cssHeight: height,
-			cssWidth: visualizationWidth,
-			pixelRatio,
-		});
-		const drawingWidth = visualizationWidth * pixelRatio;
-		const context = volumeCanvasElement.getContext('2d');
-		if (!context) {
-			return;
-		}
+					graphics.fill({color: WAVEFORM_CLIPPING_COLOR, alpha: 1});
+				}
 
-		context.clearRect(0, 0, w, h);
-		if (visibleVolume.type === 'constant' || drawingWidth <= 0 || h <= 0) {
-			return;
-		}
-
-		context.setTransform(1, 0, 0, 1, horizontalOffset, 0);
-		context.beginPath();
-		context.moveTo(0, 0);
-		if (visibleVolume.type === 'linear') {
-			for (const point of visibleVolume.points) {
-				context.lineTo(
-					((point.frame - displayOffsetInFrames) / displayDurationInFrames) *
-						drawingWidth,
-					Math.max(
-						0,
-						Math.min(h, (1 - point.value / visualizationMaxVolume) * h),
-					),
-				);
-			}
-		} else {
-			// The canvas only spans the virtualized range. Sampling by its physical
-			// width keeps drawing work bounded to the visible part of the timeline.
-			const numberOfPoints = Math.min(
-				visibleVolume.samples.length,
-				Math.max(1, Math.ceil(drawingWidth)),
-			);
-			for (let point = 0; point < numberOfPoints; point++) {
-				const volumeIndex = Math.floor(
-					(point / numberOfPoints) * visibleVolume.samples.length,
-				);
-				const nextVolumeIndex = Math.floor(
-					((point + 1) / numberOfPoints) * visibleVolume.samples.length,
-				);
-				const firstFrame = Math.max(0, Math.floor(displayOffsetInFrames));
-				const x = Math.max(
-					0,
-					((firstFrame + volumeIndex - displayOffsetInFrames) /
-						displayDurationInFrames) *
-						drawingWidth,
-				);
-				const nextX =
-					point === numberOfPoints - 1
-						? drawingWidth
-						: Math.min(
-								drawingWidth,
-								((firstFrame + nextVolumeIndex - displayOffsetInFrames) /
+				// Paint the volume shade over the waveform as well as its background.
+				if (
+					visibleVolume.type !== 'constant' &&
+					drawingWidth > 0 &&
+					drawingHeight > 0
+				) {
+					graphics.beginPath();
+					graphics.moveTo(0, 0);
+					if (visibleVolume.type === 'linear') {
+						for (const point of visibleVolume.points) {
+							graphics.lineTo(
+								(((point.frame - displayOffsetInFrames) /
+									displayDurationInFrames) *
+									drawingWidth) /
+									pixelRatio,
+								Math.max(
+									0,
+									Math.min(
+										drawingHeight,
+										(1 - point.value / visualizationMaxVolume) * drawingHeight,
+									),
+								) / pixelRatio,
+							);
+						}
+					} else {
+						const numberOfPoints = Math.min(
+							visibleVolume.samples.length,
+							Math.max(1, Math.ceil(drawingWidth)),
+						);
+						for (let point = 0; point < numberOfPoints; point++) {
+							const volumeIndex = Math.floor(
+								(point / numberOfPoints) * visibleVolume.samples.length,
+							);
+							const nextVolumeIndex = Math.floor(
+								((point + 1) / numberOfPoints) * visibleVolume.samples.length,
+							);
+							const firstFrame = Math.max(0, Math.floor(displayOffsetInFrames));
+							const x = Math.max(
+								0,
+								((firstFrame + volumeIndex - displayOffsetInFrames) /
 									displayDurationInFrames) *
 									drawingWidth,
 							);
-				const unclampedY =
-					(1 -
-						(visibleVolume.samples[volumeIndex] ?? 1) /
-							visualizationMaxVolume) *
-					h;
-				const y = Math.max(0, Math.min(h, unclampedY));
-				// Volume samples apply for one frame. Keep each value until the next
-				// frame boundary instead of blending a hold into a diagonal ramp.
-				context.lineTo(x, y);
-				context.lineTo(nextX, y);
-			}
-		}
+							const nextX =
+								point === numberOfPoints - 1
+									? drawingWidth
+									: Math.min(
+											drawingWidth,
+											((firstFrame + nextVolumeIndex - displayOffsetInFrames) /
+												displayDurationInFrames) *
+												drawingWidth,
+										);
+							const unclampedY =
+								(1 -
+									(visibleVolume.samples[volumeIndex] ?? 1) /
+										visualizationMaxVolume) *
+								drawingHeight;
+							const y = Math.max(0, Math.min(drawingHeight, unclampedY));
+							// Hold each sampled volume until the next frame boundary.
+							graphics.lineTo(x / pixelRatio, y / pixelRatio);
+							graphics.lineTo(nextX / pixelRatio, y / pixelRatio);
+						}
+					}
 
-		context.lineTo(drawingWidth, 0);
-		context.closePath();
-		context.fillStyle = resolveStudioColor(
-			BLACK_ALPHA_60,
-			getComputedStyle(volumeCanvasElement),
-		);
-		context.fill();
+					graphics.lineTo(drawingWidth / pixelRatio, 0);
+					graphics.closePath();
+					graphics.fill({color: resolveColor(BLACK_ALPHA_60), alpha: 1});
+				}
+			},
+		};
 	}, [
 		displayDurationInFrames,
 		displayOffsetInFrames,
+		error,
 		height,
+		peakRange,
 		peaks,
-		shouldRenderVolumeOverlay,
 		visualizationMaxVolume,
 		visibleVolume,
 		visualizationWidth,
+		waveformVolume,
 	]);
+	useTimelineCanvasDrawing(waveformContainer, waveformDrawing);
 
 	if (error) {
 		return null;
@@ -312,15 +321,7 @@ const AudioWaveformInner: React.FC<{
 		return null;
 	}
 
-	return (
-		<div style={getContainerStyle(height)}>
-			<canvas ref={waveformCanvas} style={waveformCanvasStyle} />
-			{/* Paint the volume shade over the waveform as well as its background. */}
-			{shouldRenderVolumeOverlay ? (
-				<canvas ref={volumeCanvas} style={volumeCanvasStyle} />
-			) : null}
-		</div>
-	);
+	return <div ref={waveformContainer} style={getContainerStyle(height)} />;
 };
 
 export const AudioWaveform = React.memo(AudioWaveformInner);

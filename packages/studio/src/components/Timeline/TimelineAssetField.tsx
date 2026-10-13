@@ -382,7 +382,13 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				type="button"
 			>
 				<span style={thumbnailContainer}>
-					<img alt="" draggable={false} src={previewSrc} style={thumbnail} />
+					<img
+						alt=""
+						crossOrigin="anonymous"
+						draggable={false}
+						src={previewSrc}
+						style={thumbnail}
+					/>
 				</span>
 				<span style={imageAssetInfo}>
 					<span style={imageAssetName}>{name}</span>

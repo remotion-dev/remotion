@@ -10,6 +10,8 @@ import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {EasingPresetPreview} from './EasingEditorModal';
+import type {TimelineCanvasDraw} from './TimelineCanvas';
+import {useTimelineCanvasDrawing} from './TimelineCanvas';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useCurrentTimelineSelectionStateAsRef,
@@ -47,6 +49,16 @@ const easingLine: React.CSSProperties = {
 	transform: 'translateY(-50%)',
 };
 
+// Include the selected outline in the measured drawing bounds so horizontal
+// viewport clipping does not clip its top and bottom edges.
+const easingLineBounds: React.CSSProperties = {
+	...easingLine,
+	backgroundColor: 'transparent',
+	height: lineHeight + 2,
+	left: -1,
+	right: -1,
+};
+
 export const getTimelineKeyframeEasingLineStyle = (
 	selected: boolean,
 ): React.CSSProperties => ({
@@ -68,6 +80,33 @@ const TimelineKeyframeEasingLineVisualUnmemoized: React.FC<{
 export const TimelineKeyframeEasingLineVisual = React.memo(
 	TimelineKeyframeEasingLineVisualUnmemoized,
 );
+
+const TimelineKeyframeEasingLineCanvasVisual: React.FC<{
+	readonly selected: boolean;
+}> = ({selected}) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const drawing = useMemo<TimelineCanvasDraw>(
+		() => ({
+			onScroll: false,
+			revision: selected,
+			draw: (graphics, width, height, resolveColor) => {
+				if (selected) {
+					graphics
+						.roundRect(0.5, 0.5, width - 1, height - 1, lineHeight / 2 + 0.5)
+						.stroke({color: resolveColor(BLUE), width: 1});
+				}
+
+				graphics
+					.roundRect(1, 1, width - 2, height - 2, lineHeight / 2)
+					.fill(resolveColor(WHITE_ALPHA_10));
+			},
+		}),
+		[selected],
+	);
+	useTimelineCanvasDrawing(ref, drawing);
+
+	return <div ref={ref} style={easingLineBounds} />;
+};
 
 type TimelineKeyframeEasingLineProps = {
 	readonly fromFrame: number;
@@ -198,7 +237,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 				aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
 				onPointerDown={selectable ? onPointerDown : undefined}
 			>
-				<TimelineKeyframeEasingLineVisual selected={selected} />
+				<TimelineKeyframeEasingLineCanvasVisual selected={selected} />
 			</button>
 			<ContextMenuForTarget
 				triggerRef={buttonRef}

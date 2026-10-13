@@ -94,6 +94,7 @@ import {
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
+import {TimelinePaint} from './TimelineCanvas';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
 	TimelineInheritedSceneRangeContext,
@@ -325,19 +326,33 @@ const TimelineSequenceNegativeStartInner: React.FC<{
 
 	const innerStyle = useMemo((): React.CSSProperties => {
 		const showLeftEdge = leftEdgeVisible && !clipped;
+
+		return {
+			background: clipped
+				? `linear-gradient(to right, transparent, ${TIMELINE_NEGATIVE_START_BACKGROUND_COLOR} 20%)`
+				: TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
+			borderBottomLeftRadius: showLeftEdge ? 2 : 0,
+			borderTopLeftRadius: showLeftEdge ? 2 : 0,
+			height: '100%',
+			position: 'absolute',
+			top: 0,
+			width: '100%',
+		};
+	}, [clipped, leftEdgeVisible]);
+
+	const borderStyle = useMemo((): React.CSSProperties => {
+		const showLeftEdge = leftEdgeVisible && !clipped;
 		const maskImage = clipped
 			? 'linear-gradient(to right, transparent, black 20%)'
 			: undefined;
 
 		return {
-			backgroundColor: TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
 			border: `${NEGATIVE_START_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`,
-			borderBottomLeftRadius: showLeftEdge ? 2 : 0,
 			borderLeft: showLeftEdge
 				? `${NEGATIVE_START_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`
 				: 'none',
 			borderRight: 'none',
-			borderTopLeftRadius: showLeftEdge ? 2 : 0,
+			borderRadius: 'inherit',
 			boxSizing: 'border-box',
 			height: '100%',
 			maskImage,
@@ -349,9 +364,11 @@ const TimelineSequenceNegativeStartInner: React.FC<{
 	}, [clipped, leftEdgeVisible]);
 
 	return (
-		<div style={outerStyle}>
-			<div style={innerStyle} />
-		</div>
+		<TimelinePaint style={outerStyle}>
+			<TimelinePaint style={innerStyle}>
+				<div style={borderStyle} />
+			</TimelinePaint>
+		</TimelinePaint>
 	);
 };
 
@@ -709,7 +726,7 @@ const TimelineSequenceBar: React.FC<{
 	);
 
 	const premountIndicator = premount ? (
-		<div
+		<TimelinePaint
 			style={{
 				left: premount.left,
 				width: premount.width,
@@ -724,7 +741,9 @@ const TimelineSequenceBar: React.FC<{
 							)`,
 				position: 'absolute',
 			}}
-		/>
+		>
+			{null}
+		</TimelinePaint>
 	) : null;
 
 	const content = (
@@ -957,7 +976,7 @@ const TimelineSequenceBar: React.FC<{
 								leftEdgeVisible={leftEdgeVisible}
 								clipped={negativeStartClipped}
 							/>
-							<div
+							<TimelinePaint
 								style={{
 									background: sequenceBackground,
 									borderBottomLeftRadius: 0,
@@ -984,10 +1003,10 @@ const TimelineSequenceBar: React.FC<{
 								>
 									{content}
 								</div>
-							</div>
+							</TimelinePaint>
 						</>
 					) : (
-						<div
+						<TimelinePaint
 							style={{
 								position: 'absolute',
 								inset: 0,
@@ -998,7 +1017,7 @@ const TimelineSequenceBar: React.FC<{
 							}}
 						>
 							{content}
-						</div>
+						</TimelinePaint>
 					)}
 					{!isTransition &&
 					(selected || containsSelection) &&

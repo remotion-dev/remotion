@@ -54,6 +54,7 @@
 		"mediabunny": "catalog:",
 		"memfs": "3.4.3",
 		"open": "8.4.2",
+		"pixi.js": "8.22.0",
 		"prismjs": "1.30.0",
 		"remotion": "workspace:*",
 		"semver": "7.5.3",

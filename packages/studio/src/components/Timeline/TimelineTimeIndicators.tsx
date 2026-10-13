@@ -1,4 +1,5 @@
-import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import type {Text} from 'pixi.js';
+import React, {useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
@@ -6,7 +7,6 @@ import {
 	TIMELINE_TRACK_SEPARATOR,
 	WHITE_ALPHA_15,
 } from '../../helpers/colors';
-import {resolveStudioColor} from '../../helpers/resolve-studio-color';
 import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -14,8 +14,10 @@ import {
 } from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
+import type {TimelineCanvasDraw} from './pixi-timeline-renderer';
 import {scrollableRef} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
+import {useTimelineCanvasDrawing} from './TimelineCanvas';
 import {TIMELINE_TICKS_BACKGROUND} from './TimelineSelection';
 import {TimelineTickFormatContext} from './TimelineTickFormatProvider';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -244,21 +246,9 @@ const TimelineTimeIndicatorsInner = React.memo<{
 	readonly fps: number;
 	readonly durationInFrames: number;
 }>(({windowWidth, durationInFrames, fps}) => {
-	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const ref = useRef<HTMLDivElement>(null);
 	const {showFrames} = useContext(TimelineTickFormatContext);
-
-	useLayoutEffect(() => {
-		const canvas = canvasRef.current;
-		const scrollable = scrollableRef.current;
-		if (!canvas || !scrollable) {
-			return;
-		}
-
-		const context = canvas.getContext('2d');
-		if (!context) {
-			return;
-		}
-
+	const settings = useMemo(() => {
 		const frameInterval = getFrameIncrementFromWidth(
 			durationInFrames,
 			windowWidth,
@@ -277,141 +267,198 @@ const TimelineTimeIndicatorsInner = React.memo<{
 				(TICK_LABEL_MARGIN_LEFT + maxTickLabelWidth + TICK_LABEL_MIN_GAP) /
 				(frameInterval * fps),
 		});
-
-		const draw = () => {
-			const computedStyle = getComputedStyle(canvas);
-			const tickColor = resolveStudioColor(WHITE_ALPHA_15, computedStyle);
-			const labelColor = resolveStudioColor(LIGHT_TEXT, computedStyle);
-			const {clientWidth: width, scrollLeft} = scrollable;
-			const pixelRatio = getStudioPixelRatio();
-			const canvasWidth = Math.ceil(width * pixelRatio);
-			const canvasHeight = TIMELINE_TIME_INDICATOR_HEIGHT * pixelRatio;
-
-			if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
-				canvas.width = canvasWidth;
-				canvas.height = canvasHeight;
-				canvas.style.width = `${width}px`;
-				canvas.style.height = `${TIMELINE_TIME_INDICATOR_HEIGHT}px`;
-			}
-
-			context.resetTransform();
-			context.clearRect(0, 0, canvas.width, canvas.height);
-			context.scale(pixelRatio, pixelRatio);
-			context.fillStyle = tickColor;
-
-			const firstFrame = Math.max(
-				0,
-				// Keep labels visible after their ticks scroll out of the viewport.
-				Math.floor(
-					(scrollLeft -
-						TIMELINE_PADDING -
-						TICK_LABEL_MARGIN_LEFT -
-						maxTickLabelWidth) /
-						frameInterval,
-				),
-			);
-			const lastFrame = Math.min(
-				durationInFrames - 1,
-				Math.ceil((scrollLeft + width - TIMELINE_PADDING) / frameInterval),
-			);
-			const xForFrame = (frame: number) =>
-				Math.round(frameInterval * frame + TIMELINE_PADDING - scrollLeft) + 0.5;
-			const drawTick = (frame: number, height: number) => {
-				const x = xForFrame(frame);
-				context.fillRect(x, 0, 1, height);
-			};
-
-			const firstLabelSecond =
-				Math.ceil(firstFrame / fps / tickScale.labelEverySeconds) *
-				tickScale.labelEverySeconds;
-			const seconds = Math.floor(durationInFrames / fps);
-			for (
-				let second = firstLabelSecond;
-				second < seconds && second * fps <= lastFrame;
-				second += tickScale.labelEverySeconds
-			) {
-				const frame = second * fps;
-				drawTick(frame, 15);
-				if (second > 0) {
-					context.fillStyle = labelColor;
-					context.font = `${TICK_LABEL_FONT_SIZE}px ${computedStyle.fontFamily}`;
-					context.textBaseline = 'top';
-					context.fillText(
-						showFrames ? `${Math.round(frame)}f` : renderFrame(frame, fps),
-						xForFrame(frame) + TICK_LABEL_MARGIN_LEFT,
-						7,
-					);
-					context.fillStyle = tickColor;
-				}
-			}
-
-			const {minorTickEvery, mediumTickEvery} = tickScale;
-			if (minorTickEvery?.unit === 'frames') {
-				const firstTick =
-					Math.ceil(firstFrame / minorTickEvery.interval) *
-					minorTickEvery.interval;
-				for (
-					let frame = firstTick;
-					frame <= lastFrame;
-					frame += minorTickEvery.interval
-				) {
-					if (frame % (tickScale.labelEverySeconds * fps) === 0) {
-						continue;
-					}
-
-					drawTick(
-						frame,
-						(Number.isInteger(fps) && frame % fps === 0) ||
-							(mediumTickEvery?.unit === 'frames' &&
-								frame % mediumTickEvery.interval === 0)
-							? 5
-							: 2,
-					);
-				}
-			}
-
-			if (minorTickEvery?.unit === 'seconds') {
-				const firstSecond =
-					Math.ceil(firstFrame / fps / minorTickEvery.interval) *
-					minorTickEvery.interval;
-				for (
-					let second = firstSecond;
-					second < seconds && second * fps <= lastFrame;
-					second += minorTickEvery.interval
-				) {
-					if (second % tickScale.labelEverySeconds === 0) {
-						continue;
-					}
-
-					drawTick(
-						second * fps,
-						mediumTickEvery?.unit === 'seconds' &&
-							second % mediumTickEvery.interval === 0
-							? 5
-							: 2,
-					);
-				}
-			}
-		};
-
-		const onScroll = () => {
-			draw();
-		};
-
-		const resizeObserver = new ResizeObserver(draw);
-
-		draw();
-		scrollable.addEventListener('scroll', onScroll);
-		resizeObserver.observe(scrollable);
-		return () => {
-			scrollable.removeEventListener('scroll', onScroll);
-			resizeObserver.disconnect();
+		return {
+			durationInFrames,
+			fps,
+			frameInterval,
+			maxTickLabelWidth,
+			showFrames,
+			tickScale,
 		};
 	}, [durationInFrames, fps, showFrames, windowWidth]);
+	const drawing = useMemo((): TimelineCanvasDraw => {
+		const labels = new Map<number, Text>();
+		return {
+			revision: settings,
+			onScroll: true,
+			// eslint-disable-next-line max-params
+			draw: (
+				graphics,
+				nodeWidth,
+				nodeHeight,
+				resolveColor,
+				TextConstructor,
+				children,
+			) => {
+				const scrollable = scrollableRef.current;
+				const element = ref.current;
+				if (!scrollable || !element) {
+					return;
+				}
+
+				const {
+					durationInFrames: duration,
+					fps: framesPerSecond,
+					frameInterval,
+					maxTickLabelWidth,
+					showFrames: displayFrames,
+					tickScale,
+				} = settings;
+				const computedStyle = getComputedStyle(element);
+				const labelColor = resolveColor(LIGHT_TEXT);
+				const {scrollLeft} = scrollable;
+				const width = Math.min(nodeWidth, scrollable.clientWidth);
+				const pixelRatio = getStudioPixelRatio();
+				const visibleLabels = new Set<number>();
+				graphics.rect(0, 0, width, nodeHeight).fill({
+					color: resolveColor(TIMELINE_TICKS_BACKGROUND),
+					alpha: 1,
+				});
+				graphics
+					.rect(
+						0,
+						nodeHeight - TIMELINE_ITEM_BORDER_BOTTOM,
+						width,
+						TIMELINE_ITEM_BORDER_BOTTOM,
+					)
+					.fill({
+						color: resolveColor(TIMELINE_TRACK_SEPARATOR),
+						alpha: 1,
+					});
+
+				const firstFrame = Math.max(
+					0,
+					// Keep labels visible after their ticks scroll out of the viewport.
+					Math.floor(
+						(scrollLeft -
+							TIMELINE_PADDING -
+							TICK_LABEL_MARGIN_LEFT -
+							maxTickLabelWidth) /
+							frameInterval,
+					),
+				);
+				const lastFrame = Math.min(
+					duration - 1,
+					Math.ceil((scrollLeft + width - TIMELINE_PADDING) / frameInterval),
+				);
+				const xForFrame = (frame: number) =>
+					Math.round(frameInterval * frame + TIMELINE_PADDING - scrollLeft) +
+					0.5;
+				const drawTick = (frame: number, height: number) => {
+					const x = xForFrame(frame);
+					graphics.rect(x, 0, 1, height);
+				};
+
+				const firstLabelSecond =
+					Math.ceil(
+						firstFrame / framesPerSecond / tickScale.labelEverySeconds,
+					) * tickScale.labelEverySeconds;
+				const seconds = Math.floor(duration / framesPerSecond);
+				for (
+					let second = firstLabelSecond;
+					second < seconds && second * framesPerSecond <= lastFrame;
+					second += tickScale.labelEverySeconds
+				) {
+					const frame = second * framesPerSecond;
+					drawTick(frame, 15);
+					if (second > 0) {
+						const text = displayFrames
+							? `${Math.round(frame)}f`
+							: renderFrame(frame, framesPerSecond);
+						const x = xForFrame(frame) + TICK_LABEL_MARGIN_LEFT;
+						let label = labels.get(second);
+						if (!label || label.destroyed) {
+							label = new TextConstructor({
+								text,
+								resolution: pixelRatio,
+								style: {
+									fontSize: TICK_LABEL_FONT_SIZE,
+									fontFamily: computedStyle.fontFamily,
+									fill: labelColor,
+								},
+							});
+							children.addChild(label);
+							labels.set(second, label);
+						}
+
+						label.text = text;
+						if (label.resolution !== pixelRatio) {
+							label.resolution = pixelRatio;
+						}
+
+						label.style.fontFamily = computedStyle.fontFamily;
+						label.style.fill = labelColor;
+						label.position.set(x, 7);
+						visibleLabels.add(second);
+					}
+				}
+
+				const {minorTickEvery, mediumTickEvery} = tickScale;
+				if (minorTickEvery?.unit === 'frames') {
+					const firstTick =
+						Math.ceil(firstFrame / minorTickEvery.interval) *
+						minorTickEvery.interval;
+					for (
+						let frame = firstTick;
+						frame <= lastFrame;
+						frame += minorTickEvery.interval
+					) {
+						if (frame % (tickScale.labelEverySeconds * framesPerSecond) === 0) {
+							continue;
+						}
+
+						drawTick(
+							frame,
+							(Number.isInteger(framesPerSecond) &&
+								frame % framesPerSecond === 0) ||
+								(mediumTickEvery?.unit === 'frames' &&
+									frame % mediumTickEvery.interval === 0)
+								? 5
+								: 2,
+						);
+					}
+				}
+
+				if (minorTickEvery?.unit === 'seconds') {
+					const firstSecond =
+						Math.ceil(firstFrame / framesPerSecond / minorTickEvery.interval) *
+						minorTickEvery.interval;
+					for (
+						let second = firstSecond;
+						second < seconds && second * framesPerSecond <= lastFrame;
+						second += minorTickEvery.interval
+					) {
+						if (second % tickScale.labelEverySeconds === 0) {
+							continue;
+						}
+
+						drawTick(
+							second * framesPerSecond,
+							mediumTickEvery?.unit === 'seconds' &&
+								second % mediumTickEvery.interval === 0
+								? 5
+								: 2,
+						);
+					}
+				}
+
+				graphics.fill({color: resolveColor(WHITE_ALPHA_15), alpha: 1});
+				for (const [second, label] of labels) {
+					if (!visibleLabels.has(second)) {
+						label.destroy({style: true});
+						labels.delete(second);
+					}
+				}
+			},
+		};
+	}, [settings]);
+	useTimelineCanvasDrawing(ref, drawing);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...container,
+			backgroundColor: 'transparent',
+			borderBottom: `${TIMELINE_ITEM_BORDER_BOTTOM}px solid transparent`,
 			width: windowWidth,
 			minWidth: '100%',
 			overflow: 'hidden',
@@ -419,9 +466,5 @@ const TimelineTimeIndicatorsInner = React.memo<{
 		};
 	}, [windowWidth]);
 
-	return (
-		<div style={style}>
-			<canvas ref={canvasRef} style={{position: 'absolute', top: 0, left: 0}} />
-		</div>
-	);
+	return <div ref={ref} style={style} />;
 });

@@ -5,6 +5,7 @@ import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getTimelineSequenceHeight} from './timeline-track-groups';
+import {TimelinePaint} from './TimelineCanvas';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
 	getTimelineSelectedTrackHighlightStyle,
@@ -52,12 +53,14 @@ const TimelineTrackUnmemoized: React.FC<{
 		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
 			<div style={layerStyle}>
 				{rowHighlightBackground && timelineWidth !== null ? (
-					<div
+					<TimelinePaint
 						style={getTimelineSelectedTrackHighlightStyle(
 							timelineWidth,
 							rowHighlightBackground,
 						)}
-					/>
+					>
+						{null}
+					</TimelinePaint>
 				) : null}
 				<TimelineSequence
 					s={track.sequence}

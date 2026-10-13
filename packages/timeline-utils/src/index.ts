@@ -5,6 +5,8 @@ export type {
 export {TARGET_SAMPLE_RATE} from './audio-waveform/constants';
 export {
 	drawBars,
+	forEachWaveformBar,
+	WAVEFORM_CLIPPING_COLOR,
 	type WaveformDrawRange,
 	type WaveformVolume,
 } from './audio-waveform/draw-peaks';

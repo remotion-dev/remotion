@@ -5,6 +5,7 @@ import {
 	WHITE_ALPHA_20,
 	WHITE_ALPHA_50,
 } from '../../helpers/colors';
+import {TimelinePaint} from './TimelineCanvas';
 
 export const TimelineSequenceMountIndicator: React.FC<{
 	readonly from: number;
@@ -38,7 +39,7 @@ export const TimelineSequenceMountIndicator: React.FC<{
 				: mountDurationInFrames);
 
 	return (
-		<div
+		<TimelinePaint
 			style={{
 				left,
 				width,
@@ -52,6 +53,8 @@ export const TimelineSequenceMountIndicator: React.FC<{
 					)`,
 				position: 'absolute',
 			}}
-		/>
+		>
+			{null}
+		</TimelinePaint>
 	);
 };

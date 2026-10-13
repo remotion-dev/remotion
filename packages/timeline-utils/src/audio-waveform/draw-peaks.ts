@@ -1,7 +1,7 @@
 import {parseColor} from './parse-color';
 import {getWaveformMaxima, getWaveformMaximum} from './waveform-maxima';
 
-const CLIPPING_COLOR = '#FF7F50';
+export const WAVEFORM_CLIPPING_COLOR = '#FF7F50';
 const WAVEFORM_HEIGHT_SCALE = 0.8;
 const MIN_VISIBLE_DECIBELS = -37;
 
@@ -43,47 +43,35 @@ const getVolumeAtBar = ({
 	return volume[volumeIndex] ?? 1;
 };
 
-export const drawBars = ({
-	canvas,
-	color,
+export const forEachWaveformBar = ({
 	peaks,
 	range,
 	volume,
 	width,
+	height,
 	horizontalOffset,
+	canvasWidth,
+	onBar,
 }: {
-	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
 	readonly peaks: Float32Array;
 	readonly range: WaveformDrawRange;
-	readonly color: string;
 	readonly volume: WaveformVolume;
 	readonly width: number;
+	readonly height: number;
 	readonly horizontalOffset: number;
+	readonly canvasWidth: number;
+	readonly onBar: (bar: {
+		readonly x: number;
+		readonly barY: number;
+		readonly barEnd: number;
+		readonly clipTopEnd: number;
+		readonly clipBotStart: number;
+	}) => void;
 }) => {
-	const ctx = canvas.getContext('2d');
-
-	if (!ctx) {
-		throw new Error('Failed to get canvas context');
-	}
-
-	const {height} = canvas;
-	const w = canvas.width;
-
-	// Skip drawing when the target canvas has not been laid out yet.
-	// `createImageData(0, h)` / `(w, 0)` throws a DOMException, which
-	// surfaces in Studio's console for compositions with many audio
-	// sequences — some segments are 0 px wide at certain zoom levels.
-	if (w === 0 || height === 0 || width <= 0) {
+	if (canvasWidth === 0 || height === 0 || width <= 0) {
 		return;
 	}
 
-	ctx.clearRect(0, 0, w, height);
-
-	const [r, g, b, a] = parseColor(color);
-	const [cr, cg, cb, ca] = parseColor(CLIPPING_COLOR);
-
-	const imageData = ctx.createImageData(w, height);
-	const {data} = imageData;
 	const numBars = width;
 	const fullScaleHalfBar = (height * WAVEFORM_HEIGHT_SCALE) / 2;
 	const maxima = getWaveformMaxima(peaks, null);
@@ -121,7 +109,7 @@ export const drawBars = ({
 				})
 			: 0;
 
-	for (let x = 0; x < w; x++) {
+	for (let x = 0; x < canvasWidth; x++) {
 		// The canvas may start before its fractionally positioned container so its
 		// bitmap stays device-pixel aligned. Sample from the exact container origin.
 		const barIndex = Math.max(
@@ -246,30 +234,84 @@ export const drawBars = ({
 			? Math.max(Math.min(barEnd - 2, Math.round(mid + fullScaleHalfBar)), barY)
 			: barEnd;
 
-		for (let y = barY; y < clipTopEnd; y++) {
-			const idx = (y * w + x) * 4;
-			data[idx] = cr;
-			data[idx + 1] = cg;
-			data[idx + 2] = cb;
-			data[idx + 3] = ca;
-		}
-
-		for (let y = clipTopEnd; y < clipBotStart; y++) {
-			const idx = (y * w + x) * 4;
-			data[idx] = r;
-			data[idx + 1] = g;
-			data[idx + 2] = b;
-			data[idx + 3] = a;
-		}
-
-		for (let y = clipBotStart; y < barEnd; y++) {
-			const idx = (y * w + x) * 4;
-			data[idx] = cr;
-			data[idx + 1] = cg;
-			data[idx + 2] = cb;
-			data[idx + 3] = ca;
-		}
+		onBar({x, barY, barEnd, clipTopEnd, clipBotStart});
 	}
+};
+
+export const drawBars = ({
+	canvas,
+	color,
+	peaks,
+	range,
+	volume,
+	width,
+	horizontalOffset,
+}: {
+	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
+	readonly peaks: Float32Array;
+	readonly range: WaveformDrawRange;
+	readonly color: string;
+	readonly volume: WaveformVolume;
+	readonly width: number;
+	readonly horizontalOffset: number;
+}) => {
+	const ctx = canvas.getContext('2d');
+
+	if (!ctx) {
+		throw new Error('Failed to get canvas context');
+	}
+
+	const {height} = canvas;
+	const w = canvas.width;
+
+	// Skip drawing when the target canvas has not been laid out yet.
+	// `createImageData(0, h)` / `(w, 0)` throws a DOMException, which
+	// surfaces in Studio's console for compositions with many audio
+	// sequences — some segments are 0 px wide at certain zoom levels.
+	if (w === 0 || height === 0 || width <= 0) {
+		return;
+	}
+
+	ctx.clearRect(0, 0, w, height);
+
+	const [r, g, b, a] = parseColor(color);
+	const [cr, cg, cb, ca] = parseColor(WAVEFORM_CLIPPING_COLOR);
+	const imageData = ctx.createImageData(w, height);
+	const {data} = imageData;
+	forEachWaveformBar({
+		peaks,
+		range,
+		volume,
+		width,
+		height,
+		horizontalOffset,
+		canvasWidth: w,
+		onBar: ({x, barY, barEnd, clipTopEnd, clipBotStart}) => {
+			for (let y = barY; y < clipTopEnd; y++) {
+				const idx = (y * w + x) * 4;
+				data[idx] = cr;
+				data[idx + 1] = cg;
+				data[idx + 2] = cb;
+				data[idx + 3] = ca;
+			}
+
+			for (let y = clipTopEnd; y < clipBotStart; y++) {
+				const idx = (y * w + x) * 4;
+				data[idx] = r;
+				data[idx + 1] = g;
+				data[idx + 2] = b;
+				data[idx + 3] = a;
+			}
+
+			for (let y = clipBotStart; y < barEnd; y++) {
+				const idx = (y * w + x) * 4;
+				data[idx] = cr;
+				data[idx + 1] = cg;
+				data[idx + 2] = cb;
+				data[idx + 3] = ca;
+			}
+		},
+	});
 
 	ctx.putImageData(imageData, 0, 0);
 };

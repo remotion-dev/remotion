@@ -14,6 +14,7 @@ import {
 	TimelineSceneClipHeightContext,
 	TimelineSceneRangeContext,
 } from './TimelineSceneRangeContext';
+import {TIMELINE_BACKGROUND} from './TimelineSelection';
 import {TimelineTrack} from './TimelineTrack';
 import {TimelineViewportContext} from './TimelineViewport';
 import {useTimelineVirtualization} from './TimelineVirtualization';
@@ -42,7 +43,19 @@ const TimelineSceneTrackContent: React.FC<{
 		<TimelineSceneClipHeightContext.Provider value={height}>
 			<TimelineInheritedSceneRangeContext.Provider value={sceneRange}>
 				<TimelineSceneRangeContext.Provider value={sceneRange}>
-					<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
+					<div style={{position: 'relative', isolation: 'isolate'}}>
+						{children}
+						<div
+							style={{
+								position: 'absolute',
+								inset: 0,
+								backgroundColor: TIMELINE_BACKGROUND,
+								opacity: active ? 0 : 0.5,
+								pointerEvents: 'none',
+								zIndex: 3,
+							}}
+						/>
+					</div>
 				</TimelineSceneRangeContext.Provider>
 			</TimelineInheritedSceneRangeContext.Provider>
 		</TimelineSceneClipHeightContext.Provider>

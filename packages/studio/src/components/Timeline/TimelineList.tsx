@@ -1,9 +1,9 @@
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
-import {startSlideViewTransition} from '../../helpers/slide-view-transition';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT} from './timeline-track-groups';
+import {startTimelineSceneTransition} from './TimelineCanvas';
 import {TimelineSequenceItem} from './TimelineSequenceItem';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 import {
@@ -80,7 +80,7 @@ type SceneListGroup = {
 };
 
 // Only this child-label surface follows the playhead. Keep a view until the
-// browser captures it, then swap all changing Series together in one transition.
+// shared renderer captures it, then swap changing Series in one GPU transition.
 const TimelineSceneList: React.FC<{
 	readonly groups: readonly SceneListGroup[];
 }> = React.memo(({groups}) => {
@@ -136,7 +136,7 @@ const TimelineSceneList: React.FC<{
 		transition.current = null;
 		const scrollBounds =
 			timelineVerticalScroll.current?.getBoundingClientRect();
-		const changingPanels = next.view.flatMap((group, index) => {
+		const changingPanels = next.view.flatMap((group) => {
 			const old = previous.find((item) => item.id === group.id);
 			const element = panels.current.get(group.id);
 			if (
@@ -150,8 +150,7 @@ const TimelineSceneList: React.FC<{
 				return [];
 			}
 
-			// View-transition snapshots escape ancestor overflow. Clip the overlay
-			// to the visible list below the pinned ruler, including while scrolled.
+			// Keep snapshot overlays below the pinned ruler, including while scrolled.
 			const bounds = element.getBoundingClientRect();
 			const top = Math.max(
 				0,
@@ -165,7 +164,6 @@ const TimelineSceneList: React.FC<{
 			return [
 				{
 					element,
-					name: `remotion-timeline-list-${index}`,
 					clipY: {top, bottom},
 				},
 			];
@@ -180,7 +178,7 @@ const TimelineSceneList: React.FC<{
 		const pending = {
 			updatePending: true,
 		};
-		const cancel = startSlideViewTransition({
+		const cancel = startTimelineSceneTransition({
 			panels: changingPanels,
 			direction: next.frame > next.previousFrame ? 'forward' : 'backward',
 			update: () => {

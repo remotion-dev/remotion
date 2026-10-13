@@ -55,6 +55,7 @@ import {
 	filterTimelineTrackContents,
 	getTimelineDisplayRows,
 } from './timeline-track-groups';
+import {TimelineCanvasProvider} from './TimelineCanvas';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
 import {TimelineInOutDragHandler} from './TimelineInOutDragHandler';
@@ -618,57 +619,59 @@ const TimelineInner: React.FC = () => {
 							{isStudioInteractivityEnabled() ? (
 								<TimelineSelectAllKeybindings timeline={shown} />
 							) : null}
-							<TimelineHeightContainer>
-								{isStill ? (
-									<TimelineList />
-								) : (
-									<TimelineWidthProvider>
-										<TimelinePinchZoom />
-										<SplitterContainer
-											orientation="vertical"
-											defaultFlex={0.2}
-											id="names-to-timeline"
-											maxFlex={0.5}
-											minFlex={0.15}
-											maxFlexerSize={null}
-											minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
-											maxAntiFlexerSize={null}
-											minAntiFlexerSize={null}
-										>
-											<SplitterElement
-												type="flexer"
-												sticky={<TimelineTimePlaceholders />}
+							<TimelineCanvasProvider>
+								<TimelineHeightContainer>
+									{isStill ? (
+										<TimelineList />
+									) : (
+										<TimelineWidthProvider>
+											<TimelinePinchZoom />
+											<SplitterContainer
+												orientation="vertical"
+												defaultFlex={0.2}
+												id="names-to-timeline"
+												maxFlex={0.5}
+												minFlex={0.15}
+												maxFlexerSize={null}
+												minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
+												maxAntiFlexerSize={null}
+												minAntiFlexerSize={null}
 											>
-												<TimelineList />
-											</SplitterElement>
-											<SplitterHandle
-												onCollapse={noop}
-												onCollapseDuringDrag={null}
-												allowToCollapse="none"
-											/>
-											<SplitterElement
-												type="anti-flexer"
-												sticky={
-													<>
-														<TimelineTimeIndicators />
-														<TimelineSlider />
-													</>
-												}
-											>
-												<TimelineScrollable>
-													<TimelineTracks hasBeenCut={hasBeenCut} />
-													<TimelinePlayCursorSyncer />
-													<TimelineInOutPointer />
-													<TimelineDragHandler />
-													{isStudioInteractivityEnabled() ? (
-														<TimelineInOutDragHandler />
-													) : null}
-												</TimelineScrollable>
-											</SplitterElement>
-										</SplitterContainer>
-									</TimelineWidthProvider>
-								)}
-							</TimelineHeightContainer>
+												<SplitterElement
+													type="flexer"
+													sticky={<TimelineTimePlaceholders />}
+												>
+													<TimelineList />
+												</SplitterElement>
+												<SplitterHandle
+													onCollapse={noop}
+													onCollapseDuringDrag={null}
+													allowToCollapse="none"
+												/>
+												<SplitterElement
+													type="anti-flexer"
+													sticky={
+														<>
+															<TimelineTimeIndicators />
+															<TimelineSlider />
+														</>
+													}
+												>
+													<TimelineScrollable>
+														<TimelineTracks hasBeenCut={hasBeenCut} />
+														<TimelinePlayCursorSyncer />
+														<TimelineInOutPointer />
+														<TimelineDragHandler />
+														{isStudioInteractivityEnabled() ? (
+															<TimelineInOutDragHandler />
+														) : null}
+													</TimelineScrollable>
+												</SplitterElement>
+											</SplitterContainer>
+										</TimelineWidthProvider>
+									)}
+								</TimelineHeightContainer>
+							</TimelineCanvasProvider>
 						</TimelineVirtualizationProvider>
 					</TimelineSelectableItemsProvider>
 				</TimelineKeyframeTracksProvider>

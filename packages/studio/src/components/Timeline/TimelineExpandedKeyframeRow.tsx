@@ -7,6 +7,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
+import {TimelinePaint} from './TimelineCanvas';
 import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
 import {TimelineKeyframeEasingLine} from './TimelineKeyframeEasingLine';
 import {
@@ -63,12 +64,14 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<
 			<div style={{...rowClipper, height, width: timelineWidth ?? undefined}}>
 				<div style={{...row, height}}>
 					{rowHighlightBackground && timelineWidth !== null ? (
-						<div
+						<TimelinePaint
 							style={getTimelineSelectedTrackHighlightStyle(
 								timelineWidth,
 								rowHighlightBackground,
 							)}
-						/>
+						>
+							{null}
+						</TimelinePaint>
 					) : null}
 					{easingSegments.map((segment) => (
 						<TimelineKeyframeEasingLine

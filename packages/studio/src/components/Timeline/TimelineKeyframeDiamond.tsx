@@ -1,10 +1,11 @@
 import React, {useContext, useMemo, useRef} from 'react';
 import {useVideoConfig} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {BLACK_ALPHA_40, BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
+import type {TimelineCanvasDraw} from './TimelineCanvas';
+import {useTimelineCanvasDrawing} from './TimelineCanvas';
 import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
@@ -69,6 +70,48 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		selectable,
 		selected,
 	});
+	const drawing = useMemo<TimelineCanvasDraw>(
+		() => ({
+			onScroll: false,
+			revision: visuallySelected,
+			draw: (graphics, width, height, resolveColor) => {
+				if (visuallySelected) {
+					graphics
+						.poly([
+							width / 2,
+							height / 16,
+							(width * 15) / 16,
+							height / 2,
+							width / 2,
+							(height * 15) / 16,
+							width / 16,
+							height / 2,
+						])
+						.stroke({color: resolveColor(BLUE), width: 1.5, join: 'round'});
+				}
+
+				graphics
+					.poly([
+						width / 2,
+						height / 8,
+						(width * 7) / 8,
+						height / 2,
+						width / 2,
+						(height * 7) / 8,
+						width / 8,
+						height / 2,
+					])
+					.fill(resolveColor(LIGHT_TEXT))
+					.stroke({
+						color: resolveColor(BLACK_ALPHA_40),
+						width: 1,
+						join: 'round',
+					});
+			},
+		}),
+		[visuallySelected],
+	);
+	useTimelineCanvasDrawing(ref, style === null ? null : drawing);
 
 	if (style === null) {
 		return null;
@@ -82,13 +125,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			style={style}
 			aria-label={`Select keyframe at frame ${frame}`}
 			onPointerDown={selectable ? onPointerDown : undefined}
-		>
-			<TimelineKeyframeDiamondIcon
-				color={LIGHT_TEXT}
-				selected={visuallySelected}
-				size={diamondSize}
-			/>
-		</button>
+		/>
 	);
 };
 
