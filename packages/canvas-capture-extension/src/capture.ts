@@ -342,6 +342,30 @@ export class PageCapture {
 		this.#requestPaint();
 	};
 
+	preview = async () => {
+		// Wait for the drawable subtree to paint before reading its pixels.
+		await new Promise<void>((resolve, reject) => {
+			let timeout = 0;
+			const onPaint = () => {
+				clearTimeout(timeout);
+				resolve();
+			};
+
+			timeout = window.setTimeout(() => {
+				this.#wrapped.canvas.removeEventListener('paint', onPaint);
+				reject(new Error('The shot preview did not paint in time.'));
+			}, 5000);
+			this.#wrapped.canvas.addEventListener('paint', onPaint, {once: true});
+			this.#requestPaint();
+		});
+		if (this.#paintError) {
+			throw this.#paintError;
+		}
+
+		this.#draw();
+		return this.#captureCanvas.convertToBlob({type: 'image/png'});
+	};
+
 	stop = async () => {
 		try {
 			if (this.#paintError) {

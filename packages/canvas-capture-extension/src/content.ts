@@ -22,6 +22,12 @@ import {
 	type SelectionHandle,
 	type SelectionRectangle,
 } from './selection';
+import {
+	shotRequestEvent,
+	shotResponseEvent,
+	shotTools,
+	type ShotToolName,
+} from './shot-tools';
 
 type ExtensionController = {
 	readonly handleRequest: (
@@ -648,6 +654,7 @@ export const startContent = () => {
 			readonly offsetY: number;
 		} | null = null;
 		let encoderSupportCheckId = 0;
+		let requestedFormat: CaptureFormat | null = null;
 		let encoderSupportKey: string | null = null;
 		let recordingStartedAt: number | null = null;
 		let recordingDurationInterval: number | null = null;
@@ -776,6 +783,25 @@ export const startContent = () => {
 					encoderSupportKey === supportKey &&
 					(encoderSupport === 'supported' || encoderSupport === 'unsupported')
 				) {
+					return;
+				}
+
+				if (requestedFormat !== null) {
+					format = requestedFormat;
+					encoderSupport = 'checking';
+					const canEncode = await canEncodeCapture(format, outputSize);
+					if (checkId !== encoderSupportCheckId) {
+						return;
+					}
+
+					encoderSupport = canEncode ? 'supported' : 'unsupported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						canEncode
+							? `Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`
+							: `${getFormatLabel(format)} is unavailable at ${outputSize.width}×${outputSize.height}.`,
+						!canEncode,
+					);
 					return;
 				}
 
@@ -927,6 +953,8 @@ export const startContent = () => {
 		};
 
 		const getState = (): CaptureControllerState => ({
+			crop: resolveCaptureTarget()?.crop ?? null,
+			viewport: {width: window.innerWidth, height: window.innerHeight},
 			supported,
 			selecting,
 			hasTarget: selectedTarget !== null,
@@ -1032,6 +1060,7 @@ export const startContent = () => {
 				startingRecording ||
 				completedRecording ||
 				finalizing ||
+				controlsBusy ||
 				selectionDrag
 			) {
 				return;
@@ -1477,7 +1506,7 @@ export const startContent = () => {
 		};
 
 		controlsClose.addEventListener('click', () => {
-			if (capture || startingRecording || finalizing) {
+			if (capture || startingRecording || finalizing || controlsBusy) {
 				return;
 			}
 
@@ -1660,6 +1689,331 @@ export const startContent = () => {
 					updateControls();
 				});
 		});
+		const handleShotRequest = async (
+			name: ShotToolName,
+			input: Record<string, unknown>,
+		) => {
+			if (name === 'get_shot') {
+				if (input.preview !== undefined && typeof input.preview !== 'boolean') {
+					throw new Error('preview must be a boolean.');
+				}
+
+				await refreshEncoderSupport();
+				updateControls();
+				const state = getState();
+				if (!input.preview) {
+					return state;
+				}
+
+				if (
+					capture ||
+					startingRecording ||
+					finalizing ||
+					controlsBusy ||
+					selecting ||
+					selectionDrag
+				) {
+					throw new Error(
+						'Finish the current recording or selection before previewing the shot.',
+					);
+				}
+
+				const previewTarget = resolveCaptureTarget();
+				if (!previewTarget) {
+					throw new Error('Set up a shot before requesting a preview.');
+				}
+
+				controlsBusy = true;
+				updateControls();
+				let previewCapture: PageCapture | null = null;
+				try {
+					previewCapture = new PageCapture({
+						crop: previewTarget.crop,
+						scale,
+						format,
+					});
+					const blob = await previewCapture.preview();
+					const dataUrl = await new Promise<string>((resolve, reject) => {
+						const reader = new FileReader();
+						reader.onload = () => resolve(String(reader.result));
+						reader.onerror = () =>
+							reject(new Error('Could not read the shot preview.'));
+						reader.readAsDataURL(blob);
+					});
+					return {
+						content: [
+							{type: 'text', text: JSON.stringify(state)},
+							{
+								type: 'image',
+								mimeType: 'image/png',
+								data: dataUrl.slice(dataUrl.indexOf(',') + 1),
+							},
+						],
+					};
+				} finally {
+					previewCapture?.restore();
+					controlsBusy = false;
+					updateControls();
+				}
+			}
+
+			if (capture || startingRecording || finalizing || controlsBusy) {
+				throw new Error('Wait until recording and finalization have finished.');
+			}
+
+			if (name === 'save_recording') {
+				const {destination} = input;
+				if (
+					destination !== 'download' &&
+					destination !== 'new' &&
+					destination !== 'convert'
+				) {
+					throw new Error('destination must be download, new, or convert.');
+				}
+
+				if (!completedRecording) {
+					throw new Error(
+						'No completed recording is available. Stop recording manually before saving.',
+					);
+				}
+
+				await handleCompletedRecording(destination);
+				const state = getState();
+				if (state.error) {
+					throw new Error(state.status);
+				}
+
+				return state;
+			}
+
+			if (completedRecording) {
+				throw new Error(
+					'Save or discard the completed recording before setting up another shot.',
+				);
+			}
+
+			const {target, resolution, format: nextFormat} = input;
+			if (
+				typeof target !== 'object' ||
+				target === null ||
+				!('type' in target)
+			) {
+				throw new Error(
+					'target must describe a viewport, element, or rectangle.',
+				);
+			}
+
+			let crop: CaptureCrop;
+			if (target.type === 'viewport') {
+				crop = {
+					left: 0,
+					top: 0,
+					width: window.innerWidth,
+					height: window.innerHeight,
+				};
+			} else if (target.type === 'element') {
+				if (
+					!('selector' in target) ||
+					typeof target.selector !== 'string' ||
+					!target.selector.trim()
+				) {
+					throw new Error('An element target requires a CSS selector.');
+				}
+
+				const padding = 'padding' in target ? target.padding : 0;
+				if (
+					typeof padding !== 'number' ||
+					!Number.isFinite(padding) ||
+					padding < 0
+				) {
+					throw new Error('padding must be a finite non-negative number.');
+				}
+
+				const elements = document.querySelectorAll(target.selector);
+				if (elements.length !== 1) {
+					throw new Error(
+						`The selector matched ${elements.length} elements. Choose a selector matching exactly one element.`,
+					);
+				}
+
+				const element = elements[0];
+				if (!element) {
+					throw new Error('The selected element is unavailable.');
+				}
+
+				const rect = element.getBoundingClientRect();
+				const elementStyle = window.getComputedStyle(element);
+				if (
+					rect.width <= 0 ||
+					rect.height <= 0 ||
+					elementStyle.visibility === 'hidden' ||
+					elementStyle.visibility === 'collapse' ||
+					Number(elementStyle.opacity) === 0 ||
+					rect.left < 0 ||
+					rect.top < 0 ||
+					rect.right > window.innerWidth ||
+					rect.bottom > window.innerHeight
+				) {
+					throw new Error(
+						'The element must be visible and fully inside the viewport. Scroll or prepare the page before setting up the shot.',
+					);
+				}
+
+				const left = Math.max(0, rect.left - padding);
+				const top = Math.max(0, rect.top - padding);
+				crop = {
+					left,
+					top,
+					width: Math.min(window.innerWidth, rect.right + padding) - left,
+					height: Math.min(window.innerHeight, rect.bottom + padding) - top,
+				};
+			} else if (target.type === 'rectangle') {
+				if (
+					!('left' in target) ||
+					!('top' in target) ||
+					!('width' in target) ||
+					!('height' in target) ||
+					typeof target.left !== 'number' ||
+					typeof target.top !== 'number' ||
+					typeof target.width !== 'number' ||
+					typeof target.height !== 'number'
+				) {
+					throw new Error(
+						'A rectangle requires numeric left, top, width, and height.',
+					);
+				}
+
+				crop = {
+					left: target.left,
+					top: target.top,
+					width: target.width,
+					height: target.height,
+				};
+			} else {
+				throw new Error('target.type must be viewport, element, or rectangle.');
+			}
+
+			if (
+				!Object.values(crop).every(Number.isFinite) ||
+				crop.left < 0 ||
+				crop.top < 0 ||
+				crop.width < minimumCaptureArea.width ||
+				crop.height < minimumCaptureArea.height ||
+				crop.left + crop.width > window.innerWidth ||
+				crop.top + crop.height > window.innerHeight
+			) {
+				throw new Error(
+					'The crop must be at least 10×10 CSS pixels and entirely inside the viewport.',
+				);
+			}
+
+			let outputBounds = defaultResolution;
+			if (resolution !== undefined) {
+				if (
+					typeof resolution !== 'object' ||
+					resolution === null ||
+					!('width' in resolution) ||
+					!('height' in resolution) ||
+					typeof resolution.width !== 'number' ||
+					typeof resolution.height !== 'number' ||
+					!Number.isInteger(resolution.width) ||
+					!Number.isInteger(resolution.height) ||
+					resolution.width < 2 ||
+					resolution.height < 2
+				) {
+					throw new Error(
+						'resolution requires integer width and height of at least 2 pixels.',
+					);
+				}
+
+				outputBounds = {width: resolution.width, height: resolution.height};
+			}
+
+			if (
+				nextFormat !== undefined &&
+				nextFormat !== 'mp4' &&
+				nextFormat !== 'webm'
+			) {
+				throw new Error('format must be mp4 or webm.');
+			}
+
+			const nextScale = Math.min(
+				outputBounds.width / crop.width,
+				outputBounds.height / crop.height,
+				maxZoom,
+			);
+			getCapturePreflight({crop, scale: nextScale});
+			if (selectionDrag) {
+				highlight.releasePointerCapture(selectionDrag.pointerId);
+				selectionDrag = null;
+			}
+
+			if (selecting) {
+				cancelSelection();
+			}
+
+			selectedTarget = {type: 'page-crop', crop};
+			requestedFormat = nextFormat ?? null;
+			useDefaultResolution = false;
+			scale = nextScale;
+			encoderSupportKey = null;
+			controlsDismissed = false;
+			controlsBusy = true;
+			updateHighlight();
+			updateControls();
+			try {
+				await refreshEncoderSupport();
+				return getState();
+			} finally {
+				controlsBusy = false;
+				updateControls();
+			}
+		};
+
+		// Only shot preparation, inspection, and saving cross into the page world.
+		// Recording commands stay in the extension's manual controls.
+		document.addEventListener(shotRequestEvent, (event) => {
+			if (!(event instanceof CustomEvent) || typeof event.detail !== 'string') {
+				return;
+			}
+
+			let request;
+			try {
+				request = JSON.parse(event.detail);
+			} catch {
+				return;
+			}
+
+			if (
+				typeof request?.id !== 'string' ||
+				!shotTools.some((tool) => tool.name === request.name) ||
+				typeof request.input !== 'object' ||
+				request.input === null ||
+				Array.isArray(request.input)
+			) {
+				return;
+			}
+
+			handleShotRequest(request.name, request.input)
+				.then((result) =>
+					document.dispatchEvent(
+						new CustomEvent(shotResponseEvent, {
+							detail: JSON.stringify({id: request.id, result}),
+						}),
+					),
+				)
+				.catch((error) =>
+					document.dispatchEvent(
+						new CustomEvent(shotResponseEvent, {
+							detail: JSON.stringify({
+								id: request.id,
+								error: error instanceof Error ? error.message : String(error),
+							}),
+						}),
+					),
+				);
+		});
+
 		return {
 			handleRequest,
 		};

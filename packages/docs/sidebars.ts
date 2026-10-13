@@ -2045,7 +2045,10 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'canvas-capture/index',
 			},
-			items: ['canvas-capture/installation'],
+			items: [
+				'canvas-capture/installation',
+				'canvas-capture/agentic-shot-setup',
+			],
 		},
 	],
 	browserBundlerSidebar: [

@@ -66,6 +66,12 @@ extension, so its path and extension ID remain stable across worktrees.
 
 ## Build and install
 
+The extension exposes `setup_shot`, `get_shot`, and `save_recording` to WebMCP-aware
+agents after its icon is clicked. Agents can frame the viewport, an element, or an
+exact rectangle, inspect a PNG still preview, and save a completed recording.
+Recording starts and stops through the manual controls. See
+[Agentic shot setup](https://www.remotion.dev/docs/canvas-capture/agentic-shot-setup).
+
 1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This creates the production WXT bundle and installs the complete unpacked extension outside the worktree. Building does not require an installed browser.
 2. In Chrome 157.0.8080.0 or newer, open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
