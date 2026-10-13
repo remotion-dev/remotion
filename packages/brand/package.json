@@ -14,7 +14,8 @@
 		"bundle": "remotion bundle --rspack --public-path /brand/",
 		"capture-docs": "bun scripts/capture-doc-pages.ts",
 		"lint": "eslint src",
-		"render-homepage-assets": "./render-homepage-assets.sh"
+		"render-homepage-assets": "./render-homepage-assets.sh",
+		"render-docs-animations": "bash render-docs-animations.sh"
 	},
 	"dependencies": {
 		"@mediabunny/prores": "catalog:"
