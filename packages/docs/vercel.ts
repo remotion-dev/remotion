@@ -65,6 +65,18 @@ export const config: VercelConfig = {
 		]),
 	],
 	redirects: [
+		routes.redirect('/docs/the-fundamentals', '/docs/idea', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/the-fundamentals.md', '/docs/idea.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/preview', '/docs/your-first-video', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/preview.md', '/docs/your-first-video.md', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/audio/order-of-operations', '/docs/timing', {
 			permanent: true,
 		}),

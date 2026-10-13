@@ -1165,14 +1165,7 @@ const sidebars: SidebarsConfig = {
 		{
 			type: 'category',
 			label: 'Getting started',
-			items: [
-				'getting-started',
-				'the-fundamentals',
-				'timing',
-				'animating-properties',
-				'reusability',
-				'preview',
-			],
+			items: ['getting-started', 'your-first-video'],
 		},
 		{
 			type: 'link',
@@ -1202,6 +1195,12 @@ const sidebars: SidebarsConfig = {
 				'text-highlights',
 				'starburst',
 			],
+		},
+		{
+			type: 'category',
+			label: 'Create videos with code',
+			link: {type: 'doc', id: 'create-videos-with-code'},
+			items: ['idea', 'timing', 'animating-properties', 'reusability'],
 		},
 		{
 			type: 'category',
