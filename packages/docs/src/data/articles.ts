@@ -4496,7 +4496,7 @@ export const articles = [
 		title: 'The core idea',
 		relativePath: 'docs/idea.mdx',
 		compId: 'articles-docs-idea',
-		crumb: 'Getting started',
+		crumb: 'Wait, you read the code?',
 		noAi: false,
 		slug: 'idea',
 	},
