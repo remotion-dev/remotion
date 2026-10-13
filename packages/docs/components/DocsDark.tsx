@@ -92,11 +92,6 @@ export const DualVideoDemo: React.FC<{
 
 	const videoContainer: React.CSSProperties = useMemo(() => {
 		return {
-			border:
-				'1px solid ' +
-				(colorMode === 'dark'
-					? 'transparent'
-					: 'var(--ifm-color-emphasis-300)'),
 			flex: mobile ? 0 : 1,
 			display: 'block',
 			overflow: 'hidden',
@@ -104,7 +99,7 @@ export const DualVideoDemo: React.FC<{
 			aspectRatio: '16/9',
 			position: 'relative',
 		};
-	}, [colorMode, mobile]);
+	}, [mobile]);
 
 	const playAll = useCallback(() => {
 		ref1.current?.play();
@@ -200,25 +195,34 @@ export const AnimatingProperties: React.FC = () => {
 	return (
 		<div>
 			<DualVideoDemo
-				leftDark="/img/animating-properties-left-dark.mp4"
-				leftLight="/img/animating-properties-left-light.mp4"
-				rightDark="/img/animating-properties-right-dark.mp4"
-				rightLight="/img/animating-properties-right-light.mp4"
+				leftDark="/img/animating-properties-left-dark.webm"
+				leftLight="/img/animating-properties-left-light.webm"
+				rightDark="/img/animating-properties-right-dark.webm"
+				rightLight="/img/animating-properties-right-light.webm"
 			/>
 		</div>
 	);
 };
 
-export const Springs: React.FC = () => {
+export const EasingDemo: React.FC = () => {
 	return (
-		<div>
-			<DualVideoDemo
-				leftDark="/img/spring-left-dark.mp4"
-				leftLight="/img/spring-left-light.mp4"
-				rightDark="/img/spring-right-dark.mp4"
-				rightLight="/img/spring-right-light.mp4"
-			/>
-		</div>
+		<DualVideoDemo
+			leftDark="/img/animating-properties-easing-left-dark.webm"
+			leftLight="/img/animating-properties-easing-left-light.webm"
+			rightDark="/img/animating-properties-easing-right-dark.webm"
+			rightLight="/img/animating-properties-easing-right-light.webm"
+		/>
+	);
+};
+
+export const PosterizationDemo: React.FC = () => {
+	return (
+		<DualVideoDemo
+			leftDark="/img/animating-properties-posterization-left-dark.webm"
+			leftLight="/img/animating-properties-posterization-left-light.webm"
+			rightDark="/img/animating-properties-posterization-right-dark.webm"
+			rightLight="/img/animating-properties-posterization-right-light.webm"
+		/>
 	);
 };
 

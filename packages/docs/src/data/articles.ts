@@ -2854,6 +2854,15 @@ export const articles = [
 		slug: 'compare-ssr',
 	},
 	{
+		id: 'components',
+		title: 'Components',
+		relativePath: 'docs/components.mdx',
+		compId: 'articles-docs-components',
+		crumb: 'Create videos with code',
+		noAi: false,
+		slug: 'components',
+	},
+	{
 		id: 'composition',
 		title: '<Composition>',
 		relativePath: 'docs/composition.mdx',

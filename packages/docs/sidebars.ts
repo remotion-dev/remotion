@@ -1168,11 +1168,6 @@ const sidebars: SidebarsConfig = {
 			items: ['getting-started', 'your-first-video'],
 		},
 		{
-			type: 'link',
-			label: 'Templates',
-			href: '/templates',
-		},
-		{
 			type: 'category',
 			label: 'Designing visuals',
 			items: [
@@ -1200,7 +1195,13 @@ const sidebars: SidebarsConfig = {
 			type: 'category',
 			label: 'Create videos with code',
 			link: {type: 'doc', id: 'create-videos-with-code'},
-			items: ['idea', 'timing', 'animating-properties', 'reusability'],
+			items: [
+				'idea',
+				'components',
+				'timing',
+				'animating-properties',
+				'reusability',
+			],
 		},
 		{
 			type: 'category',
@@ -1593,6 +1594,11 @@ const sidebars: SidebarsConfig = {
 			type: 'link',
 			href: '/docs/api',
 			label: 'API Reference',
+		},
+		{
+			type: 'link',
+			label: 'Templates',
+			href: '/templates',
 		},
 
 		{
