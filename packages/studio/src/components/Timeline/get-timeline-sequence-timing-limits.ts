@@ -278,19 +278,29 @@ export const getTimelineSequenceTimingLimits = ({
 	const minimumFrom =
 		sequence.from +
 		(minimumMoveStart - track.cascadedStart) * track.keyframePlaybackRate;
-	const minimumTrimBefore = Math.max(
-		keyframeLimits.minimumEnd - initialDuration * sequence.sequencePlaybackRate,
-		isMedia && inferredDuration && !Number.isFinite(sourceEnd)
-			? trimBefore
-			: inferredDuration && !loops && Number.isFinite(sourceEnd)
-				? Math.max(0, sourceEnd - spatialMaximumDuration * playbackRate)
-				: 0,
+	// A parent may already clip an inferred media source. Preserve the current
+	// trim in the allowed range instead of normalizing it when a drag begins.
+	const minimumTrimBefore = Math.min(
+		trimBefore,
+		Math.max(
+			keyframeLimits.minimumEnd -
+				initialDuration * sequence.sequencePlaybackRate,
+			isMedia && inferredDuration && !Number.isFinite(sourceEnd)
+				? trimBefore
+				: inferredDuration && !loops && Number.isFinite(sourceEnd)
+					? Math.max(0, sourceEnd - spatialMaximumDuration * playbackRate)
+					: 0,
+		),
 	);
-	const maximumTrimBefore = Math.min(
-		keyframeLimits.maximumEnd - initialDuration * sequence.sequencePlaybackRate,
-		isMedia && !Number.isFinite(sourceEnd)
-			? trimBefore
-			: Math.max(0, sourceEnd - reservedDuration * playbackRate),
+	const maximumTrimBefore = Math.max(
+		trimBefore,
+		Math.min(
+			keyframeLimits.maximumEnd -
+				initialDuration * sequence.sequencePlaybackRate,
+			isMedia && !Number.isFinite(sourceEnd)
+				? trimBefore
+				: Math.max(0, sourceEnd - reservedDuration * playbackRate),
+		),
 	);
 	const spatialLimitReason: TimelineTrimLimitReason =
 		maximumEnd === maximumNeighbourEnd

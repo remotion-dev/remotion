@@ -39,6 +39,7 @@ import {
 	DesignSystemsResponsive,
 	designSystemsResponsiveDurationInFrames,
 } from './DesignSystemsResponsive';
+import {DocsAnimationCompositions} from './DocsAnimations/Root';
 import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
@@ -175,6 +176,7 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<DocsAnimationCompositions />
 			<Folder name="Logo">
 				<Folder name="AnimatedLogo">
 					<Composition

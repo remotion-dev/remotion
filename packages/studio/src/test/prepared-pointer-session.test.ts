@@ -11,6 +11,7 @@ test.each(['held', 'released'] as const)(
 			ready = resolve;
 		});
 		const events: string[] = [];
+		let preparationStarted = false;
 		const stop = startPreparedPointerSession({
 			event: new PointerEvent('pointerdown', {
 				pointerId: 1,
@@ -18,7 +19,11 @@ test.each(['held', 'released'] as const)(
 				buttons: 1,
 			}),
 			captureTarget: target,
-			prepare: () => preparation,
+			minimumMovement: 4,
+			prepare: () => {
+				preparationStarted = true;
+				return preparation;
+			},
 			onReady: (minimum) => {
 				events.push(`ready:${minimum}`);
 				return {
@@ -30,10 +35,20 @@ test.each(['held', 'released'] as const)(
 			onError: () => events.push('error'),
 		});
 		try {
+			expect(preparationStarted).toBe(false);
+			window.dispatchEvent(
+				new PointerEvent('pointermove', {
+					pointerId: 1,
+					buttons: 1,
+					clientX: 3,
+				}),
+			);
+			expect(preparationStarted).toBe(false);
 			for (const clientX of [10, 20])
 				window.dispatchEvent(
 					new PointerEvent('pointermove', {pointerId: 1, buttons: 1, clientX}),
 				);
+			expect(preparationStarted).toBe(true);
 			if (releaseEarly)
 				window.dispatchEvent(
 					new PointerEvent('pointerup', {
@@ -77,6 +92,7 @@ test('cancelling pending preparation cannot restart a completed gesture', async 
 				buttons: 1,
 			}),
 			captureTarget: document.createElement('div'),
+			minimumMovement: null,
 			prepare: () => preparation,
 			onReady: () => {
 				events.push('ready');
@@ -113,6 +129,7 @@ test('failed preparation cancels once and reports the error after an early relea
 			buttons: 1,
 		}),
 		captureTarget: document.createElement('div'),
+		minimumMovement: null,
 		prepare: () => preparation,
 		onReady: () => {
 			throw new Error('Must not begin a failed drag');

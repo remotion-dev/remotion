@@ -6,10 +6,6 @@ a fixed FPS constant.
 
 The following timing props are supported by built-in components (`<AbsoluteFill>`, `<Interactive.*>`, `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>`, `<Track>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more).
 Custom components made with `Interactive.withSchema({wrapInSequence: true})` accept them too, see [Prefer interactive components with their own timelines](../remotion-interactivity/SKILL.md#prefer-interactive-components-with-their-own-timelines).
-Set `premountFor={fps}` on these timed items when they support it, including
-items starting at frame 0. At frame 0, the composition has no earlier frames
-to premount into; the prop still keeps the same one-second default if the item
-is moved later.
 
 ### `from`
 
