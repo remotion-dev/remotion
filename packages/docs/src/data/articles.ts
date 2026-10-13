@@ -4492,6 +4492,15 @@ export const articles = [
 		slug: 'html5-video',
 	},
 	{
+		id: 'idea',
+		title: 'The core idea',
+		relativePath: 'docs/idea.mdx',
+		compId: 'articles-docs-idea',
+		crumb: 'Getting started',
+		noAi: false,
+		slug: 'idea',
+	},
+	{
 		id: 'iframe',
 		title: '<IFrame>',
 		relativePath: 'docs/iframe.mdx',
@@ -9192,15 +9201,6 @@ export const articles = [
 		crumb: 'Designing visuals',
 		noAi: false,
 		slug: 'text-highlights',
-	},
-	{
-		id: 'the-fundamentals',
-		title: 'The core idea',
-		relativePath: 'docs/the-fundamentals.mdx',
-		compId: 'articles-docs-the-fundamentals',
-		crumb: 'Getting started',
-		noAi: false,
-		slug: 'the-fundamentals',
 	},
 	{
 		id: 'third-party',
