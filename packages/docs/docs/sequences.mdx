@@ -6,77 +6,250 @@ sidebar_label: Reuse components
 crumb: 'The power of React'
 ---
 
-```twoslash include example
-import {interpolate, useCurrentFrame} from 'remotion'
+React is perfect for reusing, parametrizing, and composing components with multiple levels of depth.  
+You can use the regular React primitives for this.
 
-const Title: React.FC<{title: string}> = ({title}) => {
-    const frame = useCurrentFrame()
-    const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'})
+Start with a component that accepts `children` and a `color`. Reuse it with different props:
 
-    return (
-      <div style={{opacity, textAlign: "center", fontSize: "7em"}}>{title}</div>
-    );
-}
-// - Title
-```
+```tsx twoslash title="MyVideo.tsx"
+import type {CSSProperties, ReactNode} from 'react';
 
-React components allow us to encapsulate video logic and reuse the same visuals multiple times.
-
-Consider a title - to make it reusable, factor it out into its own component:
-
-```tsx twoslash title="MyComposition.tsx"
-import {interpolate, useCurrentFrame} from 'remotion';
-
-const Title: React.FC<{title: string}> = ({title}) => {
-  const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 20], [0, 1], {
-    extrapolateRight: 'clamp',
-  });
-
-  return (
-    <div style={{opacity, textAlign: 'center', fontSize: '7em'}}>{title}</div>
-  );
+type TitleProps = {
+  readonly children: ReactNode;
+  readonly color: string;
+  readonly style?: CSSProperties;
 };
 
-export const MyVideo = () => {
-  return (
-    <>
-      <Title title="Hello World" />
-    </>
-  );
-};
+const Title = ({children, color, style}: TitleProps) => (
+  <div
+    style={{
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 80,
+      textAlign: 'center',
+      color,
+      ...style,
+    }}
+  >
+    {children}
+  </div>
+);
+
+export const MyVideo = () => (
+  <>
+    <Title color="#0b84f3">Hello</Title>
+    <Title color="#9b5de5">World</Title>
+  </>
+);
 ```
 
-To render multiple instances of the title, duplicate the `<Title>` component.
+Both titles are visible at the same time. Changing the component updates every instance; changing one instance's props only affects that instance.
 
-You can also use the [`<Sequence>`](/docs/sequence) component to limit the duration of the first title and time-shift the appearance of the second title.
+## Add timing primitives
 
-```tsx twoslash
-// @include: example-Title
+Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` to add [timing props](/docs/timing).  
+Rename the function to `TitleInner`, and export the wrapper:
+
+```twoslash include timed-title
+import type {CSSProperties, ReactNode} from 'react';
+import {Interactive} from 'remotion';
+
+type TitleProps = {
+  readonly children: ReactNode;
+  readonly color: string;
+  readonly style?: CSSProperties;
+};
+
+const TitleInner = ({children, color, style}: TitleProps) => (
+  <div
+    style={{
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 80,
+      textAlign: 'center',
+      color,
+      ...style,
+    }}
+  >
+    {children}
+  </div>
+);
+// - inner
+
+export const Title = Interactive.withSchema({
+  Component: TitleInner,
+  componentName: 'Title',
+  schema: {},
+  wrapInSequence: true,
+});
+```
+
+```tsx twoslash title="Title.tsx"
+// @include: timed-title-inner
 // ---cut---
-import {Sequence} from 'remotion';
+export const Title = Interactive.withSchema({
+  Component: TitleInner,
+  componentName: 'Title',
+  schema: {},
+  wrapInSequence: true,
+});
+```
+
+Forward the `style` prop to the outer `<div>` as shown in the first example.  
+The wrapper uses it to apply transforms and other visual edits.
+
+You can now put the titles on the timeline by passing `from` and `durationInFrames` directly:
+
+```tsx twoslash title="MyVideo.tsx"
+// @filename: Title.tsx
+// @include: timed-title
+// @filename: MyVideo.tsx
+// ---cut---
+import {useVideoConfig} from 'remotion';
+import {Title} from './Title';
 
 export const MyVideo = () => {
+  const {fps} = useVideoConfig();
+
   return (
     <>
-      <Sequence durationInFrames={40}>
-        <Title title="Hello" />
-      </Sequence>
-      <Sequence from={40}>
-        <Title title="World" />
-      </Sequence>
+      <Title color="#0b84f3" durationInFrames={2 * fps}>
+        Hello
+      </Title>
+      <Title color="#9b5de5" from={2 * fps} durationInFrames={2 * fps}>
+        World
+      </Title>
     </>
   );
 };
 ```
 
-You should see two titles appearing after each other.
+## Add parameterization interactivity
 
-Note that the value of [`useCurrentFrame()`](/docs/use-current-frame) has been shifted in the second instance, so that it returns `0` only when the absolute time is `40`. Before that, the sequence was not mounted at all.
+The props already let you parameterize the component in code.  
+Describe them in the `schema` to make them editable in the [Remotion Studio](/docs/studio):
 
-Sequences by default are absolutely positioned - you can use [`layout="none"`](/docs/sequence#layout) to make them render like a regular `<div>`.
+```tsx twoslash title="Title.tsx"
+// @include: timed-title-inner
+// ---cut---
+export const Title = Interactive.withSchema({
+  Component: TitleInner,
+  componentName: 'Title',
+  schema: {
+    ...Interactive.childrenSchema,
+    color: {type: 'color', default: '#0b84f3', description: 'Text color'},
+  },
+  wrapInSequence: true,
+});
+```
+
+`Interactive.childrenSchema` adds an editable text field, and `color` adds a color picker in the [Studio](/docs/studio).
+
+## Connected compositions
+
+If a component is also registered as a [composition](/docs/idea#compositions), it gets special treatment in the Remotion [Studio](/docs/studio).
+
+Instead of repeating all children, only a single item is being displayed.  
+You can double-click an item to jump to the composition and edit the children on the composition's own timeline.
+
+<img src="/img/connected-compositions.webp" alt="Two Title tracks in the Studio timeline, each with the connected composition icon next to its name." width={512} height={58} />
+
+If you are familiar with After Effects, this is a similar concept to "Pre-Composing" layers, except that in Remotion, they are also parameterizable.
+
+To set up a connected composition, we recommend you base it off a `absolute-fill` layout:
+
+```twoslash include connected-title
+import type {ReactNode} from 'react';
+import {Interactive} from 'remotion';
+
+type TitleProps = {
+  readonly children: ReactNode;
+  readonly color: string;
+};
+
+const TitleInner = ({children, color}: TitleProps) => (
+  <div
+    style={{
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 80,
+      textAlign: 'center',
+      color,
+    }}
+  >
+    {children}
+  </div>
+);
+
+export const Title = Interactive.withSchema({
+  Component: TitleInner,
+  componentName: 'Title',
+  schema: {
+    ...Interactive.childrenSchema,
+    color: {type: 'color', default: '#0b84f3', description: 'Text color'},
+  },
+  wrapInSequence: true,
+  layout: 'absolute-fill',
+});
+```
+
+```tsx twoslash title="Title.tsx"
+import type {ReactNode} from 'react';
+import {Interactive} from 'remotion';
+
+type TitleProps = {
+  readonly children: ReactNode;
+  readonly color: string;
+};
+
+const TitleInner = ({children, color}: TitleProps) => (
+  <div
+    style={{
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 80,
+      textAlign: 'center',
+      color,
+    }}
+  >
+    {children}
+  </div>
+);
+
+export const Title = Interactive.withSchema({
+  Component: TitleInner,
+  componentName: 'Title',
+  schema: {
+    ...Interactive.childrenSchema,
+    color: {type: 'color', default: '#0b84f3', description: 'Text color'},
+  },
+  wrapInSequence: true,
+  layout: 'absolute-fill',
+});
+```
+
+and add a [`<Composition>`](/docs/composition) registering your component:
+
+```tsx twoslash title="Root.tsx"
+// @filename: Title.tsx
+// @include: connected-title
+// @filename: Root.tsx
+// ---cut---
+import {Composition} from 'remotion';
+import {Title} from './Title';
+
+<Composition
+  id="Title"
+  component={Title}
+  width={1280}
+  height={720}
+  fps={30}
+  durationInFrames={60}
+  defaultProps={{children: 'Hello World!', color: '#0b84f3'}}
+/>
+```
+
+You need to set a fixed width, height, and frame rate for the composition, even if it is different than the parent video's settings.
 
 ## See also
 
-- [`<Sequence>` component](/docs/sequence)
-- [How do I combine compositions?](/docs/miscellaneous/snippets/combine-compositions)
+- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [`InteractivitySchema`](/docs/interactivity-schema)
+- [Timing and trimming](/docs/timing)
+- [Interactivity best practices](/docs/studio/interactivity-best-practices)

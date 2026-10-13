@@ -3,6 +3,7 @@ import {
 	AnimatingPropertiesGraph,
 	AnimatingPropertiesText,
 } from './AnimatingProperties';
+import {ConnectedCompositionExamples} from './ConnectedCompositions';
 
 const transparentVideoMetadata = () => ({
 	defaultCodec: 'vp9' as const,
@@ -13,6 +14,9 @@ const transparentVideoMetadata = () => ({
 export const DocsAnimationCompositions = () => {
 	return (
 		<Folder name="DocsAnimations">
+			<Folder name="ConnectedCompositions">
+				<ConnectedCompositionExamples />
+			</Folder>
 			<Composition
 				id="AnimatingPropertiesGraphLight"
 				component={AnimatingPropertiesGraph}
