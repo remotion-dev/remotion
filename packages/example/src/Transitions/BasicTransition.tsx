@@ -1,5 +1,5 @@
 import {
-	springTiming,
+	linearTiming,
 	TransitionSeries,
 	useTransitionProgress,
 } from '@remotion/transitions';
@@ -36,6 +36,10 @@ export const Letter: React.FC<{
 	);
 };
 
+export const BasicTransitionSceneB: React.FC = () => {
+	return <Letter color="pink">B</Letter>;
+};
+
 export const BasicTransition: React.FC = () => {
 	return (
 		<TransitionSeries from={30}>
@@ -46,16 +50,16 @@ export const BasicTransition: React.FC = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={slide({direction: 'from-bottom'})}
-				timing={springTiming()}
+				timing={linearTiming({durationInFrames: 18})}
 			/>
-			<TransitionSeries.Sequence durationInFrames={30}>
-				<Letter color="pink">B</Letter>
+			<TransitionSeries.Sequence durationInFrames={30} name="Connected scene B">
+				<BasicTransitionSceneB />
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={slide({direction: 'from-bottom'})}
-				timing={springTiming()}
+				timing={linearTiming({durationInFrames: 10})}
 			/>
-			<TransitionSeries.Sequence durationInFrames={60}>
+			<TransitionSeries.Sequence durationInFrames={256}>
 				<Letter color="pink">C</Letter>
 			</TransitionSeries.Sequence>
 		</TransitionSeries>

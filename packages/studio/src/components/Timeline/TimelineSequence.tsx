@@ -17,7 +17,6 @@ import type {
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
-	BLACK_ALPHA_22,
 	BLUE,
 	RED,
 	TIMELINE_AUDIO_GRADIENT,
@@ -28,8 +27,8 @@ import {
 	TIMELINE_VIDEO_GRADIENT,
 	TRANSPARENT,
 	WHITE,
-	WHITE_ALPHA_15,
 	WHITE_ALPHA_20,
+	WHITE_ALPHA_60,
 } from '../../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {
@@ -69,8 +68,13 @@ import {
 import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
 import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
-import {getTimelineSceneMask} from './get-timeline-scene-mask';
+import {
+	getTimelineSceneClipPath,
+	getTimelineSceneShape,
+	TIMELINE_CHILD_TRANSITION_SEAM_Y,
+} from './get-timeline-scene-clip-path';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
+import {getTimelineTransitionNeighbors} from './get-timeline-transition-neighbors';
 import {getTimelineVolume} from './get-timeline-volume';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -87,10 +91,15 @@ import {timelineSourceOnlyCursor} from './timeline-source-only-cursor';
 import {
 	getTimelineSequenceHeight,
 	hasTimelineTrackMediaLabel,
+	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
-import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {
+	TimelineInheritedSceneRangeContext,
+	TimelineSceneClipHeightContext,
+	TimelineSceneRangeContext,
+} from './TimelineSceneRangeContext';
 import {
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
@@ -111,6 +120,7 @@ import {
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
+	isTransitionSeriesSequence,
 	TimelineSequenceLeftEdgeDragHandle,
 	type TimelineSequenceLeftEdgeDragMode,
 	TimelineSequenceMediaDurationDragLimitsContext,
@@ -132,6 +142,11 @@ import {
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
+const transitionVerticalInset = Math.round(TIMELINE_PACKED_TRACK_HEIGHT * 0.2);
+const transitionHeight =
+	TIMELINE_PACKED_TRACK_HEIGHT - transitionVerticalInset * 2;
+const transitionIconWidth = Math.round(transitionHeight * 1.5);
+const minTransitionAreaWidth = transitionIconWidth + 8;
 
 type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
@@ -347,6 +362,10 @@ const TimelineSequenceNegativeStart = React.memo(
 const TimelineSequenceBar: React.FC<{
 	readonly s: TSequence;
 	readonly labelOffset: number;
+	readonly captionLabelBounds: {
+		readonly left: number;
+		readonly width: number;
+	} | null;
 	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
@@ -385,10 +404,12 @@ const TimelineSequenceBar: React.FC<{
 		e: React.PointerEvent<HTMLDivElement>,
 	) => void;
 	readonly onPointerDownCapture: React.PointerEventHandler<HTMLDivElement>;
+	readonly onPointerEnter: () => void;
 	readonly onClick: React.MouseEventHandler<HTMLDivElement> | null;
 }> = ({
 	s,
 	labelOffset,
+	captionLabelBounds,
 	hasCaptionsSchema,
 	connectedComposition,
 	activeTrimEdge,
@@ -413,17 +434,27 @@ const TimelineSequenceBar: React.FC<{
 	frozenFrame,
 	onMoveDragPointerDown,
 	onPointerDownCapture,
+	onPointerEnter,
 	onClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const showLayerFrameNumbers = getStudioShowLayerFrameNumbers();
 	const sceneRange = useContext(TimelineSceneRangeContext);
+	const inheritedSceneRange = useContext(TimelineInheritedSceneRangeContext);
+	const sceneClipHeight = useContext(TimelineSceneClipHeightContext);
 	const timelineWidth = useContext(TimelineWidthContext);
 	const video = Internals.useUnsafeVideoConfig();
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
-	useTimelineMarqueeSelectableItem(selectionItem, ref, marqueeHorizontalBounds);
+	const isTransition = s.timelineTrack?.role === 'transition';
+	const isPackedClip =
+		s.timelineTrack?.role === 'clip' && s.timelineTrack.seriesOffset !== null;
+	useTimelineMarqueeSelectableItem(
+		selectionItem,
+		ref,
+		isTransition ? null : marqueeHorizontalBounds,
+	);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -447,13 +478,18 @@ const TimelineSequenceBar: React.FC<{
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
 		: 0;
-	const transitionWidth =
-		s.timelineTrack?.role === 'transition'
-			? (marqueeHorizontalBounds?.width ?? Number(style.width))
-			: null;
 	const frameIncrement =
 		timelineWidth !== null && video !== null
 			? (timelineWidth - TIMELINE_PADDING * 2) / video.durationInFrames
+			: null;
+	const transitionBounds =
+		isTransition && frameIncrement !== null
+			? {
+					left: Math.round(s.from * frameIncrement) - Number(style.marginLeft),
+					width:
+						Math.round((s.from + s.duration) * frameIncrement) -
+						Math.round(s.from * frameIncrement),
+				}
 			: null;
 	const sceneLeft =
 		sceneRange !== null && frameIncrement !== null
@@ -463,50 +499,204 @@ const TimelineSequenceBar: React.FC<{
 		sceneRange !== null && frameIncrement !== null
 			? sceneRange.end * frameIncrement - Number(style.marginLeft)
 			: Infinity;
+	let labelLeft =
+		2.5 +
+		(captionLabelBounds?.left ??
+			Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0)));
+	if (
+		isPackedClip &&
+		sceneRange !== null &&
+		sceneRange.transitionInEnd !== null &&
+		frameIncrement !== null
+	) {
+		const incomingTransitionWidth =
+			(sceneRange.transitionInEnd - sceneRange.from) * frameIncrement;
+		const afterTransition =
+			incomingTransitionWidth >= minTransitionAreaWidth
+				? Math.round(sceneRange.transitionInEnd * frameIncrement) + 4
+				: sceneRange.transitionInEnd * frameIncrement + 2.5;
+		labelLeft = Math.max(labelLeft, afterTransition - Number(style.marginLeft));
+	}
+
+	if (isPackedClip && inheritedSceneRange !== null && frameIncrement !== null) {
+		const inheritedLeft =
+			Math.round(inheritedSceneRange.from * frameIncrement) +
+			Number(inheritedSceneRange.transitionInEnd !== null) -
+			Number(style.marginLeft);
+		labelLeft = Math.max(labelLeft, Math.max(0, inheritedLeft) + 4);
+	}
+
+	const labelEndFrame = Math.min(
+		sceneRange?.transitionOutStart ?? Infinity,
+		inheritedSceneRange?.transitionOutStart ?? Infinity,
+	);
+	const labelRight = Math.max(
+		captionLabelBounds === null
+			? 0
+			: Number(style.width) -
+					captionLabelBounds.left -
+					captionLabelBounds.width,
+		frameIncrement === null || !Number.isFinite(labelEndFrame)
+			? -Infinity
+			: Number(style.width) -
+					(Math.round(labelEndFrame * frameIncrement) -
+						Number(style.marginLeft)),
+	);
+
 	const paintedStart = Math.max(negativeStartEnd, sceneLeft);
 	const paintedEnd = Math.max(0, Math.min(Number(style.width), sceneRight));
+	const sceneOwnsRightGap =
+		sceneRange !== null &&
+		sceneRange.transitionOutStart !== null &&
+		// The scene contour already includes the pixel-aligned outgoing gap.
+		// Allow for floating-point error when the bar ends at the same frame.
+		sceneRight <= Number(style.width) + 0.0001;
 	// Shared child rows need the same gap as Track clips, including when the
 	// scene clips their trailing edge. Only inset the paint: timing, hit areas,
 	// and trim handles keep their full width. Preserve tiny clips when zoomed out.
 	const visualRightInset =
+		!sceneOwnsRightGap &&
 		(s.timelineTrack || sceneRange !== null) &&
-		transitionWidth === null &&
+		!isTransition &&
 		(rightEdgeVisible || sceneRight <= Number(style.width))
 			? Number(style.width) -
 				paintedEnd +
 				Math.min(1, Math.max(0, paintedEnd - paintedStart - 1))
 			: 0;
+	const selectionLeft = selectionBounds?.left ?? 0;
+	const selectionRight = Math.max(
+		visualRightInset,
+		Number(style.width) - selectionLeft - (selectionBounds?.width ?? 0),
+	);
+	const selectionWidth = Number(style.width) - selectionLeft - selectionRight;
+	const selectionShapes = useMemo(() => {
+		if (
+			!(selected || containsSelection) ||
+			isTransition ||
+			frameIncrement === null
+		) {
+			return [];
+		}
+
+		// A nested series has its own clip shape inside the parent scene's
+		// contour. Stroke both boundaries; their containing clips intersect them.
+		return [
+			{key: 'sequence', range: sceneRange, packed: isPackedClip},
+			{
+				key: 'inherited',
+				range: inheritedSceneRange === sceneRange ? null : inheritedSceneRange,
+				packed: false,
+			},
+		].flatMap(({key, range, packed}) => {
+			if (
+				range === null ||
+				(range.transitionInEnd === null && range.transitionOutStart === null)
+			) {
+				return [];
+			}
+
+			const shape = getTimelineSceneShape(
+				{
+					sceneRange: range,
+					offsetInFrames:
+						(Number(style.marginLeft) + selectionLeft) / frameIncrement,
+					durationInFrames: selectionWidth / frameIncrement,
+					pixelsPerFrame: frameIncrement,
+					height: packed
+						? Number(style.height)
+						: (sceneClipHeight ?? Number(style.height)),
+					seamY: packed
+						? Number(style.height) / 2
+						: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+					transitionCutout: packed
+						? {
+								top: transitionVerticalInset,
+								height: transitionHeight,
+								radius: 4,
+								minWidth: minTransitionAreaWidth,
+							}
+						: null,
+					cropHeight: Number(style.height),
+				},
+				true,
+			);
+			return shape === null ? [] : [{key, shape}];
+		});
+	}, [
+		containsSelection,
+		frameIncrement,
+		isTransition,
+		isPackedClip,
+		inheritedSceneRange,
+		sceneClipHeight,
+		sceneRange,
+		selected,
+		selectionLeft,
+		selectionWidth,
+		style.height,
+		style.marginLeft,
+	]);
+	const trimShape = useMemo(() => {
+		if (activeTrimEdge === null || isTransition || frameIncrement === null) {
+			return null;
+		}
+
+		return getTimelineSceneShape(
+			{
+				sceneRange,
+				offsetInFrames: Number(style.marginLeft) / frameIncrement,
+				durationInFrames: Number(style.width) / frameIncrement,
+				pixelsPerFrame: frameIncrement,
+				height: isPackedClip
+					? Number(style.height)
+					: (sceneClipHeight ?? Number(style.height)),
+				seamY: isPackedClip
+					? Number(style.height) / 2
+					: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+				transitionCutout: null,
+				cropHeight: Number(style.height),
+			},
+			true,
+		);
+	}, [
+		activeTrimEdge,
+		isTransition,
+		frameIncrement,
+		sceneRange,
+		style.marginLeft,
+		style.width,
+		style.height,
+		isPackedClip,
+		sceneClipHeight,
+	]);
+	const transitionTrimEdge =
+		activeTrimEdge === null ? null : (trimShape?.edges[activeTrimEdge] ?? null);
 	// Back the antialiased rounded edge only when the glow is at the painted layer edge.
 	const trimHighlightColor = isAtTrimLimit ? RED : '#00E500';
 	const sequenceBackground =
 		activeTrimEdge === null ||
+		transitionTrimEdge !== null ||
 		(activeTrimEdge === 'left' && leftTrimHighlight?.left !== negativeStartEnd)
 			? style.background
 			: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, ${trimHighlightColor} 0 2px, transparent 2px), ${style.background ?? TRANSPARENT}`;
 
 	const sceneClippingStyle: React.CSSProperties = useMemo(() => {
 		return {
-			maskImage:
-				s.timelineTrack?.role === 'clip' && frameIncrement !== null
-					? getTimelineSceneMask({
+			clipPath:
+				isPackedClip && frameIncrement !== null
+					? getTimelineSceneClipPath({
 							sceneRange,
 							offsetInFrames: Number(style.marginLeft) / frameIncrement,
 							durationInFrames: Number(style.width) / frameIncrement,
+							pixelsPerFrame: frameIncrement,
+							height: Number(style.height),
+							seamY: Number(style.height) / 2,
+							transitionCutout: null,
+							cropHeight: null,
 						})
 					: undefined,
-			clipPath:
-				s.timelineTrack?.role === 'clip' && sceneRange !== null
-					? `inset(0 ${Math.max(0, Number(style.width) - sceneRight)}px 0 ${Math.max(0, sceneLeft)}px)`
-					: undefined,
 		};
-	}, [
-		style,
-		s.timelineTrack?.role,
-		frameIncrement,
-		sceneRange,
-		sceneLeft,
-		sceneRight,
-	]);
+	}, [style, isPackedClip, frameIncrement, sceneRange]);
 
 	const actualStyle: React.CSSProperties = useMemo(
 		() => ({
@@ -554,38 +744,15 @@ const TimelineSequenceBar: React.FC<{
 
 			{children}
 
-			{transitionWidth === null ? null : (
-				<svg
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: -(marqueeHorizontalBounds?.cropLeft ?? 0),
-						top: 0,
-						width: transitionWidth,
-						height: Number(style.height),
-						pointerEvents: 'none',
-					}}
-				>
-					<polygon
-						points={`0,0 ${transitionWidth},0 0,${Number(style.height)}`}
-						fill={BLACK_ALPHA_22}
-					/>
-					<polygon
-						points={`${transitionWidth},0 ${transitionWidth},${Number(style.height)} 0,${Number(style.height)}`}
-						fill={WHITE_ALPHA_15}
-					/>
-				</svg>
-			)}
-
 			{(s.timelineTrack || hasCaptionsSchema) &&
-			s.timelineTrack?.role !== 'transition' ? (
+			!isTransition &&
+			Number(style.width) - labelRight > labelLeft ? (
 				<div
 					style={{
 						position: 'absolute',
-						left:
-							2.5 +
-							Math.max(labelOffset, negativeStartEnd + (premount?.width ?? 0)),
-						right: 0,
+						left: labelLeft,
+						// Finish the label's fade before the transition cuts into the row.
+						right: labelRight,
 						bottom: PACKED_LABEL_BOTTOM,
 						...(hasTimelineTrackMediaLabel(s)
 							? {top: getTimelineLayerHeight(s.type)}
@@ -657,7 +824,37 @@ const TimelineSequenceBar: React.FC<{
 			) : null}
 
 			{activeTrimEdge === null ||
-			(activeTrimEdge === 'left' && leftTrimHighlight === null) ? null : (
+			(activeTrimEdge === 'left' &&
+				leftTrimHighlight === null) ? null : transitionTrimEdge !== null &&
+			  trimShape ? (
+				<svg
+					aria-hidden="true"
+					style={{
+						position: 'absolute',
+						left: 0,
+						top: 0,
+						width: Number(style.width),
+						height: Number(style.height),
+						clipPath: trimShape.clipPath,
+						overflow: 'hidden',
+						pointerEvents: 'none',
+					}}
+				>
+					<path
+						d={transitionTrimEdge}
+						fill="none"
+						stroke={trimHighlightColor}
+						strokeWidth={EDGE_DRAG_HIGHLIGHT_WIDTH}
+						style={{filter: 'blur(4px)'}}
+					/>
+					<path
+						d={transitionTrimEdge}
+						fill="none"
+						stroke={trimHighlightColor}
+						strokeWidth={4}
+					/>
+				</svg>
+			) : (
 				<div
 					aria-hidden="true"
 					style={{
@@ -681,97 +878,178 @@ const TimelineSequenceBar: React.FC<{
 
 	return (
 		<div
-			ref={ref}
-			role="group"
-			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
+			ref={isTransition ? null : ref}
+			role={isTransition ? undefined : 'group'}
+			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: isTransition ? undefined : true}}
 			style={actualStyle}
-			aria-label={s.displayName}
+			aria-label={isTransition ? undefined : s.displayName}
 			data-track-item={s.timelineTrack?.role}
 			onPointerDownCapture={onPointerDownCapture}
+			onPointerEnter={onPointerEnter}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
 		>
-			{/* Clip the paint to its scene, while keeping seam handles outside it hittable. */}
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					...sceneClippingStyle,
-					pointerEvents: 'auto',
-				}}
-			>
-				{negativeStart ? (
-					<>
-						<TimelineSequenceNegativeStart
-							left={negativeStart.left}
-							width={negativeStart.width}
-							leftEdgeVisible={leftEdgeVisible}
-							clipped={negativeStartClipped}
-						/>
-						<div
-							style={{
-								background: sequenceBackground,
-								borderBottomLeftRadius: 0,
-								borderBottomRightRadius: style.borderBottomRightRadius,
-								borderTopLeftRadius: 0,
-								borderTopRightRadius: style.borderTopRightRadius,
-								boxSizing: 'border-box',
-								height: '100%',
-								left: negativeStartEnd,
-								overflow: 'hidden',
-								position: 'absolute',
-								top: 0,
-								width: `calc(100% - ${negativeStartEnd + visualRightInset}px)`,
-							}}
-						>
-							<div
-								style={{
-									height: '100%',
-									left: -negativeStartEnd,
-									position: 'absolute',
-									top: 0,
-									width: `calc(100% + ${negativeStartEnd}px)`,
-								}}
-							>
-								{content}
-							</div>
-						</div>
-					</>
-				) : (
+			{isTransition ? (
+				transitionBounds === null ||
+				frameIncrement === null ||
+				s.duration * frameIncrement < minTransitionAreaWidth ? null : (
 					<div
+						ref={ref}
+						role="group"
+						aria-label={s.displayName}
+						{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
+						data-timeline-transition-marker
 						style={{
 							position: 'absolute',
-							inset: 0,
-							right: visualRightInset,
-							background: sequenceBackground,
-							overflow: 'hidden',
-							borderRadius: 'inherit',
+							left: transitionBounds.left,
+							top: transitionVerticalInset,
+							width: transitionBounds.width,
+							height: transitionHeight,
+							borderRadius: '4px 0 4px 0',
+							background: TIMELINE_BACKGROUND_COLOR,
+							pointerEvents: 'auto',
+							cursor: 'default',
+							boxShadow:
+								selected || containsSelection
+									? `inset 0 0 0 2px ${WHITE}`
+									: undefined,
 						}}
 					>
-						{content}
+						<svg
+							aria-hidden="true"
+							width={transitionIconWidth}
+							height={transitionHeight}
+							viewBox="0 0 24 16"
+							style={{
+								position: 'absolute',
+								left: Math.round(
+									(transitionBounds.width - transitionIconWidth) / 2,
+								),
+								top: 0,
+							}}
+						>
+							<path
+								d="M7.5 4.5 16.5 11.5v-7l-9 7Z"
+								fill="none"
+								stroke={selected || containsSelection ? WHITE : WHITE_ALPHA_60}
+								strokeWidth={1}
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
+						</svg>
+						{edgeDragHandles}
 					</div>
-				)}
-				{(selected || containsSelection) && selectionBounds ? (
-					<div
-						aria-hidden="true"
-						style={{
-							position: 'absolute',
-							inset: 0,
-							left: selectionBounds.left,
-							right: Math.max(
-								visualRightInset,
-								Number(style.width) -
-									selectionBounds.left -
-									selectionBounds.width,
-							),
-							borderRadius: 'inherit',
-							boxShadow: `inset 0 0 0 2px ${WHITE}`,
-							pointerEvents: 'none',
-						}}
-					/>
-				) : null}
-			</div>
-			<div style={{pointerEvents: 'auto'}}>{edgeDragHandles}</div>
+				)
+			) : (
+				<div
+					style={{
+						position: 'absolute',
+						inset: 0,
+						...sceneClippingStyle,
+						pointerEvents: 'auto',
+					}}
+				>
+					{negativeStart ? (
+						<>
+							<TimelineSequenceNegativeStart
+								left={negativeStart.left}
+								width={negativeStart.width}
+								leftEdgeVisible={leftEdgeVisible}
+								clipped={negativeStartClipped}
+							/>
+							<div
+								style={{
+									background: sequenceBackground,
+									borderBottomLeftRadius: 0,
+									borderBottomRightRadius: style.borderBottomRightRadius,
+									borderTopLeftRadius: 0,
+									borderTopRightRadius: style.borderTopRightRadius,
+									boxSizing: 'border-box',
+									height: '100%',
+									left: negativeStartEnd,
+									overflow: 'hidden',
+									position: 'absolute',
+									top: 0,
+									width: `calc(100% - ${negativeStartEnd + visualRightInset}px)`,
+								}}
+							>
+								<div
+									style={{
+										height: '100%',
+										left: -negativeStartEnd,
+										position: 'absolute',
+										top: 0,
+										width: `calc(100% + ${negativeStartEnd}px)`,
+									}}
+								>
+									{content}
+								</div>
+							</div>
+						</>
+					) : (
+						<div
+							style={{
+								position: 'absolute',
+								inset: 0,
+								right: visualRightInset,
+								background: sequenceBackground,
+								overflow: 'hidden',
+								borderRadius: 'inherit',
+							}}
+						>
+							{content}
+						</div>
+					)}
+					{!isTransition &&
+					(selected || containsSelection) &&
+					selectionBounds ? (
+						selectionShapes.length > 0 ? (
+							selectionShapes.map(({key, shape}) => (
+								<svg
+									key={key}
+									aria-hidden="true"
+									style={{
+										position: 'absolute',
+										left: selectionLeft,
+										top: 0,
+										width: selectionWidth,
+										height: Number(style.height),
+										clipPath: shape.clipPath,
+										overflow: 'hidden',
+										pointerEvents: 'none',
+									}}
+								>
+									<path
+										d={shape.path}
+										fill="none"
+										stroke={WHITE}
+										// Half the stroke is clipped, matching the 2px inset outline.
+										strokeWidth={4}
+										strokeLinejoin="round"
+										vectorEffect="non-scaling-stroke"
+									/>
+								</svg>
+							))
+						) : (
+							<div
+								aria-hidden="true"
+								style={{
+									position: 'absolute',
+									inset: 0,
+									left: selectionLeft,
+									right: selectionRight,
+									borderRadius: 'inherit',
+									boxShadow: `inset 0 0 0 2px ${WHITE}`,
+									pointerEvents: 'none',
+								}}
+							/>
+						)
+					) : null}
+				</div>
+			)}
+			{isTransition ? null : (
+				<div style={{pointerEvents: 'auto'}}>{edgeDragHandles}</div>
+			)}
 		</div>
 	);
 };
@@ -793,6 +1071,19 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const video = Internals.useVideo();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const registryEntry = useTimelineSequenceRegistry(s.id);
+	const isTransitionInteraction =
+		isTransitionSeriesSequence(s) || s.timelineTrack?.role === 'transition';
+	const [transitionNeighbors, setTransitionNeighbors] =
+		useState<ReturnType<typeof getTimelineTransitionNeighbors>>(null);
+	const onPointerEnter = useCallback(() => {
+		if (!isTransitionInteraction) return;
+		setTransitionNeighbors(
+			getTimelineTransitionNeighbors({
+				sequenceId: s.id,
+				sequences: sequencesRef.current,
+			}),
+		);
+	}, [isTransitionInteraction, s.id, sequencesRef]);
 	const originalSequence = registryEntry?.sequence ?? null;
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -812,7 +1103,12 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const isAtTrimLimit = activeHighlight?.isAtLimit ?? false;
 	const isEdgeDragging = activeHighlight?.isDragging ?? false;
 	const activeTrimEdge =
-		activeEdgeHighlight === 'source-only' ? 'left' : activeEdgeHighlight;
+		!isEdgeDragging &&
+		(isTransitionSeriesSequence(s) || s.timelineTrack?.role === 'transition')
+			? null
+			: activeEdgeHighlight === 'source-only'
+				? 'left'
+				: activeEdgeHighlight;
 	useEffect(() => {
 		if (!nodePath) {
 			return;
@@ -828,8 +1124,14 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		enabled: isEdgeDragging && activeEdgeHighlight !== 'source-only',
 	});
 	const previousCascadingSequenceId = registryEntry?.previousSequenceId ?? null;
-	const previousCascadingOverrideId = registryEntry?.previousOverrideId ?? null;
-	const nextCascadingOverrideId = registryEntry?.nextOverrideId ?? null;
+	const previousCascadingOverrideId =
+		registryEntry?.previousOverrideId ??
+		transitionNeighbors?.previous.controls?.overrideId ??
+		null;
+	const nextCascadingOverrideId =
+		registryEntry?.nextOverrideId ??
+		transitionNeighbors?.next.controls?.overrideId ??
+		null;
 	const previousTouchingSequence =
 		registryEntry?.previousTouchingSequence ?? null;
 	const nextTouchingSequence = registryEntry?.nextTouchingSequence ?? null;
@@ -906,8 +1208,14 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		(
 			isDragging: boolean,
 			targetNodePaths: readonly SequencePropsSubscriptionKey[],
-		) => startEdgeDrag('right', true, isDragging, targetNodePaths),
-		[startEdgeDrag],
+		) =>
+			startEdgeDrag(
+				'right',
+				!isTransitionSeriesSequence(s),
+				isDragging,
+				targetNodePaths,
+			),
+		[startEdgeDrag, s],
 	);
 	const clearEdgeHighlight = useCallback(() => {
 		edgeHighlightController?.setHighlights([]);
@@ -1489,21 +1797,46 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const previousTouchingNodePath = previousTouchingOverrideId
 		? overrideIdToNodePathMappingsRef.current[previousTouchingOverrideId]
 		: null;
-	const rollingEnabled = Boolean(
-		showLeftEdgeDragHandle &&
-		!s.loopDisplay &&
-		previousTouchingSequence &&
-		!previousTouchingSequence.loopDisplay &&
-		previousTouchingNodePath &&
-		isTimelineSequenceDurationDraggable(previousTouchingSequence) &&
-		previousTouchingSequence.frozenFrame === null &&
-		s.frozenFrame === null &&
-		(!('frozenMediaFrame' in previousTouchingSequence) ||
-			previousTouchingSequence.frozenMediaFrame === null) &&
-		(!('frozenMediaFrame' in s) || s.frozenMediaFrame === null) &&
-		Internals.getPropStatusesCtx(propStatuses, previousTouchingNodePath)
-			?.durationInFrames?.status === 'static',
-	);
+	const transitionRollingEnabled =
+		(s.timelineTrack?.role === 'transition' || isTransitionSeriesSequence(s)) &&
+		previewInteractive &&
+		[transitionNeighbors?.previous, transitionNeighbors?.next].every(
+			(sequence) => {
+				const path = sequence?.controls?.overrideId
+					? overrideIdToNodePathMappingsRef.current[
+							sequence.controls.overrideId
+						]
+					: null;
+				return (
+					sequence &&
+					path &&
+					isTimelineSequenceDurationDraggable(sequence) &&
+					sequence.frozenFrame === null &&
+					Internals.getPropStatusesCtx(propStatuses, path)?.durationInFrames
+						?.status === 'static' &&
+					(sequence !== transitionNeighbors?.next ||
+						Internals.getPropStatusesCtx(propStatuses, path)?.trimBefore
+							?.status === 'static')
+				);
+			},
+		);
+	const rollingEnabled =
+		transitionRollingEnabled ||
+		Boolean(
+			showLeftEdgeDragHandle &&
+			!s.loopDisplay &&
+			previousTouchingSequence &&
+			!previousTouchingSequence.loopDisplay &&
+			previousTouchingNodePath &&
+			isTimelineSequenceDurationDraggable(previousTouchingSequence) &&
+			previousTouchingSequence.frozenFrame === null &&
+			s.frozenFrame === null &&
+			(!('frozenMediaFrame' in previousTouchingSequence) ||
+				previousTouchingSequence.frozenMediaFrame === null) &&
+			(!('frozenMediaFrame' in s) || s.frozenMediaFrame === null) &&
+			Internals.getPropStatusesCtx(propStatuses, previousTouchingNodePath)
+				?.durationInFrames?.status === 'static',
+		);
 	const hasCaptionsSchema = Object.values(s.controls?.schema ?? {}).some(
 		(field) => field.type === 'remotion-captions',
 	);
@@ -1549,6 +1882,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
 		isFirstCascadingSequence,
+		onPointerEnter,
 	};
 };
 
@@ -1631,7 +1965,11 @@ const TimelineSequenceLayoutInner: React.FC<{
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
 		isFirstCascadingSequence,
+		onPointerEnter,
 	} = state;
+	const sceneRange = useContext(TimelineSceneRangeContext);
+	const inheritedSceneRange = useContext(TimelineInheritedSceneRangeContext);
+	const sceneClipHeight = useContext(TimelineSceneClipHeightContext);
 	const renderWindow = useContext(TimelineViewportContext);
 	const isMedia = s.type === 'audio' || s.type === 'video';
 
@@ -1756,6 +2094,28 @@ const TimelineSequenceLayoutInner: React.FC<{
 	const parentEnd = parentVisibleEnd ?? video.durationInFrames;
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
+	const outgoingTransitionStart = isTransitionSeriesSequence(s)
+		? (sceneRange?.transitionOutStart ?? null)
+		: null;
+	const transitionStartOffset =
+		outgoingTransitionStart !== null && visibleLayout !== null
+			? Math.round(outgoingTransitionStart * frameIncrement) -
+				visibleLayout.marginLeft
+			: null;
+	const incomingTransitionEnd = isTransitionSeriesSequence(s)
+		? (sceneRange?.transitionInEnd ?? null)
+		: null;
+	const transitionEndOffset =
+		incomingTransitionEnd !== null && visibleLayout?.media
+			? Math.round(incomingTransitionEnd * frameIncrement) -
+				visibleLayout.marginLeft -
+				visibleLayout.media.left
+			: null;
+	const rightTrimHandleVisible =
+		transitionStartOffset !== null
+			? transitionStartOffset >= 0 &&
+				transitionStartOffset <= (visibleLayout?.width ?? 0)
+			: visibleLayout?.rightEdgeVisible;
 	const layerHeight = getTimelineSequenceHeight(s);
 	const trimOutline = (() => {
 		if (
@@ -1815,40 +2175,124 @@ const TimelineSequenceLayoutInner: React.FC<{
 			return null;
 		}
 
+		const isPackedClip =
+			s.timelineTrack?.role === 'clip' && s.timelineTrack.seriesOffset !== null;
+		const outlineShapes = [
+			{key: 'sequence', range: sceneRange, packed: isPackedClip},
+			{
+				key: 'inherited',
+				range: inheritedSceneRange === sceneRange ? null : inheritedSceneRange,
+				packed: false,
+			},
+		].flatMap(({key, range, packed}) => {
+			if (
+				range === null ||
+				(range.transitionInEnd === null && range.transitionOutStart === null)
+			) {
+				return [];
+			}
+
+			const shape = getTimelineSceneShape(
+				{
+					// A packed clip can extend to its trim limits, while a parent's
+					// transition continues to constrain the shape of its children.
+					sceneRange: packed
+						? {
+								...range,
+								from: start,
+								end,
+								transitionInEnd:
+									range.transitionInEnd === null
+										? null
+										: start + (range.transitionInEnd - range.from),
+								transitionOutStart:
+									range.transitionOutStart === null
+										? null
+										: end - (range.end - range.transitionOutStart),
+							}
+						: range,
+					offsetInFrames: start,
+					durationInFrames: end - start,
+					pixelsPerFrame: frameIncrement,
+					height: packed ? layerHeight : (sceneClipHeight ?? layerHeight),
+					seamY: packed ? layerHeight / 2 : TIMELINE_CHILD_TRANSITION_SEAM_Y,
+					transitionCutout: packed
+						? {
+								top: transitionVerticalInset,
+								height: transitionHeight,
+								radius: 4,
+								minWidth: minTransitionAreaWidth,
+							}
+						: null,
+					cropHeight: layerHeight,
+				},
+				true,
+			);
+			return shape === null ? [] : [{key, shape}];
+		});
+
 		return (
 			<>
-				{leftWidth > 0 ? (
-					<div
-						aria-hidden="true"
-						style={{
-							position: 'absolute',
-							left: start * frameIncrement,
-							width: leftWidth,
-							height: layerHeight,
-							zIndex: s.timelineTrack ? 1 : undefined,
-							border: `2px solid ${WHITE}`,
-							borderRight: 0,
-							borderRadius: '2px 0 0 2px',
-							pointerEvents: 'none',
-						}}
-					/>
-				) : null}
-				{rightWidth > 0 ? (
-					<div
-						aria-hidden="true"
-						style={{
-							position: 'absolute',
-							left: rightStart * frameIncrement,
-							width: rightWidth,
-							height: layerHeight,
-							zIndex: s.timelineTrack ? 1 : undefined,
-							border: `2px solid ${WHITE}`,
-							borderLeft: 0,
-							borderRadius: '0 2px 2px 0',
-							pointerEvents: 'none',
-						}}
-					/>
-				) : null}
+				{[
+					{edge: 'left', from: start, width: leftWidth},
+					{edge: 'right', from: rightStart, width: rightWidth},
+				].map(({edge, from, width: outlineWidth}) =>
+					outlineWidth > 0 ? (
+						<div
+							key={edge}
+							aria-hidden="true"
+							data-timeline-trim-outline={edge}
+							style={{
+								position: 'absolute',
+								left: from * frameIncrement,
+								width: outlineWidth,
+								height: layerHeight,
+								zIndex: s.timelineTrack ? 1 : undefined,
+								border:
+									outlineShapes.length > 0 ? undefined : `2px solid ${WHITE}`,
+								borderLeft: edge === 'right' ? 0 : undefined,
+								borderRight: edge === 'left' ? 0 : undefined,
+								borderRadius: edge === 'left' ? '2px 0 0 2px' : '0 2px 2px 0',
+								overflow: 'hidden',
+								pointerEvents: 'none',
+							}}
+						>
+							{outlineShapes.length > 0 ? (
+								<div
+									style={{
+										position: 'absolute',
+										left: (start - from) * frameIncrement,
+										width: (end - start) * frameIncrement,
+										height: layerHeight,
+										clipPath: outlineShapes[0].shape.clipPath,
+									}}
+								>
+									{outlineShapes.map(({key, shape}) => (
+										<svg
+											key={key}
+											style={{
+												position: 'absolute',
+												inset: 0,
+												width: '100%',
+												height: '100%',
+												clipPath: shape.clipPath,
+											}}
+										>
+											<path
+												d={shape.path}
+												fill="none"
+												stroke={WHITE}
+												strokeWidth={4}
+												strokeLinejoin="round"
+												vectorEffect="non-scaling-stroke"
+											/>
+										</svg>
+									))}
+								</div>
+							) : null}
+						</div>
+					) : null,
+				)}
 			</>
 		);
 	})();
@@ -1860,6 +2304,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		visibleLayout?.rightEdgeVisible === true &&
 		(s.autoDuration || endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
+	const isTransitionClip = isTransitionSeriesSequence(s);
 	const style: React.CSSProperties = useMemo(() => {
 		const role = s.timelineTrack?.role;
 		return {
@@ -1878,8 +2323,10 @@ const TimelineSequenceLayoutInner: React.FC<{
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
 			borderBottomRightRadius: showRightBorderRadius ? 2 : 0,
 			position: 'absolute',
-			isolation: s.timelineTrack ? 'isolate' : undefined,
-			zIndex: rollingEnabled ? 2 : undefined,
+			// Transition clip handles share the track's stacking context so the next
+			// clip and the transition overlay cannot cover a trim edge.
+			isolation: s.timelineTrack && !isTransitionClip ? 'isolate' : undefined,
+			zIndex: rollingEnabled && !isTransitionClip ? 2 : undefined,
 			height: layerHeight,
 			top: s.timelineTrack ? 0 : undefined,
 			marginLeft: visibleLayout?.marginLeft ?? 0,
@@ -1890,6 +2337,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		};
 	}, [
 		hasCaptionsSchema,
+		isTransitionClip,
 		s.type,
 		s.timelineTrack,
 		rollingEnabled,
@@ -1906,7 +2354,9 @@ const TimelineSequenceLayoutInner: React.FC<{
 		validatedLocation !== null &&
 		trimBeforeCanUpdate &&
 		(isMedia || durationCanUpdate) &&
-		(visibleLayout?.media?.width ?? 0) >= MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH;
+		(transitionEndOffset === null || transitionEndOffset >= 0) &&
+		(visibleLayout?.media?.width ?? 0) - (transitionEndOffset ?? 0) >=
+			MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH;
 	const secondaryLeftEdgeAction = canShowSecondaryLeftEdgeAction
 		? isMedia
 			? 'source-only'
@@ -1936,6 +2386,24 @@ const TimelineSequenceLayoutInner: React.FC<{
 							labelStartFrame * frameIncrement - visibleLayout.marginLeft,
 						)
 			}
+			captionLabelBounds={
+				hasCaptionsSchema
+					? {
+							// Anchor the transcript and its fade to the full media range.
+							// The cropped render window must not restart the text.
+							left:
+								marginLeft +
+								negativeStartWidth +
+								(premountWidth ?? 0) -
+								visibleLayout.marginLeft,
+							width:
+								width -
+								negativeStartWidth -
+								(premountWidth ?? 0) -
+								(postmountWidth ?? 0),
+						}
+					: null
+			}
 			connectedComposition={connectedCompositions[0] ?? null}
 			activeTrimEdge={activeTrimEdge}
 			isAtTrimLimit={isAtTrimLimit}
@@ -1959,38 +2427,63 @@ const TimelineSequenceLayoutInner: React.FC<{
 			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
+			onPointerEnter={onPointerEnter}
 			onClick={onSequenceClick}
 			edgeDragHandles={
 				<>
-					{(showLeftEdgeDragHandle || secondaryLeftEdgeAction) &&
-					visibleLayout.media?.offset === 0 &&
+					{(showLeftEdgeDragHandle ||
+						secondaryLeftEdgeAction ||
+						(s.timelineTrack?.role === 'transition' && rollingEnabled)) &&
+					(s.timelineTrack?.role === 'transition' ||
+						visibleLayout.media?.offset === 0 ||
+						(secondaryLeftEdgeAction !== null &&
+							transitionEndOffset !== null)) &&
 					// Keep the captured handle mounted when a trim crosses frame zero.
 					(negativeStartWidth === 0 || activeTrimEdge === 'left') &&
 					nodePathInfo &&
 					validatedLocation ? (
 						<div
-							style={{
-								position: 'absolute',
-								left: visibleLayout.media.left,
-								width: visibleLayout.media.width,
-								top: 0,
-								bottom: 0,
-								pointerEvents: 'none',
-							}}
+							style={
+								s.timelineTrack?.role === 'transition'
+									? {position: 'absolute', inset: 0, pointerEvents: 'none'}
+									: {
+											position: 'absolute',
+											left: visibleLayout.media?.left ?? 0,
+											width: visibleLayout.media?.width ?? 0,
+											top: 0,
+											bottom: 0,
+											pointerEvents: 'none',
+										}
+							}
 						>
 							<TimelineSequenceLeftEdgeDragHandle
-								cursor={`${timelineTrimEdgeCursor}, ew-resize`}
+								cursor={
+									s.timelineTrack?.role === 'transition'
+										? 'default'
+										: `${timelineTrimEdgeCursor}, ew-resize`
+								}
 								trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 								sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
-								edgeEnabled={showLeftEdgeDragHandle}
+								edgeEnabled={
+									s.timelineTrack?.role !== 'transition' &&
+									showLeftEdgeDragHandle &&
+									visibleLayout.media?.offset === 0
+								}
 								edgeMode={
-									isFirstCascadingSequence
-										? 'source-only'
-										: isCascadingSequence(s)
-											? 'ripple'
-											: 'self-trim'
+									isTransitionSeriesSequence(s) && rollingEnabled
+										? 'rolling'
+										: isFirstCascadingSequence
+											? 'source-only'
+											: isCascadingSequence(s)
+												? 'ripple'
+												: 'self-trim'
 								}
 								rollingEnabled={rollingEnabled}
+								fillTarget={s.timelineTrack?.role === 'transition'}
+								isTransitionSeries={
+									isTransitionSeriesSequence(s) ||
+									s.timelineTrack?.role === 'transition'
+								}
 								rollingOutset={Math.min(
 									2,
 									((previousTouchingSequence?.duration ?? 0) /
@@ -2001,10 +2494,14 @@ const TimelineSequenceLayoutInner: React.FC<{
 								touchingPrevious={previousTouchingSequence !== null}
 								onHoverEnd={clearEdgeHighlight}
 								secondaryAction={secondaryLeftEdgeAction}
+								transitionEndOffset={transitionEndOffset}
 								nodePathInfo={nodePathInfo}
 								windowWidth={windowWidth}
 								timelineDurationInFrames={video.durationInFrames ?? 1}
-								initialEdgeFrame={s.from}
+								initialEdgeFrame={
+									s.from +
+									(s.timelineTrack?.role === 'transition' ? s.duration / 2 : 0)
+								}
 								fps={video.fps}
 								onDragStart={startLeftEdgeDrag}
 								onDragEnd={endEdgeDrag}
@@ -2014,28 +2511,32 @@ const TimelineSequenceLayoutInner: React.FC<{
 							/>
 						</div>
 					) : null}
-					{showRightEdgeDragHandle &&
-					visibleLayout.rightEdgeVisible &&
+					{s.timelineTrack?.role !== 'transition' &&
+					showRightEdgeDragHandle &&
+					rightTrimHandleVisible &&
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceRightEdgeDragHandle
+							isTransitionSeries={isTransitionSeriesSequence(s)}
+							transitionStartOffset={transitionStartOffset}
 							touchingNext={nextTouchingSequence !== null}
 							onHoverEnd={clearEdgeHighlight}
-							cursor={`${isCascadingSequence(s) ? timelineTrimEdgeCursor : timelineRightEdgeCursor}, ew-resize`}
+							cursor={`${isCascadingSequence(s) && !isTransitionSeriesSequence(s) ? timelineTrimEdgeCursor : timelineRightEdgeCursor}, ew-resize`}
 							nodePathInfo={nodePathInfo}
 							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
 							initialEdgeFrame={
+								outgoingTransitionStart ??
 								s.from +
-								Math.max(
-									0,
-									Math.min(
-										displayDurationInFrames,
-										effectiveMaxMediaDuration ?? Infinity,
-										video.durationInFrames - s.from,
-									),
-								)
+									Math.max(
+										0,
+										Math.min(
+											displayDurationInFrames,
+											effectiveMaxMediaDuration ?? Infinity,
+											video.durationInFrames - s.from,
+										),
+									)
 							}
 							fps={video.fps}
 							onDragStart={startRightEdgeDrag}

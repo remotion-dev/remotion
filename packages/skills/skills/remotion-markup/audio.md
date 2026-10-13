@@ -149,10 +149,10 @@ Use `loop` to loop the audio indefinitely:
 ```tsx
 import { Audio } from "@remotion/media";
 
-<Audio src={staticFile("audio.mp3")} loop premountFor={fps} />
+<Audio src={staticFile("audio.mp3")} loop />
 ```
 
-Put `name`, `from`, `loop`, `volume`, and `premountFor` directly on `<Audio>`.
+Put `name`, `from`, `loop`, and `volume` directly on `<Audio>`.
 
 ```tsx
 import { Audio } from "@remotion/media";

@@ -9,7 +9,6 @@ import {
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 } from 'remotion';
 
 loadFont('normal', {
@@ -300,10 +299,10 @@ const LeftSide = () => {
 	);
 };
 
-const YouTubeEndCardInner: React.FC<InteractiveTransformProps> = ({style}) => {
+const YouTubeEndCardInner: React.FC = () => {
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: '#FAFAFA', color: 'black', ...style}}
+			style={{backgroundColor: '#FAFAFA', color: 'black'}}
 			name="Container"
 			showInTimeline={false}
 		>
@@ -336,7 +335,8 @@ const YouTubeEndCardInner: React.FC<InteractiveTransformProps> = ({style}) => {
 
 export const YouTubeEndCard = Interactive.withSchema({
 	Component: YouTubeEndCardInner,
-	componentName: '<YouTubeEndCard>',
+	componentName: 'YouTubeEndCard',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });

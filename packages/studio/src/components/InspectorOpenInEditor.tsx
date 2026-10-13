@@ -326,7 +326,7 @@ export const InspectorOpenInEditor: React.FC<{
 	}
 
 	return (
-		<div ref={annotationTarget}>
+		<div ref={annotationTarget} style={{display: 'flex'}}>
 			<SegmentedButton segments={segments} style={null} />
 		</div>
 	);
