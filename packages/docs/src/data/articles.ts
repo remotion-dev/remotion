@@ -10873,7 +10873,7 @@ export const articles = [
 		title: 'Your first video',
 		relativePath: 'docs/your-first-video.mdx',
 		compId: 'articles-docs-your-first-video',
-		crumb: null,
+		crumb: 'Get started',
 		noAi: false,
 		slug: 'your-first-video',
 	},
