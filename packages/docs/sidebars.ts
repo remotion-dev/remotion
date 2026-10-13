@@ -1172,7 +1172,6 @@ const sidebars: SidebarsConfig = {
 				'timing',
 				'animating-properties',
 				'reusability',
-				'preview',
 			],
 		},
 		{

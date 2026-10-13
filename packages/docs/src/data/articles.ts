@@ -7138,15 +7138,6 @@ export const articles = [
 		slug: 'presigned-urls',
 	},
 	{
-		id: 'preview',
-		title: 'Preview your video',
-		relativePath: 'docs/preview.mdx',
-		compId: 'articles-docs-preview',
-		crumb: 'Timeline basics',
-		noAi: false,
-		slug: 'preview',
-	},
-	{
 		id: 'privacy',
 		title: 'Privacy Policy of Remotion (v5.0)',
 		relativePath: 'docs/privacy.mdx',
