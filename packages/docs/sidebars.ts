@@ -1167,6 +1167,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Getting started',
 			items: [
 				'getting-started',
+				'your-first-video',
 				'the-fundamentals',
 				'timing',
 				'animating-properties',

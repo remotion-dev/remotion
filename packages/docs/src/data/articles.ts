@@ -10878,6 +10878,15 @@ export const articles = [
 		slug: 'wrong-composition-mount',
 	},
 	{
+		id: 'your-first-video',
+		title: 'Your first video',
+		relativePath: 'docs/your-first-video.mdx',
+		compId: 'articles-docs-your-first-video',
+		crumb: null,
+		noAi: false,
+		slug: 'your-first-video',
+	},
+	{
 		id: 'zod-types/index',
 		title: '@remotion/zod-types',
 		relativePath: 'docs/zod-types/index.mdx',
