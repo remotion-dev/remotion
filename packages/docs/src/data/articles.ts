@@ -10878,6 +10878,15 @@ export const articles = [
 		slug: 'whisper-webgpu/transcribe',
 	},
 	{
+		id: 'why',
+		title: 'Why Remotion?',
+		relativePath: 'docs/why.mdx',
+		compId: 'articles-docs-why',
+		crumb: 'Getting started',
+		noAi: false,
+		slug: 'why',
+	},
+	{
 		id: 'wrong-composition-mount',
 		title: 'Wrongly mounted <Composition>',
 		relativePath: 'docs/wrong-composition-mount.mdx',
