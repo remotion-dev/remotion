@@ -154,6 +154,7 @@ type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 type TimelineEdgeHighlightState = {
 	readonly edge: TimelineEdgeHighlightEdge;
 	readonly isDragging: boolean;
+	readonly showTrimOutline: boolean;
 	readonly isAtLimit: boolean;
 };
 
@@ -225,6 +226,7 @@ export const TimelineEdgeHighlightProvider: React.FC<{
 					if (
 						previousEdge?.edge !== nextEdge?.edge ||
 						previousEdge?.isAtLimit !== nextEdge?.isAtLimit ||
+						previousEdge?.showTrimOutline !== nextEdge?.showTrimOutline ||
 						previousEdge?.isDragging !== nextEdge?.isDragging
 					) {
 						for (const listener of listeners.get(nodePathKey) ?? []) {
@@ -1159,12 +1161,19 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const previousTouchingOverrideId =
 		previousTouchingSequence?.controls?.overrideId ?? null;
 	const startEdgeDrag = useCallback(
-		(
-			edge: TimelineEdgeHighlightEdge,
-			highlightAdjacent: boolean,
-			isDragging: boolean,
-			targetNodePaths: readonly SequencePropsSubscriptionKey[],
-		) => {
+		({
+			edge,
+			highlightAdjacent,
+			isDragging,
+			showTrimOutline,
+			targetNodePaths,
+		}: {
+			readonly edge: TimelineEdgeHighlightEdge;
+			readonly highlightAdjacent: boolean;
+			readonly isDragging: boolean;
+			readonly showTrimOutline: boolean;
+			readonly targetNodePaths: readonly SequencePropsSubscriptionKey[];
+		}) => {
 			if (targetNodePaths.length === 0) {
 				edgeHighlightController?.setHighlights([]);
 				return;
@@ -1200,6 +1209,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					nodePathKey,
 					edge: highlightEdge,
 					isDragging,
+					showTrimOutline,
 				})),
 			);
 		},
@@ -1217,12 +1227,13 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			isDragging: boolean,
 			targetNodePaths: readonly SequencePropsSubscriptionKey[],
 		) =>
-			startEdgeDrag(
-				mode === 'source-only' ? 'source-only' : 'left',
-				mode === 'ripple' || mode === 'rolling',
+			startEdgeDrag({
+				edge: mode === 'source-only' ? 'source-only' : 'left',
+				highlightAdjacent: mode === 'ripple' || mode === 'rolling',
 				isDragging,
+				showTrimOutline: mode !== 'rolling',
 				targetNodePaths,
-			),
+			}),
 		[startEdgeDrag],
 	);
 	const startRightEdgeDrag = useCallback(
@@ -1230,12 +1241,13 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			isDragging: boolean,
 			targetNodePaths: readonly SequencePropsSubscriptionKey[],
 		) =>
-			startEdgeDrag(
-				'right',
-				!isTransitionSeriesSequence(s),
+			startEdgeDrag({
+				edge: 'right',
+				highlightAdjacent: !isTransitionSeriesSequence(s),
 				isDragging,
+				showTrimOutline: true,
 				targetNodePaths,
-			),
+			}),
 		[startEdgeDrag, s],
 	);
 	const clearEdgeHighlight = useCallback(() => {
@@ -1866,6 +1878,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		video,
 		dragAwareDoubleClick,
 		isEdgeDragging,
+		showTrimOutline: activeHighlight?.showTrimOutline ?? false,
 		activeEdgeHighlight,
 		activeTrimEdge,
 		isAtTrimLimit,
@@ -1949,6 +1962,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		video,
 		dragAwareDoubleClick,
 		isEdgeDragging,
+		showTrimOutline,
 		activeEdgeHighlight,
 		activeTrimEdge,
 		isAtTrimLimit,
@@ -2141,6 +2155,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 	const trimOutline = (() => {
 		if (
 			!isEdgeDragging ||
+			!showTrimOutline ||
 			activeEdgeHighlight === null ||
 			activeEdgeHighlight === 'source-only' ||
 			s.loopDisplay ||
