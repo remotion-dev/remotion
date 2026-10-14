@@ -15,8 +15,6 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Prefer interactive components with their own timelines
 
-Use `Interactive.create()` from Remotion 4.0.536 onwards. It always wraps the component in a sequence; there is no `wrapInSequence` option. The `schema` defaults to `{}`, so omit it when no custom controls are needed. `componentName` is optional: it uses `Component.displayName`, then the function name with a trailing `Inner` removed, then `"Component"`. Explicit names and display names are preserved.
-
 Use `Interactive.create({layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, dimensions, and per-instance styles on the exported component.
 
 Keep visuals that belong together in the same component, so they move and trim together. An inner layout container can still provide alignment, clipping within a smaller area, or an animated group; a container that only fills the scene is usually unnecessary. Cards, text boxes, and SVGs with their own bounds can keep the default `layout: 'none'` and forward `style` to their visual root.
