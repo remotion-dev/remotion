@@ -170,10 +170,13 @@ const PushCutPresentation: React.FC<
 	}, [innerEnterStyle, innerExitStyle, isEntering, scale, transformOrigin]);
 
 	return (
-		<AbsoluteFill style={outerStyle}>
-			<AbsoluteFill style={innerStyle}>{children}</AbsoluteFill>
+		<AbsoluteFill showInTimeline={false} style={outerStyle}>
+			<AbsoluteFill showInTimeline={false} style={innerStyle}>
+				{children}
+			</AbsoluteFill>
 			{flashOpacity > 0 ? (
 				<AbsoluteFill
+					showInTimeline={false}
 					style={{
 						backgroundColor: flashColor,
 						opacity: flashOpacity,

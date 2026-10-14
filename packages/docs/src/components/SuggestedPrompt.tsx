@@ -65,7 +65,7 @@ export const SuggestedPrompt: React.FC<Props> = ({prompt}) => {
 				display: 'flex',
 				alignItems: 'flex-start',
 				gap: 12,
-				padding: '8px 8px 16px 18px',
+				padding: '12px 8px 12px 18px',
 				boxShadow: '0 6px 24px rgba(0, 0, 0, 0.08)',
 			}}
 		>
@@ -78,32 +78,20 @@ export const SuggestedPrompt: React.FC<Props> = ({prompt}) => {
 					lineHeight: 1.6,
 				}}
 			>
-				<a
-					href="/docs/ai/skills"
-					onMouseEnter={() => setIsSkillLinkHovered(true)}
-					onMouseLeave={() => setIsSkillLinkHovered(false)}
-					style={{
-						color: isSkillLinkHovered
-							? 'var(--ifm-color-primary)'
-							: 'var(--subtitle)',
-						display: 'inline-block',
-						fontSize: 13,
-						fontWeight: 500,
-						lineHeight: 1.2,
-						marginBottom: 6,
-						textDecoration: 'none',
-					}}
-				>
-					Agent Skill
-				</a>
-				<br />
 				{command ? (
-					<span
+					<a
+						href={`/docs/ai/skills#${command.replace(/^.*[/:]/, '')}`}
+						onMouseEnter={() => setIsSkillLinkHovered(true)}
+						onMouseLeave={() => setIsSkillLinkHovered(false)}
 						style={{
 							borderRadius: 6,
 							padding: '1px 6px',
 							color: 'var(--ifm-color-primary)',
-							backgroundColor: 'rgba(11, 132, 243, 0.06)',
+							backgroundColor: isSkillLinkHovered
+								? 'rgba(11, 132, 243, 0.12)'
+								: 'rgba(11, 132, 243, 0.06)',
+							textDecoration: 'none',
+							transition: 'background-color 150ms ease',
 							fontWeight: 700,
 							whiteSpace: 'nowrap',
 							display: 'inline-block',
@@ -112,7 +100,7 @@ export const SuggestedPrompt: React.FC<Props> = ({prompt}) => {
 						}}
 					>
 						{command}
-					</span>
+					</a>
 				) : null}
 				{rest ? <span style={{overflowWrap: 'anywhere'}}>{rest}</span> : null}
 			</div>

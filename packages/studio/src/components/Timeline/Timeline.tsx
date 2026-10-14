@@ -2,12 +2,17 @@ import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
+import {
+	addErrorToOverlay,
+	removeErrorFromOverlay,
+} from '../../error-overlay/runtime-error-store';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
@@ -15,6 +20,7 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {getTimelineTrackOverlapError} from '../../helpers/get-timeline-track-overlap-error';
 import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
@@ -78,6 +84,7 @@ import {
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineVirtualizationProvider} from './TimelineVirtualization';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
+import {useCompactSeries} from './use-compact-series';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
@@ -168,7 +175,6 @@ const TimelineContextMenuArea: React.FC<{
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
-				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -274,60 +280,9 @@ const TimelineContextMenuArea: React.FC<{
 	);
 };
 
-const TimelineTrackChildrenSyncer: React.FC<{
-	readonly tracks: readonly TimelineTrackWithDisplayGroup[];
-	readonly onChange: (activeTrackItemIds: ReadonlySet<string>) => void;
-}> = React.memo(({tracks, onChange}) => {
-	const frame = Internals.Timeline.useTimelinePosition();
-	const packedItems = useMemo(
-		() =>
-			tracks.filter(({sequence}) => {
-				const role = sequence.timelineTrack?.role;
-				return (
-					(role === 'clip' && sequence.showInTimeline) ||
-					role === 'overlay' ||
-					role === 'transition'
-				);
-			}),
-		[tracks],
-	);
-	const activeTrackItemIds = useMemo(
-		() =>
-			new Set(
-				packedItems
-					.filter(
-						({sequence}) =>
-							frame >= sequence.from &&
-							frame < sequence.from + sequence.duration,
-					)
-					.map(({sequence}) => sequence.id),
-			),
-		[frame, packedItems],
-	);
-	// Publish even an empty set when tracks are re-enabled after seeking.
-	const previousActiveIds = useRef<ReadonlySet<string> | null>(null);
-	useLayoutEffect(() => {
-		const previous = previousActiveIds.current;
-		if (
-			previous !== null &&
-			previous.size === activeTrackItemIds.size &&
-			[...activeTrackItemIds].every((id) => previous.has(id))
-		) {
-			return;
-		}
-
-		previousActiveIds.current = activeTrackItemIds;
-		onChange(activeTrackItemIds);
-	}, [activeTrackItemIds, onChange]);
-
-	return null;
-});
-
 const TimelineInner: React.FC = () => {
-	const experimentalTracksEnabled = useContext(
-		Internals.ExperimentalTracksEnabledContext,
-	);
 	const sequences = Internals.useSequenceManagerSequences();
+	const compactSeries = useCompactSeries();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
@@ -360,6 +315,7 @@ const TimelineInner: React.FC = () => {
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
+				showConnectedCompositionChildren: compactSeries,
 			}),
 		);
 		const previous = previousTimelineRef.current;
@@ -393,6 +349,8 @@ const TimelineInner: React.FC = () => {
 				oldTrack.depth !== track.depth ||
 				oldTrack.cascadedStart !== track.cascadedStart ||
 				oldTrack.localStart !== track.localStart ||
+				oldTrack.parentVisibleStart !== track.parentVisibleStart ||
+				oldTrack.parentVisibleEnd !== track.parentVisibleEnd ||
 				oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
 				oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
 				oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||
@@ -429,6 +387,7 @@ const TimelineInner: React.FC = () => {
 		videoConfigIsNull,
 		overrideIdToNodePathMappings,
 		compositions,
+		compactSeries,
 	]);
 	useLayoutEffect(() => {
 		previousTimelineRef.current = {
@@ -460,10 +419,6 @@ const TimelineInner: React.FC = () => {
 			return shouldShowTrackInTimeline(t, durationInFrames);
 		});
 	}, [activeFromDragOverrideKeys, durationInFrames, timeline]);
-	const [activeTrackItemIds, setActiveTrackItemIds] = useState<
-		ReadonlySet<string>
-	>(() => new Set());
-
 	// Keep `filtered` complete so a future toggle can show every programmatic
 	// instance without recalculating the timeline or losing its instance index.
 	const collapsed = useMemo(() => {
@@ -471,7 +426,7 @@ const TimelineInner: React.FC = () => {
 		return filterTimelineTrackContents(
 			filtered,
 			sequences,
-			activeTrackItemIds,
+			compactSeries,
 		).filter((track) => {
 			if (track.sequence.timelineTrack || track.displayGroup === null) {
 				return true;
@@ -484,14 +439,27 @@ const TimelineInner: React.FC = () => {
 			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
-	}, [activeTrackItemIds, filtered, sequences]);
+	}, [compactSeries, filtered, sequences]);
 
 	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
 		collapsed,
 		sequences,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
+		compactSeries,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
+	const trackOverlapError = useMemo(
+		() => getTimelineTrackOverlapError(timeline, durationInFrames),
+		[timeline, durationInFrames],
+	);
+	useEffect(() => {
+		if (trackOverlapError === null) {
+			return;
+		}
+
+		addErrorToOverlay(trackOverlapError, null);
+		return () => removeErrorFromOverlay(trackOverlapError);
+	}, [trackOverlapError, fastRefreshes]);
 	const pendingSelectionStart = useRef<{
 		selection: PendingInsertedElementSelection;
 		fastRefreshes: number;
@@ -622,12 +590,6 @@ const TimelineInner: React.FC = () => {
 
 	return (
 		<TimelineContextMenuArea>
-			{experimentalTracksEnabled ? (
-				<TimelineTrackChildrenSyncer
-					tracks={filtered}
-					onChange={setActiveTrackItemIds}
-				/>
-			) : null}
 			{sequences.map((sequence) => {
 				if (!shouldSubscribeToSequenceProps(sequence, previewInteractive)) {
 					return null;

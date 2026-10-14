@@ -64,6 +64,7 @@ const makeProviderSpecifics = ({
 };
 
 const postRenderData: PostRenderData<MockProvider> = {
+	separateAudio: null,
 	artifactProgress: [],
 	cost: {
 		currency: 'USD',

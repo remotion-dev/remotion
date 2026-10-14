@@ -5,6 +5,9 @@ import type {
 	VideoOperation,
 } from './on-video-track-handler';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 	async ({
 		track,

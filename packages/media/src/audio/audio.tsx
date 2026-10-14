@@ -9,7 +9,6 @@ import {
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
-import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
 import {
@@ -88,7 +87,6 @@ const AudioInner: React.FC<
 	const environment = useRemotionEnvironment();
 	const sourceStack = controls ? Internals.getStackForControls(controls) : null;
 
-	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
 	const effectiveTrimAfter = getMediaTrimAfter({
@@ -110,29 +108,15 @@ const AudioInner: React.FC<
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
 		number | null
 	>(null);
-	const volume = useLoopedVolume({
-		volume: props.volume,
-		loop: props.loop ?? false,
-		behavior: props.loopVolumeCurveBehavior ?? 'repeat',
-		assetDurationInSeconds: mediaDurationInSeconds,
-		fps: videoConfig.fps,
-		startsAt: Math.min(0, mediaStartsAt + (from ?? 0)),
-		playbackRate: props.playbackRate ?? 1,
-		trimBefore: props.trimBefore,
-		trimAfter: effectiveTrimAfter,
-	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
 		src: props.src,
-		volume,
 		playbackRate: props.playbackRate ?? 1,
 		trimBefore: props.trimBefore,
 		trimAfter: effectiveTrimAfter,
 		sequenceDurationInFrames,
-		displayName: name ?? '<Audio>',
-		mediaVolume,
 		mediaStartsAt,
-		mediaFrom: from ?? 0,
+		displayName: name ?? '<Audio>',
 		loop: props.loop ?? false,
 		muted: props.muted ?? false,
 	});
@@ -223,32 +207,30 @@ const AudioInner: React.FC<
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 				name={name ?? '<Audio>'}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/media/audio'
-						: undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/media/audio"
 				controls={controls}
 				_remotionInternalLoopDisplay={loopDisplay}
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
 			>
-				{environment.isRendering ? (
-					<AudioForRendering
-						{...otherProps}
-						trimAfter={effectiveTrimAfter}
-						style={premountingStyle ?? undefined}
-					/>
-				) : (
-					<AudioForPreview
-						name={name}
-						{...otherProps}
-						trimAfter={effectiveTrimAfter}
-						style={premountingStyle}
-						_remotionInternalStack={sourceStack}
-						setMediaDurationInSeconds={setMediaDurationInSeconds}
-					/>
-				)}
+				<Internals.SequenceContent>
+					{environment.isRendering ? (
+						<AudioForRendering
+							{...otherProps}
+							trimAfter={effectiveTrimAfter}
+							style={premountingStyle ?? undefined}
+						/>
+					) : (
+						<AudioForPreview
+							name={name}
+							{...otherProps}
+							trimAfter={effectiveTrimAfter}
+							style={premountingStyle}
+							_remotionInternalStack={sourceStack}
+							setMediaDurationInSeconds={setMediaDurationInSeconds}
+						/>
+					)}
+				</Internals.SequenceContent>
 			</Sequence>
 		</Freeze>
 	);

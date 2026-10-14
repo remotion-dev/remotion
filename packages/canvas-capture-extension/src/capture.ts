@@ -1,7 +1,9 @@
 import type {CropRectangle} from 'mediabunny';
+import {captureDragImages} from './drag-image';
 import type {CaptureFormat} from './messages';
 import {
 	assertCanEncodeCapture,
+	canEncodeCapture,
 	CanvasCaptureRecorder,
 	getScaledCanvasSize,
 	type HtmlInCanvasElement,
@@ -14,6 +16,7 @@ import {
 const maxCanvasDimension = 32_767;
 const maxEncodedDimension = 32_766;
 
+// The capture window in viewport CSS pixels, independent of page scrolling.
 export type CaptureCrop = CropRectangle;
 
 export type CapturePreflight = {
@@ -49,25 +52,6 @@ const getWholePageSize = () => ({
 	),
 });
 
-const resolveCrop = (
-	crop: CaptureCrop | null,
-	sourceWidth: number,
-	sourceHeight: number,
-) => {
-	if (!crop) {
-		return null;
-	}
-
-	const left = Math.max(0, Math.min(crop.left, sourceWidth - 1));
-	const top = Math.max(0, Math.min(crop.top, sourceHeight - 1));
-	return {
-		left,
-		top,
-		width: Math.max(1, Math.min(crop.width, sourceWidth - left)),
-		height: Math.max(1, Math.min(crop.height, sourceHeight - top)),
-	};
-};
-
 const validateCaptureSize = ({
 	width,
 	height,
@@ -79,7 +63,7 @@ const validateCaptureSize = ({
 	readonly crop: CaptureCrop | null;
 	readonly scale: number;
 }) => {
-	const resolvedCrop = resolveCrop(crop, width, height) ?? {
+	const resolvedCrop = crop ?? {
 		left: 0,
 		top: 0,
 		width,
@@ -127,6 +111,69 @@ export const getCapturePreflight = ({
 			scale,
 		}),
 	};
+};
+
+// Bound both the longest edge and pixel count to keep output around 4K.
+export const getSuggestedMaximumCaptureScale = (
+	width: number,
+	height: number,
+) =>
+	Math.max(
+		0.1,
+		Math.floor(
+			Math.min(
+				30,
+				3840 / Math.max(width, height),
+				Math.sqrt((3840 * 2160) / (width * height)),
+			) * 10,
+		) / 10,
+	);
+
+export const getMaximumCaptureScale = async (
+	crop: CaptureCrop | null,
+): Promise<number | null> => {
+	const sourceSize = getWholePageSize();
+	const selectedSize = crop ?? sourceSize;
+	const canEncodeScale = async (step: number) => {
+		let outputSize: CapturePreflight['outputSize'];
+		try {
+			outputSize = validateCaptureSize({
+				...sourceSize,
+				crop,
+				scale: step / 10,
+			});
+		} catch {
+			return false;
+		}
+
+		if (await canEncodeCapture('mp4', outputSize)) {
+			return true;
+		}
+
+		return canEncodeCapture('webm', outputSize);
+	};
+
+	let maximum = Math.round(
+		getSuggestedMaximumCaptureScale(selectedSize.width, selectedSize.height) *
+			10,
+	);
+	if (await canEncodeScale(maximum)) {
+		return maximum / 10;
+	}
+
+	// Search in slider steps, retaining only resolutions the browser accepted.
+	let minimum = 0;
+	maximum--;
+	while (minimum < maximum) {
+		const candidate = Math.ceil((minimum + maximum) / 2);
+		if (await canEncodeScale(candidate)) {
+			minimum = candidate;
+		} else {
+			maximum = candidate - 1;
+		}
+	}
+
+	return minimum === 0 ? null : minimum / 10;
 };
 
 const wrapWholePage = (): WrappedPage => {
@@ -267,6 +314,7 @@ export class PageCapture {
 	readonly #captureContext: OffscreenCanvasRenderingContext2D;
 	readonly #matteColors: readonly string[];
 	readonly #resizeObserver: ResizeObserver;
+	readonly #dragImages: ReturnType<typeof captureDragImages>;
 	#restored = false;
 	#paintError: unknown = null;
 
@@ -316,10 +364,7 @@ export class PageCapture {
 				sourceSize.height,
 				Math.max(window.devicePixelRatio, this.#scale),
 			);
-			const initialCrop = this.#resolveCrop(
-				sourceSize.width,
-				sourceSize.height,
-			) ?? {left: 0, top: 0, ...sourceSize};
+			const initialCrop = this.#crop ?? {left: 0, top: 0, ...sourceSize};
 			syncCanvasSize(
 				this.#captureCanvas,
 				initialCrop.width,
@@ -338,8 +383,13 @@ export class PageCapture {
 			getFilename: () => getFilename(format),
 		});
 		this.#wrapped.canvas.addEventListener('paint', this.#onPaint);
+		window.addEventListener('scroll', this.#requestPaint, true);
 		this.#resizeObserver = new ResizeObserver(this.#requestPaint);
 		this.#resizeObserver.observe(this.#wrapped.content);
+		this.#dragImages = captureDragImages({
+			density: Math.max(window.devicePixelRatio, scale),
+			requestPaint: this.#requestPaint,
+		});
 	}
 
 	start = async () => {
@@ -354,6 +404,30 @@ export class PageCapture {
 		);
 		await this.#recorder.startRecording();
 		this.#requestPaint();
+	};
+
+	preview = async () => {
+		// Wait for the drawable subtree to paint before reading its pixels.
+		await new Promise<void>((resolve, reject) => {
+			let timeout = 0;
+			const onPaint = () => {
+				clearTimeout(timeout);
+				resolve();
+			};
+
+			timeout = window.setTimeout(() => {
+				this.#wrapped.canvas.removeEventListener('paint', onPaint);
+				reject(new Error('The shot preview did not paint in time.'));
+			}, 5000);
+			this.#wrapped.canvas.addEventListener('paint', onPaint, {once: true});
+			this.#requestPaint();
+		});
+		if (this.#paintError) {
+			throw this.#paintError;
+		}
+
+		this.#draw();
+		return this.#captureCanvas.convertToBlob({type: 'image/png'});
 	};
 
 	stop = async () => {
@@ -380,8 +454,10 @@ export class PageCapture {
 		}
 
 		this.#restored = true;
+		this.#dragImages.dispose();
 		this.#resizeObserver.disconnect();
 		this.#wrapped.canvas.removeEventListener('paint', this.#onPaint);
+		window.removeEventListener('scroll', this.#requestPaint, true);
 		this.#recorder.dispose();
 		this.#wrapped.restore();
 	};
@@ -399,23 +475,13 @@ export class PageCapture {
 		this.#wrapped.canvas.requestPaint?.();
 	};
 
-	#resolveCrop = (sourceWidth: number, sourceHeight: number) => {
-		return resolveCrop(this.#crop, sourceWidth, sourceHeight);
-	};
-
 	#getRecordingRect = () => {
-		const contentRect = this.#wrapped.content.getBoundingClientRect();
-		const crop = this.#resolveCrop(contentRect.width, contentRect.height);
+		const crop = this.#crop;
 		if (!crop) {
-			return contentRect;
+			return this.#wrapped.content.getBoundingClientRect();
 		}
 
-		return new DOMRect(
-			contentRect.left + crop.left,
-			contentRect.top + crop.top,
-			crop.width,
-			crop.height,
-		);
+		return new DOMRect(crop.left, crop.top, crop.width, crop.height);
 	};
 
 	#draw = () => {
@@ -425,12 +491,16 @@ export class PageCapture {
 		}
 
 		this.#assertValidSize(width, height);
-		const crop = this.#resolveCrop(width, height) ?? {
-			left: 0,
-			top: 0,
-			width,
-			height,
-		};
+		const contentRect = this.#wrapped.content.getBoundingClientRect();
+		// Follow the viewport without shrinking the output at the page edges.
+		// drawImage clips any missing source pixels, leaving the matte visible.
+		const crop = this.#crop
+			? {
+					...this.#crop,
+					left: this.#crop.left - contentRect.left,
+					top: this.#crop.top - contentRect.top,
+				}
+			: {left: 0, top: 0, width, height};
 		syncDisplayCanvasSize(
 			this.#wrapped.canvas,
 			width,
@@ -467,6 +537,11 @@ export class PageCapture {
 			this.#captureCanvas.height,
 		);
 
+		this.#dragImages.draw(this.#captureContext, this.#getRecordingRect(), {
+			canvas: this.#wrapped.canvas,
+			content: this.#wrapped.content,
+			backgroundColors: this.#matteColors,
+		});
 		this.#recorder.addFrame(this.#captureCanvas);
 	};
 

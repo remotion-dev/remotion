@@ -1,5 +1,10 @@
 import {useContext} from 'react';
 import {
+	SequenceActivityAbsoluteTimeContext,
+	SequenceActivityDormantContext,
+	SequenceActivityTimelineContext,
+} from './sequence-activity-context.js';
+import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
 	SetTimelineContext,
@@ -58,6 +63,7 @@ const useTimelinePositionFromContext = (
 ): number => {
 	const videoConfig = useVideo();
 	const env = useRemotionEnvironment();
+	const dormant = useContext(SequenceActivityDormantContext);
 
 	if (!videoConfig) {
 		return typeof window === 'undefined'
@@ -69,11 +75,18 @@ const useTimelinePositionFromContext = (
 		state.frame[videoConfig.id] ??
 		(env.isPlayer ? 0 : getFrameForComposition(videoConfig.id));
 
-	return clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
+	// A discovery clock can be beyond the composition end, for example when a
+	// nested scene is trimmed by its parent. Keep its initial local frame intact.
+	return dormant
+		? unclamped
+		: clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
 };
 
 export const useTimelineContext = (): TimelineContextValue => {
-	const state = useContext(TimelineContext);
+	const dormant = useContext(SequenceActivityDormantContext);
+	const state = useContext(
+		dormant ? SequenceActivityTimelineContext : TimelineContext,
+	);
 	if (state === null) {
 		throw new Error(
 			'TimelineContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
@@ -104,7 +117,10 @@ export const useIsInsideFreeze = (): boolean => {
 };
 
 export const useAbsoluteTimelinePosition = (): number => {
-	const state = useContext(AbsoluteTimeContext);
+	const dormant = useContext(SequenceActivityDormantContext);
+	const state = useContext(
+		dormant ? SequenceActivityAbsoluteTimeContext : AbsoluteTimeContext,
+	);
 	if (state === null) {
 		throw new Error(
 			'AbsoluteTimeContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',

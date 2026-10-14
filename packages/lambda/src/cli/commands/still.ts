@@ -372,6 +372,7 @@ export const stillCommand = async ({
 
 	if (downloadName) {
 		const {outputPath, sizeInBytes} = await internalDownloadMedia({
+			output: 'main',
 			bucketName: res.bucketName,
 			outPath: downloadName,
 			region,

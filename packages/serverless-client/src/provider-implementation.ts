@@ -1,7 +1,12 @@
 import type {Readable} from 'node:stream';
 import type {LogLevel} from '@remotion/renderer';
 import type {DownloadBehavior} from 'remotion';
-import type {CustomCredentials, Privacy, ServerlessRoutines} from './constants';
+import type {
+	CustomCredentials,
+	Privacy,
+	RenderOutput,
+	ServerlessRoutines,
+} from './constants';
 import type {BillingCurrency} from './format-costs-info';
 import type {RenderMetadata} from './render-metadata';
 import type {RendererFunctionTransport} from './renderer-transport';
@@ -175,6 +180,7 @@ export type CallFunctionSync<Provider extends CloudProvider> = <
 >;
 
 export type GetOutputUrl<Provider extends CloudProvider> = (options: {
+	output: RenderOutput;
 	renderMetadata: RenderMetadata<Provider>;
 	bucketName: string;
 	customCredentials: CustomCredentials<Provider> | null;

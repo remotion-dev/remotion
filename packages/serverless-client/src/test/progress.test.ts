@@ -25,6 +25,8 @@ const bucketName = 'source-bucket';
 const startedDate = Date.now() - 30000;
 
 const renderMetadata: RenderMetadata<MockProvider> = {
+	separateAudioTo: null,
+	separateAudioOutputFileIsConditional: null,
 	outputFileIsConditional: null,
 	audioBitrate: null,
 	audioCodec: null,
@@ -68,6 +70,7 @@ const renderMetadata: RenderMetadata<MockProvider> = {
 };
 
 const progress: OverallRenderProgress<MockProvider> = {
+	separateAudio: null,
 	cancellationEnabled: false,
 	chunks: [0, 1],
 	combinedFrames: 20,
@@ -137,6 +140,7 @@ const makeProviderSpecifics = ({
 			currentRegion,
 		}) => {
 			const {key, renderBucketName} = getExpectedOutName({
+				output: 'main',
 				renderMetadata: metadata,
 				bucketName,
 				customCredentials,

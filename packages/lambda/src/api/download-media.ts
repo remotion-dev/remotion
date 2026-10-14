@@ -11,6 +11,7 @@ import {
 	getImageSequenceFrameKey,
 	getOverallProgressFromStorage,
 	type CustomCredentials,
+	type RenderOutput,
 } from '@remotion/serverless';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
@@ -26,6 +27,7 @@ type InternalDownloadMediaInput = {
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 	signal: AbortSignal;
+	output: RenderOutput;
 };
 
 export type DownloadMediaInput = {
@@ -39,6 +41,7 @@ export type DownloadMediaInput = {
 	forcePathStyle?: boolean;
 	requestHandler?: RequestHandler;
 	signal?: AbortSignal;
+	output?: RenderOutput;
 };
 
 export type DownloadMediaOutput = {
@@ -141,6 +144,7 @@ export const internalDownloadMedia = async (
 	RenderInternals.ensureOutputDirectory(outputPath);
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+		output: input.output,
 		renderMetadata: overallProgress.renderMetadata,
 		bucketName: input.bucketName,
 		customCredentials: input.customCredentials ?? null,
@@ -175,9 +179,18 @@ export const internalDownloadMedia = async (
 export const downloadMedia = (
 	input: DownloadMediaInput,
 ): Promise<DownloadMediaOutput> => {
+	if (
+		input.output !== undefined &&
+		input.output !== 'main' &&
+		input.output !== 'separate-audio'
+	) {
+		throw new Error('`output` must be "main" or "separate-audio".');
+	}
+
 	return internalDownloadMedia({
 		...input,
 		providerSpecifics: LambdaClientInternals.awsImplementation,
+		output: input.output ?? 'main',
 		forcePathStyle: false,
 		onProgress: input.onProgress ?? (() => undefined),
 		logLevel: input.logLevel ?? 'info',

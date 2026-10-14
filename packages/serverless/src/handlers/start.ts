@@ -114,6 +114,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		logLevel: params.logLevel,
 		frameRange: params.frameRange,
 		outName: params.outName,
+		separateAudioTo: params.separateAudioTo ?? null,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,

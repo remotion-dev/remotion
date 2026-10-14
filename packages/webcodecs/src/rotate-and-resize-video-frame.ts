@@ -8,6 +8,9 @@ export const normalizeVideoRotation = (rotation: number) => {
 	return ((rotation % 360) + 360) % 360;
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const rotateAndResizeVideoFrame = ({
 	frame,
 	rotation,

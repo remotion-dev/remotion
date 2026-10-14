@@ -1,12 +1,20 @@
 import React from 'react';
-import {Img, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	useVideoConfig,
+	CanvasImage,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {asset} from './assets';
 
-export const Mediabunny: React.FC = () => {
+const MediabunnyInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Img
+			<CanvasImage
+				premountFor={fps}
 				src={asset('mediabunny-logo.png')}
 				style={{
 					position: 'absolute',
@@ -27,3 +35,11 @@ export const Mediabunny: React.FC = () => {
 		</>
 	);
 };
+
+export const Mediabunny = Interactive.withSchema({
+	Component: MediabunnyInner,
+	componentName: 'Mediabunny',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

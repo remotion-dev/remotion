@@ -1,13 +1,10 @@
 import React, {useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
-import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
-import {
-	getTimelineLayerHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
-} from '../../helpers/timeline-layout';
+import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
+import {getTimelineSequenceHeight} from './timeline-track-groups';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
 	getTimelineSelectedTrackHighlightStyle,
@@ -16,14 +13,12 @@ import {
 } from './TimelineSelection';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineWidthContext} from './TimelineWidthProvider';
-import {useResolvedStack} from './use-resolved-stack';
 
 const emptyConnectedCompositions = [] as const;
 
 const TimelineTrackUnmemoized: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
-	const annotationLocation = useResolvedStack(track.sequence.getStack());
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
@@ -41,11 +36,11 @@ const TimelineTrackUnmemoized: React.FC<{
 
 	const layerStyle = useMemo(
 		(): React.CSSProperties => ({
-			height: getTimelineLayerHeight(track.sequence.type),
+			height: getTimelineSequenceHeight(track.sequence),
 			marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
 			position: 'relative',
 		}),
-		[track.sequence.type],
+		[track.sequence],
 	);
 
 	const showExpandedKeyframes =
@@ -55,14 +50,7 @@ const TimelineTrackUnmemoized: React.FC<{
 
 	return (
 		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
-			<div
-				style={layerStyle}
-				{...getSequenceAnnotationAttributes({
-					sequence: track.sequence,
-					location: annotationLocation,
-					surface: 'track',
-				})}
-			>
+			<div style={layerStyle}>
 				{rowHighlightBackground && timelineWidth !== null ? (
 					<div
 						style={getTimelineSelectedTrackHighlightStyle(
@@ -76,6 +64,8 @@ const TimelineTrackUnmemoized: React.FC<{
 					labelStartFrame={null}
 					cascadedStart={track.cascadedStart}
 					localStart={track.localStart}
+					parentVisibleStart={track.parentVisibleStart}
+					parentVisibleEnd={track.parentVisibleEnd}
 					connectedCompositions={
 						track.connectedCompositions ?? emptyConnectedCompositions
 					}

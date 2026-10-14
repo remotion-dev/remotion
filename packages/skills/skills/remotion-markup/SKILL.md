@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.534
+version: 4.0.535
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -17,7 +17,7 @@ If you detect a surprising change made in the meanwhile, don't overwrite it, ass
 
 Inside a composition or scene component, get `fps` from `useVideoConfig()` for
 all seconds-to-frames calculations, including timing props such as `from`,
-`trimBefore`, `durationInFrames`, and `premountFor`. Keeping the expression on
+`trimBefore` and `durationInFrames`. Keeping the expression on
 the JSX node, such as `trimBefore={4 * fps}`, lets Studio edit the timing and
 keeps it correct if the composition frame rate changes.
 
@@ -28,16 +28,12 @@ Tailwind animation class will not render correctly, they need to be refactored.
 Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
-Prefer `Interactive.withSchema({wrapInSequence: true})` for custom visual components
-with editable props, and register reusable scenes as connected compositions.
+Prefer `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})`
+for scenes with editable props. Their inner markup can return a fragment; the
+wrapper handles layout and instance styles. Sized elements such as lower thirds
+can keep the default layout and forward `style` to their own root. Register
+reusable scenes as connected compositions.
 Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
-Give every timed component that supports `premountFor` one second of premounting:
-`premountFor={fps}`, where `fps` comes from `useVideoConfig()`. Apply this to
-media, interactive components, `<Sequence>`, `<Series.Sequence>`,
-`<TransitionSeries.Sequence>`, and `<TransitionSeries.Overlay>`, including
-timed components nested inside scenes. Premount the parent timeline item too
-when a nested item needs to mount before the parent starts. A component without
-`premountFor`, such as `<TransitionSeries.Transition>`, needs no substitute.
 
 The Studio edits the JSX source node that created an item. Author every composition registration, clip, scene, layer and sequence that should be editable independently as its own JSX node, with its editable props inline.
 Programmatic loops are suitable when the generated instances are intentionally controlled as one source template, not when users need to edit the instances
@@ -53,7 +49,6 @@ export const FadeIn = () => {
   return (
     <Interactive.Div
       name="Title"
-      premountFor={fps}
       style={{
         opacity: interpolate(frame, [0, 2 * fps], [0, 1], {
           extrapolateRight: "clamp",
@@ -114,22 +109,19 @@ Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
 import { Audio, Video } from "@remotion/media";
-import { staticFile, CanvasImage, AnimatedImage, useVideoConfig } from "remotion";
+import { staticFile, CanvasImage, AnimatedImage } from "remotion";
 
 export const MyComposition = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <>
-      <Video src={staticFile("video.mp4")} premountFor={fps} style={{ opacity: 0.5 }} />
-      <Audio src={staticFile("audio.mp3")} premountFor={fps} />
+      <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />
+      <Audio src={staticFile("audio.mp3")} />
       <CanvasImage
         src={staticFile("logo.png")}
-        premountFor={fps}
         style={{ width: 100, height: 100 }}
       />
-      <Video src="https://remotion.media/video.mp4" premountFor={fps} />
-      <AnimatedImage src={staticFile('nyancat.gif')} premountFor={fps} />
+      <Video src="https://remotion.media/video.mp4" />
+      <AnimatedImage src={staticFile('nyancat.gif')} />
     </>
   );
 };
@@ -160,7 +152,6 @@ export const MyScene = () => {
       <Video
         name="Background"
         src="https://remotion.media/video.mp4"
-        premountFor={fps}
         objectFit="cover"
         style={{
           position: "absolute",
@@ -171,7 +162,6 @@ export const MyScene = () => {
       <LowerThird
         name="Lower third"
         from={1 * fps}
-        premountFor={fps}
         accentColor="#0b84f3"
         style={{
           opacity: interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
@@ -247,7 +237,7 @@ const lowerThirdSchema = {
 
 export const LowerThird = Interactive.withSchema({
   Component: LowerThirdInner,
-  componentName: "<LowerThird>",
+  componentName: "LowerThird",
   schema: lowerThirdSchema,
   wrapInSequence: true,
 });

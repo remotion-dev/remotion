@@ -1,4 +1,5 @@
 import fs, {readFileSync, writeFileSync} from 'node:fs';
+import {prepareBundlerForFileWrite} from './preview-server/watch-ignore-next-change';
 
 export type FileChangeMetadata = {
 	skipSequencePropsUpdate: boolean;
@@ -173,6 +174,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		originatorClientId,
 		metadata,
 	}: WriteFileAndNotifyFileWatchersOptions) => {
+		prepareBundlerForFileWrite(file);
 		writeFileSync(file, content);
 
 		const shared = sharedWatchers.get(getRegistryKey(file, false));

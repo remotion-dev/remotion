@@ -81,6 +81,7 @@ const {
 	overrideDurationOption,
 	sampleRateOption,
 	enableCancellationOption,
+	separateAudioOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
@@ -354,6 +355,9 @@ export const renderCommand = async ({
 		s3OutputProvider,
 	});
 	const downloadName = args[2] ?? null;
+	const separateAudioTo = separateAudioOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const {value: codec, source: reason} = shouldOutputImageSequence
 		? {value: null, source: 'image sequence'}
@@ -439,6 +443,7 @@ export const renderCommand = async ({
 		logLevel,
 		frameRange: singleFrameRange,
 		outName: resolvedOutName,
+		separateAudioTo,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		scale,
@@ -676,6 +681,7 @@ export const renderCommand = async ({
 			if (downloadName) {
 				const downloadStart = Date.now();
 				const download = await internalDownloadMedia({
+					output: 'main',
 					bucketName: res.bucketName,
 					outPath: downloadName,
 					region: getAwsRegion(),
@@ -722,22 +728,24 @@ export const renderCommand = async ({
 				: (newStatus.outputFile as string);
 
 			Log.info({indent: false, logLevel});
-			Log.info(
-				{indent: false, logLevel},
-				CliInternals.chalk.blue('+ S3 '.padEnd(CliInternals.LABEL_WIDTH)),
-				CliInternals.chalk.blue(
-					CliInternals.makeHyperlink({
-						fallback: outputUrl,
-						text:
-							newStatus.outputSequence?.keyPrefix ??
-							(newStatus.outKey as string),
-						url: outputUrl,
-					}),
-				),
-				CliInternals.chalk.gray(
-					CliInternals.formatBytes(newStatus.outputSizeInBytes as number),
-				),
-			);
+			const separateAudio = newStatus.separateAudio ?? null;
+			for (const output of [
+				...(separateAudio === null ? [] : [separateAudio]),
+				{
+					url: outputUrl,
+					key:
+						newStatus.outputSequence?.keyPrefix ?? (newStatus.outKey as string),
+					sizeInBytes: newStatus.outputSizeInBytes as number,
+				},
+			]) {
+				Log.info(
+					{indent: false, logLevel},
+					CliInternals.chalk.blue(
+						`${(separateAudio === null ? '+ S3' : '+').padEnd(CliInternals.LABEL_WIDTH)} ${CliInternals.makeHyperlink({fallback: output.url, text: output.key, url: output.url})}`,
+					),
+					CliInternals.chalk.gray(CliInternals.formatBytes(output.sizeInBytes)),
+				);
+			}
 
 			if (downloadOrNothing) {
 				const relativeOutputPath = path.relative(

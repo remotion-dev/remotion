@@ -1,26 +1,89 @@
 import type {TSequence} from 'remotion';
+import {
+	getTimelineLayerHeight,
+	TIMELINE_ITEM_BORDER_BOTTOM,
+} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 
 export const TIMELINE_PACKED_TRACK_HEIGHT = 28;
 export const TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT = 24;
+export const TIMELINE_TRACK_MEDIA_LABEL_HEIGHT = 16;
+
+export const hasTimelineTrackMediaLabel = (sequence: TSequence): boolean =>
+	sequence.timelineTrack?.role === 'clip' &&
+	sequence.timelineTrack.seriesOffset === null &&
+	(sequence.type === 'audio' ||
+		sequence.type === 'video' ||
+		sequence.type === 'image');
+
+export const getTimelineSequenceHeight = (sequence: TSequence): number => {
+	if (sequence.timelineTrack?.role === 'overlay') {
+		return TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT - TIMELINE_ITEM_BORDER_BOTTOM;
+	}
+
+	if (
+		sequence.timelineTrack &&
+		(sequence.timelineTrack.role !== 'clip' ||
+			sequence.timelineTrack.seriesOffset !== null)
+	) {
+		return TIMELINE_PACKED_TRACK_HEIGHT;
+	}
+
+	return (
+		getTimelineLayerHeight(sequence.type) +
+		(hasTimelineTrackMediaLabel(sequence)
+			? TIMELINE_TRACK_MEDIA_LABEL_HEIGHT
+			: 0)
+	);
+};
 
 export type TimelineDisplayRow = {
 	readonly track: TimelineTrackWithDisplayGroup;
+	// Clips painted in this row, or null when the row paints its own sequence.
 	readonly items: readonly TimelineTrackWithDisplayGroup[] | null;
+	// Scenes whose contents can share space below this row.
+	readonly childScenes: readonly TimelineTrackWithDisplayGroup[] | null;
 	readonly auxiliaryRows: readonly (readonly TimelineTrackWithDisplayGroup[])[];
 };
 
 export const filterTimelineTrackContents = (
 	tracks: readonly TimelineTrackWithDisplayGroup[],
 	sequences: readonly TSequence[],
-	activeTrackItemIds: ReadonlySet<string>,
+	compactSeries: boolean,
 ): TimelineTrackWithDisplayGroup[] => {
 	const byId = new Map(sequences.map((sequence) => [sequence.id, sequence]));
 	const tracksById = new Map(tracks.map((track) => [track.sequence.id, track]));
 	const scopedDisplayGroupCounts = new Map<string, number>();
+	const hiddenSelfReferences = new Set<string>();
+	if (compactSeries) {
+		for (const {sequence} of tracks) {
+			let parent = sequence.parent === null ? null : byId.get(sequence.parent);
+			// Transition presentations insert hidden sequences around the scene.
+			// Its visible parent clip still represents the component's own wrapper.
+			while (parent && !parent.showInTimeline) {
+				parent = parent.parent === null ? undefined : byId.get(parent.parent);
+			}
+
+			if (
+				parent?.timelineTrack?.role === 'clip' &&
+				tracksById.has(parent.id) &&
+				parent.showInTimeline &&
+				sequence.singleChildComponent !== null &&
+				sequence.singleChildComponent !== undefined &&
+				sequence.singleChildComponent === parent.singleChildComponent
+			) {
+				// The scene clip already represents this component's own wrapper.
+				hiddenSelfReferences.add(sequence.id);
+			}
+		}
+	}
 
 	const visibleTracks = tracks.flatMap((track) => {
+		if (hiddenSelfReferences.has(track.sequence.id)) {
+			return [];
+		}
+
 		if (
 			track.sequence.timelineTrack?.role === 'clip' &&
 			!track.sequence.showInTimeline
@@ -37,11 +100,19 @@ export const filterTimelineTrackContents = (
 				break;
 			}
 
+			if (hiddenSelfReferences.has(ancestor.id)) {
+				hiddenAncestors += Number(ancestor.showInTimeline);
+			}
+
 			if (ancestor.timelineTrack) {
 				if (
 					ancestor.timelineTrack.role === 'track' &&
-					!ancestor.showInTimeline
+					(!ancestor.showInTimeline ||
+						ancestor.loopDisplay !== undefined ||
+						ancestor.frozenFrame !== null)
 				) {
+					// Repeated or frozen child clocks cannot be represented by one
+					// advancing clip interval. Show the transformed container instead.
 					return [];
 				}
 
@@ -53,12 +124,6 @@ export const filterTimelineTrackContents = (
 					ancestor.timelineTrack.role !== 'track' &&
 					(ancestor.timelineTrack.role !== 'clip' || ancestor.showInTimeline)
 				) {
-					// Nested tracks follow their containing clip too, while keeping
-					// their own packed rows whenever that clip is active.
-					if (!activeTrackItemIds.has(ancestor.id)) {
-						return [];
-					}
-
 					if (nearestPackedInstance === null) {
 						const nodePathInfo = tracksById.get(ancestor.id)?.nodePathInfo;
 						nearestPackedInstance = nodePathInfo
@@ -134,15 +199,34 @@ export const getTimelineDisplayRows = (
 	for (const track of tracks) {
 		const group = track.sequence.timelineTrack;
 		if (!group) {
-			rows.push({track, items: null, auxiliaryRows: []});
+			rows.push({track, items: null, childScenes: null, auxiliaryRows: []});
+		} else if (group.role === 'clip' && group.seriesOffset === null) {
+			// Regular Track clips have their own bars and expandable properties
+			// below the container's row.
+			rows.push({track, items: null, childScenes: null, auxiliaryRows: []});
 		} else if (group.role === 'track') {
+			const packed =
+				track.sequence.controls?.componentIdentity !==
+				'dev.remotion.remotion.Track';
+			if (
+				track.sequence.loopDisplay !== undefined ||
+				track.sequence.frozenFrame !== null
+			) {
+				rows.push({
+					track,
+					items: packed ? [track] : null,
+					childScenes: null,
+					auxiliaryRows: [],
+				});
+				continue;
+			}
+
 			const items = groupedItems.get(group.id) ?? [];
 			const auxiliaryRows: TimelineTrackWithDisplayGroup[][] = [];
-			for (const item of items) {
-				if (item.sequence.timelineTrack?.role !== 'overlay') {
-					continue;
-				}
-
+			// Transitions paint over scene clips. Only overlays need extra rows.
+			for (const item of items.filter(
+				(candidate) => candidate.sequence.timelineTrack?.role === 'overlay',
+			)) {
 				const start = item.sequence.from;
 				const end =
 					item.sequence.from +
@@ -169,7 +253,12 @@ export const getTimelineDisplayRows = (
 				auxiliaryRows[rowIndex].push(item);
 			}
 
-			rows.push({track, items, auxiliaryRows});
+			rows.push({
+				track,
+				items: packed ? items : null,
+				childScenes: items,
+				auxiliaryRows,
+			});
 		}
 	}
 

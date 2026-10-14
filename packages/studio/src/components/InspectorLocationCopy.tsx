@@ -1,7 +1,11 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {copyText} from '../helpers/copy-text';
 import {formatContextForAgents} from '../helpers/format-file-location';
+import {
+	HOVER_GROUP_CLASS_NAME,
+	HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME,
+} from '../helpers/hoverable';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
 import {ActionTooltip} from './ActionTooltip';
@@ -47,8 +51,6 @@ export const InspectorLocationCopy: React.FC<{
 	readonly name: string | null;
 	readonly openInEditorLocation: OriginalPosition | null;
 }> = ({children, location, name, openInEditorLocation}) => {
-	const [hovered, setHovered] = useState(false);
-	const [focusedWithin, setFocusedWithin] = useState(false);
 	const {copied, markCopied} = useCopyFeedback();
 	const contextForAgents = useMemo(() => {
 		return formatContextForAgents({
@@ -84,26 +86,18 @@ export const InspectorLocationCopy: React.FC<{
 		[contextForAgents, markCopied],
 	);
 
-	const showAction = hovered || focusedWithin;
-
 	return (
 		<div
 			aria-label="Inspector source location"
 			role="group"
 			style={row}
-			onPointerEnter={() => setHovered(true)}
-			onPointerLeave={() => setHovered(false)}
-			onFocus={() => setFocusedWithin(true)}
-			onBlur={() => setFocusedWithin(false)}
+			className={HOVER_GROUP_CLASS_NAME}
 		>
 			<div style={content}>{children}</div>
 			{contextForAgents || openInEditorLocation ? (
 				<div
-					style={{
-						...action,
-						opacity: showAction ? 1 : 0,
-						pointerEvents: showAction ? 'auto' : 'none',
-					}}
+					style={action}
+					className={HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME}
 				>
 					<InspectorOpenInEditor
 						annotationName={name}

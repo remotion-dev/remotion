@@ -1,17 +1,12 @@
-import type React from 'react';
 import {AbsoluteFill, Composition, Interactive, useVideoConfig} from 'remotion';
 import {BasicsSourceOnlyTrimPreview} from './BasicsSourceOnlyTrimComposition';
 import {BasicsTitlePanel} from './BasicsTitlePanel';
 
-const BasicsSourceOnlyTrimSceneInner = ({
-	style,
-}: {
-	readonly style: React.CSSProperties | null;
-}) => {
+const BasicsSourceOnlyTrimSceneInner = () => {
 	const {fps, width} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#111518', ...style}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#111518'}}>
 			<BasicsSourceOnlyTrimPreview
 				trimBefore={1.5 * fps}
 				durationInFrames={3 * fps}
@@ -28,9 +23,10 @@ const BasicsSourceOnlyTrimSceneInner = ({
 
 export const BasicsSourceOnlyTrimScene = Interactive.withSchema({
 	Component: BasicsSourceOnlyTrimSceneInner,
-	componentName: '<BasicsSourceOnlyTrimScene>',
+	componentName: 'BasicsSourceOnlyTrimScene',
 	schema: {},
 	wrapInSequence: true,
+	layout: 'absolute-fill',
 });
 
 export const BasicsSourceOnlyTrimSceneComposition = () => {
@@ -42,7 +38,6 @@ export const BasicsSourceOnlyTrimSceneComposition = () => {
 			height={1080}
 			fps={60}
 			durationInFrames={180}
-			defaultProps={{style: null}}
 		/>
 	);
 };

@@ -18,6 +18,9 @@ export type ExtractFramesOnWebWorker = (
 	options: ExtractFramesOnWebWorkerProps,
 ) => Promise<void>;
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const extractFramesOnWebWorker: ExtractFramesOnWebWorker = (
 	options: ExtractFramesOnWebWorkerProps,
 ) => {

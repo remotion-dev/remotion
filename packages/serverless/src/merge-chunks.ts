@@ -1,3 +1,5 @@
+import {rm} from 'node:fs/promises';
+import {dirname} from 'node:path';
 import type {
 	AudioCodec,
 	CombineChunksOnProgress,
@@ -59,6 +61,8 @@ export const mergeChunksAndFinishRender = async <
 	storageClass: Provider['storageClass'] | null;
 	requestHandler: Provider['requestHandler'] | null;
 	sampleRate: number;
+	separateAudioFilename: string | null;
+	separateAudioCredentials: CustomCredentials<Provider> | null;
 }): Promise<PostRenderData<Provider>> => {
 	const onProgress: CombineChunksOnProgress = ({frames: framesEncoded}) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
@@ -73,7 +77,8 @@ export const mergeChunksAndFinishRender = async <
 		throw new Error('No files to merge');
 	}
 
-	const {outfile, cleanupChunksProm} = await concatVideos({
+	const {outfile, separateAudioFile, cleanupChunksProm} = await concatVideos({
+		separateAudioFilename: options.separateAudioFilename,
 		onProgress,
 		codec: options.codec,
 		fps: options.fps,
@@ -98,28 +103,33 @@ export const mergeChunksAndFinishRender = async <
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
 
-	const postRenderData = await finishRender({
-		expectedBucketOwner: options.expectedBucketOwner,
-		renderBucketName: options.renderBucketName,
-		customCredentials: options.customCredentials,
-		downloadBehavior: options.downloadBehavior,
-		key: options.key,
-		privacy: options.privacy,
-		inputProps: options.inputProps,
-		serializedResolvedProps: options.serializedResolvedProps,
-		renderMetadata: options.renderMetadata,
-		logLevel: options.logLevel,
-		overallProgress: options.overallProgress,
-		startTime: options.startTime,
-		providerSpecifics: options.providerSpecifics,
-		insideFunctionSpecifics: options.insideFunctionSpecifics,
-		forcePathStyle: options.forcePathStyle,
-		storageClass: options.storageClass,
-		requestHandler: options.requestHandler,
-		outputFile: outfile,
-		timeToCombine: encodingStop - encodingStart,
-	});
-
-	await cleanupChunksProm;
-	return postRenderData;
+	try {
+		return await finishRender({
+			bucketName: options.bucketName,
+			separateAudioFile,
+			separateAudioCredentials: options.separateAudioCredentials,
+			expectedBucketOwner: options.expectedBucketOwner,
+			renderBucketName: options.renderBucketName,
+			customCredentials: options.customCredentials,
+			downloadBehavior: options.downloadBehavior,
+			key: options.key,
+			privacy: options.privacy,
+			inputProps: options.inputProps,
+			serializedResolvedProps: options.serializedResolvedProps,
+			renderMetadata: options.renderMetadata,
+			logLevel: options.logLevel,
+			overallProgress: options.overallProgress,
+			startTime: options.startTime,
+			providerSpecifics: options.providerSpecifics,
+			insideFunctionSpecifics: options.insideFunctionSpecifics,
+			forcePathStyle: options.forcePathStyle,
+			storageClass: options.storageClass,
+			requestHandler: options.requestHandler,
+			outputFile: outfile,
+			timeToCombine: encodingStop - encodingStart,
+		});
+	} finally {
+		await cleanupChunksProm;
+		await rm(dirname(outfile), {recursive: true, force: true});
+	}
 };

@@ -7,6 +7,7 @@ import {
 	type CustomCredentials,
 	type OutNameInput,
 	type OutNameOutput,
+	type RenderOutput,
 } from './constants';
 import {getCustomOutName} from './get-custom-out-name';
 import type {RenderMetadata} from './render-metadata';
@@ -36,13 +37,19 @@ export const getExpectedOutName = <Provider extends CloudProvider>({
 	bucketName,
 	customCredentials,
 	bucketNamePrefix,
+	output,
 }: {
 	renderMetadata: RenderMetadata<Provider>;
 	bucketName: string;
 	customCredentials: CustomCredentials<Provider> | null;
 	bucketNamePrefix: string;
+	output: RenderOutput;
 }): OutNameOutput<Provider> => {
 	if (renderMetadata.type === 'sequence') {
+		if (output === 'separate-audio') {
+			throw new Error('This render does not have a separate audio output.');
+		}
+
 		return {
 			key: renderMetadata.outputSequence.manifestKey,
 			renderBucketName: renderMetadata.outputSequence.bucketName,
@@ -52,17 +59,29 @@ export const getExpectedOutName = <Provider extends CloudProvider>({
 
 	const outNameValue = getCustomOutName({
 		customCredentials,
-		renderMetadata,
+		outName:
+			output === 'main'
+				? (renderMetadata.outName ?? null)
+				: (renderMetadata.separateAudioTo ?? null),
+		privacy: renderMetadata.privacy,
 	});
+	const separateAudioFilename =
+		typeof renderMetadata.separateAudioTo === 'string'
+			? renderMetadata.separateAudioTo
+			: (renderMetadata.separateAudioTo?.key ?? null);
 	if (outNameValue) {
 		validateOutname({
 			outName: outNameValue,
-			codec: renderMetadata.codec,
+			codec: output === 'main' ? renderMetadata.codec : null,
 			audioCodecSetting: renderMetadata.audioCodec,
-			separateAudioTo: null,
+			separateAudioTo: separateAudioFilename?.toLowerCase() ?? null,
 			bucketNamePrefix,
 		});
 		return customOutName(renderMetadata.renderId, bucketName, outNameValue);
+	}
+
+	if (output === 'separate-audio') {
+		throw new Error('This render does not have a separate audio output.');
 	}
 
 	if (renderMetadata.type === 'still') {
@@ -80,7 +99,7 @@ export const getExpectedOutName = <Provider extends CloudProvider>({
 				renderMetadata.renderId,
 				NoReactAPIs.getFileExtensionFromCodec(
 					renderMetadata.codec as Codec,
-					renderMetadata.audioCodec,
+					separateAudioFilename === null ? renderMetadata.audioCodec : null,
 				),
 			),
 			customCredentials: null,

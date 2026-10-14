@@ -26,6 +26,7 @@ import {
 	compressInputProps,
 	ENABLE_V5_BREAKING_CHANGES,
 	getNeedsToUpload,
+	getSizeInBytes,
 	serializeOrThrow,
 	ServerlessRoutines,
 	validateDownloadBehavior,
@@ -65,6 +66,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
+	separateAudioTo: OutNameInput<AwsProvider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -123,6 +125,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	privacy,
 	logLevel,
 	outName,
+	separateAudioTo,
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
@@ -182,8 +185,8 @@ export const makeLambdaRenderMediaPayload = async ({
 		needsToUpload: getNeedsToUpload({
 			type: 'video-or-audio',
 			sizes: [
-				stringifiedInputProps.length,
-				JSON.stringify(envVariables).length,
+				getSizeInBytes(stringifiedInputProps),
+				getSizeInBytes(JSON.stringify(envVariables)),
 			],
 			providerSpecifics: awsImplementation,
 		}),
@@ -219,6 +222,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		logLevel,
 		frameRange,
 		outName,
+		separateAudioTo,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		scale,
@@ -316,8 +320,8 @@ export const makeLambdaRenderStillPayload = async ({
 		needsToUpload: getNeedsToUpload({
 			type: 'still',
 			sizes: [
-				stringifiedInputProps.length,
-				JSON.stringify(envVariables).length,
+				getSizeInBytes(stringifiedInputProps),
+				getSizeInBytes(JSON.stringify(envVariables)),
 			],
 			providerSpecifics: awsImplementation,
 		}),

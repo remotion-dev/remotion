@@ -184,6 +184,7 @@ const sidebars: SidebarsConfig = {
 				'solid',
 				'staticfile',
 				'still',
+				'track',
 				'use-buffer-state',
 				'use-current-frame',
 				'use-current-scale',
@@ -851,6 +852,7 @@ const sidebars: SidebarsConfig = {
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
 				'studio-protocol/add-element-library-to-studio',
+				'studio-protocol/subscribe-to-caption-style-selection',
 				'studio-protocol/is-inside-studio',
 				'studio-protocol/security',
 			],
@@ -1163,19 +1165,7 @@ const sidebars: SidebarsConfig = {
 		{
 			type: 'category',
 			label: 'Getting started',
-			items: [
-				'getting-started',
-				'the-fundamentals',
-				'timing',
-				'animating-properties',
-				'reusability',
-				'preview',
-			],
-		},
-		{
-			type: 'link',
-			label: 'Templates',
-			href: '/templates',
+			items: ['getting-started', 'your-first-video'],
 		},
 		{
 			type: 'category',
@@ -1199,6 +1189,18 @@ const sidebars: SidebarsConfig = {
 				'light-leaks',
 				'text-highlights',
 				'starburst',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Create videos with code',
+			link: {type: 'doc', id: 'create-videos-with-code'},
+			items: [
+				'idea',
+				'components',
+				'timing',
+				'animating-properties',
+				'composing',
 			],
 		},
 		{
@@ -1592,6 +1594,11 @@ const sidebars: SidebarsConfig = {
 			type: 'link',
 			href: '/docs/api',
 			label: 'API Reference',
+		},
+		{
+			type: 'link',
+			label: 'Templates',
+			href: '/templates',
 		},
 
 		{
@@ -2044,7 +2051,11 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'canvas-capture/index',
 			},
-			items: ['canvas-capture/installation'],
+			items: [
+				'canvas-capture/installation',
+				'canvas-capture/agentic-shot-setup',
+				'canvas-capture/privacy',
+			],
 		},
 	],
 	browserBundlerSidebar: [

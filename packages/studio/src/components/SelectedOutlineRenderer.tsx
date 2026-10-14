@@ -280,7 +280,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	return (
 		<svg
 			ref={overlayRef}
-			{...{'oai-annotation-container': ''}}
 			style={outlineContainer}
 			width="100%"
 			height="100%"

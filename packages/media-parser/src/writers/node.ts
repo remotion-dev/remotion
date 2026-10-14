@@ -93,6 +93,9 @@ const createContent = (filename: string): CreateContent => {
 	};
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const nodeWriter = (path: string) => {
 	return {createContent: createContent(path)};
 };

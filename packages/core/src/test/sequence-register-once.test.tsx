@@ -241,9 +241,7 @@ const makeMediaInTimelineData = ({
 	playbackRate?: number;
 }): BasicMediaInTimelineReturnType =>
 	({
-		volumes: 1,
 		duration: 100,
-		doesVolumeChange: false,
 		muted: false,
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,
@@ -468,9 +466,10 @@ test('Sequence registers its wrapper element for Studio outlines', () => {
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(ref.current);
 });
 
-test('Sequence uses outlineRef for Studio outlines', () => {
+test('Sequence ignores outlineRef and outlines its wrapper', () => {
 	const registeredSequences: TSequence[] = [];
 	const outlineRef = React.createRef<HTMLDivElement>();
+	const wrapperRef = React.createRef<HTMLDivElement>();
 
 	render(
 		<SequenceTestWrapper
@@ -478,17 +477,19 @@ test('Sequence uses outlineRef for Studio outlines', () => {
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Sequence outlineRef={outlineRef}>
+			<Sequence ref={wrapperRef} outlineRef={outlineRef}>
 				<div ref={outlineRef}>hi</div>
 			</Sequence>
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.refForOutline).toBe(outlineRef);
 	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+	expect(registeredSequences[0]?.refForOutline?.current).toBe(
+		wrapperRef.current,
+	);
 });
 
-test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
+test('Sequence layout="none" ignores outlineRef and registers automatic outlines', () => {
 	const registeredSequences: TSequence[] = [];
 	const outlineRef = React.createRef<HTMLDivElement>();
 
@@ -504,8 +505,12 @@ test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.refForOutline).toBe(outlineRef);
-	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
+	expect(outlineRef.current).toBeInstanceOf(HTMLDivElement);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('Series inherits Sequence controls', () => {
@@ -756,6 +761,7 @@ test('Series.Sequence timing overrides cascade to later sequences', async () => 
 		},
 		propStatuses: {
 			[subscriptionKey]: {
+				durationDependentKeyframes: null,
 				canUpdate: true as const,
 				props: {
 					durationInFrames: {
@@ -1681,6 +1687,7 @@ test('Imperative sequence refs update without rerendering ref-only consumers', a
 		React.useEffect(() => {
 			registerSequence({id: 'imperative-sequence'} as TSequence);
 			setPropStatuses(nodePath, () => ({
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props: {},
 				effects: [],

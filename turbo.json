@@ -78,6 +78,11 @@
 		},
 		"make": {
 			"dependsOn": ["^make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/.monorepo/builder.ts",
+				"$TURBO_ROOT$/packages/.monorepo/validate-exports.ts"
+			],
 			"outputs": ["dist"],
 			"outputLogs": "new-only"
 		},
@@ -182,6 +187,11 @@
 		"@remotion/google-fonts#make": {
 			"outputs": ["src", ".cache-css", "dist"],
 			"dependsOn": ["^make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/.monorepo/builder.ts",
+				"$TURBO_ROOT$/packages/.monorepo/validate-exports.ts"
+			],
 			"outputLogs": "new-only"
 		},
 		"@remotion/fig-autocomplete#make": {

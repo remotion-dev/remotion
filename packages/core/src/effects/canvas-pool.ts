@@ -20,7 +20,11 @@ type CanvasPair = readonly [HTMLCanvasElement, HTMLCanvasElement];
 export class CanvasPool {
 	private readonly width: number;
 	private readonly height: number;
-	private readonly pairs: Map<Backend, CanvasPair> = new Map();
+	private readonly pairs: Map<
+		Backend,
+		[HTMLCanvasElement | null, HTMLCanvasElement | null]
+	> = new Map();
+
 	// Tracked individually rather than through `pairs` so that a canvas whose
 	// sibling failed to allocate still gets released.
 	private readonly allocated: Array<{
@@ -42,24 +46,29 @@ export class CanvasPool {
 		this.onContextLost = onContextLost;
 	}
 
-	public getPair(backend: Backend): CanvasPair {
+	public getCanvas(backend: Backend, index: 0 | 1): HTMLCanvasElement {
 		if (this.disposed) {
 			throw new Error(
 				'Effect chain state was used after it had been cleaned up',
 			);
 		}
 
-		const existing = this.pairs.get(backend);
-		if (existing) {
-			return existing;
+		let pair = this.pairs.get(backend);
+		if (!pair) {
+			pair = [null, null];
+			this.pairs.set(backend, pair);
 		}
 
-		const pair = [
-			this.allocateCanvas(backend),
-			this.allocateCanvas(backend),
-		] as const;
-		this.pairs.set(backend, pair);
-		return pair;
+		// A single effect needs one target. Allocate its ping-pong partner only
+		// when a later pass actually uses it.
+		pair[index] ??= this.allocateCanvas(backend);
+		return pair[index];
+	}
+
+	public getPair(backend: Backend): CanvasPair {
+		this.getCanvas(backend, 0);
+		this.getCanvas(backend, 1);
+		return this.pairs.get(backend) as CanvasPair;
 	}
 
 	public assertContextNotLost(canvas: HTMLCanvasElement): void {

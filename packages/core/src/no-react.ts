@@ -2,6 +2,7 @@ import {
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 } from './evaluate-source-expressions.js';
+import {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
 export type {
 	ArtifactAsset,
 	AudioOrVideoAsset,
@@ -27,6 +28,7 @@ export type {VideoConfig} from './video-config';
 
 import {
 	DEFAULT_PREMOUNT_IN_SECONDS,
+	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
 	validateDefaultPremountInSeconds,
 } from './default-premount-in-seconds';
 import {
@@ -63,6 +65,8 @@ import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
 	DEFAULT_PREMOUNT_IN_SECONDS,
+	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	validateDefaultPremountInSeconds,
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,

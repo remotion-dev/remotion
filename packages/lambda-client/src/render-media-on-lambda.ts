@@ -55,6 +55,7 @@ export type RenderMediaOnLambdaInput = {
 	concurrency?: number;
 	frameRange?: SingleFrameRange;
 	outName?: OutNameInput<AwsProvider>;
+	separateAudioTo?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
@@ -198,6 +199,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		offthreadVideoCacheSizeInBytes:
 			options.offthreadVideoCacheSizeInBytes ?? null,
 		outName: options.outName ?? null,
+		separateAudioTo: options.separateAudioTo ?? null,
 		overwrite: options.overwrite,
 		pixelFormat: options.pixelFormat ?? undefined,
 		privacy: options.privacy ?? 'public',

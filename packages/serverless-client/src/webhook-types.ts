@@ -1,4 +1,4 @@
-import type {AfterRenderCost} from './constants';
+import type {AfterRenderCost, SeparateAudioOutput} from './constants';
 import type {ImageSequenceOutput} from './image-sequence';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
 
@@ -25,6 +25,7 @@ export type WebhookSuccessPayload<BucketOwner extends string | null = string> =
 		lambdaErrors: EnhancedErrorInfo[];
 		outputUrl: string | undefined;
 		outputFile: string | undefined;
+		separateAudio: SeparateAudioOutput | null;
 		outputSequence: ImageSequenceOutput | null;
 		timeToFinish: number | undefined;
 		costs: AfterRenderCost;

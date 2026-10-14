@@ -203,6 +203,9 @@ export const internalCreateAudioDecoder = async ({
 	};
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const createAudioDecoder = ({
 	track,
 	onFrame,

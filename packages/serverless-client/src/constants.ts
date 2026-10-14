@@ -45,6 +45,7 @@ export enum ServerlessRoutines {
 
 export type CustomCredentialsWithoutSensitiveData = {
 	endpoint: string;
+	forcePathStyle?: boolean;
 };
 
 export type CustomCredentials<Provider extends CloudProvider> =
@@ -52,7 +53,6 @@ export type CustomCredentials<Provider extends CloudProvider> =
 		accessKeyId: string | null;
 		secretAccessKey: string | null;
 		region?: Provider['region'] | (string & {});
-		forcePathStyle?: boolean;
 	};
 
 export type OutNameInput<Provider extends CloudProvider> =
@@ -62,6 +62,15 @@ export type OutNameInput<Provider extends CloudProvider> =
 			key: string;
 			s3OutputProvider?: CustomCredentials<Provider>;
 	  };
+
+export type RenderOutput = 'main' | 'separate-audio';
+
+export type SeparateAudioOutput = {
+	url: string;
+	bucketName: string;
+	key: string;
+	sizeInBytes: number;
+};
 
 export type SerializedInputProps =
 	| {
@@ -141,6 +150,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<Provider> | null;
+	separateAudioTo: OutNameInput<Provider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -209,6 +219,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		logLevel: LogLevel;
 		frameRange: SingleFrameRange | null;
 		outName: OutNameInput<Provider> | null;
+		separateAudioTo: OutNameInput<Provider> | null;
 		timeoutInMilliseconds: number;
 		// Non-JS SDKs may not set chromiumOptions, may be undefined
 		chromiumOptions: ChromiumOptions | undefined;
@@ -278,6 +289,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
+		audioCodec: AudioCodec | null;
 		audioBitrate: string | null;
 		videoBitrate: string | null;
 		encodingBufferSize: string | null;
@@ -405,6 +417,7 @@ export const artifactName = (renderId: string, name: string) =>
 export type PostRenderData<Provider extends CloudProvider> = {
 	cost: AfterRenderCost;
 	outputFile: string | null;
+	separateAudio: SeparateAudioOutput | null;
 	outputSequence: ImageSequenceOutput | null;
 	outputSize: number;
 	renderSize: number;

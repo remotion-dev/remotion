@@ -87,7 +87,6 @@ export const generateCanvasCaptureComposition = ({
 	componentName,
 	data,
 	durationInFrames,
-	fps,
 	keyframeFps,
 	videoFileName,
 	videoHeight,
@@ -96,7 +95,6 @@ export const generateCanvasCaptureComposition = ({
 	readonly componentName: string;
 	readonly data: CanvasCaptureData;
 	readonly durationInFrames: number;
-	readonly fps: number;
 	readonly keyframeFps: number;
 	readonly videoFileName: string;
 	readonly videoHeight: number;
@@ -277,7 +275,6 @@ export const ${componentName} = () => {
 	return (
 		<AbsoluteFill
 			durationInFrames={${durationInFrames}}
-			premountFor={${fps}}
 			style={{
 				width: ${videoWidth},
 				height: ${videoHeight},

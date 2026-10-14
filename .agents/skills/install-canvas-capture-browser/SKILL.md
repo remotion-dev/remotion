@@ -33,7 +33,12 @@ and video encoding configuration before allowing recording.
    '/Users/jonathanburger/Applications/Recorder Chrome.app/Contents/MacOS/Google Chrome for Testing' \
      --user-data-dir='/Users/jonathanburger/Library/Application Support/Remotion Canvas Capture' \
      --enable-features=CanvasDrawElement \
-     --enable-blink-features=CanvasDrawElement \
      --no-first-run \
      --no-default-browser-check
    ```
+
+   `--enable-features=CanvasDrawElement` is equivalent to enabling
+   `chrome://flags/#canvas-draw-element` and restarting Chrome; either method is
+   sufficient. Do not add `--enable-blink-features=CanvasDrawElement`: this
+   developer override directly changes Blink's state and triggers Chrome's
+   unsupported-command-line warning, even when the feature is supported.

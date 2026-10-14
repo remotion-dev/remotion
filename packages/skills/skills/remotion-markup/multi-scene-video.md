@@ -4,8 +4,8 @@ Put each substantial scene in its own component and file.
 Register those components as [connected compositions](connected-compositions.md) so each scene has an editable Studio timeline.
 
 Treat the parent timeline as an editable document: Author every scene that
-should be edited independently as a separate interactive component,
-`<Series.Sequence>`, or `<TransitionSeries.Sequence>` JSX node. Keep its `name` and
+should be edited independently as a separate interactive component
+or `<TransitionSeries.Sequence>` JSX node. Keep its `name` and
 `durationInFrames` inline so the node has its own source-editing target.
 Programmatic rendering is suitable only when the generated scenes are
 intentionally controlled as one source template.
@@ -19,26 +19,21 @@ Example:
 ```tsx
 // MyVideo.tsx
 import {TransitionSeries} from '@remotion/transitions';
-import {useVideoConfig} from 'remotion';
 import {OpeningScene} from './OpeningScene';
 import {FeatureScene} from './FeatureScene';
 
 export const MyVideo = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <TransitionSeries>
       <TransitionSeries.Sequence
         name="Opening"
         durationInFrames={90}
-        premountFor={fps}
       >
         <OpeningScene />
       </TransitionSeries.Sequence>
       <TransitionSeries.Sequence
         name="Feature"
         durationInFrames={120}
-        premountFor={fps}
       >
         <FeatureScene />
       </TransitionSeries.Sequence>
@@ -103,5 +98,5 @@ Keep each scene's standalone metadata and `defaultProps` consistent with how it 
 With no transition, this example needs a 210-frame main composition.  
 If you add a transition, account for its overlap in the main duration; see [transitions](transitions.md).
 
-Use `<Series>` for consecutive scenes that do not need transitions.  
+Use `<TransitionSeries>` for consecutive scenes that do not need transitions.
 For independently placed scenes, prefer components made with `Interactive.withSchema({wrapInSequence: true})` and put `from` and `durationInFrames` directly on each instance.

@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {INPUT_BACKGROUND, WHITE} from '../../helpers/colors';
+import {INPUT_HOVER_CLASS_NAME} from '../../helpers/hoverable';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
@@ -43,7 +44,6 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 	Props
 > = ({status, small = false, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
-	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const {tabIndex} = useZIndex();
 
@@ -57,10 +57,10 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 			...inputBaseStyle,
 			...(small ? compactInputStyle : null),
 			width: '100%',
-			borderColor: getInputBorderColor({isFocused, isHovered, status}),
+			borderColor: getInputBorderColor({isFocused, status}),
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.style, small, status]);
+	}, [isFocused, props.style, small, status]);
 
 	useEffect(() => {
 		if (!inputRef.current) {
@@ -70,8 +70,6 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 		const {current} = inputRef;
 		const onFocus = () => setIsFocused(true);
 		const onBlur = () => setIsFocused(false);
-		const onMouseEnter = () => setIsHovered(true);
-		const onMouseLeave = () => setIsHovered(false);
 		const onKeyDown = (e: KeyboardEvent) => {
 			if (!inputRef.current) {
 				return;
@@ -121,15 +119,11 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 
 		current.addEventListener('focus', onFocus);
 		current.addEventListener('blur', onBlur);
-		current.addEventListener('mouseenter', onMouseEnter);
-		current.addEventListener('mouseleave', onMouseLeave);
 		current.addEventListener('keydown', onKeyDown);
 
 		return () => {
 			current.removeEventListener('focus', onFocus);
 			current.removeEventListener('blur', onBlur);
-			current.removeEventListener('mouseenter', onMouseEnter);
-			current.removeEventListener('mouseleave', onMouseLeave);
 			current.removeEventListener('keydown', onKeyDown);
 		};
 	}, [inputRef]);
@@ -139,7 +133,7 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 			ref={inputRef}
 			tabIndex={tabIndex}
 			{...props}
-			className={VERTICAL_SCROLLBAR_CLASSNAME}
+			className={`${VERTICAL_SCROLLBAR_CLASSNAME} ${INPUT_HOVER_CLASS_NAME} ${props.className ?? ''}`}
 			style={style}
 		/>
 	);

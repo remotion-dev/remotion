@@ -51,11 +51,12 @@ export const PrecomposeRefactorModal: React.FC<{readonly state: State}> = ({
 	const markupSkillAvailable = Boolean(
 		markupSkill?.installedInProject || markupSkill?.installedGlobally,
 	);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const canAnnotate =
+		!isBrowserStudio &&
 		markupSkillAvailable &&
 		!window.remotion_isReadOnlyStudio &&
 		getCodexAnnotation() !== null;
-	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const canSuggestAgent =
 		!isBrowserStudio &&
 		!window.remotion_isReadOnlyStudio &&
@@ -114,7 +115,7 @@ export const PrecomposeRefactorModal: React.FC<{readonly state: State}> = ({
 				) : (
 					<div style={text}>
 						{isBrowserStudio
-							? 'Agent-assisted refactoring is unavailable in Browser Studio.'
+							? 'Agent-assisted refactoring is unavailable in remotion.dev/new.'
 							: remotionSkillsInfo === null && error === null
 								? 'Checking whether /remotion-markup is available...'
 								: 'The /remotion-markup Agent Skill is unavailable in this Studio.'}

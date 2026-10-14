@@ -1,8 +1,19 @@
 import React, {useContext, useImperativeHandle, useMemo} from 'react';
+import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	getTimelineSceneClipPath,
+	TIMELINE_CHILD_TRANSITION_SEAM_Y,
+} from './get-timeline-scene-clip-path';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
+import type {TimelineSceneRange} from './timeline-series-layout';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
+import {
+	TimelineInheritedSceneRangeContext,
+	TimelineSceneClipHeightContext,
+	TimelineSceneRangeContext,
+} from './TimelineSceneRangeContext';
 import {TimelineTrack} from './TimelineTrack';
 import {TimelineViewportContext} from './TimelineViewport';
 import {useTimelineVirtualization} from './TimelineVirtualization';
@@ -18,10 +29,31 @@ const timelineContent: React.CSSProperties = {
 	minHeight: '100%',
 };
 
+// Keep the frame subscription here so the track contents do not rerender
+// just to follow their scene's label visibility.
+const TimelineSceneTrackContent: React.FC<{
+	readonly children: React.ReactNode;
+	readonly sceneRange: TimelineSceneRange;
+	readonly height: number;
+}> = React.memo(({children, sceneRange, height}) => {
+	const frame = Internals.Timeline.useTimelinePosition();
+	const active = frame >= sceneRange.activeFrom && frame < sceneRange.activeEnd;
+	return (
+		<TimelineSceneClipHeightContext.Provider value={height}>
+			<TimelineInheritedSceneRangeContext.Provider value={sceneRange}>
+				<TimelineSceneRangeContext.Provider value={sceneRange}>
+					<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
+				</TimelineSceneRangeContext.Provider>
+			</TimelineInheritedSceneRangeContext.Provider>
+		</TimelineSceneClipHeightContext.Provider>
+	);
+});
+
 const TimelineTracksInner: React.FC<{
 	readonly hasBeenCut: boolean;
 }> = ({hasBeenCut}) => {
 	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
+	const video = Internals.useUnsafeVideoConfig();
 	const windowWidth = useContext(TimelineWidthContext);
 	const renderWindow = useContext(TimelineViewportContext);
 	useImperativeHandle(timelineDurationRef, () => ({
@@ -73,30 +105,68 @@ const TimelineTracksInner: React.FC<{
 	}, []);
 
 	return (
-		<div style={timelineStyle} {...{'oai-annotation-container': ''}}>
+		<div style={timelineStyle}>
 			<div style={{...content, height: tracksEnd}}>
-				{virtualItems.map((virtualItem) => (
-					<div
-						key={virtualItem.key}
-						style={{
-							height: virtualItem.size,
-							left: TIMELINE_PADDING,
-							position: 'absolute',
-							right: TIMELINE_PADDING,
-							top: virtualItem.start,
-						}}
-					>
-						{rows[virtualItem.index].items === null ? (
-							<TimelineTrack track={rows[virtualItem.index].track} />
+				{virtualItems.map((virtualItem) => {
+					const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} =
+						rows[virtualItem.index];
+					const trackContent =
+						items === null ? (
+							<TimelineTrack track={track} />
 						) : (
 							<TimelinePackedTrack
-								track={rows[virtualItem.index].track}
-								items={rows[virtualItem.index].items!}
-								auxiliaryRows={rows[virtualItem.index].auxiliaryRows}
+								track={track}
+								items={items}
+								auxiliaryRows={auxiliaryRows}
+								auxiliaryRowOffsets={auxiliaryRowOffsets}
 							/>
-						)}
-					</div>
-				))}
+						);
+
+					return (
+						<div
+							key={virtualItem.key}
+							style={{
+								height: virtualItem.size,
+								left: TIMELINE_PADDING,
+								position: 'absolute',
+								right: TIMELINE_PADDING,
+								// Sequence bars use the full zoomed timeline width, while this
+								// row's parent only fills the viewport. Clip in the same space.
+								width:
+									sceneRange !== null && windowWidth !== null
+										? windowWidth - TIMELINE_PADDING * 2
+										: undefined,
+								top: virtualItem.start,
+								clipPath:
+									video && windowWidth !== null
+										? getTimelineSceneClipPath({
+												sceneRange,
+												durationInFrames: video.durationInFrames,
+												offsetInFrames: 0,
+												pixelsPerFrame:
+													(windowWidth - TIMELINE_PADDING * 2) /
+													video.durationInFrames,
+												height: virtualItem.size,
+												seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+												transitionCutout: null,
+												cropHeight: null,
+											})
+										: undefined,
+							}}
+						>
+							{sceneRange === null ? (
+								trackContent
+							) : (
+								<TimelineSceneTrackContent
+									sceneRange={sceneRange}
+									height={virtualItem.size}
+								>
+									{trackContent}
+								</TimelineSceneTrackContent>
+							)}
+						</div>
+					);
+				})}
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
 		</div>

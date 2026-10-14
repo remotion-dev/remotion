@@ -218,6 +218,7 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 		[Internals.makeSequencePropsSubscriptionKey(
 			nodePathInfo.sequenceSubscriptionKey,
 		)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				from: staticNumber(10),

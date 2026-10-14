@@ -1,0 +1,1 @@
+export const DEFAULT_SEQUENCE_ACTIVITY_LIMIT = 20;

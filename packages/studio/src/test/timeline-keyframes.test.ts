@@ -166,6 +166,7 @@ const makePropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
 ): PropStatuses => ({
 	[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.scale': makeKeyframedStatus(),
@@ -320,6 +321,7 @@ test('keyframes retain their source frames across nested rates and trimmed clock
 	};
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {'style.scale': status},
 			effects: [],

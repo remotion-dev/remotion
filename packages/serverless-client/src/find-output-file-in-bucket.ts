@@ -1,4 +1,4 @@
-import type {CustomCredentials} from './constants';
+import type {CustomCredentials, RenderOutput} from './constants';
 import {getExpectedOutName} from './expected-out-name';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
@@ -9,7 +9,22 @@ export type OutputFileMetadata = {
 	sizeInBytes: number | null;
 };
 
-export class OutputFileAccessDeniedError extends Error {}
+const outputFileAccessDenied = Symbol.for(
+	'remotion.OutputFileAccessDeniedError',
+);
+
+export class OutputFileAccessDeniedError extends Error {
+	[outputFileAccessDenied] = true;
+
+	static isInstance(error: unknown): error is OutputFileAccessDeniedError {
+		// lambda-client bundles its own copy of this class.
+		return (
+			error instanceof Error &&
+			outputFileAccessDenied in error &&
+			error[outputFileAccessDenied] === true
+		);
+	}
+}
 
 export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	region,
@@ -20,6 +35,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
+	output,
 }: {
 	region: Provider['region'];
 	renderMetadata: RenderMetadata<Provider>;
@@ -29,12 +45,14 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
 	requestHandler: Provider['requestHandler'] | null;
+	output: RenderOutput;
 }): Promise<OutputFileMetadata | null> => {
 	const {renderBucketName, key} = getExpectedOutName({
 		renderMetadata,
 		bucketName,
 		customCredentials,
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		output,
 	});
 
 	try {
@@ -53,6 +71,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 				bucketName,
 				customCredentials,
 				currentRegion,
+				output,
 			}).url,
 			sizeInBytes: metadata.ContentLength ?? null,
 		};

@@ -156,6 +156,18 @@ class OutNameInputObject:
     key: str
     s3_output_provider: Optional[CustomCredentials] = None
 
+    def serialize_params(self) -> Dict:
+        """Serialize the output destination and any custom storage credentials."""
+        return {
+            'bucketName': self.bucketName,
+            'key': self.key,
+            's3OutputProvider': (
+                self.s3_output_provider.serialize_params()
+                if self.s3_output_provider is not None
+                else None
+            ),
+        }
+
 
 class DeleteAfter(Enum):
     """
@@ -338,6 +350,7 @@ class RenderMediaParams:
     is_production: Optional[bool] = None
     sample_rate: int = 48000
     disable_shared_memory_capture: bool = False
+    separate_audio_to: Optional[Union[str, OutNameInputObject]] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -363,6 +376,11 @@ class RenderMediaParams:
             'logLevel': self.log_level,
             'frameRange': self.frame_range,
             'outName': self.out_name,
+            'separateAudioTo': (
+                self.separate_audio_to.serialize_params()
+                if isinstance(self.separate_audio_to, OutNameInputObject)
+                else self.separate_audio_to
+            ),
             'preferLossless': self.prefer_lossless,
             'sampleRate': self.sample_rate,
             'timeoutInMilliseconds': self.timeout_in_milliseconds,
@@ -650,3 +668,4 @@ class RenderMediaProgress:
     framesRendered: Optional[int] = None
     framesUploaded: Optional[int] = None
     outputSequence: Optional[Dict[str, Any]] = None
+    separateAudio: Optional[Dict[str, Any]] = None
