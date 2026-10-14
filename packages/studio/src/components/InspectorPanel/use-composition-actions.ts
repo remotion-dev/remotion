@@ -34,6 +34,7 @@ export const useCompositionActions = () => {
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [isAddingSolid, setIsAddingSolid] = useState(false);
+	const [isAddingText, setIsAddingText] = useState(false);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [isAddingComposition, setIsAddingComposition] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
@@ -84,6 +85,8 @@ export const useCompositionActions = () => {
 		compositionFile !== null &&
 		videoConfig !== null;
 	const canInsertSolid = canShowInsertSolid && !isAddingSolid;
+	const canShowInsertText = canShowInsertSolid;
+	const canInsertText = canShowInsertText && !isAddingText;
 
 	const canShowInsertAsset =
 		previewInteractive &&
@@ -140,6 +143,58 @@ export const useCompositionActions = () => {
 	}, [
 		browserStudioOperations,
 		canInsertSolid,
+		compositionFile,
+		currentCompositionId,
+		videoConfig,
+	]);
+
+	const insertText = useCallback(async () => {
+		if (
+			!canInsertText ||
+			currentCompositionId === null ||
+			compositionFile === null ||
+			videoConfig === null
+		) {
+			return;
+		}
+
+		setIsAddingText(true);
+		try {
+			const request: InsertCompositionElementRequest = {
+				compositionFile,
+				compositionId: currentCompositionId,
+				from: null,
+				element: {
+					type: 'text',
+					text: 'Text',
+					fontSize: Math.max(
+						1,
+						Math.round(Math.min(videoConfig.width, videoConfig.height) * 0.075),
+					),
+					color: 'white',
+					position: {
+						x: videoConfig.width * 0.1,
+						y: videoConfig.height * 0.1,
+					},
+				},
+			};
+			const result = browserStudioOperations
+				? await browserStudioOperations.insertCompositionElement(request)
+				: await callApi('/api/insert-composition-element', request);
+
+			if (result.success) {
+				return;
+			}
+
+			showNotification(result.reason, 4000);
+		} catch (err) {
+			showNotification((err as Error).message, 4000);
+		} finally {
+			setIsAddingText(false);
+		}
+	}, [
+		browserStudioOperations,
+		canInsertText,
 		compositionFile,
 		currentCompositionId,
 		videoConfig,
@@ -367,13 +422,16 @@ export const useCompositionActions = () => {
 		canInsertAsset,
 		canInsertComposition,
 		canInsertSolid,
+		canInsertText,
 		canShowInsertAsset,
 		canShowInsertComposition,
 		canShowInsertSolid,
+		canShowInsertText,
 		canShowGenerateWithAgent,
 		insertAsset,
 		insertComposition,
 		insertSolid,
+		insertText,
 		generateWithAgent,
 	};
 };
