@@ -1821,11 +1821,13 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		(isFirstCascadingSequence
-			? trimBeforeCanUpdate
-			: previousCascadingSequenceId !== null
-				? previousCascadingSequenceCanResize
-				: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate);
+		(isTransitionSeriesSequence(s)
+			? durationCanUpdate && trimBeforeCanUpdate
+			: isFirstCascadingSequence
+				? trimBeforeCanUpdate
+				: previousCascadingSequenceId !== null
+					? previousCascadingSequenceCanResize
+					: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate);
 	const previousTouchingNodePath = previousTouchingOverrideId
 		? overrideIdToNodePathMappingsRef.current[previousTouchingOverrideId]
 		: null;
@@ -2383,6 +2385,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 	]);
 
 	const canShowSecondaryLeftEdgeAction =
+		!isTransitionSeriesSequence(s) &&
 		(isMedia || (isCascadingSequence(s) && !isFirstCascadingSequence)) &&
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
@@ -2505,8 +2508,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 									visibleLayout.media?.offset === 0
 								}
 								edgeMode={
-									isTransitionSeriesSequence(s) && rollingEnabled
-										? 'rolling'
+									isTransitionSeriesSequence(s)
+										? 'head-trim'
 										: isFirstCascadingSequence
 											? 'source-only'
 											: isCascadingSequence(s)

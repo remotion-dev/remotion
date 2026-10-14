@@ -85,6 +85,7 @@ const HANDLE_INSET = 6;
 const HANDLE_OUTSET = 8;
 const LEFT_EDGE_HANDLE_INSET = 4;
 const LEFT_EDGE_HANDLE_OUTSET = 4;
+const TRANSITION_CLIP_EDGE_WIDTH = 'min(10px, 25%)';
 const TRANSITION_RIGHT_HANDLE_INSET =
 	HANDLE_INSET + HANDLE_OUTSET + LEFT_EDGE_HANDLE_OUTSET + 1;
 const timelineSequenceEdgeDragThresholdPx = 4;
@@ -1925,7 +1926,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly trimBeforeCursor: string;
 	readonly sourceOnlyCursor: string;
 	readonly edgeEnabled: boolean;
-	readonly edgeMode: Exclude<TimelineSequenceLeftEdgeDragMode, 'head-trim'>;
+	readonly edgeMode: TimelineSequenceLeftEdgeDragMode;
 	readonly rollingEnabled: boolean;
 	readonly rollingOutset: number;
 	readonly fillTarget: boolean;
@@ -1994,7 +1995,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const [altKey, setAltKey] = useState(false);
 	const [hovered, setHovered] = useState(false);
 	useEffect(() => {
-		if (edgeMode !== 'rolling' || !hovered) return;
+		if (edgeMode !== 'head-trim' || !rollingEnabled || !hovered) return;
 		const onKey = (event: KeyboardEvent) => setAltKey(event.altKey);
 		const onBlur = () => setAltKey(false);
 		window.addEventListener('keydown', onKey);
@@ -2005,7 +2006,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			window.removeEventListener('keyup', onKey);
 			window.removeEventListener('blur', onBlur);
 		};
-	}, [edgeMode, hovered]);
+	}, [edgeMode, hovered, rollingEnabled]);
 
 	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
@@ -2143,15 +2144,17 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			}
 
 			const mode =
-				e.currentTarget.dataset.trimMode === 'rolling'
-					? e.altKey && !fillTarget && isTransitionSeries
-						? 'head-trim'
-						: 'rolling'
-					: e.currentTarget.dataset.trimMode === 'source-only'
-						? 'source-only'
-						: e.currentTarget.dataset.trimMode === 'self-trim'
-							? 'self-trim'
-							: 'ripple';
+				e.currentTarget.dataset.trimMode === 'head-trim'
+					? e.altKey && rollingEnabled
+						? 'rolling'
+						: 'head-trim'
+					: e.currentTarget.dataset.trimMode === 'rolling'
+						? 'rolling'
+						: e.currentTarget.dataset.trimMode === 'source-only'
+							? 'source-only'
+							: e.currentTarget.dataset.trimMode === 'self-trim'
+								? 'self-trim'
+								: 'ripple';
 			const trimBeforeOnly = mode === 'source-only';
 			const activeCursor =
 				mode === 'ripple' || mode === 'rolling'
@@ -2616,6 +2619,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			fillTarget,
 			isTransitionSeries,
 			transitionEndOffset,
+			rollingEnabled,
 		],
 	);
 
@@ -2629,28 +2633,32 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const edgeStyle: React.CSSProperties = {
 		...baseStyle,
 		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		left:
-			rollingEnabled && edgeMode !== 'rolling'
+		left: isTransitionSeries
+			? 0
+			: rollingEnabled && edgeMode !== 'rolling' && edgeMode !== 'head-trim'
 				? 'min(2px, 12.5%)'
 				: touchingPrevious
 					? 0
 					: -LEFT_EDGE_HANDLE_OUTSET,
-		width:
-			rollingEnabled || touchingPrevious
+		width: isTransitionSeries
+			? TRANSITION_CLIP_EDGE_WIDTH
+			: rollingEnabled || touchingPrevious
 				? 'min(10px, 12.5%)'
 				: edgeMode === 'source-only'
 					? `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(14px, 25%))`
 					: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${LEFT_EDGE_HANDLE_INSET}px, 12.5%))`,
 		cursor:
-			edgeMode === 'rolling'
-				? altKey
-					? trimBeforeCursor
-					: cursor
-				: edgeMode === 'ripple'
+			edgeMode === 'head-trim'
+				? altKey && rollingEnabled
 					? cursor
-					: edgeMode === 'source-only'
-						? sourceOnlyCursor
-						: trimBeforeCursor,
+					: trimBeforeCursor
+				: edgeMode === 'rolling'
+					? cursor
+					: edgeMode === 'ripple'
+						? cursor
+						: edgeMode === 'source-only'
+							? sourceOnlyCursor
+							: trimBeforeCursor,
 		background: TRANSPARENT,
 		pointerEvents: 'auto',
 	};
@@ -2697,7 +2705,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	return (
 		<>
-			{rollingEnabled && edgeMode !== 'rolling' ? (
+			{rollingEnabled && edgeMode !== 'rolling' && edgeMode !== 'head-trim' ? (
 				<div
 					role="separator"
 					aria-orientation="vertical"
@@ -2724,29 +2732,30 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					role="separator"
 					aria-orientation="vertical"
 					aria-label={
-						edgeMode === 'rolling'
-							? altKey
-								? 'Drag to trim start'
-								: 'Drag to roll edit'
+						edgeMode === 'rolling' ||
+						(edgeMode === 'head-trim' && altKey && rollingEnabled)
+							? 'Drag to roll edit'
 							: edgeMode === 'source-only'
 								? 'Drag to adjust source start'
 								: 'Drag to trim start'
 					}
 					data-trim-mode={edgeMode}
 					title={
-						edgeMode === 'rolling'
-							? 'Drag to roll edit. Option/Alt-drag to trim start.'
+						edgeMode === 'head-trim' && rollingEnabled
+							? 'Drag to trim start. Option/Alt-drag to roll edit.'
 							: undefined
 					}
 					style={edgeStyle}
 					onPointerEnter={(event) => {
-						if (edgeMode === 'rolling') {
+						if (edgeMode === 'head-trim') {
 							setHovered(true);
 							setAltKey(event.altKey);
 						}
 
 						onHover(
-							edgeMode === 'rolling' && event.altKey ? 'head-trim' : edgeMode,
+							edgeMode === 'head-trim' && event.altKey && rollingEnabled
+								? 'rolling'
+								: edgeMode,
 						);
 					}}
 					onPointerLeave={onLeave}
@@ -3670,15 +3679,19 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		right:
 			transitionStartOffset !== null
 				? undefined
-				: touchingNext
-					? 'min(2px, 12.5%)'
-					: -HANDLE_OUTSET,
+				: isTransitionSeries
+					? 0
+					: touchingNext
+						? 'min(2px, 12.5%)'
+						: -HANDLE_OUTSET,
 		width:
 			transitionStartOffset !== null
 				? baseStyle.width
-				: touchingNext
-					? 'min(10px, 12.5%)'
-					: baseStyle.width,
+				: isTransitionSeries
+					? TRANSITION_CLIP_EDGE_WIDTH
+					: touchingNext
+						? 'min(10px, 12.5%)'
+						: baseStyle.width,
 		cursor,
 		background: TRANSPARENT,
 	};
