@@ -274,10 +274,13 @@ Write one video track and one audio track unless the composition clearly needs m
 
 The example maps to this composition at 30fps:
 
-```tsx
-<Sequence from={30} durationInFrames={150}>
-  <Video src={staticFile("interview.mp4")} trimBefore={60} />
-</Sequence>
+```tsx title="MyComposition.tsx"
+<Video
+  src={staticFile("interview.mp4")}
+  from={30}
+  durationInFrames={150}
+  trimBefore={60}
+/>
 <Audio src={staticFile("music.mp3")} />
 ```
 
