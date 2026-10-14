@@ -4,8 +4,8 @@ import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {getTimelineSequenceTimingLimits} from './get-timeline-sequence-timing-limits';
-import {loadKeyframeTrimConstraints} from './load-keyframe-trim-constraints';
 
 export const useClampSequenceTimingValue = () => {
 	const propStatusesRef = useContext(
@@ -15,16 +15,11 @@ export const useClampSequenceTimingValue = () => {
 	const mappingsRef = useContext(OverrideIdToNodePathMappingsRefContext);
 	const video = Internals.useVideo();
 	const limitsRef = useRef(
-		new Map<
-			string,
-			Promise<ReturnType<typeof getTimelineSequenceTimingLimits> | null>
-		>(),
+		new Map<string, ReturnType<typeof getTimelineSequenceTimingLimits>>(),
 	);
-	const clearTimingLimits = useCallback(() => {
-		limitsRef.current.clear();
-	}, []);
+	const clearTimingLimits = useCallback(() => limitsRef.current.clear(), []);
 	const clampTimingValue = useCallback(
-		async (
+		(
 			nodePath: SequencePropsSubscriptionKey,
 			fieldKey: string,
 			value: unknown,
@@ -37,17 +32,17 @@ export const useClampSequenceTimingValue = () => {
 			)
 				return value;
 			const key = stringifySequenceSubscriptionKey(nodePath);
-			let pendingLimits = limitsRef.current.get(key);
-			if (!pendingLimits) {
+			let limits = limitsRef.current.get(key);
+			if (!limits) {
 				const sequences = sequencesRef.current;
 				const tracks = calculateTimeline({
 					sequences,
 					overrideIdsToNodePaths: mappingsRef.current,
 				});
-				const preparedProps =
+				const propStatuses =
 					fieldKey === 'from'
-						? Promise.resolve(propStatusesRef.current)
-						: loadKeyframeTrimConstraints({
+						? propStatusesRef.current
+						: getKeyframeTrimConstraints({
 								propStatuses: propStatusesRef.current,
 								overrideIdsToNodePaths: mappingsRef.current,
 								sequences,
@@ -60,65 +55,51 @@ export const useClampSequenceTimingValue = () => {
 							track.nodePathInfo.sequenceSubscriptionKey,
 						) === key,
 				);
-				pendingLimits = preparedProps.then((propStatuses) => {
-					let mergedLimits: ReturnType<
-						typeof getTimelineSequenceTimingLimits
-					> | null = null;
-					for (const track of matching) {
-						const next = getTimelineSequenceTimingLimits({
-							propStatuses,
-							movingSequenceIds: null,
-							track,
-							tracks,
-							sequences,
-							timelineDurationInFrames: video?.durationInFrames ?? Infinity,
-						});
-						mergedLimits = mergedLimits
-							? {
-									...next,
-									minimumDuration: Math.max(
-										mergedLimits.minimumDuration,
-										next.minimumDuration,
-									),
-									maximumDuration: Math.min(
-										mergedLimits.maximumDuration,
-										next.maximumDuration,
-									),
-									minimumFrom: Math.max(
-										mergedLimits.minimumFrom,
-										next.minimumFrom,
-									),
-									maximumFrom: Math.min(
-										mergedLimits.maximumFrom,
-										next.maximumFrom,
-									),
-									minimumTrimBefore: Math.max(
-										mergedLimits.minimumTrimBefore,
-										next.minimumTrimBefore,
-									),
-									maximumTrimBefore: Math.min(
-										mergedLimits.maximumTrimBefore,
-										next.maximumTrimBefore,
-									),
-									minimumTrimAfter: Math.max(
-										mergedLimits.minimumTrimAfter,
-										next.minimumTrimAfter,
-									),
-									maximumTrimAfter: Math.min(
-										mergedLimits.maximumTrimAfter,
-										next.maximumTrimAfter,
-									),
-								}
-							: next;
-					}
+				for (const track of matching) {
+					const next = getTimelineSequenceTimingLimits({
+						propStatuses,
+						movingSequenceIds: null,
+						track,
+						tracks,
+						sequences,
+						timelineDurationInFrames: video?.durationInFrames ?? Infinity,
+					});
+					limits = limits
+						? {
+								...next,
+								minimumDuration: Math.max(
+									limits.minimumDuration,
+									next.minimumDuration,
+								),
+								maximumDuration: Math.min(
+									limits.maximumDuration,
+									next.maximumDuration,
+								),
+								minimumFrom: Math.max(limits.minimumFrom, next.minimumFrom),
+								maximumFrom: Math.min(limits.maximumFrom, next.maximumFrom),
+								minimumTrimBefore: Math.max(
+									limits.minimumTrimBefore,
+									next.minimumTrimBefore,
+								),
+								maximumTrimBefore: Math.min(
+									limits.maximumTrimBefore,
+									next.maximumTrimBefore,
+								),
+								minimumTrimAfter: Math.max(
+									limits.minimumTrimAfter,
+									next.minimumTrimAfter,
+								),
+								maximumTrimAfter: Math.min(
+									limits.maximumTrimAfter,
+									next.maximumTrimAfter,
+								),
+							}
+						: next;
+				}
 
-					return mergedLimits;
-				});
-				limitsRef.current.set(key, pendingLimits);
+				if (!limits) return value;
+				limitsRef.current.set(key, limits);
 			}
-
-			const limits = await pendingLimits;
-			if (!limits) return value;
 
 			const [minimum, maximum] =
 				fieldKey === 'from'

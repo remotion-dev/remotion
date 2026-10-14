@@ -84,9 +84,7 @@ export const MultiSequenceField: React.FC<{
 		isStudioInteractivityEnabled() &&
 		previewServerState.type === 'connected' &&
 		staticValues;
-	const previewGeneration = useRef(0);
 	const clear = useCallback(() => {
-		previewGeneration.current++;
 		clearTimingLimits();
 		for (const target of targets) {
 			clearDragOverrides(target.nodePath);
@@ -95,38 +93,21 @@ export const MultiSequenceField: React.FC<{
 	const targetsRef = useRef(targets);
 	targetsRef.current = targets;
 	useEffect(() => {
-		const generation = previewGeneration;
 		return () => {
-			generation.current++;
 			for (const target of targetsRef.current) {
 				clearDragOverrides(target.nodePath);
 			}
 		};
 	}, [clearDragOverrides]);
 	const preview = useCallback(
-		async (nextValues: unknown[]) => {
+		(nextValues: unknown[]) => {
 			if (!editable) {
 				return;
 			}
 
-			const generation = ++previewGeneration.current;
-			let clamped: unknown[];
-			try {
-				clamped = await Promise.all(
-					targets.map((target, index) =>
-						clampTimingValue(target.nodePath, field.key, nextValues[index]),
-					),
-				);
-			} catch (error) {
-				if (generation === previewGeneration.current)
-					showNotification(
-						`Could not check timing constraints: ${(error as Error).message}`,
-						3000,
-					);
-				return;
-			}
-
-			if (generation !== previewGeneration.current) return;
+			const clamped = targets.map((target, index) =>
+				clampTimingValue(target.nodePath, field.key, nextValues[index]),
+			);
 			for (const [index, target] of targets.entries()) {
 				setDragOverrides(
 					target.nodePath,
@@ -147,10 +128,8 @@ export const MultiSequenceField: React.FC<{
 			}
 
 			try {
-				const clamped = await Promise.all(
-					targets.map((target, index) =>
-						clampTimingValue(target.nodePath, field.key, nextValues[index]),
-					),
+				const clamped = targets.map((target, index) =>
+					clampTimingValue(target.nodePath, field.key, nextValues[index]),
 				);
 				await saveSequenceProps({
 					changes: targets.map((target, index) => ({

@@ -61,6 +61,7 @@ import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscripti
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
+import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {
 	getMultiSequenceContextMenuItems,
 	getSequenceContextMenuItems,
@@ -1075,7 +1076,24 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		isTransitionSeriesSequence(s) || s.timelineTrack?.role === 'transition';
 	const [transitionNeighbors, setTransitionNeighbors] =
 		useState<ReturnType<typeof getTimelineTransitionNeighbors>>(null);
+	const originalSequence = registryEntry?.sequence ?? null;
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
+	);
+	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const onPointerEnter = useCallback(() => {
+		if (nodePath && isStudioInteractivityEnabled()) {
+			getKeyframeTrimConstraints({
+				propStatuses: propStatusesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+				sequences: sequencesRef.current,
+				affectedNodePaths: [nodePath],
+			});
+		}
+
 		if (!isTransitionInteraction) return;
 		setTransitionNeighbors(
 			getTimelineTransitionNeighbors({
@@ -1083,12 +1101,15 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				sequences: sequencesRef.current,
 			}),
 		);
-	}, [isTransitionInteraction, s.id, sequencesRef]);
-	const originalSequence = registryEntry?.sequence ?? null;
-	const overrideIdToNodePathMappingsRef = useContext(
-		OverrideIdToNodePathMappingsRefContext,
-	);
-	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
+	}, [
+		isTransitionInteraction,
+		nodePath,
+		overrideIdToNodePathMappingsRef,
+		propStatusesRef,
+		s.id,
+		sequencesRef,
+	]);
+
 	const mediaDurationDragLimitsRegistry = useContext(
 		TimelineSequenceMediaDurationDragLimitsContext,
 	);
