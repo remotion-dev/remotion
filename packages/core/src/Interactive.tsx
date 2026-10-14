@@ -287,13 +287,10 @@ type WithSchemaOptions<
 	WithDefaults extends boolean,
 > = WithDefaults extends true
 	? Omit<Options, 'schema' | 'componentName' | 'wrapInSequence'> &
-			Partial<Pick<Options, 'schema' | 'componentName'>> &
-			(Options extends {wrapInSequence: true}
-				? {readonly wrapInSequence?: true}
-				: {readonly wrapInSequence: false})
+			Partial<Pick<Options, 'schema' | 'componentName'>>
 	: Options;
 
-type WithSchema<WithDefaults extends boolean = false> = {
+type WithSequence<WithDefaults extends boolean> = {
 	<S extends InteractivitySchema, Component extends React.ElementType>(
 		options: WithSchemaOptions<
 			Omit<
@@ -346,14 +343,14 @@ type WithSchema<WithDefaults extends boolean = false> = {
 			InteractivePremountProps &
 			InteractiveCropProps
 	>;
+};
+
+type WithSchema = WithSequence<false> & {
 	<S extends InteractivitySchema, Props extends object>(
-		options: WithSchemaOptions<
-			WithInteractivitySchemaOptions<S, Props> & {
-				readonly wrapInSequence?: false;
-				readonly layout?: never;
-			},
-			WithDefaults
-		>,
+		options: WithInteractivitySchemaOptions<S, Props> & {
+			readonly wrapInSequence?: false;
+			readonly layout?: never;
+		},
 	): React.ComponentType<Props>;
 };
 
@@ -535,17 +532,17 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 	>;
 };
 
-const create: WithSchema<true> = (untypedOptions: unknown) => {
+const create: WithSequence<true> = (untypedOptions: unknown) => {
 	const options = untypedOptions as Omit<
 		WithSchemaImplementationOptions,
-		'schema' | 'componentName'
+		'schema' | 'componentName' | 'wrapInSequence' | 'supportsEffects'
 	> &
 		Partial<Pick<WithSchemaImplementationOptions, 'schema' | 'componentName'>>;
 
 	return (withSchema as (options: WithSchemaImplementationOptions) => React.FC)(
 		{
 			...options,
-			wrapInSequence: options.wrapInSequence ?? true,
+			wrapInSequence: true,
 			schema: options.schema ?? {},
 			componentName:
 				options.componentName ??
@@ -732,7 +729,7 @@ export const Interactive = {
 	withSchema,
 	/**
 	 * @description Creates a component with timing props and editable Studio controls.
-	 * Sequence wrapping defaults to true, schema defaults to {}, and componentName is inferred.
+	 * Always wraps the component in a sequence. The schema defaults to {} and componentName is inferred.
 	 * A trailing "Inner" is removed from inferred function names.
 	 * @see [Documentation](https://www.remotion.dev/docs/interactive-create)
 	 */

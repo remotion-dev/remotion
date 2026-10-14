@@ -9,7 +9,7 @@ crumb: 'API'
 
 Wraps a React component with [timing props](/docs/timing) and editable controls in the [Remotion Studio](/docs/studio).
 
-Sequence wrapping is enabled by default. You can omit `schema` when the component has no custom controls.
+The component is always wrapped in a [`<Sequence>`](/docs/sequence). A [`useCurrentFrame()`](/docs/use-current-frame) call inside the component reads its local frame. You can omit `schema` when the component has no custom controls.
 
 ```tsx twoslash title="Circle.tsx"
 import type React from 'react';
@@ -71,7 +71,7 @@ The options for `Interactive.create()` are:
 
 The component to wrap.
 
-With sequence wrapping enabled and the default `layout: 'none'`, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root.
+With the default `layout: 'none'`, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root.
 With `layout: 'absolute-fill'`, the wrapper applies styles to a full-size container instead. `Component` must not declare `style`, `width`, or `height` props; these belong to the wrapper.
 
 ### `componentName`?
@@ -88,23 +88,13 @@ Set the returned component's [`name`](/docs/sequence#name) prop to label an indi
 
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which custom props are editable in Remotion Studio. Defaults to `{}`. Props that are not in the schema still work in code.
 
-With sequence wrapping enabled, timing, premounting, cropping, and transform controls are included automatically. You do not need to add their schema fragments.
+Timing, premounting, cropping, and transform controls are included automatically. You do not need to add their schema fragments.
 
 See: [Make a component interactive](/docs/studio/make-component-interactive#create-a-schema)
 
-### `wrapInSequence`?
-
-Defaults to `true`. Wraps the component in a [`<Sequence>`](/docs/sequence) and adds timing, premounting, and cropping props. A [`useCurrentFrame()`](/docs/use-current-frame) call inside the component reads its local frame.
-
-Set to `false` only when the component already handles its own sequence and forwards its controls and timing props. In this mode, `Interactive.create()` preserves the component's props, uses the schema as supplied, and does not add timing props or standard schema fragments. `layout` must be omitted.
-
-### `supportsEffects`?
-
-Only available, and required, when `wrapInSequence` is `false`. Declares whether the component supports effect controls. Set to `false` for components that do not handle effects.
-
 ### `layout`?
 
-Available when sequence wrapping is enabled. Defaults to `'none'`, which forwards styles to `Component` without adding a container.
+Defaults to `'none'`, which forwards styles to `Component` without adding a container.
 
 Set to `'absolute-fill'` to give the component a full-size, absolutely positioned container with `overflow: 'hidden'` by default. Set `style={{overflow: 'visible'}}` on the returned component to let content extend beyond its bounds. Styles, transforms, cropping, and premount styles apply to this container. It shares the component's timeline item, so no extra layout layer appears in Studio. The returned component also accepts `width` and `height` to size the container and set the dimensions reported by `useVideoConfig()`.
 
@@ -150,7 +140,7 @@ Keep `'none'` when styles need to apply directly to an element with its own size
 
 ### Return value
 
-Returns a React component with the original component's props and, by default, timing, premounting, and cropping props.
+Returns a React component with the original component's props and timing, premounting, and cropping props.
 
 With `layout: 'absolute-fill'`, the returned component also accepts `style`, `width`, and `height`. These props belong to the wrapper and must not be declared by the inner component. The inner component must not declare the timing, premounting, or cropping props managed by the wrapper either.
 
@@ -162,9 +152,9 @@ With `layout: 'absolute-fill'`, the ref points to the wrapper's `HTMLDivElement`
 
 ## Migrating from `Interactive.withSchema()`
 
-Replace `Interactive.withSchema()` with `Interactive.create()`. You can remove `wrapInSequence: true`, an empty `schema`, and a `componentName` that matches the inferred name. Keep explicit names when they should remain unchanged.
+For calls with `wrapInSequence: true`, replace `Interactive.withSchema()` with `Interactive.create()` and remove `wrapInSequence`. You can also remove an empty `schema` and a `componentName` that matches the inferred name. Keep explicit names when they should remain unchanged.
 
-If the old call omitted `wrapInSequence` or set it to `false`, explicitly pass `wrapInSequence: false` to preserve its behavior. The default changed from `false` to `true`.
+If the old call omitted `wrapInSequence` or set it to `false`, keep using `Interactive.withSchema()` to preserve its behavior. Components that manage their own sequencing still need that API. `Interactive.create()` always adds a sequence and does not accept `wrapInSequence`.
 
 ## Compatibility
 

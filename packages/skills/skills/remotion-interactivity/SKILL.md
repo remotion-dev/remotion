@@ -15,7 +15,7 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Prefer interactive components with their own timelines
 
-Use `Interactive.create()` from Remotion 4.0.536 onwards. Sequence wrapping defaults to `true`, and `schema` defaults to `{}`, so omit both when no custom controls are needed. `componentName` is optional: it uses `Component.displayName`, then the function name with a trailing `Inner` removed, then `"Component"`. Explicit names and display names are preserved.
+Use `Interactive.create()` from Remotion 4.0.536 onwards. It always wraps the component in a sequence; there is no `wrapInSequence` option. The `schema` defaults to `{}`, so omit it when no custom controls are needed. `componentName` is optional: it uses `Component.displayName`, then the function name with a trailing `Inner` removed, then `"Component"`. Explicit names and display names are preserved.
 
 Use `Interactive.create({layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, dimensions, and per-instance styles on the exported component.
 
@@ -94,7 +94,7 @@ Every field needs a `default` and should have a `description`, which Studio show
 Set `keyframable: false` to show a static control.
 
 Expose content and per-instance appearance, such as the text and an accent color.
-Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `Interactive.create()` adds them by default.
+Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `Interactive.create()` adds them automatically.
 
 To make CSS properties of the root editable per instance, spread the built-in schema fragments:
 
@@ -130,7 +130,7 @@ its parent. See
 
 Register the same exported component reference that the parent renders. For the
 example above, use `component={Scene}`, not `SceneInner` or an inline wrapper.
-`Interactive.create()` provides the sequence by default, so no extra `<Sequence>` is needed for the connection.
+`Interactive.create()` provides the sequence, so no extra `<Sequence>` is needed for the connection.
 
 ```tsx title="src/Root.tsx"
 import {Composition} from 'remotion';

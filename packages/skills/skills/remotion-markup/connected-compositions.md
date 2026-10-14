@@ -83,7 +83,7 @@ export const Chapter = Interactive.create({
 ```
 
 `ChapterInner` only declares `title`. The Chapter background layer exposes the centering and background styles in the timeline; the wrapper handles instance styles and timing.
-Because `Interactive.create()` wraps the component in a sequence by default, the exported `Chapter` additionally accepts the timing props of a `<Sequence>`: `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`, plus `premountFor`, `postmountFor` and crop props.
+Because `Interactive.create()` always wraps the component in a sequence, the exported `Chapter` additionally accepts the timing props of a `<Sequence>`: `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`, plus `premountFor`, `postmountFor` and crop props.
 These are handled by the wrapper and are not passed to `ChapterInner`.
 See [Prefer interactive components with their own timelines](../remotion-interactivity/SKILL.md#prefer-interactive-components-with-their-own-timelines).
 
