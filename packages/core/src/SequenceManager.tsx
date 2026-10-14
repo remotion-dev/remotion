@@ -3,6 +3,7 @@ export * from './sequence-registry-context.js';
 import {
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivityContext,
+	SequenceActivityDormantContext,
 	SequenceActivitySettingsContext,
 } from './sequence-activity-context.js';
 import {
@@ -242,6 +243,9 @@ const defaultVisualModeDragOverrides: VisualModeDragOverrides = {
 export const VisualModeDragOverridesContext =
 	React.createContext<VisualModeDragOverrides>(defaultVisualModeDragOverrides);
 
+const InactiveVisualModeDragOverridesContext =
+	React.createContext<VisualModeDragOverrides>(defaultVisualModeDragOverrides);
+
 export const VisualModeDragOverridesRefContext = React.createContext<
 	React.RefObject<VisualModeDragOverrides>
 >({current: defaultVisualModeDragOverrides});
@@ -249,6 +253,14 @@ export const VisualModeDragOverridesRefContext = React.createContext<
 export const useDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
 ): Record<string, DragOverrideValue> => {
+	const dormant = useContext(SequenceActivityDormantContext);
+	// Hidden Activities disconnect external-store subscriptions. Context updates
+	// still schedule their renders, allowing them to read the latest snapshot.
+	useContext(
+		dormant
+			? VisualModeDragOverridesContext
+			: InactiveVisualModeDragOverridesContext,
+	);
 	const subscription = useContext(VisualModeDragOverridesSubscriptionContext);
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedSubscription =
@@ -276,6 +288,12 @@ export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
 export const useEffectDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
 ): Record<string, Record<string, DragOverrideValue>> => {
+	const dormant = useContext(SequenceActivityDormantContext);
+	useContext(
+		dormant
+			? VisualModeDragOverridesContext
+			: InactiveVisualModeDragOverridesContext,
+	);
 	const subscription = useContext(VisualModeDragOverridesSubscriptionContext);
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedSubscription =
