@@ -369,6 +369,10 @@ const TimelineSequenceBar: React.FC<{
 		readonly left: number;
 		readonly width: number;
 	} | null;
+	readonly captionRange: {
+		readonly startMs: number;
+		readonly endMs: number;
+	} | null;
 	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
@@ -413,6 +417,7 @@ const TimelineSequenceBar: React.FC<{
 	s,
 	labelOffset,
 	captionLabelBounds,
+	captionRange,
 	hasCaptionsSchema,
 	connectedComposition,
 	activeTrimEdge,
@@ -781,8 +786,12 @@ const TimelineSequenceBar: React.FC<{
 							}}
 						/>
 					) : null}
-					{hasCaptionsSchema ? (
-						<TimelineSequenceCaptions s={s} />
+					{captionRange ? (
+						<TimelineSequenceCaptions
+							s={s}
+							startMs={captionRange.startMs}
+							endMs={captionRange.endMs}
+						/>
 					) : (
 						<TimelineSequenceLabel
 							label={
@@ -2417,6 +2426,24 @@ const TimelineSequenceLayoutInner: React.FC<{
 		<TimelineSequenceBar
 			s={s}
 			hasCaptionsSchema={hasCaptionsSchema}
+			captionRange={
+				hasCaptionsSchema
+					? {
+							// The source offset already includes this layer's trim and
+							// clipping by ancestors, independent of viewport scrolling.
+							startMs: (sequenceFrameOffset / video.fps) * 1000,
+							endMs:
+								((sequenceFrameOffset +
+									Math.max(
+										0,
+										Math.min(s.duration, video.durationInFrames - s.from),
+									) *
+										s.sequencePlaybackRate) /
+									video.fps) *
+								1000,
+						}
+					: null
+			}
 			labelOffset={
 				labelStartFrame === null
 					? 0
