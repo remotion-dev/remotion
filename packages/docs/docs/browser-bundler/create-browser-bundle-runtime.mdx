@@ -73,7 +73,7 @@ Calling [`getBrowserComposition()`](/docs/browser-bundler/get-browser-compositio
 
 ## Source locations<AvailableFrom v="4.0.529" />
 
-Development bundles record the file, line and column of every JSX element. The runtime forwards this location to Remotion's built-in elements and to components wrapped with [`Interactive.withSchema()`](/docs/interactive-with-schema) when the bundle renders them. Rendering the composition with [`<Canvas>`](/docs/sdk/canvas) exposes the location of each mounted sequence through [`getCanvasSequenceSourceLocation()`](/docs/sdk/get-canvas-sequence-source-location), so an editor can map a track to its source node.
+Development bundles record the file, line and column of every JSX element. The runtime forwards this location to Remotion's built-in elements and to components wrapped with [`Interactive.create()`](/docs/interactive-create) when the bundle renders them. Rendering the composition with [`<Canvas>`](/docs/sdk/canvas) exposes the location of each mounted sequence through [`getCanvasSequenceSourceLocation()`](/docs/sdk/get-canvas-sequence-source-location), so an editor can map a track to its source node.
 
 Only the bundle's own JSX carries locations. Elements created by dependencies resolved over HTTP do not, and their location is `null`. The host's React is not modified.
 

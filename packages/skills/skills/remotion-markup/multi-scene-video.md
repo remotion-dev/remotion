@@ -99,4 +99,4 @@ With no transition, this example needs a 210-frame main composition.
 If you add a transition, account for its overlap in the main duration; see [transitions](transitions.md).
 
 Use `<TransitionSeries>` for consecutive scenes that do not need transitions.
-For independently placed scenes, prefer components made with `Interactive.withSchema({wrapInSequence: true})` and put `from` and `durationInFrames` directly on each instance.
+For independently placed scenes, prefer components made with `Interactive.create()` and put `from` and `durationInFrames` directly on each instance.
