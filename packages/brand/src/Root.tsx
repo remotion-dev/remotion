@@ -809,7 +809,9 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<KeyframeMove />
 				<PitchCorrection />
 				<RenderOnWeb />
-				<NestingCompositions />
+				<Folder name="NestingCompositions">
+					<NestingCompositions />
+				</Folder>
 			</Folder>
 
 			<Folder name="StudioAssets">
