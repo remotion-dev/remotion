@@ -2,20 +2,29 @@ import {Button} from '@remotion/design';
 import {createElement} from 'react';
 import {createRoot} from 'react-dom/client';
 import {browser} from 'wxt/browser';
-import {getCapturePreflight, PageCapture, type CaptureCrop} from './capture';
+import {
+	canvasSetupUrl,
+	getBrowserRequirementIssue,
+	minimumChromeVersion,
+	type BrowserRequirementIssue,
+} from './browser-requirements';
+import {
+	getCapturePreflight,
+	getMaximumCaptureScale,
+	getSuggestedMaximumCaptureScale,
+	PageCapture,
+	type CaptureCrop,
+} from './capture';
 import {openCaptureInRemotion} from './handoff';
 import {
 	captureControllerMessageType,
+	openCaptureSetupMessageType,
 	isCaptureControllerRequest,
 	type CaptureControllerRequest,
 	type CaptureControllerState,
 	type CaptureFormat,
 } from './messages';
-import {
-	canEncodeCapture,
-	getScaledCanvasSize,
-	isHtmlInCanvasAvailable,
-} from './recorder';
+import {canEncodeCapture, getScaledCanvasSize} from './recorder';
 import {
 	dragSelectionRectangle,
 	makeSelectionRectangle,
@@ -44,8 +53,18 @@ type SelectedTarget =
 	| {readonly type: 'page-crop'; readonly crop: CaptureCrop};
 
 const defaultResolution = {width: 2560, height: 1440};
-const maxZoom = 30;
 const minimumCaptureArea = {width: 10, height: 10};
+const browserRequirementMessages = {
+	'browser-version': {
+		title: 'Update Chrome to record',
+		description: `Requires Chrome ${minimumChromeVersion} or newer.`,
+	},
+	'html-in-canvas-unavailable': {
+		title: 'HTML-in-canvas is unavailable',
+		description:
+			'Enable Canvas Draw Element in Chrome flags, then restart Chrome.',
+	},
+};
 
 export const startContent = () => {
 	const extensionWindow = window as ExtensionWindow;
@@ -259,6 +278,30 @@ export const startContent = () => {
 			pointer-events: none;
 			transform: translateX(-50%);
 			white-space: nowrap;
+		}
+		.capture-controls-encoding-error.requirements-error {
+			width: 270px;
+			padding: 8px 10px;
+			pointer-events: auto;
+			white-space: normal;
+		}
+		.capture-controls-error-description {
+			margin-top: 2px;
+			font-weight: 400;
+		}
+		.capture-controls button.capture-controls-open-setup {
+			height: auto;
+			margin-top: 6px;
+			padding: 3px 6px;
+			border: 1px solid #fff;
+			border-radius: 4px;
+			background: transparent;
+			color: #fff;
+			font-size: 11px;
+			line-height: 16px;
+		}
+		.capture-controls button.capture-controls-open-setup:hover {
+			background: rgba(255, 255, 255, 0.15);
 		}
 		.capture-controls-header {
 			display: flex;
@@ -485,7 +528,7 @@ export const startContent = () => {
 		dimensionsZoomSlider.className = 'capture-dimensions-zoom-slider';
 		dimensionsZoomSlider.type = 'range';
 		dimensionsZoomSlider.min = '0.1';
-		dimensionsZoomSlider.max = String(maxZoom);
+		dimensionsZoomSlider.max = '1';
 		dimensionsZoomSlider.step = '0.1';
 		dimensionsZoomSlider.ariaLabel = 'Output zoom';
 		dimensionsZoomPopover.appendChild(dimensionsZoomSlider);
@@ -518,7 +561,18 @@ export const startContent = () => {
 		controlsEncodingError.className = 'capture-controls-encoding-error';
 		controlsEncodingError.setAttribute('role', 'status');
 		controlsEncodingError.ariaLive = 'polite';
-		controlsEncodingError.textContent = "Browser can't encode this resolution";
+		const controlsErrorTitle = document.createElement('div');
+		const controlsErrorDescription = document.createElement('div');
+		controlsErrorDescription.className = 'capture-controls-error-description';
+		const controlsOpenSetup = document.createElement('button');
+		controlsOpenSetup.className = 'capture-controls-open-setup';
+		controlsOpenSetup.type = 'button';
+		controlsOpenSetup.textContent = 'Open Chrome flags';
+		controlsEncodingError.append(
+			controlsErrorTitle,
+			controlsErrorDescription,
+			controlsOpenSetup,
+		);
 		const controlsHeader = document.createElement('div');
 		controlsHeader.className = 'capture-controls-header';
 		controlsHeader.dataset.tooltip = 'Drag to reposition';
@@ -646,6 +700,12 @@ export const startContent = () => {
 		let encoderSupport: CaptureControllerState['encoderSupport'] =
 			'unavailable';
 		let outputSize: CaptureControllerState['outputSize'] = null;
+		let zoomLimit: {
+			readonly key: string;
+			readonly targetKey: string;
+			readonly pending: Promise<number | null>;
+			maximum: number;
+		} | null = null;
 		let controlsDismissed = true;
 		let controlsBusy = false;
 		let controlsDrag: {
@@ -658,11 +718,11 @@ export const startContent = () => {
 		let encoderSupportKey: string | null = null;
 		let recordingStartedAt: number | null = null;
 		let recordingDurationInterval: number | null = null;
-		const supported = isHtmlInCanvasAvailable();
-		let status = supported
-			? 'Choose an area or the whole page.'
-			: 'Canvas capture is unavailable because the experimental HTML-in-canvas API is disabled. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.';
-		let statusIsError = !supported;
+		let supported = false;
+		let requirementsChecked = false;
+		let browserRequirementIssue: BrowserRequirementIssue | null = null;
+		let status = 'Checking browser requirements…';
+		let statusIsError = false;
 		let selectionStart: {readonly x: number; readonly y: number} | null = null;
 		let selectionDrag: {
 			readonly pointerId: number;
@@ -728,136 +788,8 @@ export const startContent = () => {
 			Math.min(
 				defaultResolution.width / width,
 				defaultResolution.height / height,
-				maxZoom,
+				getSuggestedMaximumCaptureScale(width, height),
 			);
-
-		const refreshEncoderSupport = async () => {
-			const checkId = ++encoderSupportCheckId;
-			if (
-				!supported ||
-				!selectedTarget ||
-				capture ||
-				completedRecording ||
-				finalizing ||
-				selecting ||
-				selectionDrag
-			) {
-				if (!selectedTarget) {
-					encoderSupport = 'unavailable';
-					encoderSupportKey = null;
-					outputSize = null;
-				}
-
-				return;
-			}
-
-			const target = resolveCaptureTarget();
-			if (!target) {
-				encoderSupport = 'unavailable';
-				encoderSupportKey = null;
-				outputSize = null;
-				return;
-			}
-
-			try {
-				if (useDefaultResolution) {
-					const source = getCapturePreflight({scale: 1, crop: target.crop});
-					const selectedSize = target.crop ?? source.sourceSize;
-					scale = getDefaultResolutionScale(
-						selectedSize.width,
-						selectedSize.height,
-					);
-				}
-
-				const preflight = getCapturePreflight({
-					scale,
-					crop: target.crop,
-				});
-				if (checkId !== encoderSupportCheckId) {
-					return;
-				}
-
-				const supportKey = `${preflight.outputSize.width}x${preflight.outputSize.height}`;
-				outputSize = preflight.outputSize;
-				if (
-					encoderSupportKey === supportKey &&
-					(encoderSupport === 'supported' || encoderSupport === 'unsupported')
-				) {
-					return;
-				}
-
-				if (requestedFormat !== null) {
-					format = requestedFormat;
-					encoderSupport = 'checking';
-					const canEncode = await canEncodeCapture(format, outputSize);
-					if (checkId !== encoderSupportCheckId) {
-						return;
-					}
-
-					encoderSupport = canEncode ? 'supported' : 'unsupported';
-					encoderSupportKey = supportKey;
-					setStatus(
-						canEncode
-							? `Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`
-							: `${getFormatLabel(format)} is unavailable at ${outputSize.width}×${outputSize.height}.`,
-						!canEncode,
-					);
-					return;
-				}
-
-				encoderSupport = 'checking';
-				setStatus(
-					`Checking H.264 MP4 support at ${outputSize.width}×${outputSize.height}…`,
-				);
-				const canEncodeMp4 = await canEncodeCapture('mp4', outputSize);
-				if (checkId !== encoderSupportCheckId) {
-					return;
-				}
-
-				if (canEncodeMp4) {
-					format = 'mp4';
-					encoderSupport = 'supported';
-					encoderSupportKey = supportKey;
-					setStatus(
-						`Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`,
-					);
-					return;
-				}
-
-				setStatus(
-					`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Checking VP9 WebM…`,
-				);
-				const canEncodeWebm = await canEncodeCapture('webm', outputSize);
-				if (checkId !== encoderSupportCheckId) {
-					return;
-				}
-
-				if (canEncodeWebm) {
-					format = 'webm';
-					encoderSupport = 'supported';
-					encoderSupportKey = supportKey;
-					setStatus(
-						`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Ready to record VP9 WebM instead.`,
-					);
-				} else {
-					encoderSupport = 'unsupported';
-					encoderSupportKey = supportKey;
-					setStatus(
-						`Neither H.264 MP4 nor VP9 WebM encoding is supported at ${outputSize.width}×${outputSize.height} in this browser. Choose a lower resolution or select a smaller area.`,
-						true,
-					);
-				}
-			} catch (error) {
-				if (checkId !== encoderSupportCheckId) {
-					return;
-				}
-
-				encoderSupport = 'unsupported';
-				encoderSupportKey = null;
-				outputSize = null;
-				setStatus(error instanceof Error ? error.message : String(error), true);
-			}
-		};
 
 		const updateDimensions = (
 			rect: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'> | null,
@@ -867,12 +799,20 @@ export const startContent = () => {
 				return;
 			}
 
-			const previewScale = useDefaultResolution
-				? getDefaultResolutionScale(rect.width, rect.height)
-				: scale;
+			const maximumScale =
+				zoomLimit?.targetKey === `${rect.width}x${rect.height}`
+					? zoomLimit.maximum
+					: getSuggestedMaximumCaptureScale(rect.width, rect.height);
+			const previewScale = Math.min(
+				useDefaultResolution
+					? getDefaultResolutionScale(rect.width, rect.height)
+					: scale,
+				maximumScale,
+			);
 			const scaled = getScaledCanvasSize(rect.width, rect.height, previewScale);
 			dimensionsSource.textContent = `${Math.round(rect.width)}×${Math.round(rect.height)}`;
 			dimensionsZoom.textContent = `${previewScale.toFixed(1)}×`;
+			dimensionsZoomSlider.max = String(maximumScale);
 			dimensionsZoomSlider.value = String(previewScale);
 			dimensionsOutput.textContent = `${scaled.width}×${scaled.height}`;
 			dimensions.style.display = 'flex';
@@ -966,8 +906,10 @@ export const startContent = () => {
 			hasCompletedRecording: completedRecording !== null,
 			scale,
 			format,
-			status,
-			error: statusIsError,
+			status: browserRequirementIssue
+				? `${browserRequirementMessages[browserRequirementIssue].title}. ${browserRequirementMessages[browserRequirementIssue].description}`
+				: status,
+			error: browserRequirementIssue !== null || statusIsError,
 		});
 
 		const updateControls = () => {
@@ -979,8 +921,23 @@ export const startContent = () => {
 				return;
 			}
 
+			const requirementMessage = browserRequirementIssue
+				? browserRequirementMessages[browserRequirementIssue]
+				: null;
+			controlsErrorTitle.textContent =
+				requirementMessage?.title ?? "Browser can't encode this resolution";
+			controlsErrorDescription.textContent =
+				requirementMessage?.description ?? '';
+			controlsErrorDescription.hidden = requirementMessage === null;
+			controlsOpenSetup.hidden =
+				browserRequirementIssue !== 'html-in-canvas-unavailable';
+			controlsEncodingError.classList.toggle(
+				'requirements-error',
+				requirementMessage !== null,
+			);
 			controlsEncodingError.style.display =
-				state.hasTarget && state.encoderSupport === 'unsupported'
+				requirementMessage ||
+				(state.hasTarget && state.encoderSupport === 'unsupported')
 					? 'block'
 					: 'none';
 			dimensionsZoom.disabled =
@@ -990,13 +947,22 @@ export const startContent = () => {
 				!state.supported;
 			dimensionsZoomSlider.disabled = dimensionsZoom.disabled;
 			controlsSecondary.disabled =
-				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsSecondary.hidden = state.hasTarget || state.hasCompletedRecording;
+				controlsBusy ||
+				state.recording ||
+				state.hasCompletedRecording ||
+				!state.supported;
+			controlsSecondary.hidden =
+				!state.supported || state.hasTarget || state.hasCompletedRecording;
 			controlsWholePage.disabled =
-				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsWholePage.hidden = state.hasTarget || state.hasCompletedRecording;
+				controlsBusy ||
+				state.recording ||
+				state.hasCompletedRecording ||
+				!state.supported;
+			controlsWholePage.hidden =
+				!state.supported || state.hasTarget || state.hasCompletedRecording;
 			controlsDuration.hidden = !state.recording;
-			controlsPrimary.hidden = !state.hasTarget || state.hasCompletedRecording;
+			controlsPrimary.hidden =
+				(state.supported && !state.hasTarget) || state.hasCompletedRecording;
 			controlsPrimary.classList.toggle('recording', state.recording);
 			controlsNew.hidden = !state.hasCompletedRecording;
 			controlsNew.disabled = controlsBusy;
@@ -1016,7 +982,9 @@ export const startContent = () => {
 			const primaryDisabled =
 				controlsBusy ||
 				(!state.recording &&
-					(!state.hasTarget || state.encoderSupport !== 'supported'));
+					(!state.supported ||
+						!state.hasTarget ||
+						state.encoderSupport !== 'supported'));
 			renderControlsPrimary(primaryLabel, primaryDisabled);
 			const closeLabel = state.recording
 				? 'Stop recording before clearing selection'
@@ -1029,6 +997,170 @@ export const startContent = () => {
 			controlsClose.dataset.tooltip = closeLabel;
 			controlsClose.disabled =
 				controlsBusy || state.recording || startingRecording;
+		};
+
+		const refreshEncoderSupport = async () => {
+			const checkId = ++encoderSupportCheckId;
+			if (
+				!supported ||
+				!selectedTarget ||
+				capture ||
+				completedRecording ||
+				finalizing ||
+				selecting ||
+				selectionDrag
+			) {
+				if (!selectedTarget) {
+					encoderSupport = 'unavailable';
+					encoderSupportKey = null;
+					outputSize = null;
+				}
+
+				return;
+			}
+
+			const target = resolveCaptureTarget();
+			if (!target) {
+				encoderSupport = 'unavailable';
+				encoderSupportKey = null;
+				outputSize = null;
+				return;
+			}
+
+			try {
+				const source = getCapturePreflight({scale: 0.1, crop: target.crop});
+				const selectedSize = target.crop ?? source.sourceSize;
+				const targetKey = `${selectedSize.width}x${selectedSize.height}`;
+				const zoomLimitKey = `${targetKey}:${source.sourceSize.width}x${source.sourceSize.height}:${window.devicePixelRatio}`;
+				if (zoomLimit?.key !== zoomLimitKey) {
+					zoomLimit = {
+						key: zoomLimitKey,
+						targetKey,
+						maximum: getSuggestedMaximumCaptureScale(
+							selectedSize.width,
+							selectedSize.height,
+						),
+						pending: getMaximumCaptureScale(target.crop),
+					};
+					encoderSupport = 'checking';
+					encoderSupportKey = null;
+					updateControls();
+				}
+
+				const currentZoomLimit = zoomLimit;
+				const maximumScale = await currentZoomLimit.pending.catch((error) => {
+					if (zoomLimit === currentZoomLimit) {
+						zoomLimit = null;
+					}
+
+					throw error;
+				});
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				currentZoomLimit.maximum = maximumScale ?? 0.1;
+				if (useDefaultResolution) {
+					scale = getDefaultResolutionScale(
+						selectedSize.width,
+						selectedSize.height,
+					);
+				}
+
+				scale = Math.min(scale, currentZoomLimit.maximum);
+				updateHighlight();
+				if (maximumScale === null) {
+					throw new Error('No supported recording resolution for this area.');
+				}
+
+				const preflight = getCapturePreflight({
+					scale,
+					crop: target.crop,
+				});
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				const supportKey = `${preflight.outputSize.width}x${preflight.outputSize.height}`;
+				outputSize = preflight.outputSize;
+				if (
+					encoderSupportKey === supportKey &&
+					(encoderSupport === 'supported' || encoderSupport === 'unsupported')
+				) {
+					return;
+				}
+
+				if (requestedFormat !== null) {
+					format = requestedFormat;
+					encoderSupport = 'checking';
+					const canEncode = await canEncodeCapture(format, outputSize);
+					if (checkId !== encoderSupportCheckId) {
+						return;
+					}
+
+					encoderSupport = canEncode ? 'supported' : 'unsupported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						canEncode
+							? `Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`
+							: `${getFormatLabel(format)} is unavailable at ${outputSize.width}×${outputSize.height}.`,
+						!canEncode,
+					);
+					return;
+				}
+
+				encoderSupport = 'checking';
+				setStatus(
+					`Checking H.264 MP4 support at ${outputSize.width}×${outputSize.height}…`,
+				);
+				const canEncodeMp4 = await canEncodeCapture('mp4', outputSize);
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				if (canEncodeMp4) {
+					format = 'mp4';
+					encoderSupport = 'supported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						`Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`,
+					);
+					return;
+				}
+
+				setStatus(
+					`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Checking VP9 WebM…`,
+				);
+				const canEncodeWebm = await canEncodeCapture('webm', outputSize);
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				if (canEncodeWebm) {
+					format = 'webm';
+					encoderSupport = 'supported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Ready to record VP9 WebM instead.`,
+					);
+				} else {
+					encoderSupport = 'unsupported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						`Neither H.264 MP4 nor VP9 WebM encoding is supported at ${outputSize.width}×${outputSize.height} in this browser. Choose a lower resolution or select a smaller area.`,
+						true,
+					);
+				}
+			} catch (error) {
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				encoderSupport = 'unsupported';
+				encoderSupportKey = null;
+				outputSize = null;
+				setStatus(error instanceof Error ? error.message : String(error), true);
+			}
 		};
 
 		const cancelSelection = () => {
@@ -1081,6 +1213,8 @@ export const startContent = () => {
 			encoderSupportCheckId++;
 			encoderSupport = 'checking';
 			updateControls();
+			// Pointer capture uses the box's cursor instead of the resize handle's.
+			highlight.style.cursor = getComputedStyle(event.target as Element).cursor;
 			highlight.setPointerCapture(event.pointerId);
 			event.preventDefault();
 		});
@@ -1131,6 +1265,11 @@ export const startContent = () => {
 
 		highlight.addEventListener('pointerup', finishSelectionDrag);
 		highlight.addEventListener('pointercancel', finishSelectionDrag);
+		highlight.addEventListener('lostpointercapture', (event) => {
+			if (event.target === highlight) {
+				highlight.style.removeProperty('cursor');
+			}
+		});
 
 		const finishSelection = (event: PointerEvent) => {
 			if (!selectionStart) {
@@ -1343,10 +1482,43 @@ export const startContent = () => {
 		};
 
 		const handleRequest = async (request: CaptureControllerRequest) => {
+			if (
+				(!requirementsChecked ||
+					(request.command === 'toggle-controls' && controlsDismissed)) &&
+				!capture &&
+				!startingRecording &&
+				!finalizing
+			) {
+				browserRequirementIssue = await getBrowserRequirementIssue();
+				supported = browserRequirementIssue === null;
+				requirementsChecked = true;
+				controlsOpenSetup.textContent = 'Open Chrome flags';
+				encoderSupportCheckId++;
+				encoderSupport = 'unavailable';
+				encoderSupportKey = null;
+				zoomLimit = null;
+				setStatus('Choose an area or the whole page.');
+			}
+
 			if (request.command === 'toggle-controls') {
 				controlsDismissed = !controlsDismissed;
 				updateControls();
 				updateHighlight();
+				if (!controlsDismissed) {
+					await refreshEncoderSupport();
+					updateControls();
+				}
+
+				return getState();
+			}
+
+			if (
+				!supported &&
+				(request.command === 'select-area' ||
+					request.command === 'select-whole-page' ||
+					request.command === 'start-recording')
+			) {
+				updateControls();
 				return getState();
 			}
 
@@ -1504,6 +1676,17 @@ export const startContent = () => {
 			);
 			return getState();
 		};
+
+		controlsOpenSetup.addEventListener('click', async () => {
+			controlsOpenSetup.disabled = true;
+			try {
+				await browser.runtime.sendMessage({type: openCaptureSetupMessageType});
+			} catch {
+				controlsErrorDescription.textContent = `Open ${canvasSetupUrl} in Chrome's address bar, then enable Canvas Draw Element and restart Chrome.`;
+			} finally {
+				controlsOpenSetup.disabled = false;
+			}
+		});
 
 		controlsClose.addEventListener('click', () => {
 			if (capture || startingRecording || finalizing || controlsBusy) {
@@ -1693,6 +1876,13 @@ export const startContent = () => {
 			name: ShotToolName,
 			input: Record<string, unknown>,
 		) => {
+			if (!requirementsChecked) {
+				await handleRequest({
+					type: captureControllerMessageType,
+					command: 'get-state',
+				});
+			}
+
 			if (name === 'get_shot') {
 				if (input.preview !== undefined && typeof input.preview !== 'boolean') {
 					throw new Error('preview must be a boolean.');
@@ -1940,7 +2130,7 @@ export const startContent = () => {
 			const nextScale = Math.min(
 				outputBounds.width / crop.width,
 				outputBounds.height / crop.height,
-				maxZoom,
+				getSuggestedMaximumCaptureScale(crop.width, crop.height),
 			);
 			getCapturePreflight({crop, scale: nextScale});
 			if (selectionDrag) {

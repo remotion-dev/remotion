@@ -3,6 +3,7 @@ import {captureDragImages} from './drag-image';
 import type {CaptureFormat} from './messages';
 import {
 	assertCanEncodeCapture,
+	canEncodeCapture,
 	CanvasCaptureRecorder,
 	getScaledCanvasSize,
 	type HtmlInCanvasElement,
@@ -110,6 +111,69 @@ export const getCapturePreflight = ({
 			scale,
 		}),
 	};
+};
+
+// Bound both the longest edge and pixel count to keep output around 4K.
+export const getSuggestedMaximumCaptureScale = (
+	width: number,
+	height: number,
+) =>
+	Math.max(
+		0.1,
+		Math.floor(
+			Math.min(
+				30,
+				3840 / Math.max(width, height),
+				Math.sqrt((3840 * 2160) / (width * height)),
+			) * 10,
+		) / 10,
+	);
+
+export const getMaximumCaptureScale = async (
+	crop: CaptureCrop | null,
+): Promise<number | null> => {
+	const sourceSize = getWholePageSize();
+	const selectedSize = crop ?? sourceSize;
+	const canEncodeScale = async (step: number) => {
+		let outputSize: CapturePreflight['outputSize'];
+		try {
+			outputSize = validateCaptureSize({
+				...sourceSize,
+				crop,
+				scale: step / 10,
+			});
+		} catch {
+			return false;
+		}
+
+		if (await canEncodeCapture('mp4', outputSize)) {
+			return true;
+		}
+
+		return canEncodeCapture('webm', outputSize);
+	};
+
+	let maximum = Math.round(
+		getSuggestedMaximumCaptureScale(selectedSize.width, selectedSize.height) *
+			10,
+	);
+	if (await canEncodeScale(maximum)) {
+		return maximum / 10;
+	}
+
+	// Search in slider steps, retaining only resolutions the browser accepted.
+	let minimum = 0;
+	maximum--;
+	while (minimum < maximum) {
+		const candidate = Math.ceil((minimum + maximum) / 2);
+		if (await canEncodeScale(candidate)) {
+			minimum = candidate;
+		} else {
+			maximum = candidate - 1;
+		}
+	}
+
+	return minimum === 0 ? null : minimum / 10;
 };
 
 const wrapWholePage = (): WrappedPage => {

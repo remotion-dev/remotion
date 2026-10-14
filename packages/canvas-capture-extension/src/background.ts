@@ -1,6 +1,8 @@
 import {browser} from 'wxt/browser';
+import {canvasSetupUrl} from './browser-requirements';
 import {
 	captureControllerMessageType,
+	openCaptureSetupMessageType,
 	type CaptureControllerRequest,
 } from './messages';
 
@@ -60,7 +62,18 @@ export const startBackground = () => {
 		if (
 			typeof message !== 'object' ||
 			message === null ||
-			!('type' in message) ||
+			!('type' in message)
+		) {
+			return;
+		}
+
+		if (message.type === openCaptureSetupMessageType) {
+			return browser.tabs
+				.create({url: canvasSetupUrl, active: true})
+				.then(() => ({opened: true}));
+		}
+
+		if (
 			message.type !== 'remotion-canvas-capture-open' ||
 			!('captureId' in message) ||
 			typeof message.captureId !== 'string' ||
