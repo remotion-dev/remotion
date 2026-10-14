@@ -30,13 +30,13 @@ export const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', p
   return (
     <div
       style={{
-        ...style,
         display: 'inline-flex',
         borderRadius: 999,
         backgroundColor: color,
         color: 'white',
         fontWeight: 700,
         padding,
+        ...style,
       }}
     >
       {children}
@@ -109,13 +109,13 @@ const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', padding 
   return (
     <div
       style={{
-        ...style,
         display: 'inline-flex',
         borderRadius: 999,
         backgroundColor: color,
         color: 'white',
         fontWeight: 700,
         padding,
+        ...style,
       }}
     >
       {children}

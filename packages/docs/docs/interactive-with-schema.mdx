@@ -43,11 +43,11 @@ const CircleInner: React.FC<CircleProps> = ({radius = 80, color = '#0b84ff', sty
   return (
     <div
       style={{
-        ...style,
         width: radius * 2,
         height: radius * 2,
         borderRadius: '50%',
         backgroundColor: color,
+        ...style,
       }}
     />
   );
