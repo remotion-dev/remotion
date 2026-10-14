@@ -80,6 +80,25 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 			string,
 			{previous: TSequence | null; next: TSequence | null}
 		>();
+		for (const clip of sequences) {
+			const adjacent = adjacentById.get(clip.id);
+			if (!adjacent) continue;
+			touchingById.set(clip.id, {
+				previous:
+					adjacent.previous &&
+					Math.abs(
+						adjacent.previous.from + adjacent.previous.duration - clip.from,
+					) < 0.000001
+						? adjacent.previous
+						: null,
+				next:
+					adjacent.next &&
+					Math.abs(clip.from + clip.duration - adjacent.next.from) < 0.000001
+						? adjacent.next
+						: null,
+			});
+		}
+
 		const normalTrackIds = new Set(
 			sequences
 				.filter(

@@ -57,6 +57,10 @@ import {
 } from './get-timeline-sequence-timing-limits';
 import {getTimelineTransitionNeighbors} from './get-timeline-transition-neighbors';
 import {
+	TIMELINE_TRIM_HANDLE_WIDTH,
+	type getTimelineTrimHandleLayout,
+} from './get-timeline-trim-handle-layout';
+import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
 } from './save-sequence-prop';
@@ -81,13 +85,6 @@ import {
 
 const {getParentSequencePlaybackRate, sortItemsByCommitOrder} = CanvasInternals;
 
-const HANDLE_INSET = 6;
-const HANDLE_OUTSET = 8;
-const LEFT_EDGE_HANDLE_INSET = 4;
-const LEFT_EDGE_HANDLE_OUTSET = 4;
-const TRANSITION_CLIP_EDGE_WIDTH = 'min(10px, 25%)';
-const TRANSITION_RIGHT_HANDLE_INSET =
-	HANDLE_INSET + HANDLE_OUTSET + LEFT_EDGE_HANDLE_OUTSET + 1;
 const timelineSequenceEdgeDragThresholdPx = 4;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
@@ -218,8 +215,7 @@ const baseStyle: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	bottom: 0,
-	// Keep the middle half of narrow layers available for moving.
-	width: `calc(${HANDLE_OUTSET}px + min(${HANDLE_INSET}px, 25%))`,
+	width: TIMELINE_TRIM_HANDLE_WIDTH,
 	zIndex: 1,
 	touchAction: 'none',
 };
@@ -264,7 +260,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly positionField: 'from' | null;
 	// Series trims resize the previous clip; positioned Track clips roll both edges.
 	readonly ripplePrevious: TimelineSequenceDurationDragTarget | null;
-	// A transition roll preserves the incoming source out by moving its source in.
+	// A cascading roll preserves the incoming source out by moving its source in.
 	readonly rollingDuration: TimelineSequenceDurationDragTarget | null;
 	readonly timingLimits: ReturnType<
 		typeof getTimelineSequenceTimingLimits
@@ -1470,12 +1466,39 @@ export const getTimelineSequenceRollingEditTargets = ({
 	if (
 		rightTrack &&
 		(rightTrack.sequence.timelineTrack?.role === 'transition' ||
-			isTransitionSeriesSequence(rightTrack.sequence))
+			isCascadingSequence(rightTrack.sequence))
 	) {
-		const neighbors = getTimelineTransitionNeighbors({
+		let neighbors = getTimelineTransitionNeighbors({
 			sequenceId: rightTrack.sequence.id,
 			sequences,
 		});
+		if (isSeriesSequence(rightTrack.sequence)) {
+			// Timeline tracks use composition time; registrations use their parent clock.
+			const originalSequence = sequences.find(
+				(sequence) => sequence.id === rightTrack.sequence.id,
+			)!;
+			const siblings = sortItemsByCommitOrder(
+				sequences.filter(
+					(sequence) =>
+						sequence.parent === originalSequence.parent &&
+						isSeriesSequence(sequence),
+				),
+				(sequence) => sequence.timelineOrder,
+			);
+			const preceding =
+				siblings[
+					siblings.findIndex(
+						(sequence) => sequence.id === rightTrack.sequence.id,
+					) - 1
+				];
+			neighbors =
+				preceding &&
+				Math.abs(preceding.from + preceding.duration - originalSequence.from) <
+					0.000001
+					? {previous: preceding, next: originalSequence}
+					: null;
+		}
+
 		const previous = neighbors
 			? tracks.find((track) => track.sequence.id === neighbors.previous.id)
 			: null;
@@ -1489,8 +1512,8 @@ export const getTimelineSequenceRollingEditTargets = ({
 				propStatuses,
 				nodePath: next.nodePathInfo.sequenceSubscriptionKey,
 			}) ||
-			!isTransitionSeriesSequence(previous.sequence) ||
-			!isTransitionSeriesSequence(next.sequence)
+			!isCascadingSequence(previous.sequence) ||
+			!isCascadingSequence(next.sequence)
 		) {
 			return null;
 		}
@@ -1933,13 +1956,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly edgeEnabled: boolean;
 	readonly edgeMode: TimelineSequenceLeftEdgeDragMode;
 	readonly rollingEnabled: boolean;
-	readonly rollingOutset: number;
+	readonly handleLayout: ReturnType<typeof getTimelineTrimHandleLayout>;
+	readonly edgeOffset: number;
 	readonly fillTarget: boolean;
 	readonly isTransitionSeries: boolean;
-	readonly touchingPrevious: boolean;
 	readonly onHoverEnd: () => void;
 	readonly secondaryAction: 'source-only' | 'self-trim' | null;
-	readonly transitionEndOffset: number | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
@@ -1961,13 +1983,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	edgeEnabled,
 	edgeMode,
 	rollingEnabled,
-	rollingOutset,
+	handleLayout,
+	edgeOffset,
 	fillTarget,
 	isTransitionSeries,
-	touchingPrevious,
 	onHoverEnd,
 	secondaryAction,
-	transitionEndOffset,
 	nodePathInfo,
 	windowWidth,
 	timelineDurationInFrames,
@@ -1997,21 +2018,6 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [trimTooltip, setTrimTooltip] =
 		useState<TimelineTrimTooltipState | null>(null);
-	const [altKey, setAltKey] = useState(false);
-	const [hovered, setHovered] = useState(false);
-	useEffect(() => {
-		if (edgeMode !== 'head-trim' || !rollingEnabled || !hovered) return;
-		const onKey = (event: KeyboardEvent) => setAltKey(event.altKey);
-		const onBlur = () => setAltKey(false);
-		window.addEventListener('keydown', onKey);
-		window.addEventListener('keyup', onKey);
-		window.addEventListener('blur', onBlur);
-		return () => {
-			window.removeEventListener('keydown', onKey);
-			window.removeEventListener('keyup', onKey);
-			window.removeEventListener('blur', onBlur);
-		};
-	}, [edgeMode, hovered, rollingEnabled]);
 
 	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
@@ -2149,18 +2155,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				return;
 			}
 
-			const mode =
-				e.currentTarget.dataset.trimMode === 'head-trim'
-					? e.altKey && rollingEnabled
-						? 'rolling'
-						: 'head-trim'
-					: e.currentTarget.dataset.trimMode === 'rolling'
-						? 'rolling'
-						: e.currentTarget.dataset.trimMode === 'source-only'
-							? 'source-only'
-							: e.currentTarget.dataset.trimMode === 'self-trim'
-								? 'self-trim'
-								: 'ripple';
+			const mode = e.currentTarget.dataset
+				.trimMode as TimelineSequenceLeftEdgeDragMode;
 			const trimBeforeOnly = mode === 'source-only';
 			const activeCursor =
 				mode === 'ripple' || mode === 'rolling'
@@ -2197,12 +2193,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const overrideIdsToNodePaths = overrideIdToNodePathMappingsRef.current;
 			const propStatuses = propStatusesRef.current;
 			const handleRect = captureTarget.getBoundingClientRect();
-			const initialEdgeClientX = fillTarget
-				? handleRect.left + handleRect.width / 2
-				: captureTarget.parentElement!.getBoundingClientRect().left +
-					(mode === 'source-only' || mode === 'self-trim'
-						? (transitionEndOffset ?? 0)
-						: 0);
+			const initialEdgeClientX =
+				captureTarget.parentElement!.getBoundingClientRect().left +
+				(fillTarget
+					? captureTarget.parentElement!.getBoundingClientRect().width / 2
+					: edgeOffset);
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
@@ -2615,9 +2610,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			sourceOnlyCursor,
 			windowWidth,
 			fillTarget,
+			edgeOffset,
 			isTransitionSeries,
-			transitionEndOffset,
-			rollingEnabled,
 		],
 	);
 
@@ -2628,71 +2622,16 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		};
 	}, []);
 
-	const equalMediaTrimHandles =
-		edgeEnabled &&
-		edgeMode === 'self-trim' &&
-		secondaryAction === 'source-only' &&
-		!isTransitionSeries &&
-		!rollingEnabled &&
-		!touchingPrevious &&
-		transitionEndOffset === null;
-	const leftEdgeHandleInset = equalMediaTrimHandles
-		? 8
-		: LEFT_EDGE_HANDLE_INSET;
 	const edgeStyle: React.CSSProperties = {
 		...baseStyle,
-		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		left: isTransitionSeries
-			? 0
-			: rollingEnabled && edgeMode !== 'rolling' && edgeMode !== 'head-trim'
-				? 'min(2px, 12.5%)'
-				: touchingPrevious
-					? 0
-					: -LEFT_EDGE_HANDLE_OUTSET,
-		width: isTransitionSeries
-			? TRANSITION_CLIP_EDGE_WIDTH
-			: rollingEnabled || touchingPrevious
-				? 'min(10px, 12.5%)'
-				: edgeMode === 'source-only'
-					? `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(14px, 25%))`
-					: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${leftEdgeHandleInset}px, 12.5%))`,
-		cursor:
-			edgeMode === 'head-trim'
-				? altKey && rollingEnabled
-					? cursor
-					: trimBeforeCursor
-				: edgeMode === 'rolling'
-					? cursor
-					: edgeMode === 'ripple'
-						? cursor
-						: edgeMode === 'source-only'
-							? sourceOnlyCursor
-							: trimBeforeCursor,
+		left: handleLayout.leftTrim ?? 0,
+		cursor: edgeMode === 'source-only' ? sourceOnlyCursor : trimBeforeCursor,
 		background: TRANSPARENT,
 		pointerEvents: 'auto',
 	};
 	const trimBeforeStyle: React.CSSProperties = {
 		...baseStyle,
-		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		// Keep the incoming head trim inside the solid clip, beyond the overlap.
-		left:
-			transitionEndOffset !== null
-				? transitionEndOffset + HANDLE_INSET
-				: edgeEnabled
-					? rollingEnabled
-						? edgeMode === 'rolling'
-							? 'min(6px, 12.5%)'
-							: 'calc(min(2px, 12.5%) + min(10px, 12.5%))'
-						: touchingPrevious
-							? 'min(10px, 12.5%)'
-							: `min(${leftEdgeHandleInset}px, 12.5%)`
-					: 0,
-		width:
-			transitionEndOffset !== null
-				? 10
-				: edgeEnabled
-					? `min(${equalMediaTrimHandles ? 8 : 10}px, 12.5%)`
-					: 'min(14px, 25%)',
+		left: handleLayout.secondary ?? 0,
 		cursor:
 			secondaryAction === 'source-only' ? sourceOnlyCursor : trimBeforeCursor,
 		background: TRANSPARENT,
@@ -2705,8 +2644,6 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	};
 
 	const onLeave = () => {
-		setHovered(false);
-		setAltKey(false);
 		if (dragStateRef.current === null) {
 			onHoverEnd();
 		}
@@ -2714,7 +2651,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	return (
 		<>
-			{rollingEnabled && edgeMode !== 'rolling' && edgeMode !== 'head-trim' ? (
+			{rollingEnabled && (fillTarget || handleLayout.rolling !== null) ? (
 				<div
 					role="separator"
 					aria-orientation="vertical"
@@ -2722,10 +2659,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					data-trim-mode="rolling"
 					style={{
 						...baseStyle,
-						left: fillTarget ? 0 : -rollingOutset,
-						width: fillTarget
-							? '100%'
-							: `calc(${rollingOutset}px + min(2px, 12.5%))`,
+						left: fillTarget ? 0 : (handleLayout.rolling ?? 0),
+						width: fillTarget ? '100%' : TIMELINE_TRIM_HANDLE_WIDTH,
+						minWidth: TIMELINE_TRIM_HANDLE_WIDTH,
 						cursor,
 						background: TRANSPARENT,
 						pointerEvents: 'auto',
@@ -2736,43 +2672,24 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					onClick={fillTarget ? undefined : (e) => e.stopPropagation()}
 				/>
 			) : null}
-			{edgeEnabled ? (
+			{edgeEnabled && handleLayout.leftTrim !== null ? (
 				<div
 					role="separator"
 					aria-orientation="vertical"
 					aria-label={
-						edgeMode === 'rolling' ||
-						(edgeMode === 'head-trim' && altKey && rollingEnabled)
-							? 'Drag to roll edit'
-							: edgeMode === 'source-only'
-								? 'Drag to adjust source start'
-								: 'Drag to trim start'
+						edgeMode === 'source-only'
+							? 'Drag to adjust source start'
+							: 'Drag to trim start'
 					}
 					data-trim-mode={edgeMode}
-					title={
-						edgeMode === 'head-trim' && rollingEnabled
-							? 'Drag to trim start. Option/Alt-drag to roll edit.'
-							: undefined
-					}
 					style={edgeStyle}
-					onPointerEnter={(event) => {
-						if (edgeMode === 'head-trim') {
-							setHovered(true);
-							setAltKey(event.altKey);
-						}
-
-						onHover(
-							edgeMode === 'head-trim' && event.altKey && rollingEnabled
-								? 'rolling'
-								: edgeMode,
-						);
-					}}
+					onPointerEnter={() => onHover(edgeMode)}
 					onPointerLeave={onLeave}
 					onPointerDown={onPointerDown}
 					onClick={(e) => e.stopPropagation()}
 				/>
 			) : null}
-			{secondaryAction ? (
+			{secondaryAction && handleLayout.secondary !== null ? (
 				<div
 					role="separator"
 					aria-orientation="vertical"
@@ -3216,8 +3133,8 @@ export const useTimelineSequenceFromDrag = ({
 const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly cursor: string;
 	readonly isTransitionSeries: boolean;
-	readonly transitionStartOffset: number | null;
-	readonly touchingNext: boolean;
+	readonly handleLeft: number;
+	readonly edgeOffset: number;
 	readonly onHoverEnd: () => void;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly mediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
@@ -3236,8 +3153,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 }> = ({
 	cursor,
 	isTransitionSeries,
-	transitionStartOffset,
-	touchingNext,
+	handleLeft,
+	edgeOffset,
 	onHoverEnd,
 	nodePathInfo,
 	mediaDurationDragLimits,
@@ -3429,10 +3346,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const propStatuses = propStatusesRef.current;
 			const handleRect = captureTarget.getBoundingClientRect();
 			const initialEdgeClientX =
-				transitionStartOffset !== null
-					? handleRect.left + TRANSITION_RIGHT_HANDLE_INSET
-					: (captureTarget.parentElement?.getBoundingClientRect().right ??
-						handleRect.right - HANDLE_OUTSET);
+				captureTarget.parentElement!.getBoundingClientRect().left + edgeOffset;
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
@@ -3671,7 +3585,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			sequencesRef,
 			timelineDurationInFrames,
 			windowWidth,
-			transitionStartOffset,
+			edgeOffset,
 			isTransitionSeries,
 			updateSnapFrameRef,
 		],
@@ -3686,30 +3600,10 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		// Keep the outgoing trim inside the solid clip, clear of the incoming edge.
-		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		left:
-			transitionStartOffset !== null
-				? transitionStartOffset - TRANSITION_RIGHT_HANDLE_INSET
-				: undefined,
-		right:
-			transitionStartOffset !== null
-				? undefined
-				: isTransitionSeries
-					? 0
-					: touchingNext
-						? 'min(2px, 12.5%)'
-						: -HANDLE_OUTSET,
-		width:
-			transitionStartOffset !== null
-				? baseStyle.width
-				: isTransitionSeries
-					? TRANSITION_CLIP_EDGE_WIDTH
-					: touchingNext
-						? 'min(10px, 12.5%)'
-						: baseStyle.width,
+		left: handleLeft,
 		cursor,
 		background: TRANSPARENT,
+		pointerEvents: 'auto',
 	};
 
 	return (
