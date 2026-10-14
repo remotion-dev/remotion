@@ -46,7 +46,10 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
-import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
+import {
+	isTimelineSelectionModifierEvent,
+	useCurrentTimelineSelectionStateAsRef,
+} from './Timeline/TimelineSelection';
 
 const {
 	CanvasOutlinePolygon,
@@ -342,6 +345,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 	const performDoubleClick = React.useCallback(
 		(event: React.MouseEvent<SVGPolygonElement>) => {
+			if (isTimelineSelectionModifierEvent(event)) {
+				return;
+			}
+
 			const target = getTarget();
 			if (target === undefined) {
 				return;
