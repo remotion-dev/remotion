@@ -39,6 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
           filter: blob:none
       - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
@@ -56,6 +57,8 @@ jobs:
     name: Lambda integration tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -85,6 +88,8 @@ jobs:
     name: Next.js SSR build
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -107,6 +112,8 @@ jobs:
     name: Browser tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -138,6 +145,8 @@ jobs:
     name: Web renderer tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 26
@@ -164,6 +173,8 @@ jobs:
     name: SSR tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 16
@@ -186,6 +197,8 @@ jobs:
     name: Monorepo tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - parallel:
           - uses: actions/setup-node@v6
             with:
@@ -237,6 +250,8 @@ jobs:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - parallel:
           - uses: actions/setup-node@v6
             with:
@@ -272,6 +287,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
           filter: blob:none
       - uses: actions/setup-node@v6
@@ -311,6 +327,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
           filter: blob:none
       - parallel:
@@ -376,6 +393,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
           bun-version: 1.4.3
