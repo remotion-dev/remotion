@@ -134,8 +134,6 @@ Keep `'none'` when styles need to apply directly to an element with its own size
 
 Returns a React component with the original component's props and timing, premounting, and cropping props.
 
-With `layout: 'absolute-fill'`, the returned component also accepts `style`, `width`, and `height`. These props belong to the wrapper and must not be declared by the inner component. The inner component must not declare the timing, premounting, or cropping props managed by the wrapper either.
-
 ### Ref forwarding
 
 With `layout: 'none'`, if `Component` accepts a ref, the returned component preserves its ref type and forwards the ref directly to `Component`.
