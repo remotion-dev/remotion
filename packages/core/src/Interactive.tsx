@@ -729,8 +729,6 @@ export const Interactive = {
 	withSchema,
 	/**
 	 * @description Creates a component with timing props and editable Studio controls.
-	 * Always wraps the component in a sequence. The schema defaults to {} and componentName is inferred.
-	 * A trailing "Inner" is removed from inferred function names.
 	 * @see [Documentation](https://www.remotion.dev/docs/interactive-create)
 	 */
 	create,
