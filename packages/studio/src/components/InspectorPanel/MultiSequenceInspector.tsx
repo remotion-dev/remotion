@@ -128,6 +128,7 @@ export const MultiSequenceInspector: React.FC<{
 				displayName: track?.sequence.displayName ?? null,
 				line: null,
 				singleChildComponent: track?.sequence.singleChildComponent ?? null,
+				isTransition: track?.sequence.timelineTrack?.role === 'transition',
 			};
 		});
 	}, [overrideIdToNodePathMappings, selections, sequences]);

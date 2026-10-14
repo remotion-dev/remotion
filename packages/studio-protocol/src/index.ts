@@ -9,6 +9,10 @@ import {
 	parseBrowserStudioHash,
 } from './browser-studio-link';
 import {
+	isStudioProtocolCaptionStyleSubscription,
+	parseStudioProtocolCaptionStyleSelection,
+} from './caption-style-selection';
+import {
 	areComponentProps,
 	isComponentIdentifier,
 	isComponentImportPath,
@@ -44,6 +48,7 @@ export {
 	type AddElementLibraryToStudioResult,
 } from './add-element-library-to-studio';
 export type {AssetDragData} from './asset-drag-data';
+export type {StudioCaptionStyleSelection} from './caption-style-selection';
 export {buildOpenInRemotionNewUrl} from './browser-studio-link';
 export type {
 	ComponentDimensions,
@@ -101,6 +106,7 @@ export {
 	type InstallInStudioResult,
 } from './install-in-studio';
 export {isInsideStudio} from './is-inside-studio';
+export {subscribeToCaptionStyleSelection} from './subscribe-to-caption-style-selection';
 export type {RenderOutputDragData} from './render-output-drag-data';
 export type {SfxDragData} from './sfx-drag-data';
 export type {
@@ -120,6 +126,7 @@ export const StudioProtocolInternals = {
 	isComponentImportPath,
 	installInStudioWithDependencies,
 	isAllowedStudioProtocolPageOrigin,
+	isStudioProtocolCaptionStyleSubscription,
 	isValidPublicLicenseKey,
 	makeBrowserStudioUrl,
 	makeDragData,
@@ -131,6 +138,7 @@ export const StudioProtocolInternals = {
 	parseStudioProtocolAddElementLibraryRequest,
 	parseStudioProtocolIframeAddElementLibraryRequest,
 	parseStudioProtocolIframeInstallRequest,
+	parseStudioProtocolCaptionStyleSelection,
 	parseStudioProtocolDescriptor,
 	parseStudioProtocolInstallRequest,
 	parseStudioProtocolSetLicenseKeyRequest,

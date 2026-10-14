@@ -9,7 +9,7 @@ import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
-import {VideoPlayer} from './MediaPlayer';
+import {getPlayerFps, VideoPlayer} from './MediaPlayer';
 import {Page} from './Page';
 import {Probe} from './Probe';
 import Transcribe from './transcribe/App';
@@ -38,6 +38,7 @@ export const FileAvailable: React.FC<{
 	const probeResult = useProbe({
 		src,
 	});
+	const playerFps = getPlayerFps(probeResult.fps);
 
 	const [userRotation, setRotation] = useState(90);
 	const [flipHorizontal, setFlipHorizontal] = useState(true);
@@ -96,7 +97,7 @@ export const FileAvailable: React.FC<{
 							unclampedRect={cropOperation}
 							dimensions={probeResult.dimensions}
 							durationInSeconds={probeResult.durationInSeconds}
-							fps={probeResult.fps}
+							fps={playerFps}
 							rotation={actualUserRotation}
 							mirrorHorizontal={flipHorizontal && videoEditState.mirror}
 							mirrorVertical={flipVertical && videoEditState.mirror}
@@ -149,7 +150,7 @@ export const FileAvailable: React.FC<{
 											setTrim={setEnableTrim}
 											trimInFrame={trimInFrame}
 											trimOutFrame={trimOutFrame}
-											fps={probeResult.fps}
+											fps={playerFps}
 											setVideoEditState={setVideoEditState}
 											userRotation={actualUserRotation}
 											setRotation={setRotation}

@@ -233,7 +233,6 @@ test('JSX structure routes broadcast and return node path mutations before writi
 					position: null,
 				},
 				from: null,
-				premountFor: null,
 			},
 		});
 		if (!insertResponse.success) {

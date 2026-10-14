@@ -1123,7 +1123,6 @@ export const Canvas: React.FC<{
 						destinationDimensions:
 							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
-						fps: config.fps,
 						html: figmaHtml,
 					});
 				} finally {
@@ -1144,7 +1143,6 @@ export const Canvas: React.FC<{
 						destinationDimensions:
 							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
-						fps: config.fps,
 						markup: svgMarkup,
 					});
 				} finally {

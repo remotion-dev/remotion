@@ -165,6 +165,87 @@ describe('useGsapTimeline', () => {
 		expect(opacity(container.querySelector('[data-box]')!)).toBeCloseTo(0.6, 4);
 	});
 
+	it('restores React styles under a delayed fromTo across Strict Mode remounts', async () => {
+		// fromTo with immediateRender: false is the one tween GSAP's own
+		// context.revert() undid into its from-values, so every remount on the
+		// same element started from the previous mount's from-state.
+		const DelayedHarness = () => {
+			const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
+				timeline.fromTo(
+					selector('[data-delayed]'),
+					{opacity: 0.2, yPercent: 60},
+					{
+						opacity: 1,
+						yPercent: 0,
+						duration: 0.5,
+						ease: 'none',
+						immediateRender: false,
+					},
+					1,
+				);
+			});
+
+			return (
+				<div ref={scope}>
+					<div data-delayed style={{opacity: 0.25}} />
+				</div>
+			);
+		};
+
+		await setFrame(
+			0,
+			<StrictMode>
+				<DelayedHarness />
+			</StrictMode>,
+		);
+		const delayed = container.querySelector('[data-delayed]') as HTMLElement;
+		expect(opacity(delayed)).toBeCloseTo(0.25, 4);
+
+		await setFrame(
+			60,
+			<StrictMode>
+				<DelayedHarness />
+			</StrictMode>,
+		);
+		expect(opacity(delayed)).toBeCloseTo(1, 4);
+		expect(gsap.getProperty(delayed, 'y')).toBe(0);
+		expect(gsap.getProperty(delayed, 'yPercent')).toBe(0);
+	});
+
+	it('leaves no from-values behind when a delayed fromTo rebuilds from dependencies', async () => {
+		const RebuildHarness = ({distance}: {readonly distance: number}) => {
+			const scope = useGsapTimeline<HTMLDivElement>(
+				({timeline, selector}) => {
+					timeline.fromTo(
+						selector('[data-rebuilt]'),
+						{opacity: 0.2},
+						{
+							opacity: distance,
+							duration: 0.5,
+							ease: 'none',
+							immediateRender: false,
+						},
+						1,
+					);
+				},
+				{dependencies: [distance]},
+			);
+
+			return (
+				<div ref={scope}>
+					<div data-rebuilt style={{opacity: 0.25}} />
+				</div>
+			);
+		};
+
+		await setFrame(45, <RebuildHarness distance={1} />);
+		await setFrame(0, <RebuildHarness distance={0.8} />);
+		expect(opacity(container.querySelector('[data-rebuilt]')!)).toBeCloseTo(
+			0.25,
+			4,
+		);
+	});
+
 	it('clamps premount frames to the start state', async () => {
 		await setFrame(-20, <Harness distance={1} />);
 		expect(opacity(container.querySelector('[data-box]')!)).toBeCloseTo(0, 4);

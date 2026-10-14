@@ -1,4 +1,11 @@
-import React, {createContext, useCallback, useMemo, useState} from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {flushSync} from 'react-dom';
 import {
 	getCurrentDuration,
@@ -18,15 +25,28 @@ export type TimelineSetZoomOptions = {
 	anchorContentX: number | null;
 };
 
-export const TimelineZoomCtx = createContext<{
+type TimelineZoomContextValue = {
 	zoom: Record<string, number>;
 	setZoom: (
 		videoId: string,
 		prev: (prevZoom: number) => number,
 		options?: TimelineSetZoomOptions,
 	) => void;
-}>({
+};
+
+export const TimelineZoomCtx = createContext<TimelineZoomContextValue>({
 	zoom: {},
+	setZoom: () => {
+		throw new Error('has no context');
+	},
+});
+
+export const TimelineZoomImperativeContext = createContext<
+	Pick<TimelineZoomContextValue, 'setZoom'> & {
+		getZoom: (videoId: string) => number | null;
+	}
+>({
+	getZoom: () => null,
 	setZoom: () => {
 		throw new Error('has no context');
 	},
@@ -38,6 +58,10 @@ export const TimelineZoomContext: React.FC<{
 	const [zoom, setZoomState] = useState<Record<string, number>>(() =>
 		getZoomFromLocalStorage(),
 	);
+	const zoomRef = useRef(zoom);
+	useLayoutEffect(() => {
+		zoomRef.current = zoom;
+	}, [zoom]);
 
 	const setZoom = useCallback(
 		(
@@ -88,10 +112,18 @@ export const TimelineZoomContext: React.FC<{
 			setZoom,
 		};
 	}, [zoom, setZoom]);
+	const imperativeValue = useMemo(() => {
+		return {
+			getZoom: (videoId: string) => zoomRef.current[videoId] ?? null,
+			setZoom,
+		};
+	}, [setZoom]);
 
 	return (
 		<TimelineZoomCtx.Provider value={value}>
-			{children}
+			<TimelineZoomImperativeContext.Provider value={imperativeValue}>
+				{children}
+			</TimelineZoomImperativeContext.Provider>
 		</TimelineZoomCtx.Provider>
 	);
 };

@@ -504,7 +504,8 @@ export const textContentSchema = childrenSchema;
 export const premountSchema = {
 	premountFor: {
 		type: 'number',
-		default: 0,
+		// Omission inherits the preview's default; zero explicitly disables it.
+		default: undefined,
 		description: 'Premount For',
 		min: 0,
 		step: 1,
@@ -624,6 +625,28 @@ export const trimBeforeField = {
 	step: 1,
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
+
+// Packed timeline containers expose timing through the inspector.
+export const sequenceTimingSchema = {
+	from: {
+		...fromField,
+		description: 'From',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	durationInFrames: {
+		...durationInFramesField,
+		description: 'Duration',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	trimBefore: {
+		...trimBeforeField,
+		description: 'Trim before',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
 
 export const trimAfterField = {
 	type: 'number',

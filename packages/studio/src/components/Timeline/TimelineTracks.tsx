@@ -1,11 +1,19 @@
 import React, {useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	getTimelineSceneClipPath,
+	TIMELINE_CHILD_TRANSITION_SEAM_Y,
+} from './get-timeline-scene-clip-path';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
-import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {
+	TimelineInheritedSceneRangeContext,
+	TimelineSceneClipHeightContext,
+	TimelineSceneRangeContext,
+} from './TimelineSceneRangeContext';
 import {TimelineTrack} from './TimelineTrack';
 import {TimelineViewportContext} from './TimelineViewport';
 import {useTimelineVirtualization} from './TimelineVirtualization';
@@ -26,13 +34,18 @@ const timelineContent: React.CSSProperties = {
 const TimelineSceneTrackContent: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sceneRange: TimelineSceneRange;
-}> = React.memo(({children, sceneRange}) => {
+	readonly height: number;
+}> = React.memo(({children, sceneRange, height}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
-	const active = frame >= sceneRange.from && frame < sceneRange.end;
+	const active = frame >= sceneRange.activeFrom && frame < sceneRange.activeEnd;
 	return (
-		<TimelineSceneRangeContext.Provider value={sceneRange}>
-			<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
-		</TimelineSceneRangeContext.Provider>
+		<TimelineSceneClipHeightContext.Provider value={height}>
+			<TimelineInheritedSceneRangeContext.Provider value={sceneRange}>
+				<TimelineSceneRangeContext.Provider value={sceneRange}>
+					<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
+				</TimelineSceneRangeContext.Provider>
+			</TimelineInheritedSceneRangeContext.Provider>
+		</TimelineSceneClipHeightContext.Provider>
 	);
 });
 
@@ -92,10 +105,10 @@ const TimelineTracksInner: React.FC<{
 	}, []);
 
 	return (
-		<div style={timelineStyle} {...{'oai-annotation-container': ''}}>
+		<div style={timelineStyle}>
 			<div style={{...content, height: tracksEnd}}>
 				{virtualItems.map((virtualItem) => {
-					const {sceneRange, track, items, auxiliaryRows} =
+					const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} =
 						rows[virtualItem.index];
 					const trackContent =
 						items === null ? (
@@ -105,8 +118,10 @@ const TimelineTracksInner: React.FC<{
 								track={track}
 								items={items}
 								auxiliaryRows={auxiliaryRows}
+								auxiliaryRowOffsets={auxiliaryRowOffsets}
 							/>
 						);
+
 					return (
 						<div
 							key={virtualItem.key}
@@ -123,15 +138,29 @@ const TimelineTracksInner: React.FC<{
 										: undefined,
 								top: virtualItem.start,
 								clipPath:
-									sceneRange === null || !video
-										? undefined
-										: `inset(0 ${Math.max(0, 100 - (sceneRange.end / video.durationInFrames) * 100)}% 0 ${Math.max(0, (sceneRange.from / video.durationInFrames) * 100)}%)`,
+									video && windowWidth !== null
+										? getTimelineSceneClipPath({
+												sceneRange,
+												durationInFrames: video.durationInFrames,
+												offsetInFrames: 0,
+												pixelsPerFrame:
+													(windowWidth - TIMELINE_PADDING * 2) /
+													video.durationInFrames,
+												height: virtualItem.size,
+												seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+												transitionCutout: null,
+												cropHeight: null,
+											})
+										: undefined,
 							}}
 						>
 							{sceneRange === null ? (
 								trackContent
 							) : (
-								<TimelineSceneTrackContent sceneRange={sceneRange}>
+								<TimelineSceneTrackContent
+									sceneRange={sceneRange}
+									height={virtualItem.size}
+								>
 									{trackContent}
 								</TimelineSceneTrackContent>
 							)}

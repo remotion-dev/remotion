@@ -15,7 +15,6 @@ import {UploadIcon} from '../icons/upload';
 import {FilmIcon} from '../icons/video';
 import {CompositionListContext} from '../state/composition-list';
 import {SetSelectedModalContext} from '../state/modals';
-import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
 import {canvasTabsRef} from './CanvasTabsRef';
 import {FramePersistor} from './FramePersistor';
@@ -264,7 +263,6 @@ export const CanvasOrLoading: React.FC<{
 	readonly size: Size;
 }> = ({size}) => {
 	const resolved = Internals.useResolvedVideoConfig(null);
-	const {setZoom} = useContext(TimelineZoomCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {compositionListState} = useContext(CompositionListContext);
 	const {error: renderError} = useContext(RenderErrorContext);
@@ -286,7 +284,7 @@ export const CanvasOrLoading: React.FC<{
 				durationInFrames: c.durationInFrames,
 			});
 		});
-	}, [resolved, setZoom]);
+	}, [resolved]);
 
 	if (renderError) {
 		return (

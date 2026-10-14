@@ -18,12 +18,12 @@ import {
 	CommittedMetadataProvider,
 	type CommittedMetadata,
 } from './committed-metadata.js';
+import {resolveComponentIdentity} from './component-identity.js';
 import {useCommittedCompositionEntry} from './composition-registry-fallback.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {CompositionErrorBoundary} from './CompositionErrorBoundary.js';
 import type {AnyComposition, TComposition} from './CompositionManager.js';
 import {CompositionSetters} from './CompositionManagerContext.js';
-import {resolveComponentIdentity} from './enable-sequence-stack-traces.js';
 import {FolderContext} from './Folder.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';

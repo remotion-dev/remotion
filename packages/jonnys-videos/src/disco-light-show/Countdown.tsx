@@ -1,29 +1,26 @@
 import React from 'react';
 import {
+	useVideoConfig,
 	AbsoluteFill,
 	Easing,
 	Interactive,
+	type InteractivitySchema,
 	interpolate,
-	Sequence,
 	useCurrentFrame,
 } from 'remotion';
 
 export const COUNTDOWN_DURATION_IN_FRAMES = 59;
 
-const PAGES = [
-	{number: '3', from: 0, durationInFrames: 20},
-	{number: '2', from: 20, durationInFrames: 20},
-	{number: '1', from: 40, durationInFrames: 19},
-] as const;
-
-const CountdownPage: React.FC<{
-	number: string;
-	durationInFrames: number;
-}> = ({number, durationInFrames}) => {
+const CountdownPageInner: React.FC<{
+	readonly number: string;
+}> = ({number}) => {
+	const {fps, durationInFrames} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
+			premountFor={fps}
 			style={{
 				alignItems: 'center',
 				justifyContent: 'center',
@@ -32,7 +29,8 @@ const CountdownPage: React.FC<{
 			}}
 		>
 			<Interactive.Div
-				name={`Countdown number ${number}`}
+				premountFor={fps}
+				name="Countdown number"
 				style={{
 					color: '#ffffff',
 					filter:
@@ -44,7 +42,7 @@ const CountdownPage: React.FC<{
 					lineHeight: 1,
 					opacity: interpolate(
 						frame,
-						[0, Math.max(1, durationInFrames - 4), durationInFrames - 1],
+						[0, durationInFrames - 4, durationInFrames - 1],
 						[1, 1, 0],
 						{
 							extrapolateLeft: 'clamp',
@@ -70,22 +68,50 @@ const CountdownPage: React.FC<{
 	);
 };
 
-export const Countdown: React.FC = () => {
+const countdownPageSchema = {
+	number: {type: 'string', default: '3', description: 'Number'},
+} as const satisfies InteractivitySchema;
+
+const CountdownPage = Interactive.withSchema({
+	Component: CountdownPageInner,
+	componentName: 'CountdownPage',
+	schema: countdownPageSchema,
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
+
+const CountdownInner: React.FC = () => {
+	const {fps} = useVideoConfig();
 	return (
-		<AbsoluteFill>
-			{PAGES.map((page) => (
-				<Sequence
-					key={page.number}
-					name={`Countdown page ${page.number}`}
-					from={page.from}
-					durationInFrames={page.durationInFrames}
-				>
-					<CountdownPage
-						number={page.number}
-						durationInFrames={page.durationInFrames}
-					/>
-				</Sequence>
-			))}
-		</AbsoluteFill>
+		<>
+			<CountdownPage
+				name="Countdown 3"
+				number="3"
+				durationInFrames={20}
+				premountFor={fps}
+			/>
+			<CountdownPage
+				name="Countdown 2"
+				number="2"
+				from={20}
+				durationInFrames={20}
+				premountFor={fps}
+			/>
+			<CountdownPage
+				name="Countdown 1"
+				number="1"
+				from={40}
+				durationInFrames={19}
+				premountFor={fps}
+			/>
+		</>
 	);
 };
+
+export const Countdown = Interactive.withSchema({
+	Component: CountdownInner,
+	componentName: 'Countdown',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-	AbsoluteFill,
-	Easing,
-	Interactive,
-	interpolate,
-	useCurrentFrame,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
 export const PREMIUM_VERSION_DURATION_IN_FRAMES = 36;
 
@@ -137,28 +131,34 @@ const TierRow: React.FC<{index: number; label: string; rings: number}> = ({
 	);
 };
 
-export const PremiumVersion: React.FC = () => {
+const PremiumVersionInner: React.FC = () => {
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					gap: 8,
-					left: 92,
-					position: 'absolute',
-					top: 42,
-				}}
-			>
-				{TIERS.map((tier, index) => (
-					<TierRow
-						key={tier.label}
-						index={index}
-						label={tier.label}
-						rings={tier.rings}
-					/>
-				))}
-			</div>
-		</AbsoluteFill>
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				gap: 8,
+				left: 92,
+				position: 'absolute',
+				top: 42,
+			}}
+		>
+			{TIERS.map((tier, index) => (
+				<TierRow
+					key={tier.label}
+					index={index}
+					label={tier.label}
+					rings={tier.rings}
+				/>
+			))}
+		</div>
 	);
 };
+
+export const PremiumVersion = Interactive.withSchema({
+	Component: PremiumVersionInner,
+	componentName: 'PremiumVersion',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});

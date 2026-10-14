@@ -11,8 +11,12 @@ const browserStudioAssetHeaders = [
 ];
 
 export const config: VercelConfig = {
+	// Vercel extracts these commands before evaluating this file; keep them literal
+	// and the dashboard Install Command in sync. Avoid its preinstalled Bun.
+	installCommand:
+		'bash -eo pipefail -c \'export BUN_INSTALL="$HOME/.bun-remotion-1.4.3"; test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v1.4.3; ln -sf bun "$BUN_INSTALL/bin/bunx"; export PATH="$BUN_INSTALL/bin:$PATH"; bun install\'',
 	buildCommand:
-		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
+		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
 		routes.header('/assets/(.*)', browserStudioAssetHeaders),
 		routes.header(
@@ -61,6 +65,24 @@ export const config: VercelConfig = {
 		]),
 	],
 	redirects: [
+		routes.redirect('/docs/reusability', '/docs/composing', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/reusability.md', '/docs/composing.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/the-fundamentals', '/docs/idea', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/the-fundamentals.md', '/docs/idea.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/preview', '/docs/your-first-video', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/preview.md', '/docs/your-first-video.md', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/audio/order-of-operations', '/docs/timing', {
 			permanent: true,
 		}),
@@ -145,6 +167,7 @@ export const config: VercelConfig = {
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
 		routes.redirect('/api', '/docs/api', {permanent: false}),
+		routes.redirect('/why', '/docs/why', {permanent: false}),
 		routes.redirect('/options', '/docs/options', {permanent: false}),
 		routes.redirect('/terminology', '/docs/terminology', {permanent: false}),
 		routes.redirect(

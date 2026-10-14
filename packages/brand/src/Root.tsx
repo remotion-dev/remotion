@@ -39,6 +39,7 @@ import {
 	DesignSystemsResponsive,
 	designSystemsResponsiveDurationInFrames,
 } from './DesignSystemsResponsive';
+import {DocsAnimationCompositions} from './DocsAnimations/Root';
 import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
@@ -139,6 +140,7 @@ import {Skills2Router} from './Skills2Router';
 import {Skills2TableBang} from './Skills2TableBang';
 import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
+import {TimelineLayoutReveal} from './TimelineLayoutReveal';
 import {Codex, codexSchema} from './video-elements/Codex';
 import {
 	FlyingCardsLeft,
@@ -175,6 +177,15 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<DocsAnimationCompositions />
+			<Composition
+				id="TimelineLayoutReveal"
+				component={TimelineLayoutReveal}
+				width={2560}
+				height={1600}
+				fps={60}
+				durationInFrames={360}
+			/>
 			<Folder name="Logo">
 				<Folder name="AnimatedLogo">
 					<Composition
@@ -798,7 +809,9 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<KeyframeMove />
 				<PitchCorrection />
 				<RenderOnWeb />
-				<NestingCompositions />
+				<Folder name="NestingCompositions">
+					<NestingCompositions />
+				</Folder>
 			</Folder>
 
 			<Folder name="StudioAssets">

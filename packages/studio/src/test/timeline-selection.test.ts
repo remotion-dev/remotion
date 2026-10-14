@@ -76,6 +76,7 @@ import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
+import {getTimelineSequenceTimingLimits} from '../components/Timeline/get-timeline-sequence-timing-limits';
 import {
 	getKeyframeClipboardDataFromSelections,
 	getPasteKeyframeTarget,
@@ -301,6 +302,7 @@ const makeDurationPropStatuses = (
 	const propStatuses: PropStatuses = {};
 	for (const nodePath of nodePaths) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				durationInFrames: {
@@ -322,6 +324,7 @@ const makeFromPropStatuses = (
 	const propStatuses: PropStatuses = {};
 	for (const nodePath of nodePaths) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				from: {
@@ -346,6 +349,7 @@ const makeLeftEdgePropStatuses = (
 	const propStatuses: PropStatuses = {};
 	for (const [index, nodePath] of nodePaths.entries()) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				...(includeTimelineRange
@@ -766,6 +770,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 	const nodePath = effectNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -865,6 +870,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 	const nodePath = effectPropNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -933,6 +939,7 @@ test('copying selected keyframes preserves their frame deltas', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -995,6 +1002,7 @@ test('pasting keyframes onto a sequence targets the copied property', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.translate': {
@@ -1055,6 +1063,7 @@ test('copies a keyframed sequence prop between components with matching schemas'
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(sourceNodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.rotate': {
@@ -1074,6 +1083,7 @@ test('copies a keyframed sequence prop between components with matching schemas'
 			effects: [],
 		},
 		[Internals.makeSequencePropsSubscriptionKey(targetNodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.rotate': {
@@ -1144,6 +1154,7 @@ test('copying selected keyframes requires one property', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -1192,6 +1203,7 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -1252,6 +1264,7 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -1328,6 +1341,7 @@ test('pasting a keyframe rejects an incompatible property', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				background: {
@@ -1384,6 +1398,7 @@ test('copying a selected sequence easing creates an easing payload', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -1439,6 +1454,7 @@ test('copying a selected effect easing creates an easing payload', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -1506,6 +1522,7 @@ test('pasting an effect prop targets a matching selected effect', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -1599,11 +1616,13 @@ test('pasting an effect prop targets multiple matching selected effects', () => 
 	} as const;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(firstNodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [effectStatus],
 		},
 		[Internals.makeSequencePropsSubscriptionKey(secondNodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [effectStatus],
@@ -1693,6 +1712,7 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -2104,6 +2124,8 @@ test('Timeline duration drag supports interactive video clips', () => {
 			initialDuration: 78,
 			maximumDuration: 1000,
 			minimumDuration: 1,
+			minimumDurationReason: 'Minimum duration',
+			maximumDurationReason: 'Composition edge',
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
 			schema: Internals.baseSchema,
 			endField: {fieldKey: 'durationInFrames', trimBefore: 0, playbackRate: 1},
@@ -2116,6 +2138,7 @@ test('Timeline edge drags edit durationInFrames in the child clock', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				durationInFrames: {
@@ -2219,8 +2242,6 @@ test('Looping timeline items cannot be resized or split', () => {
 		...loopedSequence,
 		type: 'video',
 		src: 'video.mp4',
-		volume: 1,
-		doesVolumeChange: false,
 		muted: false,
 		startMediaFrom: 0,
 		mediaFrameAtSequenceZero: 0,
@@ -2257,7 +2278,6 @@ test('Media duration drag limits account for a negative from', () => {
 		displayDurationInFrames: 108,
 		displayStart: 0,
 		explicitDurationInFrames: 300,
-		hasImplicitDuration: false,
 		naturalMediaDuration: 33,
 		timelineDurationInFrames: 1000,
 	};
@@ -2278,14 +2298,13 @@ test('Media duration drag limits account for a negative from', () => {
 	).toEqual({initialDuration: 300, maximumDuration: 225});
 });
 
-test('Implicit media cannot be resized once its edge reaches the asset end', () => {
+test('Implicit media can be shortened once its edge reaches the asset end', () => {
 	const common = {
 		cascadedStart: -34,
 		displayDurationInFrames: 266,
 		displayStart: 0,
 		effectiveMaxMediaDuration: null,
 		explicitDurationInFrames: null,
-		hasImplicitDuration: true,
 		timelineDurationInFrames: 300,
 	};
 
@@ -2295,14 +2314,14 @@ test('Implicit media cannot be resized once its edge reaches the asset end', () 
 			// The video holds its last frame until the composition ends.
 			naturalMediaDuration: 220,
 		}),
-	).toBe(null);
+	).toEqual({initialDuration: 300, maximumDuration: 254});
 	expect(
 		getTimelineSequenceMediaDurationDragLimits({
 			...common,
 			// The composition ends before the source video does.
 			naturalMediaDuration: 400,
 		}),
-	).toEqual({initialDuration: 300, maximumDuration: 433});
+	).toEqual({initialDuration: 300, maximumDuration: 434});
 });
 
 test('Timeline duration drag clamps explicit audio and video to the asset end', () => {
@@ -2402,6 +2421,7 @@ test('Timeline duration drag trims audio and video without an explicit duration'
 			},
 			propStatuses: {
 				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+					durationDependentKeyframes: null,
 					canUpdate: true,
 					props: {
 						durationInFrames: {
@@ -2462,6 +2482,7 @@ test('Timeline duration drag waits for an effective implicit media duration', ()
 			overrideIdsToNodePaths: {override: nodePath},
 			propStatuses: {
 				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+					durationDependentKeyframes: null,
 					canUpdate: true,
 					props: {
 						durationInFrames: {
@@ -2627,6 +2648,7 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 			secondNodePathInfo.sequenceSubscriptionKey,
 		)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [],
@@ -2680,6 +2702,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 			secondNodePathInfo.sequenceSubscriptionKey,
 		)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			durationInFrames: {
@@ -2942,6 +2965,7 @@ test('TransitionSeries.Sequence self-trim changes its duration and trimBefore', 
 		},
 		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props: {
 					durationInFrames: {
@@ -3000,6 +3024,7 @@ test('Series.Sequence self-trim changes its duration and trimBefore', () => {
 		},
 		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props: {
 					durationInFrames: {
@@ -3280,7 +3305,7 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
 
 	for (const [deltaFrames, expected] of [
-		[-100, -0],
+		[-100, 0],
 		[100, 79],
 	]) {
 		expect(
@@ -3367,6 +3392,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = makeFromPropStatuses([nodePath]);
 	propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			from: {
@@ -3461,6 +3487,7 @@ test('Timeline from drag moves only descendant keyframes tied to an outer frame 
 	propStatuses[
 		Internals.makeSequencePropsSubscriptionKey(outerFrameDescendantNodePath)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			color: {
@@ -3473,6 +3500,7 @@ test('Timeline from drag moves only descendant keyframes tied to an outer frame 
 	propStatuses[
 		Internals.makeSequencePropsSubscriptionKey(localFrameDescendantNodePath)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			color: {
@@ -3551,6 +3579,7 @@ test('Timeline from drag moves owned effect keyframes by the same delta', () => 
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = makeFromPropStatuses([nodePath]);
 	propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			from: {
@@ -3627,6 +3656,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 		parentPlaybackRate: 1,
 		canSnapToTimelineStart: true,
 		minimumDeltaFrames: -100,
+		maximumDeltaFrames: Infinity,
 		initialTimelineStart: 8,
 		effectKeyframes: [],
 		fileName: nodePath.absolutePath,
@@ -3679,6 +3709,7 @@ test('Timeline from drag does not snap nested sequences to the timeline start', 
 					parentPlaybackRate: 1,
 					canSnapToTimelineStart: false,
 					minimumDeltaFrames: -100,
+					maximumDeltaFrames: Infinity,
 					initialTimelineStart: 8,
 					effectKeyframes: [],
 					fileName: nodePath.absolutePath,
@@ -3744,6 +3775,7 @@ test('Timeline from drag is blocked if one selected sequence cannot update from'
 			secondNodePathInfo.sequenceSubscriptionKey,
 		)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [],
@@ -3788,6 +3820,7 @@ test('Timeline from drag removes the prop at the default value', () => {
 				parentPlaybackRate: 1,
 				canSnapToTimelineStart: true,
 				minimumDeltaFrames: -100,
+				maximumDeltaFrames: Infinity,
 				initialTimelineStart: 8,
 				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
@@ -6182,6 +6215,7 @@ const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
 	} as const satisfies InteractivitySchema;
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -6374,6 +6408,7 @@ test('UV handles are requested for keyframed selected effect props', () => {
 	} as const satisfies InteractivitySchema;
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -6614,6 +6649,7 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 	const nodePath = sequenceNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -6645,6 +6681,8 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 				{
 					cascadedStart: 0,
 					localStart: 0,
+					parentVisibleStart: 0,
+					parentVisibleEnd: null,
 					depth: 0,
 					keyframeDisplayOffset: 0,
 					keyframePlaybackRate: 1,
@@ -6749,6 +6787,7 @@ test('Backspace reset targets multiple selected sequence props', () => {
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -6802,6 +6841,7 @@ test('Backspace reset targets stroke with the SVG default', () => {
 	const nodePath = strokeNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				stroke: {
@@ -6848,6 +6888,7 @@ test('Backspace reset targets border radius with the CSS default', () => {
 	const nodePath = radiusNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.borderRadius': {
@@ -6899,6 +6940,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -6956,6 +6998,7 @@ test('Backspace reset skips selected computed sequence props with defaults', () 
 	const nodePath = scaleNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.scale': {
@@ -6990,6 +7033,7 @@ test('Backspace reset targets flattened built-in keyframed sequence style props'
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.opacity': {
@@ -7049,6 +7093,7 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -7897,6 +7942,7 @@ test('Backspace reset targets selected effect props', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -7974,6 +8020,7 @@ test('Backspace reset targets active enum variant effect props', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -8044,6 +8091,7 @@ test('Backspace reset targets selected static blur radius with default', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -8109,6 +8157,7 @@ test('Backspace reset targets selected keyframed effect props', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -8182,6 +8231,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -8250,6 +8300,7 @@ test('Backspace reset targets mixed selected sequence and effect props', () => {
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -8578,6 +8629,7 @@ test('Deleting all selected keyframes preserves the value at the playhead', asyn
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -9302,3 +9354,221 @@ test('Selected timeline rows do not reselect on pointer down without modifiers',
 		}),
 	).toBe(true);
 });
+
+test.each([
+	{
+		name: 'negative ancestor',
+		parentFrom: -30,
+		parentDuration: 300,
+		parentTrimBefore: 0,
+		childFrom: 10,
+		childDuration: 60,
+		deltaFrames: -10,
+		expectedFrom: 0,
+	},
+	{
+		name: 'trimmed ancestor',
+		parentFrom: 0,
+		parentDuration: 300,
+		parentTrimBefore: 30,
+		childFrom: 10,
+		childDuration: 60,
+		deltaFrames: -10,
+		expectedFrom: 0,
+	},
+	{
+		name: 'clipped trailing edge',
+		parentFrom: 0,
+		parentDuration: 60,
+		parentTrimBefore: 0,
+		childFrom: 40,
+		childDuration: 40,
+		deltaFrames: 10,
+		expectedFrom: 50,
+	},
+])('Timeline moves preserve existing ancestor clipping: $name', (scenario) => {
+	const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const parent = makeTimelineSequence({
+		schema: {},
+		id: 'parent',
+		overrideId: 'parent',
+		from: scenario.parentFrom,
+		duration: scenario.parentDuration,
+		trimBefore: scenario.parentTrimBefore,
+	});
+	const child = makeTimelineSequence({
+		schema: {},
+		id: 'child',
+		overrideId: 'child',
+		parentId: parent.id,
+		from: scenario.childFrom,
+		duration: scenario.childDuration,
+	});
+	const sequences = [parent, child];
+	const overrideIdsToNodePaths = {child: nodePath};
+	const propStatuses = makeFromPropStatuses([nodePath]);
+	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const limits = getTimelineSequenceTimingLimits({
+		track: tracks.find((t) => t.sequence.id === child.id)!,
+		tracks,
+		sequences,
+		propStatuses,
+		timelineDurationInFrames: 600,
+		movingSequenceIds: null,
+	});
+	// Re-entering the existing From in the inspector must preserve it.
+	expect(
+		Math.max(limits.minimumFrom, Math.min(limits.maximumFrom, child.from)),
+	).toBe(child.from);
+	expect(scenario.expectedFrom).toBeGreaterThanOrEqual(limits.minimumFrom);
+	expect(scenario.expectedFrom).toBeLessThanOrEqual(limits.maximumFrom);
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [],
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+	expect(targets).not.toBeNull();
+	const deltaFrames = getTimelineSequenceFromDragDelta({
+		targets: targets!,
+		deltaFrames: scenario.deltaFrames,
+		timelineDurationInFrames: 600,
+		pxPerFrame: 10,
+		snappingEnabled: false,
+	});
+	const changes = getTimelineSequenceFromDragChanges({
+		targets: targets!,
+		deltaFrames,
+	});
+	expect(changes.map((c) => c.value)).toEqual([scenario.expectedFrom]);
+	const movedTracks = calculateTimeline({
+		sequences: [parent, {...child, from: Number(changes[0].value)}],
+		overrideIdsToNodePaths,
+	});
+	expect(
+		movedTracks.find((t) => t.sequence.id === child.id)!.sequence.duration,
+	).toBeGreaterThanOrEqual(1);
+});
+
+test.each([
+	{parentPlaybackRate: 1, media: false},
+	{parentPlaybackRate: 2, media: false},
+	{parentPlaybackRate: 1, media: true},
+])(
+	'Timeline moves stop at Track neighbours after timing edits: %j',
+	({parentPlaybackRate, media}) => {
+		const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 1], []);
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const parent = makeTimelineSequence({
+			schema: {},
+			id: 'track',
+			overrideId: 'track',
+			from: 30,
+			duration: 400,
+			sequencePlaybackRate: parentPlaybackRate,
+			componentIdentity: 'dev.remotion.remotion.Track',
+		});
+		parent.timelineTrack = {
+			id: parent.id,
+			role: 'track',
+			name: 'Track',
+			seriesOffset: null,
+		};
+		const previous = makeTimelineSequence({
+			schema: {},
+			id: 'previous',
+			overrideId: 'previous',
+			parentId: parent.id,
+			duration: 80,
+		});
+		const child = makeTimelineSequence({
+			schema: Internals.sequenceSchema,
+			id: 'child',
+			overrideId: 'child',
+			parentId: parent.id,
+			from: 100,
+			duration: media ? 34 : 40,
+			type: media ? 'video' : 'sequence',
+			componentIdentity: media ? 'dev.remotion.media.Video' : null,
+			currentRuntimeValueDotNotation: media
+				? {durationInFrames: 42, playbackRate: 2, trimBefore: 30}
+				: {},
+		});
+		const next = makeTimelineSequence({
+			schema: {},
+			id: 'next',
+			overrideId: 'next',
+			parentId: parent.id,
+			from: 160,
+			duration: 60,
+		});
+		for (const item of [previous, child, next])
+			item.timelineTrack = {
+				id: parent.id,
+				role: 'clip',
+				name: 'Track',
+				seriesOffset: null,
+			};
+		const sequences = [parent, previous, child, next];
+		const overrideIdsToNodePaths = {child: nodePath};
+		const propStatuses = makeFromPropStatuses([nodePath]);
+		if (media) {
+			const status =
+				propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)];
+			if (!status.canUpdate) throw new Error('Expected editable media');
+			status.props.durationInFrames = {
+				status: 'static',
+				codeValue: 68,
+				keyframeDisplayOffsetAdjustment: null,
+			};
+		}
+
+		const targets = getTimelineSequenceFromDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [],
+			sequences,
+			overrideIdsToNodePaths,
+			propStatuses,
+		});
+		expect(targets).not.toBeNull();
+		for (const [requestedDelta, expectedFrom] of [
+			[-1000, 80],
+			[1000, media ? 126 : 120],
+		]) {
+			const deltaFrames = getTimelineSequenceFromDragDelta({
+				targets: targets!,
+				deltaFrames: requestedDelta,
+				timelineDurationInFrames: 600,
+				pxPerFrame: 10,
+				snappingEnabled: false,
+			});
+			const changes = getTimelineSequenceFromDragChanges({
+				targets: targets!,
+				deltaFrames,
+			});
+			expect(changes.map((c) => c.value)).toEqual([expectedFrom]);
+			const movedTracks = calculateTimeline({
+				sequences: [
+					parent,
+					previous,
+					{...child, from: Number(changes[0].value)},
+					next,
+				],
+				overrideIdsToNodePaths,
+			});
+			const moved = movedTracks.find(
+				(t) => t.sequence.id === child.id,
+			)!.sequence;
+			const before = movedTracks.find(
+				(t) => t.sequence.id === previous.id,
+			)!.sequence;
+			const after = movedTracks.find(
+				(t) => t.sequence.id === next.id,
+			)!.sequence;
+			expect(moved.from).toBeGreaterThanOrEqual(before.from + before.duration);
+			expect(moved.from + moved.duration).toBeLessThanOrEqual(after.from);
+		}
+	},
+);

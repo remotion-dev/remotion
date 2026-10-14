@@ -301,8 +301,6 @@ const AudioForPreviewRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [_remotionInternalStack]);
 
 	const {registration} = useMediaInTimelineRegistration({
-		volume,
-		mediaVolume,
 		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
@@ -313,7 +311,6 @@ const AudioForPreviewRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
 		loopDisplay: undefined,
-		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
 		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
 		muted: isMutedForTimeline,
 	});

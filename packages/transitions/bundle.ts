@@ -37,6 +37,7 @@ const output = await build({
 		'remotion',
 		'remotion/no-react',
 		'react',
+		'react-dom',
 		'react/jsx-runtime',
 		'react/jsx-runtime',
 		'react/jsx-dev-runtime',

@@ -28,6 +28,7 @@ import {
 	rendersPrefix,
 	getExpectedOutName,
 	getNeedsToUpload,
+	getSizeInBytes,
 	MAX_FUNCTIONS_PER_RENDER,
 	OutputFileAccessDeniedError,
 	rendererTransportPrefix,
@@ -395,11 +396,11 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	const needsToUpload = getNeedsToUpload({
 		type: 'video-or-audio',
 		sizes: [
-			serializedResolved.length,
+			getSizeInBytes(serializedResolved),
 			params.inputProps.type === 'bucket-url'
-				? params.inputProps.hash.length
-				: params.inputProps.payload.length,
-			JSON.stringify(params.envVariables).length,
+				? getSizeInBytes(params.inputProps.hash)
+				: getSizeInBytes(params.inputProps.payload),
+			getSizeInBytes(JSON.stringify(params.envVariables)),
 		],
 		providerSpecifics,
 	});
@@ -653,7 +654,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				requestHandler: null,
 			}).catch((err) => {
 				if (
-					err instanceof OutputFileAccessDeniedError &&
+					OutputFileAccessDeniedError.isInstance(err) &&
 					destination.conditional
 				) {
 					// The final conditional upload still enforces overwrite: false.

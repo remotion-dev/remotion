@@ -95,9 +95,9 @@ export const useCompositionActions = () => {
 	const canShowInsertComposition = canShowInsertAsset && videoConfig !== null;
 	const canInsertComposition = canShowInsertComposition && !isAddingComposition;
 	const canShowGenerateWithAgent =
+		browserStudioOperations === null &&
 		!window.remotion_isReadOnlyStudio &&
-		((previewInteractive && browserStudioOperations === null) ||
-			getCodexAnnotation() !== null) &&
+		(previewInteractive || getCodexAnnotation() !== null) &&
 		currentCompositionId !== null;
 
 	const insertSolid = useCallback(async () => {
@@ -116,7 +116,6 @@ export const useCompositionActions = () => {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
-				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -264,7 +263,6 @@ export const useCompositionActions = () => {
 					compositionFile,
 					compositionId: currentCompositionId,
 					dropPosition: null,
-					fps: videoConfig.fps,
 					from: null,
 					preferCompositionStart: null,
 				});

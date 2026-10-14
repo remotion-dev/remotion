@@ -35,11 +35,13 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalTracksOption,
+	experimentalSequenceActivityOption,
+	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -116,6 +118,9 @@ export type CommandLineOptions = {
 	[defaultPremountInSecondsOption.cliFlag]: TypeOfOption<
 		typeof defaultPremountInSecondsOption
 	>;
+	[showLayerFrameNumbersOption.cliFlag]: TypeOfOption<
+		typeof showLayerFrameNumbersOption
+	> | null;
 	[showPremountingOption.cliFlag]: TypeOfOption<
 		typeof showPremountingOption
 	> | null;
@@ -130,9 +135,12 @@ export type CommandLineOptions = {
 	[experimentalKeepAudioContextAliveOption.cliFlag]: TypeOfOption<
 		typeof experimentalKeepAudioContextAliveOption
 	> | null;
-	[experimentalTracksOption.cliFlag]: TypeOfOption<
-		typeof experimentalTracksOption
+	[experimentalSequenceActivityOption.cliFlag]: TypeOfOption<
+		typeof experimentalSequenceActivityOption
 	> | null;
+	[experimentalSequenceActivityLimitOption.cliFlag]: TypeOfOption<
+		typeof experimentalSequenceActivityLimitOption
+	>;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
@@ -235,6 +243,7 @@ export type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
+	showLayerFrameNumbersOption.cliFlag,
 	showPremountingOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
@@ -262,7 +271,7 @@ export const BooleanFlags = [
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
 	experimentalKeepAudioContextAliveOption.cliFlag,
-	experimentalTracksOption.cliFlag,
+	experimentalSequenceActivityOption.cliFlag,
 	bundleCacheOption.cliFlag,
 	rspackOption.cliFlag,
 	skipSkillsOption.cliFlag,
@@ -271,6 +280,7 @@ export const BooleanFlags = [
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
+		[showLayerFrameNumbersOption.cliFlag]: null,
 		[showPremountingOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,
@@ -291,7 +301,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[isProductionOption.cliFlag]: null,
 		[forceNewStudioOption.cliFlag]: null,
 		[experimentalKeepAudioContextAliveOption.cliFlag]: null,
-		[experimentalTracksOption.cliFlag]: null,
+		[experimentalSequenceActivityOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
 		[enableCancellationOption.cliFlag]: null,
 		[rspackOption.cliFlag]: null,
