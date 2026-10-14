@@ -2083,6 +2083,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 		if (
 			!commit ||
+			!dragState.didMove ||
 			latestServerState.type !== 'connected' ||
 			changes.length === 0
 		) {
@@ -2227,9 +2228,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			stopPointerSessionRef.current = startThresholdPointerSession({
 				event: downEvent,
 				captureTarget,
-				minimumMovement: isTransitionSeries
-					? timelineSequenceEdgeDragThresholdPx
-					: null,
+				minimumMovement: null,
 				onCancel: () => {
 					stopPointerSessionRef.current = null;
 					finishDrag(false);
@@ -2258,13 +2257,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								stringifySequenceSubscriptionKey(target.nodePath) ===
 								draggedKey,
 						) ?? (fillTarget ? targets[0] : undefined);
-					if (!isTransitionSeries) {
-						onDragStart(
-							mode,
-							true,
-							targets.map((target) => target.nodePath),
-						);
-					}
+					onDragStart(
+						mode,
+						true,
+						targets.map((target) => target.nodePath),
+					);
 
 					dragStateRef.current = {
 						initialClientX: downEvent.clientX,
@@ -2293,16 +2290,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						}
 
 						const dx = pointerEvent.clientX - dragState.initialClientX;
-						if (isTransitionSeries && !dragState.didMove) {
-							if (Math.abs(dx) < timelineSequenceEdgeDragThresholdPx) {
-								return;
-							}
-
-							onDragStart(
-								dragState.mode,
-								true,
-								dragState.targets.map((target) => target.nodePath),
-							);
+						if (
+							isTransitionSeries &&
+							!dragState.didMove &&
+							Math.abs(dx) < timelineSequenceEdgeDragThresholdPx
+						) {
+							return;
 						}
 
 						const pointerDeltaFrames = Math.round(dx / dragState.pxPerFrame);
@@ -3341,6 +3334,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 		if (
 			!commit ||
+			!dragState.didMove ||
 			latestServerState.type !== 'connected' ||
 			changes.length === 0
 		) {
@@ -3445,9 +3439,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			stopPointerSessionRef.current = startThresholdPointerSession({
 				event: downEvent,
 				captureTarget,
-				minimumMovement: isTransitionSeries
-					? timelineSequenceEdgeDragThresholdPx
-					: null,
+				minimumMovement: null,
 				onCancel: () => {
 					stopPointerSessionRef.current = null;
 					finishDrag(false);
@@ -3499,6 +3491,14 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						}
 
 						const dx = pointerEvent.clientX - dragState.initialClientX;
+						if (
+							isTransitionSeries &&
+							!dragState.didMove &&
+							Math.abs(dx) < timelineSequenceEdgeDragThresholdPx
+						) {
+							return;
+						}
+
 						const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 						dragState.latestDeltaFrames = deltaFrames;
 						if (

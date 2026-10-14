@@ -2267,6 +2267,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 			);
 			return shape === null ? [] : [{key, shape}];
 		});
+		const outlineBorder = outlineShapes.length > 0 ? 0 : `2px solid ${WHITE}`;
 
 		return (
 			<>
@@ -2285,10 +2286,10 @@ const TimelineSequenceLayoutInner: React.FC<{
 								width: outlineWidth,
 								height: layerHeight,
 								zIndex: s.timelineTrack ? 1 : undefined,
-								border:
-									outlineShapes.length > 0 ? undefined : `2px solid ${WHITE}`,
-								borderLeft: edge === 'right' ? 0 : undefined,
-								borderRight: edge === 'left' ? 0 : undefined,
+								borderTop: outlineBorder,
+								borderBottom: outlineBorder,
+								borderLeft: edge === 'left' ? outlineBorder : 0,
+								borderRight: edge === 'right' ? outlineBorder : 0,
 								borderRadius: edge === 'left' ? '2px 0 0 2px' : '0 2px 2px 0',
 								overflow: 'hidden',
 								pointerEvents: 'none',
