@@ -1,5 +1,6 @@
 export const captureControllerMessageType =
 	'remotion-canvas-capture-controller';
+export const openCaptureSetupMessageType = 'remotion-canvas-capture-open-setup';
 
 export type CaptureFormat = 'mp4' | 'webm';
 
