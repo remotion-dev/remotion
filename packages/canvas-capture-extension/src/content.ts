@@ -159,8 +159,11 @@ export const startContent = () => {
 		.capture-dimensions {
 			position: fixed;
 			display: none;
+			grid-template-columns: var(--capture-dimension-width, 9ch) 12px 4.5ch 12px var(--capture-dimension-width, 9ch);
 			align-items: center;
 			gap: 4px;
+			width: max-content;
+			max-width: calc(100vw - 8px);
 			padding: 3px 6px;
 			border-radius: 4px;
 			background: #0b84f3;
@@ -174,10 +177,15 @@ export const startContent = () => {
 			pointer-events: none;
 			white-space: nowrap;
 		}
+		.capture-dimensions-source {
+			text-align: right;
+		}
+		.capture-dimensions-output {
+			text-align: left;
+		}
 		.capture-dimensions svg {
-			width: 14px;
+			width: 12px;
 			height: 8px;
-			flex: 0 0 14px;
 			fill: none;
 			stroke: currentColor;
 			stroke-width: 1.25;
@@ -185,33 +193,37 @@ export const startContent = () => {
 			stroke-linejoin: round;
 		}
 		.capture-dimensions-zoom {
+			width: 100%;
 			height: 18px;
-			margin: -1px 0 -1px -5px;
-			padding: 0 5px;
-			border: 1px solid #fff;
-			border-radius: 999px;
-			background: #0b84f3;
+			margin: -1px 0;
+			padding: 0;
+			border: 0;
+			background: transparent;
 			color: #fff;
 			cursor: pointer;
 			font: inherit;
 			font-variant-numeric: inherit;
 			font-weight: inherit;
 			line-height: 16px;
+			text-align: center;
 		}
 		.capture-dimensions-zoom:hover:not(:disabled),
 		.capture-dimensions-zoom:focus-visible {
-			background: #0877db;
+			text-decoration: underline;
+			text-underline-offset: 2px;
 		}
 		.capture-dimensions-zoom:disabled {
 			cursor: default;
-			opacity: 0.65;
 		}
 		.capture-dimensions-zoom-control {
 			position: relative;
 			pointer-events: auto;
 		}
+		.capture-dimensions > svg:first-of-type {
+			mask-image: linear-gradient(to right, #000 40%, transparent);
+		}
 		.capture-dimensions-zoom-control + svg {
-			margin-left: -5px;
+			mask-image: linear-gradient(to right, transparent, #000 60%);
 		}
 		.capture-dimensions-zoom-popover {
 			position: absolute;
@@ -259,6 +271,9 @@ export const startContent = () => {
 			font-size: 13px;
 			line-height: 1.4;
 			pointer-events: auto;
+			cursor: default;
+			user-select: none;
+			touch-action: none;
 			transform: translateX(-50%);
 		}
 		.capture-controls-encoding-error {
@@ -302,23 +317,6 @@ export const startContent = () => {
 		}
 		.capture-controls button.capture-controls-open-setup:hover {
 			background: rgba(255, 255, 255, 0.15);
-		}
-		.capture-controls-header {
-			display: flex;
-			align-items: center;
-			cursor: grab;
-			padding: 0 6px;
-			user-select: none;
-		}
-		.capture-controls-header.dragging {
-			cursor: grabbing;
-		}
-		.capture-controls-grab {
-			display: block;
-			width: 24px;
-			height: 24px;
-			color: var(--capture-controls-icon-color);
-			fill: currentColor;
 		}
 		.capture-controls-close {
 			width: 32px;
@@ -512,6 +510,7 @@ export const startContent = () => {
 		const dimensions = document.createElement('div');
 		dimensions.className = 'capture-dimensions';
 		const dimensionsSource = document.createElement('span');
+		dimensionsSource.className = 'capture-dimensions-source';
 		const dimensionsZoomControl = document.createElement('div');
 		dimensionsZoomControl.className = 'capture-dimensions-zoom-control';
 		const dimensionsZoom = document.createElement('button');
@@ -534,6 +533,7 @@ export const startContent = () => {
 		dimensionsZoomPopover.appendChild(dimensionsZoomSlider);
 		dimensionsZoomControl.append(dimensionsZoom, dimensionsZoomPopover);
 		const dimensionsOutput = document.createElement('span');
+		dimensionsOutput.className = 'capture-dimensions-output';
 		const dimensionsLine = document.createElementNS(
 			'http://www.w3.org/2000/svg',
 			'svg',
@@ -573,11 +573,6 @@ export const startContent = () => {
 			controlsErrorDescription,
 			controlsOpenSetup,
 		);
-		const controlsHeader = document.createElement('div');
-		controlsHeader.className = 'capture-controls-header';
-		controlsHeader.dataset.tooltip = 'Drag to reposition';
-		controlsHeader.innerHTML =
-			'<svg class="capture-controls-grab" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="4" r="1.5"/><circle cx="15" cy="4" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="20" r="1.5"/><circle cx="15" cy="20" r="1.5"/></svg>';
 		const controlsSecondary = document.createElement('button');
 		controlsSecondary.className = 'capture-controls-select';
 		controlsSecondary.type = 'button';
@@ -663,7 +658,6 @@ export const startContent = () => {
 		);
 		controls.append(
 			controlsEncodingError,
-			controlsHeader,
 			controlsActions,
 			controlsDuration,
 			controlsPrimary,
@@ -810,12 +804,17 @@ export const startContent = () => {
 				maximumScale,
 			);
 			const scaled = getScaledCanvasSize(rect.width, rect.height, previewScale);
+			// Reserve the viewport's largest possible dimensions, not the changing crop.
+			dimensions.style.setProperty(
+				'--capture-dimension-width',
+				`${Math.max(9, `${Math.ceil(window.innerWidth)}×${Math.ceil(window.innerHeight)}`.length)}ch`,
+			);
 			dimensionsSource.textContent = `${Math.round(rect.width)}×${Math.round(rect.height)}`;
 			dimensionsZoom.textContent = `${previewScale.toFixed(1)}×`;
 			dimensionsZoomSlider.max = String(maximumScale);
 			dimensionsZoomSlider.value = String(previewScale);
 			dimensionsOutput.textContent = `${scaled.width}×${scaled.height}`;
-			dimensions.style.display = 'flex';
+			dimensions.style.display = 'grid';
 			const badgeRect = dimensions.getBoundingClientRect();
 			const left = Math.min(
 				Math.max(4, rect.left + (rect.width - badgeRect.width) / 2),
@@ -1345,6 +1344,19 @@ export const startContent = () => {
 			updateControls();
 			supportCheck.then(updateControls).catch(() => undefined);
 		});
+		document.addEventListener(
+			'pointerdown',
+			(event) => {
+				if (
+					!dimensionsZoomPopover.hidden &&
+					!event.composedPath().includes(dimensionsZoomControl)
+				) {
+					dimensionsZoomPopover.hidden = true;
+					dimensionsZoom.setAttribute('aria-expanded', 'false');
+				}
+			},
+			true,
+		);
 		window.addEventListener('keydown', (event) => {
 			if (event.key === 'Escape' && !dimensionsZoomPopover.hidden) {
 				dimensionsZoomPopover.hidden = true;
@@ -1717,8 +1729,14 @@ export const startContent = () => {
 			updateControls();
 			updateHighlight();
 		});
-		controlsHeader.addEventListener('pointerdown', (event) => {
-			if (event.target === controlsClose) {
+		controls.addEventListener('pointerdown', (event) => {
+			if (
+				event.button !== 0 ||
+				controlsDrag ||
+				!(event.target instanceof Element) ||
+				event.target.closest('button') ||
+				controlsEncodingError.contains(event.target)
+			) {
 				return;
 			}
 
@@ -1728,11 +1746,10 @@ export const startContent = () => {
 				offsetX: event.clientX - rect.left,
 				offsetY: event.clientY - rect.top,
 			};
-			controlsHeader.classList.add('dragging');
-			controlsHeader.setPointerCapture(event.pointerId);
+			controls.setPointerCapture(event.pointerId);
 			event.preventDefault();
 		});
-		controlsHeader.addEventListener('pointermove', (event) => {
+		controls.addEventListener('pointermove', (event) => {
 			if (!controlsDrag || controlsDrag.pointerId !== event.pointerId) {
 				return;
 			}
@@ -1757,12 +1774,18 @@ export const startContent = () => {
 			}
 
 			controlsDrag = null;
-			controlsHeader.classList.remove('dragging');
-			controlsHeader.releasePointerCapture(event.pointerId);
+			if (controls.hasPointerCapture(event.pointerId)) {
+				controls.releasePointerCapture(event.pointerId);
+			}
 		};
 
-		controlsHeader.addEventListener('pointerup', finishControlsDrag);
-		controlsHeader.addEventListener('pointercancel', finishControlsDrag);
+		controls.addEventListener('pointerup', finishControlsDrag);
+		controls.addEventListener('pointercancel', finishControlsDrag);
+		controls.addEventListener('lostpointercapture', (event) => {
+			if (event.target === controls) {
+				finishControlsDrag(event);
+			}
+		});
 		controlsSecondary.addEventListener('click', () => {
 			handleRequest({
 				type: captureControllerMessageType,
