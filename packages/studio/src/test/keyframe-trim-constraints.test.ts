@@ -402,7 +402,7 @@ test('converts descendant constraints through offsets and playback rates', () =>
 	).toBe(30);
 });
 
-test('loads only affected source, reuses it, and refreshes constraints after source changes', async () => {
+test('loads affected constraints, refreshes stale reads, and falls back when analysis fails', async () => {
 	const fixture = makeFixture(
 		'[10, 21, durationInFrames - 18, durationInFrames - 8]',
 		'child',
@@ -415,6 +415,8 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 	};
 
 	let pendingRead: Promise<string | null> | null = null;
+	let invalidateReads = false;
+	let unavailableFile: string | null = null;
 	// Only host file I/O and watcher events are faked; parsing and trim math stay real.
 	window.remotion_browserStudio = makeBrowserStudioOperations({
 		subscribeToEvent: (listener) => {
@@ -423,7 +425,13 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 		},
 		getFileSource: (fileName) => {
 			reads.push(fileName);
-			return pendingRead ?? Promise.resolve(fixture.files[fileName] ?? null);
+			if (fileName === unavailableFile) return Promise.resolve(null);
+			return pendingRead
+				? pendingRead.then((contents) => {
+						if (invalidateReads) sourceChanged();
+						return contents;
+					})
+				: Promise.resolve(fixture.files[fileName] ?? null);
 		},
 	});
 	const load = () =>
@@ -474,13 +482,55 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 		const stale = load();
 		sourceChanged();
 		finishRead(fixture.files['/trim-test/content.tsx']);
-		await expect(stale).rejects.toThrow('Source changed');
+		expect(getTargets(fixture, await stale, 'parent')[0].minimumDuration).toBe(
+			50,
+		);
+		expect(reads.slice(3)).toEqual([
+			'/trim-test/content.tsx',
+			'/trim-test/content.tsx',
+		]);
+
+		// Repeated invalidation only retries once, then allows the original trim.
+		invalidateReads = true;
+		sourceChanged();
+		const readsBeforeInvalidation = reads.length;
+		const changing = await load();
+		expect(reads.length - readsBeforeInvalidation).toBe(2);
+		expect(
+			getTimelineSequenceDurationDragChanges({
+				targets: getTargets(fixture, changing, 'parent'),
+				deltaFrames: -1000,
+			})[0],
+		).toMatchObject({fieldKey: 'durationInFrames', value: 1});
+		invalidateReads = false;
+
 		pendingRead = Promise.resolve(null);
-		await expect(load()).rejects.toThrow('Could not load');
+		const unavailable = await load();
+		expect(getTargets(fixture, unavailable, 'parent')[0].minimumDuration).toBe(
+			1,
+		);
+
+		pendingRead = Promise.resolve('export const Content = () => <');
+		const unparseable = await load();
+		expect(getTargets(fixture, unparseable, 'parent')[0].minimumDuration).toBe(
+			1,
+		);
+		sourceChanged();
 		pendingRead = null;
 		expect(getTargets(fixture, await load(), 'parent')[0].minimumDuration).toBe(
 			50,
 		);
+
+		// A failed parent read must not discard its child's valid constraints.
+		emit({type: 'hmr', hmrEvent: {action: 'building'}});
+		unavailableFile = '/trim-test/parent.tsx';
+		const partial = await load();
+		expect(
+			getTimelineSequenceDurationDragChanges({
+				targets: getTargets(fixture, partial, 'parent'),
+				deltaFrames: -1000,
+			})[0],
+		).toMatchObject({fieldKey: 'durationInFrames', value: 50});
 	} finally {
 		emit({type: 'hmr', hmrEvent: {action: 'building'}});
 		window.remotion_browserStudio = previousOperations;

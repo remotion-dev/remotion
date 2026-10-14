@@ -101,71 +101,93 @@ export const loadKeyframeTrimConstraints = async ({
 	// Only affected clips and descendants need source analysis. Concurrent
 	// gestures/inspector fields share in-flight reads as well as parsed results.
 	const browserOperations = getBrowserStudioOperations();
-	const entries = new Map<string, Promise<CachedSource>>();
-	for (const source of sources.values()) {
-		const fileName = source.absolutePath;
-		if (entries.has(fileName)) continue;
-		let entry = sourceCache.get(fileName);
-		if (!entry) {
-			entry = (async (): Promise<CachedSource> => {
-				let contents: string;
-				if (browserOperations) {
-					const value = await browserOperations.getFileSource(fileName);
-					if (value === null) throw new Error(`Could not load ${fileName}`);
-					contents = value;
-				} else {
-					const response = await fetch(
-						`/api/file-source?f=${encodeURIComponent(fileName)}`,
-						{cache: 'no-store'},
-					);
-					if (!response.ok) throw new Error(`Could not load ${fileName}`);
-					contents = await response.text();
+	const [codemods, files] = await Promise.all([
+		import('@remotion/codemods').catch((error) => {
+			Internals.Log.warn(
+				{logLevel: 'info', tag: '@remotion/studio'},
+				'Could not load keyframe analysis. Using existing trim limits.',
+				error,
+			);
+			return null;
+		}),
+		Promise.all(
+			[
+				...new Set([...sources.values()].map((source) => source.absolutePath)),
+			].map(async (fileName) => {
+				// Retry once if a source edit invalidates an in-flight read. If it
+				// keeps changing, this gesture can still use the existing limits.
+				for (let attempt = 0; attempt < 2; attempt++) {
+					let entry = sourceCache.get(fileName);
+					if (!entry) {
+						entry = (async (): Promise<CachedSource> => {
+							let contents: string;
+							if (browserOperations) {
+								const value = await browserOperations.getFileSource(fileName);
+								if (value === null)
+									throw new Error(`Could not load ${fileName}`);
+								contents = value;
+							} else {
+								const response = await fetch(
+									`/api/file-source?f=${encodeURIComponent(fileName)}`,
+									{cache: 'no-store'},
+								);
+								if (!response.ok) throw new Error(`Could not load ${fileName}`);
+								contents = await response.text();
+							}
+
+							return {contents, constraints: new Map()};
+						})();
+						sourceCache.set(fileName, entry);
+					}
+
+					try {
+						const cached = await entry;
+						if (sourceCache.get(fileName) !== entry) continue;
+						return [fileName, {entry, cached}] as const;
+					} catch (error) {
+						if (sourceCache.get(fileName) === entry)
+							sourceCache.delete(fileName);
+						Internals.Log.warn(
+							{logLevel: 'info', tag: '@remotion/studio'},
+							`Could not read ${fileName} for keyframe analysis. Using existing trim limits.`,
+							error,
+						);
+						return null;
+					}
 				}
 
-				return {contents, constraints: new Map()};
-			})();
-			sourceCache.set(fileName, entry);
-			const pendingEntry = entry;
-			entry.catch(() => {
-				if (sourceCache.get(fileName) === pendingEntry)
-					sourceCache.delete(fileName);
-			});
-		}
-
-		entries.set(fileName, entry);
-	}
-
-	const [codemods, files] = await Promise.all([
-		import('@remotion/codemods'),
-		Promise.all(
-			[...entries].map(
-				async ([fileName, entry]) => [fileName, await entry] as const,
-			),
+				return null;
+			}),
 		),
 	]);
-	for (const [fileName, entry] of entries) {
-		if (sourceCache.get(fileName) !== entry) {
-			throw new Error(
-				'Source changed while checking trim constraints. Try again.',
-			);
-		}
-	}
+	if (!codemods) return propStatuses;
 
-	const contentsByFile = new Map(files);
+	const contentsByFile = new Map(files.filter((file) => file !== null));
 	const result = {...propStatuses};
 	for (const [key, source] of sources) {
 		const status = propStatuses[key];
 		if (!status?.canUpdate) continue;
-		const cached = contentsByFile.get(source.absolutePath)!;
+		const file = contentsByFile.get(source.absolutePath);
+		if (!file || sourceCache.get(source.absolutePath) !== file.entry) continue;
+		const {cached} = file;
 		const pathKey = JSON.stringify(source.nodePath);
-		if (!cached.constraints.has(pathKey)) {
-			cached.constraints.set(
-				pathKey,
-				codemods.CodemodsInternals.getDurationDependentKeyframesFromContent({
-					fileContents: cached.contents,
-					nodePath: source.nodePath,
-				}),
+		try {
+			if (!cached.constraints.has(pathKey)) {
+				cached.constraints.set(
+					pathKey,
+					codemods.CodemodsInternals.getDurationDependentKeyframesFromContent({
+						fileContents: cached.contents,
+						nodePath: source.nodePath,
+					}),
+				);
+			}
+		} catch (error) {
+			Internals.Log.warn(
+				{logLevel: 'info', tag: '@remotion/studio'},
+				`Could not analyze keyframes in ${source.absolutePath}. Using existing trim limits.`,
+				error,
 			);
+			continue;
 		}
 
 		result[key] = {
