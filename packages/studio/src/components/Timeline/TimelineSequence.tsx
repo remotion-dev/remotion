@@ -2367,7 +2367,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 			(s.timelineTrack?.role === 'transition' && rollingEnabled)) &&
 		(s.timelineTrack?.role === 'transition' ||
 			visibleLayout.media?.offset === 0) &&
-		(negativeStartWidth === 0 || activeTrimEdge === 'left') &&
 		nodePathInfo &&
 		validatedLocation,
 	);
@@ -2382,6 +2381,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		nodePathInfo &&
 		validatedLocation,
 	);
+	// The negative-time gutter is an indicator, not an editable clip boundary.
 	const leftEdgeOffset =
 		s.timelineTrack?.role === 'transition'
 			? 0

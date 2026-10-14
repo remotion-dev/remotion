@@ -1381,6 +1381,31 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 					? (track.sequence.from - track.cascadedStart) *
 						track.keyframePlaybackRate
 					: 0;
+			const timingLimits = getTimelineSequenceTimingLimits({
+				propStatuses,
+				movingSequenceIds: null,
+				track,
+				tracks,
+				sequences,
+				timelineDurationInFrames,
+			});
+			if (!trimBeforeOnly && positionField === 'from') {
+				// This handle edits the visible edge, not the compressed negative-time
+				// gutter. Moving clips may preserve authored clipping, but trimming
+				// cannot extend the visible edge behind its parent's visible start.
+				const minimumVisibleFrom =
+					originalSequence.from +
+					(track.parentVisibleStart - track.cascadedStart) *
+						track.keyframePlaybackRate;
+				if (minimumVisibleFrom > timingLimits.minimumFrom) {
+					timingLimits.minimumFrom = minimumVisibleFrom;
+					timingLimits.limitReasons.minimumFrom =
+						originalSequence.parent === null
+							? 'Composition edge'
+							: 'Parent edge';
+				}
+			}
+
 			targets.set(key, {
 				parentPlaybackRate: getParentSequencePlaybackRate(
 					originalSequence,
@@ -1423,14 +1448,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				positionField,
 				ripplePrevious,
 				rollingDuration: null,
-				timingLimits: getTimelineSequenceTimingLimits({
-					propStatuses,
-					movingSequenceIds: null,
-					track,
-					tracks,
-					sequences,
-					timelineDurationInFrames,
-				}),
+				timingLimits,
 				schema: controls.schema,
 			});
 		}
