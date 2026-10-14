@@ -16,7 +16,7 @@ export const releaseStableFrame = (frame: WrappedCanvas | null) => {
 	(frame as Partial<StableWrappedCanvas> | null)?.[releaseCanvas]?.();
 };
 
-const makeStableFramePool = () => {
+export const makeStableFramePool = () => {
 	const availableCanvases: OffscreenCanvas[] = [];
 
 	const makeStableFrame = (frame: WrappedCanvas): WrappedCanvas => {

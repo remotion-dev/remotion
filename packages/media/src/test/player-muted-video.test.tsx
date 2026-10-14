@@ -31,6 +31,7 @@ test('renders an initially muted video and resumes audio after reverse playback'
 		(starts.mock.contexts as AudioBufferSourceNode[]).filter(
 			(node) => node.buffer !== null,
 		);
+	const configures = vi.spyOn(VideoDecoder.prototype, 'configure');
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 	const playerRef = React.createRef<PlayerRef>();
@@ -78,13 +79,19 @@ test('renders an initially muted video and resumes audio after reverse playback'
 		);
 
 		const forwardFrame = playerRef.current!.getCurrentFrame();
-		starts.mockClear();
+		configures.mockClear();
 		// J changes the Player's global rate while playback continues.
 		renderPlayer(-1);
+		await waitFor(() => playerRef.current!.getCurrentFrame() < forwardFrame);
+		// Until the new rate reaches the video, the forward audio iterator can
+		// still schedule a chunk. Destroying it for the new rate stops the chunk.
+		starts.mockClear();
 		await waitFor(
-			() => playerRef.current!.getCurrentFrame() < forwardFrame - 2,
+			() => playerRef.current!.getCurrentFrame() < forwardFrame - 15,
 		);
 		expect(startedMediaNodes()).toHaveLength(0);
+		// One decoder for the GOP and one decoding ahead, not one per frame.
+		expect(configures.mock.calls.length).toBeLessThanOrEqual(2);
 
 		const reverseFrame = playerRef.current!.getCurrentFrame();
 		renderPlayer(1);
@@ -97,6 +104,7 @@ test('renders an initially muted video and resumes audio after reverse playback'
 		root.unmount();
 		container.remove();
 		starts.mockRestore();
+		configures.mockRestore();
 	}
 }, 15000);
 

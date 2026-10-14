@@ -70,6 +70,8 @@ export class MediaPlayer {
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
+	// Unlike `playing`, stays true while the Player buffers
+	private playerPlaying = false;
 	private lastSeekIntent: MediaSeekIntent = null;
 	private satisfiedSeekRevision: number | null = null;
 	private loop = false;
@@ -563,6 +565,7 @@ export class MediaPlayer {
 							: intent !== 'discontinuity' &&
 								intent.playing &&
 								intent.revision === this.satisfiedSeekRevision,
+					reversePlayback: this.playerPlaying && this.globalPlaybackRate < 0,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
@@ -607,6 +610,14 @@ export class MediaPlayer {
 		this.playing = true;
 
 		this.drawDebugOverlay();
+	}
+
+	public setPlayerPlaying(playerPlaying: boolean): void {
+		this.playerPlaying = playerPlaying;
+		// Frames kept for reverse playback are not needed while paused
+		if (!playerPlaying) {
+			this.videoIteratorManager?.releaseReverseFrames();
+		}
 	}
 
 	private delayPlaybackHandleIfNotPremounting = () => {

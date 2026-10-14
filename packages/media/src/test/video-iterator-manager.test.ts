@@ -117,6 +117,7 @@ test('plays at a high playback rate without restarting the iterator', async () =
 				playbackRate: 3.75,
 				isPlaying: true,
 				continuousPlayback: null,
+				reversePlayback: false,
 			});
 		}
 
@@ -150,6 +151,7 @@ test('paused forward scrubs do not wait for pending frames', async () => {
 
 		await manager.seek({
 			continuousPlayback: null,
+			reversePlayback: false,
 			newTime: 0.1,
 			nonce: nonceManager.createAsyncOperation(),
 			fps: 30,
@@ -209,6 +211,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 	// These should NOT cause overlapping blocks
 	await manager.seek({
 		continuousPlayback: null,
+		reversePlayback: false,
 		newTime: 5,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
@@ -217,6 +220,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 	});
 	await manager.seek({
 		continuousPlayback: null,
+		reversePlayback: false,
 		newTime: 0,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
@@ -225,6 +229,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 	});
 	await manager.seek({
 		continuousPlayback: null,
+		reversePlayback: false,
 		newTime: 8,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
@@ -286,6 +291,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		const time = i % 2 === 0 ? i * 0.5 : 9 - i * 0.5;
 		await manager.seek({
 			continuousPlayback: null,
+			reversePlayback: false,
 			newTime: time,
 			nonce: nonceManager.createAsyncOperation(),
 			fps: 30,

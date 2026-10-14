@@ -1,5 +1,5 @@
 import type {InputVideoTrack, WrappedCanvas} from 'mediabunny';
-import {CanvasSink} from 'mediabunny';
+import {CanvasSink, EncodedPacketSink} from 'mediabunny';
 import type {
 	EffectChainState,
 	EffectDefinitionAndStack,
@@ -8,9 +8,14 @@ import type {
 import {Internals} from 'remotion';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {roundTo4Digits} from './helpers/round-to-4-digits';
+import {getMaxVideoCacheSize} from './max-cache-size';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
 import type {MaxCanvasSinkFrameSize} from './video/props';
+import {
+	createReverseVideoIterator,
+	type ReverseVideoIterator,
+} from './video/reverse-video-iterator';
 import {
 	createVideoIterator,
 	type VideoIterator,
@@ -77,6 +82,7 @@ export const videoIteratorManager = async ({
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
+	let reverseVideoIterator: ReverseVideoIterator | null = null;
 	let framesRendered = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
@@ -108,15 +114,16 @@ export const videoIteratorManager = async ({
 				? {height: maxHeight, fit: 'fill' as const}
 				: {};
 
-	const canvasSink = new CanvasSink(videoTrack, {
+	const canvasSinkOptions = {
 		// Match the preview look-ahead buffer size. CanvasSink may reuse pooled
 		// canvas objects for later decoded frames, so Remotion copies pixels into
 		// stable canvases before retaining frames across seeks/peeks.
 		poolSize: 3,
-		fit: 'contain',
+		fit: 'contain' as const,
 		alpha: true,
 		...frameSize,
-	});
+	};
+	const canvasSink = new CanvasSink(videoTrack, canvasSinkOptions);
 
 	// Effects expect a source with the size of the output.
 	let upscaledFrame: OffscreenCanvas | null = null;
@@ -263,6 +270,7 @@ export const videoIteratorManager = async ({
 		playbackRate,
 		isPlaying,
 		continuousPlayback,
+		reversePlayback,
 	}: {
 		newTime: number;
 		nonce: Nonce;
@@ -270,8 +278,9 @@ export const videoIteratorManager = async ({
 		playbackRate: number;
 		isPlaying: boolean;
 		continuousPlayback: boolean | null;
+		reversePlayback: boolean;
 	}) => {
-		if (!videoFrameIterator) {
+		if (!videoFrameIterator && !reverseVideoIterator) {
 			return;
 		}
 
@@ -283,6 +292,45 @@ export const videoIteratorManager = async ({
 		}
 
 		const previousTime = currentSeek;
+
+		if (reversePlayback && previousTime !== null) {
+			videoFrameIterator?.destroy();
+			videoFrameIterator = null;
+			reverseVideoIterator ??= createReverseVideoIterator({
+				canvasSink: new CanvasSink(videoTrack, canvasSinkOptions),
+				packetSink: new EncodedPacketSink(videoTrack),
+				// Up to two ranges are kept, the one being shown and the one before
+				// it, so together they stay within half of the cache size
+				maxBytesPerRange: getMaxVideoCacheSize(logLevel) / 4,
+			});
+
+			let frame = reverseVideoIterator.getFrame(newTime);
+			if (!frame) {
+				// Decoding may reuse the canvas of the frame that is shown
+				clearLastDrawnFrame();
+				using delayHandle = delayPlaybackHandleIfNotPremounting();
+				currentDelayHandle = delayHandle;
+				frame = await reverseVideoIterator.waitForFrame(newTime);
+			}
+
+			if (destroyed || nonce.isStale()) {
+				return;
+			}
+
+			if (frame) {
+				await drawFrame(frame);
+				currentSeek = newTime;
+				return;
+			}
+		}
+
+		// After reverse playback, or before the first frame while playing backwards
+		if (!videoFrameIterator) {
+			reverseVideoIterator?.destroy();
+			reverseVideoIterator = null;
+			await startVideoIterator(newTime, nonce);
+			return;
+		}
 
 		if (getIsLooping()) {
 			// If less than 1 second from the end away, we pre-warm a new iterator
@@ -346,12 +394,15 @@ export const videoIteratorManager = async ({
 	return {
 		startVideoIterator,
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
+		releaseReverseFrames: () => reverseVideoIterator?.releaseFrames(),
 		seek,
 		destroy: () => {
 			destroyed = true;
 			clearLastDrawnFrame();
 			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();
+			reverseVideoIterator?.destroy();
+			reverseVideoIterator = null;
 			if (context && canvas) {
 				context.clearRect(0, 0, canvas.width, canvas.height);
 			}

@@ -55,6 +55,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.seek({
 		newTime: 0.03,
 		continuousPlayback: null,
+		reversePlayback: false,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
@@ -63,6 +64,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.seek({
 		newTime: 1,
 		continuousPlayback: null,
+		reversePlayback: false,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
@@ -71,6 +73,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.seek({
 		newTime: 2,
 		continuousPlayback: null,
+		reversePlayback: false,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
@@ -83,6 +86,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.seek({
 		newTime: 4.5,
 		continuousPlayback: null,
+		reversePlayback: false,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
