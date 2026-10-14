@@ -1810,13 +1810,37 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		validatedLocation !== null &&
 		durationCanResize &&
 		(!isMedia || Boolean(s.loopDisplay) || mediaDurationDragLimits !== null);
+	const leftTrimStatuses = isCascadingSequence(s)
+		? [
+				propStatusesForOverride?.durationInFrames,
+				propStatusesForOverride?.trimBefore,
+			]
+		: [
+				propStatusesForOverride?.from,
+				propStatusesForOverride?.durationInFrames,
+				propStatusesForOverride?.trimBefore,
+			];
+	const leftTrimBlockedReason =
+		previewInteractive &&
+		leftTrimStatuses.some((status) => status?.status === 'computed') &&
+		leftTrimStatuses.every(
+			(status) => status?.status === 'static' || status?.status === 'computed',
+		)
+			? ('Computed value' as const)
+			: null;
+	const sourceTrimBlockedReason =
+		previewInteractive &&
+		propStatusesForOverride?.trimBefore?.status === 'computed'
+			? ('Computed value' as const)
+			: null;
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		(isCascadingSequence(s)
+		((isCascadingSequence(s)
 			? durationCanUpdate && trimBeforeCanUpdate
-			: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate);
+			: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate) ||
+			leftTrimBlockedReason !== null);
 	const canRoll = (previous: TSequence | null, next: TSequence | null) => {
 		if (!previewInteractive || !previous || !next) return false;
 		return [previous, next].every((sequence) => {
@@ -1890,6 +1914,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		hasCaptionsSchema,
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
+		leftTrimBlockedReason,
+		sourceTrimBlockedReason,
 		onPointerEnter,
 	};
 };
@@ -1971,6 +1997,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 		hasCaptionsSchema,
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
+		leftTrimBlockedReason,
+		sourceTrimBlockedReason,
 		onPointerEnter,
 	} = state;
 	const sceneRange = useContext(TimelineSceneRangeContext);
@@ -2352,7 +2380,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		trimBeforeCanUpdate;
+		(trimBeforeCanUpdate || sourceTrimBlockedReason !== null);
 	const secondaryLeftEdgeAction = canShowSecondaryLeftEdgeAction
 		? 'source-only'
 		: null;
@@ -2493,6 +2521,8 @@ const TimelineSequenceLayoutInner: React.FC<{
 							trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 							sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
 							edgeEnabled={leftTrimEnabled}
+							edgeBlockedReason={leftTrimBlockedReason}
+							sourceTrimBlockedReason={sourceTrimBlockedReason}
 							handleLayout={trimHandleLayout}
 							edgeOffset={leftEdgeOffset}
 							edgeMode={

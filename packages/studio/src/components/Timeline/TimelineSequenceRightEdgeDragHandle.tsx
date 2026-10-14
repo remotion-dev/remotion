@@ -1971,6 +1971,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly trimBeforeCursor: string;
 	readonly sourceOnlyCursor: string;
 	readonly edgeEnabled: boolean;
+	readonly edgeBlockedReason: TimelineTrimLimitReason | null;
+	readonly sourceTrimBlockedReason: TimelineTrimLimitReason | null;
 	readonly edgeMode: TimelineSequenceLeftEdgeDragMode;
 	readonly rollingEnabled: boolean;
 	readonly handleLayout: ReturnType<typeof getTimelineTrimHandleLayout>;
@@ -1998,6 +2000,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	trimBeforeCursor,
 	sourceOnlyCursor,
 	edgeEnabled,
+	edgeBlockedReason,
+	sourceTrimBlockedReason,
 	edgeMode,
 	rollingEnabled,
 	handleLayout,
@@ -2175,6 +2179,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const mode = e.currentTarget.dataset
 				.trimMode as TimelineSequenceLeftEdgeDragMode;
 			const trimBeforeOnly = mode === 'source-only';
+			const blockedReason = trimBeforeOnly
+				? sourceTrimBlockedReason
+				: mode === edgeMode
+					? edgeBlockedReason
+					: null;
 			const activeCursor =
 				mode === 'ripple' || mode === 'rolling'
 					? cursor
@@ -2219,7 +2228,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
 			const getTargets = (statuses: PropStatuses) =>
-				canCalculateDelta
+				canCalculateDelta && blockedReason === null
 					? ((mode === 'rolling'
 							? getTimelineSequenceRollingEditTargets({
 									draggedNodePathInfo: latestNodePathInfo,
@@ -2251,19 +2260,23 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					finishDrag(false);
 				},
 				onStart: () => {
-					const preparedPropStatuses = getKeyframeTrimConstraints({
-						propStatuses,
-						overrideIdsToNodePaths,
-						sequences,
-						affectedNodePaths: getTargets(propStatuses).flatMap((target) =>
-							target.ripplePrevious
-								? target.positionField === null &&
-									target.rollingDuration === null
-									? [target.ripplePrevious.nodePath]
-									: [target.nodePath, target.ripplePrevious.nodePath]
-								: [target.nodePath],
-						),
-					});
+					const preparedPropStatuses =
+						blockedReason === null
+							? getKeyframeTrimConstraints({
+									propStatuses,
+									overrideIdsToNodePaths,
+									sequences,
+									affectedNodePaths: getTargets(propStatuses).flatMap(
+										(target) =>
+											target.ripplePrevious
+												? target.positionField === null &&
+													target.rollingDuration === null
+													? [target.ripplePrevious.nodePath]
+													: [target.nodePath, target.ripplePrevious.nodePath]
+												: [target.nodePath],
+									),
+								})
+							: propStatuses;
 					const targets = getTargets(preparedPropStatuses);
 					const draggedKey = stringifySequenceSubscriptionKey(
 						latestNodePathInfo.sequenceSubscriptionKey,
@@ -2276,8 +2289,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						) ?? (fillTarget ? targets[0] : undefined);
 					onDragStart(
 						mode,
-						true,
-						targets.map((target) => target.nodePath),
+						blockedReason === null,
+						blockedReason === null
+							? targets.map((target) => target.nodePath)
+							: [latestNodePathInfo.sequenceSubscriptionKey],
 					);
 
 					dragStateRef.current = {
@@ -2299,6 +2314,16 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					document.body.style.userSelect = 'none';
 					document.body.style.webkitUserSelect = 'none';
 					forceSpecificCursor(activeCursor);
+					if (blockedReason !== null) {
+						latestRef.current.onLimitChange(true);
+						setTrimTooltip({
+							limitReason: blockedReason,
+							deltaFrames: 0,
+							edgeFrame: initialTimelineEdge,
+							x: initialEdgeClientX,
+							y: initialEdgeClientY,
+						});
+					}
 
 					const onMove = (pointerEvent: PointerEvent) => {
 						const dragState = dragStateRef.current;
@@ -2307,6 +2332,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						}
 
 						const dx = pointerEvent.clientX - dragState.initialClientX;
+						if (blockedReason !== null) {
+							dragState.didMove ||=
+								Math.abs(dx) >= timelineSequenceEdgeDragThresholdPx;
+							return;
+						}
+
 						if (
 							isTransitionSeries &&
 							!dragState.didMove &&
@@ -2624,6 +2655,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			fillTarget,
 			edgeOffset,
 			isTransitionSeries,
+			edgeMode,
+			edgeBlockedReason,
+			sourceTrimBlockedReason,
 		],
 	);
 
@@ -2652,6 +2686,13 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const onHover = (mode: TimelineSequenceLeftEdgeDragMode) => {
 		if (dragStateRef.current === null) {
 			onDragStart(mode, false, [nodePathInfo.sequenceSubscriptionKey]);
+			onLimitChange(
+				(mode === 'source-only'
+					? sourceTrimBlockedReason
+					: mode === edgeMode
+						? edgeBlockedReason
+						: null) !== null,
+			);
 		}
 	};
 
