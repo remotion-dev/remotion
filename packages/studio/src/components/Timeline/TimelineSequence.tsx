@@ -1126,8 +1126,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const isAtTrimLimit = activeHighlight?.isAtLimit ?? false;
 	const isEdgeDragging = activeHighlight?.isDragging ?? false;
 	const activeTrimEdge =
-		!isEdgeDragging &&
-		(isTransitionSeriesSequence(s) || s.timelineTrack?.role === 'transition')
+		!isEdgeDragging && s.timelineTrack?.role === 'transition'
 			? null
 			: activeEdgeHighlight === 'source-only'
 				? 'left'
