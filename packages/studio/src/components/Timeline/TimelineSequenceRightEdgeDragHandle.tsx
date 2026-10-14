@@ -1411,7 +1411,12 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 						? ownTrimBefore
 						: trimsMedia
 							? (originalSequence.trimBefore ??
-								Math.max(0, originalSequence.startMediaFrom))
+								Math.max(
+									0,
+									// The media start already includes frames hidden by ancestors.
+									originalSequence.startMediaFrom -
+										hiddenStartInParentFrames * playbackRate,
+								))
 							: (originalSequence.trimBefore ?? 0)) +
 					hiddenStartInParentFrames * playbackRate,
 				minimumDuration: getMinimumSequenceDuration({
@@ -2623,6 +2628,17 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		};
 	}, []);
 
+	const equalMediaTrimHandles =
+		edgeEnabled &&
+		edgeMode === 'self-trim' &&
+		secondaryAction === 'source-only' &&
+		!isTransitionSeries &&
+		!rollingEnabled &&
+		!touchingPrevious &&
+		transitionEndOffset === null;
+	const leftEdgeHandleInset = equalMediaTrimHandles
+		? 8
+		: LEFT_EDGE_HANDLE_INSET;
 	const edgeStyle: React.CSSProperties = {
 		...baseStyle,
 		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
@@ -2639,7 +2655,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				? 'min(10px, 12.5%)'
 				: edgeMode === 'source-only'
 					? `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(14px, 25%))`
-					: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${LEFT_EDGE_HANDLE_INSET}px, 12.5%))`,
+					: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${leftEdgeHandleInset}px, 12.5%))`,
 		cursor:
 			edgeMode === 'head-trim'
 				? altKey && rollingEnabled
@@ -2669,13 +2685,13 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 							: 'calc(min(2px, 12.5%) + min(10px, 12.5%))'
 						: touchingPrevious
 							? 'min(10px, 12.5%)'
-							: 'min(4px, 12.5%)'
+							: `min(${leftEdgeHandleInset}px, 12.5%)`
 					: 0,
 		width:
 			transitionEndOffset !== null
 				? 10
 				: edgeEnabled
-					? 'min(10px, 12.5%)'
+					? `min(${equalMediaTrimHandles ? 8 : 10}px, 12.5%)`
 					: 'min(14px, 25%)',
 		cursor:
 			secondaryAction === 'source-only' ? sourceOnlyCursor : trimBeforeCursor,

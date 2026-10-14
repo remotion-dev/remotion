@@ -30,6 +30,7 @@ import type {VideoConfigValues} from './video-config.js';
 
 const useIsomorphicLayoutEffect =
 	typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+const useCommitEffect = React.useInsertionEffect ?? useIsomorphicLayoutEffect;
 
 export type VisualModePropStatuses = {
 	propStatuses: PropStatuses;
@@ -243,24 +244,32 @@ const defaultVisualModeDragOverrides: VisualModeDragOverrides = {
 export const VisualModeDragOverridesContext =
 	React.createContext<VisualModeDragOverrides>(defaultVisualModeDragOverrides);
 
-const InactiveVisualModeDragOverridesContext =
-	React.createContext<VisualModeDragOverrides>(defaultVisualModeDragOverrides);
-
 export const VisualModeDragOverridesRefContext = React.createContext<
 	React.RefObject<VisualModeDragOverrides>
 >({current: defaultVisualModeDragOverrides});
 
+const useDragOverrideSnapshot = <T,>(
+	subscribe: (listener: () => void) => () => void,
+	getSnapshot: () => T,
+): T => {
+	const dormant = useContext(SequenceActivityDormantContext);
+	const [, forceUpdate] = useState(0);
+	const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	useCommitEffect(() => {
+		if (!dormant) {
+			return;
+		}
+
+		// Activity disconnects passive subscriptions, including useSyncExternalStore.
+		// Insertion effects stay connected through nested hidden Activities.
+		return subscribe(() => forceUpdate((current) => current + 1));
+	}, [dormant, subscribe]);
+	return snapshot;
+};
+
 export const useDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
 ): Record<string, DragOverrideValue> => {
-	const dormant = useContext(SequenceActivityDormantContext);
-	// Hidden Activities disconnect external-store subscriptions. Context updates
-	// still schedule their renders, allowing them to read the latest snapshot.
-	useContext(
-		dormant
-			? VisualModeDragOverridesContext
-			: InactiveVisualModeDragOverridesContext,
-	);
 	const subscription = useContext(VisualModeDragOverridesSubscriptionContext);
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedSubscription =
@@ -276,7 +285,7 @@ export const useDragOverridesForNodePath = (
 		() => scopedSubscription?.getSnapshot(key) ?? emptyDragOverrides,
 		[key, scopedSubscription],
 	);
-	return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	return useDragOverrideSnapshot(subscribe, getSnapshot);
 };
 
 export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
@@ -288,12 +297,6 @@ export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
 export const useEffectDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
 ): Record<string, Record<string, DragOverrideValue>> => {
-	const dormant = useContext(SequenceActivityDormantContext);
-	useContext(
-		dormant
-			? VisualModeDragOverridesContext
-			: InactiveVisualModeDragOverridesContext,
-	);
 	const subscription = useContext(VisualModeDragOverridesSubscriptionContext);
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedSubscription =
@@ -310,7 +313,7 @@ export const useEffectDragOverridesForNodePath = (
 			scopedSubscription?.getEffectSnapshot(key) ?? emptyEffectDragOverrides,
 		[key, scopedSubscription],
 	);
-	return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	return useDragOverrideSnapshot(subscribe, getSnapshot);
 };
 
 export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
