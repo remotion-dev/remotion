@@ -6,6 +6,9 @@ on:
       tag:
         description: 'Release tag to post (e.g. v4.0.422). Leave empty for latest.'
         required: false
+permissions:
+  contents: read
+
 name: Publish latest release
 
 jobs:
