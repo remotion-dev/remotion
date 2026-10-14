@@ -23,7 +23,8 @@ export default defineConfig({
 		name: 'Remotion Canvas Capture',
 		description: `Record an area or webpage as MP4 or WebM. Requires Chrome ${minimumChromeVersion}+ and Canvas Draw Element enabled.`,
 		version: '0.1.0',
-		minimum_chrome_version: minimumChromeVersion,
+		// Allow older Chrome versions to install and show the recording requirements.
+		minimum_chrome_version: '155',
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
 		icons: {
 			16: 'icons/icon-16.png',
@@ -62,7 +63,6 @@ export default defineConfig({
 				'Remotion Canvas Capture',
 			)}`,
 			'--enable-features=CanvasDrawElement',
-			'--enable-blink-features=CanvasDrawElement',
 			'--no-first-run',
 			'--no-default-browser-check',
 		],
