@@ -60,7 +60,7 @@ const googleFonts = GOOGLE_FONTS_LIST.map((font) => ({
 }));
 
 const loadedGoogleFontsForPreview = new Set<string>();
-const loadingGoogleFontsForPreview = new Set<string>();
+const loadingGoogleFontsForPreview = new Map<string, Promise<void>>();
 const loadedGoogleFontsForPickerPreview = new Set<string>();
 const loadingGoogleFontsForPickerPreview = new Set<string>();
 
@@ -371,19 +371,20 @@ const loadGoogleFontForPreview = async ({
 	readonly weights: string[];
 	readonly document: Document;
 }) => {
-	if (
-		loadedGoogleFontsForPreview.has(fontFamily) ||
-		loadingGoogleFontsForPreview.has(fontFamily)
-	) {
+	if (loadedGoogleFontsForPreview.has(fontFamily)) {
 		return;
+	}
+
+	const loading = loadingGoogleFontsForPreview.get(fontFamily);
+	if (loading) {
+		return loading;
 	}
 
 	if (!GOOGLE_FONTS_LIST.some((font) => font.fontFamily === fontFamily)) {
 		return;
 	}
 
-	loadingGoogleFontsForPreview.add(fontFamily);
-	try {
+	const promise = (async () => {
 		const loadedWeights = await Promise.all(
 			getGoogleFontPreviewWeights(weights).map((weight) =>
 				loadGoogleFontWeight({
@@ -395,9 +396,15 @@ const loadGoogleFontForPreview = async ({
 				}),
 			),
 		);
-		if (loadedWeights.some(Boolean)) {
-			loadedGoogleFontsForPreview.add(fontFamily);
+		if (!loadedWeights.every(Boolean)) {
+			throw new Error(`Could not load font "${fontFamily}" for Studio preview`);
 		}
+
+		loadedGoogleFontsForPreview.add(fontFamily);
+	})();
+	loadingGoogleFontsForPreview.set(fontFamily, promise);
+	try {
+		await promise;
 	} finally {
 		loadingGoogleFontsForPreview.delete(fontFamily);
 	}
@@ -445,6 +452,20 @@ export const TimelineFontFamilyField: React.FC<{
 		() => new Set(loadedGoogleFontsForPickerPreview),
 	);
 	const [saveError, setSaveError] = useState<string | null>(null);
+	const selectionGeneration = useRef(0);
+	const activePreview = useRef<{
+		generation: number;
+		onDragEnd: () => void;
+	} | null>(null);
+	useEffect(() => {
+		const generation = selectionGeneration;
+		const preview = activePreview;
+		return () => {
+			generation.current++;
+			preview.current?.onDragEnd();
+			preview.current = null;
+		};
+	}, []);
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const listRef = useRef<HTMLDivElement>(null);
@@ -506,16 +527,35 @@ export const TimelineFontFamilyField: React.FC<{
 
 	const selectOption = useCallback(
 		(option: FontFamilyOption) => {
+			const generation = ++selectionGeneration.current;
 			setSaveError(null);
+			hide();
 			if (option.value === propStatus.codeValue) {
-				hide();
+				activePreview.current?.onDragEnd();
+				activePreview.current = null;
 				return;
 			}
 
-			onDragValueChange(option.value);
-			hide();
-
+			let appliedPreview = false;
 			const save = async () => {
+				// Keep the current preview until all font faces are ready, including
+				// when another caller (such as the current-value effect) is loading them.
+				if (option.source === 'Google Fonts' && option.googleFontCssFamily) {
+					await loadGoogleFontForPreview({
+						fontFamily: option.value ?? option.label,
+						cssFamily: option.googleFontCssFamily,
+						weights: option.googleFontWeights ?? ['400'],
+						document,
+					});
+				}
+
+				if (generation !== selectionGeneration.current) {
+					return;
+				}
+
+				onDragValueChange(option.value);
+				appliedPreview = true;
+				activePreview.current = {generation, onDragEnd};
 				if (option.source !== 'Google Fonts' || !option.googleFontImportName) {
 					await onSave(option.value);
 					return;
@@ -524,6 +564,10 @@ export const TimelineFontFamilyField: React.FC<{
 				await installRequiredPackages([
 					{name: '@remotion/google-fonts', version: null},
 				]);
+				if (generation !== selectionGeneration.current) {
+					return;
+				}
+
 				const googleFont = getGoogleFontSourceEdit({
 					fontFamily: option.value ?? option.label,
 					importName: option.googleFontImportName,
@@ -536,11 +580,22 @@ export const TimelineFontFamilyField: React.FC<{
 
 			save()
 				.catch((err) => {
-					onDragValueChange(propStatus.codeValue);
+					if (generation !== selectionGeneration.current) {
+						return;
+					}
+
+					if (appliedPreview) {
+						onDragValueChange(propStatus.codeValue);
+					}
+
 					setSaveError(err instanceof Error ? err.message : String(err));
 				})
 				.finally(() => {
-					onDragEnd();
+					// A stale load/save must not clear a newer selection's override.
+					if (activePreview.current?.generation === generation) {
+						activePreview.current.onDragEnd();
+						activePreview.current = null;
+					}
 				});
 		},
 		[propStatus.codeValue, onDragValueChange, hide, onSave, onDragEnd],
