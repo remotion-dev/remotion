@@ -44,9 +44,7 @@ const AirportSignZoomContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const AirportSignZoom = Interactive.withSchema({
+export const AirportSignZoom = Interactive.create({
 	Component: AirportSignZoomContent,
 	componentName: 'AirportSignZoom',
-	schema: {},
-	wrapInSequence: true,
 });

@@ -346,10 +346,7 @@ const FirstCustomerChartInner: React.FC = () => {
 	);
 };
 
-export const FirstCustomerChart = Interactive.withSchema({
+export const FirstCustomerChart = Interactive.create({
 	Component: FirstCustomerChartInner,
-	componentName: 'FirstCustomerChart',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

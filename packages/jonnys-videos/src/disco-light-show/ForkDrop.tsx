@@ -146,10 +146,7 @@ const ForkDropInner: React.FC = () => {
 	);
 };
 
-export const ForkDrop = Interactive.withSchema({
+export const ForkDrop = Interactive.create({
 	Component: ForkDropInner,
-	componentName: 'ForkDrop',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

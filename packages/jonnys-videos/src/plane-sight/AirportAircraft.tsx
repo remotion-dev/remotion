@@ -162,7 +162,7 @@ const AirportAircraftContent = ({
 	);
 };
 
-export const AirportAircraft = Interactive.withSchema({
+export const AirportAircraft = Interactive.create({
 	Component: AirportAircraftContent,
 	componentName: 'AirportAircraft',
 	schema: {
@@ -209,5 +209,4 @@ export const AirportAircraft = Interactive.withSchema({
 			hiddenFromList: false,
 		},
 	},
-	wrapInSequence: true,
 });

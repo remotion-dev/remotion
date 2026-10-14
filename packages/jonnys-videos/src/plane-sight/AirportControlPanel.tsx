@@ -8,9 +8,7 @@ const AirportControlPanelContent = ({style}: InteractiveTransformProps) => {
 	return <AbsoluteFill style={style} />;
 };
 
-export const AirportControlPanel = Interactive.withSchema({
+export const AirportControlPanel = Interactive.create({
 	Component: AirportControlPanelContent,
 	componentName: 'AirportControlPanel',
-	schema: {},
-	wrapInSequence: true,
 });

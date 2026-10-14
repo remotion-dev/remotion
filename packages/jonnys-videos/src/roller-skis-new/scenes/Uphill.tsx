@@ -1385,10 +1385,7 @@ const UphillInner: React.FC = () => {
 	);
 };
 
-export const Uphill = Interactive.withSchema({
+export const Uphill = Interactive.create({
 	Component: UphillInner,
-	componentName: 'Uphill',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

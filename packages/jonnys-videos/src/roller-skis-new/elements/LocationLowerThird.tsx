@@ -170,9 +170,8 @@ const locationLowerThirdSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const LocationLowerThird = Interactive.withSchema({
+export const LocationLowerThird = Interactive.create({
 	Component: LocationLowerThirdInner,
 	componentName: '<LocationLowerThird>',
 	schema: locationLowerThirdSchema,
-	wrapInSequence: true,
 });

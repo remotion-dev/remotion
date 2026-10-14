@@ -210,11 +210,9 @@ const routePanelSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-const RoutePanel = Interactive.withSchema({
+const RoutePanel = Interactive.create({
 	Component: RoutePanelInner,
-	componentName: 'RoutePanel',
 	schema: routePanelSchema,
-	wrapInSequence: true,
 });
 
 const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
@@ -292,10 +290,7 @@ const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
 	);
 };
 
-export const NordicRoutes = Interactive.withSchema({
+export const NordicRoutes = Interactive.create({
 	Component: NordicRoutesInner,
-	componentName: 'NordicRoutes',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

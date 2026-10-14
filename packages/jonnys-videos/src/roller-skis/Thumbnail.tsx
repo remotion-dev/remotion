@@ -61,10 +61,7 @@ const ThumbnailInner: React.FC = () => {
 	);
 };
 
-export const Thumbnail = Interactive.withSchema({
+export const Thumbnail = Interactive.create({
 	Component: ThumbnailInner,
-	componentName: 'Thumbnail',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

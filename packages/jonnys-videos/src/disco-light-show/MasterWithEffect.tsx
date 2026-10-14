@@ -173,10 +173,7 @@ const MasterWithEffectInner: React.FC = () => {
 	);
 };
 
-export const MasterWithEffect = Interactive.withSchema({
+export const MasterWithEffect = Interactive.create({
 	Component: MasterWithEffectInner,
-	componentName: 'MasterWithEffect',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

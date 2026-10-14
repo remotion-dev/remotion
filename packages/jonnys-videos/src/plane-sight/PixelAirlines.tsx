@@ -46,7 +46,7 @@ const CloudCodePlaneContent = ({
 	);
 };
 
-export const CloudCodePlane = Interactive.withSchema({
+export const CloudCodePlane = Interactive.create({
 	Component: CloudCodePlaneContent,
 	componentName: 'CloudCodePlane',
 	schema: {
@@ -57,7 +57,6 @@ export const CloudCodePlane = Interactive.withSchema({
 			variants: {narrowbody: {}, widebody: {}},
 		},
 	},
-	wrapInSequence: true,
 });
 
 const OpenAirPlaneContent = ({airframe, width, height, style}: PlaneProps) => {
@@ -87,7 +86,7 @@ const OpenAirPlaneContent = ({airframe, width, height, style}: PlaneProps) => {
 	);
 };
 
-export const OpenAirPlane = Interactive.withSchema({
+export const OpenAirPlane = Interactive.create({
 	Component: OpenAirPlaneContent,
 	componentName: 'OpenAirPlane',
 	schema: {
@@ -98,7 +97,6 @@ export const OpenAirPlane = Interactive.withSchema({
 			variants: {narrowbody: {}, widebody: {}},
 		},
 	},
-	wrapInSequence: true,
 });
 
 export const PixelAirlines = () => {

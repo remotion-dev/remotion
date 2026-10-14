@@ -54,9 +54,7 @@ const FrontOfLineZoomContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const FrontOfLineZoom = Interactive.withSchema({
+export const FrontOfLineZoom = Interactive.create({
 	Component: FrontOfLineZoomContent,
 	componentName: 'FrontOfLineZoom',
-	schema: {},
-	wrapInSequence: true,
 });

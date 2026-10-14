@@ -40,9 +40,7 @@ const EntireCommitsBrollContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const EntireCommitsBroll = Interactive.withSchema({
+export const EntireCommitsBroll = Interactive.create({
 	Component: EntireCommitsBrollContent,
 	componentName: 'EntireCommitsBroll',
-	schema: {},
-	wrapInSequence: true,
 });

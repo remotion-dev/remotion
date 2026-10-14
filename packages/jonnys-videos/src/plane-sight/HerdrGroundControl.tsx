@@ -28,9 +28,7 @@ const HerdrGroundControlContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const HerdrGroundControl = Interactive.withSchema({
+export const HerdrGroundControl = Interactive.create({
 	Component: HerdrGroundControlContent,
 	componentName: 'HerdrGroundControl',
-	schema: {},
-	wrapInSequence: true,
 });

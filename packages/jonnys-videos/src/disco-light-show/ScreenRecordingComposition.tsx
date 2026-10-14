@@ -68,10 +68,7 @@ const ScreenRecordingCompositionInner: React.FC = () => {
 	);
 };
 
-export const ScreenRecordingComposition = Interactive.withSchema({
+export const ScreenRecordingComposition = Interactive.create({
 	Component: ScreenRecordingCompositionInner,
-	componentName: 'ScreenRecordingComposition',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

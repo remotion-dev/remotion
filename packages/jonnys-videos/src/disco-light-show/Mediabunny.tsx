@@ -36,10 +36,7 @@ const MediabunnyInner: React.FC = () => {
 	);
 };
 
-export const Mediabunny = Interactive.withSchema({
+export const Mediabunny = Interactive.create({
 	Component: MediabunnyInner,
-	componentName: 'Mediabunny',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

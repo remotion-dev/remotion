@@ -1042,10 +1042,7 @@ const TheDeclineInner: React.FC = () => {
 	);
 };
 
-export const TheDecline = Interactive.withSchema({
+export const TheDecline = Interactive.create({
 	Component: TheDeclineInner,
-	componentName: 'TheDecline',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

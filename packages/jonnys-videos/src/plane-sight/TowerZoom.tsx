@@ -61,7 +61,7 @@ const TowerZoomContent = ({style, afterHerdr}: TowerZoomProps) => {
 	);
 };
 
-export const TowerZoom = Interactive.withSchema({
+export const TowerZoom = Interactive.create({
 	Component: TowerZoomContent,
 	componentName: 'TowerZoom',
 	schema: {
@@ -71,5 +71,4 @@ export const TowerZoom = Interactive.withSchema({
 			description: 'Use the airport after the Herdr handoff',
 		},
 	} satisfies InteractivitySchema,
-	wrapInSequence: true,
 });

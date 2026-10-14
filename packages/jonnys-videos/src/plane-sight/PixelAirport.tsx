@@ -743,9 +743,7 @@ const PixelAirportContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const PixelAirport = Interactive.withSchema({
+export const PixelAirport = Interactive.create({
 	Component: PixelAirportContent,
 	componentName: 'PixelAirport',
-	schema: {},
-	wrapInSequence: true,
 });

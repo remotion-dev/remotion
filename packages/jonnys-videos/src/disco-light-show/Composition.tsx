@@ -795,10 +795,7 @@ const MyComponentInner: React.FC = () => {
 	);
 };
 
-export const MyComponent = Interactive.withSchema({
+export const MyComponent = Interactive.create({
 	Component: MyComponentInner,
-	componentName: 'MyComponent',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

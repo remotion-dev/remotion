@@ -136,9 +136,8 @@ const calloutSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const Callout = Interactive.withSchema({
+export const Callout = Interactive.create({
 	Component: CalloutInner,
 	componentName: '<Callout>',
 	schema: calloutSchema,
-	wrapInSequence: true,
 });
