@@ -14,7 +14,11 @@ import {Checkbox} from './Checkbox';
 import {ConfigSelect} from './ConfigSelect';
 import {sectionHeader} from './InspectorPanel/styles';
 import {Spacing} from './layout';
-import {InputDragger} from './NewComposition/InputDragger';
+import {
+	InputDragger,
+	parseInputDraggerNumber,
+} from './NewComposition/InputDragger';
+import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {InfoBubble} from './RenderModal/InfoBubble';
 import {label, optionRow, rightRow} from './RenderModal/layout';
@@ -116,6 +120,8 @@ export const StudioSettings: React.FC = () => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
 	const [settings, setSettings] =
 		useState<ConfigFileStudioSettings>(initialSettings);
+	const [sequenceActivityLimitText, setSequenceActivityLimitText] =
+		useState('Infinity');
 	const [committedNumberSettings, setCommittedNumberSettings] = useState<{
 		numberOfSharedAudioTags: number | null;
 		defaultPremountInSeconds: number | null;
@@ -138,6 +144,12 @@ export const StudioSettings: React.FC = () => {
 
 		setSettings(
 			studioRuntimeConfig.configFileStudioSettings ?? initialSettings,
+		);
+		setSequenceActivityLimitText(
+			String(
+				studioRuntimeConfig.configFileStudioSettings?.sequenceActivityLimit ??
+					Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+			),
 		);
 		setCommittedNumberSettings({
 			sequenceActivityLimit:
@@ -431,52 +443,80 @@ export const StudioSettings: React.FC = () => {
 						>
 							Limits nearby hidden scenes, including nested sequences and their
 							ancestors. Visible, premounted, and postmounted scenes always
-							render. Set to 0 to disable Sequence Activity. Reset for unlimited
-							discovery without admission delays. Default:{' '}
+							render. Set to 0 to disable Sequence Activity, or Infinity for
+							unlimited discovery without admission delays. Default:{' '}
 							{Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
 						</div>
 					</InfoBubble>
 				</div>
 				<div style={{...rightRow, gap: 6}}>
-					<InputDragger
+					<RemotionInput
 						aria-label="Sequence Activity limit"
-						buttonStyle={{textAlign: 'right', width: 140}}
-						formatter={() =>
-							settings.sequenceActivityLimit === null
-								? `Default (${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT})`
-								: String(settings.sequenceActivityLimit)
-						}
-						integerOnly
-						max={Number.MAX_SAFE_INTEGER}
-						min={0}
-						onTextChange={() => undefined}
-						onValueChange={(value) =>
-							previewNumberSetting('sequenceActivityLimit', value)
-						}
-						onValueChangeEnd={(value) =>
-							commitNumberSetting(
-								'sequenceActivityLimit',
-								'setSequenceActivityLimit',
-								value,
-							)
-						}
+						type="text"
+						style={{width: 140}}
+						onChange={(event) => {
+							event.currentTarget.setCustomValidity('');
+							setSequenceActivityLimitText(event.currentTarget.value);
+						}}
+						onBlur={(event) => {
+							const text = event.currentTarget.value.trim();
+							if (text === '') {
+								setSequenceActivityLimitText(
+									String(settings.sequenceActivityLimit ?? Infinity),
+								);
+								return;
+							}
+
+							const value =
+								text === 'Infinity' ? Infinity : parseInputDraggerNumber(text);
+							if (
+								value !== Infinity &&
+								(value === null || !Number.isSafeInteger(value) || value < 0)
+							) {
+								event.currentTarget.setCustomValidity(
+									'Enter a non-negative safe integer or Infinity.',
+								);
+								event.currentTarget.reportValidity();
+								return;
+							}
+
+							event.currentTarget.setCustomValidity('');
+							setSequenceActivityLimitText(String(value));
+							const limit = value === Infinity ? null : value;
+							if (limit !== settings.sequenceActivityLimit) {
+								commitNumberSetting(
+									'sequenceActivityLimit',
+									'setSequenceActivityLimit',
+									limit,
+								);
+							}
+						}}
+						onKeyDown={(event) => {
+							if (event.key === 'Enter') {
+								event.currentTarget.blur();
+							}
+
+							if (event.key === 'Escape') {
+								event.currentTarget.setCustomValidity('');
+								setSequenceActivityLimitText(
+									String(settings.sequenceActivityLimit ?? Infinity),
+								);
+							}
+						}}
 						rightAlign
 						status="ok"
-						step={1}
-						value={
-							settings.sequenceActivityLimit ??
-							Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT
-						}
+						value={sequenceActivityLimitText}
 					/>
 					<Button
 						disabled={settings.sequenceActivityLimit === null}
-						onClick={() =>
+						onClick={() => {
+							setSequenceActivityLimitText('Infinity');
 							commitNumberSetting(
 								'sequenceActivityLimit',
 								'setSequenceActivityLimit',
 								null,
-							)
-						}
+							);
+						}}
 						size="compact"
 						style={{color: LIGHT_TEXT}}
 						aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
