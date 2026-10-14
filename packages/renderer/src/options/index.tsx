@@ -36,7 +36,6 @@ import {everyNthFrameOption} from './every-nth-frame';
 import {experimentalKeepAudioContextAliveOption} from './experimental-keep-audio-context-alive';
 import {experimentalSequenceActivityOption} from './experimental-sequence-activity';
 import {experimentalSequenceActivityLimitOption} from './experimental-sequence-activity-limit';
-import {experimentalTracksOption} from './experimental-tracks';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -182,7 +181,6 @@ export const allOptions = {
 	framesOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalTracksOption,
 	experimentalSequenceActivityOption,
 	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,

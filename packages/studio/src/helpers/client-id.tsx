@@ -13,10 +13,7 @@ import {
 	subscribeToPreviewServerEvents,
 	type PreviewServerConnectionState,
 } from './preview-server-events';
-import {
-	getStudioDefaultPremountInSeconds,
-	getStudioExperimentalTracksEnabled,
-} from './studio-runtime-config';
+import {getStudioDefaultPremountInSeconds} from './studio-runtime-config';
 import {reloadUrl} from './url-state';
 
 type Context = {
@@ -191,15 +188,11 @@ export const PreviewServerConnection: React.FC<{
 
 	return (
 		<StudioServerConnectionCtx.Provider value={context}>
-			<Internals.ExperimentalTracksEnabledContext.Provider
-				value={getStudioExperimentalTracksEnabled()}
+			<Internals.DefaultPremountContext.Provider
+				value={getStudioDefaultPremountInSeconds()}
 			>
-				<Internals.DefaultPremountContext.Provider
-					value={getStudioDefaultPremountInSeconds()}
-				>
-					{children}
-				</Internals.DefaultPremountContext.Provider>
-			</Internals.ExperimentalTracksEnabledContext.Provider>
+				{children}
+			</Internals.DefaultPremountContext.Provider>
 		</StudioServerConnectionCtx.Provider>
 	);
 };

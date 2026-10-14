@@ -65,6 +65,24 @@ export const config: VercelConfig = {
 		]),
 	],
 	redirects: [
+		routes.redirect('/docs/reusability', '/docs/composing', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/reusability.md', '/docs/composing.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/the-fundamentals', '/docs/idea', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/the-fundamentals.md', '/docs/idea.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/preview', '/docs/your-first-video', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/preview.md', '/docs/your-first-video.md', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/audio/order-of-operations', '/docs/timing', {
 			permanent: true,
 		}),
@@ -149,6 +167,7 @@ export const config: VercelConfig = {
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
 		routes.redirect('/api', '/docs/api', {permanent: false}),
+		routes.redirect('/why', '/docs/why', {permanent: false}),
 		routes.redirect('/options', '/docs/options', {permanent: false}),
 		routes.redirect('/terminology', '/docs/terminology', {permanent: false}),
 		routes.redirect(

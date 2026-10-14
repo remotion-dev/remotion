@@ -40,7 +40,6 @@ const {
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalTracksOption,
 	experimentalSequenceActivityOption,
 	experimentalSequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
@@ -142,9 +141,6 @@ export type CommandLineOptions = {
 	[experimentalSequenceActivityLimitOption.cliFlag]: TypeOfOption<
 		typeof experimentalSequenceActivityLimitOption
 	>;
-	[experimentalTracksOption.cliFlag]: TypeOfOption<
-		typeof experimentalTracksOption
-	> | null;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
@@ -275,7 +271,6 @@ export const BooleanFlags = [
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
 	experimentalKeepAudioContextAliveOption.cliFlag,
-	experimentalTracksOption.cliFlag,
 	experimentalSequenceActivityOption.cliFlag,
 	bundleCacheOption.cliFlag,
 	rspackOption.cliFlag,
@@ -306,7 +301,6 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[isProductionOption.cliFlag]: null,
 		[forceNewStudioOption.cliFlag]: null,
 		[experimentalKeepAudioContextAliveOption.cliFlag]: null,
-		[experimentalTracksOption.cliFlag]: null,
 		[experimentalSequenceActivityOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
 		[enableCancellationOption.cliFlag]: null,

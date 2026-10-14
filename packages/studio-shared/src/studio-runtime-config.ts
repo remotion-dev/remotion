@@ -13,7 +13,6 @@ export type ConfigFileStudioSettings = {
 	readonly audioLatencyHint: AudioContextLatencyCategory | null;
 	readonly beepOnFinish: boolean | null;
 	readonly enableCrossSiteIsolation: boolean | null;
-	readonly experimentalTracksEnabled?: boolean | null;
 	readonly experimentalSequenceActivityEnabled: boolean | null;
 	readonly experimentalSequenceActivityLimit: number | null;
 	readonly interactivityEnabled: boolean | null;
@@ -38,7 +37,6 @@ export type StudioRuntimeConfig = {
 	readonly maxTimelineTracks: number | null;
 	readonly askAIEnabled: boolean;
 	readonly elementLibraries?: readonly StudioElementLibrary[];
-	readonly experimentalTracksEnabled?: boolean;
 	readonly experimentalSequenceActivityEnabled: boolean;
 	readonly experimentalSequenceActivityLimit: number;
 	readonly interactivityEnabled: boolean;

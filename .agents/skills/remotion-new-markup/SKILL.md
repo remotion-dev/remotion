@@ -13,7 +13,7 @@ additional wrapper around the content.
 
 Use built-in interactive components, media components that support timing, or
 custom components created with `Interactive.withSchema({wrapInSequence: true})`.
-Pass `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `premountFor`, and
+Pass `from`, `durationInFrames`, `trimBefore`, `playbackRate`, and
 `name` directly to the component that supports them.
 
 Avoid wrapping one timing-aware component in a `<Sequence>` just to schedule
@@ -37,7 +37,7 @@ an additional timeline layer that does not represent useful content. Prefer
 timeline item.
 
 The inner component can return a fragment. Put instance styles, timing,
-premounting, `width`, and `height` on the exported interactive component. Do not
+`width`, and `height` on the exported interactive component. Do not
 declare `style`, `width`, or `height` props on the inner component when using
 this layout; the wrapper owns them.
 
@@ -66,7 +66,7 @@ export const Scene = Interactive.withSchema({
 export const MyVideo = () => {
   const {fps} = useVideoConfig();
 
-  return <Scene name="Opening scene" from={fps} durationInFrames={3 * fps} premountFor={fps} title="A new perspective" style={{backgroundColor: '#111111'}} />;
+  return <Scene name="Opening scene" from={fps} durationInFrames={3 * fps} title="A new perspective" style={{backgroundColor: '#111111'}} />;
 };
 ```
 

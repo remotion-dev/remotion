@@ -15,28 +15,25 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Prefer interactive components with their own timelines
 
-Use `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, premounting, dimensions, and per-instance styles on the exported component.
+Use `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, dimensions, and per-instance styles on the exported component.
 
 Keep visuals that belong together in the same component, so they move and trim together. An inner layout container can still provide alignment, clipping within a smaller area, or an animated group; a container that only fills the scene is usually unnecessary. Cards, text boxes, and SVGs with their own bounds can keep the default `layout: 'none'` and forward `style` to their visual root.
 
 ```tsx title="Scene.tsx"
 import {Video} from '@remotion/media';
 import type React from 'react';
-import {Interactive, useVideoConfig, type InteractivitySchema} from 'remotion';
+import {Interactive, type InteractivitySchema} from 'remotion';
 
 type SceneProps = {
   readonly title: string;
 };
 
 const SceneInner: React.FC<SceneProps> = ({title}) => {
-  const {fps} = useVideoConfig();
-
   return (
     <>
       <Video
         name="Background footage"
         src="https://remotion.media/video.mp4"
-        premountFor={fps}
         objectFit="cover"
         style={{width: '100%', height: '100%'}}
       />
@@ -165,14 +162,13 @@ registration and extraction details.
 Avoid a separate `<Sequence>` around one component that already accepts timing
 props. Built-in interactive components and custom components made with
 `wrapInSequence: true` can receive `name`, `from`, `durationInFrames`,
-`trimBefore`, `playbackRate`, and `premountFor` directly.
+`trimBefore`, and `playbackRate` directly.
 
 ```tsx
 <Scene
   name="Opening scene"
   from={30}
   durationInFrames={90}
-  premountFor={fps}
   style={{opacity: 0.9}}
   title="A new perspective"
 />

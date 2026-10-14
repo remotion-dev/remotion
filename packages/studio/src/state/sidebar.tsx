@@ -3,6 +3,9 @@ import React, {createContext, useMemo, useState} from 'react';
 export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
 
 type Context = {
+	leftSidebarOverlayOpen: boolean;
+	setLeftSidebarOverlayOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
 	rightSidebarTemporaryExpansion: boolean;
 	setRightSidebarTemporaryExpansion: React.Dispatch<
 		React.SetStateAction<boolean>
@@ -60,6 +63,8 @@ const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
 };
 
 export const SidebarContext = createContext<Context>({
+	leftSidebarOverlayOpen: false,
+	setLeftSidebarOverlayOpen: () => undefined,
 	rightSidebarTemporaryExpansion: false,
 	setRightSidebarTemporaryExpansion: () => undefined,
 	sidebarCollapsedDuringDrag: null,
@@ -85,6 +90,8 @@ export const SidebarContextProvider: React.FC<{
 			right: getSavedCollapsedStateRight(),
 		}));
 
+	const [leftSidebarOverlayOpen, setLeftSidebarOverlayOpen] = useState(false);
+
 	const [sidebarCollapsedDuringDrag, setSidebarCollapsedDuringDrag] =
 		useState<Sidebars | null>(null);
 	const [rightSidebarTemporaryExpansion, setRightSidebarTemporaryExpansion] =
@@ -92,6 +99,8 @@ export const SidebarContextProvider: React.FC<{
 
 	const value: Context = useMemo(() => {
 		return {
+			leftSidebarOverlayOpen,
+			setLeftSidebarOverlayOpen,
 			rightSidebarTemporaryExpansion,
 			setRightSidebarTemporaryExpansion,
 			sidebarCollapsedDuringDrag,
@@ -128,6 +137,7 @@ export const SidebarContextProvider: React.FC<{
 			},
 		};
 	}, [
+		leftSidebarOverlayOpen,
 		rightSidebarTemporaryExpansion,
 		sidebarCollapsedState,
 		sidebarCollapsedDuringDrag,

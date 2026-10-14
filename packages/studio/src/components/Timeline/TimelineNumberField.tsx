@@ -71,15 +71,21 @@ export const TimelineNumberField: React.FC<{
 			: (configuredStep ?? 1);
 	const integerOnly =
 		field.fieldSchema.type === 'number' && field.fieldSchema.integer === true;
+	const inherited =
+		field.key === 'premountFor' &&
+		field.fieldSchema.default === undefined &&
+		propStatus.codeValue === undefined &&
+		dragValue === null;
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			return formatTimelineFieldValueForDisplay({
+			const formatted = formatTimelineFieldValueForDisplay({
 				fieldSchema: field.fieldSchema,
 				value: v,
 			});
+			return inherited ? `Default (${formatted})` : formatted;
 		},
-		[field.fieldSchema],
+		[field.fieldSchema, inherited],
 	);
 
 	return (
