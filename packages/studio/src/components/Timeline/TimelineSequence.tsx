@@ -129,6 +129,7 @@ import {
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
+import {TimelineUnclippedTrimOutline} from './TimelineTrimOutline';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineViewportContext} from './TimelineViewport';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -1150,7 +1151,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	}, [edgeHighlightController, nodePath]);
 	const naturalSequenceDuration = useTimelineSequenceNaturalDuration({
 		sequenceId: s.id,
-		enabled: isEdgeDragging && activeEdgeHighlight !== 'source-only',
+		enabled: isEdgeDragging,
 	});
 	const previousCascadingOverrideId =
 		registryEntry?.previousOverrideId ??
@@ -2147,7 +2148,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 			!isEdgeDragging ||
 			!showTrimOutline ||
 			activeEdgeHighlight === null ||
-			activeEdgeHighlight === 'source-only' ||
 			s.loopDisplay ||
 			s.frozenFrame !== null ||
 			!Number.isFinite(frameIncrement) ||
@@ -2188,9 +2188,15 @@ const TimelineSequenceLayoutInner: React.FC<{
 			return null;
 		}
 
-		const start = Math.max(parentStart, 0, s.from - trimmedBefore);
+		// Source-only edits can use footage outside the parent's visible interval.
+		const isSourceOnly = activeEdgeHighlight === 'source-only';
+		const start = Math.max(
+			isSourceOnly ? 0 : parentStart,
+			0,
+			s.from - trimmedBefore,
+		);
 		const end = Math.min(
-			parentEnd,
+			isSourceOnly ? video.durationInFrames : parentEnd,
 			video.durationInFrames,
 			s.from + displayDurationInFrames + trimmedAfter,
 		);
@@ -2212,6 +2218,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 			},
 		].flatMap(({key, range, packed}) => {
 			if (
+				isSourceOnly ||
 				range === null ||
 				(range.transitionInEnd === null && range.transitionOutStart === null)
 			) {
@@ -2258,7 +2265,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		});
 		const outlineBorder = outlineShapes.length > 0 ? 0 : `2px solid ${WHITE}`;
 
-		return (
+		const outline = (
 			<>
 				{[
 					{edge: 'left', from: start, width: leftWidth},
@@ -2321,6 +2328,11 @@ const TimelineSequenceLayoutInner: React.FC<{
 					) : null,
 				)}
 			</>
+		);
+		return isSourceOnly ? (
+			<TimelineUnclippedTrimOutline>{outline}</TimelineUnclippedTrimOutline>
+		) : (
+			outline
 		);
 	})();
 	const endsAtContainerBoundary =
