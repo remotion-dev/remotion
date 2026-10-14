@@ -67,7 +67,7 @@ export const getCompositionsOnLambda = async ({
 			type: 'video-or-audio',
 			sizes: [
 				getSizeInBytes(stringifiedInputProps),
-				getSizeInBytes(JSON.stringify(envVariables ?? {})),
+				getSizeInBytes(JSON.stringify(envVariables)),
 			],
 			providerSpecifics: awsImplementation,
 		}),
@@ -86,7 +86,7 @@ export const getCompositionsOnLambda = async ({
 				type: ServerlessRoutines.compositions,
 				chromiumOptions: chromiumOptions ?? {},
 				serveUrl,
-				envVariables: envVariables ?? {},
+				envVariables,
 				inputProps: serializedInputProps,
 				logLevel: dumpBrowserLogs ? 'verbose' : (logLevel ?? 'info'),
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
