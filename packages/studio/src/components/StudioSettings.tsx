@@ -7,7 +7,7 @@ import type {
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../helpers/colors';
 import {UndoIcon} from '../icons/undo';
 import {Button} from './Button';
 import {Checkbox} from './Checkbox';
@@ -21,6 +21,7 @@ import {
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {InfoBubble} from './RenderModal/InfoBubble';
+import {INFO_TOOLTIP_FONT_SIZE} from './RenderModal/InfoTooltip';
 import {label, optionRow, rightRow} from './RenderModal/layout';
 import {useSettings} from './SettingsContext';
 import {useAutoSaveConfig} from './use-auto-save-config';
@@ -69,34 +70,60 @@ const initialSettings: ConfigFileStudioSettings = {
 
 const ConfigNumber = ({
 	defaultValue,
+	description,
 	name,
 	onChange,
 	onChangeEnd,
 	value,
 	step,
+	suffix,
 }: {
 	readonly defaultValue: number;
+	readonly description: React.ReactNode;
 	readonly step: number;
+	readonly suffix: string | null;
 	readonly name: string;
 	readonly onChange: (value: number | null) => void;
 	readonly onChangeEnd: (value: number | null) => void;
 	readonly value: number | null;
 }) => {
+	const valueSuffix = suffix === null ? '' : ` ${suffix}`;
+	const defaultLabel = `Default (${defaultValue}${valueSuffix})`;
+
 	return (
 		<div style={optionRow}>
-			<div style={label}>{name}</div>
+			<div style={label}>
+				{name}
+				{description === null ? null : (
+					<InfoBubble
+						aria-label={`About ${name.toLowerCase()}`}
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							{description}
+						</div>
+					</InfoBubble>
+				)}
+			</div>
 			<div style={{...rightRow, gap: 6}}>
 				<InputDragger
 					aria-label={name}
 					buttonStyle={{textAlign: 'right', width: 140}}
 					formatter={() =>
-						value === null ? `Default (${defaultValue})` : String(value)
+						value === null ? defaultLabel : `${value}${valueSuffix}`
 					}
 					min={0}
 					onTextChange={() => undefined}
 					onValueChange={onChange}
 					onValueChangeEnd={onChangeEnd}
-					placeholder={`Default (${defaultValue})`}
+					placeholder={defaultLabel}
 					rightAlign
 					status="ok"
 					step={step}
@@ -107,7 +134,7 @@ const ConfigNumber = ({
 					onClick={() => onChangeEnd(null)}
 					size="compact"
 					style={{color: LIGHT_TEXT}}
-					aria-label={`Use default (${defaultValue})`}
+					aria-label={`Use default (${defaultValue}${valueSuffix})`}
 				>
 					<UndoIcon style={resetIcon} />
 				</Button>
@@ -218,9 +245,7 @@ export const StudioSettings: React.FC = () => {
 		const updatesForEditedSetters = [
 			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
 			update('setShowPremounting', settings.showPremounting),
-			update('setAskAIEnabled', settings.askAIEnabled),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
-			update('setBeepOnFinish', settings.beepOnFinish),
 			update('setAudioLatencyHint', settings.audioLatencyHint),
 			update(
 				'setNumberOfSharedAudioTags',
@@ -269,132 +294,28 @@ export const StudioSettings: React.FC = () => {
 
 	return (
 		<div style={container}>
-			<p style={dividerLabel}>Development</p>
-			<ConfigSelect
-				defaultLabel="Webpack"
-				name="Bundler"
-				onChange={(value) => changeSetting('rspack', 'setRspack', value)}
-				options={[
-					{label: 'Rspack', value: true},
-					{label: 'Webpack', value: false},
-				]}
-				value={settings.rspack}
-			/>
+			<p style={dividerLabel}>Interface</p>
 			<div style={optionRow}>
 				<div style={label}>
-					Cross-site isolation
+					Interactivity enabled
 					<InfoBubble
-						aria-label="About cross-site isolation"
+						aria-label="About interactivity"
 						horizontalAlignment="right"
 					>
 						<div
 							style={{
 								padding: 12,
 								maxWidth: 280,
-								fontSize: 14,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
 								lineHeight: 1.5,
 							}}
 						>
-							Isolates Studio from other websites to enable shared memory and
-							multithreading. Required for @remotion/whisper-web and can speed
-							up ProRes decoding. Media from other websites that requires
-							cookies or authentication may not load. Disabled by default.
+							Global setting for turning off any interactivity that may edit
+							your code.
 						</div>
 					</InfoBubble>
 				</div>
-				<label style={rightRow} aria-label="Cross-site isolation">
-					<Checkbox
-						checked={settings.enableCrossSiteIsolation === true}
-						name="Cross-site isolation"
-						onChange={(event) =>
-							changeSetting(
-								'enableCrossSiteIsolation',
-								'setEnableCrossSiteIsolation',
-								event.target.checked ? true : null,
-							)
-						}
-					/>
-				</label>
-			</div>
-			<ConfigSelect<LogLevel>
-				defaultLabel="Info"
-				name="Log level"
-				onChange={(value) => changeSetting('logLevel', 'setLogLevel', value)}
-				options={BrowserSafeApis.logLevels.map((value) => ({
-					label: value[0].toUpperCase() + value.slice(1),
-					value,
-				}))}
-				value={settings.logLevel}
-			/>
-
-			<p style={sectionTitle}>Interface</p>
-			<label style={optionRow}>
-				<div style={label}>Show frame numbers of layer</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.showLayerFrameNumbers ?? false}
-						name="Show frame numbers of layer"
-						onChange={(event) =>
-							changeSetting(
-								'showLayerFrameNumbers',
-								'setShowLayerFrameNumbers',
-								event.target.checked,
-							)
-						}
-					/>
-				</div>
-			</label>
-			<label style={optionRow}>
-				<div style={label}>Show premounting in timeline</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.showPremounting ?? false}
-						name="Show premounting in timeline"
-						onChange={(event) =>
-							changeSetting(
-								'showPremounting',
-								'setShowPremounting',
-								event.target.checked,
-							)
-						}
-					/>
-				</div>
-			</label>
-			<label style={optionRow}>
-				<div style={label}>Ask AI enabled</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.askAIEnabled !== false}
-						name="Ask AI enabled"
-						onChange={(event) =>
-							changeSetting(
-								'askAIEnabled',
-								'setAskAIEnabled',
-								event.target.checked ? null : false,
-							)
-						}
-					/>
-				</div>
-			</label>
-			<label style={optionRow}>
-				<div style={label}>Tabs above Canvas</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.canvasTabsEnabled !== false}
-						name="Tabs above Canvas"
-						onChange={(event) =>
-							changeSetting(
-								'canvasTabsEnabled',
-								'setCanvasTabsEnabled',
-								event.target.checked ? null : false,
-							)
-						}
-					/>
-				</div>
-			</label>
-			<label style={optionRow}>
-				<div style={label}>Interactivity enabled</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Interactivity enabled">
 					<Checkbox
 						checked={settings.interactivityEnabled !== false}
 						name="Interactivity enabled"
@@ -406,52 +327,145 @@ export const StudioSettings: React.FC = () => {
 							)
 						}
 					/>
-				</div>
-			</label>
-
-			<p style={sectionTitle}>Playback</p>
-			<ConfigNumber
-				defaultValue={NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS}
-				name="Default premount in seconds"
-				step={0.1}
-				onChange={(value) =>
-					previewNumberSetting('defaultPremountInSeconds', value)
-				}
-				onChangeEnd={(value) =>
-					commitNumberSetting(
-						'defaultPremountInSeconds',
-						'setDefaultPremountInSeconds',
-						value,
-					)
-				}
-				value={settings.defaultPremountInSeconds}
-			/>
+				</label>
+			</div>
 			<div style={optionRow}>
 				<div style={label}>
-					Sequence Activity limit
+					Composition Tabs
 					<InfoBubble
-						aria-label="About the Sequence Activity limit"
+						aria-label="About composition tabs"
 						horizontalAlignment="right"
 					>
 						<div
 							style={{
 								padding: 12,
 								maxWidth: 280,
-								fontSize: 14,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
 								lineHeight: 1.5,
 							}}
 						>
-							Limits nearby hidden scenes, including nested sequences and their
-							ancestors. Visible, premounted, and postmounted scenes always
-							render. Set to 0 to disable Sequence Activity, or Infinity for
-							unlimited discovery without admission delays. Default:{' '}
-							{Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
+							Show a tab interface above the canvas.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Composition Tabs">
+					<Checkbox
+						checked={settings.canvasTabsEnabled !== false}
+						name="Composition Tabs"
+						onChange={(event) =>
+							changeSetting(
+								'canvasTabsEnabled',
+								'setCanvasTabsEnabled',
+								event.target.checked ? null : false,
+							)
+						}
+					/>
+				</label>
+			</div>
+
+			<p style={sectionTitle}>Timeline</p>
+			<div style={optionRow}>
+				<div style={label}>
+					Layer Frame Counters
+					<InfoBubble
+						aria-label="About layer frame counters"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							Shows the internal time of a clip as a small label.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Layer Frame Counters">
+					<Checkbox
+						checked={settings.showLayerFrameNumbers ?? false}
+						name="Layer Frame Counters"
+						onChange={(event) =>
+							changeSetting(
+								'showLayerFrameNumbers',
+								'setShowLayerFrameNumbers',
+								event.target.checked,
+							)
+						}
+					/>
+				</label>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Show Premounting
+					<InfoBubble
+						aria-label="About premounting"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							Indicate in the timeline when a layer is mounted invisibly. See:{' '}
+							<a
+								href="https://www.remotion.dev/docs/player/premounting"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									color: BLUE,
+									fontSize: INFO_TOOLTIP_FONT_SIZE,
+									lineHeight: 1.5,
+									textDecoration: 'none',
+								}}
+							>
+								Premounting
+							</a>
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Show Premounting">
+					<Checkbox
+						checked={settings.showPremounting ?? false}
+						name="Show Premounting"
+						onChange={(event) =>
+							changeSetting(
+								'showPremounting',
+								'setShowPremounting',
+								event.target.checked,
+							)
+						}
+					/>
+				</label>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Visualize unmounted components
+					<InfoBubble
+						aria-label="About visualizing unmounted components"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							The maximum number of components which may be evaluated for better
+							timeline visualization.
 						</div>
 					</InfoBubble>
 				</div>
 				<div style={{...rightRow, gap: 6}}>
 					<RemotionInput
-						aria-label="Sequence Activity limit"
+						aria-label="Visualize unmounted components"
 						type="text"
 						style={{width: 140}}
 						onChange={(event) => {
@@ -519,16 +533,75 @@ export const StudioSettings: React.FC = () => {
 						}}
 						size="compact"
 						style={{color: LIGHT_TEXT}}
-						aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
+						aria-label={`Reset unmounted component visualization limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
 					>
 						<UndoIcon style={resetIcon} />
 					</Button>
 				</div>
 			</div>
 
-			<p style={sectionTitle}>Audio</p>
+			<p style={sectionTitle}>Playback</p>
+			<ConfigNumber
+				defaultValue={NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS}
+				description={
+					<>
+						How many seconds before a layer starts it should be mounted
+						invisibly. See:{' '}
+						<a
+							href="https://www.remotion.dev/docs/player/premounting"
+							target="_blank"
+							rel="noopener noreferrer"
+							style={{
+								color: BLUE,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+								textDecoration: 'none',
+							}}
+						>
+							Premounting
+						</a>
+					</>
+				}
+				name="Default Premount"
+				step={0.1}
+				suffix="sec"
+				onChange={(value) =>
+					previewNumberSetting('defaultPremountInSeconds', value)
+				}
+				onChangeEnd={(value) =>
+					commitNumberSetting(
+						'defaultPremountInSeconds',
+						'setDefaultPremountInSeconds',
+						value,
+					)
+				}
+				value={settings.defaultPremountInSeconds}
+			/>
 			<ConfigSelect
 				defaultLabel="Playback"
+				description={
+					<>
+						Remotion runs an{' '}
+						<code style={{fontFamily: 'monospace'}}>AudioContext</code> to drive
+						audio. Define which{' '}
+						<a
+							href="https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext#latencyhint"
+							target="_blank"
+							rel="noopener noreferrer"
+							style={{
+								color: BLUE,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+								textDecoration: 'none',
+							}}
+						>
+							<code style={{color: BLUE, fontFamily: 'monospace'}}>
+								latencyHint
+							</code>
+						</a>{' '}
+						it should use.
+					</>
+				}
 				name="Audio latency hint"
 				onChange={(value) =>
 					changeSetting('audioLatencyHint', 'setAudioLatencyHint', value)
@@ -542,8 +615,10 @@ export const StudioSettings: React.FC = () => {
 			/>
 			<ConfigNumber
 				defaultValue={0}
+				description={null}
 				name="Number of shared audio tags"
 				step={1}
+				suffix={null}
 				onChange={(value) =>
 					previewNumberSetting('numberOfSharedAudioTags', value)
 				}
@@ -556,22 +631,66 @@ export const StudioSettings: React.FC = () => {
 				}
 				value={settings.numberOfSharedAudioTags}
 			/>
-			<label style={optionRow}>
-				<div style={label}>Beep on finish</div>
-				<div style={rightRow}>
+
+			<p style={sectionTitle}>Development</p>
+			<ConfigSelect
+				defaultLabel="Webpack"
+				description="Chooses the tool that compiles your project for Studio and rendering. Webpack is the default; Rspack is an alternative. Changing this setting restarts Studio."
+				name="Bundler"
+				onChange={(value) => changeSetting('rspack', 'setRspack', value)}
+				options={[
+					{label: 'Rspack', value: true},
+					{label: 'Webpack', value: false},
+				]}
+				value={settings.rspack}
+			/>
+			<div style={optionRow}>
+				<div style={label}>
+					Cross-site isolation
+					<InfoBubble
+						aria-label="About cross-site isolation"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							Isolates Studio from other websites to enable shared memory and
+							multithreading. Required for @remotion/whisper-web and can speed
+							up ProRes decoding. Media from other websites that requires
+							cookies or authentication may not load. Disabled by default.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Cross-site isolation">
 					<Checkbox
-						checked={settings.beepOnFinish === true}
-						name="Beep on finish"
+						checked={settings.enableCrossSiteIsolation === true}
+						name="Cross-site isolation"
 						onChange={(event) =>
 							changeSetting(
-								'beepOnFinish',
-								'setBeepOnFinish',
+								'enableCrossSiteIsolation',
+								'setEnableCrossSiteIsolation',
 								event.target.checked ? true : null,
 							)
 						}
 					/>
-				</div>
-			</label>
+				</label>
+			</div>
+			<ConfigSelect<LogLevel>
+				defaultLabel="Info"
+				description={null}
+				name="Log level"
+				onChange={(value) => changeSetting('logLevel', 'setLogLevel', value)}
+				options={BrowserSafeApis.logLevels.map((value) => ({
+					label: value[0].toUpperCase() + value.slice(1),
+					value,
+				}))}
+				value={settings.logLevel}
+			/>
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />
