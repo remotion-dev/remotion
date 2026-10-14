@@ -13,6 +13,7 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
+import {getFieldsToShow} from '../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
@@ -110,6 +111,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const {
 		setRightSidebarTemporaryExpansion,
 		setSidebarCollapsedState,
@@ -167,9 +171,15 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			});
 			const nodePath = doubleClickTarget.nodePathInfo.sequenceSubscriptionKey;
 			const childrenField = doubleClickTarget.sequence.controls
-				? Internals.getFlatSchemaWithAllKeys(
-						doubleClickTarget.sequence.controls.schema,
-					).children
+				? getFieldsToShow({
+						schema: doubleClickTarget.sequence.controls.schema,
+						currentRuntimeValueDotNotation:
+							doubleClickTarget.sequence.controls.runtimeValues.getSnapshot(),
+						getDragOverrides,
+						propStatuses: propStatusesRef.current,
+						nodePath,
+						includeTextContent: true,
+					})?.find((field) => field.key === 'children')?.fieldSchema
 				: null;
 			const childrenStatus = Internals.getPropStatusesCtx(
 				propStatusesRef.current,
@@ -196,7 +206,14 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					[
 						{
 							type: 'sequence-prop',
-							nodePathInfo: doubleClickTarget.nodePathInfo,
+							nodePathInfo: {
+								...doubleClickTarget.nodePathInfo,
+								auxiliaryKeys: [
+									...doubleClickTarget.nodePathInfo.auxiliaryKeys,
+									'controls',
+									'children',
+								],
+							},
 							key: 'children',
 						},
 					],
@@ -249,6 +266,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			currentSelection,
 			defaultEditorId,
 			defaultOpenInTarget,
+			getDragOverrides,
 			previewServerState.type,
 			propStatusesRef,
 			resolveOriginalLocation,
