@@ -76,12 +76,6 @@ With `layout: 'absolute-fill'`, the wrapper applies styles to a full-size contai
 
 The component name used by Studio and in validation messages.
 
-Defaults to `Component.displayName`, then `Component.name` with a trailing `Inner` removed, then `"Component"`. For example, a function named `CircleInner` produces the label `Circle`. A function named exactly `Inner` keeps its name. Explicit `componentName` and `displayName` values are used unchanged.
-
-Set this option when the inferred name is not descriptive, such as for an anonymous component or a component wrapped in `memo()` or `forwardRef()` without a `displayName`. The name of the variable receiving the returned component is not used.
-
-Set the returned component's [`name`](/docs/sequence#name) prop to label an individual instance.
-
 ### `schema`?
 
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which custom props are editable in Remotion Studio. Defaults to `{}`. Props that are not in the schema still work in code.
