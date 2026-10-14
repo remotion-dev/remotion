@@ -14,6 +14,7 @@ import {
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
 import {SetSelectedModalContext} from '../state/modals';
+import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {useSelectComposition} from './InitialCompositionLoader';
@@ -106,6 +107,14 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		canOpenInEditor: editorAvailable,
 	});
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const {
+		setRightSidebarTemporaryExpansion,
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
 	);
@@ -156,6 +165,46 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				compositions,
 				singleChildComponent: doubleClickTarget.sequence.singleChildComponent,
 			});
+			const nodePath = doubleClickTarget.nodePathInfo.sequenceSubscriptionKey;
+			const childrenField = doubleClickTarget.sequence.controls
+				? Internals.getFlatSchemaWithAllKeys(
+						doubleClickTarget.sequence.controls.schema,
+					).children
+				: null;
+			const childrenStatus = Internals.getPropStatusesCtx(
+				propStatusesRef.current,
+				nodePath,
+			)?.children;
+			if (
+				button === 0 &&
+				!sequenceWasDragged &&
+				connectedCompositions.length !== 1 &&
+				previewServerState.type === 'connected' &&
+				isStudioInteractivityEnabled() &&
+				currentSelection.current.canSelect &&
+				(childrenField?.type === 'string' ||
+					childrenField?.type === 'text-content') &&
+				childrenStatus?.status === 'static'
+			) {
+				if (sidebarCollapsedStateRight === 'collapsed') {
+					setSidebarCollapsedState({left: null, right: 'expanded'});
+				} else if (sidebarCollapsedStateRight === 'responsive') {
+					setRightSidebarTemporaryExpansion(true);
+				}
+
+				currentSelection.current.selectItems(
+					[
+						{
+							type: 'sequence-prop',
+							nodePathInfo: doubleClickTarget.nodePathInfo,
+							key: 'children',
+						},
+					],
+					{revealInInspector: true},
+				);
+				return true;
+			}
+
 			const action = getSequenceDoubleClickAction({
 				button,
 				canOpenSource: defaultOpenInTarget !== null,
@@ -197,10 +246,16 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		},
 		[
 			compositions,
+			currentSelection,
 			defaultEditorId,
 			defaultOpenInTarget,
+			previewServerState.type,
+			propStatusesRef,
 			resolveOriginalLocation,
 			selectComposition,
+			setRightSidebarTemporaryExpansion,
+			setSidebarCollapsedState,
+			sidebarCollapsedStateRight,
 		],
 	);
 
