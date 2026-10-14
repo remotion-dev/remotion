@@ -11,6 +11,7 @@ import type {_InternalTypes} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {CloudDownloadIcon} from '../../icons/cloud-download';
+import {FontFileIcon} from '../../icons/font';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {SparklesIcon} from '../../icons/sparkles';
@@ -65,12 +66,15 @@ const CompositionActions: React.FC = () => {
 		canInsertAsset,
 		canInsertComposition,
 		canInsertSolid,
+		canInsertText,
 		canShowInsertAsset,
 		canShowInsertComposition,
 		canShowInsertSolid,
+		canShowInsertText,
 		insertAsset,
 		insertComposition,
 		insertSolid,
+		insertText,
 		generateWithAgent,
 		canShowGenerateWithAgent,
 	} = useCompositionActions();
@@ -80,6 +84,7 @@ const CompositionActions: React.FC = () => {
 		!canShowInsertAsset &&
 		!canShowInsertComposition &&
 		!canShowInsertSolid &&
+		!canShowInsertText &&
 		!canShowGenerateWithAgent &&
 		downloadProject === null
 	) {
@@ -102,6 +107,17 @@ const CompositionActions: React.FC = () => {
 						)}
 					>
 						Add Solid
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertText ? (
+					<InspectorQuickAction
+						disabled={!canInsertText}
+						onClick={insertText}
+						renderIcon={(color) => (
+							<FontFileIcon color={color} style={inspectorActionIconStyle} />
+						)}
+					>
+						Add text
 					</InspectorQuickAction>
 				) : null}
 				{canShowInsertAsset ? (

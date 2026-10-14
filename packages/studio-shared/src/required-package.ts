@@ -26,7 +26,11 @@ export const getRequiredPackageForImportPath = (
 export const getRequiredPackageForInsertableElement = (
 	element: InsertableCompositionElement,
 ): string | null => {
-	if (element.type === 'solid' || element.type === 'svg') {
+	if (
+		element.type === 'solid' ||
+		element.type === 'svg' ||
+		element.type === 'text'
+	) {
 		return null;
 	}
 
