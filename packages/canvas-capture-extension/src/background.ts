@@ -32,6 +32,12 @@ export const startBackground = () => {
 				await browser.tabs.sendMessage(tab.id, request);
 			}
 
+			await browser.scripting.executeScript({
+				target: {tabId: tab.id},
+				files: ['/shot-tools.js'],
+				world: 'MAIN',
+			});
+
 			await browser.action.setBadgeText({tabId: tab.id, text: ''});
 			await browser.action.setTitle({
 				tabId: tab.id,

@@ -5,6 +5,13 @@ export const openCaptureSetupMessageType = 'remotion-canvas-capture-open-setup';
 export type CaptureFormat = 'mp4' | 'webm';
 
 export type CaptureControllerState = {
+	readonly crop: {
+		readonly left: number;
+		readonly top: number;
+		readonly width: number;
+		readonly height: number;
+	} | null;
+	readonly viewport: {readonly width: number; readonly height: number};
 	readonly supported: boolean;
 	readonly selecting: boolean;
 	readonly hasTarget: boolean;
