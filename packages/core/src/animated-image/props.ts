@@ -5,6 +5,7 @@ import type {
 	InteractiveCropProps,
 	InteractivePremountProps,
 } from '../Interactive.js';
+import type {MediaErrorHandler} from '../media-error-handler.js';
 
 export type RemotionAnimatedImageLoopBehavior =
 	| 'loop'
@@ -18,7 +19,7 @@ export type RemotionAnimatedImageProps = {
 	src: string;
 	width?: number;
 	height?: number;
-	onError?: (error: Error) => void;
+	onError?: MediaErrorHandler;
 	fit?: AnimatedImageFillMode;
 	playbackRate?: number;
 	style?: React.CSSProperties;

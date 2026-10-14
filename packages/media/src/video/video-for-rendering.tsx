@@ -132,6 +132,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	const environment = useRemotionEnvironment();
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const commitRecovery = Internals.useErrorRecoveryCommit();
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
@@ -215,24 +216,28 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					return;
 				}
 
-				const handleError = (
+				const handleError = async (
 					err: Error,
 					clientSideError: Error,
 					fallbackMessage: string,
 					mediaDurationInSeconds: number | null,
 				) => {
-					if (environment.isClientSideRendering) {
-						cancelRender(clientSideError);
-						return;
-					}
-
-					const [action, errorToUse] = callOnErrorAndResolve({
+					const [action, errorToUse] = await callOnErrorAndResolve({
 						onError,
 						error: err,
 						disallowFallback: disallowFallbackToOffthreadVideo,
 						isClientSideRendering: environment.isClientSideRendering,
-						clientSideError: err,
+						clientSideError,
 					});
+
+					if (cancelled || mediaCache.isDisposed()) return;
+					if (action === 'handled') {
+						commitRecovery(() => {
+							if (!cancelled && !mediaCache.isDisposed())
+								continueRender(newHandle);
+						});
+						return;
+					}
 
 					if (action === 'fail') {
 						cancelRender(errorToUse);
@@ -257,7 +262,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						result.type === 'network-error') &&
 					result.error
 				) {
-					handleError(
+					await handleError(
 						result.error,
 						result.error,
 						`Failed to read ${src}: ${result.error.message}, falling back to <OffthreadVideo>`,
@@ -267,7 +272,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 
 				if (result.type === 'unknown-container-format') {
-					handleError(
+					await handleError(
 						new Error(`Unknown container format ${src}.`),
 						new Error(
 							`Cannot render video "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
@@ -279,7 +284,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 
 				if (result.type === 'cannot-decode') {
-					handleError(
+					await handleError(
 						new Error(`Cannot decode ${src}.`),
 						new Error(
 							`Cannot render video "${src}": The video could not be decoded by the browser.`,
@@ -295,13 +300,23 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					// <OffthreadVideo>. Registering the decoder is the only fix.
 					// Notify onError once for observability, then hard-fail.
 					const proresError = new ProResDecoderNotEnabledError(src);
-					onError?.(proresError);
-					cancelRender(proresError);
+					const decision = await Internals.resolveMediaError({
+						onError,
+						error: proresError,
+						defaultAction: 'fail',
+					});
+					if (cancelled || mediaCache.isDisposed()) return;
+					if (decision.action === 'handled')
+						commitRecovery(() => {
+							if (!cancelled && !mediaCache.isDisposed())
+								continueRender(newHandle);
+						});
+					else cancelRender(decision.error);
 					return;
 				}
 
 				if (result.type === 'cannot-decode-alpha') {
-					handleError(
+					await handleError(
 						new Error(`Cannot decode alpha component for ${src}.`),
 						new Error(
 							`Cannot render video "${src}": The alpha channel could not be decoded by the browser.`,
@@ -313,7 +328,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 
 				if (result.type === 'network-error') {
-					handleError(
+					await handleError(
 						new Error(`Network error fetching ${src}.`),
 						new Error(
 							`Cannot render video "${src}": Network error while fetching the video (possibly CORS).`,
@@ -424,7 +439,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					return;
 				}
 
-				cancelRender(err);
+				Internals.cancelRenderFromAsync(cancelRender, err);
 			});
 
 		return () => {
@@ -436,6 +451,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		sampleRate,
 		absoluteFrame,
 		continueRender,
+		commitRecovery,
 		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,

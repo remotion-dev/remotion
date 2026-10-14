@@ -20,6 +20,7 @@ import {
 import {useMediaAudioState} from './audio/use-media-audio-state.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
+import {getErrorStackWithMessage} from './cancel-render.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -105,6 +106,7 @@ import {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {handleImageError} from './handle-image-error.js';
 import {
 	getInputPropsOverride,
 	setInputPropsOverride,
@@ -143,6 +145,11 @@ import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
 import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
+import {
+	resolveMediaError,
+	useErrorRecoveryCommit,
+	cancelRenderFromAsync,
+} from './media-error-handler.js';
 import {
 	getMediabunnyInputResourceKey,
 	globalMediaResourceManager,
@@ -352,6 +359,11 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	useErrorRecoveryCommit,
+	getErrorStackWithMessage,
+	handleImageError,
+	resolveMediaError,
+	cancelRenderFromAsync,
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 	createElementSourceProxy,

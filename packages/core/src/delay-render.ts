@@ -34,6 +34,7 @@ export type DelayRenderScope = {
 	remotion_attempt: number;
 	remotion_delayRenderHandles: number[];
 	remotion_cancelledError?: string;
+	remotion_cancelledErrorObject?: Error;
 };
 
 if (typeof window !== 'undefined') {

@@ -1,11 +1,12 @@
+import {Internals, type MediaErrorHandler} from 'remotion';
 export type MediaErrorEvent = {
 	error: Error;
 };
 
-export type MediaErrorAction = 'fallback' | 'fail';
-export type MediaOnError = (error: Error) => MediaErrorAction | undefined;
+export type MediaErrorAction = 'fallback' | 'fail' | 'handled';
+export type MediaOnError = MediaErrorHandler<MediaErrorAction>;
 
-export const callOnErrorAndResolve = ({
+export const callOnErrorAndResolve = async ({
 	onError,
 	error,
 	disallowFallback,
@@ -17,20 +18,19 @@ export const callOnErrorAndResolve = ({
 	clientSideError: Error;
 	disallowFallback: boolean;
 	isClientSideRendering: boolean;
-}): [MediaErrorAction, Error] => {
-	const result = onError?.(error);
+}): Promise<[MediaErrorAction, Error]> => {
+	const result = await Internals.resolveMediaError<MediaErrorAction>({
+		onError,
+		error,
+		defaultAction: disallowFallback ? 'fail' : 'fallback',
+	});
+	if (result.action === 'handled' || result.action === 'fail')
+		return [result.action, result.error];
 
 	if (isClientSideRendering) {
+		if (clientSideError !== error) clientSideError.cause = error;
 		return ['fail', clientSideError];
 	}
 
-	if (result) {
-		return [result, error];
-	}
-
-	if (disallowFallback) {
-		return ['fail', error];
-	}
-
-	return ['fallback', error];
+	return ['fallback', result.error];
 };

@@ -29,6 +29,7 @@
 	"devDependencies": {
 		"@remotion/effects": "workspace:*",
 		"@remotion/fonts": "workspace:*",
+		"@remotion/gif": "workspace:*",
 		"@react-three/fiber": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/paths": "workspace:*",

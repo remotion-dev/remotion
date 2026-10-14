@@ -1,3 +1,4 @@
+import type {MediaErrorHandler} from 'remotion';
 export type GifLoopBehavior =
 	| 'loop'
 	| 'pause-after-finish'
@@ -13,7 +14,7 @@ export type RemotionGifProps = {
 		delays: number[];
 		frames: ImageData[];
 	}) => void;
-	onError?: (error: Error) => void;
+	onError?: MediaErrorHandler;
 	fit?: GifFillMode;
 	playbackRate?: number;
 	style?: React.CSSProperties;

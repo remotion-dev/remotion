@@ -18,6 +18,7 @@ import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
+import {handleImageError} from './handle-image-error.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -33,6 +34,10 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {
+	useErrorRecoveryCommit,
+	type MediaErrorHandler,
+} from './media-error-handler.js';
 import {usePreload} from './prefetch.js';
 import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {SequenceContent} from './sequence-activity-context.js';
@@ -65,7 +70,7 @@ export type ImgProps = NativeImgProps & {
 	readonly delayRenderRetries?: number;
 	readonly delayRenderTimeoutInMilliseconds?: number;
 	readonly onImageFrame?: (imageElement: HTMLImageElement) => void;
-	readonly onImageError?: (error: Error) => void;
+	readonly onImageError?: MediaErrorHandler;
 	readonly src: string;
 	readonly effects?: EffectsProp;
 	readonly showInTimeline?: boolean;
@@ -116,6 +121,12 @@ const ImgContent: React.FC<ImgContentProps> = ({
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
+	const commitRecovery = useErrorRecoveryCommit();
+	const pendingLoad = useRef<{
+		handle: number;
+		cancelled: boolean;
+		reported: boolean;
+	} | null>(null);
 	const {delayPlayback} = useBufferState();
 	const sequenceContext = useContext(SequenceContext);
 	const [isLoading, setIsLoading] = useState(false);
@@ -177,19 +188,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 
 			errors.current[imageRef.current?.src as string] =
 				(errors.current[imageRef.current?.src as string] ?? 0) + 1;
-			if (
-				(onError || onImageError) &&
-				(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
-			) {
-				onError?.(e);
-				onImageError?.(
-					new Error(
-						'Error loading image with src: ' +
-							truncateSrcForLabel(imageRef.current?.src as string),
-					),
-				);
-				return;
-			}
 
 			if (
 				(errors.current[imageRef.current?.src as string] ?? 0) <= maxRetries
@@ -208,17 +206,41 @@ const ImgContent: React.FC<ImgContentProps> = ({
 				return;
 			}
 
-			try {
-				cancelRender(
+			const request = pendingLoad.current;
+			if (!request || request.cancelled || request.reported) return;
+			request.reported = true;
+			handleImageError({
+				error: new Error(
 					'Error loading image with src: ' +
 						truncateSrcForLabel(imageRef.current?.src as string),
-				);
-			} catch {
-				// cancelRender() intentionally throws after storing the error in scope.
-				// In async image callbacks, we rely on the stored error for renderer propagation.
-			}
+				),
+				onError:
+					onError || onImageError
+						? async (error) => {
+								onError?.(e);
+								// Legacy void callbacks own replacement; do not export a broken image.
+								return (await onImageError?.(error)) ?? 'wait';
+							}
+						: undefined,
+				isCancelled: () => request.cancelled,
+				cancelRender,
+				onHandled: () =>
+					commitRecovery(() => {
+						if (request.cancelled) return;
+						setIsLoading(false);
+						continueRender(request.handle);
+					}),
+			});
 		},
-		[cancelRender, maxRetries, onError, onImageError, retryIn],
+		[
+			cancelRender,
+			continueRender,
+			commitRecovery,
+			maxRetries,
+			onError,
+			onImageError,
+			retryIn,
+		],
 	);
 
 	if (typeof window !== 'undefined') {
@@ -239,14 +261,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
-			if (window.process?.env?.NODE_ENV === 'test') {
-				if (imageRef.current) {
-					imageRef.current.src = actualSrc;
-				}
-
-				return;
-			}
-
 			const {current} = imageRef;
 			if (!current) {
 				return;
@@ -261,7 +275,16 @@ const ImgContent: React.FC<ImgContentProps> = ({
 				},
 			);
 
+			const request = {handle: newHandle, cancelled: false, reported: false};
+			pendingLoad.current = request;
 			let unmounted = false;
+			if (window.process?.env?.NODE_ENV === 'test') {
+				current.src = actualSrc;
+				return () => {
+					request.cancelled = true;
+					continueRender(newHandle);
+				};
+			}
 
 			const onComplete = () => {
 				// the decode() promise isn't cancelable -- it may still resolve after unmounting
@@ -318,6 +341,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			// If tag gets unmounted, clear pending handles because image is not going to load
 			return () => {
 				unmounted = true;
+				request.cancelled = true;
 				current.removeEventListener('load', onComplete);
 				continueRender(newHandle);
 			};

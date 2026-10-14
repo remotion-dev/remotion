@@ -66,6 +66,7 @@ export function cancelRenderInternal(
 
 	if (scope) {
 		scope.remotion_cancelledError = getErrorStackWithMessage(error);
+		scope.remotion_cancelledErrorObject = error;
 	}
 
 	throw error;

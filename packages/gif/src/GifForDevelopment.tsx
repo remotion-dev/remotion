@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import {forwardRef, useEffect, useRef, useState} from 'react';
-import type {EffectDefinitionAndStack} from 'remotion';
+import {Internals, type EffectDefinitionAndStack} from 'remotion';
 import {Canvas} from './canvas';
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
@@ -82,16 +82,18 @@ export const GifForDevelopment = forwardRef<
 					volatileGifCache.set(cacheKey, parsed);
 					done = true;
 				})
-				.catch((err) => {
+				.catch(async (err) => {
 					if (aborted) {
 						return;
 					}
 
-					if (currentOnError.current) {
-						currentOnError.current(err);
-					} else {
-						setError(err);
-					}
+					const result = await Internals.resolveMediaError({
+						onError: currentOnError.current,
+						error: err,
+						defaultAction: currentOnError.current ? 'handled' : 'fail',
+					});
+					if (aborted) return;
+					if (result.action === 'fail') setError(result.error);
 				});
 
 			return () => {
@@ -103,6 +105,7 @@ export const GifForDevelopment = forwardRef<
 		}, [cacheKey, resolvedSrc]);
 
 		if (error) {
+			if (currentOnError.current) throw error;
 			console.error(error.stack);
 			if (isCorsError(error)) {
 				throw new Error(

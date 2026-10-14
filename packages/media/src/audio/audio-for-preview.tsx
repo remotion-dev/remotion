@@ -214,6 +214,25 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 			return;
 		}
 
+		let cancelled = false;
+		const reportError = async (error: Error) => {
+			if (cancelled) return;
+			const [action, errorToUse] = await callOnErrorAndResolve({
+				onError: onErrorRef.current,
+				error,
+				disallowFallback: disallowFallbackRef.current,
+				isClientSideRendering: false,
+				clientSideError: error,
+			});
+			if (cancelled) return;
+			if (action === 'handled') return;
+			if (action === 'fallback') {
+				setShouldFallbackToNativeAudio(true);
+			} else {
+				setTerminalError(errorToUse);
+			}
+		};
+
 		try {
 			const player = new MediaPlayer({
 				src: preloadedSrc,
@@ -248,20 +267,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				getEffects: () => [],
 				getEffectChainState: () => null,
 				maxCanvasSinkFrameSize: null,
-				onError: (error) => {
-					const [action, errorToUse] = callOnErrorAndResolve({
-						onError: onErrorRef.current,
-						error,
-						disallowFallback: disallowFallbackRef.current,
-						isClientSideRendering: false,
-						clientSideError: error,
-					});
-					if (action === 'fallback') {
-						setShouldFallbackToNativeAudio(true);
-					} else {
-						setTerminalError(errorToUse);
-					}
-				},
+				onError: reportError,
 			});
 
 			mediaPlayerRef.current = player;
@@ -272,29 +278,10 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					initialMuted.current,
 					initialVolume.current,
 				)
-				.then((result) => {
-					if (result.type === 'disposed') {
+				.then(async (result) => {
+					if (cancelled || result.type === 'disposed') {
 						return;
 					}
-
-					const handleError = (error: Error, fallbackMessage: string) => {
-						const [action, errorToUse] = callOnErrorAndResolve({
-							onError,
-							error,
-							disallowFallback: disallowFallbackToHtml5Audio,
-							isClientSideRendering: false,
-							clientSideError: error,
-						});
-						if (action === 'fail') {
-							throw errorToUse;
-						} else {
-							Internals.Log.warn(
-								{logLevel, tag: '@remotion/media'},
-								fallbackMessage,
-							);
-							setShouldFallbackToNativeAudio(true);
-						}
-					};
 
 					if (
 						result.type === 'unknown-container-format' ||
@@ -305,17 +292,13 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					}
 
 					if (result.type === 'cannot-decode') {
-						handleError(
-							new Error(`Cannot decode ${preloadedSrc}.`),
-							`Cannot decode ${preloadedSrc}, falling back to <Html5Audio>`,
-						);
+						await reportError(new Error(`Cannot decode ${preloadedSrc}.`));
 						return;
 					}
 
 					if (result.type === 'no-tracks') {
-						handleError(
+						await reportError(
 							new Error(`No video or audio tracks found for ${preloadedSrc}.`),
-							`No video or audio tracks found for ${preloadedSrc}, falling back to <Html5Audio>`,
 						);
 						return;
 					}
@@ -339,46 +322,13 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 						);
 					}
 				})
-				.catch((error) => {
-					const [action, errorToUse] = callOnErrorAndResolve({
-						onError,
-						error,
-						disallowFallback: disallowFallbackToHtml5Audio,
-						isClientSideRendering: false,
-						clientSideError: error,
-					});
-					if (action === 'fail') {
-						throw errorToUse;
-					} else {
-						Internals.Log.error(
-							{logLevel, tag: '@remotion/media'},
-							'[AudioForPreview] Failed to initialize MediaPlayer',
-							error,
-						);
-						setShouldFallbackToNativeAudio(true);
-					}
-				});
+				.catch((error) => reportError(error));
 		} catch (error) {
-			const [action, errorToUse] = callOnErrorAndResolve({
-				error: error as Error,
-				onError,
-				disallowFallback: disallowFallbackToHtml5Audio,
-				isClientSideRendering: false,
-				clientSideError: error as Error,
-			});
-			if (action === 'fail') {
-				throw errorToUse;
-			}
-
-			Internals.Log.error(
-				{logLevel, tag: '@remotion/media'},
-				'[AudioForPreview] MediaPlayer initialization failed',
-				errorToUse,
-			);
-			setShouldFallbackToNativeAudio(true);
+			reportError(error as Error);
 		}
 
 		return () => {
+			cancelled = true;
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
