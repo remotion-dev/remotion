@@ -144,8 +144,6 @@ With `layout: 'absolute-fill'`, the ref points to the wrapper's `HTMLDivElement`
 
 For calls with `wrapInSequence: true`, replace `Interactive.withSchema()` with `Interactive.create()` and remove `wrapInSequence`. You can also remove an empty `schema` and a `componentName` that matches the inferred name. Keep explicit names when they should remain unchanged.
 
-If the old call omitted `wrapInSequence` or set it to `false`, keep using `Interactive.withSchema()` to preserve its behavior. Components that manage their own sequencing still need that API. `Interactive.create()` always adds a sequence and does not accept `wrapInSequence`.
-
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
