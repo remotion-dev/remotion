@@ -16,7 +16,8 @@ type SequenceTiming = {
 	depth: number;
 	loopOwner: TSequence | null;
 	mediaIterationStart: number;
-	hasConnectedCompositionAncestor: boolean;
+	trackClip: TSequence | null;
+	hasCollapsedConnectedCompositionAncestor: boolean;
 	isFrozen: boolean;
 };
 
@@ -165,6 +166,17 @@ export const calculateTimeline = ({
 			: parentTiming?.loopOwner
 				? Math.max(parentTiming.mediaIterationStart, cascadedStart)
 				: cascadedStart;
+		// A series clip and its interactive component can represent the same
+		// connected composition, with hidden transition wrappers between them.
+		const trackClip =
+			sequence.timelineTrack?.role === 'clip'
+				? sequence
+				: parentTiming?.trackClip &&
+					  (!sequence.showInTimeline ||
+							sequence.singleChildComponent ===
+								parentTiming.trackClip.singleChildComponent)
+					? parentTiming.trackClip
+					: null;
 		const timing: SequenceTiming = {
 			parentPlaybackRate,
 			sequencePlaybackRate,
@@ -176,9 +188,16 @@ export const calculateTimeline = ({
 				: 0,
 			loopOwner,
 			mediaIterationStart,
-			hasConnectedCompositionAncestor: parent
-				? connectedCompositionsBySequenceId.has(parent.id) ||
-					parentTiming!.hasConnectedCompositionAncestor
+			trackClip,
+			hasCollapsedConnectedCompositionAncestor: parent
+				? parentTiming!.hasCollapsedConnectedCompositionAncestor ||
+					(connectedCompositionsBySequenceId.has(parent.id) &&
+						!(
+							showConnectedCompositionChildren &&
+							(parent.timelineTrack?.role === 'track' ||
+								parentTiming!.trackClip?.singleChildComponent ===
+									parent.singleChildComponent)
+						))
 				: false,
 			isFrozen:
 				sequence.frozenFrame !== null || (parentTiming?.isFrozen ?? false),
@@ -188,9 +207,7 @@ export const calculateTimeline = ({
 	};
 
 	const timelineSequences = sortedSequences.filter(
-		(sequence) =>
-			showConnectedCompositionChildren ||
-			!getTiming(sequence).hasConnectedCompositionAncestor,
+		(sequence) => !getTiming(sequence).hasCollapsedConnectedCompositionAncestor,
 	);
 
 	for (let i = 0; i < timelineSequences.length; i++) {

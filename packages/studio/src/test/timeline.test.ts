@@ -474,6 +474,7 @@ test('Should hide descendants of sequences with connected compositions', () => {
 
 	const calculated = calculateTimeline({
 		compositions: [connectedComposition],
+		showConnectedCompositionChildren: true,
 		overrideIdsToNodePaths: {},
 		sequences: [
 			makeSequence({
