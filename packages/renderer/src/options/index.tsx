@@ -34,8 +34,6 @@ import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
 import {experimentalKeepAudioContextAliveOption} from './experimental-keep-audio-context-alive';
-import {experimentalSequenceActivityOption} from './experimental-sequence-activity';
-import {experimentalSequenceActivityLimitOption} from './experimental-sequence-activity-limit';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -86,6 +84,7 @@ import {runsOption} from './runs';
 import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {sequenceActivityLimitOption} from './sequence-activity-limit';
 import {showLayerFrameNumbersOption} from './show-layer-frame-numbers';
 import {showPremountingOption} from './show-premounting';
 import {skipSkillsOption} from './skip-skills';
@@ -181,8 +180,7 @@ export const allOptions = {
 	framesOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalSequenceActivityOption,
-	experimentalSequenceActivityLimitOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	stillImageFormatOption,

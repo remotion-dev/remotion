@@ -150,8 +150,7 @@ const {
 	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalSequenceActivityOption,
-	experimentalSequenceActivityLimitOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -660,10 +659,8 @@ type FlatConfig = RemotionConfigObject &
 		 * Omitted actions use their default shortcut. Set an action to null to disable it.
 		 */
 		setKeyboardShortcuts: (shortcuts: StudioKeyboardShortcuts) => void;
-		/** Enable experimental Sequence Activity in Studio. Default: false. */
-		setExperimentalSequenceActivityEnabled: (enabled: boolean) => void;
-		/** Set the hidden Sequence Activity limit in Studio. Default: 20. */
-		setExperimentalSequenceActivityLimit: (limit: number) => void;
+		/** Set the hidden Sequence Activity limit in Studio. Default: Infinity. Set to 0 to disable. */
+		setSequenceActivityLimit: (limit: number) => void;
 		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
@@ -824,10 +821,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
-	setExperimentalSequenceActivityEnabled:
-		experimentalSequenceActivityOption.setConfig,
-	setExperimentalSequenceActivityLimit:
-		experimentalSequenceActivityLimitOption.setConfig,
+	setSequenceActivityLimit: sequenceActivityLimitOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,

@@ -8,9 +8,7 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: false,
-	experimentalSequenceActivityEnabled: false,
-	experimentalSequenceActivityLimit:
-		NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	sequenceActivityLimit: null,
 	bufferStateDelayInMilliseconds: null,
 	defaultCodingAgent: null,
 	defaultEditor: null,
@@ -75,9 +73,8 @@ export const getStudioShowLayerFrameNumbers = () => {
 export const getStudioSequenceActivitySettings = () => {
 	const config = getStudioRuntimeConfig();
 	return {
-		enabled: config.experimentalSequenceActivityEnabled ?? false,
 		limit:
-			config.experimentalSequenceActivityLimit ??
+			config.sequenceActivityLimit ??
 			NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	};
 };
