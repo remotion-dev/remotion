@@ -160,6 +160,37 @@ export const useCompositionActions = () => {
 
 		setIsAddingText(true);
 		try {
+			const fontSize = Math.max(
+				1,
+				Math.round(Math.min(videoConfig.width, videoConfig.height) * 0.075),
+			);
+			const preview = Internals.portalNode();
+			const previewRect = preview.getBoundingClientRect();
+			if (previewRect.width === 0 || previewRect.height === 0) {
+				throw new Error(
+					'The composition preview is not ready for text insertion.',
+				);
+			}
+
+			// Measure the text in the preview to account for its font metrics and zoom.
+			const measurement = document.createElement('div');
+			measurement.textContent = 'Text';
+			Object.assign(measurement.style, {
+				position: 'absolute',
+				fontFamily: 'sans-serif',
+				fontSize: `${fontSize}px`,
+				visibility: 'hidden',
+				pointerEvents: 'none',
+			});
+			preview.appendChild(measurement);
+			let textRect: DOMRect;
+			try {
+				textRect = measurement.getBoundingClientRect();
+			} finally {
+				measurement.remove();
+			}
+
+			const scale = previewRect.width / videoConfig.width;
 			const request: InsertCompositionElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
@@ -167,14 +198,11 @@ export const useCompositionActions = () => {
 				element: {
 					type: 'text',
 					text: 'Text',
-					fontSize: Math.max(
-						1,
-						Math.round(Math.min(videoConfig.width, videoConfig.height) * 0.075),
-					),
+					fontSize,
 					color: 'white',
 					position: {
-						x: videoConfig.width * 0.1,
-						y: videoConfig.height * 0.1,
+						x: (videoConfig.width - textRect.width / scale) / 2,
+						y: (videoConfig.height - textRect.height / scale) / 2,
 					},
 				},
 			};
