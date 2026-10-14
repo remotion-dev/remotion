@@ -32,7 +32,6 @@ Launch it with a dedicated profile and the HTML-in-canvas feature enabled:
 '/Users/jonathanburger/Applications/Recorder Chrome.app/Contents/MacOS/Google Chrome for Testing' \
   --user-data-dir='/Users/jonathanburger/Library/Application Support/Remotion Canvas Capture' \
   --enable-features=CanvasDrawElement \
-  --enable-blink-features=CanvasDrawElement \
   --no-first-run \
   --no-default-browser-check
 ```
@@ -71,6 +70,24 @@ files change.
 
 The development extension is separate from the manually loaded production
 extension, so its path and extension ID remain stable across worktrees.
+
+To test a local handoff destination, set `CANVAS_CAPTURE_HANDOFF_ORIGIN` when
+running `bun run dev`, for example `http://localhost:3000`. Production builds
+always open `https://www.remotion.dev`.
+
+## Opening a recording in Remotion
+
+The extension stores the recording locally and opens `/new` or `/convert`
+with a single-use transfer token and the extension ID in the URL fragment.
+The destination page connects directly to the extension through
+`externally_connectable` messaging. The extension checks the page origin,
+destination path, tab ID, and token before sending the recording in chunks.
+The page acknowledges receipt before the stored recording is deleted.
+
+Transfer tokens expire after 10 minutes. Interrupted transfers can be retried
+from the same destination tab until the token expires; expired recordings are
+removed when the extension next starts or opens another recording. No receiver
+content script or persistent host access is required.
 
 ## Build and install
 

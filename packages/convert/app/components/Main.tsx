@@ -18,11 +18,16 @@ export const Main: React.FC<{
 	const [src, setSrc] = useState<Source | null>(() => {
 		return url.has('url') ? {type: 'url', url: url.get('url') as string} : null;
 	});
-	useCanvasCapture(setSrc);
+	const captureError = useCanvasCapture(setSrc);
 
 	return (
 		<TitleProvider routeAction={routeAction}>
 			<div className="font-sans min-h-screen">
+				{captureError ? (
+					<div role="alert" className="p-4 text-red-500">
+						{captureError}
+					</div>
+				) : null}
 				{src ? (
 					<FileAvailable
 						key={src.type === 'url' ? src.url : src.file.name}

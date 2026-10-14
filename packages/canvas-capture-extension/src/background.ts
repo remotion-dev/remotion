@@ -1,5 +1,6 @@
 import {browser} from 'wxt/browser';
 import {canvasSetupUrl} from './browser-requirements';
+import {startCaptureHandoff} from './handoff-server';
 import {
 	captureControllerMessageType,
 	openCaptureSetupMessageType,
@@ -7,6 +8,7 @@ import {
 } from './messages';
 
 export const startBackground = () => {
+	startCaptureHandoff();
 	browser.action.onClicked.addListener(async (tab) => {
 		if (tab.id === undefined) {
 			return;
@@ -72,19 +74,5 @@ export const startBackground = () => {
 				.create({url: canvasSetupUrl, active: true})
 				.then(() => ({opened: true}));
 		}
-
-		if (
-			message.type !== 'remotion-canvas-capture-open' ||
-			!('captureId' in message) ||
-			typeof message.captureId !== 'string' ||
-			!('destination' in message) ||
-			(message.destination !== 'convert' && message.destination !== 'new')
-		) {
-			return;
-		}
-
-		const url = new URL(`https://www.remotion.dev/${message.destination}`);
-		url.searchParams.set('canvas-capture', message.captureId);
-		return browser.tabs.create({url: url.toString()});
 	});
 };

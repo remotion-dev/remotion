@@ -69,7 +69,13 @@
 			"module": "./dist/esm/parse-spring-easing-config.mjs",
 			"import": "./dist/esm/parse-spring-easing-config.mjs"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./canvas-capture-handoff": {
+			"types": "./dist/canvas-capture-handoff.d.ts",
+			"require": "./dist/canvas-capture-handoff.js",
+			"module": "./dist/esm/canvas-capture-handoff.mjs",
+			"import": "./dist/esm/canvas-capture-handoff.mjs"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
@@ -87,6 +93,9 @@
 			],
 			"parse-spring-easing-config": [
 				"./dist/parse-spring-easing-config.d.ts"
+			],
+			"canvas-capture-handoff": [
+				"./dist/canvas-capture-handoff.d.ts"
 			]
 		}
 	}

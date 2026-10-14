@@ -11,6 +11,7 @@
 		"make": "bunx --bun wxt build"
 	},
 	"dependencies": {
+		"@remotion/studio-shared": "workspace:*",
 		"@remotion/design": "workspace:*",
 		"mediabunny": "catalog:",
 		"react": "catalog:",

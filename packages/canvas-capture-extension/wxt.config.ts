@@ -6,6 +6,10 @@ import {minimumChromeVersion} from './src/browser-requirements';
 
 const homeDirectory = homedir();
 const isDevelopment = process.env.npm_lifecycle_event === 'dev';
+const handoffOrigin =
+	isDevelopment && process.env.CANVAS_CAPTURE_HANDOFF_ORIGIN
+		? new URL(process.env.CANVAS_CAPTURE_HANDOFF_ORIGIN).origin
+		: 'https://www.remotion.dev';
 
 export default defineConfig({
 	srcDir: 'src',
@@ -19,6 +23,12 @@ export default defineConfig({
 			)
 		: 'dist',
 	outDirTemplate: '.',
+	vite: () => ({
+		define: {
+			'import.meta.env.CANVAS_CAPTURE_HANDOFF_ORIGIN':
+				JSON.stringify(handoffOrigin),
+		},
+	}),
 	manifest: {
 		name: 'Remotion Canvas Capture',
 		description: `Record an area or webpage as MP4 or WebM. Requires Chrome ${minimumChromeVersion}+ and Canvas Draw Element enabled.`,
@@ -26,6 +36,20 @@ export default defineConfig({
 		// Allow older Chrome versions to install and show the recording requirements.
 		minimum_chrome_version: '155',
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
+		externally_connectable: {
+			matches: [
+				'https://remotion.dev/new*',
+				'https://remotion.dev/convert*',
+				'https://www.remotion.dev/new*',
+				'https://www.remotion.dev/convert*',
+				...(isDevelopment && handoffOrigin !== 'https://www.remotion.dev'
+					? [
+							`${new URL(handoffOrigin).protocol}//${new URL(handoffOrigin).hostname}/new*`,
+							`${new URL(handoffOrigin).protocol}//${new URL(handoffOrigin).hostname}/convert*`,
+						]
+					: []),
+			],
+		},
 		icons: {
 			16: 'icons/icon-16.png',
 			32: 'icons/icon-32.png',
