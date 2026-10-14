@@ -504,7 +504,8 @@ export const textContentSchema = childrenSchema;
 export const premountSchema = {
 	premountFor: {
 		type: 'number',
-		default: 0,
+		// Omission inherits the preview's default; zero explicitly disables it.
+		default: undefined,
 		description: 'Premount For',
 		min: 0,
 		step: 1,

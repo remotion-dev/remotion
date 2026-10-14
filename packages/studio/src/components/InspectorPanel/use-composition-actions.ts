@@ -95,9 +95,9 @@ export const useCompositionActions = () => {
 	const canShowInsertComposition = canShowInsertAsset && videoConfig !== null;
 	const canInsertComposition = canShowInsertComposition && !isAddingComposition;
 	const canShowGenerateWithAgent =
+		browserStudioOperations === null &&
 		!window.remotion_isReadOnlyStudio &&
-		((previewInteractive && browserStudioOperations === null) ||
-			getCodexAnnotation() !== null) &&
+		(previewInteractive || getCodexAnnotation() !== null) &&
 		currentCompositionId !== null;
 
 	const insertSolid = useCallback(async () => {

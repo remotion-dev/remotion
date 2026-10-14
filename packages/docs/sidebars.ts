@@ -2051,7 +2051,11 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'canvas-capture/index',
 			},
-			items: ['canvas-capture/installation', 'canvas-capture/privacy'],
+			items: [
+				'canvas-capture/installation',
+				'canvas-capture/agentic-shot-setup',
+				'canvas-capture/privacy',
+			],
 		},
 	],
 	browserBundlerSidebar: [

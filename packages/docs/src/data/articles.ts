@@ -613,6 +613,15 @@ export const articles = [
 		slug: 'cancel-render',
 	},
 	{
+		id: 'canvas-capture/agentic-shot-setup',
+		title: 'Agentic shot setup',
+		relativePath: 'docs/canvas-capture/agentic-shot-setup.mdx',
+		compId: 'articles-docs-canvas-capture-agentic-shot-setup',
+		crumb: null,
+		noAi: false,
+		slug: 'canvas-capture/agentic-shot-setup',
+	},
+	{
 		id: 'canvas-capture/index',
 		title: 'Canvas Capture',
 		relativePath: 'docs/canvas-capture/index.mdx',

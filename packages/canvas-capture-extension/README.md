@@ -6,6 +6,14 @@ Record an area—or a whole webpage—as a high-resolution H.264 MP4 or VP9 WebM
 
 Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled. You can use Chrome, Chrome Canary, or Chrome for Testing as long as the browser meets this minimum. The extension also checks whether the HTML-in-canvas API and video encoding configuration are available before recording.
 
+When the controls open, a red callout above the toolbar explains any unmet browser
+requirements before an area is selected. An outdated browser shows the minimum
+Chrome version. If the required APIs are unavailable, the callout offers a
+**Open Chrome flags** button that opens `chrome://flags/#canvas-draw-element` in a
+new tab; enable Canvas Draw Element there and restart Chrome. The warning describes missing APIs without
+assuming the flag's state. Requirements are checked again when the controls reopen.
+Chrome versions below the manifest minimum cannot load the extension at all.
+
 To install a compatible Chrome for Testing build, run:
 
 ```bash
@@ -66,6 +74,12 @@ extension, so its path and extension ID remain stable across worktrees.
 
 ## Build and install
 
+The extension exposes `setup_shot`, `get_shot`, and `save_recording` to WebMCP-aware
+agents after its icon is clicked. Agents can frame the viewport, an element, or an
+exact rectangle, inspect a PNG still preview, and save a completed recording.
+Recording starts and stops through the manual controls. See
+[Agentic shot setup](https://www.remotion.dev/docs/canvas-capture/agentic-shot-setup).
+
 1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This creates the production WXT bundle and installs the complete unpacked extension outside the worktree. Building does not require an installed browser.
 2. In Chrome 157.0.8080.0 or newer, open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
@@ -77,6 +91,9 @@ recording. Captures default to a 2K (2560×1440) bounding resolution. Click the
 zoom value next to the selected area to expose a slider and adjust the capture
 scale directly. The default capture scale adapts to the selected area, so
 smaller areas are enlarged more while preserving their aspect ratio. The
+zoom slider's maximum adapts to the selected area, caps output at roughly 4K,
+and is reduced further when the browser cannot encode that resolution. Resizing
+the area recalculates the range and reduces the current zoom when needed. The
 controls display the selected format and rounded output dimensions and only
 enable recording after the browser confirms that Mediabunny's exact
 high-quality, realtime configuration is supported. The whole page subtree is

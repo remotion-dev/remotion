@@ -1,6 +1,8 @@
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {defineConfig} from 'wxt';
+// eslint-disable-next-line no-restricted-imports -- Share the minimum version with this package's runtime check.
+import {minimumChromeVersion} from './src/browser-requirements';
 
 const homeDirectory = homedir();
 const isDevelopment = process.env.npm_lifecycle_event === 'dev';
@@ -19,10 +21,9 @@ export default defineConfig({
 	outDirTemplate: '.',
 	manifest: {
 		name: 'Remotion Canvas Capture',
-		description:
-			'Record any element on a webpage as a high-resolution MP4 or WebM.',
+		description: `Record an area or webpage as MP4 or WebM. Requires Chrome ${minimumChromeVersion}+ and Canvas Draw Element enabled.`,
 		version: '0.1.0',
-		minimum_chrome_version: '157.0.8080.0',
+		minimum_chrome_version: minimumChromeVersion,
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
 		icons: {
 			16: 'icons/icon-16.png',

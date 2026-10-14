@@ -53,7 +53,7 @@ To select another Chrome 157.0.8080.0 or newer browser, set
 ## Reload in Chrome
 
 - Launch Chrome 157.0.8080.0 or newer with the
-  dedicated Canvas Capture profile, then open `chrome://extensions` manually.
+  dedicated Canvas Capture profile, then open `chrome://extensions`.
 - Enable **Developer mode** on `chrome://extensions`.
 - If **Remotion Canvas Capture** already points to the durable directory, click
   **Reload**.
@@ -74,5 +74,16 @@ To select another Chrome 157.0.8080.0 or newer browser, set
   experimental HTML-in-canvas API is unavailable.
 
 Do not edit Chrome's `Preferences` or `Secure Preferences` files to move or
-reload the extension, and do not automate the Chrome UI. Let the user use
-Chrome's extensions page so its integrity metadata stays valid.
+reload the extension. Use Chrome's extensions page so its integrity metadata
+stays valid. Browser UI automation is allowed for loading, reloading, and
+activating Canvas Capture; do not require the user to perform those clicks.
+
+## Prepare a shot
+
+Open the requested webpage in the compatible recording browser and activate
+Canvas Capture through its toolbar icon or the Extensions menu. This exposes
+the `setup_shot`, `get_shot`, and `save_recording` WebMCP tools in that tab.
+
+Prepare the page and viewport, call `setup_shot`, and inspect a still preview
+with `get_shot`. Leave the browser open with the shot ready for the user to
+record. Start and stop recording manually so the user controls cursor movement.
