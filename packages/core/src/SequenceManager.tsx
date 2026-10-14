@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 export * from './sequence-registry-context.js';
 import {
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivityContext,
 	SequenceActivitySettingsContext,
 } from './sequence-activity-context.js';
@@ -94,7 +95,7 @@ const SequenceManagerScopeProviders: React.FC<{
 			>
 				<SequenceActivityContext.Provider
 					value={
-						activitySettings?.enabled === true &&
+						(activitySettings?.limit ?? DEFAULT_SEQUENCE_ACTIVITY_LIMIT) > 0 &&
 						isStudio &&
 						commitRegistrationEnabled &&
 						typeof React.Activity !== 'undefined'

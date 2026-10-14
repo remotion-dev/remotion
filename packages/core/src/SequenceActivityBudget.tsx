@@ -129,7 +129,7 @@ export const SequenceActivityBudgetProvider: React.FC<{
 	const enabled = useContext(SequenceActivityContext);
 	const settings = useContext(SequenceActivitySettingsContext);
 	const limit = settings?.limit ?? DEFAULT_SEQUENCE_ACTIVITY_LIMIT;
-	const admitting = enabled && limit > 0;
+	const admitting = enabled && limit > 0 && limit !== Infinity;
 	const [budget] = useState(createActivityBudget);
 	const timeline = useContext(
 		admitting ? TimelineContext : InactiveTimelineContext,
@@ -171,7 +171,9 @@ export const useSequenceActivityAdmission = (
 	const budget = useContext(ActivityBudgetContext);
 	const enabled = useContext(SequenceActivityContext);
 	const settings = useContext(SequenceActivitySettingsContext);
-	const unlimited = enabled && settings?.limit === -1;
+	const unlimited =
+		enabled &&
+		(settings?.limit ?? DEFAULT_SEQUENCE_ACTIVITY_LIMIT) === Infinity;
 	const selected = useContext(ActivitySelectionContext);
 	const id = candidate?.id ?? null;
 	const parent = candidate?.parent ?? null;

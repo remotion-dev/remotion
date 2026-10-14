@@ -45,8 +45,7 @@ const {
 	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalSequenceActivityOption,
-	experimentalSequenceActivityLimitOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	audioLatencyHintOption,
 	ipv4Option,
@@ -168,6 +167,12 @@ export const studioCommand = async (
 			commandLine: parsedCli,
 		}).value;
 
+		const sequenceActivityLimit = sequenceActivityLimitOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+		const configuredSequenceActivityLimit =
+			sequenceActivityLimitOption.getConfigValue();
+
 		return {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			defaultPremountInSeconds: defaultPremountInSecondsOption.getValue({
@@ -184,13 +189,8 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			elementLibraries: ConfigInternals.getElementLibraries(),
-			experimentalSequenceActivityEnabled:
-				experimentalSequenceActivityOption.getValue({commandLine: parsedCli})
-					.value,
-			experimentalSequenceActivityLimit:
-				experimentalSequenceActivityLimitOption.getValue({
-					commandLine: parsedCli,
-				}).value,
+			sequenceActivityLimit:
+				sequenceActivityLimit === Infinity ? null : sequenceActivityLimit,
 			interactivityEnabled: interactivityOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -220,10 +220,10 @@ export const studioCommand = async (
 				beepOnFinish: beepOnFinishOption.getConfigValue(),
 				enableCrossSiteIsolation:
 					enableCrossSiteIsolationOption.getConfigValue(),
-				experimentalSequenceActivityEnabled:
-					experimentalSequenceActivityOption.getConfigValue(),
-				experimentalSequenceActivityLimit:
-					experimentalSequenceActivityLimitOption.getConfigValue(),
+				sequenceActivityLimit:
+					configuredSequenceActivityLimit === Infinity
+						? null
+						: configuredSequenceActivityLimit,
 				interactivityEnabled: interactivityOption.getConfigValue(),
 				keyboardShortcutsEnabled: keyboardShortcutsOption.getConfigValue(),
 				logLevel: logLevelOption.getConfigValue(),
