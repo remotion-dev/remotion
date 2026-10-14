@@ -23,19 +23,19 @@ const solid = createElement({
   props: {width: 1920, height: 1080, color: 'gray'},
 });
 
-const sequence = createElement({
-  component: 'Sequence',
+const htmlInCanvas = createElement({
+  component: 'HtmlInCanvas',
   importPath: 'remotion',
-  props: {from: 30, durationInFrames: 60},
+  props: {width: 1920, height: 1080, from: 30, durationInFrames: 60},
 }).withChild(solid);
 ```
 
-Inserting `sequence` produces the following JSX and adds `import {Sequence, Solid} from 'remotion'` if the imports are missing:
+Inserting `htmlInCanvas` produces the following JSX and adds `import {HtmlInCanvas, Solid} from 'remotion'` if the imports are missing:
 
 ```tsx title="Generated JSX"
-<Sequence from={30} durationInFrames={60}>
+<HtmlInCanvas width={1920} height={1080} from={30} durationInFrames={60}>
   <Solid width={1920} height={1080} color="gray" />
-</Sequence>
+</HtmlInCanvas>
 ```
 
 An element is a description, not source code. Imports, local names, and formatting are decided when the element is inserted into a file. If the file already declares a binding with the same name, the import is aliased, for example `import {Solid as Solid2} from 'remotion'`.
