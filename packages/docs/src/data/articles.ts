@@ -631,6 +631,15 @@ export const articles = [
 		slug: 'canvas-capture/installation',
 	},
 	{
+		id: 'canvas-capture/privacy',
+		title: 'Canvas Capture Privacy Notice',
+		relativePath: 'docs/canvas-capture/privacy.mdx',
+		compId: 'articles-docs-canvas-capture-privacy',
+		crumb: 'Canvas Capture',
+		noAi: false,
+		slug: 'canvas-capture/privacy',
+	},
+	{
 		id: 'options/allow-html-in-canvas',
 		title: 'Allow HTML-in-canvas for client-side rendering',
 		relativePath: 'docs/options/allow-html-in-canvas.mdx',
