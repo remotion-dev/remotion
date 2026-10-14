@@ -1,0 +1,183 @@
+---
+image: /generated/articles-docs-interactive-create.png
+id: interactive-create
+title: Interactive.create()
+crumb: 'API'
+---
+
+# Interactive.create()<AvailableFrom v="4.0.536" />
+
+Wraps a React component with [timing props](/docs/timing) and editable controls in the [Remotion Studio](/docs/studio).
+
+Sequence wrapping is enabled by default. You can omit `schema` when the component has no custom controls.
+
+```tsx twoslash title="Circle.tsx"
+import type React from 'react';
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+type CircleProps = {
+  readonly radius?: number;
+  readonly color?: string;
+  readonly style?: React.CSSProperties;
+};
+
+const circleSchema = {
+  radius: {
+    type: 'number',
+    min: 1,
+    step: 1,
+    default: 80,
+    description: 'Radius',
+    hiddenFromList: false,
+  },
+  color: {
+    type: 'color',
+    default: '#0b84ff',
+    description: 'Color',
+  },
+} as const satisfies InteractivitySchema;
+
+const CircleInner: React.FC<CircleProps> = ({radius = 80, color = '#0b84ff', style}) => {
+  return (
+    <div
+      style={{
+        ...style,
+        width: radius * 2,
+        height: radius * 2,
+        borderRadius: '50%',
+        backgroundColor: color,
+      }}
+    />
+  );
+};
+
+export const Circle = Interactive.create({
+  Component: CircleInner,
+  schema: circleSchema,
+});
+```
+
+The exported `Circle` component accepts `CircleProps`, [timing props](/docs/timing), [premount props](/docs/interactive#interactivepremountprops) and [cropping props](/docs/interactive#interactivecropprops).
+
+## API
+
+```ts twoslash title="Importing"
+import {Interactive} from 'remotion';
+```
+
+The options for `Interactive.create()` are:
+
+### `Component`
+
+The component to wrap.
+
+With sequence wrapping enabled and the default `layout: 'none'`, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root.
+With `layout: 'absolute-fill'`, the wrapper applies styles to a full-size container instead. `Component` must not declare `style`, `width`, or `height` props; these belong to the wrapper.
+
+### `componentName`?
+
+The component name used by Studio and in validation messages.
+
+Defaults to `Component.displayName`, then `Component.name` with a trailing `Inner` removed, then `"Component"`. For example, a function named `CircleInner` produces the label `Circle`. A function named exactly `Inner` keeps its name. Explicit `componentName` and `displayName` values are used unchanged.
+
+Set this option when the inferred name is not descriptive, such as for an anonymous component or a component wrapped in `memo()` or `forwardRef()` without a `displayName`. The name of the variable receiving the returned component is not used.
+
+Set the returned component's [`name`](/docs/sequence#name) prop to label an individual instance.
+
+### `schema`?
+
+An [`InteractivitySchema`](/docs/interactivity-schema) that describes which custom props are editable in Remotion Studio. Defaults to `{}`. Props that are not in the schema still work in code.
+
+With sequence wrapping enabled, timing, premounting, cropping, and transform controls are included automatically. You do not need to add their schema fragments.
+
+See: [Make a component interactive](/docs/studio/make-component-interactive#create-a-schema)
+
+### `wrapInSequence`?
+
+Defaults to `true`. Wraps the component in a [`<Sequence>`](/docs/sequence) and adds timing, premounting, and cropping props. A [`useCurrentFrame()`](/docs/use-current-frame) call inside the component reads its local frame.
+
+Set to `false` only when the component already handles its own sequence and forwards its controls and timing props. In this mode, `Interactive.create()` preserves the component's props, uses the schema as supplied, and does not add timing props or standard schema fragments. `layout` must be omitted.
+
+### `supportsEffects`?
+
+Only available, and required, when `wrapInSequence` is `false`. Declares whether the component supports effect controls. Set to `false` for components that do not handle effects.
+
+### `layout`?
+
+Available when sequence wrapping is enabled. Defaults to `'none'`, which forwards styles to `Component` without adding a container.
+
+Set to `'absolute-fill'` to give the component a full-size, absolutely positioned container with `overflow: 'hidden'` by default. Set `style={{overflow: 'visible'}}` on the returned component to let content extend beyond its bounds. Styles, transforms, cropping, and premount styles apply to this container. It shares the component's timeline item, so no extra layout layer appears in Studio. The returned component also accepts `width` and `height` to size the container and set the dimensions reported by `useVideoConfig()`.
+
+The inner component can return a fragment and does not need to forward styles:
+
+```tsx twoslash title="Scene.tsx"
+import React from 'react';
+import {Video} from '@remotion/media';
+import {Interactive, useVideoConfig} from 'remotion';
+
+const SceneInner: React.FC = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <>
+      <Video
+        src="https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0466.mp4"
+        premountFor={fps}
+        objectFit="cover"
+        style={{width: '100%', height: '100%'}}
+      />
+      <Interactive.Div
+        name="Title"
+        style={{position: 'absolute', left: 80, bottom: 80, color: 'white', fontSize: 80}}
+      >
+        Under the trees
+      </Interactive.Div>
+    </>
+  );
+};
+
+export const Scene = Interactive.create({
+  Component: SceneInner,
+  layout: 'absolute-fill',
+});
+
+const Example = () => (
+  <Scene from={30} durationInFrames={90} premountFor={30} style={{opacity: 0.5}} />
+);
+```
+
+Keep `'none'` when styles need to apply directly to an element with its own size or layout, such as a text box, SVG, or button.
+
+### Return value
+
+Returns a React component with the original component's props and, by default, timing, premounting, and cropping props.
+
+With `layout: 'absolute-fill'`, the returned component also accepts `style`, `width`, and `height`. These props belong to the wrapper and must not be declared by the inner component. The inner component must not declare the timing, premounting, or cropping props managed by the wrapper either.
+
+### Ref forwarding
+
+With `layout: 'none'`, if `Component` accepts a ref, the returned component preserves its ref type and forwards the ref directly to `Component`.
+
+With `layout: 'absolute-fill'`, the ref points to the wrapper's `HTMLDivElement`.
+
+## Migrating from `Interactive.withSchema()`
+
+Replace `Interactive.withSchema()` with `Interactive.create()`. You can remove `wrapInSequence: true`, an empty `schema`, and a `componentName` that matches the inferred name. Keep explicit names when they should remain unchanged.
+
+If the old call omitted `wrapInSequence` or set it to `false`, explicitly pass `wrapInSequence: false` to preserve its behavior. The default changed from `false` to `true`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+Rendering support depends on `Component`. Editing timeline controls requires an editable Remotion Studio session.
+
+## See also
+
+- [Make a component interactive](/docs/studio/make-component-interactive)
+- [`InteractivitySchema`](/docs/interactivity-schema)
+- [`Interactive`](/docs/interactive)
+- [Interactivity best practices](/docs/studio/interactivity-best-practices)
+- [`createEffect()`](/docs/create-effect)
+- [`<Sequence>`](/docs/sequence)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Interactive.tsx)

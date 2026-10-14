@@ -5,7 +5,11 @@ title: Interactive.withSchema()
 crumb: 'API'
 ---
 
-# Interactive.withSchema()<AvailableFrom v="4.0.530" />
+# ~~Interactive.withSchema()~~<AvailableFrom v="4.0.530" />
+
+:::info Deprecated
+Use [`Interactive.create()`](/docs/interactive-create) instead, available from <AvailableFrom v="4.0.536" inline />. It enables sequence wrapping by default and makes `schema` and `componentName` optional. See the [migration guide](/docs/interactive-create#migrating-from-interactivewithschema) before replacing calls that omit `wrapInSequence`.
+:::
 
 Wraps a React component so Remotion Studio shows it as interactive.
 

@@ -6,7 +6,7 @@ metadata:
 ---
 
 Prefer timing props directly on built-in interactive components and custom
-components made with `Interactive.withSchema({wrapInSequence: true})`.  
+components made with `Interactive.create()`.  
 Avoid wrapping a single timing-capable component in a redundant `<Sequence>`.
 Put `name`, `from`, `durationInFrames`, `loop`, and `volume`
 directly on `<Audio>` from `@remotion/media` whenever their combination gives the intended timing.
@@ -16,7 +16,7 @@ schema-wrapped components and [connected compositions](connected-compositions.md
 for registering them with their own Studio timelines.
 
 ```tsx
-// Title and Subtitle are exported with Interactive.withSchema({wrapInSequence: true}).
+// Title and Subtitle are exported with Interactive.create().
 <>
   <Title name="Title" from={30} durationInFrames={60} />
   <Subtitle name="Subtitle" from={60} durationInFrames={60} />

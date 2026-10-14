@@ -46,7 +46,7 @@ Both titles are visible at the same time. Changing the component updates every i
 
 ## Add timing primitives
 
-Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` to add [timing props](/docs/timing).  
+Use [`Interactive.create()`](/docs/interactive-create) to add [timing props](/docs/timing).  
 Rename the function to `TitleInner`, and export the wrapper:
 
 ```twoslash include timed-title
@@ -74,22 +74,16 @@ const TitleInner = ({children, color, style}: TitleProps) => (
 );
 // - inner
 
-export const Title = Interactive.withSchema({
+export const Title = Interactive.create({
   Component: TitleInner,
-  componentName: 'Title',
-  schema: {},
-  wrapInSequence: true,
 });
 ```
 
 ```tsx twoslash title="Title.tsx"
 // @include: timed-title-inner
 // ---cut---
-export const Title = Interactive.withSchema({
+export const Title = Interactive.create({
   Component: TitleInner,
-  componentName: 'Title',
-  schema: {},
-  wrapInSequence: true,
 });
 ```
 
@@ -130,14 +124,12 @@ Describe them in the `schema` to make them editable in the [Remotion Studio](/do
 ```tsx twoslash title="Title.tsx"
 // @include: timed-title-inner
 // ---cut---
-export const Title = Interactive.withSchema({
+export const Title = Interactive.create({
   Component: TitleInner,
-  componentName: 'Title',
   schema: {
     ...Interactive.childrenSchema,
     color: {type: 'color', default: '#0b84f3', description: 'Text color'},
   },
-  wrapInSequence: true,
 });
 ```
 
@@ -178,14 +170,12 @@ const TitleInner = ({children, color}: TitleProps) => (
   </div>
 );
 
-export const Title = Interactive.withSchema({
+export const Title = Interactive.create({
   Component: TitleInner,
-  componentName: 'Title',
   schema: {
     ...Interactive.childrenSchema,
     color: {type: 'color', default: '#0b84f3', description: 'Text color'},
   },
-  wrapInSequence: true,
   layout: 'absolute-fill',
 });
 ```
@@ -212,14 +202,12 @@ const TitleInner = ({children, color}: TitleProps) => (
   </div>
 );
 
-export const Title = Interactive.withSchema({
+export const Title = Interactive.create({
   Component: TitleInner,
-  componentName: 'Title',
   schema: {
     ...Interactive.childrenSchema,
     color: {type: 'color', default: '#0b84f3', description: 'Text color'},
   },
-  wrapInSequence: true,
   layout: 'absolute-fill',
 });
 ```
@@ -249,7 +237,7 @@ You need to set a fixed width, height, and frame rate for the composition, even 
 
 ## See also
 
-- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [`Interactive.create()`](/docs/interactive-create)
 - [`InteractivitySchema`](/docs/interactivity-schema)
 - [Timing and trimming](/docs/timing)
 - [Interactivity best practices](/docs/studio/interactivity-best-practices)

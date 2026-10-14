@@ -282,22 +282,36 @@ type ComponentAcceptingStyle<
 		? unknown
 		: never);
 
-type WithSchema = {
+type WithSchemaOptions<
+	Options extends {schema: InteractivitySchema; componentName: string},
+	WithDefaults extends boolean,
+> = WithDefaults extends true
+	? Omit<Options, 'schema' | 'componentName' | 'wrapInSequence'> &
+			Partial<Pick<Options, 'schema' | 'componentName'>> &
+			(Options extends {wrapInSequence: true}
+				? {readonly wrapInSequence?: true}
+				: {readonly wrapInSequence: false})
+	: Options;
+
+type WithSchema<WithDefaults extends boolean = false> = {
 	<S extends InteractivitySchema, Component extends React.ElementType>(
-		options: Omit<
-			WithInteractivitySchemaOptions<
-				S,
-				React.ComponentPropsWithoutRef<Component>
-			>,
-			'Component' | 'supportsEffects'
-		> & {
-			readonly Component: ComponentWithoutReservedProps<
-				Component,
-				WithSchemaReservedKey | 'style' | 'width' | 'height'
-			>;
-			readonly wrapInSequence: true;
-			readonly layout: 'absolute-fill';
-		},
+		options: WithSchemaOptions<
+			Omit<
+				WithInteractivitySchemaOptions<
+					S,
+					React.ComponentPropsWithoutRef<Component>
+				>,
+				'Component' | 'supportsEffects'
+			> & {
+				readonly Component: ComponentWithoutReservedProps<
+					Component,
+					WithSchemaReservedKey | 'style' | 'width' | 'height'
+				>;
+				readonly wrapInSequence: true;
+				readonly layout: 'absolute-fill';
+			},
+			WithDefaults
+		>,
 	): React.FC<
 		React.ComponentPropsWithoutRef<Component> &
 			InteractiveBaseProps &
@@ -309,20 +323,23 @@ type WithSchema = {
 			}
 	>;
 	<S extends InteractivitySchema, Component extends React.ElementType>(
-		options: Omit<
-			WithInteractivitySchemaOptions<
-				S,
-				React.ComponentPropsWithoutRef<Component>
-			>,
-			'Component' | 'supportsEffects'
-		> & {
-			readonly Component: ComponentAcceptingStyle<
-				Component,
-				WithSchemaReservedKey
-			>;
-			readonly wrapInSequence: true;
-			readonly layout?: 'none';
-		},
+		options: WithSchemaOptions<
+			Omit<
+				WithInteractivitySchemaOptions<
+					S,
+					React.ComponentPropsWithoutRef<Component>
+				>,
+				'Component' | 'supportsEffects'
+			> & {
+				readonly Component: ComponentAcceptingStyle<
+					Component,
+					WithSchemaReservedKey
+				>;
+				readonly wrapInSequence: true;
+				readonly layout?: 'none';
+			},
+			WithDefaults
+		>,
 	): React.FC<
 		React.ComponentPropsWithRef<Component> &
 			InteractiveBaseProps &
@@ -330,10 +347,13 @@ type WithSchema = {
 			InteractiveCropProps
 	>;
 	<S extends InteractivitySchema, Props extends object>(
-		options: WithInteractivitySchemaOptions<S, Props> & {
-			readonly wrapInSequence?: false;
-			readonly layout?: never;
-		},
+		options: WithSchemaOptions<
+			WithInteractivitySchemaOptions<S, Props> & {
+				readonly wrapInSequence?: false;
+				readonly layout?: never;
+			},
+			WithDefaults
+		>,
 	): React.ComponentType<Props>;
 };
 
@@ -474,7 +494,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 					freeze={freeze}
 					hidden={hidden}
 					name={name ?? componentName}
-					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive-with-schema"
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive-create"
 					showInTimeline={isCurrentComposition ? false : showInTimeline}
 					controls={controls}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
@@ -513,6 +533,27 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			InteractivePremountProps &
 			InteractiveCropProps
 	>;
+};
+
+const create: WithSchema<true> = (untypedOptions: unknown) => {
+	const options = untypedOptions as Omit<
+		WithSchemaImplementationOptions,
+		'schema' | 'componentName'
+	> &
+		Partial<Pick<WithSchemaImplementationOptions, 'schema' | 'componentName'>>;
+
+	return (withSchema as (options: WithSchemaImplementationOptions) => React.FC)(
+		{
+			...options,
+			wrapInSequence: options.wrapInSequence ?? true,
+			schema: options.schema ?? {},
+			componentName:
+				options.componentName ??
+				(options.Component.displayName ||
+					options.Component.name?.replace(/(.+)Inner$/, '$1') ||
+					'Component'),
+		},
+	);
 };
 
 const makeInteractiveElement = <Tag extends InteractiveTag>(
@@ -685,7 +726,17 @@ export const Interactive = {
 	svgStrokeSchema,
 	premountSchema,
 	sequenceSchema,
+	/**
+	 * @deprecated Use `Interactive.create()` instead: https://www.remotion.dev/docs/interactive-create
+	 */
 	withSchema,
+	/**
+	 * @description Creates a component with timing props and editable Studio controls.
+	 * Sequence wrapping defaults to true, schema defaults to {}, and componentName is inferred.
+	 * A trailing "Inner" is removed from inferred function names.
+	 * @see [Documentation](https://www.remotion.dev/docs/interactive-create)
+	 */
+	create,
 	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveTextElement('a', '<Interactive.A>'),
 	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),

@@ -12,13 +12,13 @@ primitives that other components should inherit, rather than requiring an
 additional wrapper around the content.
 
 Use built-in interactive components, media components that support timing, or
-custom components created with `Interactive.withSchema({wrapInSequence: true})`.
+custom components created with `Interactive.create()`.
 Pass `from`, `durationInFrames`, `trimBefore`, `playbackRate`, and
 `name` directly to the component that supports them.
 
 Avoid wrapping one timing-aware component in a `<Sequence>` just to schedule
 or name it. For custom components, prefer adding timing through
-`Interactive.withSchema()` instead of introducing another sequence at each
+`Interactive.create()` instead of introducing another sequence at each
 call site. Keep a direct `<Sequence>` only when a necessary timing boundary
 cannot be expressed by the content components. Specialized containers such as
 `<TransitionSeries.Sequence>` still serve their own sequencing behavior.
@@ -32,7 +32,7 @@ local frame and animation expressions evaluated in its parent.
 
 Discourage `<AbsoluteFill>` as a scene or component wrapper. It often creates
 an additional timeline layer that does not represent useful content. Prefer
-`Interactive.withSchema()` with `wrapInSequence: true` and
+`Interactive.create()` with
 `layout: 'absolute-fill'`: the full-size container shares the component's
 timeline item.
 
@@ -52,14 +52,12 @@ const SceneInner = ({title}: {readonly title: string}) => (
   </>
 );
 
-export const Scene = Interactive.withSchema({
+export const Scene = Interactive.create({
   Component: SceneInner,
-  componentName: 'Scene',
   schema: {
     title: {type: 'string', default: '', description: 'Title'},
     ...Interactive.backgroundSchema,
   },
-  wrapInSequence: true,
   layout: 'absolute-fill',
 });
 
@@ -78,4 +76,4 @@ bounds, such as text boxes or SVGs, can use the default `layout: 'none'` and
 forward `style` to their visual root.
 
 For further guidance, see [Remotion Interactivity](../remotion-interactivity/SKILL.md)
-and the [Interactive.withSchema() API](../../../packages/docs/docs/interactive-with-schema.mdx).
+and the [Interactive.create() API](../../../packages/docs/docs/interactive-create.mdx).
