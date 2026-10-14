@@ -367,6 +367,10 @@ Built-in effects from `@remotion/effects`:
 - Edges: `outline()`, `roughenEdges()`, `shrinkwrap()`, `tear()`.
 - Pixelation and transitions: `evolve()`, `linearProgressivePixelate()`, `pixelate()`, `pixelDissolve()`, `radialProgressivePixelate()`, `venetianBlinds()`.
 
+## Color correction
+
+Read [color-correction.md](color-correction.md) for how to apply color correction, either using the `colorCorrection()` effect or `lut()` to apply a 3D `.cube` color grade.
+
 ## 3D content
 
 See [./3d.md](./3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
