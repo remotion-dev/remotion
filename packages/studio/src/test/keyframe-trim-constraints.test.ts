@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {CodemodsInternals, getNodeProps, getNodes} from '@remotion/codemods';
 import type {EventSourceEvent} from '@remotion/studio-shared';
+import {waitFor} from '@testing-library/react';
 import type {
 	OverrideIdToNodePaths,
 	PropStatuses,
@@ -8,7 +9,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals, interpolate} from 'remotion';
-import {loadKeyframeTrimConstraints} from '../components/Timeline/load-keyframe-trim-constraints';
+import {getKeyframeTrimConstraints} from '../components/Timeline/get-keyframe-trim-constraints';
 import {
 	getTimelineSequenceDurationDragChanges,
 	getTimelineSequenceDurationDragTargets,
@@ -402,7 +403,7 @@ test('converts descendant constraints through offsets and playback rates', () =>
 	).toBe(30);
 });
 
-test('loads only affected source, reuses it, and refreshes constraints after source changes', async () => {
+test('trims synchronously while affected source loads and refreshes cached constraints after changes', async () => {
 	const fixture = makeFixture(
 		'[10, 21, durationInFrames - 18, durationInFrames - 8]',
 		'child',
@@ -427,7 +428,7 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 		},
 	});
 	const load = () =>
-		loadKeyframeTrimConstraints({
+		getKeyframeTrimConstraints({
 			propStatuses: fixture.propStatuses,
 			overrideIdsToNodePaths: fixture.mappings,
 			sequences: fixture.sequences,
@@ -444,27 +445,34 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 				]!,
 		});
 	try {
-		const [first, concurrent] = await Promise.all([load(), load()]);
+		const first = load();
+		const concurrent = load();
+		expect(first).not.toBeInstanceOf(Promise);
+		expect(getTargets(fixture, first, 'parent')[0].minimumDuration).toBe(1);
+		expect(getTargets(fixture, concurrent, 'parent')[0].minimumDuration).toBe(
+			1,
+		);
+		await waitFor(() => {
+			expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(40);
+		});
 		expect(reads.sort()).toEqual([
 			'/trim-test/content.tsx',
 			'/trim-test/parent.tsx',
 		]);
-		expect(getTargets(fixture, first, 'parent')[0].minimumDuration).toBe(40);
-		expect(getTargets(fixture, concurrent, 'parent')[0].minimumDuration).toBe(
-			40,
-		);
-		await load();
+		// Background completion cannot change bounds already captured by an edit.
+		expect(getTargets(fixture, first, 'parent')[0].minimumDuration).toBe(1);
+		load();
 		expect(reads).toHaveLength(2);
 
 		fixture.files['/trim-test/content.tsx'] = fixture.files[
 			'/trim-test/content.tsx'
 		].replace('[10, 21,', '[10, 31,');
 		sourceChanged();
-		const refreshed = await load();
+		expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(1);
+		await waitFor(() => {
+			expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(50);
+		});
 		expect(reads.slice(2)).toEqual(['/trim-test/content.tsx']);
-		expect(getTargets(fixture, refreshed, 'parent')[0].minimumDuration).toBe(
-			50,
-		);
 
 		let finishRead!: (source: string) => void;
 		pendingRead = new Promise((resolve) => {
@@ -474,13 +482,15 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 		const stale = load();
 		sourceChanged();
 		finishRead(fixture.files['/trim-test/content.tsx']);
-		await expect(stale).rejects.toThrow('Source changed');
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(getTargets(fixture, stale, 'parent')[0].minimumDuration).toBe(1);
 		pendingRead = Promise.resolve(null);
-		await expect(load()).rejects.toThrow('Could not load');
+		expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(1);
+		await new Promise((resolve) => setTimeout(resolve, 0));
 		pendingRead = null;
-		expect(getTargets(fixture, await load(), 'parent')[0].minimumDuration).toBe(
-			50,
-		);
+		await waitFor(() => {
+			expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(50);
+		});
 	} finally {
 		emit({type: 'hmr', hmrEvent: {action: 'building'}});
 		window.remotion_browserStudio = previousOperations;

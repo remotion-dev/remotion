@@ -30,19 +30,19 @@ import {
 	isPointerSessionRelease,
 	startDeferredCapturedPointerSession,
 } from '../../helpers/pointer-session';
-import {startPreparedPointerSession} from '../../helpers/start-prepared-pointer-session';
+import {startThresholdPointerSession} from '../../helpers/start-threshold-pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {EditorSnappingContext} from '../../state/editor-snapping';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {showNotification} from '../Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import type {
 	MoveEffectKeyframeChange,
 	MoveSequenceKeyframeChange,
 } from './call-move-keyframe';
+import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {
 	getKeyframedSequenceDragTargets,
 	type TimelineSequenceEffectKeyframeDragTarget,
@@ -56,7 +56,6 @@ import {
 	getTimelineSequenceTimingLimits,
 } from './get-timeline-sequence-timing-limits';
 import {getTimelineTransitionNeighbors} from './get-timeline-transition-neighbors';
-import {loadKeyframeTrimConstraints} from './load-keyframe-trim-constraints';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
@@ -2222,14 +2221,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								})) ?? [])
 					: [];
 			stopPointerSessionRef.current?.();
-			stopPointerSessionRef.current = startPreparedPointerSession({
+			stopPointerSessionRef.current = startThresholdPointerSession({
 				event: downEvent,
 				captureTarget,
 				minimumMovement: isTransitionSeries
 					? timelineSequenceEdgeDragThresholdPx
 					: null,
-				prepare: () =>
-					loadKeyframeTrimConstraints({
+				onCancel: () => {
+					stopPointerSessionRef.current = null;
+					finishDrag(false);
+				},
+				onStart: () => {
+					const preparedPropStatuses = getKeyframeTrimConstraints({
 						propStatuses,
 						overrideIdsToNodePaths,
 						sequences,
@@ -2241,17 +2244,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 									: [target.nodePath, target.ripplePrevious.nodePath]
 								: [target.nodePath],
 						),
-					}),
-				onCancel: () => {
-					stopPointerSessionRef.current = null;
-					finishDrag(false);
-				},
-				onError: (error) =>
-					showNotification(
-						`Could not check trim constraints: ${(error as Error).message}`,
-						3000,
-					),
-				onReady: (preparedPropStatuses) => {
+					});
 					const targets = getTargets(preparedPropStatuses);
 					const draggedKey = stringifySequenceSubscriptionKey(
 						latestNodePathInfo.sequenceSubscriptionKey,
@@ -3440,31 +3433,25 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						}) ?? [])
 					: [];
 			stopPointerSessionRef.current?.();
-			stopPointerSessionRef.current = startPreparedPointerSession({
+			stopPointerSessionRef.current = startThresholdPointerSession({
 				event: downEvent,
 				captureTarget,
 				minimumMovement: isTransitionSeries
 					? timelineSequenceEdgeDragThresholdPx
 					: null,
-				prepare: () =>
-					loadKeyframeTrimConstraints({
+				onCancel: () => {
+					stopPointerSessionRef.current = null;
+					finishDrag(false);
+				},
+				onStart: () => {
+					const preparedPropStatuses = getKeyframeTrimConstraints({
 						propStatuses,
 						overrideIdsToNodePaths,
 						sequences,
 						affectedNodePaths: getTargets(propStatuses).map(
 							(target) => target.nodePath,
 						),
-					}),
-				onCancel: () => {
-					stopPointerSessionRef.current = null;
-					finishDrag(false);
-				},
-				onError: (error) =>
-					showNotification(
-						`Could not check trim constraints: ${(error as Error).message}`,
-						3000,
-					),
-				onReady: (preparedPropStatuses) => {
+					});
 					const targets = getTargets(preparedPropStatuses);
 					const draggedKey = stringifySequenceSubscriptionKey(
 						latestNodePathInfo.sequenceSubscriptionKey,
