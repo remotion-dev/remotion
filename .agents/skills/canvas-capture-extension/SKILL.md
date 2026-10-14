@@ -27,7 +27,7 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
    is installed, use `$install-canvas-capture-browser` to install one.
 
 3. Confirm that the installed directory contains `manifest.json`,
-   `background.js`, `capture.js`, `drag-image.js`, `logo.svg`, `content-scripts/receiver.js`,
+   `background.js`, `capture.js`, `drag-image.js`, `shot-tools.js`, `logo.svg`,
    and the generated extension icons.
 
 ## Develop with React and Vite
@@ -44,6 +44,12 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
 
 Use the separate development directory only for `bun run dev`. Continue using
 the production install directory above for manually loaded builds.
+
+The Remotion pages receive recordings through `externally_connectable`
+messaging; the extension does not inject a receiver content script. To test a
+local destination, set `CANVAS_CAPTURE_HANDOFF_ORIGIN` (for example
+`http://localhost:3000`) when running `bun run dev`. Production builds always
+use `https://www.remotion.dev`.
 
 To select another Chrome 157.0.8080.0 or newer browser, set
 `CANVAS_CAPTURE_BROWSER_EXECUTABLE` to its executable path when running
@@ -71,7 +77,10 @@ To select another Chrome 157.0.8080.0 or newer browser, set
   never from a worktree-local `dist` directory. WXT-managed development builds
   use the separate durable development directory documented above.
 - Enable `chrome://flags/#canvas-draw-element` and restart Chrome when the
-  experimental HTML-in-canvas API is unavailable.
+  experimental HTML-in-canvas API is unavailable. Alternatively, launch with
+  `--enable-features=CanvasDrawElement`; either method is sufficient. Do not add
+  `--enable-blink-features=CanvasDrawElement`, which triggers Chrome's
+  unsupported-command-line warning.
 
 Do not edit Chrome's `Preferences` or `Secure Preferences` files to move or
 reload the extension. Use Chrome's extensions page so its integrity metadata

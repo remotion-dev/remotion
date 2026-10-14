@@ -13,6 +13,7 @@
 		"lint": "bun check && eslint --cache --cache-location ./node_modules/.cache/eslint app"
 	},
 	"dependencies": {
+		"@remotion/studio-shared": "workspace:*",
 		"@mediabunny/mp3-encoder": "catalog:",
 		"@mediabunny/aac-encoder": "catalog:",
 		"@mediabunny/flac-encoder": "catalog:",
