@@ -9,8 +9,6 @@ crumb: 'API'
 
 Wraps a React component with [timing props](/docs/timing) and editable controls in the [Remotion Studio](/docs/studio).
 
-The component is always wrapped in a [`<Sequence>`](/docs/sequence). A [`useCurrentFrame()`](/docs/use-current-frame) call inside the component reads its local frame. You can omit `schema` when the component has no custom controls.
-
 ```tsx twoslash title="Circle.tsx"
 import type React from 'react';
 import {Interactive, type InteractivitySchema} from 'remotion';
