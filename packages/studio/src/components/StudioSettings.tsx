@@ -459,7 +459,20 @@ export const StudioSettings: React.FC = () => {
 							}}
 						>
 							The maximum number of components which may be evaluated for better
-							timeline visualization.
+							timeline visualization. See:{' '}
+							<a
+								href="https://www.remotion.dev/docs/studio/showing-unmounted-components"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									color: BLUE,
+									fontSize: INFO_TOOLTIP_FONT_SIZE,
+									lineHeight: 1.5,
+									textDecoration: 'none',
+								}}
+							>
+								Showing unmounted components
+							</a>
 						</div>
 					</InfoBubble>
 				</div>
@@ -660,9 +673,27 @@ export const StudioSettings: React.FC = () => {
 							}}
 						>
 							Isolates Studio from other websites to enable shared memory and
-							multithreading. Required for @remotion/whisper-web and can speed
-							up ProRes decoding. Media from other websites that requires
-							cookies or authentication may not load. Disabled by default.
+							multithreading. Required for{' '}
+							<code style={{fontFamily: 'monospace'}}>
+								@remotion/whisper-web
+							</code>{' '}
+							and for faster{' '}
+							<code style={{fontFamily: 'monospace'}}>@mediabunny/prores</code>{' '}
+							decoding. The tradeoff is that media from other websites may not
+							load. See:{' '}
+							<a
+								href="https://www.remotion.dev/docs/miscellaneous/cross-origin-isolation"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									color: BLUE,
+									fontSize: INFO_TOOLTIP_FONT_SIZE,
+									lineHeight: 1.5,
+									textDecoration: 'none',
+								}}
+							>
+								Cross-origin isolation
+							</a>
 						</div>
 					</InfoBubble>
 				</div>
@@ -682,7 +713,7 @@ export const StudioSettings: React.FC = () => {
 			</div>
 			<ConfigSelect<LogLevel>
 				defaultLabel="Info"
-				description={null}
+				description="Controls how much detail Remotion writes to the console. Use Info for normal output, Warn or Error for fewer messages, and Verbose or Trace for debugging."
 				name="Log level"
 				onChange={(value) => changeSetting('logLevel', 'setLogLevel', value)}
 				options={BrowserSafeApis.logLevels.map((value) => ({

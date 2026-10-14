@@ -1453,6 +1453,7 @@ const sidebars: SidebarsConfig = {
 				'studio/open-in-editor',
 				'studio/shortcuts',
 				'studio/quick-switcher',
+				'studio/showing-unmounted-components',
 				'studio/interactivity',
 				'studio/interactivity-best-practices',
 				'studio/make-component-interactive',

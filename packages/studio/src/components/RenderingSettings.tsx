@@ -568,11 +568,11 @@ export const RenderingSettings: React.FC = () => {
 			/>
 			<p style={sectionTitle}>Notifications</p>
 			<label style={optionRow}>
-				<div style={label}>Beep on finish</div>
+				<div style={label}>Beep when render finishes</div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={beepOnFinish}
-						name="Beep on finish"
+						name="Beep when render finishes"
 						onChange={(event) => {
 							setBeepOnFinish(event.target.checked);
 							markEdited('setBeepOnFinish');

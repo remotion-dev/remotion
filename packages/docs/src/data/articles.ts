@@ -8915,6 +8915,15 @@ export const articles = [
 		slug: 'studio/shortcuts',
 	},
 	{
+		id: 'studio/showing-unmounted-components',
+		title: 'Showing unmounted components',
+		relativePath: 'docs/studio/showing-unmounted-components.mdx',
+		compId: 'articles-docs-studio-showing-unmounted-components',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/showing-unmounted-components',
+	},
+	{
 		id: 'studio/shut-down-studio',
 		title: 'shutDownStudio()',
 		relativePath: 'docs/studio/shut-down-studio.mdx',
