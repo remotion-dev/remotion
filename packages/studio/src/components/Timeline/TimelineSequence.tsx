@@ -1152,7 +1152,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		sequenceId: s.id,
 		enabled: isEdgeDragging && activeEdgeHighlight !== 'source-only',
 	});
-	const previousCascadingSequenceId = registryEntry?.previousSequenceId ?? null;
 	const previousCascadingOverrideId =
 		registryEntry?.previousOverrideId ??
 		transitionNeighbors?.previous.controls?.overrideId ??
@@ -1249,12 +1248,12 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		) =>
 			startEdgeDrag({
 				edge: 'right',
-				highlightAdjacent: !isTransitionSeriesSequence(s),
+				highlightAdjacent: false,
 				isDragging,
 				showTrimOutline: true,
 				targetNodePaths,
 			}),
-		[startEdgeDrag, s],
+		[startEdgeDrag],
 	);
 	const clearEdgeHighlight = useCallback(() => {
 		edgeHighlightController?.setHighlights([]);
@@ -1811,18 +1810,13 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		validatedLocation !== null &&
 		durationCanResize &&
 		(!isMedia || Boolean(s.loopDisplay) || mediaDurationDragLimits !== null);
-	const isFirstCascadingSequence =
-		isCascadingSequence(s) && previousCascadingSequenceId === null;
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		(isTransitionSeriesSequence(s) ||
-		(isCascadingSequence(s) && !isFirstCascadingSequence)
+		(isCascadingSequence(s)
 			? durationCanUpdate && trimBeforeCanUpdate
-			: isFirstCascadingSequence
-				? trimBeforeCanUpdate
-				: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate);
+			: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate);
 	const canRoll = (previous: TSequence | null, next: TSequence | null) => {
 		if (!previewInteractive || !previous || !next) return false;
 		return [previous, next].every((sequence) => {
@@ -1896,7 +1890,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		hasCaptionsSchema,
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
-		isFirstCascadingSequence,
 		onPointerEnter,
 	};
 };
@@ -1978,7 +1971,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 		hasCaptionsSchema,
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
-		isFirstCascadingSequence,
 		onPointerEnter,
 	} = state;
 	const sceneRange = useContext(TimelineSceneRangeContext);
@@ -2504,11 +2496,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 							handleLayout={trimHandleLayout}
 							edgeOffset={leftEdgeOffset}
 							edgeMode={
-								isTransitionSeriesSequence(s)
-									? 'head-trim'
-									: isFirstCascadingSequence
-										? 'source-only'
-										: 'self-trim'
+								isTransitionSeriesSequence(s) ? 'head-trim' : 'self-trim'
 							}
 							rollingEnabled={rollingEnabled}
 							fillTarget={s.timelineTrack?.role === 'transition'}

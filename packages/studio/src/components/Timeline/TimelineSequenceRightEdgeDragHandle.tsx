@@ -1393,8 +1393,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 								track.sequence.duration -
 								track.cascadedStart) *
 							track.keyframePlaybackRate
-						: isSeriesSequence(originalSequence) ||
-							  typeof runtimeDuration !== 'number' ||
+						: typeof runtimeDuration !== 'number' ||
 							  !Number.isFinite(runtimeDuration)
 							? originalSequence.duration
 							: runtimeDuration / playbackRate) - hiddenStartInParentFrames,
@@ -2298,12 +2297,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 							return;
 						}
 
-						const pointerDeltaFrames = Math.round(dx / dragState.pxPerFrame);
-						const deltaFrames =
-							dragState.mode === 'self-trim' &&
-							draggedTarget?.positionField === null
-								? -pointerDeltaFrames
-								: pointerDeltaFrames;
+						const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 						dragState.latestDeltaFrames = deltaFrames;
 						if (
 							Math.abs(dx) >= timelineSequenceEdgeDragThresholdPx ||
