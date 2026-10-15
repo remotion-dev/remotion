@@ -7,6 +7,7 @@ export {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
 // when the sequence manager falls back to effects.
 export const SequenceActivityContext = createContext(false);
 export const SequenceActivityDormantContext = createContext(false);
+export const SequenceActivitySuspensionContext = createContext(false);
 export const SequenceActivitySettingsContext = createContext<{
 	readonly limit: number;
 } | null>(null);
