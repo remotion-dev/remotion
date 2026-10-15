@@ -16,6 +16,9 @@ export const PortfolioCompositions: React.FC = () => {
 			<Composition
 				id="Portfolio"
 				component={Portfolio}
+				defaultProps={{
+					style: {backgroundColor: '#0B0B0F', overflow: 'visible'},
+				}}
 				durationInFrames={1530}
 				fps={30}
 				width={1920}
@@ -25,6 +28,14 @@ export const PortfolioCompositions: React.FC = () => {
 				<Composition
 					id="Intro"
 					component={Intro}
+					defaultProps={{
+						style: {
+							backgroundColor: '#0B0B0F',
+							justifyContent: 'center',
+							alignItems: 'center',
+							overflow: 'visible',
+						},
+					}}
 					durationInFrames={150}
 					fps={30}
 					width={1920}
@@ -33,6 +44,9 @@ export const PortfolioCompositions: React.FC = () => {
 				<Composition
 					id="KineticType"
 					component={KineticType}
+					defaultProps={{
+						style: {backgroundColor: '#FF4A1C', overflow: 'visible'},
+					}}
 					durationInFrames={255}
 					fps={30}
 					width={1920}
@@ -41,6 +55,9 @@ export const PortfolioCompositions: React.FC = () => {
 				<Composition
 					id="ShapeMorph"
 					component={ShapeMorph}
+					defaultProps={{
+						style: {backgroundColor: '#0B0B0F', overflow: 'visible'},
+					}}
 					durationInFrames={207}
 					fps={30}
 					width={1920}
@@ -49,6 +66,9 @@ export const PortfolioCompositions: React.FC = () => {
 				<Composition
 					id="DataViz"
 					component={DataViz}
+					defaultProps={{
+						style: {backgroundColor: '#F3EFE6', overflow: 'visible'},
+					}}
 					durationInFrames={204}
 					fps={30}
 					width={1920}
@@ -57,6 +77,14 @@ export const PortfolioCompositions: React.FC = () => {
 				<Composition
 					id="Interface"
 					component={Interface}
+					defaultProps={{
+						style: {
+							backgroundColor: '#0E0F13',
+							backgroundImage:
+								'radial-gradient(circle at 70% 48%, rgba(255, 74, 28, 0.22), transparent 42%), radial-gradient(circle at 12% 92%, rgba(96, 110, 255, 0.12), transparent 40%)',
+							overflow: 'visible',
+						},
+					}}
 					durationInFrames={252}
 					fps={30}
 					width={1920}
@@ -65,6 +93,9 @@ export const PortfolioCompositions: React.FC = () => {
 				<Composition
 					id="Generative"
 					component={Generative}
+					defaultProps={{
+						style: {backgroundColor: '#0B0B0F', overflow: 'visible'},
+					}}
 					durationInFrames={195}
 					fps={30}
 					width={1920}
@@ -73,6 +104,9 @@ export const PortfolioCompositions: React.FC = () => {
 				<Composition
 					id="CubeWave"
 					component={CubeWave}
+					defaultProps={{
+						style: {backgroundColor: '#F3EFE6', overflow: 'visible'},
+					}}
 					durationInFrames={210}
 					fps={30}
 					width={1920}
@@ -81,6 +115,9 @@ export const PortfolioCompositions: React.FC = () => {
 				<Composition
 					id="Outro"
 					component={Outro}
+					defaultProps={{
+						style: {backgroundColor: '#0B0B0F', overflow: 'visible'},
+					}}
 					durationInFrames={195}
 					fps={30}
 					width={1920}

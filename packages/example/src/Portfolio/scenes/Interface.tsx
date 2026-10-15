@@ -2,7 +2,6 @@ import {Audio} from '@remotion/media';
 import {evolvePath} from '@remotion/paths';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Track,
 	Easing,
 	Interactive,
@@ -876,17 +875,11 @@ const AppWindow: React.FC = () => {
 	);
 };
 
-export const Interface: React.FC = () => {
+const InterfaceInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: '#0E0F13',
-				backgroundImage:
-					'radial-gradient(circle at 70% 48%, rgba(255, 74, 28, 0.22), transparent 42%), radial-gradient(circle at 12% 92%, rgba(96, 110, 255, 0.12), transparent 40%)',
-			}}
-		>
+		<>
 			<div
 				style={{
 					position: 'absolute',
@@ -1037,6 +1030,12 @@ export const Interface: React.FC = () => {
 					volume={0.22}
 				/>
 			</Track>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const Interface = Interactive.create({
+	Component: InterfaceInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});
