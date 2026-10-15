@@ -15,9 +15,19 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Prefer interactive components with their own timelines
 
+Design the timeline around meaningful editable content: scenes, text, media,
+and groups that move together. Give each such item one interactive owner.
+Layout-only containers should be plain HTML, and wrappers that do nothing
+should be fragments. Do not make every DOM node a timeline item.
+
 Use `Interactive.create({layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, dimensions, and per-instance styles on the exported component.
 
 Keep visuals that belong together in the same component, so they move and trim together. An inner layout container can still provide alignment, clipping within a smaller area, or an animated group; a container that only fills the scene is usually unnecessary. Cards, text boxes, and SVGs with their own bounds can keep the default `layout: 'none'` and forward `style` to their visual root.
+
+For reusable text components, layout-only groups, and migrations from nested
+`Sequence` and `AbsoluteFill` wrappers, read
+[Timeline structure](timeline-structure.md). It covers choosing the interactive
+owner and preserving the rendered layout while simplifying the timeline.
 
 ```tsx title="Scene.tsx"
 import {Video} from '@remotion/media';

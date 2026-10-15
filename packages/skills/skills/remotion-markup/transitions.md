@@ -18,6 +18,14 @@ full-frame canvas outline.
 
 Children are absolutely positioned.
 
+In custom transition presentations, use a fragment when the root only groups
+children. Use plain positioned HTML for masks, clipping, and moving panels
+that implement the transition. Avoid `AbsoluteFill` or interactive wrappers
+whose only purpose is transition layout; they add rows without useful editable
+content. Keep the `TransitionSeries.Sequence` boundaries and preserve the
+presentation's clipping and transforms. See
+[Timeline structure](../remotion-interactivity/timeline-structure.md).
+
 ## Prerequisites
 
 ```bash

@@ -34,6 +34,9 @@ wrapper handles layout and instance styles. Sized elements such as lower thirds
 can keep the default layout and forward `style` to their own root. Register
 reusable scenes as connected compositions.
 Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
+Give each editable item one interactive owner; use plain HTML for layout-only
+containers. When choosing wrappers or refactoring an existing composition, read
+[Timeline structure](../remotion-interactivity/timeline-structure.md).
 
 The Studio edits the JSX source node that created an item. Author every composition registration, clip, scene, layer and sequence that should be editable independently as its own JSX node, with its editable props inline.
 Programmatic loops are suitable when the generated instances are intentionally controlled as one source template, not when users need to edit the instances
@@ -195,7 +198,7 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
   style,
 }) => {
   return (
-    <Interactive.Div
+    <div
       style={{
         position: "absolute",
         left: 80,
@@ -222,12 +225,13 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
         }}
       />
       {children}
-    </Interactive.Div>
+    </div>
   );
 };
 
 const lowerThirdSchema = {
   ...Interactive.childrenSchema,
+  ...Interactive.textSchema,
   accentColor: {
     type: "color",
     default: "#0b84f3",

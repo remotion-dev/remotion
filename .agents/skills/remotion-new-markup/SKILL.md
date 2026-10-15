@@ -5,6 +5,15 @@ description: Write or refactor Remotion markup using components that inherit tim
 
 # New Remotion Markup
 
+Design timeline rows around editable content, not the DOM tree. Give each scene,
+text item, media clip, or meaningful group one interactive owner. Use plain HTML
+for layout-only containers and fragments for wrappers with no remaining purpose.
+
+Read the public [Timeline structure guide](../../../packages/skills/skills/remotion-interactivity/timeline-structure.md)
+for reusable text components, custom transition wrappers, and the layout checks
+needed when refactoring. Keep reusable guidance there so it also ships with the
+public markup and interactivity skills.
+
 ## Put timing on the content component
 
 Discourage direct use of `<Sequence>` in new markup. It provides timing
