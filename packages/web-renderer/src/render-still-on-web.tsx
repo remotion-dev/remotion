@@ -184,7 +184,6 @@ async function internalRenderStillOnWeb<
 		});
 	}
 
-	const artifactsHandler = handleArtifacts();
 	const waitForRenderReady = async () => {
 		await waitForReady({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
@@ -232,7 +231,7 @@ async function internalRenderStillOnWeb<
 
 			const assets = collectAssets.current!.collectAssets();
 			if (onArtifact) {
-				await artifactsHandler.handle({
+				await handleArtifacts().handle({
 					imageData: canvas,
 					frame: request.frame,
 					assets,
