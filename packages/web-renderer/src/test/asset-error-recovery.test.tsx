@@ -150,6 +150,7 @@ test.each(['image', 'canvas'] as const)(
 				transitioning.resolve();
 				throw replacementReady.promise;
 			}
+
 			return assets[kind](current, async () => {
 				entered.resolve();
 				await decision.promise;
