@@ -1,6 +1,7 @@
 import React, {useContext, useMemo} from 'react';
 import {
 	SequenceActivityAbsoluteTimeContext,
+	SequenceActivityDiscoveryContext,
 	SequenceActivityDormantContext,
 	SequenceActivityRevisionContext,
 	SequenceActivitySettingsContext,
@@ -18,6 +19,21 @@ import {useVideoConfig} from './use-video-config.js';
 const SequenceActivityParkingContext =
 	React.createContext<Promise<void> | null>(null);
 const useCommitEffect = React.useInsertionEffect ?? React.useLayoutEffect;
+
+const SequenceActivityDiscoveryCommit: React.FC<{
+	readonly children: React.ReactNode;
+	readonly activity: object;
+	readonly discovery: React.ContextType<
+		typeof SequenceActivityDiscoveryContext
+	>;
+}> = ({children, activity, discovery}) => {
+	// Unlike layout effects, insertion effects run in hidden Activities. This
+	// marker is inside Suspense so suspended content cannot acknowledge early.
+	useCommitEffect(() => {
+		discovery?.commit(activity);
+	}, [activity, discovery]);
+	return children;
+};
 
 const areActivityChildrenEqual = (
 	previous: React.ReactNode,
@@ -88,9 +104,15 @@ type SequenceActivityBoundaryProps = {
 };
 
 const SequenceActivityBoundaryInner = React.memo<
-	SequenceActivityBoundaryProps & {readonly parked: boolean}
+	SequenceActivityBoundaryProps & {
+		readonly parked: boolean;
+		readonly activity: object;
+		readonly discovery: React.ContextType<
+			typeof SequenceActivityDiscoveryContext
+		>;
+	}
 >(
-	({children, dormant, frame, parked}) => {
+	({children, dormant, frame, parked, activity, discovery}) => {
 		const settings = useContext(SequenceActivitySettingsContext);
 		const stableTimeline = settings?.enabled === true && settings.limit === -1;
 		const parking = useMemo(() => {
@@ -163,7 +185,12 @@ const SequenceActivityBoundaryInner = React.memo<
 											value={parking?.promise ?? null}
 										>
 											<React.Suspense fallback={null}>
-												{children}
+												<SequenceActivityDiscoveryCommit
+													activity={activity}
+													discovery={discovery}
+												>
+													{children}
+												</SequenceActivityDiscoveryCommit>
 											</React.Suspense>
 										</SequenceActivityParkingContext.Provider>
 									) : (
@@ -185,9 +212,16 @@ export const SequenceActivityBoundary: React.FC<
 > = (props) => {
 	const revision = useContext(SequenceActivityRevisionContext);
 	const settled = useContext(SequenceActivitySettledContext);
+	const discovery = useContext(SequenceActivityDiscoveryContext);
+	const activity = useMemo(() => ({}), []);
+	// This boundary commits even when React defers its hidden children. Register
+	// here so an unfinished Activity keeps discovery open until its marker commits.
+	useCommitEffect(() => discovery?.register(activity), [activity, discovery]);
 	return (
 		<SequenceActivityBoundaryInner
 			{...props}
+			activity={activity}
+			discovery={discovery}
 			parked={props.dormant && revision !== null && settled === revision}
 		/>
 	);

@@ -15,6 +15,7 @@ import {
 	reconcileRegistryEntries,
 } from './registry-store.js';
 import {
+	SequenceActivityDiscoveryContext,
 	SequenceActivityRevisionContext,
 	SequenceActivitySettingsContext,
 	SequenceActivitySettledContext,
@@ -84,29 +85,29 @@ export const SequenceRegistryProvider: React.FC<{
 	useIsomorphicLayoutEffect(() => {
 		activitySettledRef.current = activitySettled;
 	}, [activitySettled]);
-	useIsomorphicLayoutEffect(() => {
+	const activityDiscovery = useMemo(() => {
 		if (!stableTimelineEnabled || activityRevision === null) {
-			return;
+			return null;
 		}
 
-		// Allow initial hidden commits, duration inference, and source discovery to
-		// settle before parking. New editing revisions repeat this discovery pass.
-		let timer: ReturnType<typeof setTimeout>;
-		const schedule = () => {
-			clearTimeout(timer);
-			timer = setTimeout(() => {
-				setSettledActivityRevision(activityRevision);
-			}, 100);
+		const activities = new Set<object>();
+		const committed = new Set<object>();
+		return {
+			register: (activity: object) => {
+				activities.add(activity);
+				return () => {
+					activities.delete(activity);
+					committed.delete(activity);
+				};
+			},
+			commit: (activity: object) => {
+				// Child insertion effects can run before the boundary registers.
+				committed.add(activity);
+			},
+			isComplete: () =>
+				[...activities].every((activity) => committed.has(activity)),
 		};
-
-		const unsubscribe = registry.subscribe(schedule);
-		schedule();
-
-		return () => {
-			clearTimeout(timer);
-			unsubscribe();
-		};
-	}, [activityRevision, registry, stableTimelineEnabled]);
+	}, [activityRevision, stableTimelineEnabled]);
 	const setSequences = registry.setSnapshot;
 	const sequencesRef = useMemo<SequenceManagerRef>(
 		() => ({
@@ -251,14 +252,38 @@ export const SequenceRegistryProvider: React.FC<{
 
 		const onCommitOrder = (event: Event) => {
 			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
+			if (commitRegistrationEnabled) {
+				if (
+					activityDiscovery !== null &&
+					!activitySettledRef.current &&
+					detail.sequenceManagers.some(
+						(item) =>
+							item.managerId === sequenceManagerId ||
+							committedScopesRef.current.has(item.managerId) ||
+							pendingCommittedSequencesRef.current.has(item.managerId),
+					)
+				) {
+					// The observer queues registry publication before this event. Check
+					// acknowledgements after that publication, never during a partial commit.
+					queueMicrotask(() => {
+						if (
+							!unmounted &&
+							!registrationObserverFailedRef.current &&
+							pendingCommittedSequencesRef.current.size === 0 &&
+							activityDiscovery.isComplete()
+						) {
+							setSettledActivityRevision(activityRevision);
+						}
+					});
+				}
+
+				return;
+			}
+
 			const managerOrder = detail.sequenceManagers.find(
 				(item) => item.managerId === sequenceManagerId,
 			);
 			if (!managerOrder) {
-				return;
-			}
-
-			if (commitRegistrationEnabled) {
 				return;
 			}
 
@@ -344,6 +369,8 @@ export const SequenceRegistryProvider: React.FC<{
 		setSequences,
 		commitRegistrationEnabled,
 		onCommitSequences,
+		activityDiscovery,
+		activityRevision,
 	]);
 
 	const registerSequence = useCallback(
@@ -428,7 +455,11 @@ export const SequenceRegistryProvider: React.FC<{
 							<SequenceActivitySettledContext.Provider
 								value={activitySettled ? activityRevision : null}
 							>
-								{children}
+								<SequenceActivityDiscoveryContext.Provider
+									value={activityDiscovery}
+								>
+									{children}
+								</SequenceActivityDiscoveryContext.Provider>
 							</SequenceActivitySettledContext.Provider>
 						</SequenceCommitRegistrationContext.Provider>
 					</SequenceRegistryContext.Provider>

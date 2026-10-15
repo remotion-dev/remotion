@@ -16,6 +16,10 @@ export const SequenceActivityRevisionContext = createContext<object | null>(
 export const SequenceActivitySettledContext = createContext<object | null>(
 	null,
 );
+export const SequenceActivityDiscoveryContext = createContext<{
+	readonly register: (activity: object) => () => void;
+	readonly commit: (activity: object) => void;
+} | null>(null);
 export const SequenceActivitySettingsContext = createContext<{
 	readonly enabled: boolean;
 	readonly limit: number;
