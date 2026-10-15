@@ -19,6 +19,7 @@ import type {
 	RemotionSharedMemoryCapture,
 } from './remotion-shared-memory';
 import {renderFrame} from './render-frame';
+import {FRAME_TIMEOUT_TOKEN} from './render-frame-with-option-to-reject';
 import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 import type {BrowserReplacer} from './replace-browser';
 
@@ -172,12 +173,18 @@ export const renderFrameAndRetryTargetClose = async ({
 			NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
 		);
 		const flakyNetworkError = isFlakyNetworkError(err as Error);
+		const frameTimedOut = (err as Error).message?.includes(FRAME_TIMEOUT_TOKEN);
 
 		if (isUserCancelledRender(err) && !shouldRetryError) {
 			throw err;
 		}
 
-		if (!isTargetClosedError && !shouldRetryError && !flakyNetworkError) {
+		if (
+			!isTargetClosedError &&
+			!shouldRetryError &&
+			!flakyNetworkError &&
+			!frameTimedOut
+		) {
 			throw err;
 		}
 
@@ -191,12 +198,14 @@ export const renderFrameAndRetryTargetClose = async ({
 					indent,
 					logLevel,
 				},
-				`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
+				frameTimedOut
+					? `Frame ${frame} got stuck on attempt ${attempt}. Not retrying anymore.`
+					: `The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 			);
 			throw err;
 		}
 
-		if (shouldRetryError) {
+		if (shouldRetryError || frameTimedOut) {
 			const pool = await poolPromise;
 			// Retire shared-memory pools before closing the timed-out page.
 			await remotionSharedMemory?.forgetPage(freePage);
@@ -213,9 +222,13 @@ export const renderFrameAndRetryTargetClose = async ({
 			pool.release(newPage);
 			Log.warn(
 				{indent, logLevel},
-				`delayRender() timed out while rendering frame ${frame}: ${(err as Error).message}`,
+				frameTimedOut
+					? `${(err as Error).message} Retrying on a new tab.`
+					: `delayRender() timed out while rendering frame ${frame}: ${(err as Error).message}`,
 			);
-			const actualRetriesLeft = getRetriesLeftFromError(err as Error);
+			const actualRetriesLeft = frameTimedOut
+				? retriesLeft - 1
+				: getRetriesLeftFromError(err as Error);
 			nextFrameToRender.returnFrame(frame);
 
 			return renderFrameAndRetryTargetClose({

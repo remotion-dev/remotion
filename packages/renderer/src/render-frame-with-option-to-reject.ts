@@ -26,6 +26,8 @@ import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {takeFrame} from './take-frame';
 
+export const FRAME_TIMEOUT_TOKEN = 'Timed out rendering frame';
+
 export const renderFrameWithOptionToReject = async ({
 	reject,
 	width,
@@ -126,6 +128,7 @@ export const renderFrameWithOptionToReject = async ({
 	let pageError: Error | null = null;
 	const errorCallbackOnFrame = (err: Error) => {
 		pageError ??= err;
+		clearTimeout(frameTimeout);
 		reject(err);
 	};
 
@@ -135,6 +138,14 @@ export const renderFrameWithOptionToReject = async ({
 		frame,
 	});
 	page.on('error', errorCallbackOnFrame);
+	const frameTimeout = setTimeout(() => {
+		errorCallbackOnFrame(
+			new Error(
+				`${FRAME_TIMEOUT_TOKEN} ${frame} after ${timeoutInMilliseconds * 2}ms (twice the timeoutInMilliseconds). The browser tab is stuck and was closed.`,
+			),
+		);
+		page.close().catch(() => undefined);
+	}, timeoutInMilliseconds * 2);
 	let pageListenersCleaned = false;
 	const cleanupPageListeners = () => {
 		if (pageListenersCleaned) {
@@ -142,6 +153,7 @@ export const renderFrameWithOptionToReject = async ({
 		}
 
 		pageListenersCleaned = true;
+		clearTimeout(frameTimeout);
 		cleanupPageError();
 		page.off('error', errorCallbackOnFrame);
 	};
