@@ -31,6 +31,8 @@ import {config} from '@remotion/eslint-config-flat';
 export default config;
 ```
 
+The flat config also registers `eslint-plugin-react`, so you can enable additional `react/*` rules in a config object after `...config`. Its recommended preset is not enabled by default.
+
 To apply Remotion-specific rules only to part of an existing project, use `makeConfig()`:
 
 ```js title="eslint.config.mjs"
