@@ -22,7 +22,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "ISC",
 	"dependencies": {
-		"typescript-eslint": "8.21.0"
+		"typescript-eslint": "8.71.2"
 	},
 	"peerDependencies": {
 		"eslint": ">=9"
