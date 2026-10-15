@@ -23,7 +23,6 @@ import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {SequencePlaybackRateE2e} from './SequencePlaybackRateE2e';
 import {SourceSubscriptionChurn} from './SourceSubscriptionChurn';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
-import {TrackAudioIntrinsicDurationE2e} from './TrackAudioIntrinsicDurationE2e';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
 import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
@@ -35,14 +34,6 @@ import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
-			<Composition
-				id="track-audio-intrinsic-duration"
-				component={TrackAudioIntrinsicDurationE2e}
-				durationInFrames={90}
-				fps={30}
-				width={1280}
-				height={720}
-			/>
 			<Composition
 				id="hidden-clip-drag-preview"
 				component={HiddenClipDragPreview}
