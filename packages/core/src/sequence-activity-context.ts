@@ -7,6 +7,15 @@ export {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
 // experiment is disabled when the sequence manager falls back to effects.
 export const SequenceActivityContext = createContext(false);
 export const SequenceActivityDormantContext = createContext(false);
+// The unlimited Activity prototype treats the discovered timeline as stable
+// between source/prop/editor revisions. Seeking is not an editing revision.
+export const SequenceActivitySourceRevisionContext = createContext(0);
+export const SequenceActivityRevisionContext = createContext<object | null>(
+	null,
+);
+export const SequenceActivitySettledContext = createContext<object | null>(
+	null,
+);
 export const SequenceActivitySettingsContext = createContext<{
 	readonly enabled: boolean;
 	readonly limit: number;

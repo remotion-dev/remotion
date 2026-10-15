@@ -15,6 +15,11 @@ import {
 	reconcileRegistryEntries,
 } from './registry-store.js';
 import {
+	SequenceActivityRevisionContext,
+	SequenceActivitySettingsContext,
+	SequenceActivitySettledContext,
+} from './sequence-activity-context.js';
+import {
 	SequenceManagerRefContext,
 	SequenceManagerActionsContext,
 	SequenceRegistryScopeContext,
@@ -60,6 +65,48 @@ export const SequenceRegistryProvider: React.FC<{
 	const committedOrderRef = useRef<ReadonlyMap<string, number> | null>(null);
 	const committedOrderIdsRef = useRef<readonly string[] | null>(null);
 	const [registry] = useState(() => createRegistryStore<TSequence[]>([]));
+	const activityRevision = useContext(SequenceActivityRevisionContext);
+	const activitySettings = useContext(SequenceActivitySettingsContext);
+	const stableTimelineEnabled =
+		isStudio &&
+		commitRegistrationEnabled &&
+		activitySettings?.enabled === true &&
+		activitySettings.limit === -1 &&
+		typeof React.Activity !== 'undefined';
+	const [settledActivityRevision, setSettledActivityRevision] = useState<
+		object | null
+	>(null);
+	const activitySettled =
+		stableTimelineEnabled &&
+		activityRevision !== null &&
+		settledActivityRevision === activityRevision;
+	const activitySettledRef = useRef(false);
+	useIsomorphicLayoutEffect(() => {
+		activitySettledRef.current = activitySettled;
+	}, [activitySettled]);
+	useIsomorphicLayoutEffect(() => {
+		if (!stableTimelineEnabled || activityRevision === null) {
+			return;
+		}
+
+		// Allow initial hidden commits, duration inference, and source discovery to
+		// settle before parking. New editing revisions repeat this discovery pass.
+		let timer: ReturnType<typeof setTimeout>;
+		const schedule = () => {
+			clearTimeout(timer);
+			timer = setTimeout(() => {
+				setSettledActivityRevision(activityRevision);
+			}, 100);
+		};
+
+		const unsubscribe = registry.subscribe(schedule);
+		schedule();
+
+		return () => {
+			clearTimeout(timer);
+			unsubscribe();
+		};
+	}, [activityRevision, registry, stableTimelineEnabled]);
 	const setSequences = registry.setSnapshot;
 	const sequencesRef = useMemo<SequenceManagerRef>(
 		() => ({
@@ -75,9 +122,12 @@ export const SequenceRegistryProvider: React.FC<{
 			snapshot: readonly TSequence[],
 			sequenceIds: readonly string[],
 		) => {
+			// The prototype retains one authored snapshot between editing revisions.
+			// Its imperative frame getters and runtime-value stores remain live.
 			if (
 				registrationObserverFailedRef.current ||
-				registrationUnmountedRef.current
+				registrationUnmountedRef.current ||
+				activitySettledRef.current
 			) {
 				return;
 			}
@@ -108,7 +158,8 @@ export const SequenceRegistryProvider: React.FC<{
 				if (
 					pending.size === 0 ||
 					registrationObserverFailedRef.current ||
-					registrationUnmountedRef.current
+					registrationUnmountedRef.current ||
+					activitySettledRef.current
 				) {
 					return;
 				}
@@ -374,7 +425,11 @@ export const SequenceRegistryProvider: React.FC<{
 						<SequenceCommitRegistrationContext.Provider
 							value={commitRegistrationEnabled}
 						>
-							{children}
+							<SequenceActivitySettledContext.Provider
+								value={activitySettled ? activityRevision : null}
+							>
+								{children}
+							</SequenceActivitySettledContext.Provider>
 						</SequenceCommitRegistrationContext.Provider>
 					</SequenceRegistryContext.Provider>
 				</SequenceManagerActionsContext.Provider>

@@ -2,14 +2,22 @@ import React, {useContext, useMemo} from 'react';
 import {
 	SequenceActivityAbsoluteTimeContext,
 	SequenceActivityDormantContext,
+	SequenceActivityRevisionContext,
+	SequenceActivitySettingsContext,
+	SequenceActivitySettledContext,
 	SequenceActivityTimelineContext,
 } from './sequence-activity-context.js';
 import {
 	AbsoluteTimeContext,
+	SetTimelineContext,
 	TimelineContext,
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {useVideoConfig} from './use-video-config.js';
+
+const SequenceActivityParkingContext =
+	React.createContext<Promise<void> | null>(null);
+const useCommitEffect = React.useInsertionEffect ?? React.useLayoutEffect;
 
 const areActivityChildrenEqual = (
 	previous: React.ReactNode,
@@ -59,67 +67,128 @@ export const SequenceActivityContent = React.memo<{
 	readonly children: React.ReactNode;
 	readonly dormant: boolean;
 }>(
-	({children}) => children,
+	({children, dormant}) => {
+		const parkedScene = useContext(SequenceActivityParkingContext);
+		if (dormant && parkedScene !== null) {
+			throw parkedScene;
+		}
+
+		return children;
+	},
 	(previous, next) =>
 		previous.dormant &&
 		next.dormant &&
 		areActivityChildrenEqual(previous.children, next.children),
 );
 
-export const SequenceActivityBoundary: React.FC<{
+type SequenceActivityBoundaryProps = {
 	readonly children: React.ReactNode;
 	readonly dormant: boolean;
 	readonly frame: number;
-}> = ({children, dormant, frame}) => {
-	const parentDormant = useContext(SequenceActivityDormantContext);
-	const timeline = useContext(
-		parentDormant ? SequenceActivityTimelineContext : TimelineContext,
-	);
-	const absoluteTime = useContext(
-		parentDormant ? SequenceActivityAbsoluteTimeContext : AbsoluteTimeContext,
-	);
-	const {id} = useVideoConfig();
-	if (timeline === null) {
-		throw new Error('TimelineContext is missing');
-	}
+};
 
-	const {audioAndVideoTags} = timeline;
-	const dormantTimeline = useMemo<TimelineContextValue>(
-		() => ({
-			frame: {[id]: frame},
-			isPlaying: () => false,
-			isInsideFreeze: true,
-			audioAndVideoTags,
-		}),
-		[audioAndVideoTags, frame, id],
-	);
+const SequenceActivityBoundaryInner = React.memo<
+	SequenceActivityBoundaryProps & {readonly parked: boolean}
+>(
+	({children, dormant, frame, parked}) => {
+		const settings = useContext(SequenceActivitySettingsContext);
+		const stableTimeline = settings?.enabled === true && settings.limit === -1;
+		const parking = useMemo(() => {
+			if (!parked) {
+				return null;
+			}
 
-	// Keep the providers and Activity at the same position when activating a
-	// scene. Unlike Freeze, discovery does not reset SequenceContext origins or
-	// disable Series duration inference.
-	return (
-		<SequenceActivityDormantContext.Provider value={dormant}>
-			<SequenceActivityTimelineContext.Provider
-				value={dormant ? dormantTimeline : null}
-			>
-				<SequenceActivityAbsoluteTimeContext.Provider
+			let resume: () => void = () => undefined;
+			const promise = new Promise<void>((resolve) => {
+				resume = resolve;
+			});
+			return {promise, resume};
+		}, [parked]);
+		// Release React's retry listeners on activation, revision changes, or
+		// unmount. A shared never-resolving promise would retain old boundaries.
+		useCommitEffect(() => () => parking?.resume(), [parking]);
+		const parentDormant = useContext(SequenceActivityDormantContext);
+		const timeline = useContext(
+			parked || parentDormant
+				? SequenceActivityTimelineContext
+				: TimelineContext,
+		);
+		const absoluteTime = useContext(
+			parked || parentDormant
+				? SequenceActivityAbsoluteTimeContext
+				: AbsoluteTimeContext,
+		);
+		const setTimeline = useContext(SetTimelineContext);
+		const {id} = useVideoConfig();
+		if (!parked && timeline === null) {
+			throw new Error('TimelineContext is missing');
+		}
+
+		// A parked root has no discovery clock above it. Read the stable media ref
+		// without subscribing to the live timeline just to construct a frozen clock.
+		const audioAndVideoTags =
+			timeline?.audioAndVideoTags ?? setTimeline.audioAndVideoTags;
+		const dormantTimeline = useMemo<TimelineContextValue>(
+			() => ({
+				frame: {[id]: frame},
+				isPlaying: () => false,
+				isInsideFreeze: true,
+				audioAndVideoTags,
+			}),
+			[audioAndVideoTags, frame, id],
+		);
+
+		// Keep the providers and Activity at the same position when activating a
+		// scene. Unlike Freeze, discovery does not reset SequenceContext origins or
+		// disable Series duration inference.
+		return (
+			<SequenceActivityDormantContext.Provider value={dormant}>
+				<SequenceActivityTimelineContext.Provider
 					value={dormant ? dormantTimeline : null}
 				>
-					<TimelineContext.Provider
-						value={dormant ? dormantTimeline : timeline}
+					<SequenceActivityAbsoluteTimeContext.Provider
+						value={dormant ? dormantTimeline : null}
 					>
-						<AbsoluteTimeContext.Provider
-							value={dormant ? dormantTimeline : absoluteTime}
+						<TimelineContext.Provider
+							value={dormant ? dormantTimeline : timeline}
 						>
-							<React.Activity
-								mode={dormant && !parentDormant ? 'hidden' : 'visible'}
+							<AbsoluteTimeContext.Provider
+								value={dormant ? dormantTimeline : absoluteTime}
 							>
-								{children}
-							</React.Activity>
-						</AbsoluteTimeContext.Provider>
-					</TimelineContext.Provider>
-				</SequenceActivityAbsoluteTimeContext.Provider>
-			</SequenceActivityTimelineContext.Provider>
-		</SequenceActivityDormantContext.Provider>
+								<React.Activity
+									mode={dormant && !parentDormant ? 'hidden' : 'visible'}
+								>
+									{stableTimeline ? (
+										<SequenceActivityParkingContext.Provider
+											value={parking?.promise ?? null}
+										>
+											<React.Suspense fallback={null}>
+												{children}
+											</React.Suspense>
+										</SequenceActivityParkingContext.Provider>
+									) : (
+										children
+									)}
+								</React.Activity>
+							</AbsoluteTimeContext.Provider>
+						</TimelineContext.Provider>
+					</SequenceActivityAbsoluteTimeContext.Provider>
+				</SequenceActivityTimelineContext.Provider>
+			</SequenceActivityDormantContext.Provider>
+		);
+	},
+	(previous, next) => previous.parked && next.parked,
+);
+
+export const SequenceActivityBoundary: React.FC<
+	SequenceActivityBoundaryProps
+> = (props) => {
+	const revision = useContext(SequenceActivityRevisionContext);
+	const settled = useContext(SequenceActivitySettledContext);
+	return (
+		<SequenceActivityBoundaryInner
+			{...props}
+			parked={props.dormant && revision !== null && settled === revision}
+		/>
 	);
 };

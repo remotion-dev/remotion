@@ -189,6 +189,7 @@ import {createRuntimeValueStore} from './runtime-value-store.js';
 import {
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivitySettingsContext,
+	SequenceActivitySourceRevisionContext,
 	SequenceContent,
 } from './sequence-activity-context.js';
 import {resolveSequenceCrop} from './sequence-crop.js';
@@ -411,6 +412,7 @@ export const Internals = {
 	SequenceContent,
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivitySettingsContext,
+	SequenceActivitySourceRevisionContext,
 	SequenceWithoutSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,

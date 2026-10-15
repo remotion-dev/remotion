@@ -1,8 +1,12 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 export * from './sequence-registry-context.js';
+import {CompositionManager} from './CompositionManagerContext.js';
+import {EditorPropsContext} from './EditorProps.js';
 import {
 	SequenceActivityContext,
+	SequenceActivityRevisionContext,
 	SequenceActivitySettingsContext,
+	SequenceActivitySourceRevisionContext,
 } from './sequence-activity-context.js';
 import {
 	SequenceManagerActionsContext,
@@ -338,6 +342,10 @@ const effectDragOverridesKey = (
 export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
+	const sourceRevision = useContext(SequenceActivitySourceRevisionContext);
+	const activitySettings = useContext(SequenceActivitySettingsContext);
+	const editorProps = useContext(EditorPropsContext);
+	const compositionManager = useContext(CompositionManager);
 	const [dragOverrideState, setDragOverrideState] = useState(() => ({
 		overrides: {} as DragOverrides,
 		fromKeys: new Set<string>(),
@@ -743,33 +751,61 @@ export const SequenceManagerProvider: React.FC<{
 		() => ({setDragOverridesBatch, setEffectDragOverridesBatch}),
 		[setDragOverridesBatch, setEffectDragOverridesBatch],
 	);
+	const activityRevision = useMemo(
+		() => ({
+			sourceRevision,
+			activitySettings,
+			editorProps: editorProps.props,
+			canvasContent: compositionManager.canvasContent,
+			compositions: compositionManager.compositions,
+			metadata: compositionManager.currentCompositionMetadata,
+			assetMetadata: compositionManager.currentAssetMetadata,
+			dragOverrides,
+			effectDragOverridesState,
+			propStatuses,
+		}),
+		[
+			sourceRevision,
+			activitySettings,
+			editorProps.props,
+			compositionManager.canvasContent,
+			compositionManager.compositions,
+			compositionManager.currentCompositionMetadata,
+			compositionManager.currentAssetMetadata,
+			dragOverrides,
+			effectDragOverridesState,
+			propStatuses,
+		],
+	);
 
 	return (
-		<SequenceRegistryProvider>
-			<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
-				<VisualModePropStatusesContext.Provider value={propStatusesContext}>
-					<SequenceManagerScopeProviders
-						dragOverridesSubscription={dragOverridesSubscription}
-						fromKeys={dragOverrideState.fromKeys}
-					>
-						<VisualModeDragOverridesContext.Provider
-							value={dragOverridesContext}
+		<SequenceActivityRevisionContext.Provider value={activityRevision}>
+			<SequenceRegistryProvider>
+				<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
+					<VisualModePropStatusesContext.Provider value={propStatusesContext}>
+						<SequenceManagerScopeProviders
+							dragOverridesSubscription={dragOverridesSubscription}
+							fromKeys={dragOverrideState.fromKeys}
 						>
-							<VisualModeDragOverridesRefContext.Provider
-								value={dragOverridesRef}
+							<VisualModeDragOverridesContext.Provider
+								value={dragOverridesContext}
 							>
-								<VisualModeSettersContext.Provider value={settersContext}>
-									<VisualModeBatchSettersContext.Provider
-										value={batchSettersContext}
-									>
-										{children}
-									</VisualModeBatchSettersContext.Provider>
-								</VisualModeSettersContext.Provider>
-							</VisualModeDragOverridesRefContext.Provider>
-						</VisualModeDragOverridesContext.Provider>
-					</SequenceManagerScopeProviders>
-				</VisualModePropStatusesContext.Provider>
-			</VisualModePropStatusesRefContext.Provider>
-		</SequenceRegistryProvider>
+								<VisualModeDragOverridesRefContext.Provider
+									value={dragOverridesRef}
+								>
+									<VisualModeSettersContext.Provider value={settersContext}>
+										<VisualModeBatchSettersContext.Provider
+											value={batchSettersContext}
+										>
+											{children}
+										</VisualModeBatchSettersContext.Provider>
+									</VisualModeSettersContext.Provider>
+								</VisualModeDragOverridesRefContext.Provider>
+							</VisualModeDragOverridesContext.Provider>
+						</SequenceManagerScopeProviders>
+					</VisualModePropStatusesContext.Provider>
+				</VisualModePropStatusesRefContext.Provider>
+			</SequenceRegistryProvider>
+		</SequenceActivityRevisionContext.Provider>
 	);
 };
