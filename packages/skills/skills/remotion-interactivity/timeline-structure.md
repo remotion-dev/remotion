@@ -1,56 +1,27 @@
-# Timeline structure
+# Track + connected compositions
 
-Use timeline rows for content the user can meaningfully select, move, trim, or
-style. A scene can contain separate text and media items, but its alignment
-wrappers and decorative primitives do not each need a row.
+Use this structure for new compositions: a named `Track`, directly timed scene
+instances, and connected compositions made with `Interactive.create()`. Set
+`layout` explicitly: `'absolute-fill'` for scenes, `'none'` for bounded elements.
 
-## Choose one interactive owner per item
+## 1. A bounded element: `layout: 'none'`
 
-| Purpose                                                 | Preferred structure                                                                          |
-| ------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Full-size scene or content group                        | `Interactive.create({layout: 'absolute-fill'})`, with a fragment inside                      |
-| Reusable text, card, or SVG with its own bounds         | `Interactive.create({layout: 'none'})`, forwarding `style` to a plain visual root            |
-| Individual text or graphic authored directly in a scene | A named `Interactive.H1`, `Interactive.P`, `Interactive.Div`, or appropriate media component |
-| Alignment, mask, or clipping inside an item             | Plain `div`, `span`, or SVG element                                                          |
-| Wrapper with no layout, timing, or grouping purpose     | Fragment or remove it                                                                        |
-| Successive non-overlapping scenes or clips              | Named `Track` with timing directly on each child                                             |
-| Scenes joined by transitions                            | `TransitionSeries` with its specialized sequence boundaries                                  |
+Forward `style` to a plain root. The custom component already owns its timeline row.
 
-Do not wrap a timing-aware component in `Sequence` just to schedule or name it.
-Do not put an `Interactive.Div` around a media component just to position or
-scale it when the media component accepts those styles directly.
-
-Use named interactive groups for content that should move together, such as a
-foreground group or a wall of repeated text. Use plain elements for repeated
-primitives that are intentionally edited as part of that group, such as rings,
-particles, or individual animated letters. Keep separate JSX nodes for items
-that need independent editing.
-
-## Reusable text owns its row and controls
-
-An `Interactive.create()` text component already owns a timeline item. Its
-inner root should normally be a plain `span`, `p`, or `div`, not another
-interactive component representing the same text.
-
-Expose content and typography on that owner. `Interactive.textSchema` supplies
-typography controls; use `Interactive.childrenSchema` for React-node children
-or an explicit string field for string-only text. Forward instance styles to
-the visual root with `layout: 'none'`.
-
-```tsx
+```tsx title="Title.tsx"
 import type React from 'react';
 import {Interactive} from 'remotion';
 
-const LabelInner = ({
+const TitleInner = ({
   text,
   style,
 }: {
   readonly text: string;
   readonly style?: React.CSSProperties;
-}) => <span style={{display: 'inline-block', ...style}}>{text}</span>;
+}) => <h1 style={{margin: 0, ...style}}>{text}</h1>;
 
-export const Label = Interactive.create({
-  Component: LabelInner,
+export const Title = Interactive.create({
+  Component: TitleInner,
   layout: 'none',
   schema: {
     ...Interactive.textSchema,
@@ -59,60 +30,148 @@ export const Label = Interactive.create({
 });
 ```
 
-At the call site, keep the name, timing, text, and editable styles inline:
+## 2. A scene: `layout: 'absolute-fill'`
 
-```tsx
-<Label
-  name="Chapter title"
-  from={30}
-  durationInFrames={90}
-  text="A new perspective"
-  style={{fontSize: 80, fontWeight: 700, color: 'white'}}
-/>
+Return a fragment. Put the background and alignment on the scene instance.
+The managed root handles `style`, `width`, and `height`; do not forward them inside.
+
+```tsx title="Chapter.tsx"
+import {Interactive} from 'remotion';
+import {Title} from './Title';
+
+const ChapterInner = ({title}: {readonly title: string}) => (
+  <>
+    <Title
+      name="Chapter title"
+      text={title}
+      style={{
+        color: 'white',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: 96,
+        fontWeight: 700,
+      }}
+    />
+  </>
+);
+
+export const Chapter = Interactive.create({
+  Component: ChapterInner,
+  layout: 'absolute-fill',
+  schema: {
+    ...Interactive.backgroundSchema,
+    title: {type: 'string', default: '', description: 'Title'},
+  },
+});
 ```
 
-## Managed scene roots own layout
+## 3. The parent: `Track` + direct timing
 
-With `layout: 'absolute-fill'`, put instance `style`, `width`, and `height` on
-the exported component. Do not declare or forward those props in its inner
-component: the managed container owns them. Return a fragment unless an inner
-container has an additional layout or grouping purpose.
+Write each instance separately, with inline names, timing, props, and styles.
+Do not add `Sequence` or `AbsoluteFill` wrappers.
 
-Put editable scene backgrounds and alignment on the scene instance. Expose the
-relevant schema fragments, such as `Interactive.backgroundSchema`. When the
-scene is also a connected composition, register the same exported component
-and provide equivalent inline `defaultProps` for its standalone appearance.
-Registration defaults do not automatically apply to instances in the parent.
+```tsx title="MyVideo.tsx"
+import {Track, useVideoConfig} from 'remotion';
+import {Chapter} from './Chapter';
 
-Custom transition presentations have a different owner: the transition
-boundary already supplies their timing. Use plain positioned elements for
-their masks and panels, and fragments for roots that only group children.
-Adding interactive wrappers for those implementation details clutters the
-timeline. Keep `TransitionSeries.Sequence` and its premounting behavior.
+export const MyVideo = () => {
+  const {fps} = useVideoConfig();
 
-## Preserve behavior when removing wrappers
+  return (
+    <Track name="Chapters">
+      <Chapter
+        name="Opening"
+        durationInFrames={3 * fps}
+        title="Introduction"
+        style={{
+          backgroundColor: '#111111',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      />
+      <Chapter
+        name="Feature"
+        from={3 * fps}
+        durationInFrames={4 * fps}
+        title="New features"
+        style={{
+          backgroundColor: '#243b53',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      />
+    </Track>
+  );
+};
+```
 
-Wrapper removal changes CSS and frame contexts unless their responsibilities
-are deliberately transferred:
+## 4. Connect the same exported components
 
-- Move timing and names to the content owner without double-applying child
-  offsets. Preserve local-frame animation semantics, dimensions, premounting,
-  and transition overlap.
-- Managed full-size roots clip overflow by default. Set
-  `style={{overflow: 'visible'}}` where the old root allowed overflow.
-- Preserve flex direction explicitly. `AbsoluteFill` uses a column, while a
-  managed root does not imply that direction. This can change image sizing and
-  child alignment even when both roots fill the same area.
-- Preserve explicit width and height, percentage offsets, transform origins,
-  and positioning contexts. In particular, a full-height container with
-  `top: '50%'` is not equivalent to one stretched between that top and bottom.
-- Check paint order after removing positioned wrappers. Text may need its own
-  positioning to remain above absolutely positioned decoration.
-- Keep inherited typography, background, and font loading available when a
-  component is opened as a standalone connected composition.
+Register the scenes and reusable elements alongside the parent. Use the same
+component references and give each registration usable inline defaults.
 
-Compare representative frames before and after, including scene and transition
-boundaries. Inspect the Studio timeline for meaningful names and redundant
-rows, and verify that text and style controls still target the intended item.
-Investigate visual differences; do not dismiss them as harmless unless their
-cause is understood, such as existing wall-clock-driven animation.
+```tsx title="Root.tsx"
+import {Composition, Folder} from 'remotion';
+import {Chapter} from './Chapter';
+import {MyVideo} from './MyVideo';
+import {Title} from './Title';
+
+export const RemotionRoot = () => (
+  <>
+    <Composition
+      id="MyVideo"
+      component={MyVideo}
+      width={1920}
+      height={1080}
+      fps={30}
+      durationInFrames={210}
+    />
+    <Folder name="Scenes">
+      <Composition
+        id="Chapter"
+        component={Chapter}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={90}
+        defaultProps={{
+          title: 'Introduction',
+          style: {
+            backgroundColor: '#111111',
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+        }}
+      />
+    </Folder>
+    <Folder name="Elements">
+      <Composition
+        id="Title"
+        component={Title}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={90}
+        defaultProps={{
+          text: 'Introduction',
+          style: {
+            color: 'white',
+            fontFamily: 'Arial, sans-serif',
+            fontSize: 96,
+            fontWeight: 700,
+          },
+        }}
+      />
+    </Folder>
+  </>
+);
+```
+
+Double-click a chapter in the parent timeline to edit its connected composition.
+
+For overlapping scene transitions, replace `Track` with
+[`TransitionSeries`](../remotion-markup/transitions.md) and keep its specialized
+sequence boundaries. Use plain HTML for layout-only masks and panels.
+
+When refactoring, preserve timing and premounting. Match clipping, flex direction,
+positioning, and paint order; managed roots clip by default. Compare representative
+frames and open each connected composition on its own.
