@@ -111,8 +111,8 @@ export type RunEffectChainOptions = {
 const runEffectChainWithoutResize = async (
 	{state, source, effects, output, width, height}: RunEffectChainOptions,
 	initialFlipSourceY: boolean,
+	runId: number,
 ): Promise<boolean> => {
-	const runId = ++state.currentRunId;
 	const isCancelled = () => state.currentRunId !== runId;
 
 	// Bypass any effect with `disabled: true` before grouping by backend, so
@@ -258,14 +258,15 @@ export const runEffectChain = async (
 	options: RunEffectChainOptions,
 ): Promise<boolean> => {
 	const {state, source, width, height, effects} = options;
+	// Keep one ID across resizing and effect passes so callers can cancel the run.
+	const runId = ++state.currentRunId;
 	if (
 		(state.width === width && state.height === height) ||
 		!effects.some((effect) => !(effect.params as {disabled?: boolean}).disabled)
 	) {
-		return runEffectChainWithoutResize(options, true);
+		return runEffectChainWithoutResize(options, true, runId);
 	}
 
-	const runId = ++state.currentRunId;
 	const firstEnabledEffect = effects.find(
 		(effect) => !(effect.params as {disabled?: boolean}).disabled,
 	)!;
@@ -284,6 +285,7 @@ export const runEffectChain = async (
 		return await runEffectChainWithoutResize(
 			{...options, source: resized},
 			false,
+			runId,
 		);
 	} finally {
 		resized.close();
