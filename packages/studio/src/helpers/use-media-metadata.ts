@@ -207,13 +207,14 @@ export const getMediaMetadata = (
 export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 	const resolvedSrc = Internals.usePreload(src ?? '');
 	const metadataSrc = src === null ? null : resolvedSrc;
-	const [mediaMetadata, setMediaMetadata] = useState<MediaMetadata | null>(
-		metadataSrc ? getCachedMediaMetadata(metadataSrc) : null,
-	);
+	const [state, setState] = useState(() => ({
+		src: metadataSrc,
+		metadata: metadataSrc ? getCachedMediaMetadata(metadataSrc) : null,
+	}));
 
 	useEffect(() => {
 		const cached = metadataSrc ? getCachedMediaMetadata(metadataSrc) : null;
-		setMediaMetadata(cached);
+		setState({src: metadataSrc, metadata: cached});
 
 		if (!metadataSrc || cached) {
 			return;
@@ -227,14 +228,14 @@ export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 					return;
 				}
 
-				setMediaMetadata(metadata);
+				setState({src: metadataSrc, metadata});
 			})
 			.catch(() => {
 				if (cancelled) {
 					return;
 				}
 
-				setMediaMetadata(null);
+				setState({src: metadataSrc, metadata: null});
 			});
 
 		return () => {
@@ -242,5 +243,6 @@ export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 		};
 	}, [metadataSrc]);
 
-	return mediaMetadata;
+	// A changed source must not borrow the previous source's duration for a render.
+	return state.src === metadataSrc ? state.metadata : null;
 };

@@ -1,7 +1,6 @@
 import {Video} from '@remotion/media';
 import {
 	Interactive,
-	useVideoConfig,
 	Composition,
 	Easing,
 	interpolate,
@@ -13,13 +12,11 @@ import {Clip5} from './Clip5';
 export const TEXT_BEHIND_VIDEO_SERIES_FIRST_20S_DURATION_IN_FRAMES = 190;
 
 const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<>
 			<Clip5
-				premountFor={fps}
 				name="Clip5"
 				width={1080}
 				height={1920}
@@ -50,7 +47,6 @@ const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 				from={-1}
 			/>
 			<Clip5
-				premountFor={fps}
 				name="Clip5-copy"
 				width={1080}
 				height={1920}
@@ -81,7 +77,6 @@ const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 				from={-1}
 			/>
 			<Video
-				premountFor={fps}
 				name="Text behind video"
 				showInTimeline={false}
 				src={asset('text-behind-video-series-first-20s.mp4')}

@@ -30,7 +30,6 @@ const AirportSignZoomContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/screenshots/herdr-terminal-airport.png'
 				}
-				premountFor={fps}
 				style={{
 					width: '100%',
 					height: '100%',

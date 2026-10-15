@@ -79,7 +79,8 @@ h6 {
 /* The Elements library is also browsed inside Studio's iframe. */
 .studio-elements-embed .theme-announcement-bar,
 .studio-elements-embed .theme-doc-footer,
-.studio-elements-embed .pagination-nav {
+.studio-elements-embed .pagination-nav,
+.studio-elements-embed .elements-sidebar-standalone-only {
 	display: none;
 }
 
@@ -349,6 +350,17 @@ code {
 	margin-left: 6px;
 	border-radius: 4px;
 	transform: none !important;
+}
+
+/* Keep dropdown carets beside their labels, including near the mobile breakpoint. */
+.navbar__item.dropdown > .navbar__link {
+	white-space: nowrap;
+}
+
+@media screen and (min-width: 997px) and (max-width: 1100px) {
+	.navbar {
+		--ifm-navbar-item-padding-horizontal: 0.5rem;
+	}
 }
 
 .header-github-link::before {

@@ -335,15 +335,9 @@ const AnimatedCaptionsContent: React.FC<{
 	return (
 		<>
 			{voiceoverSrc ? (
-				<Audio
-					premountFor={fps}
-					src={voiceoverSrc}
-					hidden
-					showInTimeline={false}
-				/>
+				<Audio src={voiceoverSrc} hidden showInTimeline={false} />
 			) : null}
 			<HtmlInCanvas
-				premountFor={fps}
 				name="Animated captions canvas"
 				width={width}
 				height={height}
@@ -389,7 +383,6 @@ const AnimatedCaptionsContent: React.FC<{
 							key={pageKey}
 							from={startFrame}
 							durationInFrames={durationInFrames}
-							premountFor={fps}
 							showInTimeline={false}
 							focusProgress={focusProgress}
 							focusedTokenIndex={focusedTokenIndex}

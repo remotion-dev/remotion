@@ -237,7 +237,6 @@ const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
 		>
 			<Interactive.Div
 				name="Four routes fade"
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					inset: 0,
@@ -258,7 +257,6 @@ const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
 					routeIndex={0}
 					accentColor="#FC4C02"
 					whiteOverlay={whiteOverlay}
-					premountFor={fps}
 					style={{left: 100, top: 90}}
 				/>
 				<RoutePanel
@@ -266,7 +264,6 @@ const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
 					routeIndex={1}
 					accentColor="#FC4C02"
 					whiteOverlay={whiteOverlay}
-					premountFor={fps}
 					style={{left: 1060, top: 90}}
 				/>
 				<RoutePanel
@@ -274,7 +271,6 @@ const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
 					routeIndex={2}
 					accentColor="#FC4C02"
 					whiteOverlay={whiteOverlay}
-					premountFor={fps}
 					style={{left: 100, top: whiteOverlay ? 460 : 610}}
 				/>
 				<RoutePanel
@@ -282,7 +278,6 @@ const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
 					routeIndex={3}
 					accentColor="#FC4C02"
 					whiteOverlay={whiteOverlay}
-					premountFor={fps}
 					style={{left: 1060, top: whiteOverlay ? 460 : 610}}
 				/>
 			</Interactive.Div>

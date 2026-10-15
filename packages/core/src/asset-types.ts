@@ -39,6 +39,11 @@ declare module '*.jpeg' {
 	export default src;
 }
 
+declare module '*.jxl' {
+	const src: string;
+	export default src;
+}
+
 declare module '*.bmp' {
 	const src: string;
 	export default src;

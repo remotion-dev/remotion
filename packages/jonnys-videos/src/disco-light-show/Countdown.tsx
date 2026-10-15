@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+	Track,
 	useVideoConfig,
 	AbsoluteFill,
 	Easing,
@@ -14,13 +15,12 @@ export const COUNTDOWN_DURATION_IN_FRAMES = 59;
 const CountdownPageInner: React.FC<{
 	readonly number: string;
 }> = ({number}) => {
-	const {fps, durationInFrames} = useVideoConfig();
+	const {durationInFrames} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
 			showInTimeline={false}
-			premountFor={fps}
 			style={{
 				alignItems: 'center',
 				justifyContent: 'center',
@@ -29,7 +29,6 @@ const CountdownPageInner: React.FC<{
 			}}
 		>
 			<Interactive.Div
-				premountFor={fps}
 				name="Countdown number"
 				style={{
 					color: '#ffffff',
@@ -79,29 +78,23 @@ const CountdownPage = Interactive.create({
 });
 
 const CountdownInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	return (
 		<>
-			<CountdownPage
-				name="Countdown 3"
-				number="3"
-				durationInFrames={20}
-				premountFor={fps}
-			/>
-			<CountdownPage
-				name="Countdown 2"
-				number="2"
-				from={20}
-				durationInFrames={20}
-				premountFor={fps}
-			/>
-			<CountdownPage
-				name="Countdown 1"
-				number="1"
-				from={40}
-				durationInFrames={19}
-				premountFor={fps}
-			/>
+			<Track name="Countdown numbers">
+				<CountdownPage name="Countdown 3" number="3" durationInFrames={20} />
+				<CountdownPage
+					name="Countdown 2"
+					number="2"
+					from={20}
+					durationInFrames={20}
+				/>
+				<CountdownPage
+					name="Countdown 1"
+					number="1"
+					from={40}
+					durationInFrames={19}
+				/>
+			</Track>
 		</>
 	);
 };

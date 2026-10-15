@@ -1,5 +1,5 @@
 import type {ImageFit} from '../calculate-image-fit.js';
-import type {EffectsProp} from '../effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -34,6 +34,7 @@ export type AnimatedImageProps = InteractiveBaseProps &
 	InteractivePremountProps &
 	RemotionAnimatedImageProps & {
 		readonly effects?: EffectsProp;
+		readonly effectsOutputSize?: EffectsOutputSize;
 	};
 
 export type AnimatedImageFillMode = ImageFit;

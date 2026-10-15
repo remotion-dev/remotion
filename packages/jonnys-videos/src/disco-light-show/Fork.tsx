@@ -2,7 +2,6 @@ import {Video} from '@remotion/media';
 import React from 'react';
 import {
 	Interactive,
-	useVideoConfig,
 	CanvasImage,
 	interpolate,
 	useCurrentFrame,
@@ -11,7 +10,6 @@ import {
 import {asset} from './assets';
 
 const ForkInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
@@ -23,10 +21,8 @@ const ForkInner: React.FC = () => {
 					scale: 1.519,
 				}}
 				from={62}
-				premountFor={fps}
 			/>
 			<CanvasImage
-				premountFor={fps}
 				pauseWhenLoading={false}
 				src={asset('elegant-silver-fork-free-png.webp')}
 				style={{
@@ -55,7 +51,6 @@ const ForkInner: React.FC = () => {
 				trimBefore={7}
 			/>
 			<CanvasImage
-				premountFor={fps}
 				src={asset('Screenshot 2026-07-19 at 14.35.33.png')}
 				style={{
 					position: 'absolute',

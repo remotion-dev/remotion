@@ -20,13 +20,15 @@ cd packages/docs && bun remotion
 
 The **scaffold-element skill** is an [Agent Skill](https://agentskills.io/) that can set up the template and Studio composition.
 
-Declare the Element's dependencies in `element-definitions.ts` as described in the [Element guidelines](/elements/guidelines#make-it-portable).
+Declare the Element's dependencies in `element-definitions.ts` as described in the [`dependencies` field](/docs/studio-protocol/create-element-payload#dependencies).
 
 If the Element needs starter props, put them in `initial-props.ts`, type them with `satisfies ComponentProps<typeof YourComponent>`, and register them as `initialProps` in `element-definitions.ts`.
 
-For installed assets, declare `assets` in `element-definitions.ts` and put `staticFileRef()` references in `installationProps`. Keep preview URLs in `initialProps`. For Elements without installed assets, use `assets: []` and `installationProps: null`.
+For installed assets, declare `assets` in `element-definitions.ts` and put `staticFileRef()` references in `installationProps`. Keep preview URLs in `initialProps`. For Elements without installed assets, use `assets: []` and `installationProps: null`. `installationProps` shallowly overrides `initialProps` only for installation; an overridden object or array replaces that entire prop.
 
 ## 2. Prepare previews
+
+Choose a poster frame that clearly shows the Element. The video preview should cover the Element's full duration and, when applicable, include its entrance and exit animations.
 
 Render and visually review the Element and its previews:
 

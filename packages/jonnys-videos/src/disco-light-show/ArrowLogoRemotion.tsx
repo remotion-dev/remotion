@@ -3,21 +3,14 @@ import {scale} from '@remotion/effects/scale';
 import {noise2D} from '@remotion/noise';
 import {Arrow} from '@remotion/shapes';
 import React from 'react';
-import {
-	Interactive,
-	useVideoConfig,
-	CanvasImage,
-	useCurrentFrame,
-} from 'remotion';
+import {Interactive, CanvasImage, useCurrentFrame} from 'remotion';
 import {asset} from './assets';
 
 const ArrowLogoRemotionInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<Arrow
-				premountFor={fps}
 				length={300}
 				headWidth={185}
 				headLength={120}
@@ -43,7 +36,6 @@ const ArrowLogoRemotionInner: React.FC = () => {
 				]}
 			/>
 			<CanvasImage
-				premountFor={fps}
 				src={asset('remotion-logo.svg')}
 				style={{
 					position: 'absolute',

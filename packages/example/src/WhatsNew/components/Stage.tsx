@@ -1,5 +1,10 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	type InteractiveTransformProps,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {easeInOut, lerp} from '../anim';
 import {FACE} from '../theme';
 
@@ -113,7 +118,7 @@ export const getCaptionPlacement = (
 	};
 };
 
-export const Stage: React.FC<{
+const StageInner: React.FC<{
 	readonly keyframes: readonly LayoutKeyframe[];
 	readonly children: React.ReactNode;
 }> = ({keyframes, children}) => {
@@ -121,7 +126,7 @@ export const Stage: React.FC<{
 	const l = getLayout(frame, keyframes);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<div
 				style={{
 					position: 'absolute',
@@ -148,39 +153,78 @@ export const Stage: React.FC<{
 					}}
 				>
 					{children}
-					<AbsoluteFill
+					<div
 						style={{
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							width: '100%',
+							height: '100%',
+							display: 'flex',
+							flexDirection: 'column',
 							background:
 								'radial-gradient(ellipse 75% 80% at 52% 42%, rgba(0,0,0,0) 55%, rgba(8,12,24,0.34) 100%)',
 						}}
 					/>
 				</div>
-				<AbsoluteFill
+				<div
 					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						width: '100%',
+						height: '100%',
+						display: 'flex',
+						flexDirection: 'column',
 						borderRadius: l.r,
 						boxShadow: `inset 0 0 0 ${7 * l.card}px rgba(255,255,255,0.96)`,
 					}}
 				/>
 			</div>
-		</AbsoluteFill>
+		</>
 	);
 };
 
 // Punch-in framing for a single shot. Every cut switches framing, which hides
 // the jump and gives the talking head rhythm. A slow drift keeps it alive.
-export const Punch: React.FC<{
-	readonly zoom?: number;
-	readonly children: React.ReactNode;
-}> = ({zoom = 1, children}) => {
+const PunchInner: React.FC<
+	{
+		readonly zoom?: number;
+		readonly children: React.ReactNode;
+	} & InteractiveTransformProps
+> = ({zoom = 1, children, style}) => {
 	const frame = useCurrentFrame();
 	return (
-		<AbsoluteFill
+		<div
 			style={{
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				width: '100%',
+				height: '100%',
+				display: 'flex',
+				flexDirection: 'column',
 				scale: zoom * (1 + frame * 0.00012),
 				transformOrigin: `${FACE.x}px ${FACE.y}px`,
+				...style,
 			}}
 		>
 			{children}
-		</AbsoluteFill>
+		</div>
 	);
 };
+
+export const Stage = Interactive.create({
+	Component: StageInner,
+	layout: 'absolute-fill',
+});
+export const Punch = Interactive.create({
+	Component: PunchInner,
+	layout: 'none',
+});

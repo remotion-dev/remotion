@@ -3,13 +3,7 @@ import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
 import {pushCut} from '@remotion/transitions/push-cut';
 import React from 'react';
-import {
-	Interactive,
-	Track,
-	interpolate,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {Interactive, Track, interpolate, useCurrentFrame} from 'remotion';
 import {LightLeakOverlay} from './elements/LightLeakOverlay';
 import {Arrival} from './scenes/Arrival';
 import {BestCommute} from './scenes/BestCommute';
@@ -23,91 +17,50 @@ import {TheDecline} from './scenes/TheDecline';
 import {Uphill} from './scenes/Uphill';
 
 const RollerSkiCommuteInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<>
 			<TransitionSeries name="Roller ski commute">
-				<TransitionSeries.Sequence
-					name="Intro"
-					durationInFrames={529}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Intro" durationInFrames={529}>
 					<Intro />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="Gear up"
-					durationInFrames={332}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Gear up" durationInFrames={332}>
 					<GearUp />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="Off we go"
-					durationInFrames={108}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Off we go" durationInFrames={108}>
 					<OffWeGo />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="Uphill"
-					durationInFrames={1517}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Uphill" durationInFrames={1517}>
 					<Uphill />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Overlay durationInFrames={40} premountFor={fps}>
+				<TransitionSeries.Overlay durationInFrames={40}>
 					<LightLeakOverlay />
 				</TransitionSeries.Overlay>
-				<TransitionSeries.Sequence
-					name="Best commute"
-					durationInFrames={512}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Best commute" durationInFrames={512}>
 					<BestCommute />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="The decline"
-					durationInFrames={1054}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="The decline" durationInFrames={1054}>
 					<TheDecline />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
 					presentation={pushCut()}
 					timing={linearTiming({durationInFrames: 10})}
 				/>
-				<TransitionSeries.Sequence
-					name="Ride montage"
-					durationInFrames={221}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Ride montage" durationInFrames={221}>
 					<RideMontage />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="Arrival"
-					durationInFrames={426}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Arrival" durationInFrames={426}>
 					<Arrival />
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="Office"
-					durationInFrames={1081}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Office" durationInFrames={1081}>
 					<Office />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
 					presentation={fade()}
 					timing={linearTiming({durationInFrames: 20})}
 				/>
-				<TransitionSeries.Sequence
-					name="End card"
-					durationInFrames={120}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="End card" durationInFrames={120}>
 					<EndCard />
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
@@ -119,7 +72,6 @@ const RollerSkiCommuteInner: React.FC = () => {
 					}
 					trimBefore={1207}
 					durationInFrames={4042}
-					premountFor={fps}
 					volume={interpolate(
 						frame,
 						[
@@ -143,7 +95,6 @@ const RollerSkiCommuteInner: React.FC = () => {
 					from={4042}
 					trimBefore={3468}
 					durationInFrames={1708}
-					premountFor={fps}
 					volume={interpolate(
 						frame,
 						[4042, 4046, 4392, 4404, 4689, 4699, 5740, 5750],
@@ -159,7 +110,6 @@ const RollerSkiCommuteInner: React.FC = () => {
 					from={5750}
 					trimBefore={6067}
 					durationInFrames={120}
-					premountFor={fps}
 					volume={interpolate(
 						frame,
 						[5750, 5762, 5840, 5870],

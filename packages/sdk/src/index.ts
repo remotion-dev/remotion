@@ -100,7 +100,6 @@ export type {
 	CanvasSelectableOutline,
 	CanvasOutlineLayoutTarget,
 	TimelineLoopDisplay,
-	TimelineTrackWithOriginalTimings,
 	PointerSessionEndReason,
 	ParsedTranslate,
 	ParsedTranslateWithUnits,

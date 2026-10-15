@@ -1,4 +1,5 @@
 import {NoReactInternals} from 'remotion/no-react';
+import {stripAnsi} from './ansi';
 
 export type ErrorLocation = {
 	fileName: string;
@@ -12,14 +13,38 @@ export const getLocationFromBuildError = (err: Error): ErrorLocation | null => {
 		return null;
 	}
 
+	const stack = stripAnsi(err.stack);
 	if (
-		!err.stack.startsWith('Error: Module build failed') &&
-		!err.stack.startsWith('Error: Cannot find module')
+		!/^Error:\s*(?:×\s+)?Module build failed/.test(stack) &&
+		!stack.startsWith('Error: Cannot find module')
 	) {
 		return null;
 	}
 
-	const split = err.stack.split('\n');
+	const split = stack.split('\n');
+
+	// SWC nests its diagnostic and source location inside Rspack's error tree.
+	// Resolve it before considering the runtime stack of the throwing module.
+	for (let i = 0; i < split.length; i++) {
+		const location = split[i].match(/\[(.+):(\d+):(\d+)\]/);
+		if (!location) {
+			continue;
+		}
+
+		const diagnostic = split
+			.slice(0, i)
+			.reverse()
+			.map((line) => line.match(/^[\s│├╰─▶]*(?:[×x]\s+)+(.+)$/)?.[1])
+			.find(NoReactInternals.truthy);
+		if (diagnostic) {
+			return {
+				fileName: location[1],
+				lineNumber: Number(location[2]),
+				columnNumber: Number(location[3]),
+				message: diagnostic,
+			};
+		}
+	}
 
 	return (
 		split

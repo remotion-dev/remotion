@@ -3,7 +3,6 @@ import {
 	type InteractiveTransformProps,
 	CanvasImage,
 	Interactive,
-	useVideoConfig,
 } from 'remotion';
 
 export type AircraftAirframe = 'narrowbody' | 'widebody';
@@ -20,8 +19,6 @@ const CloudCodePlaneContent = ({
 	height,
 	style,
 }: PlaneProps) => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<AbsoluteFill
 			style={{width: width ?? '100%', height: height ?? '100%', ...style}}
@@ -33,7 +30,6 @@ const CloudCodePlaneContent = ({
 						? 'https://remotion.media/jonnys-videos/plane-sight/airlines/cloud-code-widebody-orange.png'
 						: 'https://remotion.media/jonnys-videos/plane-sight/airlines/cloud-code-narrowbody-orange.png'
 				}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					width: '100%',
@@ -60,8 +56,6 @@ export const CloudCodePlane = Interactive.create({
 });
 
 const OpenAirPlaneContent = ({airframe, width, height, style}: PlaneProps) => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<AbsoluteFill
 			style={{width: width ?? '100%', height: height ?? '100%', ...style}}
@@ -73,7 +67,6 @@ const OpenAirPlaneContent = ({airframe, width, height, style}: PlaneProps) => {
 						? 'https://remotion.media/jonnys-videos/plane-sight/airlines/openair-widebody.png'
 						: 'https://remotion.media/jonnys-videos/plane-sight/airlines/openair-plane-top-down.png'
 				}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					width: '100%',
@@ -100,14 +93,11 @@ export const OpenAirPlane = Interactive.create({
 });
 
 export const PixelAirlines = () => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<>
 			<CloudCodePlane
 				name="Cloud Code narrowbody"
 				airframe="narrowbody"
-				premountFor={fps}
 				width={250}
 				height={250}
 				style={{position: 'absolute', left: 195, top: 40}}
@@ -115,7 +105,6 @@ export const PixelAirlines = () => {
 			<OpenAirPlane
 				name="OpenAir narrowbody"
 				airframe="narrowbody"
-				premountFor={fps}
 				width={250}
 				height={250}
 				style={{position: 'absolute', left: 835, top: 40}}
@@ -155,7 +144,6 @@ export const PixelAirlines = () => {
 			<CloudCodePlane
 				name="Cloud Code widebody"
 				airframe="widebody"
-				premountFor={fps}
 				width={300}
 				height={300}
 				style={{position: 'absolute', left: 170, top: 365}}
@@ -163,7 +151,6 @@ export const PixelAirlines = () => {
 			<OpenAirPlane
 				name="OpenAir widebody"
 				airframe="widebody"
-				premountFor={fps}
 				width={300}
 				height={300}
 				style={{position: 'absolute', left: 810, top: 365}}

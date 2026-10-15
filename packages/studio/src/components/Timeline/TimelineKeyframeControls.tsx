@@ -35,6 +35,7 @@ import {
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
+import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
 	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
@@ -197,33 +198,6 @@ const findFieldNode = (
 	return null;
 };
 
-const findTrackForNodePathInfo = ({
-	tracks,
-	nodePathInfo,
-}: {
-	readonly tracks: readonly TimelineTrackData[];
-	readonly nodePathInfo: SequenceNodePathInfo;
-}): TimelineTrackData | null => {
-	return (
-		tracks.find((track) => {
-			if (track.nodePathInfo === null) {
-				return false;
-			}
-
-			return (
-				timelineNodePathInfoToKey({
-					...track.nodePathInfo,
-					auxiliaryKeys: [],
-				}) ===
-				timelineNodePathInfoToKey({
-					...nodePathInfo,
-					auxiliaryKeys: [],
-				})
-			);
-		}) ?? null
-	);
-};
-
 const resolveKeyframeControlTarget = ({
 	nodePathInfo,
 	tracks,
@@ -240,11 +214,7 @@ const resolveKeyframeControlTarget = ({
 	readonly timelinePosition: number;
 }): KeyframeControlTarget | null => {
 	const track = findTrackForNodePathInfo({tracks, nodePathInfo});
-	if (
-		track === null ||
-		track.nodePathInfo === null ||
-		!track.sequence.controls
-	) {
+	if (!track || track.nodePathInfo === null || !track.sequence.controls) {
 		return null;
 	}
 

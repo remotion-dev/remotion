@@ -27,13 +27,13 @@ Tailwind animation class will not render correctly, they need to be refactored.
 
 Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
-Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
-Prefer `Interactive.create({layout: 'absolute-fill'})`
-for scenes with editable props. Their inner markup can return a fragment; the
-wrapper handles layout and instance styles. Sized elements such as lower thirds
-can keep the default layout and forward `style` to their own root. Register
-reusable scenes as connected compositions.
-Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
+Use `Track` for successive scenes. Make scenes and reusable elements with
+`Interactive.create()`, setting `layout` explicitly to `'absolute-fill'` or
+`'none'`, and register them as connected compositions. Put timing directly on
+each instance. Follow the complete
+[Track + connected compositions example](../remotion-interactivity/timeline-structure.md).
+See [Remotion Interactivity](../remotion-interactivity/SKILL.md) for editable props
+and keyframes.
 
 The Studio edits the JSX source node that created an item. Author every composition registration, clip, scene, layer and sequence that should be editable independently as its own JSX node, with its editable props inline.
 Programmatic loops are suitable when the generated instances are intentionally controlled as one source template, not when users need to edit the instances
@@ -140,10 +140,10 @@ The fade-in is keyframed inline at the call site.
 ```tsx
 // MyScene.tsx
 import { Video } from "@remotion/media";
-import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { Easing, Interactive, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { LowerThird } from "./LowerThird";
 
-export const MyScene = () => {
+const MySceneInner = () => {
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
@@ -176,6 +176,11 @@ export const MyScene = () => {
     </>
   );
 };
+
+export const MyScene = Interactive.create({
+  Component: MySceneInner,
+  layout: "absolute-fill",
+});
 ```
 
 ```tsx
@@ -195,7 +200,7 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
   style,
 }) => {
   return (
-    <Interactive.Div
+    <div
       style={{
         position: "absolute",
         left: 80,
@@ -222,12 +227,13 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
         }}
       />
       {children}
-    </Interactive.Div>
+    </div>
   );
 };
 
 const lowerThirdSchema = {
   ...Interactive.childrenSchema,
+  ...Interactive.textSchema,
   accentColor: {
     type: "color",
     default: "#0b84f3",
@@ -237,6 +243,7 @@ const lowerThirdSchema = {
 
 export const LowerThird = Interactive.create({
   Component: LowerThirdInner,
+  layout: "none",
   schema: lowerThirdSchema,
 });
 ```

@@ -155,7 +155,7 @@ export const getSharedModuleRules = () => [
 		type: 'javascript/auto' as const,
 	},
 	{
-		test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mov|mp3|m4a|wav|aac)$/,
+		test: /\.(png|svg|jpg|jpeg|jxl|webp|gif|bmp|webm|mp4|mov|mp3|m4a|wav|aac)$/,
 		type: 'asset/resource' as const,
 	},
 	{

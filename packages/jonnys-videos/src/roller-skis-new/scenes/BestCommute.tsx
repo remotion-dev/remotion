@@ -7,38 +7,29 @@ import {
 	Series,
 	Track,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 import {AwardBadge} from '../elements/AwardBadge';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
 const BestCommuteInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<>
 			<Series>
-				<Series.Sequence
-					name="Tech bros"
-					trimBefore={47}
-					durationInFrames={87}
-					premountFor={fps}
-				>
+				<Series.Sequence name="Tech bros" trimBefore={47} durationInFrames={87}>
 					<Video
 						name="IMG_0463"
 						src={
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
 						}
 						volume={0.83}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -119,7 +110,6 @@ const BestCommuteInner: React.FC = () => {
 					name="Best commute"
 					trimBefore={170}
 					durationInFrames={112}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0463"
@@ -127,7 +117,6 @@ const BestCommuteInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
 						}
 						volume={0.83}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
@@ -139,14 +128,12 @@ const BestCommuteInner: React.FC = () => {
 						from={170}
 						trimBefore={9}
 						muted
-						premountFor={fps}
 						objectFit="cover"
 						style={{position: 'absolute', width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -213,7 +200,6 @@ const BestCommuteInner: React.FC = () => {
 					name="Chickens cows mountains"
 					trimBefore={302}
 					durationInFrames={154}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0463"
@@ -221,7 +207,6 @@ const BestCommuteInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
 						}
 						volume={0.83}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
@@ -235,7 +220,6 @@ const BestCommuteInner: React.FC = () => {
 							durationInFrames={37}
 							trimBefore={219}
 							muted
-							premountFor={fps}
 							objectFit="cover"
 							style={{position: 'absolute', width: '100%', height: '100%'}}
 						/>
@@ -248,7 +232,6 @@ const BestCommuteInner: React.FC = () => {
 							durationInFrames={30}
 							trimBefore={1794}
 							muted
-							premountFor={fps}
 							objectFit="cover"
 							style={{position: 'absolute', width: '100%', height: '100%'}}
 						/>
@@ -260,7 +243,6 @@ const BestCommuteInner: React.FC = () => {
 							from={414}
 							trimBefore={6}
 							muted
-							premountFor={fps}
 							objectFit="cover"
 							style={{position: 'absolute', width: '100%', height: '100%'}}
 						/>
@@ -268,7 +250,6 @@ const BestCommuteInner: React.FC = () => {
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -314,7 +295,6 @@ const BestCommuteInner: React.FC = () => {
 					name="Roller skis"
 					trimBefore={456}
 					durationInFrames={65}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0463"
@@ -322,7 +302,6 @@ const BestCommuteInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
 						}
 						volume={0.83}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
@@ -334,14 +313,12 @@ const BestCommuteInner: React.FC = () => {
 						from={456}
 						trimBefore={609}
 						muted
-						premountFor={fps}
 						objectFit="cover"
 						style={{position: 'absolute', width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -401,20 +378,17 @@ const BestCommuteInner: React.FC = () => {
 					name="Best commute goes to Jonny"
 					trimBefore={534}
 					durationInFrames={94}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0463"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463-rotated-180-v1.mp4'
 						}
 						volume={0.83}
-						premountFor={fps}
 						objectFit="cover"
 						style={{
 							width: '100%',
 							height: '100%',
-							rotate: '180deg',
 							scale: interpolate(frame, [442, 451], [1, 1.1], {
 								easing: Easing.bezier(0.16, 1, 0.3, 1),
 								output: 'perceptual-scale',
@@ -426,7 +400,6 @@ const BestCommuteInner: React.FC = () => {
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -494,7 +467,6 @@ const BestCommuteInner: React.FC = () => {
 				name="Award"
 				from={445}
 				durationInFrames={67}
-				premountFor={fps}
 				award="Best commute"
 				winner="Jonny"
 				style={{position: 'absolute', right: 80, top: 70}}
@@ -504,7 +476,6 @@ const BestCommuteInner: React.FC = () => {
 				src="https://remotion.media/whoosh.wav"
 				from={445}
 				volume={0.5}
-				premountFor={fps}
 			/>
 		</>
 	);

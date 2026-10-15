@@ -8,7 +8,6 @@ import {Video} from '@remotion/media';
 import React from 'react';
 import {
 	Interactive,
-	useVideoConfig,
 	Solid,
 	Sequence,
 	useCurrentFrame,
@@ -17,25 +16,21 @@ import {
 import {asset} from './assets';
 
 const DiscoBallBgInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<Solid
-				premountFor={fps}
 				color={'#1e1c1c'}
 				width={1080}
 				height={1920}
 				style={{position: 'absolute'}}
 			/>
 			<Sequence
-				premountFor={fps}
 				style={{
 					opacity: 0.1,
 				}}
 			>
 				<Solid
-					premountFor={fps}
 					width={1080}
 					height={1920}
 					color={'#010101'}
@@ -81,7 +76,6 @@ const DiscoBallBgInner: React.FC = () => {
 				/>
 
 				<Solid
-					premountFor={fps}
 					width={1080}
 					height={1920}
 					color={'rgba(255, 255, 255, 0)'}
@@ -90,7 +84,6 @@ const DiscoBallBgInner: React.FC = () => {
 					}}
 				/>
 				<Video
-					premountFor={fps}
 					src={asset('disco-ball-3d-loop.mov')}
 					style={{
 						position: 'absolute',

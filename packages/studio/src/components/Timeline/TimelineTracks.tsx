@@ -15,8 +15,12 @@ import {
 	TimelineSceneRangeContext,
 } from './TimelineSceneRangeContext';
 import {TimelineTrack} from './TimelineTrack';
+import {TimelineTrimOutlineContainer} from './TimelineTrimOutline';
 import {TimelineViewportContext} from './TimelineViewport';
-import {useTimelineVirtualization} from './TimelineVirtualization';
+import {
+	type TimelineVirtualRow,
+	useTimelineVirtualization,
+} from './TimelineVirtualization';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const content: React.CSSProperties = {
@@ -46,6 +50,70 @@ const TimelineSceneTrackContent: React.FC<{
 				</TimelineSceneRangeContext.Provider>
 			</TimelineInheritedSceneRangeContext.Provider>
 		</TimelineSceneClipHeightContext.Provider>
+	);
+});
+
+// Row styles and children must be created inside the memo boundary so a
+// different clip changing does not rerender this row's outline and contents.
+const TimelineTrackRow: React.FC<{
+	readonly row: TimelineVirtualRow;
+	readonly start: number;
+	readonly height: number;
+	readonly windowWidth: number | null;
+	readonly durationInFrames: number | null;
+}> = React.memo(({row, start, height, windowWidth, durationInFrames}) => {
+	const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} = row;
+	const trackContent =
+		items === null ? (
+			<TimelineTrack track={track} />
+		) : (
+			<TimelinePackedTrack
+				track={track}
+				items={items}
+				auxiliaryRows={auxiliaryRows}
+				auxiliaryRowOffsets={auxiliaryRowOffsets}
+			/>
+		);
+
+	return (
+		<TimelineTrimOutlineContainer
+			style={{
+				height,
+				left: TIMELINE_PADDING,
+				position: 'absolute',
+				right: TIMELINE_PADDING,
+				// Sequence bars use the full zoomed timeline width, while this
+				// row's parent only fills the viewport. Clip in the same space.
+				width:
+					sceneRange !== null && windowWidth !== null
+						? windowWidth - TIMELINE_PADDING * 2
+						: undefined,
+				top: start,
+			}}
+			clipPath={
+				durationInFrames !== null && windowWidth !== null
+					? (getTimelineSceneClipPath({
+							sceneRange,
+							durationInFrames,
+							offsetInFrames: 0,
+							pixelsPerFrame:
+								(windowWidth - TIMELINE_PADDING * 2) / durationInFrames,
+							height,
+							seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+							transitionCutout: null,
+							cropHeight: null,
+						}) ?? null)
+					: null
+			}
+		>
+			{sceneRange === null ? (
+				trackContent
+			) : (
+				<TimelineSceneTrackContent sceneRange={sceneRange} height={height}>
+					{trackContent}
+				</TimelineSceneTrackContent>
+			)}
+		</TimelineTrimOutlineContainer>
 	);
 });
 
@@ -107,66 +175,16 @@ const TimelineTracksInner: React.FC<{
 	return (
 		<div style={timelineStyle}>
 			<div style={{...content, height: tracksEnd}}>
-				{virtualItems.map((virtualItem) => {
-					const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} =
-						rows[virtualItem.index];
-					const trackContent =
-						items === null ? (
-							<TimelineTrack track={track} />
-						) : (
-							<TimelinePackedTrack
-								track={track}
-								items={items}
-								auxiliaryRows={auxiliaryRows}
-								auxiliaryRowOffsets={auxiliaryRowOffsets}
-							/>
-						);
-
-					return (
-						<div
-							key={virtualItem.key}
-							style={{
-								height: virtualItem.size,
-								left: TIMELINE_PADDING,
-								position: 'absolute',
-								right: TIMELINE_PADDING,
-								// Sequence bars use the full zoomed timeline width, while this
-								// row's parent only fills the viewport. Clip in the same space.
-								width:
-									sceneRange !== null && windowWidth !== null
-										? windowWidth - TIMELINE_PADDING * 2
-										: undefined,
-								top: virtualItem.start,
-								clipPath:
-									video && windowWidth !== null
-										? getTimelineSceneClipPath({
-												sceneRange,
-												durationInFrames: video.durationInFrames,
-												offsetInFrames: 0,
-												pixelsPerFrame:
-													(windowWidth - TIMELINE_PADDING * 2) /
-													video.durationInFrames,
-												height: virtualItem.size,
-												seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
-												transitionCutout: null,
-												cropHeight: null,
-											})
-										: undefined,
-							}}
-						>
-							{sceneRange === null ? (
-								trackContent
-							) : (
-								<TimelineSceneTrackContent
-									sceneRange={sceneRange}
-									height={virtualItem.size}
-								>
-									{trackContent}
-								</TimelineSceneTrackContent>
-							)}
-						</div>
-					);
-				})}
+				{virtualItems.map((virtualItem) => (
+					<TimelineTrackRow
+						key={virtualItem.key}
+						row={rows[virtualItem.index]}
+						start={virtualItem.start}
+						height={virtualItem.size}
+						windowWidth={windowWidth}
+						durationInFrames={video?.durationInFrames ?? null}
+					/>
+				))}
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
 		</div>

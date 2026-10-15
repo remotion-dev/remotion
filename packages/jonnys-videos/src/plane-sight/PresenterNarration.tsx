@@ -1,5 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import {
+	Track,
 	AbsoluteFill,
 	CanvasImage,
 	type InteractiveTransformProps,
@@ -35,13 +36,11 @@ const PresenterNarrationContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/audio/presenter-normalized.wav'
 				}
-				premountFor={fps}
 			/>
 			<AirportOverview
 				name="Airport — control tower and priority queue"
 				from={35.2 * fps}
 				durationInFrames={40 * fps}
-				premountFor={fps}
 			/>
 			<CanvasImage
 				name="Airport after the Herdr handoff"
@@ -50,7 +49,6 @@ const PresenterNarrationContent = ({style}: InteractiveTransformProps) => {
 				}
 				from={Math.round((1997 / 30) * fps)}
 				durationInFrames={(758 / 30) * fps}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					inset: 0,
@@ -59,65 +57,57 @@ const PresenterNarrationContent = ({style}: InteractiveTransformProps) => {
 					objectFit: 'cover',
 				}}
 			/>
-			<GeminiTowerScene
-				name="Gemini — control tower hover"
-				from={(1588 / 30) * fps}
-				durationInFrames={(157 / 30) * fps}
-				premountFor={fps}
-			/>
-			<HerdrGroundControl
-				name="Herdr — send and return to the airport automatically"
-				from={(1745 / 30) * fps}
-				durationInFrames={(252 / 30) * fps}
-				premountFor={fps}
-			/>
-			<TaxiwayDependencies
-				name="Identifies dependencies — zoom into taxiway"
-				from={(1412 / 30) * fps}
-				durationInFrames={(176 / 30) * fps}
-				premountFor={fps}
-			/>
-			<FrontOfLineZoom
-				name="In front of the line — priority-one plane"
-				from={Math.round((1321 / 30) * fps)}
-				durationInFrames={Math.round((91 / 30) * fps)}
-				premountFor={fps}
-			/>
-			<AirportSignZoom
-				name="Agent Airport International — zoom into sign"
-				from={(2018 / 30) * fps}
-				durationInFrames={Math.round((69 / 30) * fps)}
-				premountFor={fps}
-			/>
-			<EntireCommitsBroll
-				name="Operated by Entire — PlaneSight commit history"
-				from={Math.round((2087 / 30) * fps)}
-				durationInFrames={Math.round((169 / 30) * fps)}
-				premountFor={fps}
-			/>
-			<TowerZoom
-				name="Air traffic controller — tower introduction"
-				from={Math.round((994 / 30) * fps)}
-				durationInFrames={Math.round((62 / 30) * fps)}
-				afterHerdr={false}
-				premountFor={fps}
-			/>
-			<TowerZoom
-				name="Air traffic controller — tower callback"
-				from={Math.round((2529 / 30) * fps)}
-				durationInFrames={Math.round((62 / 30) * fps)}
-				afterHerdr
-				premountFor={fps}
-			/>
-			<FiveAgentsIntro
-				name="Closing — five agents in Herdr"
-				from={75.2 * fps}
-				durationInFrames={8.1 * fps}
-				premountFor={fps}
-			/>
+			<Track name="Airport cutaways">
+				<GeminiTowerScene
+					name="Gemini — control tower hover"
+					from={(1588 / 30) * fps}
+					durationInFrames={(157 / 30) * fps}
+				/>
+				<HerdrGroundControl
+					name="Herdr — send and return to the airport automatically"
+					from={(1745 / 30) * fps}
+					durationInFrames={(252 / 30) * fps}
+				/>
+				<TaxiwayDependencies
+					name="Identifies dependencies — zoom into taxiway"
+					from={(1412 / 30) * fps}
+					durationInFrames={(176 / 30) * fps}
+				/>
+				<FrontOfLineZoom
+					name="In front of the line — priority-one plane"
+					from={Math.round((1321 / 30) * fps)}
+					durationInFrames={Math.round((91 / 30) * fps)}
+				/>
+				<AirportSignZoom
+					name="Agent Airport International — zoom into sign"
+					from={(2018 / 30) * fps}
+					durationInFrames={Math.round((69 / 30) * fps)}
+				/>
+				<EntireCommitsBroll
+					name="Operated by Entire — PlaneSight commit history"
+					from={Math.round((2087 / 30) * fps)}
+					durationInFrames={Math.round((169 / 30) * fps)}
+				/>
+				<TowerZoom
+					name="Air traffic controller — tower introduction"
+					from={Math.round((994 / 30) * fps)}
+					durationInFrames={Math.round((62 / 30) * fps)}
+					afterHerdr={false}
+				/>
+				<TowerZoom
+					name="Air traffic controller — tower callback"
+					from={Math.round((2529 / 30) * fps)}
+					durationInFrames={Math.round((62 / 30) * fps)}
+					afterHerdr
+				/>
+				<FiveAgentsIntro
+					name="Closing — five agents in Herdr"
+					from={75.2 * fps}
+					durationInFrames={8.1 * fps}
+				/>
+			</Track>
 			<Interactive.Div
 				name="Presenter circle"
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					top: 32,
@@ -135,7 +125,6 @@ const PresenterNarrationContent = ({style}: InteractiveTransformProps) => {
 						'https://remotion.media/jonnys-videos/plane-sight/webcam1791640657618.mp4'
 					}
 					muted
-					premountFor={fps}
 					objectFit="cover"
 					style={{
 						width: '100%',
@@ -145,34 +134,31 @@ const PresenterNarrationContent = ({style}: InteractiveTransformProps) => {
 					}}
 				/>
 			</Interactive.Div>
-			<PlaneSightLogo
-				name="Plane Sight introduction"
-				from={(362 / 30) * fps}
-				durationInFrames={(82 / 30) * fps}
-				premountFor={fps}
-			/>
-			<PlaneSightLogo
-				name="Plane Sight air traffic controller"
-				from={(946 / 30) * fps}
-				durationInFrames={(48 / 30) * fps}
-				premountFor={fps}
-			/>
-			<PlaneSightLogo
-				name="Plane Sight closing — logo only"
-				from={(2728 / 30) * fps}
-				durationInFrames={(27 / 30) * fps}
-				premountFor={fps}
-				style={{backgroundColor: '#ffffff', zIndex: 10}}
-			/>
+			<Track name="Plane Sight logos">
+				<PlaneSightLogo
+					name="Plane Sight introduction"
+					from={(362 / 30) * fps}
+					durationInFrames={(82 / 30) * fps}
+				/>
+				<PlaneSightLogo
+					name="Plane Sight air traffic controller"
+					from={(946 / 30) * fps}
+					durationInFrames={(48 / 30) * fps}
+				/>
+				<PlaneSightLogo
+					name="Plane Sight closing — logo only"
+					from={(2728 / 30) * fps}
+					durationInFrames={(27 / 30) * fps}
+					style={{backgroundColor: '#ffffff', zIndex: 10}}
+				/>
+			</Track>
 			<EntireTrailsOverlay
 				name="Entire Trails wink — 1.5 seconds on trails"
 				from={Math.round((679 / 30) * fps)}
 				durationInFrames={1.5 * fps}
-				premountFor={fps}
 			/>
 			<BasicCaptions
 				name="Speech captions"
-				premountFor={fps}
 				width={showingHerdr ? 1120 : 1280}
 				combineTokensWithinMilliseconds={5000}
 				style={{

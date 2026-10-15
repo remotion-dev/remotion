@@ -1,7 +1,8 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
+	Interactive,
 	interpolate,
 	Sequence,
 	Series,
@@ -509,14 +510,17 @@ const CssProperties: React.FC = () => {
 	);
 };
 
-export const ClientSideScene: React.FC = () => {
+const ClientSideSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const captions = getCaptionPlacement(frame, layout);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<Backdrop accent={accents.clientSide} />
-			<Stage keyframes={layout}>
+			<Stage
+				style={{overflow: 'visible', flexDirection: 'column'}}
+				keyframes={layout}
+			>
 				<Series>
 					<Series.Sequence
 						name="Client-side rendering"
@@ -1082,54 +1086,69 @@ export const ClientSideScene: React.FC = () => {
 				]}
 			/>
 
-			<Audio
-				name="Sticker whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={1}
-				volume={0.3}
-			/>
-			<Audio
-				name="Split whip"
-				src="https://remotion.media/whip.wav"
-				from={96}
-				volume={0.16}
-			/>
-			<Audio
-				name="Rendered ding"
-				src="https://remotion.media/ding.wav"
-				from={294}
-				volume={0.2}
-			/>
-			<Audio
-				name="Queue click"
-				src="https://remotion.media/mouse-click.wav"
-				from={341}
-				volume={0.3}
-			/>
-			<Audio
-				name="Formats switch"
-				src="https://remotion.media/switch.wav"
-				from={549}
-				volume={0.22}
-			/>
-			<Audio
-				name="Audio formats switch"
-				src="https://remotion.media/switch.wav"
-				from={627}
-				volume={0.22}
-			/>
-			<Audio
-				name="CSS whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={688}
-				volume={0.28}
-			/>
-			<Audio
-				name="Supported ding"
-				src="https://remotion.media/ding.wav"
-				from={802}
-				volume={0.2}
-			/>
-		</AbsoluteFill>
+			<Track name="Sound effects">
+				<Audio
+					durationInFrames={5}
+					name="Sticker whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={1}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Split whip"
+					src="https://remotion.media/whip.wav"
+					from={96}
+					volume={0.16}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="Rendered ding"
+					src="https://remotion.media/ding.wav"
+					from={294}
+					volume={0.2}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Queue click"
+					src="https://remotion.media/mouse-click.wav"
+					from={341}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={10}
+					name="Formats switch"
+					src="https://remotion.media/switch.wav"
+					from={549}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={10}
+					name="Audio formats switch"
+					src="https://remotion.media/switch.wav"
+					from={627}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="CSS whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={688}
+					volume={0.28}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="Supported ding"
+					src="https://remotion.media/ding.wav"
+					from={802}
+					volume={0.2}
+				/>
+			</Track>
+		</>
 	);
 };
+
+export const ClientSideScene = Interactive.create({
+	Component: ClientSideSceneInner,
+	layout: 'absolute-fill',
+});

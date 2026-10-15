@@ -157,6 +157,7 @@ export {
 	type EffectDescriptor,
 	type EffectFactory,
 	type EffectsProp,
+	type EffectsOutputSize,
 } from './effects/index.js';
 /**
  * @description Renders a solid-color rectangle on a `<canvas>`.

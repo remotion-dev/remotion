@@ -1,15 +1,16 @@
 import {afterEach, expect, spyOn, test} from 'bun:test';
 import {Video} from '@remotion/media';
 import {Player, PlayerInternals} from '@remotion/player';
+import {CanvasInternals} from '@remotion/sdk';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
 import type {TSequence} from 'remotion';
 import {shouldShowTrackInTimeline} from '../components/Timeline/should-show-track-in-timeline';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 
 afterEach(cleanup);
 
 test('a trimmed Video keeps one timeline layer when native playback takes over', async () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const isPlayer = Object.getOwnPropertyDescriptor(window, 'remotion_isPlayer');
 	// Simulate an unavailable browser canvas without starting a browser or fetching media.
 	const getContext = Object.getOwnPropertyDescriptor(
@@ -52,8 +53,8 @@ test('a trimmed Video keeps one timeline layer when native playback takes over',
 		await waitFor(() => {
 			expect(container.querySelector('video')?.src.split('#')[0]).toBe(src);
 		});
-		const tracks = calculateTimeline({sequences, overrideIdsToNodePaths: {}})
-			.filter((track) => shouldShowTrackInTimeline(track, 720))
+		const tracks = calculate({sequences, overrideIdsToNodePaths: {}})
+			.tracks.filter((track) => shouldShowTrackInTimeline(track, 720))
 			.map((track) => track.sequence);
 		expect(tracks).toMatchObject([
 			{type: 'video', src, duration: 224, startMediaFrom: 191},

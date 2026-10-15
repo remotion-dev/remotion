@@ -1,25 +1,25 @@
 import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
-import type {OverrideIdToNodePaths, TSequence} from 'remotion';
-import {calculateTimeline} from '../../helpers/calculate-timeline';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 
 export const findTrackForNodePathInfo = ({
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	nodePathInfo,
 }: {
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	nodePathInfo: SequenceNodePathInfo;
+	readonly tracks: readonly TimelineTrackData[];
+	readonly nodePathInfo: SequenceNodePathInfo;
 }) => {
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
+	const key = stringifySequenceExpandedRowKey(
+		nodePathInfo.sequenceSubscriptionKey,
+	);
 	return tracks.find(
 		(candidate) =>
 			candidate.nodePathInfo !== null &&
 			stringifySequenceExpandedRowKey(
 				candidate.nodePathInfo.sequenceSubscriptionKey,
-			) ===
-				stringifySequenceExpandedRowKey(nodePathInfo.sequenceSubscriptionKey) &&
+			) === key &&
 			candidate.nodePathInfo.index === nodePathInfo.index,
 	);
 };

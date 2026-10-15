@@ -1,6 +1,9 @@
-import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
+import type {PropStatuses} from 'remotion';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {getSourceMutationRevision} from '../../helpers/source-mutation-queue';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
 import {deleteNodes} from '../delete-nodes-api';
@@ -231,8 +234,7 @@ const containsOnlyKeyframesAndEasings = (
 
 export const deleteSelectedTimelineItems = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	setPropStatuses,
 	clientId,
 	confirm,
@@ -240,8 +242,7 @@ export const deleteSelectedTimelineItems = ({
 	timelinePosition,
 }: {
 	selections: readonly TimelineSelection[];
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
@@ -264,8 +265,7 @@ export const deleteSelectedTimelineItems = ({
 				nodePathInfo: selection.nodePathInfo,
 				frame: selection.frame,
 			})),
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			setPropStatuses,
 			clientId,
 			propStatuses,

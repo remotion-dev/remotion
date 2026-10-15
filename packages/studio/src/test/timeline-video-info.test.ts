@@ -1,4 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import {
 	getLoopDisplaySegments,
 	sliceVisibleWaveformPeaks,
@@ -19,7 +20,6 @@ import {
 } from '../components/Timeline/timeline-asset-link';
 import {getTimelineVideoFilmstripTimes} from '../components/Timeline/timeline-video-filmstrip-times';
 import {toFileToken} from '../components/Timeline/TimelineAssetField';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 import {isVideoWithLastFrameHold} from '../helpers/is-video-with-last-frame-hold';
 import {makeRuntimeValueStore} from './make-runtime-value-store';
 
@@ -356,6 +356,7 @@ test('remote asset URLs split before the filename for middle ellipsis', () => {
 });
 
 test('filmstrips and waveform peaks follow nested sequence rates and trims', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const outer: TSequence = {
 		controls: null,
 		displayName: 'outer',
@@ -404,10 +405,10 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 		frozenMediaFrame: null,
 		muted: false,
 	};
-	const track = calculateTimeline({
+	const track = calculate({
 		sequences: [outer, inner, media],
 		overrideIdsToNodePaths: {},
-	}).find((candidate) => candidate.sequence.id === 'media')!;
+	}).tracks.find((candidate) => candidate.sequence.id === 'media')!;
 	if (track.sequence.type !== 'video') throw new Error('Expected video');
 	const startFrame = getTimelineMediaStartFrame({
 		startMediaFrom: track.sequence.startMediaFrom,
@@ -499,7 +500,7 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 			duration: cycle + 12,
 			loopDisplay: undefined,
 		};
-		const loopTrack = calculateTimeline({
+		const loopTrack = calculate({
 			sequences:
 				iteration === null
 					? [{...trimmedParent, duration: parentDuration}, loopingVideo]
@@ -510,7 +511,7 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 							loopingVideo,
 						],
 			overrideIdsToNodePaths: {},
-		}).find((candidate) => candidate.sequence.id === 'media')!;
+		}).tracks.find((candidate) => candidate.sequence.id === 'media')!;
 		if (loopTrack.sequence.type !== 'video') throw new Error('Expected video');
 		const {sequence: loopedMedia} = loopTrack;
 		const {loopDisplay} = loopedMedia;

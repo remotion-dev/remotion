@@ -17,7 +17,6 @@ const EightAgentsIntroContent = ({style}: InteractiveTransformProps) => {
 		<AbsoluteFill style={style}>
 			<Interactive.Div
 				name="Screenshot focus window"
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					top: 32,
@@ -53,7 +52,6 @@ const EightAgentsIntroContent = ({style}: InteractiveTransformProps) => {
 					src={
 						'https://remotion.media/jonnys-videos/plane-sight/screenshots/eight-agents-herdr-web.jpg'
 					}
-					premountFor={fps}
 					style={{
 						position: 'absolute',
 						left: 0,

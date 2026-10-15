@@ -5,17 +5,20 @@ import type {SequenceNodePath} from 'remotion';
 import {getNodePathForRecastPath} from './sequence-props';
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 
-export type CapturedJsxNodePath = {
+type JsxNodeWithPath = {
 	node: JSXOpeningElement;
 	nodePath: SequenceNodePath;
-	jsxName: string;
-	signature: string;
 	// The opening element of the closest enclosing JSX element, if any.
 	parentNode: JSXOpeningElement | null;
 };
 
-export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
-	const captured: CapturedJsxNodePath[] = [];
+export type CapturedJsxNodePath = JsxNodeWithPath & {
+	jsxName: string;
+	signature: string;
+};
+
+export const getJsxNodesWithPaths = (ast: File): JsxNodeWithPath[] => {
+	const captured: JsxNodeWithPath[] = [];
 	recast.visit(ast, {
 		visitJSXOpeningElement(path) {
 			let parentNode: JSXOpeningElement | null = null;
@@ -33,8 +36,6 @@ export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
 			captured.push({
 				node: path.node as JSXOpeningElement,
 				nodePath: getNodePathForRecastPath(path, ast),
-				jsxName: recast.prettyPrint(path.node.name).code,
-				signature: recast.prettyPrint(path.node as JSXOpeningElement).code,
 				parentNode,
 			});
 			return this.traverse(path);
@@ -42,6 +43,14 @@ export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
 	});
 
 	return captured;
+};
+
+export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
+	return getJsxNodesWithPaths(ast).map((entry) => ({
+		...entry,
+		jsxName: recast.prettyPrint(entry.node.name).code,
+		signature: recast.prettyPrint(entry.node).code,
+	}));
 };
 
 // The opening elements of a JSX element and its descendants. Relies on the

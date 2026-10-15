@@ -15,6 +15,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLUE,
@@ -35,6 +36,7 @@ import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
 } from '../../helpers/get-sequence-double-click-action';
+import {getTimelineNaturalMediaDuration} from '../../helpers/get-timeline-natural-media-duration';
 import {getTimelineSequenceLayout} from '../../helpers/get-timeline-sequence-layout';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
@@ -129,6 +131,7 @@ import {
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
+import {TimelineUnclippedTrimOutline} from './TimelineTrimOutline';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineViewportContext} from './TimelineViewport';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -1079,6 +1082,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	// if that is the case, it needs to be asynchronously determined
 
 	const video = Internals.useVideo();
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const registryEntry = useTimelineSequenceRegistry(s.id);
 	const isTransitionInteraction =
@@ -1150,7 +1154,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	}, [edgeHighlightController, nodePath]);
 	const naturalSequenceDuration = useTimelineSequenceNaturalDuration({
 		sequenceId: s.id,
-		enabled: isEdgeDragging && activeEdgeHighlight !== 'source-only',
+		enabled: isEdgeDragging,
 	});
 	const previousCascadingOverrideId =
 		registryEntry?.previousOverrideId ??
@@ -1291,22 +1295,12 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			(s.type === 'audio' || s.type === 'video'
 				? s.playbackRate * s.sequencePlaybackRate
 				: 0);
-	const naturalMediaDuration =
-		(s.type === 'audio' || s.type === 'video') &&
-		mediaMetadata !== null &&
-		s.playbackRate > 0
-			? Math.max(
-					0,
-					(mediaMetadata.duration * (video?.fps ?? 30) -
-						getTimelineMediaStartFrame({
-							startMediaFrom: s.startMediaFrom,
-							mediaFrameAtSequenceZero: s.mediaFrameAtSequenceZero,
-							sequenceFrameOffset,
-							playbackRate: s.playbackRate,
-						})) /
-						(s.playbackRate * s.sequencePlaybackRate),
-				)
-			: null;
+	const naturalMediaDuration = getTimelineNaturalMediaDuration({
+		sequence: s,
+		sequenceFrameOffset,
+		mediaMetadata,
+		fps: video?.fps ?? 30,
+	});
 	const maxMediaDuration =
 		s.type === 'sequence' || s.type === 'image' || extendVideoLastFrame
 			? Infinity
@@ -1525,12 +1519,15 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 
 		splitSelectedTimelineItems({
 			selections: selectedItems,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			tracks: calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			}).tracks,
 			propStatuses,
 			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
+		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
 		previewInteractive,
 		propStatuses,
@@ -1610,8 +1607,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					getContextForAgents: () =>
 						getSequencesContextForAgents({
 							nodePathInfos: selectedSequenceNodePathInfos,
-							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-							sequences: sequencesRef.current,
+							tracks: calculateTimeline({
+								sequences: sequencesRef.current,
+								overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+							}).tracks,
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
@@ -1713,6 +1712,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			openInCodingAgent,
 			openInEditor,
 			originalLocation,
+			calculateTimeline,
 			overrideIdToNodePathMappingsRef,
 			previewInteractive,
 			previewServerState,
@@ -2147,7 +2147,6 @@ const TimelineSequenceLayoutInner: React.FC<{
 			!isEdgeDragging ||
 			!showTrimOutline ||
 			activeEdgeHighlight === null ||
-			activeEdgeHighlight === 'source-only' ||
 			s.loopDisplay ||
 			s.frozenFrame !== null ||
 			!Number.isFinite(frameIncrement) ||
@@ -2188,9 +2187,15 @@ const TimelineSequenceLayoutInner: React.FC<{
 			return null;
 		}
 
-		const start = Math.max(parentStart, 0, s.from - trimmedBefore);
+		// Source-only edits can use footage outside the parent's visible interval.
+		const isSourceOnly = activeEdgeHighlight === 'source-only';
+		const start = Math.max(
+			isSourceOnly ? 0 : parentStart,
+			0,
+			s.from - trimmedBefore,
+		);
 		const end = Math.min(
-			parentEnd,
+			isSourceOnly ? video.durationInFrames : parentEnd,
 			video.durationInFrames,
 			s.from + displayDurationInFrames + trimmedAfter,
 		);
@@ -2212,6 +2217,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 			},
 		].flatMap(({key, range, packed}) => {
 			if (
+				isSourceOnly ||
 				range === null ||
 				(range.transitionInEnd === null && range.transitionOutStart === null)
 			) {
@@ -2258,7 +2264,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		});
 		const outlineBorder = outlineShapes.length > 0 ? 0 : `2px solid ${WHITE}`;
 
-		return (
+		const outline = (
 			<>
 				{[
 					{edge: 'left', from: start, width: leftWidth},
@@ -2321,6 +2327,11 @@ const TimelineSequenceLayoutInner: React.FC<{
 					) : null,
 				)}
 			</>
+		);
+		return isSourceOnly ? (
+			<TimelineUnclippedTrimOutline>{outline}</TimelineUnclippedTrimOutline>
+		) : (
+			outline
 		);
 	})();
 	const endsAtContainerBoundary =
@@ -2517,7 +2528,12 @@ const TimelineSequenceLayoutInner: React.FC<{
 				>
 					{showLeftActions && nodePathInfo ? (
 						<TimelineSequenceLeftEdgeDragHandle
-							cursor={`${timelineTrimEdgeCursor}, ew-resize`}
+							// Transition targets keep the default cursor, including during rolling edits.
+							cursor={
+								s.timelineTrack?.role === 'transition'
+									? 'default'
+									: `${timelineTrimEdgeCursor}, ew-resize`
+							}
 							trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 							sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
 							edgeEnabled={leftTrimEnabled}

@@ -19,7 +19,6 @@ const AirportLayoutContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/airport/airport-terrain-v2.png'
 				}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					width: '100%',

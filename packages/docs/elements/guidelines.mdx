@@ -6,86 +6,71 @@ description: Design reusable Remotion Elements for any Element library.
 
 # Element Guidelines
 
-A Remotion Element should be a focused, reusable video building block that can be copied and remixed.
+These guidelines cover how to design and build an Element that users can copy into their projects. They apply to the official gallery and to your own Element Library. To let users install Elements from your library's website, see [Integrating an Element Library with Studio](/docs/studio-protocol/component-library-integration).
 
-## Use real videos as references
+## Design
 
-Start with a technique from a published video. Save its link and timestamp, then identify the reusable purpose—for example, emphasizing a phrase or introducing a speaker.
+### Use real videos as references
 
-Web components, Remotion libraries, and AI-generated ideas may help with implementation, but they are not evidence that an idea works in a video. Create an original visual treatment; do not copy branding, footage, or proprietary assets.
+If you use AI to build an Element, it often designs it like a website component, sized and styled for a page rather than a video.
 
-## Keep it focused
+Use published videos as a reference instead: video usually needs larger, simpler graphics.
 
-An Element should represent one coherent visual treatment, technique, or workflow. It should work without configuration and be useful across projects.
+### Keep it focused
 
-The caption Elements show the distinction: moving a pill between words, popping words, and highlighting words all serve the same purpose but use distinct visual techniques that users would choose separately. Do not create Elements for arbitrary presets, minor CSS differences, or Studio-control configurations.
+Users add Elements to their own projects and combine them into a larger video. This works best when each Element does one thing. An Element that bundles several things, such as a title with its own background, is harder to fit in.
 
-## Make it portable
+### Animate temporary Elements in and out
 
-- Keep the implementation self-contained, using HTML, CSS, and React where possible.
-- Avoid global styles, layout side effects, and fullscreen assumptions unless the Element is a background.
-- Set explicit defaults for inherited visual properties. In particular, set text colors on the Element root or the nearest visual surface instead of relying on browser or host-page defaults. Ensure every use of `currentColor` resolves from an ancestor with an explicit color so the Element looks the same under light and dark host themes.
-- [Include assets](#include-assets) that should be copied into the user's project. Use Google Fonts for non-websafe fonts.
+If an Element appears over other content for a short time, such as a lower third, give it an entrance and an exit animation. Backgrounds don't need them.
+
+Animate the parts inside the Element, not its position on screen. Studio sets the position, so the user can move the Element and the animation moves with it.
+
+## Build
+
+### Make it portable
+
+- Avoid global styles and layout side effects.
+- Don't make the Element fill the whole frame unless it's a background.
+- Set a text color on the Element itself. Otherwise it inherits the page's color, including through `currentColor`, which changes between light and dark themes.
 - Avoid project-specific branding or footage, and make colors easy to change.
-- Minimize dependencies. [Remotion Effects](/docs/effects) are an acceptable exception.
-- Declare every external dependency in the Element library's metadata, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version. See the [Studio protocol's `dependencies` field](/docs/studio-protocol/create-element-payload#dependencies).
 
-## Design it for composition
+### Dependencies
 
-Prefer exposing the Element's layers so users can inspect and edit them with [Studio interactivity](/docs/studio/interactivity). Use one of the following installation modes based on what the user should see in Studio.
+Minimize dependencies, and declare them as described in the [`dependencies` field](/docs/studio-protocol/create-element-payload#dependencies).
 
-### Separate editable layers
+### Assets
 
-Use `installationMode: 'wrapped'` when the Element's layers can be edited separately. This is the default mode. Studio wraps the component in a [`<Sequence>`](/docs/sequence) for placement and duration. The top-level group may expose multiple child timeline rows. Editable values can stay on internal `Interactive` call sites in the copied source, where Studio edits them.
+Include assets that should be copied into the user's project, as described in the [asset handling guidance](/docs/studio-protocol/component-library-integration#asset-handling). Use Google Fonts for non-websafe fonts.
+
+## Integrate with Studio
+
+### Choose an installation mode
+
+Where possible, expose the Element's layers so users can edit them with [Studio interactivity](/docs/studio/interactivity). Pick an installation mode based on what users should see in Studio.
+
+#### Separate editable layers
+
+`installationMode: 'wrapped'` is the default. Studio wraps the component in a [`<Sequence>`](/docs/sequence) that sets its placement and duration, and the layers inside stay editable through their `Interactive` call sites.
 
 Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
 
-### One interactive object
+#### One interactive object
 
-Use `installationMode: 'component-owned-sequence'` when Studio interactivity does not make sense for the Element's internal parts. Examples include:
+Use `installationMode: 'component-owned-sequence'` when editing the internal parts doesn't make sense, for example for generative effects, canvas drawings, or a single image overlay.
 
-- Generative programmed effects
-- Canvas-based Elements where individual outlines cannot be passed to Studio
-- Single-image overlays where the image itself cannot be edited
+Wrap the exported component in [`Interactive.create()`](/docs/interactive-create) and export it directly, without another wrapper. The component must accept a `style` prop and apply it to its visual root. Check in Studio that it shows up as one layer that users can move and trim.
 
-Wrap the exported component with [`Interactive.create()`](/docs/interactive-create). The user gets one timeline layer that they can trim. The component must accept a `style` prop and apply it to its visual root. The implementation does not appear as separate editable layers.
+Don't use this mode just to hide markup, and don't add padding just for the gallery preview.
 
-Export the schema-enabled component directly, without another forwarding wrapper.
+### Expose useful controls
 
-Check in Studio that the exported instance appears as one layer, can be trimmed and can be moved. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for a gallery preview.
+Users get a copy of the Element's source and can edit it directly, so the `Interactive` schema doesn't need to expose every detail. Add controls with [`Interactive.create()`](/docs/interactive-create) where they make the Element easier to edit. Controls can tune the look, but shouldn't switch between unrelated styles.
 
-## Initial props
+Give editable objects clear names. Use a generic name such as `Container` for the main object, and add child controls only for parts users edit separately. See the [interactivity best practices](/docs/studio/interactivity-best-practices).
+
+### Initial props
 
 If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. For `component-owned-sequence`, this can provide defaults for Inspector controls. Otherwise, users can edit the installed source directly.
-
-## Include assets
-
-Follow the [asset integration guidance](/docs/studio-protocol/component-library-integration#preview-installed-assets). Installed assets are separate from gallery previews.
-
-Declare installed assets in the library metadata and use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) references in `installationProps`. Keep preview URLs in `initialProps`.
-
-`installationProps` shallowly overrides `initialProps` only for installation; an overridden object or array replaces that entire prop.
-
-## Animate temporary Elements in and out
-
-If an Element is intended to appear temporarily over other content—such as an overlay, lower third, label, or callout—include both an entrance and an exit animation.
-
-Backgrounds, loops, full-scene treatments, and other Elements that are not expected to enter and leave independently do not need these animations.
-
-Animate properties within the Element, such as translation, scale, and opacity; leave placement to the generated wrapper or the component-owned Sequence.
-
-## Expose useful Studio controls
-
-Elements are source-code copies designed for direct editing, not managed dependencies. Expose useful Studio controls in the Element's `Interactive` schema, but there is no need to mirror every implementation detail as a public prop.
-
-Use [`Interactive.create()`](/docs/interactive-create) when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
-
-Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
-
-Follow the [interactivity best practices](/docs/studio/interactivity-best-practices).
-
-## Choose a representative preview
-
-Choose a poster frame that clearly shows the Element. The video preview should cover the Element's full duration and, when applicable, include its entrance and exit animations.
 
 To submit an Element to the official gallery, read the [contribution guide](/elements/contributing).
