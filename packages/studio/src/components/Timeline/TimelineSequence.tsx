@@ -2537,7 +2537,12 @@ const TimelineSequenceLayoutInner: React.FC<{
 				>
 					{showLeftActions && nodePathInfo ? (
 						<TimelineSequenceLeftEdgeDragHandle
-							cursor={`${timelineTrimEdgeCursor}, ew-resize`}
+							// Transition targets keep the default cursor, including during rolling edits.
+							cursor={
+								s.timelineTrack?.role === 'transition'
+									? 'default'
+									: `${timelineTrimEdgeCursor}, ew-resize`
+							}
 							trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 							sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
 							edgeEnabled={leftTrimEnabled}
