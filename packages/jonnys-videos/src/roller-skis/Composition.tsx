@@ -1660,9 +1660,9 @@ const RollerSkiRoughCutInner: React.FC = () => {
 					durationInFrames={6.7 * FPS}
 				>
 					<Video
-						src={rollerSkiAsset('footage/IMG_0459.MOV')}
+						src={rollerSkiAsset('footage/IMG_0459-rotated-180-v1.mp4')}
 						trimBefore={38 * FPS}
-						style={{...videoStyle, rotate: '180deg'}}
+						style={videoStyle}
 						objectFit="cover"
 						effects={[lut({content: outdoorLut})]}
 					/>

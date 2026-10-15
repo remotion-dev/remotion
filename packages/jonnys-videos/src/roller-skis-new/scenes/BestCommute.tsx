@@ -382,14 +382,13 @@ const BestCommuteInner: React.FC = () => {
 					<Video
 						name="IMG_0463"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463-rotated-180-v1.mp4'
 						}
 						volume={0.83}
 						objectFit="cover"
 						style={{
 							width: '100%',
 							height: '100%',
-							rotate: '180deg',
 							scale: interpolate(frame, [442, 451], [1, 1.1], {
 								easing: Easing.bezier(0.16, 1, 0.3, 1),
 								output: 'perceptual-scale',

@@ -541,11 +541,11 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
-						style={{width: '100%', height: '100%', rotate: '180deg'}}
+						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
@@ -627,14 +627,13 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
 						style={{
 							width: '100%',
 							height: '100%',
-							rotate: '180deg',
 							scale: interpolate(frame, [578, 587], [1, 1.1], {
 								easing: Easing.bezier(0.16, 1, 0.3, 1),
 								output: 'perceptual-scale',
@@ -723,11 +722,11 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
-						style={{width: '100%', height: '100%', rotate: '180deg'}}
+						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
@@ -1065,11 +1064,11 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
-						style={{width: '100%', height: '100%', rotate: '180deg'}}
+						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
