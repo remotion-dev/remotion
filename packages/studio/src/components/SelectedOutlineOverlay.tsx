@@ -16,6 +16,7 @@ import {
 	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {useTimelineCalculator} from '../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	isStudioInteractivityEnabled,
@@ -66,7 +67,6 @@ import {
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 
 const {
-	calculateTimeline,
 	getCanvasSelectableOutlines,
 	getCanvasVisibleOutlineTargets,
 	getCanvasActiveOutlineTargets,
@@ -827,6 +827,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const sequences = Internals.useSequenceManagerSequences();
+	const calculateTimeline = useTimelineCalculator();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -889,10 +890,10 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 
 			selectableOutlines ??= getCanvasSelectableOutlines({
 				tracks: calculateTimeline({
-					sequences: [...sequences],
+					sequences,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					compositions,
-				}),
+				}).tracks,
 				timelinePosition: null,
 				resolveSequenceNodePathInfo: null,
 			});
@@ -904,6 +905,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					});
 		};
 	}, [
+		calculateTimeline,
 		compositions,
 		editorShowOutlines,
 		isFullscreen,

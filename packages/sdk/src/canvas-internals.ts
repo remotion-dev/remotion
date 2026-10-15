@@ -3,7 +3,10 @@ export {
 	collectReactCommit,
 	installReactCommitObserver,
 } from './react-commit-adapter';
-export {calculateTimeline} from './calculate-timeline';
+export {
+	calculateTimeline,
+	createTimelineCalculator,
+} from './calculate-timeline';
 export {useIsCanvasSequenceHovered} from './hover';
 export type {
 	CanvasOutline,

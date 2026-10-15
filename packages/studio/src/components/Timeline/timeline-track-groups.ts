@@ -264,3 +264,69 @@ export const getTimelineDisplayRows = (
 
 	return rows;
 };
+
+// Only use this when visible membership and packing are unchanged. Replacing a
+// media leaf's calculated snapshot does not require grouping every track again.
+export const projectTimelineDisplayRows = ({
+	rows,
+	tracksById,
+}: {
+	readonly rows: readonly TimelineDisplayRow[];
+	readonly tracksById: ReadonlyMap<string, TimelineTrackWithDisplayGroup>;
+}): readonly TimelineDisplayRow[] => {
+	const updateTracks = (
+		tracks: readonly TimelineTrackWithDisplayGroup[],
+	): readonly TimelineTrackWithDisplayGroup[] => {
+		let updatedTracks: TimelineTrackWithDisplayGroup[] | null = null;
+		for (let index = 0; index < tracks.length; index++) {
+			const track = tracksById.get(tracks[index].sequence.id) ?? tracks[index];
+			if (track !== tracks[index]) {
+				updatedTracks ??= [...tracks];
+				updatedTracks[index] = track;
+			}
+		}
+
+		return updatedTracks ?? tracks;
+	};
+
+	let updated: TimelineDisplayRow[] | null = null;
+	for (let index = 0; index < rows.length; index++) {
+		const row = rows[index];
+		const track = tracksById.get(row.track.sequence.id) ?? row.track;
+		const items = row.items === null ? null : updateTracks(row.items);
+		const childScenes =
+			row.childScenes === null ? null : updateTracks(row.childScenes);
+		let auxiliaryRows: (readonly TimelineTrackWithDisplayGroup[])[] | null =
+			null;
+		for (
+			let auxiliaryIndex = 0;
+			auxiliaryIndex < row.auxiliaryRows.length;
+			auxiliaryIndex++
+		) {
+			const auxiliaryRow = updateTracks(row.auxiliaryRows[auxiliaryIndex]);
+			if (auxiliaryRow !== row.auxiliaryRows[auxiliaryIndex]) {
+				auxiliaryRows ??= [...row.auxiliaryRows];
+				auxiliaryRows[auxiliaryIndex] = auxiliaryRow;
+			}
+		}
+
+		if (
+			track === row.track &&
+			items === row.items &&
+			childScenes === row.childScenes &&
+			auxiliaryRows === null
+		) {
+			continue;
+		}
+
+		updated ??= [...rows];
+		updated[index] = {
+			track,
+			items,
+			childScenes,
+			auxiliaryRows: auxiliaryRows ?? row.auxiliaryRows,
+		};
+	}
+
+	return updated ?? rows;
+};

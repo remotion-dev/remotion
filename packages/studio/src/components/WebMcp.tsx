@@ -40,6 +40,7 @@ import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {useSelectComposition} from './InitialCompositionLoader';
+import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {
 	isOptionalPackageInstalled,
 	markOptionalPackageInstalled,
@@ -53,7 +54,6 @@ import {
 	getSequencesWithSelectableOutlines,
 	measureOutlineTargets,
 } from './selected-outline-measurement';
-import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info';
 import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timeline';
@@ -199,24 +199,8 @@ const WebMcpSelectionSync: FC<{
 	readonly selectedSequenceRef: MutableRefObject<WebMcpSequence | null>;
 }> = ({currentSelectionRef, selectedSequenceRef}) => {
 	const {selectedItems} = useTimelineSelection();
-	const sequences = Internals.useSequenceManagerSequences();
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
-	);
 	const selectedItem = selectedItems.length === 1 ? selectedItems[0] : null;
-	const track = useMemo(() => {
-		if (selectedItem === null || selectedItem.type === 'guide') {
-			return null;
-		}
-
-		return (
-			findTrackForNodePathInfo({
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				nodePathInfo: selectedItem.nodePathInfo,
-			}) ?? null
-		);
-	}, [overrideIdToNodePathMappings, selectedItem, sequences]);
+	const track = useTrackForSelection(selectedItem);
 	const {resolvedLocation, stack} = useResolveStackAndReactToChange(
 		track?.sequence.getStack ?? getNoStack,
 		track?.sequence.controls?.overrideId ??

@@ -405,7 +405,7 @@ export const getSequencesWithSelectableOutlines = ({
 }): SequenceWithSelectedOutline[] => {
 	return getCanvasSelectableOutlines({
 		tracks: calculateTimeline({
-			sequences: [...sequences],
+			sequences,
 			overrideIdsToNodePaths,
 			compositions,
 		}),

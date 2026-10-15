@@ -16,7 +16,7 @@ import {
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
-import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
@@ -54,6 +54,8 @@ import {timelineVerticalScroll} from './timeline-refs';
 import {
 	filterTimelineTrackContents,
 	getTimelineDisplayRows,
+	projectTimelineDisplayRows,
+	type TimelineDisplayRow,
 } from './timeline-track-groups';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
@@ -297,106 +299,138 @@ const TimelineInner: React.FC = () => {
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 
-	const videoConfigIsNull = videoConfig === null;
-	const previousTimelineRef = useRef<{
-		readonly sequences: TSequence[];
-		readonly overrideIdsToNodePaths: typeof overrideIdToNodePathMappings;
-		readonly compositions: typeof compositions;
-		readonly timeline: TimelineTrackWithDisplayGroup[];
-	} | null>(null);
-
-	const timeline = useMemo((): TimelineTrackWithDisplayGroup[] => {
-		if (videoConfigIsNull) {
-			return [];
-		}
-
-		const next = addTimelineDisplayGroups(
-			calculateTimeline({
-				sequences,
+	const calculate = useTimelineCalculator();
+	const calculation = useMemo(
+		() =>
+			calculate({
+				sequences: videoConfig === null ? [] : sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
 				showConnectedCompositionChildren: compactSeries,
 			}),
-		);
-		const previous = previousTimelineRef.current;
-		if (
-			previous === null ||
-			previous.overrideIdsToNodePaths !== overrideIdToNodePathMappings ||
-			previous.compositions !== compositions
-		) {
-			return next;
-		}
-
-		const previousSequencesById = new Map(
-			previous.sequences.map((sequence) => [sequence.id, sequence]),
-		);
-		const currentSequencesById = new Map(
-			sequences.map((sequence) => [sequence.id, sequence]),
-		);
-		const previousTracksById = new Map(
-			previous.timeline.map((track) => [track.sequence.id, track]),
-		);
-		return next.map((track) => {
-			const oldTrack = previousTracksById.get(track.sequence.id);
-			const currentSource = currentSequencesById.get(track.sequence.id);
-			const oldNodePath = oldTrack?.nodePathInfo ?? null;
-			const nodePath = track.nodePathInfo;
-			const oldLoop = oldTrack?.sequence.loopDisplay;
-			const loop = track.sequence.loopDisplay;
+		[
+			calculate,
+			compactSeries,
+			compositions,
+			overrideIdToNodePathMappings,
+			sequences,
+			videoConfig,
+		],
+	);
+	const previousDisplayRef = useRef<{
+		readonly sequences: TSequence[];
+		readonly overrideIdsToNodePaths: typeof overrideIdToNodePathMappings;
+		readonly compositions: typeof compositions;
+		readonly structure: typeof calculation.structure;
+		readonly tracks: typeof calculation.tracks;
+		readonly timeline: TimelineTrackWithDisplayGroup[];
+		readonly structureTimeline: TimelineTrackWithDisplayGroup[];
+	} | null>(null);
+	const {timeline, structureTimeline} = useMemo(() => {
+		const previous = previousDisplayRef.current;
+		if (previous === null || previous.structure !== calculation.structure) {
+			const next = addTimelineDisplayGroups(calculation.tracks);
 			if (
-				oldTrack === undefined ||
-				currentSource !== previousSequencesById.get(track.sequence.id) ||
-				oldTrack.depth !== track.depth ||
-				oldTrack.cascadedStart !== track.cascadedStart ||
-				oldTrack.localStart !== track.localStart ||
-				oldTrack.parentVisibleStart !== track.parentVisibleStart ||
-				oldTrack.parentVisibleEnd !== track.parentVisibleEnd ||
-				oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
-				oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
-				oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||
-				oldTrack.sequence.from !== track.sequence.from ||
-				oldTrack.sequence.duration !== track.sequence.duration ||
-				oldTrack.sequence.sequencePlaybackRate !==
-					track.sequence.sequencePlaybackRate ||
-				oldTrack.sequence.premountDisplay !== track.sequence.premountDisplay ||
-				oldTrack.sequence.postmountDisplay !==
-					track.sequence.postmountDisplay ||
-				oldTrack.displayGroup?.key !== track.displayGroup?.key ||
-				oldTrack.displayGroup?.numberOfSequences !==
-					track.displayGroup?.numberOfSequences ||
-				(oldNodePath === null) !== (nodePath === null) ||
-				(oldNodePath !== null &&
-					nodePath !== null &&
-					!areSequenceNodePathInfosEqual(oldNodePath, nodePath)) ||
-				(oldLoop === undefined) !== (loop === undefined) ||
-				(oldLoop !== undefined &&
-					loop !== undefined &&
-					(oldLoop.durationInFrames !== loop.durationInFrames ||
-						oldLoop.numberOfTimes !== loop.numberOfTimes ||
-						oldLoop.startOffset !== loop.startOffset ||
-						oldLoop.phaseOffsetInFrames !== loop.phaseOffsetInFrames ||
-						oldLoop.mediaOffsetInFrames !== loop.mediaOffsetInFrames))
+				previous === null ||
+				previous.overrideIdsToNodePaths !== overrideIdToNodePathMappings ||
+				previous.compositions !== compositions
 			) {
-				return track;
+				return {timeline: next, structureTimeline: next};
 			}
 
-			return oldTrack;
-		});
-	}, [
-		sequences,
-		videoConfigIsNull,
-		overrideIdToNodePathMappings,
-		compositions,
-		compactSeries,
-	]);
+			// Unsupported edits still derive the full timeline, but unchanged bars
+			// keep the snapshots their memoized thumbnails and waveforms consume.
+			const previousSequencesById = new Map(
+				previous.sequences.map((sequence) => [sequence.id, sequence]),
+			);
+			const currentSequencesById = new Map(
+				sequences.map((sequence) => [sequence.id, sequence]),
+			);
+			const previousTracksById = new Map(
+				previous.timeline.map((track) => [track.sequence.id, track]),
+			);
+			const tracks = next.map((track) => {
+				const oldTrack = previousTracksById.get(track.sequence.id);
+				const currentSource = currentSequencesById.get(track.sequence.id);
+				const oldNodePath = oldTrack?.nodePathInfo ?? null;
+				const nodePath = track.nodePathInfo;
+				const oldLoop = oldTrack?.sequence.loopDisplay;
+				const loop = track.sequence.loopDisplay;
+				if (
+					oldTrack === undefined ||
+					currentSource !== previousSequencesById.get(track.sequence.id) ||
+					oldTrack.depth !== track.depth ||
+					oldTrack.cascadedStart !== track.cascadedStart ||
+					oldTrack.localStart !== track.localStart ||
+					oldTrack.parentVisibleStart !== track.parentVisibleStart ||
+					oldTrack.parentVisibleEnd !== track.parentVisibleEnd ||
+					oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
+					oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
+					oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||
+					oldTrack.sequence.from !== track.sequence.from ||
+					oldTrack.sequence.duration !== track.sequence.duration ||
+					oldTrack.sequence.sequencePlaybackRate !==
+						track.sequence.sequencePlaybackRate ||
+					oldTrack.sequence.premountDisplay !==
+						track.sequence.premountDisplay ||
+					oldTrack.sequence.postmountDisplay !==
+						track.sequence.postmountDisplay ||
+					oldTrack.displayGroup?.key !== track.displayGroup?.key ||
+					oldTrack.displayGroup?.numberOfSequences !==
+						track.displayGroup?.numberOfSequences ||
+					(oldNodePath === null) !== (nodePath === null) ||
+					(oldNodePath !== null &&
+						nodePath !== null &&
+						!areSequenceNodePathInfosEqual(oldNodePath, nodePath)) ||
+					(oldLoop === undefined) !== (loop === undefined) ||
+					(oldLoop !== undefined &&
+						loop !== undefined &&
+						(oldLoop.durationInFrames !== loop.durationInFrames ||
+							oldLoop.numberOfTimes !== loop.numberOfTimes ||
+							oldLoop.startOffset !== loop.startOffset ||
+							oldLoop.phaseOffsetInFrames !== loop.phaseOffsetInFrames ||
+							oldLoop.mediaOffsetInFrames !== loop.mediaOffsetInFrames))
+				) {
+					return track;
+				}
+
+				return oldTrack;
+			});
+			return {timeline: tracks, structureTimeline: tracks};
+		}
+
+		if (previous.tracks === calculation.tracks) {
+			return previous;
+		}
+
+		// Group identities and counts depend on structure, not media trimming.
+		return {
+			structureTimeline: previous.structureTimeline,
+			timeline: calculation.tracks.map((track, index) =>
+				track === previous.tracks[index]
+					? previous.timeline[index]
+					: {...track, displayGroup: previous.timeline[index].displayGroup},
+			),
+		};
+	}, [calculation, compositions, overrideIdToNodePathMappings, sequences]);
 	useLayoutEffect(() => {
-		previousTimelineRef.current = {
+		previousDisplayRef.current = {
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 			compositions,
+			structure: calculation.structure,
+			tracks: calculation.tracks,
 			timeline,
+			structureTimeline,
 		};
-	}, [compositions, overrideIdToNodePathMappings, sequences, timeline]);
+	}, [
+		calculation,
+		compositions,
+		overrideIdToNodePathMappings,
+		sequences,
+		structureTimeline,
+		timeline,
+	]);
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const activeFromDragOverrideKeys = Internals.useActiveFromDragOverrideKeys();
@@ -419,13 +453,37 @@ const TimelineInner: React.FC = () => {
 			return shouldShowTrackInTimeline(t, durationInFrames);
 		});
 	}, [activeFromDragOverrideKeys, durationInFrames, timeline]);
-	// Keep `filtered` complete so a future toggle can show every programmatic
-	// instance without recalculating the timeline or losing its instance index.
-	const collapsed = useMemo(() => {
+	const previousLayoutRef = useRef<{
+		readonly structure: typeof calculation.structure;
+		readonly tracks: TimelineTrackWithDisplayGroup[];
+		readonly sequences: TSequence[];
+	} | null>(null);
+	const filteredLayout = useMemo(() => {
+		const previous = previousLayoutRef.current;
+		if (
+			previous !== null &&
+			previous.structure === calculation.structure &&
+			previous.tracks.length === filtered.length &&
+			previous.tracks.every(
+				(track, index) => track.sequence.id === filtered[index].sequence.id,
+			)
+		) {
+			return previous;
+		}
+
+		// Visibility changes still rebuild membership, including a drag owner
+		// retained while it crosses the edge of the composition.
+		return {structure: calculation.structure, tracks: filtered, sequences};
+	}, [calculation.structure, filtered, sequences]);
+	useLayoutEffect(() => {
+		previousLayoutRef.current = filteredLayout;
+	}, [filteredLayout]);
+	// Keep every instance in `filtered`; collapse only the displayed structure.
+	const collapsedLayout = useMemo(() => {
 		const seenDisplayGroups = new Set<string>();
-		return filterTimelineTrackContents(
-			filtered,
-			sequences,
+		const tracks = filterTimelineTrackContents(
+			filteredLayout.tracks,
+			filteredLayout.sequences,
 			compactSeries,
 		).filter((track) => {
 			if (track.sequence.timelineTrack || track.displayGroup === null) {
@@ -439,18 +497,57 @@ const TimelineInner: React.FC = () => {
 			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
-	}, [compactSeries, filtered, sequences]);
+		return {tracks, sequences: filteredLayout.sequences};
+	}, [compactSeries, filteredLayout]);
+	const previousCollapsedRef = useRef<{
+		readonly layout: typeof collapsedLayout;
+		readonly timeline: typeof timeline;
+		readonly tracks: TimelineTrackWithDisplayGroup[];
+	} | null>(null);
+	const collapsed = useMemo(() => {
+		const previous = previousCollapsedRef.current;
+		return collapsedLayout.tracks.map((layoutTrack, index) => {
+			const trackIndex = calculation.structure.trackIndexById.get(
+				layoutTrack.sequence.id,
+			)!;
+			const track = timeline[trackIndex];
+			if (
+				previous?.layout === collapsedLayout &&
+				previous.timeline[trackIndex] === track
+			) {
+				return previous.tracks[index];
+			}
 
-	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
+			return {
+				...track,
+				depth: layoutTrack.depth,
+				displayGroup: layoutTrack.displayGroup,
+			};
+		});
+	}, [calculation.structure, collapsedLayout, timeline]);
+	useLayoutEffect(() => {
+		previousCollapsedRef.current = {
+			layout: collapsedLayout,
+			timeline,
+			tracks: collapsed,
+		};
+	}, [collapsed, collapsedLayout, timeline]);
+	const {
+		visibleTracks,
+		visibleLayoutTracks,
+		value: layerChildrenValue,
+	} = useTimelineLayerChildren(
 		collapsed,
-		sequences,
+		collapsedLayout,
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
 		compactSeries,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
+	// Eligible media leaves do not change Track clip ranges. A change to any
+	// Track member invalidates the structure and runs overlap validation again.
 	const trackOverlapError = useMemo(
-		() => getTimelineTrackOverlapError(timeline, durationInFrames),
-		[timeline, durationInFrames],
+		() => getTimelineTrackOverlapError(structureTimeline, durationInFrames),
+		[structureTimeline, durationInFrames],
 	);
 	useEffect(() => {
 		if (trackOverlapError === null) {
@@ -572,9 +669,39 @@ const TimelineInner: React.FC = () => {
 	]);
 
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
+	const layoutRows = useMemo(
+		() => getTimelineDisplayRows(visibleLayoutTracks),
+		[visibleLayoutTracks],
+	);
+	const previousRowsRef = useRef<{
+		readonly layoutRows: readonly TimelineDisplayRow[];
+		readonly rows: readonly TimelineDisplayRow[];
+	}>({layoutRows, rows: layoutRows});
 	const displayRows = useMemo(
-		() => getTimelineDisplayRows(visibleTracks),
-		[visibleTracks],
+		() =>
+			projectTimelineDisplayRows({
+				rows:
+					previousRowsRef.current.layoutRows === layoutRows
+						? previousRowsRef.current.rows
+						: layoutRows,
+				tracksById: new Map(
+					visibleTracks.map((track) => [track.sequence.id, track]),
+				),
+			}),
+		[layoutRows, visibleTracks],
+	);
+	useLayoutEffect(() => {
+		previousRowsRef.current = {layoutRows, rows: displayRows};
+	}, [displayRows, layoutRows]);
+	const virtualizationLayout = useMemo(
+		() => ({
+			timeline:
+				maxTimelineTracks !== null && layoutRows.length > maxTimelineTracks
+					? layoutRows.slice(0, maxTimelineTracks)
+					: layoutRows,
+			sequences: collapsedLayout.sequences,
+		}),
+		[collapsedLayout.sequences, layoutRows, maxTimelineTracks],
 	);
 	const shownRows = useMemo(() => {
 		return maxTimelineTracks !== null && displayRows.length > maxTimelineTracks
@@ -614,6 +741,7 @@ const TimelineInner: React.FC = () => {
 							hasBeenCut={hasBeenCut}
 							isStill={isStill}
 							timeline={shownRows}
+							layoutSnapshot={virtualizationLayout}
 						>
 							{isStudioInteractivityEnabled() ? (
 								<TimelineSelectAllKeybindings timeline={shown} />

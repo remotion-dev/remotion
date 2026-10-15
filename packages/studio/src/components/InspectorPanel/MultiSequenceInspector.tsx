@@ -6,7 +6,7 @@ import React, {
 	useSyncExternalStore,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
@@ -62,6 +62,7 @@ export const MultiSequenceInspector: React.FC<{
 }> = ({selections, readOnlyStudio}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequences = Internals.useSequenceManagerSequences();
+	const calculateTimeline = useTimelineCalculator();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -70,7 +71,7 @@ export const MultiSequenceInspector: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const targets = useMemo(() => {
-		const tracks = calculateTimeline({
+		const {tracks} = calculateTimeline({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
@@ -105,9 +106,9 @@ export const MultiSequenceInspector: React.FC<{
 		}
 
 		return result;
-	}, [overrideIdToNodePathMappings, selections, sequences]);
+	}, [calculateTimeline, overrideIdToNodePathMappings, selections, sequences]);
 	const precomposeTargets = useMemo(() => {
-		const tracks = calculateTimeline({
+		const {tracks} = calculateTimeline({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
@@ -131,7 +132,7 @@ export const MultiSequenceInspector: React.FC<{
 				isTransition: track?.sequence.timelineTrack?.role === 'transition',
 			};
 		});
-	}, [overrideIdToNodePathMappings, selections, sequences]);
+	}, [calculateTimeline, overrideIdToNodePathMappings, selections, sequences]);
 	const store = useMemo(() => {
 		const stores = (targets ?? []).map(
 			(target) => target.controls.runtimeValues,
