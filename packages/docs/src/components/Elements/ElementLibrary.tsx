@@ -277,14 +277,37 @@ export const ElementLibrary: React.FC<{
 	readonly category: ElementCategory | null;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
 }> = ({category, sourceCodeBySlug}) => {
-	const sections = getElementLibrarySections(category);
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const [isStudioEmbed, setIsStudioEmbed] = useState(false);
 	const [isCaptionPicker, setIsCaptionPicker] = useState(false);
 	const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+	const [query, setQuery] = useState('');
+	const searchRef = useRef<HTMLInputElement>(null);
+	const searchTerms = isStudioEmbed
+		? query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+		: [];
+	const sections = getElementLibrarySections(category)
+		.map((section) => ({
+			...section,
+			definitions: section.definitions.filter((definition) => {
+				const searchText = [
+					definition.displayName,
+					definition.description,
+					definition.slug.replace(/[-/]/g, ' '),
+					section.label,
+				]
+					.join(' ')
+					.toLowerCase();
+				return searchTerms.every((term) => searchText.includes(term));
+			}),
+		}))
+		.filter((section) => section.definitions.length > 0);
 
 	useLayoutEffect(() => {
+		const isEmbedded = isInsideStudio();
+		setIsStudioEmbed(isEmbedded);
 		setIsCaptionPicker(
-			isInsideStudio() &&
+			isEmbedded &&
 				new URLSearchParams(window.location.search).get(
 					'remotion-studio-context',
 				) === 'captions',
@@ -295,6 +318,70 @@ export const ElementLibrary: React.FC<{
 
 	return (
 		<div className={styles.library}>
+			{isStudioEmbed ? (
+				<div className={styles.searchToolbar}>
+					<div
+						aria-label="Elements"
+						className={styles.searchField}
+						role="search"
+					>
+						<svg
+							aria-hidden="true"
+							className={styles.searchIcon}
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							strokeWidth="1.75"
+						>
+							<circle cx="10.5" cy="10.5" r="6.5" />
+							<path d="m16 16 4.5 4.5" />
+						</svg>
+						<input
+							ref={searchRef}
+							aria-label="Search elements"
+							className={styles.searchInput}
+							onChange={(event) => setQuery(event.currentTarget.value)}
+							onKeyDown={(event) => {
+								if (event.key === 'Escape' && query !== '') {
+									event.preventDefault();
+									event.stopPropagation();
+									setQuery('');
+								}
+							}}
+							placeholder="Search elements…"
+							type="search"
+							value={query}
+						/>
+						{query !== '' ? (
+							<button
+								aria-label="Clear search"
+								className={styles.clearSearch}
+								onClick={() => {
+									setQuery('');
+									searchRef.current?.focus();
+								}}
+								type="button"
+							>
+								<svg
+									aria-hidden="true"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									strokeWidth="1.75"
+								>
+									<path d="m6 6 12 12M6 18 18 6" />
+								</svg>
+							</button>
+						) : null}
+					</div>
+				</div>
+			) : null}
+			{sections.length === 0 ? (
+				<div className={styles.emptyState}>
+					<strong>No elements found</strong>
+					<p>Try another search or browse another category.</p>
+				</div>
+			) : null}
 			{sections.map((section) => {
 				if (category !== null) {
 					return (
