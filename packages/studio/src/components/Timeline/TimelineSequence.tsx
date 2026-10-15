@@ -15,6 +15,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLUE,
@@ -1080,6 +1081,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	// if that is the case, it needs to be asynchronously determined
 
 	const video = Internals.useVideo();
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const registryEntry = useTimelineSequenceRegistry(s.id);
 	const isTransitionInteraction =
@@ -1526,12 +1528,15 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 
 		splitSelectedTimelineItems({
 			selections: selectedItems,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			tracks: calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			}).tracks,
 			propStatuses,
 			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
+		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
 		previewInteractive,
 		propStatuses,
@@ -1611,8 +1616,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					getContextForAgents: () =>
 						getSequencesContextForAgents({
 							nodePathInfos: selectedSequenceNodePathInfos,
-							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-							sequences: sequencesRef.current,
+							tracks: calculateTimeline({
+								sequences: sequencesRef.current,
+								overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+							}).tracks,
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
@@ -1714,6 +1721,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			openInCodingAgent,
 			openInEditor,
 			originalLocation,
+			calculateTimeline,
 			overrideIdToNodePathMappingsRef,
 			previewInteractive,
 			previewServerState,

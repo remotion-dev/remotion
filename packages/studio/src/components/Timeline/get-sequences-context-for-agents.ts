@@ -1,24 +1,23 @@
-import type {OverrideIdToNodePaths, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {formatContextForAgents} from '../../helpers/format-file-location';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getOriginalLocationFromStack} from './TimelineStack/get-stack';
 
 export const getSequencesContextForAgents = async ({
 	nodePathInfos,
-	overrideIdsToNodePaths,
-	sequences,
+	tracks,
 }: {
 	readonly nodePathInfos: readonly SequenceNodePathInfo[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-	readonly sequences: TSequence[];
+	readonly tracks: readonly TimelineTrackData[];
 }): Promise<string | null> => {
 	const contexts = await Promise.all(
 		nodePathInfos.map(async (nodePathInfo) => {
 			const track = findTrackForNodePathInfo({
-				sequences,
-				overrideIdsToNodePaths,
+				tracks,
 				nodePathInfo,
 			});
 			const stack = track?.sequence.getStack() ?? null;

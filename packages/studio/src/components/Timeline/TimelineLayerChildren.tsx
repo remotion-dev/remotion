@@ -47,8 +47,11 @@ export const TimelineLayerChildrenProvider =
 	TimelineLayerChildrenContext.Provider;
 
 export const useTimelineLayerChildren = (
-	tracks: TimelineTrackWithDisplayGroup[],
-	sequences: TSequence[],
+	tracks: readonly TimelineTrackWithDisplayGroup[],
+	layoutSnapshot: {
+		readonly tracks: readonly TimelineTrackWithDisplayGroup[];
+		readonly sequences: readonly TSequence[];
+	},
 	compositionId: string | null,
 	compactSeries: boolean,
 ) => {
@@ -71,6 +74,7 @@ export const useTimelineLayerChildren = (
 		}
 	});
 	const hierarchy = useMemo(() => {
+		const {tracks: layoutTracks, sequences} = layoutSnapshot;
 		const byId = new Map(sequences.map((sequence) => [sequence.id, sequence]));
 		const siblingIndices = new Map<string, number>();
 		const siblingCounts = new Map<string | null, number>();
@@ -83,7 +87,7 @@ export const useTimelineLayerChildren = (
 		const keys = new Map<string, string>();
 		const parents = new Set<string>();
 		const ancestors = new Map<string, string[]>();
-		for (const track of tracks) {
+		for (const track of layoutTracks) {
 			const parentIds: string[] = [];
 			let {parent} = track.sequence;
 			while (parent !== null && !parentIds.includes(parent)) {
@@ -120,12 +124,12 @@ export const useTimelineLayerChildren = (
 		}
 
 		return {keys, parents, ancestors, byId};
-	}, [compositionId, sequences, tracks]);
+	}, [compositionId, layoutSnapshot]);
 	const toggle = useCallback(
 		(key: string) => {
 			const affectedKeys = new Set([key]);
 			if (compactSeries) {
-				const rows = getTimelineDisplayRows(tracks);
+				const rows = getTimelineDisplayRows(layoutSnapshot.tracks);
 				const index = rows.findIndex(
 					(row) => hierarchy.keys.get(row.track.sequence.id) === key,
 				);
@@ -133,7 +137,7 @@ export const useTimelineLayerChildren = (
 				const layout = getTimelineSeriesLayout({
 					rows,
 					heights: rows.map(() => 1),
-					sequences,
+					sequences: layoutSnapshot.sequences,
 					compactSeries,
 					paddingStart: 0,
 				});
@@ -176,12 +180,12 @@ export const useTimelineLayerChildren = (
 				return next;
 			});
 		},
-		[compactSeries, hierarchy, sequences, tracks],
+		[compactSeries, hierarchy, layoutSnapshot],
 	);
-	const visibleTracks = useMemo(
+	const visibleTrackIndexes = useMemo(
 		() =>
-			tracks.filter((track) => {
-				return !(hierarchy.ancestors.get(track.sequence.id) ?? []).some(
+			layoutSnapshot.tracks.flatMap((track, index) => {
+				const hidden = (hierarchy.ancestors.get(track.sequence.id) ?? []).some(
 					(id) => {
 						// Keep packed Series bars when their contents collapse.
 						// Regular Track clips have their own rows and collapse normally.
@@ -200,8 +204,17 @@ export const useTimelineLayerChildren = (
 						return key !== undefined && collapsed[key];
 					},
 				);
+				return hidden ? [] : [index];
 			}),
-		[hierarchy, collapsed, tracks],
+		[hierarchy, collapsed, layoutSnapshot],
+	);
+	const visibleTracks = useMemo(
+		() => visibleTrackIndexes.map((index) => tracks[index]),
+		[tracks, visibleTrackIndexes],
+	);
+	const visibleLayoutTracks = useMemo(
+		() => visibleTrackIndexes.map((index) => layoutSnapshot.tracks[index]),
+		[layoutSnapshot, visibleTrackIndexes],
 	);
 	const value = useMemo(
 		() => ({
@@ -212,7 +225,7 @@ export const useTimelineLayerChildren = (
 		}),
 		[collapsed, hierarchy, toggle],
 	);
-	return {visibleTracks, value};
+	return {visibleTracks, visibleLayoutTracks, value};
 };
 
 export const TimelineLayerChildrenToggle: React.FC<{

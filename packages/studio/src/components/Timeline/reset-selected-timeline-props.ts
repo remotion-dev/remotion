@@ -1,14 +1,13 @@
 import {getEffectFieldsToShow} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
-	OverrideIdToNodePaths,
 	PropStatuses,
 	InteractivitySchemaField,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
-	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {saveMultipleEffectProps} from './save-effect-prop';
@@ -131,13 +130,11 @@ const getActiveFieldSchema = ({
 
 export const getTimelinePropResetTargets = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	readonly selections: readonly TimelineSelection[];
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }): TimelinePropResetTarget[] | null => {
 	const propSelections = selections.filter(isPropResetSelection);
@@ -154,8 +151,7 @@ export const getTimelinePropResetTargets = ({
 	const resetTargets: TimelinePropResetTarget[] = [];
 	for (const selection of selections) {
 		const track = findTrackForNodePathInfo({
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			nodePathInfo: selection.nodePathInfo,
 		});
 		const sequence = track?.sequence ?? null;
@@ -259,23 +255,20 @@ export const getTimelinePropResetTargets = ({
 
 export const resetSelectedTimelineProps = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 	setPropStatuses,
 	clientId,
 }: {
 	readonly selections: readonly TimelineSelection[];
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 	readonly setPropStatuses: SetPropStatuses;
 	readonly clientId: string;
 }): Promise<void> | null => {
 	const resetTargets = getTimelinePropResetTargets({
 		selections,
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		propStatuses,
 	});
 	if (resetTargets === null || resetTargets.length === 0) {

@@ -1,11 +1,8 @@
 import {CanvasInternals} from '@remotion/sdk';
-import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
 import {studioCssVariables} from '../helpers/studio-css-variables';
 import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {mixPoint} from './selected-outline-geometry';
-import type {SequenceWithSelectedOutline} from './selected-outline-types';
 import {
 	cropFieldKeys,
 	rotateFieldKey,
@@ -21,8 +18,6 @@ import {
 	parsedTransformOriginToUv,
 	parseTransformOrigin,
 } from './Timeline/transform-origin-utils';
-
-const {getCanvasSelectableOutlines} = CanvasInternals;
 
 export const {
 	getCanvasOutlineSelectionInteraction: getOutlineSelectionInteraction,
@@ -390,26 +385,4 @@ export const getSelectedRotationInfo = (
 				? selectedItem.frame
 				: selectedItem.fromFrame,
 	};
-};
-
-export const getSequencesWithSelectableOutlines = ({
-	sequences,
-	overrideIdsToNodePaths,
-	compositions = [],
-	timelinePosition,
-}: {
-	readonly sequences: readonly TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-	readonly compositions?: readonly _InternalTypes['AnyComposition'][];
-	readonly timelinePosition: number | null;
-}): SequenceWithSelectedOutline[] => {
-	return getCanvasSelectableOutlines({
-		tracks: calculateTimeline({
-			sequences: [...sequences],
-			overrideIdsToNodePaths,
-			compositions,
-		}),
-		timelinePosition,
-		resolveSequenceNodePathInfo: null,
-	});
 };
