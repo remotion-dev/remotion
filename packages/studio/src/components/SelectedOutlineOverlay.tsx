@@ -16,6 +16,7 @@ import {
 	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {useTimelineCalculator} from '../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	isStudioInteractivityEnabled,
@@ -38,7 +39,6 @@ import {
 	getSelectedSequenceKeys,
 	getSelectedTransformOriginInfo,
 	getSequenceKeysContainingSelection,
-	type getSequencesWithSelectableOutlines,
 } from './selected-outline-measurement';
 import {orderOutlinesForRendering} from './selected-outline-order';
 import {
@@ -66,7 +66,6 @@ import {
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 
 const {
-	calculateTimeline,
 	getCanvasSelectableOutlines,
 	getCanvasVisibleOutlineTargets,
 	getCanvasActiveOutlineTargets,
@@ -107,7 +106,6 @@ export {
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationPivot,
 	getSelectedSequenceKeys,
-	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 } from './selected-outline-measurement';
 
@@ -190,7 +188,7 @@ const getCropDragFields = ({
 };
 
 type SelectableOutlines = Readonly<
-	ReturnType<typeof getSequencesWithSelectableOutlines>
+	ReturnType<typeof getCanvasSelectableOutlines>
 >;
 
 type CalculateOutlineTargetsOptions = {
@@ -698,7 +696,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 	) => SelectedOutlineTarget | undefined;
 	readonly getSelectableOutlines: (
 		timelinePosition: number,
-	) => ReturnType<typeof getSequencesWithSelectableOutlines>;
+	) => ReturnType<typeof getCanvasSelectableOutlines>;
 	readonly hoveredTimelineNodePathKey: string | null;
 	readonly measureAllOutlines: boolean;
 	readonly onDraggingChange: (dragging: boolean) => void;
@@ -827,6 +825,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const sequences = Internals.useSequenceManagerSequences();
+	const calculateTimeline = useTimelineCalculator();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -875,7 +874,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		// Resolve source identities once per sequence snapshot, on first demand.
 		// Playback only filters the cached candidates by their visible range.
 		let selectableOutlines: ReturnType<
-			typeof getSequencesWithSelectableOutlines
+			typeof getCanvasSelectableOutlines
 		> | null = null;
 		return (timelinePosition: number | null) => {
 			if (
@@ -889,10 +888,10 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 
 			selectableOutlines ??= getCanvasSelectableOutlines({
 				tracks: calculateTimeline({
-					sequences: [...sequences],
+					sequences,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					compositions,
-				}),
+				}).tracks,
 				timelinePosition: null,
 				resolveSequenceNodePathInfo: null,
 			});
@@ -904,6 +903,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					});
 		};
 	}, [
+		calculateTimeline,
 		compositions,
 		editorShowOutlines,
 		isFullscreen,
@@ -957,9 +957,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const getSelectableOutlinesRef = useRef(getSelectableOutlines);
 	const selectableOutlinesCacheRef = useRef<{
 		readonly getSelectableOutlines: typeof getSelectableOutlines;
-		readonly selectableOutlines: ReturnType<
-			typeof getSequencesWithSelectableOutlines
-		>;
+		readonly selectableOutlines: ReturnType<typeof getCanvasSelectableOutlines>;
 		readonly timelinePosition: number;
 	} | null>(null);
 	useLayoutEffect(() => {

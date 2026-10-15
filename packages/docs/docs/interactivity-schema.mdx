@@ -9,7 +9,7 @@ crumb: 'API'
 
 An `InteractivitySchema` describes controls that Remotion Studio can show in the timeline.
 
-It is used by [`Interactive.withSchema()`](/docs/interactive-with-schema) for component props and by [`createEffect()`](/docs/create-effect) for effect parameters.
+It is used by [`Interactive.create()`](/docs/interactive-create) for component props and by [`createEffect()`](/docs/create-effect) for effect parameters.
 
 This schema is not a Zod schema. Use [Zod schemas](/docs/schemas) for [`<Composition>`](/docs/composition) props.
 
@@ -37,7 +37,7 @@ Keys may use dot notation. For example, a key named `style.opacity` reads from a
 
 Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and uses it for its [`<Sequence>`](/docs/sequence).
+[`Interactive.create()`](/docs/interactive-create) includes this fragment and uses it for its [`<Sequence>`](/docs/sequence).
 
 ### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
 
@@ -49,13 +49,13 @@ This schema fragment is headless: it does not render an element or add layout, t
 
 Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment.
+[`Interactive.create()`](/docs/interactive-create) includes this fragment.
 
 ### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
 
 Controls for cropping a component from each edge: [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and applies the crop through the component's `style` prop.
+[`Interactive.create()`](/docs/interactive-create) includes this fragment and applies the crop through the component's `style` prop.
 
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
@@ -106,7 +106,7 @@ When `style.borderRadius` is a number or contains one to four pixel values, the 
 
 Mounting props: `premountFor` and `postmountFor`.
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and uses the props for its [`<Sequence>`](/docs/sequence).
+[`Interactive.create()`](/docs/interactive-create) includes this fragment and uses the props for its [`<Sequence>`](/docs/sequence).
 
 These schemas are for component props. Effects created with [`createEffect()`](/docs/create-effect) should define only their own effect parameters.
 
@@ -421,7 +421,7 @@ The schema describes plain data. Editing its controls requires Remotion Studio.
 
 ## See also
 
-- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [`Interactive.create()`](/docs/interactive-create)
 - [`Interactive`](/docs/interactive)
 - [`createEffect()`](/docs/create-effect)
 - [Defining a schema for your props](/docs/schemas)

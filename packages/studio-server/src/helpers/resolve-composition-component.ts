@@ -90,7 +90,6 @@ export const insertJsxElementIntoComposition = async ({
 	compositionId,
 	element,
 	from,
-	premountFor,
 	prettierConfigOverride,
 	wrapInSequence = null,
 	sourceFileOverrides,
@@ -100,7 +99,6 @@ export const insertJsxElementIntoComposition = async ({
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
-	premountFor: number | null;
 	prettierConfigOverride: Record<string, unknown> | null;
 	wrapInSequence?: {
 		dimensions: {width: number; height: number} | null;
@@ -138,7 +136,6 @@ export const insertJsxElementIntoComposition = async ({
 			element,
 			environment,
 			from,
-			premountFor,
 			prettierConfigOverride,
 			wrapInSequence: sequence,
 		});
@@ -147,7 +144,6 @@ export const insertJsxElementIntoComposition = async ({
 	const codemodElement = createElementFromInsertable({
 		element,
 		from,
-		premountFor,
 		wrapInSequence: sequence,
 	});
 	const location = await resolveCompositionComponentWithFileCodemod({

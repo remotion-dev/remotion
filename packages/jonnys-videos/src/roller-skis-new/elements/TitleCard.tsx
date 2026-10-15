@@ -155,10 +155,8 @@ const titleCardSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const TitleCard = Interactive.withSchema({
+export const TitleCard = Interactive.create({
 	Component: TitleCardInner,
-	componentName: 'TitleCard',
 	schema: titleCardSchema,
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

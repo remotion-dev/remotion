@@ -91,6 +91,19 @@ const validateElement = (
 		return;
 	}
 
+	if (element.type === 'text') {
+		if (typeof element.text !== 'string' || element.text.trim() === '') {
+			throw new Error('Text must be a non-empty string');
+		}
+
+		validateDimension('fontSize', element.fontSize);
+		if (typeof element.color !== 'string' || element.color.trim() === '') {
+			throw new Error('Text color must be a non-empty string');
+		}
+
+		return;
+	}
+
 	if (element.type === 'svg') {
 		if (typeof element.markup !== 'string' || element.markup.trim() === '') {
 			throw new Error('SVG markup must be a non-empty string');
@@ -176,6 +189,10 @@ const validateElement = (
 };
 
 const getElementLabel = (element: InsertableCompositionElement) => {
+	if (element.type === 'text') {
+		return '<Interactive.Div>';
+	}
+
 	if (element.type === 'solid') {
 		return '<Solid>';
 	}
@@ -221,7 +238,7 @@ export const insertCompositionElementHandler: ApiHandler<
 	InsertCompositionElementRequest,
 	InsertCompositionElementResponse
 > = ({
-	input: {compositionFile, compositionId, element, from, premountFor},
+	input: {compositionFile, compositionId, element, from},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -233,13 +250,6 @@ export const insertCompositionElementHandler: ApiHandler<
 				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
 			) {
 				throw new Error('from must be a non-negative integer');
-			}
-
-			if (
-				premountFor !== null &&
-				(!Number.isInteger(premountFor) || premountFor < 0)
-			) {
-				throw new Error('premountFor must be a non-negative integer');
 			}
 
 			const elementLabel = getElementLabel(element);
@@ -263,7 +273,6 @@ export const insertCompositionElementHandler: ApiHandler<
 				compositionId,
 				element,
 				from,
-				premountFor,
 				prettierConfigOverride: null,
 				sourceFileOverrides: null,
 			});

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.22.0"
+    "node": "^22.22.0 || >=24"
   },
   "scripts": {
     "build": "react-router build",
@@ -44,12 +44,11 @@
   "devDependencies": {
     "@react-router/dev": "8.3.0",
     "@remotion/eslint-config-flat": "workspace:*",
-    "@remotion/eslint-plugin": "workspace:*",
     "@types/node": "22.20.0",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "dotenv": "17.3.1",
-    "eslint": "9.39.5",
+    "eslint": "10.12.0",
     "prettier": "3.8.1",
     "tsx": "4.19.3",
     "typescript": "5.9.3"

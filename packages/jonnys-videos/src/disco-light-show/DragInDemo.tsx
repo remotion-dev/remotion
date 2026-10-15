@@ -1,14 +1,12 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {Interactive, useVideoConfig} from 'remotion';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
 const DragInDemoInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	return (
 		<>
 			<Video
-				premountFor={fps}
 				src={asset('Screen Recording 2026-07-19 at 18.16.56.mov')}
 				style={{
 					position: 'absolute',
@@ -27,10 +25,7 @@ const DragInDemoInner: React.FC = () => {
 	);
 };
 
-export const DragInDemo = Interactive.withSchema({
+export const DragInDemo = Interactive.create({
 	Component: DragInDemoInner,
-	componentName: 'DragInDemo',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

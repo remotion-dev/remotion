@@ -35,7 +35,7 @@ import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
 import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
-import {useTimelineSelection} from './Timeline/TimelineSelection';
+import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
 
 const centeredContainer: React.CSSProperties = {
 	display: 'flex',
@@ -461,7 +461,7 @@ const PortalContainer: React.FC<{
 	readonly contentDimensions: Dimensions;
 }> = ({offscreen, scale, xCorrection, yCorrection, contentDimensions}) => {
 	const {checkerboard} = useContext(CheckerboardContext);
-	const {clearSelection} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const portalContainer = useRef<HTMLDivElement>(null);
 
 	const style = useMemo((): React.CSSProperties => {
@@ -517,9 +517,9 @@ const PortalContainer: React.FC<{
 				return;
 			}
 
-			clearSelection();
+			currentSelection.current.clearSelection();
 		},
-		[clearSelection],
+		[currentSelection],
 	);
 
 	useEffect(() => {

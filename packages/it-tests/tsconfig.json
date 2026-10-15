@@ -4,7 +4,7 @@
 		"jsx": "react-jsx",
 		"noEmit": true,
 		"module": "ESNext",
-		"moduleResolution": "node"
+		"moduleResolution": "bundler"
 	},
 	"references": [
 		{

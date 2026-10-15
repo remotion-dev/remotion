@@ -1,6 +1,7 @@
 import {canvasKeyframeEasingPresets} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WHITE_ALPHA_10} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
@@ -82,6 +83,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		readonly style: React.CSSProperties;
 	}
 > = ({fromFrame, toFrame, nodePathInfo, segmentIndex, style}) => {
+	const calculateTimeline = useTimelineCalculator();
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const {selected, onSelect, selectable, selectionItem} =
 		useTimelineEasingSelection({
@@ -124,8 +126,10 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 
 			const promise = updateSelectedTimelineEasings({
 				selections: getTargetSelections(),
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+				tracks: calculateTimeline({
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+				}).tracks,
 				propStatuses: propStatusesRef.current,
 				setPropStatuses,
 				clientId: previewServerState.clientId,
@@ -134,6 +138,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			promise?.catch(() => undefined);
 		},
 		[
+			calculateTimeline,
 			getTargetSelections,
 			overrideIdToNodePathMappingsRef,
 			previewServerState,

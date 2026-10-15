@@ -44,6 +44,7 @@ export const isSequentialMediaTimeAdvance = ({
 };
 
 export const videoIteratorManager = async ({
+	getIsDisposed,
 	delayPlaybackHandleIfNotPremounting,
 	canvas,
 	context,
@@ -58,6 +59,7 @@ export const videoIteratorManager = async ({
 	getEffectChainState,
 	maxCanvasSinkFrameSize,
 }: {
+	getIsDisposed: () => boolean;
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
@@ -82,6 +84,7 @@ export const videoIteratorManager = async ({
 	let lastDrawnFrame: WrappedCanvas | null = null;
 	let currentSeek: number | null = null;
 	let destroyed = false;
+	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
@@ -89,7 +92,7 @@ export const videoIteratorManager = async ({
 
 	const displayWidth = await videoTrack.getDisplayWidth();
 	const displayHeight = await videoTrack.getDisplayHeight();
-	if (canvas) {
+	if (canvas && !getIsDisposed()) {
 		if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
 			canvas.width = displayWidth;
 			canvas.height = displayHeight;
@@ -125,6 +128,10 @@ export const videoIteratorManager = async ({
 		makePrewarmedVideoIteratorCache(canvasSink);
 
 	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
+		if (destroyed) {
+			return;
+		}
+
 		if (context && canvas) {
 			const effects = getEffects();
 			const chainState = getEffectChainState(canvas.width, canvas.height);
@@ -151,14 +158,22 @@ export const videoIteratorManager = async ({
 					source = upscaledFrame;
 				}
 
-				await runEffectChain({
-					state: chainState,
-					source,
-					effects,
-					output: canvas,
-					width: canvas.width,
-					height: canvas.height,
-				});
+				const run = {state: chainState, runId: chainState.currentRunId + 1};
+				pendingEffectRun = run;
+				try {
+					await runEffectChain({
+						state: chainState,
+						source,
+						effects,
+						output: canvas,
+						width: canvas.width,
+						height: canvas.height,
+					});
+				} finally {
+					if (pendingEffectRun === run) {
+						pendingEffectRun = null;
+					}
+				}
 			} else {
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				context.drawImage(frame.canvas, 0, 0, canvas.width, canvas.height);
@@ -168,6 +183,10 @@ export const videoIteratorManager = async ({
 
 	const drawFrame = async (frame: WrappedCanvas): Promise<void> => {
 		await paintFrame(frame);
+		if (destroyed) {
+			return;
+		}
+
 		lastDrawnFrame = frame;
 
 		framesRendered++;
@@ -190,6 +209,9 @@ export const videoIteratorManager = async ({
 		}
 
 		await paintFrame(lastDrawnFrame);
+		if (destroyed) {
+			return;
+		}
 
 		drawDebugOverlay();
 		const callback = getOnVideoFrameCallback();
@@ -348,11 +370,24 @@ export const videoIteratorManager = async ({
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
+			if (destroyed) {
+				return;
+			}
+
 			destroyed = true;
+			// Cancel only this manager's pending run, not a newer run sharing its state.
+			if (
+				pendingEffectRun &&
+				pendingEffectRun.state.currentRunId === pendingEffectRun.runId
+			) {
+				pendingEffectRun.state.currentRunId++;
+			}
+
+			pendingEffectRun = null;
 			clearLastDrawnFrame();
 			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();
-			if (context && canvas) {
+			if (context && canvas && framesRendered > 0) {
 				context.clearRect(0, 0, canvas.width, canvas.height);
 			}
 

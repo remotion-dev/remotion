@@ -3,6 +3,8 @@ import {BLACK_HEX, WHITE} from '../../helpers/colors';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SHADOW_TOWARDS_BOTTOM, SHADOW_TOWARDS_TOP} from '../Menu/styles';
 
+export const INFO_TOOLTIP_FONT_SIZE = 13;
+
 const arrow: React.CSSProperties = {
 	height: 7,
 	display: 'block',
@@ -21,6 +23,7 @@ export const InfoTooltip: React.FC<{
 				arrowDirection === 'down' ? SHADOW_TOWARDS_TOP : SHADOW_TOWARDS_BOTTOM,
 			background: backgroundColor,
 			color: WHITE,
+			fontSize: INFO_TOOLTIP_FONT_SIZE,
 			border: '0.5px solid ' + BLACK_HEX,
 			maxHeight: 200,
 			overflow: 'auto',
@@ -45,7 +48,16 @@ export const InfoTooltip: React.FC<{
 				alignItems: horizontalAlignment === 'left' ? 'flex-start' : 'flex-end',
 			}}
 		>
-			<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+			<div
+				style={container}
+				className={`${VERTICAL_SCROLLBAR_CLASSNAME} __remotion-info-tooltip`}
+			>
+				<style>{`
+					.__remotion-info-tooltip,
+					.__remotion-info-tooltip * {
+						font-size: ${INFO_TOOLTIP_FONT_SIZE}px;
+					}
+				`}</style>
 				{children}
 			</div>
 			{arrowDirection === 'down' ? (

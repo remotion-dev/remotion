@@ -1,12 +1,6 @@
 import {evolvePath, getLength, getPointAtLength} from '@remotion/paths';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Easing,
-	Interactive,
-	interpolate,
-	useCurrentFrame,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {ChapterTag} from '../components/ChapterTag';
 import {RiseText} from '../components/RiseText';
 import {colors, mono, sans, serif} from '../theme';
@@ -278,11 +272,11 @@ const Donut: React.FC = () => {
 	);
 };
 
-export const DataViz: React.FC = () => {
+const DataVizInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#F3EFE6'}}>
+		<>
 			<div
 				style={{
 					position: 'absolute',
@@ -488,6 +482,12 @@ export const DataViz: React.FC = () => {
 				color={colors.ink}
 				start={16}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const DataViz = Interactive.create({
+	Component: DataVizInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});

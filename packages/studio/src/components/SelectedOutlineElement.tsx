@@ -13,8 +13,9 @@ import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
-import {getSequenceAnnotationAttributes} from '../helpers/sequence-annotation';
+import {getFieldsToShow} from '../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../state/modals';
+import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {useSelectComposition} from './InitialCompositionLoader';
@@ -42,11 +43,10 @@ import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
-	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
-import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -108,6 +108,17 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		canOpenInEditor: editorAvailable,
 	});
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {
+		setRightSidebarTemporaryExpansion,
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
 	);
@@ -117,16 +128,13 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {selectItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
 		useSelectedOutlineControlTarget({
 			getLatestTargetByKey,
 			layoutTarget,
 		});
-	const annotationLocation = useResolvedStack(
-		layoutTarget?.sequence.getStack() ?? null,
-	);
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -161,6 +169,59 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				compositions,
 				singleChildComponent: doubleClickTarget.sequence.singleChildComponent,
 			});
+			const nodePath = doubleClickTarget.nodePathInfo.sequenceSubscriptionKey;
+			const childrenField = doubleClickTarget.sequence.controls
+				? getFieldsToShow({
+						schema: doubleClickTarget.sequence.controls.schema,
+						currentRuntimeValueDotNotation:
+							doubleClickTarget.sequence.controls.runtimeValues.getSnapshot(),
+						getDragOverrides,
+						propStatuses: propStatusesRef.current,
+						nodePath,
+						includeTextContent: true,
+					})?.find((field) => field.key === 'children')?.fieldSchema
+				: null;
+			const childrenStatus = Internals.getPropStatusesCtx(
+				propStatusesRef.current,
+				nodePath,
+			)?.children;
+			if (
+				button === 0 &&
+				!sequenceWasDragged &&
+				connectedCompositions.length !== 1 &&
+				previewServerState.type === 'connected' &&
+				isStudioInteractivityEnabled() &&
+				currentSelection.current.canSelect &&
+				(childrenField?.type === 'string' ||
+					childrenField?.type === 'text-content') &&
+				childrenStatus?.status === 'static'
+			) {
+				if (sidebarCollapsedStateRight === 'collapsed') {
+					setSidebarCollapsedState({left: null, right: 'expanded'});
+				} else if (sidebarCollapsedStateRight === 'responsive') {
+					setRightSidebarTemporaryExpansion(true);
+				}
+
+				currentSelection.current.selectItems(
+					[
+						{
+							type: 'sequence-prop',
+							nodePathInfo: {
+								...doubleClickTarget.nodePathInfo,
+								auxiliaryKeys: [
+									...doubleClickTarget.nodePathInfo.auxiliaryKeys,
+									'controls',
+									'children',
+								],
+							},
+							key: 'children',
+						},
+					],
+					{revealInInspector: true},
+				);
+				return true;
+			}
+
 			const action = getSequenceDoubleClickAction({
 				button,
 				canOpenSource: defaultOpenInTarget !== null,
@@ -202,10 +263,17 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		},
 		[
 			compositions,
+			currentSelection,
 			defaultEditorId,
 			defaultOpenInTarget,
+			getDragOverrides,
+			previewServerState.type,
+			propStatusesRef,
 			resolveOriginalLocation,
 			selectComposition,
+			setRightSidebarTemporaryExpansion,
+			setSidebarCollapsedState,
+			sidebarCollapsedStateRight,
 		],
 	);
 
@@ -362,7 +430,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 												clientId: previewServerState.clientId,
 												fileName: nodePath.absolutePath,
 												nodePathInfo: contextMenuTarget.nodePathInfo,
-												selectItems,
+												selectItems: currentSelection.current.selectItems,
 											});
 										},
 										quickSwitcherLabel: null,
@@ -454,7 +522,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		resolveOriginalLocation,
 		setManuallyEnabled,
 		selectAsset,
-		selectItems,
+		currentSelection,
 		setSelectedModal,
 		setPropStatuses,
 		outline.path,
@@ -469,15 +537,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	return (
 		<>
 			<SelectedOutlinePolygon
-				annotationAttributes={
-					layoutTarget
-						? getSequenceAnnotationAttributes({
-								sequence: layoutTarget.sequence,
-								location: annotationLocation,
-								surface: 'outline',
-							})
-						: null
-				}
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
 				containsSelection={layoutTarget?.containsSelection === true}

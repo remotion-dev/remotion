@@ -34,7 +34,6 @@ const BigWordPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 	return (
 		<AbsoluteFill
 			showInTimeline={false}
-			premountFor={fps}
 			style={{
 				alignItems: 'center',
 				justifyContent: 'center',
@@ -44,7 +43,6 @@ const BigWordPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 			}}
 		>
 			<Interactive.Div
-				premountFor={fps}
 				name={`Caption page: ${page.text.trim()}`}
 				style={{
 					alignItems: 'center',
@@ -114,11 +112,8 @@ const BigWordPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 	);
 };
 
-const BigWordPage = Interactive.withSchema({
+const BigWordPage = Interactive.create({
 	Component: BigWordPageInner,
-	componentName: 'BigWordPage',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
@@ -164,12 +159,7 @@ const AnimatedCaptionsBigWordsInner: React.FC = () => {
 
 	return (
 		<>
-			<Audio
-				premountFor={fps}
-				src={asset(VOICEOVER_FILE)}
-				hidden
-				showInTimeline={false}
-			/>
+			<Audio src={asset(VOICEOVER_FILE)} hidden showInTimeline={false} />
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];
 				const startFrame = Math.round((page.startMs / 1000) * fps);
@@ -190,7 +180,6 @@ const AnimatedCaptionsBigWordsInner: React.FC = () => {
 						name={`Caption page: ${page.text.trim()}`}
 						from={startFrame}
 						durationInFrames={durationInFrames}
-						premountFor={fps}
 						showInTimeline={false}
 						page={page}
 					/>
@@ -200,10 +189,7 @@ const AnimatedCaptionsBigWordsInner: React.FC = () => {
 	);
 };
 
-export const AnimatedCaptionsBigWords = Interactive.withSchema({
+export const AnimatedCaptionsBigWords = Interactive.create({
 	Component: AnimatedCaptionsBigWordsInner,
-	componentName: 'AnimatedCaptionsBigWords',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

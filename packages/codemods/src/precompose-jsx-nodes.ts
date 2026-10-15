@@ -30,6 +30,7 @@ import {
 import {getStyleablePrecompositionRoot} from './precompose-styleable-root';
 import {captureJsxAttributeSources, printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {ensureNamedImport, getImportedName} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
 import {
@@ -1519,8 +1520,8 @@ const getRegistrationPathChanges = ({
 	after: string;
 	compositionId: string;
 }) => {
-	const original = captureJsxNodePaths(parseAst(before));
-	const updated = captureJsxNodePaths(parseAst(after));
+	const original = captureJsxNodePaths(getReadOnlySourceSnapshot(before).ast);
+	const updated = captureJsxNodePaths(getReadOnlySourceSnapshot(after).ast);
 	const inserted = updated.filter(({node: {attributes}}) => {
 		return (
 			attributes.some(
@@ -1952,17 +1953,6 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		childAttributes.unshift(`name={${JSON.stringify(wrapperName)}}`);
 	}
 
-	if (
-		styleRoot &&
-		!movedAttributes.some(
-			(attribute) =>
-				attribute.type === 'JSXAttribute' &&
-				attribute.name.name === 'premountFor',
-		)
-	) {
-		childAttributes.push(`premountFor={${metadata.fps}}`);
-	}
-
 	childAttributes.push(
 		...resolvedProps.map(({name: propName}) => `${propName}={${propName}}`),
 	);
@@ -1991,7 +1981,6 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	}
 
 	const componentSourceEdits: SourceEdit[] = [];
-	const additionalSourceEdits: SourceEdit[] = [];
 	let wrapperSource: string | null = null;
 	let wrapperDeclaration: File['program']['body'][number] | null = null;
 	if (styleRoot) {
@@ -2043,42 +2032,6 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 				.map((line, index) => (index === 0 ? line : `${rootIndent}${line}`))
 				.join(endOfLine),
 		});
-
-		// A retained Sequence still gates when its children can mount. Premount
-		// that existing container as well, without introducing a new one.
-		if (
-			selectedSequence &&
-			!selectedSequence.openingElement.attributes.some(
-				(attribute) =>
-					attribute.type === 'JSXAttribute' &&
-					attribute.name.name === 'premountFor',
-			)
-		) {
-			const outerOpening = selectedSequence.openingElement;
-			const outerSources = captureJsxAttributeSources(outerOpening);
-			outerOpening.attributes.push(
-				b.jsxAttribute(
-					b.jsxIdentifier('premountFor'),
-					b.jsxExpressionContainer(b.numericLiteral(metadata.fps)),
-				) as never,
-			);
-			const outerStart = recastLocToOffset(input, outerOpening.loc!.start);
-			const outerIndent = getLineIndent({input, offset: outerStart});
-			additionalSourceEdits.push({
-				start: outerStart,
-				end: recastLocToOffset(input, outerOpening.loc!.end),
-				replacement: printJsxOpeningElement({
-					compactLiteralProps: false,
-					openingElement: outerOpening as never,
-					input,
-					originalAttributeSources: outerSources,
-					prettierConfigOverride: null,
-				})
-					.split(/\r?\n/)
-					.map((line, index) => (index === 0 ? line : `${outerIndent}${line}`))
-					.join(endOfLine),
-			});
-		}
 
 		let interactiveLocalName = 'Interactive';
 		for (let suffix = 2; occupiedNames.has(interactiveLocalName); suffix++) {
@@ -2287,7 +2240,6 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		input,
 		edits: [
 			...unusedLocalEdits,
-			...additionalSourceEdits,
 			{start, end, replacement: replacementSource},
 			{
 				start: input.length,

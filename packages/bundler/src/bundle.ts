@@ -460,11 +460,10 @@ export const internalBundle = async (
 		experimentalKeepAudioContextAlive: false,
 		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
 		studioRuntimeConfig: {
+			showLayerFrameNumbers: false,
 			showPremounting: null,
 			defaultPremountInSeconds: null,
-			experimentalSequenceActivityEnabled: false,
-			experimentalSequenceActivityLimit:
-				NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+			sequenceActivityLimit: null,
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
 			canvasTabsEnabled: true,

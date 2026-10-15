@@ -119,7 +119,12 @@ export default createRule<Options, MessageIds>({
 						const problematicClass = findProblematicTailwindClass(classString);
 						if (problematicClass) {
 							// Calculate the precise location of the problematic class
-							const sourceCode = context.getSourceCode();
+							const sourceCode =
+								'sourceCode' in context
+									? (context.sourceCode as ReturnType<
+											typeof context.getSourceCode
+										>)
+									: context.getSourceCode();
 							const valueStart = valueNode.range[0];
 
 							// For string literals, we need to account for quotes

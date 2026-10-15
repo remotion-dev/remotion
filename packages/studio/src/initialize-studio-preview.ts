@@ -5,6 +5,7 @@ import {addErrorToOverlay} from './error-overlay/runtime-error-store';
 import {BACKGROUND_HEX} from './helpers/colors';
 import {injectCSS} from './helpers/inject-css';
 import {studioCssVariables} from './helpers/studio-css-variables';
+import {getStudioPixelRatio} from './helpers/studio-pixel-ratio';
 import {enableHotMiddleware} from './hot-middleware-client/client';
 
 declare global {
@@ -16,6 +17,9 @@ declare global {
 // Initialize before the project entry point so failed imports cannot prevent
 // runtime error reporting and hot reload from initializing.
 export const initializeStudioPreview = () => {
+	// Consume the URL override before Studio navigation replaces the query string.
+	getStudioPixelRatio();
+
 	if (window.__remotionOverlayStarted) {
 		return;
 	}

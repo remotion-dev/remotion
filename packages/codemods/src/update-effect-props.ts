@@ -2,9 +2,8 @@ import type {InteractivitySchema} from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import type {CodemodValue} from './codemod-value';
 import {
-	updateEffectProps as updateEffectPropsInSource,
+	batchUpdateEffectProps,
 	type EffectPropUpdate,
-	type UpdateEffectPropsResult,
 } from './effect-operations';
 import {type EffectReference, getEffectSource} from './effect-references';
 import {getNodeProps} from './get-node-props';
@@ -63,8 +62,6 @@ export const updateEffectProps = async <Project extends CodemodProject>({
 		throw new Error(`Cannot update effect: ${status?.reason ?? 'not-found'}`);
 	}
 
-	let output = input;
-	const results: UpdateEffectPropsResult[] = [];
 	for (const update of propUpdates) {
 		const {key} = update;
 		if (!/^[A-Za-z_$][\w$]*$/.test(key)) {
@@ -74,17 +71,16 @@ export const updateEffectProps = async <Project extends CodemodProject>({
 		if (!updates && status.props[key]?.status === 'computed') {
 			throw new Error(`Cannot update computed effect prop "${key}"`);
 		}
-
-		const edit = await updateEffectPropsInSource({
-			input: output,
-			sequenceNodePath: effect.nodePath,
-			effectIndex: effect.effectIndex,
-			update,
-			schema,
-		});
-		output = edit.output;
-		results.push(edit);
 	}
+
+	const results = await batchUpdateEffectProps({
+		input,
+		sequenceNodePath: effect.nodePath,
+		effectIndex: effect.effectIndex,
+		updates: propUpdates,
+		schema,
+	});
+	const {output} = results[results.length - 1];
 
 	const result = getNodeEditResult({
 		project,

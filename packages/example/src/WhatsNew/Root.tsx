@@ -17,6 +17,13 @@ export const WhatsNewRoot: React.FC = () => {
 	return (
 		<>
 			<Composition
+				defaultProps={{
+					style: {
+						overflow: 'visible',
+						flexDirection: 'column',
+						backgroundColor: '#000',
+					},
+				}}
 				id="WhatsNew"
 				component={WhatsNew}
 				durationInFrames={7328}
@@ -25,6 +32,13 @@ export const WhatsNewRoot: React.FC = () => {
 				height={1080}
 			/>
 			<Still
+				defaultProps={{
+					style: {
+						overflow: 'hidden',
+						flexDirection: 'column',
+						backgroundColor: '#06080E',
+					},
+				}}
 				id="WhatsNew-Thumbnail"
 				component={Thumbnail}
 				width={1280}
@@ -32,6 +46,7 @@ export const WhatsNewRoot: React.FC = () => {
 			/>
 			<Folder name="WhatsNew-Scenes">
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Intro"
 					component={IntroScene}
 					durationInFrames={208}
@@ -40,6 +55,7 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-LightLeaks"
 					component={LightLeaksScene}
 					durationInFrames={720}
@@ -48,6 +64,7 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-SoundEffects"
 					component={SoundEffectsScene}
 					durationInFrames={1152}
@@ -56,6 +73,7 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Vercel"
 					component={VercelScene}
 					durationInFrames={1040}
@@ -64,6 +82,7 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Skills"
 					component={SkillsScene}
 					durationInFrames={608}
@@ -72,6 +91,7 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-ClientSide"
 					component={ClientSideScene}
 					durationInFrames={832}
@@ -80,6 +100,7 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Agents"
 					component={AgentsScene}
 					durationInFrames={976}
@@ -88,6 +109,7 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Bundling"
 					component={BundlingScene}
 					durationInFrames={720}
@@ -96,6 +118,7 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-SneakPeek"
 					component={SneakPeekScene}
 					durationInFrames={912}
@@ -104,6 +127,13 @@ export const WhatsNewRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					defaultProps={{
+						style: {
+							overflow: 'visible',
+							flexDirection: 'column',
+							backgroundColor: '#000',
+						},
+					}}
 					id="WhatsNew-Outro"
 					component={OutroScene}
 					durationInFrames={160}

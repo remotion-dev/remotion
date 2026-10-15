@@ -1,0 +1,72 @@
+---
+image: /generated/articles-docs-studio-protocol-subscribe-to-caption-style-selection.png
+title: 'subscribeToCaptionStyleSelection()'
+crumb: '@remotion/studio-protocol'
+---
+
+# subscribeToCaptionStyleSelection()<AvailableFrom v="4.0.535" />
+
+Studio's <kbd>Generate captions</kbd> flow lets users select caption styles from [third-party libraries](/docs/studio-protocol/add-element-library-to-studio#captionstylesurl). Studio displays the selected style in its modal, but your embedded library does not automatically know which style is selected.
+
+Use `subscribeToCaptionStyleSelection()` to show the currently selected style in your library. It receives selection updates from Studio, so you can highlight the matching style on your side.
+
+## Example
+
+```ts twoslash title="caption-picker.ts"
+import {subscribeToCaptionStyleSelection} from '@remotion/studio-protocol';
+
+const unsubscribe = subscribeToCaptionStyleSelection((slug) => {
+  console.log(slug); // string | null
+});
+
+// When your picker unmounts:
+unsubscribe();
+```
+
+## React example
+
+```tsx twoslash title="CaptionPicker.tsx"
+import {useEffect, useState} from 'react';
+import {subscribeToCaptionStyleSelection} from '@remotion/studio-protocol';
+
+export const CaptionPicker = () => {
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+
+  useEffect(() => subscribeToCaptionStyleSelection(setSelectedSlug), []);
+
+  return <p>{selectedSlug ?? 'No style selected'}</p>;
+};
+```
+
+## Arguments
+
+### onChange
+
+A callback receiving the current selection when Studio responds, then updates when the selection changes or is reset.
+
+#### slug
+
+The selected Element's slug, or `null` when no style from your website is selected. This includes Reset and styles selected from another origin. Matching the origin is handled for you.
+
+The built-in Basic Captions fallback still applies when there is no explicit selection. Highlight your cards using the slug and expose the selected state with `aria-pressed`.
+
+## Return value
+
+Returns an unsubscribe function. Call it when your picker unmounts. Multiple listeners are supported; unsubscribing one does not affect the others.
+
+The subscription reconnects automatically when the page is restored from the back-forward cache.
+
+## Availability
+
+Only active inside Studio's [caption picker context](/docs/studio-protocol/add-element-library-to-studio#iframe-context). Outside it, including Browse Elements, standalone pages, and server-side rendering, the function returns a no-op unsubscribe function without invoking the callback.
+
+Studios older than v4.0.535 do not send selection updates. Selecting styles with [`installInStudio()`](/docs/studio-protocol/install-in-studio) still works.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [`addElementLibraryToStudio()`](/docs/studio-protocol/add-element-library-to-studio)
+- [Studio Protocol security](/docs/studio-protocol/security)

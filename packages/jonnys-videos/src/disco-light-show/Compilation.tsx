@@ -22,10 +22,7 @@ const CompilationInner: React.FC = () => {
 	);
 };
 
-export const Compilation = Interactive.withSchema({
+export const Compilation = Interactive.create({
 	Component: CompilationInner,
-	componentName: 'Compilation',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

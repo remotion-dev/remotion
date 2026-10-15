@@ -1,4 +1,6 @@
-import {AudioBufferSink} from 'mediabunny';
+import {AudioBufferSink, CanvasSink, InputVideoTrack} from 'mediabunny';
+import type {EffectDefinitionAndStack} from 'remotion';
+import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {MediaPlayer} from '../media-player';
 import type {SharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
@@ -38,10 +40,24 @@ const makeAudioPlayer = (
 	sharedAudioContext: SharedAudioContextForMediaPlayer | null,
 	onError: ((error: Error) => void) | null = null,
 	tagType: 'audio' | 'video' = 'audio',
+	options:
+		| (Pick<
+				ConstructorParameters<typeof MediaPlayer>[0],
+				'canvas' | 'onVideoFrameCallback' | 'src'
+		  > &
+				Partial<
+					Pick<
+						ConstructorParameters<typeof MediaPlayer>[0],
+						'getEffects' | 'getEffectChainState'
+					>
+				>)
+		| null = null,
 ) => {
 	return new MediaPlayer({
-		canvas: null,
-		src: tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4',
+		canvas: options?.canvas ?? null,
+		src:
+			options?.src ??
+			(tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4'),
 		logLevel: 'error',
 		sharedAudioContext,
 		loop: false,
@@ -57,14 +73,14 @@ const makeAudioPlayer = (
 		isPremounting: false,
 		isPostmounting: false,
 		durationInFrames: 300,
-		onVideoFrameCallback: null,
+		onVideoFrameCallback: options?.onVideoFrameCallback ?? null,
 		playing: false,
 		sequenceOffset: 0,
 		credentials: undefined,
 		requestInit: undefined,
 		tagType,
-		getEffects: () => [],
-		getEffectChainState: () => null,
+		getEffects: options?.getEffects ?? (() => []),
+		getEffectChainState: options?.getEffectChainState ?? (() => null),
 		maxCanvasSinkFrameSize: null,
 		onError,
 	});
@@ -324,4 +340,151 @@ test('ignores pending seek failures after disposal and skips new seeks', async (
 	expect(onError).not.toHaveBeenCalled();
 	expect(seek).toHaveBeenCalledOnce();
 	player.videoIteratorManager = null;
+});
+
+// A disposed initialization must not repaint a canvas reused by its replacement.
+test.each(['dimensions', 'first frame', 'effect bridge'] as const)(
+	'disposing during %s initialization preserves the replacement picture',
+	async (boundary) => {
+		let release = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let reached = () => {};
+		const held = new Promise<void>((resolve) => {
+			reached = resolve;
+		});
+		const canvas = document.createElement('canvas');
+		const chainState = Internals.createEffectChainState(1920, 1080);
+		const effects: EffectDefinitionAndStack<unknown>[] = (
+			['webgl2', '2d'] as const
+		).map((backend) => ({
+			memoized: true,
+			effectKey: backend,
+			params: {},
+			definition: {
+				type: backend,
+				label: backend,
+				documentationLink: null,
+				backend,
+				calculateKey: () => backend,
+				schema: {},
+				validateParams: () => {},
+				setup: () => null,
+				cleanup: () => {},
+				apply: ({target, source}) => {
+					if (backend === 'webgl2') {
+						const gl = target.getContext('webgl2')!;
+						gl.clearColor(0, 1, 0, 1);
+						gl.clear(gl.COLOR_BUFFER_BIT);
+					} else {
+						target.getContext('2d')!.drawImage(source, 0, 0);
+					}
+				},
+			},
+		}));
+		const onFrame = vi.fn();
+		const oldPlayer = makeAudioPlayer(null, null, 'video', {
+			canvas,
+			onVideoFrameCallback: onFrame,
+			src: '/bigbuckbunny.mp4',
+			getEffects: () => (boundary === 'effect bridge' ? effects : []),
+			getEffectChainState: () => chainState,
+		});
+		const replacement = makeAudioPlayer(null, null, 'video', {
+			canvas,
+			onVideoFrameCallback: null,
+			src: '/red-heart-1x.webm',
+		});
+		const originalWidth = InputVideoTrack.prototype.getDisplayWidth;
+		const originalCanvases = CanvasSink.prototype.canvases;
+		const originalBitmap = window.createImageBitmap.bind(window);
+		const spy =
+			boundary === 'dimensions'
+				? vi
+						.spyOn(InputVideoTrack.prototype, 'getDisplayWidth')
+						.mockImplementationOnce(async function (this: InputVideoTrack) {
+							const width = await originalWidth.call(this);
+							reached();
+							await gate;
+							return width;
+						})
+				: boundary === 'effect bridge'
+					? vi
+							.spyOn(window, 'createImageBitmap')
+							.mockImplementationOnce(async (...args) => {
+								const bitmap = await originalBitmap(...args);
+								reached();
+								await gate;
+								return bitmap;
+							})
+					: vi
+							.spyOn(CanvasSink.prototype, 'canvases')
+							.mockImplementationOnce(function (this: CanvasSink, ...args) {
+								const iterator = originalCanvases.apply(this, args);
+								const next = iterator.next.bind(iterator);
+								iterator.next = async (...nextArgs) => {
+									const frame = await next(...nextArgs);
+									reached();
+									await gate;
+									return frame;
+								};
+
+								return iterator;
+							});
+		const initialization = oldPlayer.initialize(1, true, 1);
+		let disposal: Promise<void> | null = null;
+		const picture = async () => {
+			const pixels = canvas
+				.getContext('2d')!
+				.getImageData(0, 0, canvas.width, canvas.height).data;
+			return Array.from(
+				new Uint8Array(await crypto.subtle.digest('SHA-256', pixels)),
+			);
+		};
+
+		try {
+			await held;
+			disposal = oldPlayer.dispose();
+			expect((await replacement.initialize(1, true, 1)).type).toBe('success');
+			expect(
+				replacement.videoIteratorManager!.getFramesRendered(),
+			).toBeGreaterThan(0);
+			const expected = await picture();
+			release();
+			await disposal;
+			expect(await picture()).toEqual(expected);
+			expect(onFrame).not.toHaveBeenCalled();
+			expect((await initialization).type).toBe('disposed');
+		} finally {
+			release();
+			await initialization;
+			await disposal;
+			spy.mockRestore();
+			await oldPlayer.dispose();
+			await replacement.dispose();
+			Internals.cleanupEffectChainState(chainState);
+		}
+	},
+);
+
+test('disposal clears a rendered canvas only once', async () => {
+	const canvas = document.createElement('canvas');
+	const player = makeAudioPlayer(null, null, 'video', {
+		canvas,
+		onVideoFrameCallback: null,
+		src: '/bigbuckbunny.mp4',
+	});
+	try {
+		expect((await player.initialize(1, true, 1)).type).toBe('success');
+		const clear = vi.spyOn(canvas.getContext('2d')!, 'clearRect');
+		try {
+			await player.dispose();
+			expect(clear).toHaveBeenCalledOnce();
+		} finally {
+			clear.mockRestore();
+		}
+	} finally {
+		await player.dispose();
+	}
 });

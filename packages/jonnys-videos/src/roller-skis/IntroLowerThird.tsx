@@ -106,9 +106,8 @@ const lowerThirdSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const IntroLowerThird = Interactive.withSchema({
+export const IntroLowerThird = Interactive.create({
 	Component: IntroLowerThirdContent,
 	componentName: '<IntroLowerThird>',
 	schema: lowerThirdSchema,
-	wrapInSequence: true,
 });

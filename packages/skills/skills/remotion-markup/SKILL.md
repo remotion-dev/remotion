@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.534
+version: 4.0.535
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -17,7 +17,7 @@ If you detect a surprising change made in the meanwhile, don't overwrite it, ass
 
 Inside a composition or scene component, get `fps` from `useVideoConfig()` for
 all seconds-to-frames calculations, including timing props such as `from`,
-`trimBefore`, `durationInFrames`, and `premountFor`. Keeping the expression on
+`trimBefore` and `durationInFrames`. Keeping the expression on
 the JSX node, such as `trimBefore={4 * fps}`, lets Studio edit the timing and
 keeps it correct if the composition frame rate changes.
 
@@ -27,19 +27,13 @@ Tailwind animation class will not render correctly, they need to be refactored.
 
 Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
-Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
-Prefer `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})`
-for scenes with editable props. Their inner markup can return a fragment; the
-wrapper handles layout and instance styles. Sized elements such as lower thirds
-can keep the default layout and forward `style` to their own root. Register
-reusable scenes as connected compositions.
-Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
-Give every timed component that supports `premountFor` one second of premounting:
-`premountFor={fps}`, where `fps` comes from `useVideoConfig()`. Apply this to
-media, interactive components, `<Sequence>`, `<TransitionSeries.Sequence>`,
-and `<TransitionSeries.Overlay>`, including timed components nested inside scenes. Premount the parent timeline item too
-when a nested item needs to mount before the parent starts. A component without
-`premountFor`, such as `<TransitionSeries.Transition>`, needs no substitute.
+Use `Track` for successive scenes. Make scenes and reusable elements with
+`Interactive.create()`, setting `layout` explicitly to `'absolute-fill'` or
+`'none'`, and register them as connected compositions. Put timing directly on
+each instance. Follow the complete
+[Track + connected compositions example](../remotion-interactivity/timeline-structure.md).
+See [Remotion Interactivity](../remotion-interactivity/SKILL.md) for editable props
+and keyframes.
 
 The Studio edits the JSX source node that created an item. Author every composition registration, clip, scene, layer and sequence that should be editable independently as its own JSX node, with its editable props inline.
 Programmatic loops are suitable when the generated instances are intentionally controlled as one source template, not when users need to edit the instances
@@ -55,7 +49,6 @@ export const FadeIn = () => {
   return (
     <Interactive.Div
       name="Title"
-      premountFor={fps}
       style={{
         opacity: interpolate(frame, [0, 2 * fps], [0, 1], {
           extrapolateRight: "clamp",
@@ -116,22 +109,19 @@ Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
 import { Audio, Video } from "@remotion/media";
-import { staticFile, CanvasImage, AnimatedImage, useVideoConfig } from "remotion";
+import { staticFile, CanvasImage, AnimatedImage } from "remotion";
 
 export const MyComposition = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <>
-      <Video src={staticFile("video.mp4")} premountFor={fps} style={{ opacity: 0.5 }} />
-      <Audio src={staticFile("audio.mp3")} premountFor={fps} />
+      <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />
+      <Audio src={staticFile("audio.mp3")} />
       <CanvasImage
         src={staticFile("logo.png")}
-        premountFor={fps}
         style={{ width: 100, height: 100 }}
       />
-      <Video src="https://remotion.media/video.mp4" premountFor={fps} />
-      <AnimatedImage src={staticFile('nyancat.gif')} premountFor={fps} />
+      <Video src="https://remotion.media/video.mp4" />
+      <AnimatedImage src={staticFile('nyancat.gif')} />
     </>
   );
 };
@@ -150,10 +140,10 @@ The fade-in is keyframed inline at the call site.
 ```tsx
 // MyScene.tsx
 import { Video } from "@remotion/media";
-import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { Easing, Interactive, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { LowerThird } from "./LowerThird";
 
-export const MyScene = () => {
+const MySceneInner = () => {
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
@@ -162,7 +152,6 @@ export const MyScene = () => {
       <Video
         name="Background"
         src="https://remotion.media/video.mp4"
-        premountFor={fps}
         objectFit="cover"
         style={{
           position: "absolute",
@@ -173,7 +162,6 @@ export const MyScene = () => {
       <LowerThird
         name="Lower third"
         from={1 * fps}
-        premountFor={fps}
         accentColor="#0b84f3"
         style={{
           opacity: interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
@@ -188,6 +176,11 @@ export const MyScene = () => {
     </>
   );
 };
+
+export const MyScene = Interactive.create({
+  Component: MySceneInner,
+  layout: "absolute-fill",
+});
 ```
 
 ```tsx
@@ -207,7 +200,7 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
   style,
 }) => {
   return (
-    <Interactive.Div
+    <div
       style={{
         position: "absolute",
         left: 80,
@@ -234,12 +227,13 @@ const LowerThirdInner: React.FC<LowerThirdProps> = ({
         }}
       />
       {children}
-    </Interactive.Div>
+    </div>
   );
 };
 
 const lowerThirdSchema = {
   ...Interactive.childrenSchema,
+  ...Interactive.textSchema,
   accentColor: {
     type: "color",
     default: "#0b84f3",
@@ -247,11 +241,10 @@ const lowerThirdSchema = {
   },
 } as const satisfies InteractivitySchema;
 
-export const LowerThird = Interactive.withSchema({
+export const LowerThird = Interactive.create({
   Component: LowerThirdInner,
-  componentName: "LowerThird",
+  layout: "none",
   schema: lowerThirdSchema,
-  wrapInSequence: true,
 });
 ```
 
@@ -310,7 +303,7 @@ When a scene or group of layers deserves its own editable timeline, follow [conn
 
 ### Pre-compose action
 
-For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, preferably make it interactive with `Interactive.withSchema({wrapInSequence: true})`, and register the same exported component reference with a unique `<Composition>` in the root. Render the interactive component directly with its timing props, or as the only child of a sequence when that wrapper has a purpose. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
+For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, preferably make it interactive with `Interactive.create()`, and register the same exported component reference with a unique `<Composition>` in the root. Render the interactive component directly with its timing props, or as the only child of a sequence when that wrapper has a purpose. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
 
 Carry inherited styles such as `fontFamily` and font loading into the extracted
 component; see [parent independence](connected-compositions.md#make-the-component-independent-of-its-parent).
@@ -380,6 +373,10 @@ Built-in effects from `@remotion/effects`:
 - Textures and patterns: `burlap()`, `checkerboard()`, `contourLines()`, `dotGrid()`, `emboss()`, `flannel()`, `gridlines()`, `halftone()`, `halftoneLinearGradient()`, `lines()`, `liquidContours()`, `noise()`, `paper()`, `pattern()`, `rings()`, `scanlines()`, `speckle()`, `tvSignalOff()`, `waves()`, `whiteNoise()`, `zigzag()`.
 - Edges: `outline()`, `roughenEdges()`, `shrinkwrap()`, `tear()`.
 - Pixelation and transitions: `evolve()`, `linearProgressivePixelate()`, `pixelate()`, `pixelDissolve()`, `radialProgressivePixelate()`, `venetianBlinds()`.
+
+## Color correction
+
+Read [color-correction.md](color-correction.md) for how to apply color correction, either using the `colorCorrection()` effect or `lut()` to apply a 3D `.cube` color grade.
 
 ## 3D content
 

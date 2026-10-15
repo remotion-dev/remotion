@@ -450,10 +450,10 @@ export const getCompositionMenuItems = ({
 								),
 						),
 					initialComment: null,
-					metadata: {
+					getMetadata: () => ({
 						composition: composition.id,
 						...(fileLocation ? {source: fileLocation} : {}),
-					},
+					}),
 				})
 			: []),
 		{

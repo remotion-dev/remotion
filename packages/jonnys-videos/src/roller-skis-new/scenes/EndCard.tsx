@@ -7,24 +7,21 @@ import {
 	interpolate,
 	Sequence,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 import {fontFamily} from '../elements/font';
 
 const EndCardInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<>
-			<Sequence name="Last frame" freeze={3328} premountFor={fps}>
+			<Sequence name="Last frame" freeze={3328}>
 				<Video
 					name="IMG_0475"
 					src={
 						'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 					}
 					muted
-					premountFor={fps}
 					objectFit="cover"
 					style={{
 						width: '100%',
@@ -124,16 +121,12 @@ const EndCardInner: React.FC = () => {
 				src="https://remotion.media/whoosh.wav"
 				from={12}
 				volume={0.6}
-				premountFor={fps}
 			/>
 		</>
 	);
 };
 
-export const EndCard = Interactive.withSchema({
+export const EndCard = Interactive.create({
 	Component: EndCardInner,
-	componentName: 'EndCard',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

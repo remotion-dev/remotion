@@ -74,8 +74,8 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	radius,
 	target,
 }) => {
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -134,7 +134,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 			);
 			const dragStates = getSelectedOutlineRotationDragStates({
 				dragTargets: selected ? getAllRotationDragTargets() : [rotationDrag],
-				getDragOverrides,
+				getDragOverrides: dragOverridesRef.current.getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
 			let previousAngle = getAngleDegrees(center, {
@@ -310,7 +310,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 			containsSelection,
 			cornerInfo,
 			editorSnapping,
-			getDragOverrides,
+			dragOverridesRef,
 			getAllRotationDragTargets,
 			onDraggingChange,
 			outline.dimensions,

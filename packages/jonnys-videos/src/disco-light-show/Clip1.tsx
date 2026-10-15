@@ -1,14 +1,12 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {Interactive, useVideoConfig} from 'remotion';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
 const Clip1Inner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	return (
 		<>
 			<Video
-				premountFor={fps}
 				src={asset('clip1-source.mp4')}
 				style={{
 					position: 'absolute',
@@ -25,10 +23,7 @@ const Clip1Inner: React.FC = () => {
 	);
 };
 
-export const Clip1 = Interactive.withSchema({
+export const Clip1 = Interactive.create({
 	Component: Clip1Inner,
-	componentName: 'Clip1',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

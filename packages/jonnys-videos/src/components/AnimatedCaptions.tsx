@@ -182,11 +182,8 @@ const CaptionPageInner: React.FC<CaptionPageProps> = ({
 	);
 };
 
-const CaptionPage = Interactive.withSchema({
+const CaptionPage = Interactive.create({
 	Component: CaptionPageInner,
-	componentName: 'CaptionPage',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
@@ -338,15 +335,9 @@ const AnimatedCaptionsContent: React.FC<{
 	return (
 		<>
 			{voiceoverSrc ? (
-				<Audio
-					premountFor={fps}
-					src={voiceoverSrc}
-					hidden
-					showInTimeline={false}
-				/>
+				<Audio src={voiceoverSrc} hidden showInTimeline={false} />
 			) : null}
 			<HtmlInCanvas
-				premountFor={fps}
 				name="Animated captions canvas"
 				width={width}
 				height={height}
@@ -392,7 +383,6 @@ const AnimatedCaptionsContent: React.FC<{
 							key={pageKey}
 							from={startFrame}
 							durationInFrames={durationInFrames}
-							premountFor={fps}
 							showInTimeline={false}
 							focusProgress={focusProgress}
 							focusedTokenIndex={focusedTokenIndex}
@@ -464,10 +454,8 @@ const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({
 	);
 };
 
-export const AnimatedCaptions = Interactive.withSchema({
+export const AnimatedCaptions = Interactive.create({
 	Component: AnimatedCaptionsInner,
-	componentName: 'AnimatedCaptions',
 	schema: animatedCaptionsSchema,
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -1,9 +1,13 @@
-import React, {useContext} from 'react';
+import React, {useContext, useRef} from 'react';
 import {createPortal} from 'react-dom';
 import {BLACK_ALPHA_85, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {renderFrame} from '../../state/render-frame';
 import {useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
+import {
+	getVisibleTimelineTrimLimitReason,
+	type TimelineTrimLimitReason,
+} from './timeline-trim-limit-reason';
 import {TimelineTickFormatContext} from './TimelineTickFormatProvider';
 
 export type TimelineTrimTooltipState = {
@@ -11,6 +15,7 @@ export type TimelineTrimTooltipState = {
 	readonly edgeFrame: number;
 	readonly x: number;
 	readonly y: number;
+	readonly limitReason: TimelineTrimLimitReason | null;
 };
 
 const tooltip: React.CSSProperties = {
@@ -38,7 +43,8 @@ const line: React.CSSProperties = {
 export const TimelineTrimTooltip: React.FC<{
 	readonly state: TimelineTrimTooltipState;
 	readonly fps: number;
-}> = ({state, fps}) => {
+	readonly showSourceLimits: boolean;
+}> = ({state, fps, showSourceLimits}) => {
 	const {showFrames} = useContext(TimelineTickFormatContext);
 	const {currentZIndex} = useZIndex();
 	const delta = Math.round(state.deltaFrames);
@@ -50,15 +56,36 @@ export const TimelineTrimTooltip: React.FC<{
 			? format(0)
 			: `${delta < 0 ? '−' : '+'}${format(Math.abs(delta))}`;
 	const edgeLabel = format(edge);
+	const limitReason =
+		showSourceLimits &&
+		(state.limitReason === 'Source start' || state.limitReason === 'Source end')
+			? state.limitReason
+			: getVisibleTimelineTrimLimitReason(state.limitReason);
 	const tooltipWidth = Math.max(
 		82,
-		Math.ceil(Math.max(deltaLabel.length, edgeLabel.length) * 7 + 14),
+		Math.ceil(
+			Math.max(deltaLabel.length, edgeLabel.length, limitReason?.length ?? 0) *
+				7 +
+				14,
+		),
 	);
+	// Start centered on the trim edge, then grow to the left when the text changes.
+	const initialWidth = useRef(tooltipWidth).current;
+	const tooltipHeight = limitReason === null ? 36 : 50;
 	const left = Math.max(
 		8,
-		Math.min(state.x - tooltipWidth / 2, window.innerWidth - tooltipWidth - 8),
+		Math.min(
+			state.x + initialWidth / 2 - tooltipWidth,
+			window.innerWidth - tooltipWidth - 8,
+		),
 	);
-	const top = Math.max(8, Math.min(state.y - 40, window.innerHeight - 44));
+	const top = Math.max(
+		8,
+		Math.min(
+			state.y - tooltipHeight - 4,
+			window.innerHeight - tooltipHeight - 8,
+		),
+	);
 
 	return createPortal(
 		<div
@@ -67,7 +94,10 @@ export const TimelineTrimTooltip: React.FC<{
 			style={{...tooltip, left, top, width: tooltipWidth}}
 			data-remotion-timeline-trim-tooltip="true"
 		>
-			<div style={line}>{deltaLabel}</div>
+			{limitReason === null ? null : (
+				<div style={{...line, color: WHITE}}>{limitReason}</div>
+			)}
+			<div style={{...line, color: WHITE}}>{deltaLabel}</div>
 			<div style={{...line, color: LIGHT_TEXT}}>{edgeLabel}</div>
 		</div>,
 		getPortal(currentZIndex),

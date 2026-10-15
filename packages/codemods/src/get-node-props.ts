@@ -23,7 +23,7 @@ export type GetNodePropsOptions = {
 
 export type NodeProps = Pick<
 	CanUpdateSequencePropsResponseTrue,
-	'canUpdate' | 'props' | 'effects'
+	'canUpdate' | 'props' | 'effects' | 'durationDependentKeyframes'
 >;
 
 export const getNodeProps = ({

@@ -60,9 +60,8 @@ const speedBadgeSchema = {
 	speed: {type: 'string', default: '2×', description: 'Speed'},
 } as const satisfies InteractivitySchema;
 
-export const SpeedBadge = Interactive.withSchema({
+export const SpeedBadge = Interactive.create({
 	Component: SpeedBadgeInner,
 	componentName: '<SpeedBadge>',
 	schema: speedBadgeSchema,
-	wrapInSequence: true,
 });
