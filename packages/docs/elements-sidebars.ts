@@ -28,9 +28,14 @@ const sidebars: SidebarsConfig = {
 			collapsible: true,
 			collapsed: false,
 			items: [
-				'contributing',
+				{
+					type: 'doc',
+					id: 'contributing',
+					className: 'elements-sidebar-standalone-only',
+				},
 				{
 					type: 'html',
+					className: 'elements-sidebar-standalone-only',
 					value:
 						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
 					defaultStyle: true,
@@ -54,7 +59,11 @@ const sidebars: SidebarsConfig = {
 						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
 					defaultStyle: true,
 				},
-				'guidelines',
+				{
+					type: 'doc',
+					id: 'guidelines',
+					className: 'elements-sidebar-standalone-only',
+				},
 				'libraries',
 			],
 		},
