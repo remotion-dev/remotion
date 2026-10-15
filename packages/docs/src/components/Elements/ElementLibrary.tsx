@@ -13,7 +13,6 @@ import {
 	setElementDragImage,
 } from './element-drag-data';
 import {
-	getElementCategoryLabel,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 	type ElementCategory,
@@ -303,10 +302,6 @@ export const ElementLibrary: React.FC<{
 			}),
 		}))
 		.filter((section) => section.definitions.length > 0);
-	const resultCount = sections.reduce(
-		(count, section) => count + section.definitions.length,
-		0,
-	);
 
 	useLayoutEffect(() => {
 		const isEmbedded = isInsideStudio();
@@ -378,12 +373,6 @@ export const ElementLibrary: React.FC<{
 								</svg>
 							</button>
 						) : null}
-					</div>
-					<div aria-atomic="true" className={styles.resultCount} role="status">
-						{resultCount} {resultCount === 1 ? 'element' : 'elements'}
-						{category === null
-							? null
-							: ` in ${getElementCategoryLabel(category)}`}
 					</div>
 				</div>
 			) : null}
