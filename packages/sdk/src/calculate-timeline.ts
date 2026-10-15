@@ -30,8 +30,6 @@ type TimelineCalculationInput = {
 type TimelineCalculation = {
 	tracks: TimelineTrackData[];
 	structure: {trackIndexById: ReadonlyMap<string, number>};
-	// A full rebuild invalidates grouping and row membership in the consumer.
-	changedSequenceIds: readonly string[] | null;
 };
 
 const EMPTY_COMPOSITIONS: readonly _InternalTypes['AnyComposition'][] = [];
@@ -433,7 +431,7 @@ const calculateTimelineState = ({
 		}
 
 		if (input.sequences === currentSequences) {
-			return {tracks: currentTracks, structure, changedSequenceIds: []};
+			return {tracks: currentTracks, structure};
 		}
 
 		if (
@@ -538,12 +536,11 @@ const calculateTimelineState = ({
 		return {
 			tracks: currentTracks,
 			structure,
-			changedSequenceIds: changed.map((sequence) => sequence.id),
 		};
 	};
 
 	return {
-		result: {tracks: currentTracks, structure, changedSequenceIds: null},
+		result: {tracks: currentTracks, structure},
 		update,
 	};
 };
