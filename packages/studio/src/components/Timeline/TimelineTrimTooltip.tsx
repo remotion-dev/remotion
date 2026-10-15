@@ -43,7 +43,8 @@ const line: React.CSSProperties = {
 export const TimelineTrimTooltip: React.FC<{
 	readonly state: TimelineTrimTooltipState;
 	readonly fps: number;
-}> = ({state, fps}) => {
+	readonly showSourceLimits: boolean;
+}> = ({state, fps, showSourceLimits}) => {
 	const {showFrames} = useContext(TimelineTickFormatContext);
 	const {currentZIndex} = useZIndex();
 	const delta = Math.round(state.deltaFrames);
@@ -55,7 +56,11 @@ export const TimelineTrimTooltip: React.FC<{
 			? format(0)
 			: `${delta < 0 ? '−' : '+'}${format(Math.abs(delta))}`;
 	const edgeLabel = format(edge);
-	const limitReason = getVisibleTimelineTrimLimitReason(state.limitReason);
+	const limitReason =
+		showSourceLimits &&
+		(state.limitReason === 'Source start' || state.limitReason === 'Source end')
+			? state.limitReason
+			: getVisibleTimelineTrimLimitReason(state.limitReason);
 	const tooltipWidth = Math.max(
 		82,
 		Math.ceil(

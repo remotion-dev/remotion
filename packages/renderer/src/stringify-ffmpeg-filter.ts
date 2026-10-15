@@ -142,11 +142,16 @@ export const stringifyFfmpegFilter = ({
 	const {toneFrequency, startInVideo} = asset;
 
 	const startInVideoSeconds = startInVideo / fps;
+	// A chunk's leading trim only cuts into assets already playing at its start.
+	// For later assets, remove that time from the silence before the asset instead.
+	const assetTrimLeftOffset = startInVideo === 0 ? trimLeftOffset : 0;
+	const startInChunkSeconds =
+		startInVideo === 0 ? 0 : startInVideoSeconds - trimLeftOffset;
 
 	const {trimLeft, maxTrim} = getActualTrimLeft({
 		trimLeft: asset.trimLeft,
 		fps,
-		trimLeftOffset,
+		trimLeftOffset: assetTrimLeftOffset,
 		seamless: forSeamlessAacConcatenation,
 		assetDuration,
 		audioStartFrame: asset.audioStartFrame,
@@ -169,7 +174,7 @@ export const stringifyFfmpegFilter = ({
 		filter: trimAndTempoFilter,
 	} = trimAndSetTempo({
 		assetDuration,
-		trimLeftOffset,
+		trimLeftOffset: assetTrimLeftOffset,
 		trimRightOffset,
 		asset,
 		fps,
@@ -183,10 +188,10 @@ export const stringifyFfmpegFilter = ({
 		trimLeft: actualTrimLeft,
 	});
 
-	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
+	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInChunkSeconds;
 
 	const padStart =
-		startInVideoSeconds +
+		startInChunkSeconds +
 		(asset.trimLeft === 0 ? presentationTimeOffsetInSeconds : 0);
 
 	// Set as few filters as possible, as combining them can create noise

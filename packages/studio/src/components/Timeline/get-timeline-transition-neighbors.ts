@@ -21,6 +21,18 @@ export const getTimelineTransitionNeighbors = ({
 		(item) => item.timelineOrder,
 	);
 	const index = siblings.findIndex((item) => item.id === sequenceId);
+	const previousClip = siblings[index - 1];
+	if (
+		sequence.timelineTrack.role === 'clip' &&
+		previousClip?.timelineTrack?.role === 'clip' &&
+		previousClip.duration > 0 &&
+		sequence.duration > 0 &&
+		Math.abs(previousClip.from + previousClip.duration - sequence.from) <
+			0.000001
+	) {
+		return {previous: previousClip, next: sequence};
+	}
+
 	const transitionIndex =
 		sequence.timelineTrack.role === 'transition' ? index : index - 1;
 	const previous = siblings[transitionIndex - 1];

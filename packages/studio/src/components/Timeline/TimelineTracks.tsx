@@ -15,6 +15,7 @@ import {
 	TimelineSceneRangeContext,
 } from './TimelineSceneRangeContext';
 import {TimelineTrack} from './TimelineTrack';
+import {TimelineTrimOutlineContainer} from './TimelineTrimOutline';
 import {TimelineViewportContext} from './TimelineViewport';
 import {useTimelineVirtualization} from './TimelineVirtualization';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -123,7 +124,7 @@ const TimelineTracksInner: React.FC<{
 						);
 
 					return (
-						<div
+						<TimelineTrimOutlineContainer
 							key={virtualItem.key}
 							style={{
 								height: virtualItem.size,
@@ -137,22 +138,23 @@ const TimelineTracksInner: React.FC<{
 										? windowWidth - TIMELINE_PADDING * 2
 										: undefined,
 								top: virtualItem.start,
-								clipPath:
-									video && windowWidth !== null
-										? getTimelineSceneClipPath({
-												sceneRange,
-												durationInFrames: video.durationInFrames,
-												offsetInFrames: 0,
-												pixelsPerFrame:
-													(windowWidth - TIMELINE_PADDING * 2) /
-													video.durationInFrames,
-												height: virtualItem.size,
-												seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
-												transitionCutout: null,
-												cropHeight: null,
-											})
-										: undefined,
 							}}
+							clipPath={
+								video && windowWidth !== null
+									? (getTimelineSceneClipPath({
+											sceneRange,
+											durationInFrames: video.durationInFrames,
+											offsetInFrames: 0,
+											pixelsPerFrame:
+												(windowWidth - TIMELINE_PADDING * 2) /
+												video.durationInFrames,
+											height: virtualItem.size,
+											seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+											transitionCutout: null,
+											cropHeight: null,
+										}) ?? null)
+									: null
+							}
 						>
 							{sceneRange === null ? (
 								trackContent
@@ -164,7 +166,7 @@ const TimelineTracksInner: React.FC<{
 									{trackContent}
 								</TimelineSceneTrackContent>
 							)}
-						</div>
+						</TimelineTrimOutlineContainer>
 					);
 				})}
 			</div>

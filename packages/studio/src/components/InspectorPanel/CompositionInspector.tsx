@@ -93,6 +93,7 @@ const CompositionActions: React.FC = () => {
 
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
 			collapsible
 			label="Actions"
 			sectionId="composition-actions"
@@ -296,7 +297,7 @@ const CompositionDefaultPropsSection: React.FC<{
 					onToggle={() => setExpanded(!expanded)}
 				/>
 			</InspectorSectionHeader>
-			<InspectorSectionBody expanded={expanded}>
+			<InspectorSectionBody expanded={expanded} paddingBottom={8}>
 				{defaultPropsWarnings.length > 0 && showWarning ? (
 					<div style={defaultPropsWarningContainer}>
 						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
@@ -338,6 +339,7 @@ const CompositionVisualControlsSection: React.FC<{
 
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
 			collapsible
 			label="Visual Controls"
 			sectionId="composition-visual-controls"
@@ -360,6 +362,7 @@ export const CompositionInspector: React.FC<{
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
 				<CollapsibleInspectorSection
+					bodyPaddingBottom={8}
 					collapsible
 					label="Metadata"
 					sectionId="composition-metadata"

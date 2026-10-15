@@ -1,6 +1,7 @@
 export const TIMELINE_TRIM_LIMIT_REASONS = [
 	'Keyframe constraint',
 	'Computed keyframes',
+	'Computed value',
 	'Unknown media duration',
 	'Minimum duration',
 	'Transition limit',
@@ -21,6 +22,7 @@ export const getVisibleTimelineTrimLimitReason = (
 ): TimelineTrimLimitReason | null => {
 	return reason === 'Keyframe constraint' ||
 		reason === 'Computed keyframes' ||
+		reason === 'Computed value' ||
 		reason === 'Unknown media duration' ||
 		reason === 'Transition limit'
 		? reason

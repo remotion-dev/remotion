@@ -479,6 +479,7 @@ const SequenceExpandedInspector: React.FC<{
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
 					<CollapsibleInspectorSection
+						bodyPaddingBottom={8}
 						collapsible
 						label="Actions"
 						sectionId="sequence-actions"
@@ -500,6 +501,7 @@ const SequenceExpandedInspector: React.FC<{
 				<>
 					<InspectorMessage>Source controls unavailable</InspectorMessage>
 					<CollapsibleInspectorSection
+						bodyPaddingBottom={8}
 						collapsible
 						label="Actions"
 						sectionId="sequence-actions"

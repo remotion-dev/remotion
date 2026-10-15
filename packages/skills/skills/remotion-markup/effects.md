@@ -11,6 +11,9 @@ or when considering canvas post-processing or a reusable custom effect.
 Docs: https://www.remotion.dev/docs/effects
 Custom effect docs: https://www.remotion.dev/docs/create-effect
 
+For exposure, white balance, tonal adjustments, and LUTs, read
+[color-correction.md](color-correction.md).
+
 ## Usage
 
 Install the package that provides the chosen effect:

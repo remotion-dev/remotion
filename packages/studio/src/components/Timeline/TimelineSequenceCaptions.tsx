@@ -6,7 +6,9 @@ import {TimelineSequenceLabel} from './timeline-sequence-label';
 
 export const TimelineSequenceCaptions: React.FC<{
 	readonly s: TSequence;
-}> = ({s}) => {
+	readonly startMs: number;
+	readonly endMs: number;
+}> = ({s, startMs, endMs}) => {
 	const captionKey = Object.entries(s.controls?.schema ?? {}).find(
 		([, field]) => field.type === 'remotion-captions',
 	)?.[0];
@@ -15,11 +17,17 @@ export const TimelineSequenceCaptions: React.FC<{
 			const value = values[captionKey ?? 'captions'];
 			const captions = Array.isArray(value) ? (value as Caption[]) : [];
 			return captions
+				.filter(
+					(caption) =>
+						endMs > startMs &&
+						caption.endMs > startMs &&
+						caption.startMs < endMs,
+				)
 				.map((caption) => caption.text)
 				.join('')
 				.trim();
 		},
-		[captionKey],
+		[captionKey, endMs, startMs],
 	);
 	const transcript = useRuntimeValueSelector({
 		controls: s.controls ?? null,
