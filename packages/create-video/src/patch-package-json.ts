@@ -76,6 +76,9 @@ export const patchPackageJson = (
 			dependencies: newDependenciesWithTailwind,
 			devDependencies: newDevDependencies,
 			scripts: newScripts,
+			...(packageManager === 'npm'
+				? {allowScripts: {...packageJson.allowScripts, esbuild: false}}
+				: {}),
 			...(addTailwind ? {sideEffects: ['*.css']} : {}),
 		},
 		undefined,
