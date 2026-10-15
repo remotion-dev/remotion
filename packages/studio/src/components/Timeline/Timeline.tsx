@@ -2,24 +2,18 @@ import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
-	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
-import {
-	addErrorToOverlay,
-	removeErrorFromOverlay,
-} from '../../error-overlay/runtime-error-store';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
-import {getTimelineTrackOverlapError} from '../../helpers/get-timeline-track-overlap-error';
 import {
 	clearInsertedElementSelection,
 	getInsertedElementSelection,
@@ -82,6 +76,7 @@ import {
 	TimelineTimeIndicators,
 	TimelineTimePlaceholders,
 } from './TimelineTimeIndicators';
+import {TimelineTrackOverlapValidation} from './TimelineTrackOverlapValidation';
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineVirtualizationProvider} from './TimelineVirtualization';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
@@ -505,20 +500,6 @@ const TimelineInner: React.FC = () => {
 		compactSeries,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
-	// Eligible media leaves do not change Track clip ranges. A change to any
-	// Track member invalidates the structure and runs overlap validation again.
-	const trackOverlapError = useMemo(
-		() => getTimelineTrackOverlapError(structureTimeline, durationInFrames),
-		[structureTimeline, durationInFrames],
-	);
-	useEffect(() => {
-		if (trackOverlapError === null) {
-			return;
-		}
-
-		addErrorToOverlay(trackOverlapError, null);
-		return () => removeErrorFromOverlay(trackOverlapError);
-	}, [trackOverlapError, fastRefreshes]);
 	const pendingSelectionStart = useRef<{
 		selection: PendingInsertedElementSelection;
 		fastRefreshes: number;
@@ -680,6 +661,11 @@ const TimelineInner: React.FC = () => {
 
 	return (
 		<TimelineContextMenuArea>
+			<TimelineTrackOverlapValidation
+				timeline={structureTimeline}
+				durationInFrames={durationInFrames}
+				fps={videoConfig?.fps ?? 30}
+			/>
 			{sequences.map((sequence) => {
 				if (!shouldSubscribeToSequenceProps(sequence, previewInteractive)) {
 					return null;

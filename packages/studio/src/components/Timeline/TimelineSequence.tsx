@@ -36,6 +36,7 @@ import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
 } from '../../helpers/get-sequence-double-click-action';
+import {getTimelineNaturalMediaDuration} from '../../helpers/get-timeline-natural-media-duration';
 import {getTimelineSequenceLayout} from '../../helpers/get-timeline-sequence-layout';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
@@ -1294,22 +1295,12 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			(s.type === 'audio' || s.type === 'video'
 				? s.playbackRate * s.sequencePlaybackRate
 				: 0);
-	const naturalMediaDuration =
-		(s.type === 'audio' || s.type === 'video') &&
-		mediaMetadata !== null &&
-		s.playbackRate > 0
-			? Math.max(
-					0,
-					(mediaMetadata.duration * (video?.fps ?? 30) -
-						getTimelineMediaStartFrame({
-							startMediaFrom: s.startMediaFrom,
-							mediaFrameAtSequenceZero: s.mediaFrameAtSequenceZero,
-							sequenceFrameOffset,
-							playbackRate: s.playbackRate,
-						})) /
-						(s.playbackRate * s.sequencePlaybackRate),
-				)
-			: null;
+	const naturalMediaDuration = getTimelineNaturalMediaDuration({
+		sequence: s,
+		sequenceFrameOffset,
+		mediaMetadata,
+		fps: video?.fps ?? 30,
+	});
 	const maxMediaDuration =
 		s.type === 'sequence' || s.type === 'image' || extendVideoLastFrame
 			? Infinity

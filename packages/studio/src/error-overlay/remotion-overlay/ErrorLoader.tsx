@@ -137,7 +137,7 @@ export const ErrorLoader: React.FC<{
 				<ErrorTitle
 					symbolicating
 					name={error.name}
-					message={error.message}
+					message={getLocationFromBuildError(error)?.message ?? error.message}
 					canHaveDismissButton={canHaveDismissButton}
 				/>
 			</div>

@@ -79,7 +79,8 @@ h6 {
 /* The Elements library is also browsed inside Studio's iframe. */
 .studio-elements-embed .theme-announcement-bar,
 .studio-elements-embed .theme-doc-footer,
-.studio-elements-embed .pagination-nav {
+.studio-elements-embed .pagination-nav,
+.studio-elements-embed .elements-sidebar-standalone-only {
 	display: none;
 }
 

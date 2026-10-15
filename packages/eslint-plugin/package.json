@@ -28,6 +28,9 @@
 	"devDependencies": {
 		"vitest": "catalog:",
 		"eslint": "8.57.0",
+		"eslint-v9": "npm:eslint@9.39.5",
+		"eslint-v10": "npm:eslint@10.12.0",
+		"typescript-eslint": "8.71.2",
 		"@typescript/native-preview": "catalog:"
 	},
 	"exports": {
