@@ -1,9 +1,16 @@
-import {afterEach, beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
 import fs from 'fs';
 import path from 'path';
 import execa from 'execa';
 
 const outputPath = path.join(process.cwd(), 'packages/example/out-cancel.mp4');
+
+// Browser installation is setup, not part of the cancellation deadline.
+beforeAll(async () => {
+	await execa('bun', ['x', 'remotion', 'browser', 'ensure'], {
+		cwd: path.join(process.cwd(), '..', 'example'),
+	});
+}, 120000);
 
 beforeEach(() => {
 	if (fs.existsSync(outputPath)) {
