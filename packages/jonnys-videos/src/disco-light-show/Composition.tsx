@@ -1,7 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import {
 	Interactive,
-	useVideoConfig,
 	Composition,
 	Easing,
 	Folder,
@@ -76,12 +75,10 @@ export const MyComposition = () => {
 };
 
 const MyComponentInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<DiscoBallBg
-				premountFor={fps}
 				name="DiscoBallBg"
 				width={1080}
 				height={1920}
@@ -91,7 +88,6 @@ const MyComponentInner: React.FC = () => {
 				}}
 			/>
 			<TextBackgroundComposition
-				premountFor={fps}
 				name="Text background"
 				width={1920}
 				height={1080}
@@ -170,16 +166,10 @@ const MyComponentInner: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={182}
-				premountFor={fps}
 			/>
-			<Audio
-				premountFor={fps}
-				name="Voiceover"
-				src={asset('text-behind-video-2.wav')}
-			/>
+			<Audio name="Voiceover" src={asset('text-behind-video-2.wav')} />
 			<Track name="Captions">
 				<AnimatedCaptions
-					premountFor={fps}
 					name="AnimatedCaptions"
 					width={1080}
 					height={360}
@@ -190,7 +180,6 @@ const MyComponentInner: React.FC = () => {
 					}}
 				/>
 				<AnimatedCaptions
-					premountFor={fps}
 					name="AnimatedCaptions"
 					width={1080}
 					height={360}
@@ -203,7 +192,6 @@ const MyComponentInner: React.FC = () => {
 					}}
 				/>
 				<AnimatedCaptions
-					premountFor={fps}
 					name="AnimatedCaptions"
 					width={1080}
 					height={360}
@@ -235,7 +223,6 @@ const MyComponentInner: React.FC = () => {
 				/>
 			</Track>
 			<AnimatedCaptionsBigWords
-				premountFor={fps}
 				name="AnimatedCaptionsBigWords"
 				width={1080}
 				height={1920}
@@ -309,7 +296,6 @@ const MyComponentInner: React.FC = () => {
 					}),
 				}}
 				from={337}
-				premountFor={fps}
 			/>
 			<HuggingFace
 				name="HuggingFace"
@@ -354,7 +340,6 @@ const MyComponentInner: React.FC = () => {
 					}),
 				}}
 				from={537}
-				premountFor={fps}
 			/>
 			<ClientSideChad
 				name="ClientSideChad"
@@ -369,7 +354,6 @@ const MyComponentInner: React.FC = () => {
 					}),
 				}}
 				from={694}
-				premountFor={fps}
 			/>
 			<Separate
 				name="Separate"
@@ -437,7 +421,6 @@ const MyComponentInner: React.FC = () => {
 						},
 					),
 				}}
-				premountFor={fps}
 			/>
 			<Fork
 				name="Fork"
@@ -493,10 +476,8 @@ const MyComponentInner: React.FC = () => {
 					),
 				}}
 				from={953}
-				premountFor={fps}
 			/>
 			<ForkDrop
-				premountFor={fps}
 				name="ForkDrop"
 				width={1080}
 				height={1920}
@@ -570,7 +551,6 @@ const MyComponentInner: React.FC = () => {
 					}),
 				}}
 				from={1093}
-				premountFor={fps}
 			/>
 			<VibeCoded
 				name="VibeCoded"
@@ -615,7 +595,6 @@ const MyComponentInner: React.FC = () => {
 					scale: 0.9999999983052765,
 				}}
 				from={1125}
-				premountFor={fps}
 				trimBefore={35}
 			/>
 			<Mediabunny
@@ -627,10 +606,8 @@ const MyComponentInner: React.FC = () => {
 				style={{
 					position: 'absolute',
 				}}
-				premountFor={fps}
 			/>
 			<DragInDemo
-				premountFor={fps}
 				name="DragInDemo"
 				width={1080}
 				height={1920}
@@ -685,10 +662,8 @@ const MyComponentInner: React.FC = () => {
 					),
 				}}
 				from={1337}
-				premountFor={fps}
 			/>
 			<CanvasImage
-				premountFor={fps}
 				src={asset('Screenshot 2026-07-19 at 18.28.52.png')}
 				style={{
 					position: 'absolute',
@@ -759,7 +734,6 @@ const MyComponentInner: React.FC = () => {
 				name="Fork sound effect"
 				src={asset('fahhhh.mp3')}
 				from={1036}
-				premountFor={fps}
 				volume={0.1}
 				durationInFrames={772}
 			/>
@@ -775,19 +749,16 @@ const MyComponentInner: React.FC = () => {
 				}}
 				from={1615}
 				durationInFrames={66}
-				premountFor={fps}
 				playbackRate={0.8}
 			/>
 			<TextBehindVideoSeriesFirst20sComposition
 				name="TextBehindVideoSeriesFirst20s"
 				from={1648}
-				premountFor={fps}
 				durationInFrames={TEXT_BEHIND_VIDEO_SERIES_FIRST_20S_DURATION_IN_FRAMES}
 				width={1080}
 				height={1920}
 			/>
 			<Countdown
-				premountFor={fps}
 				name="Countdown"
 				from={1556}
 				durationInFrames={COUNTDOWN_DURATION_IN_FRAMES}

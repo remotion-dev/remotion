@@ -10,14 +10,13 @@ import {
 
 const LightLeakOverlayInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps, height, width} = useVideoConfig();
+	const {durationInFrames, height, width} = useVideoConfig();
 
 	return (
 		<Solid
 			name="Light leak"
 			width={width}
 			height={height}
-			premountFor={fps}
 			effects={[
 				lightLeak({
 					seed: 3,

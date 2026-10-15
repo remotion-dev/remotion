@@ -21,7 +21,6 @@ const FlightCrewSceneContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/audio/flight-crew-normalized.wav'
 				}
-				premountFor={fps}
 			/>
 			<Video
 				name="Flight crew footage"
@@ -29,7 +28,6 @@ const FlightCrewSceneContent = ({style}: InteractiveTransformProps) => {
 					'https://remotion.media/jonnys-videos/plane-sight/scenes/team-scene.mp4'
 				}
 				muted
-				premountFor={fps}
 				objectFit="cover"
 				style={{position: 'absolute', width: '100%', height: '100%'}}
 			/>
@@ -40,7 +38,6 @@ const FlightCrewSceneContent = ({style}: InteractiveTransformProps) => {
 				}
 				from={(266 / 30) * fps}
 				durationInFrames={(31 / 30) * fps}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					left: 264,
@@ -70,7 +67,6 @@ const FlightCrewSceneContent = ({style}: InteractiveTransformProps) => {
 			/>
 			<BasicCaptions
 				name="Flight crew captions"
-				premountFor={fps}
 				width={1280}
 				combineTokensWithinMilliseconds={2200}
 				style={{

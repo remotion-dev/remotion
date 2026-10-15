@@ -16,10 +16,7 @@ const AirportTraffic = () => {
 	const {fps} = useVideoConfig();
 	return (
 		<>
-			<AirportLayout
-				name="Airport with north and south angled taxiways"
-				premountFor={fps}
-			/>
+			<AirportLayout name="Airport with north and south angled taxiways" />
 			<AirportAircraft
 				name="Cloud Code — urgent priority"
 				airline="Cloud Code"
@@ -57,7 +54,6 @@ const AirportTraffic = () => {
 					[0, 1, 1, 0.2, 0],
 					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 				)}
-				premountFor={fps}
 				width={192}
 				height={332}
 				heading={interpolate(
@@ -174,7 +170,6 @@ const AirportTraffic = () => {
 					[0, 1, 1, 0.2, 0],
 					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 				)}
-				premountFor={fps}
 				width={192}
 				height={332}
 				heading={interpolate(
@@ -290,7 +285,6 @@ const AirportTraffic = () => {
 					[0, 1, 1, 0.2, 0],
 					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 				)}
-				premountFor={fps}
 				width={192}
 				height={332}
 				heading={interpolate(
@@ -402,7 +396,6 @@ const AirportTraffic = () => {
 					[0, 1, 1, 0.2, 0],
 					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 				)}
-				premountFor={fps}
 				width={192}
 				height={332}
 				heading={interpolate(
@@ -512,7 +505,6 @@ const AirportTraffic = () => {
 					[0, 1, 1, 0.2, 0],
 					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 				)}
-				premountFor={fps}
 				width={192}
 				height={332}
 				heading={interpolate(
@@ -618,7 +610,6 @@ const AirportTraffic = () => {
 					[0, 1, 1, 0.2, 0],
 					{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 				)}
-				premountFor={fps}
 				width={192}
 				height={332}
 				heading={interpolate(
@@ -700,8 +691,6 @@ const AirportTraffic = () => {
 };
 
 const PixelAirportContent = ({style}: InteractiveTransformProps) => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<AbsoluteFill style={style}>
 			<Interactive.Div
@@ -710,7 +699,6 @@ const PixelAirportContent = ({style}: InteractiveTransformProps) => {
 			/>
 			<Interactive.Div
 				name="Airfield below entrance sign"
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					left: 128,
@@ -728,7 +716,6 @@ const PixelAirportContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/branding/agent-airport-international.png'
 				}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					left: 360,

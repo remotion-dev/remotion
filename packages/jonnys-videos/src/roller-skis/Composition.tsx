@@ -122,7 +122,6 @@ const OpeningTitleCardInner: React.FC = () => {
 
 const PresenterZoomInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 	const zoom = interpolate(frame, [472, 516], [1, 1.09], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
@@ -136,7 +135,6 @@ const PresenterZoomInner: React.FC = () => {
 				trimBefore={120}
 				style={videoStyle}
 				objectFit="cover"
-				premountFor={fps}
 				effects={[
 					lut({content: studioLut}),
 					vignette({
@@ -159,7 +157,6 @@ const PresenterZoomInner: React.FC = () => {
 				trimBefore={556}
 				style={videoStyle}
 				objectFit="cover"
-				premountFor={fps}
 				effects={[
 					lut({content: studioLut}),
 					vignette({
@@ -651,22 +648,16 @@ const PresenterIntroductionInner: React.FC = () => {
 
 const RollerSkiRoughCutInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 
 	return (
 		<>
 			<TransitionSeries>
-				<TransitionSeries.Sequence
-					name="Opening text"
-					durationInFrames={185}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Opening text" durationInFrames={185}>
 					<OpeningTitleCard />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="Presenter introduction (1)"
 					durationInFrames={346}
-					premountFor={fps}
 					trimBefore={21}
 				>
 					<PresenterIntroduction />
@@ -674,14 +665,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Roller ski blueprint intro"
 					durationInFrames={525}
-					premountFor={fps}
 				>
 					<RollerSkiBlueprint />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="Opening selfie"
 					durationInFrames={15.866666666666667 * FPS}
-					premountFor={fps}
 					trimBefore={55}
 				>
 					<Video
@@ -689,7 +678,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -942,7 +930,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Getting ready"
 					durationInFrames={6.4 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0457.MOV')}
@@ -950,7 +937,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						trimBefore={120}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						playbackRate={5}
 						effects={[lut({content: outdoorLut})]}
 					/>
@@ -958,7 +944,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Presenter introduction (2)"
 					durationInFrames={127}
-					premountFor={fps}
 					trimBefore={369}
 				>
 					<PresenterZoom />
@@ -1107,11 +1092,7 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						combineTokensWithinMilliseconds={3000}
 					/>
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="TV color bars"
-					durationInFrames={15}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="TV color bars" durationInFrames={15}>
 					<TvColorBars />
 					<Audio
 						src={rollerSkiAsset('audio/tv-static-tone.wav')}
@@ -1121,14 +1102,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="The pole tips"
 					durationInFrames={354}
-					premountFor={fps}
 					trimBefore={48}
 				>
 					<Video
 						src={rollerSkiAsset('footage/webcam1790859190089.mp4')}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -1285,14 +1264,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="First roll"
 					durationInFrames={6.333333333333335 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0457.MOV')}
 						trimBefore={40 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -1342,27 +1319,23 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="First roll cutscene"
 					durationInFrames={246}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/first-roll-cutscene.mp4')}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="Climbing the incline"
 					durationInFrames={12.4 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0459.MOV')}
 						trimBefore={1 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 						volume={interpolate(frame, [2697, 2896], [1, 1], {
 							extrapolateLeft: 'clamp',
@@ -1404,14 +1377,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="How the skis roll"
 					durationInFrames={15 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0475.MOV')}
 						trimBefore={93 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -1687,14 +1658,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="People look at me weird"
 					durationInFrames={6.7 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0459.MOV')}
 						trimBefore={38 * FPS}
 						style={{...videoStyle, rotate: '180deg'}}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -1724,14 +1693,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Cows react"
 					durationInFrames={6.7 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0460.MOV')}
 						muted
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						durationInFrames={220}
 						effects={[lut({content: outdoorLut})]}
 					/>
@@ -1767,7 +1734,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Why roller skiing"
 					durationInFrames={57.03333333333333 * FPS}
-					premountFor={fps}
 					trimBefore={22}
 				>
 					<Video
@@ -1775,21 +1741,18 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						trimBefore={30}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<Sequence
 						name="Hackathon half-marathon b-roll"
 						from={7.2 * FPS}
 						durationInFrames={9 * FPS}
-						premountFor={fps}
 					>
 						<Video
 							src={rollerSkiAsset('footage/jonny-hackathon-half-marathon.mp4')}
 							muted
 							style={videoStyle}
 							objectFit="cover"
-							premountFor={fps}
 						/>
 						<div
 							style={{
@@ -1823,14 +1786,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						name="SkiErg demonstration b-roll"
 						from={24.2 * FPS}
 						durationInFrames={5.5 * FPS}
-						premountFor={fps}
 					>
 						<Video
 							src={rollerSkiAsset('footage/skierg-hwpo-broll.mp4')}
 							muted
 							style={videoStyle}
 							objectFit="cover"
-							premountFor={fps}
 						/>
 						<div
 							style={{
@@ -2726,14 +2687,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Best commute footage"
 					durationInFrames={444}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0463.MOV')}
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -2779,14 +2738,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Approaching the crossing"
 					durationInFrames={321}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0464.MOV')}
 						trimBefore={1 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -2987,7 +2944,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Mehmet considers the roller skis"
 					durationInFrames={20.733333333333334 * FPS}
-					premountFor={fps}
 					trimBefore={71}
 				>
 					<Video
@@ -2995,7 +2951,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						trimBefore={42 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -3053,14 +3008,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="After the descent"
 					durationInFrames={924}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0465.MOV')}
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3629,14 +3582,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Arriving at Remotion"
 					durationInFrames={230}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0473.MOV')}
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3666,7 +3617,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Remotion office exterior"
 					durationInFrames={150}
-					premountFor={fps}
 					trimBefore={95}
 				>
 					<Video
@@ -3674,7 +3624,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3712,13 +3661,11 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Closing thoughts"
 					durationInFrames={798}
-					premountFor={fps}
 				>
 					<StravaRidesBroll
 						name="Four Strava rides b-roll"
 						from={2 * FPS}
 						durationInFrames={STRAVA_BROLL_DURATION}
-						premountFor={fps}
 					/>
 					<BasicCaptions
 						name="Closing thoughts captions"
@@ -3731,14 +3678,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="How to brake — demonstration"
 					durationInFrames={1164}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0478.MOV')}
 						trimBefore={95}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3751,14 +3696,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="How to brake — conclusion"
 					durationInFrames={82}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0478.MOV')}
 						trimBefore={1602}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3771,7 +3714,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				<TransitionSeries.Sequence
 					name="Closing thoughts (continued)"
 					durationInFrames={1567}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/webcam1790859120255.mp4')}
@@ -3781,7 +3723,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 							transform: 'translateY(-55px) scale(1.12)',
 						}}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -3792,17 +3733,12 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						combineTokensWithinMilliseconds={3500}
 					/>
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Sequence
-					name="Outro"
-					durationInFrames={287}
-					premountFor={fps}
-				>
+				<TransitionSeries.Sequence name="Outro" durationInFrames={287}>
 					<Video
 						src={rollerSkiAsset('footage/webcam1790859310676.mp4')}
 						trimBefore={30}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -3996,7 +3932,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				name="Jonny Burger YouTube end card"
 				from={END_CARD_START}
 				durationInFrames={END_CARD_DURATION_IN_FRAMES}
-				premountFor={fps}
 				style={{
 					translate: interpolate(
 						frame,
@@ -4015,7 +3950,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
 				from={2212}
 				durationInFrames={450}
-				premountFor={fps}
 				volume={(audioFrame) =>
 					interpolate(
 						audioFrame,
@@ -4030,7 +3964,6 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
 				from={END_CARD_START + 20}
 				durationInFrames={END_CARD_DURATION_IN_FRAMES}
-				premountFor={fps}
 				volume={(audioFrame) =>
 					interpolate(
 						audioFrame,

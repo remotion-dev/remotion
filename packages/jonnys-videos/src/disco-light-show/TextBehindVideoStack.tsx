@@ -1,6 +1,5 @@
 import {Video} from '@remotion/media';
 import {
-	useVideoConfig,
 	AbsoluteFill,
 	Composition,
 	Easing,
@@ -11,17 +10,11 @@ import {
 import {asset} from './assets';
 
 const TextBehindVideoStackCompositionInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			premountFor={fps}
-			style={{overflow: 'hidden'}}
-		>
+		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
 			<Interactive.Div
-				premountFor={fps}
 				name="Background video"
 				style={{
 					position: 'absolute',
@@ -53,7 +46,6 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 				}}
 			>
 				<Video
-					premountFor={fps}
 					src={asset('text-behind-video-background.webm')}
 					from={0}
 					trimBefore={330}
@@ -69,7 +61,6 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 				/>
 			</Interactive.Div>
 			<Interactive.Div
-				premountFor={fps}
 				name="Text video"
 				style={{
 					position: 'absolute',
@@ -111,11 +102,9 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 						boxShadow: '0px 0px 50px rgba(255, 255, 255, 0.5)',
 						borderRadius: 60,
 					}}
-					premountFor={fps}
 				/>
 			</Interactive.Div>
 			<Interactive.Div
-				premountFor={fps}
 				name="Foreground video"
 				style={{
 					position: 'absolute',
@@ -147,7 +136,6 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 				}}
 			>
 				<Video
-					premountFor={fps}
 					src={asset('text-behind-video-foreground.webm')}
 					from={0}
 					trimBefore={330}

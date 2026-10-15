@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-	useVideoConfig,
 	AbsoluteFill,
 	Easing,
 	CanvasImage,
@@ -11,17 +10,11 @@ import {
 import {asset} from './assets';
 
 const ForkDropInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			premountFor={fps}
-			style={{overflow: 'hidden'}}
-		>
+		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
 			<CanvasImage
-				premountFor={fps}
 				name="Cursor chat window"
 				src={asset('Screenshot 2026-07-19 at 16.26.01.png')}
 				style={{
@@ -33,7 +26,6 @@ const ForkDropInner: React.FC = () => {
 				}}
 			/>
 			<Interactive.Div
-				premountFor={fps}
 				name="Chat drop highlight"
 				style={{
 					position: 'absolute',
@@ -60,7 +52,6 @@ const ForkDropInner: React.FC = () => {
 				}}
 			/>
 			<Interactive.Div
-				premountFor={fps}
 				name="Forked Hugging Face page"
 				style={{
 					position: 'absolute',
@@ -96,14 +87,12 @@ const ForkDropInner: React.FC = () => {
 				}}
 			>
 				<CanvasImage
-					premountFor={fps}
 					src={asset('Screenshot 2026-07-19 at 14.35.33.png')}
 					style={{width: 1428, height: 786}}
 					showInTimeline={false}
 				/>
 			</Interactive.Div>
 			<CanvasImage
-				premountFor={fps}
 				name="Dragging fork"
 				src={asset('elegant-silver-fork-free-png.webp')}
 				style={{

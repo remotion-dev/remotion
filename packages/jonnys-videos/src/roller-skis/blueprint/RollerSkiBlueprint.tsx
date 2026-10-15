@@ -1,11 +1,5 @@
 import {Audio} from '@remotion/media';
-import {
-	AbsoluteFill,
-	Composition,
-	Folder,
-	Interactive,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, Composition, Folder, Interactive} from 'remotion';
 import {rollerSkiAsset} from '../assets';
 import {BlueprintStage} from './BlueprintStage';
 import {CodeCard} from './CodeCard';
@@ -13,8 +7,6 @@ import {CodeCard} from './CodeCard';
 // Timing follows src/blueprint/timeline.ts: drop and whip-in at frame 255,
 // cuts on the beat of the 113 BPM score.
 const RollerSkiBlueprintInner: React.FC = () => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#FFFFFF'}}>
 			<Audio
@@ -45,12 +37,10 @@ const RollerSkiBlueprintInner: React.FC = () => {
 				src={rollerSkiAsset('blueprint/whoosh-hero.wav')}
 				from={456}
 				volume={0.5}
-				premountFor={fps}
 			/>
 			<BlueprintStage
 				name="3D model · hidden-line render"
 				durationInFrames={525}
-				premountFor={fps}
 				lineColor="#1F4FD8"
 				lineWidth={1.6}
 			/>
@@ -58,7 +48,6 @@ const RollerSkiBlueprintInner: React.FC = () => {
 				name="Title"
 				from={255}
 				durationInFrames={270}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					zIndex: 1,

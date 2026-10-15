@@ -1,7 +1,6 @@
 import {
 	AbsoluteFill,
 	Interactive,
-	useVideoConfig,
 	type InteractiveTransformProps,
 } from 'remotion';
 import {
@@ -34,8 +33,6 @@ const AirportAircraftContent = ({
 	height,
 	style,
 }: AirportAircraftProps) => {
-	const {fps} = useVideoConfig();
-
 	if (status === 'In flight') {
 		return null;
 	}
@@ -65,7 +62,6 @@ const AirportAircraftContent = ({
 						airframe={airframe}
 						width={null}
 						height={null}
-						premountFor={fps}
 					/>
 				) : (
 					<OpenAirPlane
@@ -73,7 +69,6 @@ const AirportAircraftContent = ({
 						airframe={airframe}
 						width={null}
 						height={null}
-						premountFor={fps}
 					/>
 				)}
 			</Interactive.Div>
@@ -97,7 +92,6 @@ const AirportAircraftContent = ({
 						airframe={airframe}
 						width={null}
 						height={null}
-						premountFor={fps}
 					/>
 				) : (
 					<OpenAirPlane
@@ -105,7 +99,6 @@ const AirportAircraftContent = ({
 						airframe={airframe}
 						width={null}
 						height={null}
-						premountFor={fps}
 					/>
 				)}
 			</Interactive.Div>
