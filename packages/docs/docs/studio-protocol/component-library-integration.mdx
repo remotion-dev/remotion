@@ -9,8 +9,7 @@ crumb: '@remotion/studio-protocol'
 
 An Element contains the source code for one component. It also contains the data that Studio needs to insert the component.
 
-Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the Element Library in the target project.
-
+Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list.
 A component that follows the [Element guidelines](/elements/guidelines) is usually ready for Studio.
 
 Use this procedure to preview and deliver a component:
@@ -29,19 +28,15 @@ Import the component normally for the preview. The website bundler then compiles
 
 Use the same dimensions and duration in the Player and the Element payload.
 
-### Preview installed assets<AvailableFrom v="4.0.528" />
+### Asset handling<AvailableFrom v="4.0.528" />
 
-Accept image, audio, and video URLs as component props, rather than hardcoding preview URLs or installed file paths in the source.
+Images, audio, and video that your preview loads from URLs can be downloaded into the user's `public` folder when they install the Element, or keep loading from their URLs.
 
-Pass normal URL strings to the Player. These may point to assets served by your preview website or, if you prefer, hosted elsewhere. The preview location does not need to match the installed asset path.
+Pass each asset to the component as a prop, such as `src`, instead of hardcoding its URL. Your preview passes the URL. The installed Element gets either `src={staticFile('my-element/logo.png')}` or the same URL. The component source doesn't change.
 
-For assets that should be copied into the user's project, declare them in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets). Choose public-relative paths scoped to the component, such as `my-element/logo.png`, to reduce collisions with other components.
+To download an asset, declare it in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets) and replace its URL in the payload's `initialProps` with [`staticFileRef()`](/docs/studio-protocol/static-file-ref). Studio saves the file and passes it to the component with [`staticFile()`](/docs/staticfile). See the [`staticFileRef()` example](/docs/studio-protocol/static-file-ref#example).
 
-In the payload's `initialProps`, replace each corresponding URL with [`staticFileRef()`](/docs/studio-protocol/static-file-ref), referencing the declared asset path. Keep these references out of the Player's `inputProps`: they are installation metadata, not runtime URLs. See the [`staticFileRef()` example](/docs/studio-protocol/static-file-ref#example) for the complete payload and generated code.
-
-Studio saves the assets into the public directory and generates [`staticFile()`](/docs/staticfile) expressions on the component invocation. The Element source stays unchanged. This works in both installation modes.
-
-For assets that should remain remote after installation, keep URL strings in `initialProps` instead of using references. Those assets continue to depend on the remote host.
+To keep an asset remote, leave its URL in `initialProps`.
 
 ## Reuse component code
 
