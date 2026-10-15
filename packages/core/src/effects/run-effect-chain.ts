@@ -161,72 +161,82 @@ export const runEffectChain = async ({
 	// texture coordinates match clip-space output. `ImageBitmap` bridges below
 	// opt out because they are already oriented for upload.
 	let flipWebGLSourceY = true;
+	// Only bridge bitmaps are owned here; the original source belongs to the caller.
+	let bridgeBitmap: ImageBitmap | null = null;
 
-	for (let runIndex = 0; runIndex < runs.length; runIndex++) {
-		const run = runs[runIndex];
-		let canvasIndex: 0 | 1 = 0;
+	try {
+		for (let runIndex = 0; runIndex < runs.length; runIndex++) {
+			const run = runs[runIndex];
+			let canvasIndex: 0 | 1 = 0;
 
-		for (const eff of run.effects) {
-			const dst = state.pool.getCanvas(run.backend, canvasIndex);
-			const def = eff.definition as EffectDefinition<unknown, unknown>;
-			if (run.backend === 'webgl2') {
-				// Checked before `setup()`: a lost context cannot compile shaders,
-				// and this surfaces the dedicated error instead of an effect's own.
-				state.pool.assertContextNotLost(dst);
-			}
-
-			const setupState = ensureSetup(state, def, dst);
-
-			def.apply({
-				source: currentImage,
-				target: dst,
-				state: setupState,
-				params: eff.params,
-				width,
-				height,
-				gpuDevice,
-				flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
-			});
-
-			if (run.backend === 'webgl2') {
-				// Same-backend ping-pong passes feed the previous WebGL canvas back
-				// through `texImage2D()`. That source is still a DOM canvas, so the
-				// next upload also needs to be flipped.
-				flipWebGLSourceY = true;
-			}
-
-			currentImage = dst;
-			canvasIndex = canvasIndex === 0 ? 1 : 0;
-		}
-
-		lastTarget = (currentImage as HTMLCanvasElement | null) ?? lastTarget;
-
-		const nextRun = runs[runIndex + 1];
-		if (nextRun && nextRun.backend !== run.backend && lastTarget) {
-			// 2D → WebGL: pass the 2D canvas directly so `texImage2D` + `UNPACK_FLIP_Y`
-			// matches blur-only on a raw frame canvas. `createImageBitmap` here changes
-			// upload orientation and produced upside-down stacks (wave + blur).
-			if (run.backend === '2d' && nextRun.backend === 'webgl2') {
-				currentImage = lastTarget;
-				flipWebGLSourceY = true;
-			} else {
-				// Other bridges use `createImageBitmap` rather than passing the canvas
-				// straight through. A direct `drawImage(webglCanvas)` in the next
-				// backend's first effect forces an implicit GPU readback / finish on the
-				// consuming context, which empirically blows the per-frame vsync budget and
-				// halves the paint rate. `createImageBitmap` pipelines the GPU work.
-				const bitmap = await createImageBitmap(lastTarget);
-				if (isCancelled()) {
-					bitmap.close();
-					return false;
+			for (const eff of run.effects) {
+				const dst = state.pool.getCanvas(run.backend, canvasIndex);
+				const def = eff.definition as EffectDefinition<unknown, unknown>;
+				if (run.backend === 'webgl2') {
+					// Checked before `setup()`: a lost context cannot compile shaders,
+					// and this surfaces the dedicated error instead of an effect's own.
+					state.pool.assertContextNotLost(dst);
 				}
 
-				currentImage = bitmap;
-				if (nextRun.backend === 'webgl2') {
-					flipWebGLSourceY = false;
+				const setupState = ensureSetup(state, def, dst);
+
+				def.apply({
+					source: currentImage,
+					target: dst,
+					state: setupState,
+					params: eff.params,
+					width,
+					height,
+					gpuDevice,
+					flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
+				});
+				// Effects consume their source synchronously. Release it before the
+				// next bridge so a run never retains multiple temporary bitmaps.
+				bridgeBitmap?.close();
+				bridgeBitmap = null;
+
+				if (run.backend === 'webgl2') {
+					// Same-backend ping-pong passes feed the previous WebGL canvas back
+					// through `texImage2D()`. That source is still a DOM canvas, so the
+					// next upload also needs to be flipped.
+					flipWebGLSourceY = true;
+				}
+
+				currentImage = dst;
+				canvasIndex = canvasIndex === 0 ? 1 : 0;
+			}
+
+			lastTarget = (currentImage as HTMLCanvasElement | null) ?? lastTarget;
+
+			const nextRun = runs[runIndex + 1];
+			if (nextRun && nextRun.backend !== run.backend && lastTarget) {
+				// 2D → WebGL: pass the 2D canvas directly so `texImage2D` + `UNPACK_FLIP_Y`
+				// matches blur-only on a raw frame canvas. `createImageBitmap` here changes
+				// upload orientation and produced upside-down stacks (wave + blur).
+				if (run.backend === '2d' && nextRun.backend === 'webgl2') {
+					currentImage = lastTarget;
+					flipWebGLSourceY = true;
+				} else {
+					// Other bridges use `createImageBitmap` rather than passing the canvas
+					// straight through. A direct `drawImage(webglCanvas)` in the next
+					// backend's first effect forces an implicit GPU readback / finish on the
+					// consuming context, which empirically blows the per-frame vsync budget and
+					// halves the paint rate. `createImageBitmap` pipelines the GPU work.
+					bridgeBitmap = await createImageBitmap(lastTarget);
+					if (isCancelled()) {
+						return false;
+					}
+
+					currentImage = bridgeBitmap;
+					if (nextRun.backend === 'webgl2') {
+						flipWebGLSourceY = false;
+					}
 				}
 			}
 		}
+	} finally {
+		// Also release a bridge if setup/apply throws or the run is cancelled.
+		bridgeBitmap?.close();
 	}
 
 	if (!lastTarget) {
