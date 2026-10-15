@@ -27,10 +27,7 @@ const HuggingFaceInner: React.FC = () => {
 	);
 };
 
-export const HuggingFace = Interactive.withSchema({
+export const HuggingFace = Interactive.create({
 	Component: HuggingFaceInner,
-	componentName: 'HuggingFace',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -84,9 +84,7 @@ const EightAgentsIntroContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const EightAgentsIntro = Interactive.withSchema({
+export const EightAgentsIntro = Interactive.create({
 	Component: EightAgentsIntroContent,
 	componentName: 'EightAgentsIntro',
-	schema: {},
-	wrapInSequence: true,
 });

@@ -197,10 +197,7 @@ const GearUpInner: React.FC = () => {
 	);
 };
 
-export const GearUp = Interactive.withSchema({
+export const GearUp = Interactive.create({
 	Component: GearUpInner,
-	componentName: 'GearUp',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

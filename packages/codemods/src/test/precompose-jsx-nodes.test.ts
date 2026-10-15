@@ -233,14 +233,19 @@ export const Video = () => {
 				node.tagName === sequenceTag &&
 				getStaticPropValue(project, node, 'name') === 'Presenter',
 		)!;
-		const result = precomposeJsxNodes({
+		const request = {
 			project,
 			nodes: [selected],
 			compositionFile,
 			compositionId: 'Main',
 			metadata,
 			existingCompositionIds: ['Main'],
+		};
+		expect(canPrecomposeJsxNodes(request)).toEqual({
+			canPrecompose: true,
+			reason: null,
 		});
+		const result = precomposeJsxNodes(request);
 		const after = applyCodemodChanges(project, result.changes);
 		expect(after.files[filePath]).toContain(
 			`<${sequenceTag} name="Presenter" durationInFrames={147} trimBefore={369} premountFor={fps} ${extraProps}>\n        <Presenter />\n      </${sequenceTag}>`,

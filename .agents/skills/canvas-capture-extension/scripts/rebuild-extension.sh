@@ -61,7 +61,7 @@ fi
 	bun run make
 )
 
-for required_file in manifest.json background.js capture.js drag-image.js logo.svg content-scripts/receiver.js; do
+for required_file in manifest.json background.js capture.js drag-image.js shot-tools.js logo.svg; do
 	if [[ ! -f "$dist_dir/$required_file" ]]; then
 		printf 'Build did not produce %s\n' "$dist_dir/$required_file" >&2
 		exit 1
@@ -73,4 +73,4 @@ rsync -a --delete "$dist_dir/" "$install_dir/"
 
 printf 'Installed Remotion Canvas Capture in %s\n' "$install_dir"
 printf '%s\n' 'Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled.'
-printf '%s\n' 'Open chrome://extensions manually, then click Reload or choose Load unpacked for this directory.'
+printf '%s\n' 'Open chrome://extensions, then click Reload or choose Load unpacked for this directory.'

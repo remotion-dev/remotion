@@ -463,9 +463,7 @@ export const internalBundle = async (
 			showLayerFrameNumbers: false,
 			showPremounting: null,
 			defaultPremountInSeconds: null,
-			experimentalSequenceActivityEnabled: false,
-			experimentalSequenceActivityLimit:
-				NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+			sequenceActivityLimit: null,
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
 			canvasTabsEnabled: true,

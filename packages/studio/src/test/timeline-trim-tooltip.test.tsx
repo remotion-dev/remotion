@@ -20,7 +20,9 @@ test('trim feedback starts centered, grows left, and hides natural boundary reas
 		limitReason: null,
 	};
 	try {
-		const view = render(<TimelineTrimTooltip state={state} fps={30} />);
+		const view = render(
+			<TimelineTrimTooltip showSourceLimits={false} state={state} fps={30} />,
+		);
 		const tooltip = () => portal.firstElementChild as HTMLDivElement;
 		const right = () =>
 			parseFloat(tooltip().style.left) + parseFloat(tooltip().style.width);
@@ -36,6 +38,7 @@ test('trim feedback starts centered, grows left, and hides natural boundary reas
 		] as const) {
 			view.rerender(
 				<TimelineTrimTooltip
+					showSourceLimits={false}
 					state={{...state, limitReason: reason}}
 					fps={30}
 				/>,
@@ -59,6 +62,7 @@ test('trim feedback starts centered, grows left, and hides natural boundary reas
 		for (const reason of hidden) {
 			view.rerender(
 				<TimelineTrimTooltip
+					showSourceLimits={false}
 					state={{...state, x: 330, limitReason: reason}}
 					fps={30}
 				/>,
@@ -72,6 +76,7 @@ test('trim feedback starts centered, grows left, and hides natural boundary reas
 		view.unmount();
 		render(
 			<TimelineTrimTooltip
+				showSourceLimits={false}
 				state={{...state, limitReason: 'Keyframe constraint'}}
 				fps={30}
 			/>,

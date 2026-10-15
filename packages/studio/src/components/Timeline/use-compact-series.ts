@@ -6,5 +6,8 @@ export const useCompactSeries = () => {
 	const activitySettings = useContext(
 		Internals.SequenceActivitySettingsContext,
 	);
-	return activitySettings?.enabled === true && !getStudioShowPremounting();
+	return (
+		(activitySettings?.limit ?? Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT) >
+			0 && !getStudioShowPremounting()
+	);
 };

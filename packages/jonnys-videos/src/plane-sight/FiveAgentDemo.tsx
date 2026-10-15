@@ -102,11 +102,9 @@ const FiveAgentsIntroContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const FiveAgentsIntro = Interactive.withSchema({
+export const FiveAgentsIntro = Interactive.create({
 	Component: FiveAgentsIntroContent,
 	componentName: 'FiveAgentsIntro',
-	schema: {},
-	wrapInSequence: true,
 });
 
 const AirportOverviewContent = ({style}: InteractiveTransformProps) => {
@@ -131,11 +129,9 @@ const AirportOverviewContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const AirportOverview = Interactive.withSchema({
+export const AirportOverview = Interactive.create({
 	Component: AirportOverviewContent,
 	componentName: 'AirportOverview',
-	schema: {},
-	wrapInSequence: true,
 });
 
 const AirportDemoContent = ({style}: InteractiveTransformProps) => {
@@ -261,9 +257,7 @@ const AirportDemoContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const AirportDemo = Interactive.withSchema({
+export const AirportDemo = Interactive.create({
 	Component: AirportDemoContent,
 	componentName: 'AirportDemo',
-	schema: {},
-	wrapInSequence: true,
 });

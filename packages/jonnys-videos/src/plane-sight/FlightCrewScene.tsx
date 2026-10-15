@@ -215,9 +215,7 @@ const FlightCrewSceneContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const FlightCrewScene = Interactive.withSchema({
+export const FlightCrewScene = Interactive.create({
 	Component: FlightCrewSceneContent,
 	componentName: 'FlightCrewScene',
-	schema: {},
-	wrapInSequence: true,
 });

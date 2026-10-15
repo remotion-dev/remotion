@@ -28,7 +28,7 @@ Tailwind animation class will not render correctly, they need to be refactored.
 Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
-Prefer `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})`
+Prefer `Interactive.create({layout: 'absolute-fill'})`
 for scenes with editable props. Their inner markup can return a fragment; the
 wrapper handles layout and instance styles. Sized elements such as lower thirds
 can keep the default layout and forward `style` to their own root. Register
@@ -235,11 +235,9 @@ const lowerThirdSchema = {
   },
 } as const satisfies InteractivitySchema;
 
-export const LowerThird = Interactive.withSchema({
+export const LowerThird = Interactive.create({
   Component: LowerThirdInner,
-  componentName: "LowerThird",
   schema: lowerThirdSchema,
-  wrapInSequence: true,
 });
 ```
 
@@ -298,7 +296,7 @@ When a scene or group of layers deserves its own editable timeline, follow [conn
 
 ### Pre-compose action
 
-For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, preferably make it interactive with `Interactive.withSchema({wrapInSequence: true})`, and register the same exported component reference with a unique `<Composition>` in the root. Render the interactive component directly with its timing props, or as the only child of a sequence when that wrapper has a purpose. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
+For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, preferably make it interactive with `Interactive.create()`, and register the same exported component reference with a unique `<Composition>` in the root. Render the interactive component directly with its timing props, or as the only child of a sequence when that wrapper has a purpose. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
 
 Carry inherited styles such as `fontFamily` and font loading into the extracted
 component; see [parent independence](connected-compositions.md#make-the-component-independent-of-its-parent).
@@ -368,6 +366,10 @@ Built-in effects from `@remotion/effects`:
 - Textures and patterns: `burlap()`, `checkerboard()`, `contourLines()`, `dotGrid()`, `emboss()`, `flannel()`, `gridlines()`, `halftone()`, `halftoneLinearGradient()`, `lines()`, `liquidContours()`, `noise()`, `paper()`, `pattern()`, `rings()`, `scanlines()`, `speckle()`, `tvSignalOff()`, `waves()`, `whiteNoise()`, `zigzag()`.
 - Edges: `outline()`, `roughenEdges()`, `shrinkwrap()`, `tear()`.
 - Pixelation and transitions: `evolve()`, `linearProgressivePixelate()`, `pixelate()`, `pixelDissolve()`, `radialProgressivePixelate()`, `venetianBlinds()`.
+
+## Color correction
+
+Read [color-correction.md](color-correction.md) for how to apply color correction, either using the `colorCorrection()` effect or `lut()` to apply a 3D `.cube` color grade.
 
 ## 3D content
 

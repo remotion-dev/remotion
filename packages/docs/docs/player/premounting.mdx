@@ -118,12 +118,12 @@ Use the developer tools in the browser to see if an item is mounted to the DOM.
 
 ## Premounting a whole scene
 
-Create a scene with [`Interactive.withSchema()`](/docs/interactive-with-schema) and `layout: 'absolute-fill'`, then set `premountFor` to prepare its children together:
+Create a scene with [`Interactive.create()`](/docs/interactive-create) and `layout: 'absolute-fill'`, then set `premountFor` to prepare its children together:
 
 ```tsx twoslash title="PremountedScene.tsx"
 import {Img, Interactive, staticFile} from 'remotion';
 
-const Scene = Interactive.withSchema({
+const Scene = Interactive.create({
   Component: () => (
     <>
       <Img src={staticFile('logo.png')} width={200} />
@@ -131,8 +131,6 @@ const Scene = Interactive.withSchema({
     </>
   ),
   componentName: 'Scene',
-  schema: {},
-  wrapInSequence: true,
   layout: 'absolute-fill',
 });
 

@@ -13,8 +13,7 @@ export type ConfigFileStudioSettings = {
 	readonly audioLatencyHint: AudioContextLatencyCategory | null;
 	readonly beepOnFinish: boolean | null;
 	readonly enableCrossSiteIsolation: boolean | null;
-	readonly experimentalSequenceActivityEnabled: boolean | null;
-	readonly experimentalSequenceActivityLimit: number | null;
+	readonly sequenceActivityLimit: number | null;
 	readonly interactivityEnabled: boolean | null;
 	readonly keyboardShortcutsEnabled: boolean | null;
 	readonly logLevel: LogLevel | null;
@@ -37,8 +36,8 @@ export type StudioRuntimeConfig = {
 	readonly maxTimelineTracks: number | null;
 	readonly askAIEnabled: boolean;
 	readonly elementLibraries?: readonly StudioElementLibrary[];
-	readonly experimentalSequenceActivityEnabled: boolean;
-	readonly experimentalSequenceActivityLimit: number;
+	/** null represents the unlimited (Infinity) default across JSON transport. */
+	readonly sequenceActivityLimit: number | null;
 	readonly interactivityEnabled: boolean;
 	readonly keyboardShortcutsEnabled: boolean;
 	readonly keyboardShortcuts?: StudioKeyboardShortcuts | null;

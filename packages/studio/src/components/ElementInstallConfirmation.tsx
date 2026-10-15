@@ -321,6 +321,9 @@ export const ElementInstallConfirmation: React.FC<{
 		sourceIsUnverified,
 		sourceLabel,
 	} = state;
+	const isOfficialRemotionSource =
+		request.source.type === 'studio-protocol' &&
+		request.source.origin === 'https://www.remotion.dev';
 	const sourcePreview = useMemo(
 		() => makeSourceControlsVisible(request.element.sourceCode),
 		[request.element.sourceCode],
@@ -1058,12 +1061,14 @@ export const ElementInstallConfirmation: React.FC<{
 						</section>
 					) : null}
 
-					<div style={warningStyle}>
-						<WarningTriangle style={warningIconStyle} />
-						<p style={warningDescriptionStyle}>
-							Installed code can access your files and network.
-						</p>
-					</div>
+					{isOfficialRemotionSource ? null : (
+						<div style={warningStyle}>
+							<WarningTriangle style={warningIconStyle} />
+							<p style={warningDescriptionStyle}>
+								Installed code can access your files and network.
+							</p>
+						</div>
+					)}
 
 					<details style={sourceDetailsStyle}>
 						<summary

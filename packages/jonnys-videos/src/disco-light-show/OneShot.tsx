@@ -60,10 +60,7 @@ const OneShotInner: React.FC = () => {
 	);
 };
 
-export const OneShot = Interactive.withSchema({
+export const OneShot = Interactive.create({
 	Component: OneShotInner,
-	componentName: 'OneShot',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -27,7 +27,7 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
    is installed, use `$install-canvas-capture-browser` to install one.
 
 3. Confirm that the installed directory contains `manifest.json`,
-   `background.js`, `capture.js`, `drag-image.js`, `logo.svg`, `content-scripts/receiver.js`,
+   `background.js`, `capture.js`, `drag-image.js`, `shot-tools.js`, `logo.svg`,
    and the generated extension icons.
 
 ## Develop with React and Vite
@@ -45,6 +45,12 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
 Use the separate development directory only for `bun run dev`. Continue using
 the production install directory above for manually loaded builds.
 
+The Remotion pages receive recordings through `externally_connectable`
+messaging; the extension does not inject a receiver content script. To test a
+local destination, set `CANVAS_CAPTURE_HANDOFF_ORIGIN` (for example
+`http://localhost:3000`) when running `bun run dev`. Production builds always
+use `https://www.remotion.dev`.
+
 To select another Chrome 157.0.8080.0 or newer browser, set
 `CANVAS_CAPTURE_BROWSER_EXECUTABLE` to its executable path when running
 `bun run dev`. Development uses the version-neutral
@@ -53,7 +59,7 @@ To select another Chrome 157.0.8080.0 or newer browser, set
 ## Reload in Chrome
 
 - Launch Chrome 157.0.8080.0 or newer with the
-  dedicated Canvas Capture profile, then open `chrome://extensions` manually.
+  dedicated Canvas Capture profile, then open `chrome://extensions`.
 - Enable **Developer mode** on `chrome://extensions`.
 - If **Remotion Canvas Capture** already points to the durable directory, click
   **Reload**.
@@ -71,8 +77,22 @@ To select another Chrome 157.0.8080.0 or newer browser, set
   never from a worktree-local `dist` directory. WXT-managed development builds
   use the separate durable development directory documented above.
 - Enable `chrome://flags/#canvas-draw-element` and restart Chrome when the
-  experimental HTML-in-canvas API is unavailable.
+  experimental HTML-in-canvas API is unavailable. Alternatively, launch with
+  `--enable-features=CanvasDrawElement`; either method is sufficient. Do not add
+  `--enable-blink-features=CanvasDrawElement`, which triggers Chrome's
+  unsupported-command-line warning.
 
 Do not edit Chrome's `Preferences` or `Secure Preferences` files to move or
-reload the extension, and do not automate the Chrome UI. Let the user use
-Chrome's extensions page so its integrity metadata stays valid.
+reload the extension. Use Chrome's extensions page so its integrity metadata
+stays valid. Browser UI automation is allowed for loading, reloading, and
+activating Canvas Capture; do not require the user to perform those clicks.
+
+## Prepare a shot
+
+Open the requested webpage in the compatible recording browser and activate
+Canvas Capture through its toolbar icon or the Extensions menu. This exposes
+the `setup_shot`, `get_shot`, and `save_recording` WebMCP tools in that tab.
+
+Prepare the page and viewport, call `setup_shot`, and inspect a still preview
+with `get_shot`. Leave the browser open with the shot ready for the user to
+record. Start and stop recording manually so the user controls cursor movement.

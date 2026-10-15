@@ -1,3 +1,4 @@
+import type * as Codemods from '@remotion/codemods';
 import type {
 	CanUpdateSequencePropsResponseTrue,
 	OverrideIdToNodePaths,
@@ -13,16 +14,19 @@ import {
 } from '../../helpers/preview-server-events';
 
 type CachedSource = {
-	contents: string;
+	source: Promise<{
+		contents: string;
+		codemods: typeof Codemods;
+	}>;
 	constraints: Map<
 		string,
 		CanUpdateSequencePropsResponseTrue['durationDependentKeyframes']
 	>;
 };
-const sourceCache = new Map<string, Promise<CachedSource>>();
+const sourceCache = new Map<string, CachedSource>();
 let subscribedToSourceChanges = false;
 
-export const loadKeyframeTrimConstraints = async ({
+export const getKeyframeTrimConstraints = ({
 	propStatuses,
 	overrideIdsToNodePaths,
 	sequences,
@@ -32,7 +36,7 @@ export const loadKeyframeTrimConstraints = async ({
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	sequences: readonly TSequence[];
 	affectedNodePaths: readonly SequencePropsSubscriptionKey[];
-}): Promise<PropStatuses> => {
+}): PropStatuses => {
 	const affectedKeys = new Set(
 		affectedNodePaths.map(Internals.makeSequencePropsSubscriptionKey),
 	);
@@ -98,80 +102,85 @@ export const loadKeyframeTrimConstraints = async ({
 		});
 	}
 
-	// Only affected clips and descendants need source analysis. Concurrent
-	// gestures/inspector fields share in-flight reads as well as parsed results.
+	// Edits take a synchronous snapshot. Missing source and analysis load in the
+	// background for the next edit, without changing an active gesture's bounds.
 	const browserOperations = getBrowserStudioOperations();
-	const entries = new Map<string, Promise<CachedSource>>();
-	for (const source of sources.values()) {
+	const result = {...propStatuses};
+	for (const [key, source] of sources) {
 		const fileName = source.absolutePath;
-		if (entries.has(fileName)) continue;
 		let entry = sourceCache.get(fileName);
 		if (!entry) {
-			entry = (async (): Promise<CachedSource> => {
-				let contents: string;
-				if (browserOperations) {
-					const value = await browserOperations.getFileSource(fileName);
-					if (value === null) throw new Error(`Could not load ${fileName}`);
-					contents = value;
-				} else {
-					const response = await fetch(
-						`/api/file-source?f=${encodeURIComponent(fileName)}`,
-						{cache: 'no-store'},
-					);
-					if (!response.ok) throw new Error(`Could not load ${fileName}`);
-					contents = await response.text();
-				}
+			const pendingSource = (async () => {
+				const [codemods, contents] = await Promise.all([
+					import('@remotion/codemods'),
+					(async () => {
+						if (browserOperations) {
+							const value = await browserOperations.getFileSource(fileName);
+							if (value === null) throw new Error(`Could not load ${fileName}`);
+							return value;
+						}
 
-				return {contents, constraints: new Map()};
+						const response = await fetch(
+							`/api/file-source?f=${encodeURIComponent(fileName)}`,
+							{cache: 'no-store'},
+						);
+						if (!response.ok) throw new Error(`Could not load ${fileName}`);
+						return response.text();
+					})(),
+				]);
+				return {contents, codemods};
 			})();
+			entry = {source: pendingSource, constraints: new Map()};
 			sourceCache.set(fileName, entry);
 			const pendingEntry = entry;
-			entry.catch(() => {
-				if (sourceCache.get(fileName) === pendingEntry)
-					sourceCache.delete(fileName);
+			pendingSource.catch((error) => {
+				if (sourceCache.get(fileName) !== pendingEntry) return;
+				sourceCache.delete(fileName);
+				Internals.Log.warn(
+					{logLevel: 'info', tag: '@remotion/studio'},
+					`Could not load ${fileName} for keyframe analysis. Using existing trim limits.`,
+					error,
+				);
 			});
 		}
 
-		entries.set(fileName, entry);
-	}
-
-	const [codemods, files] = await Promise.all([
-		import('@remotion/codemods'),
-		Promise.all(
-			[...entries].map(
-				async ([fileName, entry]) => [fileName, await entry] as const,
-			),
-		),
-	]);
-	for (const [fileName, entry] of entries) {
-		if (sourceCache.get(fileName) !== entry) {
-			throw new Error(
-				'Source changed while checking trim constraints. Try again.',
-			);
-		}
-	}
-
-	const contentsByFile = new Map(files);
-	const result = {...propStatuses};
-	for (const [key, source] of sources) {
-		const status = propStatuses[key];
-		if (!status?.canUpdate) continue;
-		const cached = contentsByFile.get(source.absolutePath)!;
+		const cached = entry;
 		const pathKey = JSON.stringify(source.nodePath);
 		if (!cached.constraints.has(pathKey)) {
-			cached.constraints.set(
-				pathKey,
-				codemods.CodemodsInternals.getDurationDependentKeyframesFromContent({
-					fileContents: cached.contents,
-					nodePath: source.nodePath,
-				}),
+			// Also deduplicate pending analysis of the same node.
+			cached.constraints.set(pathKey, null);
+			cached.source.then(
+				({contents, codemods}) => {
+					if (sourceCache.get(fileName) !== cached) return;
+					try {
+						cached.constraints.set(
+							pathKey,
+							codemods.CodemodsInternals.getDurationDependentKeyframesFromContent(
+								{
+									fileContents: contents,
+									nodePath: source.nodePath,
+								},
+							),
+						);
+					} catch (error) {
+						Internals.Log.warn(
+							{logLevel: 'info', tag: '@remotion/studio'},
+							`Could not analyze keyframes in ${fileName}. Using existing trim limits.`,
+							error,
+						);
+					}
+				},
+				() => {
+					// The shared source failure is handled above; other files still work.
+				},
 			);
 		}
 
-		result[key] = {
-			...status,
-			durationDependentKeyframes: cached.constraints.get(pathKey)!,
-		};
+		const status = propStatuses[key];
+		const constraints = cached.constraints.get(pathKey);
+		if (status?.canUpdate && constraints) {
+			result[key] = {...status, durationDependentKeyframes: constraints};
+		}
 	}
 
 	return result;

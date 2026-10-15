@@ -101,7 +101,13 @@ const waitForPaint = (
 	layoutCanvas: HTMLCanvasWithLayoutSubtree,
 ): Promise<void> => {
 	return new Promise((resolve) => {
-		layoutCanvas.addEventListener('paint', () => resolve(), {once: true});
+		// Chromium dispatches paint during compositor commit. Resume in a new task
+		// so WebGL context eviction cannot destroy a texture layer during commit.
+		// Remove this workaround once the Chromium fix ships in supported Chrome versions.
+		// https://github.com/remotion-dev/remotion/issues/12293
+		layoutCanvas.addEventListener('paint', () => setTimeout(resolve, 0), {
+			once: true,
+		});
 		layoutCanvas.requestPaint!();
 	});
 };

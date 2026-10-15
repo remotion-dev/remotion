@@ -83,9 +83,7 @@ const GeminiTowerSceneContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const GeminiTowerScene = Interactive.withSchema({
+export const GeminiTowerScene = Interactive.create({
 	Component: GeminiTowerSceneContent,
 	componentName: 'GeminiTowerScene',
-	schema: {},
-	wrapInSequence: true,
 });

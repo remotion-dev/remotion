@@ -27,10 +27,7 @@ const DragInDemoInner: React.FC = () => {
 	);
 };
 
-export const DragInDemo = Interactive.withSchema({
+export const DragInDemo = Interactive.create({
 	Component: DragInDemoInner,
-	componentName: 'DragInDemo',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

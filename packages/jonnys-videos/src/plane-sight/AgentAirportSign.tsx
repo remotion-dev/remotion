@@ -31,9 +31,7 @@ const AgentAirportSignContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const AgentAirportSign = Interactive.withSchema({
+export const AgentAirportSign = Interactive.create({
 	Component: AgentAirportSignContent,
 	componentName: 'AgentAirportSign',
-	schema: {},
-	wrapInSequence: true,
 });

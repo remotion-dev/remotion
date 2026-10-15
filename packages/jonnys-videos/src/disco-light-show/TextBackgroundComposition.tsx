@@ -123,10 +123,7 @@ const TextBackgroundCompositionInner: React.FC = () => {
 	);
 };
 
-export const TextBackgroundComposition = Interactive.withSchema({
+export const TextBackgroundComposition = Interactive.create({
 	Component: TextBackgroundCompositionInner,
-	componentName: 'TextBackgroundComposition',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {CodemodsInternals, getNodeProps, getNodes} from '@remotion/codemods';
 import type {EventSourceEvent} from '@remotion/studio-shared';
+import {waitFor} from '@testing-library/react';
 import type {
 	OverrideIdToNodePaths,
 	PropStatuses,
@@ -8,7 +9,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals, interpolate} from 'remotion';
-import {loadKeyframeTrimConstraints} from '../components/Timeline/load-keyframe-trim-constraints';
+import {getKeyframeTrimConstraints} from '../components/Timeline/get-keyframe-trim-constraints';
 import {
 	getTimelineSequenceDurationDragChanges,
 	getTimelineSequenceDurationDragTargets,
@@ -180,6 +181,302 @@ const getTargets = (
 		timelineDurationInFrames: 1000,
 	})!;
 };
+
+const makeSourceOnlyFixture = ({
+	trimBefore,
+	explicitDuration,
+	playbackRate,
+	parentPlaybackRate,
+	range,
+}: {
+	trimBefore: number;
+	explicitDuration: boolean;
+	playbackRate: number;
+	parentPlaybackRate: number;
+	range: string;
+}) => {
+	const fixture = makeFixture(range, 'child', 120);
+	// A declared source out-point bounds these unit tests without fetching media.
+	const runtime = {
+		from: 0,
+		trimBefore,
+		trimAfter: 300,
+		playbackRate,
+		...(explicitDuration ? {durationInFrames: 120 * playbackRate} : {}),
+	};
+	fixture.files['/trim-test/parent.tsx'] =
+		`import {Video} from '@remotion/media';
+export const App = () => <Video from={0} trimBefore={${trimBefore}} trimAfter={300} playbackRate={${playbackRate}} ${explicitDuration ? `durationInFrames={${120 * playbackRate}}` : ''} />;`;
+	fixture.sequences[0] = {
+		...makeSequence({
+			id: 'parent',
+			parent: 'outer',
+			duration: 120,
+			contextDuration: 120,
+			runtime,
+		}),
+		type: 'video',
+		src: 'source-only-fixture.mp4',
+		muted: true,
+		mediaFrameAtSequenceZero: null,
+		frozenMediaFrame: null,
+		playbackRate,
+		startMediaFrom: trimBefore,
+		// Media seeks through its runtime trim; its enclosing Sequence is untrimmed.
+		trimBefore: 0,
+		autoDuration: !explicitDuration,
+	};
+	fixture.sequences[0].controls!.componentIdentity = 'dev.remotion.media.Video';
+	fixture.sequences[1].controls!.videoConfigValues = config(120 + trimBefore);
+	fixture.sequences.push({
+		...makeSequence({
+			id: 'outer',
+			parent: null,
+			duration: 90 / parentPlaybackRate,
+			contextDuration: 1000,
+			runtime: {from: 60, durationInFrames: 90, trimBefore: 30},
+		}),
+		from: 60,
+		trimBefore: 30,
+		sequencePlaybackRate: parentPlaybackRate,
+	});
+	const node = getNodes({
+		project: {rootDir: '/trim-test', files: fixture.files},
+		filePath: '/trim-test/parent.tsx',
+	})[0];
+	const nodePath = {
+		...fixture.mappings.parent,
+		nodePath: node.nodePath,
+		sequenceKeys: [
+			'from',
+			'durationInFrames',
+			'trimBefore',
+			'trimAfter',
+			'playbackRate',
+		],
+	};
+	fixture.mappings.parent = nodePath;
+	fixture.propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] =
+		getNodeProps({
+			project: {rootDir: '/trim-test', files: fixture.files},
+			node,
+			keys: nodePath.sequenceKeys,
+			effectKeys: [],
+		});
+	prepareSource(fixture);
+	const tracks = calculateTimeline({
+		sequences: fixture.sequences,
+		overrideIdsToNodePaths: fixture.mappings,
+	});
+	const mediaTrack = tracks.find((track) => track.sequence.id === 'parent')!;
+	return {
+		fixture,
+		mediaTrack,
+		targets: getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: mediaTrack.nodePathInfo!,
+			selectedItems: [],
+			sequences: fixture.sequences,
+			overrideIdsToNodePaths: fixture.mappings,
+			propStatuses: fixture.propStatuses,
+			timelineDurationInFrames: 1000,
+			trimBeforeOnly: true,
+			rippleEdit: false,
+		})!,
+	};
+};
+
+test.each([
+	{
+		trimBefore: 0,
+		explicitDuration: false,
+		playbackRate: 1,
+		parentPlaybackRate: 1,
+		midDelta: 15,
+		midFrom: 15,
+		maximumTrim: 180,
+	},
+	{
+		trimBefore: 20,
+		explicitDuration: false,
+		playbackRate: 1,
+		parentPlaybackRate: 1,
+		midDelta: 35,
+		midFrom: 15,
+		maximumTrim: 180,
+	},
+	{
+		trimBefore: 20,
+		explicitDuration: true,
+		playbackRate: 1,
+		parentPlaybackRate: 1,
+		midDelta: 35,
+		midFrom: 15,
+		maximumTrim: 180,
+	},
+	{
+		trimBefore: 20,
+		explicitDuration: true,
+		playbackRate: 0.5,
+		parentPlaybackRate: 2,
+		midDelta: 28,
+		midFrom: 16,
+		maximumTrim: 240,
+	},
+	{
+		trimBefore: 20,
+		explicitDuration: false,
+		playbackRate: 2,
+		parentPlaybackRate: 0.5,
+		midDelta: 50,
+		midFrom: 15,
+		maximumTrim: 60,
+	},
+])('source-only trims preserve the visible range: %j', (testCase) => {
+	const {fixture, targets, mediaTrack} = makeSourceOnlyFixture({
+		...testCase,
+		range: '[0, 1]',
+	});
+	expect(targets).toHaveLength(1);
+	const initial: Record<'from' | 'trimBefore' | 'durationInFrames', number> = {
+		from: 0,
+		trimBefore: testCase.trimBefore,
+		durationInFrames: 120 * testCase.playbackRate,
+	};
+	for (const [deltaFrames, expected] of [
+		[0, initial],
+		[
+			testCase.trimBefore / testCase.playbackRate / testCase.parentPlaybackRate,
+			{...initial, trimBefore: 0},
+		],
+		[
+			testCase.midDelta,
+			{
+				from: testCase.midFrom,
+				trimBefore: 0,
+				durationInFrames:
+					(testCase.explicitDuration ? 120 - testCase.midFrom : 120) *
+					testCase.playbackRate,
+			},
+		],
+		[
+			1000,
+			{
+				from: 30,
+				trimBefore: 0,
+				durationInFrames:
+					(testCase.explicitDuration ? 90 : 120) * testCase.playbackRate,
+			},
+		],
+		[-1000, {...initial, trimBefore: testCase.maximumTrim}],
+	] as const) {
+		const changes = getTimelineSequenceLeftEdgeDragChanges({
+			targets,
+			deltaFrames,
+			trimBeforeOnly: true,
+		});
+		const actual = {...initial};
+		for (const change of changes) {
+			expect(change.fileName).toBe(fixture.mappings.parent.absolutePath);
+			actual[change.fieldKey as keyof typeof actual] = change.value as number;
+		}
+
+		expect(actual).toEqual(expected);
+		if (deltaFrames === 0) expect(changes).toEqual([]);
+		const updatedTracks = calculateTimeline({
+			sequences: fixture.sequences.map((sequence) =>
+				sequence.id === 'parent'
+					? {
+							...sequence,
+							from: actual.from,
+							duration: actual.durationInFrames / testCase.playbackRate,
+						}
+					: sequence,
+			),
+			overrideIdsToNodePaths: fixture.mappings,
+		});
+		const updated = updatedTracks.find(
+			(track) => track.sequence.id === 'parent',
+		)!;
+		expect(updated.sequence.from).toBe(mediaTrack.sequence.from);
+		expect(updated.sequence.duration).toBe(mediaTrack.sequence.duration);
+	}
+});
+
+test.each([
+	{
+		range: '[0, durationInFrames - 130]',
+		minimumTrim: 11,
+		reason: 'Keyframe constraint',
+	},
+	{
+		range: '[0, Math.max(1, durationInFrames - 50)]',
+		minimumTrim: 20,
+		reason: 'Computed keyframes',
+	},
+])(
+	'source-only trims respect the keyframe floor: %j',
+	({range, minimumTrim, reason}) => {
+		const {targets} = makeSourceOnlyFixture({
+			trimBefore: 20,
+			explicitDuration: true,
+			playbackRate: 1,
+			parentPlaybackRate: 1,
+			range,
+		});
+		const changes = getTimelineSequenceLeftEdgeDragChanges({
+			targets,
+			deltaFrames: 1000,
+			trimBeforeOnly: true,
+		});
+		expect(changes.map(({fieldKey, value}) => [fieldKey, value])).toEqual(
+			minimumTrim === 20 ? [] : [['trimBefore', minimumTrim]],
+		);
+		expect(targets[0].sourceOnlyLimits?.minimumReason).toBe(reason);
+	},
+);
+
+test('source-only edits do not replace an animated trimBefore', () => {
+	const {fixture} = makeSourceOnlyFixture({
+		trimBefore: 20,
+		explicitDuration: true,
+		playbackRate: 1,
+		parentPlaybackRate: 1,
+		range: '[0, 1]',
+	});
+	const filePath = fixture.mappings.parent.absolutePath;
+	fixture.files[filePath] = `import {Video} from '@remotion/media';
+import {interpolate, useCurrentFrame} from 'remotion';
+export const App = () => {
+ const frame = useCurrentFrame();
+ return <Video from={0} durationInFrames={120} trimBefore={interpolate(frame, [0, 120], [20, 40])} />;
+};`;
+	const project = {rootDir: '/trim-test', files: fixture.files};
+	const node = getNodes({project, filePath})[0];
+	const nodePath = {...fixture.mappings.parent, nodePath: node.nodePath};
+	fixture.mappings.parent = nodePath;
+	fixture.propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] =
+		getNodeProps({project, node, keys: nodePath.sequenceKeys, effectKeys: []});
+	expect(
+		Internals.getPropStatusesCtx(fixture.propStatuses, nodePath)?.trimBefore
+			.status,
+	).toBe('keyframed');
+	const track = calculateTimeline({
+		sequences: fixture.sequences,
+		overrideIdsToNodePaths: fixture.mappings,
+	}).find((item) => item.sequence.id === 'parent')!;
+	expect(
+		getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: track.nodePathInfo!,
+			selectedItems: [],
+			sequences: fixture.sequences,
+			overrideIdsToNodePaths: fixture.mappings,
+			propStatuses: fixture.propStatuses,
+			timelineDurationInFrames: 1000,
+			trimBeforeOnly: true,
+			rippleEdit: false,
+		}),
+	).toBeNull();
+});
 
 test.each(['child', 'property', 'effect'] as const)(
 	'trimming respects %s keyframes',
@@ -402,7 +699,7 @@ test('converts descendant constraints through offsets and playback rates', () =>
 	).toBe(30);
 });
 
-test('loads only affected source, reuses it, and refreshes constraints after source changes', async () => {
+test('trims synchronously while affected source loads and refreshes cached constraints after changes', async () => {
 	const fixture = makeFixture(
 		'[10, 21, durationInFrames - 18, durationInFrames - 8]',
 		'child',
@@ -427,7 +724,7 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 		},
 	});
 	const load = () =>
-		loadKeyframeTrimConstraints({
+		getKeyframeTrimConstraints({
 			propStatuses: fixture.propStatuses,
 			overrideIdsToNodePaths: fixture.mappings,
 			sequences: fixture.sequences,
@@ -444,27 +741,34 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 				]!,
 		});
 	try {
-		const [first, concurrent] = await Promise.all([load(), load()]);
+		const first = load();
+		const concurrent = load();
+		expect(first).not.toBeInstanceOf(Promise);
+		expect(getTargets(fixture, first, 'parent')[0].minimumDuration).toBe(1);
+		expect(getTargets(fixture, concurrent, 'parent')[0].minimumDuration).toBe(
+			1,
+		);
+		await waitFor(() => {
+			expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(40);
+		});
 		expect(reads.sort()).toEqual([
 			'/trim-test/content.tsx',
 			'/trim-test/parent.tsx',
 		]);
-		expect(getTargets(fixture, first, 'parent')[0].minimumDuration).toBe(40);
-		expect(getTargets(fixture, concurrent, 'parent')[0].minimumDuration).toBe(
-			40,
-		);
-		await load();
+		// Background completion cannot change bounds already captured by an edit.
+		expect(getTargets(fixture, first, 'parent')[0].minimumDuration).toBe(1);
+		load();
 		expect(reads).toHaveLength(2);
 
 		fixture.files['/trim-test/content.tsx'] = fixture.files[
 			'/trim-test/content.tsx'
 		].replace('[10, 21,', '[10, 31,');
 		sourceChanged();
-		const refreshed = await load();
+		expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(1);
+		await waitFor(() => {
+			expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(50);
+		});
 		expect(reads.slice(2)).toEqual(['/trim-test/content.tsx']);
-		expect(getTargets(fixture, refreshed, 'parent')[0].minimumDuration).toBe(
-			50,
-		);
 
 		let finishRead!: (source: string) => void;
 		pendingRead = new Promise((resolve) => {
@@ -474,13 +778,15 @@ test('loads only affected source, reuses it, and refreshes constraints after sou
 		const stale = load();
 		sourceChanged();
 		finishRead(fixture.files['/trim-test/content.tsx']);
-		await expect(stale).rejects.toThrow('Source changed');
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(getTargets(fixture, stale, 'parent')[0].minimumDuration).toBe(1);
 		pendingRead = Promise.resolve(null);
-		await expect(load()).rejects.toThrow('Could not load');
+		expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(1);
+		await new Promise((resolve) => setTimeout(resolve, 0));
 		pendingRead = null;
-		expect(getTargets(fixture, await load(), 'parent')[0].minimumDuration).toBe(
-			50,
-		);
+		await waitFor(() => {
+			expect(getTargets(fixture, load(), 'parent')[0].minimumDuration).toBe(50);
+		});
 	} finally {
 		emit({type: 'hmr', hmrEvent: {action: 'building'}});
 		window.remotion_browserStudio = previousOperations;

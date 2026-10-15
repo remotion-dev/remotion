@@ -7,16 +7,21 @@ import type {
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../helpers/colors';
 import {UndoIcon} from '../icons/undo';
 import {Button} from './Button';
 import {Checkbox} from './Checkbox';
 import {ConfigSelect} from './ConfigSelect';
 import {sectionHeader} from './InspectorPanel/styles';
 import {Spacing} from './layout';
-import {InputDragger} from './NewComposition/InputDragger';
+import {
+	InputDragger,
+	parseInputDraggerNumber,
+} from './NewComposition/InputDragger';
+import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {InfoBubble} from './RenderModal/InfoBubble';
+import {INFO_TOOLTIP_FONT_SIZE} from './RenderModal/InfoTooltip';
 import {label, optionRow, rightRow} from './RenderModal/layout';
 import {useSettings} from './SettingsContext';
 import {useAutoSaveConfig} from './use-auto-save-config';
@@ -53,8 +58,7 @@ const initialSettings: ConfigFileStudioSettings = {
 	audioLatencyHint: null,
 	beepOnFinish: null,
 	enableCrossSiteIsolation: null,
-	experimentalSequenceActivityEnabled: null,
-	experimentalSequenceActivityLimit: null,
+	sequenceActivityLimit: null,
 	interactivityEnabled: null,
 	keyboardShortcutsEnabled: null,
 	logLevel: null,
@@ -66,34 +70,60 @@ const initialSettings: ConfigFileStudioSettings = {
 
 const ConfigNumber = ({
 	defaultValue,
+	description,
 	name,
 	onChange,
 	onChangeEnd,
 	value,
 	step,
+	suffix,
 }: {
 	readonly defaultValue: number;
+	readonly description: React.ReactNode;
 	readonly step: number;
+	readonly suffix: string | null;
 	readonly name: string;
 	readonly onChange: (value: number | null) => void;
 	readonly onChangeEnd: (value: number | null) => void;
 	readonly value: number | null;
 }) => {
+	const valueSuffix = suffix === null ? '' : ` ${suffix}`;
+	const defaultLabel = `Default (${defaultValue}${valueSuffix})`;
+
 	return (
 		<div style={optionRow}>
-			<div style={label}>{name}</div>
+			<div style={label}>
+				{name}
+				{description === null ? null : (
+					<InfoBubble
+						aria-label={`About ${name.toLowerCase()}`}
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							{description}
+						</div>
+					</InfoBubble>
+				)}
+			</div>
 			<div style={{...rightRow, gap: 6}}>
 				<InputDragger
 					aria-label={name}
 					buttonStyle={{textAlign: 'right', width: 140}}
 					formatter={() =>
-						value === null ? `Default (${defaultValue})` : String(value)
+						value === null ? defaultLabel : `${value}${valueSuffix}`
 					}
 					min={0}
 					onTextChange={() => undefined}
 					onValueChange={onChange}
 					onValueChangeEnd={onChangeEnd}
-					placeholder={`Default (${defaultValue})`}
+					placeholder={defaultLabel}
 					rightAlign
 					status="ok"
 					step={step}
@@ -104,7 +134,7 @@ const ConfigNumber = ({
 					onClick={() => onChangeEnd(null)}
 					size="compact"
 					style={{color: LIGHT_TEXT}}
-					aria-label={`Use default (${defaultValue})`}
+					aria-label={`Use default (${defaultValue}${valueSuffix})`}
 				>
 					<UndoIcon style={resetIcon} />
 				</Button>
@@ -117,14 +147,16 @@ export const StudioSettings: React.FC = () => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
 	const [settings, setSettings] =
 		useState<ConfigFileStudioSettings>(initialSettings);
+	const [sequenceActivityLimitText, setSequenceActivityLimitText] =
+		useState('Infinity');
 	const [committedNumberSettings, setCommittedNumberSettings] = useState<{
 		numberOfSharedAudioTags: number | null;
 		defaultPremountInSeconds: number | null;
-		experimentalSequenceActivityLimit: number | null;
+		sequenceActivityLimit: number | null;
 	}>({
 		numberOfSharedAudioTags: null,
 		defaultPremountInSeconds: null,
-		experimentalSequenceActivityLimit: null,
+		sequenceActivityLimit: null,
 	});
 	const [editedSetters, setEditedSetters] = useState<Set<string>>(
 		() => new Set(),
@@ -140,10 +172,16 @@ export const StudioSettings: React.FC = () => {
 		setSettings(
 			studioRuntimeConfig.configFileStudioSettings ?? initialSettings,
 		);
+		setSequenceActivityLimitText(
+			String(
+				studioRuntimeConfig.configFileStudioSettings?.sequenceActivityLimit ??
+					Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+			),
+		);
 		setCommittedNumberSettings({
-			experimentalSequenceActivityLimit:
-				studioRuntimeConfig.configFileStudioSettings
-					?.experimentalSequenceActivityLimit ?? null,
+			sequenceActivityLimit:
+				studioRuntimeConfig.configFileStudioSettings?.sequenceActivityLimit ??
+				null,
 			defaultPremountInSeconds:
 				studioRuntimeConfig.configFileStudioSettings
 					?.defaultPremountInSeconds ?? null,
@@ -172,7 +210,7 @@ export const StudioSettings: React.FC = () => {
 			key:
 				| 'numberOfSharedAudioTags'
 				| 'defaultPremountInSeconds'
-				| 'experimentalSequenceActivityLimit',
+				| 'sequenceActivityLimit',
 			value: number | null,
 		) => {
 			setSettings((current) => ({...current, [key]: value}));
@@ -184,7 +222,7 @@ export const StudioSettings: React.FC = () => {
 			key:
 				| 'numberOfSharedAudioTags'
 				| 'defaultPremountInSeconds'
-				| 'experimentalSequenceActivityLimit',
+				| 'sequenceActivityLimit',
 			setter: string,
 			value: number | null,
 		) => {
@@ -207,9 +245,7 @@ export const StudioSettings: React.FC = () => {
 		const updatesForEditedSetters = [
 			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
 			update('setShowPremounting', settings.showPremounting),
-			update('setAskAIEnabled', settings.askAIEnabled),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
-			update('setBeepOnFinish', settings.beepOnFinish),
 			update('setAudioLatencyHint', settings.audioLatencyHint),
 			update(
 				'setNumberOfSharedAudioTags',
@@ -222,12 +258,8 @@ export const StudioSettings: React.FC = () => {
 			update('setRspack', settings.rspack),
 			update('setInteractivityEnabled', settings.interactivityEnabled),
 			update(
-				'setExperimentalSequenceActivityEnabled',
-				settings.experimentalSequenceActivityEnabled,
-			),
-			update(
-				'setExperimentalSequenceActivityLimit',
-				committedNumberSettings.experimentalSequenceActivityLimit,
+				'setSequenceActivityLimit',
+				committedNumberSettings.sequenceActivityLimit,
 			),
 			update('setCanvasTabsEnabled', settings.canvasTabsEnabled),
 			update('setLogLevel', settings.logLevel),
@@ -262,9 +294,361 @@ export const StudioSettings: React.FC = () => {
 
 	return (
 		<div style={container}>
-			<p style={dividerLabel}>Development</p>
+			<p style={dividerLabel}>Interface</p>
+			<div style={optionRow}>
+				<div style={label}>
+					Interactivity enabled
+					<InfoBubble
+						aria-label="About interactivity"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							Global setting for turning off any interactivity that may edit
+							your code.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Interactivity enabled">
+					<Checkbox
+						checked={settings.interactivityEnabled !== false}
+						name="Interactivity enabled"
+						onChange={(event) =>
+							changeSetting(
+								'interactivityEnabled',
+								'setInteractivityEnabled',
+								event.target.checked ? null : false,
+							)
+						}
+					/>
+				</label>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Composition Tabs
+					<InfoBubble
+						aria-label="About composition tabs"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							Show a tab interface above the canvas.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Composition Tabs">
+					<Checkbox
+						checked={settings.canvasTabsEnabled !== false}
+						name="Composition Tabs"
+						onChange={(event) =>
+							changeSetting(
+								'canvasTabsEnabled',
+								'setCanvasTabsEnabled',
+								event.target.checked ? null : false,
+							)
+						}
+					/>
+				</label>
+			</div>
+
+			<p style={sectionTitle}>Timeline</p>
+			<div style={optionRow}>
+				<div style={label}>
+					Layer Frame Counters
+					<InfoBubble
+						aria-label="About layer frame counters"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							Shows the internal time of a clip as a small label.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Layer Frame Counters">
+					<Checkbox
+						checked={settings.showLayerFrameNumbers ?? false}
+						name="Layer Frame Counters"
+						onChange={(event) =>
+							changeSetting(
+								'showLayerFrameNumbers',
+								'setShowLayerFrameNumbers',
+								event.target.checked,
+							)
+						}
+					/>
+				</label>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Show Premounting
+					<InfoBubble
+						aria-label="About premounting"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							Indicate in the timeline when a layer is mounted invisibly. See:{' '}
+							<a
+								href="https://www.remotion.dev/docs/player/premounting"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									color: BLUE,
+									fontSize: INFO_TOOLTIP_FONT_SIZE,
+									lineHeight: 1.5,
+									textDecoration: 'none',
+								}}
+							>
+								Premounting
+							</a>
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Show Premounting">
+					<Checkbox
+						checked={settings.showPremounting ?? false}
+						name="Show Premounting"
+						onChange={(event) =>
+							changeSetting(
+								'showPremounting',
+								'setShowPremounting',
+								event.target.checked,
+							)
+						}
+					/>
+				</label>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Visualize unmounted components
+					<InfoBubble
+						aria-label="About visualizing unmounted components"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							The maximum number of components which may be evaluated for better
+							timeline visualization. See:{' '}
+							<a
+								href="https://www.remotion.dev/docs/studio/showing-unmounted-components"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									color: BLUE,
+									fontSize: INFO_TOOLTIP_FONT_SIZE,
+									lineHeight: 1.5,
+									textDecoration: 'none',
+								}}
+							>
+								Showing unmounted components
+							</a>
+						</div>
+					</InfoBubble>
+				</div>
+				<div style={{...rightRow, gap: 6}}>
+					<RemotionInput
+						aria-label="Visualize unmounted components"
+						type="text"
+						style={{width: 140}}
+						onChange={(event) => {
+							event.currentTarget.setCustomValidity('');
+							setSequenceActivityLimitText(event.currentTarget.value);
+						}}
+						onBlur={(event) => {
+							const text = event.currentTarget.value.trim();
+							if (text === '') {
+								setSequenceActivityLimitText(
+									String(settings.sequenceActivityLimit ?? Infinity),
+								);
+								return;
+							}
+
+							const value =
+								text === 'Infinity' ? Infinity : parseInputDraggerNumber(text);
+							if (
+								value !== Infinity &&
+								(value === null || !Number.isSafeInteger(value) || value < 0)
+							) {
+								event.currentTarget.setCustomValidity(
+									'Enter a non-negative safe integer or Infinity.',
+								);
+								event.currentTarget.reportValidity();
+								return;
+							}
+
+							event.currentTarget.setCustomValidity('');
+							setSequenceActivityLimitText(String(value));
+							const limit = value === Infinity ? null : value;
+							if (limit !== settings.sequenceActivityLimit) {
+								commitNumberSetting(
+									'sequenceActivityLimit',
+									'setSequenceActivityLimit',
+									limit,
+								);
+							}
+						}}
+						onKeyDown={(event) => {
+							if (event.key === 'Enter') {
+								event.currentTarget.blur();
+							}
+
+							if (event.key === 'Escape') {
+								event.currentTarget.setCustomValidity('');
+								setSequenceActivityLimitText(
+									String(settings.sequenceActivityLimit ?? Infinity),
+								);
+							}
+						}}
+						rightAlign
+						status="ok"
+						value={sequenceActivityLimitText}
+					/>
+					<Button
+						disabled={settings.sequenceActivityLimit === null}
+						onClick={() => {
+							setSequenceActivityLimitText('Infinity');
+							commitNumberSetting(
+								'sequenceActivityLimit',
+								'setSequenceActivityLimit',
+								null,
+							);
+						}}
+						size="compact"
+						style={{color: LIGHT_TEXT}}
+						aria-label={`Reset unmounted component visualization limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
+					>
+						<UndoIcon style={resetIcon} />
+					</Button>
+				</div>
+			</div>
+
+			<p style={sectionTitle}>Playback</p>
+			<ConfigNumber
+				defaultValue={NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS}
+				description={
+					<>
+						How many seconds before a layer starts it should be mounted
+						invisibly. See:{' '}
+						<a
+							href="https://www.remotion.dev/docs/player/premounting"
+							target="_blank"
+							rel="noopener noreferrer"
+							style={{
+								color: BLUE,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+								textDecoration: 'none',
+							}}
+						>
+							Premounting
+						</a>
+					</>
+				}
+				name="Default Premount"
+				step={0.1}
+				suffix="sec"
+				onChange={(value) =>
+					previewNumberSetting('defaultPremountInSeconds', value)
+				}
+				onChangeEnd={(value) =>
+					commitNumberSetting(
+						'defaultPremountInSeconds',
+						'setDefaultPremountInSeconds',
+						value,
+					)
+				}
+				value={settings.defaultPremountInSeconds}
+			/>
+			<ConfigSelect
+				defaultLabel="Playback"
+				description={
+					<>
+						Remotion runs an{' '}
+						<code style={{fontFamily: 'monospace'}}>AudioContext</code> to drive
+						audio. Define which{' '}
+						<a
+							href="https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext#latencyhint"
+							target="_blank"
+							rel="noopener noreferrer"
+							style={{
+								color: BLUE,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+								textDecoration: 'none',
+							}}
+						>
+							<code style={{color: BLUE, fontFamily: 'monospace'}}>
+								latencyHint
+							</code>
+						</a>{' '}
+						it should use.
+					</>
+				}
+				name="Audio latency hint"
+				onChange={(value) =>
+					changeSetting('audioLatencyHint', 'setAudioLatencyHint', value)
+				}
+				options={[
+					{label: 'Interactive', value: 'interactive'},
+					{label: 'Balanced', value: 'balanced'},
+					{label: 'Playback', value: 'playback'},
+				]}
+				value={settings.audioLatencyHint}
+			/>
+			<ConfigNumber
+				defaultValue={0}
+				description={null}
+				name="Number of shared audio tags"
+				step={1}
+				suffix={null}
+				onChange={(value) =>
+					previewNumberSetting('numberOfSharedAudioTags', value)
+				}
+				onChangeEnd={(value) =>
+					commitNumberSetting(
+						'numberOfSharedAudioTags',
+						'setNumberOfSharedAudioTags',
+						value,
+					)
+				}
+				value={settings.numberOfSharedAudioTags}
+			/>
+
+			<p style={sectionTitle}>Development</p>
 			<ConfigSelect
 				defaultLabel="Webpack"
+				description="Chooses the tool that compiles your project for Studio and rendering. Webpack is the default; Rspack is an alternative. Changing this setting restarts Studio."
 				name="Bundler"
 				onChange={(value) => changeSetting('rspack', 'setRspack', value)}
 				options={[
@@ -284,14 +668,32 @@ export const StudioSettings: React.FC = () => {
 							style={{
 								padding: 12,
 								maxWidth: 280,
-								fontSize: 14,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
 								lineHeight: 1.5,
 							}}
 						>
 							Isolates Studio from other websites to enable shared memory and
-							multithreading. Required for @remotion/whisper-web and can speed
-							up ProRes decoding. Media from other websites that requires
-							cookies or authentication may not load. Disabled by default.
+							multithreading. Required for{' '}
+							<code style={{fontFamily: 'monospace'}}>
+								@remotion/whisper-web
+							</code>{' '}
+							and for faster{' '}
+							<code style={{fontFamily: 'monospace'}}>@mediabunny/prores</code>{' '}
+							decoding. The tradeoff is that media from other websites may not
+							load. See:{' '}
+							<a
+								href="https://www.remotion.dev/docs/miscellaneous/cross-origin-isolation"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									color: BLUE,
+									fontSize: INFO_TOOLTIP_FONT_SIZE,
+									lineHeight: 1.5,
+									textDecoration: 'none',
+								}}
+							>
+								Cross-origin isolation
+							</a>
 						</div>
 					</InfoBubble>
 				</div>
@@ -311,6 +713,7 @@ export const StudioSettings: React.FC = () => {
 			</div>
 			<ConfigSelect<LogLevel>
 				defaultLabel="Info"
+				description="Controls how much detail Remotion writes to the console. Use Info for normal output, Warn or Error for fewer messages, and Verbose or Trace for debugging."
 				name="Log level"
 				onChange={(value) => changeSetting('logLevel', 'setLogLevel', value)}
 				options={BrowserSafeApis.logLevels.map((value) => ({
@@ -319,261 +722,6 @@ export const StudioSettings: React.FC = () => {
 				}))}
 				value={settings.logLevel}
 			/>
-
-			<p style={sectionTitle}>Interface</p>
-			<label style={optionRow}>
-				<div style={label}>Show frame numbers of layer</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.showLayerFrameNumbers ?? false}
-						name="Show frame numbers of layer"
-						onChange={(event) =>
-							changeSetting(
-								'showLayerFrameNumbers',
-								'setShowLayerFrameNumbers',
-								event.target.checked,
-							)
-						}
-					/>
-				</div>
-			</label>
-			<label style={optionRow}>
-				<div style={label}>Show premounting in timeline</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.showPremounting ?? false}
-						name="Show premounting in timeline"
-						onChange={(event) =>
-							changeSetting(
-								'showPremounting',
-								'setShowPremounting',
-								event.target.checked,
-							)
-						}
-					/>
-				</div>
-			</label>
-			<label style={optionRow}>
-				<div style={label}>Ask AI enabled</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.askAIEnabled !== false}
-						name="Ask AI enabled"
-						onChange={(event) =>
-							changeSetting(
-								'askAIEnabled',
-								'setAskAIEnabled',
-								event.target.checked ? null : false,
-							)
-						}
-					/>
-				</div>
-			</label>
-			<label style={optionRow}>
-				<div style={label}>Tabs above Canvas</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.canvasTabsEnabled !== false}
-						name="Tabs above Canvas"
-						onChange={(event) =>
-							changeSetting(
-								'canvasTabsEnabled',
-								'setCanvasTabsEnabled',
-								event.target.checked ? null : false,
-							)
-						}
-					/>
-				</div>
-			</label>
-			<label style={optionRow}>
-				<div style={label}>Interactivity enabled</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.interactivityEnabled !== false}
-						name="Interactivity enabled"
-						onChange={(event) =>
-							changeSetting(
-								'interactivityEnabled',
-								'setInteractivityEnabled',
-								event.target.checked ? null : false,
-							)
-						}
-					/>
-				</div>
-			</label>
-
-			<p style={sectionTitle}>Playback</p>
-			<ConfigNumber
-				defaultValue={NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS}
-				name="Default premount in seconds"
-				step={0.1}
-				onChange={(value) =>
-					previewNumberSetting('defaultPremountInSeconds', value)
-				}
-				onChangeEnd={(value) =>
-					commitNumberSetting(
-						'defaultPremountInSeconds',
-						'setDefaultPremountInSeconds',
-						value,
-					)
-				}
-				value={settings.defaultPremountInSeconds}
-			/>
-			<div style={optionRow}>
-				<div style={label}>
-					Sequence Activity (experimental)
-					<InfoBubble
-						aria-label="About experimental Sequence Activity"
-						horizontalAlignment="right"
-					>
-						<div
-							style={{
-								padding: 12,
-								maxWidth: 280,
-								fontSize: 14,
-								lineHeight: 1.5,
-							}}
-						>
-							Discovers layers in nearby scenes before they become visible. This
-							experimental feature may use more CPU. Changes apply immediately
-							and are saved in remotion.config.ts.
-						</div>
-					</InfoBubble>
-				</div>
-				<label style={rightRow} aria-label="Sequence Activity (experimental)">
-					<Checkbox
-						checked={settings.experimentalSequenceActivityEnabled === true}
-						name="Sequence Activity (experimental)"
-						onChange={(event) =>
-							changeSetting(
-								'experimentalSequenceActivityEnabled',
-								'setExperimentalSequenceActivityEnabled',
-								event.target.checked ? true : null,
-							)
-						}
-					/>
-				</label>
-			</div>
-			{settings.experimentalSequenceActivityEnabled === true ? (
-				<div style={optionRow}>
-					<div style={label}>
-						Hidden activity limit (experimental)
-						<InfoBubble
-							aria-label="About the hidden activity limit"
-							horizontalAlignment="right"
-						>
-							<div
-								style={{
-									padding: 12,
-									maxWidth: 280,
-									fontSize: 14,
-									lineHeight: 1.5,
-								}}
-							>
-								Limits nearby hidden scenes, including nested sequences and
-								their ancestors. Visible, premounted, and postmounted scenes
-								always render. Set to 0 to disable hidden discovery, or -1 for
-								unlimited discovery without admission delays. Default:{' '}
-								{Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}.
-							</div>
-						</InfoBubble>
-					</div>
-					<div style={{...rightRow, gap: 6}}>
-						<InputDragger
-							aria-label="Hidden activity limit (experimental)"
-							buttonStyle={{textAlign: 'right', width: 140}}
-							formatter={() =>
-								settings.experimentalSequenceActivityLimit === null
-									? `Default (${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT})`
-									: String(settings.experimentalSequenceActivityLimit)
-							}
-							integerOnly
-							max={Number.MAX_SAFE_INTEGER}
-							min={-1}
-							onTextChange={() => undefined}
-							onValueChange={(value) =>
-								previewNumberSetting('experimentalSequenceActivityLimit', value)
-							}
-							onValueChangeEnd={(value) =>
-								commitNumberSetting(
-									'experimentalSequenceActivityLimit',
-									'setExperimentalSequenceActivityLimit',
-									value,
-								)
-							}
-							rightAlign
-							status="ok"
-							step={1}
-							value={
-								settings.experimentalSequenceActivityLimit ??
-								Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT
-							}
-						/>
-						<Button
-							disabled={settings.experimentalSequenceActivityLimit === null}
-							onClick={() =>
-								commitNumberSetting(
-									'experimentalSequenceActivityLimit',
-									'setExperimentalSequenceActivityLimit',
-									null,
-								)
-							}
-							size="compact"
-							style={{color: LIGHT_TEXT}}
-							aria-label={`Reset hidden activity limit to ${Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT}`}
-						>
-							<UndoIcon style={resetIcon} />
-						</Button>
-					</div>
-				</div>
-			) : null}
-
-			<p style={sectionTitle}>Audio</p>
-			<ConfigSelect
-				defaultLabel="Playback"
-				name="Audio latency hint"
-				onChange={(value) =>
-					changeSetting('audioLatencyHint', 'setAudioLatencyHint', value)
-				}
-				options={[
-					{label: 'Interactive', value: 'interactive'},
-					{label: 'Balanced', value: 'balanced'},
-					{label: 'Playback', value: 'playback'},
-				]}
-				value={settings.audioLatencyHint}
-			/>
-			<ConfigNumber
-				defaultValue={0}
-				name="Number of shared audio tags"
-				step={1}
-				onChange={(value) =>
-					previewNumberSetting('numberOfSharedAudioTags', value)
-				}
-				onChangeEnd={(value) =>
-					commitNumberSetting(
-						'numberOfSharedAudioTags',
-						'setNumberOfSharedAudioTags',
-						value,
-					)
-				}
-				value={settings.numberOfSharedAudioTags}
-			/>
-			<label style={optionRow}>
-				<div style={label}>Beep on finish</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={settings.beepOnFinish === true}
-						name="Beep on finish"
-						onChange={(event) =>
-							changeSetting(
-								'beepOnFinish',
-								'setBeepOnFinish',
-								event.target.checked ? true : null,
-							)
-						}
-					/>
-				</div>
-			</label>
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />

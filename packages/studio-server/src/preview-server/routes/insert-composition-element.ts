@@ -91,6 +91,19 @@ const validateElement = (
 		return;
 	}
 
+	if (element.type === 'text') {
+		if (typeof element.text !== 'string' || element.text.trim() === '') {
+			throw new Error('Text must be a non-empty string');
+		}
+
+		validateDimension('fontSize', element.fontSize);
+		if (typeof element.color !== 'string' || element.color.trim() === '') {
+			throw new Error('Text color must be a non-empty string');
+		}
+
+		return;
+	}
+
 	if (element.type === 'svg') {
 		if (typeof element.markup !== 'string' || element.markup.trim() === '') {
 			throw new Error('SVG markup must be a non-empty string');
@@ -176,6 +189,10 @@ const validateElement = (
 };
 
 const getElementLabel = (element: InsertableCompositionElement) => {
+	if (element.type === 'text') {
+		return '<Interactive.Div>';
+	}
+
 	if (element.type === 'solid') {
 		return '<Solid>';
 	}

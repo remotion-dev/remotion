@@ -194,6 +194,7 @@ const sidebars: SidebarsConfig = {
 				'use-video-config',
 				'version',
 				'watchstaticfile',
+				'interactive-create',
 				'interactive-with-schema',
 			],
 		},
@@ -1452,6 +1453,7 @@ const sidebars: SidebarsConfig = {
 				'studio/open-in-editor',
 				'studio/shortcuts',
 				'studio/quick-switcher',
+				'studio/showing-unmounted-components',
 				'studio/interactivity',
 				'studio/interactivity-best-practices',
 				'studio/make-component-interactive',
@@ -2051,7 +2053,11 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'canvas-capture/index',
 			},
-			items: ['canvas-capture/installation'],
+			items: [
+				'canvas-capture/installation',
+				'canvas-capture/agentic-shot-setup',
+				'canvas-capture/privacy',
+			],
 		},
 	],
 	browserBundlerSidebar: [

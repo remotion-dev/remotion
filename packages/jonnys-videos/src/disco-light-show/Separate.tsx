@@ -24,10 +24,7 @@ const SeparateInner: React.FC = () => {
 	);
 };
 
-export const Separate = Interactive.withSchema({
+export const Separate = Interactive.create({
 	Component: SeparateInner,
-	componentName: 'Separate',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

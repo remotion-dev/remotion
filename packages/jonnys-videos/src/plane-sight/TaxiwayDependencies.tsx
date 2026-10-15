@@ -38,9 +38,7 @@ const TaxiwayDependenciesContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const TaxiwayDependencies = Interactive.withSchema({
+export const TaxiwayDependencies = Interactive.create({
 	Component: TaxiwayDependenciesContent,
 	componentName: 'TaxiwayDependencies',
-	schema: {},
-	wrapInSequence: true,
 });

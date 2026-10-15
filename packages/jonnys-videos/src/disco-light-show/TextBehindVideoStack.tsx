@@ -178,10 +178,7 @@ export const TextBehindVideoStack: React.FC = () => {
 	);
 };
 
-export const TextBehindVideoStackComposition = Interactive.withSchema({
+export const TextBehindVideoStackComposition = Interactive.create({
 	Component: TextBehindVideoStackCompositionInner,
-	componentName: 'TextBehindVideoStackComposition',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -17,13 +17,13 @@ These components use the same timing props:
 - [`<Gif>`](/docs/gif/gif), [`<Lottie>`](/docs/lottie), [`<ThreeCanvas>`](/docs/three-canvas) and [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas).
 - [`@remotion/shapes`](/docs/shapes), [`@remotion/rough-notation`](/docs/rough-notation/api) and [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor).
 - [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`.
-- Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) that expose these props.
+- Custom components built with [`Interactive.create()`](/docs/interactive-create) that expose these props.
 
 See [Timing and trimming](/docs/timing) for examples of using these props directly on components.
 
 ## Make a component inherit from Sequence
 
-Wrap a custom component with [`Interactive.withSchema()`](/docs/interactive-with-schema) to give it the timing props listed below.  
+Wrap a custom component with [`Interactive.create()`](/docs/interactive-create) to give it the timing props listed below.  
 You can then set those props directly on the component, and Studio shows it as a single timeline layer.  
 See the linked API page for an example.
 
@@ -91,7 +91,7 @@ For example, a sequence that starts at frame 60 which is inside a sequence that 
 ## Props
 
 `<Sequence>` accepts children and the following props.  
-Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) also receive timing props.
+Custom components built with [`Interactive.create()`](/docs/interactive-create) also receive timing props.
 
 ### `from?`
 

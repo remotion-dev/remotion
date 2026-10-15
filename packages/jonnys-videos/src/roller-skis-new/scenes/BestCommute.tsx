@@ -510,10 +510,7 @@ const BestCommuteInner: React.FC = () => {
 	);
 };
 
-export const BestCommute = Interactive.withSchema({
+export const BestCommute = Interactive.create({
 	Component: BestCommuteInner,
-	componentName: 'BestCommute',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

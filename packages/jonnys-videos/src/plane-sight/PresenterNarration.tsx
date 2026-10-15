@@ -1675,9 +1675,7 @@ const PresenterNarrationContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const PresenterNarration = Interactive.withSchema({
+export const PresenterNarration = Interactive.create({
 	Component: PresenterNarrationContent,
 	componentName: 'PresenterNarration',
-	schema: {},
-	wrapInSequence: true,
 });

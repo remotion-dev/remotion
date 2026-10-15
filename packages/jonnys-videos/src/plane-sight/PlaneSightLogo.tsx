@@ -40,9 +40,7 @@ const PlaneSightLogoContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const PlaneSightLogo = Interactive.withSchema({
+export const PlaneSightLogo = Interactive.create({
 	Component: PlaneSightLogoContent,
 	componentName: 'PlaneSightLogo',
-	schema: {},
-	wrapInSequence: true,
 });

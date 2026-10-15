@@ -66,10 +66,7 @@ const ArrowLogoRemotionInner: React.FC = () => {
 	);
 };
 
-export const ArrowLogoRemotion = Interactive.withSchema({
+export const ArrowLogoRemotion = Interactive.create({
 	Component: ArrowLogoRemotionInner,
-	componentName: 'ArrowLogoRemotion',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

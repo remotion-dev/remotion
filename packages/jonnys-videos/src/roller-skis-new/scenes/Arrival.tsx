@@ -249,10 +249,7 @@ const ArrivalInner: React.FC = () => {
 	);
 };
 
-export const Arrival = Interactive.withSchema({
+export const Arrival = Interactive.create({
 	Component: ArrivalInner,
-	componentName: 'Arrival',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

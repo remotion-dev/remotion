@@ -93,10 +93,7 @@ const BirthdayPartyCompilationInner: React.FC = () => {
 	);
 };
 
-export const BirthdayPartyCompilation = Interactive.withSchema({
+export const BirthdayPartyCompilation = Interactive.create({
 	Component: BirthdayPartyCompilationInner,
-	componentName: 'BirthdayPartyCompilation',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

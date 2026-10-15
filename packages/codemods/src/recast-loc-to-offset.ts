@@ -1,14 +1,34 @@
 const RECAST_TAB_WIDTH = 4;
+const lineStartsBySource = new Map<string, number[]>();
+const maximumCachedSources = 8;
 
 // Recast normalizes every line ending, removes zero-width indentation, and
-// expands tabs in leading whitespace before parsing. Walk the parsed location
-// and original source together so the offset remains platform-independent.
+// expands tabs in leading whitespace before parsing. Index line starts once
+// per source, then walk the requested line to map its normalized column.
 export const recastLocToOffset = (
 	input: string,
 	loc: {line: number; column: number},
 ): number => {
-	let sourceOffset = 0;
-	let line = 1;
+	let lineStarts = lineStartsBySource.get(input);
+	if (!lineStarts) {
+		lineStarts = [0];
+		for (const match of input.matchAll(/\r\n|[\r\n\u2028\u2029]/g)) {
+			lineStarts.push(match.index + match[0].length);
+		}
+	}
+
+	lineStartsBySource.delete(input);
+	lineStartsBySource.set(input, lineStarts);
+	if (lineStartsBySource.size > maximumCachedSources) {
+		lineStartsBySource.delete(lineStartsBySource.keys().next().value!);
+	}
+
+	let sourceOffset = lineStarts[loc.line - 1];
+	if (sourceOffset === undefined) {
+		return input.length;
+	}
+
+	let {line} = loc;
 	let column = 0;
 	let isLeadingWhitespace = true;
 

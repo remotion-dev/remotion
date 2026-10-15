@@ -2,26 +2,41 @@ import {Button} from '@remotion/design';
 import {createElement} from 'react';
 import {createRoot} from 'react-dom/client';
 import {browser} from 'wxt/browser';
-import {getCapturePreflight, PageCapture, type CaptureCrop} from './capture';
+import {
+	canvasSetupUrl,
+	getBrowserRequirementIssue,
+	minimumChromeVersion,
+	type BrowserRequirementIssue,
+} from './browser-requirements';
+import {
+	getCapturePreflight,
+	getMaximumCaptureScale,
+	getSuggestedMaximumCaptureScale,
+	PageCapture,
+	type CaptureCrop,
+} from './capture';
 import {openCaptureInRemotion} from './handoff';
 import {
 	captureControllerMessageType,
+	openCaptureSetupMessageType,
 	isCaptureControllerRequest,
 	type CaptureControllerRequest,
 	type CaptureControllerState,
 	type CaptureFormat,
 } from './messages';
-import {
-	canEncodeCapture,
-	getScaledCanvasSize,
-	isHtmlInCanvasAvailable,
-} from './recorder';
+import {canEncodeCapture, getScaledCanvasSize} from './recorder';
 import {
 	dragSelectionRectangle,
 	makeSelectionRectangle,
 	type SelectionHandle,
 	type SelectionRectangle,
 } from './selection';
+import {
+	shotRequestEvent,
+	shotResponseEvent,
+	shotTools,
+	type ShotToolName,
+} from './shot-tools';
 
 type ExtensionController = {
 	readonly handleRequest: (
@@ -38,8 +53,18 @@ type SelectedTarget =
 	| {readonly type: 'page-crop'; readonly crop: CaptureCrop};
 
 const defaultResolution = {width: 2560, height: 1440};
-const maxZoom = 30;
 const minimumCaptureArea = {width: 10, height: 10};
+const browserRequirementMessages = {
+	'browser-version': {
+		title: 'Update Chrome to record',
+		description: `Requires Chrome ${minimumChromeVersion} or newer.`,
+	},
+	'html-in-canvas-unavailable': {
+		title: 'HTML-in-canvas is unavailable',
+		description:
+			'Enable Canvas Draw Element in Chrome flags, then restart Chrome.',
+	},
+};
 
 export const startContent = () => {
 	const extensionWindow = window as ExtensionWindow;
@@ -134,8 +159,11 @@ export const startContent = () => {
 		.capture-dimensions {
 			position: fixed;
 			display: none;
+			grid-template-columns: var(--capture-dimension-width, 9ch) 12px 4.5ch 12px var(--capture-dimension-width, 9ch);
 			align-items: center;
 			gap: 4px;
+			width: max-content;
+			max-width: calc(100vw - 8px);
 			padding: 3px 6px;
 			border-radius: 4px;
 			background: #0b84f3;
@@ -149,10 +177,15 @@ export const startContent = () => {
 			pointer-events: none;
 			white-space: nowrap;
 		}
+		.capture-dimensions-source {
+			text-align: right;
+		}
+		.capture-dimensions-output {
+			text-align: left;
+		}
 		.capture-dimensions svg {
-			width: 14px;
+			width: 12px;
 			height: 8px;
-			flex: 0 0 14px;
 			fill: none;
 			stroke: currentColor;
 			stroke-width: 1.25;
@@ -160,33 +193,37 @@ export const startContent = () => {
 			stroke-linejoin: round;
 		}
 		.capture-dimensions-zoom {
+			width: 100%;
 			height: 18px;
-			margin: -1px 0 -1px -5px;
-			padding: 0 5px;
-			border: 1px solid #fff;
-			border-radius: 999px;
-			background: #0b84f3;
+			margin: -1px 0;
+			padding: 0;
+			border: 0;
+			background: transparent;
 			color: #fff;
 			cursor: pointer;
 			font: inherit;
 			font-variant-numeric: inherit;
 			font-weight: inherit;
 			line-height: 16px;
+			text-align: center;
 		}
 		.capture-dimensions-zoom:hover:not(:disabled),
 		.capture-dimensions-zoom:focus-visible {
-			background: #0877db;
+			text-decoration: underline;
+			text-underline-offset: 2px;
 		}
 		.capture-dimensions-zoom:disabled {
 			cursor: default;
-			opacity: 0.65;
 		}
 		.capture-dimensions-zoom-control {
 			position: relative;
 			pointer-events: auto;
 		}
+		.capture-dimensions > svg:first-of-type {
+			mask-image: linear-gradient(to right, #000 40%, transparent);
+		}
 		.capture-dimensions-zoom-control + svg {
-			margin-left: -5px;
+			mask-image: linear-gradient(to right, transparent, #000 60%);
 		}
 		.capture-dimensions-zoom-popover {
 			position: absolute;
@@ -234,6 +271,9 @@ export const startContent = () => {
 			font-size: 13px;
 			line-height: 1.4;
 			pointer-events: auto;
+			cursor: default;
+			user-select: none;
+			touch-action: none;
 			transform: translateX(-50%);
 		}
 		.capture-controls-encoding-error {
@@ -254,22 +294,29 @@ export const startContent = () => {
 			transform: translateX(-50%);
 			white-space: nowrap;
 		}
-		.capture-controls-header {
-			display: flex;
-			align-items: center;
-			cursor: grab;
-			padding: 0 6px;
-			user-select: none;
+		.capture-controls-encoding-error.requirements-error {
+			width: 270px;
+			padding: 8px 10px;
+			pointer-events: auto;
+			white-space: normal;
 		}
-		.capture-controls-header.dragging {
-			cursor: grabbing;
+		.capture-controls-error-description {
+			margin-top: 2px;
+			font-weight: 400;
 		}
-		.capture-controls-grab {
-			display: block;
-			width: 24px;
-			height: 24px;
-			color: var(--capture-controls-icon-color);
-			fill: currentColor;
+		.capture-controls button.capture-controls-open-setup {
+			height: auto;
+			margin-top: 6px;
+			padding: 3px 6px;
+			border: 1px solid #fff;
+			border-radius: 4px;
+			background: transparent;
+			color: #fff;
+			font-size: 11px;
+			line-height: 16px;
+		}
+		.capture-controls button.capture-controls-open-setup:hover {
+			background: rgba(255, 255, 255, 0.15);
 		}
 		.capture-controls-close {
 			width: 32px;
@@ -463,6 +510,7 @@ export const startContent = () => {
 		const dimensions = document.createElement('div');
 		dimensions.className = 'capture-dimensions';
 		const dimensionsSource = document.createElement('span');
+		dimensionsSource.className = 'capture-dimensions-source';
 		const dimensionsZoomControl = document.createElement('div');
 		dimensionsZoomControl.className = 'capture-dimensions-zoom-control';
 		const dimensionsZoom = document.createElement('button');
@@ -479,12 +527,13 @@ export const startContent = () => {
 		dimensionsZoomSlider.className = 'capture-dimensions-zoom-slider';
 		dimensionsZoomSlider.type = 'range';
 		dimensionsZoomSlider.min = '0.1';
-		dimensionsZoomSlider.max = String(maxZoom);
+		dimensionsZoomSlider.max = '1';
 		dimensionsZoomSlider.step = '0.1';
 		dimensionsZoomSlider.ariaLabel = 'Output zoom';
 		dimensionsZoomPopover.appendChild(dimensionsZoomSlider);
 		dimensionsZoomControl.append(dimensionsZoom, dimensionsZoomPopover);
 		const dimensionsOutput = document.createElement('span');
+		dimensionsOutput.className = 'capture-dimensions-output';
 		const dimensionsLine = document.createElementNS(
 			'http://www.w3.org/2000/svg',
 			'svg',
@@ -512,12 +561,18 @@ export const startContent = () => {
 		controlsEncodingError.className = 'capture-controls-encoding-error';
 		controlsEncodingError.setAttribute('role', 'status');
 		controlsEncodingError.ariaLive = 'polite';
-		controlsEncodingError.textContent = "Browser can't encode this resolution";
-		const controlsHeader = document.createElement('div');
-		controlsHeader.className = 'capture-controls-header';
-		controlsHeader.dataset.tooltip = 'Drag to reposition';
-		controlsHeader.innerHTML =
-			'<svg class="capture-controls-grab" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="4" r="1.5"/><circle cx="15" cy="4" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="20" r="1.5"/><circle cx="15" cy="20" r="1.5"/></svg>';
+		const controlsErrorTitle = document.createElement('div');
+		const controlsErrorDescription = document.createElement('div');
+		controlsErrorDescription.className = 'capture-controls-error-description';
+		const controlsOpenSetup = document.createElement('button');
+		controlsOpenSetup.className = 'capture-controls-open-setup';
+		controlsOpenSetup.type = 'button';
+		controlsOpenSetup.textContent = 'Open Chrome flags';
+		controlsEncodingError.append(
+			controlsErrorTitle,
+			controlsErrorDescription,
+			controlsOpenSetup,
+		);
 		const controlsSecondary = document.createElement('button');
 		controlsSecondary.className = 'capture-controls-select';
 		controlsSecondary.type = 'button';
@@ -603,7 +658,6 @@ export const startContent = () => {
 		);
 		controls.append(
 			controlsEncodingError,
-			controlsHeader,
 			controlsActions,
 			controlsDuration,
 			controlsPrimary,
@@ -640,6 +694,12 @@ export const startContent = () => {
 		let encoderSupport: CaptureControllerState['encoderSupport'] =
 			'unavailable';
 		let outputSize: CaptureControllerState['outputSize'] = null;
+		let zoomLimit: {
+			readonly key: string;
+			readonly targetKey: string;
+			readonly pending: Promise<number | null>;
+			maximum: number;
+		} | null = null;
 		let controlsDismissed = true;
 		let controlsBusy = false;
 		let controlsDrag: {
@@ -648,14 +708,15 @@ export const startContent = () => {
 			readonly offsetY: number;
 		} | null = null;
 		let encoderSupportCheckId = 0;
+		let requestedFormat: CaptureFormat | null = null;
 		let encoderSupportKey: string | null = null;
 		let recordingStartedAt: number | null = null;
 		let recordingDurationInterval: number | null = null;
-		const supported = isHtmlInCanvasAvailable();
-		let status = supported
-			? 'Choose an area or the whole page.'
-			: 'Canvas capture is unavailable because the experimental HTML-in-canvas API is disabled. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.';
-		let statusIsError = !supported;
+		let supported = false;
+		let requirementsChecked = false;
+		let browserRequirementIssue: BrowserRequirementIssue | null = null;
+		let status = 'Checking browser requirements…';
+		let statusIsError = false;
 		let selectionStart: {readonly x: number; readonly y: number} | null = null;
 		let selectionDrag: {
 			readonly pointerId: number;
@@ -721,117 +782,8 @@ export const startContent = () => {
 			Math.min(
 				defaultResolution.width / width,
 				defaultResolution.height / height,
-				maxZoom,
+				getSuggestedMaximumCaptureScale(width, height),
 			);
-
-		const refreshEncoderSupport = async () => {
-			const checkId = ++encoderSupportCheckId;
-			if (
-				!supported ||
-				!selectedTarget ||
-				capture ||
-				completedRecording ||
-				finalizing ||
-				selecting ||
-				selectionDrag
-			) {
-				if (!selectedTarget) {
-					encoderSupport = 'unavailable';
-					encoderSupportKey = null;
-					outputSize = null;
-				}
-
-				return;
-			}
-
-			const target = resolveCaptureTarget();
-			if (!target) {
-				encoderSupport = 'unavailable';
-				encoderSupportKey = null;
-				outputSize = null;
-				return;
-			}
-
-			try {
-				if (useDefaultResolution) {
-					const source = getCapturePreflight({scale: 1, crop: target.crop});
-					const selectedSize = target.crop ?? source.sourceSize;
-					scale = getDefaultResolutionScale(
-						selectedSize.width,
-						selectedSize.height,
-					);
-				}
-
-				const preflight = getCapturePreflight({
-					scale,
-					crop: target.crop,
-				});
-				if (checkId !== encoderSupportCheckId) {
-					return;
-				}
-
-				const supportKey = `${preflight.outputSize.width}x${preflight.outputSize.height}`;
-				outputSize = preflight.outputSize;
-				if (
-					encoderSupportKey === supportKey &&
-					(encoderSupport === 'supported' || encoderSupport === 'unsupported')
-				) {
-					return;
-				}
-
-				encoderSupport = 'checking';
-				setStatus(
-					`Checking H.264 MP4 support at ${outputSize.width}×${outputSize.height}…`,
-				);
-				const canEncodeMp4 = await canEncodeCapture('mp4', outputSize);
-				if (checkId !== encoderSupportCheckId) {
-					return;
-				}
-
-				if (canEncodeMp4) {
-					format = 'mp4';
-					encoderSupport = 'supported';
-					encoderSupportKey = supportKey;
-					setStatus(
-						`Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`,
-					);
-					return;
-				}
-
-				setStatus(
-					`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Checking VP9 WebM…`,
-				);
-				const canEncodeWebm = await canEncodeCapture('webm', outputSize);
-				if (checkId !== encoderSupportCheckId) {
-					return;
-				}
-
-				if (canEncodeWebm) {
-					format = 'webm';
-					encoderSupport = 'supported';
-					encoderSupportKey = supportKey;
-					setStatus(
-						`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Ready to record VP9 WebM instead.`,
-					);
-				} else {
-					encoderSupport = 'unsupported';
-					encoderSupportKey = supportKey;
-					setStatus(
-						`Neither H.264 MP4 nor VP9 WebM encoding is supported at ${outputSize.width}×${outputSize.height} in this browser. Choose a lower resolution or select a smaller area.`,
-						true,
-					);
-				}
-			} catch (error) {
-				if (checkId !== encoderSupportCheckId) {
-					return;
-				}
-
-				encoderSupport = 'unsupported';
-				encoderSupportKey = null;
-				outputSize = null;
-				setStatus(error instanceof Error ? error.message : String(error), true);
-			}
-		};
 
 		const updateDimensions = (
 			rect: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'> | null,
@@ -841,15 +793,28 @@ export const startContent = () => {
 				return;
 			}
 
-			const previewScale = useDefaultResolution
-				? getDefaultResolutionScale(rect.width, rect.height)
-				: scale;
+			const maximumScale =
+				zoomLimit?.targetKey === `${rect.width}x${rect.height}`
+					? zoomLimit.maximum
+					: getSuggestedMaximumCaptureScale(rect.width, rect.height);
+			const previewScale = Math.min(
+				useDefaultResolution
+					? getDefaultResolutionScale(rect.width, rect.height)
+					: scale,
+				maximumScale,
+			);
 			const scaled = getScaledCanvasSize(rect.width, rect.height, previewScale);
+			// Reserve the viewport's largest possible dimensions, not the changing crop.
+			dimensions.style.setProperty(
+				'--capture-dimension-width',
+				`${Math.max(9, `${Math.ceil(window.innerWidth)}×${Math.ceil(window.innerHeight)}`.length)}ch`,
+			);
 			dimensionsSource.textContent = `${Math.round(rect.width)}×${Math.round(rect.height)}`;
 			dimensionsZoom.textContent = `${previewScale.toFixed(1)}×`;
+			dimensionsZoomSlider.max = String(maximumScale);
 			dimensionsZoomSlider.value = String(previewScale);
 			dimensionsOutput.textContent = `${scaled.width}×${scaled.height}`;
-			dimensions.style.display = 'flex';
+			dimensions.style.display = 'grid';
 			const badgeRect = dimensions.getBoundingClientRect();
 			const left = Math.min(
 				Math.max(4, rect.left + (rect.width - badgeRect.width) / 2),
@@ -927,6 +892,8 @@ export const startContent = () => {
 		};
 
 		const getState = (): CaptureControllerState => ({
+			crop: resolveCaptureTarget()?.crop ?? null,
+			viewport: {width: window.innerWidth, height: window.innerHeight},
 			supported,
 			selecting,
 			hasTarget: selectedTarget !== null,
@@ -938,8 +905,10 @@ export const startContent = () => {
 			hasCompletedRecording: completedRecording !== null,
 			scale,
 			format,
-			status,
-			error: statusIsError,
+			status: browserRequirementIssue
+				? `${browserRequirementMessages[browserRequirementIssue].title}. ${browserRequirementMessages[browserRequirementIssue].description}`
+				: status,
+			error: browserRequirementIssue !== null || statusIsError,
 		});
 
 		const updateControls = () => {
@@ -951,8 +920,23 @@ export const startContent = () => {
 				return;
 			}
 
+			const requirementMessage = browserRequirementIssue
+				? browserRequirementMessages[browserRequirementIssue]
+				: null;
+			controlsErrorTitle.textContent =
+				requirementMessage?.title ?? "Browser can't encode this resolution";
+			controlsErrorDescription.textContent =
+				requirementMessage?.description ?? '';
+			controlsErrorDescription.hidden = requirementMessage === null;
+			controlsOpenSetup.hidden =
+				browserRequirementIssue !== 'html-in-canvas-unavailable';
+			controlsEncodingError.classList.toggle(
+				'requirements-error',
+				requirementMessage !== null,
+			);
 			controlsEncodingError.style.display =
-				state.hasTarget && state.encoderSupport === 'unsupported'
+				requirementMessage ||
+				(state.hasTarget && state.encoderSupport === 'unsupported')
 					? 'block'
 					: 'none';
 			dimensionsZoom.disabled =
@@ -962,13 +946,22 @@ export const startContent = () => {
 				!state.supported;
 			dimensionsZoomSlider.disabled = dimensionsZoom.disabled;
 			controlsSecondary.disabled =
-				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsSecondary.hidden = state.hasTarget || state.hasCompletedRecording;
+				controlsBusy ||
+				state.recording ||
+				state.hasCompletedRecording ||
+				!state.supported;
+			controlsSecondary.hidden =
+				!state.supported || state.hasTarget || state.hasCompletedRecording;
 			controlsWholePage.disabled =
-				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsWholePage.hidden = state.hasTarget || state.hasCompletedRecording;
+				controlsBusy ||
+				state.recording ||
+				state.hasCompletedRecording ||
+				!state.supported;
+			controlsWholePage.hidden =
+				!state.supported || state.hasTarget || state.hasCompletedRecording;
 			controlsDuration.hidden = !state.recording;
-			controlsPrimary.hidden = !state.hasTarget || state.hasCompletedRecording;
+			controlsPrimary.hidden =
+				(state.supported && !state.hasTarget) || state.hasCompletedRecording;
 			controlsPrimary.classList.toggle('recording', state.recording);
 			controlsNew.hidden = !state.hasCompletedRecording;
 			controlsNew.disabled = controlsBusy;
@@ -988,7 +981,9 @@ export const startContent = () => {
 			const primaryDisabled =
 				controlsBusy ||
 				(!state.recording &&
-					(!state.hasTarget || state.encoderSupport !== 'supported'));
+					(!state.supported ||
+						!state.hasTarget ||
+						state.encoderSupport !== 'supported'));
 			renderControlsPrimary(primaryLabel, primaryDisabled);
 			const closeLabel = state.recording
 				? 'Stop recording before clearing selection'
@@ -1001,6 +996,170 @@ export const startContent = () => {
 			controlsClose.dataset.tooltip = closeLabel;
 			controlsClose.disabled =
 				controlsBusy || state.recording || startingRecording;
+		};
+
+		const refreshEncoderSupport = async () => {
+			const checkId = ++encoderSupportCheckId;
+			if (
+				!supported ||
+				!selectedTarget ||
+				capture ||
+				completedRecording ||
+				finalizing ||
+				selecting ||
+				selectionDrag
+			) {
+				if (!selectedTarget) {
+					encoderSupport = 'unavailable';
+					encoderSupportKey = null;
+					outputSize = null;
+				}
+
+				return;
+			}
+
+			const target = resolveCaptureTarget();
+			if (!target) {
+				encoderSupport = 'unavailable';
+				encoderSupportKey = null;
+				outputSize = null;
+				return;
+			}
+
+			try {
+				const source = getCapturePreflight({scale: 0.1, crop: target.crop});
+				const selectedSize = target.crop ?? source.sourceSize;
+				const targetKey = `${selectedSize.width}x${selectedSize.height}`;
+				const zoomLimitKey = `${targetKey}:${source.sourceSize.width}x${source.sourceSize.height}:${window.devicePixelRatio}`;
+				if (zoomLimit?.key !== zoomLimitKey) {
+					zoomLimit = {
+						key: zoomLimitKey,
+						targetKey,
+						maximum: getSuggestedMaximumCaptureScale(
+							selectedSize.width,
+							selectedSize.height,
+						),
+						pending: getMaximumCaptureScale(target.crop),
+					};
+					encoderSupport = 'checking';
+					encoderSupportKey = null;
+					updateControls();
+				}
+
+				const currentZoomLimit = zoomLimit;
+				const maximumScale = await currentZoomLimit.pending.catch((error) => {
+					if (zoomLimit === currentZoomLimit) {
+						zoomLimit = null;
+					}
+
+					throw error;
+				});
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				currentZoomLimit.maximum = maximumScale ?? 0.1;
+				if (useDefaultResolution) {
+					scale = getDefaultResolutionScale(
+						selectedSize.width,
+						selectedSize.height,
+					);
+				}
+
+				scale = Math.min(scale, currentZoomLimit.maximum);
+				updateHighlight();
+				if (maximumScale === null) {
+					throw new Error('No supported recording resolution for this area.');
+				}
+
+				const preflight = getCapturePreflight({
+					scale,
+					crop: target.crop,
+				});
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				const supportKey = `${preflight.outputSize.width}x${preflight.outputSize.height}`;
+				outputSize = preflight.outputSize;
+				if (
+					encoderSupportKey === supportKey &&
+					(encoderSupport === 'supported' || encoderSupport === 'unsupported')
+				) {
+					return;
+				}
+
+				if (requestedFormat !== null) {
+					format = requestedFormat;
+					encoderSupport = 'checking';
+					const canEncode = await canEncodeCapture(format, outputSize);
+					if (checkId !== encoderSupportCheckId) {
+						return;
+					}
+
+					encoderSupport = canEncode ? 'supported' : 'unsupported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						canEncode
+							? `Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`
+							: `${getFormatLabel(format)} is unavailable at ${outputSize.width}×${outputSize.height}.`,
+						!canEncode,
+					);
+					return;
+				}
+
+				encoderSupport = 'checking';
+				setStatus(
+					`Checking H.264 MP4 support at ${outputSize.width}×${outputSize.height}…`,
+				);
+				const canEncodeMp4 = await canEncodeCapture('mp4', outputSize);
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				if (canEncodeMp4) {
+					format = 'mp4';
+					encoderSupport = 'supported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						`Ready to record ${getFormatLabel(format)} at ${outputSize.width}×${outputSize.height}.`,
+					);
+					return;
+				}
+
+				setStatus(
+					`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Checking VP9 WebM…`,
+				);
+				const canEncodeWebm = await canEncodeCapture('webm', outputSize);
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				if (canEncodeWebm) {
+					format = 'webm';
+					encoderSupport = 'supported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						`H.264 MP4 is unavailable at ${outputSize.width}×${outputSize.height}. Ready to record VP9 WebM instead.`,
+					);
+				} else {
+					encoderSupport = 'unsupported';
+					encoderSupportKey = supportKey;
+					setStatus(
+						`Neither H.264 MP4 nor VP9 WebM encoding is supported at ${outputSize.width}×${outputSize.height} in this browser. Choose a lower resolution or select a smaller area.`,
+						true,
+					);
+				}
+			} catch (error) {
+				if (checkId !== encoderSupportCheckId) {
+					return;
+				}
+
+				encoderSupport = 'unsupported';
+				encoderSupportKey = null;
+				outputSize = null;
+				setStatus(error instanceof Error ? error.message : String(error), true);
+			}
 		};
 
 		const cancelSelection = () => {
@@ -1032,6 +1191,7 @@ export const startContent = () => {
 				startingRecording ||
 				completedRecording ||
 				finalizing ||
+				controlsBusy ||
 				selectionDrag
 			) {
 				return;
@@ -1052,6 +1212,8 @@ export const startContent = () => {
 			encoderSupportCheckId++;
 			encoderSupport = 'checking';
 			updateControls();
+			// Pointer capture uses the box's cursor instead of the resize handle's.
+			highlight.style.cursor = getComputedStyle(event.target as Element).cursor;
 			highlight.setPointerCapture(event.pointerId);
 			event.preventDefault();
 		});
@@ -1102,6 +1264,11 @@ export const startContent = () => {
 
 		highlight.addEventListener('pointerup', finishSelectionDrag);
 		highlight.addEventListener('pointercancel', finishSelectionDrag);
+		highlight.addEventListener('lostpointercapture', (event) => {
+			if (event.target === highlight) {
+				highlight.style.removeProperty('cursor');
+			}
+		});
 
 		const finishSelection = (event: PointerEvent) => {
 			if (!selectionStart) {
@@ -1177,6 +1344,19 @@ export const startContent = () => {
 			updateControls();
 			supportCheck.then(updateControls).catch(() => undefined);
 		});
+		document.addEventListener(
+			'pointerdown',
+			(event) => {
+				if (
+					!dimensionsZoomPopover.hidden &&
+					!event.composedPath().includes(dimensionsZoomControl)
+				) {
+					dimensionsZoomPopover.hidden = true;
+					dimensionsZoom.setAttribute('aria-expanded', 'false');
+				}
+			},
+			true,
+		);
 		window.addEventListener('keydown', (event) => {
 			if (event.key === 'Escape' && !dimensionsZoomPopover.hidden) {
 				dimensionsZoomPopover.hidden = true;
@@ -1314,10 +1494,43 @@ export const startContent = () => {
 		};
 
 		const handleRequest = async (request: CaptureControllerRequest) => {
+			if (
+				(!requirementsChecked ||
+					(request.command === 'toggle-controls' && controlsDismissed)) &&
+				!capture &&
+				!startingRecording &&
+				!finalizing
+			) {
+				browserRequirementIssue = await getBrowserRequirementIssue();
+				supported = browserRequirementIssue === null;
+				requirementsChecked = true;
+				controlsOpenSetup.textContent = 'Open Chrome flags';
+				encoderSupportCheckId++;
+				encoderSupport = 'unavailable';
+				encoderSupportKey = null;
+				zoomLimit = null;
+				setStatus('Choose an area or the whole page.');
+			}
+
 			if (request.command === 'toggle-controls') {
 				controlsDismissed = !controlsDismissed;
 				updateControls();
 				updateHighlight();
+				if (!controlsDismissed) {
+					await refreshEncoderSupport();
+					updateControls();
+				}
+
+				return getState();
+			}
+
+			if (
+				!supported &&
+				(request.command === 'select-area' ||
+					request.command === 'select-whole-page' ||
+					request.command === 'start-recording')
+			) {
+				updateControls();
 				return getState();
 			}
 
@@ -1476,8 +1689,19 @@ export const startContent = () => {
 			return getState();
 		};
 
+		controlsOpenSetup.addEventListener('click', async () => {
+			controlsOpenSetup.disabled = true;
+			try {
+				await browser.runtime.sendMessage({type: openCaptureSetupMessageType});
+			} catch {
+				controlsErrorDescription.textContent = `Open ${canvasSetupUrl} in Chrome's address bar, then enable Canvas Draw Element and restart Chrome.`;
+			} finally {
+				controlsOpenSetup.disabled = false;
+			}
+		});
+
 		controlsClose.addEventListener('click', () => {
-			if (capture || startingRecording || finalizing) {
+			if (capture || startingRecording || finalizing || controlsBusy) {
 				return;
 			}
 
@@ -1505,8 +1729,14 @@ export const startContent = () => {
 			updateControls();
 			updateHighlight();
 		});
-		controlsHeader.addEventListener('pointerdown', (event) => {
-			if (event.target === controlsClose) {
+		controls.addEventListener('pointerdown', (event) => {
+			if (
+				event.button !== 0 ||
+				controlsDrag ||
+				!(event.target instanceof Element) ||
+				event.target.closest('button') ||
+				controlsEncodingError.contains(event.target)
+			) {
 				return;
 			}
 
@@ -1516,11 +1746,10 @@ export const startContent = () => {
 				offsetX: event.clientX - rect.left,
 				offsetY: event.clientY - rect.top,
 			};
-			controlsHeader.classList.add('dragging');
-			controlsHeader.setPointerCapture(event.pointerId);
+			controls.setPointerCapture(event.pointerId);
 			event.preventDefault();
 		});
-		controlsHeader.addEventListener('pointermove', (event) => {
+		controls.addEventListener('pointermove', (event) => {
 			if (!controlsDrag || controlsDrag.pointerId !== event.pointerId) {
 				return;
 			}
@@ -1545,12 +1774,18 @@ export const startContent = () => {
 			}
 
 			controlsDrag = null;
-			controlsHeader.classList.remove('dragging');
-			controlsHeader.releasePointerCapture(event.pointerId);
+			if (controls.hasPointerCapture(event.pointerId)) {
+				controls.releasePointerCapture(event.pointerId);
+			}
 		};
 
-		controlsHeader.addEventListener('pointerup', finishControlsDrag);
-		controlsHeader.addEventListener('pointercancel', finishControlsDrag);
+		controls.addEventListener('pointerup', finishControlsDrag);
+		controls.addEventListener('pointercancel', finishControlsDrag);
+		controls.addEventListener('lostpointercapture', (event) => {
+			if (event.target === controls) {
+				finishControlsDrag(event);
+			}
+		});
 		controlsSecondary.addEventListener('click', () => {
 			handleRequest({
 				type: captureControllerMessageType,
@@ -1660,6 +1895,338 @@ export const startContent = () => {
 					updateControls();
 				});
 		});
+		const handleShotRequest = async (
+			name: ShotToolName,
+			input: Record<string, unknown>,
+		) => {
+			if (!requirementsChecked) {
+				await handleRequest({
+					type: captureControllerMessageType,
+					command: 'get-state',
+				});
+			}
+
+			if (name === 'get_shot') {
+				if (input.preview !== undefined && typeof input.preview !== 'boolean') {
+					throw new Error('preview must be a boolean.');
+				}
+
+				await refreshEncoderSupport();
+				updateControls();
+				const state = getState();
+				if (!input.preview) {
+					return state;
+				}
+
+				if (
+					capture ||
+					startingRecording ||
+					finalizing ||
+					controlsBusy ||
+					selecting ||
+					selectionDrag
+				) {
+					throw new Error(
+						'Finish the current recording or selection before previewing the shot.',
+					);
+				}
+
+				const previewTarget = resolveCaptureTarget();
+				if (!previewTarget) {
+					throw new Error('Set up a shot before requesting a preview.');
+				}
+
+				controlsBusy = true;
+				updateControls();
+				let previewCapture: PageCapture | null = null;
+				try {
+					previewCapture = new PageCapture({
+						crop: previewTarget.crop,
+						scale,
+						format,
+					});
+					const blob = await previewCapture.preview();
+					const dataUrl = await new Promise<string>((resolve, reject) => {
+						const reader = new FileReader();
+						reader.onload = () => resolve(String(reader.result));
+						reader.onerror = () =>
+							reject(new Error('Could not read the shot preview.'));
+						reader.readAsDataURL(blob);
+					});
+					return {
+						content: [
+							{type: 'text', text: JSON.stringify(state)},
+							{
+								type: 'image',
+								mimeType: 'image/png',
+								data: dataUrl.slice(dataUrl.indexOf(',') + 1),
+							},
+						],
+					};
+				} finally {
+					previewCapture?.restore();
+					controlsBusy = false;
+					updateControls();
+				}
+			}
+
+			if (capture || startingRecording || finalizing || controlsBusy) {
+				throw new Error('Wait until recording and finalization have finished.');
+			}
+
+			if (name === 'save_recording') {
+				const {destination} = input;
+				if (
+					destination !== 'download' &&
+					destination !== 'new' &&
+					destination !== 'convert'
+				) {
+					throw new Error('destination must be download, new, or convert.');
+				}
+
+				if (!completedRecording) {
+					throw new Error(
+						'No completed recording is available. Stop recording manually before saving.',
+					);
+				}
+
+				await handleCompletedRecording(destination);
+				const state = getState();
+				if (state.error) {
+					throw new Error(state.status);
+				}
+
+				return state;
+			}
+
+			if (completedRecording) {
+				throw new Error(
+					'Save or discard the completed recording before setting up another shot.',
+				);
+			}
+
+			const {target, resolution, format: nextFormat} = input;
+			if (
+				typeof target !== 'object' ||
+				target === null ||
+				!('type' in target)
+			) {
+				throw new Error(
+					'target must describe a viewport, element, or rectangle.',
+				);
+			}
+
+			let crop: CaptureCrop;
+			if (target.type === 'viewport') {
+				crop = {
+					left: 0,
+					top: 0,
+					width: window.innerWidth,
+					height: window.innerHeight,
+				};
+			} else if (target.type === 'element') {
+				if (
+					!('selector' in target) ||
+					typeof target.selector !== 'string' ||
+					!target.selector.trim()
+				) {
+					throw new Error('An element target requires a CSS selector.');
+				}
+
+				const padding = 'padding' in target ? target.padding : 0;
+				if (
+					typeof padding !== 'number' ||
+					!Number.isFinite(padding) ||
+					padding < 0
+				) {
+					throw new Error('padding must be a finite non-negative number.');
+				}
+
+				const elements = document.querySelectorAll(target.selector);
+				if (elements.length !== 1) {
+					throw new Error(
+						`The selector matched ${elements.length} elements. Choose a selector matching exactly one element.`,
+					);
+				}
+
+				const element = elements[0];
+				if (!element) {
+					throw new Error('The selected element is unavailable.');
+				}
+
+				const rect = element.getBoundingClientRect();
+				const elementStyle = window.getComputedStyle(element);
+				if (
+					rect.width <= 0 ||
+					rect.height <= 0 ||
+					elementStyle.visibility === 'hidden' ||
+					elementStyle.visibility === 'collapse' ||
+					Number(elementStyle.opacity) === 0 ||
+					rect.left < 0 ||
+					rect.top < 0 ||
+					rect.right > window.innerWidth ||
+					rect.bottom > window.innerHeight
+				) {
+					throw new Error(
+						'The element must be visible and fully inside the viewport. Scroll or prepare the page before setting up the shot.',
+					);
+				}
+
+				const left = Math.max(0, rect.left - padding);
+				const top = Math.max(0, rect.top - padding);
+				crop = {
+					left,
+					top,
+					width: Math.min(window.innerWidth, rect.right + padding) - left,
+					height: Math.min(window.innerHeight, rect.bottom + padding) - top,
+				};
+			} else if (target.type === 'rectangle') {
+				if (
+					!('left' in target) ||
+					!('top' in target) ||
+					!('width' in target) ||
+					!('height' in target) ||
+					typeof target.left !== 'number' ||
+					typeof target.top !== 'number' ||
+					typeof target.width !== 'number' ||
+					typeof target.height !== 'number'
+				) {
+					throw new Error(
+						'A rectangle requires numeric left, top, width, and height.',
+					);
+				}
+
+				crop = {
+					left: target.left,
+					top: target.top,
+					width: target.width,
+					height: target.height,
+				};
+			} else {
+				throw new Error('target.type must be viewport, element, or rectangle.');
+			}
+
+			if (
+				!Object.values(crop).every(Number.isFinite) ||
+				crop.left < 0 ||
+				crop.top < 0 ||
+				crop.width < minimumCaptureArea.width ||
+				crop.height < minimumCaptureArea.height ||
+				crop.left + crop.width > window.innerWidth ||
+				crop.top + crop.height > window.innerHeight
+			) {
+				throw new Error(
+					'The crop must be at least 10×10 CSS pixels and entirely inside the viewport.',
+				);
+			}
+
+			let outputBounds = defaultResolution;
+			if (resolution !== undefined) {
+				if (
+					typeof resolution !== 'object' ||
+					resolution === null ||
+					!('width' in resolution) ||
+					!('height' in resolution) ||
+					typeof resolution.width !== 'number' ||
+					typeof resolution.height !== 'number' ||
+					!Number.isInteger(resolution.width) ||
+					!Number.isInteger(resolution.height) ||
+					resolution.width < 2 ||
+					resolution.height < 2
+				) {
+					throw new Error(
+						'resolution requires integer width and height of at least 2 pixels.',
+					);
+				}
+
+				outputBounds = {width: resolution.width, height: resolution.height};
+			}
+
+			if (
+				nextFormat !== undefined &&
+				nextFormat !== 'mp4' &&
+				nextFormat !== 'webm'
+			) {
+				throw new Error('format must be mp4 or webm.');
+			}
+
+			const nextScale = Math.min(
+				outputBounds.width / crop.width,
+				outputBounds.height / crop.height,
+				getSuggestedMaximumCaptureScale(crop.width, crop.height),
+			);
+			getCapturePreflight({crop, scale: nextScale});
+			if (selectionDrag) {
+				highlight.releasePointerCapture(selectionDrag.pointerId);
+				selectionDrag = null;
+			}
+
+			if (selecting) {
+				cancelSelection();
+			}
+
+			selectedTarget = {type: 'page-crop', crop};
+			requestedFormat = nextFormat ?? null;
+			useDefaultResolution = false;
+			scale = nextScale;
+			encoderSupportKey = null;
+			controlsDismissed = false;
+			controlsBusy = true;
+			updateHighlight();
+			updateControls();
+			try {
+				await refreshEncoderSupport();
+				return getState();
+			} finally {
+				controlsBusy = false;
+				updateControls();
+			}
+		};
+
+		// Only shot preparation, inspection, and saving cross into the page world.
+		// Recording commands stay in the extension's manual controls.
+		document.addEventListener(shotRequestEvent, (event) => {
+			if (!(event instanceof CustomEvent) || typeof event.detail !== 'string') {
+				return;
+			}
+
+			let request;
+			try {
+				request = JSON.parse(event.detail);
+			} catch {
+				return;
+			}
+
+			if (
+				typeof request?.id !== 'string' ||
+				!shotTools.some((tool) => tool.name === request.name) ||
+				typeof request.input !== 'object' ||
+				request.input === null ||
+				Array.isArray(request.input)
+			) {
+				return;
+			}
+
+			handleShotRequest(request.name, request.input)
+				.then((result) =>
+					document.dispatchEvent(
+						new CustomEvent(shotResponseEvent, {
+							detail: JSON.stringify({id: request.id, result}),
+						}),
+					),
+				)
+				.catch((error) =>
+					document.dispatchEvent(
+						new CustomEvent(shotResponseEvent, {
+							detail: JSON.stringify({
+								id: request.id,
+								error: error instanceof Error ? error.message : String(error),
+							}),
+						}),
+					),
+				);
+		});
+
 		return {
 			handleRequest,
 		};

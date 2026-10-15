@@ -168,9 +168,7 @@ const AirportLayoutContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const AirportLayout = Interactive.withSchema({
+export const AirportLayout = Interactive.create({
 	Component: AirportLayoutContent,
 	componentName: 'AirportLayout',
-	schema: {},
-	wrapInSequence: true,
 });

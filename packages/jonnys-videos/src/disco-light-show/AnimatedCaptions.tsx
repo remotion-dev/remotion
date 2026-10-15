@@ -1175,10 +1175,7 @@ const AnimatedCaptionsInner: React.FC = () => {
 	);
 };
 
-export const AnimatedCaptions = Interactive.withSchema({
+export const AnimatedCaptions = Interactive.create({
 	Component: AnimatedCaptionsInner,
-	componentName: 'AnimatedCaptions',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

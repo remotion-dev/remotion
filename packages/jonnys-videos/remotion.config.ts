@@ -11,6 +11,4 @@ Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
 Config.setChromiumOpenGlRenderer('angle');
 Config.setDefaultPremountInSeconds(2);
-Config.setExperimentalSequenceActivityEnabled(true);
 Config.setShowPremounting(false);
-Config.setExperimentalSequenceActivityLimit(-1);

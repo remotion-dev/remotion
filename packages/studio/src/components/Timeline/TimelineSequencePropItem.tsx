@@ -3,13 +3,7 @@ import {
 	isSchemaFieldKeyframable,
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {unstable_batchedUpdates} from 'react-dom';
 import type {
 	CanUpdateSequencePropStatus,
@@ -89,12 +83,18 @@ const isKeyframedStatus = (
 const isResettableStatus = ({
 	status,
 	defaultValue,
+	fieldKey,
 }: {
 	readonly status: CanUpdateSequencePropStatus;
 	readonly defaultValue: unknown;
+	readonly fieldKey: string;
 }) => {
 	if (defaultValue === undefined) {
-		return false;
+		return (
+			fieldKey === 'premountFor' &&
+			status.status === 'static' &&
+			status.codeValue !== undefined
+		);
 	}
 
 	if (status.status === 'keyframed') {
@@ -116,6 +116,9 @@ const Value: React.FC<{
 	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
+	const defaultPremountInSeconds = useContext(Internals.DefaultPremountContext);
+	const video = Internals.useVideo();
+	const fps = nodePath.videoConfigValues?.fps ?? video?.fps;
 	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const previewedKeyframes = useRef<
 		ReturnType<typeof getPlaybackRateKeyframeChanges>['previews']
@@ -236,7 +239,12 @@ const Value: React.FC<{
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
 		propStatus,
 		dragOverrideValue,
-		defaultValue: field.fieldSchema.default,
+		defaultValue:
+			field.key === 'premountFor' &&
+			field.fieldSchema.default === undefined &&
+			fps !== undefined
+				? Math.round(defaultPremountInSeconds * fps)
+				: field.fieldSchema.default,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -248,8 +256,8 @@ const Value: React.FC<{
 			: null;
 
 	const onSave = useCallback<TimelineFieldOnSave>(
-		async (value, options) => {
-			value = await clampTimingValue(nodePath, field.key, value);
+		(value, options) => {
+			value = clampTimingValue(nodePath, field.key, value);
 			if (!clientId) {
 				return Promise.reject(new Error('Not connected to studio server'));
 			}
@@ -330,35 +338,13 @@ const Value: React.FC<{
 		],
 	);
 
-	const previewGeneration = useRef(0);
-	useEffect(
-		() => () => {
-			previewGeneration.current++;
-		},
-		[],
-	);
 	const onDragValueChange = useCallback<TimelineFieldOnDragValueChange>(
-		async (value) => {
+		(value) => {
 			if (nodePath === null) {
 				throw new Error('Cannot drag value');
 			}
 
-			const generation = ++previewGeneration.current;
-			try {
-				value = await clampTimingValue(nodePath, field.key, value);
-			} catch (error) {
-				if (generation === previewGeneration.current) {
-					Internals.Log.error(
-						{logLevel: 'error', tag: null},
-						'Could not check timing constraints',
-						error,
-					);
-				}
-
-				return;
-			}
-
-			if (generation !== previewGeneration.current) return;
+			value = clampTimingValue(nodePath, field.key, value);
 			const keyframeChanges = getPlaybackRateChanges(value);
 			unstable_batchedUpdates(() => {
 				for (const preview of previewedKeyframes.current) {
@@ -405,7 +391,6 @@ const Value: React.FC<{
 	);
 
 	const onDragEnd = useCallback(() => {
-		previewGeneration.current++;
 		clearTimingLimits();
 		if (nodePath === null) {
 			throw new Error('Cannot clear drag value');
@@ -728,15 +713,17 @@ export const TimelineSequencePropItem: React.FC<{
 		return isResettableStatus({
 			status: propStatus,
 			defaultValue: field.fieldSchema.default,
+			fieldKey: field.key,
 		});
-	}, [propStatus, field.fieldSchema.default]);
+	}, [propStatus, field.fieldSchema.default, field.key]);
 
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
 		propStatus.status !== 'computed';
 	const canShowReset =
-		canPerformReset && field.fieldSchema.default !== undefined;
+		canPerformReset &&
+		(field.fieldSchema.default !== undefined || field.key === 'premountFor');
 
 	const onReset = useCallback(() => {
 		if (

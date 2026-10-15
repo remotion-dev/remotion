@@ -67,10 +67,7 @@ const ArrowLogoInner: React.FC = () => {
 	);
 };
 
-export const ArrowLogo = Interactive.withSchema({
+export const ArrowLogo = Interactive.create({
 	Component: ArrowLogoInner,
-	componentName: 'ArrowLogo',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

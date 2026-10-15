@@ -12,6 +12,7 @@ import {
 	ErrorOverlayRepro,
 	UnsymbolicatedErrorOverlayRepro,
 } from './ErrorOverlayE2e/ErrorOverlayRepro';
+import {HiddenClipDragPreview} from './HiddenClipDragPreview';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
 import {Issue8216} from './Issue8216/Issue8216';
 import {LightLeakExample} from './LightLeak';
@@ -33,6 +34,14 @@ import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="hidden-clip-drag-preview"
+				component={HiddenClipDragPreview}
+				durationInFrames={300}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
 			<Composition
 				id="SourceSubscriptionChurn"
 				component={SourceSubscriptionChurn}

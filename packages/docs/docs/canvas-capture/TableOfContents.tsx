@@ -10,6 +10,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>Installation</strong>
 					<div>Install the browser and Canvas Capture extension</div>
 				</TOCItem>
+				<TOCItem link="/docs/canvas-capture/agentic-shot-setup">
+					<strong>Agentic shot setup</strong>
+					<div>Let an agent frame and preview your shot</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

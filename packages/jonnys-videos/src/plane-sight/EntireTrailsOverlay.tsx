@@ -30,9 +30,7 @@ const EntireTrailsOverlayContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const EntireTrailsOverlay = Interactive.withSchema({
+export const EntireTrailsOverlay = Interactive.create({
 	Component: EntireTrailsOverlayContent,
 	componentName: 'EntireTrailsOverlay',
-	schema: {},
-	wrapInSequence: true,
 });
