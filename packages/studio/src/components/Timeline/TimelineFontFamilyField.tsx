@@ -433,7 +433,16 @@ export const TimelineFontFamilyField: React.FC<{
 	}
 
 	const fallback = fieldSchema.default;
-	const current = getCurrentValue({effectiveValue, fallback});
+	// Drag overrides feed back through effectiveValue. Keep the committed
+	// selection stable while browsing so previews cannot move the checkmark,
+	// change the trigger label, or reorder the options.
+	const [openedValue, setOpenedValue] = useState<{
+		value: string | undefined;
+	} | null>(null);
+	const opened = openedValue !== null;
+	const current = openedValue
+		? openedValue.value
+		: getCurrentValue({effectiveValue, fallback});
 	const defaultOption = useMemo((): FontFamilyOption => {
 		return {
 			id: 'default',
@@ -443,7 +452,6 @@ export const TimelineFontFamilyField: React.FC<{
 			value: fallback,
 		};
 	}, [fallback]);
-	const [opened, setOpened] = useState(false);
 	const [hovered, setHovered] = useState(false);
 	const [query, setQuery] = useState('');
 	const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -452,16 +460,25 @@ export const TimelineFontFamilyField: React.FC<{
 		() => new Set(loadedGoogleFontsForPickerPreview),
 	);
 	const [saveError, setSaveError] = useState<string | null>(null);
+	const [previewError, setPreviewError] = useState<string | null>(null);
+	const [saving, setSaving] = useState(false);
+	const pendingSelection = useRef(false);
 	const selectionGeneration = useRef(0);
+	const hoverGeneration = useRef(0);
+	const previewedOption = useRef<string | null>(null);
+	const initialScrollTop = useRef(0);
 	const activePreview = useRef<{
+		type: 'hover' | 'selection';
 		generation: number;
 		onDragEnd: () => void;
 	} | null>(null);
 	useEffect(() => {
 		const generation = selectionGeneration;
+		const hoverRequest = hoverGeneration;
 		const preview = activePreview;
 		return () => {
 			generation.current++;
+			hoverRequest.current++;
 			preview.current?.onDragEnd();
 			preview.current = null;
 		};
@@ -520,15 +537,84 @@ export const TimelineFontFamilyField: React.FC<{
 		return {start, end};
 	}, [filteredOptions.length, scrollTop]);
 
-	const hide = useCallback(() => {
-		setOpened(false);
-		setQuery('');
+	const clearHoverPreview = useCallback(() => {
+		hoverGeneration.current++;
+		previewedOption.current = null;
+		if (activePreview.current?.type === 'hover') {
+			activePreview.current.onDragEnd();
+			activePreview.current = null;
+		}
 	}, []);
+
+	const previewOption = useCallback(
+		async (option: FontFamilyOption) => {
+			if (previewedOption.current === option.id) {
+				return;
+			}
+
+			previewedOption.current = option.id;
+			setPreviewError(null);
+			const generation = ++hoverGeneration.current;
+			if (option.source === 'Google Fonts' && option.googleFontCssFamily) {
+				try {
+					await loadGoogleFontForPreview({
+						fontFamily: option.value ?? option.label,
+						cssFamily: option.googleFontCssFamily,
+						weights: option.googleFontWeights ?? ['400'],
+						document,
+					});
+				} catch (err) {
+					// Font downloads/decoding can fail. This UI boundary reports
+					// that failure without treating the font as successfully previewed.
+					if (generation === hoverGeneration.current) {
+						clearHoverPreview();
+						setPreviewError(
+							`Could not preview ${option.label}: ${err instanceof Error ? err.message : String(err)}`,
+						);
+					}
+
+					return;
+				}
+			}
+
+			if (generation !== hoverGeneration.current) {
+				return;
+			}
+
+			activePreview.current = {type: 'hover', generation, onDragEnd};
+			try {
+				onDragValueChange(option.value);
+			} catch (err) {
+				// A callback failure is a programming error, not a font-loading
+				// failure. Release the override, then let the error propagate.
+				clearHoverPreview();
+				throw err;
+			}
+		},
+		[clearHoverPreview, onDragEnd, onDragValueChange],
+	);
+
+	const hide = useCallback(() => {
+		clearHoverPreview();
+		setPreviewError(null);
+		setOpenedValue(null);
+		setQuery('');
+	}, [clearHoverPreview]);
 
 	const selectOption = useCallback(
 		(option: FontFamilyOption) => {
 			const generation = ++selectionGeneration.current;
 			setSaveError(null);
+			// Transfer the override to the save before closing. Closing cancels
+			// hover requests, but must not clear the font while it is being saved.
+			if (activePreview.current) {
+				activePreview.current = {
+					...activePreview.current,
+					type: 'selection',
+					generation,
+				};
+			}
+
 			hide();
 			if (option.value === propStatus.codeValue) {
 				activePreview.current?.onDragEnd();
@@ -536,7 +622,10 @@ export const TimelineFontFamilyField: React.FC<{
 				return;
 			}
 
-			let appliedPreview = false;
+			// Saving and browsing must not own the same drag override at once.
+			// The ref also blocks reopening before React commits disabled state.
+			pendingSelection.current = true;
+			setSaving(true);
 			const save = async () => {
 				// Keep the current preview until all font faces are ready, including
 				// when another caller (such as the current-value effect) is loading them.
@@ -554,8 +643,7 @@ export const TimelineFontFamilyField: React.FC<{
 				}
 
 				onDragValueChange(option.value);
-				appliedPreview = true;
-				activePreview.current = {generation, onDragEnd};
+				activePreview.current = {type: 'selection', generation, onDragEnd};
 				if (option.source !== 'Google Fonts' || !option.googleFontImportName) {
 					await onSave(option.value);
 					return;
@@ -584,15 +672,19 @@ export const TimelineFontFamilyField: React.FC<{
 						return;
 					}
 
-					if (appliedPreview) {
-						onDragValueChange(propStatus.codeValue);
-					}
-
 					setSaveError(err instanceof Error ? err.message : String(err));
 				})
 				.finally(() => {
+					if (generation === selectionGeneration.current) {
+						pendingSelection.current = false;
+						setSaving(false);
+					}
+
 					// A stale load/save must not clear a newer selection's override.
-					if (activePreview.current?.generation === generation) {
+					if (
+						activePreview.current?.type === 'selection' &&
+						activePreview.current.generation === generation
+					) {
 						activePreview.current.onDragEnd();
 						activePreview.current = null;
 					}
@@ -602,46 +694,45 @@ export const TimelineFontFamilyField: React.FC<{
 	);
 
 	const toggleOpened = useCallback(() => {
-		if (opened) {
-			setOpened(false);
+		if (pendingSelection.current) {
 			return;
 		}
 
+		if (opened) {
+			hide();
+			return;
+		}
+
+		const selectedIndex = Math.max(
+			0,
+			options.findIndex((option) => option.value === current),
+		);
+		initialScrollTop.current = Math.max(
+			0,
+			selectedIndex * ROW_HEIGHT - LIST_HEIGHT / 2 + ROW_HEIGHT / 2,
+		);
+		setHighlightedIndex(selectedIndex);
+		setScrollTop(initialScrollTop.current);
 		size?.refresh?.();
-		setOpened(true);
-	}, [opened, size]);
+		setOpenedValue({value: current});
+	}, [current, hide, opened, options, size]);
 
 	useEffect(() => {
 		if (!opened) {
 			return;
 		}
 
-		const selectedIndex = filteredOptions.findIndex(
-			(option) => option.value === current,
-		);
-		const nextIndex = Math.max(0, selectedIndex);
-		setHighlightedIndex(nextIndex);
-
-		requestAnimationFrame(() => {
+		const request = requestAnimationFrame(() => {
 			inputRef.current?.focus();
 			const list = listRef.current;
 			if (!list) {
 				return;
 			}
 
-			list.scrollTop = Math.max(
-				0,
-				nextIndex * ROW_HEIGHT - LIST_HEIGHT / 2 + ROW_HEIGHT / 2,
-			);
+			list.scrollTop = initialScrollTop.current;
 		});
-	}, [current, filteredOptions, opened]);
-
-	useEffect(() => {
-		setHighlightedIndex(0);
-		if (listRef.current) {
-			listRef.current.scrollTop = 0;
-		}
-	}, [query]);
+		return () => cancelAnimationFrame(request);
+	}, [opened]);
 
 	useEffect(() => {
 		if (!current) {
@@ -707,31 +798,24 @@ export const TimelineFontFamilyField: React.FC<{
 
 	const onKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLInputElement>) => {
-			if (event.key === 'ArrowDown') {
+			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
 				event.preventDefault();
-				setHighlightedIndex((prev) => {
-					const next = Math.max(
-						0,
-						Math.min(filteredOptions.length - 1, prev + 1),
-					);
-					if (listRef.current) {
-						scrollIndexIntoView({index: next, list: listRef.current});
-					}
+				const next = Math.max(
+					0,
+					Math.min(
+						filteredOptions.length - 1,
+						highlightedIndex + (event.key === 'ArrowDown' ? 1 : -1),
+					),
+				);
+				setHighlightedIndex(next);
+				if (listRef.current) {
+					scrollIndexIntoView({index: next, list: listRef.current});
+				}
 
-					return next;
-				});
-			}
-
-			if (event.key === 'ArrowUp') {
-				event.preventDefault();
-				setHighlightedIndex((prev) => {
-					const next = Math.max(0, prev - 1);
-					if (listRef.current) {
-						scrollIndexIntoView({index: next, list: listRef.current});
-					}
-
-					return next;
-				});
+				const option = filteredOptions[next];
+				if (option) {
+					previewOption(option);
+				}
 			}
 
 			if (event.key === 'Enter') {
@@ -747,7 +831,7 @@ export const TimelineFontFamilyField: React.FC<{
 				hide();
 			}
 		},
-		[filteredOptions, hide, highlightedIndex, selectOption],
+		[filteredOptions, hide, highlightedIndex, previewOption, selectOption],
 	);
 
 	const renderedOptions = filteredOptions.slice(
@@ -784,6 +868,8 @@ export const TimelineFontFamilyField: React.FC<{
 		<>
 			<button
 				ref={buttonRef}
+				disabled={saving}
+				aria-busy={saving}
 				aria-label={field.key}
 				tabIndex={tabIndex}
 				type="button"
@@ -826,7 +912,15 @@ export const TimelineFontFamilyField: React.FC<{
 											<input
 												ref={inputRef}
 												value={query}
-												onChange={(event) => setQuery(event.target.value)}
+												onChange={(event) => {
+													clearHoverPreview();
+													setQuery(event.target.value);
+													setHighlightedIndex(0);
+													setScrollTop(0);
+													if (listRef.current) {
+														listRef.current.scrollTop = 0;
+													}
+												}}
 												onKeyDown={onKeyDown}
 												placeholder="Search fonts"
 												style={searchInput}
@@ -839,6 +933,7 @@ export const TimelineFontFamilyField: React.FC<{
 												ref={listRef}
 												style={listStyle}
 												className={VERTICAL_SCROLLBAR_CLASSNAME}
+												onPointerLeave={clearHoverPreview}
 												onScroll={(event) => {
 													setScrollTop(event.currentTarget.scrollTop);
 												}}
@@ -863,9 +958,12 @@ export const TimelineFontFamilyField: React.FC<{
 																		? SELECTED_BACKGROUND
 																		: TRANSPARENT,
 															}}
-															onPointerEnter={() =>
-																setHighlightedIndex(actualIndex)
-															}
+															onPointerMove={() => {
+																// Filtering or virtualizing can mount a row under a
+																// stationary pointer. Only actual movement previews it.
+																setHighlightedIndex(actualIndex);
+																previewOption(option);
+															}}
 															onPointerDown={(event) => {
 																event.preventDefault();
 																event.stopPropagation();
@@ -896,6 +994,11 @@ export const TimelineFontFamilyField: React.FC<{
 												/>
 											</div>
 										)}
+										{previewError === null ? null : (
+											<div role="alert" style={errorText}>
+												{previewError}
+											</div>
+										)}
 										<div
 											style={{
 												padding: '6px 8px',
@@ -903,8 +1006,8 @@ export const TimelineFontFamilyField: React.FC<{
 												fontSize: 10,
 											}}
 										>
-											Google Fonts are loaded for Studio preview and saved to
-											your composition when selected.
+											Hover or use arrow keys to preview. Fonts are saved to
+											your composition only when selected.
 										</div>
 									</div>
 								</HigherZIndex>
