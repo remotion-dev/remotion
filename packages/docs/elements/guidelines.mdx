@@ -6,19 +6,19 @@ description: Design reusable Remotion Elements for any Element library.
 
 # Element Guidelines
 
-These guidelines cover how to design, build, and publish an Element that users can copy into their projects.
+These guidelines cover how to design and build an Element that users can copy into their projects. They apply to the official gallery and to your own Element Library. To let users install Elements from your library's website, see [Integrating an Element Library with Studio](/docs/studio-protocol/component-library-integration).
 
 ## Design
 
 ### Use real videos as references
 
-If you use AI to build an Element, it often designs it like a website component, sized and styled for a page rather than a video. Published videos make a better reference. In a video, text and graphics usually need to be larger so viewers can read them at a glance, and simpler designs tend to work better.
+If you use AI to build an Element, it often designs it like a website component, sized and styled for a page rather than a video.
+
+Use published videos as a reference instead: video usually needs larger, simpler graphics.
 
 ### Keep it focused
 
 Users add Elements to their own projects and combine them into a larger video. This works best when each Element does one thing. An Element that bundles several things, such as a title with its own background, is harder to fit in.
-
-Aim for one visual treatment, technique, or workflow per Element, ideally one that works without configuration and fits many projects. A preset, a small CSS change, or a different set of Studio control values usually doesn't need its own Element.
 
 ### Animate temporary Elements in and out
 
@@ -30,24 +30,18 @@ Animate the parts inside the Element, not its position on screen. Studio sets th
 
 ### Make it portable
 
-- Keep the implementation self-contained, using HTML, CSS, and React where possible.
-- Avoid global styles, layout side effects, and fullscreen assumptions unless the Element is a background.
-- Set explicit defaults for inherited visual properties, so the Element looks the same under light and dark host themes:
-  - Set text colors on the Element root or the nearest visual surface instead of relying on browser or host-page defaults.
-  - Make sure every use of `currentColor` resolves from an ancestor with an explicit color.
+- Avoid global styles and layout side effects.
+- Don't make the Element fill the whole frame unless it's a background.
+- Set a text color on the Element itself. Otherwise it inherits the page's color, including through `currentColor`, which changes between light and dark themes.
 - Avoid project-specific branding or footage, and make colors easy to change.
 
 ### Dependencies
 
-Minimize dependencies.
-
-Declare every external dependency in the Element library's metadata, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version. See the [Studio protocol's `dependencies` field](/docs/studio-protocol/create-element-payload#dependencies).
+Minimize dependencies, and declare them as described in the [`dependencies` field](/docs/studio-protocol/create-element-payload#dependencies).
 
 ### Assets
 
-Include assets that should be copied into the user's project. Use Google Fonts for non-websafe fonts.
-
-Follow the [asset integration guidance](/docs/studio-protocol/component-library-integration#preview-installed-assets). Installed assets are separate from gallery previews. Declare installed assets in the library metadata and use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) references in `installationProps`. Keep preview URLs in `initialProps`.
+Include assets that should be copied into the user's project, as described in the [asset handling guidance](/docs/studio-protocol/component-library-integration#asset-handling). Use Google Fonts for non-websafe fonts.
 
 ## Integrate with Studio
 
@@ -78,13 +72,5 @@ Give editable objects clear names. Use a generic name such as `Container` for th
 ### Initial props
 
 If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. For `component-owned-sequence`, this can provide defaults for Inspector controls. Otherwise, users can edit the installed source directly.
-
-`installationProps` shallowly overrides `initialProps` only for installation; an overridden object or array replaces that entire prop.
-
-## Publish
-
-### Choose a representative preview
-
-Choose a poster frame that clearly shows the Element. The video preview should cover the Element's full duration and, when applicable, include its entrance and exit animations.
 
 To submit an Element to the official gallery, read the [contribution guide](/elements/contributing).
