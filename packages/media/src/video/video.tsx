@@ -111,6 +111,7 @@ const InnerVideo: React.FC<
 	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize = null,
 	setMediaDurationInSeconds,
 	...props
 }) => {
@@ -174,6 +175,7 @@ const InnerVideo: React.FC<
 				requestInit={requestInit}
 				objectFit={objectFit}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize}
 			/>
 		);
 	}
@@ -225,6 +227,7 @@ const InnerVideo: React.FC<
 			objectFit={objectFit}
 			maxCanvasSinkFrameSize={maxCanvasSinkFrameSize}
 			effects={effects}
+			effectsOutputSize={effectsOutputSize}
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
@@ -267,6 +270,7 @@ const VideoInner: React.FC<
 	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize = null,
 	durationInFrames,
 	from,
 	freeze,
@@ -452,6 +456,7 @@ const VideoInner: React.FC<
 							_experimentalInitiallyDrawCachedFrame ?? false
 						}
 						effects={memoizedEffects}
+						effectsOutputSize={effectsOutputSize}
 						setMediaDurationInSeconds={setMediaDurationInSeconds}
 					/>
 				</Internals.SequenceContent>

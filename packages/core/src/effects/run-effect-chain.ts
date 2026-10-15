@@ -7,6 +7,8 @@ import type {
 import {getGpuDevice} from './gpu-device.js';
 
 export type EffectChainState = {
+	readonly width: number;
+	readonly height: number;
 	pool: CanvasPool;
 	setupCache: WeakMap<
 		EffectDefinition<unknown, unknown>,
@@ -25,6 +27,8 @@ export const createEffectChainState = (
 	height: number,
 ): EffectChainState => {
 	const state: EffectChainState = {
+		width,
+		height,
 		pool: new CanvasPool(width, height, (canvas) => {
 			// The GL objects these setups hold died with the context and stay
 			// invalid on a restored one, so the next run has to recreate them.
@@ -104,15 +108,11 @@ export type RunEffectChainOptions = {
 // Runs the effect pipeline imperatively. Returns `true` if the pipeline
 // completed and wrote to `output`, `false` if it was superseded by a newer
 // run (caller should not act on a stale result).
-export const runEffectChain = async ({
-	state,
-	source,
-	effects,
-	output,
-	width,
-	height,
-}: RunEffectChainOptions): Promise<boolean> => {
-	const runId = ++state.currentRunId;
+const runEffectChainWithoutResize = async (
+	{state, source, effects, output, width, height}: RunEffectChainOptions,
+	initialFlipSourceY: boolean,
+	runId: number,
+): Promise<boolean> => {
 	const isCancelled = () => state.currentRunId !== runId;
 
 	// Bypass any effect with `disabled: true` before grouping by backend, so
@@ -160,7 +160,7 @@ export const runEffectChain = async ({
 	// Canvas sources are DOM-oriented. Flip them when uploading into WebGL so
 	// texture coordinates match clip-space output. `ImageBitmap` bridges below
 	// opt out because they are already oriented for upload.
-	let flipWebGLSourceY = true;
+	let flipWebGLSourceY = initialFlipSourceY;
 	// Only bridge bitmaps are owned here; the original source belongs to the caller.
 	let bridgeBitmap: ImageBitmap | null = null;
 
@@ -185,8 +185,8 @@ export const runEffectChain = async ({
 					target: dst,
 					state: setupState,
 					params: eff.params,
-					width,
-					height,
+					width: state.width,
+					height: state.height,
 					gpuDevice,
 					flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
 				});
@@ -251,4 +251,43 @@ export const runEffectChain = async ({
 	outCtx.clearRect(0, 0, width, height);
 	outCtx.drawImage(lastTarget, 0, 0, width, height);
 	return true;
+};
+
+// Keep ownership of the optional resized source until the existing chain settles.
+export const runEffectChain = async (
+	options: RunEffectChainOptions,
+): Promise<boolean> => {
+	const {state, source, width, height, effects} = options;
+	// Keep one ID across resizing and effect passes so callers can cancel the run.
+	const runId = ++state.currentRunId;
+	if (
+		(state.width === width && state.height === height) ||
+		!effects.some((effect) => !(effect.params as {disabled?: boolean}).disabled)
+	) {
+		return runEffectChainWithoutResize(options, true, runId);
+	}
+
+	const firstEnabledEffect = effects.find(
+		(effect) => !(effect.params as {disabled?: boolean}).disabled,
+	)!;
+	const resized = await createImageBitmap(source as ImageBitmapSource, {
+		resizeWidth: state.width,
+		resizeHeight: state.height,
+		// WebGL ignores UNPACK_FLIP_Y_WEBGL for ImageBitmap uploads.
+		imageOrientation:
+			firstEnabledEffect.definition.backend === 'webgl2' ? 'flipY' : 'none',
+	});
+	try {
+		if (state.currentRunId !== runId) {
+			return false;
+		}
+
+		return await runEffectChainWithoutResize(
+			{...options, source: resized},
+			false,
+			runId,
+		);
+	} finally {
+		resized.close();
+	}
 };
