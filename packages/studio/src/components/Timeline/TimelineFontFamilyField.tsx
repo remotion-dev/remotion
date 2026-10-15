@@ -1,5 +1,4 @@
 import {PlayerInternals} from '@remotion/player';
-import type {GoogleFontSourceEdit} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
@@ -17,7 +16,7 @@ import {
 	WHITE_ALPHA_06,
 	WHITE_ALPHA_08,
 } from '../../helpers/colors';
-import {installRequiredPackages} from '../../helpers/install-required-package';
+import {loadGoogleFontForPreview} from '../../helpers/load-google-font-for-preview';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -59,8 +58,6 @@ const googleFonts = GOOGLE_FONTS_LIST.map((font) => ({
 	googleFontWeights: font.weights,
 }));
 
-const loadedGoogleFontsForPreview = new Set<string>();
-const loadingGoogleFontsForPreview = new Map<string, Promise<void>>();
 const loadedGoogleFontsForPickerPreview = new Set<string>();
 const loadingGoogleFontsForPickerPreview = new Set<string>();
 
@@ -240,24 +237,6 @@ const scrollIndexIntoView = ({
 	}
 };
 
-const getGoogleFontSourceEdit = ({
-	fontFamily,
-	importName,
-	weights,
-}: {
-	readonly fontFamily: string;
-	readonly importName: string;
-	readonly weights: string[];
-}): GoogleFontSourceEdit => {
-	return {
-		fontFamily,
-		importName,
-		style: 'normal',
-		weights,
-		subsets: ['latin'],
-	};
-};
-
 const makeFontPreviewName = (fontFamily: string) => {
 	return `${fontFamily}Preview`;
 };
@@ -306,107 +285,6 @@ const loadGoogleFontForPickerPreview = async ({
 		loadedGoogleFontsForPickerPreview.add(fontFamily);
 	} finally {
 		loadingGoogleFontsForPickerPreview.delete(fontFamily);
-	}
-};
-
-const getGoogleFontUrlsFromCss = (cssText: string) => {
-	return [...cssText.matchAll(/url\(([^)]+)\)/g)].map((match) => match[1]);
-};
-
-const loadGoogleFontWeight = async ({
-	cssFamily,
-	fontFaceFamily,
-	weight,
-	document,
-	text,
-}: {
-	readonly cssFamily: string;
-	readonly fontFaceFamily: string;
-	readonly weight: string;
-	readonly document: Document;
-	readonly text: string | null;
-}) => {
-	const response = await fetch(
-		`https://fonts.googleapis.com/css?family=${cssFamily}:${weight}${
-			text === null ? '' : `&text=${encodeURIComponent(text)}`
-		}`,
-	);
-	if (!response.ok) {
-		return false;
-	}
-
-	const cssText = await response.text();
-	const urls = getGoogleFontUrlsFromCss(cssText);
-	if (urls.length === 0) {
-		return false;
-	}
-
-	await Promise.all(
-		urls.map(async (url) => {
-			const fontFace = new FontFace(fontFaceFamily, `url(${url})`, {weight});
-			await fontFace.load();
-			document.fonts.add(fontFace);
-		}),
-	);
-	return true;
-};
-
-const commonPreviewFontWeights = ['400', '700', '800'];
-
-const getGoogleFontPreviewWeights = (weights: string[]) => {
-	const commonWeights = weights.filter((weight) =>
-		commonPreviewFontWeights.includes(weight),
-	);
-	return commonWeights.length ? commonWeights : weights.slice(0, 1);
-};
-
-const loadGoogleFontForPreview = async ({
-	fontFamily,
-	cssFamily,
-	weights,
-	document,
-}: {
-	readonly fontFamily: string;
-	readonly cssFamily: string;
-	readonly weights: string[];
-	readonly document: Document;
-}) => {
-	if (loadedGoogleFontsForPreview.has(fontFamily)) {
-		return;
-	}
-
-	const loading = loadingGoogleFontsForPreview.get(fontFamily);
-	if (loading) {
-		return loading;
-	}
-
-	if (!GOOGLE_FONTS_LIST.some((font) => font.fontFamily === fontFamily)) {
-		return;
-	}
-
-	const promise = (async () => {
-		const loadedWeights = await Promise.all(
-			getGoogleFontPreviewWeights(weights).map((weight) =>
-				loadGoogleFontWeight({
-					cssFamily,
-					fontFaceFamily: fontFamily,
-					weight,
-					document,
-					text: null,
-				}),
-			),
-		);
-		if (!loadedWeights.every(Boolean)) {
-			throw new Error(`Could not load font "${fontFamily}" for Studio preview`);
-		}
-
-		loadedGoogleFontsForPreview.add(fontFamily);
-	})();
-	loadingGoogleFontsForPreview.set(fontFamily, promise);
-	try {
-		await promise;
-	} finally {
-		loadingGoogleFontsForPreview.delete(fontFamily);
 	}
 };
 
@@ -463,23 +341,16 @@ export const TimelineFontFamilyField: React.FC<{
 	const [previewError, setPreviewError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 	const pendingSelection = useRef(false);
-	const selectionGeneration = useRef(0);
 	const hoverGeneration = useRef(0);
 	const previewedOption = useRef<string | null>(null);
 	const initialScrollTop = useRef(0);
-	const activePreview = useRef<{
-		type: 'hover' | 'selection';
-		generation: number;
-		onDragEnd: () => void;
-	} | null>(null);
+	const activePreview = useRef<(() => void) | null>(null);
 	useEffect(() => {
-		const generation = selectionGeneration;
 		const hoverRequest = hoverGeneration;
 		const preview = activePreview;
 		return () => {
-			generation.current++;
 			hoverRequest.current++;
-			preview.current?.onDragEnd();
+			preview.current?.();
 			preview.current = null;
 		};
 	}, []);
@@ -540,10 +411,8 @@ export const TimelineFontFamilyField: React.FC<{
 	const clearHoverPreview = useCallback(() => {
 		hoverGeneration.current++;
 		previewedOption.current = null;
-		if (activePreview.current?.type === 'hover') {
-			activePreview.current.onDragEnd();
-			activePreview.current = null;
-		}
+		activePreview.current?.();
+		activePreview.current = null;
 	}, []);
 
 	const previewOption = useCallback(
@@ -559,8 +428,6 @@ export const TimelineFontFamilyField: React.FC<{
 				try {
 					await loadGoogleFontForPreview({
 						fontFamily: option.value ?? option.label,
-						cssFamily: option.googleFontCssFamily,
-						weights: option.googleFontWeights ?? ['400'],
 						document,
 					});
 				} catch (err) {
@@ -581,7 +448,7 @@ export const TimelineFontFamilyField: React.FC<{
 				return;
 			}
 
-			activePreview.current = {type: 'hover', generation, onDragEnd};
+			activePreview.current = onDragEnd;
 			try {
 				onDragValueChange(option.value);
 			} catch (err) {
@@ -595,102 +462,62 @@ export const TimelineFontFamilyField: React.FC<{
 	);
 
 	const hide = useCallback(() => {
-		clearHoverPreview();
+		if (!pendingSelection.current) {
+			clearHoverPreview();
+		}
+
 		setPreviewError(null);
 		setOpenedValue(null);
 		setQuery('');
 	}, [clearHoverPreview]);
 
 	const selectOption = useCallback(
-		(option: FontFamilyOption) => {
-			const generation = ++selectionGeneration.current;
-			setSaveError(null);
-			// Transfer the override to the save before closing. Closing cancels
-			// hover requests, but must not clear the font while it is being saved.
-			if (activePreview.current) {
-				activePreview.current = {
-					...activePreview.current,
-					type: 'selection',
-					generation,
-				};
-			}
-
-			hide();
-			if (option.value === propStatus.codeValue) {
-				activePreview.current?.onDragEnd();
-				activePreview.current = null;
+		async (option: FontFamilyOption) => {
+			if (pendingSelection.current) {
 				return;
 			}
 
-			// Saving and browsing must not own the same drag override at once.
-			// The ref also blocks reopening before React commits disabled state.
+			setSaveError(null);
+			if (option.value === propStatus.codeValue) {
+				hide();
+				return;
+			}
+
+			// Retain an already-loaded hover preview until the save completes,
+			// but stop pending hover loads and browsing from changing it.
 			pendingSelection.current = true;
+			hoverGeneration.current++;
+			hide();
 			setSaving(true);
-			const save = async () => {
-				// Keep the current preview until all font faces are ready, including
-				// when another caller (such as the current-value effect) is loading them.
-				if (option.source === 'Google Fonts' && option.googleFontCssFamily) {
-					await loadGoogleFontForPreview({
-						fontFamily: option.value ?? option.label,
-						cssFamily: option.googleFontCssFamily,
-						weights: option.googleFontWeights ?? ['400'],
-						document,
-					});
-				}
-
-				if (generation !== selectionGeneration.current) {
-					return;
-				}
-
-				onDragValueChange(option.value);
-				activePreview.current = {type: 'selection', generation, onDragEnd};
-				if (option.source !== 'Google Fonts' || !option.googleFontImportName) {
-					await onSave(option.value);
-					return;
-				}
-
-				await installRequiredPackages([
-					{name: '@remotion/google-fonts', version: null},
-				]);
-				if (generation !== selectionGeneration.current) {
-					return;
-				}
-
-				const googleFont = getGoogleFontSourceEdit({
-					fontFamily: option.value ?? option.label,
-					importName: option.googleFontImportName,
-					weights: option.googleFontWeights ?? ['400'],
-				});
-				await onSave(option.value, {
-					sourceEdit: {type: 'google-font', font: googleFont},
-				});
-			};
-
-			save()
-				.catch((err) => {
-					if (generation !== selectionGeneration.current) {
-						return;
-					}
-
-					setSaveError(err instanceof Error ? err.message : String(err));
-				})
-				.finally(() => {
-					if (generation === selectionGeneration.current) {
-						pendingSelection.current = false;
-						setSaving(false);
-					}
-
-					// A stale load/save must not clear a newer selection's override.
-					if (
-						activePreview.current?.type === 'selection' &&
-						activePreview.current.generation === generation
-					) {
-						activePreview.current.onDragEnd();
-						activePreview.current = null;
-					}
-				});
+			try {
+				// Queue the intent immediately. Font/package preparation belongs to
+				// the source edit, so subsequent undo/redo cannot overtake it.
+				await onSave(
+					option.value,
+					option.source === 'Google Fonts' && option.googleFontImportName
+						? {
+								sourceEdit: {
+									type: 'google-font',
+									font: {
+										fontFamily: option.value ?? option.label,
+										importName: option.googleFontImportName,
+										style: 'normal',
+										weights: option.googleFontWeights ?? ['400'],
+										subsets: ['latin'],
+									},
+								},
+							}
+						: undefined,
+				);
+			} catch (err) {
+				setSaveError(err instanceof Error ? err.message : String(err));
+			} finally {
+				pendingSelection.current = false;
+				setSaving(false);
+				clearHoverPreview();
+			}
 		},
-		[propStatus.codeValue, onDragValueChange, hide, onSave, onDragEnd],
+		[propStatus.codeValue, hide, onSave, clearHoverPreview],
 	);
 
 	const toggleOpened = useCallback(() => {
@@ -748,8 +575,6 @@ export const TimelineFontFamilyField: React.FC<{
 
 		loadGoogleFontForPreview({
 			fontFamily: current,
-			cssFamily: googleFont.previewUrl,
-			weights: googleFont.weights,
 			document,
 		}).catch(() => undefined);
 		loadGoogleFontForPickerPreview({
