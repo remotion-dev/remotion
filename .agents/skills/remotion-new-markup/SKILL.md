@@ -28,6 +28,17 @@ premount behavior. Account for any timing already on the child; do not overwrite
 it or apply offsets twice. Preserve the distinction between the component's
 local frame and animation expressions evaluated in its parent.
 
+## Group related items on the same timeline row
+
+Use `<Track>` or `<TransitionSeries>` for items that logically belong on the
+same row in the Studio timeline, such as successive scenes or clips in the
+same content layer.
+
+Use `<Track>` for items with their own timing that do not overlap. Use
+`<TransitionSeries>` for sequential scenes with transitions between them;
+it automatically places its scenes on the same timeline row. Keep unrelated
+content layers on separate rows.
+
 ## Use a managed full-size layout
 
 Discourage `<AbsoluteFill>` as a scene or component wrapper. It often creates
