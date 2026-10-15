@@ -2,9 +2,13 @@
 title: Recovering from asset errors
 ---
 
+# Recovering from asset errors<AvailableFrom v="4.0.536" />
+
 `<Img>` (`onImageError`), `<CanvasImage>`, `<AnimatedImage>`, `<Gif>`, and the `@remotion/media` `<Video>` and `<Audio>` components accept asynchronous error handlers.
 
 Use these callbacks when recovery requires an asynchronous operation, such as refreshing an expired URL. Remotion keeps the failed asset's render hold pending while the callback is running. You do not need to call `delayRender()`, `continueRender()`, or `cancelRender()` inside the callback.
+
+The `MediaErrorHandler` type exported from `remotion` describes this callback.
 
 ## Handler results
 
@@ -13,7 +17,9 @@ Use these callbacks when recovery requires an asynchronous operation, such as re
 - Throw an `Error`, or reject the returned promise, to fail with a replacement error. You can attach the original error using `cause`.
 - Video and audio also accept `'fallback'` to request their existing decoder fallback. This remains unavailable during browser rendering. Images do not have this decoder-fallback action.
 
-A result from an old source is ignored after that source is replaced or its component unmounts. The replacement asset has its own loading lifecycle: finishing the old callback does not mark the new source as loaded.
+A result from an old source is ignored after that source is replaced or its component unmounts. An explicit `'handled'` result keeps the hold pending until React commits the source replacement or unmount, including updates scheduled with `startTransition()`. Returning `'handled'` without replacing or removing the asset leaves rendering waiting.
+
+The replacement asset has its own loading lifecycle: finishing the old callback does not mark the new source as loaded.
 
 ## Replace a failed image
 

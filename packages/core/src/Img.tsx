@@ -34,10 +34,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
-import {
-	useErrorRecoveryCommit,
-	type MediaErrorHandler,
-} from './media-error-handler.js';
+import type {MediaErrorHandler} from './media-error-handler.js';
 import {usePreload} from './prefetch.js';
 import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {SequenceContent} from './sequence-activity-context.js';
@@ -121,7 +118,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
-	const commitRecovery = useErrorRecoveryCommit();
 	const pendingLoad = useRef<{
 		handle: number;
 		cancelled: boolean;
@@ -224,23 +220,10 @@ const ImgContent: React.FC<ImgContentProps> = ({
 						: undefined,
 				isCancelled: () => request.cancelled,
 				cancelRender,
-				onHandled: () =>
-					commitRecovery(() => {
-						if (request.cancelled) return;
-						setIsLoading(false);
-						continueRender(request.handle);
-					}),
+				onHandled: null,
 			});
 		},
-		[
-			cancelRender,
-			continueRender,
-			commitRecovery,
-			maxRetries,
-			onError,
-			onImageError,
-			retryIn,
-		],
+		[cancelRender, maxRetries, onError, onImageError, retryIn],
 	);
 
 	if (typeof window !== 'undefined') {

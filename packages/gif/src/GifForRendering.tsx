@@ -121,7 +121,7 @@ export const GifForRendering = forwardRef<
 						if (currentOnError.current)
 							Internals.cancelRenderFromAsync(cancelRender, result.error);
 						else setError(result.error);
-					} else
+					} else if (result.isDefaultAction)
 						commitRecovery(() => {
 							if (!aborted) continueRender(newHandle);
 						});

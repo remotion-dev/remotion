@@ -64,7 +64,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const {fps} = videoConfig;
 
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
-	const commitRecovery = Internals.useErrorRecoveryCommit();
 	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
 	const [initialRequestInit] = useState(requestInit);
 
@@ -155,13 +154,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						clientSideError,
 					});
 					if (cancelled || mediaCache.isDisposed()) return;
-					if (action === 'handled') {
-						commitRecovery(() => {
-							if (!cancelled && !mediaCache.isDisposed())
-								continueRender(newHandle);
-						});
-						return;
-					}
+					// The source effect releases its hold when recovery commits.
+					if (action === 'handled') return;
 
 					if (action === 'fail') {
 						cancelRender(errorToUse);
@@ -289,7 +283,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		sampleRate,
 		absoluteFrame,
 		continueRender,
-		commitRecovery,
 		cancelRender,
 		delayRender,
 		delayRenderRetries,

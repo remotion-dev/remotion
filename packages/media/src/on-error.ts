@@ -24,7 +24,10 @@ export const callOnErrorAndResolve = async ({
 		error,
 		defaultAction: disallowFallback ? 'fail' : 'fallback',
 	});
-	if (result.action === 'handled' || result.action === 'fail')
+	if (
+		result.action === 'handled' ||
+		(result.action === 'fail' && !result.isDefaultAction)
+	)
 		return [result.action, result.error];
 
 	if (isClientSideRendering) {
@@ -32,5 +35,5 @@ export const callOnErrorAndResolve = async ({
 		return ['fail', clientSideError];
 	}
 
-	return ['fallback', result.error];
+	return [result.action, result.error];
 };

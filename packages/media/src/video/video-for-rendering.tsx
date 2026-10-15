@@ -132,7 +132,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	const environment = useRemotionEnvironment();
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
-	const commitRecovery = Internals.useErrorRecoveryCommit();
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
@@ -231,13 +230,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					});
 
 					if (cancelled || mediaCache.isDisposed()) return;
-					if (action === 'handled') {
-						commitRecovery(() => {
-							if (!cancelled && !mediaCache.isDisposed())
-								continueRender(newHandle);
-						});
-						return;
-					}
+					// The source effect releases its hold when recovery commits.
+					if (action === 'handled') return;
 
 					if (action === 'fail') {
 						cancelRender(errorToUse);
@@ -306,12 +300,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						defaultAction: 'fail',
 					});
 					if (cancelled || mediaCache.isDisposed()) return;
-					if (decision.action === 'handled')
-						commitRecovery(() => {
-							if (!cancelled && !mediaCache.isDisposed())
-								continueRender(newHandle);
-						});
-					else cancelRender(decision.error);
+					if (decision.action !== 'handled') cancelRender(decision.error);
 					return;
 				}
 
@@ -451,7 +440,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		sampleRate,
 		absoluteFrame,
 		continueRender,
-		commitRecovery,
 		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,

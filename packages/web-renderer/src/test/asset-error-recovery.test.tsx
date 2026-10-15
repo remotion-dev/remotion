@@ -1,6 +1,11 @@
 import {Gif} from '@remotion/gif';
 import {Audio, Video} from '@remotion/media';
-import React, {useLayoutEffect, useState} from 'react';
+import React, {
+	startTransition,
+	Suspense,
+	useLayoutEffect,
+	useState,
+} from 'react';
 import {
 	AnimatedImage,
 	CanvasImage,
@@ -123,7 +128,7 @@ for (const kind of Object.keys(assets) as (keyof typeof assets)[]) {
 }
 
 test.each(['image', 'canvas'] as const)(
-	'%s renders the replacement source after async recovery',
+	'%s waits for a suspended recovery transition before rendering the replacement',
 	async (kind) => {
 		const src = URL.createObjectURL(new Blob(['invalid image']));
 		const canvas = document.createElement('canvas');
@@ -135,20 +140,31 @@ test.each(['image', 'canvas'] as const)(
 		const replacement = canvas.toDataURL();
 		const entered = withResolvers<void>();
 		const decision = withResolvers<void>();
+		const transitioning = withResolvers<void>();
+		const replacementReady = withResolvers<void>();
+		let ready = false;
 		let settled = false;
 		const Component = () => {
 			const [current, setCurrent] = useState(src);
+			if (current === replacement && !ready) {
+				transitioning.resolve();
+				throw replacementReady.promise;
+			}
 			return assets[kind](current, async () => {
 				entered.resolve();
 				await decision.promise;
-				setCurrent(replacement);
+				startTransition(() => setCurrent(replacement));
 				return 'handled' as const;
 			});
 		};
 
 		const rendering = renderStillOnWeb({
 			frame: 0,
-			composition: composition(Component),
+			composition: composition(() => (
+				<Suspense fallback={null}>
+					<Component />
+				</Suspense>
+			)),
 			inputProps: {},
 			licenseKey: 'free-license',
 		});
@@ -159,6 +175,13 @@ test.each(['image', 'canvas'] as const)(
 			await entered.promise;
 			expect(settled).toBe(false);
 			decision.resolve();
+			await transitioning.promise;
+			await new Promise<void>((resolve) =>
+				requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+			);
+			expect(settled).toBe(false);
+			ready = true;
+			replacementReady.resolve();
 			const result = await outcome;
 			const bitmap = await createImageBitmap(await result.blob());
 			ctx.drawImage(bitmap, 0, 0);
@@ -167,6 +190,8 @@ test.each(['image', 'canvas'] as const)(
 				0, 255, 0, 255,
 			]);
 		} finally {
+			ready = true;
+			replacementReady.resolve();
 			decision.resolve();
 			URL.revokeObjectURL(src);
 		}

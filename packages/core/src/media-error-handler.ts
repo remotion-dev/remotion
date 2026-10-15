@@ -15,13 +15,22 @@ export const resolveMediaError = async <Action extends string>({
 	onError: MediaErrorHandler<Action> | undefined;
 	error: Error;
 	defaultAction: Action;
-}): Promise<{action: Action | 'fail'; error: Error}> => {
+}): Promise<{
+	action: Action | 'fail';
+	error: Error;
+	isDefaultAction: boolean;
+}> => {
 	try {
 		const action = await onError?.(error);
-		return {action: action ?? defaultAction, error};
+		return {
+			action: action ?? defaultAction,
+			error,
+			isDefaultAction: action === undefined,
+		};
 	} catch (cause) {
 		return {
 			action: 'fail',
+			isDefaultAction: false,
 			error: cause instanceof Error ? cause : new Error(String(cause), {cause}),
 		};
 	}
@@ -40,9 +49,9 @@ export const cancelRenderFromAsync = (
 	}
 };
 
-// A handler may set the replacement source immediately before resolving. Let
-// React commit that source (and its own loading hold) before releasing the old
-// hold. The caller must recheck its source lifetime in the callback.
+// Preserve legacy void-handler behavior by releasing after a commit. Explicit
+// handled decisions instead keep the hold until the source effect cleans up,
+// including when a replacement transition suspends.
 export const useErrorRecoveryCommit = () => {
 	const [callbacks, setCallbacks] = useState<Array<() => void>>([]);
 	useLayoutEffect(() => {

@@ -351,6 +351,15 @@ export const articles = [
 		slug: 'artifacts',
 	},
 	{
+		id: 'asset-error-handling',
+		title: 'Recovering from asset errors',
+		relativePath: 'docs/asset-error-handling.mdx',
+		compId: 'articles-docs-asset-error-handling',
+		crumb: null,
+		noAi: false,
+		slug: 'asset-error-handling',
+	},
+	{
 		id: 'get-help',
 		title: 'Get help',
 		relativePath: 'docs/ask-for-help.mdx',
