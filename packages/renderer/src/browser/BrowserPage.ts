@@ -449,13 +449,14 @@ export class Page extends EventEmitter {
 					mobile: false,
 					width: viewport.width,
 					height: viewport.height,
-					deviceScaleFactor: 1,
+					deviceScaleFactor: viewport.deviceScaleFactor,
 					screenHeight: viewport.height,
 					screenWidth: viewport.width,
-					scale: viewport.deviceScaleFactor,
+					// Scale through pixel density instead of enlarging the rasterized view.
+					scale: 1,
 					viewport: {
-						height: viewport.height * viewport.deviceScaleFactor,
-						width: viewport.width * viewport.deviceScaleFactor,
+						height: viewport.height,
+						width: viewport.width,
 						scale: 1,
 						x: 0,
 						y: 0,
