@@ -4,7 +4,7 @@ Use this structure for new compositions: a named `Track`, directly timed scene
 instances, and connected compositions made with `Interactive.create()`. Set
 `layout` explicitly: `'absolute-fill'` for scenes, `'none'` for bounded elements.
 
-## 1. A bounded element: `layout: 'none'`
+## Make components interactive with `Interactive.create()`
 
 Forward `style` to a plain root. The custom component already owns its timeline row.
 
@@ -13,24 +13,24 @@ import type React from 'react';
 import {Interactive} from 'remotion';
 
 const TitleInner = ({
-  text,
+  children,
   style,
 }: {
-  readonly text: string;
+  readonly children: React.ReactNode;
   readonly style?: React.CSSProperties;
-}) => <h1 style={{margin: 0, ...style}}>{text}</h1>;
+}) => <h1 style={{margin: 0, ...style}}>{children}</h1>;
 
 export const Title = Interactive.create({
   Component: TitleInner,
   layout: 'none',
   schema: {
     ...Interactive.textSchema,
-    text: {type: 'string', default: '', description: 'Text'},
+    ...Interactive.childrenSchema,
   },
 });
 ```
 
-## 2. A scene: `layout: 'absolute-fill'`
+## 2. Make scenes interactive: `layout: 'absolute-fill'`
 
 Return a fragment. Put the background and alignment on the scene instance.
 The managed root handles `style`, `width`, and `height`; do not forward them inside.
@@ -43,14 +43,15 @@ const ChapterInner = ({title}: {readonly title: string}) => (
   <>
     <Title
       name="Chapter title"
-      text={title}
       style={{
         color: 'white',
         fontFamily: 'Arial, sans-serif',
         fontSize: 96,
         fontWeight: 700,
       }}
-    />
+    >
+      {title}
+    </Title>
   </>
 );
 
@@ -64,9 +65,11 @@ export const Chapter = Interactive.create({
 });
 ```
 
-## 3. The parent: `Track` + direct timing
+## 3. Parent: Group items on a `Track`
 
-Write each instance separately, with inline names, timing, props, and styles.
+- Use a `<Track>` to put items on the same timeline row.
+- If items are strictly sequential, use a [`TransitionSeries`](../remotion-markup/transitions.md) instead.
+
 Do not add `Sequence` or `AbsoluteFill` wrappers.
 
 ```tsx title="MyVideo.tsx"
@@ -152,7 +155,7 @@ export const RemotionRoot = () => (
         fps={30}
         durationInFrames={90}
         defaultProps={{
-          text: 'Introduction',
+          children: 'Introduction',
           style: {
             color: 'white',
             fontFamily: 'Arial, sans-serif',
@@ -165,13 +168,3 @@ export const RemotionRoot = () => (
   </>
 );
 ```
-
-Double-click a chapter in the parent timeline to edit its connected composition.
-
-For overlapping scene transitions, replace `Track` with
-[`TransitionSeries`](../remotion-markup/transitions.md) and keep its specialized
-sequence boundaries. Use plain HTML for layout-only masks and panels.
-
-When refactoring, preserve timing and premounting. Match clipping, flex direction,
-positioning, and paint order; managed roots clip by default. Compare representative
-frames and open each connected composition on its own.

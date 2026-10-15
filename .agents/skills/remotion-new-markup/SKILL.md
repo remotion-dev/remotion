@@ -7,7 +7,7 @@ description: Write or refactor Remotion markup with Track, connected composition
 
 Follow the complete [Track + connected compositions example](../../../packages/skills/skills/remotion-interactivity/timeline-structure.md).
 
-- Put successive scenes in a named `Track`, with `from` and `durationInFrames` directly on each instance.
+- Put successive scenes in a named `<Track>`, with `from` and `durationInFrames` directly on each instance. Items in a `<Track>` MUST not overlap.
 - Create scenes with `Interactive.create({layout: 'absolute-fill'})`; return a fragment inside and put instance styles on the exported component.
 - Create bounded elements with `Interactive.create({layout: 'none'})`; forward `style` to a plain root.
 - Register the same exported scene and reusable element components as connected compositions, with inline metadata and representative `defaultProps`.

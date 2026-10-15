@@ -15,10 +15,9 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Prefer interactive components with their own timelines
 
-Build new compositions with `Track`, connected compositions, and
-`Interactive.create()`. Set `layout` explicitly to `'absolute-fill'` for scenes
-or `'none'` for bounded elements. Register the same exported scene and reusable
-element components with `Composition`.
+Build new compositions with `Track`, connected compositions, and `Interactive.create()`.
+
+Set `layout` explicitly to `'absolute-fill'` for scenes or `'none'` for bounded elements. Register the same exported scene and reusable element components with `Composition`.
 
 Start with the complete [Track + connected compositions example](timeline-structure.md).
 It includes the element, scene, parent timeline, and root registrations.
@@ -32,8 +31,17 @@ export const MyVideo = () => {
 
   return (
     <Track name="Chapters">
-      <Chapter name="Opening" durationInFrames={3 * fps} title="Introduction" />
-      <Chapter name="Feature" from={3 * fps} durationInFrames={4 * fps} title="New features" />
+      <Chapter
+        name="Opening"
+        durationInFrames={3 * fps}
+        title="Introduction"
+      />
+      <Chapter
+        name="Feature"
+        from={3 * fps}
+        durationInFrames={4 * fps}
+        title="New features"
+      />
     </Track>
   );
 };
@@ -153,16 +161,12 @@ props. Built-in interactive components and custom components made with
 />
 ```
 
-When removing a redundant sequence, move its timing and name to the child.
-Preserve any existing child timing; do not overwrite or double-apply offsets.
-A `useCurrentFrame()` call inside the component reads its local frame, while a
-style expression at the call site still uses the caller's frame. Preserve that
-distinction when moving animation styles.
-
 For shared scene timing, group the content in a component made with
 `Interactive.create()` and time that instance. Managed roots also accept
-`width` and `height` for `useVideoConfig()`. Use `Track` for successive scenes;
-keep `<TransitionSeries.Sequence>` when using `TransitionSeries` for transitions.
+`width` and `height` for `useVideoConfig()`.
+
+Use `<Track>` to put items on the same Studio timeline row.
+Use `<TransitionSeries>` when scenes are sequential.
 
 ## Give every independently editable item its own JSX node
 
