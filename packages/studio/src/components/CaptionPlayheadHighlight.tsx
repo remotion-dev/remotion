@@ -97,9 +97,12 @@ export const CaptionPlayheadHighlight: React.FC<{
 		const index = captions.findIndex(
 			(caption) => caption.startMs <= timeMs && caption.endMs > timeMs,
 		);
+		// Selecting an inspector property must not resume caption scrolling.
 		const isSuspended =
 			suspended.current?.seekRevision === seekRevision &&
-			suspended.current.selectedItems === selectedItems;
+			(suspended.current.selectedItems === selectedItems ||
+				selectedItems.length !== 1 ||
+				selectedItems[0].type !== 'sequence');
 		const shouldResume = suspended.current !== null && !isSuspended;
 		if (
 			highlighted.current?.index === index &&

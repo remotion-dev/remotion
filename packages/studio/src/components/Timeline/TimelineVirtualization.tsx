@@ -83,12 +83,12 @@ export const TimelineVirtualizationProvider: React.FC<{
 	});
 	const trackHeights = useMemo(
 		() =>
-			timeline.map((row, index) =>
-				row.items === null
-					? individualHeights[index]
-					: TIMELINE_PACKED_TRACK_HEIGHT +
-						TIMELINE_ITEM_BORDER_BOTTOM +
-						row.auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
+			timeline.map(
+				(row, index) =>
+					(row.items === null
+						? individualHeights[index]
+						: TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM) +
+					row.auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 			),
 		[individualHeights, timeline],
 	);
@@ -110,7 +110,10 @@ export const TimelineVirtualizationProvider: React.FC<{
 		});
 
 		const rows = timeline.map(
-			({track, items, auxiliaryRows}, index): TimelineVirtualRow => {
+			(
+				{track, items, childScenes, auxiliaryRows},
+				index,
+			): TimelineVirtualRow => {
 				const afterDropLineOffset = seriesLayout.afterDropLineOffsets[index];
 				const auxiliaryRowOffsets = seriesLayout.auxiliaryRowOffsets[index];
 				const siblingIndex = seriesLayout.siblingIndexes[index];
@@ -125,6 +128,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 				if (
 					previous?.track === track &&
 					previous.items === items &&
+					previous.childScenes === childScenes &&
 					previous.auxiliaryRows === auxiliaryRows &&
 					previous.auxiliaryRowOffsets.length === auxiliaryRowOffsets.length &&
 					previous.auxiliaryRowOffsets.every(
@@ -136,8 +140,12 @@ export const TimelineVirtualizationProvider: React.FC<{
 					previous.sceneGroupId === sceneGroupId &&
 					previous.sceneRange?.from === sceneRange?.from &&
 					previous.sceneRange?.end === sceneRange?.end &&
-					previous.sceneRange?.fadeInEnd === sceneRange?.fadeInEnd &&
-					previous.sceneRange?.fadeOutStart === sceneRange?.fadeOutStart
+					previous.sceneRange?.activeFrom === sceneRange?.activeFrom &&
+					previous.sceneRange?.activeEnd === sceneRange?.activeEnd &&
+					previous.sceneRange?.transitionInEnd ===
+						sceneRange?.transitionInEnd &&
+					previous.sceneRange?.transitionOutStart ===
+						sceneRange?.transitionOutStart
 				) {
 					return previous;
 				}
@@ -148,6 +156,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 					siblingIndex,
 					track,
 					items,
+					childScenes,
 					auxiliaryRows,
 					sceneRange,
 					sceneGroupId,

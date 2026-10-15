@@ -284,7 +284,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 			forcePathStyle,
 			requestHandler,
 		}).catch((err) => {
-			if (err instanceof OutputFileAccessDeniedError) {
+			if (OutputFileAccessDeniedError.isInstance(err)) {
 				// Recovery is optional; normal progress remains authoritative.
 				return null;
 			}

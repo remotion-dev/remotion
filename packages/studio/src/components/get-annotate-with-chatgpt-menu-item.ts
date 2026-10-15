@@ -6,12 +6,12 @@ export const getAnnotateWithChatGPTMenuItems = ({
 	id,
 	getTarget,
 	initialComment,
-	metadata,
+	getMetadata,
 }: {
 	readonly id: string;
 	readonly getTarget: () => Element | null;
 	readonly initialComment: string | null;
-	readonly metadata: Record<string, string | number>;
+	readonly getMetadata: () => Record<string, string | number>;
 }): ComboboxValue[] => {
 	if (window.remotion_isReadOnlyStudio || getCodexAnnotation() === null) {
 		return [];
@@ -26,7 +26,11 @@ export const getAnnotateWithChatGPTMenuItems = ({
 			leftItem: null,
 			disabled: false,
 			onClick: () => {
-				requestCodexAnnotation({target: getTarget(), initialComment, metadata});
+				requestCodexAnnotation({
+					target: getTarget(),
+					initialComment,
+					metadata: getMetadata(),
+				});
 			},
 			quickSwitcherLabel: null,
 			subMenu: null,

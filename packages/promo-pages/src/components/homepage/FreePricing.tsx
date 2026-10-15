@@ -158,7 +158,7 @@ export const EnterpriseLicense: React.FC = () => {
 					<Audience>For advanced needs</Audience>
 					<Title>Enterprise License</Title>
 					<PricingBulletPoint text="Everything in Company License" checked />
-					<PricingBulletPoint text="Private Slack or Discord" checked />
+					<PricingBulletPoint text="Private Slack, Discord, or Teams" checked />
 					<PricingBulletPoint text="Monthly consulting session" checked />
 					<PricingBulletPoint
 						text="Custom terms, billing and pricing"

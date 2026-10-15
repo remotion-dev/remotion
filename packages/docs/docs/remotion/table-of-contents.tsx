@@ -140,6 +140,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<Still>'}</strong>
 					<div>Define a still</div>
 				</TOCItem>
+				<TOCItem link="/docs/track">
+					<strong>{'<Track>'}</strong>
+					<div>Group clips on one Studio timeline row</div>
+				</TOCItem>
 				<TOCItem link="/docs/use-current-frame">
 					<strong>useCurrentFrame()</strong>
 					<div>Obtain the current time</div>
@@ -152,9 +156,9 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'VERSION'}</strong>
 					<div>Get the current version of Remotion</div>
 				</TOCItem>
-				<TOCItem link="/docs/interactive-with-schema">
-					<strong>Interactive.withSchema()</strong>
-					<div>Expose component props as Studio timeline controls</div>
+				<TOCItem link="/docs/interactive-create">
+					<strong>Interactive.create()</strong>
+					<div>Add timing and Studio controls to a component</div>
 				</TOCItem>
 			</Grid>
 		</div>

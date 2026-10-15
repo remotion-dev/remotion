@@ -1,7 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
-version: 4.0.534
+version: 4.0.535
 ---
 
 By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:
@@ -15,28 +15,25 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Prefer interactive components with their own timelines
 
-Use `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, premounting, dimensions, and per-instance styles on the exported component.
+Use `Interactive.create({layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, dimensions, and per-instance styles on the exported component.
 
 Keep visuals that belong together in the same component, so they move and trim together. An inner layout container can still provide alignment, clipping within a smaller area, or an animated group; a container that only fills the scene is usually unnecessary. Cards, text boxes, and SVGs with their own bounds can keep the default `layout: 'none'` and forward `style` to their visual root.
 
 ```tsx title="Scene.tsx"
 import {Video} from '@remotion/media';
 import type React from 'react';
-import {Interactive, useVideoConfig, type InteractivitySchema} from 'remotion';
+import {Interactive, type InteractivitySchema} from 'remotion';
 
 type SceneProps = {
   readonly title: string;
 };
 
 const SceneInner: React.FC<SceneProps> = ({title}) => {
-  const {fps} = useVideoConfig();
-
   return (
     <>
       <Video
         name="Background footage"
         src="https://remotion.media/video.mp4"
-        premountFor={fps}
         objectFit="cover"
         style={{width: '100%', height: '100%'}}
       />
@@ -61,11 +58,9 @@ const sceneSchema = {
   title: {type: 'string', default: '', description: 'Title'},
 } as const satisfies InteractivitySchema;
 
-export const Scene = Interactive.withSchema({
+export const Scene = Interactive.create({
   Component: SceneInner,
-  componentName: 'Scene',
   schema: sceneSchema,
-  wrapInSequence: true,
   layout: 'absolute-fill',
 });
 ```
@@ -97,7 +92,7 @@ Every field needs a `default` and should have a `description`, which Studio show
 Set `keyframable: false` to show a static control.
 
 Expose content and per-instance appearance, such as the text and an accent color.
-Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `wrapInSequence: true` already adds them.
+Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `Interactive.create()` adds them automatically.
 
 To make CSS properties of the root editable per instance, spread the built-in schema fragments:
 
@@ -133,7 +128,7 @@ its parent. See
 
 Register the same exported component reference that the parent renders. For the
 example above, use `component={Scene}`, not `SceneInner` or an inline wrapper.
-With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
+`Interactive.create()` provides the sequence, so no extra `<Sequence>` is needed for the connection.
 
 ```tsx title="src/Root.tsx"
 import {Composition} from 'remotion';
@@ -164,15 +159,14 @@ registration and extraction details.
 
 Avoid a separate `<Sequence>` around one component that already accepts timing
 props. Built-in interactive components and custom components made with
-`wrapInSequence: true` can receive `name`, `from`, `durationInFrames`,
-`trimBefore`, `playbackRate`, and `premountFor` directly.
+`Interactive.create()` can receive `name`, `from`, `durationInFrames`,
+`trimBefore`, and `playbackRate` directly.
 
 ```tsx
 <Scene
   name="Opening scene"
   from={30}
   durationInFrames={90}
-  premountFor={fps}
   style={{opacity: 0.9}}
   title="A new perspective"
 />

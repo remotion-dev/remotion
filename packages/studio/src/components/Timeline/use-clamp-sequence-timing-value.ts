@@ -4,6 +4,7 @@ import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {getTimelineSequenceTimingLimits} from './get-timeline-sequence-timing-limits';
 
 export const useClampSequenceTimingValue = () => {
@@ -38,6 +39,15 @@ export const useClampSequenceTimingValue = () => {
 					sequences,
 					overrideIdsToNodePaths: mappingsRef.current,
 				});
+				const propStatuses =
+					fieldKey === 'from'
+						? propStatusesRef.current
+						: getKeyframeTrimConstraints({
+								propStatuses: propStatusesRef.current,
+								overrideIdsToNodePaths: mappingsRef.current,
+								sequences,
+								affectedNodePaths: [nodePath],
+							});
 				const matching = tracks.filter(
 					(track) =>
 						track.nodePathInfo &&
@@ -47,7 +57,7 @@ export const useClampSequenceTimingValue = () => {
 				);
 				for (const track of matching) {
 					const next = getTimelineSequenceTimingLimits({
-						propStatuses: propStatusesRef.current,
+						propStatuses,
 						movingSequenceIds: null,
 						track,
 						tracks,

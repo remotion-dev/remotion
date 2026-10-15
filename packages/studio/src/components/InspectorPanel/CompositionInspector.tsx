@@ -1,5 +1,4 @@
 import React, {
-	useCallback,
 	useContext,
 	useEffect,
 	useImperativeHandle,
@@ -9,23 +8,18 @@ import React, {
 	useState,
 } from 'react';
 import type {_InternalTypes} from 'remotion';
-import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {LIGHT_TEXT} from '../../helpers/colors';
-import {downloadBlob} from '../../helpers/download-blob';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {CloudDownloadIcon} from '../../icons/cloud-download';
+import {FontFileIcon} from '../../icons/font';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {SparklesIcon} from '../../icons/sparkles';
 import {FilmIcon} from '../../icons/video';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
-import {useConfirmationDialog} from '../ConfirmationDialog';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
-import {LicenseExplanation} from '../LicenseExplanation';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {showNotification} from '../Notifications/NotificationCenter';
 import {ObserveDefaultPropsContext} from '../ObserveDefaultPropsContext';
 import {
 	type DataEditorMode,
@@ -40,6 +34,7 @@ import type {UpdaterFunction} from '../RenderModal/SchemaEditor/ZodSwitch';
 import {WarningIndicatorButton} from '../RenderModal/WarningIndicatorButton';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {useDownloadProject} from '../use-download-project';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
 import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
 import {CollapsibleInspectorSectionHeader} from './CollapsibleInspectorSectionHeader';
@@ -66,94 +61,30 @@ import {
 import {useCompositionActions} from './use-composition-actions';
 import {useInspectorSectionExpanded} from './use-inspector-section-expanded';
 
-const downloadLicenseAgreement: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	lineHeight: 1.5,
-	marginBottom: 0,
-	marginTop: 20,
-};
-
-const downloadLicenseLink: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	lineHeight: '21px',
-};
-
 const CompositionActions: React.FC = () => {
 	const {
 		canInsertAsset,
 		canInsertComposition,
 		canInsertSolid,
+		canInsertText,
 		canShowInsertAsset,
 		canShowInsertComposition,
 		canShowInsertSolid,
+		canShowInsertText,
 		insertAsset,
 		insertComposition,
 		insertSolid,
+		insertText,
 		generateWithAgent,
 		canShowGenerateWithAgent,
 	} = useCompositionActions();
-	const downloadProject = getBrowserStudioOperations()?.downloadProject ?? null;
-	const confirm = useConfirmationDialog();
-
-	const onDownloadProject = useCallback(async () => {
-		if (downloadProject === null) {
-			return;
-		}
-
-		const accepted = await confirm({
-			title: 'Download project',
-			message: (
-				<>
-					<LicenseExplanation />
-					<p style={downloadLicenseAgreement}>
-						By downloading this project, you agree to comply with the{' '}
-						<a
-							href="https://remotion.dev/license"
-							rel="noopener noreferrer"
-							style={downloadLicenseLink}
-							target="_blank"
-						>
-							license
-						</a>
-						.
-					</p>
-				</>
-			),
-			confirmLabel: 'Accept and download',
-			cancelLabel: 'Cancel',
-		});
-		if (!accepted) {
-			return;
-		}
-
-		try {
-			const {data, fileName} = await downloadProject();
-			const arrayBuffer = data.buffer.slice(
-				data.byteOffset,
-				data.byteOffset + data.byteLength,
-			) as ArrayBuffer;
-			downloadBlob(
-				new Blob([arrayBuffer], {type: 'application/zip'}),
-				fileName,
-			);
-		} catch (error) {
-			showNotification(
-				`Could not download project: ${
-					error instanceof Error ? error.message : String(error)
-				}`,
-				2000,
-			);
-		}
-	}, [confirm, downloadProject]);
+	const downloadProject = useDownloadProject();
 
 	if (
 		!canShowInsertAsset &&
 		!canShowInsertComposition &&
 		!canShowInsertSolid &&
+		!canShowInsertText &&
 		!canShowGenerateWithAgent &&
 		downloadProject === null
 	) {
@@ -162,6 +93,7 @@ const CompositionActions: React.FC = () => {
 
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
 			collapsible
 			label="Actions"
 			sectionId="composition-actions"
@@ -176,6 +108,17 @@ const CompositionActions: React.FC = () => {
 						)}
 					>
 						Add Solid
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertText ? (
+					<InspectorQuickAction
+						disabled={!canInsertText}
+						onClick={insertText}
+						renderIcon={(color) => (
+							<FontFileIcon color={color} style={inspectorActionIconStyle} />
+						)}
+					>
+						Add text
 					</InspectorQuickAction>
 				) : null}
 				{canShowInsertAsset ? (
@@ -219,7 +162,7 @@ const CompositionActions: React.FC = () => {
 				{downloadProject ? (
 					<InspectorQuickAction
 						disabled={false}
-						onClick={onDownloadProject}
+						onClick={downloadProject}
 						renderIcon={(color) => (
 							<CloudDownloadIcon
 								color={color}
@@ -354,7 +297,7 @@ const CompositionDefaultPropsSection: React.FC<{
 					onToggle={() => setExpanded(!expanded)}
 				/>
 			</InspectorSectionHeader>
-			<InspectorSectionBody expanded={expanded}>
+			<InspectorSectionBody expanded={expanded} paddingBottom={8}>
 				{defaultPropsWarnings.length > 0 && showWarning ? (
 					<div style={defaultPropsWarningContainer}>
 						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
@@ -396,6 +339,7 @@ const CompositionVisualControlsSection: React.FC<{
 
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
 			collapsible
 			label="Visual Controls"
 			sectionId="composition-visual-controls"
@@ -418,6 +362,7 @@ export const CompositionInspector: React.FC<{
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
 				<CollapsibleInspectorSection
+					bodyPaddingBottom={8}
 					collapsible
 					label="Metadata"
 					sectionId="composition-metadata"

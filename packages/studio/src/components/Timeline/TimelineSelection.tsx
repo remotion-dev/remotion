@@ -465,6 +465,7 @@ type TimelineSelectionContextValue = {
 	readonly inspectorRevealRequest: TimelineSelectionRevealRequest | null;
 	readonly revealRequest: TimelineSelectionRevealRequest | null;
 	readonly consumeRevealRequest: (token: number) => void;
+	readonly consumeInspectorRevealRequest: (token: number) => void;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (
@@ -494,6 +495,7 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	inspectorRevealRequest: null,
 	revealRequest: null,
 	consumeRevealRequest: () => undefined,
+	consumeInspectorRevealRequest: () => undefined,
 	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
@@ -1189,6 +1191,11 @@ export const TimelineSelectionProvider: React.FC<{
 	const consumeRevealRequest = useCallback((token: number) => {
 		setRevealRequest((current) => (current?.token === token ? null : current));
 	}, []);
+	const consumeInspectorRevealRequest = useCallback((token: number) => {
+		setInspectorRevealRequest((current) =>
+			current?.token === token ? null : current,
+		);
+	}, []);
 	const requestRevealSelectionItemInInspector = useCallback(
 		(item: TimelineSelection) => {
 			inspectorRevealTokenCounter.current += 1;
@@ -1461,6 +1468,7 @@ export const TimelineSelectionProvider: React.FC<{
 			inspectorRevealRequest,
 			revealRequest,
 			consumeRevealRequest,
+			consumeInspectorRevealRequest,
 			selectedItems: availableSelectedItems,
 			isSelected,
 			selectItem,
@@ -1476,6 +1484,7 @@ export const TimelineSelectionProvider: React.FC<{
 			inspectorRevealRequest,
 			revealRequest,
 			consumeRevealRequest,
+			consumeInspectorRevealRequest,
 			availableSelectedItems,
 			isSelected,
 			selectItem,
@@ -1551,8 +1560,7 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, getMarqueeSelectionCandidates, selectedItems, selectItems} =
-		useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
@@ -1560,6 +1568,12 @@ export const useTimelineMarqueeSelection = () => {
 
 	const onPointerDownCapture = useCallback(
 		(event: React.PointerEvent<HTMLDivElement>) => {
+			const {
+				canSelect,
+				getMarqueeSelectionCandidates,
+				selectedItems,
+				selectItems,
+			} = currentSelection.current;
 			if (!isHighestContext) {
 				return;
 			}
@@ -1772,13 +1786,7 @@ export const useTimelineMarqueeSelection = () => {
 				},
 			});
 		},
-		[
-			canSelect,
-			getMarqueeSelectionCandidates,
-			isHighestContext,
-			selectedItems,
-			selectItems,
-		],
+		[currentSelection, isHighestContext],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
@@ -1871,6 +1879,46 @@ export const useTimelineRowSelection = (
 		selectionItem,
 		useSelectionOrder: true,
 	});
+};
+
+export const useIsPremountingSelected = (
+	nodePathInfo: SequenceNodePathInfo | null,
+): boolean => {
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useIsPremountingSelected must be used inside TimelineSelectionProvider',
+		);
+	}
+
+	const sequenceSelectionKey = useMemo(
+		() =>
+			nodePathInfo === null
+				? null
+				: getTimelineSequenceSelectionKey(nodePathInfo),
+		[nodePathInfo],
+	);
+	const getIsPremountingSelected = useCallback(() => {
+		if (sequenceSelectionKey === null) {
+			return false;
+		}
+
+		return selectionContext
+			.getSnapshot()
+			.selectedItems.some(
+				(item) =>
+					item.type === 'sequence-prop' &&
+					item.key === 'premountFor' &&
+					getTimelineSequenceSelectionKey(item.nodePathInfo) ===
+						sequenceSelectionKey,
+			);
+	}, [selectionContext, sequenceSelectionKey]);
+
+	return useSyncExternalStore(
+		selectionContext.subscribe,
+		getIsPremountingSelected,
+		getIsPremountingSelected,
+	);
 };
 
 const useTimelineSelectionItem = <

@@ -114,11 +114,8 @@ const BigWordPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 	);
 };
 
-const BigWordPage = Interactive.withSchema({
+const BigWordPage = Interactive.create({
 	Component: BigWordPageInner,
-	componentName: 'BigWordPage',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
@@ -200,10 +197,7 @@ const AnimatedCaptionsBigWordsInner: React.FC = () => {
 	);
 };
 
-export const AnimatedCaptionsBigWords = Interactive.withSchema({
+export const AnimatedCaptionsBigWords = Interactive.create({
 	Component: AnimatedCaptionsBigWordsInner,
-	componentName: 'AnimatedCaptionsBigWords',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

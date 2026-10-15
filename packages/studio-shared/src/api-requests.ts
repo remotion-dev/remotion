@@ -1063,7 +1063,6 @@ export type InsertBasicCaptionsRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	durationInFrames: number | null;
-	premountFor: number | null;
 	captions: {
 		text: string;
 		startMs: number;
@@ -1089,6 +1088,13 @@ export type ReplaceVideoSourceResponse =
 	| {success: false; reason: string; stack: string};
 
 export type InsertableCompositionElement =
+	| {
+			type: 'text';
+			text: string;
+			fontSize: number;
+			color: string;
+			position: InsertableCompositionElementPosition | null;
+	  }
 	| {
 			type: 'solid';
 			width: number;
@@ -1141,7 +1147,6 @@ export type InsertCompositionElementRequest = {
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
-	premountFor: number | null;
 };
 
 export type InsertCompositionElementResponse =
@@ -1223,7 +1228,6 @@ export type InsertElementRequest = {
 	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
-	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;

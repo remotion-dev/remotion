@@ -25,10 +25,7 @@ const Clip1Inner: React.FC = () => {
 	);
 };
 
-export const Clip1 = Interactive.withSchema({
+export const Clip1 = Interactive.create({
 	Component: Clip1Inner,
-	componentName: 'Clip1',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

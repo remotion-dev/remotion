@@ -30,8 +30,8 @@ const {
 export const SelectedOutlineKeyboardControls: React.FC<{
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
 }> = ({getAllDragTargets}) => {
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -207,7 +207,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				createCanvasOutlineTranslateSession(
 					getCanvasOutlineTranslateDragStates({
 						dragTargets: allDragTargets,
-						getDragOverrides,
+						getDragOverrides: dragOverridesRef.current.getDragOverrides,
 						timelinePosition: getCurrentFrame(),
 					}),
 				);
@@ -227,7 +227,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 		[
 			getAllDragTargets,
 			getCurrentFrame,
-			getDragOverrides,
+			dragOverridesRef,
 			seekWithArrowKey,
 			setDragOverrides,
 		],

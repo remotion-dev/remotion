@@ -47,11 +47,15 @@ export const requestFocusInspectorField = ({
 		serializeRegistryKey({fieldKey, nodePath}),
 	);
 
-	requestAnimationFrame(() => {
-		element?.scrollIntoView({block: 'center'});
-		element?.focus();
-		element?.select();
-	});
+	if (!element || !element.isConnected) {
+		return false;
+	}
+
+	// Called after the Inspector has mounted the requested field.
+	element.scrollIntoView({block: 'center'});
+	element.focus();
+	element.select();
+	return true;
 };
 
 export const registerCommitPendingInspectorField = ({

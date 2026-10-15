@@ -9,6 +9,7 @@ import {
 	VERSION,
 	compressInputProps,
 	getNeedsToUpload,
+	getSizeInBytes,
 	serializeOrThrow,
 } from '@remotion/serverless-client';
 import {awsImplementation} from './aws-provider';
@@ -65,8 +66,8 @@ export const getCompositionsOnLambda = async ({
 		needsToUpload: getNeedsToUpload({
 			type: 'video-or-audio',
 			sizes: [
-				stringifiedInputProps.length,
-				JSON.stringify(envVariables).length,
+				getSizeInBytes(stringifiedInputProps),
+				getSizeInBytes(JSON.stringify(envVariables ?? {})),
 			],
 			providerSpecifics: awsImplementation,
 		}),
@@ -85,7 +86,7 @@ export const getCompositionsOnLambda = async ({
 				type: ServerlessRoutines.compositions,
 				chromiumOptions: chromiumOptions ?? {},
 				serveUrl,
-				envVariables,
+				envVariables: envVariables ?? {},
 				inputProps: serializedInputProps,
 				logLevel: dumpBrowserLogs ? 'verbose' : (logLevel ?? 'info'),
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,

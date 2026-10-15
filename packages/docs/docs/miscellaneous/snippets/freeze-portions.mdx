@@ -28,11 +28,8 @@ const CounterInner: React.FC = () => {
   );
 };
 
-export const Counter = Interactive.withSchema({
+export const Counter = Interactive.create({
   Component: CounterInner,
-  componentName: 'Counter',
-  schema: {},
-  wrapInSequence: true,
   layout: 'absolute-fill',
 });
 

@@ -141,6 +141,7 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
 	showPremountingOption,
 	askAIOption,
 	publicLicenseKeyOption,
@@ -149,9 +150,7 @@ const {
 	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalTracksOption,
-	experimentalSequenceActivityOption,
-	experimentalSequenceActivityLimitOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -660,15 +659,8 @@ type FlatConfig = RemotionConfigObject &
 		 * Omitted actions use their default shortcut. Set an action to null to disable it.
 		 */
 		setKeyboardShortcuts: (shortcuts: StudioKeyboardShortcuts) => void;
-		/**
-		 * Enable experimental timeline tracks in the Remotion Studio.
-		 * @default false
-		 */
-		setExperimentalTracksEnabled: (enabled: boolean) => void;
-		/** Enable experimental Sequence Activity in Studio. Default: false. */
-		setExperimentalSequenceActivityEnabled: (enabled: boolean) => void;
-		/** Set the hidden Sequence Activity limit in Studio. Default: 20. */
-		setExperimentalSequenceActivityLimit: (limit: number) => void;
+		/** Set the hidden Sequence Activity limit in Studio. Default: Infinity. Set to 0 to disable. */
+		setSequenceActivityLimit: (limit: number) => void;
 		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
@@ -686,14 +678,19 @@ type FlatConfig = RemotionConfigObject &
 		setDefaultEditor: (editor: DefaultEditor) => void;
 		/**
 		 * Set the default premount duration in seconds in Remotion Studio.
-		 * Default: 0 in v4, 2 in v5.
+		 * Default: 2.
 		 */
 		setDefaultPremountInSeconds: (seconds: number) => void;
 		/**
 		 * Show premounting indicators in the Studio timeline.
-		 * @default true
+		 * @default false
 		 */
 		setShowPremounting: (show: boolean) => void;
+		/**
+		 * Show the current frame number inside sequence layers in the Studio timeline.
+		 * @default false
+		 */
+		setShowLayerFrameNumbers: (show: boolean) => void;
 		/**
 		 * Set the coding agent used by Remotion Studio.
 		 */
@@ -824,11 +821,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
-	setExperimentalTracksEnabled: experimentalTracksOption.setConfig,
-	setExperimentalSequenceActivityEnabled:
-		experimentalSequenceActivityOption.setConfig,
-	setExperimentalSequenceActivityLimit:
-		experimentalSequenceActivityLimitOption.setConfig,
+	setSequenceActivityLimit: sequenceActivityLimitOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
@@ -927,6 +920,7 @@ export const Config: FlatConfig = {
 	setDefaultEditor: defaultEditorOption.setConfig,
 	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
 	setShowPremounting: showPremountingOption.setConfig,
+	setShowLayerFrameNumbers: showLayerFrameNumbersOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,

@@ -3,12 +3,11 @@ import type {TimelineContextValue} from './TimelineContext.js';
 
 export {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
 
-// Internal Studio experiment. Hidden Activity trees register on commit, so the
-// experiment is disabled when the sequence manager falls back to effects.
+// Hidden Activity trees register on commit, so Sequence Activity is disabled
+// when the sequence manager falls back to effects.
 export const SequenceActivityContext = createContext(false);
 export const SequenceActivityDormantContext = createContext(false);
 export const SequenceActivitySettingsContext = createContext<{
-	readonly enabled: boolean;
 	readonly limit: number;
 } | null>(null);
 

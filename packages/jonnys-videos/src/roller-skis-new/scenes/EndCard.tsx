@@ -130,10 +130,7 @@ const EndCardInner: React.FC = () => {
 	);
 };
 
-export const EndCard = Interactive.withSchema({
+export const EndCard = Interactive.create({
 	Component: EndCardInner,
-	componentName: 'EndCard',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

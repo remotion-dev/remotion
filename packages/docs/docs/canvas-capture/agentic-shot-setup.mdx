@@ -1,0 +1,88 @@
+---
+image: /generated/articles-docs-canvas-capture-agentic-shot-setup.png
+title: Agentic shot setup
+---
+
+# Agentic shot setup
+
+Canvas Capture exposes [WebMCP tools](/docs/ai/webmcp) for framing a shot, checking a still preview, and saving a completed recording.
+You start and stop recording manually and perform the interaction yourself, keeping cursor movement natural.
+
+## Set up a shot
+
+1. [Install Canvas Capture](/docs/canvas-capture/installation) and open the webpage in a browser with an agent that supports WebMCP.
+2. Click the Canvas Capture extension icon to expose the shot tools in that tab.
+3. Ask the agent to prepare the page, scroll to the subject, frame the shot, and inspect a preview.
+4. Click Record, perform the interaction, then click Stop recording.
+5. Download the recording yourself or ask the agent to save it.
+
+For example:
+
+> Prepare a shot of the pricing card with 40px padding and a 1920×1080 output bounding box. Show me a still preview. Leave it ready for me to record opening the dropdown.
+
+The agent sets the browser viewport and prepares the page through its browser controls. Canvas Capture handles the crop and output resolution.
+After reloading or navigating to another page, click the extension icon again to expose the tools.
+
+## Tools
+
+### `setup_shot`
+
+Sets the capture area, output bounding resolution, and format. The crop is resolved once in viewport CSS pixels and stays fixed during recording. It does not follow the selected element.
+
+#### `target`
+
+Use `{type: "viewport"}` for the current viewport, `{type: "element", selector: "#pricing-card", padding: 40}` for an element, or `{type: "rectangle", left: 100, top: 80, width: 800, height: 450}` for an exact rectangle.
+
+An element selector must match exactly one visible element fully inside the viewport. Scroll into position before setting up the shot. Padding defaults to `0` and is clipped at the viewport edges.
+Rectangles must be at least 10×10 CSS pixels and entirely inside the viewport.
+
+#### `resolution?`
+
+An output bounding box in pixels, defaulting to `{width: 2560, height: 1440}`. The crop fits inside this box while preserving its aspect ratio, with scale capped at 30×. Encoded dimensions are rounded down to even numbers.
+For example, a square crop with a 1920×1080 bounding box produces a 1080×1080 recording.
+
+#### `format?`
+
+Use `"mp4"` for H.264 MP4 or `"webm"` for VP9 WebM. When omitted, Canvas Capture prefers MP4 and falls back to WebM if necessary.
+An explicit format never falls back; check encoder readiness before recording.
+
+```json title="Example setup_shot input"
+{
+  "target": {
+    "type": "element",
+    "selector": "#pricing-card",
+    "padding": 40
+  },
+  "resolution": {"width": 1920, "height": 1080},
+  "format": "mp4"
+}
+```
+
+### `get_shot`
+
+Returns the crop, viewport size, output dimensions, format, scale, encoder readiness, and recording state.
+Recording is ready when `supported` is `true`, `encoderSupport` is `"supported"`, and a target is selected.
+
+#### `preview?`
+
+Set to `true` to include a PNG still preview. Defaults to `false`.
+The preview uses the capture renderer and excludes the extension controls. It temporarily wraps the page contents for rendering and restores them afterward, without creating a recording.
+Finish an active recording or selection before requesting a preview.
+
+### `save_recording`
+
+Saves a completed recording. Stop recording manually and wait for finalization before calling it.
+
+#### `destination`
+
+Use `"download"` to save the original file, `"new"` to open it in [Remotion Browser Studio](https://www.remotion.dev/new), or `"convert"` to inspect it in [Remotion Convert](https://www.remotion.dev/convert).
+
+## Browser support
+
+Shot tools require a WebMCP-aware agent and a browser exposing the WebMCP imperative API. See [Chrome's WebMCP documentation](https://developer.chrome.com/docs/ai/agents) for current support.
+Manual capture controls remain available when WebMCP is unavailable.
+
+## See also
+
+- [Install Canvas Capture](/docs/canvas-capture/installation)
+- [WebMCP](/docs/ai/webmcp)

@@ -910,10 +910,7 @@ const OfficeInner: React.FC = () => {
 	);
 };
 
-export const Office = Interactive.withSchema({
+export const Office = Interactive.create({
 	Component: OfficeInner,
-	componentName: 'Office',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

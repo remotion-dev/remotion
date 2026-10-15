@@ -128,6 +128,7 @@ export const MultiSequenceInspector: React.FC<{
 				displayName: track?.sequence.displayName ?? null,
 				line: null,
 				singleChildComponent: track?.sequence.singleChildComponent ?? null,
+				isTransition: track?.sequence.timelineTrack?.role === 'transition',
 			};
 		});
 	}, [overrideIdToNodePathMappings, selections, sequences]);
@@ -221,6 +222,7 @@ export const MultiSequenceInspector: React.FC<{
 						return groupedFields.length === 0 ? null : (
 							<CollapsibleInspectorSection
 								key={group.id}
+								bodyPaddingBottom={8}
 								collapsible
 								label={group.label}
 								sectionId={`multi-sequence-${group.id}`}
@@ -242,6 +244,7 @@ export const MultiSequenceInspector: React.FC<{
 				</TimelineRowLayoutContext.Provider>
 			)}
 			<CollapsibleInspectorSection
+				bodyPaddingBottom={8}
 				collapsible
 				label="Actions"
 				sectionId="multi-sequence-actions"

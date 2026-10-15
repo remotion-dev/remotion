@@ -4044,50 +4044,32 @@ const RollerSkiRoughCutInner: React.FC = () => {
 	);
 };
 
-const OpeningTitleCard = Interactive.withSchema({
+const OpeningTitleCard = Interactive.create({
 	Component: OpeningTitleCardInner,
-	componentName: 'OpeningTitleCard',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
-const PresenterZoom = Interactive.withSchema({
+const PresenterZoom = Interactive.create({
 	Component: PresenterZoomInner,
-	componentName: 'PresenterZoom',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
-const TvColorBars = Interactive.withSchema({
+const TvColorBars = Interactive.create({
 	Component: TvColorBarsInner,
-	componentName: 'TvColorBars',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
-const StravaRidesBroll = Interactive.withSchema({
+const StravaRidesBroll = Interactive.create({
 	Component: StravaRidesBrollInner,
-	componentName: 'StravaRidesBroll',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
-export const PresenterIntroduction = Interactive.withSchema({
+export const PresenterIntroduction = Interactive.create({
 	Component: PresenterIntroductionInner,
-	componentName: 'PresenterIntroduction',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
-const RollerSkiRoughCut = Interactive.withSchema({
+const RollerSkiRoughCut = Interactive.create({
 	Component: RollerSkiRoughCutInner,
-	componentName: 'RollerSkiRoughCut',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

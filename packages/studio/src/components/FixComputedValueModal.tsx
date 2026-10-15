@@ -9,6 +9,7 @@ import React, {
 import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
 import {OpenInEditor} from '../error-overlay/remotion-overlay/OpenInEditor';
 import {StackElement} from '../error-overlay/remotion-overlay/StackFrame';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {getCodexAnnotation} from '../helpers/get-codex-annotation';
@@ -22,6 +23,7 @@ import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {useSettings} from './SettingsContext';
 import {useEditorOpening} from './use-default-editor-info';
+import {useDownloadProject} from './use-download-project';
 
 const panelStyle: React.CSSProperties = {
 	borderRadius: 6,
@@ -98,7 +100,10 @@ export const FixComputedValueModal: React.FC<{
 			? `${sourcePreview.stack.originalFileName}:${sourcePreview.stack.originalLineNumber}:${sourcePreview.stack.originalColumnNumber}`
 			: `${state.location.source}:${state.location.line}:${state.location.column}`;
 	const promptDetails = ` ${promptLocation} make "${state.prop}" interactive`;
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const downloadProject = useDownloadProject();
 	const canAnnotate =
+		!isBrowserStudio &&
 		sourcePreview.type === 'loaded' &&
 		!window.remotion_isReadOnlyStudio &&
 		getCodexAnnotation() !== null;
@@ -202,18 +207,35 @@ export const FixComputedValueModal: React.FC<{
 							: `Could not load code preview: ${sourcePreview.message}`}
 					</div>
 				)}
-				<AgentPrompt
-					action={
-						canAnnotate ? (
-							<ModalButton size="compact" onClick={onSendToChatGPT}>
-								Send to ChatGPT
-							</ModalButton>
-						) : null
-					}
-					availableText="Use this prompt to make this value editable:"
-					promptDetails={promptDetails}
-					skillId="remotion-interactivity"
-				/>
+				{isBrowserStudio ? (
+					<>
+						<div style={text}>
+							This value requires a code change to become editable. Code editing
+							and agent-assisted refactoring are unavailable in
+							remotion.dev/new. Download the project to continue locally.
+						</div>
+						{downloadProject ? (
+							<div style={{marginTop: 16}}>
+								<ModalButton onClick={downloadProject}>
+									Download project
+								</ModalButton>
+							</div>
+						) : null}
+					</>
+				) : (
+					<AgentPrompt
+						action={
+							canAnnotate ? (
+								<ModalButton size="compact" onClick={onSendToChatGPT}>
+									Send to ChatGPT
+								</ModalButton>
+							) : null
+						}
+						availableText="Use this prompt to make this value editable:"
+						promptDetails={promptDetails}
+						skillId="remotion-interactivity"
+					/>
+				)}
 			</div>
 		</DismissableModal>
 	);

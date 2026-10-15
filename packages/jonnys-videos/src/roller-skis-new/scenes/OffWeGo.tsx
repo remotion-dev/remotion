@@ -30,10 +30,7 @@ const OffWeGoInner: React.FC = () => {
 	);
 };
 
-export const OffWeGo = Interactive.withSchema({
+export const OffWeGo = Interactive.create({
 	Component: OffWeGoInner,
-	componentName: 'OffWeGo',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

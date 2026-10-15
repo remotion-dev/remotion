@@ -72,11 +72,9 @@ const countdownPageSchema = {
 	number: {type: 'string', default: '3', description: 'Number'},
 } as const satisfies InteractivitySchema;
 
-const CountdownPage = Interactive.withSchema({
+const CountdownPage = Interactive.create({
 	Component: CountdownPageInner,
-	componentName: 'CountdownPage',
 	schema: countdownPageSchema,
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
 
@@ -108,10 +106,7 @@ const CountdownInner: React.FC = () => {
 	);
 };
 
-export const Countdown = Interactive.withSchema({
+export const Countdown = Interactive.create({
 	Component: CountdownInner,
-	componentName: 'Countdown',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

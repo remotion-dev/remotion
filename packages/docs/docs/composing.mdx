@@ -1,0 +1,243 @@
+---
+image: /generated/articles-docs-composing.png
+id: composing
+slug: /composing
+title: Composing components
+crumb: 'The power of React'
+---
+
+React is perfect for reusing, parametrizing, and composing components with multiple levels of depth.  
+You can use the regular React primitives for this.
+
+Start with a component that accepts `children` and a `color`. Reuse it with different props:
+
+```tsx twoslash title="MyVideo.tsx"
+import type {CSSProperties, ReactNode} from 'react';
+
+type TitleProps = {
+  readonly children: ReactNode;
+  readonly color: string;
+  readonly style?: CSSProperties;
+};
+
+const Title = ({children, color, style}: TitleProps) => (
+  <div
+    style={{
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 80,
+      textAlign: 'center',
+      color,
+      ...style,
+    }}
+  >
+    {children}
+  </div>
+);
+
+export const MyVideo = () => (
+  <>
+    <Title color="#0b84f3">Hello</Title>
+    <Title color="#9b5de5">World</Title>
+  </>
+);
+```
+
+Both titles are visible at the same time. Changing the component updates every instance; changing one instance's props only affects that instance.
+
+## Add timing primitives
+
+Use [`Interactive.create()`](/docs/interactive-create) to add [timing props](/docs/timing).  
+Rename the function to `TitleInner`, and export the wrapper:
+
+```twoslash include timed-title
+import type {CSSProperties, ReactNode} from 'react';
+import {Interactive} from 'remotion';
+
+type TitleProps = {
+  readonly children: ReactNode;
+  readonly color: string;
+  readonly style?: CSSProperties;
+};
+
+const TitleInner = ({children, color, style}: TitleProps) => (
+  <div
+    style={{
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 80,
+      textAlign: 'center',
+      color,
+      ...style,
+    }}
+  >
+    {children}
+  </div>
+);
+// - inner
+
+export const Title = Interactive.create({
+  Component: TitleInner,
+});
+```
+
+```tsx twoslash title="Title.tsx"
+// @include: timed-title-inner
+// ---cut---
+export const Title = Interactive.create({
+  Component: TitleInner,
+});
+```
+
+Forward the `style` prop to the outer `<div>` as shown in the first example.  
+The wrapper uses it to apply transforms and other visual edits.
+
+You can now put the titles on the timeline by passing `from` and `durationInFrames` directly:
+
+```tsx twoslash title="MyVideo.tsx"
+// @filename: Title.tsx
+// @include: timed-title
+// @filename: MyVideo.tsx
+// ---cut---
+import {useVideoConfig} from 'remotion';
+import {Title} from './Title';
+
+export const MyVideo = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <>
+      <Title color="#0b84f3" durationInFrames={2 * fps}>
+        Hello
+      </Title>
+      <Title color="#9b5de5" from={2 * fps} durationInFrames={2 * fps}>
+        World
+      </Title>
+    </>
+  );
+};
+```
+
+## Add parameterization interactivity
+
+The props already let you parameterize the component in code.  
+Describe them in the `schema` to make them editable in the [Remotion Studio](/docs/studio):
+
+```tsx twoslash title="Title.tsx"
+// @include: timed-title-inner
+// ---cut---
+export const Title = Interactive.create({
+  Component: TitleInner,
+  schema: {
+    ...Interactive.childrenSchema,
+    color: {type: 'color', default: '#0b84f3', description: 'Text color'},
+  },
+});
+```
+
+`Interactive.childrenSchema` adds an editable text field, and `color` adds a color picker in the [Studio](/docs/studio).
+
+## Connected compositions
+
+If a component is also registered as a [composition](/docs/idea#compositions), it gets special treatment in the Remotion [Studio](/docs/studio).
+
+Instead of repeating all children, only a single item is being displayed.  
+You can double-click an item to jump to the composition and edit the children on the composition's own timeline.
+
+<img src="/img/connected-compositions.webp" alt="Two Title tracks in the Studio timeline, each with the connected composition icon next to its name." width={512} height={58} />
+
+If you are familiar with After Effects, this is a similar concept to "Pre-Composing" layers, except that in Remotion, they are also parameterizable.
+
+To set up a connected composition, we recommend you base it off a `absolute-fill` layout:
+
+```twoslash include connected-title
+import type {ReactNode} from 'react';
+import {Interactive} from 'remotion';
+
+type TitleProps = {
+  readonly children: ReactNode;
+  readonly color: string;
+};
+
+const TitleInner = ({children, color}: TitleProps) => (
+  <div
+    style={{
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 80,
+      textAlign: 'center',
+      color,
+    }}
+  >
+    {children}
+  </div>
+);
+
+export const Title = Interactive.create({
+  Component: TitleInner,
+  schema: {
+    ...Interactive.childrenSchema,
+    color: {type: 'color', default: '#0b84f3', description: 'Text color'},
+  },
+  layout: 'absolute-fill',
+});
+```
+
+```tsx twoslash title="Title.tsx"
+import type {ReactNode} from 'react';
+import {Interactive} from 'remotion';
+
+type TitleProps = {
+  readonly children: ReactNode;
+  readonly color: string;
+};
+
+const TitleInner = ({children, color}: TitleProps) => (
+  <div
+    style={{
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 80,
+      textAlign: 'center',
+      color,
+    }}
+  >
+    {children}
+  </div>
+);
+
+export const Title = Interactive.create({
+  Component: TitleInner,
+  schema: {
+    ...Interactive.childrenSchema,
+    color: {type: 'color', default: '#0b84f3', description: 'Text color'},
+  },
+  layout: 'absolute-fill',
+});
+```
+
+and add a [`<Composition>`](/docs/composition) registering your component:
+
+```tsx twoslash title="Root.tsx"
+// @filename: Title.tsx
+// @include: connected-title
+// @filename: Root.tsx
+// ---cut---
+import {Composition} from 'remotion';
+import {Title} from './Title';
+
+<Composition
+  id="Title"
+  component={Title}
+  width={1280}
+  height={720}
+  fps={30}
+  durationInFrames={60}
+  defaultProps={{children: 'Hello World!', color: '#0b84f3'}}
+/>
+```
+
+You need to set a fixed width, height, and frame rate for the composition, even if it is different than the parent video's settings.
+
+## See also
+
+- [`Interactive.create()`](/docs/interactive-create)
+- [`InteractivitySchema`](/docs/interactivity-schema)
+- [Timing and trimming](/docs/timing)
+- [Interactivity best practices](/docs/studio/interactivity-best-practices)

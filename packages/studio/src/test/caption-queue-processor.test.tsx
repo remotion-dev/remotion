@@ -399,7 +399,6 @@ test('downloads a model in the queued job before transcribing', async () => {
 						videoConfigValues: null,
 					},
 					durationInFrames: 90,
-					premountFor: 30,
 				},
 				src: '/static/clip.mp4',
 			});
@@ -418,7 +417,6 @@ test('downloads a model in the queued job before transcribing', async () => {
 					fileName: '/project/Root.tsx',
 					nodePath: [0],
 					durationInFrames: 90,
-					premountFor: 30,
 					captions: [
 						{
 							text: 'Hello',
@@ -491,7 +489,6 @@ test('downloads a model in the queued job before transcribing', async () => {
 				fileName: '/project/Browser.tsx',
 				nodePath: [0],
 				durationInFrames: 45,
-				premountFor: 30,
 				captions: (insertedRequests[0].body as {captions: unknown}).captions,
 			},
 		]);

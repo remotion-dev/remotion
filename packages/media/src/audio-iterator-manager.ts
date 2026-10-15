@@ -423,7 +423,7 @@ export const audioIteratorManager = ({
 		) => number | null;
 		logLevel: LogLevel;
 		loop: boolean;
-		unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+		unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean | void;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
 		// Audio iterators only schedule forward. Studio's reverse playback must

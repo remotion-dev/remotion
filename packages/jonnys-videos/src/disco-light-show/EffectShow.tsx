@@ -26,10 +26,7 @@ const EffectShowInner: React.FC = () => {
 	);
 };
 
-export const EffectShow = Interactive.withSchema({
+export const EffectShow = Interactive.create({
 	Component: EffectShowInner,
-	componentName: 'EffectShow',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -5,6 +5,7 @@ import {optimisticUpdateForPropStatuses} from '../optimistic-update-for-prop-sta
 
 test('optimisticUpdateForPropStatuses should return the correct response', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.opacity': {
@@ -23,6 +24,7 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 	});
 
 	expect(updated).toEqual({
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.opacity': {
@@ -41,6 +43,7 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 		schema: NoReactInternals.sequenceSchema,
 	});
 	expect(layout).toEqual({
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			layout: {
@@ -55,6 +58,7 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 
 test('optimisticUpdateForPropStatuses should use undefined for removed default values', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			name: {
@@ -75,6 +79,7 @@ test('optimisticUpdateForPropStatuses should use undefined for removed default v
 	});
 
 	expect(updated).toEqual({
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			name: {

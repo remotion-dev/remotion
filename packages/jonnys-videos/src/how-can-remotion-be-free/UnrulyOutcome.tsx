@@ -110,10 +110,7 @@ const UnrulyOutcomeInner: React.FC = () => {
 	);
 };
 
-export const UnrulyOutcome = Interactive.withSchema({
+export const UnrulyOutcome = Interactive.create({
 	Component: UnrulyOutcomeInner,
-	componentName: 'UnrulyOutcome',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

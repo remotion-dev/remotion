@@ -11,6 +11,7 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {labelx264Preset} from '../helpers/presets-labels';
 import {labelProResProfile} from '../helpers/prores-labels';
 import {Checkmark} from '../icons/Checkmark';
+import {Checkbox} from './Checkbox';
 import {sectionHeader} from './InspectorPanel/styles';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -75,6 +76,7 @@ export const RenderingSettings: React.FC = () => {
 	const [videoBitrate, setVideoBitrate] = useState('1M');
 	const [audioCodec, setAudioCodec] = useState<AudioCodec | null>(null);
 	const [concurrency, setConcurrency] = useState(1);
+	const [beepOnFinish, setBeepOnFinish] = useState(false);
 	const [editedSetters, setEditedSetters] = useState<Set<string>>(
 		() => new Set(),
 	);
@@ -107,6 +109,7 @@ export const RenderingSettings: React.FC = () => {
 		setVideoBitrate(renderDefaults.videoBitrate ?? '1M');
 		setAudioCodec(renderDefaults.audioCodec);
 		setConcurrency(renderDefaults.concurrency);
+		setBeepOnFinish(renderDefaults.beepOnFinish);
 		setEditedSetters(new Set());
 		setSyncedRevision(revision);
 		setError(null);
@@ -394,11 +397,15 @@ export const RenderingSettings: React.FC = () => {
 				? {setter: 'setAudioCodec', type: 'delete'}
 				: {setter: 'setAudioCodec', type: 'set', value: audioCodec},
 			{setter: 'setConcurrency', type: 'set', value: concurrency},
+			beepOnFinish
+				? {setter: 'setBeepOnFinish', type: 'set', value: true}
+				: {setter: 'setBeepOnFinish', type: 'delete'},
 		];
 
 		return allUpdates.filter((update) => editedSetters.has(update.setter));
 	}, [
 		audioCodec,
+		beepOnFinish,
 		codec,
 		concurrency,
 		crf,
@@ -559,6 +566,20 @@ export const RenderingSettings: React.FC = () => {
 				max={renderDefaults.maxConcurrency}
 				step={1}
 			/>
+			<p style={sectionTitle}>Notifications</p>
+			<label style={optionRow}>
+				<div style={label}>Beep when render finishes</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={beepOnFinish}
+						name="Beep when render finishes"
+						onChange={(event) => {
+							setBeepOnFinish(event.target.checked);
+							markEdited('setBeepOnFinish');
+						}}
+					/>
+				</div>
+			</label>
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />

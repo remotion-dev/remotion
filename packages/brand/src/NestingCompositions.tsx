@@ -4,12 +4,12 @@ import {
 	AbsoluteFill,
 	Composition,
 	Easing,
+	Interactive,
 	interpolate,
-	Sequence,
 	useCurrentFrame,
 } from 'remotion';
 
-export function Precomposition() {
+const PrecompositionInner = () => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill
@@ -500,22 +500,26 @@ export function Precomposition() {
 			/>
 		</AbsoluteFill>
 	);
-}
+};
+
+export const Precomposition = Interactive.withSchema({
+	Component: PrecompositionInner,
+	componentName: 'Precomposition',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
 
 export const NestingCompositionsPreview = () => {
 	return (
 		<>
-			<Sequence layout="none" name={'Precomposition'} durationInFrames={158}>
-				<Precomposition />
-			</Sequence>
-			<Sequence
-				layout="none"
+			<Precomposition name={'Precomposition'} durationInFrames={158} />
+			<Precomposition
 				name={'Precomposition'}
 				from={158}
 				trimBefore={186}
-			>
-				<Precomposition />
-			</Sequence>
+				premountFor={60}
+			/>
 		</>
 	);
 };

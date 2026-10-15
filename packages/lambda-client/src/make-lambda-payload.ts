@@ -26,6 +26,7 @@ import {
 	compressInputProps,
 	ENABLE_V5_BREAKING_CHANGES,
 	getNeedsToUpload,
+	getSizeInBytes,
 	serializeOrThrow,
 	ServerlessRoutines,
 	validateDownloadBehavior,
@@ -184,8 +185,8 @@ export const makeLambdaRenderMediaPayload = async ({
 		needsToUpload: getNeedsToUpload({
 			type: 'video-or-audio',
 			sizes: [
-				stringifiedInputProps.length,
-				JSON.stringify(envVariables).length,
+				getSizeInBytes(stringifiedInputProps),
+				getSizeInBytes(JSON.stringify(envVariables)),
 			],
 			providerSpecifics: awsImplementation,
 		}),
@@ -319,8 +320,8 @@ export const makeLambdaRenderStillPayload = async ({
 		needsToUpload: getNeedsToUpload({
 			type: 'still',
 			sizes: [
-				stringifiedInputProps.length,
-				JSON.stringify(envVariables).length,
+				getSizeInBytes(stringifiedInputProps),
+				getSizeInBytes(JSON.stringify(envVariables)),
 			],
 			providerSpecifics: awsImplementation,
 		}),

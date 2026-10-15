@@ -2,6 +2,8 @@ import React from 'react';
 import {ActionTooltip} from '../ActionTooltip';
 import {getTimelineColor} from './TimelineSelection';
 
+const MAX_TOOLTIP_LENGTH = 200;
+
 export const PACKED_LABEL_BOTTOM = 1;
 export const timelineSequenceLabelStyle: React.CSSProperties = {
 	flex: 1,
@@ -24,7 +26,11 @@ export const TimelineSequenceLabel: React.FC<{
 }> = ({label, children}) => {
 	return (
 		<ActionTooltip
-			label={label}
+			label={
+				label.length > MAX_TOOLTIP_LENGTH
+					? `${label.slice(0, MAX_TOOLTIP_LENGTH - 1).trimEnd()}…`
+					: label
+			}
 			shortcut={null}
 			delay={250}
 			dismissOnClick

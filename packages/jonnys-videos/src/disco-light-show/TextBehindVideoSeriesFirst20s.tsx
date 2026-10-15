@@ -135,10 +135,7 @@ export const TextBehindVideoSeriesFirst20s: React.FC = () => {
 	);
 };
 
-export const TextBehindVideoSeriesFirst20sComposition = Interactive.withSchema({
+export const TextBehindVideoSeriesFirst20sComposition = Interactive.create({
 	Component: TextBehindVideoSeriesFirst20sCompositionInner,
-	componentName: 'TextBehindVideoSeriesFirst20sComposition',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

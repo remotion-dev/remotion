@@ -15,6 +15,8 @@ type TimelineSequenceRegistryEntry = {
 	readonly previousSequenceId: string | null;
 	readonly previousOverrideId: string | null;
 	readonly nextOverrideId: string | null;
+	readonly previousTouchingSequence: TSequence | null;
+	readonly nextTouchingSequence: TSequence | null;
 };
 
 const indexedRegistries = new WeakMap<
@@ -74,6 +76,77 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 			}
 		}
 
+		const touchingById = new Map<
+			string,
+			{previous: TSequence | null; next: TSequence | null}
+		>();
+		for (const clip of sequences) {
+			const adjacent = adjacentById.get(clip.id);
+			if (!adjacent) continue;
+			touchingById.set(clip.id, {
+				previous:
+					adjacent.previous &&
+					Math.abs(
+						adjacent.previous.from + adjacent.previous.duration - clip.from,
+					) < 0.000001
+						? adjacent.previous
+						: null,
+				next:
+					adjacent.next &&
+					Math.abs(clip.from + clip.duration - adjacent.next.from) < 0.000001
+						? adjacent.next
+						: null,
+			});
+		}
+
+		const normalTrackIds = new Set(
+			sequences
+				.filter(
+					(sequence) =>
+						sequence.timelineTrack?.role === 'track' &&
+						sequence.controls?.componentIdentity ===
+							'dev.remotion.remotion.Track',
+				)
+				.map((sequence) => sequence.timelineTrack!.id),
+		);
+		const clipsByTrack = new Map<string, TSequence[]>();
+		for (const sequence of sequences) {
+			if (
+				sequence.timelineTrack?.role !== 'clip' ||
+				!normalTrackIds.has(sequence.timelineTrack.id) ||
+				sequence.duration <= 0 ||
+				(!sequence.showInTimeline && sequence.type === 'sequence')
+			) {
+				continue;
+			}
+
+			const clips = clipsByTrack.get(sequence.timelineTrack.id) ?? [];
+			clips.push(sequence);
+			clipsByTrack.set(sequence.timelineTrack.id, clips);
+		}
+
+		for (const clips of clipsByTrack.values()) {
+			clips.sort((a, b) => a.from - b.from);
+			for (let i = 0; i < clips.length; i++) {
+				const clip = clips[i];
+				const previousClip = clips[i - 1] ?? null;
+				const nextClip = clips[i + 1] ?? null;
+				touchingById.set(clip.id, {
+					previous:
+						previousClip?.parent === clip.parent &&
+						Math.abs(previousClip.from + previousClip.duration - clip.from) <
+							0.000001
+							? previousClip
+							: null,
+					next:
+						nextClip?.parent === clip.parent &&
+						Math.abs(clip.from + clip.duration - nextClip.from) < 0.000001
+							? nextClip
+							: null,
+				});
+			}
+		}
+
 		const entries = new Map<string, TimelineSequenceRegistryEntry>();
 		for (const sequence of sequences) {
 			const adjacent = adjacentById.get(sequence.id);
@@ -81,15 +154,27 @@ export const useTimelineSequenceRegistry = (sequenceId: string) => {
 			const previousOverrideId =
 				adjacent?.previous?.controls?.overrideId ?? null;
 			const nextOverrideId = adjacent?.next?.controls?.overrideId ?? null;
+			const previousTouchingSequence =
+				touchingById.get(sequence.id)?.previous ?? null;
+			const nextTouchingSequence = touchingById.get(sequence.id)?.next ?? null;
 			const previousEntry = previous?.entries.get(sequence.id);
 			entries.set(
 				sequence.id,
 				previousEntry?.sequence === sequence &&
 					previousEntry.previousSequenceId === previousSequenceId &&
 					previousEntry.previousOverrideId === previousOverrideId &&
-					previousEntry.nextOverrideId === nextOverrideId
+					previousEntry.nextOverrideId === nextOverrideId &&
+					previousEntry.previousTouchingSequence === previousTouchingSequence &&
+					previousEntry.nextTouchingSequence === nextTouchingSequence
 					? previousEntry
-					: {sequence, previousSequenceId, previousOverrideId, nextOverrideId},
+					: {
+							sequence,
+							previousSequenceId,
+							previousOverrideId,
+							nextOverrideId,
+							previousTouchingSequence,
+							nextTouchingSequence,
+						},
 			);
 		}
 

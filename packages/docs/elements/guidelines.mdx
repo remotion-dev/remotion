@@ -48,7 +48,7 @@ Use `installationMode: 'component-owned-sequence'` when Studio interactivity doe
 - Canvas-based Elements where individual outlines cannot be passed to Studio
 - Single-image overlays where the image itself cannot be edited
 
-Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema) and set `wrapInSequence: true`. The user gets one timeline layer that they can trim. The component must accept a `style` prop and apply it to its visual root. The implementation does not appear as separate editable layers.
+Wrap the exported component with [`Interactive.create()`](/docs/interactive-create). The user gets one timeline layer that they can trim. The component must accept a `style` prop and apply it to its visual root. The implementation does not appear as separate editable layers.
 
 Export the schema-enabled component directly, without another forwarding wrapper.
 
@@ -78,7 +78,7 @@ Animate properties within the Element, such as translation, scale, and opacity; 
 
 Elements are source-code copies designed for direct editing, not managed dependencies. Expose useful Studio controls in the Element's `Interactive` schema, but there is no need to mirror every implementation detail as a public prop.
 
-Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
+Use [`Interactive.create()`](/docs/interactive-create) when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
 
 Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
 

@@ -24,10 +24,7 @@ const SetupInner: React.FC = () => {
 	);
 };
 
-export const Setup = Interactive.withSchema({
+export const Setup = Interactive.create({
 	Component: SetupInner,
-	componentName: 'Setup',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

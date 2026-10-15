@@ -83,12 +83,18 @@ const isKeyframedStatus = (
 const isResettableStatus = ({
 	status,
 	defaultValue,
+	fieldKey,
 }: {
 	readonly status: CanUpdateSequencePropStatus;
 	readonly defaultValue: unknown;
+	readonly fieldKey: string;
 }) => {
 	if (defaultValue === undefined) {
-		return false;
+		return (
+			fieldKey === 'premountFor' &&
+			status.status === 'static' &&
+			status.codeValue !== undefined
+		);
 	}
 
 	if (status.status === 'keyframed') {
@@ -110,6 +116,9 @@ const Value: React.FC<{
 	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
+	const defaultPremountInSeconds = useContext(Internals.DefaultPremountContext);
+	const video = Internals.useVideo();
+	const fps = nodePath.videoConfigValues?.fps ?? video?.fps;
 	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const previewedKeyframes = useRef<
 		ReturnType<typeof getPlaybackRateKeyframeChanges>['previews']
@@ -230,7 +239,12 @@ const Value: React.FC<{
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
 		propStatus,
 		dragOverrideValue,
-		defaultValue: field.fieldSchema.default,
+		defaultValue:
+			field.key === 'premountFor' &&
+			field.fieldSchema.default === undefined &&
+			fps !== undefined
+				? Math.round(defaultPremountInSeconds * fps)
+				: field.fieldSchema.default,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -699,15 +713,17 @@ export const TimelineSequencePropItem: React.FC<{
 		return isResettableStatus({
 			status: propStatus,
 			defaultValue: field.fieldSchema.default,
+			fieldKey: field.key,
 		});
-	}, [propStatus, field.fieldSchema.default]);
+	}, [propStatus, field.fieldSchema.default, field.key]);
 
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
 		propStatus.status !== 'computed';
 	const canShowReset =
-		canPerformReset && field.fieldSchema.default !== undefined;
+		canPerformReset &&
+		(field.fieldSchema.default !== undefined || field.key === 'premountFor');
 
 	const onReset = useCallback(() => {
 		if (

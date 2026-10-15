@@ -220,6 +220,34 @@ render_params = RenderMediaParams(
 response = client.render_media_on_lambda(render_params)
 ```
 
+## Verifying webhooks<AvailableFrom v="4.0.536" />
+
+If you [set up a webhook](/docs/lambda/webhooks) with a secret, Remotion signs every request so you can confirm it was sent by Remotion and that the body was not modified. The Python client ships `validate_webhook_signature()`, the equivalent of [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) in the JavaScript client.
+
+Pass the webhook secret, the raw request body exactly as it was received, and the `X-Remotion-Signature` header. It raises an exception if the request cannot be verified and returns `None` if it is authentic.
+
+```python title="webhook.py"
+import os
+from flask import Flask, request
+from remotion_lambda import validate_webhook_signature
+
+app = Flask(__name__)
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    validate_webhook_signature(
+        secret=os.environ["REMOTION_WEBHOOK_SECRET"],
+        body=request.get_data(),
+        signature_header=request.headers.get("X-Remotion-Signature"),
+    )
+
+    # The request is authentic. Parse the body only now.
+    payload = request.get_json()
+    return "", 200
+```
+
+Read the body first and verify before decoding it. The signature covers the exact bytes that were sent, so parsing the JSON and re-serializing it can reorder keys and change whitespace, which would make a genuine request fail the check. Pass the body as it arrived (`request.get_data()` in Flask, `request.body` in Django) rather than a parsed dictionary.
+
 ## Rendering an image
 
 Below is a snippet showing how to initiate a still image render. Note that it does not require monitoring the render progress.

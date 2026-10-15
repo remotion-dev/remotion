@@ -120,10 +120,7 @@ const DiscoBallBgInner: React.FC = () => {
 	);
 };
 
-export const DiscoBallBg = Interactive.withSchema({
+export const DiscoBallBg = Interactive.create({
 	Component: DiscoBallBgInner,
-	componentName: 'DiscoBallBg',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

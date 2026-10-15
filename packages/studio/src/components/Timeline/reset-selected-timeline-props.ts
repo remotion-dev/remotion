@@ -78,16 +78,22 @@ const isNonDefaultCodeValue = ({
 const isResettablePropStatus = ({
 	propStatus,
 	defaultValue,
+	canResetToUndefined,
 }: {
 	readonly propStatus: CanUpdateSequencePropStatus | null | undefined;
 	readonly defaultValue: unknown;
+	readonly canResetToUndefined: boolean;
 }) => {
 	if (!propStatus) {
 		return false;
 	}
 
 	if (defaultValue === undefined) {
-		return false;
+		return (
+			canResetToUndefined &&
+			propStatus.status === 'static' &&
+			propStatus.codeValue !== undefined
+		);
 	}
 
 	if (propStatus.status === 'keyframed') {
@@ -186,6 +192,7 @@ export const getTimelinePropResetTargets = ({
 				!isResettablePropStatus({
 					propStatus: selectedPropStatus,
 					defaultValue: sequenceFieldSchema.default,
+					canResetToUndefined: selection.key === 'premountFor',
 				})
 			) {
 				continue;
@@ -229,6 +236,7 @@ export const getTimelinePropResetTargets = ({
 			!isResettablePropStatus({
 				propStatus,
 				defaultValue: fieldSchema.default,
+				canResetToUndefined: false,
 			})
 		) {
 			continue;

@@ -6,6 +6,7 @@ import {
 	Easing,
 	Folder,
 	interpolate,
+	Track,
 	useCurrentFrame,
 	CanvasImage,
 } from 'remotion';
@@ -176,61 +177,63 @@ const MyComponentInner: React.FC = () => {
 				name="Voiceover"
 				src={asset('text-behind-video-2.wav')}
 			/>
-			<AnimatedCaptions
-				premountFor={fps}
-				name="AnimatedCaptions"
-				width={1080}
-				height={360}
-				durationInFrames={334}
-				style={{
-					position: 'absolute',
-					translate: '0px 1132.3px',
-				}}
-			/>
-			<AnimatedCaptions
-				premountFor={fps}
-				name="AnimatedCaptions"
-				width={1080}
-				height={360}
-				from={347}
-				durationInFrames={175}
-				trimBefore={347}
-				style={{
-					position: 'absolute',
-					translate: '0px 1132.3px',
-				}}
-			/>
-			<AnimatedCaptions
-				premountFor={fps}
-				name="AnimatedCaptions"
-				width={1080}
-				height={360}
-				from={566}
-				durationInFrames={1234}
-				trimBefore={566}
-				style={{
-					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[567, 575],
-						['1080px 1132.3px', '0px 1132.3px'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
-						},
-					),
-				}}
-			/>
+			<Track name="Captions">
+				<AnimatedCaptions
+					premountFor={fps}
+					name="AnimatedCaptions"
+					width={1080}
+					height={360}
+					durationInFrames={334}
+					style={{
+						position: 'absolute',
+						translate: '0px 1132.3px',
+					}}
+				/>
+				<AnimatedCaptions
+					premountFor={fps}
+					name="AnimatedCaptions"
+					width={1080}
+					height={360}
+					from={347}
+					durationInFrames={175}
+					trimBefore={347}
+					style={{
+						position: 'absolute',
+						translate: '0px 1132.3px',
+					}}
+				/>
+				<AnimatedCaptions
+					premountFor={fps}
+					name="AnimatedCaptions"
+					width={1080}
+					height={360}
+					from={566}
+					durationInFrames={1234}
+					trimBefore={566}
+					style={{
+						position: 'absolute',
+						translate: interpolate(
+							frame,
+							[567, 575],
+							['1080px 1132.3px', '0px 1132.3px'],
+							{
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: [
+									Easing.spring({
+										damping: 200,
+										mass: 1,
+										stiffness: 100,
+										allowTail: true,
+										durationRestThreshold: 0.02,
+										overshootClamping: false,
+									}),
+								],
+							},
+						),
+					}}
+				/>
+			</Track>
 			<AnimatedCaptionsBigWords
 				premountFor={fps}
 				name="AnimatedCaptionsBigWords"
@@ -795,10 +798,7 @@ const MyComponentInner: React.FC = () => {
 	);
 };
 
-export const MyComponent = Interactive.withSchema({
+export const MyComponent = Interactive.create({
 	Component: MyComponentInner,
-	componentName: 'MyComponent',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -56,7 +56,7 @@ export const usePlayback = ({
 		Internals.Timeline.useTimelineSetFrameWithoutSeek();
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
-	const {isBuffering, subscribeBuffering} = useContext(
+	const {isBuffering, subscribeBuffering, seek} = useContext(
 		Internals.SetTimelineContext,
 	);
 	const logLevel = Internals.useLogLevel();
@@ -202,6 +202,8 @@ export const usePlayback = ({
 			| null = null;
 		let startedTime = performance.now();
 		let framesAdvanced = 0;
+		let playbackFrame = getCurrentFrame();
+		let lastSeekRevision = seek?.revision.current ?? null;
 
 		const cancelQueuedFrame = () => {
 			if (reqAnimFrameCall !== null) {
@@ -236,7 +238,14 @@ export const usePlayback = ({
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
-			const currentFrame = getCurrentFrame();
+			const seekRevision = seek?.revision.current ?? null;
+			if (seekRevision !== lastSeekRevision) {
+				playbackFrame = getCurrentFrame();
+				lastSeekRevision = seekRevision;
+			}
+
+			// React may not have committed the previous playback update yet.
+			const currentFrame = playbackFrame;
 			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
 				time,
 				currentFrame,
@@ -258,7 +267,8 @@ export const usePlayback = ({
 						: actualFirstFrame
 					: nextFrame;
 
-			if (frameToDisplay !== getCurrentFrame() && !isBuffering()) {
+			if (frameToDisplay !== currentFrame && !isBuffering()) {
+				playbackFrame = frameToDisplay;
 				setFrameFromPlayback((c) => ({...c, [config.id]: frameToDisplay}));
 			}
 
@@ -375,6 +385,7 @@ export const usePlayback = ({
 		sharedAudioContext,
 		setPlayerMuted,
 		subscribeBuffering,
+		seek,
 		logLevel,
 		muted,
 	]);

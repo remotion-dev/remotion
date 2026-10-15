@@ -12,11 +12,6 @@ metadata:
 - **Transitions** (`<TransitionSeries.Transition>`) — crossfade, slide, wipe, etc. between two scenes. Shortens the timeline because both scenes play simultaneously during the transition.
 - **Overlays** (`<TransitionSeries.Overlay>`) — render an effect (e.g. a light leak) on top of the cut point without shortening the timeline.
 
-Set `premountFor={fps}` on every `<TransitionSeries.Sequence>` and
-`<TransitionSeries.Overlay>`, using `fps` from `useVideoConfig()`. Premount
-timed children inside those items as well. `<TransitionSeries.Transition>`
-does not accept `premountFor`.
-
 For a multi-scene timeline, keep the outer `<TransitionSeries>` visible in the
 timeline. Studio favors the active scene sequence when the two have the same
 full-frame canvas outline.
@@ -36,14 +31,14 @@ import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 
 <TransitionSeries>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneA />
   </TransitionSeries.Sequence>
   <TransitionSeries.Transition
     presentation={fade()}
     timing={linearTiming({ durationInFrames: 15 })}
   />
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneB />
   </TransitionSeries.Sequence>
 </TransitionSeries>;
@@ -60,13 +55,12 @@ import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const LightLeakOverlay: React.FC = () => {
   const frame = useCurrentFrame();
-  const {durationInFrames, fps, height, width} = useVideoConfig();
+  const {durationInFrames, height, width} = useVideoConfig();
 
   return (
     <Solid
       width={width}
       height={height}
-      premountFor={fps}
       effects={[
         lightLeak({
           progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
@@ -80,13 +74,13 @@ const LightLeakOverlay: React.FC = () => {
 };
 
 <TransitionSeries>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneA />
   </TransitionSeries.Sequence>
-  <TransitionSeries.Overlay durationInFrames={20} premountFor={fps}>
+  <TransitionSeries.Overlay durationInFrames={20}>
     <LightLeakOverlay />
   </TransitionSeries.Overlay>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneB />
   </TransitionSeries.Sequence>
 </TransitionSeries>;
@@ -104,13 +98,12 @@ import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const LightLeakOverlay: React.FC = () => {
   const frame = useCurrentFrame();
-  const {durationInFrames, fps, height, width} = useVideoConfig();
+  const {durationInFrames, height, width} = useVideoConfig();
 
   return (
     <Solid
       width={width}
       height={height}
-      premountFor={fps}
       effects={[
         lightLeak({
           progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
@@ -124,20 +117,20 @@ const LightLeakOverlay: React.FC = () => {
 };
 
 <TransitionSeries>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneA />
   </TransitionSeries.Sequence>
-  <TransitionSeries.Overlay durationInFrames={30} premountFor={fps}>
+  <TransitionSeries.Overlay durationInFrames={30}>
     <LightLeakOverlay />
   </TransitionSeries.Overlay>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneB />
   </TransitionSeries.Sequence>
   <TransitionSeries.Transition
     presentation={fade()}
     timing={linearTiming({ durationInFrames: 15 })}
   />
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneC />
   </TransitionSeries.Sequence>
 </TransitionSeries>;
@@ -156,7 +149,6 @@ const LightLeakOverlay: React.FC = () => {
 
 - `durationInFrames` — how long the overlay is visible (positive integer).
 - `offset?` — shifts the overlay relative to the cut point center. Positive = later, negative = earlier. Default: `0`.
-- `premountFor` — set to `fps` for one second of premounting.
 
 ## Available transition types
 

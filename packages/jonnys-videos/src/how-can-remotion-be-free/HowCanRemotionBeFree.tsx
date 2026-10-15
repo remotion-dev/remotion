@@ -1475,10 +1475,7 @@ const HowCanRemotionBeFreeInner: React.FC = () => {
 	);
 };
 
-export const HowCanRemotionBeFree = Interactive.withSchema({
+export const HowCanRemotionBeFree = Interactive.create({
 	Component: HowCanRemotionBeFreeInner,
-	componentName: 'HowCanRemotionBeFree',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

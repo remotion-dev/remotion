@@ -1,7 +1,9 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 export * from './sequence-registry-context.js';
 import {
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivityContext,
+	SequenceActivityDormantContext,
 	SequenceActivitySettingsContext,
 } from './sequence-activity-context.js';
 import {
@@ -28,6 +30,7 @@ import type {VideoConfigValues} from './video-config.js';
 
 const useIsomorphicLayoutEffect =
 	typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+const useCommitEffect = React.useInsertionEffect ?? useIsomorphicLayoutEffect;
 
 export type VisualModePropStatuses = {
 	propStatuses: PropStatuses;
@@ -94,7 +97,7 @@ const SequenceManagerScopeProviders: React.FC<{
 			>
 				<SequenceActivityContext.Provider
 					value={
-						activitySettings?.enabled === true &&
+						(activitySettings?.limit ?? DEFAULT_SEQUENCE_ACTIVITY_LIMIT) > 0 &&
 						isStudio &&
 						commitRegistrationEnabled &&
 						typeof React.Activity !== 'undefined'
@@ -197,6 +200,11 @@ export type CanUpdateSequencePropsResponseTrue<Numeric = SourceNumericValue> = {
 	canUpdate: true;
 	props: Record<string, CanUpdateSequencePropStatus<Numeric>>;
 	effects: CanUpdateEffectPropsResponse<Numeric>[];
+	/** Source ranges also include interpolations outside the editable schema. */
+	durationDependentKeyframes: {
+		readonly scope: SequenceNodePath;
+		readonly inputRanges: readonly (readonly SourceNumericValue[] | null)[];
+	} | null;
 };
 
 export type CanUpdateSequencePropsResponseFalse = {
@@ -224,15 +232,40 @@ export const VisualModePropStatusesRefContext =
 		current: {},
 	});
 
+const defaultVisualModeDragOverrides: VisualModeDragOverrides = {
+	getDragOverrides: () => {
+		throw new Error('VisualModeDragOverridesContext not initialized');
+	},
+	getEffectDragOverrides: () => {
+		throw new Error('VisualModeDragOverridesContext not initialized');
+	},
+};
+
 export const VisualModeDragOverridesContext =
-	React.createContext<VisualModeDragOverrides>({
-		getDragOverrides: () => {
-			throw new Error('VisualModeDragOverridesContext not initialized');
-		},
-		getEffectDragOverrides: () => {
-			throw new Error('VisualModeDragOverridesContext not initialized');
-		},
-	});
+	React.createContext<VisualModeDragOverrides>(defaultVisualModeDragOverrides);
+
+export const VisualModeDragOverridesRefContext = React.createContext<
+	React.RefObject<VisualModeDragOverrides>
+>({current: defaultVisualModeDragOverrides});
+
+const useDragOverrideSnapshot = <T,>(
+	subscribe: (listener: () => void) => () => void,
+	getSnapshot: () => T,
+): T => {
+	const dormant = useContext(SequenceActivityDormantContext);
+	const [, forceUpdate] = useState(0);
+	const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	useCommitEffect(() => {
+		if (!dormant) {
+			return;
+		}
+
+		// Activity disconnects passive subscriptions, including useSyncExternalStore.
+		// Insertion effects stay connected through nested hidden Activities.
+		return subscribe(() => forceUpdate((current) => current + 1));
+	}, [dormant, subscribe]);
+	return snapshot;
+};
 
 export const useDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
@@ -252,7 +285,7 @@ export const useDragOverridesForNodePath = (
 		() => scopedSubscription?.getSnapshot(key) ?? emptyDragOverrides,
 		[key, scopedSubscription],
 	);
-	return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	return useDragOverrideSnapshot(subscribe, getSnapshot);
 };
 
 export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
@@ -280,7 +313,7 @@ export const useEffectDragOverridesForNodePath = (
 			scopedSubscription?.getEffectSnapshot(key) ?? emptyEffectDragOverrides,
 		[key, scopedSubscription],
 	);
-	return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	return useDragOverrideSnapshot(subscribe, getSnapshot);
 };
 
 export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
@@ -705,6 +738,11 @@ export const SequenceManagerProvider: React.FC<{
 			getEffectDragOverrides,
 		};
 	}, [getDragOverrides, getEffectDragOverrides]);
+	const dragOverridesRef = useRef(dragOverridesContext);
+	useIsomorphicLayoutEffect(() => {
+		// Interaction handlers read the latest committed overrides without subscribing.
+		dragOverridesRef.current = dragOverridesContext;
+	}, [dragOverridesContext]);
 
 	const settersContext: VisualModeSetters = useMemo(() => {
 		return {
@@ -739,13 +777,17 @@ export const SequenceManagerProvider: React.FC<{
 						<VisualModeDragOverridesContext.Provider
 							value={dragOverridesContext}
 						>
-							<VisualModeSettersContext.Provider value={settersContext}>
-								<VisualModeBatchSettersContext.Provider
-									value={batchSettersContext}
-								>
-									{children}
-								</VisualModeBatchSettersContext.Provider>
-							</VisualModeSettersContext.Provider>
+							<VisualModeDragOverridesRefContext.Provider
+								value={dragOverridesRef}
+							>
+								<VisualModeSettersContext.Provider value={settersContext}>
+									<VisualModeBatchSettersContext.Provider
+										value={batchSettersContext}
+									>
+										{children}
+									</VisualModeBatchSettersContext.Provider>
+								</VisualModeSettersContext.Provider>
+							</VisualModeDragOverridesRefContext.Provider>
 						</VisualModeDragOverridesContext.Provider>
 					</SequenceManagerScopeProviders>
 				</VisualModePropStatusesContext.Provider>
