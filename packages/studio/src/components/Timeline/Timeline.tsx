@@ -14,7 +14,6 @@ import {
 	removeErrorFromOverlay,
 } from '../../error-overlay/runtime-error-store';
 import {FastRefreshContext} from '../../fast-refresh-context';
-import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -318,9 +317,6 @@ const TimelineInner: React.FC = () => {
 		],
 	);
 	const previousDisplayRef = useRef<{
-		readonly sequences: TSequence[];
-		readonly overrideIdsToNodePaths: typeof overrideIdToNodePathMappings;
-		readonly compositions: typeof compositions;
 		readonly structure: typeof calculation.structure;
 		readonly tracks: typeof calculation.tracks;
 		readonly timeline: TimelineTrackWithDisplayGroup[];
@@ -330,71 +326,27 @@ const TimelineInner: React.FC = () => {
 		const previous = previousDisplayRef.current;
 		if (previous === null || previous.structure !== calculation.structure) {
 			const next = addTimelineDisplayGroups(calculation.tracks);
-			if (
-				previous === null ||
-				previous.overrideIdsToNodePaths !== overrideIdToNodePathMappings ||
-				previous.compositions !== compositions
-			) {
+			if (previous === null) {
 				return {timeline: next, structureTimeline: next};
 			}
 
-			// Unsupported edits still derive the full timeline, but unchanged bars
-			// keep the snapshots their memoized thumbnails and waveforms consume.
-			const previousSequencesById = new Map(
-				previous.sequences.map((sequence) => [sequence.id, sequence]),
-			);
-			const currentSequencesById = new Map(
-				sequences.map((sequence) => [sequence.id, sequence]),
-			);
-			const previousTracksById = new Map(
-				previous.timeline.map((track) => [track.sequence.id, track]),
-			);
-			const tracks = next.map((track) => {
-				const oldTrack = previousTracksById.get(track.sequence.id);
-				const currentSource = currentSequencesById.get(track.sequence.id);
-				const oldNodePath = oldTrack?.nodePathInfo ?? null;
-				const nodePath = track.nodePathInfo;
-				const oldLoop = oldTrack?.sequence.loopDisplay;
-				const loop = track.sequence.loopDisplay;
+			const tracks = next.map((track, index) => {
+				const previousIndex = previous.structure.trackIndexById.get(
+					track.sequence.id,
+				);
 				if (
-					oldTrack === undefined ||
-					currentSource !== previousSequencesById.get(track.sequence.id) ||
-					oldTrack.depth !== track.depth ||
-					oldTrack.cascadedStart !== track.cascadedStart ||
-					oldTrack.localStart !== track.localStart ||
-					oldTrack.parentVisibleStart !== track.parentVisibleStart ||
-					oldTrack.parentVisibleEnd !== track.parentVisibleEnd ||
-					oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
-					oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
-					oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||
-					oldTrack.sequence.from !== track.sequence.from ||
-					oldTrack.sequence.duration !== track.sequence.duration ||
-					oldTrack.sequence.sequencePlaybackRate !==
-						track.sequence.sequencePlaybackRate ||
-					oldTrack.sequence.premountDisplay !==
-						track.sequence.premountDisplay ||
-					oldTrack.sequence.postmountDisplay !==
-						track.sequence.postmountDisplay ||
-					oldTrack.displayGroup?.key !== track.displayGroup?.key ||
-					oldTrack.displayGroup?.numberOfSequences !==
-						track.displayGroup?.numberOfSequences ||
-					(oldNodePath === null) !== (nodePath === null) ||
-					(oldNodePath !== null &&
-						nodePath !== null &&
-						!areSequenceNodePathInfosEqual(oldNodePath, nodePath)) ||
-					(oldLoop === undefined) !== (loop === undefined) ||
-					(oldLoop !== undefined &&
-						loop !== undefined &&
-						(oldLoop.durationInFrames !== loop.durationInFrames ||
-							oldLoop.numberOfTimes !== loop.numberOfTimes ||
-							oldLoop.startOffset !== loop.startOffset ||
-							oldLoop.phaseOffsetInFrames !== loop.phaseOffsetInFrames ||
-							oldLoop.mediaOffsetInFrames !== loop.mediaOffsetInFrames))
+					previousIndex === undefined ||
+					previous.tracks[previousIndex] !== calculation.tracks[index]
 				) {
 					return track;
 				}
 
-				return oldTrack;
+				const oldTrack = previous.timeline[previousIndex];
+				return oldTrack.displayGroup?.key === track.displayGroup?.key &&
+					oldTrack.displayGroup?.numberOfSequences ===
+						track.displayGroup?.numberOfSequences
+					? oldTrack
+					: track;
 			});
 			return {timeline: tracks, structureTimeline: tracks};
 		}
@@ -412,25 +364,15 @@ const TimelineInner: React.FC = () => {
 					: {...track, displayGroup: previous.timeline[index].displayGroup},
 			),
 		};
-	}, [calculation, compositions, overrideIdToNodePathMappings, sequences]);
+	}, [calculation]);
 	useLayoutEffect(() => {
 		previousDisplayRef.current = {
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			compositions,
 			structure: calculation.structure,
 			tracks: calculation.tracks,
 			timeline,
 			structureTimeline,
 		};
-	}, [
-		calculation,
-		compositions,
-		overrideIdToNodePathMappings,
-		sequences,
-		structureTimeline,
-		timeline,
-	]);
+	}, [calculation, structureTimeline, timeline]);
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const activeFromDragOverrideKeys = Internals.useActiveFromDragOverrideKeys();

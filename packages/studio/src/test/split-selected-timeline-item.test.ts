@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatus,
 	PropStatuses,
@@ -230,12 +231,15 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
 		[];
 
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const result = await splitSelectedTimelineItems({
 		selections: [{type: 'sequence', nodePathInfo}],
-		sequences: [makeSequence()],
-		overrideIdsToNodePaths: {
-			override: nodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences: [makeSequence()],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses,
 		splitFrame: 30,
 		splitSequences: ({sequences: splitSequences}) => {
@@ -259,16 +263,19 @@ test('splitSelectedTimelineItems batches multiple selected clips', async () => {
 	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
 		[];
 
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const result = await splitSelectedTimelineItems({
 		selections: [
 			{type: 'sequence', nodePathInfo: first},
 			{type: 'sequence', nodePathInfo: second},
 		],
-		sequences: [firstSequence, secondSequence],
-		overrideIdsToNodePaths: {
-			override: first.sequenceSubscriptionKey,
-			'second-override': second.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences: [firstSequence, secondSequence],
+			overrideIdsToNodePaths: {
+				override: first.sequenceSubscriptionKey,
+				'second-override': second.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: undefined,
 		splitFrame: 30,
 		splitSequences: ({sequences}) => {
@@ -295,16 +302,19 @@ test('splitSelectedTimelineItems skips ineligible clips and reports the partial 
 		[];
 	const notifications: string[] = [];
 
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const result = await splitSelectedTimelineItems({
 		selections: [
 			{type: 'sequence', nodePathInfo: eligible},
 			{type: 'sequence', nodePathInfo: ineligible},
 		],
-		sequences: [makeSequence(), ineligibleSequence],
-		overrideIdsToNodePaths: {
-			override: eligible.sequenceSubscriptionKey,
-			'ineligible-override': ineligible.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences: [makeSequence(), ineligibleSequence],
+			overrideIdsToNodePaths: {
+				override: eligible.sequenceSubscriptionKey,
+				'ineligible-override': ineligible.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: undefined,
 		splitFrame: 30,
 		splitSequences: ({sequences}) => {

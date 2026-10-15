@@ -1,81 +1,73 @@
 import {CanvasInternals} from '@remotion/sdk';
-import {useContext, useRef} from 'react';
+import {useContext, useMemo, type ContextType} from 'react';
 import {Internals} from 'remotion';
 
-type TimelineInput = Parameters<typeof CanvasInternals.calculateTimeline>[0];
-type TimelineTracks = ReturnType<typeof CanvasInternals.calculateTimeline>;
+type TimelineCalculator = ReturnType<
+	typeof CanvasInternals.createTimelineCalculator
+>;
+type TimelineInput = Parameters<TimelineCalculator>[0];
 type Compositions = NonNullable<TimelineInput['compositions']>;
 const emptyCompositions: Compositions = [];
-
-// Registry snapshots are immutable and belong to one preview root. Weak keys
-// let interactions share its calculated tracks without retaining old snapshots.
-const timelinesBySnapshot = new WeakMap<
-	TimelineInput['sequences'],
-	WeakMap<
-		TimelineInput['overrideIdsToNodePaths'],
-		WeakMap<Compositions, Map<boolean, TimelineTracks>>
-	>
+const calculatorsByRegistry = new WeakMap<
+	NonNullable<ContextType<typeof Internals.SequenceRegistryContext>>,
+	TimelineCalculator
 >();
 
-const findCachedTimeline = (input: TimelineInput) => {
-	return timelinesBySnapshot
-		.get(input.sequences)
-		?.get(input.overrideIdsToNodePaths)
-		?.get(input.compositions?.length ? input.compositions : emptyCompositions)
-		?.get(input.showConnectedCompositionChildren ?? false);
-};
-
-const cacheTimelineCalculation = (
-	input: TimelineInput,
-	tracks: TimelineTracks,
-) => {
-	const byMapping = timelinesBySnapshot.get(input.sequences) ?? new WeakMap();
-	const byCompositions =
-		byMapping.get(input.overrideIdsToNodePaths) ?? new WeakMap();
-	const compositions = input.compositions?.length
-		? input.compositions
-		: emptyCompositions;
-	const byVisibility = byCompositions.get(compositions) ?? new Map();
-	byVisibility.set(input.showConnectedCompositionChildren ?? false, tracks);
-	byCompositions.set(compositions, byVisibility);
-	byMapping.set(input.overrideIdsToNodePaths, byCompositions);
-	timelinesBySnapshot.set(input.sequences, byMapping);
-};
-
-export const calculateTimeline = (input: TimelineInput): TimelineTracks => {
-	const cached = findCachedTimeline(input);
-	if (cached) {
-		return cached;
-	}
-
-	const tracks = CanvasInternals.calculateTimeline(input);
-	// Ad hoc callers may mutate their input between calls. Only retain results
-	// for immutable registry snapshots already published by a retained calculator.
-	if (timelinesBySnapshot.has(input.sequences)) {
-		cacheTimelineCalculation(input, tracks);
-	}
-
-	return tracks;
-};
-
-export const createTimelineCalculator = () => {
-	const calculate = CanvasInternals.createTimelineCalculator();
-	return (input: TimelineInput) => {
-		const result = calculate(input);
-		cacheTimelineCalculation(input, result.tracks);
-		return result;
-	};
-};
-
-export const useTimelineCalculator = () => {
+export const useTimelineCalculator = (): TimelineCalculator => {
 	const registry = useContext(Internals.SequenceRegistryContext);
-	const calculator = useRef<{
-		readonly registry: typeof registry;
-		readonly calculate: ReturnType<typeof createTimelineCalculator>;
-	} | null>(null);
-	if (calculator.current === null || calculator.current.registry !== registry) {
-		calculator.current = {registry, calculate: createTimelineCalculator()};
-	}
+	return useMemo(() => {
+		const existing =
+			registry === null ? null : calculatorsByRegistry.get(registry);
+		if (existing) {
+			return existing;
+		}
 
-	return calculator.current.calculate;
+		// Consumers in one preview share retained models. Different composition
+		// visibility settings need independent models of the same registrations.
+		const calculatorsByConfiguration = new WeakMap<
+			TimelineInput['overrideIdsToNodePaths'],
+			WeakMap<Compositions, Map<boolean, TimelineCalculator>>
+		>();
+		const calculate: TimelineCalculator = (input) => {
+			const compositions = input.compositions?.length
+				? input.compositions
+				: emptyCompositions;
+			const showConnectedCompositionChildren =
+				input.showConnectedCompositionChildren ?? false;
+			let byCompositions = calculatorsByConfiguration.get(
+				input.overrideIdsToNodePaths,
+			);
+			if (!byCompositions) {
+				byCompositions = new WeakMap();
+				calculatorsByConfiguration.set(
+					input.overrideIdsToNodePaths,
+					byCompositions,
+				);
+			}
+
+			let byVisibility = byCompositions.get(compositions);
+			if (!byVisibility) {
+				byVisibility = new Map();
+				byCompositions.set(compositions, byVisibility);
+			}
+
+			let calculator = byVisibility.get(showConnectedCompositionChildren);
+			if (!calculator) {
+				calculator = CanvasInternals.createTimelineCalculator();
+				byVisibility.set(showConnectedCompositionChildren, calculator);
+			}
+
+			return calculator({
+				...input,
+				compositions,
+				showConnectedCompositionChildren,
+			});
+		};
+
+		if (registry !== null) {
+			calculatorsByRegistry.set(registry, calculate);
+		}
+
+		return calculate;
+	}, [registry]);
 };

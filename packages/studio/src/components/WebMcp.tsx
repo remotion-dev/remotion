@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/sdk';
 import {isValidPackageName} from '@remotion/studio-shared';
 import {
 	useContext,
@@ -15,7 +16,7 @@ import {restartStudio} from '../api/restart-studio';
 import {seek} from '../api/seek';
 import {shutDownStudio} from '../api/shut-down-studio';
 import {getCurrentError} from '../error-overlay/current-error';
-import {calculateTimeline} from '../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {
 	formatContextForAgents,
@@ -50,10 +51,7 @@ import {
 	validatePublicOutputName,
 } from './public-output-name';
 import {RenderQueueContext} from './RenderQueue/context';
-import {
-	getSequencesWithSelectableOutlines,
-	measureOutlineTargets,
-} from './selected-outline-measurement';
+import {measureOutlineTargets} from './selected-outline-measurement';
 import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timeline';
@@ -262,6 +260,7 @@ const WebMcpSelectionSync: FC<{
 };
 
 export const WebMcp: FC = () => {
+	const calculateTimeline = useTimelineCalculator();
 	const compactSeries = useCompactSeries();
 	const compactSeriesRef = useRef(compactSeries);
 	compactSeriesRef.current = compactSeries;
@@ -365,7 +364,7 @@ export const WebMcp: FC = () => {
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				compositions: compositionsRef.current,
 				showConnectedCompositionChildren: compactSeriesRef.current,
-			}).filter((timelineTrack) =>
+			}).tracks.filter((timelineTrack) =>
 				shouldShowTrackInTimeline(timelineTrack, durationInFrames),
 			);
 		};
@@ -1068,12 +1067,17 @@ export const WebMcp: FC = () => {
 						}
 
 						const currentFrame = getCurrentFrame();
-						const selectableOutlines = getSequencesWithSelectableOutlines({
-							sequences: sequencesRef.current,
-							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-							compositions: compositionsRef.current,
-							timelinePosition: currentFrame,
-						});
+						const selectableOutlines =
+							CanvasInternals.getCanvasSelectableOutlines({
+								tracks: calculateTimeline({
+									sequences: sequencesRef.current,
+									overrideIdsToNodePaths:
+										overrideIdToNodePathMappingsRef.current,
+									compositions: compositionsRef.current,
+								}).tracks,
+								timelinePosition: currentFrame,
+								resolveSequenceNodePathInfo: null,
+							});
 						const portalNode = Internals.portalNode();
 						const portalRect = portalNode.getBoundingClientRect();
 						if (portalRect.width === 0 || portalRect.height === 0) {
@@ -1749,6 +1753,7 @@ export const WebMcp: FC = () => {
 	}, [
 		addCaptionJob,
 		addVideoMattingJob,
+		calculateTimeline,
 		isPlaying,
 		selectComposition,
 		sequencesRef,

@@ -274,10 +274,10 @@ export const projectTimelineDisplayRows = ({
 }: {
 	readonly rows: readonly TimelineDisplayRow[];
 	readonly tracksById: ReadonlyMap<string, TimelineTrackWithDisplayGroup>;
-	readonly previousRows: readonly TimelineDisplayRow[] | null;
+	readonly previousRows: readonly TimelineDisplayRow[];
 }): readonly TimelineDisplayRow[] => {
 	const previousById =
-		previousRows === null || previousRows === rows
+		previousRows === rows
 			? null
 			: new Map(previousRows.map((row) => [row.track.sequence.id, row]));
 	const updateTracks = (

@@ -32,14 +32,22 @@ type TimelineCalculation = {
 	structure: {trackIndexById: ReadonlyMap<string, number>};
 };
 
+type TimelineCalculationSnapshot = {
+	input: TimelineCalculationInput;
+	result: TimelineCalculation;
+};
+
 const EMPTY_COMPOSITIONS: readonly _InternalTypes['AnyComposition'][] = [];
 
-const calculateTimelineState = ({
-	sequences,
-	overrideIdsToNodePaths,
-	compositions = EMPTY_COMPOSITIONS,
-	showConnectedCompositionChildren = false,
-}: TimelineCalculationInput): {
+const calculateTimelineState = (
+	{
+		sequences,
+		overrideIdsToNodePaths,
+		compositions = EMPTY_COMPOSITIONS,
+		showConnectedCompositionChildren = false,
+	}: TimelineCalculationInput,
+	previous: TimelineCalculationSnapshot | null,
+): {
 	result: TimelineCalculation;
 	update: (input: TimelineCalculationInput) => TimelineCalculation | null;
 } => {
@@ -138,28 +146,25 @@ const calculateTimelineState = ({
 		}
 
 		const parentTiming = parent ? getTiming(parent) : null;
-		// Timing and nesting helpers historically treat an empty parent ID as a
-		// root, while playback rate and inherited loop lookup still resolve it.
-		const timingParent = sequence.parent ? parentTiming! : null;
 		const parentPlaybackRate = parent
 			? parent.sequencePlaybackRate * parentTiming!.parentPlaybackRate
 			: 1;
 		const sequencePlaybackRate =
 			parentPlaybackRate * sequence.sequencePlaybackRate;
-		const cascadedStart = timingParent
-			? timingParent.cascadedStart +
+		const cascadedStart = parentTiming
+			? parentTiming.cascadedStart +
 				(sequence.from - (parent!.trimBefore ?? 0)) / parentPlaybackRate
 			: sequence.from;
-		const visibleStart = timingParent
-			? Math.max(timingParent.visibleStart, Math.max(0, cascadedStart))
+		const visibleStart = parentTiming
+			? Math.max(parentTiming.visibleStart, Math.max(0, cascadedStart))
 			: Math.max(0, cascadedStart);
 		const end = cascadedStart + sequence.duration / parentPlaybackRate;
 		const visibleDuration = Math.max(
 			0,
-			(timingParent
+			(parentTiming
 				? Math.min(
 						end,
-						timingParent.visibleStart + timingParent.visibleDuration,
+						parentTiming.visibleStart + parentTiming.visibleDuration,
 					)
 				: end) - visibleStart,
 		);
@@ -188,8 +193,8 @@ const calculateTimelineState = ({
 			cascadedStart,
 			visibleStart,
 			visibleDuration,
-			depth: timingParent
-				? timingParent.depth + (parent!.showInTimeline ? 1 : 0)
+			depth: parentTiming
+				? parentTiming.depth + (parent!.showInTimeline ? 1 : 0)
 				: 0,
 			loopOwner,
 			mediaIterationStart,
@@ -266,7 +271,7 @@ const calculateTimelineState = ({
 					owner.loopDisplay.startOffset / ownerTiming.parentPlaybackRate;
 				let start = Math.max(0, origin);
 				let end = origin + durationInFrames * owner.loopDisplay.numberOfTimes;
-				if (owner.parent) {
+				if (owner.parent !== null) {
 					const loopParentTiming = getTiming(sequencesById.get(owner.parent)!);
 					start = Math.max(start, loopParentTiming.visibleStart);
 					end = Math.min(
@@ -354,9 +359,10 @@ const calculateTimelineState = ({
 
 		const rank = sequenceRanks.get(track.sequence.id) ?? 0;
 		const id = String(rank).padStart(6, '0');
-		const parent = track.sequence.parent
-			? tracksById.get(track.sequence.parent)
-			: null;
+		const parent =
+			track.sequence.parent !== null
+				? tracksById.get(track.sequence.parent)
+				: null;
 		const key = parent ? `${getSortKey(parent)}-${id}` : id;
 		sortKeysById.set(track.sequence.id, key);
 		return key;
@@ -413,6 +419,69 @@ const calculateTimelineState = ({
 			};
 		});
 
+	if (
+		previous !== null &&
+		previous.input.overrideIdsToNodePaths === overrideIdsToNodePaths &&
+		(previous.input.compositions ?? EMPTY_COMPOSITIONS) === compositions
+	) {
+		const previousSequencesById = new Map(
+			previous.input.sequences.map((sequence) => [sequence.id, sequence]),
+		);
+		// Rebuilding the hierarchy does not invalidate unchanged track snapshots.
+		// Keep this ownership here so every consumer receives the same identities.
+		currentTracks = currentTracks.map((track) => {
+			const previousIndex = previous.result.structure.trackIndexById.get(
+				track.sequence.id,
+			);
+			if (previousIndex === undefined) {
+				return track;
+			}
+
+			const oldTrack = previous.result.tracks[previousIndex];
+			// Matching source and mapping references also preserve controls, path
+			// details and video config; only the path's index and count can change.
+			const oldNodePath = oldTrack.nodePathInfo;
+			const nodePath = track.nodePathInfo;
+			const oldLoop = oldTrack.sequence.loopDisplay;
+			const loop = track.sequence.loopDisplay;
+			if (
+				sequencesById.get(track.sequence.id) !==
+					previousSequencesById.get(track.sequence.id) ||
+				oldTrack.depth !== track.depth ||
+				oldTrack.cascadedStart !== track.cascadedStart ||
+				oldTrack.localStart !== track.localStart ||
+				oldTrack.parentVisibleStart !== track.parentVisibleStart ||
+				oldTrack.parentVisibleEnd !== track.parentVisibleEnd ||
+				oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
+				oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
+				oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||
+				oldTrack.sequence.from !== track.sequence.from ||
+				oldTrack.sequence.duration !== track.sequence.duration ||
+				oldTrack.sequence.sequencePlaybackRate !==
+					track.sequence.sequencePlaybackRate ||
+				oldTrack.sequence.premountDisplay !== track.sequence.premountDisplay ||
+				oldTrack.sequence.postmountDisplay !==
+					track.sequence.postmountDisplay ||
+				(oldNodePath === null) !== (nodePath === null) ||
+				oldNodePath?.index !== nodePath?.index ||
+				oldNodePath?.numberOfSequencesWithThisNodePath !==
+					nodePath?.numberOfSequencesWithThisNodePath ||
+				(oldLoop === undefined) !== (loop === undefined) ||
+				(oldLoop !== undefined &&
+					loop !== undefined &&
+					(oldLoop.durationInFrames !== loop.durationInFrames ||
+						oldLoop.numberOfTimes !== loop.numberOfTimes ||
+						oldLoop.startOffset !== loop.startOffset ||
+						oldLoop.phaseOffsetInFrames !== loop.phaseOffsetInFrames ||
+						oldLoop.mediaOffsetInFrames !== loop.mediaOffsetInFrames))
+			) {
+				return track;
+			}
+
+			return oldTrack;
+		});
+	}
+
 	const trackIndexById = new Map(
 		currentTracks.map((track, index) => [track.sequence.id, index]),
 	);
@@ -430,10 +499,6 @@ const calculateTimelineState = ({
 			return null;
 		}
 
-		if (input.sequences === currentSequences) {
-			return {tracks: currentTracks, structure};
-		}
-
 		if (
 			input.sequences.length !== currentSequences.length ||
 			sequencesById.size !== currentSequences.length
@@ -444,15 +509,15 @@ const calculateTimelineState = ({
 		const changed: TSequence[] = [];
 		for (let i = 0; i < input.sequences.length; i++) {
 			const sequence = input.sequences[i];
-			const previous = currentSequences[i];
-			if (sequence === previous) {
+			const previousSequence = currentSequences[i];
+			if (sequence === previousSequence) {
 				continue;
 			}
 
 			// Retain ordering and node-path indexes only for ordinary media leaves.
 			// Changes to registrations, controls or hierarchy need a full rebuild.
 			if (
-				sequence.id !== previous.id ||
+				sequence.id !== previousSequence.id ||
 				(sequence.type !== 'audio' && sequence.type !== 'video') ||
 				sequence.frozenMediaFrame !== null ||
 				sequence.autoDuration ||
@@ -465,12 +530,12 @@ const calculateTimelineState = ({
 			}
 
 			const keys = Object.keys(sequence);
-			if (keys.length !== Object.keys(previous).length) {
+			if (keys.length !== Object.keys(previousSequence).length) {
 				return null;
 			}
 
 			for (const key of keys) {
-				if (!Object.hasOwn(previous, key)) {
+				if (!Object.hasOwn(previousSequence, key)) {
 					return null;
 				}
 
@@ -485,7 +550,8 @@ const calculateTimelineState = ({
 				}
 
 				if (
-					sequence[key as keyof TSequence] !== previous[key as keyof TSequence]
+					sequence[key as keyof TSequence] !==
+					previousSequence[key as keyof TSequence]
 				) {
 					return null;
 				}
@@ -545,23 +611,32 @@ const calculateTimelineState = ({
 	};
 };
 
-export const calculateTimeline = (
-	input: TimelineCalculationInput,
-): TimelineTrackData[] => {
-	return calculateTimelineState(input).result.tracks;
-};
-
-// One instance belongs to one timeline consumer. Compatible commits reuse the
+// One instance belongs to one timeline. Compatible commits reuse the
 // hierarchy, timing cache, sort order and node-path indexes from its last rebuild.
 export const createTimelineCalculator = () => {
 	let state: ReturnType<typeof calculateTimelineState> | null = null;
+	let previous: TimelineCalculationSnapshot | null = null;
 	return (input: TimelineCalculationInput): TimelineCalculation => {
+		if (
+			previous !== null &&
+			input.sequences === previous.input.sequences &&
+			input.overrideIdsToNodePaths === previous.input.overrideIdsToNodePaths &&
+			(input.compositions ?? EMPTY_COMPOSITIONS) ===
+				(previous.input.compositions ?? EMPTY_COMPOSITIONS) &&
+			(input.showConnectedCompositionChildren ?? false) ===
+				(previous.input.showConnectedCompositionChildren ?? false)
+		) {
+			return previous.result;
+		}
+
 		const updated = state?.update(input) ?? null;
 		if (updated !== null) {
+			previous = {input, result: updated};
 			return updated;
 		}
 
-		state = calculateTimelineState(input);
+		state = calculateTimelineState(input, previous);
+		previous = {input, result: state.result};
 		return state.result;
 	};
 };

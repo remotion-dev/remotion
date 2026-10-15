@@ -12,7 +12,6 @@ type SequenceRegistry = NonNullable<
 
 type TimelineSequenceRegistryEntry = {
 	readonly sequence: TSequence;
-	readonly previousSequenceId: string | null;
 	readonly previousOverrideId: string | null;
 	readonly nextOverrideId: string | null;
 	readonly previousTouchingSequence: TSequence | null;
@@ -91,7 +90,6 @@ const updateRegistryEntries = ({
 		index.entries.set(
 			sequenceId,
 			previousEntry?.sequence === sequence &&
-				previousEntry.previousSequenceId === previousSequenceId &&
 				previousEntry.previousOverrideId === previousOverrideId &&
 				previousEntry.nextOverrideId === nextOverrideId &&
 				previousEntry.previousTouchingSequence === previousTouchingSequence &&
@@ -99,7 +97,6 @@ const updateRegistryEntries = ({
 				? previousEntry
 				: {
 						sequence,
-						previousSequenceId,
 						previousOverrideId,
 						nextOverrideId,
 						previousTouchingSequence,

@@ -19,6 +19,7 @@ import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {findTrackForNodePathInfo} from '../Timeline/find-track-for-node-path-info';
 import {getCurrentFrame} from '../Timeline/imperative-state';
 import {splitSelectedTimelineItems} from '../Timeline/split-selected-timeline-item';
 import {
@@ -81,14 +82,10 @@ export const MultiSequenceInspector: React.FC<{
 			const key = stringifySequenceExpandedRowKey(
 				selection.nodePathInfo.sequenceSubscriptionKey,
 			);
-			const track = tracks.find(
-				(candidate) =>
-					candidate.nodePathInfo !== null &&
-					stringifySequenceExpandedRowKey(
-						candidate.nodePathInfo.sequenceSubscriptionKey,
-					) === key &&
-					candidate.nodePathInfo.index === selection.nodePathInfo.index,
-			);
+			const track = findTrackForNodePathInfo({
+				tracks,
+				nodePathInfo: selection.nodePathInfo,
+			});
 			if (!track?.sequence.controls || !track.nodePathInfo) {
 				return null;
 			}
@@ -113,17 +110,7 @@ export const MultiSequenceInspector: React.FC<{
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
 		return selections.map(({nodePathInfo}) => {
-			const key = stringifySequenceExpandedRowKey(
-				nodePathInfo.sequenceSubscriptionKey,
-			);
-			const track = tracks.find(
-				(candidate) =>
-					candidate.nodePathInfo !== null &&
-					stringifySequenceExpandedRowKey(
-						candidate.nodePathInfo.sequenceSubscriptionKey,
-					) === key &&
-					candidate.nodePathInfo.index === nodePathInfo.index,
-			);
+			const track = findTrackForNodePathInfo({tracks, nodePathInfo});
 			return {
 				nodePathInfo,
 				displayName: track?.sequence.displayName ?? null,
@@ -187,13 +174,16 @@ export const MultiSequenceInspector: React.FC<{
 
 		splitSelectedTimelineItems({
 			selections,
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			tracks: calculateTimeline({
+				sequences,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			}).tracks,
 			propStatuses,
 			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
 		canSplit,
+		calculateTimeline,
 		overrideIdToNodePathMappings,
 		propStatuses,
 		selections,
