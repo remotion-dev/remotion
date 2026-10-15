@@ -11,6 +11,7 @@ import {
 	onlyAudioAndVideoAssets,
 	onlyInlineAudio,
 } from './filter-asset-types';
+import {FrameTimeoutError, getFrameTimeout} from './frame-timeout';
 import type {CountType} from './get-frame-padded-index';
 import {getFrameOutputFileName} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
@@ -25,8 +26,6 @@ import {isRemotionRawFrame} from './remotion-shared-memory';
 import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {takeFrame} from './take-frame';
-
-export const FRAME_TIMEOUT_TOKEN = 'Timed out rendering frame';
 
 export const renderFrameWithOptionToReject = async ({
 	reject,
@@ -138,14 +137,15 @@ export const renderFrameWithOptionToReject = async ({
 		frame,
 	});
 	page.on('error', errorCallbackOnFrame);
+	const frameTimeoutInMilliseconds = getFrameTimeout(timeoutInMilliseconds);
 	const frameTimeout = setTimeout(() => {
 		errorCallbackOnFrame(
-			new Error(
-				`${FRAME_TIMEOUT_TOKEN} ${frame} after ${timeoutInMilliseconds * 2}ms (twice the timeoutInMilliseconds). The browser tab is stuck and was closed.`,
+			new FrameTimeoutError(
+				`Rendering frame ${frame} took longer than ${frameTimeoutInMilliseconds}ms, which is more than all of its timeouts combined. The browser tab is stuck and was closed.`,
 			),
 		);
 		page.close().catch(() => undefined);
-	}, timeoutInMilliseconds * 2);
+	}, frameTimeoutInMilliseconds);
 	let pageListenersCleaned = false;
 	const cleanupPageListeners = () => {
 		if (pageListenersCleaned) {

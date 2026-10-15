@@ -2,11 +2,12 @@ import {afterEach, expect, mock, spyOn, test} from 'bun:test';
 import type {DownloadMap} from '../assets/download-map';
 import type {Page} from '../browser/BrowserPage';
 import * as collectAssetsModule from '../collect-assets';
+import * as frameTimeoutModule from '../frame-timeout';
+import {FrameTimeoutError, getFrameTimeout} from '../frame-timeout';
 import type {LogLevel} from '../log-level';
 import {nextFrameToRenderState} from '../next-frame-to-render';
 import {Pool} from '../pool';
 import {renderFrameAndRetryTargetClose} from '../render-frame-and-retry-target-close';
-import {FRAME_TIMEOUT_TOKEN} from '../render-frame-with-option-to-reject';
 import type {BrowserReplacer} from '../replace-browser';
 import * as seekToFrameModule from '../seek-to-frame';
 import * as takeFrameModule from '../take-frame';
@@ -66,6 +67,9 @@ const renderTwoFrames = ({
 			Buffer.from('frame') as never,
 		),
 		spyOn(collectAssetsModule, 'collectAssets').mockResolvedValue([]),
+		spyOn(frameTimeoutModule, 'getFrameTimeout').mockReturnValue(
+			timeoutInMilliseconds * 2,
+		),
 	);
 	const pool = new Pool([tab]);
 	const makeNewPage = mock(() => Promise.resolve(newTab));
@@ -221,7 +225,7 @@ test(
 			logLevel: 'warn',
 		});
 
-		await expect(done).rejects.toThrow(FRAME_TIMEOUT_TOKEN);
+		await expect(done).rejects.toBeInstanceOf(FrameTimeoutError);
 
 		const warnings = warn.mock.calls.map((args) => args.join(' '));
 		expect(warnings[warnings.length - 1]).toContain(
@@ -231,3 +235,25 @@ test(
 	},
 	{timeout: 2000},
 );
+
+test('Should only count a frame as stuck after all of its timeouts ran out', () => {
+	expect(getFrameTimeout(30_000)).toBe(126_000);
+	expect(getFrameTimeout(2_000_000_000)).toBe(2 ** 31 - 1);
+});
+
+test('Should not retry an error that only looks like a stuck frame', async () => {
+	const {done, makeNewPage} = renderTwoFrames({
+		tab: makeTab().page,
+		newTab: makeTab().page,
+		seek: ({frame}) =>
+			frame === 1
+				? Promise.reject(new Error('Rendering frame 1 took longer than 100ms'))
+				: Promise.resolve(),
+		logLevel: 'error',
+	});
+
+	await expect(done).rejects.toThrow(
+		'Rendering frame 1 took longer than 100ms',
+	);
+	expect(makeNewPage).not.toHaveBeenCalled();
+});

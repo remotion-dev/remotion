@@ -5,6 +5,7 @@ import type {DownloadMap} from './assets/download-map';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {isFlakyNetworkError, isTargetClosedErr} from './browser/flaky-errors';
+import {FrameTimeoutError} from './frame-timeout';
 import type {CountType} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
 import {getRetriesLeftFromError} from './is-delay-render-error-with-retry';
@@ -19,7 +20,6 @@ import type {
 	RemotionSharedMemoryCapture,
 } from './remotion-shared-memory';
 import {renderFrame} from './render-frame';
-import {FRAME_TIMEOUT_TOKEN} from './render-frame-with-option-to-reject';
 import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 import type {BrowserReplacer} from './replace-browser';
 
@@ -173,7 +173,7 @@ export const renderFrameAndRetryTargetClose = async ({
 			NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
 		);
 		const flakyNetworkError = isFlakyNetworkError(err as Error);
-		const frameTimedOut = (err as Error).message?.includes(FRAME_TIMEOUT_TOKEN);
+		const frameTimedOut = err instanceof FrameTimeoutError;
 
 		if (isUserCancelledRender(err) && !shouldRetryError) {
 			throw err;
