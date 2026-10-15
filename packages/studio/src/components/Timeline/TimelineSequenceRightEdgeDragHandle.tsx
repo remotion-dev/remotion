@@ -32,6 +32,7 @@ import {
 } from '../../helpers/pointer-session';
 import {startThresholdPointerSession} from '../../helpers/start-threshold-pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {getCachedMediaMetadata} from '../../helpers/use-media-metadata';
 import {EditorSnappingContext} from '../../state/editor-snapping';
 import {
 	forceSpecificCursor,
@@ -262,6 +263,15 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly ripplePrevious: TimelineSequenceDurationDragTarget | null;
 	// A cascading roll preserves the incoming source out by moving its source in.
 	readonly rollingDuration: TimelineSequenceDurationDragTarget | null;
+	readonly sourceOnlyLimits: {
+		// Negative offsets use the hidden prefix by moving the child's start.
+		readonly minimumSourceOffset: number;
+		readonly maximumSourceOffset: number;
+		readonly minimumReason: TimelineTrimLimitReason;
+		readonly maximumReason: TimelineTrimLimitReason;
+		readonly adjustDuration: boolean;
+		readonly requiresExplicitDuration: boolean;
+	} | null;
 	readonly timingLimits: ReturnType<
 		typeof getTimelineSequenceTimingLimits
 	> | null;
@@ -304,7 +314,7 @@ const queueStaticDragOverrideIfChanged = ({
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly key: string;
 	readonly value: number;
-	readonly initialValue: number;
+	readonly initialValue: number | null;
 }) => {
 	const nodeKey = stringifySequenceSubscriptionKey(nodePath);
 	const previousForNode = previousValues.get(nodeKey);
@@ -570,6 +580,25 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 		};
 	}
 
+	if (trimBeforeOnly && target.sourceOnlyLimits) {
+		const limits = target.sourceOnlyLimits;
+		const sourceOffset = Math.max(
+			limits.minimumSourceOffset,
+			Math.min(
+				limits.maximumSourceOffset,
+				target.initialTrimBefore -
+					deltaFrames * target.parentPlaybackRate * target.playbackRate,
+			),
+		);
+		const fromShift = Math.max(0, -sourceOffset / target.playbackRate);
+		return {
+			from: target.initialFrom + fromShift,
+			durationInFrames:
+				target.initialDuration - (limits.adjustDuration ? fromShift : 0),
+			trimBefore: Math.max(0, sourceOffset),
+		};
+	}
+
 	if (target.rollingDuration && target.ripplePrevious) {
 		const outgoing = target.ripplePrevious;
 		// The incoming source out and timeline end stay fixed. Its duration limits
@@ -615,7 +644,7 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 		: deltaFrames;
 	const localDeltaFrames = sharedDeltaFrames * target.parentPlaybackRate;
 	// Only trims that started inside the parent are constrained to its start.
-	// Source-only and cascading trims do not change `from`.
+	// Other source-only and cascading trims do not change `from`.
 	let clampedDeltaFrames =
 		!trimBeforeOnly && target.positionField !== null && target.initialFrom >= 0
 			? Math.max(-target.initialFrom, localDeltaFrames)
@@ -720,7 +749,13 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 			});
 		}
 
-		if (nextValues.durationInFrames !== target.initialDuration) {
+		if (
+			nextValues.durationInFrames !== target.initialDuration ||
+			(trimBeforeOnly &&
+				target.sourceOnlyLimits?.requiresExplicitDuration &&
+				(nextValues.from !== target.initialFrom ||
+					nextValues.trimBefore !== target.initialTrimBefore))
+		) {
 			changes.push({
 				fileName: target.fileName,
 				nodePath: target.nodePath,
@@ -1389,6 +1424,102 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				sequences,
 				timelineDurationInFrames,
 			});
+			let sourceOnlyLimits: TimelineSequenceLeftEdgeDragTarget['sourceOnlyLimits'] =
+				null;
+			if (trimBeforeOnly && trimsMedia && positionField === 'from') {
+				const hiddenPrefix = Math.max(
+					0,
+					(track.sequence.from - track.cascadedStart) *
+						track.keyframePlaybackRate,
+				);
+				const hasExplicitDuration =
+					typeof runtimeDuration === 'number' &&
+					Number.isFinite(runtimeDuration);
+				const visibleEnd =
+					(track.sequence.from +
+						track.sequence.duration -
+						track.cascadedStart) *
+					track.keyframePlaybackRate;
+				const initialDuration = hasExplicitDuration
+					? (runtimeDuration as number) / playbackRate
+					: visibleEnd;
+				// Parent bounds constrain the visible window, not the source inside it.
+				const minimumTrimBefore = Math.min(
+					ownTrimBefore,
+					Math.max(
+						0,
+						ownTrimBefore +
+							(timingLimits.keyframes.minimumDuration - initialDuration) *
+								originalSequence.sequencePlaybackRate,
+					),
+				);
+				const endsAtParentBoundary =
+					track.sequence.from + track.sequence.duration >=
+					Math.min(
+						track.parentVisibleEnd ?? Infinity,
+						timelineDurationInFrames,
+					);
+				const adjustDuration =
+					(hasExplicitDuration || !endsAtParentBoundary) &&
+					canUpdateDurationInFrames({propStatuses, nodePath});
+				const canShiftFrom =
+					canUpdateFrom({propStatuses, nodePath}) &&
+					(endsAtParentBoundary || adjustDuration);
+				const maximumFromShift = canShiftFrom
+					? Math.min(
+							hiddenPrefix,
+							adjustDuration
+								? Math.max(
+										0,
+										initialDuration -
+											timingLimits.keyframes.minimumDuration -
+											ownTrimBefore / playbackRate,
+									)
+								: Infinity,
+						)
+					: 0;
+				const metadata = getCachedMediaMetadata(originalSequence.src);
+				const fps = controls.videoConfigValues?.fps;
+				const sourceEnd = Math.min(
+					metadata && fps ? Math.ceil(metadata.duration * fps) : Infinity,
+					typeof runtimeValues.trimAfter === 'number'
+						? runtimeValues.trimAfter
+						: Infinity,
+				);
+				const maximumSourceOffsetFromEnd =
+					originalSequence.loopDisplay || runtimeValues.loop === true
+						? Infinity
+						: sourceEnd - visibleEnd * playbackRate;
+				sourceOnlyLimits = {
+					minimumSourceOffset:
+						minimumTrimBefore > 0
+							? minimumTrimBefore
+							: -maximumFromShift * playbackRate,
+					maximumSourceOffset: Math.max(
+						ownTrimBefore,
+						Math.min(
+							timingLimits.maximumTrimBefore,
+							maximumSourceOffsetFromEnd,
+						),
+					),
+					minimumReason:
+						minimumTrimBefore > 0
+							? (timingLimits.keyframes.minimumReason ?? 'Keyframe constraint')
+							: hiddenPrefix > 0 && !canShiftFrom
+								? 'Computed value'
+								: maximumFromShift < hiddenPrefix
+									? 'Keyframe constraint'
+									: 'Source start',
+					maximumReason:
+						maximumSourceOffsetFromEnd <= timingLimits.maximumTrimBefore
+							? 'Source end'
+							: timingLimits.limitReasons.maximumTrimBefore,
+					adjustDuration,
+					requiresExplicitDuration:
+						!hasExplicitDuration && !endsAtParentBoundary,
+				};
+			}
+
 			if (!trimBeforeOnly && positionField === 'from') {
 				// This handle edits the visible edge, not the compressed negative-time
 				// gutter. Moving clips may preserve authored clipping, but trimming
@@ -1448,6 +1579,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				positionField,
 				ripplePrevious,
 				rollingDuration: null,
+				sourceOnlyLimits,
 				timingLimits,
 				schema: controls.schema,
 			});
@@ -1566,6 +1698,7 @@ export const getTimelineSequenceRollingEditTargets = ({
 				positionField: null,
 				ripplePrevious: outgoing,
 				rollingDuration: incoming,
+				sourceOnlyLimits: null,
 				timingLimits: getTimelineSequenceTimingLimits({
 					track: next,
 					tracks,
@@ -2449,16 +2582,29 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								const limits = target.timingLimits;
 								const targetLimitReason =
 									dragState.mode === 'source-only'
-										? getTimelineTrimLimitReason(nextValues.trimBefore, [
+										? getTimelineTrimLimitReason(
+												nextValues.trimBefore -
+													(nextValues.from - target.initialFrom) *
+														target.playbackRate,
 												[
-													limits?.minimumTrimBefore ?? NaN,
-													limits?.limitReasons.minimumTrimBefore ?? null,
+													[
+														target.sourceOnlyLimits?.minimumSourceOffset ??
+															limits?.minimumTrimBefore ??
+															NaN,
+														target.sourceOnlyLimits?.minimumReason ??
+															limits?.limitReasons.minimumTrimBefore ??
+															null,
+													],
+													[
+														target.sourceOnlyLimits?.maximumSourceOffset ??
+															limits?.maximumTrimBefore ??
+															NaN,
+														target.sourceOnlyLimits?.maximumReason ??
+															limits?.limitReasons.maximumTrimBefore ??
+															null,
+													],
 												],
-												[
-													limits?.maximumTrimBefore ?? NaN,
-													limits?.limitReasons.maximumTrimBefore ?? null,
-												],
-											])
+											)
 										: (getTimelineTrimLimitReason(nextValues.durationInFrames, [
 												[
 													limits?.keyframes.minimumDuration ?? NaN,
@@ -2484,13 +2630,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 														],
 													])));
 								limitReason ??=
-									getVisibleTimelineTrimLimitReason(targetLimitReason);
+									dragState.mode === 'source-only'
+										? targetLimitReason
+										: getVisibleTimelineTrimLimitReason(targetLimitReason);
 							}
 
-							if (
-								dragState.mode !== 'source-only' &&
-								target.positionField !== null
-							) {
+							if (target.positionField !== null) {
 								queueStaticDragOverrideIfChanged({
 									updates,
 									previousValues: dragState.previousPreviewValues,
@@ -2501,16 +2646,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								});
 							}
 
-							if (dragState.mode !== 'source-only') {
-								queueStaticDragOverrideIfChanged({
-									updates,
-									previousValues: dragState.previousPreviewValues,
-									nodePath: target.nodePath,
-									key: 'durationInFrames',
-									value: nextValues.durationInFrames * target.playbackRate,
-									initialValue: target.initialDuration * target.playbackRate,
-								});
-							}
+							queueStaticDragOverrideIfChanged({
+								updates,
+								previousValues: dragState.previousPreviewValues,
+								nodePath: target.nodePath,
+								key: 'durationInFrames',
+								value: nextValues.durationInFrames * target.playbackRate,
+								initialValue:
+									dragState.mode === 'source-only' &&
+									target.sourceOnlyLimits?.requiresExplicitDuration
+										? null
+										: target.initialDuration * target.playbackRate,
+							});
 
 							queueStaticDragOverrideIfChanged({
 								updates,
@@ -2569,8 +2716,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								});
 								appliedDelta =
 									dragState.mode === 'source-only'
-										? (values.trimBefore - draggedTarget.initialTrimBefore) /
-											draggedTarget.playbackRate
+										? ((values.trimBefore - draggedTarget.initialTrimBefore) /
+												draggedTarget.playbackRate -
+												(values.from - draggedTarget.initialFrom)) /
+											draggedTarget.parentPlaybackRate
 										: (values.from - draggedTarget.initialFrom) /
 											draggedTarget.parentPlaybackRate;
 							}
@@ -2762,7 +2911,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				/>
 			) : null}
 			{trimTooltip === null ? null : (
-				<TimelineTrimTooltip state={trimTooltip} fps={fps} />
+				<TimelineTrimTooltip
+					state={trimTooltip}
+					fps={fps}
+					showSourceLimits={dragStateRef.current?.mode === 'source-only'}
+				/>
 			)}
 		</>
 	);
@@ -3680,7 +3833,11 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				onClick={(e) => e.stopPropagation()}
 			/>
 			{trimTooltip === null ? null : (
-				<TimelineTrimTooltip state={trimTooltip} fps={fps} />
+				<TimelineTrimTooltip
+					state={trimTooltip}
+					fps={fps}
+					showSourceLimits={false}
+				/>
 			)}
 		</>
 	);
