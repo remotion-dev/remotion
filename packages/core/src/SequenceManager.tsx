@@ -13,6 +13,7 @@ import {
 	type SequenceNodePath,
 } from './sequence-registry-context.js';
 import {SequenceActivityBudgetProvider} from './SequenceActivityBudget.js';
+import {SequenceActivitySuspensionProvider} from './SequenceActivitySuspensionProvider.js';
 import {SequenceRegistryProvider} from './SequenceRegistryProvider.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
@@ -103,9 +104,11 @@ const SequenceManagerScopeProviders: React.FC<{
 						typeof React.Activity !== 'undefined'
 					}
 				>
-					<SequenceActivityBudgetProvider>
-						{children}
-					</SequenceActivityBudgetProvider>
+					<SequenceActivitySuspensionProvider>
+						<SequenceActivityBudgetProvider>
+							{children}
+						</SequenceActivityBudgetProvider>
+					</SequenceActivitySuspensionProvider>
 				</SequenceActivityContext.Provider>
 			</VisualModeDragOverridesSubscriptionContext.Provider>
 		</ActiveFromDragOverrideKeysContext.Provider>
