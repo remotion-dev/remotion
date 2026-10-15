@@ -265,17 +265,24 @@ export const getTimelineDisplayRows = (
 	return rows;
 };
 
-// Only use this when visible membership and packing are unchanged. Replacing a
-// media leaf's calculated snapshot does not require grouping every track again.
+// The input rows own membership and packing. Reuse previous snapshots only when
+// their resolved tracks still match, including after a full layout calculation.
 export const projectTimelineDisplayRows = ({
 	rows,
 	tracksById,
+	previousRows,
 }: {
 	readonly rows: readonly TimelineDisplayRow[];
 	readonly tracksById: ReadonlyMap<string, TimelineTrackWithDisplayGroup>;
+	readonly previousRows: readonly TimelineDisplayRow[] | null;
 }): readonly TimelineDisplayRow[] => {
+	const previousById =
+		previousRows === null || previousRows === rows
+			? null
+			: new Map(previousRows.map((row) => [row.track.sequence.id, row]));
 	const updateTracks = (
 		tracks: readonly TimelineTrackWithDisplayGroup[],
+		previousTracks: readonly TimelineTrackWithDisplayGroup[] | null,
 	): readonly TimelineTrackWithDisplayGroup[] => {
 		let updatedTracks: TimelineTrackWithDisplayGroup[] | null = null;
 		for (let index = 0; index < tracks.length; index++) {
@@ -286,16 +293,25 @@ export const projectTimelineDisplayRows = ({
 			}
 		}
 
-		return updatedTracks ?? tracks;
+		const projected = updatedTracks ?? tracks;
+		return previousTracks !== null &&
+			previousTracks.length === projected.length &&
+			previousTracks.every((track, index) => track === projected[index])
+			? previousTracks
+			: projected;
 	};
 
 	let updated: TimelineDisplayRow[] | null = null;
 	for (let index = 0; index < rows.length; index++) {
 		const row = rows[index];
+		const previous = previousById?.get(row.track.sequence.id) ?? row;
 		const track = tracksById.get(row.track.sequence.id) ?? row.track;
-		const items = row.items === null ? null : updateTracks(row.items);
+		const items =
+			row.items === null ? null : updateTracks(row.items, previous.items);
 		const childScenes =
-			row.childScenes === null ? null : updateTracks(row.childScenes);
+			row.childScenes === null
+				? null
+				: updateTracks(row.childScenes, previous.childScenes);
 		let auxiliaryRows: (readonly TimelineTrackWithDisplayGroup[])[] | null =
 			null;
 		for (
@@ -303,29 +319,48 @@ export const projectTimelineDisplayRows = ({
 			auxiliaryIndex < row.auxiliaryRows.length;
 			auxiliaryIndex++
 		) {
-			const auxiliaryRow = updateTracks(row.auxiliaryRows[auxiliaryIndex]);
+			const auxiliaryRow = updateTracks(
+				row.auxiliaryRows[auxiliaryIndex],
+				previous.auxiliaryRows[auxiliaryIndex] ?? null,
+			);
 			if (auxiliaryRow !== row.auxiliaryRows[auxiliaryIndex]) {
 				auxiliaryRows ??= [...row.auxiliaryRows];
 				auxiliaryRows[auxiliaryIndex] = auxiliaryRow;
 			}
 		}
 
-		if (
-			track === row.track &&
-			items === row.items &&
-			childScenes === row.childScenes &&
-			auxiliaryRows === null
-		) {
+		const projectedAuxiliaryRows = auxiliaryRows ?? row.auxiliaryRows;
+		const stableAuxiliaryRows =
+			previous.auxiliaryRows.length === projectedAuxiliaryRows.length &&
+			previous.auxiliaryRows.every(
+				(auxiliaryRow, auxiliaryIndex) =>
+					auxiliaryRow === projectedAuxiliaryRows[auxiliaryIndex],
+			)
+				? previous.auxiliaryRows
+				: projectedAuxiliaryRows;
+		const projected =
+			track === previous.track &&
+			items === previous.items &&
+			childScenes === previous.childScenes &&
+			stableAuxiliaryRows === previous.auxiliaryRows
+				? previous
+				: track === row.track &&
+					  items === row.items &&
+					  childScenes === row.childScenes &&
+					  stableAuxiliaryRows === row.auxiliaryRows
+					? row
+					: {
+							track,
+							items,
+							childScenes,
+							auxiliaryRows: stableAuxiliaryRows,
+						};
+		if (projected === row) {
 			continue;
 		}
 
 		updated ??= [...rows];
-		updated[index] = {
-			track,
-			items,
-			childScenes,
-			auxiliaryRows: auxiliaryRows ?? row.auxiliaryRows,
-		};
+		updated[index] = projected;
 	}
 
 	return updated ?? rows;

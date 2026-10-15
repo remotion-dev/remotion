@@ -506,16 +506,36 @@ const TimelineInner: React.FC = () => {
 	} | null>(null);
 	const collapsed = useMemo(() => {
 		const previous = previousCollapsedRef.current;
+		const previousById =
+			previous !== null && previous.layout !== collapsedLayout
+				? new Map(previous.tracks.map((track) => [track.sequence.id, track]))
+				: null;
+		const previousSourcesById =
+			previousById !== null && previous !== null
+				? new Map(previous.timeline.map((track) => [track.sequence.id, track]))
+				: null;
 		return collapsedLayout.tracks.map((layoutTrack, index) => {
 			const trackIndex = calculation.structure.trackIndexById.get(
 				layoutTrack.sequence.id,
 			)!;
 			const track = timeline[trackIndex];
+			const oldTrack =
+				previousById === null
+					? previous?.tracks[index]
+					: previousById.get(track.sequence.id);
+			const oldSource =
+				previousSourcesById === null
+					? previous?.timeline[trackIndex]
+					: previousSourcesById.get(track.sequence.id);
 			if (
-				previous?.layout === collapsedLayout &&
-				previous.timeline[trackIndex] === track
+				oldTrack !== undefined &&
+				oldSource === track &&
+				oldTrack.depth === layoutTrack.depth &&
+				oldTrack.displayGroup?.key === layoutTrack.displayGroup?.key &&
+				oldTrack.displayGroup?.numberOfSequences ===
+					layoutTrack.displayGroup?.numberOfSequences
 			) {
-				return previous.tracks[index];
+				return oldTrack;
 			}
 
 			return {
@@ -680,6 +700,7 @@ const TimelineInner: React.FC = () => {
 	const displayRows = useMemo(
 		() =>
 			projectTimelineDisplayRows({
+				previousRows: previousRowsRef.current.rows,
 				rows:
 					previousRowsRef.current.layoutRows === layoutRows
 						? previousRowsRef.current.rows
