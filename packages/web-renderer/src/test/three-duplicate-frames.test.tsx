@@ -5,6 +5,7 @@ import React from 'react';
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
+import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 
 const Mesh: React.FC = () => {
@@ -157,3 +158,31 @@ test(
 		expect(framesAreIdentical(framePixelData[0], framePixelData[1])).toBe(true);
 	},
 );
+
+test('batch stills seek a mounted ThreeCanvas and retain each captured frame', async () => {
+	const stills = await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: ThreeTestComponent,
+			id: 'three-batch-stills',
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+		},
+		frame: [0, 20, 0],
+		inputProps: {},
+	});
+	const pixels: Uint8ClampedArray[] = [];
+	for (const still of stills) {
+		const canvas = await still.canvas();
+		pixels.push(canvas.getContext('2d')!.getImageData(0, 0, 100, 100).data);
+	}
+
+	expect(pixels[0].every((value, index) => value === pixels[2][index])).toBe(
+		true,
+	);
+	expect(pixels[0].every((value, index) => value === pixels[1][index])).toBe(
+		false,
+	);
+});
