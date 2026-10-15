@@ -1,5 +1,9 @@
 import type {RootState} from '@react-three/fiber';
-import {Canvas, useThree} from '@react-three/fiber';
+import {
+	Canvas,
+	events as createPointerEvents,
+	useThree,
+} from '@react-three/fiber';
 import React, {
 	useCallback,
 	useEffect,
@@ -78,6 +82,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 		style,
 		resize,
 		frameloop,
+		events = createPointerEvents,
 		onCreated,
 		FrameRenderer,
 		advanceOnCreated,
@@ -88,6 +93,23 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 	const {delayRender, continueRender} = useDelayRender();
 	const contexts = Internals.useRemotionContexts();
 	const frame = useCurrentFrame();
+	const createEvents = useCallback<NonNullable<ThreeCanvasProps['events']>>(
+		(store) => {
+			const manager = events(store);
+			const {connect} = manager;
+			return {
+				...manager,
+				connect: (target) => {
+					// R3F can finish configuring an async renderer after the Canvas
+					// unmounts. Its default event source ref is null by then.
+					if (target) {
+						connect?.(target);
+					}
+				},
+			};
+		},
+		[events],
+	);
 
 	// Taken at commit and released on unmount, so a canvas that unmounts before it is
 	// created, or a render React discards, does not leave the hold open.
@@ -165,6 +187,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 				style={actualStyle}
 				{...rest}
 				resize={{offsetSize: true, ...resize}}
+				events={createEvents}
 				frameloop={isRendering ? 'never' : (frameloop ?? 'always')}
 				onCreated={remotion_onCreated}
 			>
@@ -236,7 +259,12 @@ export const ThreeCanvasInternals = ({
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 			>
-				<ThreeCanvasContent {...props} style={premountingStyle ?? undefined} />
+				<Internals.SequenceContent>
+					<ThreeCanvasContent
+						{...props}
+						style={premountingStyle ?? undefined}
+					/>
+				</Internals.SequenceContent>
 			</Sequence>
 		</Freeze>
 	);

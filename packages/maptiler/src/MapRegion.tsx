@@ -288,6 +288,11 @@ const MapRegionDrawing = ({
 		}
 
 		return () => {
+			// The viewport's layout cleanup may already have removed the map.
+			if (!map.style) {
+				return;
+			}
+
 			if (map.getLayer(outlineSourceId)) {
 				map.removeLayer(outlineSourceId);
 			}

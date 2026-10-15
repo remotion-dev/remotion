@@ -1,4 +1,4 @@
-import {createContext, useContext} from 'react';
+import {createContext, createElement, Fragment, useContext} from 'react';
 import type {TimelineContextValue} from './TimelineContext.js';
 
 export {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
@@ -7,6 +7,7 @@ export {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
 // when the sequence manager falls back to effects.
 export const SequenceActivityContext = createContext(false);
 export const SequenceActivityDormantContext = createContext(false);
+export const SequenceActivityGenerationContext = createContext(0);
 export const SequenceActivitySuspensionContext = createContext(false);
 export const SequenceActivitySettingsContext = createContext<{
 	readonly limit: number;
@@ -23,5 +24,7 @@ export const SequenceActivityAbsoluteTimeContext =
 export const SequenceContent: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	return useContext(SequenceActivityDormantContext) ? null : children;
+	const dormant = useContext(SequenceActivityDormantContext);
+	const generation = useContext(SequenceActivityGenerationContext);
+	return dormant ? null : createElement(Fragment, {key: generation}, children);
 };

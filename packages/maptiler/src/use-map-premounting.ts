@@ -14,7 +14,8 @@ export const useMapPremounting = (getLayerIds: () => string[]) => {
 	layerIdsRef.current = getLayerIds;
 
 	const applyPremountVisibility = useCallback(() => {
-		if (!map) {
+		// Passive effects may flush after the viewport's layout cleanup.
+		if (!map || !map.style) {
 			return;
 		}
 

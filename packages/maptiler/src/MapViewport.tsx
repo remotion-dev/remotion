@@ -4,6 +4,7 @@ import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
 import {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
 	Interactive,
+	Internals,
 	useDelayRender,
 	type InteractiveBaseProps,
 	type InteractiveCropProps,
@@ -550,7 +551,11 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 
 export const MapViewport: ComponentType<MapViewportProps> =
 	Interactive.withSchema({
-		Component: MapViewportContent,
+		Component: (props: MapViewportContentProps) => (
+			<Internals.SequenceContent>
+				<MapViewportContent {...props} />
+			</Internals.SequenceContent>
+		),
 		componentName: '<MapViewport>',
 		schema: mapViewportSchema,
 		wrapInSequence: true,
