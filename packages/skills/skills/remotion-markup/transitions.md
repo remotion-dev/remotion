@@ -96,17 +96,19 @@ import {SlideInPresentation} from './SlideInPresentation';
 
 ```tsx title="LightLeakOverlay.tsx"
 import {lightLeak} from '@remotion/effects/light-leak';
-import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import type {CSSProperties} from 'react';
+import {Interactive, interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const LightLeakOverlay = () => {
+const LightLeakOverlayInner = ({style}: {readonly style?: CSSProperties}) => {
   const frame = useCurrentFrame();
   const {durationInFrames, height, width} = useVideoConfig();
 
   return (
     <Solid
-      name="Light leak"
+      showInTimeline={false}
       width={width}
       height={height}
+      style={style}
       effects={[
         lightLeak({
           progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
@@ -118,6 +120,11 @@ export const LightLeakOverlay = () => {
     />
   );
 };
+
+export const LightLeakOverlay = Interactive.create({
+  Component: LightLeakOverlayInner,
+  layout: 'none',
+});
 ```
 
 ```tsx title="OverlayVideo.tsx"
@@ -131,7 +138,7 @@ export const OverlayVideo = () => (
       <Chapter title="Introduction" style={{backgroundColor: '#111111'}} />
     </TransitionSeries.Sequence>
     <TransitionSeries.Overlay durationInFrames={20}>
-      <LightLeakOverlay />
+      <LightLeakOverlay name="Light leak" />
     </TransitionSeries.Overlay>
     <TransitionSeries.Sequence name="Feature" durationInFrames={60}>
       <Chapter title="New features" style={{backgroundColor: '#243b53'}} />
@@ -156,7 +163,7 @@ export const MixedVideo = () => (
       <Chapter title="Introduction" style={{backgroundColor: '#111111'}} />
     </TransitionSeries.Sequence>
     <TransitionSeries.Overlay durationInFrames={30}>
-      <LightLeakOverlay />
+      <LightLeakOverlay name="Light leak" />
     </TransitionSeries.Overlay>
     <TransitionSeries.Sequence name="Feature" durationInFrames={60}>
       <Chapter title="New features" style={{backgroundColor: '#243b53'}} />
