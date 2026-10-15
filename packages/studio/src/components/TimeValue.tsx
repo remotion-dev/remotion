@@ -84,8 +84,37 @@ const currentTimeSubtitle: React.CSSProperties = {
 	textAlign: 'left',
 };
 
-export const TimeValue: React.FC = () => {
+const CurrentTimeInput: React.FC<{
+	readonly buttonRef: React.Ref<HTMLButtonElement>;
+	readonly onTextChange: (value: string) => void;
+	readonly onValueChange: (value: number) => void;
+	readonly formatter: (value: string | number) => string;
+}> = ({buttonRef, onTextChange, onValueChange, formatter}) => {
 	const frame = useCurrentFrame();
+
+	return (
+		<InputDragger
+			ref={buttonRef}
+			aria-label={String(frame)}
+			value={frame}
+			onTextChange={onTextChange}
+			onValueChange={onValueChange}
+			formatter={formatter}
+			formatterStyle={currentTimeTypography}
+			buttonStyle={currentTimeButtonStyle}
+			rightAlign={false}
+			status="ok"
+			style={currentTimeInputStyle}
+		/>
+	);
+};
+
+const CurrentFrame: React.FC = () => {
+	const frame = useCurrentFrame();
+	return frame;
+};
+
+export const TimeValue = React.memo(() => {
 	const {showFrames, setShowFrames} = useContext(TimelineTickFormatContext);
 	const toggleTickFormat = useCallback(() => {
 		setShowFrames((previous) => !previous);
@@ -156,18 +185,11 @@ export const TimeValue: React.FC = () => {
 	return (
 		<div style={text}>
 			<div style={currentTimeStack}>
-				<InputDragger
-					ref={ref}
-					aria-label={String(frame)}
-					value={frame}
+				<CurrentTimeInput
+					buttonRef={ref}
 					onTextChange={onTextChange}
 					onValueChange={onValueChange}
 					formatter={formatter}
-					formatterStyle={currentTimeTypography}
-					buttonStyle={currentTimeButtonStyle}
-					rightAlign={false}
-					status="ok"
-					style={currentTimeInputStyle}
 				/>
 				<ActionTooltip
 					label="Toggle time format"
@@ -183,7 +205,7 @@ export const TimeValue: React.FC = () => {
 						aria-label="Show timeline ticks as frames"
 						aria-pressed={showFrames}
 					>
-						{frame}
+						<CurrentFrame />
 					</button>
 				</ActionTooltip>
 			</div>
@@ -193,4 +215,4 @@ export const TimeValue: React.FC = () => {
 			<Spacing x={0.5} />
 		</div>
 	);
-};
+});
