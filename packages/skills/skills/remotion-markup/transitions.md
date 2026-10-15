@@ -105,7 +105,6 @@ const LightLeakOverlayInner = ({style}: {readonly style?: CSSProperties}) => {
 
   return (
     <Solid
-      showInTimeline={false}
       width={width}
       height={height}
       style={style}
