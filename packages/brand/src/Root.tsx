@@ -107,8 +107,8 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
-import './index.css';
 import {KeyframeMove} from './KeyframeMove';
+import './index.css';
 import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import {NestingCompositions} from './NestingCompositions';
@@ -141,6 +141,7 @@ import {Skills2TableBang} from './Skills2TableBang';
 import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
 import {TimelineLayoutReveal} from './TimelineLayoutReveal';
+import {TimelineLeftDragComposition} from './TimelineLeftDragComposition';
 import {Codex, codexSchema} from './video-elements/Codex';
 import {
 	FlyingCardsLeft,
@@ -1098,6 +1099,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					height={1080}
 				/>
 			</Folder>
+			<Composition
+				id="TimelineLeftDrag"
+				component={TimelineLeftDragComposition}
+				durationInFrames={271}
+				fps={60}
+				width={2560}
+				height={1134}
+			/>
 		</>
 	);
 };
