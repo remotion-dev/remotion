@@ -173,6 +173,33 @@ export type SequenceProps = {
 	readonly durationInFrames?: number;
 } & SequencePropsWithoutDuration;
 
+// These callbacks can survive many renders. Keep their closure scopes separate
+// from the render scope, which also captures children in memo factories.
+const useSequenceValueGetter = <T,>(value: T) => {
+	return useCallback(() => value, [value]);
+};
+
+const useSequenceRefGetter = <T,>(ref: React.RefObject<T>) => {
+	return useCallback(() => ref.current, [ref]);
+};
+
+const useSequenceWrapperRef = (
+	ref: React.ForwardedRef<HTMLDivElement>,
+	wrapperRef: React.RefObject<HTMLDivElement | null>,
+) => {
+	return useCallback(
+		(node: HTMLDivElement | null) => {
+			wrapperRef.current = node;
+			if (typeof ref === 'function') {
+				ref(node);
+			} else if (ref) {
+				ref.current = node;
+			}
+		},
+		[ref, wrapperRef],
+	);
+};
+
 const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
@@ -565,7 +592,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);
-	const getStack = useCallback(() => registrationStack, [registrationStack]);
+	const getStack = useSequenceValueGetter(registrationStack);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
 	const currentFrame =
 		registeredFrozenFrame ??
@@ -574,7 +601,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	useLayoutEffect(() => {
 		currentFrameRef.current = currentFrame;
 	}, [currentFrame]);
-	const getCurrentFrame = useCallback(() => currentFrameRef.current, []);
+	const getCurrentFrame = useSequenceRefGetter(currentFrameRef);
 	const registeredTrimBefore = trimBefore === 0 ? null : trimBefore;
 	const parentCumulatedNegativeFrom =
 		parentSequence?.cumulatedNegativeFrom ?? 0;
@@ -666,7 +693,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			controlsSupportsEffects,
 		]);
 
-	const getSequenceForRegistration = useCallback((): TSequence => {
+	const sequenceForRegistration = useMemo((): TSequence => {
 		const trackRegistration = timelineTrack
 			? {
 					timelineTrack: {
@@ -804,6 +831,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		frozenMediaFrame,
 		singleChildComponent,
 	]);
+	const getSequenceForRegistration = useSequenceValueGetter(
+		sequenceForRegistration,
+	);
 	const registration = useSequenceRegistration({
 		getSequence:
 			env.isStudio || sequenceRegistrationEnabled
@@ -867,18 +897,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		style: styleIfThere,
 	});
 
-	const sequenceRef = useCallback(
-		(node: HTMLDivElement | null) => {
-			wrapperRefForOutline.current = node;
-
-			if (typeof ref === 'function') {
-				ref(node);
-			} else if (ref) {
-				ref.current = node;
-			}
-		},
-		[ref],
-	);
+	const sequenceRef = useSequenceWrapperRef(ref, wrapperRefForOutline);
 
 	const defaultStyle: React.CSSProperties = useMemo(() => {
 		return {
