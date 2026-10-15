@@ -47,6 +47,8 @@ As soon as the project can run, open [Remotion Studio](../remotion-studio/SKILL.
 Keep the scaffold and add React Markup.
 Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
 
+Consider [Remotion Elements](../remotion-markup/elements.md) when planning reusable graphics.
+
 Before writing the root that registers `<Composition>` or `<Still>` elements,
 follow [Compositions and stills](../remotion-markup/compositions.md).
 
