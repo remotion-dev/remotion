@@ -6,6 +6,7 @@ import {
 	Internals,
 	useDelayRender,
 	type EffectsProp,
+	type EffectsOutputSize,
 } from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
@@ -23,11 +24,13 @@ export const HtmlInCanvasPresentation = <
 	presentationDirection,
 	shader,
 	effects,
+	effectsOutputSize,
 	passedProps,
 	bothEnteringAndExiting,
 }: TransitionPresentationComponentProps<TPassedProps> & {
 	readonly shader: HtmlInCanvasShader<TPassedProps>;
 	readonly effects?: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 }) => {
 	if (!HtmlInCanvas.isSupported()) {
 		throw new Error(getHtmlInCanvasUnsupportedMessage());
@@ -103,7 +106,7 @@ export const HtmlInCanvasPresentation = <
 		};
 	}, [instance]);
 
-	const chainState = Internals.useEffectChainState();
+	const chainState = Internals.useEffectChainState(effectsOutputSize);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
@@ -251,7 +254,7 @@ export const HtmlInCanvasPresentation = <
 		}
 
 		canvas.requestPaint?.();
-	}, [presentationProgress, passThrough, memoizedEffects]);
+	}, [presentationProgress, passThrough, memoizedEffects, chainState]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -334,17 +337,21 @@ export const makeHtmlInCanvasPresentation = <
 >(
 	shader: HtmlInCanvasShader<TPassedProps>,
 ) => {
-	type AugmentedProps = TPassedProps & {effects?: EffectsProp};
+	type AugmentedProps = TPassedProps & {
+		effects?: EffectsProp;
+		effectsOutputSize?: EffectsOutputSize;
+	};
 	const CompWithShader: React.FC<
 		TransitionPresentationComponentProps<AugmentedProps>
 	> = (props) => {
 		const {passedProps, ...otherProps} = props;
-		const {effects, ...restPassedProps} = props.passedProps;
+		const {effects, effectsOutputSize, ...restPassedProps} = props.passedProps;
 		return (
 			<HtmlInCanvasPresentation
 				shader={shader}
 				passedProps={restPassedProps as TPassedProps}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize ?? null}
 				{...otherProps}
 			/>
 		);

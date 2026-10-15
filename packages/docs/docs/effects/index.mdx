@@ -35,7 +35,7 @@ Pass effects through the `effects` prop of these components:
 - [`<Heart>`](/docs/shapes/heart)
 - [`<Arrow>`](/docs/shapes/arrow)
 
-## Effect resolution<AvailableFrom v="4.0.535" />
+## Effect resolution<AvailableFrom v="4.0.536" />
 
 Use `effectsOutputSize` on any supported component to choose the pixel dimensions used by its effect chain:
 
@@ -57,6 +57,20 @@ This is useful when switching between an original video and a smaller proxy: kee
 Omitting `effectsOutputSize` preserves the existing effect resolution. Empty or entirely disabled effect chains do not resize the source. To change the resolution, update the numeric width and height; passing a new object with the same values does not recreate the effect chain. Video previews redraw the current frame when these values change without restarting their decoder.
 
 A larger effect resolution increases processing and canvas memory. Resizing a low-resolution source cannot restore missing detail. This prop controls effect processing; [`maxCanvasSinkFrameSize`](/docs/media/video#maxcanvassinkframesize) separately controls decoded preview frame size.
+
+Shader-based [transition presentations](/docs/transitions/presentations), including custom presentations created with [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation), accept `effectsOutputSize` alongside `effects`:
+
+```tsx twoslash title="MyComposition.tsx"
+import {dissolve} from '@remotion/transitions/dissolve';
+import {pixelate} from '@remotion/effects/pixelate';
+// ---cut---
+dissolve({
+  effects: [pixelate({blockSize: 12})],
+  effectsOutputSize: {width: 1920, height: 1080},
+});
+```
+
+This sets the resolution of the effects applied after the transition shader. The shader and transition output keep their existing dimensions.
 
 ## Effects
 
