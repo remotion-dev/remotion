@@ -1,5 +1,8 @@
 import {lookup} from 'node:dns/promises';
 import {existsSync, mkdirSync, statSync, writeFileSync} from 'node:fs';
+import type {IncomingMessage} from 'node:http';
+import http from 'node:http';
+import https from 'node:https';
 import {isIP} from 'node:net';
 import path from 'node:path';
 import {
@@ -28,7 +31,7 @@ const isForbiddenIpv4Address = (address: string) => {
 		return true;
 	}
 
-	const [first, second] = parts;
+	const [first, second, third] = parts;
 	return (
 		first === 0 ||
 		first === 10 ||
@@ -36,28 +39,61 @@ const isForbiddenIpv4Address = (address: string) => {
 		(first === 100 && second >= 64 && second <= 127) ||
 		(first === 169 && second === 254) ||
 		(first === 172 && second >= 16 && second <= 31) ||
+		(first === 192 && second === 0 && (third === 0 || third === 2)) ||
+		(first === 192 && second === 88 && third === 99) ||
 		(first === 192 && second === 168) ||
 		(first === 198 && (second === 18 || second === 19)) ||
+		(first === 198 && second === 51 && third === 100) ||
+		(first === 203 && second === 0 && third === 113) ||
 		first >= 224
 	);
 };
 
 const isForbiddenIpv6Address = (address: string) => {
-	const normalized = address.toLowerCase();
-	const mappedIpv4 = normalized.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/)?.[1];
-	if (mappedIpv4) {
-		return isForbiddenIpv4Address(mappedIpv4);
+	if (isIP(address) !== 6) {
+		return true;
+	}
+
+	const normalized = new URL(`http://[${address}]`).hostname.slice(1, -1);
+	const [left, right] = normalized.split('::');
+	const start = left ? left.split(':') : [];
+	const end = right ? right.split(':') : [];
+	const parts = (
+		right === undefined
+			? start
+			: [...start, ...Array(8 - start.length - end.length).fill('0'), ...end]
+	).map((part) => parseInt(part, 16));
+	const embeddedIpv4 = `${parts[6] >> 8}.${parts[6] & 255}.${parts[7] >> 8}.${parts[7] & 255}`;
+
+	if (
+		(parts.slice(0, 5).every((part) => part === 0) && parts[5] === 0xffff) ||
+		(parts[0] === 0x64 &&
+			parts[1] === 0xff9b &&
+			parts.slice(2, 6).every((part) => part === 0))
+	) {
+		return isForbiddenIpv4Address(embeddedIpv4);
+	}
+
+	if (parts[0] === 0x2002) {
+		return isForbiddenIpv4Address(
+			`${parts[1] >> 8}.${parts[1] & 255}.${parts[2] >> 8}.${parts[2] & 255}`,
+		);
+	}
+
+	if (
+		parts[0] < 0x2000 ||
+		parts[0] > 0x3fff ||
+		(parts[0] === 0x2001 && parts[1] <= 0x1ff) ||
+		(parts[0] === 0x2001 && parts[1] === 0xdb8) ||
+		(parts[0] === 0x3fff && parts[1] < 0x1000)
+	) {
+		return true;
 	}
 
 	return (
-		normalized === '::' ||
-		normalized === '::1' ||
-		normalized.startsWith('fc') ||
-		normalized.startsWith('fd') ||
-		normalized.startsWith('fe8') ||
-		normalized.startsWith('fe9') ||
-		normalized.startsWith('fea') ||
-		normalized.startsWith('feb')
+		(parts[4] === 0 || parts[4] === 0x200) &&
+		parts[5] === 0x5efe &&
+		isForbiddenIpv4Address(embeddedIpv4)
 	);
 };
 
@@ -74,18 +110,11 @@ const ensureRemoteUrlIsAllowed = async (url: URL) => {
 		throw new Error('Localhost URLs cannot be imported');
 	}
 
-	const hostnameAsIp = isIP(url.hostname);
-	if (hostnameAsIp === 4 && isForbiddenIpv4Address(url.hostname)) {
-		throw new Error('Private IP addresses cannot be imported');
-	}
-
-	if (hostnameAsIp === 6 && isForbiddenIpv6Address(url.hostname)) {
-		throw new Error('Private IP addresses cannot be imported');
-	}
-
+	const hostname = url.hostname.replace(/^\[|\]$/g, '');
+	const hostnameAsIp = isIP(hostname);
 	const addresses = hostnameAsIp
-		? [{address: url.hostname, family: hostnameAsIp}]
-		: await lookup(url.hostname, {all: true});
+		? [{address: hostname, family: hostnameAsIp}]
+		: await lookup(hostname, {all: true});
 
 	if (addresses.length === 0) {
 		throw new Error(`Could not resolve ${url.hostname}`);
@@ -93,12 +122,15 @@ const ensureRemoteUrlIsAllowed = async (url: URL) => {
 
 	for (const address of addresses) {
 		if (
+			(address.family !== 4 && address.family !== 6) ||
 			(address.family === 4 && isForbiddenIpv4Address(address.address)) ||
 			(address.family === 6 && isForbiddenIpv6Address(address.address))
 		) {
 			throw new Error('Private IP addresses cannot be imported');
 		}
 	}
+
+	return addresses;
 };
 
 const fetchRemoteAsset = async ({
@@ -113,20 +145,43 @@ const fetchRemoteAsset = async ({
 	let currentUrl = url;
 
 	for (let redirects = 0; redirects <= maxRemoteAssetRedirects; redirects++) {
-		await ensureRemoteUrlIsAllowed(currentUrl);
+		const addresses = await ensureRemoteUrlIsAllowed(currentUrl);
+		const response = await new Promise<IncomingMessage>((resolve, reject) => {
+			const request = (currentUrl.protocol === 'https:' ? https : http).request(
+				currentUrl,
+				{
+					agent: false,
+					headers: {
+						'accept-encoding': 'identity',
+						...(acceptHeader === null ? {} : {accept: acceptHeader}),
+					},
+					lookup: (_hostname, options, callback) => {
+						if (options.all) {
+							callback(null, addresses);
+							return;
+						}
 
-		const response = await fetch(currentUrl, {
-			headers: acceptHeader === null ? undefined : {accept: acceptHeader},
-			redirect: 'manual',
-			signal,
+						callback(null, addresses[0].address, addresses[0].family);
+					},
+					signal,
+				},
+				(incoming) => {
+					incoming.on('error', reject);
+					resolve(incoming);
+				},
+			);
+			request.on('error', reject);
+			request.end();
 		});
 
-		if (response.status < 300 || response.status >= 400) {
+		const status = response.statusCode ?? 0;
+		if (status < 300 || status >= 400) {
 			return response;
 		}
 
-		const location = response.headers.get('location');
-		if (location === null) {
+		const {location} = response.headers;
+		response.destroy();
+		if (location === undefined) {
 			throw new Error('Remote asset redirect is missing a Location header');
 		}
 
@@ -134,7 +189,6 @@ const fetchRemoteAsset = async ({
 			throw new Error('Remote asset redirected too many times');
 		}
 
-		await response.body?.cancel();
 		currentUrl = new URL(location, currentUrl);
 	}
 
@@ -146,43 +200,23 @@ const readRemoteAsset = async ({
 	abort,
 	maxSize,
 }: {
-	response: Response;
+	response: IncomingMessage;
 	abort: () => void;
 	maxSize: number;
 }) => {
-	const contentLength = response.headers.get('content-length');
-	if (contentLength !== null && Number(contentLength) > maxSize) {
+	const contentLength = response.headers['content-length'];
+	if (contentLength !== undefined && Number(contentLength) > maxSize) {
 		abort();
 		throw new Error('Remote asset exceeds the 50MB size limit');
 	}
 
-	if (!response.body) {
-		const buffer = await response.arrayBuffer();
-		if (buffer.byteLength > maxSize) {
-			throw new Error('Remote asset exceeds the 50MB size limit');
-		}
-
-		return new Uint8Array(buffer);
-	}
-
-	const reader = response.body.getReader();
 	const chunks: Uint8Array[] = [];
 	let size = 0;
 
-	while (true) {
-		const {done, value} = await reader.read();
-		if (done) {
-			break;
-		}
-
-		if (!value) {
-			continue;
-		}
-
+	for await (const value of response) {
 		size += value.byteLength;
 		if (size > maxSize) {
 			abort();
-			await reader.cancel();
 			throw new Error('Remote asset exceeds the 50MB size limit');
 		}
 
@@ -208,12 +242,6 @@ export const downloadRemoteAssetBytes = async ({
 	maxSize: number;
 	url: URL;
 }) => {
-	if (typeof fetch !== 'function') {
-		throw new Error(
-			'Downloading remote assets requires Node.js 18 or newer. Drag a local file instead.',
-		);
-	}
-
 	const controller = new AbortController();
 	const timeout = setTimeout(
 		() => controller.abort(),
@@ -225,8 +253,10 @@ export const downloadRemoteAssetBytes = async ({
 			signal: controller.signal,
 			url,
 		});
-		if (!response.ok) {
-			throw new Error(`Could not download remote asset: ${response.status}`);
+		const status = response.statusCode ?? 0;
+		if (status < 200 || status >= 300) {
+			response.destroy();
+			throw new Error(`Could not download remote asset: ${status}`);
 		}
 
 		return await readRemoteAsset({

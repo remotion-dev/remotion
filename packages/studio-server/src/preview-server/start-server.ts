@@ -31,6 +31,7 @@ import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
 import {clearNodePathCache} from './node-path-cache';
 import {getRedoStack, getUndoStack} from './undo-stack';
+import {validateHost} from './validate-host';
 import {setWatchIgnoreNextChangePlugin} from './watch-ignore-next-change';
 
 export type StartServerResult =
@@ -283,6 +284,14 @@ export const startServer = async (options: {
 
 		server.off('request', handleRequestBeforeReady);
 		server.on('request', (request, response) => {
+			try {
+				validateHost(request);
+			} catch {
+				response.writeHead(403);
+				response.end('Request host not allowed');
+				return;
+			}
+
 			if (options.enableCrossSiteIsolation) {
 				response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
 				response.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
