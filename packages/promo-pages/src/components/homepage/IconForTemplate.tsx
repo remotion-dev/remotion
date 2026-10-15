@@ -45,6 +45,10 @@ export const IconForTemplate: React.FC<{
 		);
 	}
 
+	if (template.cliId === 'element-library') {
+		return <Cubes style={{height: scale * 36}} />;
+	}
+
 	if (template.cliId === 'three') {
 		return (
 			<Cubes

@@ -53,6 +53,10 @@ export const IconForTemplate: React.FC<{
 		return <ElectronIcon style={{height: scale * 36}} />;
 	}
 
+	if (template.cliId === 'element-library') {
+		return <Cubes style={{height: scale * 36}} />;
+	}
+
 	if (template.cliId === 'three') {
 		return (
 			<Cubes

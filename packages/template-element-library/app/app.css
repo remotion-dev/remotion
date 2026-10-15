@@ -1,0 +1,29 @@
+@import url("https://rsms.me/inter/inter.css");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "InterVariable", Arial, sans-serif;
+  --font-sans--font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  --color-ink: #202020;
+  --color-muted: #636363;
+  --color-accent: #c34228;
+}
+
+@layer base {
+  body {
+    @apply m-0 bg-white font-sans text-ink;
+  }
+
+  button,
+  summary {
+    @apply cursor-pointer;
+  }
+
+  button:disabled {
+    @apply cursor-wait opacity-60;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-4 outline-accent;
+  }
+}
