@@ -1000,32 +1000,21 @@ const makeEffectPropExpression = ({
 	return makeClipboardParamExpression({param: update.effectParam, localNames});
 };
 
-export const updateEffectPropsAst = ({
+const applyEffectPropUpdate = ({
+	ast,
 	effectIndex,
-	input,
-	prettierConfigOverride,
 	schema,
 	sequenceNodePath,
 	update,
+	jsx,
 }: {
+	ast: File;
 	effectIndex: number;
-	input: string;
-	prettierConfigOverride?: Record<string, unknown> | null;
 	schema: InteractivitySchema;
 	sequenceNodePath: SequenceNodePath;
 	update: EffectPropUpdate;
-}): {
-	serialized: string;
-	oldValueString: string;
-	newValueString: string;
-	logLine: number;
-	effectCallee: string;
-	removedProps: PropDelta[];
-} => {
-	const ast = parseAst(input);
-	const snapshots = captureEffectSourceSnapshots(ast);
-	const jsx = getJsx({action: 'update', ast, sequenceNodePath});
-	trackOpeningElement({jsx, snapshots});
+	jsx: JSXOpeningElement;
+}) => {
 	const attr = findEffectsAttr(jsx.attributes);
 	if (!attr) {
 		throw new Error('Could not find effects on the target JSX element');
@@ -1045,7 +1034,7 @@ export const updateEffectPropsAst = ({
 	if (call.arguments.length === 0) {
 		if (isDefault) {
 			return {
-				serialized: input,
+				changed: false,
 				oldValueString: '',
 				newValueString: JSON.stringify(update.defaultValue),
 				logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
@@ -1109,17 +1098,52 @@ export const updateEffectPropsAst = ({
 	}
 
 	return {
-		serialized: getEffectSourceOutput({
-			ast,
-			input,
-			prettierConfigOverride: prettierConfigOverride ?? null,
-			snapshots,
-		}),
+		changed: true,
 		oldValueString,
 		newValueString,
 		logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 		effectCallee,
 		removedProps,
+	};
+};
+
+export const updateEffectPropsAst = ({
+	effectIndex,
+	input,
+	prettierConfigOverride,
+	schema,
+	sequenceNodePath,
+	update,
+}: {
+	effectIndex: number;
+	input: string;
+	prettierConfigOverride?: Record<string, unknown> | null;
+	schema: InteractivitySchema;
+	sequenceNodePath: SequenceNodePath;
+	update: EffectPropUpdate;
+}) => {
+	const ast = parseAst(input);
+	const snapshots = captureEffectSourceSnapshots(ast);
+	const jsx = getJsx({action: 'update', ast, sequenceNodePath});
+	trackOpeningElement({jsx, snapshots});
+	const {changed, ...result} = applyEffectPropUpdate({
+		ast,
+		effectIndex,
+		schema,
+		sequenceNodePath,
+		update,
+		jsx,
+	});
+	return {
+		...result,
+		serialized: changed
+			? getEffectSourceOutput({
+					ast,
+					input,
+					prettierConfigOverride: prettierConfigOverride ?? null,
+					snapshots,
+				})
+			: input,
 	};
 };
 
@@ -1164,3 +1188,103 @@ export const updateEffectProps = ({
 			removedProps,
 		};
 	});
+
+export const batchUpdateEffectProps = async ({
+	effectIndex,
+	input,
+	schema,
+	sequenceNodePath,
+	updates,
+}: {
+	effectIndex: number;
+	input: string;
+	schema: InteractivitySchema;
+	sequenceNodePath: SequenceNodePath;
+	updates: EffectPropUpdate[];
+}): Promise<UpdateEffectPropsResult[]> => {
+	const results: UpdateEffectPropsResult[] = [];
+	let output = input;
+	// Keyframes may rewrite the enclosing function and imports. Keep their
+	// existing source-edit path; static batches only replace one opening tag.
+	const canBatch =
+		updates.length > 1 &&
+		updates.every(
+			(update) =>
+				!isEffectParamUpdate(update) || update.effectParam.type === 'static',
+		);
+	const ast = canBatch ? parseAst(input) : null;
+	const snapshots = ast ? captureEffectSourceSnapshots(ast) : null;
+	let jsx = ast ? getJsx({action: 'update', ast, sequenceNodePath}) : null;
+	for (let index = 0; index < updates.length; index++) {
+		if (!ast || !snapshots || !jsx) {
+			const edit = await updateEffectProps({
+				input: output,
+				sequenceNodePath,
+				effectIndex,
+				update: updates[index],
+				schema,
+			});
+			output = edit.output;
+			results.push(edit);
+			continue;
+		}
+
+		trackOpeningElement({jsx, snapshots});
+		const {changed, ...result} = applyEffectPropUpdate({
+			ast,
+			effectIndex,
+			schema,
+			sequenceNodePath,
+			update: updates[index],
+			jsx,
+		});
+		const previousOutput = output;
+		output = changed
+			? getEffectSourceOutput({
+					ast,
+					input: output,
+					prettierConfigOverride: null,
+					snapshots,
+				})
+			: output;
+		results.push({output, formatted: true, ...result});
+		if (!changed || index === updates.length - 1) {
+			continue;
+		}
+
+		// Refresh only the edited tag so subsequent results retain the exact
+		// intermediate source spelling and line numbers. Padding preserves the
+		// absolute locations used by the source-edit printer without reparsing
+		// the rest of the file.
+		const start = recastLocToOffset(previousOutput, jsx.loc!.start);
+		const end =
+			recastLocToOffset(previousOutput, jsx.loc!.end) +
+			output.length -
+			previousOutput.length;
+		const {line, column} = jsx.loc!.start;
+		const padding = '\n'.repeat(line - 1) + ' '.repeat(column);
+		const closing = jsx.selfClosing ? '' : `</${recast.print(jsx.name).code}>`;
+		try {
+			const fragment = parseAst(
+				`${padding}${output.slice(start, end)}${closing}`,
+			);
+			const statement = fragment.program.body[0];
+			if (
+				statement?.type !== 'ExpressionStatement' ||
+				statement.expression.type !== 'JSXElement'
+			) {
+				throw new Error('Expected a JSX fragment');
+			}
+
+			jsx = statement.expression.openingElement;
+			snapshots.openingElementLocations.clear();
+			snapshots.originalAttributeSources.clear();
+		} catch {
+			// Context-dependent expressions such as yield or super cannot be
+			// parsed on their own. Finish those updates in their full context.
+			jsx = null;
+		}
+	}
+
+	return results;
+};

@@ -34,14 +34,19 @@ const precomposeSource = (
 ) => {
 	const project = makeProject(source);
 	const nodes = getNodes({project, filePath}).filter(select);
-	const result = precomposeJsxNodes({
+	const request = {
 		project,
 		nodes,
 		compositionFile,
 		compositionId: 'Main',
 		metadata,
 		existingCompositionIds: ['Main'],
+	};
+	expect(canPrecomposeJsxNodes(request)).toEqual({
+		canPrecompose: true,
+		reason: null,
 	});
+	const result = precomposeJsxNodes(request);
 	return {
 		project,
 		nodes,
