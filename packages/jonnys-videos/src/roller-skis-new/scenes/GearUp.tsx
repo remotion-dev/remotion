@@ -1,6 +1,6 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Interactive, Series} from 'remotion';
+import {Track, AbsoluteFill, Interactive, Series} from 'remotion';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 import {SpeedBadge} from '../elements/SpeedBadge';
 import {TitleCard} from '../elements/TitleCard';
@@ -150,27 +150,29 @@ const GearUpInner: React.FC = () => {
 				kicker="Zürich · 8 AM"
 				accentColor="#2563eb"
 			/>
-			<SpeedBadge
-				name="6x badge"
-				from={6}
-				durationInFrames={82}
-				speed="6×"
-				style={{position: 'absolute', right: 80, top: 70}}
-			/>
-			<SpeedBadge
-				name="8x badge"
-				from={127}
-				durationInFrames={72}
-				speed={'12x'}
-				style={{position: 'absolute', right: 80, top: 70}}
-			/>
-			<SpeedBadge
-				name="2x badge"
-				from={257}
-				durationInFrames={75}
-				speed="2×"
-				style={{position: 'absolute', right: 80, top: 70}}
-			/>
+			<Track name="Speed badges">
+				<SpeedBadge
+					name="6x badge"
+					from={6}
+					durationInFrames={82}
+					speed="6×"
+					style={{position: 'absolute', right: 80, top: 70}}
+				/>
+				<SpeedBadge
+					name="8x badge"
+					from={127}
+					durationInFrames={72}
+					speed={'12x'}
+					style={{position: 'absolute', right: 80, top: 70}}
+				/>
+				<SpeedBadge
+					name="2x badge"
+					from={257}
+					durationInFrames={75}
+					speed="2×"
+					style={{position: 'absolute', right: 80, top: 70}}
+				/>
+			</Track>
 		</AbsoluteFill>
 	);
 };

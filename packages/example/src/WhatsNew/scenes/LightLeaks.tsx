@@ -2,7 +2,8 @@ import {lightLeak} from '@remotion/effects/light-leak';
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
+	Interactive,
 	interpolate,
 	Sequence,
 	Series,
@@ -319,8 +320,17 @@ const TransitionDemo: React.FC = () => {
 						boxShadow: '0 30px 70px rgba(10,16,32,0.3)',
 					}}
 				>
-					<AbsoluteFill
+					<div
 						style={{
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							width: '100%',
+							height: '100%',
+							display: 'flex',
+							flexDirection: 'column',
 							background: showB
 								? 'linear-gradient(135deg, #FF5F6D, #FFC371)'
 								: 'linear-gradient(135deg, #0B84F3, #5B3CFF)',
@@ -334,7 +344,7 @@ const TransitionDemo: React.FC = () => {
 						}}
 					>
 						{showB ? 'Scene B' : 'Scene A'}
-					</AbsoluteFill>
+					</div>
 					<Sequence from={10} durationInFrames={48} layout="none">
 						<TileLeak />
 					</Sequence>
@@ -375,14 +385,17 @@ const TileLeak: React.FC = () => {
 	);
 };
 
-export const LightLeaksScene: React.FC = () => {
+const LightLeaksSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const captions = getCaptionPlacement(frame, layout);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<Backdrop accent={accents.lightLeaks} />
-			<Stage keyframes={layout}>
+			<Stage
+				style={{overflow: 'visible', flexDirection: 'column'}}
+				keyframes={layout}
+			>
 				<Series>
 					<Series.Sequence
 						name="Intro line"
@@ -908,36 +921,48 @@ export const LightLeaksScene: React.FC = () => {
 				]}
 			/>
 
-			<Audio
-				name="Sticker whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={4}
-				volume={0.32}
-			/>
-			<Audio
-				name="Split whip"
-				src="https://remotion.media/whip.wav"
-				from={130}
-				volume={0.18}
-			/>
-			<Audio
-				name="Grid click"
-				src="https://remotion.media/mouse-click.wav"
-				from={240}
-				volume={0.3}
-			/>
-			<Audio
-				name="Skill switch"
-				src="https://remotion.media/switch.wav"
-				from={532}
-				volume={0.3}
-			/>
-			<Audio
-				name="Demo whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={660}
-				volume={0.26}
-			/>
-		</AbsoluteFill>
+			<Track name="Sound effects">
+				<Audio
+					durationInFrames={5}
+					name="Sticker whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={4}
+					volume={0.32}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Split whip"
+					src="https://remotion.media/whip.wav"
+					from={130}
+					volume={0.18}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Grid click"
+					src="https://remotion.media/mouse-click.wav"
+					from={240}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={10}
+					name="Skill switch"
+					src="https://remotion.media/switch.wav"
+					from={532}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Demo whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={660}
+					volume={0.26}
+				/>
+			</Track>
+		</>
 	);
 };
+
+export const LightLeaksScene = Interactive.create({
+	Component: LightLeaksSceneInner,
+	layout: 'absolute-fill',
+});

@@ -39,6 +39,11 @@ Use `<Track>` for items with their own timing that do not overlap. Use
 it automatically places its scenes on the same timeline row. Keep unrelated
 content layers on separate rows.
 
+Give media clips in a `<Track>` explicit `durationInFrames` values based on
+their verified source lengths, trims, and playback rates. Studio can treat an
+unbounded clip as lasting to the end of its parent rather than using the source
+file's duration, causing an overlap error even when the source files do not overlap.
+
 ## Use a managed full-size layout
 
 Discourage `<AbsoluteFill>` as a scene or component wrapper. It often creates

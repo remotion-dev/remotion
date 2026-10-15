@@ -253,20 +253,81 @@ const MyComponentInner: React.FC = () => {
 					),
 				}}
 			/>
-			<EffectShow
-				name="EffectShow"
-				width={1080}
-				height={1920}
-				durationInFrames={197}
-				style={{
-					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[337, 352],
-						['0px 1920px', '0px -330.8px'],
-						{
+			<Track name="Effect and model demos">
+				<EffectShow
+					name="EffectShow"
+					width={1080}
+					height={1920}
+					durationInFrames={197}
+					style={{
+						position: 'absolute',
+						translate: interpolate(
+							frame,
+							[337, 352],
+							['0px 1920px', '0px -330.8px'],
+							{
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: [
+									Easing.spring({
+										damping: 200,
+										mass: 1,
+										stiffness: 100,
+										allowTail: true,
+										durationRestThreshold: 0.02,
+										overshootClamping: false,
+									}),
+								],
+							},
+						),
+						scale: interpolate(frame, [512, 522], [1, 0], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
+							easing: [
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: false,
+									durationRestThreshold: 0.01,
+									overshootClamping: false,
+								}),
+							],
+						}),
+					}}
+					from={337}
+				/>
+				<HuggingFace
+					name="HuggingFace"
+					width={1920}
+					height={1080}
+					durationInFrames={162}
+					style={{
+						position: 'absolute',
+						translate: interpolate(
+							frame,
+							[567, 575],
+							['704.8px 79.9px', '-420px 79.9px'],
+							{
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: [
+									Easing.spring({
+										damping: 200,
+										mass: 1,
+										stiffness: 100,
+										allowTail: true,
+										durationRestThreshold: 0.02,
+										overshootClamping: false,
+									}),
+								],
+							},
+						),
+						scale: interpolate(frame, [692, 697], [0.707, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
 							easing: [
 								Easing.spring({
 									damping: 200,
@@ -277,70 +338,11 @@ const MyComponentInner: React.FC = () => {
 									overshootClamping: false,
 								}),
 							],
-						},
-					),
-					scale: interpolate(frame, [512, 522], [1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: false,
-								durationRestThreshold: 0.01,
-								overshootClamping: false,
-							}),
-						],
-					}),
-				}}
-				from={337}
-			/>
-			<HuggingFace
-				name="HuggingFace"
-				width={1920}
-				height={1080}
-				durationInFrames={162}
-				style={{
-					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[567, 575],
-						['704.8px 79.9px', '-420px 79.9px'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
-						},
-					),
-					scale: interpolate(frame, [692, 697], [0.707, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-						],
-					}),
-				}}
-				from={537}
-			/>
+						}),
+					}}
+					from={537}
+				/>
+			</Track>
 			<ClientSideChad
 				name="ClientSideChad"
 				width={1080}

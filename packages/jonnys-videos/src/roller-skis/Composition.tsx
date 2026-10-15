@@ -4,6 +4,7 @@ import {vignette} from '@remotion/effects/vignette';
 import {Audio, Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
 import {
+	Track,
 	Interactive,
 	AbsoluteFill,
 	Composition,
@@ -129,51 +130,53 @@ const PresenterZoomInner: React.FC = () => {
 
 	return (
 		<AbsoluteFill showInTimeline={false} style={{transform: `scale(${zoom})`}}>
-			<Video
-				src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
-				durationInFrames={436}
-				trimBefore={120}
-				style={videoStyle}
-				objectFit="cover"
-				effects={[
-					lut({content: studioLut}),
-					vignette({
-						amount: interpolate(frame, [423, 466], [0, 0.55], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
+			<Track name="Presenter footage">
+				<Video
+					src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
+					durationInFrames={436}
+					trimBefore={120}
+					style={videoStyle}
+					objectFit="cover"
+					effects={[
+						lut({content: studioLut}),
+						vignette({
+							amount: interpolate(frame, [423, 466], [0, 0.55], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
 
-						radius: 0.62,
-						feather: 0.35,
-						roundness: 1,
-						center: [0.5, 0.5],
-						color: '#000000',
-					}),
-				]}
-			/>
-			<Video
-				src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
-				from={436}
-				trimBefore={556}
-				style={videoStyle}
-				objectFit="cover"
-				effects={[
-					lut({content: studioLut}),
-					vignette({
-						amount: interpolate(frame, [409, 485], [0, 0.55], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
+							radius: 0.62,
+							feather: 0.35,
+							roundness: 1,
+							center: [0.5, 0.5],
+							color: '#000000',
 						}),
+					]}
+				/>
+				<Video
+					src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
+					from={436}
+					trimBefore={556}
+					style={videoStyle}
+					objectFit="cover"
+					effects={[
+						lut({content: studioLut}),
+						vignette({
+							amount: interpolate(frame, [409, 485], [0, 0.55], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
 
-						radius: 0.63,
-						feather: 0.67,
-						roundness: 1,
-						center: [0.5, 0.5],
-						color: '#000000',
-					}),
-				]}
-				toneFrequency={0.95}
-			/>
+							radius: 0.63,
+							feather: 0.67,
+							roundness: 1,
+							center: [0.5, 0.5],
+							color: '#000000',
+						}),
+					]}
+					toneFrequency={0.95}
+				/>
+			</Track>
 		</AbsoluteFill>
 	);
 };
@@ -1743,84 +1746,88 @@ const RollerSkiRoughCutInner: React.FC = () => {
 						objectFit="cover"
 						effects={[lut({content: studioLut})]}
 					/>
-					<Sequence
-						name="Hackathon half-marathon b-roll"
-						from={7.2 * FPS}
-						durationInFrames={9 * FPS}
-					>
-						<Video
-							src={rollerSkiAsset('footage/jonny-hackathon-half-marathon.mp4')}
-							muted
-							style={videoStyle}
-							objectFit="cover"
-						/>
-						<div
-							style={{
-								position: 'absolute',
-								top: 52,
-								left: 64,
-								maxWidth: 900,
-								padding: '18px 24px',
-								borderRadius: 10,
-								backgroundColor: 'rgba(12, 18, 22, 0.82)',
-								color: 'white',
-								fontFamily: 'Arial, Helvetica, sans-serif',
-								boxShadow: '0 8px 30px rgba(0, 0, 0, 0.24)',
-								display: 'flex',
-								alignItems: 'center',
-								gap: 16,
-							}}
+					<Track name="Roller skiing b-roll">
+						<Sequence
+							name="Hackathon half-marathon b-roll"
+							from={7.2 * FPS}
+							durationInFrames={9 * FPS}
 						>
-							<WhiteYouTubeIcon />
-							<div>
-								<div style={{fontSize: 27, fontWeight: 700, lineHeight: 1.2}}>
-									Jonny Burger
-								</div>
-								<div style={{fontSize: 23, lineHeight: 1.25, marginTop: 5}}>
-									Winning Europe's biggest hackathon
+							<Video
+								src={rollerSkiAsset(
+									'footage/jonny-hackathon-half-marathon.mp4',
+								)}
+								muted
+								style={videoStyle}
+								objectFit="cover"
+							/>
+							<div
+								style={{
+									position: 'absolute',
+									top: 52,
+									left: 64,
+									maxWidth: 900,
+									padding: '18px 24px',
+									borderRadius: 10,
+									backgroundColor: 'rgba(12, 18, 22, 0.82)',
+									color: 'white',
+									fontFamily: 'Arial, Helvetica, sans-serif',
+									boxShadow: '0 8px 30px rgba(0, 0, 0, 0.24)',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 16,
+								}}
+							>
+								<WhiteYouTubeIcon />
+								<div>
+									<div style={{fontSize: 27, fontWeight: 700, lineHeight: 1.2}}>
+										Jonny Burger
+									</div>
+									<div style={{fontSize: 23, lineHeight: 1.25, marginTop: 5}}>
+										Winning Europe's biggest hackathon
+									</div>
 								</div>
 							</div>
-						</div>
-					</Sequence>
-					<Sequence
-						name="SkiErg demonstration b-roll"
-						from={24.2 * FPS}
-						durationInFrames={5.5 * FPS}
-					>
-						<Video
-							src={rollerSkiAsset('footage/skierg-hwpo-broll.mp4')}
-							muted
-							style={videoStyle}
-							objectFit="cover"
-						/>
-						<div
-							style={{
-								position: 'absolute',
-								top: 52,
-								left: 64,
-								maxWidth: 900,
-								padding: '18px 24px',
-								borderRadius: 10,
-								backgroundColor: 'rgba(12, 18, 22, 0.82)',
-								color: 'white',
-								fontFamily: 'Arial, Helvetica, sans-serif',
-								boxShadow: '0 8px 30px rgba(0, 0, 0, 0.24)',
-								display: 'flex',
-								alignItems: 'center',
-								gap: 16,
-							}}
+						</Sequence>
+						<Sequence
+							name="SkiErg demonstration b-roll"
+							from={24.2 * FPS}
+							durationInFrames={5.5 * FPS}
 						>
-							<WhiteYouTubeIcon />
-							<div>
-								<div style={{fontSize: 27, fontWeight: 700, lineHeight: 1.2}}>
-									Mat Fraser | HWPO
-								</div>
-								<div style={{fontSize: 23, lineHeight: 1.25, marginTop: 5}}>
-									What is the SkiErg? Tips &amp; Tricks for HYROX
+							<Video
+								src={rollerSkiAsset('footage/skierg-hwpo-broll.mp4')}
+								muted
+								style={videoStyle}
+								objectFit="cover"
+							/>
+							<div
+								style={{
+									position: 'absolute',
+									top: 52,
+									left: 64,
+									maxWidth: 900,
+									padding: '18px 24px',
+									borderRadius: 10,
+									backgroundColor: 'rgba(12, 18, 22, 0.82)',
+									color: 'white',
+									fontFamily: 'Arial, Helvetica, sans-serif',
+									boxShadow: '0 8px 30px rgba(0, 0, 0, 0.24)',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 16,
+								}}
+							>
+								<WhiteYouTubeIcon />
+								<div>
+									<div style={{fontSize: 27, fontWeight: 700, lineHeight: 1.2}}>
+										Mat Fraser | HWPO
+									</div>
+									<div style={{fontSize: 23, lineHeight: 1.25, marginTop: 5}}>
+										What is the SkiErg? Tips &amp; Tricks for HYROX
+									</div>
 								</div>
 							</div>
-						</div>
-					</Sequence>
+						</Sequence>
+					</Track>
 					<BasicCaptions
 						name="Why roller skiing captions"
 						captions={[
@@ -3945,34 +3952,36 @@ const RollerSkiRoughCutInner: React.FC = () => {
 					),
 				}}
 			/>
-			<Audio
-				name="No School Today music"
-				src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
-				from={2212}
-				durationInFrames={450}
-				volume={(audioFrame) =>
-					interpolate(
-						audioFrame,
-						[0, 12, 48, 78, 390, 414, 449],
-						[0, 0.22, 0.22, 0.5, 0.5, 0.26, 0],
-						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-					)
-				}
-			/>
-			<Audio
-				name="No School Today music (end card)"
-				src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
-				from={END_CARD_START + 20}
-				durationInFrames={END_CARD_DURATION_IN_FRAMES}
-				volume={(audioFrame) =>
-					interpolate(
-						audioFrame,
-						[0, 12, 10 * FPS, END_CARD_DURATION_IN_FRAMES - 1],
-						[0, 0.2, 0.2, 0],
-						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-					)
-				}
-			/>
+			<Track name="Music">
+				<Audio
+					name="No School Today music"
+					src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
+					from={2212}
+					durationInFrames={450}
+					volume={(audioFrame) =>
+						interpolate(
+							audioFrame,
+							[0, 12, 48, 78, 390, 414, 449],
+							[0, 0.22, 0.22, 0.5, 0.5, 0.26, 0],
+							{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+						)
+					}
+				/>
+				<Audio
+					name="No School Today music (end card)"
+					src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
+					from={END_CARD_START + 20}
+					durationInFrames={END_CARD_DURATION_IN_FRAMES}
+					volume={(audioFrame) =>
+						interpolate(
+							audioFrame,
+							[0, 12, 10 * FPS, END_CARD_DURATION_IN_FRAMES - 1],
+							[0, 0.2, 0.2, 0],
+							{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+						)
+					}
+				/>
+			</Track>
 		</>
 	);
 };

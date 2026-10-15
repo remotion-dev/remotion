@@ -6,7 +6,7 @@ import {
 } from '@remotion/transitions';
 import {slide} from '@remotion/transitions/slide';
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, Track} from 'remotion';
 import {Grain} from './components/Grain';
 import {Hud} from './components/Hud';
 import {LightLeakOverlay} from './components/LightLeakOverlay';
@@ -27,7 +27,7 @@ import {slabWipe} from './transitions/slab-wipe';
 export const Portfolio: React.FC = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: '#0B0B0F'}}>
-			<TransitionSeries>
+			<TransitionSeries name="Portfolio scenes">
 				<TransitionSeries.Sequence
 					name="Intro"
 					durationInFrames={150}
@@ -124,36 +124,43 @@ export const Portfolio: React.FC = () => {
 				src="https://remotion.media/portfolio-reel/v1/music.wav"
 				volume={0.6}
 			/>
-			<Audio
-				name="Whoosh — slab wipe"
-				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
-				from={384}
-				volume={0.6}
-			/>
-			<Audio
-				name="Whoosh — circle reveal"
-				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
-				from={564}
-				volume={0.5}
-			/>
-			<Audio
-				name="Whoosh — slide"
-				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
-				from={744}
-				volume={0.5}
-			/>
-			<Audio
-				name="Whip — blinds"
-				src="https://remotion.media/portfolio-reel/v1/sfx/whip.wav"
-				from={1164}
-				volume={0.45}
-			/>
-			<Audio
-				name="Whoosh — slab wipe 2"
-				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
-				from={1344}
-				volume={0.6}
-			/>
+			<Track name="Transition sounds">
+				<Audio
+					durationInFrames={5}
+					name="Whoosh — slab wipe"
+					src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
+					from={384}
+					volume={0.6}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Whoosh — circle reveal"
+					src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
+					from={564}
+					volume={0.5}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Whoosh — slide"
+					src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
+					from={744}
+					volume={0.5}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Whip — blinds"
+					src="https://remotion.media/portfolio-reel/v1/sfx/whip.wav"
+					from={1164}
+					volume={0.45}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Whoosh — slab wipe 2"
+					src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
+					from={1344}
+					volume={0.6}
+				/>
+			</Track>
 		</AbsoluteFill>
 	);
 };

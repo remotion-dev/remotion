@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+	Track,
 	useVideoConfig,
 	AbsoluteFill,
 	Easing,
@@ -79,19 +80,21 @@ const CountdownPage = Interactive.create({
 const CountdownInner: React.FC = () => {
 	return (
 		<>
-			<CountdownPage name="Countdown 3" number="3" durationInFrames={20} />
-			<CountdownPage
-				name="Countdown 2"
-				number="2"
-				from={20}
-				durationInFrames={20}
-			/>
-			<CountdownPage
-				name="Countdown 1"
-				number="1"
-				from={40}
-				durationInFrames={19}
-			/>
+			<Track name="Countdown numbers">
+				<CountdownPage name="Countdown 3" number="3" durationInFrames={20} />
+				<CountdownPage
+					name="Countdown 2"
+					number="2"
+					from={20}
+					durationInFrames={20}
+				/>
+				<CountdownPage
+					name="Countdown 1"
+					number="1"
+					from={40}
+					durationInFrames={19}
+				/>
+			</Track>
 		</>
 	);
 };
