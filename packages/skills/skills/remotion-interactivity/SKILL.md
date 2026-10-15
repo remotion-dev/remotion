@@ -15,55 +15,40 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Prefer interactive components with their own timelines
 
-Use `Interactive.create({layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, dimensions, and per-instance styles on the exported component.
+Build new compositions with `Track`, connected compositions, and `Interactive.create()`.
 
-Keep visuals that belong together in the same component, so they move and trim together. An inner layout container can still provide alignment, clipping within a smaller area, or an animated group; a container that only fills the scene is usually unnecessary. Cards, text boxes, and SVGs with their own bounds can keep the default `layout: 'none'` and forward `style` to their visual root.
+Set `layout` explicitly to `'absolute-fill'` for scenes or `'none'` for bounded elements. Register the same exported scene and reusable element components with `Composition`.
 
-```tsx title="Scene.tsx"
-import {Video} from '@remotion/media';
-import type React from 'react';
-import {Interactive, type InteractivitySchema} from 'remotion';
+Start with the complete [Track + connected compositions example](timeline-structure.md).
+It includes the element, scene, parent timeline, and root registrations.
 
-type SceneProps = {
-  readonly title: string;
-};
+```tsx title="MyVideo.tsx"
+import {Track, useVideoConfig} from 'remotion';
+import {Chapter} from './Chapter';
 
-const SceneInner: React.FC<SceneProps> = ({title}) => {
+export const MyVideo = () => {
+  const {fps} = useVideoConfig();
+
   return (
-    <>
-      <Video
-        name="Background footage"
-        src="https://remotion.media/video.mp4"
-        objectFit="cover"
-        style={{width: '100%', height: '100%'}}
+    <Track name="Chapters">
+      <Chapter
+        name="Opening"
+        durationInFrames={3 * fps}
+        title="Introduction"
       />
-      <Interactive.Div
-        name="Scene title"
-        style={{
-          position: 'absolute',
-          left: 80,
-          bottom: 80,
-          color: 'white',
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          fontSize: 80,
-        }}
-      >
-        {title}
-      </Interactive.Div>
-    </>
+      <Chapter
+        name="Feature"
+        from={3 * fps}
+        durationInFrames={4 * fps}
+        title="New features"
+      />
+    </Track>
   );
 };
-
-const sceneSchema = {
-  title: {type: 'string', default: '', description: 'Title'},
-} as const satisfies InteractivitySchema;
-
-export const Scene = Interactive.create({
-  Component: SceneInner,
-  schema: sceneSchema,
-  layout: 'absolute-fill',
-});
 ```
+
+Put background and alignment styles on each scene instance, as shown in the
+complete example. Keep layout-only containers as plain HTML.
 
 ### Choose schema fields
 
@@ -117,33 +102,37 @@ See [`InteractivitySchema`](https://www.remotion.dev/docs/interactivity-schema) 
 
 ### Register reusable components as connected compositions
 
-Register substantial scenes and reusable components with their own layers or
-animation as standalone compositions. Studio calls these **connected
-compositions**: they can be opened in their own timeline while sharing the same
-component implementation with the parent video.
+Register scenes and reusable elements as standalone compositions. Studio calls
+these **connected compositions**: they can be opened in their own timeline while
+sharing the same component implementation with the parent video.
 
 Define required styles and load fonts inside the component so it works without
 its parent. See
 [parent independence](../remotion-markup/connected-compositions.md#make-the-component-independent-of-its-parent).
 
 Register the same exported component reference that the parent renders. For the
-example above, use `component={Scene}`, not `SceneInner` or an inline wrapper.
+example above, use `component={Chapter}`, not `ChapterInner` or an inline wrapper.
 `Interactive.create()` provides the sequence, so no extra `<Sequence>` is needed for the connection.
 
 ```tsx title="src/Root.tsx"
 import {Composition} from 'remotion';
-import {Scene} from './Scene';
+import {Chapter} from './Chapter';
 
 export const RemotionRoot = () => (
   <Composition
-    id="Scene"
-    component={Scene}
+    id="Chapter"
+    component={Chapter}
     width={1280}
     height={720}
     fps={30}
-    durationInFrames={30}
+    durationInFrames={90}
     defaultProps={{
       title: 'A new perspective',
+      style: {
+        backgroundColor: '#111111',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
     }}
   />
 );
@@ -163,7 +152,7 @@ props. Built-in interactive components and custom components made with
 `trimBefore`, and `playbackRate` directly.
 
 ```tsx
-<Scene
+<Chapter
   name="Opening scene"
   from={30}
   durationInFrames={90}
@@ -172,17 +161,12 @@ props. Built-in interactive components and custom components made with
 />
 ```
 
-When removing a redundant sequence, move its timing and name to the child.
-Preserve any existing child timing; do not overwrite or double-apply offsets.
-A `useCurrentFrame()` call inside the component reads its local frame, while a
-style expression at the call site still uses the caller's frame. Preserve that
-distinction when moving animation styles.
+For shared scene timing, group the content in a component made with
+`Interactive.create()` and time that instance. Managed roots also accept
+`width` and `height` for `useVideoConfig()`.
 
-Keep a `<Sequence>` when it provides shared timing for multiple siblings,
-wraps a component that does not handle timing, or supplies dimensions the child
-cannot accept directly. Managed roots also accept `width` and `height` for
-`useVideoConfig()`. Keep `<TransitionSeries.Sequence>` for consecutive layout,
-with or without transitions; direct `from` props do not replace those behaviors.
+Use `<Track>` to put items on the same Studio timeline row.
+Use `<TransitionSeries>` when scenes are sequential.
 
 ## Give every independently editable item its own JSX node
 
@@ -198,16 +182,12 @@ and custom components.
 For example, author an editable timeline like this:
 
 ```tsx title="Separate source nodes"
-import { TransitionSeries } from "@remotion/transitions";
+import { Track } from "remotion";
 
-<TransitionSeries>
-  <TransitionSeries.Sequence name="Introduction" durationInFrames={90}>
-    <Introduction />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Sequence name="Demo" durationInFrames={150}>
-    <Demo />
-  </TransitionSeries.Sequence>
-</TransitionSeries>
+<Track name="Scenes">
+  <Introduction name="Introduction" durationInFrames={90} />
+  <Demo name="Demo" from={90} durationInFrames={150} />
+</Track>
 ```
 
 A `.map()` or another programmatic loop would create multiple runtime items

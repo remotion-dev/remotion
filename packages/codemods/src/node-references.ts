@@ -1,13 +1,14 @@
 import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
+import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import type {CodemodProject, CodemodResult} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
 import {
-	captureJsxNodePaths,
+	getJsxNodesWithPaths,
 	type CapturedJsxNodePath,
 } from './get-node-path-remappings';
 import {findProjectFile} from './internals';
-import {parseAst} from './sequence-props/parse-ast';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 
 export type NodeReference = {
 	filePath: string;
@@ -90,15 +91,18 @@ export const getUnchangedStructureRemappings = ({
 	input: string;
 	output: string;
 }): NodeSourceEdit['nodePathRemappings'] => {
-	const before = captureJsxNodePaths(parseAst(input));
-	const after = captureJsxNodePaths(parseAst(output));
+	const before = getJsxNodesWithPaths(getReadOnlySourceSnapshot(input).ast);
+	const after = getJsxNodesWithPaths(getReadOnlySourceSnapshot(output).ast);
 	if (before.length !== after.length) {
 		throw new Error('The edit unexpectedly changed the JSX structure');
 	}
 
 	return before.flatMap((node, index) => {
 		const next = after[index];
-		return isUnchangedNode(node, next)
+		const unchanged =
+			JSON.stringify(node.nodePath) === JSON.stringify(next.nodePath) &&
+			recast.prettyPrint(node.node).code === recast.prettyPrint(next.node).code;
+		return unchanged
 			? []
 			: [{oldNodePath: node.nodePath, newNodePath: next.nodePath}];
 	});

@@ -5,6 +5,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {EffectsOutputSize} from 'remotion';
 import type {
 	EffectDefinitionAndStack,
 	LogLevel,
@@ -61,6 +62,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
 type FallbackToOffthreadVideo = {
@@ -93,6 +95,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	requestInit,
 	objectFit: objectFitProp,
 	effects,
+	effectsOutputSize,
 	...props
 }) => {
 	if (!src) {
@@ -149,7 +152,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
 	const mediaCache = useRenderMediaCache(logLevel);
-	const effectChainState = Internals.useEffectChainState();
+	const effectChainState = Internals.useEffectChainState(effectsOutputSize);
 
 	const [error, setError] = useState<Error | null>(null);
 

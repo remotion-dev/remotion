@@ -108,6 +108,7 @@ export const CodeFrame: React.FC<{
 										tabSize: 2,
 										backgroundColor: TRANSPARENT,
 										lineHeight: 1.7,
+										minHeight: fontSize * 1.7,
 										paddingRight: 12,
 										paddingLeft: 12,
 										paddingTop: 0,

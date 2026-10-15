@@ -3,12 +3,9 @@ import {
 	type InteractiveTransformProps,
 	CanvasImage,
 	Interactive,
-	useVideoConfig,
 } from 'remotion';
 
 const AgentAirportSignContent = ({style}: InteractiveTransformProps) => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<AbsoluteFill style={style}>
 			<CanvasImage
@@ -16,7 +13,6 @@ const AgentAirportSignContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/branding/agent-airport-international.png'
 				}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					left: 40,

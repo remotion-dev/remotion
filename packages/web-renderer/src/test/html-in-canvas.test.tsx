@@ -3,7 +3,12 @@ import {createRoot} from 'react-dom/client';
 import {HtmlInCanvas, Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {createScaffold} from '../create-scaffold';
-import {supportsNativeHtmlInCanvas} from '../html-in-canvas';
+import {
+	drawWithHtmlInCanvas,
+	setupHtmlInCanvas,
+	supportsNativeHtmlInCanvas,
+	teardownHtmlInCanvas,
+} from '../html-in-canvas';
 import {makeInternalState} from '../internal-state';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
@@ -48,6 +53,74 @@ const countDifferentPixels = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
 
 	return different;
 };
+
+test('can evict WebGL contexts after native capture without crashing', async (t) => {
+	if (!supportsNativeHtmlInCanvas()) {
+		t.skip();
+		return;
+	}
+
+	const wrapper = document.createElement('div');
+	const element = document.createElement('div');
+	element.style.cssText = 'width:100px;height:100px;background:rgb(255,0,0)';
+	wrapper.appendChild(element);
+	document.body.appendChild(wrapper);
+	const contexts: WebGL2RenderingContext[] = [];
+	const addContext = () => {
+		const canvas = document.createElement('canvas');
+		canvas.width = 32;
+		canvas.height = 32;
+		wrapper.appendChild(canvas);
+		const gl = canvas.getContext('webgl2', {preserveDrawingBuffer: true})!;
+		gl.clearColor(1, 0, 0, 1);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		contexts.push(gl);
+	};
+
+	const htmlInCanvasContext = setupHtmlInCanvas({
+		wrapper,
+		div: element,
+		width: 100,
+		height: 100,
+	})!;
+
+	try {
+		// Fill Chromium's desktop WebGL context budget before compositor commit.
+		for (let i = 0; i < 16; i++) {
+			addContext();
+		}
+
+		await new Promise<void>((resolve) => {
+			requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+		});
+		const captured = await drawWithHtmlInCanvas({
+			htmlInCanvasContext,
+			element,
+			scaledWidth: 100,
+			scaledHeight: 100,
+		});
+		const lostBefore = contexts.filter((gl) => gl.isContextLost()).length;
+		// Without a task boundary in waitForPaint, this continuation still runs
+		// inside compositor commit. Evicting a texture layer crashes Chromium.
+		for (let i = 0; i < 4; i++) {
+			addContext();
+		}
+
+		expect(contexts.filter((gl) => gl.isContextLost()).length).toBeGreaterThan(
+			lostBefore,
+		);
+		expect(Array.from(captured.getImageData(10, 10, 1, 1).data)).toEqual([
+			255, 0, 0, 255,
+		]);
+	} finally {
+		for (const gl of contexts) {
+			gl.getExtension('WEBGL_lose_context')?.loseContext();
+		}
+
+		teardownHtmlInCanvas({htmlInCanvasContext, wrapper, div: element});
+		wrapper.remove();
+	}
+});
 
 for (const allowHtmlInCanvas of [false, true]) {
 	test(

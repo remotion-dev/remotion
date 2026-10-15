@@ -45,25 +45,21 @@ const HowCanRemotionBeFreeInner: React.FC = () => {
 				name="Premium version"
 				from={PREMIUM_VERSION_START_FRAME}
 				durationInFrames={PREMIUM_VERSION_DURATION_IN_FRAMES}
-				premountFor={30}
 			/>
 			<UnrulyOutcome
 				name="Unruly outcome"
 				from={UNRULY_OUTCOME_START_FRAME}
 				durationInFrames={UNRULY_OUTCOME_DURATION_IN_FRAMES}
-				premountFor={30}
 			/>
 			<FirstCustomerChart
 				name="First customer chart"
 				from={FIRST_CUSTOMER_CHART_START_FRAME}
 				durationInFrames={FIRST_CUSTOMER_CHART_DURATION_IN_FRAMES}
-				premountFor={30}
 			/>
 			<ZurichPhoto
 				name="Switzerland photograph and watch"
 				from={SWITZERLAND_SCENE_START_FRAME}
 				durationInFrames={ZURICH_PHOTO_DURATION_IN_FRAMES}
-				premountFor={30}
 			/>
 			<AnimatedCaptions
 				name="AnimatedCaptions"

@@ -47,7 +47,6 @@ const FiveAgentsIntroContent = ({style}: InteractiveTransformProps) => {
 		<AbsoluteFill style={{backgroundColor: '#000000', ...style}}>
 			<Interactive.Div
 				name="Focus on the five waiting sessions"
-				premountFor={fps}
 				style={{
 					...screenStyle,
 					left: interpolate(frame, [0.9 * fps, 2.5 * fps], [32, 204], {
@@ -73,7 +72,6 @@ const FiveAgentsIntroContent = ({style}: InteractiveTransformProps) => {
 					src={
 						'https://remotion.media/jonnys-videos/plane-sight/screenshots/five-agents-herdr.png'
 					}
-					premountFor={fps}
 					style={{
 						position: 'absolute',
 						width: 944,
@@ -108,12 +106,10 @@ export const FiveAgentsIntro = Interactive.create({
 });
 
 const AirportOverviewContent = ({style}: InteractiveTransformProps) => {
-	const {fps} = useVideoConfig();
 	return (
 		<AbsoluteFill style={style}>
 			<Interactive.Div
 				name="Five-agent airport overview"
-				premountFor={fps}
 				style={fullscreenStyle}
 			>
 				<CanvasImage
@@ -121,7 +117,6 @@ const AirportOverviewContent = ({style}: InteractiveTransformProps) => {
 					src={
 						'https://remotion.media/jonnys-videos/plane-sight/screenshots/five-agent-airport.png'
 					}
-					premountFor={fps}
 					style={fullscreenMediaStyle}
 				/>
 			</Interactive.Div>
@@ -139,14 +134,9 @@ const AirportDemoContent = ({style}: InteractiveTransformProps) => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill style={style}>
-			<Interactive.Div
-				name="Recorded airport demo"
-				premountFor={fps}
-				style={fullscreenStyle}
-			>
+			<Interactive.Div name="Recorded airport demo" style={fullscreenStyle}>
 				<Interactive.Div
 					name="Agents taking off — zoom into the runway"
-					premountFor={fps}
 					style={{
 						position: 'absolute',
 						inset: 0,
@@ -174,28 +164,21 @@ const AirportDemoContent = ({style}: InteractiveTransformProps) => {
 						),
 					}}
 				>
-					<Series
-						name="Airport action"
-						layout="absolute-fill"
-						premountFor={fps}
-					>
+					<Series name="Airport action" layout="absolute-fill">
 						<Series.Sequence
 							name="Five agents in priority order"
 							durationInFrames={3.4 * fps}
-							premountFor={fps}
 						>
 							<CanvasImage
 								src={
 									'https://remotion.media/jonnys-videos/plane-sight/screenshots/five-agent-airport.png'
 								}
-								premountFor={fps}
 								style={fullscreenMediaStyle}
 							/>
 						</Series.Sequence>
 						<Series.Sequence
 							name="Send an agent off — source 00:26.5"
 							durationInFrames={2.3 * fps}
-							premountFor={fps}
 						>
 							<Video
 								src={
@@ -204,27 +187,23 @@ const AirportDemoContent = ({style}: InteractiveTransformProps) => {
 								trimBefore={26.5 * fps}
 								muted
 								objectFit="cover"
-								premountFor={fps}
 								style={fullscreenMediaStyle}
 							/>
 						</Series.Sequence>
 						<Series.Sequence
 							name="Working agent is hidden"
 							durationInFrames={(10 / 30) * fps}
-							premountFor={fps}
 						>
 							<CanvasImage
 								src={
 									'https://remotion.media/jonnys-videos/plane-sight/screenshots/four-agents-airport.png'
 								}
-								premountFor={fps}
 								style={fullscreenMediaStyle}
 							/>
 						</Series.Sequence>
 						<Series.Sequence
 							name="Agent returns to the queue — source 00:38.5"
 							durationInFrames={4.1 * fps}
-							premountFor={fps}
 						>
 							<Video
 								src={
@@ -233,20 +212,17 @@ const AirportDemoContent = ({style}: InteractiveTransformProps) => {
 								trimBefore={38.5 * fps}
 								muted
 								objectFit="cover"
-								premountFor={fps}
 								style={fullscreenMediaStyle}
 							/>
 						</Series.Sequence>
 						<Series.Sequence
 							name="Hold the airport for the turnaround line"
 							durationInFrames={6.4 * fps}
-							premountFor={fps}
 						>
 							<CanvasImage
 								src={
 									'https://remotion.media/jonnys-videos/plane-sight/screenshots/five-agent-airport-returned.png'
 								}
-								premountFor={fps}
 								style={fullscreenMediaStyle}
 							/>
 						</Series.Sequence>

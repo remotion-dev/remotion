@@ -18,20 +18,22 @@ import {memo, useContext, useEffect} from 'react';
 import type {VideoConfigValues} from 'remotion';
 import {
 	Internals,
-	type OverrideIdToNodePaths,
 	type PropStatuses,
 	type InteractivitySchemaField,
 	type SequencePropsSubscriptionKey,
 	type InteractivitySchema,
-	type TSequence,
 } from 'remotion';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {hasClipboardFigmaPayload} from '../../helpers/clipboard-figma';
 import {hasClipboardImage} from '../../helpers/clipboard-images';
 import {hasClipboardSvgMarkup} from '../../helpers/clipboard-svg';
 import {copyText} from '../../helpers/copy-text';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -487,19 +489,16 @@ export const getEffectPropClipboardDataFromSelection = ({
 
 export const getEasingClipboardDataFromSelection = ({
 	selection,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	selection: EasingSelection;
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	tracks: readonly TimelineTrackData[];
 	propStatuses: PropStatuses;
 }): EasingClipboardData | null => {
 	const easing = getTimelineEasingValueForSelection({
 		selection,
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		propStatuses,
 	});
 	if (easing === null) {
@@ -518,14 +517,12 @@ const getPasteEffectPropTargetForSelection = ({
 	selection,
 	payload,
 	propStatuses,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 }: {
 	readonly selection: TimelineSelection;
 	readonly payload: EffectPropClipboardData;
 	readonly propStatuses: PropStatuses;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 }):
 	| {type: 'valid'; target: PasteEffectPropEditTarget}
 	| Exclude<PasteEffectPropTarget, {type: 'valid'}> => {
@@ -559,8 +556,7 @@ const getPasteEffectPropTargetForSelection = ({
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo: selection.nodePathInfo,
 	});
 	const sequence = track?.sequence ?? null;
@@ -620,14 +616,12 @@ export const getPasteEffectPropTarget = ({
 	selectedItems,
 	payload,
 	propStatuses,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 }: {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly payload: EffectPropClipboardData;
 	readonly propStatuses: PropStatuses;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 }): PasteEffectPropTarget => {
 	if (selectedItems.length === 0) {
 		return {type: 'none'};
@@ -639,8 +633,7 @@ export const getPasteEffectPropTarget = ({
 			selection,
 			payload,
 			propStatuses,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 		});
 		if (result.type !== 'valid') {
 			return result;
@@ -663,6 +656,7 @@ export const getPasteEffectPropTarget = ({
 };
 
 const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
+	const calculateTimeline = useTimelineCalculator();
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canSelect = useTimelineSelectionCanSelect();
@@ -692,13 +686,16 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 				const sequences = sequencesRef.current;
 				const overrideIdToNodePathMappings =
 					overrideIdToNodePathMappingsRef.current;
+				const {tracks} = calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				});
 				const selectedItems = currentSelection.current.selectedItems.map(
 					(selection) => {
 						if (selection.type === 'guide') return selection;
 
 						const track = findTrackForNodePathInfo({
-							sequences,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							tracks,
 							nodePathInfo: selection.nodePathInfo,
 						});
 						return track?.nodePathInfo
@@ -734,8 +731,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 
 					const payload = getKeyframeClipboardDataFromSelections({
 						selections: selectedItems,
-						sequences,
-						overrideIdsToNodePaths: overrideIdToNodePathMappings,
+						tracks,
 						propStatuses,
 					});
 					if (payload === null) {
@@ -768,8 +764,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 
 					const payload = getEasingClipboardDataFromSelection({
 						selection: easingSelections[0],
-						sequences,
-						overrideIdsToNodePaths: overrideIdToNodePathMappings,
+						tracks,
 						propStatuses,
 					});
 					if (payload === null) {
@@ -808,8 +803,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 					const payload = getSequencePropClipboardDataFromSelection({
 						selection: selectedItems[0],
 						propStatuses,
-						sequences,
-						overrideIdsToNodePaths: overrideIdToNodePathMappings,
+						tracks,
 					});
 					if (payload === null) {
 						showNotification(
@@ -929,8 +923,6 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 					return;
 				}
 
-				const overrideIdToNodePathMappings =
-					overrideIdToNodePathMappingsRef.current;
 				const effectClipboardData = getEffectClipboardDataFromSelections({
 					selectedItems,
 					propStatuses: propStatusesRef.current,
@@ -965,8 +957,10 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 					.then(() => {
 						const deletePromise = deleteSelectedTimelineItems({
 							selections: selectedItems,
-							sequences: sequencesRef.current,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							tracks: calculateTimeline({
+								sequences: sequencesRef.current,
+								overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+							}).tracks,
 							setPropStatuses,
 							clientId,
 							confirm,
@@ -1028,6 +1022,10 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 			const sequences = sequencesRef.current;
 			const overrideIdToNodePathMappings =
 				overrideIdToNodePathMappingsRef.current;
+			const {tracks} = calculateTimeline({
+				sequences,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			});
 			const timelinePosition = getCurrentFrame();
 			Promise.resolve()
 				.then(() => {
@@ -1045,8 +1043,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 							selectedItems,
 							payload: keyframeResult.data,
 							timelinePosition,
-							sequences,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							tracks,
 							propStatuses,
 						});
 						if (keyframeTarget.type !== 'valid') {
@@ -1182,8 +1179,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 
 						const updatePromise = updateSelectedTimelineEasings({
 							selections: easingSelections,
-							sequences,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							tracks,
 							propStatuses,
 							setPropStatuses,
 							clientId,
@@ -1221,8 +1217,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 							selectedItems,
 							payload: sequencePropResult.data,
 							propStatuses,
-							sequences,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							tracks,
 						});
 						if (sequencePropTarget.type !== 'valid') {
 							switch (sequencePropTarget.type) {
@@ -1312,8 +1307,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 							selectedItems,
 							payload: effectPropResult.data,
 							propStatuses,
-							sequences,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							tracks,
 						});
 
 						if (effectPropTarget.type !== 'valid') {
@@ -1471,6 +1465,7 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 			document.removeEventListener('paste', handlePaste);
 		};
 	}, [
+		calculateTimeline,
 		canSelect,
 		confirm,
 		currentSelection,

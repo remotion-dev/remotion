@@ -14,7 +14,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
+import type {TSequence} from 'remotion';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {timelineVerticalScroll} from './timeline-refs';
@@ -71,8 +71,11 @@ export const TimelineVirtualizationProvider: React.FC<{
 	readonly hasBeenCut: boolean;
 	readonly isStill: boolean;
 	readonly timeline: readonly TimelineDisplayRow[];
-}> = ({children, hasBeenCut, isStill, timeline}) => {
-	const sequences = Internals.useSequenceManagerSequences();
+	readonly layoutSnapshot: {
+		readonly timeline: readonly TimelineDisplayRow[];
+		readonly sequences: readonly TSequence[];
+	};
+}> = ({children, hasBeenCut, isStill, timeline, layoutSnapshot}) => {
 	const compactSeries = useCompactSeries();
 	const representativeTracks = useMemo(
 		() => timeline.map((row) => row.track),
@@ -83,14 +86,14 @@ export const TimelineVirtualizationProvider: React.FC<{
 	});
 	const trackHeights = useMemo(
 		() =>
-			timeline.map(
+			layoutSnapshot.timeline.map(
 				(row, index) =>
 					(row.items === null
 						? individualHeights[index]
 						: TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM) +
 					row.auxiliaryRows.length * TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 			),
-		[individualHeights, timeline],
+		[individualHeights, layoutSnapshot],
 	);
 	const {consumeRevealRequest, revealRequest, selectedItems} =
 		useTimelineSelection();
@@ -100,15 +103,35 @@ export const TimelineVirtualizationProvider: React.FC<{
 		(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0);
 	const rowsRef = useRef<readonly TimelineVirtualRow[]>([]);
 
-	const layout = useMemo(() => {
-		const seriesLayout = getTimelineSeriesLayout({
-			rows: timeline,
-			heights: trackHeights,
-			sequences,
-			compactSeries,
-			paddingStart,
-		});
+	// Ordinary leaf trims update the rendered track while retaining the facts
+	// that determine scene packing, hierarchy, and vertical positions.
+	const seriesLayout = useMemo(
+		() =>
+			getTimelineSeriesLayout({
+				rows: layoutSnapshot.timeline,
+				heights: trackHeights,
+				sequences: layoutSnapshot.sequences,
+				compactSeries,
+				paddingStart,
+			}),
+		[compactSeries, layoutSnapshot, paddingStart, trackHeights],
+	);
+	const rootTrackIndexes = useMemo(() => {
+		const indexes = new Map<string, number>();
+		for (let index = 0; index < layoutSnapshot.timeline.length; index++) {
+			for (const {nodePathInfo} of [
+				layoutSnapshot.timeline[index].track,
+				...(layoutSnapshot.timeline[index].items ?? []),
+			]) {
+				if (nodePathInfo !== null) {
+					indexes.set(getTimelineSequenceSelectionKey(nodePathInfo), index);
+				}
+			}
+		}
 
+		return indexes;
+	}, [layoutSnapshot]);
+	const layout = useMemo(() => {
 		const rows = timeline.map(
 			(
 				{track, items, childScenes, auxiliaryRows},
@@ -163,27 +186,12 @@ export const TimelineVirtualizationProvider: React.FC<{
 				};
 			},
 		);
-		const rootTrackIndexes = new Map<string, number>();
-		for (let index = 0; index < timeline.length; index++) {
-			for (const {nodePathInfo} of [
-				timeline[index].track,
-				...(timeline[index].items ?? []),
-			]) {
-				if (nodePathInfo !== null) {
-					rootTrackIndexes.set(
-						getTimelineSequenceSelectionKey(nodePathInfo),
-						index,
-					);
-				}
-			}
-		}
-
 		return {
 			...seriesLayout,
 			rootTrackIndexes,
 			rows,
 		};
-	}, [compactSeries, paddingStart, sequences, timeline, trackHeights]);
+	}, [rootTrackIndexes, seriesLayout, timeline]);
 	useLayoutEffect(() => {
 		rowsRef.current = layout.rows;
 	}, [layout.rows]);
@@ -456,7 +464,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 					.map(
 						(index): VirtualItem => ({
 							index,
-							key: timeline[index].track.sequence.id,
+							key: layoutSnapshot.timeline[index].track.sequence.id,
 							start: layout.offsets[index],
 							end: layout.offsets[index] + layout.rowHeights[index],
 							size: layout.rowHeights[index],
@@ -469,7 +477,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 			layout.offsets,
 			layout.rowHeights,
 			selectedTrackIndexes,
-			timeline,
+			layoutSnapshot,
 			verticalRenderWindow,
 			virtualGroups,
 		],

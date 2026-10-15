@@ -19,6 +19,7 @@ import type {
 import {Internals} from 'remotion';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BORDER_TIMELINE_DROP_BLUE,
@@ -376,6 +377,7 @@ const TimelineSequenceItemInner: React.FC<{
 }) => {
 	const isPackedTrack = sequence.timelineTrack?.role === 'track';
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -541,12 +543,15 @@ const TimelineSequenceItemInner: React.FC<{
 
 		splitSelectedTimelineItems({
 			selections: selectedItems,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			tracks: calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			}).tracks,
 			propStatuses: propStatusesRef.current,
 			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
+		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
 		previewInteractive,
 		propStatusesRef,
@@ -1388,8 +1393,10 @@ const TimelineSequenceItemInner: React.FC<{
 					getContextForAgents: () =>
 						getSequencesContextForAgents({
 							nodePathInfos: selectedSequenceNodePathInfos,
-							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-							sequences: sequencesRef.current,
+							tracks: calculateTimeline({
+								sequences: sequencesRef.current,
+								overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+							}).tracks,
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
@@ -1576,6 +1583,7 @@ const TimelineSequenceItemInner: React.FC<{
 			openInCodingAgent,
 			openInEditor,
 			originalLocation,
+			calculateTimeline,
 			overrideIdToNodePathMappingsRef,
 			previewInteractive,
 			previewServerState,

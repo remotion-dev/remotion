@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/eslint-config-flat",
 	"version": "4.0.535",
-	"description": "Default configuration for Remotion templates (ESLint >= 9)",
+	"description": "Default configuration for Remotion templates (ESLint 9 and 10)",
 	"main": "dist/esm/index.mjs",
 	"type": "module",
 	"files": [
@@ -22,16 +22,17 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "ISC",
 	"dependencies": {
-		"typescript-eslint": "8.21.0"
+		"eslint-plugin-react-hooks": "7.1.1",
+		"typescript-eslint": "8.71.2"
 	},
 	"peerDependencies": {
-		"eslint": ">=9"
+		"eslint": "^9.0.0 || ^10.0.0"
 	},
 	"devDependencies": {
+		"@eslint/compat": "2.1.1",
 		"@remotion/eslint-plugin": "workspace:*",
 		"@eslint/js": "9.19.0",
 		"eslint-plugin-react": "7.37.4",
-		"eslint-plugin-react-hooks": "5.2.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"@typescript/native-preview": "catalog:"
@@ -46,7 +47,7 @@
 		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
-			"require": "./dist/index.js",
+			"require": "./dist/index.cjs",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		}

@@ -7,7 +7,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
-import {calculateTimeline} from './calculate-timeline';
+import {createTimelineCalculator} from './calculate-timeline';
 import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
@@ -108,6 +108,7 @@ const nodePathsAreEqual = (
 };
 
 export const createCanvasController = (): CanvasController => {
+	const calculateTimeline = createTimelineCalculator();
 	let timelineSnapshot: readonly TimelineTrackData[] = [];
 	let sequences: TSequence[] = [];
 	let nodePaths: OverrideIdToNodePaths = {};
@@ -132,7 +133,7 @@ export const createCanvasController = (): CanvasController => {
 			calculateTimeline({
 				sequences,
 				overrideIdsToNodePaths: nodePaths,
-			}),
+			}).tracks,
 		);
 	};
 

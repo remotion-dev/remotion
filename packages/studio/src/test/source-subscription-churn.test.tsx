@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {CodemodsInternals} from '@remotion/codemods';
 import type {SubscribeToSequencePropsBatchRequest} from '@remotion/studio-shared';
 import {act, render, waitFor} from '@testing-library/react';
-import {useContext, type ContextType} from 'react';
+import {useContext, useState, type ContextType} from 'react';
 import {
 	Internals,
 	Sequence,
@@ -19,6 +19,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 
 const fileName = __filename;
 const source = readFileSync(fileName, 'utf8').split('\ntest(')[0];
+let sourceLineOffset = 0;
 
 // Supply the source locations normally injected by the Studio bundler. The
 // subscription parser reads the same JSX that React mounts below.
@@ -29,7 +30,8 @@ const sourceProps = (name: string) => {
 		[Internals.REMOTION_INTERNAL_STACK_PROP]: Internals.makeOriginalSourceStack(
 			{
 				fileName,
-				lineNumber: source.slice(0, opening).split('\n').length,
+				lineNumber:
+					source.slice(0, opening).split('\n').length + sourceLineOffset,
 				columnNumber: 0,
 			},
 		),
@@ -83,6 +85,17 @@ test('parent previews keep source subscriptions stable while mounted instances e
 	const subscriptions: ReturnType<
 		typeof CodemodsInternals.computeSequencePropsSubscriptionFromContent
 	>[] = [];
+	let subscriptionSource = source;
+	let refreshFixture: () => void = () => {
+		throw new Error('Fixture has not mounted');
+	};
+
+	const RefreshableFixture = () => {
+		const [, setRevision] = useState(0);
+		refreshFixture = () => setRevision((revision) => revision + 1);
+		return <Fixture />;
+	};
+
 	const setters: {
 		current: ContextType<typeof Internals.VisualModeSettersContext> | null;
 	} = {current: null};
@@ -106,7 +119,7 @@ test('parent previews keep source subscriptions stable while mounted instances e
 		) as SubscribeToSequencePropsBatchRequest;
 		const results = body.requests.map((request) =>
 			CodemodsInternals.computeSequencePropsSubscriptionFromContent({
-				fileContents: source,
+				fileContents: subscriptionSource,
 				absolutePath: fileName,
 				line: request.line,
 				preferredNodePath: request.nodePath,
@@ -208,7 +221,7 @@ test('parent previews keep source subscriptions stable while mounted instances e
 														subscribeToEvent: () => () => undefined,
 													}}
 												>
-													<Fixture />
+													<RefreshableFixture />
 													<Subscriptions />
 												</StudioServerConnectionCtx.Provider>
 											</ExpandedTracksProvider>
@@ -298,12 +311,23 @@ test('parent previews keep source subscriptions stable while mounted instances e
 			Number(rendered.getByTestId('B').parentElement!.style.opacity),
 		).toBeCloseTo(30 / 398, 5);
 		expect(requests).toEqual(initialRequests);
+
+		// Registration can publish a shifted source stack without another refresh
+		// event. Updating that stack must still refresh source props.
+		sourceLineOffset = 2;
+		subscriptionSource = `\n\n${source}`;
+		act(() => refreshFixture());
+		await waitFor(() =>
+			expect(rendered!.getByTestId('A').textContent).toBe('180'),
+		);
+		expect(rendered.getByTestId('B').textContent).toBe('200');
 	} finally {
 		await act(async () => {
 			rendered?.unmount();
 			await Promise.resolve();
 		});
 		globalThis.fetch = previousFetch;
+		sourceLineOffset = 0;
 	}
 
 	// Verify that unsubscribe traffic is actually observed by the test.
@@ -311,5 +335,5 @@ test('parent previews keep source subscriptions stable while mounted instances e
 		requests.filter(
 			(endpoint) => endpoint === '/api/unsubscribe-from-sequence-props',
 		),
-	).toHaveLength(4);
+	).toHaveLength(subscriptions.filter((result) => result.success).length);
 });

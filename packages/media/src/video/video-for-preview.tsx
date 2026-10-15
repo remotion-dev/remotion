@@ -6,6 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {EffectsOutputSize} from 'remotion';
 import type {
 	EffectDefinitionAndStack,
 	LogLevel,
@@ -81,6 +82,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -115,6 +117,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize,
 	setMediaDurationInSeconds,
 	...props
 }) => {
@@ -172,7 +175,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	warnAboutTooHighVolume(userPreferredVolume);
 
-	const effectChainState = useEffectChainState();
+	const effectChainState = useEffectChainState(effectsOutputSize);
 
 	const effectsRef = useRef(effects);
 	effectsRef.current = effects;
@@ -545,7 +548,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.redrawVideoEffects().catch(() => {
 			// Player may have been disposed between layout and the async redraw.
 		});
-	}, [effects, mediaPlayerReady, mediaPlayerRef]);
+	}, [
+		effects,
+		effectsOutputSize?.width,
+		effectsOutputSize?.height,
+		mediaPlayerReady,
+		mediaPlayerRef,
+	]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {

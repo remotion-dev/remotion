@@ -3,7 +3,7 @@ export {
 	collectReactCommit,
 	installReactCommitObserver,
 } from './react-commit-adapter';
-export {calculateTimeline} from './calculate-timeline';
+export {createTimelineCalculator} from './calculate-timeline';
 export {useIsCanvasSequenceHovered} from './hover';
 export type {
 	CanvasOutline,
@@ -54,19 +54,8 @@ export type {
 	CanvasOutlineLayoutTarget,
 } from './outline-targets';
 export {getConnectedCompositions} from './get-connected-compositions';
-export {
-	getParentSequencePlaybackRate,
-	getCascadedStart,
-	getCascadedStartWithTrim,
-	getTimelineVisibleDuration,
-	getTimelineVisibleStart,
-} from './get-sequence-visible-range';
-export {getTimelineNestedLevel} from './get-timeline-nestedness';
-export {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
-export type {
-	TimelineLoopDisplay,
-	TimelineTrackWithOriginalTimings,
-} from './get-timeline-sequence-sort-key';
+export {getParentSequencePlaybackRate} from './get-sequence-visible-range';
+export type {TimelineLoopDisplay} from './get-timeline-sequence-sort-key';
 export {
 	EMPTY_CANVAS_SELECTION,
 	getCanvasSelectionAfterInteraction,

@@ -24,7 +24,6 @@ const GeminiTowerSceneContent = ({style}: InteractiveTransformProps) => {
 		<AbsoluteFill style={{backgroundColor: '#ffffff', ...style}}>
 			<Interactive.Div
 				name="Close-up of Gemini in the control tower"
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					inset: 0,
@@ -34,24 +33,21 @@ const GeminiTowerSceneContent = ({style}: InteractiveTransformProps) => {
 					backgroundColor: '#6d9b57',
 				}}
 			>
-				<Series name="Tower hover" layout="absolute-fill" premountFor={fps}>
+				<Series name="Tower hover" layout="absolute-fill">
 					<Series.Sequence
 						name="Establish the control tower"
 						durationInFrames={2 * fps}
-						premountFor={fps}
 					>
 						<CanvasImage
 							src={
 								'https://remotion.media/jonnys-videos/plane-sight/screenshots/gemini-tower-before-hover.png'
 							}
-							premountFor={fps}
 							style={mediaStyle}
 						/>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Reveal Gemini on the spoken name"
 						durationInFrames={3 * fps}
-						premountFor={fps}
 					>
 						<Video
 							src={
@@ -60,20 +56,17 @@ const GeminiTowerSceneContent = ({style}: InteractiveTransformProps) => {
 							trimBefore={0}
 							muted
 							objectFit="cover"
-							premountFor={fps}
 							style={mediaStyle}
 						/>
 					</Series.Sequence>
 					<Series.Sequence
 						name="Hold Gemini's card through the priority explanation"
 						durationInFrames={(224 / 30) * fps}
-						premountFor={fps}
 					>
 						<CanvasImage
 							src={
 								'https://remotion.media/jonnys-videos/plane-sight/screenshots/gemini-tower-hover.png'
 							}
-							premountFor={fps}
 							style={mediaStyle}
 						/>
 					</Series.Sequence>

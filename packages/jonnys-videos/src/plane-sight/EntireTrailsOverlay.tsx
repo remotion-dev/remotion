@@ -3,12 +3,9 @@ import {
 	CanvasImage,
 	Interactive,
 	type InteractiveTransformProps,
-	useVideoConfig,
 } from 'remotion';
 
 const EntireTrailsOverlayContent = ({style}: InteractiveTransformProps) => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<AbsoluteFill style={style}>
 			<CanvasImage
@@ -16,7 +13,6 @@ const EntireTrailsOverlayContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/overlays/entire-trails.svg'
 				}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					left: 190,

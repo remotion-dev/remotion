@@ -1,7 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import {
 	Interactive,
-	useVideoConfig,
 	Composition,
 	Easing,
 	Folder,
@@ -76,12 +75,10 @@ export const MyComposition = () => {
 };
 
 const MyComponentInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<DiscoBallBg
-				premountFor={fps}
 				name="DiscoBallBg"
 				width={1080}
 				height={1920}
@@ -91,7 +88,6 @@ const MyComponentInner: React.FC = () => {
 				}}
 			/>
 			<TextBackgroundComposition
-				premountFor={fps}
 				name="Text background"
 				width={1920}
 				height={1080}
@@ -170,16 +166,10 @@ const MyComponentInner: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={182}
-				premountFor={fps}
 			/>
-			<Audio
-				premountFor={fps}
-				name="Voiceover"
-				src={asset('text-behind-video-2.wav')}
-			/>
+			<Audio name="Voiceover" src={asset('text-behind-video-2.wav')} />
 			<Track name="Captions">
 				<AnimatedCaptions
-					premountFor={fps}
 					name="AnimatedCaptions"
 					width={1080}
 					height={360}
@@ -190,7 +180,6 @@ const MyComponentInner: React.FC = () => {
 					}}
 				/>
 				<AnimatedCaptions
-					premountFor={fps}
 					name="AnimatedCaptions"
 					width={1080}
 					height={360}
@@ -203,7 +192,6 @@ const MyComponentInner: React.FC = () => {
 					}}
 				/>
 				<AnimatedCaptions
-					premountFor={fps}
 					name="AnimatedCaptions"
 					width={1080}
 					height={360}
@@ -235,7 +223,6 @@ const MyComponentInner: React.FC = () => {
 				/>
 			</Track>
 			<AnimatedCaptionsBigWords
-				premountFor={fps}
 				name="AnimatedCaptionsBigWords"
 				width={1080}
 				height={1920}
@@ -266,20 +253,81 @@ const MyComponentInner: React.FC = () => {
 					),
 				}}
 			/>
-			<EffectShow
-				name="EffectShow"
-				width={1080}
-				height={1920}
-				durationInFrames={197}
-				style={{
-					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[337, 352],
-						['0px 1920px', '0px -330.8px'],
-						{
+			<Track name="Effect and model demos">
+				<EffectShow
+					name="EffectShow"
+					width={1080}
+					height={1920}
+					durationInFrames={197}
+					style={{
+						position: 'absolute',
+						translate: interpolate(
+							frame,
+							[337, 352],
+							['0px 1920px', '0px -330.8px'],
+							{
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: [
+									Easing.spring({
+										damping: 200,
+										mass: 1,
+										stiffness: 100,
+										allowTail: true,
+										durationRestThreshold: 0.02,
+										overshootClamping: false,
+									}),
+								],
+							},
+						),
+						scale: interpolate(frame, [512, 522], [1, 0], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
+							easing: [
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: false,
+									durationRestThreshold: 0.01,
+									overshootClamping: false,
+								}),
+							],
+						}),
+					}}
+					from={337}
+				/>
+				<HuggingFace
+					name="HuggingFace"
+					width={1920}
+					height={1080}
+					durationInFrames={162}
+					style={{
+						position: 'absolute',
+						translate: interpolate(
+							frame,
+							[567, 575],
+							['704.8px 79.9px', '-420px 79.9px'],
+							{
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: [
+									Easing.spring({
+										damping: 200,
+										mass: 1,
+										stiffness: 100,
+										allowTail: true,
+										durationRestThreshold: 0.02,
+										overshootClamping: false,
+									}),
+								],
+							},
+						),
+						scale: interpolate(frame, [692, 697], [0.707, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
 							easing: [
 								Easing.spring({
 									damping: 200,
@@ -290,72 +338,11 @@ const MyComponentInner: React.FC = () => {
 									overshootClamping: false,
 								}),
 							],
-						},
-					),
-					scale: interpolate(frame, [512, 522], [1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: false,
-								durationRestThreshold: 0.01,
-								overshootClamping: false,
-							}),
-						],
-					}),
-				}}
-				from={337}
-				premountFor={fps}
-			/>
-			<HuggingFace
-				name="HuggingFace"
-				width={1920}
-				height={1080}
-				durationInFrames={162}
-				style={{
-					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[567, 575],
-						['704.8px 79.9px', '-420px 79.9px'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
-						},
-					),
-					scale: interpolate(frame, [692, 697], [0.707, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-						],
-					}),
-				}}
-				from={537}
-				premountFor={fps}
-			/>
+						}),
+					}}
+					from={537}
+				/>
+			</Track>
 			<ClientSideChad
 				name="ClientSideChad"
 				width={1080}
@@ -369,7 +356,6 @@ const MyComponentInner: React.FC = () => {
 					}),
 				}}
 				from={694}
-				premountFor={fps}
 			/>
 			<Separate
 				name="Separate"
@@ -437,7 +423,6 @@ const MyComponentInner: React.FC = () => {
 						},
 					),
 				}}
-				premountFor={fps}
 			/>
 			<Fork
 				name="Fork"
@@ -493,10 +478,8 @@ const MyComponentInner: React.FC = () => {
 					),
 				}}
 				from={953}
-				premountFor={fps}
 			/>
 			<ForkDrop
-				premountFor={fps}
 				name="ForkDrop"
 				width={1080}
 				height={1920}
@@ -570,7 +553,6 @@ const MyComponentInner: React.FC = () => {
 					}),
 				}}
 				from={1093}
-				premountFor={fps}
 			/>
 			<VibeCoded
 				name="VibeCoded"
@@ -615,7 +597,6 @@ const MyComponentInner: React.FC = () => {
 					scale: 0.9999999983052765,
 				}}
 				from={1125}
-				premountFor={fps}
 				trimBefore={35}
 			/>
 			<Mediabunny
@@ -627,10 +608,8 @@ const MyComponentInner: React.FC = () => {
 				style={{
 					position: 'absolute',
 				}}
-				premountFor={fps}
 			/>
 			<DragInDemo
-				premountFor={fps}
 				name="DragInDemo"
 				width={1080}
 				height={1920}
@@ -685,10 +664,8 @@ const MyComponentInner: React.FC = () => {
 					),
 				}}
 				from={1337}
-				premountFor={fps}
 			/>
 			<CanvasImage
-				premountFor={fps}
 				src={asset('Screenshot 2026-07-19 at 18.28.52.png')}
 				style={{
 					position: 'absolute',
@@ -759,7 +736,6 @@ const MyComponentInner: React.FC = () => {
 				name="Fork sound effect"
 				src={asset('fahhhh.mp3')}
 				from={1036}
-				premountFor={fps}
 				volume={0.1}
 				durationInFrames={772}
 			/>
@@ -775,19 +751,16 @@ const MyComponentInner: React.FC = () => {
 				}}
 				from={1615}
 				durationInFrames={66}
-				premountFor={fps}
 				playbackRate={0.8}
 			/>
 			<TextBehindVideoSeriesFirst20sComposition
 				name="TextBehindVideoSeriesFirst20s"
 				from={1648}
-				premountFor={fps}
 				durationInFrames={TEXT_BEHIND_VIDEO_SERIES_FIRST_20S_DURATION_IN_FRAMES}
 				width={1080}
 				height={1920}
 			/>
 			<Countdown
-				premountFor={fps}
 				name="Countdown"
 				from={1556}
 				durationInFrames={COUNTDOWN_DURATION_IN_FRAMES}

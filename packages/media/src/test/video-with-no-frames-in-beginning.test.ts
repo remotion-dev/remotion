@@ -27,6 +27,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	}
 
 	const manager = await videoIteratorManager({
+		getIsDisposed: () => false,
 		getIsLooping: () => false,
 		getLoopSegmentMediaEndTimestamp: () => {
 			throw new Error('not implemented');

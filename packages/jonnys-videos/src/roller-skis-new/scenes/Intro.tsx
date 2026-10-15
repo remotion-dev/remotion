@@ -6,13 +6,11 @@ import {
 	interpolate,
 	Series,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 import {LocationLowerThird} from '../elements/LocationLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
 const IntroInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
@@ -22,7 +20,6 @@ const IntroInner: React.FC = () => {
 					name="Good morning"
 					trimBefore={45}
 					durationInFrames={239}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0455"
@@ -30,14 +27,12 @@ const IntroInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0455.mp4'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -167,7 +162,6 @@ const IntroInner: React.FC = () => {
 					name="Roller skis"
 					trimBefore={312}
 					durationInFrames={290}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0455"
@@ -175,7 +169,6 @@ const IntroInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0455.mp4'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{
 							width: '100%',
@@ -191,7 +184,6 @@ const IntroInner: React.FC = () => {
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -336,7 +328,6 @@ const IntroInner: React.FC = () => {
 				name="Location"
 				from={81}
 				durationInFrames={110}
-				premountFor={fps}
 				location="Zürich, Switzerland"
 				time="08:07"
 				accentColor="#2563eb"
@@ -347,7 +338,6 @@ const IntroInner: React.FC = () => {
 				src="https://remotion.media/whoosh.wav"
 				from={521}
 				volume={0.6}
-				premountFor={fps}
 			/>
 		</>
 	);

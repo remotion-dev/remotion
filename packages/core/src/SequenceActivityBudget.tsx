@@ -4,6 +4,7 @@ import {
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivityContext,
 	SequenceActivitySettingsContext,
+	SequenceActivitySuspensionContext,
 } from './sequence-activity-context.js';
 import {TimelineContext, type TimelineContextValue} from './TimelineContext.js';
 import {useSyncExternalStore} from './use-sync-external-store.js';
@@ -26,8 +27,9 @@ const createActivityBudget = () => {
 	let frame: Record<string, number> = {};
 	let limit = DEFAULT_SEQUENCE_ACTIVITY_LIMIT;
 	let scheduled = false;
+	let suspended = false;
 	const schedule = () => {
-		if (scheduled) {
+		if (scheduled || suspended) {
 			return;
 		}
 
@@ -36,6 +38,10 @@ const createActivityBudget = () => {
 		// whole commit, once all candidates and the root playhead are current.
 		queueMicrotask(() => {
 			scheduled = false;
+			if (suspended) {
+				return;
+			}
+
 			const ranked = [...candidates.values()]
 				.filter((candidate) => candidate.end > candidate.from)
 				.map((candidate) => {
@@ -93,6 +99,12 @@ const createActivityBudget = () => {
 
 	return {
 		...registry,
+		setSuspended: (next: boolean) => {
+			if (suspended !== next) {
+				suspended = next;
+				schedule();
+			}
+		},
 		setLimit: (next: number) => {
 			if (limit !== next) {
 				limit = next;
@@ -128,11 +140,12 @@ export const SequenceActivityBudgetProvider: React.FC<{
 }> = ({children}) => {
 	const enabled = useContext(SequenceActivityContext);
 	const settings = useContext(SequenceActivitySettingsContext);
+	const suspended = useContext(SequenceActivitySuspensionContext);
 	const limit = settings?.limit ?? DEFAULT_SEQUENCE_ACTIVITY_LIMIT;
 	const admitting = enabled && limit > 0 && limit !== Infinity;
 	const [budget] = useState(createActivityBudget);
 	const timeline = useContext(
-		admitting ? TimelineContext : InactiveTimelineContext,
+		admitting && !suspended ? TimelineContext : InactiveTimelineContext,
 	);
 	const selected = useSyncExternalStore(
 		budget.subscribe,
@@ -151,11 +164,14 @@ export const SequenceActivityBudgetProvider: React.FC<{
 		[admitting, limit, selected],
 	);
 	useCommitEffect(() => {
+		// Retain the admitted trees while moving the playhead. Re-ranking would
+		// unmount their suspended content and remove its timeline registrations.
+		budget.setSuspended(suspended);
 		budget.setLimit(admitting ? limit : 0);
 		if (admitting && timeline !== null) {
 			budget.setFrame(timeline.frame);
 		}
-	}, [admitting, budget, limit, timeline]);
+	}, [admitting, budget, limit, suspended, timeline]);
 	return (
 		<ActivityBudgetContext.Provider value={admitting ? budget : null}>
 			<ActivitySelectionContext.Provider value={admitted}>

@@ -1,7 +1,9 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
+	Interactive,
+	type InteractiveTransformProps,
 	interpolate,
 	Sequence,
 	Series,
@@ -39,18 +41,28 @@ const layout: LayoutKeyframe[] = [
 	{at: 518, layout: 'pip', duration: 26},
 ];
 
-const Spotlight: React.FC = () => {
+const SpotlightInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 	const p = interpolate(frame, [0, 20, 150, 184], [0, 1, 1, 0], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	});
 	return (
-		<AbsoluteFill
+		<div
 			style={{
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				width: '100%',
+				height: '100%',
+				display: 'flex',
+				flexDirection: 'column',
 				opacity: p,
 				background:
 					'radial-gradient(ellipse 45% 60% at 52% 40%, rgba(20,10,40,0) 40%, rgba(12,6,28,0.72) 100%)',
+				...style,
 			}}
 		/>
 	);
@@ -68,10 +80,10 @@ const requests = [
 	{text: 'Make it easier, please!', at: 67, x: 100, y: 480, rotate: -2},
 ];
 
-const Requests: React.FC = () => {
+const RequestsInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
-		<AbsoluteFill>
+		<>
 			{requests.map((r, i) => {
 				const p = pop(frame, r.at, 11);
 				return (
@@ -120,7 +132,7 @@ const Requests: React.FC = () => {
 					</div>
 				);
 			})}
-		</AbsoluteFill>
+		</>
 	);
 };
 
@@ -304,14 +316,17 @@ const VisualModeTitle: React.FC = () => (
 	</div>
 );
 
-export const SneakPeekScene: React.FC = () => {
+const SneakPeekSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const captions = getCaptionPlacement(frame, layout);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<Backdrop accent={accents.sneakPeek} dark />
-			<Stage keyframes={layout}>
+			<Stage
+				style={{overflow: 'visible', flexDirection: 'column'}}
+				keyframes={layout}
+			>
 				<Series>
 					<Series.Sequence
 						name="Sneak peek"
@@ -372,12 +387,8 @@ export const SneakPeekScene: React.FC = () => {
 				</Series>
 			</Stage>
 
-			<Sequence name="Spotlight" durationInFrames={184}>
-				<Spotlight />
-			</Sequence>
-			<Sequence name="Letterbox" durationInFrames={190}>
-				<Letterbox />
-			</Sequence>
+			<Spotlight name="Spotlight" durationInFrames={184} />
+			<Letterbox name="Letterbox" durationInFrames={190} />
 			<Sequence name="Sneak peek sticker" from={26} durationInFrames={58}>
 				<ChapterSticker
 					index={<EyeIcon size={64} color={colors.paper} strokeWidth={2.4} />}
@@ -386,9 +397,12 @@ export const SneakPeekScene: React.FC = () => {
 					accent={accents.soundEffects}
 				/>
 			</Sequence>
-			<Sequence name="Requests" from={79} durationInFrames={104}>
-				<Requests />
-			</Sequence>
+			<Requests
+				name="Requests"
+				from={79}
+				durationInFrames={104}
+				style={{overflow: 'visible', flexDirection: 'column'}}
+			/>
 			<Sequence name="Tradeoff" from={188} durationInFrames={300}>
 				<Tradeoff />
 			</Sequence>
@@ -1005,66 +1019,91 @@ export const SneakPeekScene: React.FC = () => {
 				]}
 			/>
 
-			<Audio
-				name="Shutter"
-				src="https://remotion.media/shutter-old.wav"
-				from={28}
-				volume={0.3}
-			/>
-			<Audio
-				name="Request 1"
-				src="https://remotion.media/snapchat-notification.wav"
-				from={92}
-				volume={0.12}
-			/>
-			<Audio
-				name="Request 2"
-				src="https://remotion.media/snapchat-notification.wav"
-				from={116}
-				volume={0.1}
-			/>
-			<Audio
-				name="Request 3"
-				src="https://remotion.media/snapchat-notification.wav"
-				from={146}
-				volume={0.1}
-			/>
-			<Audio
-				name="Split whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={182}
-				volume={0.22}
-			/>
-			<Audio
-				name="Reveal whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={516}
-				volume={0.36}
-			/>
-			<Audio
-				name="Visual mode toggle"
-				src="https://remotion.media/switch.wav"
-				from={554}
-				volume={0.3}
-			/>
-			<Audio
-				name="Select click"
-				src="https://remotion.media/mouse-click.wav"
-				from={618}
-				volume={0.32}
-			/>
-			<Audio
-				name="Color click"
-				src="https://remotion.media/mouse-click.wav"
-				from={798}
-				volume={0.3}
-			/>
-			<Audio
-				name="Saved ding"
-				src="https://remotion.media/ding.wav"
-				from={820}
-				volume={0.22}
-			/>
-		</AbsoluteFill>
+			<Track name="Sound effects">
+				<Audio
+					durationInFrames={10}
+					name="Shutter"
+					src="https://remotion.media/shutter-old.wav"
+					from={28}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={7}
+					name="Request 1"
+					src="https://remotion.media/snapchat-notification.wav"
+					from={92}
+					volume={0.12}
+				/>
+				<Audio
+					durationInFrames={7}
+					name="Request 2"
+					src="https://remotion.media/snapchat-notification.wav"
+					from={116}
+					volume={0.1}
+				/>
+				<Audio
+					durationInFrames={7}
+					name="Request 3"
+					src="https://remotion.media/snapchat-notification.wav"
+					from={146}
+					volume={0.1}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Split whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={182}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Reveal whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={516}
+					volume={0.36}
+				/>
+				<Audio
+					durationInFrames={10}
+					name="Visual mode toggle"
+					src="https://remotion.media/switch.wav"
+					from={554}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Select click"
+					src="https://remotion.media/mouse-click.wav"
+					from={618}
+					volume={0.32}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Color click"
+					src="https://remotion.media/mouse-click.wav"
+					from={798}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="Saved ding"
+					src="https://remotion.media/ding.wav"
+					from={820}
+					volume={0.22}
+				/>
+			</Track>
+		</>
 	);
 };
+
+const Spotlight = Interactive.create({
+	Component: SpotlightInner,
+	layout: 'none',
+});
+const Requests = Interactive.create({
+	Component: RequestsInner,
+	layout: 'absolute-fill',
+});
+export const SneakPeekScene = Interactive.create({
+	Component: SneakPeekSceneInner,
+	layout: 'absolute-fill',
+});

@@ -48,11 +48,10 @@ test('evaluates shared source expressions while trimming without replacing Brows
 	const end = await parent
 		.getByRole('separator', {name: 'Drag to change duration', exact: true})
 		.boundingBox();
-	const start = await parent
-		.getByRole('separator', {name: 'Drag to trim start', exact: true})
-		.boundingBox();
-	if (!end || !start) throw new Error('Expected parent trim handles');
-	const pixelsPerFrame = (end.x - start.x) / 300;
+	const parentBox = await parent.boundingBox();
+	if (!end || !parentBox) throw new Error('Expected parent and trim handle');
+	// Handles sit inside the clip; their distance excludes the right inset.
+	const pixelsPerFrame = parentBox.width / 300;
 	const x = end.x + end.width / 2;
 	const y = end.y + end.height / 2;
 	await page.mouse.move(x, y);

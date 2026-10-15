@@ -6,13 +6,11 @@ import {
 	interpolate,
 	Series,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 import {LocationLowerThird} from '../elements/LocationLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
 const ArrivalInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
@@ -22,7 +20,6 @@ const ArrivalInner: React.FC = () => {
 					name="Low angle"
 					trimBefore={75}
 					durationInFrames={135}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0471"
@@ -30,7 +27,6 @@ const ArrivalInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0471.mp4'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
@@ -39,7 +35,6 @@ const ArrivalInner: React.FC = () => {
 					name="Remotion headquarters"
 					trimBefore={98}
 					durationInFrames={124}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0472"
@@ -47,7 +42,6 @@ const ArrivalInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis-new/footage/IMG_0472.mp4'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{
 							width: '100%',
@@ -63,7 +57,6 @@ const ArrivalInner: React.FC = () => {
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -116,7 +109,6 @@ const ArrivalInner: React.FC = () => {
 					name="Here we are"
 					trimBefore={60}
 					durationInFrames={50}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0474"
@@ -124,14 +116,12 @@ const ArrivalInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0474.MOV'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -163,7 +153,6 @@ const ArrivalInner: React.FC = () => {
 					name="Mehmet is working"
 					trimBefore={125}
 					durationInFrames={117}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0474"
@@ -171,14 +160,12 @@ const ArrivalInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0474.MOV'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -232,7 +219,6 @@ const ArrivalInner: React.FC = () => {
 				name="Location"
 				from={15}
 				durationInFrames={244}
-				premountFor={fps}
 				location="Remotion HQ"
 				time="08:52"
 				accentColor="#2563eb"
@@ -243,7 +229,6 @@ const ArrivalInner: React.FC = () => {
 				src="https://remotion.media/whoosh.wav"
 				from={13}
 				volume={0.4}
-				premountFor={fps}
 			/>
 		</>
 	);

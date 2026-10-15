@@ -2,7 +2,6 @@ import {Video} from '@remotion/media';
 import React from 'react';
 import {
 	Interactive,
-	useVideoConfig,
 	Solid,
 	interpolate,
 	useCurrentFrame,
@@ -14,7 +13,6 @@ import {Clip3} from './Clip3';
 import {Clip4} from './Clip4';
 
 const BirthdayPartyCompilationInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
@@ -27,7 +25,6 @@ const BirthdayPartyCompilationInner: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={93}
-				premountFor={fps}
 			/>
 			<Clip3
 				name="Clip3"
@@ -38,7 +35,6 @@ const BirthdayPartyCompilationInner: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={37}
-				premountFor={fps}
 			/>
 			<Clip4
 				name="Clip4"
@@ -49,7 +45,6 @@ const BirthdayPartyCompilationInner: React.FC = () => {
 					position: 'absolute',
 				}}
 				from={134}
-				premountFor={fps}
 			/>
 			<Video
 				src={asset('Setup.mp4')}
@@ -61,11 +56,9 @@ const BirthdayPartyCompilationInner: React.FC = () => {
 				from={4}
 				durationInFrames={33}
 				trimBefore={11}
-				premountFor={fps}
 				muted
 			/>
 			<Solid
-				premountFor={fps}
 				width={1080}
 				height={1920}
 				color={'#ffffff'}

@@ -6,38 +6,29 @@ import {
 	interpolate,
 	Series,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 import {Callout} from '../elements/Callout';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
 const UphillInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
 		<>
 			<Series>
-				<Series.Sequence
-					name="Incline"
-					trimBefore={28}
-					durationInFrames={83}
-					premountFor={fps}
-				>
+				<Series.Sequence name="Incline" trimBefore={28} durationInFrames={83}>
 					<Video
 						name="IMG_0459"
 						src={
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -132,7 +123,6 @@ const UphillInner: React.FC = () => {
 					name="Awesome features"
 					trimBefore={131}
 					durationInFrames={145}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -140,14 +130,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -259,26 +247,19 @@ const UphillInner: React.FC = () => {
 						]}
 					/>
 				</Series.Sequence>
-				<Series.Sequence
-					name="Which is"
-					trimBefore={299}
-					durationInFrames={24}
-					premountFor={fps}
-				>
+				<Series.Sequence name="Which is" trimBefore={299} durationInFrames={24}>
 					<Video
 						name="IMG_0459"
 						src={
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -303,7 +284,6 @@ const UphillInner: React.FC = () => {
 					name="Cannot roll backwards"
 					trimBefore={342}
 					durationInFrames={48}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -311,14 +291,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -364,7 +342,6 @@ const UphillInner: React.FC = () => {
 					name="So I can just"
 					trimBefore={416}
 					durationInFrames={21}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -372,14 +349,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -414,26 +389,19 @@ const UphillInner: React.FC = () => {
 						]}
 					/>
 				</Series.Sequence>
-				<Series.Sequence
-					name="Walk"
-					trimBefore={465}
-					durationInFrames={24}
-					premountFor={fps}
-				>
+				<Series.Sequence name="Walk" trimBefore={465} durationInFrames={24}>
 					<Video
 						name="IMG_0459"
 						src={
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -451,7 +419,6 @@ const UphillInner: React.FC = () => {
 					name="Super chill"
 					trimBefore={539}
 					durationInFrames={40}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -459,14 +426,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -491,7 +456,6 @@ const UphillInner: React.FC = () => {
 					name="Super casual"
 					trimBefore={642}
 					durationInFrames={37}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -499,14 +463,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -531,7 +493,6 @@ const UphillInner: React.FC = () => {
 					name="Really super cool"
 					trimBefore={1050}
 					durationInFrames={29}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -539,14 +500,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -578,22 +537,19 @@ const UphillInner: React.FC = () => {
 					name="One thing"
 					trimBefore={1141}
 					durationInFrames={64}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
-						style={{width: '100%', height: '100%', rotate: '180deg'}}
+						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -667,20 +623,17 @@ const UphillInner: React.FC = () => {
 					name="People look weird"
 					trimBefore={1224}
 					durationInFrames={95}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{
 							width: '100%',
 							height: '100%',
-							rotate: '180deg',
 							scale: interpolate(frame, [578, 587], [1, 1.1], {
 								easing: Easing.bezier(0.16, 1, 0.3, 1),
 								output: 'perceptual-scale',
@@ -692,7 +645,6 @@ const UphillInner: React.FC = () => {
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -766,22 +718,19 @@ const UphillInner: React.FC = () => {
 					name="What is cool"
 					trimBefore={1335}
 					durationInFrames={257}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
-						style={{width: '100%', height: '100%', rotate: '180deg'}}
+						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -918,7 +867,6 @@ const UphillInner: React.FC = () => {
 					name="Even the cows"
 					trimBefore={1751}
 					durationInFrames={168}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -926,7 +874,6 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
@@ -938,14 +885,12 @@ const UphillInner: React.FC = () => {
 						from={1872}
 						trimBefore={75}
 						muted
-						premountFor={fps}
 						objectFit="cover"
 						style={{position: 'absolute', width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -1047,7 +992,6 @@ const UphillInner: React.FC = () => {
 					name="Cow stare"
 					trimBefore={122}
 					durationInFrames={51}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0460"
@@ -1055,7 +999,6 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0460.MOV'
 						}
 						muted
-						premountFor={fps}
 						objectFit="cover"
 						style={{
 							width: '100%',
@@ -1073,7 +1016,6 @@ const UphillInner: React.FC = () => {
 					name="But you know"
 					trimBefore={1932}
 					durationInFrames={22}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -1081,14 +1023,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -1120,22 +1060,19 @@ const UphillInner: React.FC = () => {
 					name="Stand for your values"
 					trimBefore={2018}
 					durationInFrames={255}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
-						style={{width: '100%', height: '100%', rotate: '180deg'}}
+						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -1223,7 +1160,6 @@ const UphillInner: React.FC = () => {
 					name="Step by step"
 					trimBefore={2273}
 					durationInFrames={87}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -1231,14 +1167,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -1291,7 +1225,6 @@ const UphillInner: React.FC = () => {
 					name="Reached the top"
 					trimBefore={2416}
 					durationInFrames={67}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0459"
@@ -1299,14 +1232,12 @@ const UphillInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
 						}
 						volume={0.8}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -1360,7 +1291,6 @@ const UphillInner: React.FC = () => {
 				name="Feature callout"
 				from={258}
 				durationInFrames={164}
-				premountFor={fps}
 				label="Feature"
 				text="Can't roll backwards"
 				icon="check"
@@ -1372,14 +1302,12 @@ const UphillInner: React.FC = () => {
 				src="https://remotion.media/ding.wav"
 				from={258}
 				volume={0.35}
-				premountFor={fps}
 			/>
 			<Audio
 				name="Vine boom"
 				src="https://remotion.media/vine-boom.wav"
 				from={1035}
 				volume={0.5}
-				premountFor={fps}
 			/>
 		</>
 	);

@@ -1,11 +1,9 @@
-import type {
-	CanUpdateSequencePropStatus,
-	OverrideIdToNodePaths,
-	PropStatuses,
-	TSequence,
-} from 'remotion';
+import type {CanUpdateSequencePropStatus, PropStatuses} from 'remotion';
 import {Internals} from 'remotion';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	callDeleteKeyframes,
 	type DeleteEffectKeyframeChange,
@@ -47,15 +45,13 @@ const getValueWhenLastKeyframeDeleted = ({
 const getSelectedKeyframeDeletion = ({
 	nodePathInfo,
 	frame,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 	timelinePosition,
 }: {
 	nodePathInfo: SequenceNodePathInfo;
 	frame: number;
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	propStatuses: PropStatuses;
 	timelinePosition: number;
 }): SelectedKeyframeDeletion | null => {
@@ -65,8 +61,7 @@ const getSelectedKeyframeDeletion = ({
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo,
 	});
 	const sequence = track?.sequence ?? null;
@@ -165,8 +160,7 @@ const getSelectedKeyframeDeletion = ({
 
 export const deleteSelectedKeyframes = ({
 	keyframes,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	setPropStatuses,
 	clientId,
 	propStatuses,
@@ -176,8 +170,7 @@ export const deleteSelectedKeyframes = ({
 		nodePathInfo: SequenceNodePathInfo;
 		frame: number;
 	}[];
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	propStatuses: PropStatuses;
@@ -188,8 +181,7 @@ export const deleteSelectedKeyframes = ({
 			getSelectedKeyframeDeletion({
 				nodePathInfo: keyframe.nodePathInfo,
 				frame: keyframe.frame,
-				sequences,
-				overrideIdsToNodePaths,
+				tracks,
 				propStatuses,
 				timelinePosition,
 			}),
