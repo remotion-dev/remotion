@@ -1,5 +1,4 @@
-import {expect, spyOn, test} from 'bun:test';
-import {EventEmitter} from 'node:events';
+import {expect, test} from 'bun:test';
 import {
 	existsSync,
 	mkdirSync,
@@ -9,11 +8,8 @@ import {
 	symlinkSync,
 	writeFileSync,
 } from 'node:fs';
-import type {ClientRequest, IncomingMessage} from 'node:http';
-import https from 'node:https';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {Readable} from 'node:stream';
 import {staticFileRef} from '@remotion/studio-protocol';
 import type {
 	EventSourceEvent,
@@ -257,24 +253,14 @@ test.each(['wrapped', 'component-owned-sequence'] as const)(
 	'installs asset props in %s mode and retains assets on undo',
 	async (installationMode) => {
 		const fixture = makeFixture();
+		const originalFetch = globalThis.fetch;
 		let fetches = 0;
-		const requestMock = spyOn(https, 'request').mockImplementation(
-			(_input, options?, callback?) => {
+		globalThis.fetch = Object.assign(
+			() => {
 				fetches++;
-				const onResponse = typeof options === 'function' ? options : callback;
-				const response = Readable.from([
-					Buffer.from([3, 4, 5]),
-				]) as IncomingMessage;
-				response.statusCode = 200;
-				response.headers = {};
-				return Object.assign(new EventEmitter(), {
-					end: () => {
-						if (typeof onResponse === 'function') {
-							onResponse(response);
-						}
-					},
-				}) as unknown as ClientRequest;
+				return Promise.resolve(new Response(new Uint8Array([3, 4, 5])));
 			},
+			{preconnect: originalFetch.preconnect},
 		);
 		try {
 			const assetElement = {
@@ -389,7 +375,7 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
 			).toEqual(Buffer.from([0, 1, 2]));
 		} finally {
-			requestMock.mockRestore();
+			globalThis.fetch = originalFetch;
 			fixture.cleanup();
 		}
 	},
@@ -397,22 +383,10 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 
 test('rejects oversized mixed Element assets before writing any files, regardless of order', async () => {
 	const fixture = makeFixture();
-	const requestMock = spyOn(https, 'request').mockImplementation(
-		(_input, options?, callback?) => {
-			const onResponse = typeof options === 'function' ? options : callback;
-			const response = Readable.from([
-				Buffer.alloc(50 * 1024 * 1024),
-			]) as IncomingMessage;
-			response.statusCode = 200;
-			response.headers = {};
-			return Object.assign(new EventEmitter(), {
-				end: () => {
-					if (typeof onResponse === 'function') {
-						onResponse(response);
-					}
-				},
-			}) as unknown as ClientRequest;
-		},
+	const originalFetch = globalThis.fetch;
+	globalThis.fetch = Object.assign(
+		() => Promise.resolve(new Response(new Uint8Array(50 * 1024 * 1024))),
+		{preconnect: originalFetch.preconnect},
 	);
 	const assets: InsertElementRequest['element']['assets'] = [
 		{path: 'remote.bin', type: 'url', url: 'https://93.184.216.35/remote.bin'},
@@ -443,7 +417,7 @@ test('rejects oversized mixed Element assets before writing any files, regardles
 			expect(getUndoStack()).toHaveLength(0);
 		}
 	} finally {
-		requestMock.mockRestore();
+		globalThis.fetch = originalFetch;
 		fixture.cleanup();
 	}
 });
