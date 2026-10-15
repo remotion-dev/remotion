@@ -352,6 +352,17 @@ code {
 	transform: none !important;
 }
 
+/* Keep dropdown carets beside their labels, including near the mobile breakpoint. */
+.navbar__item.dropdown > .navbar__link {
+	white-space: nowrap;
+}
+
+@media screen and (min-width: 997px) and (max-width: 1100px) {
+	.navbar {
+		--ifm-navbar-item-padding-horizontal: 0.5rem;
+	}
+}
+
 .header-github-link::before {
 	content: '';
 	width: 22px;
