@@ -206,6 +206,22 @@ const isJpeg = (data: Uint8Array): JpegType | null => {
 	return {dimensions: dim, type: 'jpeg'};
 };
 
+const isJxl = (data: Uint8Array): JxlType | null => {
+	const codestreamPattern = new Uint8Array([0xff, 0x0a]);
+	const containerPattern = new Uint8Array([
+		0x00, 0x00, 0x00, 0x0c, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a,
+	]);
+	if (
+		matchesPattern(codestreamPattern)(data) ||
+		matchesPattern(containerPattern)(data)
+	) {
+		// Image dimensions are resolved by the browser when inserting the asset.
+		return {type: 'jxl', dimensions: null};
+	}
+
+	return null;
+};
+
 const getGifDimensions = (data: Uint8Array): FileDimensions | null => {
 	if (data.length < 10) {
 		return null;
@@ -418,6 +434,11 @@ export type JpegType = {
 	dimensions: FileDimensions | null;
 };
 
+export type JxlType = {
+	type: 'jxl';
+	dimensions: FileDimensions | null;
+};
+
 export type WebpType = {
 	type: 'webp';
 	dimensions: FileDimensions | null;
@@ -439,6 +460,7 @@ export type UnknownType = {
 
 export type FileType =
 	| JpegType
+	| JxlType
 	| WebpType
 	| RiffType
 	| WebmType
@@ -459,6 +481,7 @@ export type FileType =
 
 export type ImageFileType =
 	| JpegType
+	| JxlType
 	| WebpType
 	| GifType
 	| PngType
@@ -470,6 +493,7 @@ export const isImageFileType = (
 ): fileType is ImageFileType => {
 	return (
 		fileType.type === 'jpeg' ||
+		fileType.type === 'jxl' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'gif' ||
 		fileType.type === 'png' ||
@@ -479,6 +503,11 @@ export const isImageFileType = (
 };
 
 export const detectFileType = (data: Uint8Array): FileType => {
+	const jxl = isJxl(data);
+	if (jxl) {
+		return jxl;
+	}
+
 	if (isRiffWave(data)) {
 		return {type: 'wav'};
 	}

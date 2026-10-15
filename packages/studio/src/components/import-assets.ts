@@ -84,6 +84,7 @@ export const getAssetElement = ({
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
+		fileType.type === 'jxl' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp'
 	) {
@@ -171,7 +172,7 @@ export const getAssetElementFromPath = (
 		return null;
 	}
 
-	if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'svg'].includes(extension)) {
+	if (['png', 'jpg', 'jpeg', 'jxl', 'webp', 'bmp', 'svg'].includes(extension)) {
 		return {
 			type: 'asset',
 			assetType: 'image',
@@ -451,6 +452,7 @@ const getFileMetadata = async ({
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
+		fileType.type === 'jxl' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp' ||
 		fileType.type === 'apng' ||
@@ -510,7 +512,7 @@ const getStaticAssetMetadata = (
 
 	if (
 		extension &&
-		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
+		['png', 'jpg', 'jpeg', 'jxl', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
 			extension,
 		)
 	) {

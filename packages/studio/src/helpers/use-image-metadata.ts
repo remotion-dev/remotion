@@ -65,12 +65,36 @@ export const getImageMetadata = (
 
 			return response.arrayBuffer();
 		})
-		.then((data) => {
+		.then(async (data) => {
 			if (data === null) {
 				return null;
 			}
 
-			const metadata = getImageMetadataFromData(new Uint8Array(data));
+			const bytes = new Uint8Array(data);
+			let metadata = getImageMetadataFromData(bytes);
+			if (metadata === null && detectFileType(bytes).type === 'jxl') {
+				const objectUrl = URL.createObjectURL(
+					new Blob([data], {type: 'image/jxl'}),
+				);
+				try {
+					metadata = await new Promise<ImageMetadata | null>((resolve) => {
+						const img = new Image();
+						img.onload = () => {
+							resolve({
+								format: 'JXL',
+								width: img.naturalWidth,
+								height: img.naturalHeight,
+							});
+						};
+
+						img.onerror = () => resolve(null);
+						img.src = objectUrl;
+					});
+				} finally {
+					URL.revokeObjectURL(objectUrl);
+				}
+			}
+
 			if (metadata) {
 				cache.set(src, metadata);
 			}
