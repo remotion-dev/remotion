@@ -266,6 +266,7 @@ export const ${componentName} = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			durationInFrames={${durationInFrames}}
 			style={{
 				width: ${videoWidth},
