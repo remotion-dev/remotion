@@ -85,6 +85,7 @@ import {
 	getSequenceContextMenuItems,
 } from './get-sequence-context-menu-items';
 import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
+import {getSequenceUnwrapMenuItem} from './get-sequence-unwrap-menu-item';
 import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
 import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
@@ -390,6 +391,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isStill = useIsStill();
 	const canMutateEffects =
 		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
@@ -1377,7 +1379,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [canRotate, nodePathInfo, selectItem, setManuallyEnabled]);
 
 	const getContextMenuItems = useCallback(
-		(event: MouseEvent) => {
+		async (event: MouseEvent) => {
 			const contextMenuTarget =
 				event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
 			if (assetContextMenu !== null) {
@@ -1407,6 +1409,16 @@ const TimelineSequenceItemInner: React.FC<{
 					onSplitSelectedSequences,
 				});
 			}
+
+			const unwrapMenuItem = await getSequenceUnwrapMenuItem({
+				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				compositionId:
+					canvasContent?.type === 'composition'
+						? canvasContent.compositionId
+						: null,
+				isTransition: sequence.timelineTrack?.role === 'transition',
+				nodePath,
+			});
 
 			const splitMenuItem = getSequenceSplitMenuItem({
 				nodePathInfo,
@@ -1540,6 +1552,7 @@ const TimelineSequenceItemInner: React.FC<{
 									subMenu: null,
 									value: 'rename-sequence',
 								},
+								...(unwrapMenuItem ? [unwrapMenuItem] : []),
 								...(!isPackedTrack && splitMenuItem ? [splitMenuItem] : []),
 								...(!isPackedTrack && freezeFrameMenuItem
 									? [freezeFrameMenuItem]
@@ -1552,6 +1565,7 @@ const TimelineSequenceItemInner: React.FC<{
 		},
 		[
 			assetContextMenu,
+			canvasContent,
 			canAddEffect,
 			canCrop,
 			canRotate,

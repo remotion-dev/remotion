@@ -69,6 +69,7 @@ import {
 	getSequenceContextMenuItems,
 } from './get-sequence-context-menu-items';
 import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
+import {getSequenceUnwrapMenuItem} from './get-sequence-unwrap-menu-item';
 import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {
@@ -1452,6 +1453,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const showPremounting = showPremountingSetting || premountSelected;
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
@@ -1651,7 +1653,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		validatedLocation?.source,
 	]);
 	const getContextMenuItems = useCallback(
-		(event: MouseEvent) => {
+		async (event: MouseEvent) => {
 			const contextMenuTarget =
 				event.target instanceof Element
 					? event.target.closest<HTMLElement>(`[${TIMELINE_MARQUEE_ITEM_ATTR}]`)
@@ -1683,6 +1685,16 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					onSplitSelectedSequences,
 				});
 			}
+
+			const unwrapMenuItem = await getSequenceUnwrapMenuItem({
+				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				compositionId:
+					canvasContent?.type === 'composition'
+						? canvasContent.compositionId
+						: null,
+				isTransition: s.timelineTrack?.role === 'transition',
+				nodePath,
+			});
 
 			const splitMenuItem = getSequenceSplitMenuItem({
 				nodePathInfo,
@@ -1742,6 +1754,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					sequence: s,
 					sourceActions: isStudioInteractivityEnabled()
 						? [
+								...(unwrapMenuItem ? [unwrapMenuItem] : []),
 								...(splitMenuItem ? [splitMenuItem] : []),
 								...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
 							]
@@ -1752,6 +1765,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		},
 		[
 			assetContextMenu,
+			canvasContent,
 			canOpenInEditor,
 			canConfigureApps,
 			codingAgentInfo,

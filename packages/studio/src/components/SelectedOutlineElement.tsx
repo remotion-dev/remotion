@@ -38,6 +38,7 @@ import {
 	findCopyableFrameElement,
 	getSequenceContextMenuItems,
 } from './Timeline/get-sequence-context-menu-items';
+import {getSequenceUnwrapMenuItem} from './Timeline/get-sequence-unwrap-menu-item';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
 import {
 	getTimelineSequenceSelectionKey,
@@ -126,7 +127,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
-	const {compositions} = useContext(Internals.CompositionManager);
+	const {compositions, canvasContent} = useContext(
+		Internals.CompositionManager,
+	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
@@ -318,6 +321,18 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		const canRotate = !sourceEditDisabled && outline.path === null;
 		const outlineElement =
 			contextMenuTarget.sequence.refForOutline?.current ?? null;
+		const unwrapMenuItem = await getSequenceUnwrapMenuItem({
+			canEditSource:
+				!sourceEditDisabled && previewServerState.type === 'connected',
+			compositionId:
+				canvasContent?.type === 'composition'
+					? canvasContent.compositionId
+					: null,
+			isTransition:
+				contextMenuTarget.sequence.timelineTrack?.role === 'transition',
+			nodePath,
+		});
+
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
@@ -408,6 +423,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			sequence: contextMenuTarget.sequence,
 			sourceActions: sourceEditingEnabled
 				? [
+						...(unwrapMenuItem ? [unwrapMenuItem] : []),
 						...(contextMenuTarget.nodePathInfo.supportsEffects
 							? [
 									{
@@ -510,6 +526,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		});
 	}, [
 		canConfigureApps,
+		canvasContent,
 		codingAgentInfo,
 		confirm,
 		deleteTimelineItems,
