@@ -210,12 +210,13 @@ const GifWithIntrinsicDuration = (
 					return;
 				}
 
-				if (onErrorRef.current) {
-					onErrorRef.current(error);
-					setFailedHandle(handle);
-				} else {
-					cancelRender(error);
-				}
+				return Internals.handleImageError({
+					error,
+					onError: onErrorRef.current,
+					isCancelled: () => cancelled,
+					cancelRender,
+					onHandled: () => setFailedHandle(handle),
+				});
 			});
 
 		return () => {

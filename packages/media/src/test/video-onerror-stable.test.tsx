@@ -172,3 +172,60 @@ test('does not reinitialize MediaPlayer when onError or maxCanvasSinkFrameSize i
 		initSpy.mockRestore();
 	}
 });
+
+test.each(['video', 'audio'] as const)(
+	'awaits a rejected %s recovery callback and reports it once',
+	async (tagType) => {
+		const container = document.createElement('div');
+		document.body.appendChild(container);
+		const root = createRoot(container);
+		let entered = false;
+		let release: () => void = () => {};
+		const pending = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		const replacement = new Error('Application recovery failed');
+		let caught: Error | null = null;
+		let calls = 0;
+		const onError = async () => {
+			calls++;
+			entered = true;
+			await pending;
+			throw replacement;
+		};
+
+		const Composition = () =>
+			tagType === 'video' ? (
+				<Video src="data:application/octet-stream,invalid" onError={onError} />
+			) : (
+				<Audio src="data:application/octet-stream,invalid" onError={onError} />
+			);
+		root.render(
+			<Player
+				acknowledgeRemotionLicense
+				component={Composition}
+				compositionHeight={16}
+				compositionWidth={16}
+				durationInFrames={30}
+				fps={30}
+				inputProps={{}}
+				errorFallback={({error}) => {
+					caught = error;
+					return null;
+				}}
+			/>,
+		);
+		try {
+			await waitFor(() => entered);
+			expect(caught).toBe(null);
+			release();
+			await waitFor(() => caught !== null);
+			expect(caught).toBe(replacement);
+			expect(calls).toBe(1);
+		} finally {
+			release();
+			root.unmount();
+			container.remove();
+		}
+	},
+);

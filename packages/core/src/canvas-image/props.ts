@@ -6,6 +6,7 @@ import type {
 	InteractiveCropProps,
 	InteractivePremountProps,
 } from '../Interactive.js';
+import type {MediaErrorHandler} from '../media-error-handler.js';
 
 type CanvasImageSequenceProps = Omit<InteractiveBaseProps, 'playbackRate'> &
 	InteractiveCropProps &
@@ -28,7 +29,7 @@ export type CanvasImageProps = CanvasImageSequenceProps &
 		readonly className?: string;
 		readonly style?: React.CSSProperties;
 		readonly id?: string;
-		readonly onError?: (error: Error) => void;
+		readonly onError?: MediaErrorHandler;
 		readonly pauseWhenLoading?: boolean;
 		readonly maxRetries?: number;
 		readonly delayRenderRetries?: number;

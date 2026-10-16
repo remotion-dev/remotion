@@ -19,6 +19,7 @@ import {
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
+import {handleImageError} from '../handle-image-error.js';
 import {
 	backgroundSchema,
 	baseSchemaWithoutPlaybackRate,
@@ -29,6 +30,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {useErrorRecoveryCommit} from '../media-error-handler.js';
 import {usePreload} from '../prefetch.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {SequenceContent} from '../sequence-activity-context.js';
@@ -234,6 +236,7 @@ const CanvasImageContent = forwardRef<
 		ref,
 	) => {
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const commitRecovery = useErrorRecoveryCommit();
 		const {delayPlayback} = useBufferState();
 		const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 			null,
@@ -358,11 +361,18 @@ const CanvasImageContent = forwardRef<
 									attemptLoad();
 								}
 							}, backoff);
-						} else if (onError) {
-							onError(err as Error);
-							continuePendingLoadDelay({markAsReady: true});
 						} else {
-							cancelRender(err);
+							return handleImageError({
+								error: err as Error,
+								onError,
+								isCancelled: () => cancelled,
+								cancelRender,
+								onHandled: () =>
+									commitRecovery(() => {
+										if (!cancelled)
+											continuePendingLoadDelay({markAsReady: true});
+									}),
+							});
 						}
 					});
 			};
@@ -381,6 +391,7 @@ const CanvasImageContent = forwardRef<
 		}, [
 			actualSrc,
 			cancelRender,
+			commitRecovery,
 			continuePendingLoadDelay,
 			crossOrigin,
 			delayRender,
@@ -470,13 +481,18 @@ const CanvasImageContent = forwardRef<
 						return;
 					}
 
-					if (onError) {
-						onError(err as Error);
-						continueRenderOnce();
-						continuePendingLoadDelay({markAsReady: true});
-					} else {
-						cancelRender(err);
-					}
+					return handleImageError({
+						error: err as Error,
+						onError,
+						isCancelled: () => cancelled,
+						cancelRender,
+						onHandled: () =>
+							commitRecovery(() => {
+								if (cancelled) return;
+								continueRenderOnce();
+								continuePendingLoadDelay({markAsReady: true});
+							}),
+					});
 				});
 
 			return () => {
@@ -487,6 +503,7 @@ const CanvasImageContent = forwardRef<
 		}, [
 			actualSrc,
 			cancelRender,
+			commitRecovery,
 			chainState,
 			continueRender,
 			continuePendingLoadDelay,

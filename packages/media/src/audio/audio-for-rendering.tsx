@@ -1,7 +1,6 @@
 import type React from 'react';
 import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
-	cancelRender,
 	Html5Audio,
 	Internals,
 	random,
@@ -64,7 +63,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	const {fps} = videoConfig;
 
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
 	const [initialRequestInit] = useState(requestInit);
 
@@ -137,23 +136,27 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			requestInit: initialRequestInit,
 			mediaCache,
 		})
-			.then((result) => {
+			.then(async (result) => {
 				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
-				const handleError = (
+				const handleError = async (
 					error: Error,
 					clientSideError: Error,
 					fallbackMessage: string,
 				) => {
-					const [action, errorToUse] = callOnErrorAndResolve({
+					const [action, errorToUse] = await callOnErrorAndResolve({
 						onError,
 						error,
 						disallowFallback: disallowFallbackToHtml5Audio ?? false,
 						isClientSideRendering: environment.isClientSideRendering,
 						clientSideError,
 					});
+					if (cancelled || mediaCache.isDisposed()) return;
+					// The source effect releases its hold when recovery commits.
+					if (action === 'handled') return;
+
 					if (action === 'fail') {
 						cancelRender(errorToUse);
 					}
@@ -171,7 +174,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						result.type === 'network-error') &&
 					result.error
 				) {
-					handleError(
+					await handleError(
 						result.error,
 						result.error,
 						`Failed to read ${src}: ${result.error.message}, falling back to <Html5Audio>`,
@@ -180,7 +183,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result.type === 'unknown-container-format') {
-					handleError(
+					await handleError(
 						new Error(`Unknown container format ${src}.`),
 						new Error(
 							`Cannot render audio "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
@@ -191,7 +194,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result.type === 'cannot-decode') {
-					handleError(
+					await handleError(
 						new Error(`Cannot decode ${src}.`),
 						new Error(
 							`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
@@ -214,7 +217,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result.type === 'network-error') {
-					handleError(
+					await handleError(
 						new Error(`Network error fetching ${src}.`),
 						new Error(
 							`Cannot render audio "${src}": Network error while fetching the audio (possibly CORS).`,
@@ -268,7 +271,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					return;
 				}
 
-				cancelRender(error);
+				Internals.cancelRenderFromAsync(cancelRender, error);
 			});
 
 		return () => {
@@ -280,6 +283,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		sampleRate,
 		absoluteFrame,
 		continueRender,
+		cancelRender,
 		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
