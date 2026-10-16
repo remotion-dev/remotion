@@ -1393,14 +1393,25 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			: undefined;
 	}, [propStatuses, nodePath]);
 	const volumeDragOverride = dragOverrides.volume;
-	const volumeKeyframeStatus = useMemo(() => {
+	const waveformVolume = useMemo(() => {
+		if (volumeDragOverride?.type === 'static') {
+			return typeof volumeDragOverride.value === 'number'
+				? volumeDragOverride.value
+				: null;
+		}
+
 		if (volumeDragOverride?.type === 'keyframed') {
 			return volumeDragOverride.status;
 		}
 
-		return propStatusesForOverride?.volume?.status === 'keyframed'
-			? propStatusesForOverride.volume
-			: null;
+		const volumeStatus = propStatusesForOverride?.volume;
+		if (volumeStatus?.status === 'static') {
+			return typeof volumeStatus.codeValue === 'number'
+				? volumeStatus.codeValue
+				: null;
+		}
+
+		return volumeStatus?.status === 'keyframed' ? volumeStatus : null;
 	}, [propStatusesForOverride?.volume, volumeDragOverride]);
 	const durationCanUpdate = Boolean(
 		isStudioInteractivityEnabled() &&
@@ -1792,8 +1803,12 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
 	const timelineVolume = useMemo(() => {
+		if (typeof waveformVolume === 'number' && Number.isFinite(waveformVolume)) {
+			return {type: 'constant' as const, value: Math.max(0, waveformVolume)};
+		}
+
 		return getTimelineVolume({
-			status: volumeKeyframeStatus,
+			status: typeof waveformVolume === 'number' ? null : waveformVolume,
 			displayDurationInFrames,
 			firstDisplayFrame: s.from + (s.loopDisplay?.startOffset ?? 0),
 			keyframeDisplayOffset,
@@ -1805,7 +1820,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		keyframePlaybackRate,
 		s.from,
 		s.loopDisplay?.startOffset,
-		volumeKeyframeStatus,
+		waveformVolume,
 	]);
 
 	const isMedia = s.type === 'audio' || s.type === 'video';
