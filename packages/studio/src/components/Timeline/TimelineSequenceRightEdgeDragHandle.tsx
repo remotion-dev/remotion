@@ -75,6 +75,7 @@ import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	getTimelineSequenceSelectionKey,
 	shouldSelectTimelineRowOnPointerDown,
+	TIMELINE_MARQUEE_ITEM_ATTR,
 	useCurrentTimelineSelectionStateAsRef,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
@@ -2828,6 +2829,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				aria-orientation="vertical"
 				aria-label="Drag to roll edit"
 				data-trim-mode="rolling"
+				{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 				style={{
 					...baseStyle,
 					left: fillTarget ? 0 : (handleLayout.rolling ?? 0),
