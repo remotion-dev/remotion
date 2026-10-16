@@ -69,6 +69,7 @@ import {
 	getSequenceContextMenuItems,
 } from './get-sequence-context-menu-items';
 import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
+import {getSequenceUnwrapMenuItem} from './get-sequence-unwrap-menu-item';
 import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {
@@ -1452,10 +1453,13 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const showPremounting = showPremountingSetting || premountSelected;
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
-	const assetContextMenu = useAssetTimelineContextMenu();
+	const getAssetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
@@ -1656,6 +1660,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				event.target instanceof Element
 					? event.target.closest<HTMLElement>(`[${TIMELINE_MARQUEE_ITEM_ATTR}]`)
 					: null;
+			const assetContextMenu = getAssetContextMenu();
 			if (assetContextMenu !== null) {
 				return assetContextMenu;
 			}
@@ -1683,6 +1688,20 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					onSplitSelectedSequences,
 				});
 			}
+
+			const {canvasContent} = compositionManagerRef.current;
+			const unwrapMenuItem = getSequenceUnwrapMenuItem({
+				sequence: s,
+				sourceLocation: validatedLocation,
+				setSelectedModal,
+				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				compositionId:
+					canvasContent?.type === 'composition'
+						? canvasContent.compositionId
+						: null,
+				isTransition: s.timelineTrack?.role === 'transition',
+				nodePath,
+			});
 
 			const splitMenuItem = getSequenceSplitMenuItem({
 				nodePathInfo,
@@ -1741,17 +1760,23 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					selectAsset,
 					sequence: s,
 					sourceActions: isStudioInteractivityEnabled()
-						? [
-								...(splitMenuItem ? [splitMenuItem] : []),
-								...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
-							]
-						: [],
+						? {
+								rename: null,
+								timing: [
+									...(splitMenuItem ? [splitMenuItem] : []),
+									...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+								],
+								appearance: [],
+								unwrap: unwrapMenuItem,
+							}
+						: null,
 				},
 				contextMenuTarget,
 			);
 		},
 		[
-			assetContextMenu,
+			getAssetContextMenu,
+			compositionManagerRef,
 			canOpenInEditor,
 			canConfigureApps,
 			codingAgentInfo,
@@ -1790,7 +1815,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			sequencesRef,
 			setPropStatuses,
 			setSelectedModal,
-			validatedLocation?.source,
+			validatedLocation,
 		],
 	);
 	const {frozenFrame} = s;

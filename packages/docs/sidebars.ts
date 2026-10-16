@@ -2149,6 +2149,7 @@ const sidebars: SidebarsConfig = {
 				'codemods/split-sequences',
 				'codemods/static-file-value',
 				'codemods/unwrap-folder',
+				'codemods/unwrap-node',
 				'codemods/update-composition-metadata',
 				'codemods/update-effect-keyframes',
 				'codemods/update-effect-props',

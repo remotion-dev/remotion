@@ -37,9 +37,9 @@ const text: React.CSSProperties = {
 	marginBottom: 16,
 };
 
-type State = Extract<ModalState, {type: 'wrap-refactor'}>;
+type State = Extract<ModalState, {type: 'wrap-refactor' | 'unwrap-refactor'}>;
 
-export const WrapRefactorModal: React.FC<{readonly state: State}> = ({
+export const WrapperRefactorModal: React.FC<{readonly state: State}> = ({
 	state,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -70,38 +70,44 @@ export const WrapRefactorModal: React.FC<{readonly state: State}> = ({
 		? `${state.displayName} (${location})`
 		: location;
 	const wrapperImportPath =
-		state.wrapper === 'HtmlInCanvasMotionBlur'
+		state.type === 'wrap-refactor' && state.wrapper === 'HtmlInCanvasMotionBlur'
 			? '@remotion/motion-blur'
 			: 'remotion';
 	const onSendToChatGPT = useCallback(() => {
 		requestCodexAnnotation({
 			target: annotationTarget.current,
 			initialComment: markupSkillAvailable
-				? '$remotion-markup Wrap this item.'
-				: 'Wrap this item.',
+				? `$remotion-markup ${state.type === 'unwrap-refactor' ? 'Unwrap' : 'Wrap'} this item.`
+				: `${state.type === 'unwrap-refactor' ? 'Unwrap' : 'Wrap'} this item.`,
 			metadata: {
-				action: 'Wrap item',
-				wrapper: state.wrapper,
-				import: wrapperImportPath,
+				action: state.type === 'unwrap-refactor' ? 'Unwrap item' : 'Wrap item',
+				...(state.type === 'wrap-refactor'
+					? {wrapper: state.wrapper, import: wrapperImportPath}
+					: {instruction: 'Remove this wrapper and keep its children.'}),
 				...(state.displayName ? {selection: state.displayName} : {}),
 				source: location,
 			},
 		});
-	}, [
-		location,
-		markupSkillAvailable,
-		state.displayName,
-		state.wrapper,
-		wrapperImportPath,
-	]);
+	}, [location, markupSkillAvailable, state, wrapperImportPath]);
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
-			<ModalHeader title="Wrap item" />
+			<ModalHeader
+				title={state.type === 'unwrap-refactor' ? 'Unwrap item' : 'Wrap item'}
+			/>
 			<div ref={annotationTarget} style={container}>
 				<div style={text}>
-					Studio could not safely wrap this item in
-					{` <${state.wrapper}>`} with an automated code change.
+					{state.type === 'unwrap-refactor' ? (
+						<>
+							Studio could not automatically remove this wrapper. Remove it
+							while keeping its children.
+						</>
+					) : (
+						<>
+							Studio could not safely wrap this item in {` <${state.wrapper}>`}{' '}
+							with an automated code change.
+						</>
+					)}
 				</div>
 				{canSuggestAgent || canAnnotate ? (
 					<AgentPrompt
@@ -112,8 +118,16 @@ export const WrapRefactorModal: React.FC<{readonly state: State}> = ({
 								</ModalButton>
 							) : null
 						}
-						availableText="You can wrap it using an agent:"
-						promptDetails={` Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'`}
+						availableText={
+							state.type === 'unwrap-refactor'
+								? 'You can unwrap it using an agent:'
+								: 'You can wrap it using an agent:'
+						}
+						promptDetails={
+							state.type === 'unwrap-refactor'
+								? ` Unwrap ${target}: remove the wrapper and keep its children.`
+								: ` Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'`
+						}
 						skillId="remotion-markup"
 					/>
 				) : (
