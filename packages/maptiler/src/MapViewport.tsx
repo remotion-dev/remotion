@@ -311,8 +311,6 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 			administrativeBorders: initialOptions.administrativeBorders,
 			showLabels: initialOptions.showLabels,
 		};
-		// SDK 4.0.2's telemetry timer outlives map.remove() and reads the removed
-		// style after two seconds. The SDK only offers a global telemetry opt-out.
 		maptilerConfig.telemetry = false;
 		// Keep MapTiler's logo and attribution visible:
 		// https://docs.maptiler.com/guides/map-design/attribution/remove-attribution/
@@ -373,8 +371,6 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 
 		return () => {
 			cancelled = true;
-			// Activity tears down effects while retaining state. Never publish the
-			// removed map when these effects reconnect on becoming visible again.
 			setLoadedMap(null);
 			mapInstance.remove();
 			mapRef.current = null;

@@ -146,7 +146,6 @@ const MapRegionDrawing = ({
 	]);
 
 	useLayoutEffect(() => {
-		// Reconnected effects can still capture the map destroyed while hidden.
 		if (!map || !map.style) {
 			return;
 		}
@@ -290,7 +289,6 @@ const MapRegionDrawing = ({
 		}
 
 		return () => {
-			// The viewport's layout cleanup may already have removed the map.
 			if (!map.style) {
 				return;
 			}
