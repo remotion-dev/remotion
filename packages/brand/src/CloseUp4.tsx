@@ -8,8 +8,9 @@ import {
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
+import {CloseUpFrame} from './CloseUpFrame';
 
-export const CloseUp4Preview = () => {
+const CloseUp4Content = () => {
 	const frame = useCurrentFrame();
 	const captureFrame = frame + 400;
 
@@ -21,7 +22,7 @@ export const CloseUp4Preview = () => {
 			style={{
 				width: 3924,
 				height: 1716,
-				translate: '-1812.6px -414.1px',
+				translate: '-2192.6px -834.1px',
 				rotate: '0.984657 -0.15615 0.077899 41.996034deg',
 				scale: 0.996,
 			}}
@@ -269,6 +270,14 @@ export const CloseUp4Preview = () => {
 				}}
 			/>
 		</HtmlInCanvas>
+	);
+};
+
+export const CloseUp4Preview = () => {
+	return (
+		<CloseUpFrame>
+			<CloseUp4Content />
+		</CloseUpFrame>
 	);
 };
 

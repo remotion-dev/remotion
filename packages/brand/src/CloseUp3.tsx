@@ -21,7 +21,7 @@ export const CloseUp3Preview = () => {
 			style={{
 				width: 2014,
 				height: 2474,
-				translate: '-851.4px -40.9px',
+				translate: '-401.4px -240.9px',
 				scale: 1.864,
 				rotate: '0.985739 0.066606 -0.154536 58.502619deg',
 				transformOrigin: '50% 0%',

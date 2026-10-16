@@ -17,7 +17,7 @@ export const Composition3DRotationPreview = () => {
 			style={{
 				width: 1816,
 				height: 1440,
-				translate: '52px -73.3px',
+				translate: '52px -193.3px',
 				scale: 1.081,
 			}}
 			from={-134}

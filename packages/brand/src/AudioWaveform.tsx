@@ -17,7 +17,7 @@ export const AudioWaveformPreview = () => {
 			style={{
 				width: 2560,
 				height: 1402,
-				translate: '-103px -223.5px',
+				translate: '-203px -403.5px',
 				rotate: '0.906636 -0.374407 0.194501 24.07307deg',
 				scale: 1.298,
 			}}

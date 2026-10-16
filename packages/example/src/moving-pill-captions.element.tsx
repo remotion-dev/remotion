@@ -386,9 +386,8 @@ const MovingPillCaptionsContent: React.FC<MovingPillCaptionsProps> = ({
 	);
 };
 
-export const MovingPillCaptions = Interactive.withSchema({
+export const MovingPillCaptions = Interactive.create({
 	Component: MovingPillCaptionsContent,
 	componentName: '<MovingPillCaptions>',
 	schema: movingPillCaptionsSchema,
-	wrapInSequence: true,
 });

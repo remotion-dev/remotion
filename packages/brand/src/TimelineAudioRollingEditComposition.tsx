@@ -4,9 +4,9 @@ import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
 	Easing,
+	HtmlInCanvas,
 	interpolate,
 	useCurrentFrame,
-	HtmlInCanvas,
 } from 'remotion';
 
 export const TimelineAudioRollingEditComposition = () => {
@@ -14,15 +14,16 @@ export const TimelineAudioRollingEditComposition = () => {
 
 	return (
 		<HtmlInCanvas
-			width={2560}
-			height={1210}
+			width={1920}
+			height={1080}
+			style={{backgroundColor: '#1f2427'}}
 			from={0}
 			durationInFrames={552}
 			trimBefore={0}
 			effects={[
 				linearProgressiveBlur({
-					end: [0.102, 0.694],
-					start: [0.637, 0.659],
+					end: [0, 0.6],
+					start: [0.5, 0.5],
 					endBlur: 11,
 				}),
 			]}
@@ -35,7 +36,7 @@ export const TimelineAudioRollingEditComposition = () => {
 					height: 1210,
 					rotate: '-0.210862 0.975956 -0.055193 30.026402deg',
 					scale: 1.476,
-					translate: '0px -209px',
+					translate: '-800px -519px',
 				}}
 				trimBefore={245}
 			>

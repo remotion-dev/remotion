@@ -140,9 +140,7 @@ const HorizontalBarChartInner: React.FC<InteractiveTransformProps> = ({
 	);
 };
 
-export const HorizontalBarChart = Interactive.withSchema({
+export const HorizontalBarChart = Interactive.create({
 	Component: HorizontalBarChartInner,
 	componentName: '<HorizontalBarChart>',
-	schema: {},
-	wrapInSequence: true,
 });

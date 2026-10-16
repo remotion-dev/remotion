@@ -107,9 +107,9 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
+import './index.css';
 import {KeyframeMove} from './KeyframeMove';
 import {Logo} from './Logo';
-import './index.css';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import {NestingCompositions} from './NestingCompositions';
 import {PitchCorrection} from './PitchCorrection';
@@ -186,7 +186,7 @@ export const RemotionRoot: React.FC = () => {
 				width={2560}
 				height={1600}
 				fps={60}
-				durationInFrames={360}
+				durationInFrames={720}
 			/>
 			<Folder name="Logo">
 				<Folder name="AnimatedLogo">
@@ -811,6 +811,22 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<KeyframeMove />
 				<PitchCorrection />
 				<RenderOnWeb />
+				<Composition
+					id="TimelineLeftDrag"
+					component={TimelineLeftDragComposition}
+					durationInFrames={271}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="TimelineAudioRollingEdit"
+					component={TimelineAudioRollingEditComposition}
+					durationInFrames={430}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
 				<Folder name="NestingCompositions">
 					<NestingCompositions />
 				</Folder>
@@ -1100,22 +1116,6 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					height={1080}
 				/>
 			</Folder>
-			<Composition
-				id="TimelineLeftDrag"
-				component={TimelineLeftDragComposition}
-				durationInFrames={271}
-				fps={60}
-				width={2560}
-				height={1134}
-			/>
-			<Composition
-				id="TimelineAudioRollingEdit"
-				component={TimelineAudioRollingEditComposition}
-				durationInFrames={430}
-				fps={60}
-				width={2560}
-				height={1210}
-			/>
 		</>
 	);
 };

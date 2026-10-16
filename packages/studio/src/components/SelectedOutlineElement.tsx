@@ -38,6 +38,7 @@ import {
 	findCopyableFrameElement,
 	getSequenceContextMenuItems,
 } from './Timeline/get-sequence-context-menu-items';
+import {getSequenceUnwrapMenuItem} from './Timeline/get-sequence-unwrap-menu-item';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
 import {
 	getTimelineSequenceSelectionKey,
@@ -126,7 +127,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
-	const {compositions} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
@@ -166,7 +169,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			sequenceWasDragged: boolean,
 		) => {
 			const connectedCompositions = getConnectedCompositions({
-				compositions,
+				compositions: compositionManagerRef.current.compositions,
 				singleChildComponent: doubleClickTarget.sequence.singleChildComponent,
 			});
 			const nodePath = doubleClickTarget.nodePathInfo.sequenceSubscriptionKey;
@@ -262,7 +265,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			return true;
 		},
 		[
-			compositions,
+			compositionManagerRef,
 			currentSelection,
 			defaultEditorId,
 			defaultOpenInTarget,
@@ -318,6 +321,25 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		const canRotate = !sourceEditDisabled && outline.path === null;
 		const outlineElement =
 			contextMenuTarget.sequence.refForOutline?.current ?? null;
+		const {canvasContent} = compositionManagerRef.current;
+		const unwrapMenuItem = getSequenceUnwrapMenuItem({
+			sequence: contextMenuTarget.sequence,
+			sourceLocation:
+				originalLocation?.source && originalLocation.line !== null
+					? {source: originalLocation.source, line: originalLocation.line}
+					: null,
+			setSelectedModal,
+			canEditSource:
+				!sourceEditDisabled && previewServerState.type === 'connected',
+			compositionId:
+				canvasContent?.type === 'composition'
+					? canvasContent.compositionId
+					: null,
+			isTransition:
+				contextMenuTarget.sequence.timelineTrack?.role === 'transition',
+			nodePath,
+		});
+
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
@@ -407,109 +429,111 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			selectAsset,
 			sequence: contextMenuTarget.sequence,
 			sourceActions: sourceEditingEnabled
-				? [
-						...(contextMenuTarget.nodePathInfo.supportsEffects
-							? [
-									{
-										type: 'item' as const,
-										id: 'add-effect',
-										keyHint: null,
-										label: 'Add effect...',
-										leftItem: null,
-										disabled: !canAddEffect,
-										onClick: () => {
-											if (
-												!canAddEffect ||
-												previewServerState.type !== 'connected'
-											) {
-												return;
-											}
+				? {
+						rename: null,
+						timing: [],
+						appearance: [
+							{
+								type: 'item' as const,
+								id: 'crop',
+								keyHint: null,
+								label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
+								leftItem: null,
+								disabled: !canCrop,
+								onClick: () => {
+									if (!canCrop) {
+										return;
+									}
 
-											setSelectedModal({
-												type: 'add-effect',
-												clientId: previewServerState.clientId,
-												fileName: nodePath.absolutePath,
-												nodePathInfo: contextMenuTarget.nodePathInfo,
-												selectItems: currentSelection.current.selectItems,
-											});
+									onSelect(
+										{
+											type: 'sequence-prop',
+											nodePathInfo: {
+												...contextMenuTarget.nodePathInfo,
+												auxiliaryKeys: ['controls', cropFieldKeys.left],
+											},
+											key: cropFieldKeys.left,
 										},
-										quickSwitcherLabel: null,
-										subMenu: null,
-										value: 'add-effect',
-									},
-								]
-							: []),
-						{
-							type: 'item' as const,
-							id: 'crop',
-							keyHint: null,
-							label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
-							leftItem: null,
-							disabled: !canCrop,
-							onClick: () => {
-								if (!canCrop) {
-									return;
-								}
-
-								onSelect(
-									{
-										type: 'sequence-prop',
-										nodePathInfo: {
-											...contextMenuTarget.nodePathInfo,
-											auxiliaryKeys: ['controls', cropFieldKeys.left],
-										},
-										key: cropFieldKeys.left,
-									},
-									{shiftKey: false, toggleKey: false},
-								);
+										{shiftKey: false, toggleKey: false},
+									);
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'crop',
 							},
-							quickSwitcherLabel: null,
-							subMenu: null,
-							value: 'crop',
-						},
-						{
-							type: 'item' as const,
-							id: 'rotate',
-							keyHint: null,
-							label: isProgrammaticallyDuplicated ? 'Rotate all' : 'Rotate',
-							leftItem: null,
-							disabled: !canRotate,
-							onClick: () => {
-								if (!canRotate) {
-									return;
-								}
+							{
+								type: 'item' as const,
+								id: 'rotate',
+								keyHint: null,
+								label: isProgrammaticallyDuplicated ? 'Rotate all' : 'Rotate',
+								leftItem: null,
+								disabled: !canRotate,
+								onClick: () => {
+									if (!canRotate) {
+										return;
+									}
 
-								setManuallyEnabled(
-									getTimelineSequenceSelectionKey(
-										contextMenuTarget.nodePathInfo,
-									),
-									true,
-								);
-								onSelect(
-									{
-										type: 'sequence-prop',
-										nodePathInfo: {
-											...contextMenuTarget.nodePathInfo,
-											auxiliaryKeys: ['controls', rotateFieldKey],
+									setManuallyEnabled(
+										getTimelineSequenceSelectionKey(
+											contextMenuTarget.nodePathInfo,
+										),
+										true,
+									);
+									onSelect(
+										{
+											type: 'sequence-prop',
+											nodePathInfo: {
+												...contextMenuTarget.nodePathInfo,
+												auxiliaryKeys: ['controls', rotateFieldKey],
+											},
+											key: rotateFieldKey,
 										},
-										key: rotateFieldKey,
-									},
-									{shiftKey: false, toggleKey: false},
-								);
+										{shiftKey: false, toggleKey: false},
+									);
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'rotate',
 							},
-							quickSwitcherLabel: null,
-							subMenu: null,
-							value: 'rotate',
-						},
-						{
-							type: 'divider' as const,
-							id: 'rotate-divider',
-						},
-					]
-				: [],
+							...(contextMenuTarget.nodePathInfo.supportsEffects
+								? [
+										{
+											type: 'item' as const,
+											id: 'add-effect',
+											keyHint: null,
+											label: 'Add effect...',
+											leftItem: null,
+											disabled: !canAddEffect,
+											onClick: () => {
+												if (
+													!canAddEffect ||
+													previewServerState.type !== 'connected'
+												) {
+													return;
+												}
+
+												setSelectedModal({
+													type: 'add-effect',
+													clientId: previewServerState.clientId,
+													fileName: nodePath.absolutePath,
+													nodePathInfo: contextMenuTarget.nodePathInfo,
+													selectItems: currentSelection.current.selectItems,
+												});
+											},
+											quickSwitcherLabel: null,
+											subMenu: null,
+											value: 'add-effect',
+										},
+									]
+								: []),
+						],
+						unwrap: unwrapMenuItem,
+					}
+				: null,
 		});
 	}, [
 		canConfigureApps,
+		compositionManagerRef,
 		codingAgentInfo,
 		confirm,
 		deleteTimelineItems,

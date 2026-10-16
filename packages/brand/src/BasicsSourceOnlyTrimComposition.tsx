@@ -336,7 +336,7 @@ const BasicsSourceOnlyTrimInner = ({
 					durationInFrames={375}
 					premountFor={fps}
 					style={{
-						translate: '-380px -520px',
+						translate: '-720px -520px',
 						scale: 1.15,
 						rotate: '-2deg',
 						transformOrigin: '0 0',
@@ -353,7 +353,7 @@ const BasicsSourceOnlyTrimInner = ({
 					style={{
 						width: 2496,
 						height: 1440,
-						translate: '-380px -520px',
+						translate: '-720px -520px',
 						scale: 1.15,
 						rotate: '-2deg',
 						transformOrigin: '0 0',

@@ -46,6 +46,7 @@ import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {
 	CompositionManager,
+	CompositionManagerRefContext,
 	CompositionSetters,
 } from './CompositionManagerContext.js';
 import {CompositionManagerProvider} from './CompositionManagerProvider.js';
@@ -386,6 +387,7 @@ export const Internals = {
 	resolveTrimProps,
 	VideoForPreview,
 	CompositionManager,
+	CompositionManagerRefContext,
 	CompositionSetters,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,

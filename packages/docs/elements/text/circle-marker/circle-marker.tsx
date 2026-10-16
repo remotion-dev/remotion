@@ -63,9 +63,7 @@ const CircleMarkerInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	);
 };
 
-export const CircleMarker = Interactive.withSchema({
+export const CircleMarker = Interactive.create({
 	Component: CircleMarkerInner,
 	componentName: '<CircleMarker>',
-	schema: {},
-	wrapInSequence: true,
 });

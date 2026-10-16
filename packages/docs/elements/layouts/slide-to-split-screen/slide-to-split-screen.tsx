@@ -125,10 +125,7 @@ const SlideToSplitScreenInner: React.FC = () => {
 	);
 };
 
-export const SlideToSplitScreen = Interactive.withSchema({
+export const SlideToSplitScreen = Interactive.create({
 	Component: SlideToSplitScreenInner,
-	componentName: 'SlideToSplitScreen',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -61,6 +61,8 @@ export {
 	DuplicateNodesRequestItem,
 	DuplicateNodesResponse,
 	NodeWrapper,
+	UnwrapNodeRequest,
+	UnwrapNodeResponse,
 	WrapNodeRequest,
 	WrapNodeResponse,
 	EditorPickerId,
