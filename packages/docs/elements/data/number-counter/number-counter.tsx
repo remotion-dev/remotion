@@ -51,9 +51,7 @@ const NumberCounterInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	);
 };
 
-export const NumberCounter = Interactive.withSchema({
+export const NumberCounter = Interactive.create({
 	Component: NumberCounterInner,
 	componentName: '<NumberCounter>',
-	schema: {},
-	wrapInSequence: true,
 });

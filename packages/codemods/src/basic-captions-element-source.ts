@@ -101,11 +101,10 @@ const basicCaptionsSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const BasicCaptions = Interactive.withSchema({
+export const BasicCaptions = Interactive.create({
 	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
 	schema: basicCaptionsSchema,
-	wrapInSequence: true,
 });
 `;
 

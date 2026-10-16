@@ -164,9 +164,7 @@ const OnScreenMessagesInner: React.FC<InteractiveTransformProps> = ({
 	);
 };
 
-export const OnScreenMessages = Interactive.withSchema({
+export const OnScreenMessages = Interactive.create({
 	Component: OnScreenMessagesInner,
 	componentName: '<OnScreenMessages>',
-	schema: {},
-	wrapInSequence: true,
 });

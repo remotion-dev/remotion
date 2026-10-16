@@ -253,9 +253,7 @@ const VerticalBarChartInner: React.FC<InteractiveTransformProps> = ({
 	);
 };
 
-export const VerticalBarChart = Interactive.withSchema({
+export const VerticalBarChart = Interactive.create({
 	Component: VerticalBarChartInner,
 	componentName: '<VerticalBarChart>',
-	schema: {},
-	wrapInSequence: true,
 });

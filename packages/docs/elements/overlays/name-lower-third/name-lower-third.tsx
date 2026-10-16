@@ -105,9 +105,7 @@ const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	);
 };
 
-export const NameLowerThird = Interactive.withSchema({
+export const NameLowerThird = Interactive.create({
 	Component: NameLowerThirdInner,
 	componentName: '<NameLowerThird>',
-	schema: {},
-	wrapInSequence: true,
 });

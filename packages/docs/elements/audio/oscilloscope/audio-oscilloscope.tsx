@@ -136,9 +136,8 @@ const AudioOscilloscopeInner: React.FC<AudioOscilloscopeProps> = ({
 	);
 };
 
-export const AudioOscilloscope = Interactive.withSchema({
+export const AudioOscilloscope = Interactive.create({
 	Component: AudioOscilloscopeInner,
 	componentName: '<AudioOscilloscope>',
 	schema: audioOscilloscopeSchema,
-	wrapInSequence: true,
 });
