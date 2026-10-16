@@ -2,7 +2,7 @@ import { CheckCircleIcon } from "@heroicons/react/16/solid";
 import { setStudioDragData } from "@remotion/studio-protocol";
 import { useState, type RefObject } from "react";
 import type { CatalogEntry } from "../../lib/element-payload";
-import { ElementPreview } from "./element-preview";
+import { RenderedPreview } from "./rendered-preview";
 
 export const CaptionStyleButton = ({
   entry,
@@ -48,9 +48,8 @@ export const CaptionStyleButton = ({
         aria-hidden
         className="transparency-grid pointer-events-none flex aspect-video items-center overflow-hidden rounded-lg"
       >
-        <ElementPreview
+        <RenderedPreview
           definition={entry.definition}
-          controls={false}
           playing={hovered || focused}
         />
       </div>

@@ -78,12 +78,7 @@ export default function ElementPage() {
         <div
           className={`min-w-0 overflow-hidden rounded-[min(1vw,8px)] outline-1 -outline-offset-1 outline-black/5 ${definition.previewBackground === "transparent" ? "transparency-grid" : ""}`}
         >
-          <ElementPreview
-            key={slug}
-            definition={definition}
-            controls
-            playing={false}
-          />
+          <ElementPreview key={slug} definition={definition} />
         </div>
         <aside aria-label="Element details" className="min-w-0">
           <StudioActions key={slug} entry={entry} variant="default" />

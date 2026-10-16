@@ -3,4 +3,7 @@ node_modules/
 build/
 out/
 .env
+.env.*
+!.env.example
+public/previews/
 .DS_Store

@@ -5,18 +5,12 @@ import type {
   ElementInitialProps,
   ElementInstallationMode,
 } from "@remotion/studio-protocol";
-import type { ComponentType } from "react";
-import { AccentCaptions } from "./accent-captions/accent-captions";
-import { AnimatedTitle } from "./animated-title/animated-title";
-import { LowerThird } from "./lower-third/lower-third";
-import { AnimatedBackground } from "./animated-background/animated-background";
 
 export type ElementDefinition = {
   slug: string;
   displayName: string;
   category: string;
   description: string;
-  component: ComponentType<Record<string, unknown>>;
   width: number;
   height: number;
   fps: number;
@@ -37,7 +31,6 @@ export const elements: readonly ElementDefinition[] = [
     displayName: "Animated title",
     category: "Text",
     description: "A centered title with a soft entrance and exit.",
-    component: AnimatedTitle,
     width: 1280,
     height: 720,
     fps: 30,
@@ -56,7 +49,6 @@ export const elements: readonly ElementDefinition[] = [
     displayName: "Lower third",
     category: "Overlays",
     description: "An animated name and role label for your footage.",
-    component: LowerThird,
     width: 1280,
     height: 720,
     fps: 30,
@@ -75,7 +67,6 @@ export const elements: readonly ElementDefinition[] = [
     displayName: "Moving grid",
     category: "Backgrounds",
     description: "A looping grid with adjustable background and line colors.",
-    component: AnimatedBackground,
     width: 1280,
     height: 720,
     fps: 30,
@@ -95,7 +86,6 @@ export const elements: readonly ElementDefinition[] = [
     category: "Captions",
     description:
       "Word-by-word captions with a warm highlight and a crisp outline.",
-    component: AccentCaptions,
     width: 900,
     height: 300,
     fps: 30,

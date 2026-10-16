@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useOutletContext } from "react-router";
 import { setStudioDragData } from "@remotion/studio-protocol";
 import type { CatalogEntry } from "../../lib/element-payload";
-import { ElementPreview } from "./element-preview";
+import { RenderedPreview } from "./rendered-preview";
 import { StudioActions } from "./studio-actions";
 
 export const ElementCard = ({ entry }: { entry: CatalogEntry }) => {
@@ -39,9 +39,8 @@ export const ElementCard = ({ entry }: { entry: CatalogEntry }) => {
           className={`relative flex aspect-video items-center overflow-hidden rounded-[min(1vw,8px)] bg-neutral-50 outline-1 -outline-offset-1 outline-black/5 [&>div]:pointer-events-none ${definition.previewBackground === "transparent" ? "transparency-grid" : ""}`}
           aria-hidden
         >
-          <ElementPreview
+          <RenderedPreview
             definition={definition}
-            controls={false}
             playing={hovered || focused}
           />
         </div>

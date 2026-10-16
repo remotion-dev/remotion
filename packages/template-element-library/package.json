@@ -11,7 +11,9 @@
     "preview": "sirv build/client --single __spa-fallback.html",
     "typecheck": "react-router typegen && tsc",
     "lint": "eslint . && react-router typegen && tsc",
-    "remotion:studio": "remotion studio"
+    "remotion:studio": "remotion studio",
+    "render-previews": "node scripts/render-previews.ts",
+    "upload-previews": "node --env-file-if-exists=.env scripts/upload-previews.ts"
   },
   "sideEffects": [
     "*.css"
@@ -30,7 +32,10 @@
     "isbot": "5.1.40"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "3.986.0",
     "@react-router/dev": "8.3.0",
+    "@remotion/bundler": "workspace:*",
+    "@remotion/renderer": "workspace:*",
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/node": "22.20.0",
     "@types/react": "19.2.7",

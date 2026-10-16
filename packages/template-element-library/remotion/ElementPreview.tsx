@@ -1,12 +1,24 @@
 import { Sequence } from "remotion";
 import { elements } from "../elements/registry";
+import { AnimatedTitle } from "../elements/animated-title/animated-title";
+import { LowerThird } from "../elements/lower-third/lower-third";
+import { AnimatedBackground } from "../elements/animated-background/animated-background";
+import { AccentCaptions } from "../elements/accent-captions/accent-captions";
+import type { ComponentType } from "react";
+
+const components: Record<string, ComponentType<Record<string, unknown>>> = {
+  "animated-title": AnimatedTitle,
+  "lower-third": LowerThird,
+  "animated-background": AnimatedBackground,
+  "accent-captions": AccentCaptions,
+};
 
 export const ElementPreview = ({ slug }: { slug: string }) => {
   const definition = elements.find((element) => element.slug === slug);
-  if (!definition) {
+  const Component = components[slug];
+  if (!definition || !Component) {
     throw new Error(`Unknown Element: ${slug}`);
   }
-  const Component = definition.component;
   const dimensions = definition.dimensions;
 
   return (

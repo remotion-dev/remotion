@@ -2159,8 +2159,11 @@
         "remotion": "workspace:*",
       },
       "devDependencies": {
+        "@aws-sdk/client-s3": "3.986.0",
         "@react-router/dev": "8.3.0",
+        "@remotion/bundler": "workspace:*",
         "@remotion/eslint-config-flat": "workspace:*",
+        "@remotion/renderer": "workspace:*",
         "@tailwindcss/vite": "4.3.3",
         "@types/node": "22.20.0",
         "@types/react": "19.2.7",

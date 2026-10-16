@@ -26,9 +26,31 @@ For exports and upgrades, see [`npx remotion render`](https://www.remotion.dev/d
 - `remotion/`: authoring compositions and the preview stage.
 - `lib/element-payload.ts`: raw source loading and Studio Protocol payloads.
 
-To add an Element, create `elements/<slug>/<slug>.tsx`, add it to `elements/registry.ts`, and register its authoring composition in `remotion/Root.tsx`. The website and Studio use the same source files.
+To add an Element, create `elements/<slug>/<slug>.tsx`, add its metadata to `elements/registry.ts`, map its component in `remotion/ElementPreview.tsx`, and register its authoring composition in `remotion/Root.tsx`. The detail page, preview renderer, and Studio use the same source files. Gallery previews are rendered assets, not live Players.
 
 See the [Element guidelines](https://www.remotion.dev/elements/guidelines), [interactivity documentation](https://www.remotion.dev/docs/studio/interactivity), and [library integration guide](https://www.remotion.dev/docs/studio-protocol/component-library-integration) for layout, assets, dependencies, and installation requirements.
+
+## Render and upload previews
+
+The starter previews are hosted on `remotion.media`. The gallery and caption picker use posters and hover/focus videos from `elements/previews.json`. Rendering uses a separate entry point, `remotion/previews.tsx`, with dimensions and default props from the registry. Source edits appear in the listing after you rerender.
+
+```sh
+npm run render-previews
+# Or render one Element:
+npm run render-previews -- --element=animated-title
+```
+
+This renders PNG posters and muted MP4 videos into ignored `public/previews/` directories and updates the manifest to local URLs. Transparent previews use WebM instead of MP4. Review the results with `npm run dev`. Playback failures and reduced-motion preferences retain the poster. Pass `--browser-executable=/path/to/chrome` to use an existing browser.
+
+To publish previews, copy `.env.example` to `.env` and configure your own S3-compatible bucket, endpoint, public HTTPS URL, and credentials. For R2, enable a [public domain](https://developers.cloudflare.com/r2/buckets/public-buckets/) for the bucket. Credentials are used only by the upload script; never prefix them with `VITE_`.
+
+```sh
+npm run upload-previews
+# Or upload one reviewed Element:
+npm run upload-previews -- --element=animated-title
+```
+
+Uploads use unique URLs and verify public content types and SHA-256 checksums before updating `elements/previews.json`. Existing hosted assets are never overwritten. Commit the updated manifest, then rebuild the website. Local renders remain ignored and can be removed after upload; shipping local previews instead is also supported.
 
 ## Caption styles
 
