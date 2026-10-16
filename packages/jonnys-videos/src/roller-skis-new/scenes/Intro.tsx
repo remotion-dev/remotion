@@ -1,12 +1,7 @@
 import {Audio, Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {
-	Easing,
-	Interactive,
-	interpolate,
-	Series,
-	useCurrentFrame,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {LocationLowerThird} from '../elements/LocationLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
@@ -15,8 +10,8 @@ const IntroInner: React.FC = () => {
 
 	return (
 		<>
-			<Series>
-				<Series.Sequence
+			<TransitionSeries name="Intro shots">
+				<TransitionSeries.Sequence
 					name="Good morning"
 					trimBefore={45}
 					durationInFrames={239}
@@ -157,8 +152,8 @@ const IntroInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Roller skis"
 					trimBefore={312}
 					durationInFrames={290}
@@ -322,8 +317,8 @@ const IntroInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-			</Series>
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
 			<LocationLowerThird
 				name="Location"
 				from={81}

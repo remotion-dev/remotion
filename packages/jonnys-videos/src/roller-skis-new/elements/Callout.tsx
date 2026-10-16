@@ -1,3 +1,4 @@
+import {Audio} from '@remotion/media';
 import React from 'react';
 import {
 	Easing,
@@ -36,9 +37,7 @@ const CalloutInner: React.FC<CalloutProps> = ({
 	const {durationInFrames} = useVideoConfig();
 
 	return (
-		<Interactive.Div
-			name="Callout"
-			showInTimeline={false}
+		<div
 			style={{
 				display: 'flex',
 				alignItems: 'center',
@@ -116,7 +115,7 @@ const CalloutInner: React.FC<CalloutProps> = ({
 					{text}
 				</div>
 			</div>
-		</Interactive.Div>
+		</div>
 	);
 };
 
@@ -139,5 +138,52 @@ const calloutSchema = {
 export const Callout = Interactive.create({
 	Component: CalloutInner,
 	componentName: '<Callout>',
+	layout: 'none',
 	schema: calloutSchema,
+});
+
+type CalloutWithSoundProps = CalloutProps & {
+	readonly sound: string;
+	readonly soundVolume: number;
+	readonly soundFrom: number;
+};
+const CalloutWithSoundInner: React.FC<CalloutWithSoundProps> = ({
+	sound,
+	soundVolume,
+	soundFrom,
+	...props
+}) => (
+	<>
+		<CalloutInner {...props} />
+		<Audio
+			name="Callout sound"
+			src={sound}
+			from={soundFrom}
+			volume={soundVolume}
+		/>
+	</>
+);
+export const CalloutWithSound = Interactive.create({
+	Component: CalloutWithSoundInner,
+	layout: 'none',
+	schema: {
+		...calloutSchema,
+		sound: {
+			type: 'string',
+			default: 'https://remotion.media/ding.wav',
+			description: 'Sound',
+		},
+		soundVolume: {
+			type: 'number',
+			default: 0.35,
+			description: 'Sound volume',
+			hiddenFromList: false,
+		},
+		soundFrom: {
+			type: 'number',
+			default: 0,
+			description: 'Sound delay in frames',
+			hiddenFromList: false,
+		},
+	},
 });
