@@ -1379,7 +1379,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [canRotate, nodePathInfo, selectItem, setManuallyEnabled]);
 
 	const getContextMenuItems = useCallback(
-		async (event: MouseEvent) => {
+		(event: MouseEvent) => {
 			const contextMenuTarget =
 				event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
 			if (assetContextMenu !== null) {
@@ -1410,7 +1410,10 @@ const TimelineSequenceItemInner: React.FC<{
 				});
 			}
 
-			const unwrapMenuItem = await getSequenceUnwrapMenuItem({
+			const unwrapMenuItem = getSequenceUnwrapMenuItem({
+				sequence,
+				sourceLocation: validatedLocation,
+				setSelectedModal,
 				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
 				compositionId:
 					canvasContent?.type === 'composition'
@@ -1609,7 +1612,7 @@ const TimelineSequenceItemInner: React.FC<{
 			sequencesRef,
 			setSelectedModal,
 			setPropStatuses,
-			validatedLocation?.source,
+			validatedLocation,
 		],
 	);
 	const canDropEffect =

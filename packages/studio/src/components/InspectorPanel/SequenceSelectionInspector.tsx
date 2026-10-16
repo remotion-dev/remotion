@@ -369,6 +369,8 @@ const SequenceSourceQuickActions: React.FC<{
 				sourceLocation={validatedLocation}
 			/>
 			<SequenceUnwrapAction
+				sequence={track.sequence}
+				sourceLocation={validatedLocation}
 				nodePathInfo={selection.nodePathInfo}
 				sourceActionsDisabled={sourceActionsDisabled || isTransition}
 			/>

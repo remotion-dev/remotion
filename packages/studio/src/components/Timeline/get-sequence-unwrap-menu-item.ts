@@ -1,39 +1,37 @@
-import type {SequencePropsSubscriptionKey} from 'remotion';
+import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
+import type {SetSelectedModalContextType} from '../../state/modals';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {unwrapNode} from '../unwrap-node-api';
+import {unwrapSequenceFromSource} from './unwrap-sequence-from-source';
 
-export const getSequenceUnwrapMenuItem = async ({
+export const getSequenceUnwrapMenuItem = ({
 	canEditSource,
 	compositionId,
 	isTransition,
 	nodePath,
+	sequence,
+	sourceLocation,
+	setSelectedModal,
 }: {
 	readonly canEditSource: boolean;
 	readonly compositionId: string | null;
 	readonly isTransition: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey | null;
-}): Promise<ComboboxValue | null> => {
+	readonly sequence: TSequence;
+	readonly sourceLocation: {
+		readonly source: string;
+		readonly line: number;
+	} | null;
+	readonly setSelectedModal: SetSelectedModalContextType['setSelectedModal'];
+}): ComboboxValue | null => {
 	if (
 		!canEditSource ||
 		compositionId === null ||
 		isTransition ||
-		nodePath === null
+		nodePath === null ||
+		sourceLocation === null ||
+		sequence.type !== 'sequence'
 	) {
-		return null;
-	}
-
-	const request = {
-		fileName: nodePath.absolutePath,
-		compositionId,
-		nodePath: nodePath.nodePath,
-	};
-	try {
-		const result = await unwrapNode({...request, dryRun: true});
-		if (!result.success || !result.canUnwrap) {
-			return null;
-		}
-	} catch {
 		return null;
 	}
 
@@ -48,13 +46,14 @@ export const getSequenceUnwrapMenuItem = async ({
 		subMenu: null,
 		disabled: false,
 		onClick: () => {
-			unwrapNode({...request, dryRun: false})
-				.then((result) => {
-					if (!result.success) {
-						showNotification(result.reason, 4000);
-					}
-				})
-				.catch((error: Error) => showNotification(error.message, 4000));
+			unwrapSequenceFromSource({
+				compositionId,
+				displayName:
+					sequence.displayName || sequence.controls?.componentName || null,
+				nodePath,
+				sourceLocation,
+				setSelectedModal,
+			}).catch((error: Error) => showNotification(error.message, 4000));
 		},
 	};
 };

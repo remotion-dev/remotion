@@ -321,7 +321,13 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		const canRotate = !sourceEditDisabled && outline.path === null;
 		const outlineElement =
 			contextMenuTarget.sequence.refForOutline?.current ?? null;
-		const unwrapMenuItem = await getSequenceUnwrapMenuItem({
+		const unwrapMenuItem = getSequenceUnwrapMenuItem({
+			sequence: contextMenuTarget.sequence,
+			sourceLocation:
+				originalLocation?.source && originalLocation.line !== null
+					? {source: originalLocation.source, line: originalLocation.line}
+					: null,
+			setSelectedModal,
 			canEditSource:
 				!sourceEditDisabled && previewServerState.type === 'connected',
 			compositionId:

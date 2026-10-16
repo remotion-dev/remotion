@@ -1,9 +1,10 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {Internals} from 'remotion';
+import React, {useCallback, useContext, useState} from 'react';
+import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {UnwrapIcon} from '../../icons/unwrap';
+import {SetSelectedModalContext} from '../../state/modals';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {unwrapNode} from '../unwrap-node-api';
+import {unwrapSequenceFromSource} from '../Timeline/unwrap-sequence-from-source';
 import {InspectorQuickAction} from './common';
 
 const iconStyle: React.CSSProperties = {
@@ -14,57 +15,59 @@ const iconStyle: React.CSSProperties = {
 
 export const SequenceUnwrapAction: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly sequence: TSequence;
 	readonly sourceActionsDisabled: boolean;
-}> = ({nodePathInfo, sourceActionsDisabled}) => {
+	readonly sourceLocation: {readonly source: string; readonly line: number};
+}> = ({nodePathInfo, sequence, sourceActionsDisabled, sourceLocation}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const [canUnwrap, setCanUnwrap] = useState(false);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [busy, setBusy] = useState(false);
-	const {absolutePath, nodePath} = nodePathInfo.sequenceSubscriptionKey;
 	const compositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 
-	useEffect(() => {
-		let cancelled = false;
-		setCanUnwrap(false);
-		if (sourceActionsDisabled || compositionId === null) return;
-		unwrapNode({fileName: absolutePath, nodePath, compositionId, dryRun: true})
-			.then((result) => {
-				if (!cancelled) setCanUnwrap(result.success && result.canUnwrap);
-			})
-			.catch(() => undefined);
-		return () => {
-			cancelled = true;
-		};
-	}, [absolutePath, nodePath, compositionId, sourceActionsDisabled]);
-
 	const onUnwrap = useCallback(async () => {
-		if (busy || !canUnwrap || sourceActionsDisabled || compositionId === null)
+		if (
+			busy ||
+			sourceActionsDisabled ||
+			compositionId === null ||
+			sequence.type !== 'sequence'
+		) {
 			return;
+		}
+
 		setBusy(true);
 		try {
-			const result = await unwrapNode({
-				fileName: absolutePath,
-				nodePath,
+			await unwrapSequenceFromSource({
 				compositionId,
-				dryRun: false,
+				displayName:
+					sequence.displayName || sequence.controls?.componentName || null,
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+				sourceLocation,
+				setSelectedModal,
 			});
-			if (!result.success) showNotification(result.reason, 4000);
 		} catch (error) {
 			showNotification((error as Error).message, 4000);
 		} finally {
 			setBusy(false);
 		}
 	}, [
-		absolutePath,
-		nodePath,
-		compositionId,
 		busy,
-		canUnwrap,
 		sourceActionsDisabled,
+		compositionId,
+		sequence,
+		nodePathInfo,
+		sourceLocation,
+		setSelectedModal,
 	]);
 
-	if (!canUnwrap || sourceActionsDisabled || compositionId === null)
+	if (
+		sourceActionsDisabled ||
+		compositionId === null ||
+		sequence.type !== 'sequence'
+	) {
 		return null;
+	}
+
 	return (
 		<InspectorQuickAction
 			disabled={busy}

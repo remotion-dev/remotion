@@ -1653,7 +1653,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		validatedLocation?.source,
 	]);
 	const getContextMenuItems = useCallback(
-		async (event: MouseEvent) => {
+		(event: MouseEvent) => {
 			const contextMenuTarget =
 				event.target instanceof Element
 					? event.target.closest<HTMLElement>(`[${TIMELINE_MARQUEE_ITEM_ATTR}]`)
@@ -1686,7 +1686,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				});
 			}
 
-			const unwrapMenuItem = await getSequenceUnwrapMenuItem({
+			const unwrapMenuItem = getSequenceUnwrapMenuItem({
+				sequence: s,
+				sourceLocation: validatedLocation,
+				setSelectedModal,
 				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
 				compositionId:
 					canvasContent?.type === 'composition'
@@ -1808,7 +1811,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			sequencesRef,
 			setPropStatuses,
 			setSelectedModal,
-			validatedLocation?.source,
+			validatedLocation,
 		],
 	);
 	const {frozenFrame} = s;
