@@ -73,7 +73,7 @@ export const AllTemplates: React.FC = () => {
 											style={{
 												height: 80,
 												width: 80,
-												margin: 20,
+												margin: 10,
 												justifyContent: 'center',
 												alignItems: 'center',
 												display: 'flex',

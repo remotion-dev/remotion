@@ -172,6 +172,9 @@
 			"path": "./packages/template-react-router"
 		},
 		{
+			"path": "./packages/template-element-library"
+		},
+		{
 			"path": "./packages/template-tiktok"
 		},
 		{
