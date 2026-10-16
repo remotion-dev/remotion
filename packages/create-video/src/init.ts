@@ -1,3 +1,4 @@
+import {spawnSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
@@ -235,13 +236,15 @@ export const init = async () => {
 	const cdToFolder = relativeToCurrent.startsWith('.')
 		? projectRoot
 		: relativeToCurrent;
+	const shouldOpenShell =
+		!isYesFlagSelected() && process.stdin.isTTY && process.stdout.isTTY;
 
 	Log.info();
 	Log.info(`Copied to ${chalk.blue(cdToFolder)}.`);
 	Log.info();
 
 	Log.info('Get started by running:');
-	if (cdToFolder !== '') {
+	if (cdToFolder !== '' && !shouldOpenShell) {
 		Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
 	}
 
@@ -281,5 +284,22 @@ export const init = async () => {
 
 	if (!isYesFlagSelected()) {
 		await openInEditorFlow(projectRoot);
+	}
+
+	if (shouldOpenShell) {
+		Log.info('Opening a shell in the new project. Run `exit` to return.\n');
+		const isWindows = process.platform === 'win32';
+		const shell = isWindows
+			? (process.env.ComSpec ?? 'cmd.exe')
+			: (process.env.SHELL ?? '/bin/sh');
+		const shellResult = spawnSync(shell, isWindows ? [] : ['-l'], {
+			cwd: projectRoot,
+			stdio: 'inherit',
+		});
+		if (shellResult.error) {
+			throw shellResult.error;
+		}
+
+		process.exit(shellResult.status ?? 1);
 	}
 };
