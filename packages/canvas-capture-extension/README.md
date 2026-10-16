@@ -17,7 +17,7 @@ Chrome versions below the manifest minimum cannot load the extension at all.
 To install a compatible Chrome for Testing build, run:
 
 ```bash
-.agents/skills/install-canvas-capture-browser/scripts/install-browser.sh
+packages/canvas-capture-extension/scripts/install-browser.sh
 ```
 
 The installer uses a compatible release from Google's Chrome for Testing channels and installs it at:
