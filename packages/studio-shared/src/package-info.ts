@@ -335,7 +335,10 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'google-fonts': true,
 	gsap: true,
 	'install-whisper-cpp': true,
-	'whisper-web': true,
+	'whisper-web': shouldReleasePackage({
+		packageName: '@remotion/whisper-web',
+		releaseVersion: VERSION,
+	}),
 	'whisper-webgpu': true,
 	'video-matting': true,
 	'it-tests': false,
