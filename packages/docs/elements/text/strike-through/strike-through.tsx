@@ -54,9 +54,7 @@ const StrikeThroughTextInner: React.FC<InteractiveTransformProps> = ({
 	);
 };
 
-export const StrikeThroughText = Interactive.withSchema({
+export const StrikeThroughText = Interactive.create({
 	Component: StrikeThroughTextInner,
 	componentName: '<StrikeThroughText>',
-	schema: {},
-	wrapInSequence: true,
 });

@@ -225,9 +225,7 @@ const YouTubeCommentHighlightInner: React.FC<InteractiveTransformProps> = ({
 	);
 };
 
-export const YouTubeCommentHighlight = Interactive.withSchema({
+export const YouTubeCommentHighlight = Interactive.create({
 	Component: YouTubeCommentHighlightInner,
 	componentName: '<YouTubeCommentHighlight>',
-	schema: {},
-	wrapInSequence: true,
 });

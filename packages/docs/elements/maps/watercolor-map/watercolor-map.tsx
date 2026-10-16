@@ -452,9 +452,8 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 	);
 };
 
-export const WatercolorMap = Interactive.withSchema({
+export const WatercolorMap = Interactive.create({
 	Component: WatercolorMapContent,
 	componentName: '<WatercolorMap>',
 	schema: watercolorMapSchema,
-	wrapInSequence: true,
 });

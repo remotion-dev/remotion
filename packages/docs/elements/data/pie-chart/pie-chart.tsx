@@ -260,9 +260,7 @@ const PieChartInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	);
 };
 
-export const PieChart = Interactive.withSchema({
+export const PieChart = Interactive.create({
 	Component: PieChartInner,
 	componentName: '<PieChart>',
-	schema: {},
-	wrapInSequence: true,
 });
