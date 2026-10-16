@@ -205,6 +205,26 @@ await renderMediaOnWeb({
 </TabItem>
 </Tabs>
 
+### In the Remotion Studio and the CLI
+
+To set the license key for the [Remotion Studio](/docs/studio) and for renders started with [`npx remotion render`](/docs/cli/render) or [`npx remotion still`](/docs/cli/still), use the public license key.
+
+In the Studio, open **Settings** and go to the **License** tab. Choose **I am eligible for the Free License**, or choose **I need a Company License** and enter your public license key. The Studio saves your choice in your [config file](/docs/config).
+
+You can also set it in the config file yourself:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPublicLicenseKey('free-license');
+```
+
+To set it for a single render, for example when automating renders, pass [`--public-license-key`](/docs/options/public-license-key). It takes precedence over the config file:
+
+```bash
+npx remotion render --public-license-key=free-license
+```
+
 ## Tracking usage
 
 After you set up the license key, you can now track your usage on the same Usage tab.
