@@ -150,6 +150,8 @@ import {
 
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
+// Leave room for a full 11px character before the label's 5px fade.
+const MIN_TIMELINE_LABEL_WIDTH = 16;
 const trimHighlightContainerStyle: React.CSSProperties = {
 	position: 'absolute',
 	inset: 0,
@@ -807,6 +809,13 @@ const TimelineSequenceBar: React.FC<{
 		Number(style.height) -
 			(hasTimelineTrackMediaLabel(s) ? getTimelineLayerHeight(s.type) : 0) <
 			26;
+	const labelTextWidth =
+		Number(style.width) -
+		visualRightInset -
+		labelRight -
+		labelLeft -
+		(inlineConnectedCompositionIcon ? 14 : 0) -
+		(s.timelineTrack?.role === 'track' && frozenFrame !== null ? 16 : 0);
 
 	const content = (
 		<>
@@ -827,7 +836,7 @@ const TimelineSequenceBar: React.FC<{
 
 			{(s.timelineTrack || hasCaptionsSchema) &&
 			!isTransition &&
-			Number(style.width) - labelRight > labelLeft ? (
+			labelTextWidth >= MIN_TIMELINE_LABEL_WIDTH ? (
 				<div
 					style={{
 						position: 'absolute',
