@@ -76,7 +76,7 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 });
 
 type MockSignature = typeof renderStillOnWeb;
-const mockFn: MockSignature = () => {
+const mockFn = (() => {
 	const canvas = new OffscreenCanvas(1, 1);
 	const internalState = makeInternalState();
 	const stub: RenderStillOnWebResult = {
@@ -86,7 +86,7 @@ const mockFn: MockSignature = () => {
 		url: async () => 'blob:http://local/mock',
 	};
 	return Promise.resolve(stub);
-};
+}) as MockSignature;
 
 test('Should be able to omit input props when component accepts no props', () => {
 	mockFn({

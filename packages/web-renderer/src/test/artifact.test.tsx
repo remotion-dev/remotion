@@ -162,3 +162,33 @@ test('should succeed to render multiple artifacts with renderMediaOnWeb()', asyn
 		},
 	]);
 });
+
+test('batch stills allow the same artifact filename on separate frames', async () => {
+	const Component: React.FC = () => {
+		const frame = useCurrentFrame();
+		return <Artifact filename="test.txt" content={`Frame ${frame}`} />;
+	};
+
+	const artifacts: EmittedArtifact[] = [];
+
+	await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: Component,
+			id: 'batch-artifacts',
+			width: 10,
+			height: 10,
+			fps: 30,
+			durationInFrames: 30,
+		},
+		frame: [10, 0, 20],
+		onArtifact: (artifact) => artifacts.push(artifact),
+	});
+	expect(
+		artifacts.map(({filename, content, frame}) => ({filename, content, frame})),
+	).toEqual([
+		{filename: 'test.txt', content: 'Frame 0', frame: 0},
+		{filename: 'test.txt', content: 'Frame 10', frame: 10},
+		{filename: 'test.txt', content: 'Frame 20', frame: 20},
+	]);
+});

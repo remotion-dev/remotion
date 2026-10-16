@@ -30,8 +30,9 @@ export type {
 type MandatoryRenderStillOnWebOptions<
 	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
+	Frame extends number | number[] = number | number[],
 > = {
-	frame: number;
+	frame: Frame;
 } & {
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
 };
@@ -59,7 +60,8 @@ type InternalRenderStillOnWebOptions<
 export type RenderStillOnWebOptions<
 	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
-> = MandatoryRenderStillOnWebOptions<Schema, Props> &
+	Frame extends number | number[] = number,
+> = MandatoryRenderStillOnWebOptions<Schema, Props, Frame> &
 	Partial<OptionalRenderStillOnWebOptions<Schema>> &
 	InputPropsIfHasProps<Schema, Props>;
 
@@ -82,6 +84,12 @@ async function internalRenderStillOnWeb<
 	allowHtmlInCanvas,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	validateScale(scale);
+	const frames = (Array.isArray(frame) ? frame : [frame])
+		.map((requestedFrame, index) => ({frame: requestedFrame, index}))
+		.sort((a, b) => a.frame - b.frame);
+	if (frames.length === 0) {
+		throw new Error('renderStillOnWeb() requires at least one frame');
+	}
 
 	const onHtmlInCanvasLayerOutcome = (outcome: HtmlInCanvasLayerOutcome) => {
 		if (outcome.native) {
@@ -136,7 +144,7 @@ async function internalRenderStillOnWeb<
 		durationInFrames: resolved.durationInFrames,
 		fps: resolved.fps,
 		schema: schema ?? null,
-		initialFrame: frame,
+		initialFrame: frames[0].frame,
 		defaultCodec: resolved.defaultCodec,
 		defaultOutName: resolved.defaultOutName,
 		useHtmlInCanvas: allowHtmlInCanvas,
@@ -145,6 +153,7 @@ async function internalRenderStillOnWeb<
 
 	const {
 		delayRenderScope,
+		timeUpdater,
 		div,
 		collectAssets,
 		errorHolder,
@@ -175,7 +184,6 @@ async function internalRenderStillOnWeb<
 		});
 	}
 
-	const artifactsHandler = handleArtifacts();
 	const waitForRenderReady = async () => {
 		await waitForReady({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
@@ -189,39 +197,51 @@ async function internalRenderStillOnWeb<
 	};
 
 	try {
-		if (signal?.aborted) {
-			throw new Error('renderStillOnWeb() was cancelled');
-		}
+		const results: RenderStillOnWebResult[] = [];
+		for (const [index, request] of frames.entries()) {
+			if (signal?.aborted) {
+				throw new Error('renderStillOnWeb() was cancelled');
+			}
 
-		await waitForRenderReady();
+			if (index > 0) {
+				timeUpdater.current!.update(request.frame);
+			}
 
-		if (signal?.aborted) {
-			throw new Error('renderStillOnWeb() was cancelled');
-		}
+			await waitForRenderReady();
 
-		const capturedFrame = await createLayer({
-			element: div,
-			scale,
-			logLevel,
-			internalState,
-			onlyBackgroundClipText: false,
-			cutout: new DOMRect(0, 0, resolved.width, resolved.height),
-			htmlInCanvasContext,
-			onHtmlInCanvasLayerOutcome: htmlInCanvasContext
-				? onHtmlInCanvasLayerOutcome
-				: undefined,
-			waitForPageResponsiveness: null,
-		});
+			if (signal?.aborted) {
+				throw new Error('renderStillOnWeb() was cancelled');
+			}
 
-		const {canvas} = capturedFrame;
+			const capturedFrame = await createLayer({
+				element: div,
+				scale,
+				logLevel,
+				internalState,
+				onlyBackgroundClipText: false,
+				cutout: new DOMRect(0, 0, resolved.width, resolved.height),
+				htmlInCanvasContext,
+				onHtmlInCanvasLayerOutcome: htmlInCanvasContext
+					? onHtmlInCanvasLayerOutcome
+					: undefined,
+				waitForPageResponsiveness: null,
+			});
 
-		const assets = collectAssets.current!.collectAssets();
-		if (onArtifact) {
-			await artifactsHandler.handle({
-				imageData: canvas,
-				frame,
-				assets,
-				onArtifact,
+			const {canvas} = capturedFrame;
+
+			const assets = collectAssets.current!.collectAssets();
+			if (onArtifact) {
+				await handleArtifacts().handle({
+					imageData: canvas,
+					frame: request.frame,
+					assets,
+					onArtifact,
+				});
+			}
+
+			results[request.index] = createRenderStillOnWebResult({
+				canvas,
+				internalState,
 			});
 		}
 
@@ -233,7 +253,7 @@ async function internalRenderStillOnWeb<
 			isProduction,
 		});
 
-		return createRenderStillOnWebResult({canvas, internalState});
+		return Array.isArray(frame) ? results : results[0];
 	} catch (err) {
 		if (!signal?.aborted) {
 			sendUsageEvent({
@@ -258,9 +278,12 @@ async function internalRenderStillOnWeb<
 export const renderStillOnWeb = <
 	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
+	Frame extends number | number[] = number,
 >(
-	options: RenderStillOnWebOptions<Schema, Props>,
-): Promise<RenderStillOnWebResult> => {
+	options: RenderStillOnWebOptions<Schema, Props, Frame>,
+): Promise<
+	Frame extends number[] ? RenderStillOnWebResult[] : RenderStillOnWebResult
+> => {
 	onlyOneStillRenderAtATimeQueue.ref = onlyOneStillRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
@@ -281,5 +304,7 @@ export const renderStillOnWeb = <
 			}),
 		);
 
-	return onlyOneStillRenderAtATimeQueue.ref as Promise<RenderStillOnWebResult>;
+	return onlyOneStillRenderAtATimeQueue.ref as Promise<
+		Frame extends number[] ? RenderStillOnWebResult[] : RenderStillOnWebResult
+	>;
 };

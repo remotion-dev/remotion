@@ -1,7 +1,9 @@
 import {useEffect, useState} from 'react';
+import {flushSync} from 'react-dom';
 import {useCurrentFrame, useDelayRender} from 'remotion';
-import {expect, test} from 'vitest';
+import {expect, expectTypeOf, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
+import type {RenderStillOnWebResult} from '../render-still-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {testImage} from './utils';
@@ -139,4 +141,166 @@ test('should render a still while a media render is in progress', async (t) => {
 	await Promise.all([mediaRender, stillRender]);
 
 	expect(stillStartedBeforeMediaFinished).toBe(true);
+});
+
+test('captures sparse frames without remounting and waits for each seek', async () => {
+	let mounts = 0;
+	let unmounts = 0;
+	let metadataCalls = 0;
+	const Component: React.FC = () => {
+		const frame = useCurrentFrame();
+		const {delayRender, continueRender} = useDelayRender();
+		const [readyFrame, setReadyFrame] = useState(-1);
+		useEffect(() => {
+			mounts++;
+			return () => {
+				unmounts++;
+			};
+		}, []);
+		useEffect(() => {
+			const handle = delayRender(`Loading frame ${frame}`);
+			const timeout = setTimeout(() => {
+				flushSync(() => setReadyFrame(frame));
+				continueRender(handle);
+			}, 30);
+			return () => clearTimeout(timeout);
+		}, [frame, delayRender, continueRender]);
+		return (
+			<div
+				style={{
+					width: 10,
+					height: 10,
+					backgroundColor: `rgb(${readyFrame}, 0, 0)`,
+				}}
+			/>
+		);
+	};
+
+	const results = await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: Component,
+			id: 'batch-stills',
+			width: 10,
+			height: 10,
+			fps: 30,
+			durationInFrames: 30,
+			calculateMetadata: () => {
+				metadataCalls++;
+				return {};
+			},
+		},
+		frame: [20, 0, 10, 20],
+		inputProps: {},
+	});
+	expectTypeOf(results).toEqualTypeOf<RenderStillOnWebResult[]>();
+	expect(mounts).toBe(1);
+	expect(unmounts).toBe(1);
+	expect(metadataCalls).toBe(1);
+	const pixels = [];
+	for (const result of results) {
+		const canvas = await result.canvas();
+		pixels.push(
+			Array.from(canvas.getContext('2d')!.getImageData(5, 5, 1, 1).data),
+		);
+		// Encoding remains available after the composition has unmounted.
+		expect((await result.blob()).size).toBeGreaterThan(0);
+	}
+
+	expect(pixels).toEqual([
+		[20, 0, 0, 255],
+		[0, 0, 0, 255],
+		[10, 0, 0, 255],
+		[20, 0, 0, 255],
+	]);
+});
+
+test.each(['abort', 'error'] as const)(
+	'cleans up after a batch %s on a later frame and allows the next call',
+	async (failure) => {
+		const controller = new AbortController();
+		let unmounts = 0;
+		const visited: number[] = [];
+		const Component: React.FC = () => {
+			const frame = useCurrentFrame();
+			const {delayRender} = useDelayRender();
+			useEffect(() => {
+				return () => {
+					unmounts++;
+				};
+			}, []);
+			useEffect(() => {
+				visited.push(frame);
+				if (frame === 10) {
+					if (failure === 'error') {
+						throw new Error('Batch frame failed');
+					}
+
+					delayRender('Waiting on aborted frame');
+					controller.abort();
+				}
+			}, [frame, delayRender]);
+			return <div />;
+		};
+
+		const composition = {
+			component: Component,
+			id: 'batch-failure',
+			width: 10,
+			height: 10,
+			fps: 30,
+			durationInFrames: 30,
+		};
+		await expect(
+			renderStillOnWeb({
+				licenseKey: 'free-license',
+				composition,
+				frame: [0, 10, 20],
+				signal: controller.signal,
+				inputProps: {},
+			}),
+		).rejects.toThrow(
+			failure === 'abort'
+				? 'renderStillOnWeb() was cancelled'
+				: 'Batch frame failed',
+		);
+		expect(unmounts).toBe(1);
+		expect(visited).toEqual([0, 10]);
+		const still = await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition,
+			frame: 0,
+			inputProps: {},
+		});
+		expectTypeOf(still).toEqualTypeOf<RenderStillOnWebResult>();
+		expect((await still.blob()).size).toBeGreaterThan(0);
+		expect(unmounts).toBe(2);
+	},
+);
+
+test('rejects an empty frame array before mounting', async () => {
+	let mounts = 0;
+	const Component: React.FC = () => {
+		useEffect(() => {
+			mounts++;
+		}, []);
+		return null;
+	};
+
+	await expect(
+		renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: {
+				component: Component,
+				id: 'empty-batch',
+				width: 10,
+				height: 10,
+				fps: 30,
+				durationInFrames: 30,
+			},
+			frame: [],
+			inputProps: {},
+		}),
+	).rejects.toThrow('renderStillOnWeb() requires at least one frame');
+	expect(mounts).toBe(0);
 });
