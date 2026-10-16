@@ -4,11 +4,13 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {UnwrapIcon} from '../../icons/unwrap';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {unwrapNode} from '../unwrap-node-api';
-import {
-	InspectorQuickAction,
-	largeInspectorActionIconContainerStyle,
-	largeInspectorActionIconStyle,
-} from './common';
+import {InspectorQuickAction} from './common';
+
+const iconStyle: React.CSSProperties = {
+	display: 'block',
+	height: 16,
+	width: 16,
+};
 
 export const SequenceUnwrapAction: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -67,11 +69,8 @@ export const SequenceUnwrapAction: React.FC<{
 		<InspectorQuickAction
 			disabled={busy}
 			onClick={onUnwrap}
-			iconContainerStyle={largeInspectorActionIconContainerStyle}
 			aria-label="Unwrap: remove this element and keep its children"
-			renderIcon={(color) => (
-				<UnwrapIcon color={color} style={largeInspectorActionIconStyle} />
-			)}
+			renderIcon={(color) => <UnwrapIcon color={color} style={iconStyle} />}
 		>
 			Unwrap
 		</InspectorQuickAction>
