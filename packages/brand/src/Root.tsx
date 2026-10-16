@@ -1111,7 +1111,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 			<Composition
 				id="TimelineAudioRollingEdit"
 				component={TimelineAudioRollingEditComposition}
-				durationInFrames={797}
+				durationInFrames={430}
 				fps={60}
 				width={2560}
 				height={1210}
