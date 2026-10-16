@@ -1,167 +1,142 @@
 # Editable video timelines
 
-The Studio edits the JSX source node that created a timeline item. Every clip
-that should be trimmed, moved, renamed, reordered, duplicated or deleted on its
-own therefore needs its own authored JSX node, with its editable timing props
-written directly on that node.
+Structure the timeline around the things the user edits together: a captioned
+shot, a set of cutaways, or an independently timed music segment. Write every
+independently editable clip as its own JSX node with inline names and props.
+Use the [timeline structure guide](../remotion-interactivity/timeline-structure.md)
+for choosing tracks, timing groups, and connected compositions.
 
-This source structure is intentional repetition: It gives every runtime clip a
-separate source-editing target. A `.map()` or another programmatic loop instead
-creates multiple runtime clips from one JSX node. Use that only when the
-instances are intentionally controlled as one template and do not need
-independent editing.
+## Choose the cut behavior
 
-Choose the timeline structure based on the editing behavior:
+Use a named `Track` for non-overlapping clips with independent start times. Keep
+`from`, `trimBefore`, `durationInFrames`, and `playbackRate` on each clip. Moving
+or resizing one clip then leaves the other start times unchanged.
 
-- Use independently positioned clips when moving or resizing one clip should
-  not affect any other clip.
-- Use `<TransitionSeries>` for consecutive clips when changing one clip's
-  duration should reposition every later clip. It also supports transitions
-  and overlays.
+Use `TransitionSeries` when consecutive clips should remain adjacent. Put
+`durationInFrames` on each `TransitionSeries.Sequence`; the series calculates
+start times and repositions later clips after a duration change. It also handles
+overlapping transitions. Preserve these specialized boundaries when refactoring.
 
-Use `const {fps} = useVideoConfig()` in the enclosing composition.
-For trims and other timing props expressed in seconds, use that `fps`
-directly in each clip's JSX, for example `trimBefore={4 * fps}`. Do not use a
-separate fixed `FPS` constant: Studio must be able to update each clip's source
-expression when the user trims or splits it.
+Get `fps` from `useVideoConfig()` for seconds-to-frames expressions, and keep
+them on the JSX node, such as `trimBefore={4 * fps}`. Literal frame counts are
+appropriate when the edit is already specified in frames.
 
-## Clips with synchronized captions or overlays
+## Keep synchronized layers on one clock
 
-For a clip with synchronized captions or overlays, make a shared timing group
-the editable timeline item. Keep the video and its synchronized layers inside
-one `<Sequence>` for independently positioned clips, or inside the same
-`<TransitionSeries.Sequence>` for consecutive clips.
+Put a shot's video, captions, and source-synchronized overlays under one timing
+boundary. Apply `trimBefore`, `durationInFrames`, and `playbackRate` to that
+boundary once. For an independently placed group, also set its `from`.
 
-Put the clip's `trimBefore`, `durationInFrames`, and `playbackRate` on that
-shared parent, plus `from` when using an independently positioned `<Sequence>`.
-Apply the shared timing once, rather than repeating it on the children.
-Moving, trimming, changing the speed, reordering, or deleting the group then
-affects all its layers together. A shared wrapper has a purpose here even
-though the children accept timing props themselves.
-
-Keep each clip's captions in an inline array on its own `<BasicCaptions>` node,
-with timestamps relative to the original media file. Do not put a combined
-caption overlay outside the clip groups. See
-[Displaying captions alongside video content](../remotion-captions/display-captions.md#displaying-captions-alongside-video-content)
-for the complete example.
-
-## Independently positioned clips
-
-For clips without synchronized captions or overlays, place each `<Video>`
-directly in the composition and write its timing props on the JSX node.
-Use literal frame counts when they are already known;
-`from={0}` may be omitted:
+A `Sequence` is useful here because moving, trimming, retiming, or deleting the
+group affects all its layers. For consecutive shots, use the existing
+`TransitionSeries.Sequence` for the same purpose:
 
 ```tsx
-<Video
-  name="Opening"
-  src="https://remotion.media/video.mp4"
-  trimBefore={0}
-  durationInFrames={78}
-/>
-<Video
-  name="Interview"
-  src="https://remotion.media/video.webm"
-  trimBefore={12}
-  from={78}
-  durationInFrames={66}
-/>
-<Video
-  name="Closing"
-  src="https://remotion.media/video.mp4"
-  trimBefore={72}
-  from={144}
-  durationInFrames={90}
-/>
+import {Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
+import {staticFile, useVideoConfig} from 'remotion';
+import {BasicCaptions} from './basic-captions';
+
+export const Interview = () => {
+  const {fps} = useVideoConfig();
+  return (
+    <TransitionSeries name="Interview shots">
+      <TransitionSeries.Sequence
+        name="Opening"
+        trimBefore={4 * fps}
+        durationInFrames={3 * fps}
+      >
+        <Video name="Opening footage" src={staticFile('interview.mp4')} />
+        <BasicCaptions
+          name="Opening captions"
+          width={900}
+          style={{position: 'absolute', bottom: 80, translate: '510px 0px'}}
+          captions={[
+            {
+              text: 'Hello',
+              startMs: 4500,
+              endMs: 4900,
+              timestampMs: 4700,
+              confidence: null,
+            },
+            {
+              text: ' world',
+              startMs: 4900,
+              endMs: 5400,
+              timestampMs: 5150,
+              confidence: null,
+            },
+          ]}
+        />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Sequence
+        name="Next shot"
+        trimBefore={10 * fps}
+        durationInFrames={2 * fps}
+      >
+        <Video name="Next footage" src={staticFile('interview.mp4')} />
+        <BasicCaptions
+          name="Next captions"
+          width={900}
+          style={{position: 'absolute', bottom: 80, translate: '510px 0px'}}
+          captions={[
+            {
+              text: 'Next',
+              startMs: 10500,
+              endMs: 11000,
+              timestampMs: 10750,
+              confidence: null,
+            },
+          ]}
+        />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
 ```
 
-- `from` is the clip's absolute start frame in its parent timeline.
-- `durationInFrames` is how many source frames are shown, starting at `trimBefore`. At the default `playbackRate`, this is how long the clip remains visible.
-- `trimBefore` is how many source frames are skipped before playback begins.
-- Keep `name`, `from`, `durationInFrames` and `trimBefore` inline on each clip.
-- Import `<Video>` from `@remotion/media`.
+Each caption array stays inline on its own caption node, with timestamps relative
+to the original media file. Passing the array through a generic shot prop removes
+the source array the Caption editor needs. See
+[displaying captions](../remotion-captions/display-captions.md#displaying-captions-alongside-video-content)
+for the caption component and setup.
 
-Moving or resizing one of these clips does not reposition later clips. Gaps and
-overlaps are therefore allowed.
+## Place overlays at the scope they span
 
-## Consecutive clips with `TransitionSeries`
+Keep a source-synchronized HUD inside its shot. Put a sticker that continues
+across several cuts in the enclosing scene, so the end of the first cut does
+not unmount it. Use that scene's frame coordinates for its timing.
 
-Use `<TransitionSeries>` when the clips should remain adjacent. No transition
-components are needed for consecutive playback. The example below has no
-synchronized captions; for captioned clips, put the captions inside each
-sequence and move the video's trim to that shared sequence as described above:
+Within a shot or scene, put successive cutaways on a named `Cutaways` track.
+Keep simultaneous visuals on separate tracks. If cutaways cover a speaking
+video, retain the underlying speech or deliberately separate its audio; removing
+an obscured video can also remove the voice.
 
-```tsx
-import { TransitionSeries } from "@remotion/transitions";
+Group a sticker or other visual with its accompanying sound when they should
+move or be deleted together. Keep their local offsets inside the group. Give
+both the visual and sound their intended durations so the group neither cuts
+off a sound tail nor extends the visual to cover that tail.
 
-<TransitionSeries>
-  <TransitionSeries.Sequence name="Opening" durationInFrames={78}>
-    <Video
-      src="https://remotion.media/video.mp4"
-      trimBefore={0}
-    />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Sequence name="Interview" durationInFrames={66}>
-    <Video
-      src="https://remotion.media/video.webm"
-      trimBefore={12}
-    />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Sequence name="Closing" durationInFrames={90}>
-    <Video
-      src="https://remotion.media/video.mp4"
-      trimBefore={72}
-    />
-  </TransitionSeries.Sequence>
-</TransitionSeries>
-```
+## Put music segments on a shared track
 
-The `<TransitionSeries.Sequence>` is the editable clip row. Changing its
-`durationInFrames` repositions every later sequence. Do not set `from` on a
-`<TransitionSeries.Sequence>`; the series calculates each start frame.
+Music clips with gaps or adjacent boundaries can share one named track. They
+remain separately editable, including their source trims and volume envelopes:
 
-Keep every sequence as a separate JSX node with a hardcoded `name` and
-`durationInFrames`. The child may also be a custom clip or scene component:
+See the [complete timeline example](../remotion-interactivity/timeline-structure.md)
+for a music track alongside scene tracks.
 
-```tsx
-<TransitionSeries.Sequence name="Product demo" durationInFrames={150}>
-  <ProductDemo />
-</TransitionSeries.Sequence>
-```
+Check natural audio durations as well as explicit bounds before putting sounds
+on a track. An item may end exactly where the next begins, but overlapping tails
+need separate tracks. Do not shorten sounds just to make them fit.
 
-## Consecutive clips with transitions
+## Preserve the edit when restructuring
 
-Use `<TransitionSeries>` when the timeline needs transitions or overlays.
-Preserve the same one-source-node-per-clip structure. Put a clip's synchronized
-captions inside its sequence and apply shared timing to that parent:
+Keep source trims, cut lengths, playback rates, caption arrays, volume envelopes,
+and stacking order unchanged unless the user requested an edit. Moving content
+under a new timing boundary can change the frame returned by `useCurrentFrame()`;
+preserve the source clock or adjust local offsets deliberately.
 
-```tsx
-<TransitionSeries name="Video timeline">
-  <TransitionSeries.Sequence name="Opening" durationInFrames={78}>
-    <Video
-      src="https://remotion.media/video.mp4"
-      trimBefore={0}
-    />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Transition
-    presentation={fade()}
-    timing={linearTiming({durationInFrames: 12})}
-  />
-  <TransitionSeries.Sequence name="Interview" durationInFrames={66}>
-    <Video
-      src="https://remotion.media/video.webm"
-      trimBefore={12}
-    />
-  </TransitionSeries.Sequence>
-</TransitionSeries>
-```
-
-The `<TransitionSeries.Sequence>` is the editable clip row. Do not set `from`
-on it; the series calculates the start frame and accounts for transition
-overlaps.
-
-Read [transitions.md](transitions.md) for transition types, imports,
-installation instructions and composition-duration calculation. Import
-`<Video>` from `@remotion/media`, and keep the parent composition's
-`durationInFrames` as an inline literal after accounting for all clip durations
-and transition overlaps.
+Verify the full composition and any connected views, rather than judging the
+result only from a standalone scene. Check visual output and audio around cuts,
+overlay boundaries, and sound tails. Grouping the timeline should preserve the
+existing edit while making its controls easier to use.
