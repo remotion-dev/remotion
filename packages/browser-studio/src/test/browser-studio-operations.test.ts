@@ -894,6 +894,7 @@ registerRoot(Root);`,
 		throw new Error(splitResult.reason);
 	}
 
+	expect(currentProject.files[fileName]).toContain('<Track name="Sequence">');
 	expect(currentProject.files[fileName]).toContain(
 		'<Sequence from={10} durationInFrames={5} />',
 	);
