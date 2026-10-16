@@ -34,6 +34,10 @@ export default function Root() {
   return <Outlet />;
 }
 
+export function HydrateFallback() {
+  return null;
+}
+
 export function ErrorBoundary() {
   const error = useRouteError();
   const notFound = isRouteErrorResponse(error) && error.status === 404;

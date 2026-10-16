@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router";
+import { Link, useOutletContext } from "react-router";
 import { elements } from "../../elements/registry";
 
 export const CategoryNavigation = ({
@@ -6,7 +6,7 @@ export const CategoryNavigation = ({
 }: {
   category: string | null;
 }) => {
-  const [searchParams] = useSearchParams();
+  const { search } = useOutletContext<{ search: string }>();
   const categories = [...new Set(elements.map((element) => element.category))];
 
   return (
@@ -15,7 +15,7 @@ export const CategoryNavigation = ({
       aria-label="Filter by category"
     >
       {[null, ...categories].map((item) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(search);
         if (item === null || item === "Captions") {
           params.delete("category");
         } else {

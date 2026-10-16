@@ -1,4 +1,4 @@
-import { ArrowPathIcon } from "@heroicons/react/16/solid";
+import { ArrowPathIcon, EllipsisVerticalIcon } from "@heroicons/react/16/solid";
 import { setStudioDragData } from "@remotion/studio-protocol";
 import type { DragEvent, RefObject } from "react";
 import type { CatalogEntry } from "../../lib/element-payload";
@@ -50,11 +50,14 @@ export const ElementUseButton = ({
       <div
         aria-label="Drag into Studio"
         title="Drag into Studio"
-        className="flex min-h-12 w-12 shrink-0 cursor-grab items-center justify-center rounded-r-md border-l border-white/20 text-2xl/none select-none hover:bg-neutral-700 active:cursor-grabbing"
+        className="flex min-h-12 w-12 shrink-0 cursor-grab items-center justify-center rounded-r-md border-l border-white/20 select-none hover:bg-neutral-700 active:cursor-grabbing"
         draggable
         onDragStart={onDragStart}
       >
-        <span aria-hidden>⠿</span>
+        <span aria-hidden className="grid w-3 grid-cols-2 place-items-center">
+          <EllipsisVerticalIcon className="size-4 shrink-0 fill-current" />
+          <EllipsisVerticalIcon className="size-4 shrink-0 fill-current" />
+        </span>
       </div>
     </div>
   );

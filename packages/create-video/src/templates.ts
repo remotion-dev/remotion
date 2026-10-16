@@ -285,7 +285,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		repoName: 'template-element-library',
 		description: 'Build and publish your own Remotion Element library',
 		longerDescription:
-			'A React Router and Tailwind CSS website with three editable Elements, a development Studio, and installation through the Studio Protocol. Deploy as a static site.',
+			'A React Router and Tailwind CSS website with four editable Elements, including captions, an authoring Studio, and installation through the Studio Protocol.',
 		promoBanner: {
 			width: 1200,
 			height: 800,

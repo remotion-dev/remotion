@@ -1,4 +1,4 @@
-import { useSearchParams, type MetaFunction } from "react-router";
+import { useOutletContext, type MetaFunction } from "react-router";
 import { CategoryNavigation } from "../components/category-navigation";
 import { catalog } from "../../lib/element-payload";
 import { ElementCard } from "../components/element-card";
@@ -13,7 +13,8 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function Library() {
-  const [searchParams] = useSearchParams();
+  const { search } = useOutletContext<{ search: string }>();
+  const searchParams = new URLSearchParams(search);
   const categories = [
     ...new Set(catalog.map(({ definition }) => definition.category)),
   ];

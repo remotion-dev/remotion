@@ -5,14 +5,14 @@ import { StudioActions } from "../components/studio-actions";
 
 export default function LibraryLayout() {
   const location = useLocation();
-  const search = location.search;
-  const [insideStudio, setInsideStudio] = useState(
-    new URLSearchParams(search).get("remotion-studio") === "true",
-  );
+  const [hydrated, setHydrated] = useState(false);
+  const search = hydrated ? location.search : "";
+  const [insideStudio, setInsideStudio] = useState(false);
   const isCaptionPicker =
     insideStudio &&
     new URLSearchParams(search).get("remotion-studio-context") === "captions";
   useEffect(() => {
+    setHydrated(true);
     setInsideStudio(isInsideStudio());
   }, []);
 
@@ -42,7 +42,7 @@ export default function LibraryLayout() {
               </Link>
             </div>
             {(location.pathname === "/" ||
-              location.pathname === "/captions") && (
+              location.pathname.replace(/\/$/, "") === "/captions") && (
               <div className="w-full min-w-0 sm:w-auto sm:max-w-80">
                 <StudioActions entry={null} variant="default" />
               </div>

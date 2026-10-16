@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",
-    "start": "react-router-serve build/server/index.js",
+    "preview": "sirv build/client --single __spa-fallback.html",
     "typecheck": "react-router typegen && tsc",
     "lint": "eslint . && react-router typegen && tsc",
     "remotion:studio": "remotion studio"
@@ -19,7 +19,6 @@
   "dependencies": {
     "@heroicons/react": "2.2.0",
     "@react-router/node": "8.3.0",
-    "@react-router/serve": "8.3.0",
     "@remotion/captions": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/player": "workspace:*",
@@ -38,6 +37,7 @@
     "@types/react-dom": "19.2.3",
     "eslint": "10.12.0",
     "prettier": "3.8.1",
+    "sirv-cli": "3.0.1",
     "typescript": "5.9.3",
     "vite": "8.3.4",
     "tailwindcss": "4.3.3",

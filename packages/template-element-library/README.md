@@ -1,6 +1,6 @@
 # Remotion Element Library
 
-A React Router + Tailwind CSS starter for publishing [Remotion Elements](https://www.remotion.dev/elements). Includes server-side rendering, an authoring Studio, and four editable examples. See the [third-party Element libraries](https://www.remotion.dev/elements/libraries) for examples of published catalogs.
+A React Router + Tailwind CSS starter for publishing [Remotion Elements](https://www.remotion.dev/elements). Includes a prerendered static website, an authoring Studio, and four editable examples. See the [third-party Element libraries](https://www.remotion.dev/elements/libraries) for examples of published catalogs.
 
 ## Develop
 
@@ -41,10 +41,10 @@ Accent captions remixes [Word Highlight Captions](https://www.remotion.dev/eleme
 ```sh
 npm run lint
 npm run build
-npm start
+npm run preview
 ```
 
-Deploy with an SSR-capable host using the [React Router deployment guide](https://reactrouter.com/start/framework/deploying). Use HTTPS and allow embedding in Remotion Studio, as described in the library integration guide.
+Publish `build/client` to a static host. All Element pages are prerendered from the registry. See the [React Router prerendering guide](https://reactrouter.com/how-to/pre-rendering) for static hosting and fallback routing. Use HTTPS and allow embedding in Remotion Studio, as described in the library integration guide.
 
 ## License
 
