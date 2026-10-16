@@ -15,6 +15,8 @@ const originStyle: React.CSSProperties = {
 
 const TimelineTrimOutlineTarget =
 	createContext<React.RefObject<HTMLDivElement | null> | null>(null);
+const TimelineTrimHighlightTarget =
+	createContext<React.RefObject<HTMLDivElement | null> | null>(null);
 
 export const TimelineTrimOutlineContainer: React.FC<{
 	readonly children: React.ReactNode;
@@ -22,29 +24,34 @@ export const TimelineTrimOutlineContainer: React.FC<{
 	readonly clipPath: string | null;
 }> = ({children, style, clipPath}) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const highlightRef = useRef<HTMLDivElement>(null);
 
 	return (
 		// Content stays masked; portaled trim targets opt into pointer events.
 		<div ref={ref} style={{...style, pointerEvents: 'none'}}>
 			<TimelineTrimOutlineTarget.Provider value={ref}>
-				<div
-					style={{
-						clipPath: clipPath ?? undefined,
-						height: '100%',
-						pointerEvents: 'auto',
-					}}
-				>
-					{children}
-				</div>
+				<TimelineTrimHighlightTarget.Provider value={highlightRef}>
+					<div
+						ref={highlightRef}
+						style={{
+							clipPath: clipPath ?? undefined,
+							height: '100%',
+							pointerEvents: 'auto',
+							position: 'relative',
+						}}
+					>
+						{children}
+					</div>
+				</TimelineTrimHighlightTarget.Provider>
 			</TimelineTrimOutlineTarget.Provider>
 		</div>
 	);
 };
 
-export const TimelineUnclippedTrimContent: React.FC<{
+const TimelineTrimPortal: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
-	const targetRef = useContext(TimelineTrimOutlineTarget);
+	readonly targetRef: React.RefObject<HTMLDivElement | null> | null;
+}> = ({children, targetRef}) => {
 	const originRef = useRef<HTMLDivElement>(null);
 	const [placement, setPlacement] = useState<{
 		readonly target: HTMLDivElement;
@@ -61,7 +68,7 @@ export const TimelineUnclippedTrimContent: React.FC<{
 			return;
 		}
 
-		// Preserve the local coordinate space outside the scene's clip path.
+		// Preserve the local coordinate space when escaping the dimmed content.
 		// Recheck after renders so a moving or resized clip keeps its handle aligned.
 		const targetBounds = target.getBoundingClientRect();
 		const originBounds = origin.getBoundingClientRect();
@@ -109,5 +116,23 @@ export const TimelineUnclippedTrimContent: React.FC<{
 						placement.target,
 					)}
 		</>
+	);
+};
+
+export const TimelineUnclippedTrimContent: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	const targetRef = useContext(TimelineTrimOutlineTarget);
+	return (
+		<TimelineTrimPortal targetRef={targetRef}>{children}</TimelineTrimPortal>
+	);
+};
+
+export const TimelineUndimmedTrimContent: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	const targetRef = useContext(TimelineTrimHighlightTarget);
+	return (
+		<TimelineTrimPortal targetRef={targetRef}>{children}</TimelineTrimPortal>
 	);
 };

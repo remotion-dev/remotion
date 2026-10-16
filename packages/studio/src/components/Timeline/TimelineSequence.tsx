@@ -131,7 +131,10 @@ import {
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
-import {TimelineUnclippedTrimContent} from './TimelineTrimOutline';
+import {
+	TimelineUnclippedTrimContent,
+	TimelineUndimmedTrimContent,
+} from './TimelineTrimOutline';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineViewportContext} from './TimelineViewport';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -146,6 +149,12 @@ import {
 
 const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
+const trimHighlightContainerStyle: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	pointerEvents: 'none',
+};
+const trimHighlightBlurStyle: React.CSSProperties = {filter: 'blur(4px)'};
 const transitionVerticalInset = Math.round(TIMELINE_PACKED_TRACK_HEIGHT * 0.2);
 const transitionHeight =
 	TIMELINE_PACKED_TRACK_HEIGHT - transitionVerticalInset * 2;
@@ -738,6 +747,57 @@ const TimelineSequenceBar: React.FC<{
 		/>
 	) : null;
 
+	const trimHighlight =
+		activeTrimEdge === null ||
+		(activeTrimEdge === 'left' &&
+			leftTrimHighlight === null) ? null : transitionTrimEdge !== null &&
+		  trimShape ? (
+			<svg
+				aria-hidden="true"
+				style={{
+					position: 'absolute',
+					left: 0,
+					top: 0,
+					width: Number(style.width),
+					height: Number(style.height),
+					clipPath: trimShape.clipPath,
+					overflow: 'hidden',
+					pointerEvents: 'none',
+				}}
+			>
+				<path
+					d={transitionTrimEdge}
+					fill="none"
+					stroke={trimHighlightColor}
+					strokeWidth={EDGE_DRAG_HIGHLIGHT_WIDTH}
+					style={trimHighlightBlurStyle}
+				/>
+				<path
+					d={transitionTrimEdge}
+					fill="none"
+					stroke={trimHighlightColor}
+					strokeWidth={4}
+				/>
+			</svg>
+		) : (
+			<div
+				aria-hidden="true"
+				style={{
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					left: activeTrimEdge === 'left' ? leftTrimHighlight?.left : undefined,
+					right: activeTrimEdge === 'right' ? 0 : undefined,
+					width:
+						activeTrimEdge === 'left' && leftTrimHighlight
+							? Math.min(EDGE_DRAG_HIGHLIGHT_WIDTH, leftTrimHighlight.width)
+							: `min(${EDGE_DRAG_HIGHLIGHT_WIDTH}px, 100%)`,
+					pointerEvents: 'none',
+					background: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, ${trimHighlightColor}, transparent)`,
+				}}
+			/>
+		);
+
 	const content = (
 		<>
 			{premountIndicator}
@@ -837,57 +897,6 @@ const TimelineSequenceBar: React.FC<{
 					showPremounting={showPremounting}
 				/>
 			) : null}
-
-			{activeTrimEdge === null ||
-			(activeTrimEdge === 'left' &&
-				leftTrimHighlight === null) ? null : transitionTrimEdge !== null &&
-			  trimShape ? (
-				<svg
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: Number(style.width),
-						height: Number(style.height),
-						clipPath: trimShape.clipPath,
-						overflow: 'hidden',
-						pointerEvents: 'none',
-					}}
-				>
-					<path
-						d={transitionTrimEdge}
-						fill="none"
-						stroke={trimHighlightColor}
-						strokeWidth={EDGE_DRAG_HIGHLIGHT_WIDTH}
-						style={{filter: 'blur(4px)'}}
-					/>
-					<path
-						d={transitionTrimEdge}
-						fill="none"
-						stroke={trimHighlightColor}
-						strokeWidth={4}
-					/>
-				</svg>
-			) : (
-				<div
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						top: 0,
-						bottom: 0,
-						left:
-							activeTrimEdge === 'left' ? leftTrimHighlight?.left : undefined,
-						right: activeTrimEdge === 'right' ? 0 : undefined,
-						width:
-							activeTrimEdge === 'left' && leftTrimHighlight
-								? Math.min(EDGE_DRAG_HIGHLIGHT_WIDTH, leftTrimHighlight.width)
-								: `min(${EDGE_DRAG_HIGHLIGHT_WIDTH}px, 100%)`,
-						pointerEvents: 'none',
-						background: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, ${trimHighlightColor}, transparent)`,
-					}}
-				/>
-			)}
 		</>
 	);
 
@@ -1063,6 +1072,48 @@ const TimelineSequenceBar: React.FC<{
 				</div>
 			)}
 			{isTransition ? null : edgeDragHandles}
+			{trimHighlight === null ? null : (
+				<TimelineUndimmedTrimContent>
+					<div
+						data-timeline-trim-highlight={activeTrimEdge}
+						style={{
+							...trimHighlightContainerStyle,
+							...sceneClippingStyle,
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								top: 0,
+								bottom: 0,
+								left: negativeStartEnd,
+								right: visualRightInset,
+								overflow: 'hidden',
+								borderTopLeftRadius: negativeStart
+									? 0
+									: style.borderTopLeftRadius,
+								borderBottomLeftRadius: negativeStart
+									? 0
+									: style.borderBottomLeftRadius,
+								borderTopRightRadius: style.borderTopRightRadius,
+								borderBottomRightRadius: style.borderBottomRightRadius,
+							}}
+						>
+							<div
+								style={{
+									position: 'absolute',
+									top: 0,
+									bottom: 0,
+									left: -negativeStartEnd,
+									width: style.width,
+								}}
+							>
+								{trimHighlight}
+							</div>
+						</div>
+					</div>
+				</TimelineUndimmedTrimContent>
+			)}
 		</div>
 	);
 };
