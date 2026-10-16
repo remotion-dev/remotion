@@ -186,7 +186,7 @@ export const RemotionRoot: React.FC = () => {
 				width={2560}
 				height={1600}
 				fps={60}
-				durationInFrames={360}
+				durationInFrames={720}
 			/>
 			<Folder name="Logo">
 				<Folder name="AnimatedLogo">
