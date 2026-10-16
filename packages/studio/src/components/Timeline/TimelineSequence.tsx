@@ -131,7 +131,7 @@ import {
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
-import {TimelineUnclippedTrimOutline} from './TimelineTrimOutline';
+import {TimelineUnclippedTrimContent} from './TimelineTrimOutline';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineViewportContext} from './TimelineViewport';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -2329,7 +2329,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 			</>
 		);
 		return isSourceOnly ? (
-			<TimelineUnclippedTrimOutline>{outline}</TimelineUnclippedTrimOutline>
+			<TimelineUnclippedTrimContent>{outline}</TimelineUnclippedTrimContent>
 		) : (
 			outline
 		);

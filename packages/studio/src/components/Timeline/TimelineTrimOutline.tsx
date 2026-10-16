@@ -7,6 +7,12 @@ import React, {
 } from 'react';
 import {createPortal} from 'react-dom';
 
+const originStyle: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	pointerEvents: 'none',
+};
+
 const TimelineTrimOutlineTarget =
 	createContext<React.RefObject<HTMLDivElement | null> | null>(null);
 
@@ -18,7 +24,7 @@ export const TimelineTrimOutlineContainer: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 
 	return (
-		// Only the masked content may receive pointer events in overlapping rows.
+		// Content stays masked; portaled trim targets opt into pointer events.
 		<div ref={ref} style={{...style, pointerEvents: 'none'}}>
 			<TimelineTrimOutlineTarget.Provider value={ref}>
 				<div
@@ -35,7 +41,7 @@ export const TimelineTrimOutlineContainer: React.FC<{
 	);
 };
 
-export const TimelineUnclippedTrimOutline: React.FC<{
+export const TimelineUnclippedTrimContent: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const targetRef = useContext(TimelineTrimOutlineTarget);
@@ -44,6 +50,8 @@ export const TimelineUnclippedTrimOutline: React.FC<{
 		readonly target: HTMLDivElement;
 		readonly left: number;
 		readonly top: number;
+		readonly width: number;
+		readonly height: number;
 	} | null>(null);
 
 	useLayoutEffect(() => {
@@ -53,15 +61,27 @@ export const TimelineUnclippedTrimOutline: React.FC<{
 			return;
 		}
 
-		// Preserve the local row offset when drawing outside its scene's clip path.
+		// Preserve the local coordinate space outside the scene's clip path.
+		// Recheck after renders so a moving or resized clip keeps its handle aligned.
 		const targetBounds = target.getBoundingClientRect();
 		const originBounds = origin.getBoundingClientRect();
-		setPlacement({
+		const next = {
 			target,
 			left: originBounds.left - targetBounds.left,
 			top: originBounds.top - targetBounds.top,
-		});
-	}, [targetRef]);
+			width: originBounds.width,
+			height: originBounds.height,
+		};
+		setPlacement((previous) =>
+			previous?.target === next.target &&
+			previous.left === next.left &&
+			previous.top === next.top &&
+			previous.width === next.width &&
+			previous.height === next.height
+				? previous
+				: next,
+		);
+	}, [children, targetRef]);
 
 	if (targetRef === null) {
 		return children;
@@ -69,7 +89,7 @@ export const TimelineUnclippedTrimOutline: React.FC<{
 
 	return (
 		<>
-			<div ref={originRef} style={{position: 'absolute', left: 0, top: 0}} />
+			<div ref={originRef} style={originStyle} />
 			{placement === null
 				? null
 				: createPortal(
@@ -78,6 +98,8 @@ export const TimelineUnclippedTrimOutline: React.FC<{
 								position: 'absolute',
 								left: placement.left,
 								top: placement.top,
+								width: placement.width,
+								height: placement.height,
 								pointerEvents: 'none',
 								zIndex: 2,
 							}}
