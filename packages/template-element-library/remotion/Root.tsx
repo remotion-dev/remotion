@@ -1,8 +1,6 @@
 import { Composition } from "remotion";
 import { ElementPreview } from "./ElementPreview";
 
-// Keep registrations and defaultProps explicit so Studio can locate and save
-// edits. Match the preview metadata in elements/registry.ts.
 export const RemotionRoot = () => {
   return (
     <>

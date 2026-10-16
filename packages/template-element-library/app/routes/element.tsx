@@ -7,7 +7,6 @@ import {
   type MetaFunction,
 } from "react-router";
 import { catalog } from "../../lib/element-payload";
-import { libraryConfig } from "../../lib/library-config";
 import { ElementPreview } from "../components/element-preview";
 import { StudioActions } from "../components/studio-actions";
 
@@ -17,7 +16,7 @@ export const meta: MetaFunction = ({ params }) => {
   );
   return [
     {
-      title: `${entry?.definition.displayName ?? "Element not found"} — ${libraryConfig.name}`,
+      title: `${entry?.definition.displayName ?? "Element not found"} — Studio Supply`,
     },
     {
       name: "description",
@@ -82,17 +81,8 @@ export default function ElementPage() {
           />
         </div>
         <aside aria-label="Element details" className="min-w-0">
-          <h2 className="text-base font-medium text-balance sm:text-sm">
-            About this Element
-          </h2>
-          <p className="mt-3 text-base/7 text-pretty text-muted sm:text-sm/6">
-            {definition.usage}
-          </p>
-          <dl className="my-6 divide-y divide-neutral-950/10 text-base sm:text-sm [&>div]:flex [&>div]:justify-between [&>div]:gap-4 [&>div]:py-3 [&>div:first-child]:pt-0 [&>div:last-child]:pb-0 [&_dt]:font-medium [&_dd]:text-right [&_dd]:text-muted">
-            <div>
-              <dt>Category</dt>
-              <dd>{definition.category}</dd>
-            </div>
+          <StudioActions key={slug} entry={entry} variant="default" />
+          <dl className="mt-6 text-base sm:text-sm [&>div]:flex [&>div]:justify-between [&>div]:gap-4 [&>div]:py-3 [&>div:first-child]:pt-0 [&>div:last-child]:pb-0 [&_dt]:font-medium [&_dd]:text-right [&_dd]:text-muted">
             <div>
               <dt>Duration</dt>
               <dd className="tabular-nums">
@@ -109,7 +99,6 @@ export default function ElementPage() {
               </dd>
             </div>
           </dl>
-          <StudioActions key={slug} entry={entry} variant="default" />
         </aside>
       </div>
       <details

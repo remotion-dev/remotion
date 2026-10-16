@@ -8,9 +8,9 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",
-    "preview": "vite preview",
+    "start": "react-router-serve build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "lint": "eslint . && npm run typecheck",
+    "lint": "react-router typegen && tsc",
     "remotion:studio": "remotion studio"
   },
   "sideEffects": [
@@ -18,6 +18,8 @@
   ],
   "dependencies": {
     "@heroicons/react": "2.2.0",
+    "@react-router/node": "8.3.0",
+    "@react-router/serve": "8.3.0",
     "@remotion/cli": "workspace:*",
     "@remotion/player": "workspace:*",
     "@remotion/studio-protocol": "workspace:*",
@@ -29,16 +31,13 @@
   },
   "devDependencies": {
     "@react-router/dev": "8.3.0",
-    "@react-router/node": "8.3.0",
-    "@remotion/eslint-config-flat": "workspace:*",
     "@types/node": "22.20.0",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "eslint": "10.12.0",
     "prettier": "3.8.1",
-    "typescript": "5.9.3",
-    "vite": "7.3.6",
-    "tailwindcss": "4.2.0",
-    "@tailwindcss/vite": "4.2.0"
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "tailwindcss": "4.3.3",
+    "@tailwindcss/vite": "4.3.3"
   }
 }

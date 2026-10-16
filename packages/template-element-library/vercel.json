@@ -1,6 +1,0 @@
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": "build/client",
-  "framework": null,
-  "cleanUrls": true
-}

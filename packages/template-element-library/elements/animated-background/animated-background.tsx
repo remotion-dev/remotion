@@ -26,8 +26,6 @@ const AnimatedBackgroundInner = ({
   );
 };
 
-// A component-owned Element: one trimmable object with Inspector controls.
-// The managed absolute-fill root handles positioning in any composition size.
 export const AnimatedBackground = Interactive.create({
   Component: AnimatedBackgroundInner,
   layout: "absolute-fill",

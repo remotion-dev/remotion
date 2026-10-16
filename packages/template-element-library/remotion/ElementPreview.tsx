@@ -1,7 +1,6 @@
 import { Sequence } from "remotion";
 import { elements } from "../elements/registry";
 
-// The preview stage is deliberately not part of the installable source.
 export const ElementPreview = ({ slug }: { slug: string }) => {
   const definition = elements.find((element) => element.slug === slug);
   if (!definition) {

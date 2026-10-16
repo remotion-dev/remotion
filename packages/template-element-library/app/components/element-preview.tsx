@@ -51,7 +51,6 @@ export const ElementPreview = ({
       spaceKeyToPlayOrPause={controls}
       loop
       className="bg-(--preview-background)"
-      // Player reads style.width to calculate the composition's preview scale.
       style={
         {
           width: "100%",

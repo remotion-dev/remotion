@@ -6,8 +6,6 @@ import {
   useVideoConfig,
 } from "remotion";
 
-// Adapted from the official Name Lower Third: two editable layers, no fonts
-// or assets to download. Placement is left to Studio's installation wrapper.
 export const LowerThird = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();

@@ -15,7 +15,6 @@ export type ElementDefinition = {
   displayName: string;
   category: string;
   description: string;
-  usage: string;
   component: ComponentType<Record<string, unknown>>;
   width: number;
   height: number;
@@ -31,16 +30,12 @@ export type ElementDefinition = {
   assets: readonly ElementAsset[];
 };
 
-// Keep each source at elements/<slug>/<slug>.tsx; the website loads that same
-// file as raw text. Register authoring previews separately in remotion/Root.tsx.
 export const elements: readonly ElementDefinition[] = [
   {
     slug: "animated-title",
     displayName: "Animated title",
     category: "Text",
     description: "A centered title with a soft entrance and exit.",
-    usage:
-      "Edit the text, typography, and animation directly in Studio. The title stays centered within its bounds.",
     component: AnimatedTitle,
     width: 1280,
     height: 720,
@@ -60,8 +55,6 @@ export const elements: readonly ElementDefinition[] = [
     displayName: "Lower third",
     category: "Overlays",
     description: "An animated name and role label for your footage.",
-    usage:
-      "Edit the name, role, and bar colors in Studio. Position the group over your footage; the preview background is not installed.",
     component: LowerThird,
     width: 1280,
     height: 720,
@@ -81,8 +74,6 @@ export const elements: readonly ElementDefinition[] = [
     displayName: "Moving grid",
     category: "Backgrounds",
     description: "A looping grid with adjustable background and line colors.",
-    usage:
-      "Place behind other layers. Change the grid and background colors in the Inspector. It fills its parent and loops over its duration.",
     component: AnimatedBackground,
     width: 1280,
     height: 720,

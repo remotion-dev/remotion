@@ -46,12 +46,9 @@ export const ElementCard = ({ entry }: { entry: CatalogEntry }) => {
           />
         </div>
         <div>
-          <h2 className="text-lg font-medium text-balance sm:text-base">
+          <h2 className="text-lg font-normal text-balance sm:text-base">
             {definition.displayName}
           </h2>
-          <p className="mt-1.5 text-base/7 text-pretty text-muted sm:text-sm/6">
-            {definition.description}
-          </p>
         </div>
       </Link>
       <div className="pointer-events-none absolute inset-x-0 top-0 flex aspect-video items-end justify-end p-3">

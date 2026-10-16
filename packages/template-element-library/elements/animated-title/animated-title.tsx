@@ -6,7 +6,6 @@ import {
   useVideoConfig,
 } from "remotion";
 
-// A wrapped Element: the title and its keyframes remain editable in Studio.
 export const AnimatedTitle = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();

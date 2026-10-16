@@ -7,15 +7,12 @@ import {
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import type { CatalogEntry } from "../../lib/element-payload";
-import { libraryConfig } from "../../lib/library-config";
 
 export type StudioFailure = {
   code: AddElementLibraryToStudioErrorCode | InstallInStudioErrorCode | null;
   message: string;
 };
 
-// Standalone adaptation of the official Elements library's installation fallback.
-// Mounted only after a failed request; no browser APIs run during prerendering.
 export const StudioInstallFallback = ({
   entry,
   failure,
@@ -36,8 +33,7 @@ export const StudioInstallFallback = ({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [copyStatus, setCopyStatus] = useState("");
-  const libraryUrl =
-    libraryConfig.url ?? new URL("/", window.location.origin).href;
+  const libraryUrl = new URL("/", window.location.origin).href;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -81,7 +77,7 @@ export const StudioInstallFallback = ({
     >
       <div className="flex items-start justify-between gap-4">
         <h2 id={titleId} className="min-w-0 text-xl font-semibold text-balance">
-          {entry ? "Use this Element" : `Add ${libraryConfig.name} to Studio`}
+          {entry ? "Use this Element" : "Add Studio Supply to Studio"}
         </h2>
         <button
           type="button"

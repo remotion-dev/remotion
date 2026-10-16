@@ -3,14 +3,10 @@ import {
   installInStudio,
   setStudioDragData,
 } from "@remotion/studio-protocol";
-import {
-  ArrowUpRightIcon,
-  PlusIcon,
-  XMarkIcon,
-} from "@heroicons/react/16/solid";
+import { PlusIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import { useRef, useState } from "react";
 import type { CatalogEntry } from "../../lib/element-payload";
-import { libraryConfig } from "../../lib/library-config";
+import { ElementUseButton } from "./element-use-button";
 import {
   StudioInstallFallback,
   type StudioFailure,
@@ -42,8 +38,8 @@ export const StudioActions = ({
       const result = entry
         ? await installInStudio({ payload: entry.payload })
         : await addElementLibraryToStudio({
-            url: libraryConfig.url ?? new URL("/", window.location.origin).href,
-            displayName: libraryConfig.name,
+            url: new URL("/", window.location.origin).href,
+            displayName: "Studio Supply",
           });
 
       if (result.success) {
@@ -71,74 +67,74 @@ export const StudioActions = ({
 
   return (
     <div className="min-w-0">
-      <button
-        ref={triggerRef}
-        className={
-          variant === "card"
-            ? "pointer-events-auto relative inline-flex h-7.5 w-16 items-center justify-center rounded-md bg-white px-2.5 text-base font-medium text-ink shadow-sm ring-1 ring-black/10 hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-busy:pointer-events-auto aria-busy:opacity-100 pointer-fine:pointer-events-none pointer-fine:opacity-0 pointer-fine:group-hover/card:pointer-events-auto pointer-fine:group-hover/card:opacity-100 pointer-fine:group-focus-within/card:pointer-events-auto pointer-fine:group-focus-within/card:opacity-100 sm:text-sm"
-            : "relative inline-flex h-9 items-center justify-center gap-2 rounded-md bg-ink py-2 pr-3 pl-2 text-base font-medium text-white hover:bg-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:text-sm"
-        }
-        aria-label={
-          variant === "card"
-            ? status.type === "pending"
-              ? `Sending ${entry.definition.displayName} to Studio`
-              : status.type === "success"
-                ? `Sent ${entry.definition.displayName} to Studio`
-                : `Use ${entry.definition.displayName} in Studio`
-            : undefined
-        }
-        title={
-          variant === "card" && status.type === "success"
-            ? status.message
-            : undefined
-        }
-        type="button"
-        disabled={status.type === "pending"}
-        aria-busy={status.type === "pending"}
-        draggable={entry !== null}
-        onClick={sendToStudio}
-        onDragStart={(event) => {
-          if (!entry) return;
-          setStudioDragData({
-            dataTransfer: event.dataTransfer,
-            payload: entry.payload,
-          });
-        }}
-      >
-        <span
-          aria-hidden
-          className="pointer-fine:hidden absolute top-1/2 left-1/2 size-[max(100%,3rem)] -translate-1/2"
+      {entry && variant === "default" ? (
+        <ElementUseButton
+          entry={entry}
+          loading={status.type === "pending"}
+          sent={status.type === "success"}
+          onClick={sendToStudio}
+          triggerRef={triggerRef}
         />
-        {variant === "default" &&
-          (entry ? (
-            <ArrowUpRightIcon className="size-4 shrink-0 fill-white" />
-          ) : (
-            <PlusIcon className="size-4 shrink-0 fill-white" />
-          ))}
-        <span className="relative">
+      ) : (
+        <button
+          ref={triggerRef}
+          className={
+            variant === "card"
+              ? "pointer-events-auto relative inline-flex h-7.5 w-16 items-center justify-center rounded-md bg-white px-2.5 text-base font-medium text-ink shadow-sm ring-1 ring-black/10 hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-busy:pointer-events-auto aria-busy:opacity-100 pointer-fine:pointer-events-none pointer-fine:opacity-0 pointer-fine:group-hover/card:pointer-events-auto pointer-fine:group-hover/card:opacity-100 pointer-fine:group-focus-within/card:pointer-events-auto pointer-fine:group-focus-within/card:opacity-100 sm:text-sm"
+              : "relative inline-flex h-9 items-center justify-center gap-2 rounded-md bg-ink py-2 pr-3 pl-2 text-base font-medium text-white hover:bg-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:text-sm"
+          }
+          aria-label={
+            variant === "card"
+              ? status.type === "pending"
+                ? `Sending ${entry.definition.displayName} to Studio`
+                : status.type === "success"
+                  ? `Sent ${entry.definition.displayName} to Studio`
+                  : `Use ${entry.definition.displayName} in Studio`
+              : undefined
+          }
+          title={
+            variant === "card" && status.type === "success"
+              ? status.message
+              : undefined
+          }
+          type="button"
+          disabled={status.type === "pending"}
+          aria-busy={status.type === "pending"}
+          draggable={entry !== null}
+          onClick={sendToStudio}
+          onDragStart={(event) => {
+            if (!entry) return;
+            setStudioDragData({
+              dataTransfer: event.dataTransfer,
+              payload: entry.payload,
+            });
+          }}
+        >
           <span
-            className={status.type === "pending" ? "invisible" : undefined}
-            aria-hidden={status.type === "pending"}
-          >
-            {variant === "card"
-              ? status.type === "success"
-                ? "Sent"
-                : "Use"
-              : entry
-                ? "Use in Studio"
-                : "Add library to Studio"}
-          </span>
-          {status.type === "pending" && (
-            <span className="absolute inset-0">
-              {variant === "card" ? "…" : "Connecting…"}
-            </span>
+            aria-hidden
+            className="pointer-fine:hidden absolute top-1/2 left-1/2 size-[max(100%,3rem)] -translate-1/2"
+          />
+          {variant === "default" && (
+            <PlusIcon className="size-4 shrink-0 fill-white" />
           )}
-        </span>
-      </button>
-      {entry && variant === "default" && (
-        <p className="mt-3 text-base/7 text-pretty text-muted sm:text-sm/6">
-          Or drag into your composition.
-        </p>
+          <span className="relative">
+            <span
+              className={status.type === "pending" ? "invisible" : undefined}
+              aria-hidden={status.type === "pending"}
+            >
+              {variant === "card"
+                ? status.type === "success"
+                  ? "Sent"
+                  : "Use"
+                : "Add library to Studio"}
+            </span>
+            {status.type === "pending" && (
+              <span className="absolute inset-0">
+                {variant === "card" ? "…" : "Connecting…"}
+              </span>
+            )}
+          </span>
+        </button>
       )}
       <div
         aria-live="polite"
