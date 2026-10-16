@@ -34,6 +34,8 @@ const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
 	position: 'relative',
+	// Keep trim handles below the pinned ruler and its scrubbing target.
+	isolation: 'isolate',
 };
 
 const timelineContent: React.CSSProperties = {
