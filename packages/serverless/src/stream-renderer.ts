@@ -121,7 +121,10 @@ const streamRenderer = <Provider extends CloudProvider>({
 					writeFileSync(filename, message.payload);
 				}
 
-				files.push(filename);
+				if (!files.includes(filename)) {
+					files.push(filename);
+				}
+
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
 					`Received video chunk for chunk ${payload.chunk}`,
@@ -141,7 +144,10 @@ const streamRenderer = <Provider extends CloudProvider>({
 					{indent: false, logLevel},
 					`Received audio chunk for chunk ${payload.chunk}`,
 				);
-				files.push(filename);
+				if (!files.includes(filename)) {
+					files.push(filename);
+				}
+
 				return;
 			}
 

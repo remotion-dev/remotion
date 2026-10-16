@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {join} from 'node:path';
 import type {EmittedArtifact} from '@remotion/renderer';
 import type {
 	OnMessage,
@@ -140,5 +141,83 @@ test('an artifact replayed by a retried streaming chunk is idempotent', async ()
 			content: 'thumbnail',
 			downloadBehavior: null,
 		},
+	]);
+});
+
+test('a chunk file replayed by a retried streaming chunk is only merged once', async () => {
+	const providerSpecifics = {
+		getRendererFunctionTransport: () => 'response-streaming',
+		callFunctionStreaming: ({
+			payload,
+			receivedStreamingPayload,
+		}: {
+			payload: ServerlessPayload<MockProvider>;
+			receivedStreamingPayload: OnMessage<MockProvider>;
+		}) => {
+			if (payload.type !== ServerlessRoutines.renderer) {
+				throw new Error('Expected renderer payload');
+			}
+
+			receivedStreamingPayload({
+				successType: 'success',
+				message: {type: 'audio-chunk-rendered', payload: new Uint8Array()},
+			});
+
+			if (payload.attempt === 1) {
+				return Promise.reject(new Error('socket hang up'));
+			}
+
+			receivedStreamingPayload({
+				successType: 'success',
+				message: {type: 'video-chunk-rendered', payload: new Uint8Array()},
+			});
+			receivedStreamingPayload({
+				successType: 'success',
+				message: {
+					type: 'chunk-complete',
+					payload: {start: 100, rendered: 200},
+				},
+			});
+
+			return Promise.resolve();
+		},
+	} as unknown as ProviderSpecifics<MockProvider>;
+	const overallProgress = {
+		addRetry: () => undefined,
+		addChunkCompleted: () => undefined,
+	} as unknown as OverallProgressHelper<MockProvider>;
+	const insideFunctionSpecifics = {
+		getCurrentRegionInFunction: () => 'mock-region',
+	} as unknown as InsideFunctionSpecifics<MockProvider>;
+	const files: string[] = [];
+
+	await renderRendererFunctionWithRetry({
+		payload: {
+			type: 'renderer',
+			output: {type: 'media'},
+			bucketName: 'bucket',
+			renderId: 'render-id',
+			chunk: 0,
+			attempt: 1,
+			retriesLeft: 1,
+			forcePathStyle: false,
+		} as never,
+		files,
+		functionName: 'renderer-function',
+		outdir: '/tmp',
+		overallProgress,
+		logLevel: 'info',
+		onArtifact: () => {
+			throw new Error('No artifacts expected');
+		},
+		providerSpecifics,
+		insideFunctionSpecifics,
+		requestHandler: null,
+		expectedBucketOwner: 'owner',
+	});
+
+	expect(files).toEqual([
+		join('/tmp', 'chunk:00000000:audio'),
+		join('/tmp', 'chunk:00000000:video'),
 	]);
 });
