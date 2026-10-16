@@ -1,11 +1,8 @@
 import React, {useContext, useMemo} from 'react';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
-import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getTimelineSequenceHeight} from './timeline-track-groups';
-import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
 	getTimelineSelectedTrackHighlightStyle,
 	TIMELINE_SELECTED_BACKGROUND,
@@ -19,9 +16,6 @@ const emptyConnectedCompositions = [] as const;
 const TimelineTrackUnmemoized: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
-	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const previewServerConnected = previewServerState.type === 'connected';
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {hovered, onPointerEnter, onPointerLeave} = useTimelineSequenceHover(
 		track.nodePathInfo,
@@ -42,11 +36,6 @@ const TimelineTrackUnmemoized: React.FC<{
 		}),
 		[track.sequence],
 	);
-
-	const showExpandedKeyframes =
-		track.nodePathInfo !== null &&
-		previewServerConnected &&
-		getIsExpanded(track.nodePathInfo);
 
 	return (
 		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
@@ -75,14 +64,6 @@ const TimelineTrackUnmemoized: React.FC<{
 					sequenceFrameOffset={track.sequenceFrameOffset}
 				/>
 			</div>
-			{showExpandedKeyframes && track.nodePathInfo ? (
-				<TimelineExpandedTrackKeyframes
-					sequence={track.sequence}
-					nodePathInfo={track.nodePathInfo}
-					keyframeDisplayOffset={track.keyframeDisplayOffset}
-					keyframePlaybackRate={track.keyframePlaybackRate}
-				/>
-			) : null}
 		</div>
 	);
 };

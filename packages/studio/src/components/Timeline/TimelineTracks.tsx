@@ -1,6 +1,11 @@
 import React, {useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {
+	TIMELINE_ITEM_BORDER_BOTTOM,
+	TIMELINE_PADDING,
+} from '../../helpers/timeline-layout';
+import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {
 	getTimelineSceneClipPath,
 	TIMELINE_CHILD_TRANSITION_SEAM_Y,
@@ -8,6 +13,8 @@ import {
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
+import {getTimelineSequenceHeight} from './timeline-track-groups';
+import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
 import {
 	TimelineInheritedSceneRangeContext,
@@ -63,6 +70,17 @@ const TimelineTrackRow: React.FC<{
 	readonly durationInFrames: number | null;
 }> = React.memo(({row, start, height, windowWidth, durationInFrames}) => {
 	const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} = row;
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const showExpandedKeyframes =
+		items === null &&
+		track.nodePathInfo !== null &&
+		previewServerState.type === 'connected' &&
+		getIsExpanded(track.nodePathInfo);
+	const clippedHeight =
+		items === null
+			? getTimelineSequenceHeight(track.sequence) + TIMELINE_ITEM_BORDER_BOTTOM
+			: height;
 	const trackContent =
 		items === null ? (
 			<TimelineTrack track={track} />
@@ -76,7 +94,7 @@ const TimelineTrackRow: React.FC<{
 		);
 
 	return (
-		<TimelineTrimOutlineContainer
+		<div
 			style={{
 				height,
 				left: TIMELINE_PADDING,
@@ -89,31 +107,48 @@ const TimelineTrackRow: React.FC<{
 						? windowWidth - TIMELINE_PADDING * 2
 						: undefined,
 				top: start,
+				pointerEvents: 'none',
 			}}
-			clipPath={
-				durationInFrames !== null && windowWidth !== null
-					? (getTimelineSceneClipPath({
-							sceneRange,
-							durationInFrames,
-							offsetInFrames: 0,
-							pixelsPerFrame:
-								(windowWidth - TIMELINE_PADDING * 2) / durationInFrames,
-							height,
-							seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
-							transitionCutout: null,
-							cropHeight: null,
-						}) ?? null)
-					: null
-			}
 		>
-			{sceneRange === null ? (
-				trackContent
-			) : (
-				<TimelineSceneTrackContent sceneRange={sceneRange} height={height}>
-					{trackContent}
-				</TimelineSceneTrackContent>
-			)}
-		</TimelineTrimOutlineContainer>
+			<TimelineTrimOutlineContainer
+				style={{height: clippedHeight, position: 'relative'}}
+				clipPath={
+					durationInFrames !== null && windowWidth !== null
+						? (getTimelineSceneClipPath({
+								sceneRange,
+								durationInFrames,
+								offsetInFrames: 0,
+								pixelsPerFrame:
+									(windowWidth - TIMELINE_PADDING * 2) / durationInFrames,
+								height: clippedHeight,
+								seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+								transitionCutout: null,
+								cropHeight: null,
+							}) ?? null)
+						: null
+				}
+			>
+				{sceneRange === null ? (
+					trackContent
+				) : (
+					<TimelineSceneTrackContent
+						sceneRange={sceneRange}
+						height={clippedHeight}
+					>
+						{trackContent}
+					</TimelineSceneTrackContent>
+				)}
+			</TimelineTrimOutlineContainer>
+			{/* Keyframes own the full row, including positions outside the scene. */}
+			{showExpandedKeyframes && track.nodePathInfo ? (
+				<TimelineExpandedTrackKeyframes
+					sequence={track.sequence}
+					nodePathInfo={track.nodePathInfo}
+					keyframeDisplayOffset={track.keyframeDisplayOffset}
+					keyframePlaybackRate={track.keyframePlaybackRate}
+				/>
+			) : null}
+		</div>
 	);
 });
 
