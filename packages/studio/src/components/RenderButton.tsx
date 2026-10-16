@@ -150,17 +150,16 @@ const RenderButtonInner: React.FC<{
 			message: (
 				<>
 					<p style={serverRenderInstructions}>
-						Server-side rendering requires running this project locally on your
-						computer instead of in Browser Studio.
+						Render on your computer for full Remotion compatibility and more
+						export formats, including ProRes.
 					</p>
 					<p style={serverRenderInstructions}>
-						Download and unzip the project. With Node.js installed, open a
-						terminal in the project folder and run:
+						Download and unzip, then run in the project folder (Node.js
+						required):
 					</p>
 					<pre style={serverRenderCommands}>{'npm install\nnpm run dev'}</pre>
 					<p style={{...serverRenderInstructions, marginBottom: 0}}>
-						Open the local Remotion Studio, select your composition, and click
-						Render to export it using server-side rendering.
+						In the Studio that opens, select your composition and click Render.
 					</p>
 				</>
 			),
