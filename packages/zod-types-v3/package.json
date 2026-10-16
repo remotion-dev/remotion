@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/zod-types-v3",
-	"version": "4.0.535",
+	"version": "4.0.536",
 	"description": "Zod 3.22.3 types for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
