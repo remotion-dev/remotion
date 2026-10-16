@@ -30,6 +30,9 @@ export const ElementPreview = ({ slug }: { slug: string }) => {
           <div
             style={{
               position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               width: dimensions.width,
               height: dimensions.height,
             }}

@@ -57,10 +57,13 @@ export default function ElementPage() {
       <div className="text-base sm:text-sm">
         <Link
           className="inline-flex min-h-12 items-center gap-2 text-muted hover:text-ink sm:min-h-9"
-          to={{ pathname: "/", search }}
+          to={{
+            pathname: definition.category === "Captions" ? "/captions" : "/",
+            search,
+          }}
         >
-          <ArrowLeftIcon className="size-4 shrink-0 fill-current" /> All
-          elements
+          <ArrowLeftIcon className="size-4 shrink-0 fill-current" />
+          {definition.category === "Captions" ? "All captions" : "All elements"}
         </Link>
       </div>
       <div className="pt-6 pb-8">
@@ -72,7 +75,9 @@ export default function ElementPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="min-w-0 overflow-hidden rounded-[min(1vw,8px)] outline-1 -outline-offset-1 outline-black/5">
+        <div
+          className={`min-w-0 overflow-hidden rounded-[min(1vw,8px)] outline-1 -outline-offset-1 outline-black/5 ${definition.previewBackground === "transparent" ? "transparency-grid" : ""}`}
+        >
           <ElementPreview
             key={slug}
             definition={definition}

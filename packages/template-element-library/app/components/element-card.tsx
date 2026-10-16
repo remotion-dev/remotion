@@ -36,7 +36,7 @@ export const ElementCard = ({ entry }: { entry: CatalogEntry }) => {
         }
       >
         <div
-          className="relative aspect-video overflow-hidden rounded-[min(1vw,8px)] bg-neutral-50 outline-1 -outline-offset-1 outline-black/5 [&>div]:pointer-events-none"
+          className={`relative flex aspect-video items-center overflow-hidden rounded-[min(1vw,8px)] bg-neutral-50 outline-1 -outline-offset-1 outline-black/5 [&>div]:pointer-events-none ${definition.previewBackground === "transparent" ? "transparency-grid" : ""}`}
           aria-hidden
         >
           <ElementPreview

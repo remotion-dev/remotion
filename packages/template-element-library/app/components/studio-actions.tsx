@@ -7,6 +7,7 @@ import { PlusIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import { useRef, useState } from "react";
 import type { CatalogEntry } from "../../lib/element-payload";
 import { ElementUseButton } from "./element-use-button";
+import { CaptionStyleButton } from "./caption-style-button";
 import {
   StudioInstallFallback,
   type StudioFailure,
@@ -16,18 +17,23 @@ type Status =
   | { type: "idle" | "pending" | "success"; message: string }
   | ({ type: "error" } & StudioFailure);
 
-export const StudioActions = ({
-  entry,
-  variant,
-}:
-  | {
-      entry: CatalogEntry;
-      variant: "card";
-    }
-  | {
-      entry: CatalogEntry | null;
-      variant: "default";
-    }) => {
+export const StudioActions = (
+  props:
+    | {
+        entry: CatalogEntry;
+        variant: "card";
+      }
+    | {
+        entry: CatalogEntry;
+        variant: "caption";
+        isSelected: boolean;
+      }
+    | {
+        entry: CatalogEntry | null;
+        variant: "default";
+      },
+) => {
+  const { entry, variant } = props;
   const [status, setStatus] = useState<Status>({ type: "idle", message: "" });
   const [fallback, setFallback] = useState({ isOpen: false, failureCount: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -40,12 +46,16 @@ export const StudioActions = ({
         : await addElementLibraryToStudio({
             url: new URL("/", window.location.origin).href,
             displayName: "Studio Supply",
+            captionStylesUrl: new URL("/captions", window.location.origin).href,
           });
 
       if (result.success) {
         setStatus({
           type: "success",
-          message: "Request sent. Confirm in Remotion Studio to finish.",
+          message:
+            variant === "caption"
+              ? "Caption style sent to Studio."
+              : "Request sent. Confirm in Remotion Studio to finish.",
         });
         setFallback({ isOpen: false, failureCount: 0 });
         return;
@@ -67,7 +77,15 @@ export const StudioActions = ({
 
   return (
     <div className="min-w-0">
-      {entry && variant === "default" ? (
+      {props.variant === "caption" ? (
+        <CaptionStyleButton
+          entry={props.entry}
+          isSelected={props.isSelected}
+          loading={status.type === "pending"}
+          onClick={sendToStudio}
+          triggerRef={triggerRef}
+        />
+      ) : entry && variant === "default" ? (
         <ElementUseButton
           entry={entry}
           loading={status.type === "pending"}
@@ -140,7 +158,7 @@ export const StudioActions = ({
         aria-live="polite"
         aria-atomic="true"
         className={
-          variant === "card"
+          variant !== "default"
             ? "sr-only"
             : "fixed inset-x-4 bottom-4 z-50 text-base/7 sm:right-6 sm:bottom-6 sm:left-auto sm:w-96 sm:text-sm/6"
         }

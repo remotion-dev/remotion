@@ -58,7 +58,7 @@ export const StudioInstallFallback = ({
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      className="m-auto max-h-[calc(100dvh_-_--spacing(8))] w-[calc(100%_-_--spacing(8))] max-w-lg overflow-y-auto rounded-xl bg-white p-6 text-base/7 text-ink shadow-xl ring-1 ring-black/10 backdrop:bg-black/30 sm:text-sm/6"
+      className="scheme-light m-auto max-h-[calc(100dvh_-_--spacing(8))] w-[calc(100%_-_--spacing(8))] max-w-lg overflow-y-auto rounded-xl bg-white p-6 text-base/7 text-ink shadow-xl ring-1 ring-black/10 backdrop:bg-black/30 sm:text-sm/6"
       onCancel={(event) => {
         event.preventDefault();
         onClose();
@@ -277,6 +277,11 @@ export const StudioInstallFallback = ({
             >
               <code>Config.addElementLibrary()</code>
             </a>
+            . To include caption styles, also set <code>captionStylesUrl</code>{" "}
+            to{" "}
+            <code className="break-all">
+              {new URL("/captions", window.location.origin).href}
+            </code>
             .
           </p>
         </div>

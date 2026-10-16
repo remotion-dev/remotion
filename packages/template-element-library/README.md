@@ -1,6 +1,6 @@
 # Remotion Element Library
 
-A React Router + Tailwind CSS starter for publishing [Remotion Elements](https://www.remotion.dev/elements). Includes server-side rendering, an authoring Studio, and three editable examples. See the [third-party Element libraries](https://www.remotion.dev/elements/libraries) for examples of published catalogs.
+A React Router + Tailwind CSS starter for publishing [Remotion Elements](https://www.remotion.dev/elements). Includes server-side rendering, an authoring Studio, and four editable examples. See the [third-party Element libraries](https://www.remotion.dev/elements/libraries) for examples of published catalogs.
 
 ## Develop
 
@@ -29,6 +29,12 @@ For exports and upgrades, see [`npx remotion render`](https://www.remotion.dev/d
 To add an Element, create `elements/<slug>/<slug>.tsx`, add it to `elements/registry.ts`, and register its authoring composition in `remotion/Root.tsx`. The website and Studio use the same source files.
 
 See the [Element guidelines](https://www.remotion.dev/elements/guidelines), [interactivity documentation](https://www.remotion.dev/docs/studio/interactivity), and [library integration guide](https://www.remotion.dev/docs/studio-protocol/component-library-integration) for layout, assets, dependencies, and installation requirements.
+
+## Caption styles
+
+`/captions` is a separate gallery and Studio caption-style picker. Library registration includes this URL as `captionStylesUrl`. In Studio's captions context, the page hides navigation, uses a transparent background, and reflects selection and Reset through [`subscribeToCaptionStyleSelection()`](https://www.remotion.dev/docs/studio-protocol/subscribe-to-caption-style-selection).
+
+Accent captions remixes [Word Highlight Captions](https://www.remotion.dev/elements/captions/word-highlight-captions) with a system font and warm accent. Caption Elements accept `Caption[]`, expose `Interactive.captionsSchema`, and use component-owned installation with `isCaptionStyle: true`. Set their registry category to `Captions` to include them in the picker.
 
 ## Build and deploy
 

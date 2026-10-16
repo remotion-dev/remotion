@@ -2149,6 +2149,7 @@
         "@heroicons/react": "2.2.0",
         "@react-router/node": "8.3.0",
         "@react-router/serve": "8.3.0",
+        "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/studio-protocol": "workspace:*",

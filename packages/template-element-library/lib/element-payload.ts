@@ -21,6 +21,7 @@ export const catalog = elements.map((definition) => {
     dimensions: definition.dimensions,
     durationInFrames: definition.durationInFrames,
     installationMode: definition.installationMode,
+    isCaptionStyle: definition.category === "Captions",
     dependencies: definition.dependencies,
     assets: definition.assets,
     initialProps:

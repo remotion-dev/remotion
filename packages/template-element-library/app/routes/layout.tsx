@@ -4,9 +4,14 @@ import { Link, Outlet, useLocation } from "react-router";
 import { StudioActions } from "../components/studio-actions";
 
 export default function LibraryLayout() {
-  const [insideStudio, setInsideStudio] = useState(false);
   const location = useLocation();
   const search = location.search;
+  const [insideStudio, setInsideStudio] = useState(
+    new URLSearchParams(search).get("remotion-studio") === "true",
+  );
+  const isCaptionPicker =
+    insideStudio &&
+    new URLSearchParams(search).get("remotion-studio-context") === "captions";
   useEffect(() => {
     setInsideStudio(isInsideStudio());
   }, []);
@@ -14,6 +19,7 @@ export default function LibraryLayout() {
   return (
     <div
       data-embedded={insideStudio}
+      data-caption-picker={isCaptionPicker}
       className="group/site isolate flex min-h-dvh flex-col"
     >
       <a
@@ -35,7 +41,8 @@ export default function LibraryLayout() {
                 Studio Supply
               </Link>
             </div>
-            {location.pathname === "/" && (
+            {(location.pathname === "/" ||
+              location.pathname === "/captions") && (
               <div className="w-full min-w-0 sm:w-auto sm:max-w-80">
                 <StudioActions entry={null} variant="default" />
               </div>
@@ -43,8 +50,8 @@ export default function LibraryLayout() {
           </div>
         </header>
       )}
-      <div className="mx-auto w-full max-w-7xl flex-1 px-6 sm:px-8 lg:px-12">
-        <Outlet context={{ insideStudio, search }} />
+      <div className="mx-auto w-full max-w-7xl flex-1 px-6 group-data-[caption-picker=true]/site:max-w-none group-data-[caption-picker=true]/site:px-3 sm:px-8 lg:px-12">
+        <Outlet context={{ insideStudio, isCaptionPicker, search }} />
       </div>
     </div>
   );
