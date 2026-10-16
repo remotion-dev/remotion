@@ -124,6 +124,7 @@ const copyImageToClipboard = async (element: Element): Promise<void> => {
 };
 
 export const getMultiSequenceContextMenuItems = ({
+	selectedItemCount,
 	getContextForAgents,
 	deleteDisabled,
 	duplicateDisabled,
@@ -132,6 +133,7 @@ export const getMultiSequenceContextMenuItems = ({
 	onDuplicateSelectedSequences,
 	onSplitSelectedSequences,
 }: {
+	readonly selectedItemCount: number;
 	readonly getContextForAgents: () => Promise<string | null>;
 	readonly deleteDisabled: boolean;
 	readonly duplicateDisabled: boolean;
@@ -178,7 +180,7 @@ export const getMultiSequenceContextMenuItems = ({
 			type: 'item',
 			id: 'delete-selected-sequences',
 			keyHint: null,
-			label: 'Delete selected',
+			label: `Delete ${selectedItemCount} items`,
 			leftItem: null,
 			disabled: deleteDisabled,
 			onClick: onDeleteSelectedSequences,

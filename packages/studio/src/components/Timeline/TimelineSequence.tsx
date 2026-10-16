@@ -1655,6 +1655,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 
 			if (selectedSequenceNodePathInfos !== null) {
 				return getMultiSequenceContextMenuItems({
+					selectedItemCount: selectedSequenceNodePathInfos.length,
 					getContextForAgents: () =>
 						getSequencesContextForAgents({
 							nodePathInfos: selectedSequenceNodePathInfos,
