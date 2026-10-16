@@ -169,6 +169,7 @@ export {
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromFileExistenceRequest,
+	UnsubscribeFromSequencePropsBatchRequest,
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,

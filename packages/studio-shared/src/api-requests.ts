@@ -494,6 +494,10 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
+export type UnsubscribeFromSequencePropsBatchRequest = {
+	requests: UnsubscribeFromSequencePropsRequest[];
+};
+
 export type GoogleFontSourceEdit = {
 	fontFamily: string;
 	importName: string;
@@ -1598,7 +1602,7 @@ export const studioOperations = {
 		SubscribeToSequencePropsBatchResponse
 	>({mutatesSource: false}),
 	'/api/unsubscribe-from-sequence-props': new StudioOperation<
-		UnsubscribeFromSequencePropsRequest,
+		UnsubscribeFromSequencePropsBatchRequest,
 		undefined
 	>({mutatesSource: false}),
 	'/api/save-sequence-props': new StudioOperation<
