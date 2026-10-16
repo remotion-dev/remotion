@@ -93,7 +93,7 @@ const RollerSkiCommuteInner: React.FC = () => {
 						'https://remotion.media/jonnys-videos/roller-skis-new/music/sunset-render-deja-vu.mp3'
 					}
 					from={4042}
-					trimBefore={3426}
+					trimBefore={3468}
 					durationInFrames={1708}
 					volume={interpolate(
 						frame,
