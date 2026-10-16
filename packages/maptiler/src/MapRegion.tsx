@@ -1,4 +1,4 @@
-import type {GeoJSONSource} from '@maptiler/sdk';
+import type {GeoJSONSource, Map as MapTilerMap} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
 import {
 	useContext,
@@ -121,7 +121,8 @@ const MapRegionDrawing = ({
 }: MapRegionDrawingProps) => {
 	const {map} = useContext(MapTilerContext);
 	const {continueRender, delayRender} = useDelayRender();
-	const [isReady, setIsReady] = useState(false);
+	const [readyMap, setReadyMap] = useState<MapTilerMap | null>(null);
+	const isReady = map !== null && readyMap === map;
 	useLayoutEffect(() => {
 		if (isReady) {
 			return;
@@ -145,7 +146,8 @@ const MapRegionDrawing = ({
 	]);
 
 	useLayoutEffect(() => {
-		if (!map) {
+		// Reconnected effects can still capture the map destroyed while hidden.
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -221,7 +223,7 @@ const MapRegionDrawing = ({
 		map.setPaintProperty(outlineSourceId, 'line-width', strokeWidth);
 
 		applyPremountVisibility();
-		const onIdle = () => setIsReady(true);
+		const onIdle = () => setReadyMap(map);
 		map.once('idle', onIdle);
 		map.triggerRepaint();
 		return () => {
@@ -243,7 +245,7 @@ const MapRegionDrawing = ({
 	]);
 
 	useLayoutEffect(() => {
-		if (!isReady || !map) {
+		if (!isReady || !map || !map.style) {
 			return;
 		}
 

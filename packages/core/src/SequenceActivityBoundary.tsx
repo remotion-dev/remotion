@@ -1,8 +1,7 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {
 	SequenceActivityAbsoluteTimeContext,
 	SequenceActivityDormantContext,
-	SequenceActivityGenerationContext,
 	SequenceActivitySuspensionContext,
 	SequenceActivityTimelineContext,
 } from './sequence-activity-context.js';
@@ -93,17 +92,6 @@ export const SequenceActivityBoundary: React.FC<{
 	readonly frame: number;
 }> = ({children, dormant, frame}) => {
 	const parentDormant = useContext(SequenceActivityDormantContext);
-	const parentGeneration = useContext(SequenceActivityGenerationContext);
-	const [activity, setActivity] = useState({dormant, generation: 0});
-	if (activity.dormant !== dormant) {
-		// Hidden trees can suspend before SequenceContent renders null. Give
-		// resource-owning content a fresh identity even if that render is skipped.
-		setActivity({
-			dormant,
-			generation: activity.generation + (dormant ? 1 : 0),
-		});
-	}
-
 	const timeline = useContext(
 		parentDormant ? SequenceActivityTimelineContext : TimelineContext,
 	);
@@ -146,13 +134,9 @@ export const SequenceActivityBoundary: React.FC<{
 							<React.Activity
 								mode={dormant && !parentDormant ? 'hidden' : 'visible'}
 							>
-								<SequenceActivityGenerationContext.Provider
-									value={parentGeneration + activity.generation}
-								>
-									<SuspendSequenceActivity dormant={dormant}>
-										{children}
-									</SuspendSequenceActivity>
-								</SequenceActivityGenerationContext.Provider>
+								<SuspendSequenceActivity dormant={dormant}>
+									{children}
+								</SuspendSequenceActivity>
 							</React.Activity>
 						</AbsoluteTimeContext.Provider>
 					</TimelineContext.Provider>
