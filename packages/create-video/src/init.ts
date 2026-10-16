@@ -287,7 +287,6 @@ export const init = async () => {
 	}
 
 	if (shouldOpenShell) {
-		Log.info('Opening a shell in the new project. Run `exit` to return.\n');
 		const isWindows = process.platform === 'win32';
 		const shell = isWindows
 			? (process.env.ComSpec ?? 'cmd.exe')
