@@ -5,6 +5,7 @@ import {BrainIcon} from './icons/brain';
 import {CodeHike} from './icons/code-hike';
 import {Cubes} from './icons/cubes';
 import {ElectronIcon} from './icons/electron';
+import {FolderIcon} from './icons/folder';
 import {MusicIcon} from './icons/music';
 import {NextIcon} from './icons/next';
 import {OverlayIcon} from './icons/overlay';
@@ -54,7 +55,7 @@ export const IconForTemplate: React.FC<{
 	}
 
 	if (template.cliId === 'element-library') {
-		return <Cubes style={{height: scale * 36}} />;
+		return <FolderIcon style={{height: scale * 36}} />;
 	}
 
 	if (template.cliId === 'three') {
