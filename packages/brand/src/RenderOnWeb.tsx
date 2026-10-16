@@ -5,10 +5,10 @@ import {
 	AbsoluteFill,
 	Composition,
 	Easing,
-	interpolate,
-	useCurrentFrame,
-	Solid,
 	HtmlInCanvas,
+	interpolate,
+	Solid,
+	useCurrentFrame,
 } from 'remotion';
 
 export const RenderOnWebPreview = () => {
@@ -38,7 +38,7 @@ export const RenderOnWebPreview = () => {
 					style={{
 						width: 1596,
 						height: 1440,
-						translate: '-310.4px -180px',
+						translate: '-510.4px -180px',
 						scale: 1.384,
 						rotate: '-0.177364 0.926222 0.332648 27.792007deg',
 					}}

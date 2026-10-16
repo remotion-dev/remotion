@@ -33,7 +33,7 @@ export const CloseUp6Preview = () => {
 				style={{
 					width: 3180,
 					height: 1848,
-					translate: '-278.8px -460.1px',
+					translate: '-328.8px -360.1px',
 					scale: 1.484,
 					rotate: '0.942927 0.209821 -0.25858 42.59793deg',
 					transformOrigin: '56.16% 78.11%',

@@ -377,7 +377,7 @@ const BasicsSeriesTrimInner = ({
 					durationInFrames={463}
 					premountFor={fps}
 					style={{
-						translate: '-170px 50px',
+						translate: '-830px 150px',
 						scale: 0.9,
 						rotate: '-2deg',
 						transformOrigin: '0 0',
@@ -394,7 +394,7 @@ const BasicsSeriesTrimInner = ({
 					style={{
 						width: 2560,
 						height: 924,
-						translate: '-170px 50px',
+						translate: '-830px 150px',
 						scale: 0.9,
 						rotate: '-2deg',
 						transformOrigin: '0 0',

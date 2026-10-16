@@ -1291,7 +1291,22 @@ const BasicsVolumeKeyframesInner = ({
 					durationInFrames={1785}
 					premountFor={fps}
 					style={{
-						translate: '-125px -570px',
+						translate: interpolate(
+							frame,
+							[0, 1090, 1140, 1435, 1485],
+							[
+								'-865px -600px',
+								'-865px -600px',
+								'175px -600px',
+								'175px -600px',
+								'-865px -600px',
+							],
+							{
+								easing: Easing.bezier(0.42, 0, 0.58, 1),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						),
 						scale: 1.05,
 						rotate: '-2deg',
 						transformOrigin: '0 0',
@@ -1308,7 +1323,22 @@ const BasicsVolumeKeyframesInner = ({
 					style={{
 						width: 2114,
 						height: 1440,
-						translate: '-125px -570px',
+						translate: interpolate(
+							frame,
+							[0, 1090, 1140, 1435, 1485],
+							[
+								'-865px -600px',
+								'-865px -600px',
+								'175px -600px',
+								'175px -600px',
+								'-865px -600px',
+							],
+							{
+								easing: Easing.bezier(0.42, 0, 0.58, 1),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						),
 						scale: 1.05,
 						rotate: '-2deg',
 						transformOrigin: '0 0',

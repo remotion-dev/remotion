@@ -1,8 +1,9 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {CloseUpFrame} from './CloseUpFrame';
 
-export const TimelineLeftDragComposition = () => {
+const TimelineLeftDragContent = () => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -14,6 +15,16 @@ export const TimelineLeftDragComposition = () => {
 				height: 1134,
 				rotate: '0.948186 0.15788 -0.275711 26.23743deg',
 				scale: 1.378,
+				translate: interpolate(
+					frame,
+					[135, 185],
+					['320px 80px', '-480px 80px'],
+					{
+						easing: Easing.bezier(0.42, 0, 0.58, 1),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				),
 			}}
 			trimBefore={1190}
 		>
@@ -1170,5 +1181,13 @@ export const TimelineLeftDragComposition = () => {
 				}}
 			/>
 		</AbsoluteFill>
+	);
+};
+
+export const TimelineLeftDragComposition = () => {
+	return (
+		<CloseUpFrame>
+			<TimelineLeftDragContent />
+		</CloseUpFrame>
 	);
 };
