@@ -23,10 +23,10 @@ import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TIMELINE_BLUE,
+	TIMELINE_DROP_BLUE_ALPHA_12,
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_06,
-	WHITE_ALPHA_12,
 } from '../helpers/colors';
 import {
 	HOVERABLE_CLASS_NAME,
@@ -102,6 +102,12 @@ const iconStyle: React.CSSProperties = {
 
 const reorderWrapper: React.CSSProperties = {
 	position: 'relative',
+};
+
+const folderDropTargetStyle: React.CSSProperties = {
+	backgroundColor: TIMELINE_DROP_BLUE_ALPHA_12,
+	boxShadow: `inset 0 0 0 1px ${TIMELINE_BLUE}`,
+	borderRadius: 4,
 };
 
 const reorderLineBase: React.CSSProperties = {
@@ -224,6 +230,10 @@ export const CompositionSelectorItem: React.FC<{
 	) => void;
 	readonly clearRootDragHover: () => void;
 	readonly canReorder: boolean;
+	readonly folderDropTarget: string | null;
+	readonly setFolderDropTarget: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
 	readonly level: number;
 	readonly activeDragRef: MutableRefObject<CompositionSelectorActiveDrag | null>;
 	readonly parentFolderPath: string | null;
@@ -238,6 +248,8 @@ export const CompositionSelectorItem: React.FC<{
 	toggleFolder,
 	clearRootDragHover,
 	canReorder,
+	folderDropTarget,
+	setFolderDropTarget,
 	activeDragRef,
 	parentFolderPath,
 	previousSibling,
@@ -272,6 +284,27 @@ export const CompositionSelectorItem: React.FC<{
 	}, [cancelFolderExpansion]);
 
 	const folderIsExpanded = item.type === 'folder' && item.expanded;
+	const folderPath = item.type === 'folder' ? getFolderPath(item) : null;
+	const highlightedFolderStyle =
+		folderPath !== null && folderDropTarget === folderPath
+			? folderDropTargetStyle
+			: undefined;
+	const onFolderDragLeave = useCallback(
+		(event: DragEvent<HTMLDivElement>) => {
+			if (
+				event.relatedTarget instanceof Node &&
+				event.currentTarget.contains(event.relatedTarget)
+			) {
+				return;
+			}
+
+			setFolderDropTarget((current) =>
+				current === folderPath ? null : current,
+			);
+			cancelFolderExpansion();
+		},
+		[cancelFolderExpansion, folderPath, setFolderDropTarget],
+	);
 	useEffect(() => {
 		if (folderIsExpanded) {
 			folderExpansionRequested.current = false;
@@ -295,27 +328,24 @@ export const CompositionSelectorItem: React.FC<{
 	}, [compositionId, selected]);
 
 	const style: React.CSSProperties = useMemo(() => {
-		const idleBackground =
-			dropPosition === 'inside'
-				? WHITE_ALPHA_12
-				: selected
-					? WHITE_ALPHA_06
-					: TRANSPARENT;
+		const idleBackground = selected ? WHITE_ALPHA_06 : TRANSPARENT;
 		return {
 			...itemStyle,
 			...hoverableStyle({
 				idleBackground,
-				hoverBackground:
-					dropPosition === 'inside' ? WHITE_ALPHA_12 : WHITE_ALPHA_06,
+				hoverBackground: WHITE_ALPHA_06,
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
 			paddingLeft: 12 + level * 11,
 		};
-	}, [dropPosition, level, selected]);
+	}, [level, selected]);
 
 	const reorderLineStyle = useMemo((): React.CSSProperties | null => {
-		if (dropPosition !== 'before' && dropPosition !== 'after') {
+		if (
+			!canReorder ||
+			(dropPosition !== 'before' && dropPosition !== 'after')
+		) {
 			return null;
 		}
 
@@ -323,7 +353,7 @@ export const CompositionSelectorItem: React.FC<{
 			...reorderLineBase,
 			...(dropPosition === 'before' ? {top: -1} : {bottom: -1}),
 		};
-	}, [dropPosition]);
+	}, [canReorder, dropPosition]);
 
 	const onClick = useCallback(
 		(evt: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
@@ -424,10 +454,16 @@ export const CompositionSelectorItem: React.FC<{
 	);
 	const onItemDragEnd = useCallback(() => {
 		activeDragRef.current = null;
+		setFolderDropTarget(null);
 		cancelFolderExpansion();
 		setIsDragging(false);
 		updateDropPosition(null);
-	}, [activeDragRef, cancelFolderExpansion, updateDropPosition]);
+	}, [
+		activeDragRef,
+		cancelFolderExpansion,
+		setFolderDropTarget,
+		updateDropPosition,
+	]);
 
 	const getDropPosition = useCallback(
 		(event: DragEvent<HTMLElement>): DropPosition | null => {
@@ -437,16 +473,7 @@ export const CompositionSelectorItem: React.FC<{
 			}
 
 			if (!canReorder) {
-				if (item.type !== 'folder') {
-					return null;
-				}
-
-				return canMoveIntoFolder({
-					activeDrag,
-					destinationFolderPath: getFolderPath(item),
-				})
-					? 'inside'
-					: null;
+				return null;
 			}
 
 			const {top, height} = event.currentTarget.getBoundingClientRect();
@@ -560,9 +587,13 @@ export const CompositionSelectorItem: React.FC<{
 			if (position === null) {
 				cancelFolderExpansion();
 				updateDropPosition(null);
+				setFolderDropTarget(null);
 				event.stopPropagation();
+
 				return;
 			}
+
+			setFolderDropTarget(position === 'inside' ? folderPath : null);
 
 			if (position === 'inside') {
 				scheduleFolderExpansion();
@@ -579,8 +610,10 @@ export const CompositionSelectorItem: React.FC<{
 		[
 			cancelFolderExpansion,
 			clearRootDragHover,
+			folderPath,
 			getDropPosition,
 			scheduleFolderExpansion,
+			setFolderDropTarget,
 			updateDropPosition,
 		],
 	);
@@ -647,13 +680,14 @@ export const CompositionSelectorItem: React.FC<{
 		async (event: DragEvent<HTMLElement>) => {
 			cancelFolderExpansion();
 			const dragData = parseCompositionSelectorDragData(event.dataTransfer);
-			const position = dropPositionRef.current;
+			const position = canReorder ? dropPositionRef.current : null;
 			if (dragData === null) {
 				return;
 			}
 
 			if (position === null) {
 				event.stopPropagation();
+
 				return;
 			}
 
@@ -661,6 +695,7 @@ export const CompositionSelectorItem: React.FC<{
 			event.stopPropagation();
 			clearRootDragHover();
 			updateDropPosition(null);
+			setFolderDropTarget(null);
 			await moveItem({
 				dragData,
 				destination:
@@ -678,9 +713,11 @@ export const CompositionSelectorItem: React.FC<{
 		},
 		[
 			cancelFolderExpansion,
+			canReorder,
 			clearRootDragHover,
 			item,
 			moveItem,
+			setFolderDropTarget,
 			updateDropPosition,
 		],
 	);
@@ -695,6 +732,15 @@ export const CompositionSelectorItem: React.FC<{
 				return;
 			}
 
+			if (
+				!canReorder &&
+				event.target instanceof Element &&
+				event.target.closest('[data-composition-folder]') !==
+					event.currentTarget
+			) {
+				return;
+			}
+
 			const activeDrag = activeDragRef.current;
 			if (
 				activeDrag === null ||
@@ -703,6 +749,7 @@ export const CompositionSelectorItem: React.FC<{
 					destinationFolderPath: getFolderPath(item),
 				})
 			) {
+				setFolderDropTarget(null);
 				event.stopPropagation();
 				return;
 			}
@@ -711,13 +758,33 @@ export const CompositionSelectorItem: React.FC<{
 			event.stopPropagation();
 			event.dataTransfer.dropEffect = 'move';
 			clearRootDragHover();
+			setFolderDropTarget(getFolderPath(item));
+			if (!canReorder) {
+				scheduleFolderExpansion();
+			}
 		},
-		[activeDragRef, clearRootDragHover, item],
+		[
+			activeDragRef,
+			canReorder,
+			clearRootDragHover,
+			item,
+			scheduleFolderExpansion,
+			setFolderDropTarget,
+		],
 	);
 
 	const onFolderChildListDrop = useCallback(
 		async (event: DragEvent<HTMLElement>) => {
 			if (item.type !== 'folder' || window.remotion_isReadOnlyStudio) {
+				return;
+			}
+
+			if (
+				!canReorder &&
+				event.target instanceof Element &&
+				event.target.closest('[data-composition-folder]') !==
+					event.currentTarget
+			) {
 				return;
 			}
 
@@ -741,6 +808,8 @@ export const CompositionSelectorItem: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 			clearRootDragHover();
+			setFolderDropTarget(null);
+			cancelFolderExpansion();
 			await moveItem({
 				dragData,
 				destination: {
@@ -750,13 +819,26 @@ export const CompositionSelectorItem: React.FC<{
 				},
 			});
 		},
-		[activeDragRef, clearRootDragHover, item, moveItem],
+		[
+			activeDragRef,
+			cancelFolderExpansion,
+			canReorder,
+			clearRootDragHover,
+			item,
+			moveItem,
+			setFolderDropTarget,
+		],
 	);
 
 	if (item.type === 'folder') {
-		const folderPath = getFolderPath(item);
 		return (
-			<>
+			<div
+				data-composition-folder={folderPath}
+				style={highlightedFolderStyle}
+				onDragLeave={onFolderDragLeave}
+				onDragOverCapture={canReorder ? undefined : onFolderChildListDragOver}
+				onDropCapture={canReorder ? undefined : onFolderChildListDrop}
+			>
 				<ContextMenu getItems={getContextMenuItems}>
 					<div style={reorderWrapper}>
 						{reorderLineStyle ? (
@@ -772,9 +854,9 @@ export const CompositionSelectorItem: React.FC<{
 								draggable={!window.remotion_isReadOnlyStudio}
 								onDragStart={onItemDragStart}
 								onDragEnd={onItemDragEnd}
-								onDragOver={onRowDragOver}
-								onDragLeave={onRowDragLeave}
-								onDrop={onRowDrop}
+								onDragOver={canReorder ? onRowDragOver : undefined}
+								onDragLeave={canReorder ? onRowDragLeave : undefined}
+								onDrop={canReorder ? onRowDrop : undefined}
 								aria-label={item.folderName}
 								role="button"
 								aria-expanded={item.expanded}
@@ -815,6 +897,8 @@ export const CompositionSelectorItem: React.FC<{
 									toggleFolder={toggleFolder}
 									clearRootDragHover={clearRootDragHover}
 									canReorder={canReorder}
+									folderDropTarget={folderDropTarget}
+									setFolderDropTarget={setFolderDropTarget}
 									activeDragRef={activeDragRef}
 									parentFolderPath={folderPath}
 									previousSibling={index === 0 ? null : item.items[index - 1]}
@@ -828,7 +912,7 @@ export const CompositionSelectorItem: React.FC<{
 						})}
 					</div>
 				) : null}
-			</>
+			</div>
 		);
 	}
 
@@ -848,9 +932,9 @@ export const CompositionSelectorItem: React.FC<{
 						draggable={!window.remotion_isReadOnlyStudio}
 						onDragStart={onItemDragStart}
 						onDragEnd={onItemDragEnd}
-						onDragOver={onRowDragOver}
-						onDragLeave={onRowDragLeave}
-						onDrop={onRowDrop}
+						onDragOver={canReorder ? onRowDragOver : undefined}
+						onDragLeave={canReorder ? onRowDragLeave : undefined}
+						onDrop={canReorder ? onRowDrop : undefined}
 						type="button"
 						aria-label={item.composition.id}
 						className={`__remotion-composition __remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
