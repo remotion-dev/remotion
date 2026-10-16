@@ -172,7 +172,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 						easing={preset.easing}
 						height={18}
 						nonScalingStroke
-						strokeWidth={5}
+						strokeWidth={1.5}
 						width={18}
 					/>
 				),
