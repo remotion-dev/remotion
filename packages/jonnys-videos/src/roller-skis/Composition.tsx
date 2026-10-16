@@ -1104,8 +1104,8 @@ const RollerSkiRoughCutInner: React.FC = () => {
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="The pole tips"
-					durationInFrames={354}
-					trimBefore={48}
+					durationInFrames={179}
+					trimBefore={223}
 				>
 					<Video
 						src={rollerSkiAsset('footage/webcam1790859190089.mp4')}
