@@ -157,22 +157,15 @@ export const generateCanvasCaptureComposition = ({
 		[],
 	);
 
-	const customCursors: string[] = [];
 	const customCursorKeyframes = movements.reduce<
-		Array<{readonly frame: number; readonly value: number}>
+		Array<{readonly frame: number; readonly value: string}>
 	>((keyframes, movement) => {
 		if (!customCursorRegex.test(movement.cursor)) {
 			return keyframes;
 		}
 
-		let cursorIndex = customCursors.indexOf(movement.cursor);
-		if (cursorIndex === -1) {
-			cursorIndex = customCursors.length;
-			customCursors.push(movement.cursor);
-		}
-
-		if (keyframes.at(-1)?.value !== cursorIndex) {
-			keyframes.push({frame: movement.frame, value: cursorIndex});
+		if (keyframes.at(-1)?.value !== movement.cursor) {
+			keyframes.push({frame: movement.frame, value: movement.cursor});
 		}
 
 		return keyframes;
@@ -196,15 +189,14 @@ export const generateCanvasCaptureComposition = ({
 						extrapolateRight: 'clamp',
 					},
 				)}`;
+	// Keep the cursor shape as a direct interpolation so timeline moves retime it
+	// together with the cursor's position and scale.
 	const customCursorProp =
 		customCursorKeyframes.length === 0
 			? ''
 			: customCursorKeyframes.length === 1
-				? `\t\t\t\tcustomCursor={${serialize(customCursors[0])}}\n`
-				: `\t\t\t\tcustomCursor={${serializeArray(
-						customCursors,
-						5,
-					)}[interpolate(
+				? `\t\t\t\tcustomCursor={${serialize(customCursorKeyframes[0].value)}}\n`
+				: `\t\t\t\tcustomCursor={interpolate(
 					frame,
 					${serializeArray(
 						customCursorKeyframes.map((keyframe) => keyframe.frame),
@@ -219,7 +211,7 @@ export const generateCanvasCaptureComposition = ({
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					},
-				)]}
+				)}
 `;
 	const scale =
 		scaleKeyframes.length === 1
