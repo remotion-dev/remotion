@@ -501,10 +501,7 @@ const PolaroidPicturesInner: React.FC = () => {
 	);
 };
 
-export const PolaroidPictures = Interactive.withSchema({
+export const PolaroidPictures = Interactive.create({
 	Component: PolaroidPicturesInner,
-	componentName: 'PolaroidPictures',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

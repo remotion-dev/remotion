@@ -28,10 +28,7 @@ const MovingWavesInner: React.FC = () => {
 	);
 };
 
-export const MovingWaves = Interactive.withSchema({
+export const MovingWaves = Interactive.create({
 	Component: MovingWavesInner,
-	componentName: 'MovingWaves',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });
