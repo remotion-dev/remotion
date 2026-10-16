@@ -715,6 +715,7 @@ export const PitchCorrectionPreview = () => {
 			]}
 		>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 1976,
 					height: 1440,

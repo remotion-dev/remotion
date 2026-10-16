@@ -13,6 +13,7 @@ export const KeyframeMovePreview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 3860,
 				height: 2284,

@@ -340,7 +340,7 @@ const BasicsPlaybackRateInner = ({
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
-					name="Radial focus"
+					name="Canvas Capture"
 					width={3794}
 					height={2144}
 					effects={[
@@ -367,7 +367,7 @@ const BasicsPlaybackRateInner = ({
 				</HtmlInCanvas>
 			) : (
 				<AbsoluteFill
-					name="Radial focus"
+					name="Canvas Capture"
 					durationInFrames={368}
 					premountFor={fps}
 					style={{

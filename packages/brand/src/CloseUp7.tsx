@@ -29,6 +29,7 @@ export const CloseUp7Preview = () => {
 			]}
 		>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 3320,
 					height: 2310,

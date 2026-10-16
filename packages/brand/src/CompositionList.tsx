@@ -23,6 +23,7 @@ export const CompositionListPreview = () => {
 				}}
 			/>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 1418,
 					height: 2634,

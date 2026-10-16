@@ -7,6 +7,7 @@ export const TimelineLeftDragComposition = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			durationInFrames={271}
 			style={{
 				width: 2560,

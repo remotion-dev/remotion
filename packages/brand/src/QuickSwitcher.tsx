@@ -13,6 +13,7 @@ export const QuickSwitcherPreview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 2538,
 				height: 2512,

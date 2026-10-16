@@ -59,6 +59,7 @@ export const WebMCPPromo2Preview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 2358,
 				height: 2586,

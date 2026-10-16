@@ -13,6 +13,7 @@ export const AudioWaveformPreview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 2560,
 				height: 1402,

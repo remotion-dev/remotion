@@ -28,6 +28,7 @@ export const TimelineAudioRollingEditComposition = () => {
 			]}
 		>
 			<AbsoluteFill
+				name="Canvas Capture"
 				durationInFrames={552}
 				style={{
 					width: 2560,

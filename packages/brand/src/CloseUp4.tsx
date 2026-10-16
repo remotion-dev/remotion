@@ -15,6 +15,7 @@ export const CloseUp4Preview = () => {
 
 	return (
 		<HtmlInCanvas
+			name="Canvas Capture"
 			width={3924}
 			height={1716}
 			style={{

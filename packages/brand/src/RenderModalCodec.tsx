@@ -13,6 +13,7 @@ export const RenderModalCodecPreview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 3084,
 				height: 3588,

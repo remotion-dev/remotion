@@ -34,6 +34,7 @@ export const RenderOnWebPreview = () => {
 				]}
 			>
 				<AbsoluteFill
+					name="Canvas Capture"
 					style={{
 						width: 1596,
 						height: 1440,

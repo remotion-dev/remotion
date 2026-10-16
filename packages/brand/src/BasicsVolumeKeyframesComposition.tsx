@@ -1275,7 +1275,7 @@ const BasicsVolumeKeyframesInner = ({
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
-					name="Radial focus"
+					name="Canvas Capture"
 					width={2114}
 					height={1440}
 					effects={[
@@ -1302,7 +1302,7 @@ const BasicsVolumeKeyframesInner = ({
 				</HtmlInCanvas>
 			) : (
 				<AbsoluteFill
-					name="Radial focus"
+					name="Canvas Capture"
 					durationInFrames={1785}
 					premountFor={fps}
 					style={{

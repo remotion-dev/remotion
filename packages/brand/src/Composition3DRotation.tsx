@@ -13,6 +13,7 @@ export const Composition3DRotationPreview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 1816,
 				height: 1440,

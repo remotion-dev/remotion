@@ -35,7 +35,7 @@ export const CloseUp3Preview = () => {
 				}),
 			]}
 		>
-			<AbsoluteFill style={{}} from={-573}>
+			<AbsoluteFill name="Canvas Capture" style={{}} from={-573}>
 				<Video
 					src="https://remotion.media/studio-close-ups/studio-checker-editing.mp4"
 					style={{

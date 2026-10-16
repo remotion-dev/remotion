@@ -13,6 +13,7 @@ const PrecompositionInner = () => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			durationInFrames={438}
 			trimBefore={323}
 			premountFor={60}
