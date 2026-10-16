@@ -108,8 +108,8 @@ import {
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
 import {KeyframeMove} from './KeyframeMove';
-import './index.css';
 import {Logo} from './Logo';
+import './index.css';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import {NestingCompositions} from './NestingCompositions';
 import {PitchCorrection} from './PitchCorrection';
@@ -143,6 +143,7 @@ import {SvgLogoCompositions} from './SvgLogos';
 import {TimelineAudioRollingEditComposition} from './TimelineAudioRollingEditComposition';
 import {TimelineLayoutReveal} from './TimelineLayoutReveal';
 import {TimelineLeftDragComposition} from './TimelineLeftDragComposition';
+import {TimelineSourceOnlyTrimComposition} from './TimelineSourceOnlyTrimComposition';
 import {TimelineVideoRollingEditComposition} from './TimelineVideoRollingEditComposition';
 import {Codex, codexSchema} from './video-elements/Codex';
 import {
@@ -835,6 +836,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					fps={60}
 					width={2560}
 					height={1312}
+				/>
+				<Composition
+					id="TimelineSourceOnlyTrim"
+					component={TimelineSourceOnlyTrimComposition}
+					durationInFrames={420}
+					fps={60}
+					width={2440}
+					height={1440}
 				/>
 				<Folder name="NestingCompositions">
 					<NestingCompositions />
