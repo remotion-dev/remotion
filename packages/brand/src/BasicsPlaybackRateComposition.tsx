@@ -356,7 +356,7 @@ const BasicsPlaybackRateInner = ({
 					durationInFrames={368}
 					premountFor={fps}
 					style={{
-						translate: '-100px -460px',
+						translate: '150px -430px',
 						scale: 0.92,
 						rotate: '-2deg',
 						transformOrigin: '0 0',
@@ -373,7 +373,7 @@ const BasicsPlaybackRateInner = ({
 					style={{
 						width: 3794,
 						height: 2144,
-						translate: '-100px -460px',
+						translate: '150px -430px',
 						scale: 0.92,
 						rotate: '-2deg',
 						transformOrigin: '0 0',
