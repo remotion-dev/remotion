@@ -569,6 +569,8 @@ const TimelineSequenceBar: React.FC<{
 	const sceneOwnsRightGap =
 		sceneRange !== null &&
 		sceneRange.transitionOutStart !== null &&
+		// An inherited transition beyond this child scene cannot provide its gap.
+		sceneRange.transitionOutStart < sceneRange.end &&
 		// The scene contour already includes the pixel-aligned outgoing gap.
 		// Allow for floating-point error when the bar ends at the same frame.
 		sceneRight <= Number(style.width) + 0.0001;
