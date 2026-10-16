@@ -133,7 +133,7 @@ export const getSequenceFreezeFrameMenuItem = ({
 				type: 'item' as const,
 				id: 'toggle-freeze-frame',
 				keyHint: null,
-				label: isFrozen ? 'Unfreeze frame' : 'Freeze frame',
+				label: isFrozen ? 'Unfreeze' : 'Freeze',
 				leftItem: null,
 				disabled: !canToggleFreeze,
 				onClick: onToggleFreezeFrame,

@@ -114,7 +114,7 @@ const SplitSequenceQuickAction: React.FC<{
 				<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 			)}
 		>
-			Split clip
+			Split
 		</InspectorQuickAction>
 	);
 };

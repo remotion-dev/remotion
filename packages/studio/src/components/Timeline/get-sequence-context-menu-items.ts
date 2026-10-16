@@ -164,7 +164,7 @@ export const getMultiSequenceContextMenuItems = ({
 			type: 'item',
 			id: 'split-selected-sequences',
 			keyHint: null,
-			label: 'Split selected at playhead',
+			label: 'Split',
 			leftItem: null,
 			disabled: splitDisabled,
 			onClick: onSplitSelectedSequences,
