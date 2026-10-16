@@ -237,7 +237,10 @@ export const init = async () => {
 		? projectRoot
 		: relativeToCurrent;
 	const shouldOpenShell =
-		!isYesFlagSelected() && process.stdin.isTTY && process.stdout.isTTY;
+		!isYesFlagSelected() &&
+		process.stdin.isTTY &&
+		process.stdout.isTTY &&
+		process.stderr.isTTY;
 
 	Log.info();
 	Log.info(`Copied to ${chalk.blue(cdToFolder)}.`);
