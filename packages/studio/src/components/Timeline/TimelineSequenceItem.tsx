@@ -391,7 +391,9 @@ const TimelineSequenceItemInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const isStill = useIsStill();
 	const canMutateEffects =
 		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
@@ -401,7 +403,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
-	const assetContextMenu = useAssetTimelineContextMenu();
+	const getAssetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected, selectedItems, selectItem} =
@@ -1382,6 +1384,7 @@ const TimelineSequenceItemInner: React.FC<{
 		(event: MouseEvent) => {
 			const contextMenuTarget =
 				event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+			const assetContextMenu = getAssetContextMenu();
 			if (assetContextMenu !== null) {
 				return assetContextMenu;
 			}
@@ -1410,6 +1413,7 @@ const TimelineSequenceItemInner: React.FC<{
 				});
 			}
 
+			const {canvasContent} = compositionManagerRef.current;
 			const unwrapMenuItem = getSequenceUnwrapMenuItem({
 				sequence,
 				sourceLocation: validatedLocation,
@@ -1563,8 +1567,8 @@ const TimelineSequenceItemInner: React.FC<{
 			);
 		},
 		[
-			assetContextMenu,
-			canvasContent,
+			getAssetContextMenu,
+			compositionManagerRef,
 			canAddEffect,
 			canCrop,
 			canRotate,

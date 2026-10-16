@@ -127,8 +127,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
-	const {compositions, canvasContent} = useContext(
-		Internals.CompositionManager,
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
 	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -169,7 +169,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			sequenceWasDragged: boolean,
 		) => {
 			const connectedCompositions = getConnectedCompositions({
-				compositions,
+				compositions: compositionManagerRef.current.compositions,
 				singleChildComponent: doubleClickTarget.sequence.singleChildComponent,
 			});
 			const nodePath = doubleClickTarget.nodePathInfo.sequenceSubscriptionKey;
@@ -265,7 +265,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			return true;
 		},
 		[
-			compositions,
+			compositionManagerRef,
 			currentSelection,
 			defaultEditorId,
 			defaultOpenInTarget,
@@ -321,6 +321,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		const canRotate = !sourceEditDisabled && outline.path === null;
 		const outlineElement =
 			contextMenuTarget.sequence.refForOutline?.current ?? null;
+		const {canvasContent} = compositionManagerRef.current;
 		const unwrapMenuItem = getSequenceUnwrapMenuItem({
 			sequence: contextMenuTarget.sequence,
 			sourceLocation:
@@ -532,7 +533,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		});
 	}, [
 		canConfigureApps,
-		canvasContent,
+		compositionManagerRef,
 		codingAgentInfo,
 		confirm,
 		deleteTimelineItems,

@@ -1453,11 +1453,13 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const showPremounting = showPremountingSetting || premountSelected;
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
-	const assetContextMenu = useAssetTimelineContextMenu();
+	const getAssetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
@@ -1658,6 +1660,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				event.target instanceof Element
 					? event.target.closest<HTMLElement>(`[${TIMELINE_MARQUEE_ITEM_ATTR}]`)
 					: null;
+			const assetContextMenu = getAssetContextMenu();
 			if (assetContextMenu !== null) {
 				return assetContextMenu;
 			}
@@ -1686,6 +1689,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				});
 			}
 
+			const {canvasContent} = compositionManagerRef.current;
 			const unwrapMenuItem = getSequenceUnwrapMenuItem({
 				sequence: s,
 				sourceLocation: validatedLocation,
@@ -1771,8 +1775,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 			);
 		},
 		[
-			assetContextMenu,
-			canvasContent,
+			getAssetContextMenu,
+			compositionManagerRef,
 			canOpenInEditor,
 			canConfigureApps,
 			codingAgentInfo,
