@@ -23,10 +23,30 @@ import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
+import {useConfirmationDialog} from './ConfirmationDialog';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
+import {useDownloadProject} from './use-download-project';
+
+const serverRenderInstructions: React.CSSProperties = {
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: '0 0 16px',
+};
+
+const serverRenderCommands: React.CSSProperties = {
+	fontFamily: 'monospace',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: '0 0 16px',
+	padding: 12,
+	backgroundColor: 'rgba(255, 255, 255, 0.05)',
+	borderRadius: 4,
+	userSelect: 'text',
+};
 
 const segmentedButtonStyle: React.CSSProperties = {
 	height: 28,
@@ -118,6 +138,39 @@ const RenderButtonInner: React.FC<{
 		.previewServerState.type;
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const canServerRender = connectionStatus === 'connected' && !isBrowserStudio;
+	const confirm = useConfirmationDialog();
+	const downloadProject = useDownloadProject();
+	const openServerRenderHandoff = useCallback(async () => {
+		if (downloadProject === null) {
+			return;
+		}
+
+		const confirmed = await confirm({
+			title: 'Server-side render',
+			message: (
+				<>
+					<p style={serverRenderInstructions}>
+						Server-side rendering requires running this project locally on your
+						computer instead of in Browser Studio.
+					</p>
+					<p style={serverRenderInstructions}>
+						Download and unzip the project. With Node.js installed, open a
+						terminal in the project folder and run:
+					</p>
+					<pre style={serverRenderCommands}>{'npm install\nnpm run dev'}</pre>
+					<p style={{...serverRenderInstructions, marginBottom: 0}}>
+						Open the local Remotion Studio, select your composition, and click
+						Render to export it using server-side rendering.
+					</p>
+				</>
+			),
+			confirmLabel: 'Download project',
+			cancelLabel: 'Cancel',
+		});
+		if (confirmed) {
+			await downloadProject();
+		}
+	}, [confirm, downloadProject]);
 
 	const renderType: RenderType = useMemo(() => {
 		if (readOnlyStudio) {
@@ -347,7 +400,7 @@ const RenderButtonInner: React.FC<{
 		[openClientRenderModal, openServerRenderModal],
 	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
-		if (readOnlyStudio) {
+		if (readOnlyStudio && !isBrowserStudio) {
 			return [
 				{
 					type: 'item' as const,
@@ -375,14 +428,18 @@ const RenderButtonInner: React.FC<{
 		}
 
 		return [
-			...(canServerRender
+			...(canServerRender || isBrowserStudio
 				? [
 						{
 							type: 'item' as const,
 							id: 'server-render',
-							label: 'Server-side render',
+							label: isBrowserStudio
+								? 'Server-side render...'
+								: 'Server-side render',
 							value: 'server-render',
-							onClick: () => handleRenderTypeChange('server-render'),
+							onClick: isBrowserStudio
+								? openServerRenderHandoff
+								: () => handleRenderTypeChange('server-render'),
 							keyHint: null,
 							leftItem: null,
 							subMenu: null,
@@ -402,7 +459,13 @@ const RenderButtonInner: React.FC<{
 				quickSwitcherLabel: null,
 			},
 		];
-	}, [canServerRender, handleRenderTypeChange, readOnlyStudio]);
+	}, [
+		canServerRender,
+		handleRenderTypeChange,
+		isBrowserStudio,
+		openServerRenderHandoff,
+		readOnlyStudio,
+	]);
 
 	const renderLabel =
 		renderType === 'server-render'
