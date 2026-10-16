@@ -799,6 +799,13 @@ const TimelineSequenceBar: React.FC<{
 			/>
 		);
 
+	// The stacked 10px icon and 15px label need 26px including the bottom inset.
+	const inlineConnectedCompositionIcon =
+		connectedComposition !== null &&
+		Number(style.height) -
+			(hasTimelineTrackMediaLabel(s) ? getTimelineLayerHeight(s.type) : 0) <
+			26;
+
 	const content = (
 		<>
 			{premountIndicator}
@@ -830,8 +837,11 @@ const TimelineSequenceBar: React.FC<{
 							? {top: getTimelineLayerHeight(s.type)}
 							: {}),
 						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'flex-start',
+						flexDirection: inlineConnectedCompositionIcon ? 'row' : 'column',
+						alignItems: inlineConnectedCompositionIcon
+							? 'center'
+							: 'flex-start',
+						gap: inlineConnectedCompositionIcon ? 4 : 0,
 						overflow: 'hidden',
 						pointerEvents: 'none',
 						userSelect: 'none',
