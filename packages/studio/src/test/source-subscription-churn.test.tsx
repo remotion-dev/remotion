@@ -1,7 +1,11 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import {CodemodsInternals} from '@remotion/codemods';
-import type {SubscribeToSequencePropsBatchRequest} from '@remotion/studio-shared';
+import type {
+	SubscribeToSequencePropsBatchRequest,
+	UnsubscribeFromSequencePropsBatchRequest,
+	UnsubscribeFromSequencePropsRequest,
+} from '@remotion/studio-shared';
 import {act, render, waitFor} from '@testing-library/react';
 import {useContext, useState, type ContextType} from 'react';
 import {
@@ -82,6 +86,7 @@ const Fixture = () => (
 test('parent previews keep source subscriptions stable while mounted instances evaluate shared source', async () => {
 	const previousFetch = globalThis.fetch;
 	const requests: string[] = [];
+	const unsubscriptionBatches: UnsubscribeFromSequencePropsRequest[][] = [];
 	const subscriptions: ReturnType<
 		typeof CodemodsInternals.computeSequencePropsSubscriptionFromContent
 	>[] = [];
@@ -107,6 +112,10 @@ test('parent previews keep source subscriptions stable while mounted instances e
 		const endpoint = String(input);
 		requests.push(endpoint);
 		if (endpoint === '/api/unsubscribe-from-sequence-props') {
+			const unsubscribeBody = JSON.parse(
+				String(init?.body),
+			) as UnsubscribeFromSequencePropsBatchRequest;
+			unsubscriptionBatches.push(unsubscribeBody.requests);
 			return Promise.resolve(Response.json({success: true}));
 		}
 
@@ -325,15 +334,16 @@ test('parent previews keep source subscriptions stable while mounted instances e
 		await act(async () => {
 			rendered?.unmount();
 			await Promise.resolve();
+			await new Promise((resolve) => setTimeout(resolve, 0));
 		});
 		globalThis.fetch = previousFetch;
 		sourceLineOffset = 0;
 	}
 
-	// Verify that unsubscribe traffic is actually observed by the test.
-	expect(
-		requests.filter(
-			(endpoint) => endpoint === '/api/unsubscribe-from-sequence-props',
-		),
-	).toHaveLength(subscriptions.filter((result) => result.success).length);
+	// Refresh cleanup and final unmount each send one batch, preserving every release.
+	expect(unsubscriptionBatches).toHaveLength(2);
+	expect(unsubscriptionBatches.at(-1)).toHaveLength(4);
+	expect(unsubscriptionBatches.flat()).toHaveLength(
+		subscriptions.filter((result) => result.success).length,
+	);
 });
