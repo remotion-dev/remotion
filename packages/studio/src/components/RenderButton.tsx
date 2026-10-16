@@ -412,7 +412,7 @@ const RenderButtonInner: React.FC<{
 				: 'Render in browser';
 	const showRenderLabel = !narrow || renderType !== 'server-render';
 	const segments = useMemo((): SegmentedButtonSegment[] => {
-		return [
+		const buttonSegments: SegmentedButtonSegment[] = [
 			{
 				ariaLabel: showRenderLabel ? tooltip : renderLabel,
 				buttonId: 'render-modal-button',
@@ -448,7 +448,10 @@ const RenderButtonInner: React.FC<{
 				tooltipLabel: showRenderLabel ? null : renderLabel,
 				type: 'action',
 			},
-			{
+		];
+
+		if (dropdownValues.length > 1) {
+			buttonSegments.push({
 				ariaLabel: 'Select render type',
 				buttonId: null,
 				disabled: false,
@@ -465,8 +468,10 @@ const RenderButtonInner: React.FC<{
 				tooltipLabel: null,
 				type: 'menu',
 				values: dropdownValues,
-			},
-		];
+			});
+		}
+
+		return buttonSegments;
 	}, [
 		controlSize,
 		dropdownValues,
