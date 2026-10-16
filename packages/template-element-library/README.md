@@ -33,7 +33,7 @@ See the [Element guidelines](https://www.remotion.dev/elements/guidelines), [int
 ## Build and deploy
 
 ```sh
-npm run typecheck
+npm run lint
 npm run build
 npm start
 ```

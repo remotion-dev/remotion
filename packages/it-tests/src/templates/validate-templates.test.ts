@@ -105,24 +105,18 @@ describe('Templates should be valid', () => {
 			}
 
 			if (!template.shortName.includes('JavaScript')) {
-				expect(body.devDependencies['typescript']).toInclude(
-					template.cliId === 'element-library' ? '7.0.2' : '5.9.3',
-				);
+				expect(body.devDependencies['typescript']).toInclude('5.9.3');
 
-				if (template.cliId !== 'element-library') {
-					// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					const eitherPluginOrConfig =
-						body.devDependencies['@remotion/eslint-config']?.match(
-							'workspace:*',
-						) ||
-						body.devDependencies['@remotion/eslint-config-flat']?.match(
-							'workspace:*',
-						) ||
-						body.devDependencies['@remotion/eslint-plugin']?.match(
-							'workspace:*',
-						);
-					expect(eitherPluginOrConfig).toBeTruthy();
-				}
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const eitherPluginOrConfig =
+					body.devDependencies['@remotion/eslint-config']?.match(
+						'workspace:*',
+					) ||
+					body.devDependencies['@remotion/eslint-config-flat']?.match(
+						'workspace:*',
+					) ||
+					body.devDependencies['@remotion/eslint-plugin']?.match('workspace:*');
+				expect(eitherPluginOrConfig).toBeTruthy();
 			}
 
 			const scripts = body.scripts;
