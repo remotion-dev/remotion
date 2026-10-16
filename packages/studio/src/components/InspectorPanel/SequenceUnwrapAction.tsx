@@ -1,0 +1,88 @@
+import React, {useCallback, useContext, useEffect, useState} from 'react';
+import {Internals} from 'remotion';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {showNotification} from '../Notifications/NotificationCenter';
+import {unwrapNode} from '../unwrap-node-api';
+import {
+	InspectorQuickAction,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
+} from './common';
+
+export const SequenceUnwrapAction: React.FC<{
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly sourceActionsDisabled: boolean;
+}> = ({nodePathInfo, sourceActionsDisabled}) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const [canUnwrap, setCanUnwrap] = useState(false);
+	const [busy, setBusy] = useState(false);
+	const {absolutePath, nodePath} = nodePathInfo.sequenceSubscriptionKey;
+	const compositionId =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+
+	useEffect(() => {
+		let cancelled = false;
+		setCanUnwrap(false);
+		if (sourceActionsDisabled || compositionId === null) return;
+		unwrapNode({fileName: absolutePath, nodePath, compositionId, dryRun: true})
+			.then((result) => {
+				if (!cancelled) setCanUnwrap(result.success && result.canUnwrap);
+			})
+			.catch(() => undefined);
+		return () => {
+			cancelled = true;
+		};
+	}, [absolutePath, nodePath, compositionId, sourceActionsDisabled]);
+
+	const onUnwrap = useCallback(async () => {
+		if (busy || !canUnwrap || sourceActionsDisabled || compositionId === null)
+			return;
+		setBusy(true);
+		try {
+			const result = await unwrapNode({
+				fileName: absolutePath,
+				nodePath,
+				compositionId,
+				dryRun: false,
+			});
+			if (!result.success) showNotification(result.reason, 4000);
+		} catch (error) {
+			showNotification((error as Error).message, 4000);
+		} finally {
+			setBusy(false);
+		}
+	}, [
+		absolutePath,
+		nodePath,
+		compositionId,
+		busy,
+		canUnwrap,
+		sourceActionsDisabled,
+	]);
+
+	if (!canUnwrap || sourceActionsDisabled || compositionId === null)
+		return null;
+	return (
+		<InspectorQuickAction
+			disabled={busy}
+			onClick={onUnwrap}
+			iconContainerStyle={largeInspectorActionIconContainerStyle}
+			aria-label="Unwrap: remove this element and keep its children"
+			renderIcon={(color) => (
+				<svg
+					viewBox="0 0 24 24"
+					style={largeInspectorActionIconStyle}
+					fill="none"
+					stroke={color}
+					strokeWidth={1.5}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
+					<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M9 9h6v6H9z" />
+				</svg>
+			)}
+		>
+			Unwrap
+		</InspectorQuickAction>
+	);
+};

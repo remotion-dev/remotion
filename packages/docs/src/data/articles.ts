@@ -2773,6 +2773,15 @@ export const articles = [
 		slug: 'codemods/unwrap-folder',
 	},
 	{
+		id: 'codemods/unwrap-node',
+		title: 'unwrapNode()',
+		relativePath: 'docs/codemods/unwrap-node.mdx',
+		compId: 'articles-docs-codemods-unwrap-node',
+		crumb: '@remotion/codemods',
+		noAi: false,
+		slug: 'codemods/unwrap-node',
+	},
+	{
 		id: 'codemods/update-composition-metadata',
 		title: 'updateCompositionMetadata()',
 		relativePath: 'docs/codemods/update-composition-metadata.mdx',

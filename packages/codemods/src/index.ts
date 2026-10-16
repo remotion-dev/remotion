@@ -136,6 +136,7 @@ export type {
 } from './codemod-project';
 export {applyCodemodChanges} from './codemod-project';
 export {deleteNodes, type DeleteNodesOptions} from './delete-nodes';
+export {canUnwrapNode, unwrapNode, type UnwrapNodeOptions} from './unwrap-node';
 export {canWrapNode, wrapNode, type WrapNodeOptions} from './wrap-node';
 export {
 	canPrecomposeJsxNodes,

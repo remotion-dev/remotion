@@ -49,6 +49,7 @@ import {
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
+import {SequenceUnwrapAction} from './SequenceUnwrapAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
@@ -366,6 +367,10 @@ const SequenceSourceQuickActions: React.FC<{
 				track={track}
 				sourceActionsDisabled={sourceActionsDisabled}
 				sourceLocation={validatedLocation}
+			/>
+			<SequenceUnwrapAction
+				nodePathInfo={selection.nodePathInfo}
+				sourceActionsDisabled={sourceActionsDisabled || isTransition}
 			/>
 			<SequencePrecomposeAction
 				targets={[
