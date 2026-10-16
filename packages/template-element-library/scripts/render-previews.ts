@@ -13,6 +13,7 @@ const { values } = parseArgs({
     help: { type: "boolean", short: "h" },
   },
 });
+
 if (values.help) {
   console.log(
     "Usage: npm run render-previews -- [--element=<slug>] [--browser-executable=<path>]",
@@ -24,8 +25,10 @@ const selected =
   values.element === undefined
     ? elements
     : elements.filter(({ slug }) => slug === values.element);
+
 if (selected.length === 0)
   throw new Error(`Unknown Element: ${values.element}`);
+
 for (const { slug } of selected) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
     throw new Error(`Invalid Element slug: ${slug}`);
@@ -33,21 +36,27 @@ for (const { slug } of selected) {
 }
 
 const manifestPath = path.resolve("elements/previews.json");
+
 const previews: Record<string, { posterUrl: string; videoUrl: string }> =
   JSON.parse(await readFile(manifestPath, "utf8"));
+
 const browserExecutable = values["browser-executable"] ?? null;
+
 const serveUrl = await bundle({
   entryPoint: path.resolve("remotion/previews.tsx"),
 });
+
 const compositions = await getCompositions({
   serveUrl,
   inputProps: {},
   browserExecutable,
 });
+
 const version = randomUUID();
 
 for (const definition of selected) {
   const composition = compositions.find(({ id }) => id === definition.slug);
+
   if (!composition)
     throw new Error(`Missing preview composition: ${definition.slug}`);
   const transparent = definition.previewBackground === "transparent";
@@ -79,8 +88,11 @@ for (const definition of selected) {
 }
 
 const temporaryManifest = `${manifestPath}.${version}.tmp`;
+
 await writeFile(temporaryManifest, `${JSON.stringify(previews, null, 2)}\n`);
+
 await rename(temporaryManifest, manifestPath);
+
 console.log(
   "Previews rendered. Review them on the website before running upload-previews.",
 );

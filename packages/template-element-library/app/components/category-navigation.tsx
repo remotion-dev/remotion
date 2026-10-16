@@ -16,6 +16,7 @@ export const CategoryNavigation = ({
     >
       {[null, ...categories].map((item) => {
         const params = new URLSearchParams(search);
+
         if (item === null || item === "Captions") {
           params.delete("category");
         } else {

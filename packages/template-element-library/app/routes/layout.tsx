@@ -8,9 +8,11 @@ export default function LibraryLayout() {
   const [hydrated, setHydrated] = useState(false);
   const search = hydrated ? location.search : "";
   const [insideStudio, setInsideStudio] = useState(false);
+
   const isCaptionPicker =
     insideStudio &&
     new URLSearchParams(search).get("remotion-studio-context") === "captions";
+
   useEffect(() => {
     setHydrated(true);
     setInsideStudio(isInsideStudio());

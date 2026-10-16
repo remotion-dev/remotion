@@ -38,8 +38,10 @@ export const StudioInstallFallback = ({
   useEffect(() => {
     const dialog = dialogRef.current;
     const trigger = triggerRef.current;
+
     if (!dialog) return;
     dialog.showModal();
+
     return () => {
       dialog.close();
       window.requestAnimationFrame(() => {
@@ -51,6 +53,7 @@ export const StudioInstallFallback = ({
   useEffect(() => {
     if (copyStatus !== "Copied.") return;
     const timeout = window.setTimeout(() => setCopyStatus(""), 2000);
+
     return () => window.clearTimeout(timeout);
   }, [copyStatus]);
 
@@ -66,6 +69,7 @@ export const StudioInstallFallback = ({
       onClick={(event) => {
         if (event.target !== event.currentTarget) return;
         const bounds = event.currentTarget.getBoundingClientRect();
+
         if (
           event.clientX < bounds.left ||
           event.clientX > bounds.right ||

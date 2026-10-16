@@ -14,6 +14,7 @@ export const meta: MetaFunction = ({ params }) => {
   const entry = catalog.find(
     ({ definition }) => definition.slug === params.slug,
   );
+
   return [
     {
       title: `${entry?.definition.displayName ?? "Element not found"} — Studio Supply`,
@@ -30,6 +31,7 @@ export default function ElementPage() {
   const { search } = useOutletContext<{ search: string }>();
   const [copyStatus, setCopyStatus] = useState("");
   const entry = catalog.find(({ definition }) => definition.slug === slug);
+
   if (!entry) {
     return (
       <main id="main" className="py-16">
@@ -50,6 +52,7 @@ export default function ElementPage() {
       </main>
     );
   }
+
   const { definition, sourceCode } = entry;
 
   return (

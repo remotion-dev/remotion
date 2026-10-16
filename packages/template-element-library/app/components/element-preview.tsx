@@ -1,5 +1,5 @@
 import { Player } from "@remotion/player";
-import { useMemo, type CSSProperties } from "react";
+import { useMemo } from "react";
 import type { ElementDefinition } from "../../elements/registry";
 import { ElementPreview as PreviewComposition } from "../../remotion/ElementPreview";
 
@@ -13,6 +13,11 @@ export const ElementPreview = ({
     [definition.slug],
   );
 
+  const style = {
+    width: "100%",
+    "--preview-background": definition.previewBackground,
+  };
+
   return (
     <Player
       component={PreviewComposition}
@@ -25,12 +30,7 @@ export const ElementPreview = ({
       controls
       loop
       className="bg-(--preview-background)"
-      style={
-        {
-          width: "100%",
-          "--preview-background": definition.previewBackground,
-        } as CSSProperties
-      }
+      style={style}
     />
   );
 };

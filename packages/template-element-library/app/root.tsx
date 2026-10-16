@@ -41,6 +41,7 @@ export function HydrateFallback() {
 export function ErrorBoundary() {
   const error = useRouteError();
   const notFound = isRouteErrorResponse(error) && error.status === 404;
+
   return (
     <main
       id="main"

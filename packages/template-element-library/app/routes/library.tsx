@@ -15,13 +15,16 @@ export const meta: MetaFunction = () => [
 export default function Library() {
   const { search } = useOutletContext<{ search: string }>();
   const searchParams = new URLSearchParams(search);
+
   const categories = [
     ...new Set(catalog.map(({ definition }) => definition.category)),
   ];
+
   const category =
     categories.find(
       (item) => item.toLowerCase() === searchParams.get("category"),
     ) ?? null;
+
   const visible = catalog.filter(
     ({ definition }) => category === null || definition.category === category,
   );

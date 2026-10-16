@@ -19,6 +19,7 @@ const AccentCaptionsInner = ({
 }: AccentCaptionsProps) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
   const pages = useMemo(
     () =>
       createTikTokStyleCaptions({
@@ -27,7 +28,9 @@ const AccentCaptionsInner = ({
       }).pages,
     [captions, combineTokensWithinMilliseconds],
   );
+
   const currentTimeMs = (frame / fps) * 1000;
+
   const page = pages.find(
     (candidate) =>
       currentTimeMs >= candidate.startMs &&
@@ -62,8 +65,10 @@ const AccentCaptionsInner = ({
         {page?.tokens.map((token, index) => {
           const active =
             currentTimeMs >= token.fromMs && currentTimeMs < token.toMs;
+
           const text = token.text.trim();
           const start = token.text.indexOf(text);
+
           return (
             <Fragment key={`${page.startMs}-${index}`}>
               {token.text.slice(0, start)}

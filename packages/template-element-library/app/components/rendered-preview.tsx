@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import type { ElementDefinition } from "../../elements/registry";
 import previews from "../../elements/previews.json";
 
+const previewsBySlug = new Map(Object.entries(previews));
+
 export const RenderedPreview = ({
   definition,
   playing,
@@ -9,9 +11,7 @@ export const RenderedPreview = ({
   definition: ElementDefinition;
   playing: boolean;
 }) => {
-  const assets = (
-    previews as Record<string, { posterUrl: string; videoUrl: string }>
-  )[definition.slug];
+  const assets = previewsBySlug.get(definition.slug);
   const video = useRef<HTMLVideoElement>(null);
   const [reducedMotion, setReducedMotion] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -22,6 +22,7 @@ export const RenderedPreview = ({
     const update = () => setReducedMotion(preference.matches);
     update();
     preference.addEventListener("change", update);
+
     return () => preference.removeEventListener("change", update);
   }, []);
 
@@ -31,11 +32,13 @@ export const RenderedPreview = ({
 
   useEffect(() => {
     const element = video.current;
+
     if (!element) return;
     let canceled = false;
     element.play().catch(() => {
       if (!canceled) setFailed(true);
     });
+
     return () => {
       canceled = true;
       element.pause();

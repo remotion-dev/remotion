@@ -4,21 +4,24 @@ import { AnimatedTitle } from "../elements/animated-title/animated-title";
 import { LowerThird } from "../elements/lower-third/lower-third";
 import { AnimatedBackground } from "../elements/animated-background/animated-background";
 import { AccentCaptions } from "../elements/accent-captions/accent-captions";
-import type { ComponentType } from "react";
 
-const components: Record<string, ComponentType<Record<string, unknown>>> = {
-  "animated-title": AnimatedTitle,
-  "lower-third": LowerThird,
-  "animated-background": AnimatedBackground,
-  "accent-captions": AccentCaptions,
-};
+const components = new Map(
+  Object.entries({
+    "animated-title": AnimatedTitle,
+    "lower-third": LowerThird,
+    "animated-background": AnimatedBackground,
+    "accent-captions": AccentCaptions,
+  }),
+);
 
 export const ElementPreview = ({ slug }: { slug: string }) => {
   const definition = elements.find((element) => element.slug === slug);
-  const Component = components[slug];
+  const Component = components.get(slug);
+
   if (!definition || !Component) {
     throw new Error(`Unknown Element: ${slug}`);
   }
+
   const dimensions = definition.dimensions;
 
   return (

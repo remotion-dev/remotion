@@ -10,6 +10,7 @@ const sources = import.meta.glob<string>("../elements/*/*.tsx", {
 export const catalog = elements.map((definition) => {
   const sourceCode =
     sources[`../elements/${definition.slug}/${definition.slug}.tsx`];
+
   if (!sourceCode) {
     throw new Error(`Missing source for Element: ${definition.slug}`);
   }

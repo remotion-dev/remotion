@@ -40,6 +40,7 @@ export const StudioActions = (
 
   const sendToStudio = async () => {
     setStatus({ type: "pending", message: "Finding Remotion Studio…" });
+
     try {
       const result = entry
         ? await installInStudio({ payload: entry.payload })
@@ -58,8 +59,10 @@ export const StudioActions = (
               : "Request sent. Confirm in Remotion Studio to finish.",
         });
         setFallback({ isOpen: false, failureCount: 0 });
+
         return;
       }
+
       setStatus({ type: "error", code: result.code, message: result.message });
     } catch {
       setStatus({
@@ -69,6 +72,7 @@ export const StudioActions = (
           "Could not connect to Remotion Studio. Check that Studio is running, then try again.",
       });
     }
+
     setFallback((previous) => ({
       isOpen: true,
       failureCount: previous.failureCount + 1,
@@ -194,6 +198,7 @@ export const StudioActions = (
           onRetry={sendToStudio}
           onClose={() => {
             setFallback({ isOpen: false, failureCount: 0 });
+
             if (status.type === "error")
               setStatus({ type: "idle", message: "" });
           }}
