@@ -1,13 +1,8 @@
 import {Audio, Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {
-	Easing,
-	Interactive,
-	interpolate,
-	Series,
-	useCurrentFrame,
-} from 'remotion';
-import {Callout} from '../elements/Callout';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {CalloutWithSound} from '../elements/Callout';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
 const UphillInner: React.FC = () => {
@@ -15,8 +10,12 @@ const UphillInner: React.FC = () => {
 
 	return (
 		<>
-			<Series>
-				<Series.Sequence name="Incline" trimBefore={28} durationInFrames={83}>
+			<TransitionSeries name="Uphill shots">
+				<TransitionSeries.Sequence
+					name="Incline"
+					trimBefore={28}
+					durationInFrames={83}
+				>
 					<Video
 						name="IMG_0459"
 						src={
@@ -118,8 +117,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Awesome features"
 					trimBefore={131}
 					durationInFrames={145}
@@ -246,8 +245,12 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence name="Which is" trimBefore={299} durationInFrames={24}>
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
+					name="Which is"
+					trimBefore={299}
+					durationInFrames={24}
+				>
 					<Video
 						name="IMG_0459"
 						src={
@@ -279,8 +282,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Cannot roll backwards"
 					trimBefore={342}
 					durationInFrames={48}
@@ -337,8 +340,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="So I can just"
 					trimBefore={416}
 					durationInFrames={21}
@@ -388,8 +391,12 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence name="Walk" trimBefore={465} durationInFrames={24}>
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
+					name="Walk"
+					trimBefore={465}
+					durationInFrames={24}
+				>
 					<Video
 						name="IMG_0459"
 						src={
@@ -414,8 +421,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Super chill"
 					trimBefore={539}
 					durationInFrames={40}
@@ -451,8 +458,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Super casual"
 					trimBefore={642}
 					durationInFrames={37}
@@ -488,8 +495,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Really super cool"
 					trimBefore={1050}
 					durationInFrames={29}
@@ -532,8 +539,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="One thing"
 					trimBefore={1141}
 					durationInFrames={64}
@@ -618,8 +625,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="People look weird"
 					trimBefore={1224}
 					durationInFrames={95}
@@ -713,8 +720,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="What is cool"
 					trimBefore={1335}
 					durationInFrames={257}
@@ -862,8 +869,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Even the cows"
 					trimBefore={1751}
 					durationInFrames={168}
@@ -987,8 +994,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Cow stare"
 					trimBefore={122}
 					durationInFrames={51}
@@ -1011,8 +1018,8 @@ const UphillInner: React.FC = () => {
 							}),
 						}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="But you know"
 					trimBefore={1932}
 					durationInFrames={22}
@@ -1055,8 +1062,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Stand for your values"
 					trimBefore={2018}
 					durationInFrames={255}
@@ -1155,8 +1162,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Step by step"
 					trimBefore={2273}
 					durationInFrames={87}
@@ -1220,8 +1227,8 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Reached the top"
 					trimBefore={2416}
 					durationInFrames={67}
@@ -1285,9 +1292,9 @@ const UphillInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-			</Series>
-			<Callout
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
+			<CalloutWithSound
 				name="Feature callout"
 				from={258}
 				durationInFrames={164}
@@ -1296,13 +1303,11 @@ const UphillInner: React.FC = () => {
 				icon="check"
 				accentColor="#16a34a"
 				style={{position: 'absolute', left: 80, top: 70}}
+				sound="https://remotion.media/ding.wav"
+				soundVolume={0.35}
+				soundFrom={0}
 			/>
-			<Audio
-				name="Ding"
-				src="https://remotion.media/ding.wav"
-				from={258}
-				volume={0.35}
-			/>
+
 			<Audio
 				name="Vine boom"
 				src="https://remotion.media/vine-boom.wav"
