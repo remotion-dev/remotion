@@ -1753,12 +1753,16 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 					selectAsset,
 					sequence: s,
 					sourceActions: isStudioInteractivityEnabled()
-						? [
-								...(unwrapMenuItem ? [unwrapMenuItem] : []),
-								...(splitMenuItem ? [splitMenuItem] : []),
-								...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
-							]
-						: [],
+						? {
+								rename: null,
+								timing: [
+									...(splitMenuItem ? [splitMenuItem] : []),
+									...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+								],
+								appearance: [],
+								unwrap: unwrapMenuItem,
+							}
+						: null,
 				},
 				contextMenuTarget,
 			);

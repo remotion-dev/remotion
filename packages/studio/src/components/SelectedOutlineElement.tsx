@@ -422,107 +422,107 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			selectAsset,
 			sequence: contextMenuTarget.sequence,
 			sourceActions: sourceEditingEnabled
-				? [
-						...(unwrapMenuItem ? [unwrapMenuItem] : []),
-						...(contextMenuTarget.nodePathInfo.supportsEffects
-							? [
-									{
-										type: 'item' as const,
-										id: 'add-effect',
-										keyHint: null,
-										label: 'Add effect...',
-										leftItem: null,
-										disabled: !canAddEffect,
-										onClick: () => {
-											if (
-												!canAddEffect ||
-												previewServerState.type !== 'connected'
-											) {
-												return;
-											}
+				? {
+						rename: null,
+						timing: [],
+						appearance: [
+							{
+								type: 'item' as const,
+								id: 'crop',
+								keyHint: null,
+								label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
+								leftItem: null,
+								disabled: !canCrop,
+								onClick: () => {
+									if (!canCrop) {
+										return;
+									}
 
-											setSelectedModal({
-												type: 'add-effect',
-												clientId: previewServerState.clientId,
-												fileName: nodePath.absolutePath,
-												nodePathInfo: contextMenuTarget.nodePathInfo,
-												selectItems: currentSelection.current.selectItems,
-											});
+									onSelect(
+										{
+											type: 'sequence-prop',
+											nodePathInfo: {
+												...contextMenuTarget.nodePathInfo,
+												auxiliaryKeys: ['controls', cropFieldKeys.left],
+											},
+											key: cropFieldKeys.left,
 										},
-										quickSwitcherLabel: null,
-										subMenu: null,
-										value: 'add-effect',
-									},
-								]
-							: []),
-						{
-							type: 'item' as const,
-							id: 'crop',
-							keyHint: null,
-							label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
-							leftItem: null,
-							disabled: !canCrop,
-							onClick: () => {
-								if (!canCrop) {
-									return;
-								}
-
-								onSelect(
-									{
-										type: 'sequence-prop',
-										nodePathInfo: {
-											...contextMenuTarget.nodePathInfo,
-											auxiliaryKeys: ['controls', cropFieldKeys.left],
-										},
-										key: cropFieldKeys.left,
-									},
-									{shiftKey: false, toggleKey: false},
-								);
+										{shiftKey: false, toggleKey: false},
+									);
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'crop',
 							},
-							quickSwitcherLabel: null,
-							subMenu: null,
-							value: 'crop',
-						},
-						{
-							type: 'item' as const,
-							id: 'rotate',
-							keyHint: null,
-							label: isProgrammaticallyDuplicated ? 'Rotate all' : 'Rotate',
-							leftItem: null,
-							disabled: !canRotate,
-							onClick: () => {
-								if (!canRotate) {
-									return;
-								}
+							{
+								type: 'item' as const,
+								id: 'rotate',
+								keyHint: null,
+								label: isProgrammaticallyDuplicated ? 'Rotate all' : 'Rotate',
+								leftItem: null,
+								disabled: !canRotate,
+								onClick: () => {
+									if (!canRotate) {
+										return;
+									}
 
-								setManuallyEnabled(
-									getTimelineSequenceSelectionKey(
-										contextMenuTarget.nodePathInfo,
-									),
-									true,
-								);
-								onSelect(
-									{
-										type: 'sequence-prop',
-										nodePathInfo: {
-											...contextMenuTarget.nodePathInfo,
-											auxiliaryKeys: ['controls', rotateFieldKey],
+									setManuallyEnabled(
+										getTimelineSequenceSelectionKey(
+											contextMenuTarget.nodePathInfo,
+										),
+										true,
+									);
+									onSelect(
+										{
+											type: 'sequence-prop',
+											nodePathInfo: {
+												...contextMenuTarget.nodePathInfo,
+												auxiliaryKeys: ['controls', rotateFieldKey],
+											},
+											key: rotateFieldKey,
 										},
-										key: rotateFieldKey,
-									},
-									{shiftKey: false, toggleKey: false},
-								);
+										{shiftKey: false, toggleKey: false},
+									);
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'rotate',
 							},
-							quickSwitcherLabel: null,
-							subMenu: null,
-							value: 'rotate',
-						},
-						{
-							type: 'divider' as const,
-							id: 'rotate-divider',
-						},
-					]
-				: [],
+							...(contextMenuTarget.nodePathInfo.supportsEffects
+								? [
+										{
+											type: 'item' as const,
+											id: 'add-effect',
+											keyHint: null,
+											label: 'Add effect...',
+											leftItem: null,
+											disabled: !canAddEffect,
+											onClick: () => {
+												if (
+													!canAddEffect ||
+													previewServerState.type !== 'connected'
+												) {
+													return;
+												}
+
+												setSelectedModal({
+													type: 'add-effect',
+													clientId: previewServerState.clientId,
+													fileName: nodePath.absolutePath,
+													nodePathInfo: contextMenuTarget.nodePathInfo,
+													selectItems: currentSelection.current.selectItems,
+												});
+											},
+											quickSwitcherLabel: null,
+											subMenu: null,
+											value: 'add-effect',
+										},
+									]
+								: []),
+						],
+						unwrap: unwrapMenuItem,
+					}
+				: null,
 		});
 	}, [
 		canConfigureApps,

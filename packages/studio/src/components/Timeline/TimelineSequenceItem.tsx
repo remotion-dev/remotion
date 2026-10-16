@@ -1477,68 +1477,8 @@ const TimelineSequenceItemInner: React.FC<{
 					selectAsset,
 					sequence,
 					sourceActions: isStudioInteractivityEnabled()
-						? [
-								...(nodePathInfo?.supportsEffects
-									? [
-											{
-												type: 'item' as const,
-												id: 'add-effect',
-												keyHint: null,
-												label: 'Add effect...',
-												leftItem: null,
-												disabled: !canAddEffect,
-												onClick: onAddEffect,
-												quickSwitcherLabel: null,
-												subMenu: null,
-												value: 'add-effect',
-											},
-										]
-									: []),
-								...(canCrop
-									? [
-											{
-												type: 'item' as const,
-												id: 'crop',
-												keyHint: null,
-												label: isProgrammaticallyDuplicated
-													? 'Crop all'
-													: 'Crop',
-												leftItem: null,
-												disabled: false,
-												onClick: onCrop,
-												quickSwitcherLabel: null,
-												subMenu: null,
-												value: 'crop',
-											},
-										]
-									: []),
-								...(canRotate
-									? [
-											{
-												type: 'item' as const,
-												id: 'rotate',
-												keyHint: null,
-												label: isProgrammaticallyDuplicated
-													? 'Rotate all'
-													: 'Rotate',
-												leftItem: null,
-												disabled: false,
-												onClick: onRotate,
-												quickSwitcherLabel: null,
-												subMenu: null,
-												value: 'rotate',
-											},
-										]
-									: []),
-								...(canCrop || canRotate
-									? [
-											{
-												type: 'divider' as const,
-												id: 'transform-controls-divider',
-											},
-										]
-									: []),
-								{
+						? {
+								rename: {
 									type: 'item' as const,
 									id: 'rename-sequence',
 									keyHint: null,
@@ -1552,13 +1492,69 @@ const TimelineSequenceItemInner: React.FC<{
 									subMenu: null,
 									value: 'rename-sequence',
 								},
-								...(unwrapMenuItem ? [unwrapMenuItem] : []),
-								...(!isPackedTrack && splitMenuItem ? [splitMenuItem] : []),
-								...(!isPackedTrack && freezeFrameMenuItem
-									? [freezeFrameMenuItem]
-									: []),
-							]
-						: [],
+								timing: [
+									...(!isPackedTrack && splitMenuItem ? [splitMenuItem] : []),
+									...(!isPackedTrack && freezeFrameMenuItem
+										? [freezeFrameMenuItem]
+										: []),
+								],
+								appearance: [
+									...(canCrop
+										? [
+												{
+													type: 'item' as const,
+													id: 'crop',
+													keyHint: null,
+													label: isProgrammaticallyDuplicated
+														? 'Crop all'
+														: 'Crop',
+													leftItem: null,
+													disabled: false,
+													onClick: onCrop,
+													quickSwitcherLabel: null,
+													subMenu: null,
+													value: 'crop',
+												},
+											]
+										: []),
+									...(canRotate
+										? [
+												{
+													type: 'item' as const,
+													id: 'rotate',
+													keyHint: null,
+													label: isProgrammaticallyDuplicated
+														? 'Rotate all'
+														: 'Rotate',
+													leftItem: null,
+													disabled: false,
+													onClick: onRotate,
+													quickSwitcherLabel: null,
+													subMenu: null,
+													value: 'rotate',
+												},
+											]
+										: []),
+									...(nodePathInfo?.supportsEffects
+										? [
+												{
+													type: 'item' as const,
+													id: 'add-effect',
+													keyHint: null,
+													label: 'Add effect...',
+													leftItem: null,
+													disabled: !canAddEffect,
+													onClick: onAddEffect,
+													quickSwitcherLabel: null,
+													subMenu: null,
+													value: 'add-effect',
+												},
+											]
+										: []),
+								],
+								unwrap: unwrapMenuItem,
+							}
+						: null,
 				},
 				contextMenuTarget,
 			);

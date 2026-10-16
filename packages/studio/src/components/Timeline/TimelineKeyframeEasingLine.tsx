@@ -177,6 +177,26 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			const stack = track?.sequence.getStack() ?? null;
 
 			return [
+				getCopyContextForAgentsMenuItem({
+					contextForAgents:
+						field === null || stack === null
+							? null
+							: async () => {
+									const location = await getOriginalLocationFromStack(
+										stack,
+										'sequence',
+									);
+									return formatContextForAgents({
+										location,
+										name: `${field.type === 'effect' ? 'Effect property' : 'Property'} "${field.fieldKey}", easing from frame ${fromFrame} to ${toFrame}`,
+										root: window.remotion_cwd,
+									});
+								},
+				}),
+				{
+					type: 'divider',
+					id: 'copy-context-for-agents-divider',
+				},
 				...canvasKeyframeEasingPresets.map((preset) => ({
 					type: 'item' as const,
 					id: preset.id,
@@ -198,26 +218,6 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 					subMenu: null,
 					value: preset.id,
 				})),
-				{
-					type: 'divider',
-					id: 'copy-context-for-agents-divider',
-				},
-				getCopyContextForAgentsMenuItem({
-					contextForAgents:
-						field === null || stack === null
-							? null
-							: async () => {
-									const location = await getOriginalLocationFromStack(
-										stack,
-										'sequence',
-									);
-									return formatContextForAgents({
-										location,
-										name: `${field.type === 'effect' ? 'Effect property' : 'Property'} "${field.fieldKey}", easing from frame ${fromFrame} to ${toFrame}`,
-										root: window.remotion_cwd,
-									});
-								},
-				}),
 			];
 		},
 		[

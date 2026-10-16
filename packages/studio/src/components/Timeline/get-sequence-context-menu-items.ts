@@ -212,7 +212,7 @@ export const getSequenceContextMenuItems = (
 		originalLocation,
 		selectAsset,
 		sequence,
-		sourceActions = [],
+		sourceActions,
 	}: {
 		readonly assetLinkInfo: TimelineAssetLinkInfo | null;
 		readonly canOpenInEditor: boolean;
@@ -237,7 +237,12 @@ export const getSequenceContextMenuItems = (
 		readonly originalLocation: ResolvedStackLocation | null;
 		readonly selectAsset: (src: string) => void;
 		readonly sequence: TSequence;
-		readonly sourceActions?: readonly ComboboxValue[];
+		readonly sourceActions: {
+			readonly rename: ComboboxValue | null;
+			readonly timing: readonly ComboboxValue[];
+			readonly appearance: readonly ComboboxValue[];
+			readonly unwrap: ComboboxValue | null;
+		} | null;
 	},
 	contextMenuTarget: HTMLElement | null = null,
 ): ComboboxValue[] => {
@@ -456,13 +461,32 @@ export const getSequenceContextMenuItems = (
 					id: 'copy-svg-divider',
 				}
 			: null,
-		sourceActions.length > 0
+		includeSourceEditItems || sourceActions
+			? {type: 'divider' as const, id: 'sequence-source-actions-divider'}
+			: null,
+		sourceActions?.rename,
+		includeSourceEditItems
 			? {
-					type: 'divider' as const,
-					id: 'sequence-source-actions-divider',
+					type: 'item' as const,
+					id: 'duplicate-sequence',
+					keyHint: null,
+					label: 'Duplicate',
+					leftItem: null,
+					disabled: duplicateDisabled || isProgrammaticallyDuplicated,
+					onClick: onDuplicateSequenceFromSource,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'duplicate-sequence',
 				}
 			: null,
-		...sourceActions,
+		...(sourceActions?.timing ?? []),
+		sourceActions && sourceActions.appearance.length > 0
+			? {type: 'divider' as const, id: 'sequence-appearance-divider'}
+			: null,
+		...(sourceActions?.appearance ?? []),
+		includeSourceEditItems
+			? {type: 'divider' as const, id: 'sequence-interactivity-divider'}
+			: null,
 		includeSourceEditItems
 			? {
 					type: 'item' as const,
@@ -479,24 +503,11 @@ export const getSequenceContextMenuItems = (
 			: null,
 		includeSourceEditItems
 			? {
-					type: 'item' as const,
-					id: 'duplicate-sequence',
-					keyHint: null,
-					label: 'Duplicate',
-					leftItem: null,
-					disabled: duplicateDisabled || isProgrammaticallyDuplicated,
-					onClick: onDuplicateSequenceFromSource,
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'duplicate-sequence',
-				}
-			: null,
-		includeSourceEditItems
-			? {
 					type: 'divider' as const,
-					id: 'sequence-duplicate-delete-divider',
+					id: 'sequence-delete-divider',
 				}
 			: null,
+		sourceActions?.unwrap,
 		includeSourceEditItems
 			? {
 					type: 'item' as const,

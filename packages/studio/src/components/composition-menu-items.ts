@@ -223,10 +223,6 @@ export const getCompositionMenuItems = ({
 			openComponentInGitSource().catch(() => undefined);
 		},
 	});
-	const hasOpenInItems =
-		defaultOpenInName !== null ||
-		compositionOpenInMenuItems.length > 0 ||
-		componentOpenInMenuItems.length > 0;
 
 	return [
 		defaultOpenInTarget && defaultOpenInName
@@ -322,92 +318,6 @@ export const getCompositionMenuItems = ({
 					},
 					type: 'item' as const,
 					value: 'open-component-in-another-app',
-				}
-			: null,
-		hasOpenInItems && includeCompositionManagementItems
-			? {
-					type: 'divider' as const,
-					id: 'show-in-editor-divider',
-				}
-			: null,
-		includeCompositionManagementItems
-			? {
-					id: 'rename',
-					keyHint: null,
-					label: `Rename...`,
-					leftItem: null,
-					onClick: () => {
-						if (!composition) {
-							return;
-						}
-
-						closeMenu();
-						setSelectedModal({
-							type: 'rename-comp',
-							compositionId: composition.id,
-						});
-					},
-					quickSwitcherLabel: 'Rename composition...',
-					subMenu: null,
-					type: 'item' as const,
-					value: 'rename',
-					disabled: !composition || readOnlyStudio,
-				}
-			: null,
-		includeCompositionManagementItems
-			? {
-					id: 'duplicate',
-					keyHint: null,
-					label: `Duplicate...`,
-					leftItem: null,
-					onClick: () => {
-						if (!composition) {
-							return;
-						}
-
-						closeMenu();
-						setSelectedModal({
-							type: 'duplicate-comp',
-							compositionId: composition.id,
-							compositionType:
-								composition.durationInFrames === 1 ? 'still' : 'composition',
-						});
-					},
-					quickSwitcherLabel: 'Duplicate composition...',
-					subMenu: null,
-					type: 'item' as const,
-					value: 'duplicate',
-					disabled: !composition || readOnlyStudio,
-				}
-			: null,
-		includeCompositionManagementItems
-			? {
-					id: 'delete',
-					keyHint: null,
-					label: `Delete...`,
-					leftItem: null,
-					onClick: () => {
-						if (!composition) {
-							return;
-						}
-
-						closeMenu();
-						setSelectedModal({
-							type: 'delete-comp',
-							compositionId: composition.id,
-						});
-					},
-					quickSwitcherLabel: 'Delete composition...',
-					subMenu: null,
-					type: 'item' as const,
-					value: 'delete',
-					disabled: !composition || readOnlyStudio,
-				}
-			: null,
-		hasOpenInItems || includeCompositionManagementItems
-			? {
-					type: 'divider' as const,
-					id: 'copy-actions-divider',
 				}
 			: null,
 		{
@@ -512,6 +422,86 @@ export const getCompositionMenuItems = ({
 			value: 'copy-id',
 			disabled: !composition,
 		},
+		includeCompositionManagementItems
+			? {
+					type: 'divider' as const,
+					id: 'show-in-editor-divider',
+				}
+			: null,
+		includeCompositionManagementItems
+			? {
+					id: 'rename',
+					keyHint: null,
+					label: `Rename...`,
+					leftItem: null,
+					onClick: () => {
+						if (!composition) {
+							return;
+						}
+
+						closeMenu();
+						setSelectedModal({
+							type: 'rename-comp',
+							compositionId: composition.id,
+						});
+					},
+					quickSwitcherLabel: 'Rename composition...',
+					subMenu: null,
+					type: 'item' as const,
+					value: 'rename',
+					disabled: !composition || readOnlyStudio,
+				}
+			: null,
+		includeCompositionManagementItems
+			? {
+					id: 'duplicate',
+					keyHint: null,
+					label: `Duplicate...`,
+					leftItem: null,
+					onClick: () => {
+						if (!composition) {
+							return;
+						}
+
+						closeMenu();
+						setSelectedModal({
+							type: 'duplicate-comp',
+							compositionId: composition.id,
+							compositionType:
+								composition.durationInFrames === 1 ? 'still' : 'composition',
+						});
+					},
+					quickSwitcherLabel: 'Duplicate composition...',
+					subMenu: null,
+					type: 'item' as const,
+					value: 'duplicate',
+					disabled: !composition || readOnlyStudio,
+				}
+			: null,
+		includeCompositionManagementItems
+			? {
+					id: 'delete',
+					keyHint: null,
+					label: `Delete...`,
+					leftItem: null,
+					onClick: () => {
+						if (!composition) {
+							return;
+						}
+
+						closeMenu();
+						setSelectedModal({
+							type: 'delete-comp',
+							compositionId: composition.id,
+						});
+					},
+					quickSwitcherLabel: 'Delete composition...',
+					subMenu: null,
+					type: 'item' as const,
+					value: 'delete',
+					disabled: !composition || readOnlyStudio,
+				}
+			: null,
 	].filter(NoReactInternals.truthy);
 };
 
