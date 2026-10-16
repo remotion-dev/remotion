@@ -107,9 +107,9 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
+import './index.css';
 import {KeyframeMove} from './KeyframeMove';
 import {Logo} from './Logo';
-import './index.css';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import {NestingCompositions} from './NestingCompositions';
 import {PitchCorrection} from './PitchCorrection';
@@ -144,6 +144,7 @@ import {TimelineAudioRollingEditComposition} from './TimelineAudioRollingEditCom
 import {TimelineLayoutReveal} from './TimelineLayoutReveal';
 import {TimelineLeftDragComposition} from './TimelineLeftDragComposition';
 import {TimelineSourceOnlyTrimComposition} from './TimelineSourceOnlyTrimComposition';
+import {TimelineSourceOnlyTrimWideComposition} from './TimelineSourceOnlyTrimWideComposition';
 import {TimelineVideoRollingEditComposition} from './TimelineVideoRollingEditComposition';
 import {Codex, codexSchema} from './video-elements/Codex';
 import {
@@ -844,6 +845,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					fps={60}
 					width={2440}
 					height={1440}
+				/>
+				<Composition
+					id="TimelineSourceOnlyTrimWide"
+					component={TimelineSourceOnlyTrimWideComposition}
+					durationInFrames={431}
+					fps={60}
+					width={1920}
+					height={1080}
 				/>
 				<Folder name="NestingCompositions">
 					<NestingCompositions />

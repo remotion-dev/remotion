@@ -12,10 +12,23 @@ export const TimelineSourceOnlyTrimComposition = () => {
 			style={{
 				width: 2440,
 				height: 1440,
-				rotate: '-0.86742 0.430898 0.248816 56.222342deg',
-				scale: 1.959,
-				translate: '-334.2px 128.9px',
-				transformOrigin: '12.49% 13.28%',
+				rotate: '0.989262 -0.075857 -0.124929 19.445185deg',
+				scale: interpolate(frame, [93, 419], [1.52, 1.35], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+					output: 'perceptual-scale',
+					outputType: 'scale',
+				}),
+				translate: interpolate(
+					frame,
+					[93, 418],
+					['-196.7px 74.5px', '-47.9px 142.7px'],
+					{
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						outputType: 'translate',
+					},
+				),
 			}}
 		>
 			<Video
