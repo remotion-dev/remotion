@@ -60,7 +60,6 @@ import {
 import {RenderModalHr} from '../RenderModal/RenderModalHr';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
-import {SegmentedControl, type SegmentedControlItem} from '../SegmentedControl';
 import {useSettings} from '../SettingsContext';
 import {VerticalTab} from '../Tabs/vertical';
 import {useModelCacheStatus} from '../use-model-cache-status';
@@ -737,7 +736,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	}, [captionStyle]);
 	const [libraryUrl, setLibraryUrl] = useState(REMOTION_CAPTION_STYLES_URL);
 	const {studioRuntimeConfig} = useSettings();
-	const libraryOptions: SegmentedControlItem[] = [
+	const libraryOptions: ComboboxValue[] = [
 		{url: REMOTION_CAPTION_STYLES_URL, displayName: 'Remotion Elements'},
 		...(studioRuntimeConfig?.elementLibraries ?? []).flatMap(
 			({captionStylesUrl, displayName: libraryName}) =>
@@ -747,9 +746,14 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 					: [{url: captionStylesUrl, displayName: libraryName}],
 		),
 	].map(({url, displayName: libraryName}) => ({
-		key: url,
+		type: 'item',
+		id: url,
+		value: url,
 		label: libraryName ?? new URL(url).host,
-		selected: url === libraryUrl,
+		leftItem: url === libraryUrl ? <Checkmark /> : null,
+		keyHint: null,
+		subMenu: null,
+		quickSwitcherLabel: null,
 		onClick: () => setLibraryUrl(url),
 	}));
 	const [tab, setTab] = useState<Tab>('transcribe');
@@ -1074,23 +1078,25 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 									display: 'flex',
 									alignItems: 'center',
 									gap: 8,
-									height: 44,
-									padding: '0 16px',
+									flexWrap: 'wrap',
+									minHeight: 44,
+									padding: '8px 16px',
 									flexShrink: 0,
 								}}
 							>
 								{libraryOptions.length > 1 ? (
-									<div
-										role="group"
+									<Combobox
 										aria-label="Caption style library"
-										style={{display: 'flex', flexShrink: 0}}
-									>
-										<SegmentedControl
-											items={libraryOptions}
-											needsWrapping={false}
-											size="medium"
-										/>
-									</div>
+										values={libraryOptions}
+										selectedId={libraryUrl}
+										style={{
+											width: 240,
+											minWidth: 0,
+											height: 28,
+											padding: '3px 6px 3px 10px',
+											cursor: 'default',
+										}}
+									/>
 								) : null}
 								<div style={flexer} />
 								{captionStyle === null ? null : (
@@ -1099,6 +1105,8 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 											display: 'flex',
 											alignItems: 'center',
 											gap: 2,
+											flex: '0 1 auto',
+											maxWidth: '100%',
 											minWidth: 0,
 										}}
 									>
