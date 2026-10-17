@@ -30,6 +30,7 @@ import {roundedCaptionsInitialProps} from '../../../elements/captions/rounded-ca
 import {RoundedCaptions} from '../../../elements/captions/rounded-captions/rounded-captions';
 import {wordHighlightCaptionsInitialProps} from '../../../elements/captions/word-highlight-captions/initial-props';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
+import {Peel} from '../../../elements/commerce/peel/peel';
 import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {Shine} from '../../../elements/commerce/shine/shine';
@@ -605,6 +606,33 @@ const elementImplementations = [
 		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1080,
+	},
+	{
+		slug: 'commerce/peel',
+		assets: [],
+		installationProps: null,
+		component: Peel,
+		contributors: [],
+		description: 'Peels any content away with a curled paper edge.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 60,
+		elementHeight: 720,
+		elementWidth: 1280,
+		fps: 30,
+		height: 1080,
+		posterFrame: 24,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/commerce-peel-preview-57fbe8da-01d3-405c-82f9-84707b1ce6fa.png',
+			backgroundTheme: 'light',
+			videoUrl:
+				'https://remotion.media/elements/commerce-peel-preview-57fbe8da-01d3-405c-82f9-84707b1ce6fa.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
 	},
 	{
 		slug: 'commerce/shine',
@@ -1417,6 +1445,7 @@ const elementImplementations = [
 })[];
 
 const htmlInCanvasElementSlugs = new Set<ElementSlug>([
+	'commerce/peel',
 	'commerce/shine',
 	'commerce/tear',
 	'text/cylinder-text',

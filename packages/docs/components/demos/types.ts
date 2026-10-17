@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import {PageTurnDemo} from '../effects/effects-page-turn-preview';
 import {SpinningGlobeDemo} from '../effects/effects-sphere-preview';
 import {
 	ClockWipeDemo,
@@ -1766,6 +1767,19 @@ export const sphereGlobeDemo: DemoType = {
 	durationInFrames: 240,
 	fps: 30,
 	id: 'sphere-globe',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const pageTurnDemo: DemoType = {
+	comp: PageTurnDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	durationInFrames: 180,
+	fps: 30,
+	id: 'page-turn-demo',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',

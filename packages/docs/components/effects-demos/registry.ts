@@ -39,6 +39,7 @@ import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
 import {outline} from '@remotion/effects/outline';
+import {pageTurn} from '@remotion/effects/page-turn';
 import {paper} from '@remotion/effects/paper';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
@@ -123,6 +124,7 @@ import {
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsOutlinePreview} from '../effects/effects-outline-preview';
+import {EffectsPageTurnPreview} from '../effects/effects-page-turn-preview';
 import {
 	EffectsPaletteMapPreview,
 	paletteMap,
@@ -200,6 +202,14 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-page-turn',
+		effectName: 'pageTurn',
+		effectImportPath: '@remotion/effects/page-turn',
+		comp: EffectsPageTurnPreview,
+		schema: pageTurn().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-sphere',
