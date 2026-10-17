@@ -63,6 +63,10 @@ import {
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsOutlinePreview} from '../../components/effects/effects-outline-preview';
 import {
+	EffectsPageTurnPreview,
+	PageTurnScene,
+} from '../../components/effects/effects-page-turn-preview';
+import {
 	EffectsPaperPreview,
 	PAPER_PREVIEW_PARAMS,
 } from '../../components/effects/effects-paper-preview';
@@ -232,6 +236,29 @@ export const RemotionRoot: React.FC = () => {
 				})}
 			</Folder>
 			<Folder name="effect-previews">
+				<Still
+					id="effects-page-turn-preview"
+					component={EffectsPageTurnPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						foldPosition: [0.57, 0.6],
+						foldDirection: 300,
+						foldRadius: 85,
+						lightDirection: -45,
+						render: 'both',
+						backPageOpacity: 0.25,
+						paperColor: '#ffffff',
+					}}
+				/>
+				<Composition
+					id="page-turn-demo"
+					component={PageTurnScene}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
 				<Still
 					id="effects-sphere-preview"
 					component={EffectsSpherePreview}

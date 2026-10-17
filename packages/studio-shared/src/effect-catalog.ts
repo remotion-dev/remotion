@@ -531,6 +531,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-page-turn',
+		category: 'Distort',
+		label: 'pageTurn()',
+		description: 'Curl a page with a shaded fold and paper back',
+		effect: {
+			name: 'pageTurn',
+			importPath: '@remotion/effects/page-turn',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-sphere',
 		category: 'Distort',
 		label: 'sphere()',

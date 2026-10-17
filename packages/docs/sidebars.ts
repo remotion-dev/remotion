@@ -323,6 +323,7 @@ const sidebars: SidebarsConfig = {
 				'effects/noise',
 				'effects/noise-displacement',
 				'effects/outline',
+				'effects/page-turn',
 				'effects/paper',
 				'effects/pattern',
 				'effects/pixel-dissolve',

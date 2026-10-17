@@ -50,6 +50,7 @@ const effectEntrypoints = [
 	'src/noise.ts',
 	'src/noise-displacement.ts',
 	'src/outline.ts',
+	'src/page-turn.ts',
 	'src/paper.ts',
 	'src/roughen-edges.ts',
 	'src/pattern.ts',

@@ -3763,6 +3763,15 @@ export const articles = [
 		slug: 'effects/outline',
 	},
 	{
+		id: 'effects/page-turn',
+		title: 'pageTurn()',
+		relativePath: 'docs/effects/page-turn.mdx',
+		compId: 'articles-docs-effects-page-turn',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/page-turn',
+	},
+	{
 		id: 'effects/paper',
 		title: 'paper()',
 		relativePath: 'docs/effects/paper.mdx',

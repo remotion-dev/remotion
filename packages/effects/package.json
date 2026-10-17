@@ -249,6 +249,11 @@
 			"module": "./dist/esm/outline.mjs",
 			"import": "./dist/esm/outline.mjs"
 		},
+		"./page-turn": {
+			"types": "./dist/page-turn.d.ts",
+			"module": "./dist/esm/page-turn.mjs",
+			"import": "./dist/esm/page-turn.mjs"
+		},
 		"./paper": {
 			"types": "./dist/paper.d.ts",
 			"module": "./dist/esm/paper.mjs",
@@ -541,6 +546,9 @@
 			],
 			"outline": [
 				"dist/outline.d.ts"
+			],
+			"page-turn": [
+				"dist/page-turn.d.ts"
 			],
 			"paper": [
 				"dist/paper.d.ts"
