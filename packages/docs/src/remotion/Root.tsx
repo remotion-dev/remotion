@@ -119,6 +119,11 @@ import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../../components/effects/effects-translate-preview';
+import {
+	EffectsTurbulentDisplacePreview,
+	TurbulentDisplaceDemo,
+	TurbulentDisplaceTextSource,
+} from '../../components/effects/effects-turbulent-displace-preview';
 import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
 import {EffectsVenetianBlindsPreview} from '../../components/effects/effects-venetian-blinds-preview';
 import {EffectsVibrancePreview} from '../../components/effects/effects-vibrance-preview';
@@ -438,6 +443,39 @@ export const RemotionRoot: React.FC = () => {
 						feather: 0.18,
 					}}
 				/>
+				<Still
+					id="effects-turbulent-displace-text-source"
+					component={TurbulentDisplaceTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-turbulent-displace-preview"
+					component={EffectsTurbulentDisplacePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						displacement: 'turbulent',
+						amount: 120,
+						size: 150,
+						offset: [0.5, 0.5],
+						complexity: 2,
+						evolution: 90,
+						cycleEvolution: false,
+						cycle: 1,
+						seed: 0,
+						pinning: 'all',
+					}}
+				/>
+				<Composition
+					id="turbulent-displace-demo"
+					component={TurbulentDisplaceDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
+
 				<Still
 					id="effects-fractal-noise-preview"
 					component={EffectsFractalNoisePreview}

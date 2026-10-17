@@ -2,7 +2,8 @@
 
 ## EffectCraft
 
-The Fractal Noise shader is adapted from the value-noise engine in
+The Fractal Noise and Turbulent Displace shaders are adapted from the noise
+and distortion engines in
 [EffectCraft](https://github.com/storytold/effectcraft), revision
 `8f02f52a44a4b1ea807d8824b92301b96f896a06`. It is used under the MIT license.
 

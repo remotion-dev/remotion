@@ -348,6 +348,7 @@ const sidebars: SidebarsConfig = {
 				'effects/thermal-vision',
 				'effects/tile',
 				'effects/tint',
+				'effects/turbulent-displace',
 				'effects/tv-signal-off',
 				'effects/uv-translate',
 				'effects/venetian-blinds',

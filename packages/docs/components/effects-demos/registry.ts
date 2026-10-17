@@ -65,6 +65,7 @@ import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tile} from '@remotion/effects/tile';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
+import {turbulentDisplace} from '@remotion/effects/turbulent-displace';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
 import {venetianBlinds} from '@remotion/effects/venetian-blinds';
 import {vibrance} from '@remotion/effects/vibrance';
@@ -170,6 +171,7 @@ import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
+import {EffectsTurbulentDisplacePreview} from '../effects/effects-turbulent-displace-preview';
 import {EffectsTvSignalOffPreview} from '../effects/effects-tv-signal-off-preview';
 import {EffectsVenetianBlindsPreview} from '../effects/effects-venetian-blinds-preview';
 import {EffectsVibrancePreview} from '../effects/effects-vibrance-preview';
@@ -204,6 +206,14 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-turbulent-displace',
+		effectName: 'turbulentDisplace',
+		effectImportPath: '@remotion/effects/turbulent-displace',
+		comp: EffectsTurbulentDisplacePreview,
+		schema: turbulentDisplace().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-fractal-noise',

@@ -1,0 +1,151 @@
+---
+image: /generated/articles-docs-effects-turbulent-displace.png
+slug: /effects/turbulent-displace
+title: turbulentDisplace()
+sidebar_label: turbulentDisplace()
+crumb: '@remotion/effects'
+---
+
+# turbulentDisplace()<AvailableFrom v="4.0.537" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Warps a layer using evolving fractal noise. Use it for liquid text, heat haze and organic distortion. The effect moves color and alpha together, so it can deform the outlines of text and shapes.
+
+## Preview
+
+<Demo type="turbulent-displace" />
+
+## Controls
+
+<EffectsDemo type="effects-turbulent-displace" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {turbulentDisplace} from '@remotion/effects/turbulent-displace';
+import {AbsoluteFill, HtmlInCanvas, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={{backgroundColor: 'black'}}>
+      <HtmlInCanvas
+        width={1280}
+        height={720}
+        effects={[
+          turbulentDisplace({
+            amount: 120,
+            size: 150,
+            complexity: 2,
+            cycleEvolution: true,
+            evolution: interpolate(frame, [0, 120], [0, 360]),
+            pinning: 'all',
+          }),
+        ]}
+      >
+        <Interactive.Div
+          name="Fluid text"
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontSize: 170,
+            fontWeight: 900,
+            color: 'white',
+          }}
+        >
+          FLUID
+        </Interactive.Div>
+      </HtmlInCanvas>
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `turbulentDisplace()` without arguments.
+
+### `displacement?`
+
+Distortion mode. Defaults to `"turbulent"`.
+
+- `"turbulent"`: Displace horizontally and vertically using independent noise fields.
+- `"bulge"`: Push pixels along the slope of the noise field.
+- `"twist"`: Push pixels perpendicular to that slope.
+- `"turbulent-smoother"`, `"bulge-smoother"`, `"twist-smoother"`: Reduce the strength of finer noise layers for smoother distortion.
+- `"vertical"`: Move pixels vertically.
+- `"horizontal"`: Move pixels horizontally.
+- `"cross"`: Apply the same displacement to both axes, producing diagonal movement.
+
+### `amount?`
+
+Distortion strength in pixels. Defaults to `50`. Set to `0` to leave the source unchanged. Negative values reverse the displacement.
+
+### `size?`
+
+Size of the largest noise features in pixels. Must be at least `1`. Defaults to `100`. Larger values create broader bends.
+
+### `offset?`
+
+Origin of the noise field as an `[x, y]` tuple in normalized coordinates, where `[0, 0]` is the top-left and `[1, 1]` is the bottom-right. Defaults to `[0.5, 0.5]`. Values outside the canvas are allowed. Animate this value to move the distortion across the layer.
+
+### `complexity?`
+
+Number of noise layers, from `1` to `10`. Defaults to `1`. Fractional values smoothly introduce the next layer. Higher values add finer detail and take longer to render.
+
+The smoother displacement modes reduce the influence of these finer layers. At a complexity of `1`, they match their regular counterparts.
+
+### `evolution?`
+
+Evolution of the noise in degrees. Defaults to `0`. Animate it to morph the distortion without translating the noise field.
+
+By default, `360` continues to a new pattern. Enable `cycleEvolution` to repeat after `cycle * 360` degrees.
+
+### `cycleEvolution?`
+
+Whether to loop the distortion. Defaults to `false`. When enabled, evolution repeats smoothly after `cycle` revolutions.
+
+### `cycle?`
+
+Length of the evolution loop in revolutions, where one revolution is `360` degrees. Must be an integer from `1` to `65535`. Defaults to `1`. Used when `cycleEvolution` is `true`.
+
+### `seed?`
+
+Integer from `0` to `4294967295` selecting a repeatable noise pattern. Defaults to `0`. Animate `evolution` instead of `seed` for smooth changes.
+
+### `pinning?`
+
+Edges that stay in place. Defaults to `"all"`. The distortion fades out near pinned edges.
+
+- `"none"`: Do not pin edges.
+- `"all"`: Pin all four edges.
+- `"horizontal"`: Pin the top and bottom edges.
+- `"vertical"`: Pin the left and right edges.
+- `"left"`, `"top"`, `"right"`, `"bottom"`: Pin one edge.
+
+The variants `"all-locked"`, `"horizontal-locked"`, `"vertical-locked"`, `"left-locked"`, `"top-locked"`, `"right-locked"` and `"bottom-locked"` also clamp source sampling to the canvas bounds. This prevents transparent gaps caused by sampling outside the source, with a wider fade near pinned edges.
+
+The canvas size stays unchanged. Pixels moved outside it are cropped.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`turbulentDisplace()` uses WebGL2. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+The animated text example also uses [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
+
+## See also
+
+- [`fractalNoise()`](/docs/effects/fractal-noise)
+- [`noiseDisplacement()`](/docs/effects/noise-displacement)
+- [`wave()`](/docs/effects/wave)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/tree/main/packages/effects/src/turbulent-displace)
