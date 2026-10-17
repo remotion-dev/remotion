@@ -190,6 +190,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 		outputFile: {
 			sizeInBytes: outputSize,
 			url: outputUrl,
+			lastModified: null,
 		},
 		outputSize,
 		timeToCombine,

@@ -292,7 +292,11 @@ export const getProgress = async <Provider extends CloudProvider>({
 			throw err;
 		});
 
-		if (outputFile) {
+		const isFromThisRender =
+			!outputFile?.lastModified ||
+			outputFile.lastModified.getTime() >= renderMetadata.startedDate;
+
+		if (outputFile && isFromThisRender) {
 			const outData = getExpectedOutName({
 				output: 'main',
 				renderMetadata,
