@@ -340,6 +340,7 @@ const sidebars: SidebarsConfig = {
 				'effects/shrinkwrap',
 				'effects/skew',
 				'effects/speckle',
+				'effects/sphere',
 				'effects/starburst',
 				'effects/tear',
 				'effects/thermal-vision',

@@ -56,6 +56,7 @@ import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
+import {sphere} from '@remotion/effects/sphere';
 import {starburst} from '@remotion/effects/starburst';
 import {tear} from '@remotion/effects/tear';
 import {thermalVision} from '@remotion/effects/thermal-vision';
@@ -152,6 +153,7 @@ import {
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
+import {EffectsSpherePreview} from '../effects/effects-sphere-preview';
 import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
@@ -198,6 +200,14 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-sphere',
+		effectName: 'sphere',
+		effectImportPath: '@remotion/effects/sphere',
+		comp: EffectsSpherePreview,
+		schema: sphere().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-cylinder',

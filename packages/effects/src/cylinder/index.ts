@@ -5,7 +5,13 @@ import {
 	validateUnitInterval,
 } from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
-import {applyCylinder, cleanupCylinder, type CylinderState} from './runtime.js';
+import {
+	applyWebGpuProjection,
+	cleanupWebGpuProjection,
+	setupWebGpuProjection,
+	type WebGpuProjectionState,
+} from '../webgpu-projection-runtime.js';
+import {CYLINDER_SHADER} from './shader.js';
 
 const DEFAULT_RADIUS = 250;
 const DEFAULT_ROTATION = 0;
@@ -95,7 +101,10 @@ const resolve = (params: CylinderParams) => ({
 	shading: params.shading ?? DEFAULT_SHADING,
 });
 
-export const cylinder = Internals.createEffect<CylinderParams, CylinderState>({
+export const cylinder = Internals.createEffect<
+	CylinderParams,
+	WebGpuProjectionState
+>({
 	type: 'remotion/cylinder',
 	label: 'cylinder()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/cylinder',
@@ -143,27 +152,36 @@ export const cylinder = Internals.createEffect<CylinderParams, CylinderState>({
 		const r = resolve(params);
 		return `cylinder-${r.radius}-${r.rotation}-${r.rotationX}-${r.rotationY}-${r.rotationZ}-${r.position.join(',')}-${r.render}-${r.shading}`;
 	},
-	setup: (target) => {
-		const context = target.getContext('webgpu');
-		if (!context) {
-			throw new Error('WebGPU is not available for the cylinder effect');
-		}
-
-		return {context: context as GPUCanvasContext, resources: null};
-	},
+	setup: (target) => setupWebGpuProjection(target, 'cylinder'),
 	apply: ({source, width, height, params, state, gpuDevice}) => {
 		if (!gpuDevice) {
 			throw new Error('A WebGPU device is required for the cylinder effect');
 		}
 
-		applyCylinder({
+		const r = resolve(params);
+		const radians = Math.PI / 180;
+		applyWebGpuProjection({
 			source,
 			width,
 			height,
 			state,
 			device: gpuDevice as GPUDevice,
-			...resolve(params),
+			shader: CYLINDER_SHADER,
+			uniformData: new Float32Array([
+				width,
+				height,
+				r.position[0] * width,
+				r.position[1] * height,
+				r.radius,
+				(r.rotation % 360) * radians,
+				r.shading,
+				r.render === 'front' ? 1 : r.render === 'back' ? 2 : 0,
+				(r.rotationX % 360) * radians,
+				(r.rotationY % 360) * radians,
+				(r.rotationZ % 360) * radians,
+				0,
+			]),
 		});
 	},
-	cleanup: cleanupCylinder,
+	cleanup: cleanupWebGpuProjection,
 });

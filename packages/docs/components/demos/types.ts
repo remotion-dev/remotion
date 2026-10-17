@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import {SpinningGlobeDemo} from '../effects/effects-sphere-preview';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -1752,6 +1753,19 @@ export const cylinderTextDemo: DemoType = {
 	durationInFrames: 180,
 	fps: 30,
 	id: 'cylinder-text',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const sphereGlobeDemo: DemoType = {
+	comp: SpinningGlobeDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	durationInFrames: 240,
+	fps: 30,
+	id: 'sphere-globe',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',

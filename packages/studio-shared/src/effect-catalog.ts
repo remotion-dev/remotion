@@ -531,6 +531,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-sphere',
+		category: 'Distort',
+		label: 'sphere()',
+		description: 'Wrap content around a rotating sphere',
+		effect: {
+			name: 'sphere',
+			importPath: '@remotion/effects/sphere',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-cylinder',
 		category: 'Distort',
 		label: 'cylinder()',

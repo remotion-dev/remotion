@@ -3916,6 +3916,15 @@ export const articles = [
 		slug: 'effects/speckle',
 	},
 	{
+		id: 'effects/sphere',
+		title: 'sphere()',
+		relativePath: 'docs/effects/sphere.mdx',
+		compId: 'articles-docs-effects-sphere',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/sphere',
+	},
+	{
 		id: 'effects/starburst',
 		title: 'starburst()',
 		relativePath: 'docs/effects/starburst.mdx',

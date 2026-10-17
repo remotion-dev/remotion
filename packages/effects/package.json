@@ -324,6 +324,11 @@
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
 		},
+		"./sphere": {
+			"types": "./dist/sphere.d.ts",
+			"module": "./dist/esm/sphere.mjs",
+			"import": "./dist/esm/sphere.mjs"
+		},
 		"./starburst": {
 			"types": "./dist/starburst.d.ts",
 			"module": "./dist/esm/starburst.mjs",
@@ -581,6 +586,9 @@
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
+			],
+			"sphere": [
+				"dist/sphere.d.ts"
 			],
 			"starburst": [
 				"dist/starburst.d.ts"

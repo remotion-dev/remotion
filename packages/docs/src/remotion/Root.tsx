@@ -96,6 +96,10 @@ import {
 import {EffectsSkewPreview} from '../../components/effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {
+	EffectsSpherePreview,
+	SpinningGlobeDemo,
+} from '../../components/effects/effects-sphere-preview';
+import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
 } from '../../components/effects/effects-starburst-preview';
@@ -228,6 +232,29 @@ export const RemotionRoot: React.FC = () => {
 				})}
 			</Folder>
 			<Folder name="effect-previews">
+				<Still
+					id="effects-sphere-preview"
+					component={EffectsSpherePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						radius: 300,
+						rotationX: 0,
+						rotationY: -20,
+						rotationZ: -23.4,
+						position: [0.5, 0.5],
+						render: 'both',
+						shading: 0.35,
+					}}
+				/>
+				<Composition
+					id="sphere-globe"
+					component={SpinningGlobeDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={240}
+				/>
 				<Composition
 					id="cylinder-text"
 					component={CylinderTextDemo}

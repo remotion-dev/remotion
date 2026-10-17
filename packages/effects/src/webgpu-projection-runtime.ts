@@ -1,7 +1,4 @@
-import type {CylinderRender} from './index.js';
-import {CYLINDER_SHADER} from './shader.js';
-
-export type CylinderState = {
+export type WebGpuProjectionState = {
 	context: GPUCanvasContext;
 	resources: {
 		device: GPUDevice;
@@ -15,41 +12,41 @@ export type CylinderState = {
 	} | null;
 };
 
-export const cleanupCylinder = (state: CylinderState): void => {
+export const cleanupWebGpuProjection = (state: WebGpuProjectionState): void => {
 	state.resources?.texture.destroy();
 	state.resources?.uniforms.destroy();
 	state.resources = null;
 	state.context.unconfigure();
 };
 
-export const applyCylinder = ({
+export const setupWebGpuProjection = (
+	target: HTMLCanvasElement,
+	label: string,
+): WebGpuProjectionState => {
+	const context = target.getContext('webgpu');
+	if (!context) {
+		throw new Error(`WebGPU is not available for the ${label} effect`);
+	}
+
+	return {context: context as GPUCanvasContext, resources: null};
+};
+
+export const applyWebGpuProjection = ({
 	state,
 	source,
 	width,
 	height,
 	device,
-	radius,
-	rotation,
-	rotationX,
-	rotationY,
-	rotationZ,
-	position,
-	render,
-	shading,
+	shader,
+	uniformData,
 }: {
-	state: CylinderState;
+	state: WebGpuProjectionState;
 	source: CanvasImageSource;
 	width: number;
 	height: number;
 	device: GPUDevice;
-	radius: number;
-	rotation: number;
-	rotationX: number;
-	rotationY: number;
-	rotationZ: number;
-	position: readonly [number, number];
-	render: CylinderRender;
-	shading: number;
+	shader: string;
+	uniformData: Float32Array<ArrayBuffer>;
 }): void => {
 	if (
 		state.resources &&
@@ -57,13 +54,13 @@ export const applyCylinder = ({
 			state.resources.width !== width ||
 			state.resources.height !== height)
 	) {
-		cleanupCylinder(state);
+		cleanupWebGpuProjection(state);
 	}
 
 	if (!state.resources) {
 		const format = navigator.gpu.getPreferredCanvasFormat();
 		state.context.configure({device, format, alphaMode: 'premultiplied'});
-		const module = device.createShaderModule({code: CYLINDER_SHADER});
+		const module = device.createShaderModule({code: shader});
 		const pipeline = device.createRenderPipeline({
 			layout: 'auto',
 			vertex: {module, entryPoint: 'vertex'},
@@ -71,7 +68,7 @@ export const applyCylinder = ({
 			primitive: {topology: 'triangle-list'},
 		});
 		const uniforms = device.createBuffer({
-			size: 48,
+			size: uniformData.byteLength,
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
 		const sampler = device.createSampler({
@@ -113,25 +110,7 @@ export const applyCylinder = ({
 		{texture: resources.texture, premultipliedAlpha: true},
 		[width, height],
 	);
-	const radians = Math.PI / 180;
-	device.queue.writeBuffer(
-		resources.uniforms,
-		0,
-		new Float32Array([
-			width,
-			height,
-			position[0] * width,
-			position[1] * height,
-			radius,
-			(rotation % 360) * radians,
-			shading,
-			render === 'front' ? 1 : render === 'back' ? 2 : 0,
-			(rotationX % 360) * radians,
-			(rotationY % 360) * radians,
-			(rotationZ % 360) * radians,
-			0,
-		]),
-	);
+	device.queue.writeBuffer(resources.uniforms, 0, uniformData);
 	const encoder = device.createCommandEncoder();
 	const pass = encoder.beginRenderPass({
 		colorAttachments: [
