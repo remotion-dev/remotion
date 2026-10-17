@@ -31,7 +31,7 @@ export const TurbulentDisplaceTextSource: React.FC = () => {
 				color: 'white',
 			}}
 		>
-			STAY FLUID
+			FLUID
 		</Interactive.Div>
 	);
 };
