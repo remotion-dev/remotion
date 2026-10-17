@@ -9,6 +9,11 @@ test('parses a numeric scale as uniform X and Y', () => {
 	expect(parseScaleValue(2)).toEqual([2, 2, 1]);
 });
 
+test('parses a numeric three-dimensional scale uniformly', () => {
+	expect(parseScaleValue(2, 3)).toEqual([2, 2, 2]);
+	expect(parseScaleValue([2, 3, 4], 3)).toEqual([2, 3, 4]);
+});
+
 test('parses two and three component scale strings', () => {
 	expect(parseScaleValue('2 3')).toEqual([2, 3, 1]);
 	expect(parseScaleValue('2 3 4')).toEqual([2, 3, 4]);
@@ -21,6 +26,11 @@ test('falls back for unsupported scale values', () => {
 
 test('serializes uniform XY scale as a number', () => {
 	expect(serializeScaleValue([2, 2, 1])).toBe(2);
+});
+
+test('serializes uniform XYZ scale as a number', () => {
+	expect(serializeScaleValue([2, 2, 2], 3)).toBe(2);
+	expect(serializeScaleValue([2, 3, 4], 3)).toBe('2 3 4');
 });
 
 test('serializes non-uniform scale as CSS scale syntax', () => {

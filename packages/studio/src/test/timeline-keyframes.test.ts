@@ -78,6 +78,7 @@ const makeSequence = ({
 	timelineOrder,
 	loopDisplay: undefined,
 	getStack,
+	customOutlineRef: null,
 	refForOutline: null,
 	isInsideSeries: false,
 	premountDisplay: null,
