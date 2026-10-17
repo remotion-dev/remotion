@@ -59,6 +59,8 @@ type OptionalVideoProps = {
 	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	onVideoFrame: OnVideoFrame | undefined;
 	playbackRate: number;
+	/** Keep the original pitch when changing playback speed. Default: true. */
+	preservePitch: boolean;
 	muted: boolean;
 	delayRenderRetries: number | null;
 	delayRenderTimeoutInMilliseconds: number | null;

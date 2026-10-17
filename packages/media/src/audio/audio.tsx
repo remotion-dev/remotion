@@ -50,6 +50,12 @@ export const audioSchema: InteractivitySchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	preservePitch: {
+		type: 'boolean',
+		default: true,
+		description: 'Preserve pitch',
+		keyframable: false,
+	},
 	toneFrequency: {
 		type: 'number',
 		min: 0.01,
