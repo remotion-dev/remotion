@@ -52,6 +52,7 @@ import {speedLinesInitialProps} from '../../../elements/storytelling/speed-lines
 import {SpeedLines} from '../../../elements/storytelling/speed-lines/speed-lines';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
+import {CylinderText} from '../../../elements/text/cylinder-text/cylinder-text';
 import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
 import {SpinningTextWheel} from '../../../elements/text/spinning-text-wheel/spinning-text-wheel';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
@@ -1152,6 +1153,34 @@ const elementImplementations = [
 			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
 			backgroundTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
+		},
+		safeArea: 120,
+		initialProps: null,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
+		slug: 'text/cylinder-text',
+		assets: [],
+		installationProps: null,
+		component: CylinderText,
+		contributors: [],
+		description:
+			'Editable text spinning around a tilted cylinder using WebGPU.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 180,
+		elementHeight: 680,
+		elementWidth: 800,
+		fps: 30,
+		height: 1080,
+		posterFrame: 30,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/text-cylinder-text-preview-dedee66f-31f5-49bb-ad07-d02622c05c4c.png',
+			backgroundTheme: 'light',
+			videoUrl:
+				'https://remotion.media/elements/text-cylinder-text-preview-dedee66f-31f5-49bb-ad07-d02622c05c4c.mp4',
 		},
 		safeArea: 120,
 		initialProps: null,

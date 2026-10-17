@@ -159,6 +159,10 @@ export const elementRegistry = {
 		category: 'text',
 		displayName: 'Crossed Off',
 	},
+	'text/cylinder-text': {
+		category: 'text',
+		displayName: 'Cylinder Text',
+	},
 	'text/spinning-text-wheel': {
 		category: 'text',
 		displayName: 'Spinning Text Wheel',
