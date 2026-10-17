@@ -25,6 +25,7 @@ const makeAsset = ({
 		playbackRate: 1,
 		mediaFrame: mediaFrame ?? frame,
 		toneFrequency: 1,
+		preservePitch: true,
 		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	};
@@ -61,6 +62,7 @@ test('An asset that re-appears after a gap gets two positions', () => {
 			volume: [0, 1, 2],
 			playbackRate: 1,
 			toneFrequency: 1,
+			preservePitch: true,
 			audioStartFrame: 0,
 			audioStreamIndex: 0,
 		},
@@ -74,6 +76,7 @@ test('An asset that re-appears after a gap gets two positions', () => {
 			volume: [5, 6, 7],
 			playbackRate: 1,
 			toneFrequency: 1,
+			preservePitch: true,
 			audioStartFrame: 0,
 			audioStreamIndex: 0,
 		},
