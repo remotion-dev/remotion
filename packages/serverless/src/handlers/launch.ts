@@ -905,6 +905,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			outputFile: {
 				url: renderMetadata.outputSequence.manifestUrl,
 				sizeInBytes: Buffer.byteLength(manifestBody),
+				lastModified: null,
 			},
 			timeToCombine: null,
 			overallProgress: progress,

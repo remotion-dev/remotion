@@ -7,7 +7,7 @@ import type {CloudProvider} from './types';
 export type OutputFileMetadata = {
 	url: string;
 	sizeInBytes: number | null;
-	lastModified?: Date | null;
+	lastModified: Date | null;
 };
 
 const outputFileAccessDenied = Symbol.for(
