@@ -54,6 +54,7 @@ fn samplePage(pixel: vec2f) -> vec4f {
   back = vec4f(mix(color.rgb, params.paperColor.rgb * color.a, tint) * backShade, color.a);
   if (params.geometry.w == 1.0) { return front * coverage; }
   if (params.geometry.w == 2.0) { return back * coverage; }
+  // Premultiplied source-over: the curled back covers the front, which shows through its alpha.
   return (back + front * (1.0 - back.a)) * coverage;
 }
 `;
