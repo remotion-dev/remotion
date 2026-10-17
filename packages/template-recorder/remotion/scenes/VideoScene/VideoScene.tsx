@@ -107,7 +107,7 @@ export const VideoScene: React.FC<{
         nextScene={nextScene}
         previousScene={previousScene}
       />
-      {canvasLayout === "square" ? (
+      {canvasLayout === "square" || canvasLayout === "portrait" ? (
         <BoxedCaptions
           enterProgress={enterProgress}
           exitProgress={exitProgress}
@@ -118,12 +118,14 @@ export const VideoScene: React.FC<{
           theme={theme}
         />
       ) : null}
-      {sceneAndMetadata.scene.newChapter && canvasLayout === "square" ? (
+      {sceneAndMetadata.scene.newChapter &&
+      (canvasLayout === "square" || canvasLayout === "portrait") ? (
         <SquareChapter
           title={sceneAndMetadata.scene.newChapter}
           displayLayout={sceneAndMetadata.layout.displayLayout}
           webcamLayout={sceneAndMetadata.layout.webcamLayout}
           didTransitionIn={didTransitionIn}
+          canvasLayout={canvasLayout}
         />
       ) : null}
       {sceneAndMetadata.scene.newChapter && canvasLayout === "landscape" ? (

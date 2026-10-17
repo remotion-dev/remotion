@@ -29,7 +29,7 @@ const getWebCamStartOrEndLayout = ({
     });
   }
 
-  if (canvasLayout === "square") {
+  if (canvasLayout === "square" || canvasLayout === "portrait") {
     return getSquareWebcamStartOrEndLayout({
       currentScene,
       canvasHeight,

@@ -28,6 +28,50 @@ const getYForDisplayLayout = ({
   return canvasSize.height - displayHeight - getSafeSpace("square");
 };
 
+export const getPortraitDisplayAndWebcamLayout = ({
+  webcamSize,
+  canvasSize,
+  displaySize,
+  webcamPosition,
+}: {
+  webcamSize: Dimensions;
+  canvasSize: Dimensions;
+  displaySize: Dimensions;
+  webcamPosition: WebcamPosition;
+}): RecordingsLayout => {
+  const safeSpace = getSafeSpace("portrait");
+  const displayOnTop = isWebCamAtBottom(webcamPosition);
+  const displayTop = displayOnTop
+    ? safeSpace
+    : safeSpace + webcamSize.height + safeSpace;
+  const webcamTop = displayOnTop
+    ? displayTop + displaySize.height + safeSpace
+    : safeSpace;
+  const displayLayout: Layout = {
+    left: (canvasSize.width - displaySize.width) / 2,
+    top: displayTop,
+    width: displaySize.width,
+    height: displaySize.height,
+    borderRadius,
+    opacity: 1,
+  };
+  const webcamLayout: Layout = {
+    left: safeSpace,
+    top: webcamTop,
+    width: webcamSize.width,
+    height: webcamSize.height,
+    borderRadius,
+    opacity: 1,
+  };
+
+  return {
+    displayLayout,
+    webcamLayout,
+    bRollLayout: displayLayout,
+    bRollEnterDirection: displayOnTop ? "top" : "bottom",
+  };
+};
+
 export const getSquareDisplayLayout = ({
   canvasSize,
   webcamPosition,

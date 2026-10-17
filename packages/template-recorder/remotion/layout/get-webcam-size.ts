@@ -1,5 +1,9 @@
 import type { CanvasLayout, Dimensions } from "../../config/layout";
-import { getSafeSpace } from "../../config/layout";
+import {
+  getSafeSpace,
+  PORTRAIT_BOTTOM_SAFE_SPACE,
+  PORTRAIT_CAPTION_LANE_HEIGHT,
+} from "../../config/layout";
 
 // TODO: Use this also in the recording interface
 const webcamRatio = 400 / 350;
@@ -34,6 +38,20 @@ export const getNonFullscreenWebcamSize = ({
     return {
       width,
       height,
+    };
+  }
+
+  if (canvasLayout === "portrait") {
+    const remainingHeight =
+      canvasSize.height -
+      displaySize.height -
+      getSafeSpace(canvasLayout) * 3 -
+      PORTRAIT_BOTTOM_SAFE_SPACE -
+      PORTRAIT_CAPTION_LANE_HEIGHT;
+
+    return {
+      width: canvasSize.width - getSafeSpace(canvasLayout) * 2,
+      height: Math.max(0, remainingHeight),
     };
   }
 
