@@ -18,6 +18,7 @@ import type {
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
+import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlineEditingHandles} from './SelectedOutlineEditingHandles';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
 import {SelectedOutlinePathPoints} from './SelectedOutlinePathPoints';
@@ -279,6 +280,34 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 						onDraggingChange={onDraggingChange}
 					/>
 				) : null;
+			})}
+			{/* Paint the rotation surface after every outline polygon. A child drawn later would otherwise take the pointer and translate instead of rotating its parent. */}
+			{outlinesForRendering.map((outline) => {
+				if (outline.path !== null) {
+					return null;
+				}
+
+				const target = targetsByKey.get(outline.key);
+				if (target === undefined || target.selectedForRotation !== true) {
+					return null;
+				}
+
+				const rotationDrag =
+					getLatestOutlineTargetByKey(outline.key)?.rotationDrag ?? null;
+				if (rotationDrag === null) {
+					return null;
+				}
+
+				return (
+					<SelectedOutlineCanvasRotation
+						key={`${outline.key}-canvas-rotation`}
+						getLatestTargetByKey={getLatestOutlineTargetByKey}
+						layoutTarget={target}
+						onDraggingChange={onDraggingChange}
+						outline={scaleCanvasOutline(outline, scale)}
+						transform3DMode={rotationDrag.transform3DMode}
+					/>
+				);
 			})}
 			{/* Render editing handles after all outline polygons so selected controls stay visible and hit-testable over unrelated sequences. */}
 			{outlinesForEditingHandles.map((outline) => (

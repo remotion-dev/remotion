@@ -30,7 +30,6 @@ import {
 	type SelectedOutlineLayoutTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
-import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
@@ -559,44 +558,31 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	}, [onContextMenuOpen, outline.key, registerContextMenuOpen]);
 
 	return (
-		<>
-			<SelectedOutlinePolygon
-				compositionHeight={compositionHeight}
-				compositionWidth={compositionWidth}
-				containsSelection={layoutTarget?.containsSelection === true}
-				directlySelected={layoutTarget?.selected === true}
-				dragging={dragging}
-				getAllDragOutlines={getAllDragOutlines}
-				getAllDragTargets={getAllDragTargets}
-				getLayoutTarget={getLayoutTarget}
-				getTarget={getTarget}
-				hasTarget={layoutTarget !== undefined}
-				hovered={hovered}
-				outline={outline}
-				onDraggingChange={onDraggingChange}
-				onHoverChange={onHoverChange}
-				onSnapPointsChange={onSnapPointsChange}
-				onSelect={onSelect}
-				onDoubleClickTarget={onDoubleClickTarget}
-				scale={scale}
-				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
-				translateWithCommandKey={
-					layoutTarget?.selectedForRotation === true &&
-					Boolean(controlTarget?.rotationDrag)
-				}
-			/>
-			{layoutTarget?.selectedForRotation &&
-			controlTarget?.rotationDrag &&
-			outline.path === null ? (
-				<SelectedOutlineCanvasRotation
-					getLatestTargetByKey={getLatestTargetByKey}
-					layoutTarget={layoutTarget}
-					onDraggingChange={onDraggingChange}
-					outline={outline}
-					transform3DMode={controlTarget.rotationDrag.transform3DMode}
-				/>
-			) : null}
-		</>
+		<SelectedOutlinePolygon
+			compositionHeight={compositionHeight}
+			compositionWidth={compositionWidth}
+			containsSelection={layoutTarget?.containsSelection === true}
+			directlySelected={layoutTarget?.selected === true}
+			dragging={dragging}
+			getAllDragOutlines={getAllDragOutlines}
+			getAllDragTargets={getAllDragTargets}
+			getLayoutTarget={getLayoutTarget}
+			getTarget={getTarget}
+			hasTarget={layoutTarget !== undefined}
+			hovered={hovered}
+			outline={outline}
+			onDraggingChange={onDraggingChange}
+			onHoverChange={onHoverChange}
+			onSnapPointsChange={onSnapPointsChange}
+			onSelect={onSelect}
+			onDoubleClickTarget={onDoubleClickTarget}
+			scale={scale}
+			showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
+			translateWithCommandKey={
+				layoutTarget?.selectedForRotation === true &&
+				Boolean(controlTarget?.rotationDrag)
+			}
+		/>
 	);
 };
 
