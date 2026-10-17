@@ -10,7 +10,7 @@ export const CylinderTextSource: React.FC = () => {
 			<div
 				style={{
 					display: 'flex',
-					color: '#182033',
+					color: 'white',
 					fontFamily: 'Arial, Helvetica, sans-serif',
 					fontSize: 80,
 					fontWeight: 700,
@@ -36,7 +36,7 @@ export const EffectsCylinderPreview: React.FC<{
 	readonly shading: number;
 }> = (params) => {
 	return (
-		<AbsoluteFill style={{backgroundColor: '#eef1f4'}}>
+		<AbsoluteFill style={{backgroundColor: 'black'}}>
 			<CanvasImage
 				src={staticFile(CYLINDER_TEXT_IMAGE_SRC)}
 				width={1280}
