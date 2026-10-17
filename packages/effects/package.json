@@ -89,6 +89,11 @@
 			"module": "./dist/esm/contour-lines.mjs",
 			"import": "./dist/esm/contour-lines.mjs"
 		},
+		"./cylinder": {
+			"types": "./dist/cylinder.d.ts",
+			"module": "./dist/esm/cylinder.mjs",
+			"import": "./dist/esm/cylinder.mjs"
+		},
 		"./drop-shadow": {
 			"types": "./dist/drop-shadow.d.ts",
 			"module": "./dist/esm/drop-shadow.mjs",
@@ -436,6 +441,9 @@
 			"contour-lines": [
 				"dist/contour-lines.d.ts"
 			],
+			"cylinder": [
+				"dist/cylinder.d.ts"
+			],
 			"drop-shadow": [
 				"dist/drop-shadow.d.ts"
 			],
@@ -627,10 +635,11 @@
 	"homepage": "https://www.remotion.dev/docs/effects/api",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@typescript/native-preview": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
+		"@webgpu/types": "0.1.74",
 		"eslint": "catalog:",
-		"vitest": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"vitest": "catalog:"
 	},
 	"keywords": [
 		"remotion",

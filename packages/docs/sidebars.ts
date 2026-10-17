@@ -293,6 +293,7 @@ const sidebars: SidebarsConfig = {
 				'effects/contrast',
 				'effects/contour-lines',
 				'effects/corner-pin',
+				'effects/cylinder',
 				'effects/dot-grid',
 				'effects/drop-shadow',
 				'effects/duotone',

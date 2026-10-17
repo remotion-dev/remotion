@@ -2,6 +2,7 @@ import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 import {Composition, Folder, Still} from 'remotion';
+import {CylinderTextDemo} from '../../components/demos/CylinderTextDemo';
 import {MotionBlurHtmlInCanvasLiveDemo} from '../../components/demos/MotionBlurDemo';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
@@ -14,6 +15,7 @@ import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
+import {EffectsCylinderPreview} from '../../components/effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
@@ -223,6 +225,30 @@ export const RemotionRoot: React.FC = () => {
 				})}
 			</Folder>
 			<Folder name="effect-previews">
+				<Composition
+					id="cylinder-text"
+					component={CylinderTextDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Still
+					id="effects-cylinder-preview"
+					component={EffectsCylinderPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						radius: 370,
+						rotation: 30,
+						rotationX: 18,
+						rotationY: 0,
+						rotationZ: -15,
+						position: [0.5, 0.5],
+						render: 'both',
+						shading: 0.35,
+					}}
+				/>
 				<Still
 					id="effects-brightness-preview"
 					component={EffectsBrightnessPreview}

@@ -25,6 +25,7 @@ const effectEntrypoints = [
 	'src/fisheye.ts',
 	'src/flannel.ts',
 	'src/corner-pin.ts',
+	'src/cylinder.ts',
 	'src/glow.ts',
 	'src/grayscale.ts',
 	'src/gridlines.ts',

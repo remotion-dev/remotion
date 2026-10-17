@@ -19,6 +19,7 @@ import {CalloutDemo} from './Callout';
 import {CircleDemo} from './Circle';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
 import {CrossZoomDocsDemo} from './CrossZoomDemo';
+import {CylinderTextDemo} from './CylinderTextDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
 import {DreamyZoomDocsDemo} from './DreamyZoomDemo';
 import {EllipseDemo} from './Ellipse';
@@ -1738,6 +1739,19 @@ export const motionBlurHtmlInCanvasDemo: DemoType = {
 	durationInFrames: 60,
 	fps: 30,
 	id: 'motion-blur-html-in-canvas',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const cylinderTextDemo: DemoType = {
+	comp: CylinderTextDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	durationInFrames: 180,
+	fps: 30,
+	id: 'cylinder-text',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',
