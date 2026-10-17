@@ -27,6 +27,10 @@ import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-prev
 import {EffectsExposurePreview} from '../../components/effects/effects-exposure-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
+import {
+	EffectsFractalNoisePreview,
+	FractalNoiseDemo,
+} from '../../components/effects/effects-fractal-noise-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../../components/effects/effects-gridlines-preview';
@@ -433,6 +437,38 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'left',
 						feather: 0.18,
 					}}
+				/>
+				<Still
+					id="effects-fractal-noise-preview"
+					component={EffectsFractalNoisePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						fractalType: 'basic',
+						noiseType: 'soft-linear',
+						scale: 300,
+						complexity: 6,
+						evolution: 0,
+						contrast: 2,
+						brightness: 0,
+						offsetX: 0,
+						offsetY: 0,
+						subInfluence: 0.7,
+						subScaling: 0.56,
+						cycleEvolution: false,
+						cycle: 1,
+						seed: 0,
+						invert: false,
+						amount: 1,
+					}}
+				/>
+				<Composition
+					id="fractal-noise-demo"
+					component={FractalNoiseDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
 				/>
 				<Still
 					id="effects-exposure-preview"
