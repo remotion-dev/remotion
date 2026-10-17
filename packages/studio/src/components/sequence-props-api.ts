@@ -28,6 +28,31 @@ let pendingSequencePropsUnsubscriptions: PendingSequencePropsUnsubscription[] =
 let sequencePropsUnsubscriptionTimer: ReturnType<typeof setTimeout> | null =
 	null;
 
+/** Drops a batch left queued by another test in this process. */
+export const resetSequencePropsNetworkBatchesForTests = (): void => {
+	if (sequencePropsSubscriptionTimer !== null) {
+		clearTimeout(sequencePropsSubscriptionTimer);
+		sequencePropsSubscriptionTimer = null;
+	}
+
+	if (sequencePropsUnsubscriptionTimer !== null) {
+		clearTimeout(sequencePropsUnsubscriptionTimer);
+		sequencePropsUnsubscriptionTimer = null;
+	}
+
+	const subscriptions = pendingSequencePropsSubscriptions;
+	const unsubscriptions = pendingSequencePropsUnsubscriptions;
+	pendingSequencePropsSubscriptions = [];
+	pendingSequencePropsUnsubscriptions = [];
+	for (const item of subscriptions) {
+		item.reject(new Error('Sequence prop subscription batch was reset'));
+	}
+
+	for (const item of unsubscriptions) {
+		item.resolve(undefined);
+	}
+};
+
 const flushSequencePropsSubscriptions = () => {
 	sequencePropsSubscriptionTimer = null;
 	const pending = pendingSequencePropsSubscriptions;
