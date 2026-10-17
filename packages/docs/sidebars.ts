@@ -310,6 +310,7 @@ const sidebars: SidebarsConfig = {
 				'effects/halftone-linear-gradient',
 				'effects/hue',
 				'effects/invert',
+				'effects/lens-blur',
 				'effects/levels',
 				'effects/linear-gradient',
 				'effects/linear-gradient-tint',

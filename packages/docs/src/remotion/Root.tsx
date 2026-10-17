@@ -38,6 +38,10 @@ import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/eff
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
+import {
+	EffectsLensBlurPreview,
+	LensBlurDemo,
+} from '../../components/effects/effects-lens-blur-preview';
 import {EffectsLevelsPreview} from '../../components/effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
 import {
@@ -442,6 +446,33 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'left',
 						feather: 0.18,
 					}}
+				/>
+				<Still
+					id="effects-lens-blur-preview"
+					component={EffectsLensBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						radius: 16,
+						irisShape: 'hexagon',
+						irisRoundness: 0,
+						irisRotation: 0,
+						irisAspectRatio: 1,
+						highlightGain: 0.5,
+						highlightThreshold: 0.8,
+						highlightSaturation: 1,
+						repeatEdgePixels: true,
+						samples: 512,
+						linearLight: false,
+					}}
+				/>
+				<Composition
+					id="lens-blur-demo"
+					component={LensBlurDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
 				/>
 				<Still
 					id="effects-turbulent-displace-text-source"

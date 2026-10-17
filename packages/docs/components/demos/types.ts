@@ -1,5 +1,6 @@
 import type {LogLevel} from 'remotion';
 import {FractalNoiseDemo} from '../effects/effects-fractal-noise-preview';
+import {LensBlurDemo} from '../effects/effects-lens-blur-preview';
 import {PageTurnDemo} from '../effects/effects-page-turn-preview';
 import {SpinningGlobeDemo} from '../effects/effects-sphere-preview';
 import {TurbulentDisplaceDemo} from '../effects/effects-turbulent-displace-preview';
@@ -1808,6 +1809,19 @@ export const turbulentDisplaceDemo: DemoType = {
 	fps: 30,
 	durationInFrames: 120,
 	id: 'turbulent-displace',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const lensBlurDemo: DemoType = {
+	comp: LensBlurDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	fps: 30,
+	durationInFrames: 120,
+	id: 'lens-blur',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',
