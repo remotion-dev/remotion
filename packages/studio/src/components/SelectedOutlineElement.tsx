@@ -17,6 +17,7 @@ import {getFieldsToShow} from '../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
+import type {AncestorRotationCapture} from './ancestor-rotation-capture';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -60,6 +61,9 @@ type SelectedOutlineElementProps = {
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
+	readonly getAncestorRotationCapture: (
+		outlineKey: string,
+	) => AncestorRotationCapture | null;
 	readonly getLatestTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
@@ -88,6 +92,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
+	getAncestorRotationCapture,
 	getLatestTargetByKey,
 	layoutTarget,
 	outline,
@@ -558,44 +563,56 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		};
 	}, [onContextMenuOpen, outline.key, registerContextMenuOpen]);
 
+	const rotationDrag =
+		layoutTarget?.selectedForRotation === true
+			? (getLatestTargetByKey(layoutTarget.key)?.rotationDrag ?? null)
+			: null;
+	const polygon = (
+		<SelectedOutlinePolygon
+			compositionHeight={compositionHeight}
+			compositionWidth={compositionWidth}
+			containsSelection={layoutTarget?.containsSelection === true}
+			directlySelected={layoutTarget?.selected === true}
+			dragging={dragging}
+			getAllDragOutlines={getAllDragOutlines}
+			getAllDragTargets={getAllDragTargets}
+			getAncestorRotationCapture={getAncestorRotationCapture}
+			getLayoutTarget={getLayoutTarget}
+			getTarget={getTarget}
+			hasTarget={layoutTarget !== undefined}
+			hovered={hovered}
+			outline={outline}
+			onDraggingChange={onDraggingChange}
+			onHoverChange={onHoverChange}
+			onSnapPointsChange={onSnapPointsChange}
+			onSelect={onSelect}
+			onDoubleClickTarget={onDoubleClickTarget}
+			scale={scale}
+			showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
+			translateWithCommandKey={
+				layoutTarget?.selectedForRotation === true &&
+				Boolean(controlTarget?.rotationDrag)
+			}
+		/>
+	);
+	if (
+		rotationDrag === null ||
+		outline.path !== null ||
+		layoutTarget === undefined
+	) {
+		return polygon;
+	}
+
 	return (
 		<>
-			<SelectedOutlinePolygon
-				compositionHeight={compositionHeight}
-				compositionWidth={compositionWidth}
-				containsSelection={layoutTarget?.containsSelection === true}
-				directlySelected={layoutTarget?.selected === true}
-				dragging={dragging}
-				getAllDragOutlines={getAllDragOutlines}
-				getAllDragTargets={getAllDragTargets}
-				getLayoutTarget={getLayoutTarget}
-				getTarget={getTarget}
-				hasTarget={layoutTarget !== undefined}
-				hovered={hovered}
-				outline={outline}
+			{polygon}
+			<SelectedOutlineCanvasRotation
+				getLatestTargetByKey={getLatestTargetByKey}
+				layoutTarget={layoutTarget}
 				onDraggingChange={onDraggingChange}
-				onHoverChange={onHoverChange}
-				onSnapPointsChange={onSnapPointsChange}
-				onSelect={onSelect}
-				onDoubleClickTarget={onDoubleClickTarget}
-				scale={scale}
-				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
-				translateWithCommandKey={
-					layoutTarget?.selectedForRotation === true &&
-					Boolean(controlTarget?.rotationDrag)
-				}
+				outline={outline}
+				transform3DMode={rotationDrag.transform3DMode}
 			/>
-			{layoutTarget?.selectedForRotation &&
-			controlTarget?.rotationDrag &&
-			outline.path === null ? (
-				<SelectedOutlineCanvasRotation
-					getLatestTargetByKey={getLatestTargetByKey}
-					layoutTarget={layoutTarget}
-					onDraggingChange={onDraggingChange}
-					outline={outline}
-					transform3DMode={controlTarget.rotationDrag.transform3DMode}
-				/>
-			) : null}
 		</>
 	);
 };
