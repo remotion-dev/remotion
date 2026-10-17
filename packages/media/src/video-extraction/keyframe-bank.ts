@@ -55,8 +55,10 @@ export const makeKeyframeBank = async ({
 	videoSampleSink: VideoSampleSink;
 	initialTimestampRequest: number;
 }) => {
+	// Keep upward tolerance for millisecond-quantized WebM timestamps, but
+	// never round below an exact keyframe and start decoding the previous GOP.
 	const sampleIterator = videoSampleSink.samples(
-		roundTo4Digits(initialTimestampRequest),
+		Math.max(initialTimestampRequest, roundTo4Digits(initialTimestampRequest)),
 	);
 
 	const frames: Record<number, VideoSampleWithoutDuration> = {};
