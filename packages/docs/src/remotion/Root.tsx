@@ -254,6 +254,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="page-turn-demo"
 					component={PageTurnScene}
+					defaultProps={{style: {backgroundColor: '#182033'}}}
 					width={1280}
 					height={720}
 					fps={30}

@@ -20,14 +20,24 @@ const PeelInner: React.FC = () => {
 			effects={[
 				scale({scale: 0.75}),
 				pageTurn({
-					foldPosition: [
-						interpolate(frame, [6, durationInFrames - 9], [1.25, -0.45], {
-							easing: Easing.inOut(Easing.quad),
+					foldPosition: interpolate(
+						frame,
+						[
+							durationInFrames * 0.1,
+							durationInFrames * 0.475,
+							durationInFrames * 0.85,
+						],
+						[
+							[1.25, 0.5],
+							[0.4, 0.5],
+							[-0.45, 0.5],
+						],
+						{
+							easing: [Easing.quad, Easing.out(Easing.quad)],
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-						}),
-						0.5,
-					],
+						},
+					),
 					foldDirection: -75,
 					foldRadius: 70,
 					paperColor: '#ffffff',

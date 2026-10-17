@@ -27,10 +27,6 @@ import {CanvasImage, interpolate, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
-  const x = interpolate(frame, [0, 90], [1.4, -0.5], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <CanvasImage
@@ -40,7 +36,13 @@ export const MyComp: React.FC = () => {
       fit="cover"
       effects={[
         pageTurn({
-          foldPosition: [x, 0.5],
+          foldPosition: interpolate(frame, [0, 90], [
+            [1.4, 0.5],
+            [-0.5, 0.5],
+          ], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
           foldDirection: -75,
           foldRadius: 85,
         }),
