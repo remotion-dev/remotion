@@ -3394,6 +3394,15 @@ export const articles = [
 		slug: 'effects/barrel-distortion',
 	},
 	{
+		id: 'effects/bevel-alpha',
+		title: 'bevelAlpha()',
+		relativePath: 'docs/effects/bevel-alpha.mdx',
+		compId: 'articles-docs-effects-bevel-alpha',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/bevel-alpha',
+	},
+	{
 		id: 'effects/blur',
 		title: 'blur()',
 		relativePath: 'docs/effects/blur.mdx',

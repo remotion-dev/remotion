@@ -283,6 +283,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'effects/barrel-distortion',
+				'effects/bevel-alpha',
 				'effects/blur',
 				'effects/brightness',
 				'effects/burlap',

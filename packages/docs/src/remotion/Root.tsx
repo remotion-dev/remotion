@@ -5,6 +5,11 @@ import {Composition, Folder, Still} from 'remotion';
 import {CylinderTextDemo} from '../../components/demos/CylinderTextDemo';
 import {MotionBlurHtmlInCanvasLiveDemo} from '../../components/demos/MotionBlurDemo';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
+import {
+	EffectsBevelAlphaPreview,
+	BevelAlphaDemo,
+	BevelAlphaTextSource,
+} from '../../components/effects/effects-bevel-alpha-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../../components/effects/effects-burlap-preview';
@@ -446,6 +451,32 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'left',
 						feather: 0.18,
 					}}
+				/>
+				<Still
+					id="effects-bevel-alpha-text-source"
+					component={BevelAlphaTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-bevel-alpha-preview"
+					component={EffectsBevelAlphaPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						edgeThickness: 14,
+						lightAngle: -60,
+						lightColor: 'white',
+						lightIntensity: 0.9,
+					}}
+				/>
+				<Composition
+					id="bevel-alpha-demo"
+					component={BevelAlphaDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
 				/>
 				<Still
 					id="effects-lens-blur-preview"
