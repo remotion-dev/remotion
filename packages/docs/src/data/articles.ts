@@ -3484,6 +3484,15 @@ export const articles = [
 		slug: 'effects/corner-pin',
 	},
 	{
+		id: 'effects/cylinder',
+		title: 'cylinder()',
+		relativePath: 'docs/effects/cylinder.mdx',
+		compId: 'articles-docs-effects-cylinder',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/cylinder',
+	},
+	{
 		id: 'effects/dot-grid',
 		title: 'dotGrid()',
 		relativePath: 'docs/effects/dot-grid.mdx',
@@ -3905,6 +3914,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/speckle',
+	},
+	{
+		id: 'effects/sphere',
+		title: 'sphere()',
+		relativePath: 'docs/effects/sphere.mdx',
+		compId: 'articles-docs-effects-sphere',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/sphere',
 	},
 	{
 		id: 'effects/starburst',

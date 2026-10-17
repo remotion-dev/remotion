@@ -9,6 +9,7 @@ import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
 import {cornerPin} from '@remotion/effects/corner-pin';
+import {cylinder} from '@remotion/effects/cylinder';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
@@ -55,6 +56,7 @@ import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
+import {sphere} from '@remotion/effects/sphere';
 import {starburst} from '@remotion/effects/starburst';
 import {tear} from '@remotion/effects/tear';
 import {thermalVision} from '@remotion/effects/thermal-vision';
@@ -82,6 +84,7 @@ import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../effects/effects-corner-pin-preview';
+import {EffectsCylinderPreview} from '../effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
@@ -150,6 +153,7 @@ import {
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
+import {EffectsSpherePreview} from '../effects/effects-sphere-preview';
 import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
@@ -193,7 +197,43 @@ const shrinkwrapDemoSchema = {
 	},
 } as const;
 
+const cylinderDemoSchema = cylinder().definition.schema;
+
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-sphere',
+		effectName: 'sphere',
+		effectImportPath: '@remotion/effects/sphere',
+		comp: EffectsSpherePreview,
+		schema: sphere().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-cylinder',
+		effectName: 'cylinder',
+		effectImportPath: '@remotion/effects/cylinder',
+		comp: EffectsCylinderPreview,
+		schema: {
+			...cylinderDemoSchema,
+			radius: {
+				...cylinderDemoSchema.radius,
+				type: 'number',
+				default: 340,
+				hiddenFromList: false,
+			},
+			rotationX: {
+				...cylinderDemoSchema.rotationX,
+				type: 'rotation-degrees',
+				default: 52,
+			},
+			rotationZ: {
+				...cylinderDemoSchema.rotationZ,
+				type: 'rotation-degrees',
+				default: -18,
+			},
+		},
+	},
 	{
 		...defaults,
 		id: 'effects-brightness',

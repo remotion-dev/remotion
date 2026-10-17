@@ -42,6 +42,11 @@ import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertic
 import {PictureInPictureTransition} from '../../../elements/layouts/picture-in-picture-transition/picture-in-picture-transition';
 import {SlideToSplitScreen} from '../../../elements/layouts/slide-to-split-screen/slide-to-split-screen';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
+import {
+	spinningGlobeInitialProps,
+	spinningGlobeTexture,
+} from '../../../elements/maps/spinning-globe/initial-props';
+import {SpinningGlobe} from '../../../elements/maps/spinning-globe/spinning-globe';
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
@@ -52,6 +57,7 @@ import {speedLinesInitialProps} from '../../../elements/storytelling/speed-lines
 import {SpeedLines} from '../../../elements/storytelling/speed-lines/speed-lines';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
+import {CylinderText} from '../../../elements/text/cylinder-text/cylinder-text';
 import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
 import {SpinningTextWheel} from '../../../elements/text/spinning-text-wheel/spinning-text-wheel';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
@@ -875,6 +881,36 @@ const elementImplementations = [
 		width: 1920,
 	},
 	{
+		slug: 'maps/spinning-globe',
+		assets: [spinningGlobeTexture],
+		installationProps: {
+			src: staticFileRef(spinningGlobeTexture.path),
+		} as ElementInitialProps,
+		component: SpinningGlobe,
+		contributors: [],
+		description:
+			'A globe rotating around its vertical axis, with editable speed, longitude, and shading.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 240,
+		elementHeight: 840,
+		elementWidth: 840,
+		fps: 30,
+		height: 1080,
+		posterFrame: 0,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/maps-spinning-globe-preview-519f9607-5856-4487-b5bf-8648f3c004af.png',
+			backgroundTheme: 'dark',
+			videoUrl:
+				'https://remotion.media/elements/maps-spinning-globe-preview-519f9607-5856-4487-b5bf-8648f3c004af.mp4',
+		},
+		safeArea: 0,
+		initialProps: spinningGlobeInitialProps,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
 		slug: 'maps/watercolor-map',
 		assets: [],
 		installationProps: null,
@@ -1159,6 +1195,34 @@ const elementImplementations = [
 		width: 1920,
 	},
 	{
+		slug: 'text/cylinder-text',
+		assets: [],
+		installationProps: null,
+		component: CylinderText,
+		contributors: [],
+		description:
+			'Editable text spinning around a tilted cylinder using WebGPU.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 180,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 30,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/text-cylinder-text-preview-97956be8-ce8a-4d79-a9aa-f631bbe6dba9.png',
+			backgroundTheme: 'light',
+			videoUrl:
+				'https://remotion.media/elements/text-cylinder-text-preview-97956be8-ce8a-4d79-a9aa-f631bbe6dba9.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
 		slug: 'text/spinning-text-wheel',
 		assets: [],
 		installationProps: null,
@@ -1355,6 +1419,7 @@ const elementImplementations = [
 const htmlInCanvasElementSlugs = new Set<ElementSlug>([
 	'commerce/shine',
 	'commerce/tear',
+	'text/cylinder-text',
 ]);
 
 export const elementDefinitions = elementImplementations.map((definition) => ({

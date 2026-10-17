@@ -2,6 +2,7 @@ import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 import {Composition, Folder, Still} from 'remotion';
+import {CylinderTextDemo} from '../../components/demos/CylinderTextDemo';
 import {MotionBlurHtmlInCanvasLiveDemo} from '../../components/demos/MotionBlurDemo';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
@@ -14,6 +15,10 @@ import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
+import {
+	CylinderTextSource,
+	EffectsCylinderPreview,
+} from '../../components/effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
@@ -90,6 +95,10 @@ import {
 } from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../../components/effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
+import {
+	EffectsSpherePreview,
+	SpinningGlobeDemo,
+} from '../../components/effects/effects-sphere-preview';
 import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
@@ -223,6 +232,59 @@ export const RemotionRoot: React.FC = () => {
 				})}
 			</Folder>
 			<Folder name="effect-previews">
+				<Still
+					id="effects-sphere-preview"
+					component={EffectsSpherePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						radius: 300,
+						rotationX: 0,
+						rotationY: -20,
+						rotationZ: 0,
+						position: [0.5, 0.5],
+						render: 'both',
+						shading: 0.35,
+					}}
+				/>
+				<Composition
+					id="sphere-globe"
+					component={SpinningGlobeDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={240}
+				/>
+				<Composition
+					id="cylinder-text"
+					component={CylinderTextDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Still
+					id="effects-cylinder-text"
+					component={CylinderTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-cylinder-preview"
+					component={EffectsCylinderPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						radius: 340,
+						rotation: 30,
+						rotationX: 52,
+						rotationY: 0,
+						rotationZ: -18,
+						position: [0.5, 0.5],
+						render: 'both',
+						shading: 0.35,
+					}}
+				/>
 				<Still
 					id="effects-brightness-preview"
 					component={EffectsBrightnessPreview}
