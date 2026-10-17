@@ -1169,20 +1169,20 @@ const elementImplementations = [
 			'Editable text spinning around a tilted cylinder using WebGPU.',
 		dependencies: [{name: '@remotion/effects', version: null}],
 		durationInFrames: 180,
-		elementHeight: 680,
-		elementWidth: 800,
+		elementHeight: null,
+		elementWidth: null,
 		fps: 30,
 		height: 1080,
 		posterFrame: 30,
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
-				'https://remotion.media/elements/text-cylinder-text-preview-cc13b180-71e3-4c4b-9d87-bbad72173b0d.png',
+				'https://remotion.media/elements/text-cylinder-text-preview-97956be8-ce8a-4d79-a9aa-f631bbe6dba9.png',
 			backgroundTheme: 'light',
 			videoUrl:
-				'https://remotion.media/elements/text-cylinder-text-preview-cc13b180-71e3-4c4b-9d87-bbad72173b0d.mp4',
+				'https://remotion.media/elements/text-cylinder-text-preview-97956be8-ce8a-4d79-a9aa-f631bbe6dba9.mp4',
 		},
-		safeArea: 120,
+		safeArea: 0,
 		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
@@ -1384,6 +1384,7 @@ const elementImplementations = [
 const htmlInCanvasElementSlugs = new Set<ElementSlug>([
 	'commerce/shine',
 	'commerce/tear',
+	'text/cylinder-text',
 ]);
 
 export const elementDefinitions = elementImplementations.map((definition) => ({

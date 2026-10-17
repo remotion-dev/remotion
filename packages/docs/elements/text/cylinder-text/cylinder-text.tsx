@@ -1,15 +1,14 @@
 import {cylinder} from '@remotion/effects/cylinder';
 import React from 'react';
 import {
-	CanvasImage,
+	HtmlInCanvas,
 	Interactive,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveTransformProps,
 	type InteractivitySchema,
 } from 'remotion';
 
-type CylinderTextProps = InteractiveTransformProps & {
+type CylinderTextProps = {
 	readonly text?: string;
 	readonly color?: string;
 	readonly speed?: number;
@@ -46,45 +45,49 @@ const CylinderTextInner: React.FC<CylinderTextProps> = ({
 	color = '#182033',
 	speed = 1 / 6,
 	tilt = 52,
-	style,
 }) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const [escapedText, escapedColor] = [text, color].map((value) =>
-		value
-			.replaceAll('&', '&amp;')
-			.replaceAll('"', '&quot;')
-			.replaceAll('<', '&lt;')
-			.replaceAll('>', '&gt;'),
-	);
-	const src = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="680" viewBox="0 0 800 680"><text x="0" y="340" dominant-baseline="central" fill="${escapedColor}" font-family="Arial, Helvetica, sans-serif" font-size="90" font-weight="700" textLength="800" lengthAdjust="spacingAndGlyphs" xml:space="preserve">${escapedText}</text></svg>`)}`;
+	const {fps, width, height} = useVideoConfig();
 
 	return (
-		<div style={{width: 800, height: 680, ...style}}>
-			<CanvasImage
-				src={src}
-				width={800}
-				height={680}
-				fit="cover"
-				showInTimeline={false}
-				style={{width: '100%', height: '100%'}}
-				effects={[
-					cylinder({
-						radius: 320,
-						rotation: (frame / fps) * speed * 360,
-						rotationX: tilt,
-						rotationZ: -18,
-						shading: 0.35,
-					}),
-				]}
-			/>
-		</div>
+		<HtmlInCanvas
+			width={width}
+			height={height}
+			name="Cylinder"
+			effects={[
+				cylinder({
+					radius: Math.min(width, height) * 0.42,
+					rotation: (frame / fps) * speed * 360,
+					rotationX: tilt,
+					rotationZ: -18,
+					shading: 0.35,
+				}),
+			]}
+		>
+			<div
+				style={{
+					alignItems: 'center',
+					color,
+					display: 'flex',
+					fontFamily: 'Arial, Helvetica, sans-serif',
+					fontSize: width / 22,
+					fontWeight: 700,
+					height: '100%',
+					justifyContent: 'center',
+					lineHeight: 1,
+					whiteSpace: 'nowrap',
+					width: '100%',
+				}}
+			>
+				{text}
+			</div>
+		</HtmlInCanvas>
 	);
 };
 
 export const CylinderText = Interactive.create({
 	Component: CylinderTextInner,
 	componentName: '<CylinderText>',
-	layout: 'none',
+	layout: 'absolute-fill',
 	schema: cylinderTextSchema,
 });
