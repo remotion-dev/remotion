@@ -15,7 +15,10 @@ import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
-import {EffectsCylinderPreview} from '../../components/effects/effects-cylinder-preview';
+import {
+	CylinderTextSource,
+	EffectsCylinderPreview,
+} from '../../components/effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
@@ -234,16 +237,22 @@ export const RemotionRoot: React.FC = () => {
 					durationInFrames={180}
 				/>
 				<Still
+					id="effects-cylinder-text"
+					component={CylinderTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
 					id="effects-cylinder-preview"
 					component={EffectsCylinderPreview}
 					width={1280}
 					height={720}
 					defaultProps={{
-						radius: 370,
+						radius: 340,
 						rotation: 30,
-						rotationX: 18,
+						rotationX: 52,
 						rotationY: 0,
-						rotationZ: -15,
+						rotationZ: -18,
 						position: [0.5, 0.5],
 						render: 'both',
 						shading: 0.35,

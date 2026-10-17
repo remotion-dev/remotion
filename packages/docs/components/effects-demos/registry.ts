@@ -195,6 +195,8 @@ const shrinkwrapDemoSchema = {
 	},
 } as const;
 
+const cylinderDemoSchema = cylinder().definition.schema;
+
 export const effectsDemos: EffectsDemoType[] = [
 	{
 		...defaults,
@@ -202,7 +204,25 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectName: 'cylinder',
 		effectImportPath: '@remotion/effects/cylinder',
 		comp: EffectsCylinderPreview,
-		schema: cylinder().definition.schema,
+		schema: {
+			...cylinderDemoSchema,
+			radius: {
+				...cylinderDemoSchema.radius,
+				type: 'number',
+				default: 340,
+				hiddenFromList: false,
+			},
+			rotationX: {
+				...cylinderDemoSchema.rotationX,
+				type: 'rotation-degrees',
+				default: 52,
+			},
+			rotationZ: {
+				...cylinderDemoSchema.rotationZ,
+				type: 'rotation-degrees',
+				default: -18,
+			},
+		},
 	},
 	{
 		...defaults,
