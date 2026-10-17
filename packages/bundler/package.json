@@ -19,8 +19,8 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"@rspack/core": "1.7.11",
-		"@rspack/plugin-react-refresh": "1.6.1",
+		"@rspack/core": "2.2.8",
+		"@rspack/plugin-react-refresh": "2.0.2",
 		"css-loader": "7.1.4",
 		"esbuild": "0.28.1",
 		"react-refresh": "0.18.0",
