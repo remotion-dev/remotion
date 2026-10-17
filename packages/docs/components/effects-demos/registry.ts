@@ -18,6 +18,7 @@ import {evolve} from '@remotion/effects/evolve';
 import {exposure} from '@remotion/effects/exposure';
 import {fisheye} from '@remotion/effects/fisheye';
 import {flannel} from '@remotion/effects/flannel';
+import {fractalNoise} from '@remotion/effects/fractal-noise';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
 import {gridlines} from '@remotion/effects/gridlines';
@@ -94,6 +95,7 @@ import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsExposurePreview} from '../effects/effects-exposure-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../effects/effects-flannel-preview';
+import {EffectsFractalNoisePreview} from '../effects/effects-fractal-noise-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../effects/effects-gridlines-preview';
@@ -202,6 +204,14 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-fractal-noise',
+		effectName: 'fractalNoise',
+		effectImportPath: '@remotion/effects/fractal-noise',
+		comp: EffectsFractalNoisePreview,
+		schema: fractalNoise().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-page-turn',

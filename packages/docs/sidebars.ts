@@ -302,6 +302,7 @@ const sidebars: SidebarsConfig = {
 				'effects/exposure',
 				'effects/fisheye',
 				'effects/flannel',
+				'effects/fractal-noise',
 				'effects/glow',
 				'effects/grayscale',
 				'effects/gridlines',

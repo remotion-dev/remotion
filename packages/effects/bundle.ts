@@ -24,6 +24,7 @@ const effectEntrypoints = [
 	'src/exposure.ts',
 	'src/fisheye.ts',
 	'src/flannel.ts',
+	'src/fractal-noise.ts',
 	'src/corner-pin.ts',
 	'src/cylinder.ts',
 	'src/glow.ts',

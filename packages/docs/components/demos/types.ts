@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import {FractalNoiseDemo} from '../effects/effects-fractal-noise-preview';
 import {PageTurnDemo} from '../effects/effects-page-turn-preview';
 import {SpinningGlobeDemo} from '../effects/effects-sphere-preview';
 import {
@@ -1780,6 +1781,19 @@ export const pageTurnDemo: DemoType = {
 	durationInFrames: 180,
 	fps: 30,
 	id: 'page-turn-demo',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const fractalNoiseDemo: DemoType = {
+	comp: FractalNoiseDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	fps: 30,
+	durationInFrames: 180,
+	id: 'fractal-noise',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',

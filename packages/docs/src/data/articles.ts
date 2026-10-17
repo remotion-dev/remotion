@@ -3565,6 +3565,15 @@ export const articles = [
 		slug: 'effects/flannel',
 	},
 	{
+		id: 'effects/fractal-noise',
+		title: 'fractalNoise()',
+		relativePath: 'docs/effects/fractal-noise.mdx',
+		compId: 'articles-docs-effects-fractal-noise',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/fractal-noise',
+	},
+	{
 		id: 'effects/glow',
 		title: 'glow()',
 		relativePath: 'docs/effects/glow.mdx',

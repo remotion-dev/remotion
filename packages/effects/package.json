@@ -49,6 +49,11 @@
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
 		},
+		"./fractal-noise": {
+			"types": "./dist/fractal-noise.d.ts",
+			"module": "./dist/esm/fractal-noise.mjs",
+			"import": "./dist/esm/fractal-noise.mjs"
+		},
 		"./flannel": {
 			"types": "./dist/flannel.d.ts",
 			"module": "./dist/esm/flannel.mjs",
@@ -426,6 +431,9 @@
 			],
 			"burlap": [
 				"dist/burlap.d.ts"
+			],
+			"fractal-noise": [
+				"dist/fractal-noise.d.ts"
 			],
 			"flannel": [
 				"dist/flannel.d.ts"

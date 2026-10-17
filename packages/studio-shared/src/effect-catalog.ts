@@ -805,6 +805,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-fractal-noise',
+		category: 'Generate',
+		label: 'fractalNoise()',
+		description: 'Evolving fractal noise textures',
+		effect: {
+			name: 'fractalNoise',
+			importPath: '@remotion/effects/fractal-noise',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-contour-lines',
 		category: 'Generate',
 		label: 'contourLines()',
