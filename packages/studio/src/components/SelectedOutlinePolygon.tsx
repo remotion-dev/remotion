@@ -13,6 +13,10 @@ import {isMac} from '../helpers/is-mac';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
+	shouldDelegateOutlinePointerToAncestorRotation,
+	type AncestorRotationCapture,
+} from './ancestor-rotation-capture';
+import {
 	addEffectFromDrop,
 	hasEffectDragType,
 	isLutEffectDrop,
@@ -38,6 +42,7 @@ import type {
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
+import {startSelectedOutlineCanvasRotation} from './start-selected-outline-canvas-rotation';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -69,6 +74,9 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
+	readonly getAncestorRotationCapture: (
+		outlineKey: string,
+	) => AncestorRotationCapture | null;
 	readonly getLayoutTarget: () => SelectedOutlineLayoutTarget | undefined;
 	readonly getTarget: () => SelectedOutlineTarget | undefined;
 	readonly hasTarget: boolean;
@@ -99,6 +107,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
+	getAncestorRotationCapture,
 	getLayoutTarget,
 	getTarget,
 	hasTarget,
@@ -182,6 +191,29 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				isMac,
 			});
 			if (decision === null || target === undefined) {
+				return;
+			}
+
+			const ancestorRotation = getAncestorRotationCapture(outline.key);
+			if (
+				ancestorRotation !== null &&
+				shouldDelegateOutlinePointerToAncestorRotation({
+					shiftKey: event.shiftKey,
+					toggleKey: event.metaKey || event.ctrlKey,
+					commandKey: isMac ? event.metaKey : event.ctrlKey,
+				})
+			) {
+				startSelectedOutlineCanvasRotation({
+					event,
+					outline: ancestorRotation.outline,
+					rotationDrag: ancestorRotation.rotationDrag,
+					editorSnapping,
+					getDragOverrides: dragOverridesRef.current.getDragOverrides,
+					setDragOverrides,
+					clearDragOverrides,
+					setPropStatuses,
+					onDraggingChange,
+				});
 				return;
 			}
 
@@ -330,6 +362,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			getAllDragOutlines,
 			getAllDragTargets,
 			dragOverridesRef,
+			getAncestorRotationCapture,
 			getTarget,
 			guidesList,
 			onDraggingChange,
@@ -448,6 +481,9 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				[LUT_EFFECT_DROP_TARGET_ATTR]:
 					getEffectDropTarget() !== null ? 'true' : undefined,
 			}}
+			data-remotion-ancestor-rotation-key={
+				getAncestorRotationCapture(outline.key)?.key
+			}
 			outline={outline}
 			directlySelected={directlySelected}
 			dragging={dragging}

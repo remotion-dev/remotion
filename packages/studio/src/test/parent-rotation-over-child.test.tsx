@@ -3,6 +3,10 @@ import {cleanup, render} from '@testing-library/react';
 import React, {useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
+import {
+	findAncestorRotationKey,
+	shouldDelegateOutlinePointerToAncestorRotation,
+} from '../components/ancestor-rotation-capture';
 import type {
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineRotationDragTarget,
@@ -122,12 +126,15 @@ test('a parent rotation surface is hit before a child outline', () => {
 	const root = Internals.portalNode();
 	const parent = document.createElement('div');
 	const child = document.createElement('div');
+	const unrelated = document.createElement('div');
 	setBox(root, {left: 0, top: 0, width: 1280, height: 720});
 	setBox(parent, {left: 240, top: 160, width: 800, height: 400});
 	setBox(child, {left: 240, top: 160, width: 520, height: 400});
-	root.append(parent, child);
+	setBox(unrelated, {left: 900, top: 180, width: 80, height: 80});
+	root.append(parent, child, unrelated);
 	const parentRef = {current: parent};
 	const childRef = {current: child};
+	const unrelatedRef = {current: unrelated};
 	const targets = [
 		layoutTarget({
 			id: 'parent',
@@ -139,6 +146,12 @@ test('a parent rotation surface is hit before a child outline', () => {
 			id: 'child',
 			parent: 'parent',
 			ref: childRef,
+			selectedForRotation: false,
+		}),
+		layoutTarget({
+			id: 'unrelated',
+			parent: null,
+			ref: unrelatedRef,
 			selectedForRotation: false,
 		}),
 	];
@@ -198,6 +211,7 @@ test('a parent rotation surface is hit before a child outline', () => {
 								sequences={[
 									{id: 'parent', parent: null},
 									{id: 'child', parent: 'parent'},
+									{id: 'unrelated', parent: null},
 								]}
 							/>
 						</TimelineSelectionProvider>
@@ -223,16 +237,108 @@ test('a parent rotation surface is hit before a child outline', () => {
 		);
 		expect(paintOrder).toContain('parent');
 		expect(paintOrder).toContain('child');
+		expect(paintOrder).toContain('unrelated');
 		expect(paintOrder).toContain('rotation');
-		expect(paintOrder.indexOf('child')).toBeGreaterThan(
-			paintOrder.indexOf('parent'),
-		);
-		expect(paintOrder.indexOf('rotation')).toBeGreaterThan(
-			paintOrder.indexOf('child'),
-		);
+		const rotationIndex = paintOrder.indexOf('rotation');
+		expect(rotationIndex).toBeGreaterThan(paintOrder.indexOf('parent'));
+		expect(rotationIndex).toBeLessThan(paintOrder.indexOf('child'));
+		expect(rotationIndex).toBeLessThan(paintOrder.indexOf('unrelated'));
+		expect(
+			svg!
+				.querySelector('polygon[data-remotion-canvas-outline-key="child"]')
+				?.getAttribute('data-remotion-ancestor-rotation-key'),
+		).toBe('parent');
+		expect(
+			svg!
+				.querySelector('polygon[data-remotion-canvas-outline-key="unrelated"]')
+				?.hasAttribute('data-remotion-ancestor-rotation-key'),
+		).toBe(false);
+		expect(
+			svg!
+				.querySelector('polygon[data-remotion-canvas-outline-key="parent"]')
+				?.hasAttribute('data-remotion-ancestor-rotation-key'),
+		).toBe(false);
 	} finally {
 		cleanup();
 		parent.remove();
 		child.remove();
+		unrelated.remove();
 	}
+});
+
+test('ancestor rotation follows the nearest selected parent', () => {
+	const nodes = [
+		{
+			key: 'parent',
+			sequenceId: 'parent',
+			parentSequenceId: null,
+			selectedForRotation: true,
+		},
+		{
+			key: 'child',
+			sequenceId: 'child',
+			parentSequenceId: 'parent',
+			selectedForRotation: false,
+		},
+		{
+			key: 'unrelated',
+			sequenceId: 'unrelated',
+			parentSequenceId: null,
+			selectedForRotation: false,
+		},
+	];
+	const parentBySequenceId = new Map<string, string | null>([
+		['parent', null],
+		['child', 'parent'],
+		['unrelated', null],
+	]);
+	expect(
+		findAncestorRotationKey({
+			key: 'child',
+			nodes,
+			parentBySequenceId,
+		}),
+	).toBe('parent');
+	expect(
+		findAncestorRotationKey({
+			key: 'parent',
+			nodes,
+			parentBySequenceId,
+		}),
+	).toBeNull();
+	expect(
+		findAncestorRotationKey({
+			key: 'unrelated',
+			nodes,
+			parentBySequenceId,
+		}),
+	).toBeNull();
+	expect(
+		shouldDelegateOutlinePointerToAncestorRotation({
+			shiftKey: false,
+			toggleKey: false,
+			commandKey: false,
+		}),
+	).toBe(true);
+	expect(
+		shouldDelegateOutlinePointerToAncestorRotation({
+			shiftKey: true,
+			toggleKey: false,
+			commandKey: false,
+		}),
+	).toBe(false);
+	expect(
+		shouldDelegateOutlinePointerToAncestorRotation({
+			shiftKey: false,
+			toggleKey: true,
+			commandKey: false,
+		}),
+	).toBe(false);
+	expect(
+		shouldDelegateOutlinePointerToAncestorRotation({
+			shiftKey: false,
+			toggleKey: false,
+			commandKey: true,
+		}),
+	).toBe(false);
 });

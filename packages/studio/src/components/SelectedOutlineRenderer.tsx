@@ -9,6 +9,10 @@ import React, {
 import {Internals} from 'remotion';
 import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
+import {
+	findAncestorRotationKey,
+	type AncestorRotationCapture,
+} from './ancestor-rotation-capture';
 import {ContextMenuForTarget} from './ContextMenu';
 import type {SelectedOutline} from './selected-outline-geometry';
 import type {orderOutlinesForRendering} from './selected-outline-order';
@@ -18,7 +22,6 @@ import type {
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
-import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlineEditingHandles} from './SelectedOutlineEditingHandles';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
 import {SelectedOutlinePathPoints} from './SelectedOutlinePathPoints';
@@ -173,6 +176,60 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		outlinesByKeyRef.current = outlinesByKey;
 		scaleRef.current = scale;
 	}, [outlineTargets, outlinesByKey, scale]);
+	const getAncestorRotationCapture = useCallback(
+		(outlineKey: string): AncestorRotationCapture | null => {
+			const targets = outlineTargets;
+			const parentBySequenceId = new Map<string, string | null>();
+			for (const sequence of sequences) {
+				parentBySequenceId.set(sequence.id, sequence.parent);
+			}
+
+			for (const target of targets) {
+				if (!parentBySequenceId.has(target.sequence.id)) {
+					parentBySequenceId.set(target.sequence.id, target.sequence.parent);
+				}
+			}
+
+			const nodes = targets.map((target) => ({
+				key: target.key,
+				sequenceId: target.sequence.id,
+				parentSequenceId: target.sequence.parent,
+				selectedForRotation: target.selectedForRotation,
+			}));
+			const ancestorKey = findAncestorRotationKey({
+				key: outlineKey,
+				nodes,
+				parentBySequenceId,
+			});
+			if (ancestorKey === null) {
+				return null;
+			}
+
+			const latest = getLatestOutlineTargetByKey(ancestorKey);
+			const measured = outlinesByKey.get(ancestorKey);
+			if (
+				latest?.selectedForRotation !== true ||
+				latest.rotationDrag === null ||
+				measured === undefined ||
+				measured.path !== null
+			) {
+				return null;
+			}
+
+			return {
+				key: ancestorKey,
+				outline: scaleCanvasOutline(measured, scale),
+				rotationDrag: latest.rotationDrag,
+			};
+		},
+		[
+			getLatestOutlineTargetByKey,
+			outlineTargets,
+			outlinesByKey,
+			scale,
+			sequences,
+		],
+	);
 	const getAllDragOutlines = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {
@@ -257,6 +314,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					dragging={dragging}
 					getAllDragOutlines={getAllDragOutlines}
 					getAllDragTargets={getAllDragTargets}
+					getAncestorRotationCapture={getAncestorRotationCapture}
 					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					outline={scaleCanvasOutline(outline, scale)}
 					onDraggingChange={onDraggingChange}
@@ -280,34 +338,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 						onDraggingChange={onDraggingChange}
 					/>
 				) : null;
-			})}
-			{/* Paint the rotation surface after every outline polygon. A child drawn later would otherwise take the pointer and translate instead of rotating its parent. */}
-			{outlinesForRendering.map((outline) => {
-				if (outline.path !== null) {
-					return null;
-				}
-
-				const target = targetsByKey.get(outline.key);
-				if (target === undefined || target.selectedForRotation !== true) {
-					return null;
-				}
-
-				const rotationDrag =
-					getLatestOutlineTargetByKey(outline.key)?.rotationDrag ?? null;
-				if (rotationDrag === null) {
-					return null;
-				}
-
-				return (
-					<SelectedOutlineCanvasRotation
-						key={`${outline.key}-canvas-rotation`}
-						getLatestTargetByKey={getLatestOutlineTargetByKey}
-						layoutTarget={target}
-						onDraggingChange={onDraggingChange}
-						outline={scaleCanvasOutline(outline, scale)}
-						transform3DMode={rotationDrag.transform3DMode}
-					/>
-				);
 			})}
 			{/* Render editing handles after all outline polygons so selected controls stay visible and hit-testable over unrelated sequences. */}
 			{outlinesForEditingHandles.map((outline) => (

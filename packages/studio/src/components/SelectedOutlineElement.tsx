@@ -17,6 +17,7 @@ import {getFieldsToShow} from '../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
+import type {AncestorRotationCapture} from './ancestor-rotation-capture';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -30,6 +31,7 @@ import {
 	type SelectedOutlineLayoutTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
+import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
@@ -59,6 +61,9 @@ type SelectedOutlineElementProps = {
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
+	readonly getAncestorRotationCapture: (
+		outlineKey: string,
+	) => AncestorRotationCapture | null;
 	readonly getLatestTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
@@ -87,6 +92,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
+	getAncestorRotationCapture,
 	getLatestTargetByKey,
 	layoutTarget,
 	outline,
@@ -557,7 +563,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		};
 	}, [onContextMenuOpen, outline.key, registerContextMenuOpen]);
 
-	return (
+	const rotationDrag =
+		layoutTarget?.selectedForRotation === true
+			? (getLatestTargetByKey(layoutTarget.key)?.rotationDrag ?? null)
+			: null;
+	const polygon = (
 		<SelectedOutlinePolygon
 			compositionHeight={compositionHeight}
 			compositionWidth={compositionWidth}
@@ -566,6 +576,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			dragging={dragging}
 			getAllDragOutlines={getAllDragOutlines}
 			getAllDragTargets={getAllDragTargets}
+			getAncestorRotationCapture={getAncestorRotationCapture}
 			getLayoutTarget={getLayoutTarget}
 			getTarget={getTarget}
 			hasTarget={layoutTarget !== undefined}
@@ -583,6 +594,26 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				Boolean(controlTarget?.rotationDrag)
 			}
 		/>
+	);
+	if (
+		rotationDrag === null ||
+		outline.path !== null ||
+		layoutTarget === undefined
+	) {
+		return polygon;
+	}
+
+	return (
+		<>
+			{polygon}
+			<SelectedOutlineCanvasRotation
+				getLatestTargetByKey={getLatestTargetByKey}
+				layoutTarget={layoutTarget}
+				onDraggingChange={onDraggingChange}
+				outline={outline}
+				transform3DMode={rotationDrag.transform3DMode}
+			/>
+		</>
 	);
 };
 
