@@ -209,6 +209,11 @@
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
 		},
+		"./lens-blur": {
+			"types": "./dist/lens-blur.d.ts",
+			"module": "./dist/esm/lens-blur.mjs",
+			"import": "./dist/esm/lens-blur.mjs"
+		},
 		"./levels": {
 			"types": "./dist/levels.d.ts",
 			"module": "./dist/esm/levels.mjs",
@@ -532,6 +537,9 @@
 			],
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
+			],
+			"lens-blur": [
+				"dist/lens-blur.d.ts"
 			],
 			"levels": [
 				"dist/levels.d.ts"

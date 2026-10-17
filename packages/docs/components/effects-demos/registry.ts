@@ -26,6 +26,7 @@ import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
+import {lensBlur} from '@remotion/effects/lens-blur';
 import {levels} from '@remotion/effects/levels';
 import {lightLeak} from '@remotion/effects/light-leak';
 import {lightTrail} from '@remotion/effects/light-trail';
@@ -104,6 +105,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsLensBlurPreview} from '../effects/effects-lens-blur-preview';
 import {EffectsLevelsPreview} from '../effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {
@@ -206,6 +208,14 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-lens-blur',
+		effectName: 'lensBlur',
+		effectImportPath: '@remotion/effects/lens-blur',
+		comp: EffectsLensBlurPreview,
+		schema: lensBlur().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-turbulent-displace',

@@ -3646,6 +3646,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/lens-blur',
+		title: 'lensBlur()',
+		relativePath: 'docs/effects/lens-blur.mdx',
+		compId: 'articles-docs-effects-lens-blur',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/lens-blur',
+	},
+	{
 		id: 'effects/levels',
 		title: 'levels()',
 		relativePath: 'docs/effects/levels.mdx',

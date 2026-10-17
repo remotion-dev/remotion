@@ -302,6 +302,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-lens-blur',
+		category: 'Blur & Shadow',
+		label: 'lensBlur()',
+		description: 'Camera defocus with shaped bokeh',
+		effect: {
+			name: 'lensBlur',
+			importPath: '@remotion/effects/lens-blur',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-linear-progressive-blur',
 		category: 'Blur & Shadow',
 		label: 'linearProgressiveBlur()',
