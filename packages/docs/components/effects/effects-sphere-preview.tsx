@@ -11,8 +11,7 @@ import {
 // Source: https://www.naturalearthdata.com/downloads/50m-raster-data/50m-natural-earth-2/
 // Public domain; attribution is explicitly unnecessary:
 // https://www.naturalearthdata.com/about/terms-of-use/
-export const SPHERE_GLOBE_TEXTURE_SRC =
-	'https://remotion.media/natural-earth-2-4096-a45c3f8c73ed.jpg';
+export const SPHERE_GLOBE_TEXTURE_SRC = 'https://remotion.media/earth.jpg';
 
 export const EffectsSpherePreview: React.FC<{
 	readonly radius: number;
@@ -44,7 +43,7 @@ export const SpinningGlobeDemo: React.FC = () => {
 			radius={300}
 			rotationX={0}
 			rotationY={(frame / durationInFrames) * 360}
-			rotationZ={-23.4}
+			rotationZ={0}
 			position={[0.5, 0.5]}
 			render="both"
 			shading={0.35}

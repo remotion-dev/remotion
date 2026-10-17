@@ -241,7 +241,7 @@ export const RemotionRoot: React.FC = () => {
 						radius: 300,
 						rotationX: 0,
 						rotationY: -20,
-						rotationZ: -23.4,
+						rotationZ: 0,
 						position: [0.5, 0.5],
 						render: 'both',
 						shading: 0.35,

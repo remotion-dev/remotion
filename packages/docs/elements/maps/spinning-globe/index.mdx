@@ -1,0 +1,14 @@
+---
+title: Spinning Globe
+description: A globe rotating around its vertical axis, with editable speed, longitude, and shading.
+image: https://remotion.media/elements/maps-spinning-globe-preview-519f9607-5856-4487-b5bf-8648f3c004af.png
+---
+
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
+import {ElementPage} from '@site/src/components/Elements/ElementPage';
+
+# Spinning Globe
+
+<ElementPage definition={getElementDefinition('maps/spinning-globe')} sourceFile="./spinning-globe.tsx" />
+
+Requires WebGPU. Change the rotation speed, starting longitude, and shading in the Inspector. Negative speed reverses the rotation. Replace the texture with another equirectangular image to make a different globe.

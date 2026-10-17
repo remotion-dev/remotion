@@ -119,6 +119,10 @@ export const elementRegistry = {
 		category: 'maps',
 		displayName: 'A-to-B Map Flyover',
 	},
+	'maps/spinning-globe': {
+		category: 'maps',
+		displayName: 'Spinning Globe',
+	},
 	'maps/watercolor-map': {
 		category: 'maps',
 		displayName: 'Watercolor Map',
