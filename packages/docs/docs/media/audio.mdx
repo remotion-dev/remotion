@@ -202,7 +202,7 @@ export const MyComposition = () => {
 :::note
 Playing audio in reverse is not supported.
 
-Changing `playbackRate` also changes the audio pitch. Pitch-preserving speed changes are not supported by the Mediabunny and WebCodecs path. If the audio [falls back to `<Html5Audio>`](/docs/media/fallback) during preview or server-side rendering, audio pitch is preserved by default.
+Audio pitch is preserved by default when changing `playbackRate`. Pass `preservePitch={false}` to let the pitch change with the speed.
 :::
 
 ### `loop?`<AvailableFrom v="3.2.29" />
@@ -225,6 +225,23 @@ This prop only applies to [`volume`](#volume) callbacks, which are no longer rec
 When [`loop`](#loop) is enabled, `"repeat"` (default) resets the callback frame to `0` on each iteration, while `"extend"` keeps it increasing across iterations.
 
 It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
+
+### `preservePitch?`<AvailableFrom v="4.0.537" />
+
+Controls whether the audio pitch is preserved when changing `playbackRate`. Defaults to `true`.
+Also compensates for playback speed inherited from parent sequences. Applies during preview, server-side rendering, and client-side rendering.
+
+```tsx
+<Audio src={staticFile("audio.wav")} playbackRate={1.4} preservePitch />
+```
+
+Set `preservePitch={false}` to let speed changes raise or lower the pitch.
+`toneFrequency` remains an independent pitch multiplier: for example, `toneFrequency={0.8}` lowers the pitch by 20% even when preserving pitch at a different speed.
+For native fallbacks, `preservePitch` only affects preview; server-side rendering always preserves pitch, matching the fallback component's existing behavior.
+
+The Player's own playback speed is separate and is not compensated by this prop.
+
+When falling back to a native media component, the legacy fallback `preservePitch` setting takes precedence if specified. Native fallbacks do not apply `toneFrequency` during preview.
 
 ### `muted?`
 

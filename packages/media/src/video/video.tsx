@@ -56,6 +56,12 @@ export const videoSchema: InteractivitySchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	preservePitch: {
+		type: 'boolean',
+		default: true,
+		description: 'Preserve pitch',
+		keyframable: false,
+	},
 	toneFrequency: {
 		type: 'number',
 		min: 0.01,
@@ -100,6 +106,7 @@ const InnerVideo: React.FC<
 	volume,
 	_remotionInternalStack,
 	toneFrequency,
+	preservePitch,
 	showInTimeline,
 	debugOverlay,
 	headless,
@@ -167,6 +174,7 @@ const InnerVideo: React.FC<
 				style={style}
 				volume={volume}
 				toneFrequency={toneFrequency}
+				preservePitch={preservePitch}
 				trimAfterValue={trimAfterValue}
 				trimBeforeValue={trimBeforeValue}
 				headless={headless}
@@ -209,6 +217,7 @@ const InnerVideo: React.FC<
 			onVideoFrame={onVideoFrame}
 			playbackRate={playbackRate}
 			toneFrequency={toneFrequency ?? 1}
+			preservePitch={preservePitch ?? true}
 			src={src}
 			style={style}
 			volume={volume}
@@ -260,6 +269,7 @@ const VideoInner: React.FC<
 	trimBefore,
 	volume,
 	toneFrequency,
+	preservePitch,
 	debugOverlay,
 	headless,
 	onError,
@@ -443,6 +453,7 @@ const VideoInner: React.FC<
 						trimBefore={trimBefore}
 						volume={volume ?? 1}
 						toneFrequency={toneFrequency ?? 1}
+						preservePitch={preservePitch ?? true}
 						_remotionInternalStack={sourceStack}
 						debugOverlay={debugOverlay ?? false}
 						headless={headless ?? false}
