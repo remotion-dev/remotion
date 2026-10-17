@@ -1177,10 +1177,10 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
-				'https://remotion.media/elements/text-cylinder-text-preview-dedee66f-31f5-49bb-ad07-d02622c05c4c.png',
+				'https://remotion.media/elements/text-cylinder-text-preview-cc13b180-71e3-4c4b-9d87-bbad72173b0d.png',
 			backgroundTheme: 'light',
 			videoUrl:
-				'https://remotion.media/elements/text-cylinder-text-preview-dedee66f-31f5-49bb-ad07-d02622c05c4c.mp4',
+				'https://remotion.media/elements/text-cylinder-text-preview-cc13b180-71e3-4c4b-9d87-bbad72173b0d.mp4',
 		},
 		safeArea: 120,
 		initialProps: null,

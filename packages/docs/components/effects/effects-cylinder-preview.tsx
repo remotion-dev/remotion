@@ -12,14 +12,14 @@ export const CylinderTextSource: React.FC = () => {
 					display: 'flex',
 					color: 'white',
 					fontFamily: 'Arial, Helvetica, sans-serif',
-					fontSize: 80,
+					fontSize: 60,
 					fontWeight: 700,
 					lineHeight: 1,
 					whiteSpace: 'nowrap',
 				}}
 			>
-				<div style={{flex: 1, textAlign: 'center'}}>MAKE IT MOVE •</div>
-				<div style={{flex: 1, textAlign: 'center'}}>MAKE IT MOVE •</div>
+				<div style={{flex: 1, textAlign: 'center'}}>ALWAYS IN MOTION •</div>
+				<div style={{flex: 1, textAlign: 'center'}}>ALWAYS IN MOTION •</div>
 			</div>
 		</AbsoluteFill>
 	);

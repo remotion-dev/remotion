@@ -19,7 +19,7 @@ type CylinderTextProps = InteractiveTransformProps & {
 const cylinderTextSchema = {
 	text: {
 		type: 'string',
-		default: 'MAKE IT MOVE • MAKE IT MOVE • ',
+		default: 'ALWAYS IN MOTION • ALWAYS IN MOTION • ',
 		description: 'Text',
 	},
 	color: {type: 'color', default: '#182033', description: 'Text color'},
@@ -42,7 +42,7 @@ const cylinderTextSchema = {
 } as const satisfies InteractivitySchema;
 
 const CylinderTextInner: React.FC<CylinderTextProps> = ({
-	text = 'MAKE IT MOVE • MAKE IT MOVE • ',
+	text = 'ALWAYS IN MOTION • ALWAYS IN MOTION • ',
 	color = '#182033',
 	speed = 1 / 6,
 	tilt = 52,
