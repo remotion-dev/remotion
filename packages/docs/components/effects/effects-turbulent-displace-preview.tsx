@@ -2,6 +2,7 @@ import {
 	turbulentDisplace,
 	type TurbulentDisplaceParams,
 } from '@remotion/effects/turbulent-displace';
+import {Video} from '@remotion/media';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -13,6 +14,7 @@ import {
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
+import {useHtmlInCanvasDocsDemoBranch} from '../demos/useHtmlInCanvasDocsDemoBranch';
 
 export const TurbulentDisplaceTextSource: React.FC = () => {
 	return (
@@ -77,7 +79,7 @@ export const EffectsTurbulentDisplacePreview: React.FC<
 	);
 };
 
-export const TurbulentDisplaceDemo: React.FC = () => {
+const TurbulentDisplaceScene: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>
@@ -101,5 +103,26 @@ export const TurbulentDisplaceDemo: React.FC = () => {
 				<TurbulentDisplaceTextSource />
 			</HtmlInCanvas>
 		</AbsoluteFill>
+	);
+};
+
+export const TurbulentDisplaceDemo: React.FC = () => {
+	const branch = useHtmlInCanvasDocsDemoBranch('webgl2');
+
+	if (branch === 'pending') {
+		return <AbsoluteFill style={{backgroundColor: 'black'}} />;
+	}
+
+	if (branch === 'live') {
+		return <TurbulentDisplaceScene />;
+	}
+
+	return (
+		<Video
+			name="Turbulent displace preview"
+			muted
+			src="https://remotion.media/turbulent-displace-demo-7a27507a8eb2.mp4"
+			style={{width: '100%', height: '100%'}}
+		/>
 	);
 };
