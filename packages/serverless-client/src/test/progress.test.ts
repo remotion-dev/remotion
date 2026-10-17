@@ -216,6 +216,62 @@ test('getProgress treats an existing output file as finished if postRenderData w
 	expect(renderProgress.costs.displayCost).toBe('¥0.010');
 });
 
+test('getProgress ignores an output file left over from an earlier render', async () => {
+	const providerSpecifics = makeProviderSpecifics({
+		onHeadFile: () =>
+			Promise.resolve({
+				ContentLength: 999,
+				LastModified: new Date(startedDate - 24 * 60 * 60 * 1000),
+			}),
+		renderProgress: null,
+	});
+
+	const renderProgress = await getProgress({
+		bucketName,
+		customCredentials: null,
+		expectedBucketOwner: null,
+		forcePathStyle: false,
+		functionName: renderMetadata.functionName,
+		memorySizeInMb: 2048,
+		providerSpecifics,
+		region: 'eu-central-1',
+		renderId,
+		requestHandler: null,
+		timeoutInMilliseconds: 120000,
+	});
+
+	expect(renderProgress.done).toBe(false);
+	expect(renderProgress.outputFile).toBe(null);
+});
+
+test('getProgress accepts an output file written after the render started', async () => {
+	const providerSpecifics = makeProviderSpecifics({
+		onHeadFile: () =>
+			Promise.resolve({
+				ContentLength: 999,
+				LastModified: new Date(startedDate + 1000),
+			}),
+		renderProgress: null,
+	});
+
+	const renderProgress = await getProgress({
+		bucketName,
+		customCredentials: null,
+		expectedBucketOwner: null,
+		forcePathStyle: false,
+		functionName: renderMetadata.functionName,
+		memorySizeInMb: 2048,
+		providerSpecifics,
+		region: 'eu-central-1',
+		renderId,
+		requestHandler: null,
+		timeoutInMilliseconds: 120000,
+	});
+
+	expect(renderProgress.done).toBe(true);
+	expect(renderProgress.outputSizeInBytes).toBe(999);
+});
+
 test('getProgress estimates costs from invoked lambdas only', async () => {
 	const priceInputs: EstimatePriceInput<MockProvider>[] = [];
 	const originalTimings = progress.timings;
