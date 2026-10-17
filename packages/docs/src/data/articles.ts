@@ -3988,6 +3988,15 @@ export const articles = [
 		slug: 'effects/tint',
 	},
 	{
+		id: 'effects/turbulent-displace',
+		title: 'turbulentDisplace()',
+		relativePath: 'docs/effects/turbulent-displace.mdx',
+		compId: 'articles-docs-effects-turbulent-displace',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/turbulent-displace',
+	},
+	{
 		id: 'effects/tv-signal-off',
 		title: 'tvSignalOff()',
 		relativePath: 'docs/effects/tv-signal-off.mdx',

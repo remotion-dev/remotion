@@ -74,6 +74,7 @@ const effectEntrypoints = [
 	'src/tile.ts',
 	'src/tint.ts',
 	'src/translate.ts',
+	'src/turbulent-displace.ts',
 	'src/tv-signal-off.ts',
 	'src/venetian-blinds.ts',
 	'src/vibrance.ts',

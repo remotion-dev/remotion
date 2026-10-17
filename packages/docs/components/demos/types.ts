@@ -2,6 +2,7 @@ import type {LogLevel} from 'remotion';
 import {FractalNoiseDemo} from '../effects/effects-fractal-noise-preview';
 import {PageTurnDemo} from '../effects/effects-page-turn-preview';
 import {SpinningGlobeDemo} from '../effects/effects-sphere-preview';
+import {TurbulentDisplaceDemo} from '../effects/effects-turbulent-displace-preview';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -1794,6 +1795,19 @@ export const fractalNoiseDemo: DemoType = {
 	fps: 30,
 	durationInFrames: 180,
 	id: 'fractal-noise',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const turbulentDisplaceDemo: DemoType = {
+	comp: TurbulentDisplaceDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	fps: 30,
+	durationInFrames: 120,
+	id: 'turbulent-displace',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',

@@ -641,6 +641,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-turbulent-displace',
+		category: 'Distort',
+		label: 'turbulentDisplace()',
+		description: 'Evolving turbulent, bulge and twist distortion',
+		effect: {
+			name: 'turbulentDisplace',
+			importPath: '@remotion/effects/turbulent-displace',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-noise-displacement',
 		category: 'Stylize',
 		label: 'noiseDisplacement()',
