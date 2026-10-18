@@ -169,8 +169,6 @@ const setupBevelAlpha = (target: HTMLCanvasElement): BevelAlphaState => {
 	});
 	if (!gl) throw createWebGL2ContextError('bevel alpha effect');
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	// Dithering would corrupt the low byte of the packed height field.
-	gl.disable(gl.DITHER);
 	const vs = compileShader(gl, gl.VERTEX_SHADER, BEVEL_ALPHA_VERTEX_SHADER);
 	const programs = [
 		buildBevelAlphaBlurShader('horizontal'),
@@ -308,28 +306,37 @@ export const bevelAlpha = createEffect<BevelAlphaParams, BevelAlphaState>({
 		gl.bindVertexArray(vao);
 		if (r.edgeThickness > 0 && r.lightIntensity > 0) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-			for (const [pass, input, output] of [
-				[state.horizontal, texture, intermediate],
-				[state.vertical, intermediate, heightTexture],
-			] as const) {
-				gl.framebufferTexture2D(
-					gl.FRAMEBUFFER,
-					gl.COLOR_ATTACHMENT0,
-					gl.TEXTURE_2D,
-					output,
-					0,
-				);
-				if (
-					gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE
-				)
-					throw new Error('Bevel alpha framebuffer is incomplete');
-				gl.bindTexture(gl.TEXTURE_2D, input);
-				gl.useProgram(pass.program);
-				gl.uniform1i(pass.uSource, 0);
-				gl.uniform2f(pass.uResolution, width, height);
-				// Gaussian shader radius covers three standard deviations; sigma=t/2.
-				gl.uniform1f(pass.uRadius, r.edgeThickness * 1.5);
-				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			// Dithering would corrupt packed heights. Preserve the pooled context's
+			// incoming setting for the final shading pass and subsequent effects.
+			const ditherEnabled = gl.isEnabled(gl.DITHER);
+			gl.disable(gl.DITHER);
+			try {
+				for (const [pass, input, output] of [
+					[state.horizontal, texture, intermediate],
+					[state.vertical, intermediate, heightTexture],
+				] as const) {
+					gl.framebufferTexture2D(
+						gl.FRAMEBUFFER,
+						gl.COLOR_ATTACHMENT0,
+						gl.TEXTURE_2D,
+						output,
+						0,
+					);
+					if (
+						gl.checkFramebufferStatus(gl.FRAMEBUFFER) !==
+						gl.FRAMEBUFFER_COMPLETE
+					)
+						throw new Error('Bevel alpha framebuffer is incomplete');
+					gl.bindTexture(gl.TEXTURE_2D, input);
+					gl.useProgram(pass.program);
+					gl.uniform1i(pass.uSource, 0);
+					gl.uniform2f(pass.uResolution, width, height);
+					// Gaussian shader radius covers three standard deviations; sigma=t/2.
+					gl.uniform1f(pass.uRadius, r.edgeThickness * 1.5);
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				}
+			} finally {
+				if (ditherEnabled) gl.enable(gl.DITHER);
 			}
 		}
 
