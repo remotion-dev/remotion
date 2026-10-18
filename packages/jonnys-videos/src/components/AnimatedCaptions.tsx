@@ -29,11 +29,21 @@ import {
 
 export const CAPTIONS_HEIGHT = 360;
 
+export type CaptionsTheme = 'dark' | 'paper';
+
 type AnimatedCaptionsProps = {
 	readonly captions: Caption[] | null;
 	readonly captionsSrc: string | null;
 	readonly voiceoverSrc: string | null;
+	readonly theme?: CaptionsTheme;
 };
+
+// dark: white text with a gray glow (for dark backgrounds)
+// paper: ink on paper, no glow
+const CAPTION_COLORS = {
+	dark: {idle: '#d9d9d9', focused: '#ffffff'},
+	paper: {idle: '#2a2a30', focused: '#000000'},
+} as const;
 
 const animatedCaptionsSchema = {
 	...Interactive.captionsSchema,
@@ -69,6 +79,7 @@ type CaptionPageProps = {
 	focusedTokenIndex: number;
 	page: TikTokPage;
 	pageKey: string;
+	theme: CaptionsTheme;
 	onWordFocusRegions: (
 		pageKey: string,
 		regions: readonly WordFocusRegion[],
@@ -80,8 +91,10 @@ const CaptionPageInner: React.FC<CaptionPageProps> = ({
 	focusedTokenIndex,
 	page,
 	pageKey,
+	theme,
 	onWordFocusRegions,
 }) => {
+	const {idle, focused} = CAPTION_COLORS[theme];
 	const containerRef = useRef<HTMLDivElement>(null);
 	const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
 
@@ -154,18 +167,14 @@ const CaptionPageInner: React.FC<CaptionPageProps> = ({
 							style={{
 								color:
 									tokenIndex === focusedTokenIndex
-										? interpolateColors(
-												focusProgress,
-												[0, 1],
-												['#d9d9d9', '#ffffff'],
-											)
+										? interpolateColors(focusProgress, [0, 1], [idle, focused])
 										: tokenIndex === focusedTokenIndex - 1
 											? interpolateColors(
 													focusProgress,
 													[0, 1],
-													['#ffffff', '#d9d9d9'],
+													[focused, idle],
 												)
-											: '#d9d9d9',
+											: idle,
 								display: 'inline-block',
 								marginLeft: tokenIndex === 0 ? 0 : 26,
 							}}
@@ -187,7 +196,8 @@ const CaptionPage = Interactive.create({
 const AnimatedCaptionsContent: React.FC<{
 	readonly captions: Caption[];
 	readonly voiceoverSrc: string | null;
-}> = ({captions, voiceoverSrc}) => {
+	readonly theme: CaptionsTheme;
+}> = ({captions, voiceoverSrc, theme}) => {
 	const {fps, height, width} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const [wordFocusRegionsByPage, setWordFocusRegionsByPage] = useState<
@@ -325,6 +335,7 @@ const AnimatedCaptionsContent: React.FC<{
 				height={height}
 				effects={[
 					glow({
+						disabled: theme === 'paper',
 						intensity: 0.6,
 						color: 'gray',
 						radius: 100,
@@ -370,6 +381,7 @@ const AnimatedCaptionsContent: React.FC<{
 							focusedTokenIndex={focusedTokenIndex}
 							page={page}
 							pageKey={pageKey}
+							theme={theme}
 							onWordFocusRegions={onWordFocusRegions}
 						/>
 					);
@@ -382,7 +394,8 @@ const AnimatedCaptionsContent: React.FC<{
 const FetchedAnimatedCaptions: React.FC<{
 	readonly captionsSrc: string;
 	readonly voiceoverSrc: string | null;
-}> = ({captionsSrc, voiceoverSrc}) => {
+	readonly theme: CaptionsTheme;
+}> = ({captionsSrc, voiceoverSrc, theme}) => {
 	const [captions, setCaptions] = useState<Caption[] | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading captions'));
@@ -410,7 +423,11 @@ const FetchedAnimatedCaptions: React.FC<{
 	}
 
 	return (
-		<AnimatedCaptionsContent captions={captions} voiceoverSrc={voiceoverSrc} />
+		<AnimatedCaptionsContent
+			captions={captions}
+			voiceoverSrc={voiceoverSrc}
+			theme={theme}
+		/>
 	);
 };
 
@@ -418,6 +435,7 @@ const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({
 	captions,
 	captionsSrc,
 	voiceoverSrc,
+	theme = 'dark',
 }) => {
 	return (
 		<>
@@ -425,11 +443,13 @@ const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({
 				<AnimatedCaptionsContent
 					captions={captions}
 					voiceoverSrc={voiceoverSrc}
+					theme={theme}
 				/>
 			) : captionsSrc ? (
 				<FetchedAnimatedCaptions
 					captionsSrc={captionsSrc}
 					voiceoverSrc={voiceoverSrc}
+					theme={theme}
 				/>
 			) : null}
 		</>

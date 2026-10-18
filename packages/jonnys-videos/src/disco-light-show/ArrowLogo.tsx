@@ -3,6 +3,10 @@ import {scale} from '@remotion/effects/scale';
 import {Arrow} from '@remotion/shapes';
 import React from 'react';
 import {Interactive, CanvasImage, interpolate, useCurrentFrame} from 'remotion';
+import {
+	CUTOUT_PAPER_COLOR,
+	cutoutPaperEffects,
+} from '../paper-disco/cutout-paper';
 import {asset} from './assets';
 
 const ArrowLogoInner: React.FC = () => {
@@ -10,13 +14,14 @@ const ArrowLogoInner: React.FC = () => {
 	return (
 		<>
 			<Arrow
+				name="Pointer arrow"
 				length={300}
 				headWidth={185}
 				headLength={120}
 				shaftWidth={80}
 				direction="right"
 				cornerRadius={0}
-				fill={'#ffffff'}
+				fill={CUTOUT_PAPER_COLOR}
 				style={{
 					position: 'absolute',
 					translate: '810px 661.1px',
@@ -27,14 +32,16 @@ const ArrowLogoInner: React.FC = () => {
 					scale({
 						scale: 0.8,
 					}),
-					dropShadow({
-						offsetX: 0,
-						offsetY: 0,
-						radius: 100,
+					...cutoutPaperEffects({
+						gridOpacity: null,
+						edgeRoughness: 0.12,
+						unit: 1 / (1.337 * 0.606 * 1.24),
+						seed: 10,
 					}),
 				]}
 			/>
 			<CanvasImage
+				name="Claude logo"
 				src={asset('claude-logo-png_seeklogo-554534 (1).png')}
 				style={{
 					position: 'absolute',

@@ -4,6 +4,10 @@ import {noise2D} from '@remotion/noise';
 import {Arrow} from '@remotion/shapes';
 import React from 'react';
 import {Interactive, CanvasImage, useCurrentFrame} from 'remotion';
+import {
+	CUTOUT_PAPER_COLOR,
+	cutoutPaperEffects,
+} from '../paper-disco/cutout-paper';
 import {asset} from './assets';
 
 const ArrowLogoRemotionInner: React.FC = () => {
@@ -11,13 +15,14 @@ const ArrowLogoRemotionInner: React.FC = () => {
 	return (
 		<>
 			<Arrow
+				name="Pointer arrow"
 				length={300}
 				headWidth={185}
 				headLength={120}
 				shaftWidth={80}
 				direction="right"
 				cornerRadius={0}
-				fill={'#ffffff'}
+				fill={CUTOUT_PAPER_COLOR}
 				style={{
 					position: 'absolute',
 					translate: '903.4px 247.4px',
@@ -28,14 +33,16 @@ const ArrowLogoRemotionInner: React.FC = () => {
 					scale({
 						scale: 0.7,
 					}),
-					dropShadow({
-						offsetX: 0,
-						offsetY: 0,
-						radius: 100,
+					...cutoutPaperEffects({
+						gridOpacity: null,
+						edgeRoughness: 0.12,
+						unit: 1 / (1.337 * 0.736 * 1.24),
+						seed: 11,
 					}),
 				]}
 			/>
 			<CanvasImage
+				name="Remotion logo"
 				src={asset('remotion-logo.svg')}
 				style={{
 					position: 'absolute',

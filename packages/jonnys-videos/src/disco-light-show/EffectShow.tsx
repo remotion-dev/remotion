@@ -1,25 +1,48 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {Interactive} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {asset} from './assets';
 
 const EffectShowInner: React.FC = () => {
+	const frame = useCurrentFrame();
 	return (
 		<>
-			<Video
-				src={asset('TextBehindVideoSeries.mp4')}
+			<Interactive.Div
+				name="Text behind video preview crop"
 				style={{
-					position: 'absolute',
-					translate: '-420px 420px',
 					width: 1920,
 					height: 1080,
-					scale: 0.526,
-					boxShadow: '0px 0px 50px rgba(255, 255, 255, 0.5)',
-					borderRadius: 60,
+					overflow: 'hidden',
+					position: 'absolute',
+					transformOrigin: '0% 0%',
+					translate: interpolate(
+						frame,
+						[18, 55, 100, 140, 162, 175],
+						[
+							'-510px 0px',
+							'-510px 0px',
+							'-620px 0px',
+							'-285px 0px',
+							'-480px 0px',
+							'-480px 0px',
+						],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.cubic),
+						},
+					),
+					scale: 1.05,
 				}}
-				muted
-				trimBefore={151}
-			/>
+			>
+				<Video
+					name="Text behind video preview"
+					src={asset('TextBehindVideoSeries.mp4')}
+					style={{width: 1920, height: 1080}}
+					muted
+					trimBefore={151}
+				/>
+			</Interactive.Div>
 		</>
 	);
 };

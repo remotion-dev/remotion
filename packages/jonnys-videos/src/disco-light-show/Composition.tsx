@@ -5,14 +5,13 @@ import {
 	Easing,
 	Folder,
 	interpolate,
-	Sequence,
 	Track,
 	useCurrentFrame,
 	useVideoConfig,
 	CanvasImage,
 } from 'remotion';
+import {PaperDiscoSting} from '../paper-disco/PaperDiscoSting';
 import {AnimatedCaptions} from './AnimatedCaptions';
-import {AnimatedCaptionsBigWords} from './AnimatedCaptionsBigWords';
 import {asset} from './assets';
 import {BirthdayPartyCompilation} from './BirthdayPartyCompilation';
 import {ClientSideChad} from './ClientSideChad';
@@ -22,14 +21,15 @@ import {DragInDemo} from './DragInDemo';
 import {EffectShow} from './EffectShow';
 import {Fork} from './Fork';
 import {ForkDrop} from './ForkDrop';
+import {ForkSound} from './ForkSound';
 import {HuggingFace} from './HuggingFace';
 import {Mediabunny} from './Mediabunny';
-import {OneShot} from './OneShot';
 import {
 	SCREEN_RECORDING_DURATION_IN_FRAMES,
 	ScreenRecordingComposition,
 } from './ScreenRecordingComposition';
 import {Separate} from './Separate';
+import {SocialSafeZones} from './SocialSafeZones';
 import {
 	TEXT_BACKGROUND_DURATION_IN_FRAMES,
 	TextBackgroundComposition,
@@ -40,6 +40,7 @@ import {
 } from './TextBehindVideoSeriesFirst20s';
 import {TextBehindVideoStackComposition} from './TextBehindVideoStack';
 import {VibeCoded} from './VibeCoded';
+import {VOICEOVER_SRC} from './voiceover';
 
 export const MASTER_DURATION_IN_FRAMES = 1816;
 
@@ -97,65 +98,32 @@ const MyComponentInner: React.FC = () => {
 				durationInFrames={201}
 				style={{
 					position: 'absolute',
+					transformOrigin: '0% 0%',
 					translate: interpolate(
 						frame,
-						[0, 91, 103, 127, 136, 172],
+						[0, 58, 76, 122, 140, 181],
 						[
-							'-384.3px -80.8px',
-							'-420px 45.5px',
-							'135.6px -76.9px',
-							'135.6px -76.9px',
-							'-419.93606px 93.283812px',
-							'-419.93606px 93.283812px',
+							'-565px -40px',
+							'-565px -40px',
+							'-310px -140px',
+							'-310px -140px',
+							'-640px -140px',
+							'-640px -140px',
 						],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.linear,
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-								Easing.linear,
-								Easing.linear,
-								Easing.linear,
-							],
+							easing: Easing.inOut(Easing.cubic),
 						},
 					),
 					scale: interpolate(
 						frame,
-						[91, 103, 127, 136, 172, 179],
-						[0.73, 1.297, 1.297, 1.35, 1.35, 0.684],
+						[0, 58, 76, 181],
+						[1.12, 1.12, 1.24, 1.24],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-								Easing.linear,
-								Easing.linear,
-								Easing.linear,
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: Easing.inOut(Easing.cubic),
 						},
 					),
 				}}
@@ -164,22 +132,64 @@ const MyComponentInner: React.FC = () => {
 				name="BirthdayPartyCompilation"
 				width={1080}
 				height={1920}
-				durationInFrames={169}
+				durationInFrames={178}
 				style={{
 					position: 'absolute',
+					// Keep the next caption behind the outgoing paper during the reveal.
+					zIndex: frame >= 347 ? 1 : 0,
 				}}
 				from={182}
 			/>
-			<Audio name="Voiceover" src={asset('text-behind-video-2.wav')} />
+			<Audio name="Voiceover" src={VOICEOVER_SRC} />
+			<Track name="Music">
+				<Audio
+					name="Kein Kokain — instrumental"
+					src={asset('kein-kokain-instrumental-fad54dabc4a4.mp3')}
+					trimBefore={0.95075 * fps}
+					durationInFrames={52 * fps}
+					volume={interpolate(
+						frame,
+						[0, 0.3 * fps, 43.5 * fps, 51.5 * fps],
+						[0, 0.07, 0.07, 0],
+						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+					)}
+				/>
+				<Audio
+					name="Outro music"
+					src={asset('text-behind-video-2.wav')}
+					from={52 * fps}
+					trimBefore={52 * fps}
+					durationInFrames={MASTER_DURATION_IN_FRAMES - 52 * fps}
+				/>
+			</Track>
 			<Track name="Captions">
+				{/* Text background is white: black captions */}
 				<AnimatedCaptions
 					name="AnimatedCaptions"
 					width={1080}
 					height={360}
-					durationInFrames={334}
+					durationInFrames={182}
 					style={{
 						position: 'absolute',
-						translate: '0px 1132.3px',
+						translate: '0px 1260px',
+						scale: 0.9,
+						transformOrigin: '50% 0%',
+					}}
+				/>
+				{/* Over the birthday party footage: white captions */}
+				<AnimatedCaptions
+					name="AnimatedCaptions (over footage)"
+					width={1080}
+					height={360}
+					from={182}
+					durationInFrames={165}
+					trimBefore={182}
+					theme="dark"
+					style={{
+						position: 'absolute',
+						translate: '0px 1260px',
+						scale: 0.9,
+						transformOrigin: '50% 0%',
 					}}
 				/>
 				<AnimatedCaptions
@@ -187,165 +197,100 @@ const MyComponentInner: React.FC = () => {
 					width={1080}
 					height={360}
 					from={347}
-					durationInFrames={175}
+					durationInFrames={187}
 					trimBefore={347}
 					style={{
 						position: 'absolute',
-						translate: '0px 1132.3px',
+						translate: '0px 1260px',
+						scale: 0.9,
+						transformOrigin: '50% 0%',
+					}}
+				/>
+				{/* No captions for "How did I do this?" (534-571): the disco sting plays instead */}
+				<AnimatedCaptions
+					name="AnimatedCaptions (after sting)"
+					width={1080}
+					height={360}
+					from={571}
+					durationInFrames={674}
+					trimBefore={571}
+					style={{
+						position: 'absolute',
+						translate: '0px 1260px',
+						scale: 0.9,
+						transformOrigin: '50% 0%',
 					}}
 				/>
 				<AnimatedCaptions
-					name="AnimatedCaptions"
+					name="AnimatedCaptions (after import)"
 					width={1080}
 					height={360}
-					from={566}
-					durationInFrames={1234}
-					trimBefore={566}
+					from={1347}
+					durationInFrames={453}
+					trimBefore={1347}
 					style={{
 						position: 'absolute',
-						translate: interpolate(
-							frame,
-							[567, 575],
-							['1080px 1132.3px', '0px 1132.3px'],
-							{
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-								easing: [
-									Easing.spring({
-										damping: 200,
-										mass: 1,
-										stiffness: 100,
-										allowTail: true,
-										durationRestThreshold: 0.02,
-										overshootClamping: false,
-									}),
-								],
-							},
-						),
+						translate: '0px 1260px',
+						scale: 0.9,
+						transformOrigin: '50% 0%',
 					}}
 				/>
 			</Track>
-			<AnimatedCaptionsBigWords
-				name="AnimatedCaptionsBigWords"
-				width={1080}
-				height={1920}
-				from={529}
-				durationInFrames={55}
-				trimBefore={522}
-				style={{
-					position: 'absolute',
-					scale: 0.85,
-					translate: interpolate(
-						frame,
-						[567, 575],
-						['0px 0px', '-1070.4px 0px'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
-						},
-					),
-				}}
-			/>
 			<Track name="Effect and model demos">
 				<EffectShow
 					name="EffectShow"
 					width={1080}
 					height={1920}
-					durationInFrames={197}
+					durationInFrames={200}
+					cropBottom={interpolate(frame, [345, 359], [1, 0], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						easing: Easing.inOut(Easing.cubic),
+					})}
 					style={{
 						position: 'absolute',
 						translate: interpolate(
 							frame,
-							[337, 352],
-							['0px 1920px', '0px -330.8px'],
+							[345, 359, 512, 522],
+							['0px 0px', '0px 0px', '0px 0px', '-1080px 0px'],
 							{
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
-								easing: [
-									Easing.spring({
-										damping: 200,
-										mass: 1,
-										stiffness: 100,
-										allowTail: true,
-										durationRestThreshold: 0.02,
-										overshootClamping: false,
-									}),
-								],
+								easing: Easing.inOut(Easing.cubic),
 							},
 						),
-						scale: interpolate(frame, [512, 522], [1, 0], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: false,
-									durationRestThreshold: 0.01,
-									overshootClamping: false,
-								}),
-							],
-						}),
 					}}
 					from={337}
 				/>
 				<HuggingFace
 					name="HuggingFace"
-					width={1920}
-					height={1080}
-					durationInFrames={162}
+					width={1080}
+					height={1920}
+					durationInFrames={166}
 					style={{
 						position: 'absolute',
 						translate: interpolate(
 							frame,
-							[567, 575],
-							['704.8px 79.9px', '-420px 79.9px'],
+							[567, 575, 694, 702],
+							['1080px 0px', '0px 0px', '0px 0px', '-1080px 0px'],
 							{
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
-								easing: [
-									Easing.spring({
-										damping: 200,
-										mass: 1,
-										stiffness: 100,
-										allowTail: true,
-										durationRestThreshold: 0.02,
-										overshootClamping: false,
-									}),
-								],
+								easing: Easing.inOut(Easing.cubic),
 							},
 						),
-						scale: interpolate(frame, [692, 697], [0.707, 0], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
-						}),
 					}}
 					from={537}
 				/>
 			</Track>
+			<PaperDiscoSting
+				name="How did I do this? — disco sting"
+				width={1080}
+				height={1920}
+				from={534}
+				durationInFrames={37}
+				style={{position: 'absolute'}}
+			/>
 			<ClientSideChad
 				name="ClientSideChad"
 				width={1080}
@@ -353,10 +298,16 @@ const MyComponentInner: React.FC = () => {
 				durationInFrames={168}
 				style={{
 					position: 'absolute',
-					opacity: interpolate(frame, [817, 821], [1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
+					translate: interpolate(
+						frame,
+						[694, 702, 823, 831],
+						['1080px 0px', '0px 0px', '0px 0px', '-1080px 0px'],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.cubic),
+						},
+					),
 				}}
 				from={694}
 			/>
@@ -365,64 +316,17 @@ const MyComponentInner: React.FC = () => {
 				width={1080}
 				height={1920}
 				from={823}
-				durationInFrames={141}
+				durationInFrames={154}
 				style={{
 					position: 'absolute',
-					scale: interpolate(frame, [823, 829, 885, 893], [0, 1, 1, 1.608], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-							Easing.linear,
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-						],
-					}),
 					translate: interpolate(
 						frame,
-						[885, 893, 949, 962],
-						[
-							'0px 0px',
-							'-328.3px 195.8px',
-							'-328.3px 195.8px',
-							'-1456.7px 195.8px',
-						],
+						[823, 831, 966, 976],
+						['1080px 0px', '0px 0px', '0px 0px', '-1080px 0px'],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-								Easing.linear,
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: Easing.inOut(Easing.cubic),
 						},
 					),
 				}}
@@ -434,26 +338,14 @@ const MyComponentInner: React.FC = () => {
 				durationInFrames={140}
 				style={{
 					position: 'absolute',
-					translate: '39.2px -299.4px',
-					scale: interpolate(
+					translate: interpolate(
 						frame,
-						[966, 976, 1048],
-						[0, 1, 0.9999999999999999],
+						[966, 976],
+						['1119.2px -299.4px', '39.2px -299.4px'],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-								Easing.linear,
-							],
+							easing: Easing.inOut(Easing.cubic),
 						},
 					),
 					rotate: interpolate(frame, [1048, 1063], ['0deg', '60deg'], {
@@ -490,6 +382,7 @@ const MyComponentInner: React.FC = () => {
 				durationInFrames={65}
 				style={{
 					position: 'absolute',
+					overflow: 'hidden',
 					translate: interpolate(
 						frame,
 						[1052, 1059],
@@ -512,67 +405,17 @@ const MyComponentInner: React.FC = () => {
 					scale: 1,
 				}}
 			/>
-			<OneShot
-				name="OneShot"
-				width={1080}
-				height={1080}
-				durationInFrames={61}
-				style={{
-					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[1145, 1152],
-						['-37.5px -66.9px', '-1080px -66.9px'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
-						},
-					),
-					scale: interpolate(frame, [1093, 1104], [0, 1], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-						],
-					}),
-				}}
-				from={1093}
-			/>
 			<VibeCoded
 				name="VibeCoded"
 				width={1080}
-				height={1080}
-				durationInFrames={108}
+				height={1920}
+				durationInFrames={140}
 				style={{
 					position: 'absolute',
 					translate: interpolate(
 						frame,
-						[1145, 1152, 1226, 1232],
-						[
-							'1226.1px 178.9px',
-							'-19.5px 178.9px',
-							'-19.5px 178.9px',
-							'-1346.7px 178.9px',
-						],
+						[1093, 1104, 1226, 1232],
+						['1080px 0px', '0px 0px', '0px 0px', '-1080px 0px'],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
@@ -599,8 +442,8 @@ const MyComponentInner: React.FC = () => {
 					),
 					scale: 0.9999999983052765,
 				}}
-				from={1125}
-				trimBefore={35}
+				from={1093}
+				trimBefore={3}
 			/>
 			<Mediabunny
 				name="Mediabunny"
@@ -622,12 +465,7 @@ const MyComponentInner: React.FC = () => {
 					translate: interpolate(
 						frame,
 						[1245, 1251, 1338, 1346],
-						[
-							'1548.4px -173.2px',
-							'0px -173.2px',
-							'0px -173.2px',
-							'-1458.6px -173.2px',
-						],
+						['1080px 0px', '0px 0px', '0px 0px', '-1080px 0px'],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
@@ -648,6 +486,20 @@ const MyComponentInner: React.FC = () => {
 				}}
 				from={1245}
 			/>
+			<AnimatedCaptions
+				name="AnimatedCaptions (over import)"
+				width={1080}
+				height={360}
+				from={1245}
+				durationInFrames={102}
+				trimBefore={1245}
+				style={{
+					position: 'absolute',
+					translate: '0px 1260px',
+					scale: 0.9,
+					transformOrigin: '50% 0%',
+				}}
+			/>
 			<TextBehindVideoStackComposition
 				name="TextBehindVideoStack"
 				width={1080}
@@ -655,6 +507,7 @@ const MyComponentInner: React.FC = () => {
 				durationInFrames={154}
 				style={{
 					position: 'absolute',
+					overflow: 'hidden',
 					scale: 1.236,
 					translate: interpolate(
 						frame,
@@ -669,92 +522,49 @@ const MyComponentInner: React.FC = () => {
 				from={1337}
 			/>
 			<CanvasImage
+				name="Code snippet"
 				src={asset('Screenshot 2026-07-19 at 18.28.52.png')}
+				from={1455}
+				durationInFrames={57}
+				cropTop={0.124}
+				cropBottom={0.12}
+				cropLeft={0.016}
+				cropRight={0.016}
 				style={{
 					position: 'absolute',
+					width: 1188,
+					height: 1260,
+					scale: 1.04,
+					transformOrigin: '0% 0%',
 					translate: interpolate(
 						frame,
-						[1455, 1469, 1502, 1511],
+						[1455, 1469, 1498, 1502, 1511],
 						[
-							'1078px 185.5px',
-							'117.1px 177.6px',
-							'117.1px 177.6px',
-							'-1160.8px 177.6px',
+							'1080px -20px',
+							'-75px -20px',
+							'-125px -40px',
+							'-125px -40px',
+							'-1400px -40px',
 						],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.1,
-									overshootClamping: false,
-								}),
+								Easing.inOut(Easing.cubic),
 								Easing.linear,
 								Easing.linear,
+								Easing.inOut(Easing.cubic),
 							],
 						},
 					),
-					width: 1188,
-					height: 1260,
-					padding: 36,
-					backgroundColor: '#292c32',
-					borderRadius: 40,
-					scale: 0.712,
-					rotate: interpolate(
-						frame,
-						[1455, 1469, 1502, 1511],
-						['-18deg', '0deg', '0deg', '-26.7deg'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.1,
-									overshootClamping: false,
-								}),
-								Easing.linear,
-								Easing.linear,
-							],
-						},
-					),
-					transformOrigin: interpolate(frame, [1455], ['0% 0%'], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
 				}}
-				from={1455}
-				trimBefore={1310}
-				name={'Code snippet'}
-				durationInFrames={205}
 			/>
-			<Sequence
+			<ForkSound
 				name="Fork sound effect"
 				from={1036}
 				durationInFrames={772}
-				layout="none"
-			>
-				<Audio
-					name="Fah"
-					src={asset('fahhhh.mp3')}
-					volume={0.045}
-					toneFrequency={0.88}
-				/>
-				<Audio
-					name="Fah echo"
-					src={asset('fahhhh.mp3')}
-					from={Math.round(0.12 * fps)}
-					volume={0.008}
-					toneFrequency={0.8}
-				/>
-			</Sequence>
+				style={{pointerEvents: 'none'}}
+			/>
 			<Video
 				name="Drumsticks"
 				src={asset('drumsticks.mp4')}
@@ -782,6 +592,15 @@ const MyComponentInner: React.FC = () => {
 				durationInFrames={COUNTDOWN_DURATION_IN_FRAMES}
 				width={1080}
 				height={1920}
+			/>
+			<SocialSafeZones
+				name="Social safe zones — toggle visibility"
+				width={1080}
+				height={1920}
+				durationInFrames={MASTER_DURATION_IN_FRAMES}
+				platform="instagram"
+				hidden
+				style={{pointerEvents: 'none', zIndex: 2147483647}}
 			/>
 		</>
 	);

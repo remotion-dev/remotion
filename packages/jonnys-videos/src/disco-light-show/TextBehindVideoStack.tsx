@@ -1,6 +1,5 @@
 import {Video} from '@remotion/media';
 import {
-	AbsoluteFill,
 	Composition,
 	Easing,
 	Interactive,
@@ -13,9 +12,14 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
-			<Interactive.Div
+		<>
+			<Video
 				name="Background video"
+				src={asset('text-behind-video-background.webm')}
+				from={0}
+				trimBefore={330}
+				durationInFrames={3343}
+				muted
 				style={{
 					position: 'absolute',
 					left: 0,
@@ -44,24 +48,13 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<Video
-					src={asset('text-behind-video-background.webm')}
-					from={0}
-					trimBefore={330}
-					durationInFrames={3343}
-					muted
-					style={{
-						width: 1920,
-						height: 1080,
-						boxShadow: '0px 0px 50px rgba(255, 255, 255, 0.5)',
-						borderRadius: 60,
-					}}
-					showInTimeline={false}
-				/>
-			</Interactive.Div>
-			<Interactive.Div
+			/>
+			<Video
 				name="Text video"
+				src={asset('text-behind-video-text.webm')}
+				from={-625}
+				trimBefore={330}
+				durationInFrames={3343}
 				style={{
 					position: 'absolute',
 					left: 0,
@@ -90,22 +83,13 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<Video
-					src={asset('text-behind-video-text.webm')}
-					from={-625}
-					trimBefore={330}
-					durationInFrames={3343}
-					style={{
-						width: 1920,
-						height: 1080,
-						boxShadow: '0px 0px 50px rgba(255, 255, 255, 0.5)',
-						borderRadius: 60,
-					}}
-				/>
-			</Interactive.Div>
-			<Interactive.Div
+			/>
+			<Video
 				name="Foreground video"
+				src={asset('text-behind-video-foreground.webm')}
+				from={0}
+				trimBefore={330}
+				durationInFrames={3343}
 				style={{
 					position: 'absolute',
 					left: 0,
@@ -134,22 +118,8 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<Video
-					src={asset('text-behind-video-foreground.webm')}
-					from={0}
-					trimBefore={330}
-					durationInFrames={3343}
-					style={{
-						width: 1920,
-						height: 1080,
-						boxShadow: '0px 0px 50px rgba(255, 255, 255, 0.5)',
-						borderRadius: 60,
-					}}
-					showInTimeline={false}
-				/>
-			</Interactive.Div>
-		</AbsoluteFill>
+			/>
+		</>
 	);
 };
 
@@ -162,6 +132,7 @@ export const TextBehindVideoStack: React.FC = () => {
 			fps={30}
 			width={1080}
 			height={1920}
+			defaultProps={{style: {overflow: 'hidden'}}}
 		/>
 	);
 };

@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	CanvasImage,
 	Interactive,
@@ -13,7 +12,7 @@ const ForkDropInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill showInTimeline={false} style={{overflow: 'hidden'}}>
+		<>
 			<CanvasImage
 				name="Cursor chat window"
 				src={asset('Screenshot 2026-07-19 at 16.26.01.png')}
@@ -59,10 +58,6 @@ const ForkDropInner: React.FC = () => {
 					top: 0,
 					width: 1428,
 					height: 786,
-					overflow: 'hidden',
-					borderRadius: 30,
-					border: '8px solid rgba(255, 255, 255, 0.95)',
-					boxShadow: '0 24px 60px rgba(0, 0, 0, 0.28)',
 					translate: interpolate(
 						frame,
 						[0, 30, 38],
@@ -131,7 +126,7 @@ const ForkDropInner: React.FC = () => {
 					filter: 'drop-shadow(0 20px 18px rgba(0, 0, 0, 0.28))',
 				}}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 

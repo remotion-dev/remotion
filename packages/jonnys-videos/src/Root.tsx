@@ -22,6 +22,7 @@ import {Compilation} from './disco-light-show/Compilation';
 import {MyComposition} from './disco-light-show/Composition';
 import {
 	Countdown,
+	CountdownPage,
 	COUNTDOWN_DURATION_IN_FRAMES,
 } from './disco-light-show/Countdown';
 import {DiscoBallBg} from './disco-light-show/DiscoBallBg';
@@ -30,6 +31,8 @@ import {DragInDemo} from './disco-light-show/DragInDemo';
 import {EffectShow} from './disco-light-show/EffectShow';
 import {Fork} from './disco-light-show/Fork';
 import {ForkDrop} from './disco-light-show/ForkDrop';
+import {ForkSound} from './disco-light-show/ForkSound';
+import {GetThemToDance} from './disco-light-show/GetThemToDance';
 import {HuggingFace} from './disco-light-show/HuggingFace';
 import {MasterWithEffect} from './disco-light-show/MasterWithEffect';
 import {Mediabunny} from './disco-light-show/Mediabunny';
@@ -41,7 +44,12 @@ import {EvacuateHypnotized} from './disco-light-show/selects/evacuate/EvacuateHy
 import {EvacuateLightsCloseup} from './disco-light-show/selects/evacuate/EvacuateLightsCloseup';
 import {EvacuateNeonExit} from './disco-light-show/selects/evacuate/EvacuateNeonExit';
 import {EvacuateOpeningHook} from './disco-light-show/selects/evacuate/EvacuateOpeningHook';
+import {GreenLaserVertical} from './disco-light-show/selects/GreenLaserVertical';
 import {GreenStrobe} from './disco-light-show/selects/GreenStrobe';
+import {
+	PARTY_SUGGESTIONS_DURATION_IN_FRAMES,
+	PartySuggestions,
+} from './disco-light-show/selects/PartySuggestions';
 import {SuperfreakChorus} from './disco-light-show/selects/superfreak/SuperfreakChorus';
 import {SuperfreakOpening} from './disco-light-show/selects/superfreak/SuperfreakOpening';
 import {SuperfreakOrangeBreak} from './disco-light-show/selects/superfreak/SuperfreakOrangeBreak';
@@ -49,6 +57,8 @@ import {SuperfreakRiff} from './disco-light-show/selects/superfreak/SuperfreakRi
 import {ThreePersonChoreography} from './disco-light-show/selects/ThreePersonChoreography';
 import {Separate} from './disco-light-show/Separate';
 import {Setup} from './disco-light-show/Setup';
+import {SocialSafeZones} from './disco-light-show/SocialSafeZones';
+import {Text} from './disco-light-show/Text';
 import {TextBehindVideoSeriesFirst20s} from './disco-light-show/TextBehindVideoSeriesFirst20s';
 import {TextBehindVideoStack} from './disco-light-show/TextBehindVideoStack';
 import {VibeCoded} from './disco-light-show/VibeCoded';
@@ -69,6 +79,20 @@ import {
 	ZURICH_PHOTO_DURATION_IN_FRAMES,
 	ZurichPhoto,
 } from './how-can-remotion-be-free/ZurichPhoto';
+import {
+	NeonRaysLayer,
+	NotebookPageLayer,
+	PaperDiscoBallLayer,
+	PaperDiscoBallNoShadowLayer,
+} from './paper-disco/Layers';
+import {
+	PAPER_DISCO_SHOW_DURATION_IN_FRAMES,
+	PaperDiscoShow,
+} from './paper-disco/PaperDiscoShow';
+import {
+	PAPER_DISCO_STING_DURATION_IN_FRAMES,
+	PaperDiscoSting,
+} from './paper-disco/PaperDiscoSting';
 import {RemotionRoot as PlaneSightRoot} from './plane-sight/Root';
 import {RemotionRoot as RollerSkisNewRoot} from './roller-skis-new/Root';
 import {RemotionRoot as RollerSkisRoot} from './roller-skis/Root';
@@ -89,6 +113,22 @@ export const RemotionRoot: React.FC = () => {
 					/>
 				</Folder>
 				<Folder name="Selects">
+					<Composition
+						id="GreenLaserVertical"
+						component={GreenLaserVertical}
+						durationInFrames={105}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Composition
+						id="PartySuggestions"
+						component={PartySuggestions}
+						durationInFrames={PARTY_SUGGESTIONS_DURATION_IN_FRAMES}
+						fps={30}
+						width={1920}
+						height={1080}
+					/>
 					<Folder name="EvacuateTheDancefloor">
 						<Composition
 							id="EvacuateOpeningHook"
@@ -233,6 +273,33 @@ export const RemotionRoot: React.FC = () => {
 					height={1920}
 				/>
 				<Composition
+					id="CountdownPage"
+					component={CountdownPage}
+					durationInFrames={20}
+					fps={30}
+					width={1080}
+					height={1920}
+					defaultProps={{number: '3'}}
+				/>
+				<Composition
+					id="DiscoText"
+					component={Text}
+					durationInFrames={90}
+					fps={30}
+					width={1080}
+					height={1920}
+					defaultProps={{
+						children: 'One-Shot',
+						style: {
+							fontFamily: 'Arial, sans-serif',
+							fontSize: 164,
+							fontWeight: 900,
+							color: 'white',
+							textAlign: 'center',
+						},
+					}}
+				/>
+				<Composition
 					id="ArrowLogo"
 					component={ArrowLogo}
 					durationInFrames={240}
@@ -249,12 +316,21 @@ export const RemotionRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
+					id="SocialSafeZones"
+					component={SocialSafeZones}
+					durationInFrames={120}
+					fps={30}
+					width={1080}
+					height={1920}
+					defaultProps={{platform: 'instagram'}}
+				/>
+				<Composition
 					id="HuggingFace"
 					component={HuggingFace}
 					durationInFrames={240}
 					fps={30}
-					width={1920}
-					height={1080}
+					width={1080}
+					height={1920}
 				/>
 				<Composition
 					id="Fork"
@@ -276,6 +352,15 @@ export const RemotionRoot: React.FC = () => {
 					id="ForkDrop"
 					component={ForkDrop}
 					durationInFrames={1629}
+					fps={30}
+					width={1080}
+					height={1920}
+					defaultProps={{style: {overflow: 'hidden'}}}
+				/>
+				<Composition
+					id="ForkSound"
+					component={ForkSound}
+					durationInFrames={772}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -310,7 +395,7 @@ export const RemotionRoot: React.FC = () => {
 					durationInFrames={150}
 					fps={30}
 					width={1080}
-					height={1080}
+					height={1920}
 				/>
 				<Composition
 					id="DragIn"
@@ -323,7 +408,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="DragInDemo"
 					component={DragInDemo}
-					durationInFrames={60}
+					durationInFrames={102}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -351,6 +436,15 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1080}
 					height={1920}
+				/>
+				<Composition
+					id="GetThemToDance"
+					component={GetThemToDance}
+					durationInFrames={85}
+					fps={30}
+					width={1080}
+					height={1920}
+					defaultProps={{style: {backgroundColor: '#141414'}}}
 				/>
 				<Composition
 					id="Clip1"
@@ -396,6 +490,56 @@ export const RemotionRoot: React.FC = () => {
 					id="Setup"
 					component={Setup}
 					durationInFrames={1800}
+					fps={30}
+					width={1080}
+					height={1920}
+				/>
+			</Folder>
+			<Folder name="PaperDisco">
+				<Composition
+					id="PaperDiscoSting"
+					component={PaperDiscoSting}
+					durationInFrames={PAPER_DISCO_STING_DURATION_IN_FRAMES}
+					fps={30}
+					width={1080}
+					height={1920}
+				/>
+				<Composition
+					id="PaperDiscoShow"
+					component={PaperDiscoShow}
+					durationInFrames={PAPER_DISCO_SHOW_DURATION_IN_FRAMES}
+					fps={30}
+					width={1080}
+					height={1920}
+				/>
+				<Composition
+					id="PaperDiscoBall"
+					component={PaperDiscoBallLayer}
+					durationInFrames={300}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="PaperDiscoBallNoShadow"
+					component={PaperDiscoBallNoShadowLayer}
+					durationInFrames={300}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="PaperNeonRays"
+					component={NeonRaysLayer}
+					durationInFrames={300}
+					fps={30}
+					width={1080}
+					height={1920}
+				/>
+				<Composition
+					id="PaperNotebookPage"
+					component={NotebookPageLayer}
+					durationInFrames={300}
 					fps={30}
 					width={1080}
 					height={1920}

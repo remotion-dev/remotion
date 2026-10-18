@@ -1,5 +1,11 @@
 import React from 'react';
-import {Interactive, CanvasImage, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	Easing,
+	CanvasImage,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {asset} from './assets';
 
 const MediabunnyInner: React.FC = () => {
@@ -7,21 +13,29 @@ const MediabunnyInner: React.FC = () => {
 	return (
 		<>
 			<CanvasImage
+				name="Mediabunny logo"
 				src={asset('mediabunny-logo.png')}
 				style={{
 					position: 'absolute',
-					translate: '105px 527.5px',
+					translate: interpolate(
+						frame,
+						[0, 8, 17, 26],
+						[
+							'1605px 527.5px',
+							'105px 527.5px',
+							'105px 527.5px',
+							'-1395px 527.5px',
+						],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.cubic),
+						},
+					),
 					width: 870,
 					height: 865,
-					opacity: interpolate(frame, [0, 8, 17, 26], [0, 0.1, 0.1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
-					scale: interpolate(frame, [0, 26], [1, 2.5], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'extend',
-						output: 'perceptual-scale',
-					}),
+					opacity: 0.1,
+					scale: 1.7,
 				}}
 			/>
 		</>
