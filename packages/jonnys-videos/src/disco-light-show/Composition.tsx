@@ -62,8 +62,24 @@ export const MyComposition = () => {
 	);
 };
 
-const MyComponentInner: React.FC = () => {
+const InstrumentalMusic: React.FC = () => {
 	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	return (
+		<Audio
+			name="Kein Kokain — instrumental"
+			src={asset('kein-kokain-instrumental-fad54dabc4a4.mp3')}
+			trimBefore={0.95075 * fps}
+			durationInFrames={(1368 / 30) * fps}
+			volume={interpolate(frame, [0, 7, 1113, 1355], [0, 0.07, 0.07, 0], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			})}
+		/>
+	);
+};
+
+const MyComponentInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 	return (
 		<>
@@ -114,16 +130,7 @@ const MyComponentInner: React.FC = () => {
 				height={1920}
 			/>
 			<Track name="Music">
-				<Audio
-					name="Kein Kokain — instrumental"
-					src={asset('kein-kokain-instrumental-fad54dabc4a4.mp3')}
-					trimBefore={0.95075 * fps}
-					durationInFrames={(1368 / 30) * fps}
-					volume={interpolate(frame, [0, 7, 1113, 1355], [0, 0.07, 0.07, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					})}
-				/>
+				<InstrumentalMusic />
 				<Audio
 					name="Outro music"
 					src={asset('text-behind-video-2.wav')}
