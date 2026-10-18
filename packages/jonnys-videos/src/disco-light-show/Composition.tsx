@@ -5,8 +5,10 @@ import {
 	Easing,
 	Folder,
 	interpolate,
+	Sequence,
 	Track,
 	useCurrentFrame,
+	useVideoConfig,
 	CanvasImage,
 } from 'remotion';
 import {AnimatedCaptions} from './AnimatedCaptions';
@@ -76,6 +78,7 @@ export const MyComposition = () => {
 
 const MyComponentInner: React.FC = () => {
 	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
 	return (
 		<>
 			<DiscoBallBg
@@ -732,13 +735,26 @@ const MyComponentInner: React.FC = () => {
 				name={'Code snippet'}
 				durationInFrames={205}
 			/>
-			<Audio
+			<Sequence
 				name="Fork sound effect"
-				src={asset('fahhhh.mp3')}
 				from={1036}
-				volume={0.1}
 				durationInFrames={772}
-			/>
+				layout="none"
+			>
+				<Audio
+					name="Fah"
+					src={asset('fahhhh.mp3')}
+					volume={0.045}
+					toneFrequency={0.88}
+				/>
+				<Audio
+					name="Fah echo"
+					src={asset('fahhhh.mp3')}
+					from={Math.round(0.12 * fps)}
+					volume={0.008}
+					toneFrequency={0.8}
+				/>
+			</Sequence>
 			<Video
 				name="Drumsticks"
 				src={asset('drumsticks.mp4')}

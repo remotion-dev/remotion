@@ -13,12 +13,10 @@ import React, {
 } from 'react';
 import {
 	AbsoluteFill,
-	Easing,
 	HtmlInCanvas,
 	Interactive,
 	interpolate,
 	interpolateColors,
-	spring,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
@@ -42,7 +40,6 @@ const animatedCaptionsSchema = {
 } as const satisfies InteractivitySchema;
 
 const SWITCH_CAPTIONS_EVERY_MS = 1100;
-const FISHEYE_CENTER_MOVE_MAX_DURATION_IN_SECONDS = 0.2;
 const RADIAL_BLUR_START = 0.5;
 const RADIAL_BLUR_FOCUS_PADDING_IN_PIXELS = 8;
 const CAPTION_PAGE_LAYOUT = {
@@ -260,74 +257,59 @@ const AnimatedCaptionsContent: React.FC<{
 	const currentPageWordFocusRegions = currentPageKey
 		? wordFocusRegionsByPage[currentPageKey]
 		: null;
-	const targetRegion =
-		currentPageWordFocusRegions?.[focusedTokenIndex] ??
-		DEFAULT_WORD_FOCUS_REGION;
-	const previousRegion = currentPageWordFocusRegions?.[
-		focusedTokenIndex - 1
-	] ?? {
-		...DEFAULT_WORD_FOCUS_REGION,
-		width: targetRegion.width,
-		height: targetRegion.height,
-	};
+	const firstRegion =
+		currentPageWordFocusRegions?.[0] ?? DEFAULT_WORD_FOCUS_REGION;
+	const lastRegion = currentPageWordFocusRegions?.at(-1) ?? firstRegion;
+	const pageStartFrame = currentPage
+		? Math.round((currentPage.startMs / 1000) * fps)
+		: frame;
+	const nextPage = pages[currentPageIndex + 1];
+	const naturalEndFrame = currentPage
+		? Math.ceil(((currentPage.startMs + currentPage.durationMs) / 1000) * fps)
+		: frame + 1;
+	const pageEndFrame = nextPage
+		? Math.min(Math.round((nextPage.startMs / 1000) * fps), naturalEndFrame)
+		: naturalEndFrame;
+	// Move continuously for the whole page; token boundaries only change highlighting.
+	const pageProgress = interpolate(
+		frame,
+		[pageStartFrame, Math.max(pageStartFrame + 1, pageEndFrame - 1)],
+		[0, 1],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
 	const focusedToken = currentPage?.tokens[focusedTokenIndex] ?? null;
 	const focusedTokenStartFrame = focusedToken
 		? Math.round((focusedToken.fromMs / 1000) * fps)
 		: frame;
-	const focusedTokenDurationInFrames = focusedToken
-		? Math.max(
-				2,
-				Math.round(((focusedToken.toMs - focusedToken.fromMs) / 1000) * fps),
-			)
-		: 2;
-	const focusedTokenFrame = frame - focusedTokenStartFrame;
-	const centerProgress = !focusedToken
-		? 1
-		: spring({
-				frame: focusedTokenFrame,
-				fps,
-				durationInFrames: Math.max(
-					1,
-					Math.min(
-						focusedTokenDurationInFrames,
-						Math.round(FISHEYE_CENTER_MOVE_MAX_DURATION_IN_SECONDS * fps),
-					),
-				),
-				config: {
-					damping: 200,
-					overshootClamping: true,
-				},
-			});
-	const focusProgress = interpolate(centerProgress, [0, 1], [0, 1], {
-		easing: Easing.spring({damping: 200}),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const focusProgress = interpolate(
+		frame,
+		[focusedTokenStartFrame, focusedTokenStartFrame + Math.max(1, 0.15 * fps)],
+		[0, 1],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
 	const fisheyeCenter = [
 		interpolate(
-			focusProgress,
+			pageProgress,
 			[0, 1],
-			[previousRegion.center[0], targetRegion.center[0]],
+			[firstRegion.center[0], lastRegion.center[0]],
 		),
 		interpolate(
-			focusProgress,
+			pageProgress,
 			[0, 1],
-			[previousRegion.center[1], targetRegion.center[1]],
+			[firstRegion.center[1], lastRegion.center[1]],
 		),
 	] as const satisfies FisheyeCenter;
 	const radialBlurWidth =
-		(interpolate(
-			centerProgress,
-			[0, 1],
-			[previousRegion.width, targetRegion.width],
+		(Math.max(
+			firstRegion.width,
+			...(currentPageWordFocusRegions?.map((region) => region.width) ?? []),
 		) *
 			Math.SQRT2) /
 		RADIAL_BLUR_START;
 	const radialBlurHeight =
-		(interpolate(
-			centerProgress,
-			[0, 1],
-			[previousRegion.height, targetRegion.height],
+		(Math.max(
+			firstRegion.height,
+			...(currentPageWordFocusRegions?.map((region) => region.height) ?? []),
 		) *
 			Math.SQRT2) /
 		RADIAL_BLUR_START;

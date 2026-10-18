@@ -34,6 +34,19 @@ import {HuggingFace} from './disco-light-show/HuggingFace';
 import {MasterWithEffect} from './disco-light-show/MasterWithEffect';
 import {Mediabunny} from './disco-light-show/Mediabunny';
 import {OneShot} from './disco-light-show/OneShot';
+import {DiscoLightShowRerecording} from './disco-light-show/recordings/DiscoLightShowRerecording';
+import {EvacuateDrop} from './disco-light-show/selects/evacuate/EvacuateDrop';
+import {EvacuateGreenOutro} from './disco-light-show/selects/evacuate/EvacuateGreenOutro';
+import {EvacuateHypnotized} from './disco-light-show/selects/evacuate/EvacuateHypnotized';
+import {EvacuateLightsCloseup} from './disco-light-show/selects/evacuate/EvacuateLightsCloseup';
+import {EvacuateNeonExit} from './disco-light-show/selects/evacuate/EvacuateNeonExit';
+import {EvacuateOpeningHook} from './disco-light-show/selects/evacuate/EvacuateOpeningHook';
+import {GreenStrobe} from './disco-light-show/selects/GreenStrobe';
+import {SuperfreakChorus} from './disco-light-show/selects/superfreak/SuperfreakChorus';
+import {SuperfreakOpening} from './disco-light-show/selects/superfreak/SuperfreakOpening';
+import {SuperfreakOrangeBreak} from './disco-light-show/selects/superfreak/SuperfreakOrangeBreak';
+import {SuperfreakRiff} from './disco-light-show/selects/superfreak/SuperfreakRiff';
+import {ThreePersonChoreography} from './disco-light-show/selects/ThreePersonChoreography';
 import {Separate} from './disco-light-show/Separate';
 import {Setup} from './disco-light-show/Setup';
 import {TextBehindVideoSeriesFirst20s} from './disco-light-show/TextBehindVideoSeriesFirst20s';
@@ -65,6 +78,118 @@ export const RemotionRoot: React.FC = () => {
 		<>
 			<Folder name="DiscoLightShow">
 				<MyComposition />
+				<Folder name="Recordings">
+					<Composition
+						id="DiscoLightShowRerecording"
+						component={DiscoLightShowRerecording}
+						durationInFrames={139128}
+						fps={30}
+						width={1920}
+						height={1080}
+					/>
+				</Folder>
+				<Folder name="Selects">
+					<Folder name="EvacuateTheDancefloor">
+						<Composition
+							id="EvacuateOpeningHook"
+							component={EvacuateOpeningHook}
+							durationInFrames={480}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+						<Composition
+							id="EvacuateDrop"
+							component={EvacuateDrop}
+							durationInFrames={480}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+						<Composition
+							id="EvacuateHypnotized"
+							component={EvacuateHypnotized}
+							durationInFrames={345}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+						<Composition
+							id="EvacuateLightsCloseup"
+							component={EvacuateLightsCloseup}
+							durationInFrames={300}
+							fps={30}
+							width={960}
+							height={540}
+						/>
+						<Composition
+							id="EvacuateNeonExit"
+							component={EvacuateNeonExit}
+							durationInFrames={360}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+						<Composition
+							id="EvacuateGreenOutro"
+							component={EvacuateGreenOutro}
+							durationInFrames={480}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+					</Folder>
+					<Folder name="Superfreak">
+						<Composition
+							id="SuperfreakOpening"
+							component={SuperfreakOpening}
+							durationInFrames={510}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+						<Composition
+							id="SuperfreakOrangeBreak"
+							component={SuperfreakOrangeBreak}
+							durationInFrames={300}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+						<Composition
+							id="SuperfreakChorus"
+							component={SuperfreakChorus}
+							durationInFrames={390}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+						<Composition
+							id="SuperfreakRiff"
+							component={SuperfreakRiff}
+							durationInFrames={480}
+							fps={30}
+							width={1920}
+							height={1080}
+						/>
+					</Folder>
+					<Composition
+						id="GreenStrobe"
+						component={GreenStrobe}
+						durationInFrames={180}
+						fps={30}
+						width={540}
+						height={960}
+					/>
+					<Composition
+						id="ThreePersonChoreography"
+						component={ThreePersonChoreography}
+						durationInFrames={150}
+						fps={30}
+						width={1132}
+						height={440}
+					/>
+				</Folder>
 				<Composition
 					id="MasterWithEffect"
 					component={MasterWithEffect}
