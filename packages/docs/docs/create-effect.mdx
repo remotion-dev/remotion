@@ -195,6 +195,12 @@ The rendering backend. Must be `"2d"`, `"webgl2"` or `"webgpu"`.
 
 Effects are grouped by adjacent backend while rendering.
 
+All `"webgl2"` effects on a page share the same WebGL2 context, so many canvases with effects don't run into the browser's limit on WebGL contexts. A `"webgl2"` effect must therefore:
+
+- Set the viewport to [`width`](#width) and [`height`](#height) in every `apply()` call. The shared target canvas is resized between effect chains.
+- Not rely on GL state left by a previous `apply()`. Bind its program, buffers and textures, and set pixel storage modes, on every call.
+- Delete the GL objects it created in [`cleanup()`](#cleanup). The context outlives a single effect chain.
+
 ### `calculateKey`
 
 Returns a stable string for a given parameter object.

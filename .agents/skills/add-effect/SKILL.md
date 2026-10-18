@@ -32,6 +32,7 @@ In the effect file:
   - `packages/effects/src/validate-effect-param.ts`
   - `packages/effects/src/color-utils.ts`
 - Throw `createWebGL2ContextError('<effect name> effect')` if WebGL2 cannot be acquired.
+- All WebGL2 effects share one context and target canvas, which is resized between effect chains. Set `gl.viewport(0, 0, width, height)` in every `apply()`, don't rely on GL state from earlier calls, and delete every GL object in `cleanup()`.
 - Set `documentationLink` to `https://www.remotion.dev/docs/effects/<slug>`.
 - Include every resolved parameter in `calculateKey()`.
 
