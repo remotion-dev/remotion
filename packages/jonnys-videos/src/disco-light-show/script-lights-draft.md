@@ -1,15 +1,19 @@
 # Animating the lights — script draft
 
-I vibe-coded my own DJ show. Claude helped me animate the lights, and my visuals were done in Remotion.
+I vibe-coded my own DJ show. Claude helped me animate the lights, and Remotion came in clutch for the visuals.
 
-Each light has a bunch of controls: color, brightness, and, for these moving heads, where it points. They're controlled through DMX, which is basically sending numbers to the lights.
+Today, let's talk about how you can program lights with agents.  
+You need any device that speaks the DMX protocol.
 
-So I made those numbers part of my Remotion timeline.
+To connect it to your computer, you need an Enttec DMX USB Pro Interface.  
+To connect multiple devices, you directly daisy-chain them using DMX cables.
 
-Now a beat can trigger a flash, a chorus can change the colors, and the light bar can chase from left to right.
+At the end of your daisy chain, you add this - a DMX terminator.
+Make sure that each device has a unique DMX address so they don't conflict.
 
-I can ask Claude for a pattern, play it back, and adjust the timing until it feels right. For specific hits, I can tap along to the song and save those moments.
+Once that is setup, you would normally control it using a program like QLC+, BUT here comes the 100x speedup. Use an agent to implement the DMX protocol via Web Serial and now you can control your lights using JavaScript.
 
-Then I connect the lights through a USB adapter. As the timeline plays, my browser sends out the values for each frame, keeping the lights and visuals together.
+I hooked it up to Remotion, so that when I press play, it plays a prerecorded light sequence.  
+I even made my own recorder inside Remotion, which allows me to jam and record light sequences.
 
-The fun part is combining simple patterns. Suddenly, my birthday party has its own programmed light show.
+Then, to play it during my 75 minute DJ set, I simply hit play in Remotion. Aaand that's how

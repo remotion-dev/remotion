@@ -41,6 +41,9 @@ import {ForkDrop} from './disco-light-show/ForkDrop';
 import {ForkSound} from './disco-light-show/ForkSound';
 import {GetThemToDance} from './disco-light-show/GetThemToDance';
 import {HuggingFace} from './disco-light-show/HuggingFace';
+import {AnimateTheLights} from './disco-light-show/lights/AnimateTheLights';
+import {LightsFootage} from './disco-light-show/lights/LightsFootage';
+import {LIGHTS_DURATION_IN_FRAMES} from './disco-light-show/lights/voiceover';
 import {MasterWithEffect} from './disco-light-show/MasterWithEffect';
 import {Mediabunny} from './disco-light-show/Mediabunny';
 import {OneShot} from './disco-light-show/OneShot';
@@ -112,6 +115,31 @@ export const RemotionRoot: React.FC = () => {
 		<>
 			<Folder name="DiscoLightShow">
 				<MyComposition />
+				<Folder name="AnimatingTheLights">
+					<Composition
+						id="AnimateTheLights"
+						component={AnimateTheLights}
+						durationInFrames={LIGHTS_DURATION_IN_FRAMES}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Folder name="Scenes">
+						<Composition
+							id="LightsShowFootage"
+							component={LightsFootage}
+							durationInFrames={211}
+							fps={30}
+							width={1080}
+							height={1920}
+							defaultProps={{
+								src: 'https://remotion.media/jonnys-videos/disco-light-show/solo-dmx-light-show-8c06c9856456.mp4',
+								footageRate: 1,
+								style: {backgroundColor: '#141414'},
+							}}
+						/>
+					</Folder>
+				</Folder>
 				<Folder name="Chapters">
 					<Composition
 						id="OpeningScene"
