@@ -4,7 +4,7 @@ I vibe-coded my own DJ show. Claude is helping me animate lights, and visuals ar
 
 Then I threw a party for my birthday and played it for my friends. Let's see if I can get them to dance.
 
-For this track, I took the music video and inserted animated captions in between the foreground and the background. How did I do this?
+For this track, I took the music video and inserted animated captions in between the foreground and the background.
 
 I found this Text-behind-video demo from Hugging Face, which works completely locally by leveraging all the cool technology.
 

@@ -23,18 +23,22 @@ const GetThemToDanceInner: React.FC = () => {
 				seed={11}
 				style={{
 					position: 'absolute',
-					translate: '56px 1140px',
+					translate: interpolate(
+						frame,
+						[0, 6],
+						['56px 1920px', '56px 1140px'],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.cubic),
+						},
+					),
 					transformOrigin: '50% 50%',
 					rotate: '-2.5deg',
-					scale: interpolate(frame, [0, 6, 46, 53], [0, 1, 1, 0.85], {
+					scale: interpolate(frame, [46, 53], [1, 0.6], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-						posterize: 2,
-						easing: [
-							Easing.out(Easing.back(1.4)),
-							Easing.linear,
-							Easing.out(Easing.cubic),
-						],
+						easing: Easing.inOut(Easing.cubic),
 						output: 'perceptual-scale',
 					}),
 				}}
@@ -60,18 +64,17 @@ const GetThemToDanceInner: React.FC = () => {
 				seed={12}
 				style={{
 					position: 'absolute',
-					translate: '24px 60px',
-					transformOrigin: '50% 50%',
-					rotate: '-3.5deg',
-					scale: interpolate(frame, [4, 10, 46, 53], [0, 1, 1, 0.85], {
+					translate: interpolate(frame, [4, 10], ['24px -560px', '24px 60px'], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-						posterize: 2,
-						easing: [
-							Easing.out(Easing.back(1.4)),
-							Easing.linear,
-							Easing.out(Easing.cubic),
-						],
+						easing: Easing.inOut(Easing.cubic),
+					}),
+					transformOrigin: '50% 50%',
+					rotate: '-3.5deg',
+					scale: interpolate(frame, [46, 53], [1, 0.6], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						easing: Easing.inOut(Easing.cubic),
 						output: 'perceptual-scale',
 					}),
 				}}
@@ -97,7 +100,7 @@ const GetThemToDanceInner: React.FC = () => {
 					scale: interpolate(frame, [46, 53], [1, 1.3], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-						easing: Easing.out(Easing.cubic),
+						easing: Easing.inOut(Easing.cubic),
 						output: 'perceptual-scale',
 					}),
 				}}
@@ -130,7 +133,7 @@ const GetThemToDanceInner: React.FC = () => {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 							outputType: 'translate',
-							easing: Easing.out(Easing.cubic),
+							easing: Easing.inOut(Easing.cubic),
 						},
 					),
 					rotate: '330.6deg',

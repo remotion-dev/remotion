@@ -11,6 +11,7 @@ import {
 } from './disco-light-show/AnimatedCaptionsBigWords';
 import {ArrowLogo} from './disco-light-show/ArrowLogo';
 import {ArrowLogoRemotion} from './disco-light-show/ArrowLogoRemotion';
+import {BackgroundRemovalScene} from './disco-light-show/BackgroundRemovalScene';
 import {BirthdayPartyCompilation} from './disco-light-show/BirthdayPartyCompilation';
 import {ClientSideChad} from './disco-light-show/ClientSideChad';
 import {Clip1} from './disco-light-show/Clip1';
@@ -18,17 +19,23 @@ import {Clip2} from './disco-light-show/Clip2';
 import {Clip3} from './disco-light-show/Clip3';
 import {Clip4} from './disco-light-show/Clip4';
 import {Clip5} from './disco-light-show/Clip5';
+import {CodeEditor} from './disco-light-show/CodeEditor';
 import {Compilation} from './disco-light-show/Compilation';
-import {MyComposition} from './disco-light-show/Composition';
+import {
+	MASTER_DURATION_IN_FRAMES,
+	MyComposition,
+} from './disco-light-show/Composition';
 import {
 	Countdown,
 	CountdownPage,
 	COUNTDOWN_DURATION_IN_FRAMES,
 } from './disco-light-show/Countdown';
+import {CustomToolScene} from './disco-light-show/CustomToolScene';
 import {DiscoBallBg} from './disco-light-show/DiscoBallBg';
 import {DragIn} from './disco-light-show/DragIn';
 import {DragInDemo} from './disco-light-show/DragInDemo';
 import {EffectShow} from './disco-light-show/EffectShow';
+import {FinaleScene} from './disco-light-show/FinaleScene';
 import {Fork} from './disco-light-show/Fork';
 import {ForkDrop} from './disco-light-show/ForkDrop';
 import {ForkSound} from './disco-light-show/ForkSound';
@@ -37,7 +44,10 @@ import {HuggingFace} from './disco-light-show/HuggingFace';
 import {MasterWithEffect} from './disco-light-show/MasterWithEffect';
 import {Mediabunny} from './disco-light-show/Mediabunny';
 import {OneShot} from './disco-light-show/OneShot';
+import {OpeningScene} from './disco-light-show/OpeningScene';
 import {DiscoLightShowRerecording} from './disco-light-show/recordings/DiscoLightShowRerecording';
+import {RemotionAssemblyScene} from './disco-light-show/RemotionAssemblyScene';
+import {RemotionSticker} from './disco-light-show/RemotionSticker';
 import {EvacuateDrop} from './disco-light-show/selects/evacuate/EvacuateDrop';
 import {EvacuateGreenOutro} from './disco-light-show/selects/evacuate/EvacuateGreenOutro';
 import {EvacuateHypnotized} from './disco-light-show/selects/evacuate/EvacuateHypnotized';
@@ -102,6 +112,61 @@ export const RemotionRoot: React.FC = () => {
 		<>
 			<Folder name="DiscoLightShow">
 				<MyComposition />
+				<Folder name="Chapters">
+					<Composition
+						id="OpeningScene"
+						component={OpeningScene}
+						durationInFrames={325}
+						fps={30}
+						width={1080}
+						height={1920}
+						defaultProps={{style: {backgroundColor: '#141414'}}}
+					/>
+					<Composition
+						id="BackgroundRemovalScene"
+						component={BackgroundRemovalScene}
+						durationInFrames={526}
+						fps={30}
+						width={1080}
+						height={1920}
+						defaultProps={{style: {backgroundColor: '#141414'}}}
+					/>
+					<Composition
+						id="CustomToolScene"
+						component={CustomToolScene}
+						durationInFrames={255}
+						fps={30}
+						width={1080}
+						height={1920}
+						defaultProps={{style: {backgroundColor: '#141414'}}}
+					/>
+					<Composition
+						id="RemotionAssemblyScene"
+						component={RemotionAssemblyScene}
+						durationInFrames={265}
+						fps={30}
+						width={1080}
+						height={1920}
+						defaultProps={{style: {backgroundColor: '#141414'}}}
+					/>
+					<Composition
+						id="FinaleScene"
+						component={FinaleScene}
+						durationInFrames={244}
+						fps={30}
+						width={1080}
+						height={1920}
+						defaultProps={{style: {backgroundColor: '#141414'}}}
+					/>
+					<Composition
+						id="CodeEditor"
+						component={CodeEditor}
+						durationInFrames={56}
+						fps={30}
+						width={1188}
+						height={1260}
+					/>
+				</Folder>
 				<Folder name="Recordings">
 					<Composition
 						id="DiscoLightShowRerecording"
@@ -233,7 +298,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="MasterWithEffect"
 					component={MasterWithEffect}
-					durationInFrames={1800}
+					durationInFrames={MASTER_DURATION_IN_FRAMES}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -243,7 +308,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="EffectShow"
 					component={EffectShow}
-					durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
+					durationInFrames={200}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -327,7 +392,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="HuggingFace"
 					component={HuggingFace}
-					durationInFrames={240}
+					durationInFrames={166}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -343,7 +408,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="ClientSideChad"
 					component={ClientSideChad}
-					durationInFrames={150}
+					durationInFrames={140}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -351,7 +416,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="ForkDrop"
 					component={ForkDrop}
-					durationInFrames={1629}
+					durationInFrames={65}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -360,7 +425,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="ForkSound"
 					component={ForkSound}
-					durationInFrames={772}
+					durationInFrames={60}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -368,7 +433,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="Separate"
 					component={Separate}
-					durationInFrames={1629}
+					durationInFrames={154}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -376,7 +441,15 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="Mediabunny"
 					component={Mediabunny}
-					durationInFrames={1629}
+					durationInFrames={60}
+					fps={30}
+					width={1080}
+					height={1920}
+				/>
+				<Composition
+					id="RemotionSticker"
+					component={RemotionSticker}
+					durationInFrames={60}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -392,7 +465,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="VibeCoded"
 					component={VibeCoded}
-					durationInFrames={150}
+					durationInFrames={162}
 					fps={30}
 					width={1080}
 					height={1920}
@@ -432,7 +505,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="BirthdayPartyCompilation"
 					component={BirthdayPartyCompilation}
-					durationInFrames={200}
+					durationInFrames={178}
 					fps={30}
 					width={1080}
 					height={1920}

@@ -50,3 +50,22 @@ The only longer new assets are audio: the 51.905-second voiceover and the 177.00
 | `party-suggestions/lights-10.mp4`        |        6.034 | 3354097 | [party-suggestions-lights-10-08c1e706da97.mp4](https://remotion.media/jonnys-videos/disco-light-show/party-suggestions-lights-10-08c1e706da97.mp4)               | `08c1e706da978cc8f806566b408e76bd3708b100021315f291d2cc425f495fd4` |
 | `tiktok-interface.png`                   |            — |  103423 | [tiktok-interface-723936d52883.png](https://remotion.media/jonnys-videos/disco-light-show/tiktok-interface-723936d52883.png)                                     | `723936d52883e02c0685d78705b8b4b3bea251bbe5fb00b4466a54e204645466` |
 | `paper-texture-dark.jpg`                 |            — |  242151 | [paper-texture-dark-2566e6c4f4cc.jpg](https://remotion.media/jonnys-videos/disco-light-show/paper-texture-dark-2566e6c4f4cc.jpg)                                 | `2566e6c4f4cc8383f9ee1b786d472b1a491d6a487b582a29478b8fa0f8b9584c` |
+
+## Sticker sound effects
+
+Exported from [React Bits Sound Lab](https://reactbits.dev/tools/sound-lab) as 24-bit, 48 kHz stereo WAV. Unfold provides the technology-sticker flutter, Silk accompanies the larger logo page turns, and Place adds a quiet landing tap. All public files were verified against the downloaded exports by SHA-256.
+
+| Preset | Hosted file                                                                                                                  | SHA-256                                                            |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Silk   | [sound-lab-silk-9afd9eb970ab.wav](https://remotion.media/jonnys-videos/disco-light-show/sound-lab-silk-9afd9eb970ab.wav)     | `9afd9eb970abe52938a5b25bf84ef00c091bbbfdb3f7072751ca56957f5d657e` |
+| Unfold | [sound-lab-unfold-e5a3f0872f23.wav](https://remotion.media/jonnys-videos/disco-light-show/sound-lab-unfold-e5a3f0872f23.wav) | `e5a3f0872f234c249077f9d57dd4f07d08f0e37ecff03f6acc93aa15a25f3784` |
+| Place  | [sound-lab-place-decff05333a7.wav](https://remotion.media/jonnys-videos/disco-light-show/sound-lab-place-decff05333a7.wav)   | `decff05333a7038cea81e53fe066d0f542c61484d13415f375aeb5b3421426b8` |
+
+## Voiceover revision — question removed
+
+Regenerated with ElevenLabs Multilingual v2 and the original Derek – Fun & Energetic voice (`Q0Et7LOU7VpeoeCRQAVS`). The script omits “How did I do this?” and the matching disco sting is removed from Master. The selected narration is 45.465 seconds; Master and MasterWithEffect now run 1,608 frames (53.6 seconds at 30 fps), retaining the countdown and final video timings relative to the end of the narration. Word timings were transcribed and matched to the exact script before retiming the scenes.
+
+| Asset     | Hosted file                                                                                                                                                  | SHA-256                                                            |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| voiceover | [elevenlabs-voiceover-no-question-f76407aa5762.mp3](https://remotion.media/jonnys-videos/disco-light-show/elevenlabs-voiceover-no-question-f76407aa5762.mp3) | `f76407aa5762a9f1b8b5f184c00e4cc862165deb6a676953c9c25e78de30a2be` |
+| captions  | [elevenlabs-captions-no-question-744cbaa1314b.json](https://remotion.media/jonnys-videos/disco-light-show/elevenlabs-captions-no-question-744cbaa1314b.json) | `744cbaa1314b5826179764de77332f92bcfdc2c4960b87e84be94cbdcf935527` |

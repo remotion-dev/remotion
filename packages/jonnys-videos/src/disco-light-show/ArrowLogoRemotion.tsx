@@ -1,28 +1,21 @@
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {scale} from '@remotion/effects/scale';
 import {noise2D} from '@remotion/noise';
-import {Arrow} from '@remotion/shapes';
 import React from 'react';
 import {Interactive, CanvasImage, useCurrentFrame} from 'remotion';
-import {
-	CUTOUT_PAPER_COLOR,
-	cutoutPaperEffects,
-} from '../paper-disco/cutout-paper';
+import {cutoutPaperEffects} from '../paper-disco/cutout-paper';
 import {asset} from './assets';
+import {NOTEBOOK_ARROW_SRC} from './notebook-arrow';
 
 const ArrowLogoRemotionInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Arrow
+			<CanvasImage
 				name="Pointer arrow"
-				length={300}
-				headWidth={185}
-				headLength={120}
-				shaftWidth={80}
-				direction="right"
-				cornerRadius={0}
-				fill={CUTOUT_PAPER_COLOR}
+				src={NOTEBOOK_ARROW_SRC}
+				width={300}
+				height={185}
 				style={{
 					position: 'absolute',
 					translate: '903.4px 247.4px',

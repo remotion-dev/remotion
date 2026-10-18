@@ -13,7 +13,7 @@ import {
 import {createSentenceAwareCaptionPages} from '../components/paginate-captions';
 import {VOICEOVER_CAPTIONS_SRC, VOICEOVER_SRC} from './voiceover';
 
-export const BIG_WORD_CAPTIONS_DURATION_IN_FRAMES = 1816;
+export const BIG_WORD_CAPTIONS_DURATION_IN_FRAMES = 1608;
 
 const FONT_FAMILY = 'Arial Black, Arial, sans-serif';
 const SWITCH_CAPTIONS_EVERY_MS = 1100;

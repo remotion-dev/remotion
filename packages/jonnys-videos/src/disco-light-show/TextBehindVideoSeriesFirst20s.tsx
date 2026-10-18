@@ -32,16 +32,7 @@ const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: [Easing.inOut(Easing.cubic)],
 						},
 					),
 				}}
@@ -63,16 +54,7 @@ const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: [Easing.inOut(Easing.cubic)],
 						},
 					),
 				}}

@@ -1,16 +1,12 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {
-	Easing,
-	Interactive,
-	interpolate,
-	Solid,
-	useCurrentFrame,
-} from 'remotion';
+import {Interactive, Solid, useVideoConfig} from 'remotion';
 import {asset} from './assets';
+import {RemotionSticker} from './RemotionSticker';
 
 const DragInDemoInner: React.FC = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
 	return (
 		<>
 			<Solid
@@ -23,32 +19,24 @@ const DragInDemoInner: React.FC = () => {
 			<Video
 				name="Importing video layers"
 				src={asset('Screen Recording 2026-07-19 at 18.16.56.mov')}
+				cropTop={100 / 1040}
 				style={{
 					position: 'absolute',
 					width: 1664,
 					height: 1040,
 					transformOrigin: '0% 0%',
-					translate: interpolate(
-						frame,
-						[0, 15, 75, 102],
-						[
-							'-785.3px -64.78px',
-							'-785.3px -64.78px',
-							'-1415.3px -64.78px',
-							'-1415.3px -64.78px',
-						],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: Easing.inOut(Easing.cubic),
-						},
-					),
-					scale: 1.82,
+					translate: '-313px 250px',
+					scale: 0.94,
 				}}
 				from={-2}
 				durationInFrames={151}
 				trimBefore={8}
 				playbackRate={1.45}
+			/>
+			<RemotionSticker
+				name="Remotion logo sticker"
+				from={(56 / 30) * fps}
+				durationInFrames={(46 / 30) * fps}
 			/>
 		</>
 	);

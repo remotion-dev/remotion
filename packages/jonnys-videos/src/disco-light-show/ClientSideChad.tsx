@@ -1,5 +1,4 @@
 import {lensBlur} from '@remotion/effects/lens-blur';
-import {scale} from '@remotion/effects/scale';
 import React, {useMemo} from 'react';
 import {
 	Easing,
@@ -14,6 +13,7 @@ import {asset} from './assets';
 import {BEN2_PATH, BEN2_VIEWBOX} from './ben2-glyphs';
 import {DiscoBallBg} from './DiscoBallBg';
 import {type ClippingArt, RansomClipping, useDataUrl} from './RansomClipping';
+import {StickerSound} from './StickerSound';
 
 // Paper moves "on threes" (10 poses per second), like the paper disco ball
 const P = 3;
@@ -125,8 +125,8 @@ const STACK: Tech[] = [
 		color: '#ff8fbf',
 		width: 520 * K,
 		height: 340 * K,
-		x: 560,
-		y: 1400,
+		x: 540,
+		y: 800,
 		rotate: -4,
 		turnDirection: 315,
 		drop: 78,
@@ -137,12 +137,12 @@ const TechClipping: React.FC<{readonly tech: Tech}> = ({tech}) => {
 	const frame = useCurrentFrame();
 	const turn = interpolate(
 		frame,
-		[tech.drop, tech.drop + TURN_FRAMES],
+		[tech.drop, tech.drop + (tech.name === 'BEN2' ? 15 : TURN_FRAMES)],
 		[0, 1],
 		{
 			...clamp,
 			posterize: P,
-			easing: Easing.out(Easing.cubic),
+			easing: tech.name === 'BEN2' ? Easing.linear : Easing.out(Easing.cubic),
 		},
 	);
 	const logoDataUrl = useDataUrl(
@@ -204,33 +204,59 @@ const TechClipping: React.FC<{readonly tech: Tech}> = ({tech}) => {
 
 const ClientSideChadInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {width, height} = useVideoConfig();
-
-	// The "camera" starts pushing in while the stickers are still landing:
-	// a slow ease-in that builds through the drops, then a long settle.
-	// Right at the fastest point of the push it briefly racks out of focus.
-	const zoom = interpolate(frame, [40, 132], [1, 1.22], {
-		...clamp,
-		easing: Easing.bezier(0.55, 0, 0.15, 1),
-		output: 'perceptual-scale',
-	});
-	const blur = interpolate(frame, [80, 94, 112], [0, 22, 0], {
-		...clamp,
-		easing: Easing.inOut(Easing.quad),
-	});
+	const {width, height, fps} = useVideoConfig();
 
 	return (
-		<HtmlInCanvas
-			name="Scene camera"
-			width={width}
-			height={height}
-			effects={[scale({scale: zoom}), lensBlur({radius: blur, samples: 128})]}
-		>
-			<DiscoBallBg name="Paper background" />
-			{STACK.map((tech) => (
-				<TechClipping key={tech.name} tech={tech} />
+		<>
+			<HtmlInCanvas
+				name="Scene camera"
+				width={width}
+				height={height}
+				style={{
+					position: 'absolute',
+					inset: 0,
+					transformOrigin: '50% 50%',
+					scale: interpolate(frame, [1.4 * fps, 3 * fps], [1, 1.22], {
+						...clamp,
+						easing: Easing.inOut(Easing.cubic),
+						output: 'perceptual-scale',
+					}),
+					rotate: interpolate(frame, [1.4 * fps, 3 * fps], ['0deg', '-2deg'], {
+						...clamp,
+						easing: Easing.inOut(Easing.cubic),
+					}),
+				}}
+				effects={[
+					lensBlur({
+						radius: interpolate(
+							frame,
+							[1.4 * fps, 2.2 * fps, 3 * fps],
+							[0, 22, 0],
+							{
+								...clamp,
+								easing: Easing.inOut(Easing.quad),
+							},
+						),
+						samples: 128,
+						repeatEdgePixels: true,
+					}),
+				]}
+			>
+				<DiscoBallBg name="Paper background" />
+				{STACK.map((tech) => (
+					<TechClipping key={tech.name} tech={tech} />
+				))}
+			</HtmlInCanvas>
+			{STACK.map((tech, index) => (
+				<StickerSound
+					key={tech.name}
+					name={`${tech.name} sticker sound`}
+					from={tech.drop}
+					large={false}
+					pitch={0.92 + index * 0.04}
+				/>
 			))}
-		</HtmlInCanvas>
+		</>
 	);
 };
 

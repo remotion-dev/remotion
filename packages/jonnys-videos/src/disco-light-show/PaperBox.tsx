@@ -5,8 +5,10 @@ import {
 	cutoutPaperEffects,
 } from '../paper-disco/cutout-paper';
 
-const makePaperTexture = (w: number, h: number) => {
-	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}" fill="${CUTOUT_PAPER_COLOR}"/></svg>`;
+const makePaperTexture = (w: number, h: number, shadowPad: number) => {
+	const canvasW = w + shadowPad * 2;
+	const canvasH = h + shadowPad * 2;
+	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvasW}" height="${canvasH}" viewBox="0 0 ${canvasW} ${canvasH}"><rect x="${shadowPad}" y="${shadowPad}" width="${w}" height="${h}" fill="${CUTOUT_PAPER_COLOR}"/></svg>`;
 	return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
@@ -40,22 +42,32 @@ export const PaperBox: React.FC<{
 	const pad = padding / visualScale;
 	const boxW = Math.round(width + pad * 2);
 	const boxH = Math.round(height + pad * 2);
-	const texture = useMemo(() => makePaperTexture(boxW, boxH), [boxW, boxH]);
+	// Leave transparent space around the paper so the shadow can render in full.
+	const shadowPad = Math.ceil(80 / visualScale);
+	const texture = useMemo(
+		() => makePaperTexture(boxW, boxH, shadowPad),
+		[boxW, boxH, shadowPad],
+	);
 
 	return (
 		<div style={{width, height, ...style}}>
 			<CanvasImage
 				name={name}
 				src={texture}
-				width={boxW}
-				height={boxH}
+				width={boxW + shadowPad * 2}
+				height={boxH + shadowPad * 2}
 				fit="fill"
-				style={{position: 'absolute', left: -pad, top: -pad}}
+				style={{
+					position: 'absolute',
+					left: -pad - shadowPad,
+					top: -pad - shadowPad,
+				}}
 				effects={cutoutPaperEffects({
-					gridOpacity: null,
+					gridOpacity: 0.28,
 					unit: 1 / visualScale,
 					seed,
 					edgeRoughness: null,
+					shadowOpacity: 0.72,
 				})}
 			/>
 			<div

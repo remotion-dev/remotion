@@ -1,7 +1,9 @@
 import {dropShadow} from '@remotion/effects/drop-shadow';
+import {lensBlur} from '@remotion/effects/lens-blur';
 import {paper} from '@remotion/effects/paper';
 import {roughenEdges} from '@remotion/effects/roughen-edges';
-import {TransitionSeries} from '@remotion/transitions';
+import {scale} from '@remotion/effects/scale';
+import {Video} from '@remotion/media';
 import React, {useMemo} from 'react';
 import {
 	useVideoConfig,
@@ -9,14 +11,18 @@ import {
 	CanvasImage,
 	Easing,
 	Interactive,
+	HtmlInCanvas,
 	interpolate,
 	random,
 	useCurrentFrame,
 } from 'remotion';
+import {asset} from './assets';
 import {DIGIT_GLYPHS, type DigitFont} from './digit-glyphs';
+import {DiscoBallBg} from './DiscoBallBg';
 import {PAPER_SCAN_DATA_URL} from './paper-scan';
+import {pageTurnIn} from './RansomClipping';
 
-export const COUNTDOWN_DURATION_IN_FRAMES = 59;
+export const COUNTDOWN_DURATION_IN_FRAMES = 142;
 
 type ClippingStyle = {
 	readonly paper: string;
@@ -27,8 +33,8 @@ type ClippingStyle = {
 // Ransom-note clippings: each number looks cut from a different print source
 const CLIPPINGS = {
 	newsprint: {paper: '#ebe4d2', ink: '#141414', font: 'abril'},
-	magazineRed: {paper: '#e3382c', ink: '#fff4df', font: 'anton'},
-	magazineYellow: {paper: '#ffcf2e', ink: '#151515', font: 'ultra'},
+	magazineBlack: {paper: '#141414', ink: '#ffffff', font: 'anton'},
+	magazineBlue: {paper: '#3160ff', ink: '#ffffff', font: 'ultra'},
 	glossyBlue: {paper: '#3160ff', ink: '#ffffff', font: 'abril'},
 } as const satisfies Record<string, ClippingStyle>;
 
@@ -36,8 +42,8 @@ type ClippingName = keyof typeof CLIPPINGS;
 
 const STYLE_FOR_NUMBER: Record<string, ClippingName> = {
 	'3': 'newsprint',
-	'2': 'magazineRed',
-	'1': 'magazineYellow',
+	'2': 'magazineBlack',
+	'1': 'magazineBlue',
 };
 const TILT_FOR_NUMBER: Record<string, number> = {'3': -6, '2': 5, '1': -3};
 
@@ -98,7 +104,6 @@ const makeClippingTexture = (number: string, style: ClippingStyle) => {
 const CountdownPageInner: React.FC<{
 	readonly number: string;
 }> = ({number}) => {
-	const {durationInFrames} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const style = CLIPPINGS[STYLE_FOR_NUMBER[number] ?? 'glossyBlue'];
 	const tilt = TILT_FOR_NUMBER[number] ?? 4;
@@ -124,17 +129,6 @@ const CountdownPageInner: React.FC<{
 				height={CANVAS_H}
 				fit="fill"
 				style={{
-					// Each clipping slides across the frame at its full size.
-					translate: interpolate(
-						frame,
-						[0, 4, durationInFrames - 5, durationInFrames - 1],
-						['1260px 0px', '0px 0px', '0px 0px', '-1260px 0px'],
-						{
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-							easing: Easing.inOut(Easing.cubic),
-						},
-					),
 					rotate: `${tilt}deg`,
 				}}
 				effects={[
@@ -166,6 +160,19 @@ const CountdownPageInner: React.FC<{
 						opacity: 0.7,
 						color: '#000000',
 					}),
+					pageTurnIn({
+						progress: interpolate(frame, [0, 12], [0, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							posterize: 2,
+							easing: Easing.linear,
+						}),
+						width: CANVAS_W,
+						height: CANVAS_H,
+						direction: 315,
+						radius: 100,
+						paperColor: style.paper,
+					}),
 				]}
 			/>
 		</AbsoluteFill>
@@ -181,18 +188,115 @@ export const CountdownPage = Interactive.create({
 });
 
 const CountdownInner: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {width, height} = useVideoConfig();
 	return (
-		<TransitionSeries name="Countdown numbers">
-			<TransitionSeries.Sequence name="Countdown 3" durationInFrames={20}>
-				<CountdownPage name="Number 3" number="3" />
-			</TransitionSeries.Sequence>
-			<TransitionSeries.Sequence name="Countdown 2" durationInFrames={20}>
-				<CountdownPage name="Number 2" number="2" />
-			</TransitionSeries.Sequence>
-			<TransitionSeries.Sequence name="Countdown 1" durationInFrames={19}>
-				<CountdownPage name="Number 1" number="1" />
-			</TransitionSeries.Sequence>
-		</TransitionSeries>
+		<HtmlInCanvas
+			name="Countdown camera"
+			width={width}
+			height={height}
+			style={{position: 'absolute'}}
+			effects={[
+				scale({
+					scale: interpolate(
+						frame,
+						[0, 17, 20, 37, 40, 57, 59, 76],
+						[1, 1.12, 1.12, 1.25, 1.25, 1.4, 1.4, 1.64],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.cubic),
+							output: 'perceptual-scale',
+						},
+					),
+				}),
+				lensBlur({
+					radius: interpolate(
+						frame,
+						[0, 8, 17, 20, 28, 37, 40, 48, 57, 59, 67, 76],
+						[0, 18, 0, 0, 18, 0, 0, 18, 0, 0, 18, 0],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.quad),
+						},
+					),
+					samples: 128,
+					repeatEdgePixels: true,
+				}),
+			]}
+		>
+			<DiscoBallBg name="Countdown background" width={width} height={height} />
+			<CountdownPage
+				name="Number 3"
+				number="3"
+				from={0}
+				durationInFrames={142}
+			/>
+			<CountdownPage
+				name="Number 2"
+				number="2"
+				from={20}
+				durationInFrames={122}
+			/>
+			<CountdownPage
+				name="Number 1"
+				number="1"
+				from={40}
+				durationInFrames={102}
+			/>
+			<Video
+				name="Drumsticks — fourth countdown card"
+				src={asset('drumsticks.mp4')}
+				from={59}
+				durationInFrames={66}
+				playbackRate={0.8}
+				loop
+				objectFit="cover"
+				style={{
+					position: 'absolute',
+					left: 124,
+					top: 510,
+					width: 832,
+					height: 900,
+					rotate: '0deg',
+				}}
+				effects={[
+					// Transparent padding gives the edge effect a silhouette to roughen.
+					scale({scale: 0.94}),
+					paper({
+						amount: 0.28,
+						colorFront: '#ececf0',
+						colorBack: '#ffffff',
+						contrast: 0.12,
+						roughness: 0.15,
+						fiber: 0.18,
+						seed: 4,
+					}),
+					roughenEdges({amount: 0.7, border: 2, scale: 0.1, seed: 28}),
+					dropShadow({
+						radius: 16,
+						offsetX: 10,
+						offsetY: 18,
+						opacity: 0.7,
+						color: '#000000',
+					}),
+					pageTurnIn({
+						progress: interpolate(frame, [59, 71], [0, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							posterize: 2,
+							easing: Easing.linear,
+						}),
+						width: 832,
+						height: 900,
+						direction: 315,
+						radius: 105,
+						paperColor: '#ffffff',
+					}),
+				]}
+			/>
+		</HtmlInCanvas>
 	);
 };
 

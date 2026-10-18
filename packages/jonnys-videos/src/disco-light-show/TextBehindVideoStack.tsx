@@ -27,6 +27,8 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 					width: 1920,
 					height: 1080,
 					scale: 0.31,
+					// Keep the outline 2px wide after the layer's scale.
+					outline: `${2 / 0.31}px solid #2684ff`,
 					transformOrigin: '0% 0%',
 					translate: interpolate(
 						frame,
@@ -62,6 +64,8 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 					width: 1920,
 					height: 1080,
 					scale: 0.31,
+					// Keep the outline 2px wide after the layer's scale.
+					outline: `${2 / 0.31}px solid #2684ff`,
 					transformOrigin: '0% 0%',
 					translate: interpolate(
 						frame,
@@ -97,6 +101,8 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 					width: 1920,
 					height: 1080,
 					scale: 0.31,
+					// Keep the outline 2px wide after the layer's scale.
+					outline: `${2 / 0.31}px solid #2684ff`,
 					transformOrigin: '0% 0%',
 					translate: interpolate(
 						frame,

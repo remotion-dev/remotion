@@ -255,8 +255,21 @@ const NeonRaysInner: React.FC<NeonRaysProps> = ({
 		);
 	}
 
+	// Cover the viewport in every rotation, including room for paper edges and shadows.
+	// Rasterizing at viewport size cuts the strips before the parent can rotate them.
+	const viewportRadius = Math.max(
+		Math.hypot(centerX, centerY),
+		Math.hypot(width - centerX, centerY),
+		Math.hypot(centerX, height - centerY),
+		Math.hypot(width - centerX, height - centerY),
+	);
+	const renderRadius = Math.ceil(Math.min(length, viewportRadius)) + 64;
+	const renderSize = renderRadius * 2;
+	const renderLeft = centerX - renderRadius;
+	const renderTop = centerY - renderRadius;
+
 	// Tissue paper: each wedge is a torn sheet; overlaps darken like real tissue
-	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${wedges
+	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${renderSize}" height="${renderSize}" viewBox="${renderLeft} ${renderTop} ${renderSize} ${renderSize}">${wedges
 		.map(
 			(w) =>
 				`<polygon points="${w.points}" fill="${w.color}" opacity="${w.opacity}"/>`,
@@ -265,14 +278,19 @@ const NeonRaysInner: React.FC<NeonRaysProps> = ({
 	const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 
 	return (
-		<div style={{width, height, ...style}}>
+		<div style={{width, height, overflow: 'visible', ...style}}>
 			<CanvasImage
 				name="Tissue paper rays"
 				src={src}
-				width={width}
-				height={height}
+				width={renderSize}
+				height={renderSize}
 				fit="fill"
-				style={{opacity: rayOpacity}}
+				style={{
+					position: 'absolute',
+					left: renderLeft,
+					top: renderTop,
+					opacity: rayOpacity,
+				}}
 				effects={[
 					paper({
 						amount: 0.35,
