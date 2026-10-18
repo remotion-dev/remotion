@@ -8,6 +8,7 @@ import React, {
 	useRef,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -986,7 +987,9 @@ const HtmlInCanvasContent = forwardRef<
 								: innerStyle
 						}
 					>
-						{children}
+						<DefaultPremountContext.Provider value={0}>
+							{children}
+						</DefaultPremountContext.Provider>
 					</div>
 					{canvasSiblings}
 				</canvas>
