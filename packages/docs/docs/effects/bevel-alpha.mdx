@@ -1,0 +1,114 @@
+---
+image: /generated/articles-docs-effects-bevel-alpha.png
+slug: /effects/bevel-alpha
+title: bevelAlpha()
+sidebar_label: bevelAlpha()
+crumb: '@remotion/effects'
+---
+
+# bevelAlpha()<AvailableFrom v="4.0.537" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds highlights and shadows along the alpha edges of text, logos, and shapes to give them a raised appearance. The original outline and transparency are preserved.
+
+Use a source with transparency, such as text in [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) or a transparent PNG in [`<CanvasImage>`](/docs/canvasimage). A fully opaque image has no alpha edges to bevel.
+
+## Preview
+
+<Demo type="bevel-alpha" />
+
+## Controls
+
+<EffectsDemo type="effects-bevel-alpha" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {bevelAlpha} from '@remotion/effects/bevel-alpha';
+import {AbsoluteFill, HtmlInCanvas, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{backgroundColor: 'black'}}>
+      <HtmlInCanvas
+        width={1280}
+        height={720}
+        effects={[
+          bevelAlpha({
+            edgeThickness: 14,
+            lightAngle: interpolate(frame, [0, 120], [-60, 300]),
+            lightColor: 'white',
+            lightIntensity: 0.9,
+          }),
+        ]}
+      >
+        <Interactive.Div
+          name="Bevel text"
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontSize: 180,
+            fontWeight: 900,
+            color: 'white',
+          }}
+        >
+          BEVEL
+        </Interactive.Div>
+      </HtmlInCanvas>
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. All numeric values must be finite.
+
+### `edgeThickness?`
+
+Width of the rounded bevel in pixels, from `0` to `200`. Defaults to `2`.
+
+At `0`, the source is unchanged.
+
+### `lightAngle?`
+
+Direction of the light in degrees, measured clockwise from above. Defaults to `-60`.
+
+`0` lights the top edges, `90` lights the right edges, `180` lights the bottom edges, and `270` lights the left edges. Animate this value to move the light around the source.
+
+### `lightColor?`
+
+CSS color added to the highlighted edges. Defaults to `'white'`.
+
+The color's alpha controls the highlight strength. Shadows still darken the original source colors.
+
+### `lightIntensity?`
+
+Strength of highlights and shadows, from `0` to `1`. Defaults to `0.4`.
+
+At `0`, the source is unchanged.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`bevelAlpha()` uses WebGL2. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`dropShadow()`](/docs/effects/drop-shadow)
+- [`outline()`](/docs/effects/outline)
+- [`@remotion/effects`](/docs/effects/api)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/bevel-alpha/index.ts)
