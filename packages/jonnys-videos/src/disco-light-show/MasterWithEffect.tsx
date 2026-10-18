@@ -3,7 +3,6 @@ import {noise} from '@remotion/effects/noise';
 import {scanlines} from '@remotion/effects/scanlines';
 import {
 	Interactive,
-	Internals,
 	AbsoluteFill,
 	Easing,
 	HtmlInCanvas,
@@ -134,10 +133,7 @@ const MasterWithEffectInner: React.FC = () => {
 					transformOrigin: 'center center',
 				}}
 			>
-				{/* Chrome 157 can crash when premounted layers enter a drawable canvas. */}
-				<Internals.DefaultPremountContext.Provider value={0}>
-					<MyComponent />
-				</Internals.DefaultPremountContext.Provider>
+				<MyComponent />
 			</HtmlInCanvas>
 			<AbsoluteFill
 				style={{
