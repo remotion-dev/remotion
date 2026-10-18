@@ -18,6 +18,8 @@ You are also offered the option to add skills when you create a new Remotion pro
 bun create video
 ```
 
+**Install all skills** installs every skill below. **Choose individual skills** installs only the ones you pick.
+
 For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/ai/skills).
 
 ## Available skills
