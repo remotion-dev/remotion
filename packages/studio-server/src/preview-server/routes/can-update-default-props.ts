@@ -1,6 +1,10 @@
 import {readFileSync} from 'node:fs';
 import {CodemodsInternals} from '@remotion/codemods';
-import type {CanUpdateDefaultPropsResponse} from '@remotion/studio-shared';
+import type {
+	CanUpdateDefaultPropsResponse,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {getProjectInfo} from '../project-info';
 
 export const {computeCanUpdateDefaultPropsFromContent} = CodemodsInternals;
@@ -16,35 +20,82 @@ export const checkIfTypeScriptFile = (file: string) => {
 	}
 };
 
+// Compositions can be registered in files imported by the root file. The
+// client sends the location of the registration, otherwise use the root file.
+export const getDefaultPropsFile = async ({
+	symbolicatedStack,
+	remotionRoot,
+	entryPoint,
+}: {
+	symbolicatedStack: SymbolicatedStackFrame | null;
+	remotionRoot: string;
+	entryPoint: string;
+}): Promise<string> => {
+	if (symbolicatedStack?.originalFileName) {
+		return resolveFileInsideProject({
+			remotionRoot,
+			fileName: symbolicatedStack.originalFileName,
+			action: 'update default props in',
+		}).absolutePath;
+	}
+
+	const {rootFile} = await getProjectInfo(remotionRoot, entryPoint);
+	if (!rootFile) {
+		throw new Error('Cannot find root file in project');
+	}
+
+	return rootFile;
+};
+
 export const computeCanUpdateDefaultProps = async ({
 	compositionId,
+	symbolicatedStack,
 	remotionRoot,
 	entryPoint,
 }: {
 	compositionId: string;
+	symbolicatedStack: SymbolicatedStackFrame | null;
 	remotionRoot: string;
 	entryPoint: string;
 }): Promise<{
 	result: CanUpdateDefaultPropsResponse;
-	rootFile: string | null;
+	compositionFile: string | null;
 }> => {
 	try {
-		const projectInfo = await getProjectInfo(remotionRoot, entryPoint);
-		if (!projectInfo.rootFile) {
-			throw new Error('Cannot find root file in project');
-		}
+		const compositionFile = await getDefaultPropsFile({
+			symbolicatedStack,
+			remotionRoot,
+			entryPoint,
+		});
 
-		checkIfTypeScriptFile(projectInfo.rootFile);
+		checkIfTypeScriptFile(compositionFile);
 
-		const input = readFileSync(projectInfo.rootFile, 'utf-8');
+		const input = readFileSync(compositionFile, 'utf-8');
 		const result = computeCanUpdateDefaultPropsFromContent(
 			input,
 			compositionId,
 		);
 
+		if (
+			!result.canUpdate &&
+			!symbolicatedStack?.originalFileName &&
+			CodemodsInternals.getCompositionFile({
+				compositionId,
+				project: {files: {[compositionFile]: input}, rootDir: remotionRoot},
+			}) === null
+		) {
+			return {
+				result: {
+					canUpdate: false,
+					reason: `Could not determine which file registers this composition, checked the root file: ${result.reason}`,
+				},
+				compositionFile,
+			};
+		}
+
 		return {
 			result,
-			rootFile: projectInfo.rootFile,
+			compositionFile,
 		};
 	} catch (err) {
 		return {
@@ -52,7 +103,7 @@ export const computeCanUpdateDefaultProps = async ({
 				canUpdate: false,
 				reason: (err as Error).message,
 			},
-			rootFile: null,
+			compositionFile: null,
 		};
 	}
 };

@@ -1,4 +1,7 @@
-import type {CanUpdateDefaultPropsResponse} from '@remotion/studio-shared';
+import type {
+	CanUpdateDefaultPropsResponse,
+	SymbolicatedStackFrame,
+} from '@remotion/studio-shared';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {
@@ -6,114 +9,89 @@ import {
 	computeCanUpdateDefaultPropsFromContent,
 } from './routes/can-update-default-props';
 
-// Global file watcher — at most one for the root file
-let globalWatcher: {
-	unwatch: () => void;
-	rootFile: string;
-	refCount: number;
-} | null = null;
+// Per-compositionId watcher on the file that registers the composition
+const watchers: Record<
+	string,
+	{
+		unwatch: () => void;
+		compositionFile: string;
+		clientIds: Set<string>;
+	}
+> = {};
 
-// Per-compositionId set of subscribed clientIds
-const subscriptions: Record<string, Set<string>> = {};
-
-// Cached config for recomputation on file change
-let watcherConfig: {
-	remotionRoot: string;
-	entryPoint: string;
-} | null = null;
-
-const ensureGlobalWatcher = (rootFile: string) => {
-	if (globalWatcher) {
-		globalWatcher.refCount++;
+const removeClient = (compositionId: string, clientId: string) => {
+	const watcher = watchers[compositionId];
+	if (!watcher?.clientIds.has(clientId)) {
 		return;
 	}
 
-	const {unwatch} = installFileWatcher({
-		file: rootFile,
-		existenceOnly: false,
-		onChange: (event) => {
-			if (event.type === 'deleted') {
-				return;
-			}
-
-			if (!watcherConfig) {
-				return;
-			}
-
-			const compositionIds = Object.keys(subscriptions);
-			for (const compositionId of compositionIds) {
-				if (subscriptions[compositionId].size === 0) {
-					continue;
-				}
-
-				const clientIds = [...subscriptions[compositionId]];
-				const newResult = computeCanUpdateDefaultPropsFromContent(
-					event.content,
-					compositionId,
-				);
-				waitForLiveEventsListener().then((listener) => {
-					const updateEvent = {
-						type: 'default-props-updatable-changed' as const,
-						compositionId,
-						result: newResult,
-					};
-					for (const cId of clientIds) {
-						listener.sendEventToClientId(cId, updateEvent);
-					}
-				});
-			}
-		},
-	});
-
-	globalWatcher = {unwatch, rootFile, refCount: 1};
-};
-
-const releaseGlobalWatcher = () => {
-	if (!globalWatcher) {
-		return;
-	}
-
-	globalWatcher.refCount--;
-	if (globalWatcher.refCount <= 0) {
-		globalWatcher.unwatch();
-		globalWatcher = null;
-		watcherConfig = null;
+	watcher.clientIds.delete(clientId);
+	if (watcher.clientIds.size === 0) {
+		watcher.unwatch();
+		delete watchers[compositionId];
 	}
 };
 
 export const subscribeToDefaultPropsWatchers = async ({
 	compositionId,
 	clientId,
+	symbolicatedStack,
 	remotionRoot,
 	entryPoint,
 }: {
 	compositionId: string;
 	clientId: string;
+	symbolicatedStack: SymbolicatedStackFrame | null;
 	remotionRoot: string;
 	entryPoint: string;
 }): Promise<CanUpdateDefaultPropsResponse> => {
-	const {result, rootFile} = await computeCanUpdateDefaultProps({
+	const {result, compositionFile} = await computeCanUpdateDefaultProps({
 		compositionId,
+		symbolicatedStack,
 		remotionRoot,
 		entryPoint,
 	});
 
 	// Remove from any previous subscription for this client+composition
-	if (subscriptions[compositionId]?.has(clientId)) {
-		subscriptions[compositionId].delete(clientId);
-		releaseGlobalWatcher();
+	removeClient(compositionId, clientId);
+
+	if (!compositionFile) {
+		return result;
 	}
 
-	if (rootFile) {
-		watcherConfig = {remotionRoot, entryPoint};
+	// The composition may have moved to another file since the watcher was installed
+	if (watchers[compositionId]?.compositionFile !== compositionFile) {
+		watchers[compositionId]?.unwatch();
+		const clientIds = new Set(watchers[compositionId]?.clientIds);
+		const {unwatch} = installFileWatcher({
+			file: compositionFile,
+			existenceOnly: false,
+			onChange: (event) => {
+				if (event.type === 'deleted') {
+					return;
+				}
 
-		if (!subscriptions[compositionId]) {
-			subscriptions[compositionId] = new Set();
-		}
-
-		subscriptions[compositionId].add(clientId);
-		ensureGlobalWatcher(rootFile);
+				const newResult = computeCanUpdateDefaultPropsFromContent(
+					event.content,
+					compositionId,
+				);
+				const subscribedClientIds = [...clientIds];
+				waitForLiveEventsListener().then((listener) => {
+					const updateEvent = {
+						type: 'default-props-updatable-changed' as const,
+						compositionId,
+						result: newResult,
+					};
+					for (const cId of subscribedClientIds) {
+						listener.sendEventToClientId(cId, updateEvent);
+					}
+				});
+			},
+		});
+		watchers[compositionId] = {unwatch, compositionFile, clientIds};
 	}
+
+	watchers[compositionId].clientIds.add(clientId);
 
 	return result;
 };
@@ -125,27 +103,11 @@ export const unsubscribeFromDefaultPropsWatchers = ({
 	compositionId: string;
 	clientId: string;
 }) => {
-	if (!subscriptions[compositionId]?.has(clientId)) {
-		return;
-	}
-
-	subscriptions[compositionId].delete(clientId);
-	if (subscriptions[compositionId].size === 0) {
-		delete subscriptions[compositionId];
-	}
-
-	releaseGlobalWatcher();
+	removeClient(compositionId, clientId);
 };
 
 export const unsubscribeClientDefaultPropsWatchers = (clientId: string) => {
-	for (const compositionId of Object.keys(subscriptions)) {
-		if (subscriptions[compositionId].has(clientId)) {
-			subscriptions[compositionId].delete(clientId);
-			if (subscriptions[compositionId].size === 0) {
-				delete subscriptions[compositionId];
-			}
-
-			releaseGlobalWatcher();
-		}
+	for (const compositionId of Object.keys(watchers)) {
+		removeClient(compositionId, clientId);
 	}
 };
