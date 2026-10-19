@@ -22,25 +22,12 @@ const sidebars: SidebarsConfig = {
 	elementsSidebar: [
 		{
 			type: 'category',
-			label: 'Elements',
+			label: 'All Elements',
 			className: 'elements-sidebar-root',
 			link: {type: 'doc', id: 'index'},
 			collapsible: true,
 			collapsed: false,
 			items: [
-				{
-					type: 'link',
-					label: 'Contribute an Element',
-					href: '/docs/contributing/elements',
-					className: 'elements-sidebar-standalone-only',
-				},
-				{
-					type: 'html',
-					className: 'elements-sidebar-standalone-only',
-					value:
-						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
-					defaultStyle: true,
-				},
 				...elementCategories.map(({category, label}) => ({
 					type: 'category' as const,
 					label,
