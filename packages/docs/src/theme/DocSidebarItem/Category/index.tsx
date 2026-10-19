@@ -23,9 +23,11 @@ const ElementsSidebarRoot: React.FC<Props> = (props) => {
 			return;
 		}
 
-		const headings = Array.from(
-			document.querySelectorAll<HTMLElement>('h2[id^="element-category-"]'),
-		);
+		const catalogContent = document.querySelector('.theme-doc-markdown');
+		if (!catalogContent) {
+			return;
+		}
+
 		let animationFrame: number | null = null;
 
 		const updateActiveCategory = () => {
@@ -36,7 +38,9 @@ const ElementsSidebarRoot: React.FC<Props> = (props) => {
 					getComputedStyle(document.documentElement).scrollPaddingTop,
 				) || 0;
 			let activeId: string | null = null;
-			for (const heading of headings) {
+			for (const heading of catalogContent.querySelectorAll<HTMLElement>(
+				'h2[id^="element-category-"]',
+			)) {
 				if (heading.getBoundingClientRect().top <= scrollOffset + 1) {
 					activeId = heading.id;
 				}
@@ -51,10 +55,15 @@ const ElementsSidebarRoot: React.FC<Props> = (props) => {
 			}
 		};
 
+		// Search replaces category sections without necessarily causing a scroll event.
+		const observer = new MutationObserver(scheduleUpdate);
+		observer.observe(catalogContent, {childList: true, subtree: true});
+
 		updateActiveCategory();
 		window.addEventListener('scroll', scheduleUpdate, {passive: true});
 		window.addEventListener('resize', scheduleUpdate);
 		return () => {
+			observer.disconnect();
 			window.removeEventListener('scroll', scheduleUpdate);
 			window.removeEventListener('resize', scheduleUpdate);
 			if (animationFrame !== null) {
