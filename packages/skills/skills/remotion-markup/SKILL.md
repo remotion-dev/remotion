@@ -15,6 +15,13 @@ If you detect a surprising change made in the meanwhile, don't overwrite it, ass
 
 ## General rules
 
+Keep `useCurrentFrame()` in the smallest component that needs it. Extract
+frame-dependent audio volume, titles, and overlays into their own components
+instead of subscribing the whole composition or scene; otherwise unrelated
+descendants re-render on every frame. Preserve the existing frame coordinates
+when extracting across timing boundaries, and keep editable interpolations
+inline on the item's props.
+
 Inside a composition or scene component, get `fps` from `useVideoConfig()` for
 all seconds-to-frames calculations, including timing props such as `from`,
 `trimBefore` and `durationInFrames`. Keeping the expression on
