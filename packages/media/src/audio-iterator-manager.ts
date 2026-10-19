@@ -27,6 +27,9 @@ import {
 import type {Nonce} from './nonce-manager';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 
+// Time constant of the gain's glide to a new volume: within ~1% after 10ms.
+const VOLUME_GLIDE_TIME_CONSTANT = 0.002;
+
 type ScheduleAudioNode = (
 	node: AudioBufferSourceNode,
 	mediaTimestamp: number,
@@ -696,7 +699,14 @@ export const audioIteratorManager = ({
 		},
 		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);
-			gainNode.gain.value = muted ? 0 : currentVolume;
+			// Glide to the new volume instead of jumping to it, which would click.
+			const now = sharedAudioContext.audioContext.currentTime;
+			gainNode.gain.cancelScheduledValues(now);
+			gainNode.gain.setTargetAtTime(
+				muted ? 0 : currentVolume,
+				now,
+				VOLUME_GLIDE_TIME_CONSTANT,
+			);
 		},
 		setToneFrequency: (newToneFrequency: number) => {
 			currentToneFrequency = newToneFrequency;

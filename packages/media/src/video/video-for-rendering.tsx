@@ -404,8 +404,19 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 				Internals.warnAboutTooHighVolume(volume);
 
-				if (audio && volume > 0) {
-					applyVolume(audio.data, volume);
+				// A frame whose volume differs from the one before ramps to it, so
+				// a frame faded to 0 still has to be registered.
+				const previousVolume =
+					frame > 0
+						? Internals.evaluateVolume({
+								volume: volumeProp,
+								frame: volumePropsFrame - 1,
+								mediaVolume: 1,
+							})
+						: volume;
+
+				if (audio && (volume > 0 || previousVolume > 0)) {
+					applyVolume(audio.data, volume, previousVolume, sampleRate);
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
