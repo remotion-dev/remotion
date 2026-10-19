@@ -7,6 +7,13 @@ import { ElementCard } from "../components/element-card";
 import { StudioActions } from "../components/studio-actions";
 
 export const meta: MetaFunction = () => [
+  {
+    tagName: "link",
+    rel: "alternate",
+    type: "text/markdown",
+    href: "/captions.md",
+    title: "Caption catalog as Markdown",
+  },
   { title: "Caption styles — Studio Supply" },
   {
     name: "description",

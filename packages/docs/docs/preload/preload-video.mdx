@@ -13,9 +13,9 @@ This function preloads a video in the DOM so that when an HTML5 `<video>` elemen
 
 It only affects HTML5 video elements such as [`<Html5Video>`](/docs/html5-video), not [`<Video>` from `@remotion/media`](/docs/media/video).
 
-While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the Studio.
-
-An alternative to `preloadVideo()` is the [`prefetch()`](/docs/prefetch) API. See [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch) to decide which one is better for your usecase.
+:::warning
+Using `preloadVideo()` is not recommended. Use [premounting](/docs/player/premounting) instead to give media time to load and initialize before it appears in the [Player](/docs/player) or [Studio](/docs/studio).
+:::
 
 ## Usage
 

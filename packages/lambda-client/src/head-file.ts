@@ -15,6 +15,7 @@ export const lambdaHeadFileImplementation: ProviderSpecifics<AwsProvider>['headF
 	}): Promise<{
 		LastModified?: Date | undefined;
 		ContentLength?: number | undefined;
+		Metadata?: Record<string, string> | undefined;
 	}> => {
 		try {
 			const head = await getS3Client({

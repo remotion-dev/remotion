@@ -23,6 +23,17 @@ export const meta: MetaFunction = ({ params }) => {
       name: "description",
       content: entry?.definition.description ?? "Browse the Element library.",
     },
+    ...(entry
+      ? [
+          {
+            tagName: "link" as const,
+            rel: "alternate",
+            type: "text/markdown",
+            href: `/elements/${entry.definition.slug}.md`,
+            title: `${entry.definition.displayName} as Markdown`,
+          },
+        ]
+      : []),
   ];
 };
 

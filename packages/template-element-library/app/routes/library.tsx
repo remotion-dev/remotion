@@ -4,6 +4,13 @@ import { catalog } from "../../lib/element-payload";
 import { ElementCard } from "../components/element-card";
 
 export const meta: MetaFunction = () => [
+  {
+    tagName: "link",
+    rel: "alternate",
+    type: "text/markdown",
+    href: "/index.md",
+    title: "Element catalog as Markdown",
+  },
   { title: "Studio Supply — Remotion Elements" },
   {
     name: "description",
