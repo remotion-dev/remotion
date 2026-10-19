@@ -207,6 +207,7 @@ const closeStyle: React.CSSProperties = {
 	flexShrink: 0,
 	height: 20,
 	width: 20,
+	transition: 'opacity 0.1s',
 };
 
 const CanvasTab: React.FC<{
@@ -232,6 +233,9 @@ const CanvasTab: React.FC<{
 	onDragStart,
 	onDragEnd,
 }) => {
+	const [hovered, setHovered] = useState(false);
+	const [closeButtonFocused, setCloseButtonFocused] = useState(false);
+	const showCloseButton = hovered || selected || closeButtonFocused;
 	const {canvasContent, compositions, currentCompositionMetadata} = useContext(
 		Internals.CompositionManager,
 	);
@@ -466,8 +470,10 @@ const CanvasTab: React.FC<{
 					onClose();
 				}}
 				renderAction={() => <CancelIcon height={16} width={16} />}
-				style={closeStyle}
+				style={{...closeStyle, opacity: showCloseButton ? 1 : 0}}
 				variant={null}
+				onFocus={() => setCloseButtonFocused(true)}
+				onBlur={() => setCloseButtonFocused(false)}
 			/>
 		</Tab>
 	);
@@ -479,6 +485,8 @@ const CanvasTab: React.FC<{
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
 			onDrop={cancelDragFocus}
+			onPointerEnter={() => setHovered(true)}
+			onPointerLeave={() => setHovered(false)}
 		>
 			<ContextMenu getItems={getContextMenuItems}>{tabElement}</ContextMenu>
 			{dropIndicator === null ? null : (
