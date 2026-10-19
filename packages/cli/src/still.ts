@@ -20,6 +20,7 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	bindAddressOption,
 	publicPathOption,
 	publicDirOption,
 	chromeModeOption,
@@ -140,6 +141,9 @@ export const still = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const bindAddress = bindAddressOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const publicPath = publicPathOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -211,6 +215,7 @@ export const still = async (
 		offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads,
 		binariesDirectory,
+		bindAddress,
 		publicPath,
 		chromeMode,
 		audioLatencyHint,

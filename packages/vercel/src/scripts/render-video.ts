@@ -163,6 +163,7 @@ try {
 			logLevel: config.logLevel,
 			timeoutInMilliseconds: config.timeoutInMilliseconds,
 			binariesDirectory: config.binariesDirectory,
+			bindAddress: null,
 			onBrowserDownload: () => ({
 				version: null,
 				onProgress: noop,
@@ -204,6 +205,7 @@ try {
 		disableSharedMemoryCapture: config.disableSharedMemoryCapture,
 		concurrency: config.concurrency,
 		binariesDirectory: config.binariesDirectory,
+		bindAddress: null,
 		metadata: config.metadata,
 		licenseKey: config.licenseKey,
 		videoBitrate: config.videoBitrate,

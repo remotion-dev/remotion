@@ -229,6 +229,7 @@ const internalGetCompositionsRaw = async ({
 	logLevel,
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
+	bindAddress,
 	onBrowserDownload,
 	chromeMode,
 	offthreadVideoThreads,
@@ -276,6 +277,7 @@ const internalGetCompositionsRaw = async ({
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
 				forceIPv4: false,
+				bindAddress,
 				sampleRate: 48000,
 			},
 			{
@@ -300,6 +302,7 @@ const internalGetCompositionsRaw = async ({
 					logLevel,
 					offthreadVideoCacheSizeInBytes,
 					binariesDirectory,
+					bindAddress,
 					onBrowserDownload,
 					chromeMode,
 					offthreadVideoThreads,
@@ -356,6 +359,7 @@ export const getCompositions = (
 		logLevel: passedLogLevel,
 		onBrowserDownload,
 		binariesDirectory,
+		bindAddress,
 		offthreadVideoCacheSizeInBytes,
 		chromeMode,
 		offthreadVideoThreads,
@@ -386,6 +390,7 @@ export const getCompositions = (
 		logLevel,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
+		bindAddress: bindAddress ?? null,
 		onBrowserDownload:
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({

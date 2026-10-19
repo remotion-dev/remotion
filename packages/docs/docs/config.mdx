@@ -1224,6 +1224,20 @@ import {Config} from '@remotion/cli/config';
 Config.setBinariesDirectory('/path/to/custom/directory');
 ```
 
+## `setBindAddress()`<AvailableFrom v="4.0.537" />
+
+<Options id="bind-address" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setBindAddress('127.0.0.1');
+```
+
+The [`--bind-address`](/docs/options/bind-address) flag takes precedence over this option.
+
 ## `setPreferLosslessAudio()`<AvailableFrom v="4.0.123" />
 
 <Options id="prefer-lossless" />

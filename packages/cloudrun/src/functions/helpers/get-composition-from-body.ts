@@ -26,6 +26,7 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads: body.offthreadVideoThreads,
 			binariesDirectory: null,
+			bindAddress: null,
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Cloud Run');
 			},

@@ -47,6 +47,7 @@ const {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	bindAddressOption,
 	forSeamlessAacConcatenationOption,
 	publicPathOption,
 	publicDirOption,
@@ -396,6 +397,9 @@ export const benchmarkCommand = async (
 		binariesDirectory: binariesDirectoryOption.getValue({
 			commandLine: parsedCli,
 		}).value,
+		bindAddress: bindAddressOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		onBrowserDownload,
 		chromeMode,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
@@ -601,6 +605,9 @@ export const benchmarkCommand = async (
 					}).value,
 					repro: false,
 					binariesDirectory: binariesDirectoryOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+					bindAddress: bindAddressOption.getValue({
 						commandLine: parsedCli,
 					}).value,
 					separateAudioTo: null,

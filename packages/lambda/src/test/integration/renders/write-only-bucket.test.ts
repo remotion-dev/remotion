@@ -54,6 +54,7 @@ test.each([1, 2])(
 				port: null,
 				remotionRoot: process.cwd(),
 				forceIPv4: false,
+				bindAddress: null,
 			});
 			close = server.close;
 			const render = async (overwrite: boolean | null) => {

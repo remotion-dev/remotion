@@ -153,6 +153,7 @@ const {
 	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
+	bindAddressOption,
 	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
@@ -627,6 +628,11 @@ declare global {
 		 */
 		readonly setBinariesDirectory: (directory: string | null) => void;
 		/**
+		 * The address the render server binds to, e.g. "127.0.0.1".
+		 * Default: null (listen on all interfaces).
+		 */
+		readonly setBindAddress: (bindAddress: string | null) => void;
+		/**
 		 * Prefer lossless audio encoding. Default: false
 		 */
 		readonly setPreferLosslessAudio: (lossless: boolean) => void;
@@ -909,6 +915,7 @@ export const Config: FlatConfig = {
 	setRepro: reproOption.setConfig,
 	setLambdaInsights: enableLambdaInsights.setConfig,
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
+	setBindAddress: bindAddressOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
 	setImageSequencePattern: imageSequencePatternOption.setConfig,

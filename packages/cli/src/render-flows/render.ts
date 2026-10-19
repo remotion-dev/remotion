@@ -124,6 +124,7 @@ export const renderVideoFlow = async ({
 	colorSpace,
 	repro,
 	binariesDirectory,
+	bindAddress,
 	forSeamlessAacConcatenation,
 	separateAudioTo,
 	publicPath,
@@ -198,6 +199,7 @@ export const renderVideoFlow = async ({
 	colorSpace: ColorSpace | null;
 	repro: boolean;
 	binariesDirectory: string | null;
+	bindAddress: string | null;
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
 	publicPath: string | null;
@@ -414,6 +416,7 @@ export const renderVideoFlow = async ({
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		forceIPv4: false,
+		bindAddress,
 		sampleRate,
 	});
 
@@ -441,6 +444,7 @@ export const renderVideoFlow = async ({
 			offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads,
 			binariesDirectory,
+			bindAddress,
 			onBrowserDownload,
 			chromeMode,
 			mediaCacheSizeInBytes,
@@ -673,6 +677,7 @@ export const renderVideoFlow = async ({
 			offthreadVideoThreads,
 			parallelEncodingEnabled: isUsingParallelEncoding,
 			binariesDirectory,
+			bindAddress,
 			compositionStart: 0,
 			forSeamlessAacConcatenation,
 			onBrowserDownload,
@@ -792,6 +797,7 @@ export const renderVideoFlow = async ({
 		colorSpace,
 		repro: repro ?? false,
 		binariesDirectory,
+		bindAddress,
 		separateAudioTo: absoluteSeparateAudioTo,
 		forSeamlessAacConcatenation,
 		compositionStart: 0,

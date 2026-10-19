@@ -62,6 +62,7 @@ export const getCompositionId = async ({
 	offthreadVideoCacheSizeInBytes,
 	offthreadVideoThreads,
 	binariesDirectory,
+	bindAddress,
 	onBrowserDownload,
 	chromeMode,
 	mediaCacheSizeInBytes,
@@ -82,6 +83,7 @@ export const getCompositionId = async ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	binariesDirectory: string | null;
+	bindAddress: string | null;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
@@ -115,6 +117,7 @@ export const getCompositionId = async ({
 				offthreadVideoCacheSizeInBytes,
 				offthreadVideoThreads,
 				binariesDirectory,
+				bindAddress,
 				onBrowserDownload,
 				onServeUrlVisited: () => undefined,
 				chromeMode,
@@ -163,6 +166,7 @@ export const getCompositionId = async ({
 		offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads,
 		binariesDirectory,
+		bindAddress,
 		onBrowserDownload,
 		chromeMode,
 		mediaCacheSizeInBytes,

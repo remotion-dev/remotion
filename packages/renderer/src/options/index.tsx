@@ -6,6 +6,7 @@ import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
 import {benchmarkConcurrenciesOption} from './benchmark-concurrencies';
 import {binariesDirectoryOption} from './binaries-directory';
+import {bindAddressOption} from './bind-address';
 import {browserOption} from './browser';
 import {browserExecutableOption} from './browser-executable';
 import {bundleCacheOption} from './bundle-cache';
@@ -150,6 +151,7 @@ export const allOptions = {
 	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
+	bindAddressOption,
 	forSeamlessAacConcatenationOption,
 	separateAudioOption,
 	publicPathOption,

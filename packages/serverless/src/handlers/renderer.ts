@@ -375,6 +375,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			colorSpace: params.colorSpace,
 			binariesDirectory: null,
+			bindAddress: null,
 			separateAudioTo: audioOutputLocation,
 			forSeamlessAacConcatenation: seamlessAudio,
 			compositionStart: params.compositionStart,

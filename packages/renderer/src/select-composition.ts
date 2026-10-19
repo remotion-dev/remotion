@@ -219,6 +219,7 @@ export const internalSelectCompositionRaw = async (
 		timeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		bindAddress,
 		onBrowserDownload,
 		onServeUrlVisited,
 		chromeMode,
@@ -251,6 +252,7 @@ export const internalSelectCompositionRaw = async (
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
 				forceIPv4: false,
+				bindAddress,
 				sampleRate: 48000,
 			},
 			{
@@ -291,6 +293,7 @@ export const internalSelectCompositionRaw = async (
 			server,
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
+			bindAddress,
 			onBrowserDownload,
 			onServeUrlVisited,
 			chromeMode,
@@ -340,6 +343,7 @@ export const selectComposition = async (
 		logLevel: passedLogLevel,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		bindAddress,
 		onBrowserDownload,
 		chromeMode,
 		offthreadVideoThreads,
@@ -370,6 +374,7 @@ export const selectComposition = async (
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
+		bindAddress: bindAddress ?? null,
 		onBrowserDownload:
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({

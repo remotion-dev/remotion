@@ -433,6 +433,7 @@ const internalRenderStillRaw = (
 				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
 				binariesDirectory: options.binariesDirectory,
 				forceIPv4: false,
+				bindAddress: options.bindAddress,
 				sampleRate: 48000,
 			},
 			{
@@ -534,6 +535,7 @@ export const renderStill = (
 		offthreadVideoCacheSizeInBytes,
 		logLevel: passedLogLevel,
 		binariesDirectory,
+		bindAddress,
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,
@@ -621,6 +623,7 @@ export const renderStill = (
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		binariesDirectory: binariesDirectory ?? null,
+		bindAddress: bindAddress ?? null,
 		onBrowserDownload:
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({

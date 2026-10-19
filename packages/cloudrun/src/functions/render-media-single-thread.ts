@@ -202,6 +202,7 @@ export const renderMediaSingleThread = async (
 			colorSpace: body.colorSpace,
 			repro: false,
 			binariesDirectory: null,
+			bindAddress: null,
 			separateAudioTo: null,
 			forSeamlessAacConcatenation: false,
 			compositionStart: 0,

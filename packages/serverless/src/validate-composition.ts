@@ -80,6 +80,7 @@ export const validateComposition = async <Provider extends CloudProvider>({
 		offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads,
 		binariesDirectory: null,
+		bindAddress: null,
 		onBrowserDownload,
 		onServeUrlVisited,
 		chromeMode: 'headless-shell',

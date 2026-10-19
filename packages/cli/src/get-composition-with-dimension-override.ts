@@ -31,6 +31,7 @@ export const getCompositionWithDimensionOverride = async ({
 	offthreadVideoCacheSizeInBytes,
 	offthreadVideoThreads,
 	binariesDirectory,
+	bindAddress,
 	onBrowserDownload,
 	chromeMode,
 	mediaCacheSizeInBytes,
@@ -55,6 +56,7 @@ export const getCompositionWithDimensionOverride = async ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	binariesDirectory: string | null;
+	bindAddress: string | null;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
@@ -80,6 +82,7 @@ export const getCompositionWithDimensionOverride = async ({
 		server,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		bindAddress,
 		onBrowserDownload,
 		chromeMode,
 		offthreadVideoThreads,

@@ -2,6 +2,7 @@ import {apiKeyOption} from './api-key';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {binariesDirectoryOption} from './binaries-directory';
+import {bindAddressOption} from './bind-address';
 import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
@@ -57,6 +58,7 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		bindAddress: bindAddressOption,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 		separateAudioTo: separateAudioOption,
 		audioCodec: audioCodecOption,
@@ -78,6 +80,7 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		bindAddress: bindAddressOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
 		apiKey: apiKeyOption,
@@ -90,6 +93,7 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		bindAddress: bindAddressOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
 	},
@@ -100,6 +104,7 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		bindAddress: bindAddressOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
 	},
@@ -112,6 +117,7 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
+		bindAddress: bindAddressOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
 		imageSequencePattern: imageSequencePatternOption,

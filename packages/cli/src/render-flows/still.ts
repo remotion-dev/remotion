@@ -84,6 +84,7 @@ export const renderStillFlow = async ({
 	outputLocationFromUi,
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
+	bindAddress,
 	publicPath,
 	chromeMode,
 	offthreadVideoThreads,
@@ -129,6 +130,7 @@ export const renderStillFlow = async ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	binariesDirectory: string | null;
+	bindAddress: string | null;
 	publicPath: string | null;
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
@@ -276,6 +278,7 @@ export const renderStillFlow = async ({
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		forceIPv4: false,
+		bindAddress,
 		sampleRate: 48000,
 	});
 
@@ -310,6 +313,7 @@ export const renderStillFlow = async ({
 			offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads,
 			binariesDirectory,
+			bindAddress,
 			onBrowserDownload,
 			chromeMode,
 			mediaCacheSizeInBytes,
@@ -442,6 +446,7 @@ export const renderStillFlow = async ({
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
+		bindAddress,
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,

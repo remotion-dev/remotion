@@ -16,6 +16,7 @@ test('starts the compositor when the first frame is requested', async () => {
 		offthreadVideoCacheSizeInBytes: null,
 		binariesDirectory: null,
 		forceIPv4: false,
+		bindAddress: null,
 	});
 
 	try {

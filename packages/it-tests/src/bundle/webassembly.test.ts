@@ -49,6 +49,7 @@ const readWasmResult = async ({
 		remotionRoot: rootDirectory,
 		binariesDirectory: null,
 		forceIPv4: false,
+		bindAddress: null,
 	});
 
 	try {

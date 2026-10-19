@@ -149,6 +149,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			binariesDirectory: null,
 			forceIPv4: false,
+			bindAddress: null,
 			sampleRate: 48000,
 		},
 		{
@@ -335,6 +336,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 		binariesDirectory: null,
+		bindAddress: null,
 		onBrowserDownload,
 		onArtifact,
 		chromeMode: 'headless-shell',

@@ -32,6 +32,7 @@ test(
 			port: null,
 			remotionRoot: path.dirname(exampleBuild),
 			forceIPv4: false,
+			bindAddress: null,
 		});
 
 		const res = await mockImplementation.callFunctionSync({
@@ -162,6 +163,7 @@ test(
 			port: null,
 			remotionRoot: path.dirname(exampleBuild),
 			forceIPv4: false,
+			bindAddress: null,
 		});
 
 		resetWebhookCalls();

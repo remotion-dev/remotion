@@ -9,7 +9,37 @@ type PortConfig = {
 
 let cached: PortConfig | null = null;
 
-export const getPortConfig = (preferIpv4: boolean): PortConfig => {
+export const validateBindAddress = (bindAddress: unknown): void => {
+	if (bindAddress === null || bindAddress === undefined) {
+		return;
+	}
+
+	if (typeof bindAddress !== 'string') {
+		throw new TypeError(
+			`"bindAddress" must be a string or null, but got ${JSON.stringify(
+				bindAddress,
+			)}`,
+		);
+	}
+
+	if (bindAddress.trim() === '') {
+		throw new TypeError(
+			'"bindAddress" must not be an empty string. Pass an IP address such as "127.0.0.1" or "::1", or null to listen on all interfaces.',
+		);
+	}
+};
+
+export const getPortConfig = (
+	preferIpv4: boolean,
+	bindAddress: string | null = null,
+): PortConfig => {
+	validateBindAddress(bindAddress);
+	if (bindAddress !== null) {
+		// Explicit bind address: listen only there, and only probe that address
+		// for free ports. Not cached, because the cache holds the default config.
+		return {host: bindAddress, hostsToTry: [bindAddress]};
+	}
+
 	if (cached) {
 		return cached;
 	}

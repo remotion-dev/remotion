@@ -296,6 +296,7 @@ export const renderCommand = async ({
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
 			forceIPv4: false,
+			bindAddress: null,
 			sampleRate: 48000,
 		});
 

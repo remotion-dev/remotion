@@ -27,6 +27,7 @@ export const simulateLambdaRender = async (
 		port: null,
 		remotionRoot: path.dirname(exampleBuild),
 		forceIPv4: false,
+		bindAddress: null,
 	});
 
 	const payload = await LambdaClientInternals.makeLambdaRenderMediaPayload(

@@ -10,6 +10,7 @@ const {
 	keyboardShortcutsOption,
 	browserExecutableOption,
 	bundleCacheOption,
+	bindAddressOption,
 } = BrowserSafeApis.options;
 
 export const processStill = async ({
@@ -36,6 +37,9 @@ export const processStill = async ({
 	}).value;
 
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const bindAddress = bindAddressOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -78,6 +82,7 @@ export const processStill = async ({
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads: job.offthreadVideoThreads,
 		binariesDirectory: job.binariesDirectory,
+		bindAddress,
 		publicPath: null,
 		chromeMode: job.chromeMode,
 		audioLatencyHint: null,

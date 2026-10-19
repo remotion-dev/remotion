@@ -20,6 +20,7 @@ const {
 	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	bindAddressOption,
 	publicPathOption,
 	publicDirOption,
 	chromeModeOption,
@@ -95,6 +96,9 @@ export const listCompositionsCommand = async (
 		},
 	).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const bindAddress = bindAddressOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
@@ -191,6 +195,7 @@ export const listCompositionsCommand = async (
 		offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads,
 		binariesDirectory,
+		bindAddress,
 		onBrowserDownload: defaultBrowserDownloadProgress({
 			indent: false,
 			logLevel,

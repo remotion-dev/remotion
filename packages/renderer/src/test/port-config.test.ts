@@ -4,6 +4,8 @@ import {
 	flattenNetworkInterfaces,
 	getHostToBind,
 	getHostsToTry,
+	getPortConfig,
+	validateBindAddress,
 } from '../port-config';
 
 const dockerInterfaces: NodeJS.Dict<NetworkInterfaceInfo[]> = {
@@ -290,4 +292,34 @@ test('Port config on M1 Mac', () => {
 test('Port config on M1 Mac', () => {
 	const hostToBind = getHostsToTry(flattenNetworkInterfaces(macOsM1Interfaces));
 	expect(hostToBind).toEqual(['::1', '127.0.0.1', '::', '0.0.0.0']);
+});
+
+test('Explicit bind address overrides host and hosts to try', () => {
+	const config = getPortConfig(false, '127.0.0.1');
+	expect(config.host).toBe('127.0.0.1');
+	expect(config.hostsToTry).toEqual(['127.0.0.1']);
+});
+
+test('Explicit IPv6 bind address is kept as is', () => {
+	const config = getPortConfig(true, '::1');
+	expect(config.host).toBe('::1');
+	expect(config.hostsToTry).toEqual(['::1']);
+});
+
+test('Bind address does not poison the default config', () => {
+	const explicit = getPortConfig(false, '127.0.0.1');
+	const defaults = getPortConfig(false, null);
+	expect(defaults.host).not.toBe(explicit.host);
+	expect(['::', '0.0.0.0']).toContain(defaults.host);
+	expect(defaults.hostsToTry.length).toBeGreaterThan(1);
+	expect(getPortConfig(false, '127.0.0.1').host).toBe('127.0.0.1');
+});
+
+test('Bind address is validated', () => {
+	expect(() => validateBindAddress(null)).not.toThrow();
+	expect(() => validateBindAddress('127.0.0.1')).not.toThrow();
+	expect(() => validateBindAddress('')).toThrow(TypeError);
+	expect(() => validateBindAddress('   ')).toThrow(TypeError);
+	expect(() => validateBindAddress(3000)).toThrow(TypeError);
+	expect(() => getPortConfig(false, '')).toThrow(/must not be an empty string/);
 });

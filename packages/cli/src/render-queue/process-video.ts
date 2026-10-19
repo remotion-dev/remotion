@@ -14,6 +14,7 @@ const {
 	bundleCacheOption,
 	sampleRateOption,
 	disableSharedMemoryCaptureOption,
+	bindAddressOption,
 } = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
@@ -58,6 +59,9 @@ export const processVideoJob = async ({
 			? job.sampleRate
 			: sampleRateOption.getValue({commandLine: parsedCli}).value;
 	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const bindAddress = bindAddressOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
@@ -121,6 +125,7 @@ export const processVideoJob = async ({
 		colorSpace: job.type === 'video' ? job.colorSpace : null,
 		repro: job.repro,
 		binariesDirectory: job.binariesDirectory,
+		bindAddress,
 		forSeamlessAacConcatenation:
 			job.type === 'video' ? job.forSeamlessAacConcatenation : false,
 		separateAudioTo: job.type === 'video' ? job.separateAudioTo : null,

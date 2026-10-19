@@ -19,6 +19,7 @@ export const configMethodLifecycles = {
 	setBenchmarkConcurrencies: 'runtime',
 	setBenchmarkRuns: 'runtime',
 	setBinariesDirectory: 'restart',
+	setBindAddress: 'runtime',
 	setBrowserExecutable: 'runtime',
 	setBufferStateDelayInMilliseconds: 'runtime',
 	setBundleOutDir: 'runtime',

@@ -160,6 +160,7 @@ export const renderImageSequenceChunk = async <Provider extends CloudProvider>({
 		compositionStart: params.compositionStart,
 		forSeamlessAacConcatenation: false,
 		binariesDirectory: null,
+		bindAddress: null,
 		chromeMode: 'headless-shell',
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads: params.offthreadVideoThreads,

@@ -96,6 +96,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 			onBrowserLog: null,
 			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			binariesDirectory: null,
+			bindAddress: null,
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in a function');
 			},

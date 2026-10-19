@@ -24,6 +24,7 @@ const {
 	colorSpaceOption,
 	disallowParallelEncodingOption,
 	disableSharedMemoryCaptureOption,
+	bindAddressOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -215,6 +216,9 @@ export const render = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const bindAddress = bindAddressOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const forSeamlessAacConcatenation =
 		forSeamlessAacConcatenationOption.getValue({
@@ -325,6 +329,7 @@ export const render = async (
 		colorSpace,
 		repro,
 		binariesDirectory,
+		bindAddress,
 		forSeamlessAacConcatenation,
 		separateAudioTo,
 		publicPath,

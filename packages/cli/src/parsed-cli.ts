@@ -43,6 +43,7 @@ const {
 	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
+	bindAddressOption,
 	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
@@ -211,6 +212,7 @@ export type CommandLineOptions = {
 	[outDirOption.cliFlag]: TypeOfOption<typeof outDirOption>;
 	[audioLatencyHintOption.cliFlag]: AudioContextLatencyCategory;
 	[ipv4Option.cliFlag]: TypeOfOption<typeof ipv4Option> | null;
+	[bindAddressOption.cliFlag]: TypeOfOption<typeof bindAddressOption>;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
 	[enableCancellationOption.cliFlag]: TypeOfOption<

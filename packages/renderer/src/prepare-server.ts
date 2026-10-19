@@ -39,6 +39,7 @@ type PrepareServerOptions = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
+	bindAddress: string | null;
 	sampleRate: number;
 };
 
@@ -52,6 +53,7 @@ export const prepareServer = async ({
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
 	forceIPv4,
+	bindAddress,
 	sampleRate,
 }: PrepareServerOptions): Promise<RemotionServer> => {
 	const downloadMap = makeDownloadMap(sampleRate);
@@ -76,6 +78,7 @@ export const prepareServer = async ({
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
 			forceIPv4,
+			bindAddress,
 		});
 
 		const normalized = normalizeServeUrl(webpackConfigOrServeUrl);
@@ -150,6 +153,7 @@ export const prepareServer = async ({
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		forceIPv4,
+		bindAddress,
 	});
 
 	return Promise.resolve({

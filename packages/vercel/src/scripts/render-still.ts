@@ -75,6 +75,7 @@ try {
 			logLevel: config.logLevel,
 			timeoutInMilliseconds: config.timeoutInMilliseconds,
 			binariesDirectory: config.binariesDirectory,
+			bindAddress: null,
 			onBrowserDownload: () => ({
 				version: null,
 				onProgress: noop,
@@ -109,6 +110,7 @@ try {
 		logLevel: config.logLevel,
 		timeoutInMilliseconds: config.timeoutInMilliseconds,
 		binariesDirectory: config.binariesDirectory,
+		bindAddress: null,
 		chromeMode: config.chromeMode,
 		offthreadVideoCacheSizeInBytes: config.offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
