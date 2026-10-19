@@ -1856,7 +1856,7 @@ export const articles = [
 	},
 	{
 		id: 'captions/importing',
-		title: 'Importing .srt subtitles into Remotion',
+		title: 'Importing .srt or .vtt subtitles into Remotion',
 		relativePath: 'docs/captions/importing.mdx',
 		compId: 'articles-docs-captions-importing',
 		crumb: 'Captions',
@@ -1880,6 +1880,15 @@ export const articles = [
 		crumb: '@remotion/captions',
 		noAi: false,
 		slug: 'captions/parse-srt',
+	},
+	{
+		id: 'captions/parse-vtt',
+		title: 'parseVtt()',
+		relativePath: 'docs/captions/parse-vtt.mdx',
+		compId: 'articles-docs-captions-parse-vtt',
+		crumb: '@remotion/captions',
+		noAi: false,
+		slug: 'captions/parse-vtt',
 	},
 	{
 		id: 'captions/serialize-srt',
@@ -4553,6 +4562,15 @@ export const articles = [
 		crumb: 'Parameterized videos',
 		noAi: false,
 		slug: 'props-resolution',
+	},
+	{
+		id: 'html-in-canvas-bugs',
+		title: 'HTML-in-canvas Bugs',
+		relativePath: 'docs/html-in-canvas-bugs.mdx',
+		compId: 'articles-docs-html-in-canvas-bugs',
+		crumb: 'Issue Tracker',
+		noAi: false,
+		slug: 'html-in-canvas-bugs',
 	},
 	{
 		id: 'html-in-canvas',

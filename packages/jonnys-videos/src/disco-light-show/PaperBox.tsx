@@ -59,8 +59,8 @@ export const PaperBox: React.FC<{
 				fit="fill"
 				style={{
 					position: 'absolute',
-					left: -pad - shadowPad,
-					top: -pad - shadowPad,
+					// HTML-in-canvas preserves this transform but drops negative layout offsets.
+					translate: `${-pad - shadowPad}px ${-pad - shadowPad}px`,
 				}}
 				effects={cutoutPaperEffects({
 					gridOpacity: 0.28,

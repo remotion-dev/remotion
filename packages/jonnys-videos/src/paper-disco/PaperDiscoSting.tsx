@@ -63,7 +63,8 @@ const PaperDiscoStingInner: React.FC = () => {
 					height: 900,
 					overflow: 'visible',
 					transformOrigin: '50% 50%',
-					scale: interpolate(frame, [0, 8], [0, 1], {
+					// Keep the transform invertible for Chrome 157 canvas capture.
+					scale: interpolate(frame, [0, 8], [0.0001, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						posterize: 2,

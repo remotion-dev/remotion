@@ -50,6 +50,12 @@ Returns `true` when HTML-in-canvas is enabled and the browser supports nesting. 
 
 From Remotion <AvailableFrom v="4.0.534" inline />, the bundled server-side browser is Chromium 157.0.8080.0, so this method also returns `true` during server-side rendering.
 
+## Premounting<AvailableFrom v="4.0.537" />
+
+To avoid a [Chrome 157 crash involving premounted content](https://github.com/remotion-dev/remotion/issues/12369) inside `<HtmlInCanvas>`, we from v4.0.537 default to no [premounting](/docs/player/premounting), even when you configure a nonzero [`defaultPremountInSeconds`](/docs/options/default-premount-in-seconds). We plan to lift this in the future when the Chromium fixes the bug.
+
+You can opt in by passing [`premountFor`](/docs/sequence#premountfor) explicitly.
+
 ## Using WebGL and WebGPU during renders
 
 See [Using WebGL and WebGPU during renders](/docs/webgl).

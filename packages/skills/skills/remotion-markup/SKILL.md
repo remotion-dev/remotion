@@ -239,6 +239,10 @@ For static maps, animated routes and markers, geographic explainers, Mapbox, Map
 
 When dealing with captions or subtitles, load the [Remotion Captions](../remotion-captions/SKILL.md) skill for more information.
 
+## Arabic and right-to-left text
+
+For Arabic, Persian, Urdu or Hebrew text, read [arabic-text.md](arabic-text.md): set the base direction, animate by word, and split letters only in a way that keeps them joined.
+
 ## Google Fonts
 
 Is the recommended way to load fonts in Remotion. See [google-fonts.md](google-fonts.md) for how to load Google Fonts.

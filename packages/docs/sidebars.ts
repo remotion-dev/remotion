@@ -242,6 +242,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'captions/caption',
 				'captions/parse-srt',
+				'captions/parse-vtt',
 				'captions/serialize-srt',
 				'captions/create-tiktok-style-captions',
 			],
@@ -1665,6 +1666,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'security',
 				'chromium-flags',
+				'html-in-canvas-bugs',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
 				'miscellaneous/ffmpeg-license',

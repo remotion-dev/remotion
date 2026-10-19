@@ -10,6 +10,7 @@ import {mockImplementation} from '../../mocks/mock-implementation';
 import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
+// Browser startup, rendering, audio encoding, and output probing can exceed 5 seconds.
 test('Should directly render final media with one Lambda', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'h264',
@@ -98,4 +99,4 @@ test('Should directly render final media with one Lambda', async () => {
 	expect(expectFiles.length).toBe(0);
 
 	await close();
-});
+}, 60000);
