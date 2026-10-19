@@ -8,6 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
 const effectEntrypoints = [
 	'src/index.ts',
 	'src/barrel-distortion.ts',
+	'src/bevel-alpha.ts',
 	'src/blur.ts',
 	'src/burlap.ts',
 	'src/checkerboard.ts',

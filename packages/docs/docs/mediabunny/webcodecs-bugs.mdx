@@ -10,9 +10,11 @@ It serves as a tracker for overall progress and known issues.
 
 | Issue                                                                                                                                                     | Product | Filed by     | Status    |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------ | --------- |
-| [Software AVC VideoDecoder drops initial B-frames](https://issues.chromium.org/issues/559001366)                                                           | Chrome  | @Vanilagy    | Open      |
-| [Rendering on a high-refresh-rate (144+ Hz) monitor throttles VideoDecoder by 5-10x](https://issues.chromium.org/issues/552063578)                         | Chrome  | @Vanilagy    | Open      |
-| [VideoEncoder does not respect visibleRect of VideoFrame, crops incorrectly](https://issues.chromium.org/issues/543284189)                                | Chrome  | @Vanilagy    | Open      |
+| [AVC VideoEncoder on Windows and Linux produces invalid AVCC record in decoder description](https://bugzilla.mozilla.org/show_bug.cgi?id=2082867)         | Firefox | @Vanilagy    | Open      |
+| [AVC VideoEncoder shifts EncodedVideoChunk timestamps by their duration](https://bugzilla.mozilla.org/show_bug.cgi?id=2082890)                            | Firefox | @Vanilagy    | Open      |
+| [Software AVC VideoDecoder drops initial B-frames](https://issues.chromium.org/issues/559001366)                                                          | Chrome  | @Vanilagy    | Fixed     |
+| [Rendering on a high-refresh-rate (144+ Hz) monitor throttles VideoDecoder by 5-10x](https://issues.chromium.org/issues/552063578)                        | Chrome  | @Vanilagy    | Open      |
+| [VideoEncoder does not respect visibleRect of VideoFrame, crops incorrectly](https://issues.chromium.org/issues/543284189)                                | Chrome  | @Vanilagy    | Fixed     |
 | [AudioData.copyTo with interleaved f32 handles frameOffset incorrectly](https://bugzilla.mozilla.org/show_bug.cgi?id=2017589)                             | Firefox | @JonnyBurger | Open      |
 | [H.264 packet with "Unspecified" NALU (24..31) trips up key frame validation, erroring VideoDecoder](https://issues.chromium.org/issues/470109459)        | Chrome  | @Vanilagy    | Fixed     |
 | [H.264 VideoDecoder key frame detection fails for packets with an AUD not at the start](https://issues.chromium.org/issues/519012430)                     | Chrome  | @Vanilagy    | Fixed     |
@@ -32,10 +34,14 @@ It serves as a tracker for overall progress and known issues.
 | [VideoDecoder key frame detection too strict, rejects non-IDR AVC key frames, causing decoder error](https://issues.chromium.org/issues/424836493)        | Chrome  | @Vanilagy    | Open      |
 | [VideoEncoder performance drastically degrades if the page needs to rerender](https://issues.chromium.org/issues/414491381)                               | Chrome  | @Vanilagy    | Open      |
 | [AudioDecoder.isConfigSupported() returns false positive](https://issues.chromium.org/issues/360083330)                                                   | Chrome  | @JonnyBurger | Fixed     |
-| [AudioDecoder doesn't respect chunks with negative timestamps, starts AudioData timestamps at 0](https://issues.chromium.org/issues/512772321)            | Chrome  | @Vanilagy    | Open      |
-| [HEVC VideoEncoder on AMD hardware on Windows labels first emitted chunk as "delta"](https://issues.chromium.org/issues/514397892)                        | Chrome  | @Vanilagy    | Open      |
+| [AudioDecoder doesn't respect chunks with negative timestamps, starts AudioData timestamps at 0](https://issues.chromium.org/issues/512772321)            | Chrome  | @Vanilagy    | Fixed     |
+| [HEVC VideoEncoder on AMD hardware on Windows labels first emitted chunk as "delta"](https://issues.chromium.org/issues/514397892)                        | Chrome  | @Vanilagy    | Won't fix |
 | [VideoPixelFormat I444AP12 is not recognized](https://issues.chromium.org/issues/524008896)                                                               | Chrome  | @Vanilagy    | Open      |
-| [VideoFrame RGBX -> RGB format conversion via .copyTo() outputs garbled data](https://issues.chromium.org/issues/529413114)                               | Chrome  | @Vanilagy    | Open      |
-| [VideoEncoder encoding error surfaces AFTER flush() resolves, gets completely swallowed by close()](https://issues.chromium.org/issues/529852980)         | Chrome  | @Vanilagy    | Open      |
+| [VideoFrame RGBX -> RGB format conversion via .copyTo() outputs garbled data](https://issues.chromium.org/issues/529413114)                               | Chrome  | @Vanilagy    | Fixed     |
+| [VideoEncoder encoding error surfaces AFTER flush() resolves, gets completely swallowed by close()](https://issues.chromium.org/issues/529852980)         | Chrome  | @Vanilagy    | Fixed     |
 | [VideoDecoder ignores VideoDecoderConfig.colorSpace for H.264 on macOS VideoToolbox and outputs bt709](https://issues.chromium.org/issues/532860177)      | Chrome  | @JonnyBurger | Open      |
 | [VideoEncoder with bitrateMode: 'quantizer' has a large initial delay before emitting a chunk](https://issues.chromium.org/issues/541084054)              | Chrome  | @Vanilagy    | Open      |
+
+## See also
+
+- [HTML-in-canvas Bugs](/docs/html-in-canvas-bugs)

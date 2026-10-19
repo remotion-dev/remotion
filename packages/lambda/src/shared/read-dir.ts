@@ -37,6 +37,12 @@ export const readDirectory: ReadDir = ({
 			.join('/');
 
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
+			if (fs.statSync(filePath).isDirectory()) {
+				throw new Error(
+					`The directory ${originalDir} contains a symbolic link to a directory at ${relative}. Directory symbolic links are not supported when deploying a site.`,
+				);
+			}
+
 			const realPath = fs.realpathSync(filePath);
 
 			etags[relative] = getEtagOfFile(realPath, onProgress);

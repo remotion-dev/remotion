@@ -124,6 +124,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 			forcePathStyle,
 			storageClass,
 			requestHandler,
+			metadata: {'remotion-render-id': renderMetadata.renderId},
 		};
 		try {
 			if (file.conditional) {
@@ -190,6 +191,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 		outputFile: {
 			sizeInBytes: outputSize,
 			url: outputUrl,
+			renderId: renderMetadata.renderId,
 		},
 		outputSize,
 		timeToCombine,

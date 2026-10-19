@@ -8,6 +8,7 @@ import React, {
 	useRef,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -521,11 +522,15 @@ const HtmlInCanvasContent = forwardRef<
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
 			onPaint === undefined && onInit === undefined;
-		const paintTargetMode = usesDirectLayoutCanvas
-			? 'direct'
-			: isRendering
-				? 'copied'
-				: 'transferred';
+		// Keep a nested drawable canvas separate from the bitmap captured by its
+		// parent. Reusing it for both can crash Chromium during raster invalidation.
+		const paintTargetMode = ancestorPaintState
+			? 'copied'
+			: usesDirectLayoutCanvas
+				? 'direct'
+				: isRendering
+					? 'copied'
+					: 'transferred';
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
@@ -607,6 +612,10 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const effectScratchCanvasesRef = useRef<{
+			source: HTMLCanvasElement;
+			previousOutput: HTMLCanvasElement;
+		} | null>(null);
 		const paintingTargets = useRef(
 			new WeakMap<HtmlInCanvasPaintTarget, {repaint: boolean}>(),
 		);
@@ -747,6 +756,7 @@ const HtmlInCanvasContent = forwardRef<
 					throw error;
 				}
 
+				let effectSourceCanvas: HTMLCanvasElement | null = null;
 				try {
 					const currentOnPaint = onPaintRef.current;
 					if (currentOnPaint) {
@@ -765,6 +775,55 @@ const HtmlInCanvasContent = forwardRef<
 						if (paintResult) {
 							await paintResult;
 						}
+					} else if (
+						paintTarget instanceof HTMLCanvasElement &&
+						effectsRef.current.some(
+							(effect) => !(effect.params as {disabled?: boolean}).disabled,
+						)
+					) {
+						// The element image can only be drawn into the visible layout
+						// canvas, but effects finish asynchronously (e.g. while the
+						// WebGPU device initializes). Move the unprocessed pixels to a
+						// scratch canvas and restore the previous output within this task,
+						// so the browser never presents the HTML without its effects.
+						effectScratchCanvasesRef.current ??= {
+							source: document.createElement('canvas'),
+							previousOutput: document.createElement('canvas'),
+						};
+						const {source: effectSource, previousOutput} =
+							effectScratchCanvasesRef.current;
+						resizePaintTarget({
+							target: effectSource,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+						resizePaintTarget({
+							target: previousOutput,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+						const effectSourceCtx = effectSource.getContext('2d');
+						const previousOutputCtx = previousOutput.getContext('2d');
+						const paintTargetCtx = paintTarget.getContext('2d');
+						if (!effectSourceCtx || !previousOutputCtx || !paintTargetCtx) {
+							throw new Error(
+								'Failed to acquire 2D context for <HtmlInCanvas> canvas',
+							);
+						}
+
+						previousOutputCtx.reset();
+						previousOutputCtx.drawImage(paintTarget, 0, 0);
+						defaultOnPaint({
+							canvas: paintTarget,
+							element,
+							elementImage: elImage,
+							pixelDensity: resolvedPixelDensity,
+						});
+						effectSourceCtx.reset();
+						effectSourceCtx.drawImage(paintTarget, 0, 0);
+						paintTargetCtx.reset();
+						paintTargetCtx.drawImage(previousOutput, 0, 0);
+						effectSourceCanvas = effectSource;
 					} else {
 						defaultOnPaint({
 							canvas: paintTarget,
@@ -779,7 +838,7 @@ const HtmlInCanvasContent = forwardRef<
 					if (state) {
 						await runEffectChain({
 							state,
-							source: paintTarget,
+							source: effectSourceCanvas ?? paintTarget,
 							effects: effectsRef.current,
 							output: paintTarget,
 							width: canvasWidth,
@@ -852,10 +911,11 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [paintState]);
 
-		// Default paint handlers draw synchronously on the layout canvas itself.
-		// ElementImage can only be drawn into its associated canvas, so custom
-		// handlers retain a transferred target. Rendering copies it to a separate
-		// visible canvas without waiting for the transferred canvas to present.
+		// Non-nested default handlers paint directly on the layout canvas. Nested
+		// canvases and custom handlers retain a transferred target because an
+		// ElementImage can only be drawn into its associated canvas. Nested canvases
+		// and rendering copy it to a separate visible canvas without waiting for
+		// the transferred canvas to present.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
@@ -978,17 +1038,19 @@ const HtmlInCanvasContent = forwardRef<
 							: canvasStyle
 					}
 				>
-					<div
-						ref={divRef}
-						style={
-							paintTargetMode === 'copied'
-								? {...innerStyle, visibility: 'visible'}
-								: innerStyle
-						}
-					>
-						{children}
-					</div>
-					{canvasSiblings}
+					<DefaultPremountContext.Provider value={0}>
+						<div
+							ref={divRef}
+							style={
+								paintTargetMode === 'copied'
+									? {...innerStyle, visibility: 'visible'}
+									: innerStyle
+							}
+						>
+							{children}
+						</div>
+						{canvasSiblings}
+					</DefaultPremountContext.Provider>
 				</canvas>
 				{paintTargetMode === 'copied' ? (
 					<canvas

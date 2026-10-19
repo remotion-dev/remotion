@@ -1,4 +1,5 @@
 import {barrelDistortion} from '@remotion/effects/barrel-distortion';
+import {bevelAlpha} from '@remotion/effects/bevel-alpha';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
 import {burlap} from '@remotion/effects/burlap';
@@ -78,6 +79,7 @@ import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
+import {EffectsBevelAlphaPreview} from '../effects/effects-bevel-alpha-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../effects/effects-burlap-preview';
@@ -208,6 +210,14 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-bevel-alpha',
+		effectName: 'bevelAlpha',
+		effectImportPath: '@remotion/effects/bevel-alpha',
+		comp: EffectsBevelAlphaPreview,
+		schema: bevelAlpha().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-lens-blur',

@@ -292,7 +292,9 @@ export const getProgress = async <Provider extends CloudProvider>({
 			throw err;
 		});
 
-		if (outputFile) {
+		// A shared output key can still contain an earlier render while uploading.
+		// Untagged outputs must rely on persisted postRenderData for completion.
+		if (outputFile && outputFile.renderId === renderId) {
 			const outData = getExpectedOutName({
 				output: 'main',
 				renderMetadata,

@@ -17,12 +17,13 @@ const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 	return (
 		<>
 			<Clip5
-				name="Clip5"
+				name="Lower party footage"
 				width={1080}
 				height={1920}
 				durationInFrames={300}
 				style={{
 					position: 'absolute',
+					overflow: 'visible',
 					scale: 1.59,
 					translate: interpolate(
 						frame,
@@ -31,28 +32,20 @@ const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: [Easing.inOut(Easing.cubic)],
 						},
 					),
 				}}
 				from={-1}
 			/>
 			<Clip5
-				name="Clip5-copy"
+				name="Upper party footage"
 				width={1080}
 				height={1920}
 				durationInFrames={300}
 				style={{
 					position: 'absolute',
+					overflow: 'visible',
 					scale: 1.328,
 					translate: interpolate(
 						frame,
@@ -61,16 +54,7 @@ const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: [Easing.inOut(Easing.cubic)],
 						},
 					),
 				}}
@@ -78,36 +62,22 @@ const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 			/>
 			<Video
 				name="Text behind video"
-				showInTimeline={false}
 				src={asset('text-behind-video-series-first-20s.mp4')}
 				style={{
 					position: 'absolute',
-					translate: '-420px 311.8px',
+					translate: interpolate(
+						frame,
+						[9, 19],
+						['1500px 311.8px', '-420px 311.8px'],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.cubic),
+						},
+					),
 					width: 1920,
 					height: 1080,
-					scale: interpolate(frame, [9, 14, 19], [0, 0.585, 0.594], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-						],
-					}),
+					scale: 0.594,
 				}}
 				muted
 				durationInFrames={190}

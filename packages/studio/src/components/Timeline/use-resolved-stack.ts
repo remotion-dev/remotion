@@ -93,5 +93,11 @@ export const useResolvedStack = (
 		};
 	}, [stack, updateResolvedStackTrace]);
 
-	return state.value;
+	// Effects run after rendering, so state may still belong to the previous
+	// stack. Only expose a location resolved for the current stack.
+	return state.stack === stack
+		? state.value
+		: stack
+			? (resolvedCache.get(stack) ?? null)
+			: null;
 };
