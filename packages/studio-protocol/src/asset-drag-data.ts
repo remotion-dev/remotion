@@ -23,6 +23,7 @@ export const makeAssetDragData = (assetPath: string): AssetDragData => {
 export const parseAssetDragData = (value: string): AssetDragData | null => {
 	try {
 		const parsed = z.safeParse(assetDragDataSchema, JSON.parse(value));
+
 		return parsed.success ? makeAssetDragData(parsed.data.assetPath) : null;
 	} catch {
 		return null;
