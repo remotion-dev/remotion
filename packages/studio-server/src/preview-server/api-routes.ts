@@ -8,7 +8,6 @@ import {addFolderHandler} from './routes/add-folder';
 import {addKeyframesHandler} from './routes/add-keyframes';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
-import {appInfoHandler} from './routes/app-info';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe-settings';
 import {handleCancelRender} from './routes/cancel-render';
@@ -78,6 +77,7 @@ import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-exist
 import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-props';
 import {unwrapFolderHandler} from './routes/unwrap-folder';
 import {unwrapNodeHandler} from './routes/unwrap-node';
+import {updateAppHistoryHandler} from './routes/update-app-history';
 import {handleUpdate} from './routes/update-available';
 import {updateCompositionMetadataHandler} from './routes/update-composition-metadata';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
@@ -172,7 +172,7 @@ export const allApiRoutes: {
 	'/api/upgrade-remotion': handleUpgradeRemotion,
 	'/api/shutdown-studio': handleShutdownStudio,
 	'/api/restart-studio': handleRestartStudio,
-	'/api/app-info': appInfoHandler,
+	'/api/update-app-history': updateAppHistoryHandler,
 	'/api/insert-composition-element': insertCompositionElementHandler,
 	'/api/insert-element': insertElementHandler,
 	'/api/prepare-element-install': prepareElementInstallHandler,

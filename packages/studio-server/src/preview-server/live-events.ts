@@ -4,7 +4,10 @@ import type {
 	ServerResponse,
 } from 'node:http';
 import type {LogLevel} from '@remotion/renderer';
-import type {EventSourceEvent} from '@remotion/studio-shared';
+import type {
+	EventSourceEvent,
+	GetAppInfoResponse,
+} from '@remotion/studio-shared';
 import {printServerReadyComment} from '../server-ready';
 import {unsubscribeClientDefaultPropsWatchers} from './default-props-watchers';
 import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
@@ -54,14 +57,76 @@ export type InitialUndoRedoState = {
 export const makeLiveEventsRouter = (
 	logLevel: LogLevel,
 	getInitialUndoRedoState: () => InitialUndoRedoState,
+	getAppInfo: () => Promise<GetAppInfoResponse>,
 ): LiveEventsServer => {
 	let clients: Client[] = [];
 	let newClientListeners: (() => void)[] = [];
+	let latestAppInfoMessage: string | null = null;
+	let appInfoTimeout: Timer | null = null;
+	let refreshingAppInfo = false;
+	let appInfoRefreshRequested = false;
+	let closed = false;
+
+	const refreshAppInfo = () => {
+		if (closed || clients.length === 0) {
+			return;
+		}
+
+		if (refreshingAppInfo) {
+			appInfoRefreshRequested = true;
+			return;
+		}
+
+		refreshingAppInfo = true;
+		appInfoRefreshRequested = false;
+		if (appInfoTimeout !== null) {
+			clearTimeout(appInfoTimeout);
+			appInfoTimeout = null;
+		}
+
+		getAppInfo()
+			.then((appInfo): EventSourceEvent => ({type: 'app-info', appInfo}))
+			.catch(
+				(err): EventSourceEvent => ({
+					type: 'app-info-error',
+					error: (err as Error).message,
+				}),
+			)
+			.then((event) => {
+				if (closed || clients.length === 0) {
+					return;
+				}
+
+				const message = serializeMessage(event);
+				if (latestAppInfoMessage === message) {
+					return;
+				}
+
+				latestAppInfoMessage = message;
+				clients.forEach((client) => client.response.write(message));
+			})
+			.finally(() => {
+				refreshingAppInfo = false;
+				if (appInfoRefreshRequested) {
+					refreshAppInfo();
+				} else if (!closed && clients.length > 0) {
+					// Process changes have no portable Node.js notification API. Share
+					// one scan across all clients and only push changed snapshots.
+					appInfoTimeout = setTimeout(refreshAppInfo, 5000);
+				}
+			});
+	};
 
 	const router = (
 		request: IncomingMessage,
 		response: ServerResponse,
 	): Promise<void> => {
+		if (closed) {
+			response.writeHead(503);
+			response.end();
+			return Promise.resolve();
+		}
+
 		const headers: OutgoingHttpHeaders = {
 			'content-type': 'text/event-stream;charset=utf-8',
 			connection: 'keep-alive',
@@ -86,6 +151,11 @@ export const makeLiveEventsRouter = (
 			response,
 		};
 		clients.push(newClient);
+		if (latestAppInfoMessage !== null) {
+			response.write(latestAppInfoMessage);
+		}
+
+		refreshAppInfo();
 		newClientListeners.forEach((cb) => cb());
 		clearPrintPortMessageTimeout();
 
@@ -97,6 +167,12 @@ export const makeLiveEventsRouter = (
 
 			// If all clients disconnected, print a comment so user can easily restart it.
 			if (clients.length === 0) {
+				if (appInfoTimeout !== null) {
+					clearTimeout(appInfoTimeout);
+					appInfoTimeout = null;
+				}
+
+				latestAppInfoMessage = null;
 				clearPrintPortMessageTimeout();
 
 				printPortMessageTimeout = setTimeout(() => {
@@ -110,6 +186,7 @@ export const makeLiveEventsRouter = (
 
 	const sendEventToClient = (event: EventSourceEvent) => {
 		if (event.type === 'config-file-changed') {
+			refreshAppInfo();
 			configChangeListeners.forEach((listener) => listener());
 		}
 
@@ -141,6 +218,16 @@ export const makeLiveEventsRouter = (
 		router,
 		addNewClientListener,
 		closeConnections: () => {
+			if (closed) {
+				return Promise.resolve();
+			}
+
+			closed = true;
+			if (appInfoTimeout !== null) {
+				clearTimeout(appInfoTimeout);
+				appInfoTimeout = null;
+			}
+
 			return Promise.all(
 				clients.map((client) => {
 					return new Promise<void>((resolve) => {

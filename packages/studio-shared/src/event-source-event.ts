@@ -6,6 +6,7 @@ import type {
 import type {
 	CanUpdateDefaultPropsResponse,
 	ElementInstallRequest,
+	GetAppInfoResponse,
 } from './api-requests';
 import type {ConfigFileChangeType} from './config-file-change';
 import type {HotMiddlewareMessage} from './hot-middleware';
@@ -24,6 +25,14 @@ export type EventSourceEvent =
 			clientId: string;
 			undoFile: string | null;
 			redoFile: string | null;
+	  }
+	| {
+			type: 'app-info';
+			appInfo: GetAppInfoResponse;
+	  }
+	| {
+			type: 'app-info-error';
+			error: string;
 	  }
 	| {
 			type: 'new-env-variables';

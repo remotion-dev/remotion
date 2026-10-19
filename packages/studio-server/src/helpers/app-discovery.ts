@@ -1,11 +1,16 @@
-import type {DefaultEditor} from '@remotion/renderer';
-import type {GetDefaultEditorInfoResponse} from '@remotion/studio-shared';
+import type {DefaultCodingAgent, DefaultEditor} from '@remotion/renderer';
+import type {
+	GetAppInfoResponse,
+	GetDefaultEditorInfoResponse,
+} from '@remotion/studio-shared';
 import {
 	getAvailableCodingAgents,
 	getRunningCodingAgents,
 } from './coding-agent-registry';
 import {resolveCustomEditorExecutable} from './custom-editor';
 import {getAvailableEditors, getRunningEditors} from './editor-registry';
+import {getAvailableGitClients} from './git-client-registry';
+import {getAvailableTerminals} from './terminal-registry';
 
 let appDiscovery: ReturnType<typeof discoverApps> | null = null;
 
@@ -27,9 +32,11 @@ const discoverApps = async () => {
 };
 
 // The terminal helper and Studio requests share the same in-flight discovery
-// and process snapshot. Configuration and app history are read separately.
+// and process snapshot. Only share in-flight discovery so running apps stay current.
 export const getAppDiscovery = () => {
-	appDiscovery ??= discoverApps();
+	appDiscovery ??= discoverApps().finally(() => {
+		appDiscovery = null;
+	});
 	return appDiscovery;
 };
 
@@ -65,5 +72,36 @@ export const getEditorInfo = async (
 					]
 				: []),
 		],
+	};
+};
+
+export const getAppInfo = async ({
+	defaultEditor,
+	defaultCodingAgent,
+}: {
+	defaultEditor: DefaultEditor | null;
+	defaultCodingAgent: DefaultCodingAgent | null;
+}): Promise<GetAppInfoResponse> => {
+	const [editorInfo, discovery, installedTerminals, installedGitClients] =
+		await Promise.all([
+			getEditorInfo(defaultEditor),
+			getAppDiscovery(),
+			getAvailableTerminals(),
+			getAvailableGitClients(),
+		]);
+	return {
+		editorInfo,
+		codingAgentInfo: {
+			defaultCodingAgent,
+			runningCodingAgents: discovery.runningCodingAgents,
+			installedCodingAgents: discovery.installedCodingAgents.map(
+				({id, name, nameWithType}) => ({id, name, nameWithType}),
+			),
+			installedTerminals: installedTerminals.map(({id, name}) => ({id, name})),
+			installedGitClients: installedGitClients.map(({id, name}) => ({
+				id,
+				name,
+			})),
+		},
 	};
 };

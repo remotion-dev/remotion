@@ -45,36 +45,47 @@ test.describe('error overlay dismissal', () => {
 		const errorMessage = page.getByText('"radius" must be a finite number');
 		const openInEditorRequests: unknown[] = [];
 		const openInCodingAgentRequests: unknown[] = [];
-		await page.route('**/api/app-info', async (route) => {
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						editorInfo: {
-							defaultEditor: 'zed',
-							runningEditors: [],
-							installedEditors: [
-								{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
-								{id: 'vscode', name: 'Code', nameWithType: 'VS Code'},
-							],
-						},
-						codingAgentInfo: {
-							defaultCodingAgent: 'codex',
-							runningCodingAgents: [],
-							installedCodingAgents: [
-								{id: 'codex', name: 'ChatGPT', nameWithType: 'ChatGPT'},
-								{
-									id: 'claude-code',
-									name: 'Claude',
-									nameWithType: 'Claude Code',
+		await page.addInitScript(() => {
+			window.EventSource = class extends window.EventSource {
+				constructor(url: string | URL) {
+					super(url);
+					this.addEventListener('message', (event) => {
+						if (JSON.parse(event.data).type !== 'app-info') {
+							return;
+						}
+
+						Object.defineProperty(event, 'data', {
+							value: JSON.stringify({
+								type: 'app-info',
+								appInfo: {
+									editorInfo: {
+										defaultEditor: 'zed',
+										runningEditors: [],
+										installedEditors: [
+											{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+											{id: 'vscode', name: 'Code', nameWithType: 'VS Code'},
+										],
+									},
+									codingAgentInfo: {
+										defaultCodingAgent: 'codex',
+										runningCodingAgents: [],
+										installedCodingAgents: [
+											{id: 'codex', name: 'ChatGPT', nameWithType: 'ChatGPT'},
+											{
+												id: 'claude-code',
+												name: 'Claude',
+												nameWithType: 'Claude Code',
+											},
+										],
+										installedGitClients: [],
+										installedTerminals: [],
+									},
 								},
-							],
-							installedGitClients: [],
-							installedTerminals: [],
-						},
-					},
-				},
-			});
+							}),
+						});
+					});
+				}
+			};
 		});
 		await page.route('**/api/open-in-coding-agent', async (route) => {
 			openInCodingAgentRequests.push(route.request().postDataJSON());

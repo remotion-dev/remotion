@@ -44,7 +44,7 @@ const createAppHistory = <Id extends string>(
 		window.dispatchEvent(new Event(appSelectedEvent));
 	};
 
-	return {getRecentlyUsed, remember};
+	return {getRecentlyUsed, remember, storageKey: key};
 };
 
 export const codingAgentHistory = createAppHistory<DefaultCodingAgent>(

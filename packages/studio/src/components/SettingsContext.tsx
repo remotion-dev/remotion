@@ -15,6 +15,7 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {subscribeToPreviewServerEvents} from '../helpers/preview-server-events';
 import {
 	appSelectedEvent,
 	codingAgentHistory,
@@ -111,72 +112,106 @@ export const SettingsProvider: React.FC<{
 	}, [previewServerState.type]);
 
 	useEffect(() => {
-		if (
-			previewServerState.type !== 'connected' ||
-			getBrowserStudioOperations() !== null
-		) {
+		return subscribeToPreviewServerEvents((event) => {
+			if (event.type === 'app-info-error') {
+				setSettings((currentSettings) => ({
+					...currentSettings,
+					error: event.error,
+				}));
+				return;
+			}
+
+			if (event.type !== 'app-info') {
+				return;
+			}
+
+			const {codingAgentInfo, editorInfo} = event.appInfo;
+			const runtimeConfig = window.remotion_studioConfig;
+			setSettings((currentSettings) => ({
+				...currentSettings,
+				codingAgentInfo: {
+					...codingAgentInfo,
+					defaultCodingAgent: runtimeConfig
+						? runtimeConfig.defaultCodingAgent
+						: codingAgentInfo.defaultCodingAgent,
+				},
+				editorInfo: {
+					...editorInfo,
+					defaultEditor: runtimeConfig
+						? runtimeConfig.defaultEditor
+						: editorInfo.defaultEditor,
+				},
+				error: null,
+			}));
+		});
+	}, []);
+
+	const connectedClientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
+	useEffect(() => {
+		if (connectedClientId === null || getBrowserStudioOperations() !== null) {
 			return;
 		}
 
-		let controller: AbortController | null = null;
-		const refreshApps = () => {
-			controller?.abort();
-			const requestController = new AbortController();
-			controller = requestController;
-			callApi(
-				'/api/app-info',
-				{
-					editor: {recentlyUsedIds: editorHistory.getRecentlyUsed()},
-					codingAgent: {recentlyUsedIds: codingAgentHistory.getRecentlyUsed()},
-				},
-				requestController.signal,
-			)
-				.then(({codingAgentInfo, editorInfo}) => {
-					if (requestController.signal.aborted) {
+		let active = true;
+		let previousHistory: string | null = null;
+		let pendingUpdate = Promise.resolve();
+		const syncHistory = () => {
+			const input = {
+				editor: {recentlyUsedIds: editorHistory.getRecentlyUsed()},
+				codingAgent: {recentlyUsedIds: codingAgentHistory.getRecentlyUsed()},
+			};
+			const history = JSON.stringify(input);
+			if (previousHistory === history) {
+				return;
+			}
+
+			previousHistory = history;
+			// Preferred apps depend on local history. Notify consumers without
+			// changing the config revision and resetting unsaved settings.
+			setSettings((currentSettings) => ({...currentSettings}));
+			pendingUpdate = pendingUpdate
+				.then(async () => {
+					if (!active) {
 						return;
 					}
 
-					const runtimeConfig = window.remotion_studioConfig;
-					setSettings((currentSettings) => ({
-						...currentSettings,
-						codingAgentInfo: {
-							...codingAgentInfo,
-							defaultCodingAgent: runtimeConfig
-								? runtimeConfig.defaultCodingAgent
-								: codingAgentInfo.defaultCodingAgent,
-						},
-						editorInfo: {
-							...editorInfo,
-							defaultEditor: runtimeConfig
-								? runtimeConfig.defaultEditor
-								: editorInfo.defaultEditor,
-						},
-					}));
+					await callApi('/api/update-app-history', input);
 				})
 				.catch((err) => {
-					if (requestController.signal.aborted) {
-						return;
+					previousHistory = null;
+					if (active) {
+						setSettings((currentSettings) => ({
+							...currentSettings,
+							error: (err as Error).message,
+						}));
 					}
-
-					setSettings((currentSettings) => ({
-						...currentSettings,
-						error: (err as Error).message,
-					}));
 				});
 		};
 
-		refreshApps();
-		window.addEventListener('focus', refreshApps);
-		window.addEventListener(appSelectedEvent, refreshApps);
-		window.addEventListener('storage', refreshApps);
+		const onStorage = (event: StorageEvent) => {
+			if (
+				event.storageArea === window.localStorage &&
+				(event.key === null ||
+					event.key === editorHistory.storageKey ||
+					event.key === codingAgentHistory.storageKey)
+			) {
+				syncHistory();
+			}
+		};
+
+		syncHistory();
+		window.addEventListener(appSelectedEvent, syncHistory);
+		window.addEventListener('storage', onStorage);
 
 		return () => {
-			controller?.abort();
-			window.removeEventListener('focus', refreshApps);
-			window.removeEventListener(appSelectedEvent, refreshApps);
-			window.removeEventListener('storage', refreshApps);
+			active = false;
+			window.removeEventListener(appSelectedEvent, syncHistory);
+			window.removeEventListener('storage', onStorage);
 		};
-	}, [previewServerState.type]);
+	}, [connectedClientId]);
 
 	useEffect(() => {
 		return subscribeToEvent('config-file-changed', (event) => {

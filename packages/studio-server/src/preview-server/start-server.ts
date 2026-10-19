@@ -23,6 +23,7 @@ import type {
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {detectRemotionServer} from '../detect-remotion-server';
+import {getAppInfo} from '../helpers/app-discovery';
 import {handleRoutes} from '../routes';
 import type {QueueMethods} from './api-types';
 import {wdm} from './dev-middleware';
@@ -262,20 +263,28 @@ export const startServer = async (options: {
 			});
 		};
 
-		const liveEventsServer = makeLiveEventsRouter(options.logLevel, () => {
-			const undoStack = getUndoStack();
-			const redoStack = getRedoStack();
-			return {
-				undoFile:
-					undoStack.length > 0
-						? undoStack[undoStack.length - 1].filePath
-						: null,
-				redoFile:
-					redoStack.length > 0
-						? redoStack[redoStack.length - 1].filePath
-						: null,
-			};
-		});
+		const liveEventsServer = makeLiveEventsRouter(
+			options.logLevel,
+			() => {
+				const undoStack = getUndoStack();
+				const redoStack = getRedoStack();
+				return {
+					undoFile:
+						undoStack.length > 0
+							? undoStack[undoStack.length - 1].filePath
+							: null,
+					redoFile:
+						redoStack.length > 0
+							? redoStack[redoStack.length - 1].filePath
+							: null,
+				};
+			},
+			() =>
+				getAppInfo({
+					defaultEditor: options.getDefaultEditor(),
+					defaultCodingAgent: options.getDefaultCodingAgent(),
+				}),
+		);
 		setupWebpackHmr(compiler, options.logLevel, liveEventsServer);
 		compiler.hooks.done.tap('remotion-node-path-cache', () => {
 			clearNodePathCache();
@@ -353,6 +362,7 @@ export const startServer = async (options: {
 			port: selectedPort,
 			liveEventsServer,
 			close: async () => {
+				await liveEventsServer.closeConnections();
 				server.closeAllConnections();
 				await Promise.all([
 					new Promise<void>((resolve) => {

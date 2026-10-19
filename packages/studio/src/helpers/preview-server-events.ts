@@ -28,6 +28,10 @@ let unsubscribeFromBrowserStudio: (() => void) | null = null;
 let browserStudioReadyListenerInstalled = false;
 let connectionState: PreviewServerConnectionState = {type: 'init'};
 let lastInitEvent: Extract<EventSourceEvent, {type: 'init'}> | null = null;
+let lastAppInfoEvent: Extract<
+	EventSourceEvent,
+	{type: 'app-info' | 'app-info-error'}
+> | null = null;
 let pendingHmrEvent: Extract<EventSourceEvent, {type: 'hmr'}> | null = null;
 const messageListeners = new Set<MessageListener>();
 const connectionStateListeners = new Set<ConnectionStateListener>();
@@ -44,12 +48,17 @@ const dispatch = (event: EventSourceEvent) => {
 	}
 
 	if (event.type === 'init') {
+		lastAppInfoEvent = null;
 		lastInitEvent = event;
 		connectionState = {
 			type: 'connected',
 			clientId: event.clientId,
 		};
 		notifyConnectionState();
+	}
+
+	if (event.type === 'app-info' || event.type === 'app-info-error') {
+		lastAppInfoEvent = event;
 	}
 
 	if (event.type === 'hmr' && messageListeners.size === 0) {
@@ -151,6 +160,10 @@ export const subscribeToPreviewServerEvents = (
 
 	if (lastInitEvent && connectionState.type === 'connected') {
 		listener(lastInitEvent);
+	}
+
+	if (lastAppInfoEvent && connectionState.type === 'connected') {
+		listener(lastAppInfoEvent);
 	}
 
 	if (pendingHmrEvent) {

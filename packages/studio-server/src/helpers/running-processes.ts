@@ -129,7 +129,7 @@ export const getRunningProcesses = (): Promise<
 	};
 	processSnapshot = snapshot;
 	// Share the in-flight query and its result across nearby editor and agent
-	// requests, but refresh it when Studio is revisited later.
+	// requests, but allow the server to detect later process changes.
 	snapshot.promise.then(() => {
 		snapshot.expiresAt = Date.now() + 1000;
 	});

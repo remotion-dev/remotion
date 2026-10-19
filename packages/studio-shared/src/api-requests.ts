@@ -1477,7 +1477,7 @@ export type GetDefaultCodingAgentInfoResponse = {
 	}[];
 };
 
-export type GetAppInfoRequest = {
+export type UpdateAppHistoryRequest = {
 	editor: GetDefaultEditorInfoRequest;
 	codingAgent: GetDefaultCodingAgentInfoRequest;
 };
@@ -1572,7 +1572,10 @@ export const studioOperations = {
 		OpenInCodingAgentRequest,
 		OpenInCodingAgentResponse
 	>({mutatesSource: false}),
-	'/api/app-info': new StudioOperation<GetAppInfoRequest, GetAppInfoResponse>({
+	'/api/update-app-history': new StudioOperation<
+		UpdateAppHistoryRequest,
+		undefined
+	>({
 		mutatesSource: false,
 	}),
 	'/api/find-in-file': new StudioOperation<
