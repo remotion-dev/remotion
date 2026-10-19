@@ -82,6 +82,7 @@ export const usePlayback = ({
 
 	const lastTimeUpdateTimestamp = useRef<number>(0);
 	const playbackClockRef = useRef<PlaybackClock | null>(null);
+	const previousMutedRef = useRef(muted);
 
 	useBrowserMediaSession({
 		browserMediaControlsBehavior,
@@ -168,6 +169,9 @@ export const usePlayback = ({
 	]);
 
 	useEffect(() => {
+		const wasMuted = previousMutedRef.current;
+		previousMutedRef.current = muted;
+
 		if (!config) {
 			return;
 		}
@@ -206,13 +210,15 @@ export const usePlayback = ({
 			// here. Re-anchor from the current frame instead, and tell the audio
 			// iterators so they drop the nodes they queued against the old
 			// anchor and reschedule.
+			// A config-only re-run keeps the same playback clock. In that case,
+			// respect the drift tolerance instead of forcing a frame-quantized shift.
 			const changed = setGlobalTimeAnchor({
 				audioContext: sharedAudioContext.audioContext,
 				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
 				absoluteTimeInSeconds: getCurrentFrame() / config.fps,
 				globalPlaybackRate: playbackRate,
 				logLevel,
-				force: true,
+				force: clock !== previousClock || wasMuted,
 			});
 			if (changed) {
 				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');

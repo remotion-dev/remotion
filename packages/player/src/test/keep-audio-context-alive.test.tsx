@@ -1,6 +1,6 @@
-import {afterEach, expect, test} from 'bun:test';
-import {createRef} from 'react';
-import {Html5Audio, Internals, useBufferState} from 'remotion';
+import {afterEach, expect, spyOn, test} from 'bun:test';
+import {type ContextType, createRef, useContext, useEffect} from 'react';
+import {Html5Audio, Internals, useBufferState, useCurrentFrame} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
 import {act, cleanup, render} from './test-utils.js';
@@ -221,4 +221,193 @@ test('_experimentalKeepAudioContextAlive resumes immediately after buffering', a
 	});
 
 	expect(gainValuesDuringBufferResume).toContain(1);
+});
+
+const renderClockedPlayer = () => {
+	let now = 0;
+	let nextRaf = 0;
+	const rafs = new Map<number, FrameRequestCallback>();
+	const anchors: number[] = [];
+	let audio: ContextType<typeof Internals.SharedAudioContext> = null;
+	let buffer: (() => {unblock: () => void}) | null = null;
+	const originalAudioContext = globalThis.AudioContext;
+	globalThis.AudioContext =
+		TrackedAudioContext as unknown as typeof AudioContext;
+	const clock = spyOn(performance, 'now').mockImplementation(() => now);
+	const raf = spyOn(globalThis, 'requestAnimationFrame').mockImplementation(
+		(callback) => {
+			const id = ++nextRaf;
+			rafs.set(id, callback);
+			return id;
+		},
+	);
+	const cancel = spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(
+		(id) => rafs.delete(id),
+	);
+	const Composition = () => {
+		const shared = useContext(Internals.SharedAudioContext);
+		const frame = useCurrentFrame();
+		buffer = useBufferState().delayPlayback;
+		audio = shared;
+		useEffect(() => {
+			const subscription = shared?.audioSyncAnchorEmitter.subscribe(() => {
+				anchors.push(shared.audioSyncAnchor.value);
+			});
+			return () => subscription?.remove();
+		}, [shared]);
+
+		return <output>Frame {frame}</output>;
+	};
+
+	const player = createRef<PlayerRef>();
+	const props = {
+		component: Composition,
+		durationInFrames: 1000,
+		compositionWidth: 320,
+		compositionHeight: 180,
+		fps: 30,
+		playbackRate: 1,
+		numberOfSharedAudioTags: 0,
+		_experimentalKeepAudioContextAlive: true,
+	};
+	const view = render(<Player ref={player} {...props} />);
+	const setTime = (time: number) => {
+		now = time;
+		// In keep-alive mode the native audio clock advances even while paused.
+		(audio!.audioContext as unknown as TrackedAudioContext).currentTime =
+			time / 1000;
+	};
+
+	return {
+		player,
+		view,
+		anchors,
+		setTime,
+		tick: (time: number) => {
+			setTime(time);
+			const pending = [...rafs.values()];
+			rafs.clear();
+			pending.forEach((callback) => callback(time));
+		},
+		changeConfig: (changes: Partial<typeof props>) => {
+			Object.assign(props, changes);
+			view.rerender(<Player ref={player} {...props} />);
+		},
+		startBuffering: () => buffer!(),
+		anchor: () => audio!.audioSyncAnchor.value,
+		dispose: () => {
+			cleanup();
+			clock.mockRestore();
+			raf.mockRestore();
+			cancel.mockRestore();
+			globalThis.AudioContext = originalAudioContext;
+		},
+	};
+};
+
+test('Keep-alive audio preserves its anchor across duration-only updates', () => {
+	const harness = renderClockedPlayer();
+	try {
+		act(() => harness.player.current!.play());
+		act(() => harness.tick(50));
+		expect(harness.view.getByText('Frame 1')).toBeTruthy();
+		const anchor = harness.anchor();
+		harness.anchors.length = 0;
+
+		act(() => {
+			harness.tick(51);
+			harness.changeConfig({durationInFrames: 1001});
+		});
+		expect(harness.anchor()).toBe(anchor);
+		expect(harness.anchors).toEqual([]);
+
+		act(() => harness.tick(100));
+		expect(harness.view.getByText('Frame 3')).toBeTruthy();
+		act(() => {
+			harness.tick(117);
+			harness.changeConfig({durationInFrames: 1002});
+		});
+		expect(harness.anchors).toEqual([]);
+		act(() => harness.tick(200));
+		expect(harness.view.getByText('Frame 6')).toBeTruthy();
+	} finally {
+		harness.dispose();
+	}
+});
+
+test.each(['pause', 'mute'] as const)(
+	'Keep-alive audio still re-anchors after a short %s',
+	(interruption) => {
+		const harness = renderClockedPlayer();
+		try {
+			act(() => harness.player.current!.play());
+			act(() => harness.tick(50));
+			act(() => {
+				if (interruption === 'pause') {
+					harness.player.current!.pause();
+				} else {
+					harness.player.current!.mute();
+				}
+			});
+			harness.anchors.length = 0;
+			// Less than the normal drift tolerance: a genuine restart must force
+			// an exact anchor even when a duration-only update must not.
+			harness.setTime(60);
+			act(() => {
+				if (interruption === 'pause') {
+					harness.player.current!.play();
+				} else {
+					harness.player.current!.unmute();
+				}
+			});
+			expect(harness.anchors).toHaveLength(1);
+			expect(harness.anchor()).toBeCloseTo(0.06 - 1 / 30, 8);
+		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+test.each([
+	{fps: 60, playbackRate: 1},
+	{fps: 30, playbackRate: 2},
+])('Keep-alive audio re-anchors when its clock changes: %j', (config) => {
+	const harness = renderClockedPlayer();
+	try {
+		act(() => harness.player.current!.play());
+		act(() => harness.tick(50));
+		harness.anchors.length = 0;
+		harness.setTime(51);
+		act(() => harness.changeConfig(config));
+		expect(harness.anchors).toHaveLength(1);
+		expect(harness.anchor()).toBeCloseTo(
+			0.051 - 1 / config.fps / config.playbackRate,
+			8,
+		);
+	} finally {
+		harness.dispose();
+	}
+});
+
+test('Keep-alive audio still corrects drift after buffering', () => {
+	const harness = renderClockedPlayer();
+	try {
+		act(() => harness.player.current!.play());
+		act(() => harness.tick(50));
+		let unblock = () => {};
+		act(() => {
+			unblock = harness.startBuffering().unblock;
+		});
+		act(() => harness.tick(60));
+		harness.anchors.length = 0;
+		act(() => harness.tick(660));
+		expect(harness.view.getByText('Frame 1')).toBeTruthy();
+		act(() => unblock());
+		act(() => harness.tick(700));
+		expect(harness.view.getByText('Frame 2')).toBeTruthy();
+		expect(harness.anchors).toHaveLength(1);
+		expect(harness.anchor()).toBeCloseTo(0.7 - 2 / 30, 8);
+	} finally {
+		harness.dispose();
+	}
 });
