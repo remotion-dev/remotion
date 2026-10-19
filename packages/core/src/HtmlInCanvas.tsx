@@ -522,11 +522,15 @@ const HtmlInCanvasContent = forwardRef<
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
 			onPaint === undefined && onInit === undefined;
-		const paintTargetMode = usesDirectLayoutCanvas
-			? 'direct'
-			: isRendering
-				? 'copied'
-				: 'transferred';
+		// Keep a nested drawable canvas separate from the bitmap captured by its
+		// parent. Reusing it for both can crash Chromium during raster invalidation.
+		const paintTargetMode = ancestorPaintState
+			? 'copied'
+			: usesDirectLayoutCanvas
+				? 'direct'
+				: isRendering
+					? 'copied'
+					: 'transferred';
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
@@ -853,10 +857,11 @@ const HtmlInCanvasContent = forwardRef<
 			};
 		}, [paintState]);
 
-		// Default paint handlers draw synchronously on the layout canvas itself.
-		// ElementImage can only be drawn into its associated canvas, so custom
-		// handlers retain a transferred target. Rendering copies it to a separate
-		// visible canvas without waiting for the transferred canvas to present.
+		// Non-nested default handlers paint directly on the layout canvas. Nested
+		// canvases and custom handlers retain a transferred target because an
+		// ElementImage can only be drawn into its associated canvas. Nested canvases
+		// and rendering copy it to a separate visible canvas without waiting for
+		// the transferred canvas to present.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
