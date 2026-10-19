@@ -53,11 +53,47 @@ export const createElementSourceProxy = <
 							columnNumber: source.columnNumber - 1,
 						});
 					} else {
-						const lines = new Error().stack?.split('\n');
+						// Avoid collecting the full Studio error stack just to discard it.
+						// Restore the limit before formatting, which can invoke user code.
+						const {stackTraceLimit} = Error;
+						const canLimitStack =
+							typeof stackTraceLimit === 'number' &&
+							stackTraceLimit > 2 &&
+							Object.getOwnPropertyDescriptor(Error, 'stackTraceLimit')
+								?.writable;
+						let capturedError: Error;
+						try {
+							if (canLimitStack) {
+								Error.stackTraceLimit = 2;
+							}
+
+							capturedError = new Error();
+						} finally {
+							if (canLimitStack) {
+								Error.stackTraceLimit = stackTraceLimit;
+							}
+						}
+
+						const capturedStack = capturedError.stack;
 						// Keep the proxy and JSX call site, including its generated URL for
 						// Fast Refresh. Later React scheduler frames vary between renders.
 						// V8 adds an Error header; Firefox and Safari start with a frame.
-						stack = lines?.slice(0, lines[0] === 'Error' ? 3 : 2).join('\n');
+						if (capturedStack) {
+							const firstFrameEnd = capturedStack.indexOf(
+								'\n',
+								capturedStack.startsWith('Error\n') ? 6 : 0,
+							);
+							const callerEnd =
+								firstFrameEnd === -1
+									? -1
+									: capturedStack.indexOf('\n', firstFrameEnd + 1);
+							stack =
+								callerEnd === -1
+									? capturedStack
+									: capturedStack.slice(0, callerEnd);
+						} else {
+							stack = capturedStack;
+						}
 					}
 				}
 
