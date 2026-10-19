@@ -2926,6 +2926,15 @@ export const articles = [
 		slug: 'contributing/docs',
 	},
 	{
+		id: 'contributing/elements',
+		title: 'Contributing an Element',
+		relativePath: 'docs/contributing/elements.mdx',
+		compId: 'articles-docs-contributing-elements',
+		crumb: 'Contributing',
+		noAi: false,
+		slug: 'contributing/elements',
+	},
+	{
 		id: 'contributing/feature',
 		title: 'Implementing a new feature',
 		relativePath: 'docs/contributing/feature.mdx',
