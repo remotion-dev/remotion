@@ -77,7 +77,38 @@ export const getExpectedOutName = <Provider extends CloudProvider>({
 			separateAudioTo: separateAudioFilename?.toLowerCase() ?? null,
 			bucketNamePrefix,
 		});
-		return customOutName(renderMetadata.renderId, bucketName, outNameValue);
+
+		const defaultKey = (() => {
+			if (output === 'separate-audio') {
+				return null;
+			}
+
+			if (renderMetadata.type === 'still') {
+				return outStillName(
+					renderMetadata.renderId,
+					renderMetadata.imageFormat,
+				);
+			}
+
+			if (renderMetadata.type === 'video') {
+				return outName(
+					renderMetadata.renderId,
+					NoReactAPIs.getFileExtensionFromCodec(
+						renderMetadata.codec as Codec,
+						separateAudioFilename === null ? renderMetadata.audioCodec : null,
+					),
+				);
+			}
+
+			return null;
+		})();
+
+		return customOutName(
+			renderMetadata.renderId,
+			bucketName,
+			outNameValue,
+			defaultKey ?? undefined,
+		);
 	}
 
 	if (output === 'separate-audio') {

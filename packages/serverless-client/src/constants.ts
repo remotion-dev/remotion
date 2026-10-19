@@ -59,7 +59,7 @@ export type OutNameInput<Provider extends CloudProvider> =
 	| string
 	| {
 			bucketName: string;
-			key: string;
+			key?: string;
 			s3OutputProvider?: CustomCredentials<Provider>;
 	  };
 
@@ -373,7 +373,7 @@ export type OutNameInputWithoutCredentials =
 	| string
 	| {
 			bucketName: string;
-			key: string;
+			key?: string;
 			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
 	  };
 
@@ -389,6 +389,7 @@ export const customOutName = <Provider extends CloudProvider>(
 	renderId: string,
 	bucketName: string,
 	name: OutNameInput<Provider>,
+	defaultKey?: string,
 ): OutNameOutput<Provider> => {
 	if (typeof name === 'string') {
 		return {
@@ -398,8 +399,15 @@ export const customOutName = <Provider extends CloudProvider>(
 		};
 	}
 
+	const resolvedKey = name.key ?? defaultKey;
+	if (typeof resolvedKey !== 'string') {
+		throw new TypeError(
+			'The S3 key must be specified or a default key must be available.',
+		);
+	}
+
 	return {
-		key: name.key,
+		key: resolvedKey,
 		renderBucketName: name.bucketName,
 		customCredentials: name.s3OutputProvider ?? null,
 	};

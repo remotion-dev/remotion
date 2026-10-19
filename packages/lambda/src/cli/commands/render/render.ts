@@ -416,7 +416,7 @@ export const renderCommand = async ({
 						typeof resolvedOutName === 'object' && resolvedOutName !== null
 							? {
 									bucketName: resolvedOutName.bucketName,
-									keyPrefix: resolvedOutName.key,
+									keyPrefix: resolvedOutName.key ?? '',
 									s3OutputProvider: resolvedOutName.s3OutputProvider,
 								}
 							: resolvedOutName,
