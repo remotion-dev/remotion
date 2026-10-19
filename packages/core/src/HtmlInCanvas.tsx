@@ -979,19 +979,19 @@ const HtmlInCanvasContent = forwardRef<
 							: canvasStyle
 					}
 				>
-					<div
-						ref={divRef}
-						style={
-							paintTargetMode === 'copied'
-								? {...innerStyle, visibility: 'visible'}
-								: innerStyle
-						}
-					>
-						<DefaultPremountContext.Provider value={0}>
+					<DefaultPremountContext.Provider value={0}>
+						<div
+							ref={divRef}
+							style={
+								paintTargetMode === 'copied'
+									? {...innerStyle, visibility: 'visible'}
+									: innerStyle
+							}
+						>
 							{children}
-						</DefaultPremountContext.Provider>
-					</div>
-					{canvasSiblings}
+						</div>
+						{canvasSiblings}
+					</DefaultPremountContext.Provider>
 				</canvas>
 				{paintTargetMode === 'copied' ? (
 					<canvas
