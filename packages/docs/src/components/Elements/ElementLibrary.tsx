@@ -1,4 +1,5 @@
 import Link from '@docusaurus/Link';
+import useBrokenLinks from '@docusaurus/useBrokenLinks';
 import {
 	isInsideStudio,
 	setStudioDragData,
@@ -278,6 +279,7 @@ export const ElementLibrary: React.FC<{
 	readonly category: ElementCategory | null;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
 }> = ({category, sourceCodeBySlug}) => {
+	const brokenLinks = useBrokenLinks();
 	const prefersReducedMotion = usePrefersReducedMotion();
 	const [isStudioEmbed, setIsStudioEmbed] = useState(false);
 	const [isCaptionPicker, setIsCaptionPicker] = useState(false);
@@ -403,6 +405,7 @@ export const ElementLibrary: React.FC<{
 				}
 
 				const categoryHeadingId = getElementCategoryHeadingId(section.category);
+				brokenLinks.collectAnchor(categoryHeadingId);
 
 				return (
 					<section
