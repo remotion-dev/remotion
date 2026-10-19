@@ -68,6 +68,22 @@ npm run preview
 
 Publish `build/client` to a static host. All Element pages are prerendered from the registry. See the [React Router prerendering guide](https://reactrouter.com/how-to/pre-rendering) for static hosting and fallback routing. Use HTTPS and allow embedding in Remotion Studio, as described in the library integration guide.
 
+## Markdown and agent discovery
+
+Each page declares its Markdown URL with a `<link rel="alternate" type="text/markdown">` tag. Agents can follow `/index.md` from the homepage to find every Element without guessing URLs or running JavaScript.
+
+Markdown uses the website's registry, installation payloads, and source files. New registry entries appear in the catalog and build automatically. Resource routes serve Markdown during development; builds write `.md` files to `build/client`. You don't need a production server or host integration.
+
+Serve `.md` files directly, preferably with `Content-Type: text/markdown; charset=utf-8`. The routes set development headers; your host sets production headers.
+
+### Optional content negotiation
+
+Static files cannot inspect `Accept` headers. To serve Markdown at HTML URLs when a client prefers `text/markdown`, configure your host or server to rewrite each page URL to its Markdown file.
+
+Keep HTML for browser requests. Respect quality values: an HTML preference or `text/markdown;q=0` must not select Markdown. Rewrite only existing pages on GET/HEAD, normalize trailing slashes, and leave assets and `.md` URLs unchanged. Set `Vary: Accept` on both responses and configure your CDN to cache them separately, or disable caching for these URLs.
+
+Direct `.md` links work without negotiation.
+
 ## License
 
 Remotion’s [license terms](https://www.remotion.dev/license) apply. Choose a license for the Elements you publish.

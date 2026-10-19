@@ -5,7 +5,12 @@ export default {
   ssr: false,
   prerender: [
     "/",
+    "/index.md",
     "/captions",
-    ...elements.map(({ slug }) => `/elements/${slug}`),
+    "/captions.md",
+    ...elements.flatMap(({ slug }) => [
+      `/elements/${slug}`,
+      `/elements/${slug}.md`,
+    ]),
   ],
 } satisfies Config;
