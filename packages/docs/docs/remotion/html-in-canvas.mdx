@@ -56,22 +56,6 @@ To avoid a [Chrome 157 crash involving premounted content](https://github.com/re
 
 You can opt in by passing [`premountFor`](/docs/sequence#premountfor) explicitly.
 
-```tsx twoslash title="Opt in to premounting a child"
-import {HtmlInCanvas, Sequence} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return (
-    <HtmlInCanvas width={1280} height={720}>
-      <Sequence from={60} durationInFrames={90} premountFor={15}>
-        <div>Hello</div>
-      </Sequence>
-    </HtmlInCanvas>
-  );
-};
-```
-
-This changes the default for children only. The `<HtmlInCanvas>` component itself continues to inherit the surrounding premount default and honors its own `premountFor` prop.
-
 ## Using WebGL and WebGPU during renders
 
 See [Using WebGL and WebGPU during renders](/docs/webgl).
