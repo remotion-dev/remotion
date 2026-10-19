@@ -1,8 +1,8 @@
-import type { LoaderFunctionArgs } from "react-router";
 import { catalog } from "../../lib/element-payload";
 import { getElementMarkdown } from "../../lib/markdown";
+import type { Route } from "./+types/element.md";
 
-export const loader = ({ params }: LoaderFunctionArgs) => {
+export const loader = ({ params }: Route.LoaderArgs) => {
   const entry = catalog.find(
     ({ definition }) => definition.slug === params.slug,
   );

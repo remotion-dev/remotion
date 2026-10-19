@@ -70,9 +70,11 @@ Publish `build/client` to a static host. All Element pages are prerendered from 
 
 ## Markdown and agent discovery
 
-Each page declares its Markdown URL with a `<link rel="alternate" type="text/markdown">` tag. Agents can follow `/index.md` from the homepage to find every Element without guessing URLs or running JavaScript.
+Pages with Markdown declare its URL with a `<link rel="alternate" type="text/markdown">` tag. Agents can follow `/index.md` from the homepage to find every Element without guessing URLs or running JavaScript.
 
-Markdown uses the website's registry, installation payloads, and source files. New registry entries appear in the catalog and build automatically. Resource routes serve Markdown during development; builds write `.md` files to `build/client`. You don't need a production server or host integration.
+Markdown is served by resource routes registered in `app/routes.ts`. HTML-only pages need no Markdown route.
+
+Markdown uses the website's Element registry, installation payloads, and source files. New Elements get both formats automatically. Builds write `.md` files to `build/client`; you don't need a production server or host integration.
 
 Serve `.md` files directly, preferably with `Content-Type: text/markdown; charset=utf-8`. The routes set development headers; your host sets production headers.
 

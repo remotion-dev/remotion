@@ -3,11 +3,8 @@ import { elements } from "./elements/registry";
 
 export default {
   ssr: false,
-  prerender: [
-    "/",
-    "/index.md",
-    "/captions",
-    "/captions.md",
+  prerender: ({ getStaticPaths }) => [
+    ...getStaticPaths(),
     ...elements.flatMap(({ slug }) => [
       `/elements/${slug}`,
       `/elements/${slug}.md`,
