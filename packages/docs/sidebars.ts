@@ -1186,6 +1186,7 @@ const sidebars: SidebarsConfig = {
 				'transitioning',
 				'motion-blur/index',
 				'html-in-canvas',
+				'html-in-canvas-bugs',
 				'shaders',
 				'effects',
 				'measuring',

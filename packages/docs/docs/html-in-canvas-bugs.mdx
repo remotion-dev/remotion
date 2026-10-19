@@ -1,0 +1,34 @@
+---
+image: /generated/articles-docs-html-in-canvas-bugs.png
+title: HTML-in-canvas Bugs
+crumb: 'Issue Tracker'
+sidebar_label: HTML-in-canvas Bugs
+---
+
+This page tracks browser bugs and limitations affecting [HTML-in-canvas](/docs/html-in-canvas) that our community has reported.
+
+## Browser reports
+
+| Issue                                                                                                                      | Product | Filed by     | Status |
+| -------------------------------------------------------------------------------------------------------------------------- | ------- | ------------ | ------ |
+| [HTML-in-canvas does not handle object-fit CSS property well](https://issues.chromium.org/issues/570832069)                | Chrome  | @JonnyBurger | Open   |
+| [Nested HTML-in-canvas renders differently based on window.devicePixelRatio](https://issues.chromium.org/issues/540532973) | Chrome  | @JonnyBurger | Fixed  |
+| [Relax restriction disallowing nested HTML-in-canvas](https://github.com/WICG/html-in-canvas/issues/120)                   | Chrome  | @JonnyBurger | Fixed  |
+
+The scaling issue was also reported in [WICG/html-in-canvas#149](https://github.com/WICG/html-in-canvas/issues/149). Nesting support is tracked in [Chromium issue 527969910](https://issues.chromium.org/issues/527969910).
+
+## Crash reports in the Remotion issue tracker
+
+These reports document native Chromium crashes encountered in Remotion. Their linked issues contain reproductions and workarounds.
+
+| Issue                                                                                                                             | Product | Filed by     | Status |
+| --------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------ | ------ |
+| [Chromium crashes when a WebGL context is lost after a canvas paint event](https://github.com/remotion-dev/remotion/issues/12293) | Chrome  | @JonnyBurger | Open   |
+| [Chrome 157 crashes while capturing nested HTML-in-canvas content](https://github.com/remotion-dev/remotion/issues/12369)         | Chrome  | @JonnyBurger | Open   |
+
+## See also
+
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)
+- [HTML-in-canvas for client-side rendering](/docs/client-side-rendering/html-in-canvas)
+- [WebCodecs Bugs](/docs/mediabunny/webcodecs-bugs)

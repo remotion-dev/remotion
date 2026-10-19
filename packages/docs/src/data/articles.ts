@@ -4555,6 +4555,15 @@ export const articles = [
 		slug: 'props-resolution',
 	},
 	{
+		id: 'html-in-canvas-bugs',
+		title: 'HTML-in-canvas Bugs',
+		relativePath: 'docs/html-in-canvas-bugs.mdx',
+		compId: 'articles-docs-html-in-canvas-bugs',
+		crumb: 'Issue Tracker',
+		noAi: false,
+		slug: 'html-in-canvas-bugs',
+	},
+	{
 		id: 'html-in-canvas',
 		title: 'HTML-in-canvas',
 		relativePath: 'docs/html-in-canvas-guide.mdx',
