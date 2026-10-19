@@ -1775,6 +1775,7 @@ const sidebars: SidebarsConfig = {
 				'contributing/web-renderer',
 				'contributing/presentation',
 				'contributing/sfx',
+				'contributing/elements',
 				'authoring-packages',
 			],
 		},

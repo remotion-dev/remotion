@@ -90,14 +90,22 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
+		routes.redirect('/elements/contributing', '/docs/contributing/elements', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/elements/contributing.md',
+			'/docs/contributing/elements.md',
+			{permanent: true},
+		),
 		routes.redirect(
 			'/elements/submit-an-element',
-			'/elements/contributing#submit-an-element',
+			'/docs/contributing/elements',
 			{permanent: true},
 		),
 		routes.redirect(
 			'/elements/submit-an-element.md',
-			'/elements/contributing.md#submit-an-element',
+			'/docs/contributing/elements.md',
 			{permanent: true},
 		),
 		routes.redirect(

@@ -29,8 +29,9 @@ const sidebars: SidebarsConfig = {
 			collapsed: false,
 			items: [
 				{
-					type: 'doc',
-					id: 'contributing',
+					type: 'link',
+					label: 'Contribute an Element',
+					href: '/docs/contributing/elements',
 					className: 'elements-sidebar-standalone-only',
 				},
 				{
