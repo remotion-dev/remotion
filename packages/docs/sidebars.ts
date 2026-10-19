@@ -1186,7 +1186,6 @@ const sidebars: SidebarsConfig = {
 				'transitioning',
 				'motion-blur/index',
 				'html-in-canvas',
-				'html-in-canvas-bugs',
 				'shaders',
 				'effects',
 				'measuring',
@@ -1666,6 +1665,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'security',
 				'chromium-flags',
+				'html-in-canvas-bugs',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
 				'miscellaneous/ffmpeg-license',
