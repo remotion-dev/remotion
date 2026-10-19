@@ -26,13 +26,10 @@ export const useResolvedStack = (
 		Internals.SequenceStackTracesUpdateContext,
 	);
 
-	const [value, setValue] = useState<ResolvedStackLocation | null>(() => {
-		if (!stack) {
-			return null;
-		}
-
-		return resolvedCache.get(stack) ?? null;
-	});
+	const [resolved, setResolved] = useState(() => ({
+		stack,
+		location: stack ? (resolvedCache.get(stack) ?? null) : null,
+	}));
 
 	useEffect(() => {
 		if (!stack) {
@@ -40,7 +37,7 @@ export const useResolvedStack = (
 		}
 
 		if (resolvedCache.has(stack)) {
-			setValue(resolvedCache.get(stack)!);
+			setResolved({stack, location: resolvedCache.get(stack)!});
 			return;
 		}
 
@@ -49,7 +46,11 @@ export const useResolvedStack = (
 		}
 
 		const subs = subscribers.get(stack)!;
-		subs.add(setValue);
+		const onResolve = (location: ResolvedStackLocation | null) => {
+			setResolved({stack, location});
+		};
+
+		subs.add(onResolve);
 
 		if (!inFlight.has(stack)) {
 			inFlight.add(stack);
@@ -72,9 +73,15 @@ export const useResolvedStack = (
 		}
 
 		return () => {
-			subs.delete(setValue);
+			subs.delete(onResolve);
 		};
 	}, [stack, updateResolvedStackTrace]);
 
-	return value;
+	// Effects run after rendering, so state may still belong to the previous
+	// stack. Only expose a location resolved for the current stack.
+	return resolved.stack === stack
+		? resolved.location
+		: stack
+			? (resolvedCache.get(stack) ?? null)
+			: null;
 };
