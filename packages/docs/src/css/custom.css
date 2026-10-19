@@ -147,14 +147,6 @@ html:has(.studio-caption-picker),
 	padding-left: 0;
 }
 
-.elements-sidebar-root > .menu__list-item-collapsible > .menu__caret {
-	display: none;
-}
-
-.elements-sidebar-root > .menu__list-item-collapsible--active > .menu__link {
-	pointer-events: none;
-}
-
 .elements-sidebar-root
 	> .menu__list-item-collapsible:not(.menu__list-item-collapsible--active)
 	> .menu__link--active {

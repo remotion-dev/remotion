@@ -25,15 +25,16 @@ const sidebars: SidebarsConfig = {
 			label: 'All Elements',
 			className: 'elements-sidebar-root',
 			link: {type: 'doc', id: 'index'},
-			collapsible: true,
-			collapsed: false,
+			collapsible: false,
 			items: [
 				...elementCategories.map(({category, label}) => ({
 					type: 'category' as const,
 					label,
 					link: {type: 'doc' as const, id: `${category}/index`},
-					collapsible: true,
-					collapsed: true,
+					className: 'elements-sidebar-category',
+					collapsible: false,
+					// Keep membership for breadcrumbs, sidebar assignment, and active highlighting.
+					// The category renderer displays only the link, not these children.
 					items: Object.entries(elementRegistry)
 						.filter(([, metadata]) => metadata.category === category)
 						.sort(([, a], [, b]) =>
