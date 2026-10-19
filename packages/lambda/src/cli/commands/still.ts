@@ -187,6 +187,7 @@ export const stillCommand = async ({
 		const {compositionId} = await getCompositionWithDimensionOverride({
 			args: args.slice(1),
 			compositionIdFromUi: null,
+			bindAddress: null,
 			indent,
 			serveUrlOrWebpackUrl: serveUrl,
 			logLevel,

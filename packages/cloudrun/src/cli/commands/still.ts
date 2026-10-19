@@ -152,6 +152,7 @@ export const stillCommand = async (
 			await CliInternals.getCompositionWithDimensionOverride({
 				args: args.slice(1),
 				compositionIdFromUi: null,
+				bindAddress: null,
 				indent,
 				serveUrlOrWebpackUrl: serveUrl,
 				logLevel,
