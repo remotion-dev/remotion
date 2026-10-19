@@ -35,11 +35,19 @@ export const useResolveStackAndReactToChange = (
 		preferMappedNodePath: true,
 	}));
 	const resolvedLocationFromStack = useResolvedStack(stackState.stack);
-	// A new stack must be resolved before subscribing. Reusing the previous
-	// location can subscribe to a different JSX node in the updated source.
-	const resolvedLocation = hasResolvedStack(stackState.stack)
+	const stackIsResolved = hasResolvedStack(stackState.stack);
+	const lastResolvedLocation = useRef(resolvedLocationFromStack);
+	if (stackIsResolved) {
+		lastResolvedLocation.current = resolvedLocationFromStack;
+	}
+
+	// Keep the inspector mounted while resolving the refreshed stack. Source
+	// subscriptions must wait for stackIsResolved before using this location.
+	const resolvedLocation = stackIsResolved
 		? resolvedLocationFromStack
-		: null;
+		: stackState.preferMappedNodePath
+			? null
+			: lastResolvedLocation.current;
 	const resolvedLocationRef = useRef(resolvedLocation);
 	resolvedLocationRef.current = resolvedLocation;
 	const getStackRef = useRef(getStack);
@@ -134,6 +142,7 @@ export const useResolveStackAndReactToChange = (
 	return {
 		preferMappedNodePath: stackState.preferMappedNodePath,
 		resolvedLocation,
+		stackIsResolved,
 		stack: stackState.stack,
 	};
 };
