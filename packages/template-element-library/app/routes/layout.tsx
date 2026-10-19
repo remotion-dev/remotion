@@ -1,7 +1,55 @@
 import { isInsideStudio } from "@remotion/studio-protocol";
+import Negotiator from "negotiator";
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
+import { catalog } from "../../lib/element-payload";
+import { getCatalogMarkdown, getElementMarkdown } from "../../lib/markdown";
 import { StudioActions } from "../components/studio-actions";
+import type { Route } from "./+types/layout";
+
+export const middleware: Route.MiddlewareFunction[] = [
+  async ({ request, pattern, params }, next) => {
+    if (
+      (request.method !== "GET" && request.method !== "HEAD") ||
+      new URL(request.url).pathname.endsWith(".data")
+    ) {
+      return next();
+    }
+
+    const markdownType = "text/markdown; charset=utf-8";
+    const preferredType = new Negotiator({
+      headers: { accept: request.headers.get("accept") ?? "" },
+    }).mediaType(["text/html", markdownType]);
+
+    let markdown: string | null = null;
+    if (preferredType === markdownType) {
+      switch (pattern) {
+        case "/":
+          markdown = getCatalogMarkdown(null);
+          break;
+        case "captions":
+          markdown = getCatalogMarkdown("Captions");
+          break;
+        case "elements/:slug": {
+          const entry = catalog.find(
+            ({ definition }) => definition.slug === params.slug,
+          );
+          markdown = entry ? getElementMarkdown(entry) : null;
+          break;
+        }
+      }
+    }
+
+    const response =
+      markdown === null
+        ? await next()
+        : new Response(markdown, {
+            headers: { "Content-Type": markdownType },
+          });
+    response.headers.append("Vary", "Accept");
+    return response;
+  },
+];
 
 export default function LibraryLayout() {
   const location = useLocation();
