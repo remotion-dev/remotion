@@ -29,6 +29,7 @@ const tryLambdaWriteFile = async ({
 	forcePathStyle,
 	storageClass,
 	requestHandler,
+	metadata,
 	ifNotExists,
 }: WriteFileInput<AwsProvider> & {ifNotExists: boolean}): Promise<void> => {
 	const client = getS3Client({
@@ -55,6 +56,7 @@ const tryLambdaWriteFile = async ({
 		ContentDisposition: getContentDispositionHeader(downloadBehavior),
 		StorageClass: storageClass ?? undefined,
 		IfNoneMatch: ifNotExists ? '*' : undefined,
+		Metadata: metadata ?? undefined,
 	};
 
 	// Determine file size

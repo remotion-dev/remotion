@@ -110,6 +110,7 @@ type ConvertToServeUrl<Provider extends CloudProvider> = (params: {
 type HeadFileOutput = {
 	LastModified?: Date | undefined;
 	ContentLength?: number | undefined;
+	Metadata?: Record<string, string> | undefined;
 };
 
 export type DeleteFunctionInput<Provider extends CloudProvider> = {
@@ -133,6 +134,7 @@ export type WriteFileInput<Provider extends CloudProvider> = {
 	forcePathStyle: boolean;
 	storageClass: Provider['storageClass'] | null;
 	requestHandler: Provider['requestHandler'] | null;
+	metadata?: Record<string, string> | null;
 };
 
 type WriteFile<Provider extends CloudProvider> = (
