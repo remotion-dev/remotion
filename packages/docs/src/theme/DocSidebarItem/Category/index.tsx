@@ -4,23 +4,102 @@ import {isSamePath} from '@docusaurus/theme-common/internal';
 import DocSidebarItemCategory from '@theme-original/DocSidebarItem/Category';
 import type {Props} from '@theme/DocSidebarItem/Category';
 import clsx from 'clsx';
-import React, {type ReactNode} from 'react';
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useState,
+	type ReactNode,
+} from 'react';
+
+const ActiveElementCategoryContext = createContext<string | null>(null);
+
+const ElementsSidebarRoot: React.FC<Props> = (props) => {
+	const [activeHeadingId, setActiveHeadingId] = useState<string | null>(null);
+	const isCatalog = isSamePath(props.item.href, props.activePath);
+
+	useEffect(() => {
+		if (!isCatalog) {
+			return;
+		}
+
+		const headings = Array.from(
+			document.querySelectorAll<HTMLElement>('h2[id^="element-category-"]'),
+		);
+		let animationFrame: number | null = null;
+
+		const updateActiveCategory = () => {
+			animationFrame = null;
+			// Use the same offset as native anchor navigation, allowing subpixel rounding.
+			const scrollOffset =
+				Number.parseFloat(
+					getComputedStyle(document.documentElement).scrollPaddingTop,
+				) || 0;
+			let activeId: string | null = null;
+			for (const heading of headings) {
+				if (heading.getBoundingClientRect().top <= scrollOffset + 1) {
+					activeId = heading.id;
+				}
+			}
+
+			setActiveHeadingId(activeId);
+		};
+
+		const scheduleUpdate = () => {
+			if (animationFrame === null) {
+				animationFrame = requestAnimationFrame(updateActiveCategory);
+			}
+		};
+
+		updateActiveCategory();
+		window.addEventListener('scroll', scheduleUpdate, {passive: true});
+		window.addEventListener('resize', scheduleUpdate);
+		return () => {
+			window.removeEventListener('scroll', scheduleUpdate);
+			window.removeEventListener('resize', scheduleUpdate);
+			if (animationFrame !== null) {
+				cancelAnimationFrame(animationFrame);
+			}
+		};
+	}, [isCatalog]);
+
+	return (
+		<ActiveElementCategoryContext.Provider value={activeHeadingId}>
+			<DocSidebarItemCategory {...props} />
+		</ActiveElementCategoryContext.Provider>
+	);
+};
 
 export default function DocSidebarItemCategoryWrapper(props: Props): ReactNode {
 	const {item, activePath, onItemClick} = props;
+	const activeHeadingId = useContext(ActiveElementCategoryContext);
+	const catalogHref = item.customProps?.catalogHref;
 
-	if (item.className !== 'elements-sidebar-category' || !item.href) {
+	if (item.className === 'elements-sidebar-root') {
+		return <ElementsSidebarRoot {...props} />;
+	}
+
+	if (
+		item.className !== 'elements-sidebar-category' ||
+		typeof catalogHref !== 'string'
+	) {
 		return <DocSidebarItemCategory {...props} />;
 	}
+
+	const [catalogPath, headingId] = catalogHref.split('#');
+	const isCatalog = isSamePath(catalogPath, activePath);
+	const isActive = isCatalog
+		? activeHeadingId === headingId
+		: isActiveSidebarItem(item, activePath);
 
 	return (
 		<li className={clsx('menu__list-item', item.className)}>
 			<Link
-				to={item.href}
+				to={catalogHref}
 				className={clsx('menu__link', {
-					'menu__link--active': isActiveSidebarItem(item, activePath),
+					'menu__link--active': isActive,
 				})}
-				aria-current={isSamePath(item.href, activePath) ? 'page' : undefined}
+				aria-current={isCatalog && isActive ? 'location' : undefined}
 				tabIndex={props.tabIndex}
 				onClick={() => onItemClick?.(item)}
 			>

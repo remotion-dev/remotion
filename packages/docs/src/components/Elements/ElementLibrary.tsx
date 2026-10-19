@@ -13,6 +13,7 @@ import {
 	setElementDragImage,
 } from './element-drag-data';
 import {
+	getElementCategoryHeadingId,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 	type ElementCategory,
@@ -401,7 +402,7 @@ export const ElementLibrary: React.FC<{
 					);
 				}
 
-				const categoryHeadingId = `element-category-${section.category}`;
+				const categoryHeadingId = getElementCategoryHeadingId(section.category);
 
 				return (
 					<section
@@ -409,7 +410,10 @@ export const ElementLibrary: React.FC<{
 						aria-labelledby={categoryHeadingId}
 						className={styles.section}
 					>
-						<h2 className={styles.categoryTitle} id={categoryHeadingId}>
+						<h2
+							className={`anchor ${styles.categoryTitle}`}
+							id={categoryHeadingId}
+						>
 							{section.label}
 						</h2>
 						<ElementGrid
