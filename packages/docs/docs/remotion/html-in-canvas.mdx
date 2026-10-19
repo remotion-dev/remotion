@@ -52,9 +52,9 @@ From Remotion <AvailableFrom v="4.0.534" inline />, the bundled server-side brow
 
 ## Premounting<AvailableFrom v="4.0.537" />
 
-Children inside `<HtmlInCanvas>` default to no [premounting](/docs/player/premounting), even when you configure a nonzero [`defaultPremountInSeconds`](/docs/options/default-premount-in-seconds). This avoids a [Chrome 157 crash involving premounted content](https://github.com/remotion-dev/remotion/issues/12369).
+To avoid a [Chrome 157 crash involving premounted content](https://github.com/remotion-dev/remotion/issues/12369) inside `<HtmlInCanvas>`, we from v4.0.537 default to no [premounting](/docs/player/premounting), even when you configure a nonzero [`defaultPremountInSeconds`](/docs/options/default-premount-in-seconds). We plan to lift this in the future when the Chromium fixes the bug.
 
-You can opt in by passing [`premountFor`](/docs/sequence#premountfor) explicitly to a child. Explicit premounting may still trigger the browser crash. Without premounting, videos may buffer when they become visible.
+You can opt in by passing [`premountFor`](/docs/sequence#premountfor) explicitly.
 
 ```tsx twoslash title="Opt in to premounting a child"
 import {HtmlInCanvas, Sequence} from 'remotion';
