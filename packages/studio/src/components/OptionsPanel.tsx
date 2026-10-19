@@ -9,6 +9,7 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
+import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
 import {InspectorPanel} from './InspectorPanel';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -22,6 +23,10 @@ import {RenderQueue} from './RenderQueue';
 import {callUpdateDefaultPropsApi} from './RenderQueue/actions';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
+import {
+	getCachedResolvedStack,
+	useResolvedStack,
+} from './Timeline/use-resolved-stack';
 
 type OptionsSidebarPanel = 'inspector' | 'renders';
 
@@ -107,6 +112,15 @@ export const OptionsPanel: React.FC<{
 		return null;
 	}, [canvasContent, compositions]);
 
+	// Re-renders once the stack is resolved. Read from the cache so the location
+	// always belongs to the current composition, not the previously selected one.
+	useResolvedStack(composition?.stack ?? null);
+	const resolvedLocation = getCachedResolvedStack(composition?.stack ?? null);
+	const symbolicatedStack = useMemo(
+		() => resolvedStackToSymbolicated(resolvedLocation),
+		[resolvedLocation],
+	);
+
 	const z = useZodIfPossible();
 	const zodTypes = useZodTypesIfPossible();
 
@@ -166,6 +180,7 @@ export const OptionsPanel: React.FC<{
 					currentPath: [],
 					zodTypes,
 				}),
+				symbolicatedStack,
 			)
 				.then((response) => {
 					if (!response.success) {
@@ -181,7 +196,15 @@ export const OptionsPanel: React.FC<{
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
 				});
 		},
-		[composition, currentDefaultProps, readOnlyStudio, schema, z, zodTypes],
+		[
+			composition,
+			currentDefaultProps,
+			readOnlyStudio,
+			schema,
+			symbolicatedStack,
+			z,
+			zodTypes,
+		],
 	);
 
 	const compositionId = useMemo(() => {

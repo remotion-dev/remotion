@@ -13,6 +13,12 @@ export const hasResolvedStack = (stack: string | null): boolean => {
 	return resolvedCache.has(stack);
 };
 
+export const getCachedResolvedStack = (
+	stack: string | null,
+): ResolvedStackLocation | null => {
+	return stack ? (resolvedCache.get(stack) ?? null) : null;
+};
+
 const inFlight = new Set<string>();
 const subscribers = new Map<
 	string,
@@ -26,9 +32,14 @@ export const useResolvedStack = (
 		Internals.SequenceStackTracesUpdateContext,
 	);
 
-	const [resolved, setResolved] = useState(() => ({
+	// Holds a new object on every resolution, so that a stack resolving to null
+	// still re-renders consumers that read hasResolvedStack().
+	const [state, setState] = useState<{
+		stack: string | null;
+		value: ResolvedStackLocation | null;
+	}>(() => ({
 		stack,
-		location: stack ? (resolvedCache.get(stack) ?? null) : null,
+		value: stack ? (resolvedCache.get(stack) ?? null) : null,
 	}));
 
 	useEffect(() => {
@@ -37,7 +48,12 @@ export const useResolvedStack = (
 		}
 
 		if (resolvedCache.has(stack)) {
-			setResolved({stack, location: resolvedCache.get(stack)!});
+			const cached = resolvedCache.get(stack)!;
+			setState((prev) =>
+				prev.stack === stack && prev.value === cached
+					? prev
+					: {stack, value: cached},
+			);
 			return;
 		}
 
@@ -46,11 +62,11 @@ export const useResolvedStack = (
 		}
 
 		const subs = subscribers.get(stack)!;
-		const onResolve = (location: ResolvedStackLocation | null) => {
-			setResolved({stack, location});
+		const onResolved = (value: ResolvedStackLocation | null) => {
+			setState({stack, value});
 		};
 
-		subs.add(onResolve);
+		subs.add(onResolved);
 
 		if (!inFlight.has(stack)) {
 			inFlight.add(stack);
@@ -73,14 +89,14 @@ export const useResolvedStack = (
 		}
 
 		return () => {
-			subs.delete(onResolve);
+			subs.delete(onResolved);
 		};
 	}, [stack, updateResolvedStackTrace]);
 
 	// Effects run after rendering, so state may still belong to the previous
 	// stack. Only expose a location resolved for the current stack.
-	return resolved.stack === stack
-		? resolved.location
+	return state.stack === stack
+		? state.value
 		: stack
 			? (resolvedCache.get(stack) ?? null)
 			: null;
