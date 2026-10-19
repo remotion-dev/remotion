@@ -184,7 +184,10 @@ test('getProgress treats an existing output file as finished if postRenderData w
 		billingCurrency: 'CNY',
 		onHeadFile: ({bucketName: headedBucketName, key}) => {
 			headedFiles.push({bucketName: headedBucketName, key});
-			return Promise.resolve({ContentLength: 1234});
+			return Promise.resolve({
+				ContentLength: 1234,
+				Metadata: {'remotion-render-id': renderId},
+			});
 		},
 		renderProgress: null,
 	});
