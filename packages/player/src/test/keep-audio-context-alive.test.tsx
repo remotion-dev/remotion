@@ -1,6 +1,7 @@
 import {afterEach, expect, spyOn, test} from 'bun:test';
 import {type ContextType, createRef, useContext, useEffect} from 'react';
 import {Html5Audio, Internals, useBufferState, useCurrentFrame} from 'remotion';
+import type {LogLevel} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
 import {act, cleanup, render} from './test-utils.js';
@@ -267,15 +268,18 @@ const renderClockedPlayer = () => {
 		compositionHeight: 180,
 		fps: 30,
 		playbackRate: 1,
+		audioLatencyHint: 'playback' as AudioContextLatencyCategory,
+		logLevel: 'info' as LogLevel,
 		numberOfSharedAudioTags: 0,
 		_experimentalKeepAudioContextAlive: true,
 	};
 	const view = render(<Player ref={player} {...props} />);
 	const setTime = (time: number) => {
-		now = time;
 		// In keep-alive mode the native audio clock advances even while paused.
-		(audio!.audioContext as unknown as TrackedAudioContext).currentTime =
-			time / 1000;
+		// A replacement context starts its own clock at zero.
+		(audio!.audioContext as unknown as TrackedAudioContext).currentTime +=
+			(time - now) / 1000;
+		now = time;
 	};
 
 	return {
@@ -295,6 +299,7 @@ const renderClockedPlayer = () => {
 		},
 		startBuffering: () => buffer!(),
 		anchor: () => audio!.audioSyncAnchor.value,
+		audioContext: () => audio!.audioContext,
 		dispose: () => {
 			cleanup();
 			clock.mockRestore();
@@ -327,6 +332,37 @@ test('Keep-alive audio preserves its anchor across duration-only updates', () =>
 			harness.tick(117);
 			harness.changeConfig({durationInFrames: 1002});
 		});
+		expect(harness.anchors).toEqual([]);
+		act(() => harness.tick(200));
+		expect(harness.view.getByText('Frame 6')).toBeTruthy();
+	} finally {
+		harness.dispose();
+	}
+});
+
+test.each([
+	{audioLatencyHint: 'interactive' as const},
+	{logLevel: 'warn' as const},
+])('Keep-alive audio re-anchors to a replacement context: %j', (config) => {
+	const harness = renderClockedPlayer();
+	try {
+		act(() => harness.player.current!.play());
+		act(() => harness.tick(100));
+		expect(harness.view.getByText('Frame 3')).toBeTruthy();
+		const previousContext = harness.audioContext();
+		harness.anchors.length = 0;
+		act(() => harness.changeConfig(config));
+		expect(harness.audioContext()).not.toBe(previousContext);
+		// The new native clock starts at zero while playback stays at frame 3.
+		// This 100 ms offset is smaller than the usual drift tolerance.
+		expect(harness.anchor()).toBeCloseTo(-0.1, 8);
+		expect(harness.anchors).toHaveLength(1);
+		harness.anchors.length = 0;
+		act(() => {
+			harness.tick(117);
+			harness.changeConfig({durationInFrames: 1001});
+		});
+		expect(harness.anchor()).toBeCloseTo(-0.1, 8);
 		expect(harness.anchors).toEqual([]);
 		act(() => harness.tick(200));
 		expect(harness.view.getByText('Frame 6')).toBeTruthy();
