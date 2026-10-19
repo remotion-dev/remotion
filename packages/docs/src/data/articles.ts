@@ -3027,8 +3027,8 @@ export const articles = [
 	{
 		id: 'authoring-packages',
 		title: 'Authoring a Remotion library',
-		relativePath: 'docs/creating-a-library.mdx',
-		compId: 'articles-docs-creating-a-library',
+		relativePath: 'docs/authoring-packages.mdx',
+		compId: 'articles-docs-authoring-packages',
 		crumb: 'How to',
 		noAi: false,
 		slug: 'authoring-packages',
