@@ -9,25 +9,27 @@ import {
 	computeCanUpdateDefaultPropsFromContent,
 } from './routes/can-update-default-props';
 
-// Per-compositionId watcher on the file that registers the composition
+// Each client watches its own resolved registration file or root-file fallback.
 const watchers: Record<
 	string,
-	{
-		unwatch: () => void;
-		compositionFile: string;
-		clientIds: Set<string>;
-	}
+	Map<string, {unwatch: () => void; clientIds: Set<string>}>
 > = {};
 
 const removeClient = (compositionId: string, clientId: string) => {
-	const watcher = watchers[compositionId];
-	if (!watcher?.clientIds.has(clientId)) {
+	const compositionWatchers = watchers[compositionId];
+	if (!compositionWatchers) {
 		return;
 	}
 
-	watcher.clientIds.delete(clientId);
-	if (watcher.clientIds.size === 0) {
-		watcher.unwatch();
+	for (const [file, watcher] of compositionWatchers) {
+		watcher.clientIds.delete(clientId);
+		if (watcher.clientIds.size === 0) {
+			watcher.unwatch();
+			compositionWatchers.delete(file);
+		}
+	}
+
+	if (compositionWatchers.size === 0) {
 		delete watchers[compositionId];
 	}
 };
@@ -59,10 +61,10 @@ export const subscribeToDefaultPropsWatchers = async ({
 		return result;
 	}
 
-	// The composition may have moved to another file since the watcher was installed
-	if (watchers[compositionId]?.compositionFile !== compositionFile) {
-		watchers[compositionId]?.unwatch();
-		const clientIds = new Set(watchers[compositionId]?.clientIds);
+	watchers[compositionId] ??= new Map();
+	const compositionWatchers = watchers[compositionId];
+	if (!compositionWatchers.has(compositionFile)) {
+		const clientIds = new Set<string>();
 		const {unwatch} = installFileWatcher({
 			file: compositionFile,
 			existenceOnly: false,
@@ -88,10 +90,10 @@ export const subscribeToDefaultPropsWatchers = async ({
 				});
 			},
 		});
-		watchers[compositionId] = {unwatch, compositionFile, clientIds};
+		compositionWatchers.set(compositionFile, {unwatch, clientIds});
 	}
 
-	watchers[compositionId].clientIds.add(clientId);
+	compositionWatchers.get(compositionFile)!.clientIds.add(clientId);
 
 	return result;
 };

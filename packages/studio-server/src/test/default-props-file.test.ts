@@ -214,7 +214,7 @@ test('saving default props only writes and undoes the registering file', async (
 	}
 });
 
-test('watches the registration file the client sends', async () => {
+test('keeps each client subscribed to its own default-props file', async () => {
 	const {remotionRoot, entryPoint, files} = makeProject();
 	const events: unknown[] = [];
 	const cleanupFileWatcher = setFileWatcherRegistry(
@@ -239,6 +239,20 @@ test('watches the registration file the client sends', async () => {
 			remotionRoot,
 			entryPoint,
 		});
+		await subscribeToDefaultPropsWatchers({
+			compositionId: 'TitlePanel',
+			clientId: 'fallback-client',
+			symbolicatedStack: null,
+			remotionRoot,
+			entryPoint,
+		});
+		await subscribeToDefaultPropsWatchers({
+			compositionId: 'TitlePanel',
+			clientId: 'wrong-file-client',
+			symbolicatedStack: stackFor('src/nested/Other.tsx'),
+			remotionRoot,
+			entryPoint,
+		});
 
 		writeFileAndNotifyFileWatchers({
 			file: files.root,
@@ -246,6 +260,22 @@ test('watches the registration file the client sends', async () => {
 			originatorClientId: undefined,
 			metadata: null,
 		});
+		await Promise.resolve();
+		expect(events).toEqual([
+			{
+				clientId: 'fallback-client',
+				event: {
+					type: 'default-props-updatable-changed',
+					compositionId: 'TitlePanel',
+					result: {
+						canUpdate: false,
+						reason:
+							'Could not find or extract defaultProps for composition "TitlePanel"',
+					},
+				},
+			},
+		]);
+		events.length = 0;
 		writeFileAndNotifyFileWatchers({
 			file: files.showcase,
 			content: showcaseContents.replace("'Left Trim'", "'Right Trim'"),
@@ -267,8 +297,47 @@ test('watches the registration file the client sends', async () => {
 				},
 			},
 		]);
+
+		// Resolving the fallback client's stack moves only that client's subscription.
+		await subscribeToDefaultPropsWatchers({
+			compositionId: 'TitlePanel',
+			clientId: 'fallback-client',
+			symbolicatedStack: stackFor('src/Showcase.tsx'),
+			remotionRoot,
+			entryPoint,
+		});
+		unsubscribeClientDefaultPropsWatchers('client');
+		events.length = 0;
+		writeFileAndNotifyFileWatchers({
+			file: files.root,
+			content: rootContents,
+			originatorClientId: undefined,
+			metadata: null,
+		});
+		writeFileAndNotifyFileWatchers({
+			file: files.showcase,
+			content: showcaseContents,
+			originatorClientId: undefined,
+			metadata: null,
+		});
+		await Promise.resolve();
+		expect(events).toEqual([
+			{
+				clientId: 'fallback-client',
+				event: {
+					type: 'default-props-updatable-changed',
+					compositionId: 'TitlePanel',
+					result: {
+						canUpdate: true,
+						currentDefaultProps: {children: 'Left Trim', style: null},
+					},
+				},
+			},
+		]);
 	} finally {
 		unsubscribeClientDefaultPropsWatchers('client');
+		unsubscribeClientDefaultPropsWatchers('fallback-client');
+		unsubscribeClientDefaultPropsWatchers('wrong-file-client');
 		cleanupLiveEvents();
 		cleanupFileWatcher();
 		rmSync(remotionRoot, {recursive: true, force: true});
