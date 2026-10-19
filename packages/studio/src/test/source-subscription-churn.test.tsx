@@ -340,6 +340,10 @@ test('parent previews keep source subscriptions stable while mounted instances e
 		sourceLineOffset = 0;
 	}
 
+	// Four initial subscriptions and four refreshed subscriptions, without
+	// transient subscriptions using the previous stack's source location.
+	expect(subscriptions).toHaveLength(8);
+	expect(subscriptions.every((result) => result.success)).toBe(true);
 	// Refresh cleanup and final unmount each send one batch, preserving every release.
 	expect(unsubscriptionBatches).toHaveLength(2);
 	expect(unsubscriptionBatches.at(-1)).toHaveLength(4);
