@@ -1465,6 +1465,7 @@ const sidebars: SidebarsConfig = {
 				'studio/interactivity',
 				'studio/interactivity-best-practices',
 				'studio/make-component-interactive',
+				'studio/creating-elements',
 				'studio/deploy-static',
 				'studio/deploy-server',
 				'studio/remotion-dev-new',

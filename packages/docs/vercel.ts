@@ -90,6 +90,14 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
+		routes.redirect('/elements/guidelines', '/docs/studio/creating-elements', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/elements/guidelines.md',
+			'/docs/studio/creating-elements.md',
+			{permanent: true},
+		),
 		routes.redirect('/elements/contributing', '/docs/contributing/elements', {
 			permanent: true,
 		}),
