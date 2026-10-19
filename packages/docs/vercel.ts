@@ -161,6 +161,9 @@ export const config: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/issues/new/choose',
 			{permanent: false},
 		),
+		routes.redirect('/inbox', 'https://github.com/remotion-dev/inbox/issues', {
+			permanent: false,
+		}),
 		routes.redirect(
 			'/vision',
 			'https://github.com/remotion-dev/remotion/issues/9081',
