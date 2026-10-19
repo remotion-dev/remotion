@@ -470,7 +470,11 @@ const CanvasTab: React.FC<{
 					onClose();
 				}}
 				renderAction={() => <CancelIcon height={16} width={16} />}
-				style={{...closeStyle, opacity: showCloseButton ? 1 : 0}}
+				style={{
+					...closeStyle,
+					opacity: showCloseButton ? 1 : 0,
+					pointerEvents: showCloseButton ? 'auto' : 'none',
+				}}
 				variant={null}
 				onFocus={() => setCloseButtonFocused(true)}
 				onBlur={() => setCloseButtonFocused(false)}
