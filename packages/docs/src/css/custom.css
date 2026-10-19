@@ -122,6 +122,16 @@ html:has(.studio-caption-picker),
 }
 
 @media (min-width: 997px) {
+	/* Keep empty sidebar space from pushing the category links above the viewport
+	   when the catalog footer comes into view. */
+	.plugin-id-elements .theme-doc-sidebar-container > div {
+		height: auto;
+	}
+
+	.plugin-id-elements .theme-doc-sidebar-container .menu {
+		max-height: calc(100vh - var(--ifm-navbar-height));
+	}
+
 	.studio-elements-embed {
 		--ifm-navbar-height: 0px;
 	}
