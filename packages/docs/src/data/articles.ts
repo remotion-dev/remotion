@@ -703,6 +703,15 @@ export const articles = [
 		slug: 'options/beep-on-finish',
 	},
 	{
+		id: 'options/bind-address',
+		title: 'Bind address',
+		relativePath: 'docs/options/bind-address.mdx',
+		compId: 'articles-docs-options-bind-address',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/bind-address',
+	},
+	{
 		id: 'options/binaries-directory',
 		title: 'Binaries Directory',
 		relativePath: 'docs/options/binaries-directory.mdx',

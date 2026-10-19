@@ -31,7 +31,7 @@ export const validateBindAddress = (bindAddress: unknown): void => {
 
 export const getPortConfig = (
 	preferIpv4: boolean,
-	bindAddress: string | null = null,
+	bindAddress: string | null,
 ): PortConfig => {
 	validateBindAddress(bindAddress);
 	if (bindAddress !== null) {

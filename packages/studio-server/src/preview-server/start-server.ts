@@ -85,7 +85,7 @@ export const startServer = async (options: {
 		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
 		undefined;
 
-	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
+	const portConfig = RenderInternals.getPortConfig(options.forceIPv4, null);
 
 	const onPortUnavailable = async (
 		port: number,
