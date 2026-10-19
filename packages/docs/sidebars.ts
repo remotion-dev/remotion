@@ -1665,6 +1665,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'security',
 				'chromium-flags',
+				'html-in-canvas-bugs',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
 				'miscellaneous/ffmpeg-license',
