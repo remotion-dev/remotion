@@ -37,21 +37,30 @@ export const createElementSourceProxy = <
 					props?.controls
 						? getStackForControls(props.controls)
 						: null;
-				const stack =
-					existingStack ||
-					(controlsStack ??
-						(source &&
+				let stack = existingStack || controlsStack;
+				if (!stack) {
+					if (
+						source &&
 						typeof source.fileName === 'string' &&
 						typeof source.lineNumber === 'number' &&
 						typeof source.columnNumber === 'number'
-							? makeOriginalSourceStack({
-									fileName: getSourceFileName(source.fileName),
-									lineNumber: source.lineNumber,
-									// JSX development locations are one-based, like stack traces.
-									// Resolved source locations and AST lookups use zero-based columns.
-									columnNumber: source.columnNumber - 1,
-								})
-							: new Error().stack));
+					) {
+						stack = makeOriginalSourceStack({
+							fileName: getSourceFileName(source.fileName),
+							lineNumber: source.lineNumber,
+							// JSX development locations are one-based, like stack traces.
+							// Resolved source locations and AST lookups use zero-based columns.
+							columnNumber: source.columnNumber - 1,
+						});
+					} else {
+						const lines = new Error().stack?.split('\n');
+						// Keep the proxy and JSX call site, including its generated URL for
+						// Fast Refresh. Later React scheduler frames vary between renders.
+						// V8 adds an Error header; Firefox and Safari start with a frame.
+						stack = lines?.slice(0, lines[0] === 'Error' ? 3 : 2).join('\n');
+					}
+				}
+
 				const newProps = existingStack
 					? {...props}
 					: {
