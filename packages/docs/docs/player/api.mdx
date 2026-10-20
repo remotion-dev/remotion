@@ -157,7 +157,7 @@ Default `1`.
 
 Preserves audio pitch when changing the Player's [`playbackRate`](#playbackrate). Defaults to `false`.
 
-Applies to [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`. Each clip's own `preservePitch` prop independently controls speed changes authored in the composition, including speed inherited from [`<Sequence>`](/docs/sequence#playbackrate). `toneFrequency` remains an independent pitch multiplier.
+Applies to [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`. `toneFrequency` remains an independent pitch multiplier.
 
 For example, with `<Player playbackRate={2} preservePitch>`, a clip authored at normal speed keeps its original pitch. A clip with `playbackRate={2}` still has twice the original pitch unless that clip also has `preservePitch` enabled.
 
