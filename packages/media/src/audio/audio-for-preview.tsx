@@ -45,7 +45,7 @@ type NewAudioForPreviewProps = {
 	readonly showInTimeline: boolean;
 	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio: boolean;
-	readonly preservePitch: boolean;
+	readonly preservePitch: boolean | null;
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
@@ -434,7 +434,9 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
 				crossOrigin={fallbackHtml5AudioProps?.crossOrigin}
 				{...fallbackHtml5AudioProps}
-				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? preservePitch}
+				preservePitch={
+					fallbackHtml5AudioProps?.preservePitch ?? preservePitch ?? true
+				}
 			/>
 		);
 	}
@@ -464,7 +466,7 @@ type InnerAudioProps = {
 	readonly trimBefore?: number | undefined;
 	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio?: boolean;
-	readonly preservePitch: boolean;
+	readonly preservePitch: boolean | null;
 	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;

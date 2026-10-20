@@ -58,7 +58,7 @@ export const videoSchema: InteractivitySchema = {
 	},
 	preservePitch: {
 		type: 'boolean',
-		default: true,
+		default: false,
 		description: 'Preserve pitch',
 		keyframable: false,
 	},
@@ -216,7 +216,7 @@ const InnerVideo: React.FC<
 			onVideoFrame={onVideoFrame}
 			playbackRate={playbackRate}
 			toneFrequency={toneFrequency ?? 1}
-			preservePitch={preservePitch ?? true}
+			preservePitch={preservePitch}
 			src={src}
 			style={style}
 			volume={volume}
@@ -454,7 +454,7 @@ const VideoInner: React.FC<
 						trimBefore={trimBefore}
 						volume={volume ?? 1}
 						toneFrequency={toneFrequency ?? 1}
-						preservePitch={preservePitch ?? true}
+						preservePitch={preservePitch ?? null}
 						_remotionInternalStack={sourceStack}
 						debugOverlay={debugOverlay ?? false}
 						headless={headless ?? false}

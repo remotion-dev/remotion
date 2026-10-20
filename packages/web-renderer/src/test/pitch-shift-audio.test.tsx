@@ -280,7 +280,7 @@ test.each([0.01, 2])(
 );
 
 // KINO-7177: measure the encoded result, including inherited speed and opt-out.
-test.each([true, false])(
+test.each([true, undefined])(
 	'exports clip speed with preservePitch=%s',
 	async (preservePitch) => {
 		const src = makeToneWav();

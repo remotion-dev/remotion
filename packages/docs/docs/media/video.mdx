@@ -251,12 +251,12 @@ export const MyComposition = () => {
 :::note
 Playing a video in reverse is not supported.
 
-Audio pitch is preserved by default when changing `playbackRate`. Pass `preservePitch={false}` to let the pitch change with the speed.
+Changing `playbackRate` also changes the audio pitch by default. Pass [`preservePitch={true}`](#preservepitch) to preserve the original pitch.
 :::
 
 ### `preservePitch?`<AvailableFrom v="4.0.538" />
 
-Preserves the audio pitch when changing [`playbackRate`](#playbackrate), including playback speed inherited from parent [`<Sequence>`](/docs/sequence#playbackrate) components. Defaults to `true`. Applies during preview, [server-side rendering](/docs/ssr), and [client-side rendering](/docs/client-side-rendering).
+Preserves the audio pitch when changing [`playbackRate`](#playbackrate), including playback speed inherited from parent [`<Sequence>`](/docs/sequence#playbackrate) components. Defaults to `false`. Applies during preview, [server-side rendering](/docs/ssr), and [client-side rendering](/docs/client-side-rendering).
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Video} from '@remotion/media';
@@ -267,13 +267,13 @@ export const MyComposition = () => (
 );
 ```
 
-Before v4.0.538, changing `playbackRate` also changed the pitch in the Mediabunny and WebCodecs path. Set `preservePitch={false}` to retain that behavior: for example, `playbackRate={2}` doubles the pitch.
+The default retains the existing behavior of the Mediabunny and WebCodecs path: for example, `playbackRate={2}` doubles the pitch. Set `preservePitch={true}` to change speed without changing pitch. If you already compensate for speed with `toneFrequency`, remove that compensation when enabling `preservePitch` to avoid applying it twice.
 
 [`toneFrequency`](#tonefrequency) remains an independent pitch multiplier. For example, `toneFrequency={0.8}` lowers the pitch by 20% even when preserving pitch at a different speed. Keep `preservePitch` and the authored playback speed constant for each asset during rendering.
 
 In the Mediabunny and WebCodecs path, this prop does not compensate for the Studio's or [`<Player>`](/docs/player/player)'s playback speed. It only compensates for speed changes authored in the composition.
 
-When [falling back to a native media component](/docs/media/fallback), this prop is forwarded to [`<OffthreadVideo>`](/docs/offthreadvideo#preservepitch). An explicit `fallbackOffthreadVideoProps.preservePitch` takes precedence. See the fallback component's documentation for server-side support. Native fallbacks do not apply `toneFrequency` during preview.
+When [falling back to a native media component](/docs/media/fallback), this prop is forwarded to [`<OffthreadVideo>`](/docs/offthreadvideo#preservepitch). An explicit `fallbackOffthreadVideoProps.preservePitch` takes precedence. When neither setting is provided, the native fallback retains its existing default of preserving pitch. See the fallback component's documentation for server-side support. Native fallbacks do not apply `toneFrequency` during preview.
 
 ### `muted?`
 

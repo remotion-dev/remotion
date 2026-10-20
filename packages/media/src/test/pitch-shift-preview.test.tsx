@@ -178,7 +178,7 @@ test('Audio and Video update pitch while preserving authored speed changes', asy
 			};
 
 			expect(getScheduledFrequency() * playbackRate * parentRate).toBeCloseTo(
-				440 * (preservePitch === false ? playbackRate * parentRate : 1),
+				440 * (preservePitch ? 1 : playbackRate * parentRate),
 				-1,
 			);
 			createdNodes.length = 0;
@@ -191,7 +191,7 @@ test('Audio and Video update pitch while preserving authored speed changes', asy
 				() => createdNodes.filter((node) => node.buffer !== null).length >= 8,
 			);
 			expect(getScheduledFrequency() * playbackRate * parentRate).toBeCloseTo(
-				660 * (preservePitch === false ? playbackRate * parentRate : 1),
+				660 * (preservePitch ? 1 : playbackRate * parentRate),
 				-1,
 			);
 		} finally {

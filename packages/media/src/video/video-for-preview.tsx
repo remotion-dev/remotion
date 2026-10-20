@@ -57,7 +57,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
-	readonly preservePitch: boolean;
+	readonly preservePitch: boolean | null;
 	readonly toneFrequency: number;
 	readonly logLevel: LogLevel;
 	readonly className: string | undefined;
@@ -594,7 +594,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				_remotionInternalStack={_remotionInternalStack ?? undefined}
 				{...fallbackOffthreadVideoProps}
 				preservePitch={
-					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch
+					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch ?? true
 				}
 			/>
 		);

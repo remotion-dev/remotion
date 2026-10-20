@@ -52,7 +52,7 @@ export const audioSchema: InteractivitySchema = {
 	},
 	preservePitch: {
 		type: 'boolean',
-		default: true,
+		default: false,
 		description: 'Preserve pitch',
 		keyframable: false,
 	},
@@ -234,7 +234,7 @@ const AudioInner: React.FC<
 						<AudioForPreview
 							name={name}
 							{...otherProps}
-							preservePitch={props.preservePitch ?? true}
+							preservePitch={props.preservePitch ?? null}
 							trimAfter={effectiveTrimAfter}
 							style={premountingStyle}
 							_remotionInternalStack={sourceStack}
