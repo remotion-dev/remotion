@@ -5,6 +5,7 @@ import {parseStudioElementPayload} from './element-payload';
 const browserStudioHashKey = 'remotion-browser-studio';
 const defaultBrowserStudioEndpoint = 'https://www.remotion.dev/new';
 const maxEncodedPayloadLength = 1_100_000;
+
 const browserStudioEnvelopeSchema = z.object({
 	type: z.literal('remotion-browser-studio'),
 	version: z.literal(1),
@@ -15,6 +16,7 @@ const toBase64Url = (value: string) => {
 	const bytes = new TextEncoder().encode(value);
 	let binary = '';
 	const chunkSize = 32_768;
+
 	for (let offset = 0; offset < bytes.length; offset += chunkSize) {
 		binary += String.fromCharCode(
 			...bytes.subarray(offset, offset + chunkSize),
@@ -34,12 +36,15 @@ const fromBase64Url = (value: string) => {
 
 	try {
 		const base64 = value.replaceAll('-', '+').replaceAll('_', '/');
+
 		const padded = base64.padEnd(
 			base64.length + ((4 - (base64.length % 4)) % 4),
 			'=',
 		);
+
 		const binary = atob(padded);
 		const bytes = new Uint8Array(binary.length);
+
 		for (let index = 0; index < binary.length; index++) {
 			bytes[index] = binary.charCodeAt(index);
 		}
@@ -62,6 +67,7 @@ export const makeBrowserStudioUrl = ({
 	}
 
 	const url = new URL(endpoint ?? defaultBrowserStudioEndpoint);
+
 	if (url.protocol !== 'https:' && url.protocol !== 'http:') {
 		throw new TypeError('Browser Studio endpoint must use HTTP or HTTPS');
 	}
@@ -73,11 +79,13 @@ export const makeBrowserStudioUrl = ({
 			version: 1,
 		}),
 	);
+
 	if (encoded.length > maxEncodedPayloadLength) {
 		throw new TypeError('Browser Studio payload is too large');
 	}
 
 	url.hash = new URLSearchParams({[browserStudioHashKey]: encoded}).toString();
+
 	return url.toString();
 };
 
@@ -95,6 +103,7 @@ export const parseBrowserStudioHash = (
 	const encoded = new URLSearchParams(
 		hash.startsWith('#') ? hash.slice(1) : hash,
 	).get(browserStudioHashKey);
+
 	if (
 		encoded === null ||
 		encoded.length === 0 ||
@@ -104,6 +113,7 @@ export const parseBrowserStudioHash = (
 	}
 
 	const decoded = fromBase64Url(encoded);
+
 	if (decoded === null) {
 		return null;
 	}
@@ -113,6 +123,7 @@ export const parseBrowserStudioHash = (
 			browserStudioEnvelopeSchema,
 			JSON.parse(decoded),
 		);
+
 		return envelope.success
 			? parseStudioElementPayload(envelope.data.payload)
 			: null;

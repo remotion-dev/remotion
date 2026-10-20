@@ -38,7 +38,10 @@ export const validateOutname = ({
 	}
 
 	if (typeof outName !== 'string') {
-		validateS3Key(outName.key);
+		if (outName.key !== undefined) {
+			validateS3Key(outName.key);
+		}
+
 		validateBucketName({
 			bucketName: outName.bucketName,
 			bucketNamePrefix,

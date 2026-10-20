@@ -27,7 +27,8 @@ const validInput = {
 } satisfies CreateElementPayloadInput;
 
 const createInvalidPayload = (input: unknown) =>
-	createElementPayload(input as CreateElementPayloadInput);
+	// @ts-expect-error Exercise runtime validation of invalid JavaScript inputs.
+	createElementPayload(input);
 
 test('creates one canonical Element payload for HTTP and drag transports', () => {
 	const payload = createElementPayload(validInput);
@@ -56,15 +57,19 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 	expect(parseStudioElementPayload(payload)).toEqual(payload);
 
 	const data = new Map<string, string>();
-	const dataTransfer = {
+
+	const dataTransfer: Pick<DataTransfer, 'effectAllowed' | 'setData'> = {
 		effectAllowed: 'none',
 		setData: (type: string, value: string) => data.set(type, value),
-	} as unknown as DataTransfer;
+	};
+
 	setStudioDragData({dataTransfer, payload});
 
 	expect(dataTransfer.effectAllowed).toBe('copy');
+
 	const mimeType =
 		'application/vnd.remotion.drag+json;v=1;type=element;width=800;height=200;duration=90';
+
 	expect([...data.keys()]).toEqual([mimeType, 'text/plain']);
 	expect(data.get('text/plain')).toBe(data.get(mimeType));
 	expect(parseDragData({mimeType, payload: data.get(mimeType)!})).toMatchObject(
@@ -94,6 +99,7 @@ test('validates asset payloads and references for both transports', () => {
 		],
 		initialProps: {media: [{src: staticFileRef('my-element/logo.png')}]},
 	});
+
 	const serialized = JSON.stringify(payload);
 	expect(payload.version).toBe(2);
 	expect(parseStudioElementPayload(JSON.parse(serialized))).toEqual(payload);
@@ -144,11 +150,13 @@ test('defaults new Element payloads to wrapped installation', () => {
 
 test('normalizes legacy payloads without initial props or assets', () => {
 	const payload = createElementPayload(validInput);
+
 	const {
 		initialProps: _initialProps,
 		assets: _assets,
 		...legacyElement
 	} = payload.element;
+
 	expect(
 		parseStudioElementPayload({...payload, element: legacyElement}),
 	).toMatchObject({version: 1, element: {initialProps: null, assets: []}});
@@ -169,6 +177,7 @@ test('rejects invalid and reserved initial props', () => {
 	}
 
 	const payload = createElementPayload(validInput);
+
 	for (const initialProps of [
 		{invalid: undefined},
 		{invalid: Number.NaN},

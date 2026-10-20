@@ -14,6 +14,10 @@ export const elementCategories = [
 
 export type ElementCategory = (typeof elementCategories)[number]['category'];
 
+export const getElementCategoryHeadingId = (category: ElementCategory) => {
+	return `element-category-${category}`;
+};
+
 export const elementRegistry = {
 	'audio/oscilloscope': {
 		category: 'audio',

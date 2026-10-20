@@ -1,12 +1,16 @@
 ---
-title: Element Guidelines
-sidebar_label: Guidelines
+image: /generated/articles-docs-studio-creating-elements.png
+title: Creating Elements
 description: Design reusable Remotion Elements for any Element library.
 ---
 
-# Element Guidelines
+# Creating Elements
 
-These guidelines cover how to design and build an Element that users can copy into their projects. They apply to the official gallery and to your own Element Library. To let users install Elements from your library's website, see [Integrating an Element Library with Studio](/docs/studio-protocol/component-library-integration).
+An Element is a reusable video building block written as a React component, such as an animated title, background, chart, or caption style. Browse the [Elements catalog](/elements) to see examples.
+
+When you [add an Element in Studio](/docs/studio/browse-elements), Studio copies its source code into your project and installs its dependencies. You can edit the copied code to change how it looks and behaves, or use its Inspector controls if it exposes them.
+
+This guide covers how to design and build Elements for the official catalog or your own Element Library. To let users install Elements from your library's website, see [Integrating an Element Library with Studio](/docs/studio-protocol/component-library-integration).
 
 ## Design
 
@@ -73,4 +77,4 @@ Give editable objects clear names. Use a generic name such as `Container` for th
 
 If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. For `component-owned-sequence`, this can provide defaults for Inspector controls. Otherwise, users can edit the installed source directly.
 
-To submit an Element to the official gallery, read the [contribution guide](/elements/contributing).
+To submit an Element to the official gallery, read the [contribution guide](/docs/contributing/elements).

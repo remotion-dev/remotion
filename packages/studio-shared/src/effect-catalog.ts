@@ -619,6 +619,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-bevel-alpha',
+		category: 'Stylize',
+		label: 'bevelAlpha()',
+		description: 'Light and shade the edges of text and shapes',
+		effect: {
+			name: 'bevelAlpha',
+			importPath: '@remotion/effects/bevel-alpha',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-emboss',
 		category: 'Stylize',
 		label: 'emboss()',

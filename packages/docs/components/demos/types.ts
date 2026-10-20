@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import {BevelAlphaDemo} from '../effects/effects-bevel-alpha-preview';
 import {FractalNoiseDemo} from '../effects/effects-fractal-noise-preview';
 import {LensBlurDemo} from '../effects/effects-lens-blur-preview';
 import {PageTurnDemo} from '../effects/effects-page-turn-preview';
@@ -1822,6 +1823,19 @@ export const lensBlurDemo: DemoType = {
 	fps: 30,
 	durationInFrames: 120,
 	id: 'lens-blur',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const bevelAlphaDemo: DemoType = {
+	comp: BevelAlphaDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	fps: 30,
+	durationInFrames: 120,
+	id: 'bevel-alpha',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',

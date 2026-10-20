@@ -58,9 +58,11 @@ test('requests confirmation in the most recently focused compatible Studio', asy
 		readonly options: RequestInit | null;
 		readonly url: string;
 	}> = [];
+
 	const fetchFn: StudioProtocolFetcher = (input, options) => {
 		const url = String(input);
 		requests.push({options: options ?? null, url});
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse(
@@ -132,6 +134,7 @@ test('requests confirmation in the most recently focused compatible Studio', asy
 
 test('returns an actionable result when no Studio is running', async () => {
 	const requests: string[] = [];
+
 	const result = await addElementLibraryToStudioWithDependencies(
 		{
 			url: 'https://library.example.com',
@@ -142,6 +145,7 @@ test('returns an actionable result when no Studio is running', async () => {
 			...dependencies,
 			fetchFn: (input) => {
 				requests.push(String(input));
+
 				return Promise.resolve(new Response(null, {status: 404}));
 			},
 		},
@@ -169,18 +173,22 @@ test('validates the request before probing localhost', async () => {
 		},
 	]) {
 		let requestCount = 0;
+
 		const result = await addElementLibraryToStudioWithDependencies(request, {
 			...dependencies,
 			fetchFn: () => {
 				requestCount++;
+
 				return Promise.resolve(new Response(null, {status: 404}));
 			},
 		});
+
 		expect(result.success).toBe(false);
 		expect(requestCount).toBe(0);
 	}
 
 	let probes = 0;
+
 	const unsupportedOrigin = await addElementLibraryToStudioWithDependencies(
 		{
 			url: 'https://library.example.com',
@@ -192,10 +200,12 @@ test('validates the request before probing localhost', async () => {
 			pageOrigin: 'http://elements.example.com',
 			fetchFn: () => {
 				probes++;
+
 				return Promise.resolve(new Response(null, {status: 404}));
 			},
 		},
 	);
+
 	expect(unsupportedOrigin).toMatchObject({
 		success: false,
 		code: 'unsupported-origin',
@@ -226,6 +236,7 @@ test('distinguishes an old Studio from one without a focused target', async () =
 				),
 		},
 	);
+
 	expect(oldStudio).toMatchObject({
 		success: false,
 		code: 'studio-upgrade-required',
@@ -237,6 +248,7 @@ test('distinguishes an old Studio from one without a focused target', async () =
 		projectName: 'Project',
 		targetId: 'unused',
 	});
+
 	const noTarget = await addElementLibraryToStudioWithDependencies(
 		{
 			url: 'https://library.example.com',
@@ -259,6 +271,7 @@ test('distinguishes an old Studio from one without a focused target', async () =
 				),
 		},
 	);
+
 	expect(noTarget).toMatchObject({
 		success: false,
 		code: 'no-configurable-target',

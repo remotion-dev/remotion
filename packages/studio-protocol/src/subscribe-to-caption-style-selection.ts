@@ -34,7 +34,9 @@ export const subscribeToCaptionStyleSelection = (
 			hasSelection: false,
 			dispose: () => {},
 		};
+
 		let port: MessagePort | null = null;
+
 		const disconnect = () => {
 			if (port !== null) {
 				port.onmessage = null;
@@ -56,6 +58,7 @@ export const subscribeToCaptionStyleSelection = (
 				}
 
 				const message = parseStudioProtocolCaptionStyleSelection(event.data);
+
 				if (message === null) {
 					return;
 				}
@@ -65,6 +68,7 @@ export const subscribeToCaptionStyleSelection = (
 						? message.selection.slug
 						: null;
 				state.hasSelection = true;
+
 				for (const entry of [...state.listeners]) {
 					if (!state.listeners.has(entry)) {
 						continue;
@@ -113,6 +117,7 @@ export const subscribeToCaptionStyleSelection = (
 	const current = subscription;
 	const listener = {onChange};
 	current.listeners.add(listener);
+
 	if (current.hasSelection) {
 		queueMicrotask(() => {
 			if (current.listeners.has(listener) && current.hasSelection) {

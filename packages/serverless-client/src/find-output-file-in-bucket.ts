@@ -7,6 +7,7 @@ import type {CloudProvider} from './types';
 export type OutputFileMetadata = {
 	url: string;
 	sizeInBytes: number | null;
+	renderId: string | null;
 };
 
 const outputFileAccessDenied = Symbol.for(
@@ -74,6 +75,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 				output,
 			}).url,
 			sizeInBytes: metadata.ContentLength ?? null,
+			renderId: metadata.Metadata?.['remotion-render-id'] ?? null,
 		};
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {

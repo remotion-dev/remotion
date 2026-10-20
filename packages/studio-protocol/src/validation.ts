@@ -1,6 +1,7 @@
 export const isUrl = (value: string): boolean => {
 	try {
 		const parsed = new URL(value);
+
 		return parsed.href.length > 0;
 	} catch {
 		return false;
@@ -79,11 +80,13 @@ export const isValidPackageName = (packageName: string): boolean => {
 	}
 
 	const match = packageName.match(scopedPackagePattern);
+
 	if (!match) {
 		return false;
 	}
 
 	const [, scope, name] = match;
+
 	return (
 		scope !== undefined &&
 		name !== undefined &&

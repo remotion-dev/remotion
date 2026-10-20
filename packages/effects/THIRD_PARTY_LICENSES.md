@@ -2,8 +2,8 @@
 
 ## EffectCraft
 
-The Fractal Noise, Turbulent Displace, and Lens Blur shaders are adapted from
-the noise, distortion, and blur engines in
+The Fractal Noise, Turbulent Displace, Lens Blur, and Bevel Alpha shaders are
+adapted from the noise, distortion, blur, and perspective engines in
 [EffectCraft](https://github.com/storytold/effectcraft), revision
 `8f02f52a44a4b1ea807d8824b92301b96f896a06`. It is used under the MIT license.
 

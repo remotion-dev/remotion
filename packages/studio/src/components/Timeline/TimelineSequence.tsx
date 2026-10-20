@@ -54,6 +54,7 @@ import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {SnowflakeIcon} from '../../icons/snowflake';
 import {SetSelectedModalContext} from '../../state/modals';
+import {TimelineZoomActiveContext} from '../../state/timeline-zoom';
 import {AudioWaveform} from '../AudioWaveform';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -284,42 +285,6 @@ type TimelineSequenceProps = {
 	readonly localStart: number;
 	readonly parentVisibleStart: number;
 	readonly parentVisibleEnd: number | null;
-};
-
-const TimelineSequenceFn: React.FC<TimelineSequenceProps> = ({
-	s,
-	labelStartFrame,
-	connectedCompositions,
-	nodePathInfo,
-	keyframeDisplayOffset,
-	keyframePlaybackRate,
-	sequenceFrameOffset,
-	cascadedStart,
-	localStart,
-	parentVisibleStart,
-	parentVisibleEnd,
-}) => {
-	const windowWidth = useContext(TimelineWidthContext);
-
-	if (windowWidth === null) {
-		return null;
-	}
-
-	return (
-		<MemoizedTimelineSequenceInner
-			s={s}
-			labelStartFrame={labelStartFrame}
-			connectedCompositions={connectedCompositions}
-			nodePathInfo={nodePathInfo}
-			keyframeDisplayOffset={keyframeDisplayOffset}
-			keyframePlaybackRate={keyframePlaybackRate}
-			sequenceFrameOffset={sequenceFrameOffset}
-			cascadedStart={cascadedStart}
-			localStart={localStart}
-			parentVisibleStart={parentVisibleStart}
-			parentVisibleEnd={parentVisibleEnd}
-		/>
-	);
 };
 
 const TimelineSequenceNegativeStartInner: React.FC<{
@@ -2040,8 +2005,6 @@ const TimelineSequenceInner: React.FC<TimelineSequenceProps> = (props) => {
 	return <TimelineSequenceLayout state={state} />;
 };
 
-const MemoizedTimelineSequenceInner = React.memo(TimelineSequenceInner);
-
 const TimelineSequenceLayout: React.FC<{
 	readonly state: ReturnType<typeof useTimelineSequenceState>;
 }> = ({state}) => {
@@ -2114,6 +2077,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		sourceTrimBlockedReason,
 		onPointerEnter,
 	} = state;
+	const isZooming = useContext(TimelineZoomActiveContext);
 	const sceneRange = useContext(TimelineSceneRangeContext);
 	const inheritedSceneRange = useContext(TimelineInheritedSceneRangeContext);
 	const sceneClipHeight = useContext(TimelineSceneClipHeightContext);
@@ -2257,6 +2221,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 	const layerHeight = getTimelineSequenceHeight(s);
 	const trimOutline = (() => {
 		if (
+			isZooming ||
 			!isEdgeDragging ||
 			!showTrimOutline ||
 			activeEdgeHighlight === null ||
@@ -2631,89 +2596,91 @@ const TimelineSequenceLayoutInner: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onClick={onSequenceClick}
 			edgeDragHandles={
-				<div
-					style={{
-						position: 'absolute',
-						inset: 0,
-						pointerEvents: 'none',
-						zIndex: 2,
-					}}
-				>
-					{showLeftActions && nodePathInfo ? (
-						<TimelineSequenceLeftEdgeDragHandle
-							// Transition targets keep the default cursor, including during rolling edits.
-							cursor={
-								s.timelineTrack?.role === 'transition'
-									? 'default'
-									: `${timelineTrimEdgeCursor}, ew-resize`
-							}
-							trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
-							sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
-							edgeEnabled={leftTrimEnabled}
-							edgeBlockedReason={leftTrimBlockedReason}
-							sourceTrimBlockedReason={sourceTrimBlockedReason}
-							handleLayout={trimHandleLayout}
-							edgeOffset={leftEdgeOffset}
-							edgeMode={
-								isTransitionSeriesSequence(s) ? 'head-trim' : 'self-trim'
-							}
-							rollingEnabled={rollingEnabled}
-							fillTarget={s.timelineTrack?.role === 'transition'}
-							isTransitionSeries={
-								isTransitionSeriesSequence(s) ||
-								s.timelineTrack?.role === 'transition'
-							}
-							onHoverEnd={clearEdgeHighlight}
-							secondaryAction={secondaryLeftEdgeAction}
-							nodePathInfo={nodePathInfo}
-							windowWidth={windowWidth}
-							timelineDurationInFrames={video.durationInFrames ?? 1}
-							initialEdgeFrame={
-								s.from +
-								(s.timelineTrack?.role === 'transition' ? s.duration / 2 : 0)
-							}
-							fps={video.fps}
-							onDragStart={startLeftEdgeDrag}
-							onDragEnd={endEdgeDrag}
-							onLimitChange={onTrimLimitChange}
-							onSelect={onSelect}
-							selected={selected}
-						/>
-					) : null}
-					{showRightActions &&
-					trimHandleLayout.rightTrim !== null &&
-					nodePathInfo ? (
-						<TimelineSequenceRightEdgeDragHandle
-							isTransitionSeries={isTransitionSeriesSequence(s)}
-							handleLeft={trimHandleLayout.rightTrim!}
-							edgeOffset={rightEdgeOffset}
-							onHoverEnd={clearEdgeHighlight}
-							cursor={`${timelineRightEdgeCursor}, ew-resize`}
-							nodePathInfo={nodePathInfo}
-							mediaDurationDragLimits={mediaDurationDragLimits}
-							windowWidth={windowWidth}
-							timelineDurationInFrames={video.durationInFrames ?? 1}
-							initialEdgeFrame={
-								outgoingTransitionStart ??
-								s.from +
-									Math.max(
-										0,
-										Math.min(
-											displayDurationInFrames,
-											effectiveMaxMediaDuration ?? Infinity,
-											video.durationInFrames - s.from,
-										),
-									)
-							}
-							fps={video.fps}
-							onDragStart={startRightEdgeDrag}
-							onDragEnd={endEdgeDrag}
-							onLimitChange={onTrimLimitChange}
-							onSelect={onSelect}
-							selected={selected}
-						/>
-					) : null}
-				</div>
+				isZooming && !isEdgeDragging ? null : (
+					<div
+						style={{
+							position: 'absolute',
+							inset: 0,
+							pointerEvents: 'none',
+							zIndex: 2,
+						}}
+					>
+						{showLeftActions && nodePathInfo ? (
+							<TimelineSequenceLeftEdgeDragHandle
+								// Transition targets keep the default cursor, including during rolling edits.
+								cursor={
+									s.timelineTrack?.role === 'transition'
+										? 'default'
+										: `${timelineTrimEdgeCursor}, ew-resize`
+								}
+								trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
+								sourceOnlyCursor={`${timelineSourceOnlyCursor}, ew-resize`}
+								edgeEnabled={leftTrimEnabled}
+								edgeBlockedReason={leftTrimBlockedReason}
+								sourceTrimBlockedReason={sourceTrimBlockedReason}
+								handleLayout={trimHandleLayout}
+								edgeOffset={leftEdgeOffset}
+								edgeMode={
+									isTransitionSeriesSequence(s) ? 'head-trim' : 'self-trim'
+								}
+								rollingEnabled={rollingEnabled}
+								fillTarget={s.timelineTrack?.role === 'transition'}
+								isTransitionSeries={
+									isTransitionSeriesSequence(s) ||
+									s.timelineTrack?.role === 'transition'
+								}
+								onHoverEnd={clearEdgeHighlight}
+								secondaryAction={secondaryLeftEdgeAction}
+								nodePathInfo={nodePathInfo}
+								windowWidth={windowWidth}
+								timelineDurationInFrames={video.durationInFrames ?? 1}
+								initialEdgeFrame={
+									s.from +
+									(s.timelineTrack?.role === 'transition' ? s.duration / 2 : 0)
+								}
+								fps={video.fps}
+								onDragStart={startLeftEdgeDrag}
+								onDragEnd={endEdgeDrag}
+								onLimitChange={onTrimLimitChange}
+								onSelect={onSelect}
+								selected={selected}
+							/>
+						) : null}
+						{showRightActions &&
+						trimHandleLayout.rightTrim !== null &&
+						nodePathInfo ? (
+							<TimelineSequenceRightEdgeDragHandle
+								isTransitionSeries={isTransitionSeriesSequence(s)}
+								handleLeft={trimHandleLayout.rightTrim!}
+								edgeOffset={rightEdgeOffset}
+								onHoverEnd={clearEdgeHighlight}
+								cursor={`${timelineRightEdgeCursor}, ew-resize`}
+								nodePathInfo={nodePathInfo}
+								mediaDurationDragLimits={mediaDurationDragLimits}
+								windowWidth={windowWidth}
+								timelineDurationInFrames={video.durationInFrames ?? 1}
+								initialEdgeFrame={
+									outgoingTransitionStart ??
+									s.from +
+										Math.max(
+											0,
+											Math.min(
+												displayDurationInFrames,
+												effectiveMaxMediaDuration ?? Infinity,
+												video.durationInFrames - s.from,
+											),
+										)
+								}
+								fps={video.fps}
+								onDragStart={startRightEdgeDrag}
+								onDragEnd={endEdgeDrag}
+								onLimitChange={onTrimLimitChange}
+								onSelect={onSelect}
+								selected={selected}
+							/>
+						) : null}
+					</div>
+				)
 			}
 		>
 			{s.type === 'audio' && visibleLayout.media ? (
@@ -2795,4 +2762,4 @@ const TimelineSequenceLayoutInner: React.FC<{
 	);
 };
 
-export const TimelineSequence = React.memo(TimelineSequenceFn);
+export const TimelineSequence = React.memo(TimelineSequenceInner);

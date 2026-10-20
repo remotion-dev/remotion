@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.536",
+	"version": "4.0.537",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -38,6 +38,11 @@
 			"types": "./dist/barrel-distortion.d.ts",
 			"module": "./dist/esm/barrel-distortion.mjs",
 			"import": "./dist/esm/barrel-distortion.mjs"
+		},
+		"./bevel-alpha": {
+			"types": "./dist/bevel-alpha.d.ts",
+			"module": "./dist/esm/bevel-alpha.mjs",
+			"import": "./dist/esm/bevel-alpha.mjs"
 		},
 		"./blur": {
 			"types": "./dist/blur.d.ts",
@@ -435,6 +440,9 @@
 		">=1.0": {
 			"barrel-distortion": [
 				"dist/barrel-distortion.d.ts"
+			],
+			"bevel-alpha": [
+				"dist/bevel-alpha.d.ts"
 			],
 			"blur": [
 				"dist/blur.d.ts"

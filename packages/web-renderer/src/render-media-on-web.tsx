@@ -468,7 +468,7 @@ const internalRenderMediaOnWeb = async <
 			? new StreamTarget(webFsTarget.stream)
 			: new BufferTarget()!;
 
-	using outputWithCleanup = makeOutputWithCleanup({
+	await using outputWithCleanup = makeOutputWithCleanup({
 		format,
 		target,
 	});
