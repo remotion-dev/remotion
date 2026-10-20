@@ -1,4 +1,8 @@
 import {getVideoMetadata} from '@remotion/media-utils';
+import {
+	readMediaMetadataFromPersistentCache,
+	writeMediaMetadataToPersistentCache,
+} from '@remotion/timeline-utils';
 import type {
 	FrameRateMetrics,
 	InputAudioTrack,
@@ -9,6 +13,8 @@ import {useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {getDurationOrCompute} from './get-duration-or-compute';
 
+// Persisted by the timeline cache of @remotion/timeline-utils. Bump its
+// SCHEMA_VERSION when changing this type.
 export type MediaMetadata = {
 	duration: number;
 	format: string | null;
@@ -185,9 +191,23 @@ export const getMediaMetadata = (
 		return pendingRequest;
 	}
 
-	const request = getMediabunnyMetadata(src)
-		.catch(() => null)
-		.then((metadata) => metadata ?? getFallbackVideoMetadata(src))
+	// The timeline can only draw a media clip once its duration is known, so
+	// metadata from a previous page load avoids waiting for the network.
+	const request = readMediaMetadataFromPersistentCache(src)
+		.then(async (persisted) => {
+			if (persisted) {
+				return persisted as MediaMetadata;
+			}
+
+			const metadata =
+				(await getMediabunnyMetadata(src).catch(() => null)) ??
+				(await getFallbackVideoMetadata(src));
+			if (metadata) {
+				writeMediaMetadataToPersistentCache({src, mediaMetadata: metadata});
+			}
+
+			return metadata;
+		})
 		.then((metadata) => {
 			if (metadata) {
 				cache.set(src, metadata);

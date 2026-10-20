@@ -47,6 +47,8 @@ export type {LoopDisplaySegment, TimelineLoopDisplay} from './loop-display';
 export {
 	clearPersistentTimelineCache,
 	hydrateThumbnailsFromPersistentCache,
+	readMediaMetadataFromPersistentCache,
+	writeMediaMetadataToPersistentCache,
 	writeThumbnailToPersistentCache,
 } from './persistent-cache/persistent-cache';
 export {
