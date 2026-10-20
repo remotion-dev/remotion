@@ -234,6 +234,8 @@ const myPresentation = makeHtmlInCanvasPresentation(myShader);
 
 :::warning
 HTML-in-canvas requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled.
+
+From <AvailableFrom v="4.0.538" inline />, previews without HTML-in-canvas show an "Effects are not visible" warning and cut between scenes halfway through the transition. The transition duration is preserved. Rendering still fails when HTML-in-canvas is unavailable.
 :::
 
 ## Arguments
