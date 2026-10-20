@@ -1,3 +1,4 @@
+import {getCubicArcLength, t2length} from './helpers/bezier-functions';
 import type {
 	CInstruction,
 	LInstruction,
@@ -40,15 +41,21 @@ export function cutCInstruction({
 	lastPoint: Point;
 	instruction: CInstruction;
 }): CInstruction {
-	// De Casteljau's algorithm for Bezier splitting
-	const u = progress;
-
 	// Points of original curve
 	const p0 = {x: lastPoint.x, y: lastPoint.y};
 	const p1 = {x: instruction.cp1x, y: instruction.cp1y};
 	const p2 = {x: instruction.cp2x, y: instruction.cp2y};
 	const p3 = {x: instruction.x, y: instruction.y};
+	const sx = [p0.x, p1.x, p2.x, p3.x];
+	const sy = [p0.y, p1.y, p2.y, p3.y];
+	const totalLength = getCubicArcLength({sx, sy, t: 1});
+	const u = t2length({
+		length: progress * totalLength,
+		totalLength,
+		func: (t) => getCubicArcLength({sx, sy, t}),
+	});
 
+	// De Casteljau's algorithm for Bezier splitting
 	// First level of interpolation
 	const p01 = interpolatePoint(p0, p1, u);
 	const p12 = interpolatePoint(p1, p2, u);
