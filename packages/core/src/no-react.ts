@@ -1,9 +1,19 @@
-export type {
+import type {
 	ArtifactAsset,
-	AudioOrVideoAsset,
+	AudioOrVideoAsset as InternalAudioOrVideoAsset,
 	InlineAudioAsset,
-	TRenderAsset,
 } from './CompositionManager';
+export type {ArtifactAsset, InlineAudioAsset} from './CompositionManager';
+
+// Older consumers can still supply assets without a pitch preference.
+export type AudioOrVideoAsset = Omit<
+	InternalAudioOrVideoAsset,
+	'preservePitch'
+> & {
+	preservePitch?: boolean | null;
+};
+
+export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset | InlineAudioAsset;
 export type {DownloadBehavior} from './download-behavior';
 export {
 	assertValidInterpolateEasingOption,
