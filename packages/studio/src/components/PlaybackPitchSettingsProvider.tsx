@@ -12,9 +12,7 @@ export const PlaybackPitchSettingsProvider: React.FC<{
 	useEffect(() => {
 		return subscribeToPreviewServerEvents((event) => {
 			if (event.type === 'config-file-changed') {
-				setPreservePitch(
-					event.studioRuntimeConfig.preservePitchOnPlayback ?? true,
-				);
+				setPreservePitch(event.studioRuntimeConfig.preservePitchOnPlayback);
 			}
 		});
 	}, []);

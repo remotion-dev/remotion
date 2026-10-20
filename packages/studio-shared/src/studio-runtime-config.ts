@@ -6,7 +6,7 @@ import type {
 import type {StudioKeyboardShortcuts} from './keyboard-shortcuts';
 
 export type ConfigFileStudioSettings = {
-	readonly preservePitchOnPlayback?: boolean | null;
+	readonly preservePitchOnPlayback: boolean | null;
 	readonly showLayerFrameNumbers: boolean | null;
 	readonly showPremounting: boolean | null;
 	readonly defaultPremountInSeconds: number | null;
@@ -31,7 +31,7 @@ export type StudioElementLibrary = {
 };
 
 export type StudioRuntimeConfig = {
-	readonly preservePitchOnPlayback?: boolean;
+	readonly preservePitchOnPlayback: boolean;
 	readonly showLayerFrameNumbers: boolean;
 	readonly showPremounting: boolean | null;
 	readonly defaultPremountInSeconds: number | null;
