@@ -17,7 +17,8 @@ export const makeOutputWithCleanup = <T extends OutputFormat, U extends Target>(
 				return;
 			}
 
-			await output.cancel();
+			// Cleanup failures must not replace the original render error.
+			await output.cancel().catch(() => {});
 		},
 	};
 };
