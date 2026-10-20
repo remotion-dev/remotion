@@ -18,6 +18,7 @@ import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {CanvasCaptureAnnouncement} from './CanvasCaptureAnnouncement/CanvasCaptureAnnouncement';
 import {CanvasCaptureShort} from './CanvasCaptureShort/CanvasCaptureShort';
+import {CaptionsRecordingComposition} from './CaptionsRecordingComposition';
 import {CloseUp1} from './CloseUp1';
 import {CloseUp2} from './CloseUp2';
 import {CloseUp3} from './CloseUp3';
@@ -86,6 +87,7 @@ import {
 	expertsGraphicDurationInFrames,
 } from './HomepageAssets/ExpertsGraphic';
 import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/AudioWaveform';
+import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
 import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
@@ -278,6 +280,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionCaptions"
+						component={ExploreRemotionCaptions}
+						durationInFrames={612}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
 					<Composition
 						id="ExploreRemotion3DRotation"
 						component={ExploreRemotion3DRotation}
@@ -1143,6 +1153,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					height={1080}
 				/>
 			</Folder>
+			<Composition
+				id="CaptionsRecording"
+				component={CaptionsRecordingComposition}
+				durationInFrames={612}
+				fps={60}
+				width={1902}
+				height={1440}
+			/>
 		</>
 	);
 };
