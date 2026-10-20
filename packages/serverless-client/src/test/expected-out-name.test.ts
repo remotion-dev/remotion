@@ -137,6 +137,88 @@ test('Should preserve custom provider regions outside the built-in AWS list', ()
 	});
 });
 
+test('Should default key when outName specifies custom s3OutputProvider without key for video', () => {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
+		...testRenderMetadata,
+		audioCodec: 'pcm-16',
+		outName: {
+			bucketName: 'renders-dev.mykaraoke.video',
+			s3OutputProvider: {
+				endpoint: 'https://fly.storage.tigris.dev',
+			},
+		},
+		privacy: 'private',
+	};
+
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: {
+				endpoint: 'https://fly.storage.tigris.dev',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+				region: 'auto',
+				forcePathStyle: false,
+			},
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: {
+			endpoint: 'https://fly.storage.tigris.dev',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: 'auto',
+			forcePathStyle: false,
+		},
+		renderBucketName: 'renders-dev.mykaraoke.video',
+		key: 'renders/9n8dsfafs/out.mkv',
+	});
+});
+
+test('Should default key when outName specifies custom s3OutputProvider without key for still', () => {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
+		...testRenderMetadata,
+		type: 'still',
+		codec: null,
+		imageFormat: 'png',
+		outName: {
+			bucketName: 'renders-dev.mykaraoke.video',
+			s3OutputProvider: {
+				endpoint: 'https://fly.storage.tigris.dev',
+			},
+		},
+		privacy: 'no-acl',
+	};
+
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: {
+				endpoint: 'https://fly.storage.tigris.dev',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+				region: 'auto',
+				forcePathStyle: true,
+			},
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: {
+			endpoint: 'https://fly.storage.tigris.dev',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: 'auto',
+			forcePathStyle: true,
+		},
+		renderBucketName: 'renders-dev.mykaraoke.video',
+		key: 'renders/9n8dsfafs/out.png',
+	});
+});
+
 test('For stills', () => {
 	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,

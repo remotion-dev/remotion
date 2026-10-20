@@ -20,7 +20,11 @@ The output name must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
 
 ## Customizing the output bucket
 
-To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with the `key` and `bucketName` values:
+To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with `bucketName` and an optional `key`.
+
+From <AvailableFrom v="4.0.538" inline />, you can omit `key` to use `renders/${renderId}/out.{extension}` in the destination bucket, including when using `s3OutputProvider`. The extension is chosen from the codec and audio options, or the image format for stills.
+
+If you specify `key`, include the extension.
 
 ```tsx twoslash {13-16}
 import {renderMediaOnLambda} from '@remotion/lambda';
@@ -37,7 +41,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   maxRetries: 1,
   privacy: 'no-acl',
   outName: {
-    key: 'my-output',
+    key: 'my-output.mp4',
     bucketName: 'output-bucket',
   },
 });
@@ -49,7 +53,7 @@ If you like to use this feature:
 - If you set `privacy` to `"public"` or `"private"`, also grant `s3:PutObjectAcl` on the destination bucket's objects.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
-- The `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`
+- If provided, the `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
 - The bucketName must match `/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/`.
 
 This feature is not supported from the CLI.
@@ -100,7 +104,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   maxRetries: 1,
   privacy: 'no-acl',
   outName: {
-    key: 'my-output',
+    key: 'my-output.mp4',
     bucketName: 'output-bucket',
     s3OutputProvider: {
       endpoint: 'https://fra1.digitaloceanspaces.com',

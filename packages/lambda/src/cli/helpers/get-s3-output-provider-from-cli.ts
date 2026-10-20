@@ -1,5 +1,8 @@
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {CustomCredentials, OutNameInput} from '@remotion/serverless';
+import type {
+	CustomCredentials,
+	OutNameInputWithKey,
+} from '@remotion/serverless';
 import type {AwsProvider} from '../../client';
 
 export const S3_OUTPUT_PROVIDER_ACCESS_KEY_ID_ENV_NAME =
@@ -54,7 +57,7 @@ export const makeOutNameWithCustomCredentials = ({
 	bucketName: string | undefined;
 	key: string | undefined;
 	s3OutputProvider: CustomCredentials<AwsProvider> | null;
-}): OutNameInput<AwsProvider> | null => {
+}): OutNameInputWithKey<AwsProvider> | null => {
 	if (!s3OutputProvider) {
 		return key ?? null;
 	}

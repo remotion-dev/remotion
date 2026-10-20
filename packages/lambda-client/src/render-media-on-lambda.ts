@@ -6,6 +6,7 @@ import type {
 	ChromiumOptions,
 	DownloadBehavior,
 	OutNameInput,
+	OutNameInputWithKey,
 	PixelFormat,
 	Privacy,
 	ServerlessCodec,
@@ -55,7 +56,7 @@ export type RenderMediaOnLambdaInput = {
 	concurrency?: number;
 	frameRange?: SingleFrameRange;
 	outName?: OutNameInput<AwsProvider>;
-	separateAudioTo?: OutNameInput<AwsProvider>;
+	separateAudioTo?: OutNameInputWithKey<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
