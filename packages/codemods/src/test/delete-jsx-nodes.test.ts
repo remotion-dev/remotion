@@ -288,3 +288,93 @@ test('deleteNodes preserves source formatting and removes standalone JSX lines',
 		expect(formatted).toBe(true);
 	}
 });
+
+const transitionSeries = `import React from 'react';
+import {TransitionSeries} from '@remotion/transitions';
+
+export const X: React.FC = () => {
+	return (
+		<TransitionSeries>
+			<TransitionSeries.Sequence durationInFrames={61}>
+				<div>one</div>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Overlay durationInFrames={20}>
+				<div>first overlay</div>
+			</TransitionSeries.Overlay>
+			<TransitionSeries.Sequence durationInFrames={62}>
+				<div>two</div>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Overlay durationInFrames={30}>
+				<div>second overlay</div>
+			</TransitionSeries.Overlay>
+			<TransitionSeries.Sequence durationInFrames={63}>
+				<div>three</div>
+			</TransitionSeries.Sequence>
+		</TransitionSeries>
+	);
+};
+`;
+
+test('deleteNodes removes the following overlay with a TransitionSeries sequence', async () => {
+	const {output, nodeLabels} = await deleteNodes({
+		input: transitionSeries,
+		nodePaths: [
+			lineContainingToNodePath(transitionSeries, 'durationInFrames={62}'),
+		],
+	});
+
+	expect(output).not.toContain('two');
+	expect(output).not.toContain('second overlay');
+	expect(output).toContain('first overlay');
+	expect(output).toContain('one');
+	expect(output).toContain('three');
+	expect(nodeLabels).toEqual([
+		'<TransitionSeries.Sequence>',
+		'<TransitionSeries.Overlay>',
+	]);
+});
+
+test('deleteNodes removes the preceding overlay with the last TransitionSeries sequence', async () => {
+	const {output} = await deleteNodes({
+		input: transitionSeries,
+		nodePaths: [
+			lineContainingToNodePath(transitionSeries, 'durationInFrames={63}'),
+		],
+	});
+
+	expect(output).not.toContain('three');
+	expect(output).not.toContain('second overlay');
+	expect(output).toContain('first overlay');
+	expect(output).toContain('two');
+});
+
+test('deleteNodes removes the following transition with a TransitionSeries sequence', async () => {
+	const input = transitionSeries.replaceAll(
+		'TransitionSeries.Overlay',
+		'TransitionSeries.Transition',
+	);
+	const {output} = await deleteNodes({
+		input,
+		nodePaths: [lineContainingToNodePath(input, 'durationInFrames={61}')],
+	});
+
+	expect(output).not.toContain('one');
+	expect(output).not.toContain('first overlay');
+	expect(output).toContain('second overlay');
+	expect(output).toContain('two');
+});
+
+test('deleteNodes does not remove a connector twice when it is selected too', async () => {
+	const {output, nodeLabels} = await deleteNodes({
+		input: transitionSeries,
+		nodePaths: [
+			lineContainingToNodePath(transitionSeries, 'durationInFrames={62}'),
+			lineContainingToNodePath(transitionSeries, 'durationInFrames={30}'),
+		],
+	});
+
+	expect(output).not.toContain('two');
+	expect(output).not.toContain('second overlay');
+	expect(output).toContain('first overlay');
+	expect(nodeLabels).toHaveLength(2);
+});
