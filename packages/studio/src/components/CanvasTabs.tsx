@@ -172,8 +172,8 @@ const dropIndicatorStyle: React.CSSProperties = {
 };
 
 const tabStyle: React.CSSProperties = {
-	gap: 6,
 	minWidth: 0,
+	position: 'relative',
 	width: '100%',
 	boxSizing: 'border-box',
 };
@@ -191,6 +191,7 @@ const labelStyle: React.CSSProperties = {
 const tooltipTriggerStyle: React.CSSProperties = {
 	flex: 1,
 	minWidth: 0,
+	marginRight: 'var(--remotion-canvas-tab-close-space, 26px)',
 };
 
 const tooltipContentStyle: React.CSSProperties = {
@@ -204,10 +205,15 @@ const tooltipTitleStyle: React.CSSProperties = {
 };
 
 const closeStyle: React.CSSProperties = {
-	flexShrink: 0,
 	height: 20,
+	position: 'absolute',
+	right: 3,
+	top: '50%',
+	transform: 'translateY(-50%)',
 	width: 20,
-	transition: 'opacity 0.1s',
+	// Let the tab's CSS control visibility instead of InlineAction's defaults.
+	opacity: undefined,
+	pointerEvents: undefined,
 };
 
 const CanvasTab: React.FC<{
@@ -233,9 +239,6 @@ const CanvasTab: React.FC<{
 	onDragStart,
 	onDragEnd,
 }) => {
-	const [hovered, setHovered] = useState(false);
-	const [closeButtonFocused, setCloseButtonFocused] = useState(false);
-	const showCloseButton = hovered || selected || closeButtonFocused;
 	const {canvasContent, compositions, currentCompositionMetadata} = useContext(
 		Internals.CompositionManager,
 	);
@@ -465,32 +468,27 @@ const CanvasTab: React.FC<{
 			</ActionTooltip>
 			<InlineAction
 				aria-label={`Close ${label} tab`}
+				className="__remotion-canvas-tab-close"
 				onClick={(event) => {
 					event.stopPropagation();
 					onClose();
 				}}
 				renderAction={() => <CancelIcon height={16} width={16} />}
-				style={{
-					...closeStyle,
-					opacity: showCloseButton ? 1 : 0,
-					pointerEvents: showCloseButton ? 'auto' : 'none',
-				}}
+				style={closeStyle}
 				variant={null}
-				onFocus={() => setCloseButtonFocused(true)}
-				onBlur={() => setCloseButtonFocused(false)}
 			/>
 		</Tab>
 	);
 
 	return (
 		<div
+			className="__remotion-canvas-tab"
+			data-selected={selected}
 			style={tabWrapperStyle}
 			draggable
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
 			onDrop={cancelDragFocus}
-			onPointerEnter={() => setHovered(true)}
-			onPointerLeave={() => setHovered(false)}
 		>
 			<ContextMenu getItems={getContextMenuItems}>{tabElement}</ContextMenu>
 			{dropIndicator === null ? null : (
@@ -944,6 +942,18 @@ export const CanvasTabs: React.FC = () => {
 					);
 				})}
 			</Tabs>
+			<style>{`
+				@media (hover: hover) {
+					.__remotion-canvas-tab:not([data-selected="true"]):not(:hover):not(:focus-within) {
+						--remotion-canvas-tab-close-space: 0px;
+					}
+
+					.__remotion-canvas-tab:not([data-selected="true"]):not(:hover):not(:focus-within) .__remotion-canvas-tab-close {
+						opacity: 0;
+						pointer-events: none;
+					}
+				}
+			`}</style>
 		</div>
 	);
 };
