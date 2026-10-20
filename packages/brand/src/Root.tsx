@@ -1,5 +1,6 @@
 import {Composition, Folder} from 'remotion';
 import {ThreeDCheck} from './3DCheck';
+import {AiPromptRecordingComposition} from './AiPromptRecordingComposition';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
@@ -86,6 +87,7 @@ import {
 	ExpertsGraphic,
 	expertsGraphicDurationInFrames,
 } from './HomepageAssets/ExpertsGraphic';
+import {ExploreRemotionAI} from './HomepageAssets/ExploreRemotion/AI';
 import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/AudioWaveform';
 import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
@@ -280,6 +282,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionAI"
+						component={ExploreRemotionAI}
+						durationInFrames={222}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
 					<Composition
 						id="ExploreRemotionCaptions"
 						component={ExploreRemotionCaptions}
@@ -1159,6 +1169,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				durationInFrames={612}
 				fps={60}
 				width={1902}
+				height={1440}
+			/>
+			<Composition
+				id="AiPromptRecording"
+				component={AiPromptRecordingComposition}
+				durationInFrames={748}
+				fps={60}
+				width={1494}
 				height={1440}
 			/>
 		</>

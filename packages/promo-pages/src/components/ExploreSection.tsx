@@ -7,14 +7,15 @@ const videoSources: Record<string, string> = {
 	Video: 'video-playback-2026-09-22.mp4',
 	Audio: 'audio-waveform.mp4',
 	Captions: 'captions-2026-10-20-7c7e04671491.mp4',
+	AI: 'ai-prompt-2026-10-20-77a73116a839.mp4',
 	Rendering: 'render-modal-codec.mp4',
 };
 
 export const ExploreSection: React.FC = () => {
 	return (
-		<section className="mx-auto max-w-[1000px] px-5 pt-24 pb-24">
-			<SectionTitle>Explore Remotion</SectionTitle>
-			<p className="mx-auto mt-3 mb-10 max-w-[760px] text-center fontbrand text-balance leading-relaxed">
+		<section className="mx-auto max-w-[1000px] px-5 pt-24 pb-24 [&_h2]:mb-0">
+			<SectionTitle>Problems we solve</SectionTitle>
+			<p className="mx-auto mt-2 mb-10 max-w-[760px] text-center fontbrand text-balance leading-relaxed">
 				Our mission is to explode the world of video creation into pieces and
 				let you assemble them.
 			</p>
