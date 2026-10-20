@@ -37,6 +37,19 @@ The detail page, preview renderer, and Studio use the same source files. The gal
 
 See the [Element guidelines](https://www.remotion.dev/docs/studio/creating-elements), [interactivity documentation](https://www.remotion.dev/docs/studio/interactivity), and [library integration guide](https://www.remotion.dev/docs/studio-protocol/component-library-integration) for layout, assets, dependencies, and installation requirements.
 
+## Element lint rules
+
+`npm run lint` includes local rules from `eslint/`, configured in `eslint.config.mjs`. They apply only to `elements/**/*.tsx`, not the website, registry, or preview compositions.
+
+- `elements/assets-as-props` (error): Pass media sources through props. Do not hardcode `src`, `srcSet`, or `poster` values, including constant aliases and fallback URLs, import media files, or call `staticFile()` inside an Element. The rule also checks SVG image references and static CSS asset URLs. Put example URLs in the registry's `initialProps`. Use `assets` and installation props with `staticFileRef()` for assets that Studio should download.
+- `elements/self-contained` (error): Keep each Element in one source file. Do not use relative imports, absolute paths, or project aliases such as `@/`, `~/`, and `#`. Package imports are allowed; declare their dependencies in the registry. Computed import paths that cannot be resolved statically are rejected.
+- `elements/no-global-styles` (error): Use styles on the Element's own nodes, not stylesheet imports, `<style>` tags, stylesheet links, or direct mutations of `document.body.style` and `document.documentElement.style`.
+- `elements/interactive-name` (warning): Give `Interactive.*` nodes and supported Remotion media and sequence layers an explicit, nonempty `name`. Dynamic names are allowed.
+
+For example, use `<Img name="Photo" src={src} />` in the Element and supply the photo URL in the registry. Do not use `<Img src="https://example.com/photo.jpg" />` inside the Element.
+
+These checks catch common static patterns, not every possible runtime dependency or side effect. They do not validate registry dependencies or prove that a dynamic asset comes from props. Check installation in a clean Remotion project and review the result in Studio.
+
 ## Render and upload previews
 
 `remotion.media` hosts the example previews. The gallery and caption picker use `elements/previews.json` for posters and videos. The videos play on hover or focus.
