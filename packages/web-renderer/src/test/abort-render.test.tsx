@@ -292,7 +292,9 @@ test.for(['error', 'cancel'] as const)(
 			expect(reason).toBe(error);
 		} else {
 			expect(reason).toBeInstanceOf(Error);
-			expect((reason as Error).message).toBe('renderMediaOnWeb() was cancelled');
+			expect((reason as Error).message).toBe(
+				'renderMediaOnWeb() was cancelled',
+			);
 		}
 	},
 );
