@@ -1,4 +1,4 @@
-import type {} from '@vitest/browser-playwright';
+import type {CDPSession} from '@vitest/browser-playwright';
 import {expect, test, vi} from 'vitest';
 import {cdp} from 'vitest/browser';
 import {makeAudioIterator} from '../audio/audio-preview-iterator';
@@ -80,8 +80,9 @@ test('ended audio buffers are collectible while the iterator keeps its schedulin
 
 	const result = await prepare();
 	try {
-		await cdp().send('HeapProfiler.collectGarbage');
-		await cdp().send('HeapProfiler.collectGarbage');
+		const session = cdp() as CDPSession;
+		await session.send('HeapProfiler.collectGarbage');
+		await session.send('HeapProfiler.collectGarbage');
 		expect(result.buffers.filter((ref) => ref.deref())).toHaveLength(0);
 		expect(result.nodes.filter((ref) => ref.deref())).toHaveLength(0);
 		expect(result.iterator.isDestroyed()).toBe(false);
@@ -111,8 +112,9 @@ test('destroy removes the ended listener even when a pending node never starts',
 	};
 
 	const result = prepare();
-	await cdp().send('HeapProfiler.collectGarbage');
-	await cdp().send('HeapProfiler.collectGarbage');
+	const session = cdp() as CDPSession;
+	await session.send('HeapProfiler.collectGarbage');
+	await session.send('HeapProfiler.collectGarbage');
 	expect(result.source.deref()).toBeUndefined();
 	// Keep the node alive through GC: it must not retain the iterator's listener.
 	expect(result.node.context.state).toBe('suspended');
