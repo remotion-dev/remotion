@@ -923,11 +923,16 @@ export const startContent = () => {
 			const requirementMessage = browserRequirementIssue
 				? browserRequirementMessages[browserRequirementIssue]
 				: null;
+			const recordingError = state.error && requirementMessage === null;
 			controlsErrorTitle.textContent =
-				requirementMessage?.title ?? "Browser can't encode this resolution";
+				requirementMessage?.title ??
+				(recordingError
+					? 'Could not record'
+					: "Browser can't encode this resolution");
 			controlsErrorDescription.textContent =
-				requirementMessage?.description ?? '';
-			controlsErrorDescription.hidden = requirementMessage === null;
+				requirementMessage?.description ?? (recordingError ? state.status : '');
+			controlsErrorDescription.hidden =
+				requirementMessage === null && !recordingError;
 			controlsOpenSetup.hidden =
 				browserRequirementIssue !== 'html-in-canvas-unavailable';
 			controlsEncodingError.classList.toggle(
@@ -936,6 +941,7 @@ export const startContent = () => {
 			);
 			controlsEncodingError.style.display =
 				requirementMessage ||
+				recordingError ||
 				(state.hasTarget && state.encoderSupport === 'unsupported')
 					? 'block'
 					: 'none';
