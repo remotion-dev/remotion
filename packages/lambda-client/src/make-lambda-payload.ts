@@ -29,6 +29,7 @@ import {
 	ServerlessRoutines,
 	type DeleteAfter,
 	type OutNameInput,
+	type OutNameInputWithKey,
 	type Privacy,
 	type ServerlessCodec,
 	type ServerlessPayloads,
@@ -66,7 +67,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput | null;
-	separateAudioTo: OutNameInput | null;
+	separateAudioTo: OutNameInputWithKey | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;

@@ -25,6 +25,7 @@ import type {AwsRegion} from './regions';
 import {
 	ServerlessRoutines,
 	type OutNameInput,
+	type OutNameInputWithKey,
 	type Privacy,
 	type ServerlessCodec,
 	type WebhookOption,
@@ -55,7 +56,7 @@ export type RenderMediaOnLambdaInput = {
 	concurrency?: number;
 	frameRange?: SingleFrameRange;
 	outName?: OutNameInput;
-	separateAudioTo?: OutNameInput;
+	separateAudioTo?: OutNameInputWithKey;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;

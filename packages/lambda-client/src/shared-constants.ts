@@ -60,9 +60,11 @@ export type OutNameInput =
 	| string
 	| {
 			bucketName: string;
-			key: string;
+			key?: string;
 			s3OutputProvider?: CustomCredentials;
 	  };
+
+export type OutNameInputWithKey = string | (OutNameInput & {key: string});
 
 export type RenderOutput = 'main' | 'separate-audio';
 
@@ -151,7 +153,7 @@ export type ServerlessStartPayload = {
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput | null;
-	separateAudioTo: OutNameInput | null;
+	separateAudioTo: OutNameInputWithKey | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -220,7 +222,7 @@ export type ServerlessPayloads = {
 		logLevel: LogLevel;
 		frameRange: SingleFrameRange | null;
 		outName: OutNameInput | null;
-		separateAudioTo: OutNameInput | null;
+		separateAudioTo: OutNameInputWithKey | null;
 		timeoutInMilliseconds: number;
 		// Non-JS SDKs may not set chromiumOptions, may be undefined
 		chromiumOptions: ChromiumOptions | undefined;
@@ -373,7 +375,7 @@ export type OutNameInputWithoutCredentials =
 	| string
 	| {
 			bucketName: string;
-			key: string;
+			key?: string;
 			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
 	  };
 
@@ -388,7 +390,7 @@ export const outName = (renderId: string, extension: string) =>
 export const customOutName = (
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput,
+	name: OutNameInputWithKey,
 ): OutNameOutput => {
 	if (typeof name === 'string') {
 		return {

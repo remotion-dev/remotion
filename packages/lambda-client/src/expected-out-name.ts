@@ -76,24 +76,38 @@ export const getExpectedOutName = ({
 			separateAudioTo: separateAudioFilename?.toLowerCase() ?? null,
 			bucketNamePrefix,
 		});
-		return customOutName(renderMetadata.renderId, bucketName, outNameValue);
+		if (typeof outNameValue === 'string') {
+			return customOutName(renderMetadata.renderId, bucketName, outNameValue);
+		}
+
+		if (outNameValue.key !== undefined) {
+			return customOutName(renderMetadata.renderId, bucketName, {
+				...outNameValue,
+				key: outNameValue.key,
+			});
+		}
 	}
 
 	if (output === 'separate-audio') {
 		throw new Error('This render does not have a separate audio output.');
 	}
 
+	const destination =
+		typeof outNameValue === 'object' && outNameValue !== null
+			? outNameValue
+			: null;
+
 	if (renderMetadata.type === 'still') {
 		return {
-			renderBucketName: bucketName,
+			renderBucketName: destination?.bucketName ?? bucketName,
 			key: outStillName(renderMetadata.renderId, renderMetadata.imageFormat),
-			customCredentials: null,
+			customCredentials: destination?.s3OutputProvider ?? null,
 		};
 	}
 
 	if (renderMetadata.type === 'video') {
 		return {
-			renderBucketName: bucketName,
+			renderBucketName: destination?.bucketName ?? bucketName,
 			key: outName(
 				renderMetadata.renderId,
 				NoReactAPIs.getFileExtensionFromCodec(
@@ -101,7 +115,7 @@ export const getExpectedOutName = ({
 					separateAudioFilename === null ? renderMetadata.audioCodec : null,
 				),
 			),
-			customCredentials: null,
+			customCredentials: destination?.s3OutputProvider ?? null,
 		};
 	}
 

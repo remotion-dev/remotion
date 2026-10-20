@@ -2,7 +2,7 @@ import {
 	LambdaClientInternals,
 	type AwsRegion,
 	type CustomCredentials,
-	type OutNameInput,
+	type OutNameInputWithKey,
 } from '@remotion/lambda-client';
 
 export const S3_OUTPUT_PROVIDER_ACCESS_KEY_ID_ENV_NAME =
@@ -57,7 +57,7 @@ export const makeOutNameWithCustomCredentials = ({
 	bucketName: string | undefined;
 	key: string | undefined;
 	s3OutputProvider: CustomCredentials | null;
-}): OutNameInput | null => {
+}): OutNameInputWithKey | null => {
 	if (!s3OutputProvider) {
 		return key ?? null;
 	}

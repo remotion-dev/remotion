@@ -109,6 +109,7 @@ export type {
 	CustomCredentialsWithoutSensitiveData,
 	DeleteAfter,
 	OutNameInput,
+	OutNameInputWithKey,
 	OutNameInputWithoutCredentials,
 	OutNameOutput,
 	PostRenderData,

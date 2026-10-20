@@ -50,7 +50,7 @@ const params: ServerlessPayloads['launch'] = {
 	audioCodec: null,
 	imageFormat: 'png',
 	inputProps: {type: 'payload', payload: '{}'},
-	outName: {bucketName: destination, key: 'output.mp4'},
+	outName: {bucketName: destination},
 	separateAudioTo: null,
 	concurrency: 1,
 	framesPerFunction: null,
@@ -408,7 +408,12 @@ test.each(['normalized', 'constructed'] as const)(
 		);
 		try {
 			await invokeLaunch(fixture);
-			expect(fixture.writeFileIfNotExists).toHaveBeenCalledTimes(1);
+			expect(fixture.writeFileIfNotExists).toHaveBeenCalledWith(
+				expect.objectContaining({
+					bucketName: destination,
+					key: `renders/${renderId}/out.mp4`,
+				}),
+			);
 			expect(fixture.getOutput()!.toString()).toBe('rendered output');
 			expect(fixture.getProgress().postRenderData).not.toBeNull();
 			expect(

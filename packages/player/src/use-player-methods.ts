@@ -32,6 +32,8 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const audioTagsContext = useContext(Internals.SharedAudioTagsContext);
 	const environment = useRemotionEnvironment();
 	const video = Internals.useVideo();
+	const videoId = video?.id ?? null;
+	const videoDurationInFrames = video?.durationInFrames ?? null;
 	const config = Internals.useUnsafeVideoConfig();
 	const emitter = useContext(PlayerEventEmitterContext);
 	const playStart = useRef(0);
@@ -43,7 +45,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	}
 
 	const getCurrentFrame = useCallback(() => {
-		if (!video) {
+		if (videoId === null || videoDurationInFrames === null) {
 			return (
 				fallbackFrame.current ??
 				(typeof window === 'undefined'
@@ -53,16 +55,16 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		}
 
 		const unclamped =
-			frameRef.current[video.id] ??
+			frameRef.current[videoId] ??
 			(environment.isPlayer
 				? 0
-				: Internals.Timeline.getFrameForComposition(video.id));
+				: Internals.Timeline.getFrameForComposition(videoId));
 
 		return Internals.Timeline.clampFrameToCompositionRange(
 			unclamped,
-			video.durationInFrames,
+			videoDurationInFrames,
 		);
-	}, [environment.isPlayer, frameRef, video]);
+	}, [environment.isPlayer, frameRef, videoId, videoDurationInFrames]);
 
 	const seek = useCallback(
 		(newFrame: number) => {
@@ -176,7 +178,6 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 		}
 	}, [config, emitter, frameRef, readIsPlaying, setPlaying, seekFrame]);
 
-	const videoId = video?.id;
 	const lastFrame = (config?.durationInFrames ?? 1) - 1;
 
 	const frameBack = useCallback(
