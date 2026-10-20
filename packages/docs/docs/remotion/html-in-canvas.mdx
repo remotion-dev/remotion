@@ -28,12 +28,9 @@ export const MyComp: React.FC = () => {
 
 Return value: _boolean_
 
+If HTML-in-canvas is not available, the component throws a fatal error during rendering.  
 Use `HtmlInCanvas.isSupported()` to check if HTML-in-canvas is supported.  
 Buggy implementations such as the one in Chrome 147 are not considered supported.
-
-From <AvailableFrom v="4.0.538" inline />, if HTML-in-canvas is unavailable during preview, the component displays its children without canvas effects and shows a warning in its top-right corner. Dimensions, styles, cropping, and sequence timing are preserved. The `onInit` and `onPaint` callbacks are not called, and the canvas ref remains `null`.
-
-Rendering still throws a fatal error when HTML-in-canvas is unavailable. Before v4.0.538, previews also threw an error.
 
 ```ts twoslash title="Check if HTML-in-canvas is supported"
 import {HtmlInCanvas} from 'remotion';
@@ -49,7 +46,7 @@ if (HtmlInCanvas.isSupported()) {
 
 Return value: _boolean_
 
-Returns `true` when HTML-in-canvas is enabled and the browser supports nesting. During rendering, unsupported nesting throws an error. From <AvailableFrom v="4.0.538" inline />, unsupported nested components display their children without canvas effects during preview, with a warning for each affected component.
+Returns `true` when HTML-in-canvas is enabled and the browser supports nesting. Use it before nesting `<HtmlInCanvas>` components. Older versions throw an error when components are nested.
 
 From Remotion <AvailableFrom v="4.0.534" inline />, the bundled server-side browser is Chromium 157.0.8080.0, so this method also returns `true` during server-side rendering.
 
