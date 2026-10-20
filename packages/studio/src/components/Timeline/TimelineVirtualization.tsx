@@ -202,10 +202,6 @@ export const TimelineVirtualizationProvider: React.FC<{
 
 	const selectedTrackIndexes = useMemo(() => {
 		const indexes = new Set<number>();
-		if (selectedItems.length !== 1) {
-			return indexes;
-		}
-
 		for (const selectedItem of selectedItems) {
 			const key = getSelectionTrackKey(selectedItem);
 			const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
