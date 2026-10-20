@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import {createPortal} from 'react-dom';
+import {TimelineZoomActiveContext} from '../../state/timeline-zoom';
 
 const originStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -52,6 +53,7 @@ const TimelineTrimPortal: React.FC<{
 	readonly children: React.ReactNode;
 	readonly targetRef: React.RefObject<HTMLDivElement | null> | null;
 }> = ({children, targetRef}) => {
+	const isZooming = useContext(TimelineZoomActiveContext);
 	const originRef = useRef<HTMLDivElement>(null);
 	const [placement, setPlacement] = useState<{
 		readonly target: HTMLDivElement;
@@ -62,6 +64,10 @@ const TimelineTrimPortal: React.FC<{
 	} | null>(null);
 
 	useLayoutEffect(() => {
+		if (isZooming) {
+			return;
+		}
+
 		const target = targetRef?.current;
 		const origin = originRef.current;
 		if (!target || !origin) {
@@ -88,16 +94,16 @@ const TimelineTrimPortal: React.FC<{
 				? previous
 				: next,
 		);
-	}, [children, targetRef]);
+	}, [children, isZooming, targetRef]);
 
 	if (targetRef === null) {
-		return children;
+		return isZooming ? null : children;
 	}
 
 	return (
 		<>
 			<div ref={originRef} style={originStyle} />
-			{placement === null
+			{isZooming || placement === null
 				? null
 				: createPortal(
 						<div
