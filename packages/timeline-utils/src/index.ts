@@ -35,6 +35,7 @@ export {
 	getFrameDatabaseKeyPrefix,
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
+	mediaDurationCache,
 } from './frame-database';
 export type {FrameDatabaseKey} from './frame-database';
 export {
@@ -56,6 +57,7 @@ export {
 	fillFrameWhereItFits,
 	fillWithCachedFrames,
 	getDurationOfOneFrame,
+	getSlotsToExtract,
 } from './render-frame-strip';
 export {renderFrameStripToCanvas} from './render-frame-strip-to-canvas';
 export type {RenderFrameStripToCanvasOptions} from './render-frame-strip-to-canvas';

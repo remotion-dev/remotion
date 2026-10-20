@@ -9,9 +9,11 @@ import {
 	getAspectRatioFromCache,
 	getFrameDatabaseKeyPrefix,
 	getLoopDisplaySegments,
+	getSlotsToExtract,
 	getTimestampFromFrameDatabaseKey,
 	hydrateThumbnailsFromPersistentCache,
 	makeFrameDatabaseKey,
+	mediaDurationCache,
 	resizeVideoFrame,
 	snapCanvasPositionToDevicePixel,
 	WEBCODECS_TIMESCALE,
@@ -119,7 +121,6 @@ const TimelineVideoInfoSegment: React.FC<{
 		}
 
 		const controller = new AbortController();
-		let mediaDurationInSeconds: number | null = null;
 		const pixelRatio = getStudioPixelRatio();
 		const {horizontalOffset} = alignCanvasToDevicePixels({
 			canvas,
@@ -226,7 +227,9 @@ const TimelineVideoInfoSegment: React.FC<{
 						}) => {
 							aspectRatio.current = track.width / track.height;
 							aspectRatioCache.set(src, aspectRatio.current);
-							mediaDurationInSeconds = durationInSeconds;
+							if (durationInSeconds !== null) {
+								mediaDurationCache.set(src, durationInSeconds);
+							}
 
 							return [times.timestampInSeconds];
 						},
@@ -254,14 +257,7 @@ const TimelineVideoInfoSegment: React.FC<{
 								);
 
 								addFrameToCache(databaseKey, transformed);
-								if (aspectRatio.current !== null) {
-									writeThumbnailToPersistentCache({
-										src,
-										frame: transformed,
-										aspectRatio: aspectRatio.current,
-										durationInSeconds: mediaDurationInSeconds,
-									});
-								}
+								writeThumbnailToPersistentCache({src, frame: transformed});
 
 								drawRepeatedFrame(transformed);
 							} catch (e) {
@@ -368,12 +364,10 @@ const TimelineVideoInfoSegment: React.FC<{
 			});
 			repeatTarget();
 
-			return Array.from(filledSlots.values()).every(
-				(filled) => filled !== undefined,
-			);
+			return getSlotsToExtract({filledSlots, src}).length === 0;
 		};
 
-		// Don't extract frames if all slots are filled
+		// Don't extract frames if every slot has a fitting frame
 		if (fillWithFramesInMemory()) {
 			return;
 		}
@@ -422,7 +416,9 @@ const TimelineVideoInfoSegment: React.FC<{
 					}) => {
 						aspectRatio.current = track.width / track.height;
 						aspectRatioCache.set(src, aspectRatio.current);
-						mediaDurationInSeconds = durationInSeconds;
+						if (durationInSeconds !== null) {
+							mediaDurationCache.set(src, durationInSeconds);
+						}
 
 						ensureSlots({
 							filledSlots,
@@ -445,9 +441,9 @@ const TimelineVideoInfoSegment: React.FC<{
 						});
 						repeatTarget();
 
-						return Array.from(filledSlots.keys())
-							.filter((timestamp) => filledSlots.get(timestamp) === undefined)
-							.map((timestamp) => timestamp / WEBCODECS_TIMESCALE);
+						return getSlotsToExtract({filledSlots, src}).map(
+							(timestamp) => timestamp / WEBCODECS_TIMESCALE,
+						);
 					},
 					src: resolvedSrc,
 					onVideoSample: (sample) => {
@@ -477,12 +473,7 @@ const TimelineVideoInfoSegment: React.FC<{
 								throw new Error('Aspect ratio is not set');
 							}
 
-							writeThumbnailToPersistentCache({
-								src,
-								frame: transformed,
-								aspectRatio: aspectRatio.current,
-								durationInSeconds: mediaDurationInSeconds,
-							});
+							writeThumbnailToPersistentCache({src, frame: transformed});
 
 							ensureSlots({
 								filledSlots,
@@ -494,6 +485,7 @@ const TimelineVideoInfoSegment: React.FC<{
 							});
 							fillFrameWhereItFits({
 								ctx: targetCtx,
+								src,
 								filledSlots,
 								visualizationWidth: targetWidth,
 								frame: transformed,

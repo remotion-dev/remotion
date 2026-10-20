@@ -5,8 +5,9 @@ import {
 	aspectRatioCache,
 	frameDatabase,
 	makeFrameDatabaseKey,
+	mediaDurationCache,
 } from '../frame-database';
-import {MAX_TIME_DEVIATION, WEBCODECS_TIMESCALE} from '../render-frame-strip';
+import {getFrameDistance, getSlotTolerance} from '../render-frame-strip';
 import {
 	dequantizeWaveformPeaks,
 	quantizeWaveformPeaks,
@@ -59,7 +60,7 @@ type Fingerprint = {
 
 type PendingThumbnail = {
 	readonly src: string;
-	readonly aspectRatio: number;
+	readonly aspectRatio: number | null;
 	readonly durationInSeconds: number | null;
 	readonly height: number;
 	readonly timestamp: number;
@@ -363,6 +364,10 @@ const getDatabaseForSource = async (
 			aspectRatioCache.set(src, record.aspectRatio);
 		}
 
+		if (record.durationInSeconds !== null && !mediaDurationCache.has(src)) {
+			mediaDurationCache.set(src, record.durationInSeconds);
+		}
+
 		scheduleEviction();
 		return database;
 	})().catch(() => null);
@@ -462,11 +467,9 @@ export const writeWaveformToPersistentCache = ({
 	})().catch(onWriteError);
 };
 
-// Loads persisted thumbnails into the in-memory frame database, so the
-// filmstrip can be drawn without decoding the video.
-// Any frame in memory fills every slot of the filmstrip, so a partial set
-// would prevent the missing frames from being decoded. Thumbnails are therefore
-// only loaded if they cover all timestamps.
+// Loads the persisted thumbnails that fit the slots of a filmstrip into the
+// in-memory frame database, so they can be drawn without decoding the video.
+// Slots without a fitting thumbnail are decoded afterwards.
 export const hydrateThumbnailsFromPersistentCache = async ({
 	src,
 	height,
@@ -483,29 +486,20 @@ export const hydrateThumbnailsFromPersistentCache = async ({
 			return;
 		}
 
-		const transaction = database.transaction(['sources', 'thumbnails']);
-		const source: SourceRecord | undefined = await toPromise(
-			transaction.objectStore('sources').get(src),
-		);
-		// Like extractFrames(), show the last frame for timestamps after the end.
-		const durationInSeconds = source?.durationInSeconds ?? null;
-		const lastTimestamp =
-			durationInSeconds === null
-				? Infinity
-				: durationInSeconds * WEBCODECS_TIMESCALE - 1;
 		// Segments without a width produce slots that are not finite.
-		const timestamps = getTimestamps()
-			.filter((timestamp) => Number.isFinite(timestamp))
-			.map((timestamp) => Math.min(timestamp, lastTimestamp));
+		const timestamps = getTimestamps().filter((timestamp) =>
+			Number.isFinite(timestamp),
+		);
 		if (timestamps.length === 0) {
 			return;
 		}
 
-		const from = Math.min(...timestamps) - MAX_TIME_DEVIATION;
-		const to = Math.max(...timestamps) + MAX_TIME_DEVIATION;
-		const store = transaction.objectStore('thumbnails');
-		// A frame of a variable frame rate video can be shown long after its
-		// timestamp, so the last frame before the range may cover it as well.
+		const tolerance = getSlotTolerance(timestamps);
+		const from = Math.min(...timestamps) - tolerance;
+		const to = Math.max(...timestamps) + tolerance;
+		const store = database.transaction('thumbnails').objectStore('thumbnails');
+		// A frame of a low or variable frame rate video, or the last frame of a
+		// video, can be shown long after its timestamp.
 		const previousRequest = store.openCursor(
 			IDBKeyRange.bound([src, height], [src, height, from], false, true),
 			'prev',
@@ -521,23 +515,30 @@ export const hydrateThumbnailsFromPersistentCache = async ({
 			? [previous.value, ...records]
 			: records;
 
-		const covering = new Set<ThumbnailRecord>();
-		for (const timestamp of timestamps) {
-			const record = candidates.find(
-				(candidate) =>
-					Math.abs(candidate.timestamp - timestamp) <= MAX_TIME_DEVIATION ||
-					(candidate.timestamp <= timestamp &&
-						timestamp < candidate.timestamp + (candidate.duration ?? 0)),
-			);
-			if (!record) {
-				return;
+		const fitting = new Set<ThumbnailRecord>();
+		for (const slot of timestamps) {
+			let best: ThumbnailRecord | undefined;
+			let bestDistance = Infinity;
+			for (const candidate of candidates) {
+				const distance = getFrameDistance({
+					src,
+					frameTimestamp: candidate.timestamp,
+					frameDuration: candidate.duration,
+					slot,
+				});
+				if (distance < bestDistance) {
+					bestDistance = distance;
+					best = candidate;
+				}
 			}
 
-			covering.add(record);
+			if (best && bestDistance <= tolerance) {
+				fitting.add(best);
+			}
 		}
 
 		await Promise.all(
-			Array.from(covering).map(async (record) => {
+			Array.from(fitting).map(async (record) => {
 				const key = makeFrameDatabaseKey(src, record.timestamp);
 				if (frameDatabase.has(key)) {
 					return;
@@ -620,8 +621,11 @@ const flushThumbnails = async () => {
 			);
 			sources.put({
 				...source,
-				aspectRatio: thumbnails[thumbnails.length - 1].aspectRatio,
-				durationInSeconds: thumbnails[thumbnails.length - 1].durationInSeconds,
+				aspectRatio:
+					thumbnails[thumbnails.length - 1].aspectRatio ?? source.aspectRatio,
+				durationInSeconds:
+					thumbnails[thumbnails.length - 1].durationInSeconds ??
+					source.durationInSeconds,
 				thumbnailBytes,
 			} satisfies SourceRecord);
 			await transactionDone(transaction);
@@ -637,13 +641,9 @@ const flushThumbnails = async () => {
 export const writeThumbnailToPersistentCache = ({
 	src,
 	frame,
-	aspectRatio,
-	durationInSeconds,
 }: {
 	readonly src: string;
 	readonly frame: VideoFrame;
-	readonly aspectRatio: number;
-	readonly durationInSeconds: number | null;
 }) => {
 	if (typeof OffscreenCanvas === 'undefined') {
 		return;
@@ -662,8 +662,8 @@ export const writeThumbnailToPersistentCache = ({
 	image.catch(() => undefined);
 	pendingThumbnails.push({
 		src,
-		aspectRatio,
-		durationInSeconds,
+		aspectRatio: aspectRatioCache.get(src) ?? null,
+		durationInSeconds: mediaDurationCache.get(src) ?? null,
 		height: frame.displayHeight,
 		timestamp: frame.timestamp,
 		duration: frame.duration,
