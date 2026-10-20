@@ -150,6 +150,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 
 	const errorExplanations = inspectErrors({
 		errors: overallProgress.errors,
+		providerSpecifics,
 	});
 
 	const chunkCount = overallProgress.chunks.length ?? 0;

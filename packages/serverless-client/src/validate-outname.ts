@@ -3,18 +3,19 @@ import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {OutNameInputWithoutCredentials} from './constants';
 import {validateBucketName} from './validate-bucket-name';
 
-const validateS3Key = (s3Key: string) => {
-	if (typeof s3Key !== 'string') {
+const validateOutputKey = (key: string) => {
+	if (typeof key !== 'string') {
 		throw new TypeError(
-			'The S3 key must be a string. Passed an object of type ' + typeof s3Key,
+			'The output key must be a string. Passed an object of type ' + typeof key,
 		);
 	}
 
+	// The S3 safe character set is used as the common denominator across storage providers:
 	// https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
-	if (!s3Key.match(/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g)) {
+	if (!key.match(/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g)) {
 		throw new Error(
-			"The S3 Key must match the RegExp `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`. You passed: " +
-				s3Key +
+			"The output key must match the RegExp `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`. You passed: " +
+				key +
 				'. Check for invalid characters.',
 		);
 	}
@@ -38,7 +39,7 @@ export const validateOutname = ({
 	}
 
 	if (typeof outName !== 'string') {
-		validateS3Key(outName.key);
+		validateOutputKey(outName.key);
 		validateBucketName({
 			bucketName: outName.bucketName,
 			bucketNamePrefix,
@@ -59,5 +60,5 @@ export const validateOutname = ({
 		});
 	}
 
-	validateS3Key(outName);
+	validateOutputKey(outName);
 };

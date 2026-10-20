@@ -52,6 +52,16 @@ test('progress works without AWS context or a bucket owner', async () => {
 			},
 			providerSpecifics: {
 				printLoggingHelper: false,
+				names: {
+					clientPackage: '@remotion/mock',
+					storageProduct: 'mock storage',
+					renderMediaApi: 'renderMediaOnMock',
+					renderStillApi: 'renderStillOnMock',
+					renderFramesApi: 'renderFramesOnMock',
+					getCompositionsApi: 'getCompositionsOnMock',
+					getRenderProgressApi: 'getRenderProgress',
+					framesPerFunctionOption: 'framesPerFunction',
+				},
 				getBillingCurrency: () => 'USD',
 				readFile: ({expectedBucketOwner}) => {
 					reads.push(expectedBucketOwner);
@@ -128,6 +138,16 @@ test('buffered still errors are written to the response', async () => {
 		providerSpecifics: {
 			isFlakyError: () => false,
 			printLoggingHelper: false,
+			names: {
+				clientPackage: '@remotion/mock',
+				storageProduct: 'mock storage',
+				renderMediaApi: 'renderMediaOnMock',
+				renderStillApi: 'renderStillOnMock',
+				renderFramesApi: 'renderFramesOnMock',
+				getCompositionsApi: 'getCompositionsOnMock',
+				getRenderProgressApi: 'getRenderProgress',
+				framesPerFunctionOption: 'framesPerFunction',
+			},
 			randomHash: () => 'random-hash',
 			validateDeleteAfter: () => undefined,
 		} as unknown as ProviderSpecifics<MockProvider>,

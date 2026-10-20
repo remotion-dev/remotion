@@ -36,7 +36,7 @@ export type OverallProgressHelper<Provider extends CloudProvider> = {
 		uploaded: number;
 		sizeInBytes: number;
 	}) => void;
-	setLambdaInvoked: (chunk: number) => void;
+	setFunctionInvoked: (chunk: number) => void;
 	addChunkCompleted: (
 		chunkIndex: number,
 		start: number,
@@ -306,7 +306,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 			renderProgress.timeToCombine = timeToCombine;
 			upload(`setTimeToCombine(${timeToCombine})`);
 		},
-		setLambdaInvoked(chunk) {
+		setFunctionInvoked(chunk) {
 			if (lambdasInvoked.length === 0) {
 				throw new Error('Expected chunks to be set before lambdas are set');
 			}
@@ -316,7 +316,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 				(a, b) => a + Number(b),
 				0,
 			);
-			upload(`setLambdaInvoked(chunk=${chunk})`);
+			upload(`setFunctionInvoked(chunk=${chunk})`);
 		},
 		async setPostRenderData(postRenderData) {
 			renderProgress.postRenderData = postRenderData;

@@ -1,7 +1,7 @@
 import {createReadStream, writeFileSync} from 'fs';
 import path from 'path';
 import type {AwsProvider} from '@remotion/lambda-client';
-import {estimatePrice, LambdaClientInternals} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {REMOTION_BUCKET_PREFIX} from '@remotion/lambda-client/constants';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
@@ -23,13 +23,20 @@ import {
 } from './mock-store';
 
 export const mockImplementation: ProviderSpecifics<AwsProvider> = {
+	names: {
+		...LambdaClientInternals.awsImplementation.names,
+		storageProduct: 'file system',
+	},
+	getDocsUrl: LambdaClientInternals.awsImplementation.getDocsUrl,
+	getErrorExplanation:
+		LambdaClientInternals.awsImplementation.getErrorExplanation,
+	getBucketListingUrl: () => null,
 	getAccountId: () =>
 		Promise.resolve('aws:iam::123456789'.match(/aws:iam::([0-9]+)/)?.[1]!),
 	getMaxNonInlinePayloadSizePerFunction: () => 200_000,
 	getMaxStillInlinePayloadSize() {
 		return 5_000_000;
 	},
-	serverStorageProductName: () => 'file system',
 	applyLifeCycle: () => Promise.resolve(),
 	getChromiumPath() {
 		return null;
@@ -40,10 +47,8 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		LambdaClientInternals.getAwsRegionMetadata(region).billingCurrency,
 	getRendererFunctionTransport: (region) =>
 		LambdaClientInternals.getAwsRegionMetadata(region).partition === 'aws-cn'
-			? 's3'
+			? 'storage'
 			: 'response-streaming',
-	getServiceDnsSuffix: (region) =>
-		LambdaClientInternals.getAwsRegionMetadata(region).dnsSuffix,
 	getLoggingUrlForMethod: LambdaClientInternals.getCloudwatchMethodUrl,
 	getLoggingUrlForRendererFunction:
 		LambdaClientInternals.getCloudwatchRendererUrl,
@@ -149,7 +154,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	callFunctionAsync: getMockCallFunctionAsync,
 	callFunctionStreaming: getMockCallFunctionStreaming,
 	callFunctionSync: getMockCallFunctionSync,
-	estimatePrice,
+	estimatePrice: LambdaClientInternals.awsImplementation.estimatePrice,
 	getOutputUrl: () => {
 		return {
 			key: 'mock/mock.mp4',

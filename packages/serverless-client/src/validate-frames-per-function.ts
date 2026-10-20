@@ -8,14 +8,17 @@ export const validateFramesPerFunction = ({
 	framesPerFunction,
 	durationInFrames,
 	concurrency,
+	optionName,
 }: {
 	framesPerFunction: number | null;
 	durationInFrames: number;
 	concurrency: number | null;
+	// The user-facing name of the option, e.g. 'framesPerLambda'
+	optionName: string;
 }): number => {
 	if (concurrency !== null && framesPerFunction !== null) {
 		throw new TypeError(
-			`Both 'framesPerLambda' and 'concurrency' were set. Please use only one of them.`,
+			`Both '${optionName}' and 'concurrency' were set. Please use only one of them.`,
 		);
 	}
 
@@ -91,7 +94,7 @@ export const validateFramesPerFunction = ({
 
 	if (typeof framesPerFunction !== 'number') {
 		throw new TypeError(
-			`'framesPerLambda' needs to be a number, passed ${JSON.stringify(
+			`'${optionName}' needs to be a number, passed ${JSON.stringify(
 				framesPerFunction,
 			)}`,
 		);
@@ -99,25 +102,25 @@ export const validateFramesPerFunction = ({
 
 	if (!Number.isFinite(framesPerFunction)) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be finite, passed ${framesPerFunction}`,
+			`'${optionName}' needs to be finite, passed ${framesPerFunction}`,
 		);
 	}
 
 	if (Number.isNaN(framesPerFunction)) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be NaN, passed ${framesPerFunction}`,
+			`'${optionName}' needs to be a valid number, passed ${framesPerFunction}`,
 		);
 	}
 
 	if (framesPerFunction % 1 !== 0) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be an integer, passed ${framesPerFunction}`,
+			`'${optionName}' needs to be an integer, passed ${framesPerFunction}`,
 		);
 	}
 
 	if (framesPerFunction < effectiveMinimum) {
 		throw new TypeError(
-			`The framesPerLambda needs to be at least ${effectiveMinimum}, but is ${framesPerFunction}`,
+			`The ${optionName} needs to be at least ${effectiveMinimum}, but is ${framesPerFunction}`,
 		);
 	}
 

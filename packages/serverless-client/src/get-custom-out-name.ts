@@ -26,7 +26,7 @@ export const getCustomOutName = <Provider extends CloudProvider>({
 	if (outName.s3OutputProvider) {
 		if (!customCredentials && privacy === 'private') {
 			throw new TypeError(
-				`The file was rendered with a custom S3 implementation and is not public, but no custom credentials were passed to downloadMedia().`,
+				`The file was rendered to a custom S3-compatible output provider and is not public, but no custom credentials were passed. Pass "customCredentials" to access it.`,
 			);
 		}
 

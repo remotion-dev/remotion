@@ -142,7 +142,7 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 			repro: false,
 			binariesDirectory: null,
 			onBrowserDownload: () => {
-				throw new Error('Should not download a browser in Lambda');
+				throw new Error('Should not download a browser in a function');
 			},
 			onArtifact: (artifact) => {
 				const registration = onArtifact({

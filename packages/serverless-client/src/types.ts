@@ -21,11 +21,11 @@ export interface CloudProvider<
 	requestHandler: RequestHandler | null | undefined;
 }
 
+// Provider-specific location fields (e.g. `s3Url` and `s3Key` for AWS)
+// are contributed through `Provider['receivedArtifactType']`.
 export type ReceivedArtifact<Provider extends CloudProvider> = {
 	filename: string;
 	sizeInBytes: number;
-	s3Url: string;
-	s3Key: string;
 } & Provider['receivedArtifactType'];
 
 export type CostsInfo = {

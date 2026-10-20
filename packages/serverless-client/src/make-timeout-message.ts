@@ -1,5 +1,4 @@
 import {ServerlessRoutines} from './constants';
-import {DOCS_URL} from './docs-url';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider} from './types';
@@ -75,16 +74,15 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	functionName: string;
 	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
-	const cloudWatchRendererUrl =
-		providerSpecifics.getLoggingUrlForRendererFunction({
-			renderId,
-			functionName,
-			region,
-			rendererFunctionName: functionName,
-			chunk: null,
-		});
+	const rendererLogsUrl = providerSpecifics.getLoggingUrlForRendererFunction({
+		renderId,
+		functionName,
+		region,
+		rendererFunctionName: functionName,
+		chunk: null,
+	});
 
-	const cloudWatchLaunchUrl = providerSpecifics.getLoggingUrlForMethod({
+	const launchLogsUrl = providerSpecifics.getLoggingUrlForMethod({
 		renderId,
 		functionName,
 		method: ServerlessRoutines.launch,
@@ -103,15 +101,15 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 		'',
 		`Consider increasing the timeout of your function.`,
 		`▸ You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction() API.`,
-		`${DOCS_URL}/docs/lambda/cli/functions/deploy`,
+		providerSpecifics.getDocsUrl('deploy-function'),
 		'',
 		'▸ Visit the logs for the main function:',
-		cloudWatchLaunchUrl,
+		launchLogsUrl,
 		'▸ Visit the logs for the renderer functions:',
-		cloudWatchRendererUrl,
+		rendererLogsUrl,
 		'',
 		'▸ Get help on debugging this error:',
-		`${DOCS_URL}/docs/lambda/troubleshooting/debug`,
+		providerSpecifics.getDocsUrl('debug'),
 	].join('\n');
 
 	return message;

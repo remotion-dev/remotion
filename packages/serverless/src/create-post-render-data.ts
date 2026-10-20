@@ -9,6 +9,8 @@ import type {
 import {
 	calculateBillingDuration,
 	calculateChunkTimes,
+	COSTS_DISCLAIMER,
+	formatCurrency,
 	getMostExpensiveChunks,
 } from '@remotion/serverless-client';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
@@ -52,12 +54,12 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 			providerSpecifics.parseFunctionName(renderMetadata.rendererFunctionName)
 				?.memorySizeInMb ?? memorySizeInMb,
 		region,
-		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
+		functionsInvoked: renderMetadata.estimatedTotalLambdaInvokations,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 	});
 
 	if (!outputFile) {
-		throw new Error('Cannot wrap up without an output file in the S3 bucket.');
+		throw new Error('Cannot wrap up without an output file in the bucket.');
 	}
 
 	const endTime = Date.now();
@@ -77,16 +79,13 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 	return {
 		cost: {
 			currency: billingCurrency,
-			disclaimer:
-				'Estimated cost for function invocations only. Does not include cost for storage and data transfer.',
+			disclaimer: COSTS_DISCLAIMER,
 			estimatedCost: cost,
-			estimatedDisplayCost: `${billingCurrency === 'CNY' ? '¥' : '$'}${new Intl.NumberFormat(
-				'en-US',
-				{
-					currency: billingCurrency,
-					currencyDisplay: 'narrowSymbol',
-				},
-			).format(cost)}`,
+			estimatedDisplayCost: formatCurrency({
+				amount: cost,
+				currency: billingCurrency,
+				minimumFractionDigits: 0,
+			}),
 		},
 		outputFile: renderMetadata.type === 'sequence' ? null : outputFile.url,
 		separateAudio: overallProgress.separateAudio ?? null,

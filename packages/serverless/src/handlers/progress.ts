@@ -28,7 +28,8 @@ export const progressHandler = async <Provider extends CloudProvider>({
 	}
 
 	checkVersionMismatch({
-		apiName: 'getRenderProgress()',
+		apiName: options.providerSpecifics.names.getRenderProgressApi,
+		providerSpecifics: options.providerSpecifics,
 		insideFunctionSpecifics: options.insideFunctionSpecifics,
 		params,
 	});

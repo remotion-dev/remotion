@@ -53,7 +53,10 @@ export const renderImageSequenceChunk = async <Provider extends CloudProvider>({
 
 	const {output} = params;
 	const start = Date.now();
-	await onStream({type: 'lambda-invoked', payload: {attempt: params.attempt}});
+	await onStream({
+		type: 'function-invoked',
+		payload: {attempt: params.attempt},
+	});
 	const uploadedFrames = new Set<number>();
 	let sizeInBytes = 0;
 	let progressQueue = Promise.resolve();

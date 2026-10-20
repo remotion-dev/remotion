@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
+import type {AwsProvider} from '@remotion/lambda-client';
 import type {RenderProgress} from '@remotion/lambda-client/constants';
 import {RenderInternals} from '@remotion/renderer';
-import type {CloudProvider, ReceivedArtifact} from '@remotion/serverless';
+import type {ReceivedArtifact} from '@remotion/serverless';
 import {truthy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -227,8 +228,8 @@ const makeTopRow = (overall: RenderProgress) => {
 
 const ARTIFACTS_SHOWN = 5;
 
-export const makeArtifactProgress = <Provider extends CloudProvider>(
-	artifactProgress: ReceivedArtifact<Provider>[],
+export const makeArtifactProgress = (
+	artifactProgress: ReceivedArtifact<AwsProvider>[],
 ) => {
 	if (artifactProgress.length === 0) {
 		return null;

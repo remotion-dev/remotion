@@ -128,7 +128,19 @@ const makeProviderSpecifics = ({
 		getEphemeralStorageForPriceCalculation: () => 512,
 		getBillingCurrency: () => billingCurrency,
 		getRendererFunctionTransport: () => 'response-streaming',
-		getServiceDnsSuffix: () => 'example.com',
+		getBucketListingUrl: () => null,
+		getDocsUrl: (page) => `https://example.com/docs/${page}`,
+		getErrorExplanation: () => null,
+		names: {
+			clientPackage: '@remotion/mock',
+			storageProduct: 'mock storage',
+			renderMediaApi: 'renderMediaOnMock',
+			renderStillApi: 'renderStillOnMock',
+			renderFramesApi: 'renderFramesOnMock',
+			getCompositionsApi: 'getCompositionsOnMock',
+			getRenderProgressApi: 'getRenderProgress',
+			framesPerFunctionOption: 'framesPerFunction',
+		},
 		getFunctions: () => Promise.resolve([]),
 		getLoggingUrlForMethod: () => 'logs',
 		getLoggingUrlForRendererFunction: () => 'logs',
@@ -169,7 +181,6 @@ const makeProviderSpecifics = ({
 				]),
 			);
 		},
-		serverStorageProductName: () => 'S3',
 		validateDeleteAfter: () => undefined,
 		writeFile: () => Promise.resolve(),
 		supportsConditionalOutput: () => true,
@@ -254,7 +265,7 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 		});
 
 		expect(priceInputs).toHaveLength(1);
-		expect(priceInputs[0].lambdasInvoked).toBe(1);
+		expect(priceInputs[0].functionsInvoked).toBe(1);
 		expect(renderProgress.estimatedBillingDurationInMilliseconds).toBeLessThan(
 			60000,
 		);

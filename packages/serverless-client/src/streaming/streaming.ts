@@ -12,7 +12,7 @@ const videoChunkRendered = 'video-chunk-rendered' as const;
 const audioChunkRendered = 'audio-chunk-rendered' as const;
 const chunkComplete = 'chunk-complete' as const;
 const stillRendered = 'still-rendered' as const;
-const functionInvoked = 'lambda-invoked' as const;
+const functionInvoked = 'function-invoked' as const;
 const artifactEmitted = 'artifact-emitted' as const;
 
 const messageTypes = {

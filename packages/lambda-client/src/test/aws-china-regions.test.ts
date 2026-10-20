@@ -36,10 +36,10 @@ test('AWS region metadata is exhaustive for China without changing defaults', ()
 	expect(AWS_REGIONS).toContain('cn-northwest-1');
 	expect(DEFAULT_AWS_REGIONS).not.toContain('cn-north-1' as never);
 	expect(awsImplementation.getRendererFunctionTransport('cn-north-1')).toBe(
-		's3',
+		'storage',
 	);
 	expect(awsImplementation.getRendererFunctionTransport('cn-northwest-1')).toBe(
-		's3',
+		'storage',
 	);
 	expect(awsImplementation.getRendererFunctionTransport('us-east-1')).toBe(
 		'response-streaming',

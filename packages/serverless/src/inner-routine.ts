@@ -22,7 +22,7 @@ import {infoHandler} from './info';
 import {getWarm, setWarm} from './is-warm';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
 import type {InsideFunctionSpecifics} from './provider-implementation';
-import {makeS3RendererOutput} from './s3-renderer-output';
+import {makeStorageRendererOutput} from './storage-renderer-output';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
 
 export const innerHandler = async <Provider extends CloudProvider>({
@@ -268,16 +268,16 @@ export const innerHandler = async <Provider extends CloudProvider>({
 
 		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 		const transport = providerSpecifics.getRendererFunctionTransport(region);
-		const s3Output =
-			transport === 's3'
-				? makeS3RendererOutput({
+		const storageOutput =
+			transport === 'storage'
+				? makeStorageRendererOutput({
 						params,
 						expectedBucketOwner: context.expectedBucketOwner,
 						region,
 						providerSpecifics,
 					})
 				: null;
-		await s3Output?.initialize();
+		await storageOutput?.initialize();
 
 		await new Promise((resolve, reject) => {
 			rendererHandler({
@@ -286,8 +286,8 @@ export const innerHandler = async <Provider extends CloudProvider>({
 					expectedBucketOwner: context.expectedBucketOwner,
 					isWarm,
 				},
-				onStream: s3Output
-					? s3Output.onStream
+				onStream: storageOutput
+					? storageOutput.onStream
 					: (payload) => {
 							const message = makeStreamPayload({
 								message: payload,
@@ -306,7 +306,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 									});
 							});
 						},
-				onMediaFiles: s3Output?.uploadMediaAndComplete ?? null,
+				onMediaFiles: storageOutput?.uploadMediaAndComplete ?? null,
 				executionMode: 'invoked',
 				requestContext: context,
 				providerSpecifics,

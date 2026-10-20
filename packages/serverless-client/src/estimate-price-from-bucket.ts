@@ -42,7 +42,7 @@ export const estimatePriceFromMetadata = <Provider extends CloudProvider>({
 				durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 				memorySizeInMb,
 				diskSizeInMb,
-				lambdasInvoked: functionsInvoked,
+				functionsInvoked,
 			})
 			.toPrecision(5),
 	);

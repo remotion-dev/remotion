@@ -6,7 +6,7 @@ import {Readable} from 'node:stream';
 import type {EmittedArtifact} from '@remotion/renderer';
 import type {
 	ProviderSpecifics,
-	S3RendererStatus,
+	StorageRendererStatus,
 } from '@remotion/serverless-client';
 import {
 	rendererTransportArtifactKey,
@@ -26,7 +26,7 @@ type MockProvider = {
 	requestHandler: never;
 };
 
-test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', async () => {
+test('Storage transport launcher invokes, polls, downloads, and normalizes a renderer result', async () => {
 	const directory = await mkdtemp(join(tmpdir(), 'remotion-s3-launcher-'));
 	try {
 		const objects = new Map<string, Uint8Array>();
@@ -46,12 +46,12 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 			chunk: 0,
 			attempt: 1,
 		});
-		const status: S3RendererStatus = {
+		const status: StorageRendererStatus = {
 			schema: 1,
 			state: 'completed',
 			chunk: 0,
 			attempt: 1,
-			lambdaInvoked: true,
+			functionInvoked: true,
 			renderedFrames: 12,
 			encodedFrames: 12,
 			uploadedFrames: 0,
@@ -73,7 +73,7 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 			],
 		};
 		const providerSpecifics = {
-			getRendererFunctionTransport: () => 's3',
+			getRendererFunctionTransport: () => 'storage',
 			callFunctionAsync: () => {
 				asyncInvocations++;
 				objects.set(videoKey, new TextEncoder().encode('video'));
@@ -108,7 +108,7 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 		let completedChunks = 0;
 		const overallProgress = {
 			get: () => ({timeoutTimestamp: Date.now() + 10_000}),
-			setLambdaInvoked: () => {
+			setFunctionInvoked: () => {
 				lambdasInvoked++;
 			},
 			setFrames: ({rendered, encoded}: {rendered: number; encoded: number}) => {

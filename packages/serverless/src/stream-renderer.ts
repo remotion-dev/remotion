@@ -12,7 +12,7 @@ import type {
 } from '@remotion/serverless-client';
 import {
 	deserializeArtifact,
-	parseS3RendererStatus,
+	parseStorageRendererStatus,
 	rendererTransportStatusKey,
 	ServerlessRoutines,
 	streamToString,
@@ -20,7 +20,7 @@ import {
 import type {OnArtifactFromRenderer} from './artifact-registry';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
-import {artifactFromS3} from './s3-renderer-output';
+import {artifactFromStorage} from './storage-renderer-output';
 
 type StreamRendererResponse =
 	| {
@@ -92,8 +92,8 @@ const streamRenderer = <Provider extends CloudProvider>({
 		};
 
 		const receivedStreamingPayload: OnMessage<Provider> = ({message}) => {
-			if (message.type === 'lambda-invoked') {
-				overallProgress.setLambdaInvoked(payload.chunk);
+			if (message.type === 'function-invoked') {
+				overallProgress.setFunctionInvoked(payload.chunk);
 				return;
 			}
 
@@ -309,7 +309,7 @@ const readStreamAsBytes = async (
 	return result;
 };
 
-const s3Renderer = async <Provider extends CloudProvider>({
+const storageRenderer = async <Provider extends CloudProvider>({
 	payload,
 	functionName,
 	outdir,
@@ -363,7 +363,7 @@ const s3Renderer = async <Provider extends CloudProvider>({
 	});
 	let lastRendered = 0;
 	let lastEncoded = 0;
-	let lambdaInvoked = false;
+	let functionInvoked = false;
 	let pollingInterval = 250;
 	const timeoutTimestamp = overallProgress.get().timeoutTimestamp - 1000;
 
@@ -377,15 +377,15 @@ const s3Renderer = async <Provider extends CloudProvider>({
 				forcePathStyle: payload.forcePathStyle,
 				requestHandler,
 			});
-			const status = parseS3RendererStatus({
+			const status = parseStorageRendererStatus({
 				value: JSON.parse(await streamToString(statusStream)),
 				expectedChunk: payload.chunk,
 				expectedAttempt: payload.attempt,
 			});
 
-			if (status.lambdaInvoked && !lambdaInvoked) {
-				lambdaInvoked = true;
-				overallProgress.setLambdaInvoked(payload.chunk);
+			if (status.functionInvoked && !functionInvoked) {
+				functionInvoked = true;
+				overallProgress.setFunctionInvoked(payload.chunk);
 			}
 
 			if (
@@ -458,7 +458,7 @@ const s3Renderer = async <Provider extends CloudProvider>({
 					}
 
 					emittedArtifacts.push(
-						artifactFromS3({
+						artifactFromStorage({
 							metadata: artifact.metadata,
 							content: await readStreamAsBytes(artifactStream),
 						}),
@@ -619,7 +619,9 @@ export const renderRendererFunctionWithRetry = async <
 	const transport = providerSpecifics.getRendererFunctionTransport(
 		insideFunctionSpecifics.getCurrentRegionInFunction(),
 	);
-	const result = await (transport === 's3' ? s3Renderer : streamRenderer)({
+	const result = await (
+		transport === 'storage' ? storageRenderer : streamRenderer
+	)({
 		files,
 		functionName,
 		outdir,

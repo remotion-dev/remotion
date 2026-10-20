@@ -198,7 +198,7 @@ test('Should throw on invalid names', () => {
 			customCredentials: null,
 			bucketNamePrefix: 'remotionlambda-',
 		});
-	}).toThrow(/The S3 Key must match the RegExp/);
+	}).toThrow(/The output key must match the RegExp/);
 });
 
 test('Should allow outName an outname with a slash', () => {

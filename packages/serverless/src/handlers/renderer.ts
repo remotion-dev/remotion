@@ -326,7 +326,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			concurrency: params.concurrencyPerLambda,
 			onStart: () => {
 				onStream({
-					type: 'lambda-invoked',
+					type: 'function-invoked',
 					payload: {
 						attempt: params.attempt,
 					},
@@ -379,7 +379,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			forSeamlessAacConcatenation: seamlessAudio,
 			compositionStart: params.compositionStart,
 			onBrowserDownload: () => {
-				throw new Error('Should not download a browser in Lambda');
+				throw new Error('Should not download a browser in a function');
 			},
 			onArtifact,
 			metadata: params.metadata,

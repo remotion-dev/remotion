@@ -62,7 +62,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	}
 
 	checkVersionMismatch({
-		apiName: 'renderStillOnLambda()',
+		apiName: providerSpecifics.names.renderStillApi,
+		providerSpecifics,
 		insideFunctionSpecifics,
 		params,
 	});
@@ -176,7 +177,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		server,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		onBrowserDownload: () => {
-			throw new Error('Should not download a browser in Lambda');
+			throw new Error('Should not download a browser in a function');
 		},
 		onServeUrlVisited: () => undefined,
 		providerSpecifics,
@@ -238,7 +239,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	});
 
 	const onBrowserDownload = () => {
-		throw new Error('Should not download a browser in Lambda');
+		throw new Error('Should not download a browser in a function');
 	};
 
 	const receivedArtifact: ReceivedArtifact<Provider>[] = [];
@@ -270,7 +271,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		const startTime = Date.now();
 		RenderInternals.Log.info(
 			{indent: false, logLevel: params.logLevel},
-			'Writing artifact ' + artifact.filename + ' to S3',
+			`Writing artifact ${artifact.filename} to ${providerSpecifics.names.storageProduct}`,
 		);
 		providerSpecifics
 			.writeFile({
@@ -289,13 +290,13 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},
-					`Wrote artifact to S3 in ${Date.now() - startTime}ms`,
+					`Wrote artifact to ${providerSpecifics.names.storageProduct} in ${Date.now() - startTime}ms`,
 				);
 			})
 			.catch((err) => {
 				RenderInternals.Log.error(
 					{indent: false, logLevel: params.logLevel},
-					'Failed to write artifact to S3',
+					`Failed to write artifact to ${providerSpecifics.names.storageProduct}`,
 					err,
 				);
 			});
@@ -382,7 +383,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-		lambdasInvoked: 1,
+		functionsInvoked: 1,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 	});
 

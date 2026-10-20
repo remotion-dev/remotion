@@ -1,18 +1,27 @@
 import type {CostsInfo} from './types';
 
-export type BillingCurrency = 'USD' | 'CNY';
+// An ISO 4217 currency code, e.g. 'USD' or 'CNY'.
+export type BillingCurrency = string;
 
-const display = (accrued: number, currency: BillingCurrency) => {
-	if (accrued < 0.001) {
-		return `<${currency === 'CNY' ? '¥' : '$'}0.001`;
-	}
+export const COSTS_DISCLAIMER =
+	'Estimated cost for function invocations only. Does not include cost for storage and data transfer.';
 
+export const formatCurrency = ({
+	amount,
+	currency,
+	minimumFractionDigits,
+}: {
+	amount: number;
+	currency: BillingCurrency;
+	minimumFractionDigits: number;
+}) => {
 	return new Intl.NumberFormat('en-US', {
 		currency,
 		style: 'currency',
 		currencyDisplay: 'narrowSymbol',
-		minimumFractionDigits: 3,
-	}).format(accrued);
+		minimumFractionDigits,
+		maximumFractionDigits: 3,
+	}).format(amount);
 };
 
 export const formatCostsInfo = (
@@ -21,9 +30,11 @@ export const formatCostsInfo = (
 ): CostsInfo => {
 	return {
 		accruedSoFar: accrued,
-		displayCost: display(accrued, currency),
+		displayCost:
+			accrued < 0.001
+				? `<${formatCurrency({amount: 0.001, currency, minimumFractionDigits: 3})}`
+				: formatCurrency({amount: accrued, currency, minimumFractionDigits: 3}),
 		currency,
-		disclaimer:
-			'Estimated cost only. Does not include charges for other AWS services.',
+		disclaimer: COSTS_DISCLAIMER,
 	};
 };

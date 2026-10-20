@@ -2,20 +2,24 @@ import type {DownloadBehavior} from 'remotion/no-react';
 import {rendersPrefix} from './constants';
 import type {FunctionErrorInfo} from './write-error-to-storage';
 
-export type RendererFunctionTransport = 'response-streaming' | 's3';
+// How a renderer function hands its chunk back to the launch function:
+// - 'response-streaming': streamed over the function's response
+// - 'storage': written to the bucket and polled by the launch function.
+//   Used where response streaming is unavailable.
+export type RendererFunctionTransport = 'response-streaming' | 'storage';
 
-export type S3RendererArtifactMetadata = {
+export type StorageRendererArtifactMetadata = {
 	filename: string;
 	frame: number;
 	binary: boolean;
 	downloadBehavior: DownloadBehavior | null;
 };
 
-type S3RendererStatusBase = {
+type StorageRendererStatusBase = {
 	schema: 1;
 	chunk: number;
 	attempt: number;
-	lambdaInvoked: boolean;
+	functionInvoked: boolean;
 	renderedFrames: number;
 	encodedFrames: number;
 	uploadedFrames: number;
@@ -23,22 +27,22 @@ type S3RendererStatusBase = {
 	startedAt: number;
 };
 
-export type S3RendererStatus =
-	| (S3RendererStatusBase & {
+export type StorageRendererStatus =
+	| (StorageRendererStatusBase & {
 			state: 'running';
 	  })
-	| (S3RendererStatusBase & {
+	| (StorageRendererStatusBase & {
 			state: 'completed';
-			lambdaInvoked: true;
+			functionInvoked: true;
 			completedAt: number;
 			videoKey: string | null;
 			audioKey: string | null;
 			artifacts: Array<{
 				key: string;
-				metadata: S3RendererArtifactMetadata;
+				metadata: StorageRendererArtifactMetadata;
 			}>;
 	  })
-	| (S3RendererStatusBase & {
+	| (StorageRendererStatusBase & {
 			state: 'failed';
 			failedAt: number;
 			errorInfo: FunctionErrorInfo;
@@ -88,7 +92,7 @@ export const rendererTransportArtifactKey = (
 const isNumber = (value: unknown): value is number =>
 	typeof value === 'number' && Number.isFinite(value);
 
-export const parseS3RendererStatus = ({
+export const parseStorageRendererStatus = ({
 	value,
 	expectedChunk,
 	expectedAttempt,
@@ -96,48 +100,48 @@ export const parseS3RendererStatus = ({
 	value: unknown;
 	expectedChunk: number;
 	expectedAttempt: number;
-}): S3RendererStatus => {
+}): StorageRendererStatus => {
 	if (typeof value !== 'object' || value === null) {
-		throw new Error('Renderer S3 status must be an object');
+		throw new Error('Renderer storage status must be an object');
 	}
 
 	const status = value as Record<string, unknown>;
 	if (status.schema !== 1) {
 		throw new Error(
-			`Unsupported renderer S3 status schema: ${String(status.schema)}`,
+			`Unsupported renderer storage status schema: ${String(status.schema)}`,
 		);
 	}
 
 	if (status.chunk !== expectedChunk || status.attempt !== expectedAttempt) {
 		throw new Error(
-			`Renderer S3 status identifies chunk ${String(status.chunk)}, attempt ${String(status.attempt)}; expected chunk ${expectedChunk}, attempt ${expectedAttempt}`,
+			`Renderer storage status identifies chunk ${String(status.chunk)}, attempt ${String(status.attempt)}; expected chunk ${expectedChunk}, attempt ${expectedAttempt}`,
 		);
 	}
 
 	if (
-		typeof status.lambdaInvoked !== 'boolean' ||
+		typeof status.functionInvoked !== 'boolean' ||
 		!isNumber(status.renderedFrames) ||
 		!isNumber(status.encodedFrames) ||
 		!isNumber(status.uploadedFrames) ||
 		!isNumber(status.uploadedSizeInBytes) ||
 		!isNumber(status.startedAt)
 	) {
-		throw new Error('Renderer S3 status has invalid progress fields');
+		throw new Error('Renderer storage status has invalid progress fields');
 	}
 
 	if (status.state === 'running') {
-		return status as S3RendererStatus;
+		return status as StorageRendererStatus;
 	}
 
 	if (status.state === 'completed') {
 		if (
-			status.lambdaInvoked !== true ||
+			status.functionInvoked !== true ||
 			!isNumber(status.completedAt) ||
 			!(typeof status.videoKey === 'string' || status.videoKey === null) ||
 			!(typeof status.audioKey === 'string' || status.audioKey === null) ||
 			!Array.isArray(status.artifacts)
 		) {
-			throw new Error('Renderer S3 completed status is invalid');
+			throw new Error('Renderer storage completed status is invalid');
 		}
 
 		for (const artifact of status.artifacts) {
@@ -159,11 +163,13 @@ export const parseS3RendererStatus = ({
 					typeof candidate.metadata.downloadBehavior === 'object'
 				)
 			) {
-				throw new Error('Renderer S3 completed status has an invalid artifact');
+				throw new Error(
+					'Renderer storage completed status has an invalid artifact',
+				);
 			}
 		}
 
-		return status as S3RendererStatus;
+		return status as StorageRendererStatus;
 	}
 
 	if (status.state === 'failed') {
@@ -173,11 +179,13 @@ export const parseS3RendererStatus = ({
 			typeof status.errorInfo !== 'object' ||
 			status.errorInfo === null
 		) {
-			throw new Error('Renderer S3 failed status is invalid');
+			throw new Error('Renderer storage failed status is invalid');
 		}
 
-		return status as S3RendererStatus;
+		return status as StorageRendererStatus;
 	}
 
-	throw new Error(`Unknown renderer S3 status state: ${String(status.state)}`);
+	throw new Error(
+		`Unknown renderer storage status state: ${String(status.state)}`,
+	);
 };

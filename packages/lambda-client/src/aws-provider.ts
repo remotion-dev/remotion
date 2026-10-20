@@ -25,8 +25,11 @@ export type AwsProvider = {
 
 import {EventEmitter} from 'node:events';
 import type {StorageClass} from '@aws-sdk/client-s3';
-import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {expiryDays} from '@remotion/serverless-client';
+import type {
+	ProviderDocsPage,
+	ProviderSpecifics,
+} from '@remotion/serverless-client';
+import {DOCS_URL, expiryDays} from '@remotion/serverless-client';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {bucketExistsInRegionImplementation} from './bucket-exists';
 import {callFunctionAsyncImplementation} from './call-lambda-async';
@@ -102,7 +105,40 @@ const validateDeleteAfter = (lifeCycleValue: unknown) => {
 	}
 };
 
+const docsPages: {[page in ProviderDocsPage]: string} = {
+	'deploy-function': 'cli/functions/deploy',
+	debug: 'troubleshooting/debug',
+	'disk-size': 'disk-size',
+	'multiple-buckets': 'multiple-buckets',
+	'bucket-security': 'bucket-security',
+	upgrading: 'upgrading',
+	'too-many-functions': 'concurrency#too-many-functions',
+};
+
 export const awsImplementation: ProviderSpecifics<AwsProvider> = {
+	names: {
+		clientPackage: '@remotion/lambda',
+		storageProduct: 'S3',
+		renderMediaApi: 'renderMediaOnLambda',
+		renderStillApi: 'renderStillOnLambda',
+		renderFramesApi: 'renderFramesOnLambda',
+		getCompositionsApi: 'getCompositionsOnLambda',
+		getRenderProgressApi: 'getRenderProgress',
+		framesPerFunctionOption: 'framesPerLambda',
+	},
+	getDocsUrl: (page) => `${DOCS_URL}/docs/lambda/${docsPages[page]}`,
+	getErrorExplanation: (stack) => {
+		if (
+			stack.includes('TooManyRequestsException') ||
+			stack.includes('ConcurrentInvocationLimitExceeded')
+		) {
+			return `AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit`;
+		}
+
+		return null;
+	},
+	getBucketListingUrl: ({bucketName, region}) =>
+		`https://${bucketName}.s3.${region}.${getAwsRegionMetadata(region).dnsSuffix}/`,
 	getChromiumPath() {
 		return '/opt/bin/chromium';
 	},
@@ -130,18 +166,18 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		return MAX_EPHEMERAL_STORAGE_IN_MB;
 	},
-	estimatePrice,
+	estimatePrice: ({functionsInvoked, ...input}) =>
+		estimatePrice({...input, lambdasInvoked: functionsInvoked}),
 	getBillingCurrency: (region) => getAwsRegionMetadata(region).billingCurrency,
+	// Response streaming is unavailable in the AWS China partition.
 	getRendererFunctionTransport: (region) =>
 		getAwsRegionMetadata(region).partition === 'aws-cn'
-			? 's3'
+			? 'storage'
 			: 'response-streaming',
-	getServiceDnsSuffix: (region) => getAwsRegionMetadata(region).dnsSuffix,
 	getLoggingUrlForMethod: getCloudwatchMethodUrl,
 	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
 	isFlakyError,
 	getOutputUrl: getOutputUrlFromMetadata,
-	serverStorageProductName: () => 'S3',
 	getMaxStillInlinePayloadSize: () => 5_000_000,
 	getMaxNonInlinePayloadSizePerFunction: () => 200_000,
 	getAccountId: getAccountIdImplementation,

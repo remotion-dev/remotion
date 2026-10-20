@@ -60,7 +60,7 @@ export const getNeedsToUpload = <Provider extends CloudProvider>({
 				MAX_INLINE_PAYLOAD_SIZE / 1000,
 			)}KB (${Math.ceil(
 				sizesAlreadyUsed / 1024,
-			)}KB) in size. Uploading them to ${providerSpecifics.serverStorageProductName()} to circumvent AWS Lambda payload size, which may lead to slowdown.`,
+			)}KB) in size. Uploading them to ${providerSpecifics.names.storageProduct} to circumvent the function payload size limit, which may lead to slowdown.`,
 		);
 		return true;
 	}

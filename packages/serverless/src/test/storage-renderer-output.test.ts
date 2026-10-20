@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import type {Readable} from 'node:stream';
 import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {makeS3RendererOutput} from '../s3-renderer-output';
+import {makeStorageRendererOutput} from '../storage-renderer-output';
 
 type MockProvider = {
 	type: 'mock';
@@ -46,7 +46,7 @@ const bodyToBytes = async (
 	return result;
 };
 
-test('S3 renderer output publishes media and artifacts before completion', async () => {
+test('Storage transport renderer output publishes media and artifacts before completion', async () => {
 	const directory = await mkdtemp(join(tmpdir(), 'remotion-s3-output-'));
 	try {
 		const video = join(directory, 'video');
@@ -70,7 +70,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 				}
 			},
 		} as unknown as ProviderSpecifics<MockProvider>;
-		const output = makeS3RendererOutput({
+		const output = makeStorageRendererOutput({
 			params: {
 				type: 'renderer',
 				output: {type: 'media'},
@@ -87,7 +87,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 
 		await output.initialize();
 		await output.onStream({
-			type: 'lambda-invoked',
+			type: 'function-invoked',
 			payload: {attempt: 2},
 		});
 		await output.onStream({
@@ -124,7 +124,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 			state: 'completed',
 			chunk: 1,
 			attempt: 2,
-			lambdaInvoked: true,
+			functionInvoked: true,
 			renderedFrames: 10,
 			encodedFrames: 8,
 			uploadedFrames: 0,

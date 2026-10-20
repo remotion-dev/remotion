@@ -4,8 +4,8 @@ import type {
 	CloudProvider,
 	OnStream,
 	ProviderSpecifics,
-	S3RendererArtifactMetadata,
-	S3RendererStatus,
+	StorageRendererArtifactMetadata,
+	StorageRendererStatus,
 	ServerlessPayload,
 } from '@remotion/serverless-client';
 import {
@@ -17,7 +17,7 @@ import {
 	ServerlessRoutines,
 } from '@remotion/serverless-client';
 
-export const makeS3RendererOutput = <Provider extends CloudProvider>({
+export const makeStorageRendererOutput = <Provider extends CloudProvider>({
 	params,
 	expectedBucketOwner,
 	region,
@@ -33,7 +33,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 	}
 
 	const startedAt = Date.now();
-	let lambdaInvoked = true;
+	let functionInvoked = true;
 	let renderedFrames = 0;
 	let encodedFrames = 0;
 	let uploadedFrames = 0;
@@ -41,7 +41,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 	let writeQueue = Promise.resolve();
 	const artifacts: Array<{
 		key: string;
-		metadata: S3RendererArtifactMetadata;
+		metadata: StorageRendererArtifactMetadata;
 	}> = [];
 	const artifactUploads: Promise<void>[] = [];
 
@@ -51,7 +51,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 		attempt: params.attempt,
 	});
 
-	const writeStatus = (status: S3RendererStatus) => {
+	const writeStatus = (status: StorageRendererStatus) => {
 		writeQueue = writeQueue.then(() =>
 			providerSpecifics.writeFile({
 				bucketName: params.bucketName,
@@ -70,12 +70,12 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 		return writeQueue;
 	};
 
-	const runningStatus = (): S3RendererStatus => ({
+	const runningStatus = (): StorageRendererStatus => ({
 		schema: 1,
 		state: 'running',
 		chunk: params.chunk,
 		attempt: params.attempt,
-		lambdaInvoked,
+		functionInvoked,
 		renderedFrames,
 		encodedFrames,
 		uploadedFrames,
@@ -86,8 +86,8 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 	const initialize = () => writeStatus(runningStatus());
 
 	const onStream: OnStream<Provider> = async (message) => {
-		if (message.type === 'lambda-invoked') {
-			lambdaInvoked = true;
+		if (message.type === 'function-invoked') {
+			functionInvoked = true;
 			await writeStatus(runningStatus());
 			return;
 		}
@@ -119,7 +119,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 				},
 				artifacts.length,
 			);
-			const metadata: S3RendererArtifactMetadata = {
+			const metadata: StorageRendererArtifactMetadata = {
 				filename: artifact.filename,
 				frame: artifact.frame,
 				binary: artifact.content instanceof Uint8Array,
@@ -150,7 +150,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 				state: 'failed',
 				chunk: params.chunk,
 				attempt: params.attempt,
-				lambdaInvoked,
+				functionInvoked,
 				renderedFrames,
 				encodedFrames,
 				uploadedFrames,
@@ -169,7 +169,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 				await writeStatus({
 					...runningStatus(),
 					state: 'completed',
-					lambdaInvoked: true,
+					functionInvoked: true,
 					completedAt: message.payload.rendered,
 					videoKey: null,
 					audioKey: null,
@@ -181,7 +181,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 		}
 
 		throw new Error(
-			`Unexpected ${message.type} event in S3 renderer transport`,
+			`Unexpected ${message.type} event in storage renderer transport`,
 		);
 	};
 
@@ -246,13 +246,13 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 				: null,
 		]);
 
-		lambdaInvoked = true;
+		functionInvoked = true;
 		await writeStatus({
 			schema: 1,
 			state: 'completed',
 			chunk: params.chunk,
 			attempt: params.attempt,
-			lambdaInvoked: true,
+			functionInvoked: true,
 			renderedFrames,
 			encodedFrames,
 			uploadedFrames,
@@ -268,11 +268,11 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 	return {initialize, onStream, uploadMediaAndComplete};
 };
 
-export const artifactFromS3 = ({
+export const artifactFromStorage = ({
 	metadata,
 	content,
 }: {
-	metadata: S3RendererArtifactMetadata;
+	metadata: StorageRendererArtifactMetadata;
 	content: Uint8Array;
 }): EmittedArtifact => ({
 	filename: metadata.filename,

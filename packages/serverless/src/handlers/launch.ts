@@ -21,7 +21,6 @@ import {
 	compressInputProps,
 	CONCAT_FOLDER_TOKEN,
 	decompressInputProps,
-	DOCS_URL,
 	getCredentialsFromOutName,
 	getImageSequenceFrameKey,
 	inspectErrors,
@@ -88,7 +87,11 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	}
 
 	if (params.codec !== null) {
-		validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
+		validateCodec(
+			params.codec,
+			`passed to ${providerSpecifics.names.renderMediaApi}()`,
+			'codec',
+		);
 	}
 
 	const separateAudioTo = params.separateAudioTo ?? null;
@@ -363,6 +366,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		framesPerFunction: params.framesPerFunction,
 		durationInFrames: frameCount.length,
 		concurrency: params.concurrency,
+		optionName: providerSpecifics.names.framesPerFunctionOption,
 	});
 
 	validateOutname({
@@ -383,7 +387,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	if (chunks.length > MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
-			`Too many functions: This render would cause ${chunks.length} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount.length}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency#too-many-functions for help.`,
+			`Too many functions: This render would cause ${chunks.length} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount.length}, ${providerSpecifics.names.framesPerFunctionOption}=${framesPerLambda}. See ${providerSpecifics.getDocsUrl('too-many-functions')} for help.`,
 		);
 	}
 
@@ -665,7 +669,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			});
 			if (output) {
 				throw new TypeError(
-					`Output file "${destination.key}" in bucket "${destination.renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in ${params.output.type === 'sequence' ? 'renderFramesOnLambda()' : 'renderMediaOnLambda()'} to overwrite it.`,
+					`Output file "${destination.key}" in bucket "${destination.renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in ${params.output.type === 'sequence' ? providerSpecifics.names.renderFramesApi : providerSpecifics.names.renderMediaApi}() to overwrite it.`,
 				);
 			}
 		}
@@ -768,7 +772,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		const start = Date.now();
 		RenderInternals.Log.info(
 			{indent: false, logLevel: params.logLevel},
-			'Writing artifact ' + artifact.filename + ' to S3',
+			`Writing artifact ${artifact.filename} to ${providerSpecifics.names.storageProduct}`,
 		);
 		const artifactUpload = providerSpecifics
 			.writeFile({
@@ -787,7 +791,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},
-					`Wrote artifact to S3 in ${Date.now() - start}ms`,
+					`Wrote artifact to ${providerSpecifics.names.storageProduct} in ${Date.now() - start}ms`,
 				);
 
 				overallProgress.addReceivedArtifact(
@@ -816,7 +820,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				overallProgress.upload('artifactWriteError');
 				RenderInternals.Log.error(
 					{indent: false, logLevel: params.logLevel},
-					'Failed to write artifact to S3',
+					`Failed to write artifact to ${providerSpecifics.names.storageProduct}`,
 					err,
 				);
 			});
@@ -900,7 +904,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 			renderMetadata,
-			errorExplanations: inspectErrors({errors: progress.errors}),
+			errorExplanations: inspectErrors({
+				errors: progress.errors,
+				providerSpecifics,
+			}),
 			timeToDelete: cleanup.reduce((max, time) => Math.max(max, time), 0),
 			outputFile: {
 				url: renderMetadata.outputSequence.manifestUrl,
@@ -1046,7 +1053,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		!shouldRenderDirectly &&
 		providerSpecifics.getRendererFunctionTransport(
 			insideFunctionSpecifics.getCurrentRegionInFunction(),
-		) === 's3'
+		) === 'storage'
 	) {
 		try {
 			const transportObjects = await providerSpecifics.listObjects({
@@ -1388,7 +1395,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
-			'Wrote error to S3',
+			`Wrote error to ${providerSpecifics.names.storageProduct}`,
 		);
 		clearTimeout(webhookDueToTimeout);
 

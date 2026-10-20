@@ -193,17 +193,13 @@ export type EstimatePriceInput<Provider extends CloudProvider> = {
 	region: Provider['region'];
 	memorySizeInMb: number;
 	diskSizeInMb: number;
-	lambdasInvoked: number;
+	functionsInvoked: number;
 	durationInMilliseconds: number;
 };
 
-export type EstimatePrice<Provider extends CloudProvider> = ({
-	region,
-	memorySizeInMb,
-	diskSizeInMb,
-	lambdasInvoked,
-	...other
-}: EstimatePriceInput<Provider>) => number;
+export type EstimatePrice<Provider extends CloudProvider> = (
+	input: EstimatePriceInput<Provider>,
+) => number;
 
 export type GetLoggingUrlForRendererFunction<Provider extends CloudProvider> =
 	(options: {
@@ -244,7 +240,50 @@ export type GetFunctions<Provider extends CloudProvider> = (
 	params: GetFunctionsInput<Provider>,
 ) => Promise<FunctionInfo[]>;
 
+// User-facing names that show up in error messages and logs.
+// They differ per adapter, e.g. `renderMediaOnLambda()` vs. a future
+// `renderMediaOnCloudRun()`, so the generic code must not hardcode them.
+export type ProviderNames = {
+	// The npm package users install to call the functions, e.g. '@remotion/lambda'.
+	clientPackage: string;
+	// The name of the object storage product, e.g. 'S3'.
+	storageProduct: string;
+	// API function names without parentheses, e.g. 'renderMediaOnLambda'.
+	renderMediaApi: string;
+	renderStillApi: string;
+	renderFramesApi: string;
+	getCompositionsApi: string;
+	getRenderProgressApi: string;
+	// The option that controls how many frames a single function renders,
+	// e.g. 'framesPerLambda'.
+	framesPerFunctionOption: string;
+};
+
+// Documentation pages that generic error messages link to.
+// Each adapter maps these to the pages of its own docs section.
+export type ProviderDocsPage =
+	| 'deploy-function'
+	| 'debug'
+	| 'disk-size'
+	| 'multiple-buckets'
+	| 'bucket-security'
+	| 'upgrading'
+	| 'too-many-functions';
+
+export type GetBucketListingUrl<Provider extends CloudProvider> = (options: {
+	bucketName: string;
+	region: Provider['region'];
+}) => string | null;
+
 export type ProviderSpecifics<Provider extends CloudProvider> = {
+	names: ProviderNames;
+	getDocsUrl: (page: ProviderDocsPage) => string;
+	// Explain provider-specific errors (e.g. concurrency limits) found in an
+	// error stack. Return null to fall back to the generic explanations.
+	getErrorExplanation: (stack: string) => string | null;
+	// The URL that lists the bucket contents if the bucket is publicly listable.
+	// Used to warn about misconfigured buckets. Return null to skip the check.
+	getBucketListingUrl: GetBucketListingUrl<Provider>;
 	getChromiumPath: () => string | null;
 	getBuckets: GetBuckets<Provider>;
 	getBucketPrefix: () => string;
@@ -278,10 +317,8 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getRendererFunctionTransport: (
 		region: Provider['region'],
 	) => RendererFunctionTransport;
-	getServiceDnsSuffix: (region: Provider['region']) => string;
 	getOutputUrl: GetOutputUrl<Provider>;
 	isFlakyError: (err: Error) => boolean;
-	serverStorageProductName: () => string;
 	getMaxStillInlinePayloadSize: () => number;
 	getMaxNonInlinePayloadSizePerFunction: () => number;
 	getAccountId: GetAccountId<Provider>;

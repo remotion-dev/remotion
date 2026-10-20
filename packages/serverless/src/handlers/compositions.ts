@@ -33,7 +33,8 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 	}
 
 	checkVersionMismatch({
-		apiName: 'getCompositionsOnLambda()',
+		apiName: providerSpecifics.names.getCompositionsApi,
+		providerSpecifics,
 		insideFunctionSpecifics,
 		params,
 	});

@@ -1,17 +1,17 @@
 import {expect, test} from 'bun:test';
 import {
-	parseS3RendererStatus,
+	parseStorageRendererStatus,
 	rendererTransportArtifactKey,
-	type S3RendererStatus,
+	type StorageRendererStatus,
 	rendererTransportStatusKey,
 } from '../renderer-transport';
 
-const completedStatus: S3RendererStatus = {
+const completedStatus: StorageRendererStatus = {
 	schema: 1,
 	state: 'completed',
 	chunk: 2,
 	attempt: 3,
-	lambdaInvoked: true,
+	functionInvoked: true,
 	renderedFrames: 20,
 	encodedFrames: 20,
 	uploadedFrames: 0,
@@ -34,7 +34,7 @@ test('renderer transport keys isolate chunks and attempts', () => {
 
 test('renderer status parser accepts only the requested protocol identity', () => {
 	expect(
-		parseS3RendererStatus({
+		parseStorageRendererStatus({
 			value: completedStatus,
 			expectedChunk: 2,
 			expectedAttempt: 3,
@@ -42,17 +42,17 @@ test('renderer status parser accepts only the requested protocol identity', () =
 	).toEqual(completedStatus);
 
 	expect(() =>
-		parseS3RendererStatus({
+		parseStorageRendererStatus({
 			value: completedStatus,
 			expectedChunk: 2,
 			expectedAttempt: 2,
 		}),
 	).toThrow('expected chunk 2, attempt 2');
 	expect(() =>
-		parseS3RendererStatus({
+		parseStorageRendererStatus({
 			value: {...completedStatus, schema: 2},
 			expectedChunk: 2,
 			expectedAttempt: 3,
 		}),
-	).toThrow('Unsupported renderer S3 status schema');
+	).toThrow('Unsupported renderer storage status schema');
 });

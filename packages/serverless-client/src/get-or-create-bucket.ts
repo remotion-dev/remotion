@@ -43,9 +43,9 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		throw new Error(
 			`You have multiple buckets (${remotionBuckets.map(
 				(b) => b.name,
-			)}) in your S3 region (${
+			)}) in your ${params.providerSpecifics.names.storageProduct} region (${
 				params.region
-			}) starting with "${params.providerSpecifics.getBucketPrefix()}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`,
+			}) starting with "${params.providerSpecifics.getBucketPrefix()}". Please see ${params.providerSpecifics.getDocsUrl('multiple-buckets')}.`,
 		);
 	}
 
@@ -65,7 +65,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		await checkBucketListing({
 			bucketName: existingBucketName,
 			region,
-			dnsSuffix: params.providerSpecifics.getServiceDnsSuffix(region),
+			providerSpecifics: params.providerSpecifics,
 		});
 
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};

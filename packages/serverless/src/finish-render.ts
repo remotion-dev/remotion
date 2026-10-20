@@ -164,6 +164,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 
 	const errorExplanations = inspectErrors({
 		errors: overallProgress.get().errors,
+		providerSpecifics,
 	});
 
 	const cleanupProm = cleanupProps({

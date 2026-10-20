@@ -82,7 +82,12 @@ export {
 	OutputFileAccessDeniedError,
 	type OutputFileMetadata,
 } from './find-output-file-in-bucket';
-export {formatCostsInfo} from './format-costs-info';
+export {
+	COSTS_DISCLAIMER,
+	formatCostsInfo,
+	formatCurrency,
+	type BillingCurrency,
+} from './format-costs-info';
 export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
 export {
 	GetOrCreateBucketInput,
@@ -104,7 +109,7 @@ export {getProgress} from './progress';
 export * from './provider-implementation';
 export {RenderMetadata} from './render-metadata';
 export {
-	parseS3RendererStatus,
+	parseStorageRendererStatus,
 	rendererTransportArtifactKey,
 	rendererTransportAttemptPrefix,
 	rendererTransportAudioKey,
@@ -112,8 +117,8 @@ export {
 	rendererTransportStatusKey,
 	rendererTransportVideoKey,
 	type RendererFunctionTransport,
-	type S3RendererArtifactMetadata,
-	type S3RendererStatus,
+	type StorageRendererArtifactMetadata,
+	type StorageRendererStatus,
 } from './renderer-transport';
 export {OrError, ServerlessReturnValues} from './return-values';
 export {streamToString} from './stream-to-string';
