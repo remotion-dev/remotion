@@ -1,7 +1,7 @@
 import {ListObjectsV2Command} from '@aws-sdk/client-s3';
-import type {ProviderSpecifics} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getS3Client} from './get-s3-client';
+import type {ProviderSpecifics} from './provider-implementation';
 
 export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects'] =
 	async ({

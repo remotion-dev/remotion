@@ -1,13 +1,11 @@
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
-import type {InsideFunctionSpecifics} from '@remotion/serverless';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	closeBrowserInstanceImplementation,
 	forgetBrowserEventLoopImplementation,
 	getBrowserInstanceImplementation,
-	invokeWebhook,
-} from '@remotion/serverless';
-import {NoReactInternals} from 'remotion/no-react';
+} from './get-browser-instance';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
 import {getTmpDirStateIfENoSp} from './helpers/get-tmp-dir';
@@ -15,6 +13,8 @@ import {startLeakDetection} from './helpers/leak-detection';
 import {makeAwsArtifact} from './helpers/make-aws-artifact';
 import {timer} from './helpers/timer';
 import {enableNodeIntrospection} from './helpers/why-is-node-running';
+import {invokeWebhook} from './invoke-webhook';
+import type {InsideFunctionSpecifics} from './provider-implementation';
 
 const ENABLE_SLOW_LEAK_DETECTION = false;
 

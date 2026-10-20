@@ -4,7 +4,6 @@ import os from 'node:os';
 import path from 'node:path';
 import type {BundleOptions} from '@remotion/bundler';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
 import {mockFullClientSpecifics} from '../mock-implementation';
@@ -24,7 +23,7 @@ const makeGeneratedBundle = () => {
 };
 
 const makeBucket = async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,
@@ -164,7 +163,7 @@ test("Should throw if bucket doesn't exist", () => {
 });
 
 test('Should apply name if given', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,
@@ -204,7 +203,7 @@ test('Should apply name if given', async () => {
 });
 
 test('Should overwrite site if given siteName is already taken', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,
@@ -245,7 +244,7 @@ test('Should overwrite site if given siteName is already taken', async () => {
 });
 
 test('Should delete the previous site if deploying the new one', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,
@@ -314,7 +313,7 @@ test('Should delete the previous site if deploying the new one', async () => {
 });
 
 test('Should keep the previous site if deploying the new one with different ID', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,
@@ -406,7 +405,7 @@ test('Should keep the previous site if deploying the new one with different ID',
 });
 
 test('Should not delete site with same prefix', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,

@@ -1,8 +1,10 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 // eslint-disable-next-line no-restricted-imports
 import {CliInternals} from '@remotion/cli';
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import {ServerlessRoutines} from '@remotion/serverless';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
 import {parsedLambdaCli} from '../../cli/args';
 import {renderCommand} from '../../cli/commands/render/render';
 import {mockImplementation} from '../mocks/mock-implementation';

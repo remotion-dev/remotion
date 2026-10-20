@@ -4,10 +4,10 @@ import * as LambdaSDK from '@aws-sdk/client-lambda';
 import * as S3SDK from '@aws-sdk/client-s3';
 import * as ServiceQuotasSDK from '@aws-sdk/client-service-quotas';
 import * as StsSdk from '@aws-sdk/client-sts';
-import type {CustomCredentials} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getServiceClient, type ServiceMapping} from './get-service-client';
 import type {AwsRegion} from './regions';
+import type {CustomCredentials} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type GetAwsClientInput<T extends keyof ServiceMapping> = {

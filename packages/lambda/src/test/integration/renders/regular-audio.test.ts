@@ -2,7 +2,6 @@ import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'fs';
 import path from 'path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {rendersPrefix} from '@remotion/serverless';
 import {mockImplementation} from '../../mocks/mock-implementation';
 import {Wavedraw} from '../draw-wav';
 import {simulateLambdaRender} from '../simulate-lambda-render';
@@ -58,7 +57,7 @@ test(
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});
@@ -77,7 +76,7 @@ test(
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});

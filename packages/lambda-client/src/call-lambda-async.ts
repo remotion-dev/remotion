@@ -1,11 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {
-	CallFunctionOptions,
-	CloudProvider,
-	ServerlessRoutines,
-} from '@remotion/serverless-client';
 import {getLambdaClient} from './aws-clients';
 import type {AwsRegion} from './regions';
+import type {ServerlessRoutines} from './shared-constants';
+import type {CallFunctionOptions, CloudProvider} from './types';
 import type {RequestHandler} from './types';
 
 export const callFunctionAsyncImplementation = async <

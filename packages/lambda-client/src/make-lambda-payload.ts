@@ -1,46 +1,47 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
-	_InternalTypes,
 	AudioCodec,
-	BrowserSafeApis,
 	ChromiumOptions,
 	ColorSpace,
-	DeleteAfter,
-	DownloadBehavior,
 	LogLevel,
-	OutNameInput,
 	PixelFormat,
-	Privacy,
-	ServerlessCodec,
-	ServerlessRenderOutput,
 	SingleFrameRange,
-	ServerlessPayloads,
-	ServerlessStartPayload,
-	ServerlessStatusPayload,
 	ToOptions,
 	VideoImageFormat,
-	WebhookOption,
 	X264Preset,
-} from '@remotion/serverless-client';
-import {
-	compressInputProps,
-	ENABLE_V5_BREAKING_CHANGES,
-	getNeedsToUpload,
-	getSizeInBytes,
-	serializeOrThrow,
-	ServerlessRoutines,
-	validateDownloadBehavior,
-	VERSION,
-} from '@remotion/serverless-client';
-import {validateWebhook} from '@remotion/serverless-client';
+} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
+import {NoReactInternals, type DownloadBehavior} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
+import {
+	compressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from './compress-props';
 import type {GetRenderProgressInput} from './get-render-progress';
+import {getSizeInBytes} from './get-size-in-bytes';
+import type {ServerlessRenderOutput} from './image-sequence';
 import type {AwsRegion} from './regions';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
+import {
+	ServerlessRoutines,
+	type DeleteAfter,
+	type OutNameInput,
+	type Privacy,
+	type ServerlessCodec,
+	type ServerlessPayloads,
+	type ServerlessStartPayload,
+	type ServerlessStatusPayload,
+	type WebhookOption,
+} from './shared-constants';
 import type {RequestHandler} from './types';
+import {validateDownloadBehavior} from './validate-download-behavior';
 import {validateLambdaCodec} from './validate-lambda-codec';
 import {validateServeUrl} from './validate-serveurl';
+import {validateWebhook} from './validate-webhook';
 
 export type InnerRenderMediaOnLambdaInput = {
 	enableCancellation: boolean;
@@ -232,7 +233,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		downloadBehavior,
 		muted,
 		version: VERSION,
-		overwrite: overwrite ?? ENABLE_V5_BREAKING_CHANGES,
+		overwrite: overwrite ?? NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,

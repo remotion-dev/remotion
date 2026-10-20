@@ -1,12 +1,9 @@
 import {expect, test} from 'bun:test';
 import {Readable} from 'node:stream';
-import {
-	cancellationKey,
-	overallProgressKey,
-	type ProviderSpecifics,
-} from '@remotion/serverless-client';
 import {awsImplementation, type AwsProvider} from '../aws-provider';
 import {internalCancelRenderOnLambda} from '../cancel-render-on-lambda';
+import type {ProviderSpecifics} from '../provider-implementation';
+import {cancellationKey, overallProgressKey} from '../shared-constants';
 
 const makeProviderSpecifics = ({
 	cancellationEnabled,

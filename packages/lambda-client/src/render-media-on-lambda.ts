@@ -1,23 +1,16 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
-	_InternalTypes,
 	AudioCodec,
-	BrowserSafeApis,
 	ChromiumOptions,
-	DownloadBehavior,
-	OutNameInput,
 	PixelFormat,
-	Privacy,
-	ServerlessCodec,
 	SingleFrameRange,
 	ToOptions,
 	VideoImageFormat,
-	WebhookOption,
-} from '@remotion/serverless-client';
-import {
-	ServerlessRoutines,
-	wrapWithErrorHandling,
-} from '@remotion/serverless-client';
+} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {_InternalTypes} from 'remotion';
+import type {DownloadBehavior} from 'remotion/no-react';
 import {awsImplementation, type AwsProvider} from './aws-provider';
 import {
 	getCloudwatchMethodUrl,
@@ -29,6 +22,13 @@ import {
 import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 import type {AwsRegion} from './regions';
+import {
+	ServerlessRoutines,
+	type OutNameInput,
+	type Privacy,
+	type ServerlessCodec,
+	type WebhookOption,
+} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type RenderMediaOnLambdaInput = {

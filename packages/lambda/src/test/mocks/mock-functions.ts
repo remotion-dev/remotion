@@ -1,9 +1,10 @@
-import type {AwsProvider, AwsRegion} from '@remotion/lambda-client';
 import type {
+	AwsProvider,
+	AwsRegion,
 	DeleteFunction,
 	FunctionInfo,
 	GetFunctions,
-} from '@remotion/serverless';
+} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 
 export let mockFunctionsStore: (FunctionInfo & {

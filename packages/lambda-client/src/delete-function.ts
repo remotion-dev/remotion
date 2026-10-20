@@ -1,10 +1,10 @@
 import {DeleteFunctionCommand} from '@aws-sdk/client-lambda';
+import {getLambdaClient} from './aws-clients';
+import type {AwsProvider} from './aws-provider';
 import type {
 	DeleteFunction,
 	DeleteFunctionInput as GenericDeleteFunctionInput,
-} from '@remotion/serverless-client';
-import {getLambdaClient} from './aws-clients';
-import type {AwsProvider} from './aws-provider';
+} from './provider-implementation';
 import type {RequestHandler} from './types';
 
 export type DeleteFunctionInput = GenericDeleteFunctionInput<AwsProvider> & {

@@ -3,8 +3,11 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {
 	AwsProvider,
-	getRenderProgress,
 	LambdaClientInternals,
+	getRenderProgress,
+	type EnhancedErrorInfo,
+	type ProviderSpecifics,
+	type ServerlessCodec,
 } from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
@@ -18,8 +21,6 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
-import {validatePrivacy, type ServerlessCodec} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
 import {sleep} from '../../../shared/sleep';
@@ -394,7 +395,7 @@ export const renderCommand = async ({
 	validateMaxRetries(maxRetries);
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
-	validatePrivacy(privacy, true);
+	LambdaClientInternals.validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
 	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;

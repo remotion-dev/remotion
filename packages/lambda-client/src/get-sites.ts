@@ -1,15 +1,13 @@
-import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {
-	getRemotionVersionFromIndexHtml,
-	streamToString,
-	VERSION,
-} from '@remotion/serverless-client';
+import {VERSION} from 'remotion/version';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {getSitesKey} from './constants';
 import type {BucketWithLocation} from './get-buckets';
+import {getRemotionVersionFromIndexHtml} from './get-remotion-version-from-index-html';
 import {makeS3ServeUrl} from './make-s3-url';
+import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
+import {streamToString} from './stream-to-string';
 import type {RequestHandler} from './types';
 
 type Site = {

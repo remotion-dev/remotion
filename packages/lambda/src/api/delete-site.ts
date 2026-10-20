@@ -1,7 +1,11 @@
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsProvider,
+	type AwsRegion,
+	type ProviderSpecifics,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {getSitesKey} from '@remotion/lambda-client/constants';
-import type {ProviderSpecifics} from '@remotion/serverless';
 
 type MandatoryParameters = {
 	bucketName: string;

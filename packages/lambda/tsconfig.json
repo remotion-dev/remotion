@@ -9,9 +9,9 @@
 		{"path": "../core"},
 		{"path": "../bundler"},
 		{"path": "../lambda-client"},
+		{"path": "../licensing"},
 		{"path": "../cli"},
 		{"path": "../streaming"},
-		{"path": "../serverless"},
 		{"path": "../renderer"}
 	]
 }

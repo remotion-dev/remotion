@@ -1,13 +1,13 @@
 import {CliInternals} from '@remotion/cli';
 import {
 	AwsProvider,
-	getCompositionsOnLambda,
 	LambdaClientInternals,
+	getCompositionsOnLambda,
+	type ProviderSpecifics,
 } from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {ProviderSpecifics} from '@remotion/serverless';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';

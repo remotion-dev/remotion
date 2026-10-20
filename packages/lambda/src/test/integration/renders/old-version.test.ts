@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import path from 'path';
-import {ServerlessRoutines} from '@remotion/serverless';
+import {ServerlessRoutines} from '@remotion/lambda-client';
 import {mockImplementation} from '../../mocks/mock-implementation';
 
 test(

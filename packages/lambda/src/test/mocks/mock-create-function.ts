@@ -1,6 +1,6 @@
 import type {AwsProvider} from '@remotion/lambda-client';
-import type {CreateFunction} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
+import type {CreateFunction} from '../../functions/provider-implementation';
 import {addFunction} from './mock-functions';
 
 type MockCreateFunctionCall = {

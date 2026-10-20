@@ -1,14 +1,14 @@
 import {GetObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
-import type {
-	AwsProvider,
-	AwsRegion,
-	RequestHandler,
+import {
+	LambdaClientInternals,
+	type AwsProvider,
+	type AwsRegion,
+	type CustomCredentials,
+	type RequestHandler,
 } from '@remotion/lambda-client';
-import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {CustomCredentials} from '@remotion/serverless';
 
 export type LambdaReadFileProgress = (progress: {
 	totalSize: number;

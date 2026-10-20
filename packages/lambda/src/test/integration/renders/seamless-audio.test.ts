@@ -2,7 +2,6 @@ import {expect, test} from 'bun:test';
 import {existsSync, unlinkSync} from 'fs';
 import path from 'path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {rendersPrefix} from '@remotion/serverless';
 import {$} from 'bun';
 import {mockImplementation} from '../../mocks/mock-implementation';
 import {streamToUint8Array} from '../../mocks/mock-store';
@@ -64,7 +63,7 @@ test(
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});
@@ -83,7 +82,7 @@ test(
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});

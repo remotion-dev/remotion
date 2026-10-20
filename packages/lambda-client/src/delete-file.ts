@@ -1,11 +1,9 @@
 import {DeleteObjectCommand} from '@aws-sdk/client-s3';
-import type {
-	CustomCredentials,
-	ProviderSpecifics,
-} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getS3Client} from './get-s3-client';
+import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
+import type {CustomCredentials} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export const lambdaDeleteFileImplementation: ProviderSpecifics<AwsProvider>['deleteFile'] =

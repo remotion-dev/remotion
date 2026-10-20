@@ -1,18 +1,17 @@
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsProvider,
+	type AwsRegion,
+	type CustomCredentials,
+	type ProviderSpecifics,
+	type RenderOutput,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {REMOTION_BUCKET_PREFIX} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {
-	getExpectedOutName,
-	getImageSequenceFrameKey,
-	getOverallProgressFromStorage,
-	type CustomCredentials,
-	type RenderOutput,
-} from '@remotion/serverless';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 
@@ -58,15 +57,16 @@ export const internalDownloadMedia = async (
 	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
 		region: input.region,
 	});
-	const overallProgress = await getOverallProgressFromStorage({
-		bucketName: input.bucketName,
-		expectedBucketOwner,
-		region: input.region,
-		renderId: input.renderId,
-		providerSpecifics: input.providerSpecifics,
-		forcePathStyle: input.forcePathStyle,
-		requestHandler: input.requestHandler,
-	});
+	const overallProgress =
+		await LambdaClientInternals.getOverallProgressFromStorage({
+			bucketName: input.bucketName,
+			expectedBucketOwner,
+			region: input.region,
+			renderId: input.renderId,
+			providerSpecifics: input.providerSpecifics,
+			forcePathStyle: input.forcePathStyle,
+			requestHandler: input.requestHandler,
+		});
 
 	if (!overallProgress.renderMetadata) {
 		throw new Error('Render did not finish yet');
@@ -87,7 +87,7 @@ export const internalDownloadMedia = async (
 		);
 		const keys = [
 			...frames.map((frame) =>
-				getImageSequenceFrameKey({
+				LambdaClientInternals.getImageSequenceFrameKey({
 					frame,
 					keyPrefix: sequence.keyPrefix,
 					imageFormat: sequence.imageFormat,
@@ -143,13 +143,14 @@ export const internalDownloadMedia = async (
 
 	RenderInternals.ensureOutputDirectory(outputPath);
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName({
-		output: input.output,
-		renderMetadata: overallProgress.renderMetadata,
-		bucketName: input.bucketName,
-		customCredentials: input.customCredentials ?? null,
-		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
-	});
+	const {key, renderBucketName, customCredentials} =
+		LambdaClientInternals.getExpectedOutName({
+			output: input.output,
+			renderMetadata: overallProgress.renderMetadata,
+			bucketName: input.bucketName,
+			customCredentials: input.customCredentials ?? null,
+			bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+		});
 
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({
 		bucketName: renderBucketName,

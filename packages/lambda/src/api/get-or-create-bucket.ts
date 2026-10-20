@@ -1,7 +1,8 @@
-import type {AwsProvider} from '@remotion/lambda-client';
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {GetOrCreateBucketInput} from '@remotion/serverless';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
+import {
+	LambdaClientInternals,
+	type AwsProvider,
+	type GetOrCreateBucketInput,
+} from '@remotion/lambda-client';
 
 /*
  * @description Creates a Cloud Storage bucket for Remotion Cloud Run in your GCP project. If one already exists, it will get returned instead.
@@ -10,7 +11,7 @@ import {internalGetOrCreateBucket} from '@remotion/serverless';
 export const getOrCreateBucket = (
 	options: GetOrCreateBucketInput<AwsProvider>,
 ) => {
-	return internalGetOrCreateBucket({
+	return LambdaClientInternals.internalGetOrCreateBucket({
 		region: options.region,
 		enableFolderExpiry: options.enableFolderExpiry ?? null,
 		customCredentials: options.customCredentials ?? null,

@@ -1,16 +1,13 @@
-import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {
-	getExpectedOutName,
-	getImageSequenceFrameKey,
-	getOverallProgressFromStorage,
-	rendersPrefix,
-	type CustomCredentials,
-} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {cleanItems} from './clean-items';
 import {REMOTION_BUCKET_PREFIX} from './constants';
+import {getExpectedOutName} from './expected-out-name';
+import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
+import {getImageSequenceFrameKey} from './image-sequence';
+import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
+import {rendersPrefix, type CustomCredentials} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type DeleteRenderInput = {

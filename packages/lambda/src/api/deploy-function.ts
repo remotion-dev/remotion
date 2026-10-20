@@ -1,19 +1,18 @@
-import type {RequestHandler, RuntimePreference} from '@remotion/lambda-client';
 import {
 	LambdaClientInternals,
 	speculateFunctionName,
 	type AwsRegion,
+	type CloudProvider,
+	type ProviderSpecifics,
+	type RequestHandler,
+	type RuntimePreference,
 } from '@remotion/lambda-client';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {
-	CloudProvider,
-	FullClientSpecifics,
-	ProviderSpecifics,
-} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
+import type {FullClientSpecifics} from '../functions/provider-implementation';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {validateRuntimePreference} from '../shared/get-layers';
 import {validateCustomLayerArns} from '../shared/validate-custom-layer-arns';

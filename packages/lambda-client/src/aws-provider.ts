@@ -1,4 +1,6 @@
+import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
+import {expiryDays} from './shared-constants';
 
 export type AwsProvider = {
 	type: 'aws';
@@ -25,8 +27,6 @@ export type AwsProvider = {
 
 import {EventEmitter} from 'node:events';
 import type {StorageClass} from '@aws-sdk/client-s3';
-import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {expiryDays} from '@remotion/serverless-client';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {bucketExistsInRegionImplementation} from './bucket-exists';
 import {callFunctionAsyncImplementation} from './call-lambda-async';

@@ -1,19 +1,16 @@
-import type {
-	BrowserSafeApis,
-	ChromiumOptions,
-	ToOptions,
-	VideoConfig,
-} from '@remotion/serverless-client';
+import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {VideoConfig} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
+import {awsImplementation} from './aws-provider';
 import {
-	ServerlessRoutines,
-	VERSION,
 	compressInputProps,
 	getNeedsToUpload,
-	getSizeInBytes,
 	serializeOrThrow,
-} from '@remotion/serverless-client';
-import {awsImplementation} from './aws-provider';
+} from './compress-props';
+import {getSizeInBytes} from './get-size-in-bytes';
 import type {AwsRegion} from './regions';
+import {ServerlessRoutines} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type GetCompositionsOnLambdaInput = {

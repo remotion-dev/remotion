@@ -1,12 +1,12 @@
 import {expect, spyOn, test} from 'bun:test';
-import {LambdaClientInternals} from '@remotion/lambda-client';
 import {
-	ResponseStream,
+	LambdaClientInternals,
 	ServerlessRoutines,
-	VERSION,
-} from '@remotion/serverless';
+} from '@remotion/lambda-client';
+import {VERSION} from 'remotion/version';
 import {routine} from '../../functions';
 import {serverAwsImplementation} from '../../functions/aws-server-implementation';
+import {ResponseStream} from '../../functions/streaming/response-stream';
 
 test('Lambda context is normalized while preserving storage ownership', async () => {
 	const previousFlag = process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA;

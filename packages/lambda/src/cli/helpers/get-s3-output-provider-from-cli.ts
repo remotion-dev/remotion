@@ -1,5 +1,8 @@
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {CustomCredentials, OutNameInput} from '@remotion/serverless';
+import {
+	LambdaClientInternals,
+	type CustomCredentials,
+	type OutNameInput,
+} from '@remotion/lambda-client';
 import type {AwsProvider} from '../../client';
 
 export const S3_OUTPUT_PROVIDER_ACCESS_KEY_ID_ENV_NAME =

@@ -1,27 +1,23 @@
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
-import type {
-	CallFunctionAsync,
-	CallFunctionOptions,
-	CallFunctionStreaming,
-	CallFunctionSync,
-	GetBinaryPayloadSink,
-	MessageTypeId,
-	OnMessage,
-	OrError,
-	ServerlessReturnValues,
-	ServerlessRoutines,
-	StreamingMessage,
-} from '@remotion/serverless';
 import {
-	binaryPayloadSinkForStreamer,
-	formatMap,
-	innerHandler,
-	messageTypeIdToMessageType,
-	ResponseStream,
-	streamWriter,
-} from '@remotion/serverless';
+	LambdaClientInternals,
+	type AwsProvider,
+	type CallFunctionAsync,
+	type CallFunctionOptions,
+	type CallFunctionStreaming,
+	type CallFunctionSync,
+	type GetBinaryPayloadSink,
+	type MessageTypeId,
+	type OnMessage,
+	type OrError,
+	type ServerlessReturnValues,
+	type ServerlessRoutines,
+	type StreamingMessage,
+} from '@remotion/lambda-client';
 import {makeStreamer} from '@remotion/streaming';
 import {Log} from '../../cli/log';
+import {innerHandler} from '../../functions/inner-routine';
+import {ResponseStream} from '../../functions/streaming/response-stream';
+import {streamWriter} from '../../functions/streaming/stream-writer';
 import {mockServerImplementation} from '../mock-implementation';
 import {mockImplementation} from './mock-implementation';
 import {trackMockInvocation} from './mock-invocations';
@@ -40,11 +36,11 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 
 	const {onData, clear} = makeStreamer(
 		(status, messageTypeId, data) => {
-			const messageType = messageTypeIdToMessageType(
+			const messageType = LambdaClientInternals.messageTypeIdToMessageType(
 				messageTypeId as MessageTypeId,
 			);
 			const innerPayload =
-				formatMap[messageType] === 'json'
+				LambdaClientInternals.formatMap[messageType] === 'json'
 					? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
 					: data;
 
@@ -59,7 +55,9 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 			params.receivedStreamingPayload(message);
 		},
 		params.getBinaryPayloadSink
-			? binaryPayloadSinkForStreamer(params.getBinaryPayloadSink)
+			? LambdaClientInternals.binaryPayloadSinkForStreamer(
+					params.getBinaryPayloadSink,
+				)
 			: null,
 	);
 

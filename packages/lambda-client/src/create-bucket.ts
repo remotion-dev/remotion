@@ -5,10 +5,10 @@ import {
 	PutBucketAclCommand,
 	PutBucketPolicyCommand,
 } from '@aws-sdk/client-s3';
-import type {ProviderSpecifics} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {getS3Client} from './get-s3-client';
+import type {ProviderSpecifics} from './provider-implementation';
 
 export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 	async ({region, bucketName, forcePathStyle, requestHandler}) => {

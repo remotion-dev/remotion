@@ -10,7 +10,7 @@ import {
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 import {internalDeploySiteFromBundle} from '../../api/deploy-site-from-bundle';
 import {mockFullClientSpecifics} from '../mock-implementation';
@@ -45,7 +45,7 @@ const makeBundle = (files: Record<string, string>) => {
 };
 
 const makeBucket = async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,

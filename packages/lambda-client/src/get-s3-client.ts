@@ -1,8 +1,8 @@
 import type {S3Client} from '@aws-sdk/client-s3';
-import type {CustomCredentials} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getServiceClient} from './get-service-client';
 import type {AwsRegion} from './regions';
+import type {CustomCredentials} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export function getS3Client({

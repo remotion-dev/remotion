@@ -1,27 +1,24 @@
-/* eslint-disable no-console */
 import type {InvokeWithResponseStreamCommandOutput} from '@aws-sdk/client-lambda';
 import {
 	InvokeWithResponseStreamCommand,
 	type InvokeWithResponseStreamResponseEvent,
 } from '@aws-sdk/client-lambda';
-import type {
-	CallFunctionOptions,
-	CloudProvider,
-	GetBinaryPayloadSink,
-	MessageTypeId,
-	OnMessage,
-	ServerlessRoutines,
-	StreamingMessage,
-} from '@remotion/serverless-client';
-import {
-	binaryPayloadSinkForStreamer,
-	formatMap,
-	makeStreamer,
-	messageTypeIdToMessageType,
-} from '@remotion/serverless-client';
+import {makeStreamer} from '@remotion/streaming';
 import {getLambdaClient} from './aws-clients';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import type {AwsRegion} from './regions';
+/* eslint-disable no-console */
+import type {ServerlessRoutines} from './shared-constants';
+import {
+	binaryPayloadSinkForStreamer,
+	formatMap,
+	messageTypeIdToMessageType,
+	type GetBinaryPayloadSink,
+	type MessageTypeId,
+	type OnMessage,
+	type StreamingMessage,
+} from './streaming/streaming';
+import type {CallFunctionOptions, CloudProvider} from './types';
 import type {RequestHandler} from './types';
 
 const STREAM_STALL_TIMEOUT = 30000;

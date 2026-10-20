@@ -3,12 +3,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {bundle} from '@remotion/bundler';
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import {RenderInternals} from '@remotion/renderer';
 import {
+	LambdaClientInternals,
 	OutputFileAccessDeniedError,
 	ServerlessRoutines,
-} from '@remotion/serverless';
+} from '@remotion/lambda-client';
+import {RenderInternals} from '@remotion/renderer';
 import {mockImplementation} from '../../mocks/mock-implementation';
 import {readMockS3File} from '../../mocks/mock-store';
 import {waitUntilDone} from '../wait-until-done';

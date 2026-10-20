@@ -1,11 +1,14 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import {AwsProvider} from '@remotion/lambda-client';
+import {
+	AwsProvider,
+	LambdaClientInternals,
+	type Privacy,
+	type ProviderSpecifics,
+} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {internalGetOrCreateBucket, type Privacy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';
 import {LambdaInternals} from '../../../internals';
@@ -136,7 +139,7 @@ export const sitesCreateSubcommand = async (
 	const bucketName =
 		cliBucketName ??
 		(
-			await internalGetOrCreateBucket({
+			await LambdaClientInternals.internalGetOrCreateBucket({
 				region: getAwsRegion(),
 				enableFolderExpiry,
 				customCredentials: null,

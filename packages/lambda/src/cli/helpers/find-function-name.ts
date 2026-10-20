@@ -1,7 +1,10 @@
-import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {
+	AwsProvider,
+	LambdaClientInternals,
+	type ProviderSpecifics,
+} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
-import {ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {parsedLambdaCli} from '../args';
 import {FUNCTIONS_COMMAND} from '../commands/functions';

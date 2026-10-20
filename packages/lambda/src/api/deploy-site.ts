@@ -5,18 +5,22 @@ import {
 	type RspackOverrideFn,
 	type WebpackOverrideFn,
 } from '@remotion/bundler';
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsProvider,
+	type AwsRegion,
+	type ProviderSpecifics,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {getSitesKey} from '@remotion/lambda-client/constants';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import type {
 	FullClientSpecifics,
-	ProviderSpecifics,
 	UploadDirProgress,
-} from '@remotion/serverless';
-import {awsFullClientSpecifics} from '../functions/full-client-implementation';
+} from '../functions/provider-implementation';
 import {
 	deploySiteWithBundle,
 	type DeploySiteOutput,

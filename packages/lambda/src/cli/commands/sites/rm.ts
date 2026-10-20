@@ -1,8 +1,11 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, getSites} from '@remotion/lambda-client';
+import {
+	AwsProvider,
+	LambdaClientInternals,
+	getSites,
+	type ProviderSpecifics,
+} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {deleteSite} from '../../../api/delete-site';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -38,7 +41,7 @@ export const sitesRmSubcommand = async (
 	const bucketName =
 		parsedLambdaCli['force-bucket-name'] ??
 		(
-			await internalGetOrCreateBucket({
+			await LambdaClientInternals.internalGetOrCreateBucket({
 				region,
 				enableFolderExpiry: false,
 				customCredentials: null,

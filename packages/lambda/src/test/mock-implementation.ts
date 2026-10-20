@@ -1,17 +1,17 @@
-import type {AwsProvider} from '@remotion/lambda-client';
 import {
 	LambdaClientInternals,
 	speculateFunctionName,
+	type AwsProvider,
 } from '@remotion/lambda-client';
 import {openBrowser} from '@remotion/renderer';
+import {Log} from '../cli/log';
+import {serverAwsImplementation} from '../functions/aws-server-implementation';
 import type {
 	FullClientSpecifics,
 	GetBrowserInstance,
 	InsideFunctionSpecifics,
 	InvokeWebhookParams,
-} from '@remotion/serverless';
-import {Log} from '../cli/log';
-import {serverAwsImplementation} from '../functions/aws-server-implementation';
+} from '../functions/provider-implementation';
 import {mockBundleSite} from './mocks/mock-bundle-site';
 import {mockCreateFunction} from './mocks/mock-create-function';
 import {mockReadDirectory} from './mocks/mock-read-dir';

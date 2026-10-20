@@ -1,5 +1,5 @@
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
-import type {MakeArtifactWithDetails} from '@remotion/serverless';
+import type {MakeArtifactWithDetails} from '../provider-implementation';
 
 export const makeAwsArtifact: MakeArtifactWithDetails<AwsProvider> = ({
 	region,

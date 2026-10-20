@@ -1,8 +1,9 @@
 import {CliInternals} from '@remotion/cli';
+import type {ProviderSpecifics} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
 import {AwsProvider} from '../../../client';
+import type {FullClientSpecifics} from '../../../functions/provider-implementation';
 import {quit} from '../../helpers/quit';
 import {FUNCTIONS_COMMAND} from '../command-names';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND, functionsDeploySubcommand} from './deploy';

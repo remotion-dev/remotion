@@ -1,8 +1,11 @@
 import {CliInternals} from '@remotion/cli';
+import {
+	LambdaClientInternals,
+	type CloudProvider,
+	type ReceivedArtifact,
+} from '@remotion/lambda-client';
 import type {RenderProgress} from '@remotion/lambda-client/constants';
 import {RenderInternals} from '@remotion/renderer';
-import type {CloudProvider, ReceivedArtifact} from '@remotion/serverless';
-import {truthy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 
 type LambdaInvokeProgress = {
@@ -100,7 +103,7 @@ const makeRenderProgress = (progress: RenderProgress) => {
 			? frames
 			: CliInternals.chalk.gray(`${progress.timeToRenderFrames}ms`),
 	]
-		.filter(truthy)
+		.filter(LambdaClientInternals.truthy)
 		.join(' ');
 
 	const second = [
@@ -115,7 +118,7 @@ const makeRenderProgress = (progress: RenderProgress) => {
 				: `${framesEncoded}/${totalFrames}`
 			: CliInternals.chalk.gray(`${progress.timeToEncode}ms`),
 	]
-		.filter(truthy)
+		.filter(LambdaClientInternals.truthy)
 		.join(' ');
 
 	if (progress.renderMetadata?.type === 'sequence') {
@@ -252,7 +255,7 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 				),
 			].join(' ');
 		})
-		.filter(truthy)
+		.filter(LambdaClientInternals.truthy)
 		.join('\n');
 
 	const moreSizeCombined = artifactProgress
@@ -265,7 +268,7 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 					`${' '.repeat(CliInternals.LABEL_WIDTH)} ${artifactProgress.length - ARTIFACTS_SHOWN} more artifact${artifactProgress.length - ARTIFACTS_SHOWN === 1 ? '' : 's'} ${CliInternals.formatBytes(moreSizeCombined)}`,
 				)
 			: null;
-	return [artifacts, more].filter(truthy).join('\n');
+	return [artifacts, more].filter(LambdaClientInternals.truthy).join('\n');
 };
 
 export const makeProgressString = ({

@@ -1,11 +1,9 @@
-import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {
-	getOverallProgressFromStorage,
-	writeCancellationSignal,
-} from '@remotion/serverless-client';
 import {awsImplementation, type AwsProvider} from './aws-provider';
+import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
+import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
+import {writeCancellationSignal} from './write-cancellation-signal';
 
 export type CancelRenderOnLambdaInput = {
 	region: AwsRegion;

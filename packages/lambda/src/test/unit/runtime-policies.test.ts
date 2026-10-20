@@ -2,15 +2,15 @@ import {expect, mock, spyOn, test} from 'bun:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {AwsProvider} from '@remotion/lambda-client';
-import type * as Renderer from '@remotion/renderer';
-import {rendererHandler, VERSION} from '@remotion/serverless';
-import type {StreamingPayload} from '@remotion/serverless';
+import {
+	LambdaClientInternals,
+	type AwsProvider,
+	type StreamingPayload,
+} from '@remotion/lambda-client';
+import {RenderInternals} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import {serverAwsImplementation} from '../../functions/aws-server-implementation';
-
-// Serverless is published as CommonJS, so intercept its renderer instance.
-const {RenderInternals} = require('@remotion/renderer') as typeof Renderer;
+import {rendererHandler} from '../../functions/handlers/renderer';
 
 test.each(['angle', null] as const)(
 	'Lambda renders with software GL and one browser process for gl=%s',

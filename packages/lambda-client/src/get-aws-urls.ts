@@ -1,11 +1,9 @@
-import type {
-	GetLoggingUrlForRendererFunction,
-	ServerlessRoutines,
-} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
+import type {GetLoggingUrlForRendererFunction} from './provider-implementation';
 import type {AwsRegion} from './regions';
+import type {ServerlessRoutines} from './shared-constants';
 
 const cloudWatchUrlWithQuery = ({
 	region,

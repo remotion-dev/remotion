@@ -1,7 +1,7 @@
 import {GetCallerIdentityCommand} from '@aws-sdk/client-sts';
-import type {GetAccountId} from '@remotion/serverless-client';
 import {getStsClient} from './aws-clients';
 import type {AwsProvider} from './aws-provider';
+import type {GetAccountId} from './provider-implementation';
 import type {AwsRegion} from './regions';
 import {validateAwsRegion} from './validate-aws-region';
 

@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import type {_Object} from '@aws-sdk/client-s3';
 import type {AwsProvider} from '@remotion/lambda-client';
-import type {FullClientSpecifics} from '@remotion/serverless';
+import type {FullClientSpecifics} from '../../functions/provider-implementation';
 import {getEtagOfFile} from '../../shared/get-etag';
 import {getS3DiffOperations} from '../../shared/get-s3-operations';
 import {multipartUploadPartSize} from '../../shared/multipart-upload-part-size';

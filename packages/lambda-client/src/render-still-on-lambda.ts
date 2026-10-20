@@ -1,25 +1,27 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
-	BrowserSafeApis,
 	ChromiumOptions,
-	DownloadBehavior,
 	StillImageFormat,
 	ToOptions,
-} from '@remotion/serverless-client';
-import {ServerlessRoutines} from '@remotion/serverless-client';
-import type {
-	CostsInfo,
-	OutNameInput,
-	Privacy,
-	ReceivedArtifact,
-	RenderStillFunctionResponsePayload,
-} from '@remotion/serverless-client';
-import {wrapWithErrorHandling} from '@remotion/serverless-client';
+} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {DownloadBehavior} from 'remotion/no-react';
 import {awsImplementation, type AwsProvider} from './aws-provider';
 import {DEFAULT_MAX_RETRIES} from './constants';
 import {getCloudwatchMethodUrl, getLambdaInsightsUrl} from './get-aws-urls';
 import {makeLambdaRenderStillPayload} from './make-lambda-payload';
 import type {AwsRegion} from './regions';
+import {
+	ServerlessRoutines,
+	type OutNameInput,
+	type Privacy,
+} from './shared-constants';
+import type {
+	CostsInfo,
+	ReceivedArtifact,
+	RenderStillFunctionResponsePayload,
+} from './types';
 import type {RequestHandler} from './types';
 
 type MandatoryParameters = {

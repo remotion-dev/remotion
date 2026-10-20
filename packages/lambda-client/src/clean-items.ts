@@ -1,8 +1,6 @@
-import type {
-	CloudProvider,
-	ProviderSpecifics,
-} from '@remotion/serverless-client';
 import {pLimit} from './p-limit';
+import type {ProviderSpecifics} from './provider-implementation';
+import type {CloudProvider} from './types';
 
 const limit = pLimit(10);
 

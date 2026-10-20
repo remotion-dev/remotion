@@ -1,9 +1,9 @@
-import type {
-	ImageSequenceOutputPrefix,
-	ImageSequenceFormat,
-} from '@remotion/serverless-client';
-import {wrapWithErrorHandling} from '@remotion/serverless-client';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {AwsProvider} from './aws-provider';
+import type {
+	ImageSequenceFormat,
+	ImageSequenceOutputPrefix,
+} from './image-sequence';
 import {
 	internalRenderMediaOnLambdaRaw,
 	renderMediaOnLambdaOptionalToRequired,

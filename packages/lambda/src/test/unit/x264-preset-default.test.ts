@@ -1,13 +1,15 @@
 import {expect, test} from 'bun:test';
-import type {AwsProvider} from '@remotion/lambda-client';
-import type {
-	ProviderSpecifics,
-	ServerlessPayload,
-	ServerlessStartPayload,
-} from '@remotion/serverless';
-import {ServerlessRoutines, startHandler, VERSION} from '@remotion/serverless';
+import {
+	ServerlessRoutines,
+	type AwsProvider,
+	type ProviderSpecifics,
+	type ServerlessPayload,
+	type ServerlessStartPayload,
+} from '@remotion/lambda-client';
 import {NoReactInternals} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {serverAwsImplementation} from '../../functions/aws-server-implementation';
+import {startHandler} from '../../functions/handlers/start';
 import {mockServerImplementation} from '../mock-implementation';
 import {mockImplementation} from '../mocks/mock-implementation';
 

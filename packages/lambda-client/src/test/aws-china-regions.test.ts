@@ -1,5 +1,4 @@
 import {expect, test} from 'bun:test';
-import {ServerlessRoutines} from '@remotion/serverless-client';
 import {awsImplementation} from '../aws-provider';
 import {getAwsRegionMetadata} from '../aws-region-metadata';
 import {convertToServeUrlImplementation} from '../convert-to-serve-url';
@@ -15,6 +14,7 @@ import {getOutputUrlFromMetadata} from '../get-output-url-from-metadata';
 import {makeLambdaRenderStillPayload} from '../make-lambda-payload';
 import {makeS3ServeUrl} from '../make-s3-url';
 import {AWS_REGIONS, DEFAULT_AWS_REGIONS} from '../regions';
+import {ServerlessRoutines} from '../shared-constants';
 
 const chinaMetadata = {
 	partition: 'aws-cn',

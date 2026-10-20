@@ -1,13 +1,15 @@
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsProvider,
+	type AwsRegion,
+	type ProviderSpecifics,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {
-	FullClientSpecifics,
-	ProviderSpecifics,
-} from '@remotion/serverless';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
+import type {FullClientSpecifics} from '../functions/provider-implementation';
 import {
 	deploySiteWithBundle,
 	type DeploySiteOutput,

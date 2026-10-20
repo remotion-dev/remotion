@@ -2,9 +2,11 @@ import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
-import {LambdaClientInternals} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
-import {rendersPrefix, ServerlessRoutines} from '@remotion/serverless';
 import {makeProgressString} from '../../../cli/commands/render/progress';
 import {mockImplementation} from '../../mocks/mock-implementation';
 import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
@@ -72,7 +74,7 @@ test('Should directly render final media with one Lambda', async () => {
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
-		prefix: rendersPrefix(renderId),
+		prefix: LambdaClientInternals.rendersPrefix(renderId),
 		forcePathStyle: false,
 		requestHandler: null,
 	});
@@ -91,7 +93,7 @@ test('Should directly render final media with one Lambda', async () => {
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
-		prefix: rendersPrefix(renderId),
+		prefix: LambdaClientInternals.rendersPrefix(renderId),
 		forcePathStyle: false,
 		requestHandler: null,
 	});

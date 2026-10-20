@@ -1,10 +1,11 @@
-import type {CustomCredentials, LogLevel} from '@remotion/serverless-client';
-import {getProgress, ServerlessRoutines} from '@remotion/serverless-client';
+import type {LogLevel} from '@remotion/renderer';
 import {awsImplementation, type AwsProvider} from './aws-provider';
 import type {RenderProgress} from './constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
 import {parseFunctionName} from './parse-function-name';
+import {getProgress} from './progress';
 import type {AwsRegion} from './regions';
+import {ServerlessRoutines, type CustomCredentials} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type GetRenderProgressInput = {

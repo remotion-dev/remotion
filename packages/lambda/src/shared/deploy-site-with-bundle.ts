@@ -1,15 +1,18 @@
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsProvider,
+	type AwsRegion,
+	type ProviderSpecifics,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {
 	getSitesKey,
 	REMOTION_BUCKET_PREFIX,
 } from '@remotion/lambda-client/constants';
 import type {
 	FullClientSpecifics,
-	ProviderSpecifics,
 	UploadDirProgress,
-} from '@remotion/serverless';
-import {validateBucketName, validatePrivacy} from '@remotion/serverless';
+} from '../functions/provider-implementation';
 import {getS3DiffOperations} from './get-s3-operations';
 import {validateSiteName} from './validate-site-name';
 import {waitForPromisesToFinish} from './wait-for-promises-to-finish';
@@ -62,7 +65,7 @@ export const deploySiteWithBundle: (
 	getBundle,
 }) => {
 	LambdaClientInternals.validateAwsRegion(region);
-	validateBucketName({
+	LambdaClientInternals.validateBucketName({
 		bucketName,
 		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
 		options: {
@@ -71,7 +74,7 @@ export const deploySiteWithBundle: (
 	});
 
 	validateSiteName(siteName);
-	validatePrivacy(privacy, false);
+	LambdaClientInternals.validatePrivacy(privacy, false);
 
 	const accountId = await providerSpecifics.getAccountId({region});
 

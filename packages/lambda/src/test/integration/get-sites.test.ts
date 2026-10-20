@@ -1,6 +1,5 @@
 import {expect, test} from 'bun:test';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {internalDeploySite} from '../../api/deploy-site';
 import {mockFullClientSpecifics} from '../mock-implementation';
@@ -23,7 +22,7 @@ test('Should have no buckets at first', async () => {
 
 test('Should have a site after deploying', async () => {
 	resetMockStore();
-	await internalGetOrCreateBucket({
+	await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'eu-central-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,
@@ -93,7 +92,7 @@ test('Should have a site after deploying', async () => {
 
 test('Should filter sites by compatibleOnly', async () => {
 	resetMockStore();
-	await internalGetOrCreateBucket({
+	await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'eu-central-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,

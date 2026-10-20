@@ -1,18 +1,16 @@
-import type {AwsProvider} from '@remotion/lambda-client';
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {
-	OrError,
-	ResponseStream,
-	ServerlessPayload,
-} from '@remotion/serverless';
 import {
-	innerHandler,
+	LambdaClientInternals,
 	ServerlessRoutines,
-	streamWriter,
-} from '@remotion/serverless';
+	type AwsProvider,
+	type OrError,
+	type ServerlessPayload,
+} from '@remotion/lambda-client';
 import {serverAwsImplementation} from './aws-server-implementation';
 import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
 import {streamifyResponse} from './helpers/streamify-response';
+import {innerHandler} from './inner-routine';
+import type {ResponseStream} from './streaming/response-stream';
+import {streamWriter} from './streaming/stream-writer';
 
 type LambdaRequestContext = {
 	invokedFunctionArn: string;

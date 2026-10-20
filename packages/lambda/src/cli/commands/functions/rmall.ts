@@ -1,7 +1,10 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, deleteFunction} from '@remotion/lambda-client';
+import {
+	AwsProvider,
+	deleteFunction,
+	type ProviderSpecifics,
+} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
-import {ProviderSpecifics} from '@remotion/serverless';
 import {getFunctionInfo} from '../../../api/get-function-info';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';

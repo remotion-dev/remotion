@@ -1,10 +1,10 @@
 import path from 'path';
 import {
 	LambdaClientInternals,
+	ServerlessRoutines,
 	type RenderMediaOnLambdaInput,
 } from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless';
 import {mockImplementation} from '../mocks/mock-implementation';
 import {waitUntilDone} from './wait-until-done';
 

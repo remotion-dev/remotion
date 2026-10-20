@@ -1,18 +1,16 @@
-/* eslint-disable no-console */
 import type {ObjectCannedACL, PutObjectCommandInput} from '@aws-sdk/client-s3';
 import {
 	AbortMultipartUploadCommand,
 	PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import type {
-	CustomCredentials,
-	WriteFileInput,
-} from '@remotion/serverless-client';
 import mimeTypes from 'mime-types';
 import type {AwsProvider} from './aws-provider';
 import {getContentDispositionHeader} from './content-disposition-header';
 import {getS3Client} from './get-s3-client';
+/* eslint-disable no-console */
+import type {WriteFileInput} from './provider-implementation';
+import type {CustomCredentials} from './shared-constants';
 
 // Files larger than 100MB will use multipart upload
 const MULTIPART_THRESHOLD = 100 * 1024 * 1024; // 5MB in bytes

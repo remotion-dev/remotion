@@ -1,15 +1,15 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {
+	AwsProvider,
+	LambdaClientInternals,
+	type ProviderSpecifics,
+} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {
-	DOCS_URL,
-	FullClientSpecifics,
-	type ProviderSpecifics,
-} from '@remotion/serverless';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
+import type {FullClientSpecifics} from '../functions/provider-implementation';
 import {parsedLambdaCli} from './args';
 import {
 	COMPOSITIONS_COMMAND,
@@ -205,7 +205,7 @@ export const executeCommand = async (
 	- Remove the "--custom-role-arn" parameter and set up Remotion Lambda according to the setup guide
 	- Make sure the role has the same policy assigned as the one returned by "npx ${BINARY_NAME} ${POLICIES_COMMAND} ${ROLE_SUBCOMMAND}"
 	
-	Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+	Revisit ${LambdaClientInternals.DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 	`.trim(),
 				);
 			}
@@ -217,7 +217,7 @@ The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong poli
 - The name of the role is not "${ROLE_NAME}"
 - The policy is not exactly as specified in the setup guide
 
-Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+Revisit ${LambdaClientInternals.DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 `.trim(),
 			);
 		}
@@ -226,7 +226,7 @@ Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role
 			Log.error(
 				{indent: false, logLevel},
 				`
-AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 `.trim(),
 			);
 		}
@@ -235,7 +235,7 @@ AWS returned an "AccessDenied" error message meaning a permission is missing. Re
 			Log.error(
 				{indent: false, logLevel},
 				`
-AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
+AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
 `.trim(),
 			);
 		}
@@ -244,7 +244,7 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 			Log.error(
 				{indent: false, logLevel},
 				`
-AWS returned an "ConcurrentInvocationLimitExceeded" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
+AWS returned an "ConcurrentInvocationLimitExceeded" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
 `.trim(),
 			);
 		}

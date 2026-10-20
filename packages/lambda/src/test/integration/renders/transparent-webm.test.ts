@@ -4,7 +4,6 @@ import os from 'node:os';
 import path from 'node:path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {ensureBrowser, RenderInternals} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless';
 import {mockImplementation} from '../../mocks/mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
@@ -55,7 +54,7 @@ test(
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});
@@ -74,7 +73,7 @@ test(
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});

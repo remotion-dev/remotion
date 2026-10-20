@@ -1,43 +1,24 @@
 import {expect, mock, spyOn, test} from 'bun:test';
 import fs from 'node:fs';
-import {createRequire} from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import {Readable} from 'node:stream';
-import type * as LambdaClientPackage from '@remotion/lambda-client';
-import type {AwsProvider} from '@remotion/lambda-client';
-import type * as RendererPackage from '@remotion/renderer';
-import type * as ServerlessPackage from '@remotion/serverless';
-import type {
-	InsideFunctionSpecifics,
-	OverallRenderProgress,
-	ProviderSpecifics,
-	RenderMetadata,
-	ServerlessPayloads,
-} from '@remotion/serverless';
-
-// Use the shipped CommonJS entrypoints, not source aliases. lambda-client
-// bundles its own serverless-client, while the handlers load another copy.
-const requirePackage = createRequire(__filename);
-const {LambdaClientInternals} = requirePackage(
-	'@remotion/lambda-client',
-) as typeof LambdaClientPackage;
-const {RenderInternals} = requirePackage(
-	'@remotion/renderer',
-) as typeof RendererPackage;
-const {
-	launchHandler,
-	progressHandler,
+import {
+	LambdaClientInternals,
 	OutputFileAccessDeniedError,
 	ServerlessRoutines,
-	VERSION,
-} = requirePackage('@remotion/serverless') as typeof ServerlessPackage;
-const directRenderer = requirePackage(
-	path.join(
-		path.dirname(requirePackage.resolve('@remotion/serverless')),
-		'render-with-single-function.js',
-	),
-);
+	type AwsProvider,
+	type OverallRenderProgress,
+	type ProviderSpecifics,
+	type RenderMetadata,
+	type ServerlessPayloads,
+} from '@remotion/lambda-client';
+import {RenderInternals} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
+import {launchHandler} from '../../functions/handlers/launch';
+import {progressHandler} from '../../functions/handlers/progress';
+import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
+import * as directRenderer from '../../functions/render-with-single-function';
 
 const region = 'us-east-1';
 const renderId = 'output-access-test';
@@ -324,18 +305,14 @@ const invokeProgress = (
 		},
 	});
 
-test.each(['bundled', 'same package'] as const)(
+test.each(['normalized', 'constructed'] as const)(
 	'packaged launch accepts %s access errors and retains final overwrite protection',
 	async (copy) => {
 		const error =
-			copy === 'bundled'
+			copy === 'normalized'
 				? await getBundledHeadError(403)
 				: new OutputFileAccessDeniedError('Denied');
-		if (copy === 'bundled') {
-			expect(Object.getPrototypeOf(error)).not.toBe(
-				OutputFileAccessDeniedError.prototype,
-			);
-		}
+		expect(error).toBeInstanceOf(OutputFileAccessDeniedError);
 
 		const fixture = makeFixture(error);
 		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'output-access-'));
@@ -461,11 +438,11 @@ test.each(['bundled', 'same package'] as const)(
 	},
 );
 
-test.each(['bundled', 'same package'] as const)(
+test.each(['normalized', 'constructed'] as const)(
 	'packaged status falls back for %s access errors, including timed out recovery',
 	async (copy) => {
 		const fixture = makeFixture(
-			copy === 'bundled'
+			copy === 'normalized'
 				? await getBundledHeadError(403)
 				: new OutputFileAccessDeniedError('Denied'),
 		);
