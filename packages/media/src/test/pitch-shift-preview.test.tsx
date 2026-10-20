@@ -87,8 +87,8 @@ const estimateFrequency = ({
 	return positiveCrossings / (audio.length / sampleRate);
 };
 
-// KINO-7177: clip speed and inherited speed must not raise a speaker's pitch.
-test('Audio and Video update pitch while preserving authored speed changes', async () => {
+// KINO-7177: authored and viewing speeds have independent pitch controls.
+test('Audio and Video independently control authored and viewing-speed pitch', async () => {
 	const src = makeSineWaveUrl({
 		frequency: 440,
 		sampleRate: 48_000,
@@ -123,6 +123,11 @@ test('Audio and Video update pitch while preserving authored speed changes', asy
 		const root = createRoot(container);
 		let setToneFrequency: React.Dispatch<React.SetStateAction<number>> | null =
 			null;
+		let setPlayerSpeed: React.Dispatch<React.SetStateAction<number>> | null =
+			null;
+		let setPlayerPreservePitch: React.Dispatch<
+			React.SetStateAction<boolean | undefined>
+		> | null = null;
 		const StatefulComposition: React.FC = () => {
 			const [toneFrequency, setCurrentToneFrequency] = React.useState(1);
 			setToneFrequency = setCurrentToneFrequency;
@@ -137,18 +142,30 @@ test('Audio and Video update pitch while preserving authored speed changes', asy
 			);
 		};
 
-		root.render(
-			<Player
-				acknowledgeRemotionLicense
-				component={StatefulComposition}
-				compositionHeight={100}
-				compositionWidth={100}
-				durationInFrames={30}
-				fps={30}
-				sampleRate={sampleRate}
-				inputProps={{}}
-			/>,
-		);
+		const StatefulPlayer = () => {
+			const [playerSpeed, setSpeed] = React.useState(1);
+			const [playerPreservePitch, setPitch] = React.useState<
+				boolean | undefined
+			>(undefined);
+			setPlayerSpeed = setSpeed;
+			setPlayerPreservePitch = setPitch;
+			return (
+				<Player
+					playbackRate={playerSpeed}
+					preservePitch={playerPreservePitch}
+					acknowledgeRemotionLicense
+					component={StatefulComposition}
+					compositionHeight={100}
+					compositionWidth={100}
+					durationInFrames={30}
+					fps={30}
+					sampleRate={sampleRate}
+					inputProps={{}}
+				/>
+			);
+		};
+
+		root.render(<StatefulPlayer />);
 
 		try {
 			await waitFor(
@@ -194,6 +211,24 @@ test('Audio and Video update pitch while preserving authored speed changes', asy
 				660 * (preservePitch ? 1 : playbackRate * parentRate),
 				-1,
 			);
+
+			createdNodes.length = 0;
+			flushSync(() => setPlayerSpeed?.(1.5));
+			await waitFor(
+				() => createdNodes.filter((node) => node.buffer !== null).length >= 8,
+			);
+			expect(
+				getScheduledFrequency() * playbackRate * parentRate * 1.5,
+			).toBeCloseTo(990 * (preservePitch ? 1 : playbackRate * parentRate), -1);
+
+			createdNodes.length = 0;
+			flushSync(() => setPlayerPreservePitch?.(true));
+			await waitFor(
+				() => createdNodes.filter((node) => node.buffer !== null).length >= 8,
+			);
+			expect(
+				getScheduledFrequency() * playbackRate * parentRate * 1.5,
+			).toBeCloseTo(660 * (preservePitch ? 1 : playbackRate * parentRate), -1);
 		} finally {
 			root.unmount();
 			container.remove();
