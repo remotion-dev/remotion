@@ -32,6 +32,8 @@ type SourceRecord = {
 	readonly lastAccessedAt: number;
 	readonly aspectRatio: number | null;
 	readonly durationInSeconds: number | null;
+	// Owned by the caller, for example the Studio's media metadata.
+	readonly mediaMetadata: unknown;
 	readonly waveformBytes: number;
 	readonly thumbnailBytes: number;
 };
@@ -417,6 +419,7 @@ const getWritableDatabase = (src: string): Promise<IDBDatabase | null> => {
 				lastAccessedAt: now,
 				aspectRatio: null,
 				durationInSeconds: null,
+				mediaMetadata: null,
 				waveformBytes: 0,
 				thumbnailBytes: 0,
 			} satisfies SourceRecord);
@@ -434,6 +437,52 @@ const onWriteError = (error: unknown) => {
 	if (error instanceof DOMException && error.name === 'QuotaExceededError') {
 		evict('halve').catch(() => undefined);
 	}
+};
+
+// Lets the timeline draw a media clip before its metadata is fetched again.
+export const readMediaMetadataFromPersistentCache = async (
+	src: string,
+): Promise<unknown> => {
+	try {
+		const database = await getReadableDatabase(src);
+		if (!database) {
+			return null;
+		}
+
+		const source: SourceRecord | undefined = await toPromise(
+			database.transaction('sources').objectStore('sources').get(src),
+		);
+		return source?.mediaMetadata ?? null;
+	} catch {
+		return null;
+	}
+};
+
+export const writeMediaMetadataToPersistentCache = ({
+	src,
+	mediaMetadata,
+}: {
+	readonly src: string;
+	readonly mediaMetadata: unknown;
+}) => {
+	(async () => {
+		const database = await getWritableDatabase(src);
+		if (!database) {
+			return;
+		}
+
+		const transaction = database.transaction('sources', 'readwrite');
+		const sources = transaction.objectStore('sources');
+		const source: SourceRecord | undefined = await toPromise(sources.get(src));
+		// The source was evicted or the cache was cleared in the meantime.
+		if (!source) {
+			transaction.abort();
+			return;
+		}
+
+		sources.put({...source, mediaMetadata} satisfies SourceRecord);
+		await transactionDone(transaction);
+	})().catch(onWriteError);
 };
 
 export const readWaveformFromPersistentCache = async ({
