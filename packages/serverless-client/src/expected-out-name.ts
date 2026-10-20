@@ -103,7 +103,9 @@ export const getExpectedOutName = <Provider extends CloudProvider>({
 		});
 
 		const defaultKey =
-			output === 'separate-audio'
+			output === 'separate-audio' ||
+			typeof outNameValue === 'string' ||
+			outNameValue.key !== undefined
 				? undefined
 				: getDefaultKey({
 						renderMetadata,
