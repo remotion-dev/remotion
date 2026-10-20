@@ -195,8 +195,6 @@ Accepts `true`, `false`, or `undefined`. Default: `true`, matching the browser d
 
 Setting `preservePitch={false}` lets the pitch rise or fall with [`playbackRate`](#playbackrate), including playback speed inherited from parent [`<Sequence>`](/docs/sequence#playbackrate) components. For example, `playbackRate={2}` doubles the pitch when `preservePitch={false}`.
 
-Server-side rendering respects this prop from <AvailableFrom v="4.0.538" inline />. Earlier versions always preserve pitch during server-side rendering, even when this prop is `false`.
-
 Keep `preservePitch` constant for each audio or video asset during rendering. Use [`toneFrequency`](/docs/audio/pitch) to change the pitch independently of `playbackRate` during server-side rendering.
 
 ### `muted?`
