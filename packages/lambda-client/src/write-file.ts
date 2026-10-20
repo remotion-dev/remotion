@@ -1,18 +1,15 @@
-/* eslint-disable no-console */
 import type {ObjectCannedACL, PutObjectCommandInput} from '@aws-sdk/client-s3';
 import {
 	AbortMultipartUploadCommand,
 	PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import type {
-	CustomCredentials,
-	WriteFileInput,
-} from '@remotion/serverless-client';
 import mimeTypes from 'mime-types';
-import type {AwsProvider} from './aws-provider';
+/* eslint-disable no-console */
+import type {WriteFileInput} from './aws-operations';
 import {getContentDispositionHeader} from './content-disposition-header';
 import {getS3Client} from './get-s3-client';
+import type {CustomCredentials} from './shared-constants';
 
 // Files larger than 100MB will use multipart upload
 const MULTIPART_THRESHOLD = 100 * 1024 * 1024; // 5MB in bytes
@@ -31,10 +28,10 @@ const tryLambdaWriteFile = async ({
 	requestHandler,
 	metadata,
 	ifNotExists,
-}: WriteFileInput<AwsProvider> & {ifNotExists: boolean}): Promise<void> => {
+}: WriteFileInput & {ifNotExists: boolean}): Promise<void> => {
 	const client = getS3Client({
 		region,
-		customCredentials: customCredentials as CustomCredentials<AwsProvider>,
+		customCredentials: customCredentials as CustomCredentials,
 		forcePathStyle,
 		requestHandler,
 	});
@@ -112,7 +109,7 @@ const tryLambdaWriteFile = async ({
 };
 
 const writeFileWithRetries = async (
-	params: WriteFileInput<AwsProvider> & {
+	params: WriteFileInput & {
 		retries?: number;
 		ifNotExists: boolean;
 	},
@@ -157,11 +154,11 @@ const writeFileWithRetries = async (
 };
 
 export const lambdaWriteFileImplementation = (
-	params: WriteFileInput<AwsProvider> & {retries?: number},
+	params: WriteFileInput & {retries?: number},
 ): Promise<void> => writeFileWithRetries({...params, ifNotExists: false});
 
 export const lambdaWriteFileIfNotExistsImplementation = (
-	params: WriteFileInput<AwsProvider>,
+	params: WriteFileInput,
 ): Promise<void> => {
 	if (params.customCredentials !== null) {
 		throw new Error('Conditional output uploads are only supported for AWS S3');
@@ -169,3 +166,11 @@ export const lambdaWriteFileIfNotExistsImplementation = (
 
 	return writeFileWithRetries({...params, ifNotExists: true});
 };
+
+// Only S3 itself is trusted to honor atomic create-only uploads;
+// custom S3-compatible output providers may not.
+export const supportsConditionalOutput = ({
+	customCredentials,
+}: {
+	customCredentials: CustomCredentials | null;
+}): boolean => customCredentials === null;

@@ -1,18 +1,15 @@
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsRegion,
+	type CustomCredentials,
+	type RenderOutput,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {REMOTION_BUCKET_PREFIX} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {
-	getExpectedOutName,
-	getImageSequenceFrameKey,
-	getOverallProgressFromStorage,
-	type CustomCredentials,
-	type RenderOutput,
-} from '@remotion/serverless';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 
@@ -22,7 +19,7 @@ type InternalDownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress: LambdaReadFileProgress;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	logLevel: LogLevel;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
@@ -36,7 +33,7 @@ export type DownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
-	customCredentials?: CustomCredentials<AwsProvider>;
+	customCredentials?: CustomCredentials;
 	logLevel?: LogLevel;
 	forcePathStyle?: boolean;
 	requestHandler?: RequestHandler;
@@ -51,22 +48,22 @@ export type DownloadMediaOutput = {
 
 export const internalDownloadMedia = async (
 	input: InternalDownloadMediaInput & {
-		providerSpecifics: ProviderSpecifics<AwsProvider>;
 		forcePathStyle: boolean;
 	},
 ): Promise<DownloadMediaOutput> => {
-	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
-		region: input.region,
-	});
-	const overallProgress = await getOverallProgressFromStorage({
-		bucketName: input.bucketName,
-		expectedBucketOwner,
-		region: input.region,
-		renderId: input.renderId,
-		providerSpecifics: input.providerSpecifics,
-		forcePathStyle: input.forcePathStyle,
-		requestHandler: input.requestHandler,
-	});
+	const expectedBucketOwner =
+		await LambdaClientInternals.getAccountIdImplementation({
+			region: input.region,
+		});
+	const overallProgress =
+		await LambdaClientInternals.getOverallProgressFromStorage({
+			bucketName: input.bucketName,
+			expectedBucketOwner,
+			region: input.region,
+			renderId: input.renderId,
+			forcePathStyle: input.forcePathStyle,
+			requestHandler: input.requestHandler,
+		});
 
 	if (!overallProgress.renderMetadata) {
 		throw new Error('Render did not finish yet');
@@ -87,7 +84,7 @@ export const internalDownloadMedia = async (
 		);
 		const keys = [
 			...frames.map((frame) =>
-				getImageSequenceFrameKey({
+				LambdaClientInternals.getImageSequenceFrameKey({
 					frame,
 					keyPrefix: sequence.keyPrefix,
 					imageFormat: sequence.imageFormat,
@@ -143,13 +140,14 @@ export const internalDownloadMedia = async (
 
 	RenderInternals.ensureOutputDirectory(outputPath);
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName({
-		output: input.output,
-		renderMetadata: overallProgress.renderMetadata,
-		bucketName: input.bucketName,
-		customCredentials: input.customCredentials ?? null,
-		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
-	});
+	const {key, renderBucketName, customCredentials} =
+		LambdaClientInternals.getExpectedOutName({
+			output: input.output,
+			renderMetadata: overallProgress.renderMetadata,
+			bucketName: input.bucketName,
+			customCredentials: input.customCredentials ?? null,
+			bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+		});
 
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({
 		bucketName: renderBucketName,
@@ -189,7 +187,6 @@ export const downloadMedia = (
 
 	return internalDownloadMedia({
 		...input,
-		providerSpecifics: LambdaClientInternals.awsImplementation,
 		output: input.output ?? 'main',
 		forcePathStyle: false,
 		onProgress: input.onProgress ?? (() => undefined),

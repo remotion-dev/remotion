@@ -1,10 +1,10 @@
+import {validateWebhookSignature} from './validate-webhook-signature';
 import type {
 	WebhookErrorPayload,
 	WebhookPayload,
 	WebhookSuccessPayload,
 	WebhookTimeoutPayload,
-} from '@remotion/serverless-client';
-import {validateWebhookSignature} from './validate-webhook-signature';
+} from './webhook-types';
 
 export type NextWebhookArgs = {
 	testing?: boolean;

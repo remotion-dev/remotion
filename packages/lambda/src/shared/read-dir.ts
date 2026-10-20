@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type {ReadDir} from '@remotion/serverless';
+import type {ReadDir} from '../functions/types';
 import {getEtagOfFile} from './get-etag';
 
 // Function to recursively read a directory and return a list of files

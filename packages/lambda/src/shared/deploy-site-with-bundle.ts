@@ -1,15 +1,14 @@
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsRegion,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {
 	getSitesKey,
 	REMOTION_BUCKET_PREFIX,
 } from '@remotion/lambda-client/constants';
-import type {
-	FullClientSpecifics,
-	ProviderSpecifics,
-	UploadDirProgress,
-} from '@remotion/serverless';
-import {validateBucketName, validatePrivacy} from '@remotion/serverless';
+import {uploadDir} from '../api/upload-dir';
+import type {UploadDirProgress} from '../functions/types';
 import {getS3DiffOperations} from './get-s3-operations';
 import {validateSiteName} from './validate-site-name';
 import {waitForPromisesToFinish} from './wait-for-promises-to-finish';
@@ -37,9 +36,7 @@ export type DeploySiteWithBundleInput = {
 	options: DeploySiteWithBundleOptions;
 	privacy: 'public' | 'no-acl';
 	throwIfSiteExists: boolean;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
 	forcePathStyle: boolean;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 	requestHandler: RequestHandler | null;
 	getBundle: () => Promise<string>;
 };
@@ -55,14 +52,12 @@ export const deploySiteWithBundle: (
 	options,
 	privacy,
 	throwIfSiteExists,
-	providerSpecifics,
 	forcePathStyle,
-	fullClientSpecifics,
 	requestHandler,
 	getBundle,
 }) => {
 	LambdaClientInternals.validateAwsRegion(region);
-	validateBucketName({
+	LambdaClientInternals.validateBucketName({
 		bucketName,
 		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
 		options: {
@@ -71,24 +66,27 @@ export const deploySiteWithBundle: (
 	});
 
 	validateSiteName(siteName);
-	validatePrivacy(privacy, false);
+	LambdaClientInternals.validatePrivacy(privacy, false);
 
-	const accountId = await providerSpecifics.getAccountId({region});
-
-	const bucketExists = await providerSpecifics.bucketExists({
-		bucketName,
+	const accountId = await LambdaClientInternals.getAccountIdImplementation({
 		region,
-		expectedBucketOwner: accountId,
-		forcePathStyle,
-		requestHandler,
 	});
+
+	const bucketExists =
+		await LambdaClientInternals.bucketExistsInRegionImplementation({
+			bucketName,
+			region,
+			expectedBucketOwner: accountId,
+			forcePathStyle,
+			requestHandler,
+		});
 	if (!bucketExists) {
 		throw new Error(`No bucket with the name ${bucketName} exists`);
 	}
 
 	const subFolder = getSitesKey(siteName);
 
-	const filesPromise = providerSpecifics.listObjects({
+	const filesPromise = LambdaClientInternals.lambdaLsImplementation({
 		bucketName,
 		expectedBucketOwner: accountId,
 		region,
@@ -125,7 +123,6 @@ export const deploySiteWithBundle: (
 			totalBytes = bytes;
 			options.onDiffingProgress?.(bytes, false);
 		},
-		fullClientSpecifics,
 	});
 
 	options.onDiffingProgress?.(totalBytes, true);
@@ -138,7 +135,7 @@ export const deploySiteWithBundle: (
 			return Promise.resolve();
 		}
 
-		return fullClientSpecifics.uploadDir({
+		return uploadDir({
 			bucket: bucketName,
 			region,
 			localDir: bundleDir,
@@ -157,7 +154,7 @@ export const deploySiteWithBundle: (
 	const limit = LambdaClientInternals.pLimit(deleteConcurrency);
 	const deletePromises = toDelete.map((d) => {
 		return limit(() => {
-			return providerSpecifics.deleteFile({
+			return LambdaClientInternals.lambdaDeleteFileImplementation({
 				bucketName,
 				customCredentials: null,
 				key: d.Key as string,
