@@ -59,6 +59,8 @@ type OptionalVideoProps = {
 	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	onVideoFrame: OnVideoFrame | undefined;
 	playbackRate: number;
+	/** Keep the original pitch when changing playback speed. Default: false. */
+	preservePitch: boolean;
 	muted: boolean;
 	delayRenderRetries: number | null;
 	delayRenderTimeoutInMilliseconds: number | null;
@@ -102,8 +104,9 @@ export type NativeVideoProps = Omit<
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects'> &
+	Omit<OptionalVideoProps, 'effects' | 'preservePitch'> &
 	NativeVideoProps & {
+		preservePitch: boolean | null;
 		effects: EffectDefinitionAndStack<unknown>[];
 		_remotionInternalStack: string | undefined;
 	};
