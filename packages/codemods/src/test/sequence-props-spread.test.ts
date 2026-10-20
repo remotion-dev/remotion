@@ -1,13 +1,6 @@
 import {expect, test} from 'bun:test';
 import {computeSequencePropsSubscriptionFromContent} from '../sequence-props';
 
-const videoConfigValues = {
-	durationInFrames: 120,
-	fps: 30,
-	height: 1080,
-	width: 1920,
-};
-
 const subscribe = (input: string, line: number, keys: string[]) => {
 	const result = computeSequencePropsSubscriptionFromContent({
 		fileContents: input,
@@ -17,7 +10,6 @@ const subscribe = (input: string, line: number, keys: string[]) => {
 		componentIdentity: 'dev.remotion.remotion.Sequence',
 		keys,
 		effects: [],
-		videoConfigValues,
 	});
 
 	if (!result.success || !result.status.canUpdate) {

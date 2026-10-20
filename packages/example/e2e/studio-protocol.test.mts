@@ -324,7 +324,13 @@ const CloseupPlaceholder = () => {
 			studioPage.getByRole('button', {name: '45', exact: true}),
 		).toBeVisible();
 
-		await studioPage.locator('[data-sidebar-toggle="right"]').click();
+		const expandRightSidebar = studioPage.getByRole('button', {
+			name: 'Expand right sidebar',
+		});
+		if (await expandRightSidebar.isVisible()) {
+			await expandRightSidebar.click();
+		}
+
 		const browseElements = studioPage.getByRole('button', {
 			name: 'Browse Elements',
 		});
@@ -397,11 +403,10 @@ const CloseupPlaceholder = () => {
 		});
 		await expect(dialog).toBeVisible();
 		await dialog.getByRole('button', {name: 'Cancel'}).click();
-		expect(fs.existsSync(installedAsset)).toBe(false);
-		await browseElements.click();
-		await expect(externalLibraryItem).toBeVisible();
-		await externalLibraryItem.click();
+		await expect(dialog).toHaveCount(0);
 		await expect(elementsIframe).toBeVisible();
+		expect(externalLibraryRequests).toHaveLength(1);
+		expect(fs.existsSync(installedAsset)).toBe(false);
 		await installInStudio.click();
 		await expect(dialog).toBeVisible();
 		const currentDestination = dialog.getByRole('button', {
@@ -447,9 +452,10 @@ const CloseupPlaceholder = () => {
 		await expect(
 			decoyStudioPage.getByText('Install Protocol Element', {exact: true}),
 		).toHaveCount(0);
-		await expect(elementsIframe).toHaveCount(0);
+		await expect(elementsIframe).toBeVisible();
 		expect(studioProtocolRequests).toEqual([]);
 		await dialog.getByRole('button', {name: /Install/}).click();
+		await expect(elementsIframe).toHaveCount(0);
 		await expect(
 			studioPage
 				.getByRole('group', {name: 'Inspector source location'})

@@ -7,7 +7,11 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {saveSequenceProps, type SetPropStatuses} from './save-sequence-prop';
 
 export const shouldShowFreezeFrameMenuItem = (sequence: TSequence): boolean => {
-	return sequence.type !== 'audio';
+	return (
+		sequence.type !== 'audio' &&
+		sequence.timelineTrack?.role !== 'track' &&
+		sequence.controls?.componentIdentity !== 'dev.remotion.remotion.Track'
+	);
 };
 
 export const isSequenceVisibleAtTimelinePosition = ({
@@ -129,7 +133,7 @@ export const getSequenceFreezeFrameMenuItem = ({
 				type: 'item' as const,
 				id: 'toggle-freeze-frame',
 				keyHint: null,
-				label: isFrozen ? 'Unfreeze frame' : 'Freeze frame',
+				label: isFrozen ? 'Unfreeze' : 'Freeze',
 				leftItem: null,
 				disabled: !canToggleFreeze,
 				onClick: onToggleFreezeFrame,

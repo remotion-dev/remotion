@@ -60,6 +60,7 @@ test('routes sequence prop operations through Browser Studio', async () => {
 				success: true,
 				nodePath,
 				status: {
+					durationDependentKeyframes: null,
 					canUpdate: true,
 					props: {
 						from: {
@@ -93,7 +94,6 @@ test('routes sequence prop operations through Browser Studio', async () => {
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: nodePath.videoConfigValues,
 	});
 	expect(subscription.success).toBe(true);
 	await saveSequenceProps({
@@ -162,6 +162,7 @@ test('batches server sequence prop subscriptions into one request', async () => 
 								},
 							},
 							status: {
+								durationDependentKeyframes: null,
 								canUpdate: true,
 								props: {
 									from: {
@@ -189,12 +190,6 @@ test('batches server sequence prop subscriptions into one request', async () => 
 			assetKeys: [],
 			effects: [],
 			clientId: 'studio',
-			videoConfigValues: {
-				durationInFrames: 60,
-				fps: 30,
-				height: 720,
-				width: 1280,
-			},
 		});
 
 	try {

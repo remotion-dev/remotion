@@ -1,6 +1,7 @@
 import {afterEach, describe, expect, test} from 'bun:test';
-import {cleanup, render} from '@testing-library/react';
+import {act, cleanup, render} from '@testing-library/react';
 import React from 'react';
+import {createRoot} from 'react-dom/client';
 import {Composition} from '../Composition.js';
 import {CompositionManagerProvider} from '../CompositionManagerProvider.js';
 import {RemotionRootContexts} from '../RemotionRoot.js';
@@ -48,49 +49,78 @@ describe('Render composition-rules should throw with invalid props', () => {
 		);
 	});
 
-	test('It should throw if multiple components have the same id', () => {
-		expectToThrow(
-			() =>
-				render(
-					<CompositionManagerProvider
-						onlyRenderComposition={null}
-						currentCompositionMetadata={null}
-						initialCompositions={[]}
-						initialCanvasContent={null}
-					>
-						<RemotionRootContexts
-							_experimentalKeepAudioContextAlive={false}
-							frameState={null}
-							videoEnabled
-							audioEnabled
-							numberOfAudioTags={0}
-							logLevel="info"
-							audioLatencyHint="interactive"
-							previewSampleRate={null}
+	test('It should throw if multiple components have the same id', async () => {
+		const caughtErrors: Error[] = [];
+		class ErrorBoundary extends React.Component<
+			{readonly children: React.ReactNode},
+			{failed: boolean}
+		> {
+			state = {failed: false};
+			static getDerivedStateFromError() {
+				return {failed: true};
+			}
+
+			componentDidCatch(error: Error) {
+				caughtErrors.push(error);
+			}
+
+			render() {
+				return this.state.failed ? null : this.props.children;
+			}
+		}
+
+		const root = createRoot(document.createElement('div'), {
+			onCaughtError: () => undefined,
+		});
+		try {
+			await act(() => {
+				root.render(
+					<ErrorBoundary>
+						<CompositionManagerProvider
+							onlyRenderComposition={null}
+							currentCompositionMetadata={null}
+							initialCompositions={[]}
+							initialCanvasContent={null}
 						>
-							<RenderAssetManagerProvider collectAssets={null}>
-								<Composition
-									lazyComponent={() => Promise.resolve({default: AnyComp})}
-									durationInFrames={100}
-									fps={30}
-									height={100}
-									width={100}
-									id="id"
-								/>
-								<Composition
-									lazyComponent={() => Promise.resolve({default: AnyComp})}
-									durationInFrames={100}
-									fps={30}
-									height={100}
-									width={100}
-									id="id"
-								/>
-							</RenderAssetManagerProvider>
-						</RemotionRootContexts>
-					</CompositionManagerProvider>,
-				),
-			/Multiple composition with id id/,
-		);
+							<RemotionRootContexts
+								_experimentalKeepAudioContextAlive={false}
+								frameState={null}
+								videoEnabled
+								audioEnabled
+								numberOfAudioTags={0}
+								logLevel="info"
+								audioLatencyHint="interactive"
+								previewSampleRate={null}
+							>
+								<RenderAssetManagerProvider collectAssets={null}>
+									<Composition
+										lazyComponent={() => Promise.resolve({default: AnyComp})}
+										durationInFrames={100}
+										fps={30}
+										height={100}
+										width={100}
+										id="id"
+									/>
+									<Composition
+										lazyComponent={() => Promise.resolve({default: AnyComp})}
+										durationInFrames={100}
+										fps={30}
+										height={100}
+										width={100}
+										id="id"
+									/>
+								</RenderAssetManagerProvider>
+							</RemotionRootContexts>
+						</CompositionManagerProvider>
+					</ErrorBoundary>,
+				);
+			});
+			expect(caughtErrors[0]?.message).toMatch(
+				/Multiple composition with id id/,
+			);
+		} finally {
+			await act(() => root.unmount());
+		}
 	});
 });
 describe('Render composition-rules should not with valid props', () => {

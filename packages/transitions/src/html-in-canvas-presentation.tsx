@@ -6,6 +6,7 @@ import {
 	Internals,
 	useDelayRender,
 	type EffectsProp,
+	type EffectsOutputSize,
 } from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
@@ -23,11 +24,13 @@ export const HtmlInCanvasPresentation = <
 	presentationDirection,
 	shader,
 	effects,
+	effectsOutputSize,
 	passedProps,
 	bothEnteringAndExiting,
 }: TransitionPresentationComponentProps<TPassedProps> & {
 	readonly shader: HtmlInCanvasShader<TPassedProps>;
 	readonly effects?: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 }) => {
 	if (!HtmlInCanvas.isSupported()) {
 		throw new Error(getHtmlInCanvasUnsupportedMessage());
@@ -71,6 +74,7 @@ export const HtmlInCanvasPresentation = <
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
 		overrideId: null,
+		videoConfigValues: null,
 	});
 
 	const effectsRef = useRef(memoizedEffects);
@@ -102,7 +106,7 @@ export const HtmlInCanvasPresentation = <
 		};
 	}, [instance]);
 
-	const chainState = Internals.useEffectChainState();
+	const chainState = Internals.useEffectChainState(effectsOutputSize);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
@@ -185,13 +189,35 @@ export const HtmlInCanvasPresentation = <
 
 		const canvas = canvasRef.current;
 		if (!canvas) {
+			return;
+		}
+
+		if (canvas.getAttribute('content') !== 'drawable') {
+			canvas.setAttribute('content', 'drawable');
+		}
+
+		if (canvas.layoutSubtree !== true) {
+			canvas.layoutSubtree = true;
+		}
+
+		const firstChild = canvas.firstElementChild;
+		if (firstChild && !firstChild.hasAttribute('drawable')) {
+			firstChild.setAttribute('drawable', '');
+		}
+	});
+
+	useLayoutEffect(() => {
+		if (passThrough) {
+			return;
+		}
+
+		const canvas = canvasRef.current;
+		if (!canvas) {
 			throw new Error('Canvas not found');
 		}
 
-		canvas.layoutSubtree = true;
-
 		const onPaint = () => {
-			const firstChild = canvas.firstChild as HTMLElement;
+			const firstChild = canvas.firstElementChild;
 			const captureCanvas = captureCanvasRef.current;
 			const captureContext = captureContextRef.current;
 
@@ -228,7 +254,7 @@ export const HtmlInCanvasPresentation = <
 		}
 
 		canvas.requestPaint?.();
-	}, [presentationProgress, passThrough, memoizedEffects]);
+	}, [presentationProgress, passThrough, memoizedEffects, chainState]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -278,7 +304,7 @@ export const HtmlInCanvasPresentation = <
 	}
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill showInTimeline={false}>
 			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
 				{children}
 			</canvas>
@@ -311,17 +337,21 @@ export const makeHtmlInCanvasPresentation = <
 >(
 	shader: HtmlInCanvasShader<TPassedProps>,
 ) => {
-	type AugmentedProps = TPassedProps & {effects?: EffectsProp};
+	type AugmentedProps = TPassedProps & {
+		effects?: EffectsProp;
+		effectsOutputSize?: EffectsOutputSize;
+	};
 	const CompWithShader: React.FC<
 		TransitionPresentationComponentProps<AugmentedProps>
 	> = (props) => {
 		const {passedProps, ...otherProps} = props;
-		const {effects, ...restPassedProps} = props.passedProps;
+		const {effects, effectsOutputSize, ...restPassedProps} = props.passedProps;
 		return (
 			<HtmlInCanvasPresentation
 				shader={shader}
 				passedProps={restPassedProps as TPassedProps}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize ?? null}
 				{...otherProps}
 			/>
 		);

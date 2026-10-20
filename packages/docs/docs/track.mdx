@@ -1,0 +1,95 @@
+---
+image: /generated/articles-docs-track.png
+id: track
+title: '<Track>'
+crumb: 'API'
+---
+
+# &lt;Track&gt;<AvailableFrom v="4.0.534" />
+
+`<Track>` puts children onto the same row in the [Remotion Studio](/docs/studio) timeline.  
+Use it to group related clips, such as subsequent scenes together.  
+Items on a `<Track>` may not overlap in time, otherwise an error is thrown.
+
+## Example
+
+Place any content inside a `<Track>`.
+
+Components with [timing props](/docs/timing) will show up on the same row.  
+Set each clip's `from` and `durationInFrames` props to choose its position on the track.
+
+This example uses `intro.mp4` and `outro.mp4` from your [`public/` folder](/docs/staticfile).
+
+```tsx twoslash title="MyVideo.tsx"
+import {Video} from '@remotion/media';
+import {staticFile, Track} from 'remotion';
+
+export const MyVideo = () => {
+  return (
+    <Track name="Scenes">
+      <Video name="Intro" src={staticFile('intro.mp4')} durationInFrames={60} />
+      <Video name="Outro" src={staticFile('outro.mp4')} from={60} durationInFrames={90} />
+    </Track>
+  );
+};
+```
+
+Both clips appear on the row labeled "Scenes".
+
+## `<Series>` and `<TransitionSeries>`
+
+The [`<Series>`](/docs/series) and [`<TransitionSeries>`](/docs/transitions/transitionseries) components inherit from `<Track>` automatically and put their content on the same row.
+
+## Overlapping clips
+
+Clips on the same `<Track>` must not overlap in Studio.  
+If two clips need to be visible at the same time, put them in separate tracks.  
+For transitions between scenes, use [`<TransitionSeries>`](/docs/transitions/transitionseries).
+
+### Layout
+
+`<Track>` does not create a DOM element or change the layout of its children.
+
+## Props
+
+`<Track>` supports the [timing props](/docs/timing), [`freeze`](/docs/sequence#freeze), and the following props.
+
+### `children?`
+
+Any content.
+
+### `name?`
+
+The label of the track in the Studio timeline. Defaults to `"Track"`.
+
+### `width?`
+
+Overrides the width returned by [`useVideoConfig()`](/docs/use-video-config) inside the track. Defaults to the parent's width.  
+Does not set a CSS width, since `<Track>` has no container element.
+
+### `height?`
+
+Overrides the height returned by [`useVideoConfig()`](/docs/use-video-config) inside the track. Defaults to the parent's height.  
+Does not set a CSS height, since `<Track>` has no container element.
+
+### `showInTimeline?`
+
+Whether to show the track in the Studio timeline. Defaults to `true`.  
+Setting this to `false` also hides its clips from the timeline. It does not affect the rendered video.
+
+### `hidden?`
+
+Hides the track's content from the rendered video. Defaults to `false`.  
+The track remains in the Studio timeline, where you can toggle its visibility with the eye icon.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Track.tsx)
+- [Timing and trimming](/docs/timing)
+- [`<Sequence>`](/docs/sequence)
+- [`<Series>`](/docs/series)
+- [`<TransitionSeries>`](/docs/transitions/transitionseries)

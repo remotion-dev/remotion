@@ -31,6 +31,12 @@ import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
+import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
+import {
+	htmlInCanvasFrameMatrix,
+	htmlInCanvasFrames,
+	htmlInCanvasNestedFrames,
+} from './fixtures/html-in-canvas-frames';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -76,6 +82,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
@@ -136,11 +143,16 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden} />
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
+			<Composition {...htmlInCanvasBlur} />
+			<Composition {...htmlInCanvasFrames} />
+			<Composition {...htmlInCanvasFrameMatrix} />
+			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
+			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />

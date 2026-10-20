@@ -10,6 +10,10 @@ import {
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
+import {
+	ACTIVITY_STRESS_TEST_DURATION,
+	ActivityStressTest,
+} from './ActivityStressTest';
 import {UseanimatedEmojis} from './AnimatedEmojis';
 import {BarChart} from './BarChart';
 import BetaText, {betaTextSchema} from './BetaText';
@@ -17,6 +21,7 @@ import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
+import {CaptionLeftEdgeTrimRepro} from './CaptionLeftEdgeTrimRepro';
 import {
 	CAPTIONS_DURATION_IN_FRAMES,
 	CAPTIONS_HEIGHT,
@@ -24,13 +29,18 @@ import {
 import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
+import {
+	COMMITTED_HOLDS_DURATION,
+	COMMITTED_HOLDS_HEIGHT,
+	COMMITTED_HOLDS_WIDTH,
+	CommittedRenderHolds,
+} from './CommittedRenderHolds';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import {ControlsShowcase} from './ControlsShowcase';
 import CorruptVideo from './CorruptVideo';
 import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
-import {DecoderDemo} from './DecoderDemo';
 import {
 	DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION,
 	DifferentSegmentsAtDifferentSpeeds,
@@ -90,6 +100,7 @@ import {
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
 	HtmlInCanvasMotionBlurExample,
+	HtmlInCanvasNested,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -107,6 +118,7 @@ import {
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
+import {KeyframeTrimTestbed} from './KeyframeTrimTestbed';
 import {Layers} from './Layers';
 import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
@@ -122,6 +134,7 @@ import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {PortfolioCompositions} from './Portfolio/Root';
 import {PosterizationComparison} from './Posterization';
 import {
 	PostmountExample,
@@ -166,8 +179,8 @@ import {
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
-import './style.css';
 import {SvgFilter} from './SvgFilter';
+import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -177,8 +190,12 @@ import {VideoTextureDemo} from './ThreeScene/Scene';
 import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
+import {TrackAudioIntrinsicDurationRepro} from './TrackAudioIntrinsicDurationRepro';
 import {AudioTransition} from './Transitions/AudioTransition';
-import {BasicTransition} from './Transitions/BasicTransition';
+import {
+	BasicTransition,
+	BasicTransitionSceneB,
+} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
 import {
 	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
@@ -187,13 +204,17 @@ import {
 import {VariableGoogleFont} from './VariableGoogleFont/VariableGoogleFont';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
-import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
-import {VideoTesting, VideoTestingFrameAccuracy} from './VideoTesting';
+import {
+	VideoTesting,
+	VideoTestingFrameAccuracy,
+	VideoTestingMediaFrameAccuracy,
+} from './VideoTesting';
 import {VisualMode3D} from './VisualMode3D';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
+import {WhatsNewRoot} from './WhatsNew/Root';
 import {ZodV4SchemaTest, zodV4Schema} from './ZodV4SchemaTest';
 // @ts-expect-error no types
 import styles from './styles.module.scss';
@@ -204,7 +225,6 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
-import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
@@ -229,6 +249,7 @@ import {
 	issue10468DefaultProps,
 	issue5758DefaultProps,
 } from './AudioTesting/Issue10468';
+import {VolumeHoldCurveComposition} from './AudioTesting/VolumeHoldCurve';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
@@ -245,6 +266,7 @@ import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur'
 import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
+import {getMediaMetadata} from './get-media-metadata';
 import {
 	Issue8974IndependentVideosTimeline,
 	Issue8974SeriesTimeline,
@@ -297,6 +319,7 @@ import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
 import {SmoothTextTransition} from './SmoothTextTransition';
+import {SourceSubscriptionChurn} from './SourceSubscriptionChurn';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
@@ -305,6 +328,8 @@ import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
+import {TrackPrototype} from './TrackPrototype';
+import {TrackSequenceProps} from './TrackSequenceProps';
 import {TransitionRounding} from './TransitionRounding';
 import {WebGlTransition} from './Transitions/WebGlTransition';
 import {
@@ -462,6 +487,17 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="CommittedRenderHolds"
+				component={CommittedRenderHolds}
+				durationInFrames={COMMITTED_HOLDS_DURATION}
+				fps={30}
+				width={COMMITTED_HOLDS_WIDTH}
+				height={COMMITTED_HOLDS_HEIGHT}
+			/>
+			<Folder name="WhatsNew">
+				<WhatsNewRoot />
+			</Folder>
 			<Composition
 				id="AnimatedBarChart"
 				component={BarChart}
@@ -980,6 +1016,9 @@ export const Index: React.FC = () => {
 				</Folder>
 			</Folder>
 			<Folder name="creatives">
+				<Folder name="Portfolio">
+					<PortfolioCompositions />
+				</Folder>
 				<Composition
 					id="drop-dots"
 					lazyComponent={() => import('./DropDots/DropDots')}
@@ -1100,16 +1139,13 @@ export const Index: React.FC = () => {
 					calculateMetadata={async ({props}) => {
 						const fps = 30;
 
-						const {slowDurationInSeconds} = await parseMedia({
-							src: props.src as string,
-							fields: {
-								slowDurationInSeconds: true,
-							},
-						});
+						const {durationInSeconds} = await getMediaMetadata(
+							props.src as string,
+						);
 
 						return {
 							props: props,
-							durationInFrames: Math.round(slowDurationInSeconds * fps),
+							durationInFrames: Math.round(durationInSeconds * fps),
 							fps,
 							width: 800,
 							height: 800,
@@ -1139,28 +1175,12 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
-					id="video-testing-webm-codec"
-					component={VideoTesting}
+					id="video-testing-media-frame-accuracy"
+					component={VideoTestingMediaFrameAccuracy}
 					width={1080}
-					height={1080}
+					height={540}
 					fps={30}
 					durationInFrames={100}
-					defaultProps={{
-						type: 'codec',
-						codec: 'webm' as const,
-					}}
-				/>
-				<Composition
-					id="video-testing-mp4-codec"
-					component={VideoTesting}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
-					defaultProps={{
-						type: 'codec',
-						codec: 'mp4' as const,
-					}}
 				/>
 			</Folder>
 			<Folder name="video-tests">
@@ -1253,6 +1273,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-nested"
+						component={HtmlInCanvasNested}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={150}
+					/>
 					<Composition
 						id="html-in-canvas-motion-blur"
 						component={HtmlInCanvasMotionBlurExample}
@@ -1787,6 +1815,7 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="audio-tests">
+				<VolumeHoldCurveComposition />
 				<Composition
 					id="complex-sounds"
 					component={ComplexSounds}
@@ -2433,7 +2462,15 @@ export const Index: React.FC = () => {
 					component={BasicTransition}
 					fps={30}
 					height={1080}
-					durationInFrames={300}
+					durationInFrames={336}
+					width={1920}
+				/>
+				<Composition
+					id="transition-scene-b"
+					component={BasicTransitionSceneB}
+					fps={30}
+					height={1080}
+					durationInFrames={30}
 					width={1920}
 				/>
 				<Composition
@@ -2700,22 +2737,6 @@ export const Index: React.FC = () => {
 					durationInFrames={10_000}
 				/>
 			</Folder>
-			<Folder name="VideoParser">
-				<Composition
-					id="VideoParser"
-					component={VideoParser}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={10_000}
-				/>
-			</Folder>
-			<Still
-				id="DecoderDemo"
-				component={DecoderDemo}
-				height={1000}
-				width={1024}
-			/>
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
@@ -3018,7 +3039,41 @@ export const Index: React.FC = () => {
 					durationInFrames={165}
 				/>
 			</Folder>
+			<Folder name="tracks">
+				<Composition
+					id="track-audio-intrinsic-duration-repro"
+					component={TrackAudioIntrinsicDurationRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="track-sequence-props"
+					component={TrackSequenceProps}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Composition
+					id="track-prototype"
+					component={TrackPrototype}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={240}
+				/>
+			</Folder>
 			<Folder name="video-editing">
+				<Composition
+					id="ActivityStressTest"
+					component={ActivityStressTest}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={ACTIVITY_STRESS_TEST_DURATION}
+				/>
 				<Composition
 					id="hour-long-timeline"
 					component={HourLongTimelineTestbed}
@@ -3028,7 +3083,7 @@ export const Index: React.FC = () => {
 					durationInFrames={HOUR_LONG_TIMELINE_DURATION_IN_FRAMES}
 				/>
 				<Composition
-					id="video-editing-cascading"
+					id="video-editing-transition-series"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
 					height={1080}
@@ -3093,6 +3148,30 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="keyframe-trim-testbed"
+					component={KeyframeTrimTestbed}
+					width={1920}
+					height={1440}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Composition
+					id="SourceSubscriptionChurn"
+					component={SourceSubscriptionChurn}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
+				<Composition
+					id="caption-left-edge-trim-repro"
+					component={CaptionLeftEdgeTrimRepro}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={189}
+				/>
 				<Composition
 					id="keyframe-delete-flash"
 					component={KeyframeDeleteFlash}

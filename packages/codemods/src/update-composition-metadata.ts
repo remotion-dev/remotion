@@ -1,6 +1,5 @@
 import type {JSXElement} from '@babel/types';
-import type {CodemodProject, CodemodResult} from './codemod-project';
-import {getCodemodResult} from './codemod-project';
+import type {CodemodProject} from './codemod-project';
 import {
 	type CompositionTarget,
 	type CompositionMetadata,
@@ -8,6 +7,13 @@ import {
 	validateMetadata,
 } from './composition-editing';
 import {findJsxElementPathForDeletion} from './delete-jsx-nodes-internal';
+import {
+	getNodeEditResult,
+	getUnchangedStructureRemappings,
+	getUpdatedNodeReference,
+	type CodemodNodeResult,
+	type NodeReference,
+} from './node-references';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst} from './sequence-props/parse-ast';
 import {applySourceEdits, type SourceEdit} from './source-edits';
@@ -24,7 +30,9 @@ export const updateCompositionMetadata = <Project extends CodemodProject>({
 	compositionFile,
 	compositionId,
 	metadata,
-}: UpdateCompositionMetadataOptions<Project>): CodemodResult => {
+}: UpdateCompositionMetadataOptions<Project>): CodemodNodeResult & {
+	updatedNode: NodeReference;
+} => {
 	const node = requireComposition({project, compositionFile, compositionId});
 	validateMetadata(metadata);
 	if (
@@ -34,8 +42,9 @@ export const updateCompositionMetadata = <Project extends CodemodProject>({
 		throw new Error('Still registrations do not have fps or durationInFrames');
 	}
 
+	const reference = {filePath: node.filePath, nodePath: node.nodePath};
 	if (Object.values(metadata).every((value) => value === undefined)) {
-		return {changes: []};
+		return {changes: [], nodePathRemappings: [], updatedNode: reference};
 	}
 
 	const input = project.files[node.filePath];
@@ -142,9 +151,22 @@ export const updateCompositionMetadata = <Project extends CodemodProject>({
 	}
 
 	const output = applySourceEdits({input, edits});
-	parseAst(output);
-	return getCodemodResult({
+	const result = getNodeEditResult({
 		project,
-		edits: [{filePath: node.filePath, nextContents: output}],
+		edits: [
+			{
+				filePath: node.filePath,
+				output,
+				nodePathRemappings: getUnchangedStructureRemappings({input, output}),
+			},
+		],
 	});
+	return {
+		...result,
+		updatedNode: getUpdatedNodeReference({
+			project,
+			node: reference,
+			nodePathRemappings: result.nodePathRemappings,
+		}),
+	};
 };

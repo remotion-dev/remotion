@@ -4,6 +4,7 @@ import {
 	simulatePermissions,
 } from '../../../api/iam-validation/simulate';
 import {getAwsRegion} from '../../get-aws-region';
+import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
 export const VALIDATE_SUBCOMMAND = 'validate';
@@ -22,5 +23,6 @@ export const validateSubcommand = async (logLevel: LogLevel) => {
 			'Did not have the required permissions on AWS:',
 		);
 		Log.error({indent: false, logLevel}, err);
+		quit(1);
 	}
 };

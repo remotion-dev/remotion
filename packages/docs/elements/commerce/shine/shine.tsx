@@ -2,21 +2,24 @@ import {scale} from '@remotion/effects/scale';
 import {shine} from '@remotion/effects/shine';
 import React from 'react';
 import {
+	Interactive,
 	CanvasImage,
 	HtmlInCanvas,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 } from 'remotion';
 
-export const Shine: React.FC = () => {
+const ShineInner: React.FC = () => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<HtmlInCanvas
 			effects={[
 				scale({scale: 0.75}),
 				shine({
-					progress: interpolate(frame, [0, 44], [0, 1], {
+					progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
@@ -41,3 +44,8 @@ export const Shine: React.FC = () => {
 		</HtmlInCanvas>
 	);
 };
+
+export const Shine = Interactive.create({
+	Component: ShineInner,
+	layout: 'absolute-fill',
+});

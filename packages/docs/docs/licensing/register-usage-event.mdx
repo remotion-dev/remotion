@@ -51,6 +51,14 @@ If the host is `localhost` or similar, it will be registered as non-billable.
 Whether the event was successful or not.  
 If the event was not successful, it will be registered as a non-billable event.
 
+### `idempotencyKey`<AvailableFrom v="4.0.533"/>
+
+Optional, type: `string` (1–255 characters).
+
+A key is generated automatically for each call and reused across network retries to prevent duplicate usage points. You do not need to supply one.
+
+If you call `registerUsageEvent()` more than once for the same event, pass the same key to each call. Keys are scoped to your project; a repeated key returns the original result without recording another usage point. Use a different key for each new event.
+
 ## Return value
 
 A promise that resolves when the event was successfully registered.

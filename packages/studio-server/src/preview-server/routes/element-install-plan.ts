@@ -118,6 +118,13 @@ export const getElementInstallPlan = async ({
 	remotionRoot: string;
 }) => {
 	validateElementForInstallation(element);
+	if (
+		destination.type === 'selected-media' &&
+		(element.isCaptionStyle !== true ||
+			element.installationMode !== 'component-owned-sequence')
+	) {
+		throw new Error('The Element must be a component-owned caption style');
+	}
 
 	const componentName =
 		StudioProtocolInternals.getElementComponentNameFromSourceCode(

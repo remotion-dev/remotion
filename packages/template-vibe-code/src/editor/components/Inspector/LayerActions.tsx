@@ -65,8 +65,8 @@ export const useLayerCommands = (layer: Layer) => {
     wrapInSequence: () => node && void actions.wrapNode(node, "Sequence"),
     wrapInAbsoluteFill: () =>
       node && void actions.wrapNode(node, "AbsoluteFill"),
-    moveUp: () => node && void actions.reorderNode(node, "up"),
-    moveDown: () => node && void actions.reorderNode(node, "down"),
+    moveUp: () => node && void actions.moveSelectedNodesOneStep(node, "up"),
+    moveDown: () => node && void actions.moveSelectedNodesOneStep(node, "down"),
   };
 };
 

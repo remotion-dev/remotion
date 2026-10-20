@@ -6,6 +6,7 @@ import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
+import {disableSharedMemoryCaptureOption} from './disable-shared-memory-capture';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
@@ -48,6 +49,7 @@ export const optionsMap = {
 		colorSpace: colorSpaceOption,
 		codec: videoCodecOption,
 		disallowParallelEncoding: disallowParallelEncodingOption,
+		disableSharedMemoryCapture: disableSharedMemoryCaptureOption,
 		jpegQuality: jpegQualityOption,
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,
@@ -116,6 +118,7 @@ export const optionsMap = {
 		sampleRate: sampleRateOption,
 	},
 	renderMediaOnLambda: {
+		disableSharedMemoryCapture: disableSharedMemoryCaptureOption,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
@@ -155,6 +158,7 @@ export const optionsMap = {
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 	},
 	renderMediaOnCloudRun: {
+		disableSharedMemoryCapture: disableSharedMemoryCaptureOption,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,

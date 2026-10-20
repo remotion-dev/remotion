@@ -1,4 +1,4 @@
-import {getLocationFromBuildError} from '@remotion/studio-shared';
+import {getLocationFromBuildError, stripAnsi} from '@remotion/studio-shared';
 import React, {useContext, useMemo} from 'react';
 import {MediaPlaybackError} from 'remotion';
 import {CodingAgentButton} from '../../components/CodingAgentButton';
@@ -11,6 +11,8 @@ import {
 	WHITE,
 	WHITE_ALPHA_60,
 } from '../../helpers/colors';
+import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
+import {didUnmountReactApp} from '../react-overlay';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {CalculateMetadataErrorExplainer} from './CalculateMetadataErrorExplainer';
@@ -92,6 +94,11 @@ export const ErrorDisplay: React.FC<{
 	symbolicationFailure,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canShowProjectActions = !didUnmountReactApp();
+	const canAnnotate =
+		canShowProjectActions &&
+		!window.remotion_isReadOnlyStudio &&
+		getCodexAnnotation() !== null;
 	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
 		useEditorOpening(previewServerState.type === 'connected');
 	const stackFrames = useMemo(() => {
@@ -119,7 +126,7 @@ export const ErrorDisplay: React.FC<{
 		// Format compilation errors
 		const location = getLocationFromBuildError(display.error);
 		if (!location) {
-			return display.error.message;
+			return stripAnsi(display.error.message);
 		}
 
 		return location.message
@@ -132,9 +139,12 @@ export const ErrorDisplay: React.FC<{
 	const lineNumberWidth = String(highestLineNumber).length;
 
 	const helpLink = getHelpLink(message);
+	const errorStack = display.error.stack
+		? stripAnsi(display.error.stack)
+		: null;
 
 	const errorTextForCopy = useMemo(() => {
-		const header = `${display.error.name}: ${message}`;
+		const header = `${stripAnsi(display.error.name)}: ${message}`;
 
 		if (stackFrames.length > 0) {
 			const stackLines = stackFrames
@@ -146,8 +156,8 @@ export const ErrorDisplay: React.FC<{
 			return `${header}\n${stackLines}`;
 		}
 
-		return display.error.stack || header;
-	}, [display.error, message, stackFrames]);
+		return errorStack || header;
+	}, [display.error.name, errorStack, message, stackFrames]);
 	const fixWithAgentPrompt = `Fix this error in my Remotion project:\n\n${errorTextForCopy}`;
 
 	return (
@@ -169,7 +179,8 @@ export const ErrorDisplay: React.FC<{
 						<div style={spacer} />
 					</>
 				) : null}
-				{stackFrames.length > 0 &&
+				{canShowProjectActions &&
+				stackFrames.length > 0 &&
 				canOpenInEditor &&
 				defaultEditorId &&
 				defaultEditorName ? (
@@ -184,17 +195,19 @@ export const ErrorDisplay: React.FC<{
 						<div style={spacer} />
 					</>
 				) : null}
-				<CodingAgentButton
-					label="Fix with"
-					prompt={fixWithAgentPrompt}
-					size="default"
-					style={codingAgentButton}
-				/>
+				{canShowProjectActions ? (
+					<CodingAgentButton
+						label="Fix with"
+						prompt={fixWithAgentPrompt}
+						size="default"
+						style={codingAgentButton}
+					/>
+				) : null}
 				<CopyStackTrace errorText={errorTextForCopy} />
 				<div style={spacer} />
 				<SearchGithubIssues
 					canHaveKeyboardShortcuts={keyboardShortcuts}
-					message={display.error.message}
+					message={message}
 				/>
 				<div style={spacer} />
 				<AskOnDiscord canHaveKeyboardShortcuts={keyboardShortcuts} />
@@ -237,7 +250,11 @@ export const ErrorDisplay: React.FC<{
 								horizontalSpacing={14}
 								lineNumberWidth={lineNumberWidth}
 								defaultFunctionName={'(anonymous function)'}
-								editorId={canOpenInEditor ? defaultEditorId : null}
+								editorId={
+									canShowProjectActions && canOpenInEditor
+										? defaultEditorId
+										: null
+								}
 							/>
 						);
 					})}
@@ -249,7 +266,7 @@ export const ErrorDisplay: React.FC<{
 						className={HORIZONTAL_SCROLLBAR_CLASSNAME}
 						style={rawStack}
 					>
-						{display.error.stack ??
+						{errorStack ??
 							'Check the Terminal and browser console for error messages.'}
 					</pre>
 					{symbolicationFailure ? (
@@ -257,6 +274,15 @@ export const ErrorDisplay: React.FC<{
 					) : null}
 				</>
 			)}
+			{canAnnotate && stackFrames.length > 0 && display.error.stack ? (
+				<pre
+					aria-label="Complete stack trace"
+					className={HORIZONTAL_SCROLLBAR_CLASSNAME}
+					style={rawStack}
+				>
+					{errorStack}
+				</pre>
+			) : null}
 		</div>
 	);
 };

@@ -96,6 +96,7 @@ export const callAddSequenceKeyframe = ({
 		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticAddSequenceKeyframe({
+				videoConfigValues: nodePath.videoConfigValues,
 				previous: prev,
 				fieldKey,
 				frame: sourceFrame,
@@ -141,6 +142,7 @@ export const callAddKeyframes = ({
 			keyframes.reduce(
 				(current, keyframe) =>
 					optimisticAddSequenceKeyframe({
+						videoConfigValues: keyframe.nodePath.videoConfigValues,
 						previous: current,
 						fieldKey: keyframe.fieldKey,
 						frame: keyframe.sourceFrame,
@@ -162,6 +164,7 @@ export const callAddKeyframes = ({
 			keyframes.reduce(
 				(current, keyframe) =>
 					optimisticAddEffectKeyframe({
+						videoConfigValues: keyframe.nodePath.videoConfigValues,
 						previous: current,
 						effectIndex: keyframe.effectIndex,
 						fieldKey: keyframe.fieldKey,
@@ -222,6 +225,7 @@ export const callAddEffectKeyframe = ({
 		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticAddEffectKeyframe({
+				videoConfigValues: nodePath.videoConfigValues,
 				previous: prev,
 				effectIndex,
 				fieldKey,

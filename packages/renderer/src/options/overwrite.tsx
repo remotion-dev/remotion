@@ -13,6 +13,7 @@ const validate = (value: unknown) => {
 
 export const overwriteOption = {
 	name: 'Overwrite output',
+	addedIn: '1.0.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -21,7 +22,7 @@ export const overwriteOption = {
 		</>
 	),
 	ssrName: 'overwrite',
-	docLink: 'https://www.remotion.dev/docs/config#setoverwriteoutput',
+	docLink: 'https://www.remotion.dev/docs/options/overwrite',
 	type: false as boolean,
 	getValue: ({commandLine}, defaultValue: boolean) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

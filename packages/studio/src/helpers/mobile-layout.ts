@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 
-const breakpoint = 900;
+const breakpoint = 800;
 
 function getIsMobile() {
 	return window.innerWidth < breakpoint;

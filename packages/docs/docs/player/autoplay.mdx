@@ -65,16 +65,16 @@ Consider the following scenario:
 
 ```tsx twoslash
 import {Audio, Video} from '@remotion/media';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 
 // ---cut---
 export const MyComp = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio src={staticFile('audio.mp3')} />
       <Audio from={120} src={staticFile('audio2.mp3')} />
       <Video from={120} src={staticFile('video.mp4')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

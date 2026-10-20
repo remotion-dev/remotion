@@ -10,7 +10,7 @@ import {
 } from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {SequenceControls} from '../CompositionManager.js';
-import type {EffectsProp} from '../effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import {runEffectChain} from '../effects/run-effect-chain.js';
 import {useEffectChainState} from '../effects/use-effect-chain-state.js';
 import {
@@ -31,6 +31,7 @@ import {
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
@@ -202,6 +203,7 @@ type CanvasImageContentProps = Pick<
 	| 'width'
 > & {
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly controls: SequenceControls | undefined;
 } & CanvasImageCanvasProps;
 
@@ -217,6 +219,7 @@ const CanvasImageContent = forwardRef<
 			height,
 			fit = 'fill',
 			effects,
+			effectsOutputSize,
 			controls,
 			onError,
 			className,
@@ -237,10 +240,11 @@ const CanvasImageContent = forwardRef<
 		);
 		const [loadedImage, setLoadedImage] = useState<LoadedImage | null>(null);
 		const actualSrc = usePreload(src);
-		const chainState = useEffectChainState();
+		const chainState = useEffectChainState(effectsOutputSize);
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
 		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);
@@ -527,6 +531,7 @@ const CanvasImageInner = forwardRef<
 			height,
 			fit,
 			effects = [],
+			effectsOutputSize,
 			className,
 			style,
 			id,
@@ -634,25 +639,30 @@ const CanvasImageInner = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<CanvasImageContent
-						ref={actualRef}
-						src={src}
-						crossOrigin={crossOrigin}
-						width={width}
-						height={height}
-						fit={fit}
-						effects={effects}
-						controls={controls}
-						className={className}
-						style={croppedStyle ?? undefined}
-						id={id}
-						onError={onError}
-						pauseWhenLoading={pauseWhenLoading}
-						maxRetries={maxRetries}
-						delayRenderRetries={delayRenderRetries}
-						delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-						{...canvasProps}
-					/>
+					<SequenceContent>
+						<CanvasImageContent
+							ref={actualRef}
+							src={src}
+							crossOrigin={crossOrigin}
+							width={width}
+							height={height}
+							fit={fit}
+							effects={effects}
+							effectsOutputSize={effectsOutputSize ?? null}
+							controls={controls}
+							className={className}
+							style={croppedStyle ?? undefined}
+							id={id}
+							onError={onError}
+							pauseWhenLoading={pauseWhenLoading}
+							maxRetries={maxRetries}
+							delayRenderRetries={delayRenderRetries}
+							delayRenderTimeoutInMilliseconds={
+								delayRenderTimeoutInMilliseconds
+							}
+							{...canvasProps}
+						/>
+					</SequenceContent>
 				</Sequence>
 			</Freeze>
 		);

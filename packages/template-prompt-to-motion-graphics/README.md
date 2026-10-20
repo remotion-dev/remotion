@@ -63,7 +63,7 @@ Skills enable contextual expertise without bloating every prompt. Located in `sr
 | **typography**     | Kinetic text - typewriter effects, word carousels, text highlights                      |
 | **messaging**      | Chat UI - bubble layouts, WhatsApp/iMessage styling, staggered entrances                |
 | **transitions**    | Scene changes - TransitionSeries, fade/slide/wipe effects                               |
-| **sequencing**     | Timing control - Sequence, Series, staggered delays                                     |
+| **sequencing**     | Timing control - Sequence, TransitionSeries, staggered delays                                     |
 | **spring-physics** | Organic motion - spring configs, bounce effects, chained animations                     |
 | **social-media**   | Platform-specific formats - aspect ratios, safe zones                                   |
 | **3d**             | Three.js integration - 3D scenes, camera setup                                          |

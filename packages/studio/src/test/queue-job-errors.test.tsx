@@ -33,6 +33,7 @@ afterEach(() => {
 });
 
 const captionJob: CaptionJob = {
+	captionStyle: null,
 	id: 'caption-job',
 	type: 'caption',
 	startedAt: 0,

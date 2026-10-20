@@ -7,6 +7,7 @@ import {TARGET_SAMPLE_RATE} from './constants';
 import {getWaveformCacheKey} from './get-waveform-cache-key';
 import {type WaveformResult, loadWaveformPeaks} from './load-waveform-peaks';
 import {makeAudioWaveformWorker} from './make-audio-waveform-worker';
+import {registerWaveformMaxima} from './waveform-maxima';
 
 type WaveformPeaksListener = {
 	readonly onPeaks: (
@@ -39,12 +40,13 @@ let nextRequestId = 0;
 
 const emitPeaks = (
 	load: InFlightLoad,
-	peaks: Float32Array,
+	result: WaveformResult,
 	final: boolean,
-	averageVolume: number | null,
 ) => {
+	const {peaks, maxima, averageVolume} = result;
+	registerWaveformMaxima(peaks, maxima);
 	if (final) {
-		peaksCache.set(load.cacheKey, {peaks, averageVolume});
+		peaksCache.set(load.cacheKey, {peaks, maxima, averageVolume});
 		load.latestPeaks = null;
 		inFlightByCacheKey.delete(load.cacheKey);
 		if (load.requestId !== null) {
@@ -79,18 +81,26 @@ const startMainThreadLoad = (load: InFlightLoad) => {
 
 	loadWaveformPeaks(load.src, controller.signal, {
 		waveformSampleRate: load.waveformSampleRate,
-		onProgress: ({peaks, final}) => {
+		onProgress: ({peaks, maxima, final}) => {
 			if (final) {
 				return;
 			}
 
 			// The processor mutates the same array in place; snapshot it so
 			// React state updates see a new reference.
-			emitPeaks(load, peaks.slice(), false, null);
+			emitPeaks(
+				load,
+				{
+					peaks: peaks.slice(),
+					maxima: maxima.map((level) => level.slice()),
+					averageVolume: null,
+				},
+				false,
+			);
 		},
 	})
-		.then(({peaks, averageVolume}) => {
-			emitPeaks(load, peaks, true, averageVolume);
+		.then((result) => {
+			emitPeaks(load, result, true);
 		})
 		.catch((error) => {
 			emitError(
@@ -144,7 +154,7 @@ const getOrCreateWorker = (): Worker | null => {
 				return;
 			}
 
-			emitPeaks(load, message.peaks, message.final, message.averageVolume);
+			emitPeaks(load, message, message.final);
 		},
 	);
 	worker.addEventListener('error', (event) => {

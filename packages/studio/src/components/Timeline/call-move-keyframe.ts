@@ -4,7 +4,7 @@ import {
 	type MoveKeyframesRequest,
 } from '@remotion/studio-shared';
 import type {
-	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropSource,
 	InteractivitySchema,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
@@ -55,7 +55,7 @@ const applyKeyframeDisplayOffsetAdjustmentDeltas = ({
 	props,
 	keyframes,
 }: {
-	readonly props: Record<string, CanUpdateSequencePropStatus>;
+	readonly props: Record<string, CanUpdateSequencePropSource>;
 	readonly keyframes: readonly MoveSequenceKeyframeChange[];
 }) => {
 	const nextProps = {...props};
@@ -81,7 +81,14 @@ const applyKeyframeDisplayOffsetAdjustmentDeltas = ({
 		nextProps[fieldKey] = {
 			...status,
 			keyframeDisplayOffsetAdjustment:
-				status.keyframeDisplayOffsetAdjustment + delta,
+				typeof status.keyframeDisplayOffsetAdjustment === 'number'
+					? status.keyframeDisplayOffsetAdjustment + delta
+					: {
+							type: 'binary',
+							operator: '+',
+							left: status.keyframeDisplayOffsetAdjustment,
+							right: delta,
+						},
 		};
 	}
 
@@ -109,6 +116,7 @@ export const applyOptimisticKeyframeMoves = ({
 
 		setPropStatuses(firstKeyframe.nodePath, (prev) => {
 			const moved = optimisticMoveSequenceKeyframes({
+				videoConfigValues: firstKeyframe.nodePath.videoConfigValues,
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({
 					fieldKey: keyframe.fieldKey,
@@ -138,6 +146,7 @@ export const applyOptimisticKeyframeMoves = ({
 
 		setPropStatuses(firstKeyframe.nodePath, (prev) => {
 			const moved = optimisticMoveEffectKeyframes({
+				videoConfigValues: firstKeyframe.nodePath.videoConfigValues,
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({
 					effectIndex: keyframe.effectIndex,

@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/sdk';
 import {isValidPackageName} from '@remotion/studio-shared';
 import {
 	useContext,
@@ -15,7 +16,7 @@ import {restartStudio} from '../api/restart-studio';
 import {seek} from '../api/seek';
 import {shutDownStudio} from '../api/shut-down-studio';
 import {getCurrentError} from '../error-overlay/current-error';
-import {calculateTimeline} from '../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {
 	formatContextForAgents,
@@ -40,6 +41,7 @@ import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {useSelectComposition} from './InitialCompositionLoader';
+import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {
 	isOptionalPackageInstalled,
 	markOptionalPackageInstalled,
@@ -49,11 +51,7 @@ import {
 	validatePublicOutputName,
 } from './public-output-name';
 import {RenderQueueContext} from './RenderQueue/context';
-import {
-	getSequencesWithSelectableOutlines,
-	measureOutlineTargets,
-} from './selected-outline-measurement';
-import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info';
+import {measureOutlineTargets} from './selected-outline-measurement';
 import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timeline';
@@ -64,6 +62,7 @@ import {
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
+import {useCompactSeries} from './Timeline/use-compact-series';
 import {useResolveStackAndReactToChange} from './Timeline/use-resolved-stack-react-to-change';
 import {
 	getDefaultCaptionOutputName,
@@ -198,24 +197,8 @@ const WebMcpSelectionSync: FC<{
 	readonly selectedSequenceRef: MutableRefObject<WebMcpSequence | null>;
 }> = ({currentSelectionRef, selectedSequenceRef}) => {
 	const {selectedItems} = useTimelineSelection();
-	const {sequences} = useContext(Internals.SequenceManager);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
-	);
 	const selectedItem = selectedItems.length === 1 ? selectedItems[0] : null;
-	const track = useMemo(() => {
-		if (selectedItem === null || selectedItem.type === 'guide') {
-			return null;
-		}
-
-		return (
-			findTrackForNodePathInfo({
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				nodePathInfo: selectedItem.nodePathInfo,
-			}) ?? null
-		);
-	}, [overrideIdToNodePathMappings, selectedItem, sequences]);
+	const track = useTrackForSelection(selectedItem);
 	const {resolvedLocation, stack} = useResolveStackAndReactToChange(
 		track?.sequence.getStack ?? getNoStack,
 		track?.sequence.controls?.overrideId ??
@@ -277,6 +260,10 @@ const WebMcpSelectionSync: FC<{
 };
 
 export const WebMcp: FC = () => {
+	const calculateTimeline = useTimelineCalculator();
+	const compactSeries = useCompactSeries();
+	const compactSeriesRef = useRef(compactSeries);
+	compactSeriesRef.current = compactSeries;
 	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
 	const staticFiles = useStaticFiles();
 	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
@@ -294,7 +281,7 @@ export const WebMcp: FC = () => {
 	const selectComposition = useSelectComposition();
 	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -333,8 +320,6 @@ export const WebMcp: FC = () => {
 	currentCompositionDefinitionRef.current = currentCompositionDefinition;
 	const compositionsRef = useRef(compositions);
 	compositionsRef.current = compositions;
-	const sequencesRef = useRef(sequences);
-	sequencesRef.current = sequences;
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const foldersRef = useRef(folders);
@@ -378,7 +363,8 @@ export const WebMcp: FC = () => {
 				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				compositions: compositionsRef.current,
-			}).filter((timelineTrack) =>
+				showConnectedCompositionChildren: compactSeriesRef.current,
+			}).tracks.filter((timelineTrack) =>
 				shouldShowTrackInTimeline(timelineTrack, durationInFrames),
 			);
 		};
@@ -609,6 +595,7 @@ export const WebMcp: FC = () => {
 						}
 
 						const jobId = addCaptionJob({
+							captionStyle: null,
 							audioStreamIndex: null,
 							chunkLengthInSeconds,
 							displayName,
@@ -1080,27 +1067,20 @@ export const WebMcp: FC = () => {
 						}
 
 						const currentFrame = getCurrentFrame();
-						const selectableOutlines = getSequencesWithSelectableOutlines({
-							sequences: sequencesRef.current,
-							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-							compositions: compositionsRef.current,
-							timelinePosition: currentFrame,
-						});
+						const selectableOutlines =
+							CanvasInternals.getCanvasSelectableOutlines({
+								tracks: calculateTimeline({
+									sequences: sequencesRef.current,
+									overrideIdsToNodePaths:
+										overrideIdToNodePathMappingsRef.current,
+									compositions: compositionsRef.current,
+								}).tracks,
+								timelinePosition: currentFrame,
+								resolveSequenceNodePathInfo: null,
+							});
 						const portalNode = Internals.portalNode();
 						const portalRect = portalNode.getBoundingClientRect();
-						const metadata = currentCompositionMetadataRef.current;
-						const compositionWidth =
-							metadata?.width ?? composition.width ?? portalNode.offsetWidth;
-						const compositionHeight =
-							metadata?.height ?? composition.height ?? portalNode.offsetHeight;
-						const scaleX = portalRect.width / compositionWidth;
-						const scaleY = portalRect.height / compositionHeight;
-						if (
-							!Number.isFinite(scaleX) ||
-							scaleX === 0 ||
-							!Number.isFinite(scaleY) ||
-							scaleY === 0
-						) {
+						if (portalRect.width === 0 || portalRect.height === 0) {
 							throw new Error('The Studio canvas is not ready to be measured.');
 						}
 
@@ -1152,10 +1132,7 @@ export const WebMcp: FC = () => {
 									outline.sequence.displayName ||
 									outline.sequence.controls?.componentName ||
 									null;
-								const points = measurement.points.map((point) => ({
-									x: point.x / scaleX,
-									y: point.y / scaleY,
-								}));
+								const {points} = measurement;
 								const xValues = points.map((point) => point.x);
 								const yValues = points.map((point) => point.y);
 								const left = Math.min(...xValues);
@@ -1776,8 +1753,10 @@ export const WebMcp: FC = () => {
 	}, [
 		addCaptionJob,
 		addVideoMattingJob,
+		calculateTimeline,
 		isPlaying,
 		selectComposition,
+		sequencesRef,
 		setEditorShowGuides,
 		setGuidesList,
 		setPlaybackRate,

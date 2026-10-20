@@ -45,10 +45,14 @@ test('duplicateNodes remaps following JSX siblings', async () => {
 		{
 			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
 			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+			oldJsxName: 'span',
+			newJsxName: 'span',
 		},
 		{
 			oldNodePath: null,
 			newNodePath: lineContainingToNodePath(output, 'name="duplicate-copy"'),
+			oldJsxName: null,
+			newJsxName: 'span',
 		},
 	]);
 });

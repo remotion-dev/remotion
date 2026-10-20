@@ -83,6 +83,7 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 				rendererHandler<MockProvider>({
 					params: {
 						type: 'renderer',
+						output: {type: 'media'},
 						chromiumOptions: {gl: 'angle', enableMultiProcessOnLinux: true},
 						launchFunctionConfig: {version: VERSION},
 						inputProps: {type: 'payload', payload: '{}'},
@@ -235,6 +236,7 @@ test('a flaky renderer invocation closes its browser before returning', async ()
 		const handlerPromise = rendererHandler<MockProvider>({
 			params: {
 				type: 'renderer',
+				output: {type: 'media'},
 				chromiumOptions: {gl: null},
 				launchFunctionConfig: {version: VERSION},
 				inputProps: {type: 'payload', payload: '{}'},

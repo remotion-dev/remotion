@@ -4,6 +4,7 @@ import type {SerializedArtifact} from '../serialize-artifact';
 import type {CloudProvider, RenderStillFunctionResponsePayload} from '../types';
 import type {FunctionErrorInfo} from '../write-error-to-storage';
 
+const framesUploaded = 'frames-uploaded' as const;
 const framesRendered = 'frames-rendered' as const;
 const errorOccurred = 'error-occurred' as const;
 const renderIdDetermined = 'render-id-determined' as const;
@@ -24,6 +25,7 @@ const messageTypes = {
 	'7': {type: chunkComplete},
 	'8': {type: functionInvoked},
 	'9': {type: artifactEmitted},
+	a: {type: framesUploaded},
 } as const;
 
 export type MessageTypeId = keyof typeof messageTypes;
@@ -31,6 +33,7 @@ type MessageType = (typeof messageTypes)[MessageTypeId]['type'];
 
 export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[framesRendered]: 'json',
+	[framesUploaded]: 'json',
 	[errorOccurred]: 'json',
 	[renderIdDetermined]: 'json',
 	[videoChunkRendered]: 'binary',
@@ -42,6 +45,10 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 };
 
 export type StreamingPayload<Provider extends CloudProvider> =
+	| {
+			type: typeof framesUploaded;
+			payload: {uploaded: number; sizeInBytes: number};
+	  }
 	| {
 			type: typeof framesRendered;
 			payload: {

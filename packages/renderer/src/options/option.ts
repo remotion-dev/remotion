@@ -2,6 +2,7 @@ import type {TypeOfOption} from '../client';
 
 export type RemotionOption<SsrName extends string, Type> = {
 	name: string;
+	addedIn: string;
 	cliFlag: string;
 	ssrName: SsrName | null;
 	description: (mode: 'ssr' | 'cli') => React.ReactNode;

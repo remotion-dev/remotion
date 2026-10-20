@@ -13,6 +13,7 @@ const cliFlag = 'crf' as const;
 
 export const crfOption = {
 	name: 'CRF',
+	addedIn: '1.4.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -24,8 +25,7 @@ export const crfOption = {
 		</>
 	),
 	ssrName: 'crf',
-	docLink:
-		'https://www.remotion.dev/docs/encoding/#controlling-quality-using-the-crf-setting',
+	docLink: 'https://www.remotion.dev/docs/options/crf',
 	type: 0 as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

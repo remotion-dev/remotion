@@ -1,0 +1,74 @@
+---
+image: /generated/articles-docs-sdk-get-canvas-keyframe-source-frame.png
+title: getCanvasKeyframeSourceFrame()
+crumb: '@remotion/sdk'
+---
+
+# getCanvasKeyframeSourceFrame()<AvailableFrom v="4.0.530" />
+
+Converts a composition frame to the frame clock of a prop's `interpolate()` expression, in which keyframe operations are expressed.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts twoslash title="add-keyframe-at-playhead.ts"
+// @moduleResolution: bundler
+import {
+  getCanvasKeyframeSourceFrame,
+  type CanvasKeyframeChange,
+  type SequenceNodePathInfo,
+  type TimelineTrackData,
+} from '@remotion/sdk';
+import type {CanUpdateSequencePropStatus, InteractivitySchema} from 'remotion';
+declare const nodePathInfo: SequenceNodePathInfo;
+declare const track: TimelineTrackData;
+declare const schema: InteractivitySchema;
+declare const propStatus: CanUpdateSequencePropStatus;
+declare const playhead: number;
+// ---cut---
+export const setOpacityAtPlayhead = (value: number): CanvasKeyframeChange => ({
+  nodePathInfo,
+  key: 'style.opacity',
+  schema,
+  operation: {
+    type: 'add',
+    frame: getCanvasKeyframeSourceFrame({track, propStatus, frame: playhead}),
+    value,
+  },
+});
+```
+
+The keyframes of a nested or trimmed sequence are shifted on the composition timeline, and a `playbackRate` stretches them. `getCanvasKeyframeToggle()` and `startCanvasKeyframeDrag()` perform this conversion themselves; use this function when you construct a `CanvasKeyframeChange` yourself, for example to write a value edited in an inspector as a keyframe at the playhead.
+
+## Parameters
+
+An object with the following properties:
+
+### track
+
+The `TimelineTrackData` of the sequence from [`controller.timeline`](/docs/sdk/create-canvas-controller#timeline). Only `keyframeDisplayOffset` and `keyframePlaybackRate` are read.
+
+### propStatus
+
+How the prop is written in the source, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it, or `null`. A keyframed status resolves rounding errors of the conversion to the existing keyframe frame, so an edit at a displayed keyframe hits that keyframe.
+
+### frame
+
+The composition frame to convert.
+
+## Return value
+
+The frame in the clock of the interpolation. Pass it as `frame` of an `add` or `remove` operation to [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasKeyframeDisplayFrame()`](/docs/sdk/get-canvas-keyframe-display-frame)
+- [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes)
+- [`getCanvasKeyframeToggle()`](/docs/sdk/get-canvas-keyframe-toggle)

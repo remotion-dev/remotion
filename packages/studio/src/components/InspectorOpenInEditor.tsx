@@ -1,11 +1,12 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {formatFileLocation} from '../helpers/format-file-location';
 import {
 	getDefaultOpenInTarget,
 	openGitSource,
@@ -19,6 +20,7 @@ import {
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
 import {GitHubIcon} from '../icons/github';
+import {getAnnotateWithChatGPTMenuItems} from './get-annotate-with-chatgpt-menu-item';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -46,12 +48,14 @@ const editorButtonIconSize = 18;
 const githubButtonIconSize = 16;
 
 export const InspectorOpenInEditor: React.FC<{
+	readonly annotationName: string | null;
 	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
 	readonly label?: React.ReactNode;
 	readonly locationType: 'file' | 'folder' | null;
 	readonly showTooltips: boolean;
 }> = ({
+	annotationName,
 	contextForAgents = null,
 	label,
 	location,
@@ -59,6 +63,7 @@ export const InspectorOpenInEditor: React.FC<{
 	showTooltips,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const annotationTarget = useRef<HTMLDivElement>(null);
 	const configureDefaultApps = useConfigureDefaultApps();
 	const {
 		canConfigureApps,
@@ -116,7 +121,9 @@ export const InspectorOpenInEditor: React.FC<{
 		defaultOpenInTarget === 'git-source'
 			? 'GitHub'
 			: (defaultEditorName ?? 'default editor');
-	const canOpenDefault = location !== null && defaultOpenInTarget !== null;
+	const canOpenDefault = Boolean(
+		location?.source && defaultOpenInTarget !== null,
+	);
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
@@ -138,7 +145,7 @@ export const InspectorOpenInEditor: React.FC<{
 		const items = getOpenInMenuItems({
 			canOpenDesktopApps: canConfigureApps,
 			codingAgentInfo,
-			editorDisabled: location === null || !canOpenInEditor,
+			editorDisabled: !location?.source || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: defaultEditorId,
@@ -146,10 +153,14 @@ export const InspectorOpenInEditor: React.FC<{
 			fileManagerDisabled:
 				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
-			gitSourceDisabled: location === null,
+			gitSourceDisabled: !location?.source,
 			onConfigureApps: configureDefaultApps,
 			onCopyPath:
-				locationType === 'folder' && location?.source ? copyPath : undefined,
+				locationType === 'folder' &&
+				location?.source &&
+				!window.remotion_isReadOnlyStudio
+					? copyPath
+					: undefined,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
@@ -204,8 +215,33 @@ export const InspectorOpenInEditor: React.FC<{
 			},
 		});
 
-		return items;
+		return [
+			...items,
+			...(annotationName
+				? getAnnotateWithChatGPTMenuItems({
+						id: 'annotate-inspector-source',
+						getTarget: () =>
+							annotationTarget.current?.closest(
+								'[aria-label="Inspector source location"]',
+							) ?? null,
+						initialComment: null,
+						getMetadata: () => ({
+							selection: annotationName,
+							...(location?.source
+								? {
+										source:
+											formatFileLocation({
+												location,
+												root: window.remotion_cwd,
+											}) ?? location.source,
+									}
+								: {}),
+						}),
+					})
+				: []),
+		];
 	}, [
+		annotationName,
 		codingAgentInfo,
 		canConfigureApps,
 		canOpenInEditor,
@@ -253,7 +289,7 @@ export const InspectorOpenInEditor: React.FC<{
 			result.push({
 				ariaLabel: 'Open in...',
 				buttonId: null,
-				disabled: false,
+				disabled: !location?.source && !contextForAgents,
 				idleColor: LIGHT_TEXT,
 				leaveLeftSpace: true,
 				onOpenChange: null,
@@ -270,10 +306,12 @@ export const InspectorOpenInEditor: React.FC<{
 		return result;
 	}, [
 		canOpenDefault,
+		contextForAgents,
 		defaultAppName,
 		defaultEditorId,
 		defaultOpenInTarget,
 		label,
+		location,
 		menuItems,
 		onOpenDefault,
 		showTooltips,
@@ -287,5 +325,9 @@ export const InspectorOpenInEditor: React.FC<{
 		return null;
 	}
 
-	return <SegmentedButton segments={segments} style={null} />;
+	return (
+		<div ref={annotationTarget} style={{display: 'flex'}}>
+			<SegmentedButton segments={segments} style={null} />
+		</div>
+	);
 };

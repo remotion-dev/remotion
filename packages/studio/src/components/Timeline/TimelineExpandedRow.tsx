@@ -128,6 +128,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				showSelectedBackground
 				containsSelection={containsSelection}
 				outerHeight={null}
+				showBottomBorder={false}
 			>
 				<span style={labelStyle}>{node.label}</span>
 			</TimelineRowChrome>
@@ -188,6 +189,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 			showSelectedBackground
 			containsSelection={false}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<span style={labelStyle}>{node.label}</span>
 		</TimelineRowChrome>

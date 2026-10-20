@@ -1,13 +1,13 @@
 ---
 image: /generated/articles-docs-captions-importing.png
-sidebar_label: Importing from .srt
-title: Importing .srt subtitles into Remotion
+sidebar_label: Importing from .srt or .vtt
+title: Importing .srt or .vtt subtitles into Remotion
 crumb: Captions
 ---
 
-# Importing .srt subtitles into Remotion
+# Importing .srt or .vtt subtitles into Remotion
 
-If you have an existing `.srt` subtitle file, you can import it into Remotion using [`parseSrt()`](/docs/captions/parse-srt) from `@remotion/captions`.
+If you have an existing subtitle file, you can import it into Remotion using [`parseSrt()`](/docs/captions/parse-srt) for `.srt` files or [`parseVtt()`](/docs/captions/parse-vtt) for WebVTT (`.vtt`) files from `@remotion/captions`.
 
 ## Reading an .srt file
 
@@ -15,7 +15,7 @@ Use [`staticFile()`](/docs/staticfile) to reference an `.srt` file in your `publ
 
 ```tsx twoslash title="Importing captions from .srt"
 import {useState, useEffect, useCallback} from 'react';
-import {AbsoluteFill, staticFile, useDelayRender} from 'remotion';
+import {staticFile, useDelayRender} from 'remotion';
 import {parseSrt} from '@remotion/captions';
 import type {Caption} from '@remotion/captions';
 
@@ -44,11 +44,24 @@ export const MyComponent: React.FC = () => {
     return null;
   }
 
-  return <AbsoluteFill>{/* Use captions here */}</AbsoluteFill>;
+  return <>{/* Use captions here */}</>;
 };
 ```
 
 Alternatively, you can also `fetch()` a remote file via URL.
+
+## Reading a .vtt file<AvailableFrom v="4.0.537" />
+
+Use the same loading pattern as above, replacing `parseSrt()` with [`parseVtt()`](/docs/captions/parse-vtt) and fetching your `.vtt` file:
+
+```tsx twoslash title="Importing captions from .vtt"
+import {parseVtt} from '@remotion/captions';
+import {staticFile} from 'remotion';
+
+const response = await fetch(staticFile('subtitles.vtt'));
+const text = await response.text();
+const {captions} = parseVtt({input: text});
+```
 
 ## Using imported captions
 
@@ -62,5 +75,6 @@ Possible next steps:
 ## See also
 
 - [`parseSrt()`](/docs/captions/parse-srt) - API reference
+- [`parseVtt()`](/docs/captions/parse-vtt) - API reference
 - [Displaying captions](/docs/captions/displaying) - Render captions in your video
 - [`Caption`](/docs/captions/caption) - The caption data structure

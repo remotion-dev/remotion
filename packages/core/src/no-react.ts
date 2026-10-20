@@ -3,6 +3,11 @@ import type {
 	AudioOrVideoAsset as InternalAudioOrVideoAsset,
 	InlineAudioAsset,
 } from './CompositionManager';
+import {
+	evaluateSourceNumericValue,
+	evaluateSourcePropStatuses,
+} from './evaluate-source-expressions.js';
+import {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
 export type {ArtifactAsset, InlineAudioAsset} from './CompositionManager';
 
 // Older consumers can still supply assets without a pitch preference.
@@ -31,6 +36,11 @@ export {random} from './random.js';
 export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 
+import {
+	DEFAULT_PREMOUNT_IN_SECONDS,
+	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
+	validateDefaultPremountInSeconds,
+} from './default-premount-in-seconds';
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_CLEAR_TOKEN,
@@ -64,6 +74,12 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
+	DEFAULT_PREMOUNT_IN_SECONDS,
+	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	validateDefaultPremountInSeconds,
+	evaluateSourceNumericValue,
+	evaluateSourcePropStatuses,
 	processColor,
 	truthy,
 	validateFps,

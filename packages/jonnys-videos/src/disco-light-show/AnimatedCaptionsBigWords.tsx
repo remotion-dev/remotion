@@ -6,23 +6,20 @@ import {
 	Easing,
 	Interactive,
 	interpolate,
-	Sequence,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
 import {createSentenceAwareCaptionPages} from '../components/paginate-captions';
-import {asset} from './assets';
+import {VOICEOVER_CAPTIONS_SRC, VOICEOVER_SRC} from './voiceover';
 
-export const BIG_WORD_CAPTIONS_DURATION_IN_FRAMES = 1816;
+export const BIG_WORD_CAPTIONS_DURATION_IN_FRAMES = 1608;
 
-const VOICEOVER_FILE = 'text-behind-video-2.wav';
-const CAPTIONS_FILE = 'voiceover-captions.json';
 const FONT_FAMILY = 'Arial Black, Arial, sans-serif';
 const SWITCH_CAPTIONS_EVERY_MS = 1100;
 const HIGHLIGHT_COLOR = '#ff3b1f';
 
-const BigWordPage: React.FC<{page: TikTokPage}> = ({page}) => {
+const BigWordPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const absoluteTimeMs = page.startMs + (frame / fps) * 1000;
@@ -34,6 +31,7 @@ const BigWordPage: React.FC<{page: TikTokPage}> = ({page}) => {
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				alignItems: 'center',
 				justifyContent: 'center',
@@ -42,8 +40,7 @@ const BigWordPage: React.FC<{page: TikTokPage}> = ({page}) => {
 				pointerEvents: 'none',
 			}}
 		>
-			<Interactive.Div
-				name={`Caption page: ${page.text.trim()}`}
+			<div
 				style={{
 					alignItems: 'center',
 					display: 'flex',
@@ -107,12 +104,17 @@ const BigWordPage: React.FC<{page: TikTokPage}> = ({page}) => {
 						</div>
 					);
 				})}
-			</Interactive.Div>
+			</div>
 		</AbsoluteFill>
 	);
 };
 
-export const AnimatedCaptionsBigWords: React.FC = () => {
+const BigWordPage = Interactive.create({
+	Component: BigWordPageInner,
+	layout: 'absolute-fill',
+});
+
+const AnimatedCaptionsBigWordsInner: React.FC = () => {
 	const [captions, setCaptions] = useState<Caption[] | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading big word captions'));
@@ -120,7 +122,7 @@ export const AnimatedCaptionsBigWords: React.FC = () => {
 
 	const loadCaptions = useCallback(async () => {
 		try {
-			const response = await fetch(asset(CAPTIONS_FILE));
+			const response = await fetch(VOICEOVER_CAPTIONS_SRC);
 			if (!response.ok) {
 				throw new Error(`Could not load captions (${response.status})`);
 			}
@@ -153,8 +155,8 @@ export const AnimatedCaptionsBigWords: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill>
-			<Audio src={asset(VOICEOVER_FILE)} hidden showInTimeline={false} />
+		<>
+			<Audio src={VOICEOVER_SRC} hidden showInTimeline={false} />
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];
 				const startFrame = Math.round((page.startMs / 1000) * fps);
@@ -170,18 +172,21 @@ export const AnimatedCaptionsBigWords: React.FC = () => {
 				const durationInFrames = Math.max(1, endFrame - startFrame);
 
 				return (
-					<Sequence
+					<BigWordPage
 						key={`${page.startMs}-${index}`}
 						name={`Caption page: ${page.text.trim()}`}
 						from={startFrame}
 						durationInFrames={durationInFrames}
-						premountFor={fps}
 						showInTimeline={false}
-					>
-						<BigWordPage page={page} />
-					</Sequence>
+						page={page}
+					/>
 				);
 			})}
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const AnimatedCaptionsBigWords = Interactive.create({
+	Component: AnimatedCaptionsBigWordsInner,
+	layout: 'absolute-fill',
+});

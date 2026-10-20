@@ -53,3 +53,6 @@ export const EditorShowGuidesContext = createContext<GuideState>({
 	hoveredGuideId: null,
 	setHoveredGuideId: () => undefined,
 });
+
+export const EditorShowGuidesRefContext =
+	createContext<React.RefObject<GuideState> | null>(null);

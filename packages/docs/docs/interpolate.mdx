@@ -98,13 +98,14 @@ const scale = interpolate(frame, [0, 20], [0, 1]);
 ```
 
 This works, but after 20 frames, the value keeps growing. For example, at frame 40, the scale will be `2`.
-To prevent this, this we can use the `extrapolateLeft` and `extrapolateRight` options and set them to `'clamp'` to prevent the result going outside the output range.
+To prevent this, we can use the `extrapolateLeft` and `extrapolateRight` options and set them to `'clamp'` to prevent the result going outside the output range.
 
 ```tsx twoslash
 import {interpolate, useCurrentFrame} from 'remotion';
 const frame = useCurrentFrame();
 // ---cut---
 const scale = interpolate(frame, [0, 20], [0, 1], {
+  extrapolateLeft: 'clamp',
   extrapolateRight: 'clamp',
 });
 ```

@@ -12,6 +12,10 @@ export const lambdaRenderHasAudioVideo = <Provider extends CloudProvider>(
 		throw new Error('Cannot merge stills');
 	}
 
+	if (renderMetadata.type === 'sequence') {
+		return {hasAudio: false, hasVideo: true};
+	}
+
 	const support = NoReactAPIs.codecSupportsMedia(renderMetadata.codec);
 
 	const hasVideo = renderMetadata

@@ -7,10 +7,12 @@ const caret: React.CSSProperties = {
 
 const caretDown: React.CSSProperties = {
 	width: 10,
+	height: 12,
 };
 
 const caretDownSmall: React.CSSProperties = {
 	width: 7,
+	height: 8,
 };
 
 const angleDown: React.CSSProperties = {
@@ -31,10 +33,17 @@ export const CaretDown: React.FC<{
 	readonly small?: boolean;
 }> = ({color = CURRENT_COLOR, small = false}) => {
 	return (
-		<svg viewBox="0 0 448 512" style={small ? caretDownSmall : caretDown}>
+		<svg
+			viewBox={small ? '0 0 7 8' : '0 0 10 12'}
+			style={small ? caretDownSmall : caretDown}
+		>
 			<path
-				fill={color}
-				d="M235.3 411.3c-6.2 6.2-16.4 6.2-22.6 0l-208-208c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0L224 377.4 420.7 180.7c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6l-208 208z"
+				fill="none"
+				stroke={color}
+				strokeWidth="1"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				d={small ? 'M0.5 2.5L3.5 5.5L6.5 2.5' : 'M1 4L5 8L9 4'}
 			/>
 		</svg>
 	);

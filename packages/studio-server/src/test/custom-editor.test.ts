@@ -210,11 +210,19 @@ test.skipIf(process.platform === 'win32')(
 			});
 
 			expect(response).toEqual({success: true});
-			for (let attempt = 0; attempt < 100 && !existsSync(output); attempt++) {
+			const expectedArguments = `${source}:12:4\n`;
+			for (let attempt = 0; attempt < 100; attempt++) {
+				if (
+					existsSync(output) &&
+					readFileSync(output, 'utf8') === expectedArguments
+				) {
+					break;
+				}
+
 				await Bun.sleep(10);
 			}
 
-			expect(readFileSync(output, 'utf8')).toBe(`${source}:12:4\n`);
+			expect(readFileSync(output, 'utf8')).toBe(expectedArguments);
 		} finally {
 			rmSync(directory, {force: true, recursive: true});
 		}

@@ -35,7 +35,7 @@ import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
 import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
-import {useTimelineSelection} from './Timeline/TimelineSelection';
+import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
 
 const centeredContainer: React.CSSProperties = {
 	display: 'flex',
@@ -198,13 +198,50 @@ const CompWhenItHasDimensions: React.FC<{
 
 		const onPointerEnter = () => setCanvasHovered(true);
 		const onPointerLeave = () => setCanvasHovered(false);
+		const onDragOver = (event: DragEvent) => {
+			const rect = compositionContainer.getBoundingClientRect();
+			setCanvasHovered(
+				event.clientX >= rect.left &&
+					event.clientX <= rect.right &&
+					event.clientY >= rect.top &&
+					event.clientY <= rect.bottom,
+			);
+		};
+
+		const onDragLeave = (event: DragEvent) => {
+			if (
+				event.relatedTarget instanceof Node &&
+				compositionContainer.contains(event.relatedTarget)
+			) {
+				return;
+			}
+
+			onDragOver(event);
+		};
+
+		const onDragEnd = () => {
+			requestAnimationFrame(() =>
+				setCanvasHovered(compositionContainer.matches(':hover')),
+			);
+		};
+
 		setCanvasHovered(compositionContainer.matches(':hover'));
 		compositionContainer.addEventListener('pointerenter', onPointerEnter);
 		compositionContainer.addEventListener('pointerleave', onPointerLeave);
+		document.addEventListener('dragenter', onDragOver, {capture: true});
+		document.addEventListener('dragover', onDragOver, {capture: true});
+		document.addEventListener('dragleave', onDragLeave, {capture: true});
+		document.addEventListener('drop', onDragEnd, {capture: true});
+		document.addEventListener('dragend', onDragEnd, {capture: true});
 
 		return () => {
 			compositionContainer.removeEventListener('pointerenter', onPointerEnter);
 			compositionContainer.removeEventListener('pointerleave', onPointerLeave);
+			document.removeEventListener('dragenter', onDragOver, {capture: true});
+			document.removeEventListener('dragover', onDragOver, {capture: true});
+			document.removeEventListener('dragleave', onDragLeave, {capture: true});
+			document.removeEventListener('drop', onDragEnd, {capture: true});
+			document.removeEventListener('dragend', onDragEnd, {capture: true});
 		};
 	}, [canvasContent.type]);
 
@@ -381,8 +418,6 @@ const CompWhenItHasDimensions: React.FC<{
 				compositionHeight={(contentDimensions as Dimensions).height}
 				compositionWidth={(contentDimensions as Dimensions).width}
 				scale={scale}
-				translationX={previewSize.translation.x}
-				translationY={previewSize.translation.y}
 			/>
 		</div>
 	);
@@ -426,7 +461,7 @@ const PortalContainer: React.FC<{
 	readonly contentDimensions: Dimensions;
 }> = ({offscreen, scale, xCorrection, yCorrection, contentDimensions}) => {
 	const {checkerboard} = useContext(CheckerboardContext);
-	const {clearSelection} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const portalContainer = useRef<HTMLDivElement>(null);
 
 	const style = useMemo((): React.CSSProperties => {
@@ -482,9 +517,9 @@ const PortalContainer: React.FC<{
 				return;
 			}
 
-			clearSelection();
+			currentSelection.current.clearSelection();
 		},
-		[clearSelection],
+		[currentSelection],
 	);
 
 	useEffect(() => {

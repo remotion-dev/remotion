@@ -1,5 +1,5 @@
-import type {CodemodProject, CodemodResult} from './codemod-project';
-import {getCodemodResult} from './codemod-project';
+import type {JSXElement} from '@babel/types';
+import type {CodemodProject} from './codemod-project';
 import {
 	type CompositionTarget,
 	requireComposition,
@@ -8,6 +8,15 @@ import {
 	findJsxElementPathForDeletion,
 	getNodeSourceEdit,
 } from './delete-jsx-nodes-internal';
+import {
+	captureJsxNodePaths,
+	collectJsxSubtree,
+} from './get-node-path-remappings';
+import {
+	getNodeEditResult,
+	getSubtreeEditRemappings,
+	type CodemodNodeResult,
+} from './node-references';
 import {parseAst} from './sequence-props/parse-ast';
 import {applySourceEdits} from './source-edits';
 
@@ -18,7 +27,7 @@ export const deleteComposition = <Project extends CodemodProject>({
 	project,
 	compositionFile,
 	compositionId,
-}: DeleteCompositionOptions<Project>): CodemodResult => {
+}: DeleteCompositionOptions<Project>): CodemodNodeResult => {
 	const node = requireComposition({project, compositionFile, compositionId});
 	const input = project.files[node.filePath];
 	const ast = parseAst(input);
@@ -27,12 +36,26 @@ export const deleteComposition = <Project extends CodemodProject>({
 		throw new Error('Could not locate the composition to delete');
 	}
 
+	const before = captureJsxNodePaths(ast);
 	const output = applySourceEdits({
 		input,
 		edits: [getNodeSourceEdit({input, jsxPath})],
 	});
-	return getCodemodResult({
+	const nodePathRemappings = getSubtreeEditRemappings({
+		before,
+		after: captureJsxNodePaths(parseAst(output)),
+		subtrees: [
+			{
+				before: collectJsxSubtree(
+					before,
+					(jsxPath.node as JSXElement).openingElement,
+				),
+				after: new Set(),
+			},
+		],
+	});
+	return getNodeEditResult({
 		project,
-		edits: [{filePath: node.filePath, nextContents: output}],
+		edits: [{filePath: node.filePath, output, nodePathRemappings}],
 	});
 };

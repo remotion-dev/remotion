@@ -5,6 +5,7 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import type {BuiltInEditor} from '@remotion/renderer';
 import {defaultEditorIds} from '@remotion/renderer';
+import {getRunningProcesses, isAppRunning} from './running-processes';
 
 const execFilePromise = promisify(execFile);
 
@@ -668,4 +669,36 @@ let availableEditors: Promise<readonly InstalledEditor[]> | null = null;
 export const getAvailableEditors = () => {
 	availableEditors ??= discoverAvailableEditors(defaultDiscoveryContext);
 	return availableEditors;
+};
+
+export const getRunningEditors = async (
+	installedEditors: readonly InstalledEditor[],
+): Promise<readonly BuiltInEditor[]> => {
+	const {platform} = process;
+	if (
+		installedEditors.length === 0 ||
+		(platform !== 'darwin' && platform !== 'linux' && platform !== 'win32')
+	) {
+		return [];
+	}
+
+	const processes = await getRunningProcesses();
+	if (processes === null) {
+		return [];
+	}
+
+	return installedEditors
+		.filter((editor) =>
+			isAppRunning({
+				processes,
+				executablePath: editor.process,
+				commands: editorDefinitions[editor.id][platform]
+					.map((variant) =>
+						'commands' in variant ? variant.commands : [variant.command],
+					)
+					.flat(),
+				platform,
+			}),
+		)
+		.map(({id}) => id);
 };

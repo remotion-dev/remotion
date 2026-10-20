@@ -19,12 +19,12 @@ Adds a blurred shadow behind canvas-based components such as [`<Video>`](/docs/m
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+import {HtmlInCanvas} from 'remotion';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <HtmlInCanvas
         width={1280}
         height={720}
@@ -49,7 +49,7 @@ export const MyComp: React.FC = () => {
           Hello
         </div>
       </HtmlInCanvas>
-    </AbsoluteFill>
+    </>
   );
 };
 ```

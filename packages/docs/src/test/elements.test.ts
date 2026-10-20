@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'bun:test';
+import {describe, expect, mock, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import {createRequire} from 'module';
 import path from 'path';
@@ -15,6 +15,7 @@ import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
 import {createElementPayloadFromDefinition} from '../components/Elements/element-drag-data';
 import {
+	getElementCategoryHeadingId,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
@@ -24,9 +25,21 @@ import {
 	getElementDefinition,
 	getElementDimensionsLabel,
 } from '../components/Elements/element-utils';
-import {ElementLibrary} from '../components/Elements/ElementLibrary';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 import {Seo} from '../components/Seo';
+
+// Docusaurus generates these aliases at build time.
+mock.module('@docusaurus/Link', () => ({
+	default: ({to, ...props}: React.ComponentProps<'a'> & {to: string}) =>
+		React.createElement('a', {...props, href: to}),
+}));
+
+const collectedAnchors = new Set<string>();
+mock.module('@docusaurus/useBrokenLinks', () => ({
+	default: () => ({
+		collectAnchor: (anchor: string) => collectedAnchors.add(anchor),
+	}),
+}));
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
@@ -208,7 +221,7 @@ describe('Element MDX pages', () => {
 });
 
 describe('Element Library', () => {
-	test('injects the exact source files needed by each listing', () => {
+	test('injects source files into the overview and rejects missing sources', () => {
 		const completeSourceCodeBySlug = getRemotionElementSourceMap({
 			elementsRoot,
 		});
@@ -266,20 +279,6 @@ describe('Element Library', () => {
 			completeSourceCodeBySlug,
 		);
 
-		const storytelling = makeLibraryNode('storytelling');
-		remarkElementSource({elementRegistry})(
-			{type: 'root', children: [storytelling]},
-			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
-		);
-		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
-			'storytelling/on-screen-messages':
-				completeSourceCodeBySlug['storytelling/on-screen-messages'],
-			'storytelling/polaroid-pictures':
-				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
-			'text/news-article-highlight':
-				completeSourceCodeBySlug['text/news-article-highlight'],
-		});
-
 		const missingSource = makeLibraryNode(null);
 		expect(() =>
 			remarkElementSource({
@@ -297,8 +296,11 @@ describe('Element Library', () => {
 		).toThrow('Missing source pages: missing/source.');
 	});
 
-	test('renders cards and filters the real category entry points', () => {
+	test('renders cards and filters the real category entry points', async () => {
+		const {ElementLibrary} =
+			await import('../components/Elements/ElementLibrary');
 		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		collectedAnchors.clear();
 		const overviewMarkup = renderToStaticMarkup(
 			React.createElement(ElementLibrary, {
 				category: null,
@@ -314,6 +316,10 @@ describe('Element Library', () => {
 		}
 
 		for (const section of sections) {
+			const headingId = getElementCategoryHeadingId(section.category);
+			expect(overviewMarkup).toContain(`id="${headingId}"`);
+			expect(collectedAnchors.has(headingId)).toBe(true);
+
 			const categoryMarkup = renderToStaticMarkup(
 				React.createElement(ElementLibrary, {
 					category: section.category,
@@ -362,8 +368,7 @@ describe('Element Library', () => {
 			});
 			expect(legacy.version).toBe(1);
 			expect(legacy.element.initialProps).toMatchObject({
-				audioSrc:
-					'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+				src: 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 			});
 			expect(modern.version).toBe(2);
 			expect(modern.element.assets).toEqual([
@@ -374,7 +379,7 @@ describe('Element Library', () => {
 				},
 			]);
 			expect(modern.element.initialProps).toMatchObject({
-				audioSrc: {
+				src: {
 					__remotion_element_asset:
 						'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
 				},
@@ -631,9 +636,7 @@ describe('Element preview definitions', () => {
 		const adaptiveDefinition = getElementDefinition(
 			'backgrounds/paper-texture',
 		);
-		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe(
-			'Adapts to composition',
-		);
+		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe('Flexible');
 		expect(getElementPreviewDimensions(adaptiveDefinition)).toEqual({
 			height: 1080,
 			width: 1920,

@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import {SELECTED_OUTLINE_SNAP_COLOR} from '../helpers/colors';
 
 export type {
@@ -8,7 +8,7 @@ export type {
 	CanvasOutlineSnapResult as SelectedOutlineSnapResult,
 	CanvasOutlineSnapTarget as SelectedOutlineSnapTarget,
 	CanvasOutlineSnapTargetType as SelectedOutlineSnapTargetType,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 
 export const {
 	canvasOutlineSnapThresholdPx: selectedOutlineSnapThresholdPx,

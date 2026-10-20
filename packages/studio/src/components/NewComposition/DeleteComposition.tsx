@@ -32,7 +32,9 @@ const DeleteCompositionLoaded: React.FC<{
 
 	const {unresolved} = context;
 	const compositionStack = unresolved.stack ?? null;
-	const {compositions} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const selectComposition = useSelectComposition();
 	const navigationAfterDelete = useRef<
@@ -91,7 +93,9 @@ const DeleteCompositionLoaded: React.FC<{
 								currentCanvasContent?.type === 'composition' &&
 								currentCanvasContent.compositionId === compositionId;
 							const fallback = isSelected
-								? (compositions.find(({id}) => id !== compositionId) ?? null)
+								? (compositionManagerRef.current.compositions.find(
+										({id}) => id !== compositionId,
+									) ?? null)
 								: undefined;
 							navigationAfterDelete.current = fallback;
 

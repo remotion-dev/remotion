@@ -20,6 +20,7 @@ import {
 	getAdjacentJsxInsertionSourceEdit,
 	getJsxElementSourceForInsertion,
 } from './source-edits';
+import {getEndOfLine} from './source-style';
 
 const {namedTypes} = recast.types;
 
@@ -42,39 +43,39 @@ const getJsxChildrenParent = (
 	return null;
 };
 
-/* eslint-disable require-await -- Keep the formatter-era Promise API. */
-export const reorderSequence = async ({
+export const reorderSequences = ({
 	input,
-	sourceNodePath,
+	sourceNodePaths,
 	targetNodePath,
 	position,
 }: {
 	input: string;
-	sourceNodePath: SequenceNodePath;
+	sourceNodePaths: readonly SequenceNodePath[];
 	targetNodePath: SequenceNodePath;
 	position: ReorderSequencePosition;
-	// Kept optional for compatibility with callers from before source edits
-	// replaced the full-file formatting pass.
-	formatFile?: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
-	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
+}): {
 	output: string;
 	formatted: boolean;
 	sequenceLabel: string;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
-}> => {
+} => {
+	if (sourceNodePaths.length === 0) {
+		throw new Error('Cannot reorder an empty selection');
+	}
+
 	const ast = parseAst(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);
-	const sourcePath = findJsxElementPathForDeletion(ast, sourceNodePath);
-	if (!sourcePath) {
-		throw new Error(
-			'Could not find a JSX element at the source location to reorder sequence',
-		);
-	}
+	const sourcePaths = sourceNodePaths.map((sourceNodePath) => {
+		const sourcePath = findJsxElementPathForDeletion(ast, sourceNodePath);
+		if (!sourcePath) {
+			throw new Error(
+				'Could not find a JSX element at the source location to reorder sequence',
+			);
+		}
+
+		return sourcePath;
+	});
 
 	const targetPath = findJsxElementPathForDeletion(ast, targetNodePath);
 	if (!targetPath) {
@@ -83,48 +84,64 @@ export const reorderSequence = async ({
 		);
 	}
 
-	const sourceParent = getJsxChildrenParent(sourcePath);
 	const targetParent = getJsxChildrenParent(targetPath);
-	if (!sourceParent || !targetParent || sourceParent !== targetParent) {
+	if (
+		!targetParent ||
+		sourcePaths.some(
+			(sourcePath) => getJsxChildrenParent(sourcePath) !== targetParent,
+		)
+	) {
 		throw new Error(
-			'Cannot reorder sequence: source and target are not JSX siblings',
+			'Cannot reorder sequences: source and target are not JSX siblings',
 		);
 	}
 
-	const sourceElement = sourcePath.node as JSXElement;
+	const sourceElements = sourcePaths.map((path) => path.node as JSXElement);
 	const targetElement = targetPath.node as JSXElement;
-	if (sourceElement === targetElement) {
-		throw new Error('Cannot reorder sequence: source and target are identical');
+	const selectedElements = new Set(sourceElements);
+	if (selectedElements.size !== sourceElements.length) {
+		throw new Error('Cannot reorder the same sequence twice');
 	}
 
-	const {children} = sourceParent;
-	const sourceIndex = children.indexOf(sourceElement);
+	if (selectedElements.has(targetElement)) {
+		throw new Error('Cannot reorder sequences relative to a selected sequence');
+	}
+
+	const {children} = targetParent;
+	const orderedSources = sourceElements.sort(
+		(left, right) => children.indexOf(left) - children.indexOf(right),
+	);
 	const targetIndex = children.indexOf(targetElement);
-	if (sourceIndex === -1 || targetIndex === -1) {
+	if (
+		targetIndex === -1 ||
+		orderedSources.some((element) => children.indexOf(element) === -1)
+	) {
 		throw new Error('Cannot reorder sequence: JSX sibling was not found');
 	}
 
-	const sequenceLabel = getJsxElementTagLabel(sourceElement);
+	const sequenceLabel =
+		orderedSources.length === 1
+			? getJsxElementTagLabel(orderedSources[0])
+			: `${orderedSources.length} sequences`;
 	const logLine =
-		sourceElement.openingElement.loc?.start.line ??
-		sourceElement.loc?.start.line ??
+		orderedSources[0].openingElement.loc?.start.line ??
+		orderedSources[0].loc?.start.line ??
 		1;
 	const sourceEdits = [
-		getNodeSourceEdit({input, jsxPath: sourcePath}),
+		...sourcePaths.map((jsxPath) => getNodeSourceEdit({input, jsxPath})),
 		getAdjacentJsxInsertionSourceEdit({
 			input,
-			insertion: getJsxElementSourceForInsertion({
-				element: sourceElement,
-				input,
-			}),
+			insertion: orderedSources
+				.map((element) => getJsxElementSourceForInsertion({element, input}))
+				.join(getEndOfLine(input)),
 			position,
 			target: targetElement,
 		}),
 	];
 
-	const [moved] = children.splice(sourceIndex, 1);
-	if (!moved) {
-		throw new Error('Cannot reorder sequence: source sequence was not found');
+	const originalChildren = [...children];
+	for (const source of orderedSources) {
+		children.splice(children.indexOf(source), 1);
 	}
 
 	const targetIndexAfterRemoval = children.indexOf(targetElement);
@@ -137,8 +154,11 @@ export const reorderSequence = async ({
 			? targetIndexAfterRemoval
 			: targetIndexAfterRemoval + 1,
 		0,
-		moved,
+		...orderedSources,
 	);
+	if (children.every((child, index) => child === originalChildren[index])) {
+		throw new Error('These sequences are already in that position');
+	}
 
 	const output = applySourceEdits({edits: sourceEdits, input});
 	const {nodePathRemappings} = getNodePathRemappings({
@@ -155,4 +175,3 @@ export const reorderSequence = async ({
 		nodePathRemappings,
 	};
 };
-/* eslint-enable require-await */

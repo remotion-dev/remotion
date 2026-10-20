@@ -117,7 +117,7 @@ const getRepositoryRoot = (docsRoot: string): string => {
 	);
 };
 
-const getTrackedPackageJsonFiles = (repositoryRoot: string): string[] => {
+const getWorkspacePackageJsonFiles = (repositoryRoot: string): string[] => {
 	try {
 		const output = execFileSync(
 			'git',
@@ -126,13 +126,20 @@ const getTrackedPackageJsonFiles = (repositoryRoot: string): string[] => {
 				repositoryRoot,
 				'ls-files',
 				'-z',
+				'--cached',
+				'--others',
+				'--exclude-standard',
 				'--',
 				':(glob)packages/**/package.json',
 			],
 			{encoding: 'buffer', maxBuffer: 10 * 1024 * 1024},
 		);
 
-		return output.toString('utf8').split('\0').filter(Boolean).sort();
+		return output
+			.toString('utf8')
+			.split('\0')
+			.filter((path) => path && existsSync(join(repositoryRoot, path)))
+			.sort();
 	} catch {
 		return [];
 	}
@@ -206,7 +213,7 @@ const getTwoslashWorkspacePackages = (
 	const repositoryRoot = getRepositoryRoot(docsRoot);
 	const packages: Record<string, TwoslashWorkspacePackage> = {};
 
-	for (const relativePackageJsonPath of getTrackedPackageJsonFiles(
+	for (const relativePackageJsonPath of getWorkspacePackageJsonFiles(
 		repositoryRoot,
 	)) {
 		const packageJsonPath = join(repositoryRoot, relativePackageJsonPath);

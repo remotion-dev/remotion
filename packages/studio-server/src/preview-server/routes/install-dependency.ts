@@ -8,6 +8,7 @@ import {
 	type PackageInstallSpec,
 } from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
+import {getLocalPackageOverride} from '../../helpers/get-local-package-override';
 import {getInstallCommand} from '../../helpers/install-command';
 import {getPackageManagerSpawnOptions} from '../../helpers/package-manager-spawn-options';
 import type {ApiHandler} from '../api-types';
@@ -85,7 +86,15 @@ export const handleInstallPackage = async ({
 		}
 	}
 
-	const packagesWithVersions = dependencies.map(getPackageInstallSpec);
+	const packagesWithVersions = dependencies.map((dependency) => {
+		const localPackageOverride = getLocalPackageOverride({
+			remotionRoot,
+			packageName: dependency.name,
+		});
+		return localPackageOverride === null
+			? getPackageInstallSpec(dependency)
+			: `${dependency.name}@${localPackageOverride}`;
+	});
 	const command = getInstallCommand({
 		manager: manager.manager,
 		packages: packagesWithVersions,

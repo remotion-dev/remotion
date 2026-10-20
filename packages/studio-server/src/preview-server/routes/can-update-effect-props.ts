@@ -8,27 +8,23 @@ import type {
 	ObjectExpression,
 	ObjectProperty,
 } from '@babel/types';
+import {CodemodsInternals} from '@remotion/codemods';
 import type {
 	CanUpdateEffectPropsResponse,
 	CanUpdateSequencePropStatus,
 	SequenceNodePath,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
-import {parseAst} from '../../codemods/parse-ast';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	enumerateEffectArrayElements,
 	type EffectArrayElement,
 } from '../../codemods/update-effect-props/update-effect-props';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
-import {
-	getVideoConfigIdentifierValues,
-	type VideoConfigIdentifierValues,
-} from '../../helpers/video-config-values';
+import {type VideoConfigIdentifierValues} from '../../helpers/video-config-values';
 import {
 	extractStaticValue,
-	findJsxElementAtNodePath,
 	getComputedStatus,
 	isStaticValue,
 } from './can-update-sequence-props';
@@ -188,7 +184,10 @@ const getPropsFromObjectExpression = ({
 				? {
 						status: 'static',
 						keyframeDisplayOffsetAdjustment: null,
-						codeValue: numericExpression.value,
+						codeValue: NoReactInternals.evaluateSourceNumericValue(
+							numericExpression,
+							null,
+						),
 						...(numericExpression.type === 'literal'
 							? {}
 							: {numericExpression}),
@@ -294,43 +293,7 @@ export const computeEffectPropStatus = ({
 	};
 };
 
-export const computeEffectPropsStatusesFromContent = ({
-	fileContents,
-	sequenceNodePath,
-	effects,
-	keysFor,
-	videoConfigValues,
-}: {
-	fileContents: string;
-	sequenceNodePath: SequenceNodePath;
-	effects: InteractivitySchema[];
-	keysFor: (effect: InteractivitySchema) => string[];
-	videoConfigValues: VideoConfigValues | null;
-}): CanUpdateEffectPropsResponse[] => {
-	const ast = parseAst(fileContents);
-	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
-		ast,
-		videoConfigValues,
-	});
-	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
-	if (!jsx) {
-		return effects.map((_effect, effectIndex) => ({
-			canUpdate: false as const,
-			effectIndex,
-			reason: 'not-found' as const,
-		}));
-	}
-
-	return effects.map((effect, effectIndex) =>
-		computeEffectPropStatus({
-			ast,
-			jsx,
-			effectIndex,
-			keys: keysFor(effect),
-			videoConfigValues: videoConfigIdentifierValues,
-		}),
-	);
-};
+export const {computeEffectPropsStatusesFromContent} = CodemodsInternals;
 
 export const computeEffectPropsStatusesFromFile = ({
 	fileName,
@@ -338,14 +301,12 @@ export const computeEffectPropsStatusesFromFile = ({
 	effects,
 	keysFor,
 	remotionRoot,
-	videoConfigValues,
 }: {
 	fileName: string;
 	sequenceNodePath: SequenceNodePath;
 	effects: InteractivitySchema[];
 	keysFor: (effect: InteractivitySchema) => string[];
 	remotionRoot: string;
-	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateEffectPropsResponse[] => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
@@ -359,6 +320,5 @@ export const computeEffectPropsStatusesFromFile = ({
 		sequenceNodePath,
 		effects,
 		keysFor,
-		videoConfigValues,
 	});
 };

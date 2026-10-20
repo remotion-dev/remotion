@@ -5,10 +5,7 @@ import {getPreviewFileType} from './get-preview-file-type';
 import type {Dimensions} from './is-current-selected-still';
 import {getMediaMetadata, type MediaMetadata} from './use-media-metadata';
 
-export const remotion_outputsBase = window.remotion_staticBase.replace(
-	'static',
-	'outputs',
-);
+export const remotion_outputsBase = window.remotion_outputsBase ?? '';
 
 const getSrcFromCanvasContent = (
 	canvasContent: CanvasContent & {type: 'asset' | 'output'},

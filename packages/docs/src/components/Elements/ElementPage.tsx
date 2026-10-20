@@ -1,8 +1,9 @@
 import Head from '@docusaurus/Head';
+import Link from '@docusaurus/Link';
 import {
-	installInStudio,
 	isInsideStudio,
 	StudioProtocolInternals,
+	type InstallInStudioErrorCode,
 } from '@remotion/studio-protocol';
 import React, {
 	useCallback,
@@ -14,12 +15,18 @@ import React, {
 	useState,
 	type ReactNode,
 } from 'react';
-import {PlainButton} from '../../../components/layout/Button';
+import {createPortal} from 'react-dom';
+import {InlineStep} from '../../../components/InlineStep';
+import {ExternalLinkIcon} from '../../theme/DocBreadcrumbs/icons';
+import {Blank} from '../icons/blank';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
-import {createElementPayloadFromDefinition} from './element-drag-data';
+import {
+	createElementPayloadFromDefinition,
+	installElementInStudio,
+} from './element-drag-data';
+import {getElementCategoryHeadingId} from './element-library-data';
 import {getElementDimensionsLabel} from './element-utils';
-import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ElementPreview} from './ElementPreview';
 import {
 	ElementPreviewComposition,
@@ -34,7 +41,11 @@ type ElementPageProps = {
 	readonly sourceCode?: string;
 };
 
-type InstallStatus = {type: 'idle'} | {type: 'installing'} | {type: 'success'};
+type InstallStatus =
+	| {type: 'idle'}
+	| {type: 'installing'}
+	| {type: 'success'; message: string}
+	| {type: 'error'; code: InstallInStudioErrorCode | null; message: string};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
@@ -45,47 +56,45 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
-	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
-	const [installFailureCount, setInstallFailureCount] = useState(0);
 	const [isInstallHintVisible, setIsInstallHintVisible] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
-	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
-		useState(false);
 	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState<boolean | null>(
 		null,
 	);
 	const posterRef = useRef<HTMLImageElement>(null);
+	const sourceDialogRef = useRef<HTMLDialogElement>(null);
+	const sourceButtonRef = useRef<HTMLButtonElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
 
-	const elementPayload = useMemo(() => {
-		if (!sourceCode) {
-			return null;
-		}
-
-		return createElementPayloadFromDefinition({
-			definition,
-			sourceCode,
-			installAssets: false,
-		});
-	}, [definition, sourceCode]);
-
-	const assetPayload = useMemo(() => {
-		if (!sourceCode || definition.assets.length === 0) {
-			return null;
-		}
-
-		return createElementPayloadFromDefinition({
-			definition,
-			sourceCode,
-			installAssets: true,
-		});
-	}, [definition, sourceCode]);
-
 	useLayoutEffect(() => {
 		setIsEmbeddedInStudio(isInsideStudio());
 	}, []);
+
+	useEffect(() => {
+		if (!isSourceVisible) {
+			return;
+		}
+
+		const dialog = sourceDialogRef.current;
+		if (!dialog) {
+			return;
+		}
+
+		const sourceButton = sourceButtonRef.current;
+		const {overflow} = document.body.style;
+		document.body.style.overflow = 'hidden';
+		dialog.showModal();
+		return () => {
+			if (dialog.open) {
+				dialog.close();
+			}
+
+			document.body.style.overflow = overflow;
+			sourceButton?.focus();
+		};
+	}, [isSourceVisible]);
 
 	useEffect(() => {
 		if (installStatus.type !== 'installing') {
@@ -98,40 +107,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		return () => window.clearTimeout(timeout);
 	}, [installStatus.type]);
 
-	useEffect(() => {
-		const onKeyDown = (event: KeyboardEvent) => {
-			if (
-				event.repeat ||
-				!event.altKey ||
-				!event.shiftKey ||
-				event.ctrlKey ||
-				event.metaKey ||
-				event.code !== 'KeyB'
-			) {
-				return;
-			}
-
-			const {target} = event;
-			if (
-				target instanceof HTMLElement &&
-				(target.isContentEditable ||
-					target.tagName === 'INPUT' ||
-					target.tagName === 'SELECT' ||
-					target.tagName === 'TEXTAREA')
-			) {
-				return;
-			}
-
-			event.preventDefault();
-			setIsBrowserStudioActionVisible(true);
-		};
-
-		window.addEventListener('keydown', onKeyDown);
-		return () => window.removeEventListener('keydown', onKeyDown);
-	}, []);
-
 	const installElement = useCallback(async () => {
-		if (elementPayload === null) {
+		if (!sourceCode) {
 			return;
 		}
 
@@ -139,23 +116,24 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		setInstallStatus({type: 'installing'});
 
 		try {
-			const result = await installInStudio({
-				payload: assetPayload ?? elementPayload,
-				fallbackPayload: assetPayload === null ? undefined : elementPayload,
-			});
+			const result = await installElementInStudio({definition, sourceCode});
 			if (!result.success) {
-				setInstallStatus({type: 'idle'});
-				setInstallFailureCount((count) => count + 1);
-				setIsInstallFallbackOpen(true);
+				setInstallStatus({
+					type: 'error',
+					code: result.code,
+					message: result.message,
+				});
 				return;
 			}
 
-			setIsInstallFallbackOpen(false);
-			setInstallFailureCount(0);
 			if (isEmbeddedInStudio) {
 				setInstallStatus({type: 'idle'});
 			} else {
-				setInstallStatus({type: 'success'});
+				const {target} = result;
+				setInstallStatus({
+					type: 'success',
+					message: `Sent to Remotion Studio${target.projectName === null ? '' : ` (${target.projectName})`}. Confirm the installation destination in Studio.`,
+				});
 			}
 
 			if (window.location.origin === 'https://www.remotion.dev') {
@@ -164,22 +142,28 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				);
 			}
 		} catch {
-			setInstallStatus({type: 'idle'});
-			setInstallFailureCount((count) => count + 1);
-			setIsInstallFallbackOpen(true);
+			setInstallStatus({
+				type: 'error',
+				code: null,
+				message: 'Could not connect to Remotion Studio. Please try again.',
+			});
 		}
-	}, [assetPayload, definition.slug, elementPayload, isEmbeddedInStudio]);
+	}, [definition, isEmbeddedInStudio, sourceCode]);
 
 	const openInBrowserStudio = useCallback(() => {
-		if (elementPayload === null) {
+		if (!sourceCode) {
 			return;
 		}
 
 		StudioProtocolInternals.openInBrowserStudio({
 			endpoint: null,
-			payload: elementPayload,
+			payload: createElementPayloadFromDefinition({
+				definition,
+				sourceCode,
+				installAssets: false,
+			}),
 		});
-	}, [elementPayload]);
+	}, [definition, sourceCode]);
 
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
@@ -187,6 +171,12 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
+			<Link
+				className={styles.catalogLink}
+				to={`/elements/#${getElementCategoryHeadingId(definition.category)}`}
+			>
+				← All Elements
+			</Link>
 			<img
 				ref={posterRef}
 				alt=""
@@ -203,8 +193,9 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				})}
 			</Head>
 			<section aria-label="Preview" className={styles.previewColumn}>
-				<div className={styles.previewAndSource}>
+				<div className={styles.previewSurface}>
 					<ElementPreview
+						backgroundTheme={definition.preview.backgroundTheme}
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
 						elementHeight={definition.elementHeight}
@@ -218,34 +209,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						previewLayout={definition.preview.previewLayout}
 						safeArea={definition.safeArea}
 					/>
-					{children ? (
-						<div className={styles.sourceArea}>
-							<div
-								aria-label="Element source code"
-								className={`${styles.sourceViewport} ${
-									isSourceVisible ? '' : styles.sourceViewportCollapsed
-								}`}
-								id={sourceId}
-								inert={!isSourceVisible}
-								role="region"
-							>
-								{children}
-							</div>
-							{isSourceVisible ? null : (
-								<div className={styles.sourceReveal}>
-									<button
-										aria-controls={sourceId}
-										aria-expanded={isSourceVisible}
-										className={styles.sourceToggle}
-										onClick={() => setIsSourceVisible(true)}
-										type="button"
-									>
-										View code
-									</button>
-								</div>
-							)}
-						</div>
-					) : null}
 				</div>
 			</section>
 
@@ -254,52 +217,133 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				className={styles.actionsColumn}
 			>
 				<div>
-					{elementPayload === null ? null : (
+					{sourceCode ? (
 						<>
 							<div className={styles.actionRow}>
 								<ElementStudioAction
 									buttonLabel={
 										installStatus.type === 'success' ? 'Sent to Studio' : 'Use'
 									}
+									definition={definition}
 									loading={installStatus.type === 'installing'}
 									onClick={installElement}
-									payload={elementPayload}
 									posterRef={posterRef}
-									showDragHandle={isEmbeddedInStudio === false}
-									title={
-										isEmbeddedInStudio
-											? 'Use this Element in Studio'
-											: 'Install in the most recently focused Remotion Studio'
+									showDragHandle={
+										isEmbeddedInStudio === false ||
+										(installStatus.type === 'error' &&
+											installStatus.code === 'no-installable-target')
 									}
+									sourceCode={sourceCode}
 								/>
-								{isBrowserStudioActionVisible ? (
-									<PlainButton
-										fullWidth
-										loading={false}
-										onClick={openInBrowserStudio}
-										size="sm"
-										style={{padding: '7px 12px'}}
-									>
-										Open in Browser Studio
-									</PlainButton>
-								) : null}
 							</div>
-							{installStatus.type === 'installing' && isInstallHintVisible ? (
-								<p aria-live="polite" className={styles.installingStatus}>
-									If your browser prompts you, allow local network access so
-									this page can find Remotion Studio.
+							{installStatus.type === 'error' &&
+							(installStatus.code === 'no-compatible-studio' ||
+								installStatus.code === 'no-installable-target') ? (
+								<div aria-live="polite" className={styles.studioGuidance}>
+									{installStatus.code === 'no-installable-target' ? (
+										<>
+											<p className={styles.studioGuidanceTitle}>
+												No installation destination found
+											</p>
+											<p className={styles.studioGuidanceText}>
+												Drag the <strong>Use</strong> button above into your
+												open <a href="/docs/studio">Remotion Studio</a> instead.
+											</p>
+											<p className={styles.studioGuidanceText}>
+												Or focus a destination in Studio, then click{' '}
+												<strong>Use</strong> again.
+											</p>
+										</>
+									) : (
+										<>
+											<p className={styles.studioGuidanceTitle}>
+												Connect to Remotion Studio
+											</p>
+											<ol className={styles.studioGuidanceSteps} role="list">
+												<li>
+													<InlineStep>1</InlineStep>
+													<span>
+														Open your Remotion project, or{' '}
+														<a href="/docs/">create a new one</a>, and{' '}
+														<a href="/docs/studio">start Studio</a>.
+													</span>
+												</li>
+												<li>
+													<InlineStep>2</InlineStep>
+													<span>
+														Return here and click <strong>Use</strong> again.
+													</span>
+												</li>
+											</ol>
+										</>
+									)}
+								</div>
+							) : installStatus.type !== 'idle' &&
+							  (installStatus.type !== 'installing' ||
+									isInstallHintVisible) ? (
+								<p
+									aria-live="polite"
+									className={
+										installStatus.type === 'installing'
+											? styles.installingStatus
+											: installStatus.type === 'success'
+												? styles.successStatus
+												: styles.errorStatus
+									}
+								>
+									{installStatus.type === 'installing'
+										? 'If your browser prompts you, allow local network access so this page can find Remotion Studio.'
+										: installStatus.message}
 								</p>
 							) : null}
 						</>
-					)}
+					) : null}
+
+					{children || sourceCode ? (
+						<div className={styles.secondaryActions}>
+							{children ? (
+								<button
+									ref={sourceButtonRef}
+									aria-controls={sourceId}
+									aria-haspopup="dialog"
+									className={styles.secondaryAction}
+									onClick={() => setIsSourceVisible(true)}
+									type="button"
+								>
+									<span
+										aria-hidden="true"
+										className={styles.secondaryActionIcon}
+									>
+										<Blank height={16} width={16} />
+									</span>
+									View code
+								</button>
+							) : null}
+							{sourceCode ? (
+								<button
+									aria-label="Try this Element in Browser Studio in a new tab"
+									className={styles.secondaryAction}
+									onClick={openInBrowserStudio}
+									type="button"
+								>
+									<span
+										aria-hidden="true"
+										className={styles.secondaryActionIcon}
+									>
+										<ExternalLinkIcon size={16} />
+									</span>
+									Try in remotion.dev/new
+								</button>
+							) : null}
+						</div>
+					) : null}
 
 					<div className={styles.details}>
 						<p className={styles.description}>{description}</p>
 						{definition.category === 'captions' ? (
 							<p className={styles.description} style={{marginTop: 8}}>
-								Have captions?{' '}
 								<a href="/elements/captions/#importing-captions-into-studio">
-									Import captions from JSON or SRT in Studio.
+									How to use caption elements
 								</a>
 							</p>
 						) : null}
@@ -373,21 +417,55 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					) : null}
 				</div>
 			</aside>
-			{elementPayload === null || sourceCode === undefined ? null : (
-				<ElementInstallFallbackModal
-					installFailureCount={installFailureCount}
-					isInstalling={installStatus.type === 'installing'}
-					isOpen={isInstallFallbackOpen}
-					onClose={() => {
-						setIsInstallFallbackOpen(false);
-						setInstallFailureCount(0);
-					}}
-					onInstall={installElement}
-					payload={elementPayload}
-					posterRef={posterRef}
-					sourceCode={sourceCode}
-				/>
-			)}
+			{isSourceVisible && children
+				? createPortal(
+						<dialog
+							ref={sourceDialogRef}
+							aria-labelledby={`${sourceId}-title`}
+							className={styles.sourceDialog}
+							id={sourceId}
+							onCancel={(event) => {
+								event.preventDefault();
+								setIsSourceVisible(false);
+							}}
+							onClick={(event) => {
+								if (event.target !== event.currentTarget) {
+									return;
+								}
+
+								const bounds = event.currentTarget.getBoundingClientRect();
+								if (
+									event.clientX < bounds.left ||
+									event.clientX > bounds.right ||
+									event.clientY < bounds.top ||
+									event.clientY > bounds.bottom
+								) {
+									setIsSourceVisible(false);
+								}
+							}}
+						>
+							<div className={styles.sourceDialogHeader}>
+								<h2
+									className={styles.sourceDialogTitle}
+									id={`${sourceId}-title`}
+								>
+									Element source code
+								</h2>
+								<button
+									className={styles.secondaryAction}
+									onClick={() => setIsSourceVisible(false)}
+									type="button"
+								>
+									Close
+								</button>
+							</div>
+							<div className={styles.sourceViewport} tabIndex={0}>
+								{children}
+							</div>
+						</dialog>,
+						document.body,
+					)
+				: null}
 		</div>
 	);
 };

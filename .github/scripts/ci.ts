@@ -5,7 +5,7 @@ export const CI_PLAN_SCHEMA_VERSION = 2;
 export type BuildMatrix = {
 	include: Array<{
 		os: 'ubuntu-latest' | 'windows-latest' | 'macos-latest';
-		node_version: 16 | 25;
+		node_version: 16 | 26;
 		run_build: boolean;
 	}>;
 };
@@ -14,7 +14,7 @@ export const FULL_BUILD_MATRIX: BuildMatrix = {
 	include: [
 		{os: 'ubuntu-latest', node_version: 16, run_build: true},
 		{os: 'windows-latest', node_version: 16, run_build: true},
-		{os: 'macos-latest', node_version: 25, run_build: true},
+		{os: 'macos-latest', node_version: 26, run_build: true},
 	],
 };
 
@@ -159,7 +159,7 @@ export const validateCiPlan = (value: unknown): CiPlan => {
 	for (const entry of matrix.include) {
 		if (
 			!['ubuntu-latest', 'windows-latest', 'macos-latest'].includes(entry.os) ||
-			![16, 25].includes(entry.node_version) ||
+			![16, 26].includes(entry.node_version) ||
 			typeof entry.run_build !== 'boolean'
 		) {
 			throw new Error('CI plan contains an invalid build matrix entry');

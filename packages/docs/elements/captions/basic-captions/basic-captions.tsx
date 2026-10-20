@@ -11,14 +11,13 @@ import {
 } from 'remotion';
 
 type BasicCaptionsProps = InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-const defaultCombineTokensWithinMilliseconds = 2000;
+const defaultCombineTokensWithinMilliseconds = 3000;
 const defaultWidth = 900;
-const defaultHeight = 220;
 
 const basicCaptionsSchema = {
 	...Interactive.captionsSchema,
@@ -28,14 +27,6 @@ const basicCaptionsSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Caption area width',
-		hiddenFromList: false,
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
 		hiddenFromList: false,
 	},
 	combineTokensWithinMilliseconds: {
@@ -51,7 +42,6 @@ const basicCaptionsSchema = {
 const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	height = defaultHeight,
 	style,
 	width = defaultWidth,
 }) => {
@@ -78,9 +68,7 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 				alignItems: 'center',
 				display: 'flex',
 				justifyContent: 'center',
-				marginInline: 'auto',
 				width,
-				height,
 				...style,
 			}}
 		>
@@ -89,17 +77,13 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 					style={{
 						backgroundColor: 'rgba(64, 64, 64, 0.75)',
 						color: '#ffffff',
-						display: '-webkit-box',
 						fontFamily: 'Arial, Helvetica, sans-serif',
 						fontSize: 64,
 						fontWeight: 400,
 						lineHeight: 1.2,
-						overflow: 'hidden',
 						padding: '14px 22px',
 						textAlign: 'center',
 						textWrap: 'balance',
-						WebkitBoxOrient: 'vertical',
-						WebkitLineClamp: 2,
 						whiteSpace: 'pre-wrap',
 					}}
 				>
@@ -110,9 +94,8 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 	);
 };
 
-export const BasicCaptions = Interactive.withSchema({
+export const BasicCaptions = Interactive.create({
 	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
 	schema: basicCaptionsSchema,
-	wrapInSequence: true,
 });

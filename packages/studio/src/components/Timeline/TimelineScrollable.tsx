@@ -10,6 +10,7 @@ import {
 	TIMELINE_BACKGROUND,
 	useTimelineMarqueeSelection,
 } from './TimelineSelection';
+import {TimelineSnapIndicator} from './TimelineSnapIndicator';
 import {TimelineViewportProvider} from './TimelineViewport';
 
 const outer: React.CSSProperties = {
@@ -54,6 +55,7 @@ export const TimelineScrollable: React.FC<{
 				<div style={containerStyle}>{children}</div>
 			</TimelineViewportProvider>
 			<TimelineAssetDropIndicator />
+			<TimelineSnapIndicator />
 			{marqueeRect === null ? null : (
 				<div
 					style={{

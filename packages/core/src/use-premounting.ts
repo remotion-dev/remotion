@@ -1,5 +1,6 @@
 import {useContext, useMemo} from 'react';
 import type React from 'react';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {getSequenceBoundaryTolerance} from './get-sequence-boundary-tolerance.js';
 import {PremountContext} from './PremountContext.js';
 import {SequenceContext} from './SequenceContext.js';
@@ -7,7 +8,6 @@ import {useTimelinePosition} from './timeline-position-state.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
-import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 
 export const usePremounting = ({
 	from,
@@ -33,9 +33,9 @@ export const usePremounting = ({
 		useCurrentFrame() - parentPremountContext.premountFramesRemaining;
 	const environment = useRemotionEnvironment();
 	const {fps} = useVideoConfig();
-	const effectivePremountFor = ENABLE_V5_BREAKING_CHANGES
-		? (premountFor ?? fps)
-		: (premountFor ?? 0);
+	const defaultPremountInSeconds = useContext(DefaultPremountContext);
+	const effectivePremountFor =
+		premountFor ?? Math.round(defaultPremountInSeconds * fps);
 	const effectivePostmountFor = postmountFor ?? 0;
 	const endExclusive = from + durationInFrames;
 	const sequenceContext = useContext(SequenceContext);

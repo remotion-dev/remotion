@@ -1,8 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
-export const Compilation: React.FC = () => {
+const CompilationInner: React.FC = () => {
 	return (
 		<>
 			<Video
@@ -20,3 +21,8 @@ export const Compilation: React.FC = () => {
 		</>
 	);
 };
+
+export const Compilation = Interactive.create({
+	Component: CompilationInner,
+	layout: 'absolute-fill',
+});

@@ -46,6 +46,7 @@ const renderWithCaptionJob = (job: CaptionJob) => {
 };
 
 const baseJob = {
+	captionStyle: null,
 	id: 'caption-job',
 	type: 'caption',
 	startedAt: 0,

@@ -1,0 +1,51 @@
+---
+image: /generated/articles-docs-sdk-get-canvas-sequence-reorder-insertion-index.png
+title: getCanvasSequenceReorderInsertionIndex()
+crumb: '@remotion/sdk'
+---
+
+# getCanvasSequenceReorderInsertionIndex()<AvailableFrom v="4.0.533" />
+
+Calculates where a dragged group lands after removing its selected siblings. Returns `null` for a drop on the selection, a negative or duplicate source index, or a move that leaves a contiguous group in place.
+
+```ts twoslash title="get-insertion-index.ts"
+import {getCanvasSequenceReorderInsertionIndex} from '@remotion/sdk';
+
+const insertionIndex = getCanvasSequenceReorderInsertionIndex({
+  sourceIndexes: [0, 2],
+  targetIndex: 4,
+  position: 'before',
+});
+
+// 2: after removing indexes 0 and 2, insert before the original index 4.
+console.log(insertionIndex);
+```
+
+Indexes must describe siblings in the same order. This helper does not check whether the JSX nodes are direct siblings; [`reorderNodes()`](/docs/codemods/reorder-nodes) validates that against source code.
+
+## Options
+
+### sourceIndexes
+
+The indexes of the selected siblings to move.
+
+### targetIndex
+
+The index of the drop target in the original sibling list.
+
+### position
+
+Either `'before'` or `'after'` the target.
+
+## Return value
+
+The insertion index in the sibling list after the selected items are removed, or `null` for an invalid or unchanged move.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasSequenceReorderSelection()`](/docs/sdk/get-canvas-sequence-reorder-selection)
+- [`reorderNodes()`](/docs/codemods/reorder-nodes)

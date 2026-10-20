@@ -55,7 +55,6 @@ export const subscribeToSequenceProps: ApiHandler<
 				assetKeys,
 				effects,
 				clientId,
-				videoConfigValues,
 			},
 			index,
 		) =>
@@ -71,7 +70,7 @@ export const subscribeToSequenceProps: ApiHandler<
 				effects,
 				remotionRoot,
 				clientId,
-				videoConfigValues,
+
 				logLevel,
 			}),
 	);

@@ -7,11 +7,13 @@ export const sendTelemetryEvent = async ({
 	logLevel,
 	isStill,
 	isProduction,
+	idempotencyKey,
 }: {
 	licenseKey: string | null;
 	logLevel: LogLevel;
 	isStill: boolean;
 	isProduction: boolean;
+	idempotencyKey: string;
 }) => {
 	if (licenseKey === null) {
 		return Promise.resolve();
@@ -26,6 +28,7 @@ export const sendTelemetryEvent = async ({
 			succeeded: true,
 			isStill,
 			isProduction,
+			idempotencyKey,
 		});
 		RenderInternals.Log.info({indent: false, logLevel}, 'Telemetry event sent');
 	} catch (err) {

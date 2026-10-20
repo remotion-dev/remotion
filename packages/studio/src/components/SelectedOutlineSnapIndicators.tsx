@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {useLayoutEffect, useState} from 'react';
 import {
 	selectedOutlineSnapIndicatorColor,

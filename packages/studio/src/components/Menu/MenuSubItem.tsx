@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {LIGHT_TEXT, TRANSPARENT, WHITE_ALPHA_06} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
+import {observeHover} from '../../helpers/observe-hover';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
@@ -89,6 +90,8 @@ export const MenuSubItem: React.FC<{
 	disabled,
 }) => {
 	const [hovered, setHovered] = useState(false);
+	const hoveredRef = useRef(false);
+	const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const ref = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
@@ -113,28 +116,47 @@ export const MenuSubItem: React.FC<{
 			}
 
 			if (subMenu) {
+				onItemSelected(id);
 				setSubMenuActivated('with-mouse');
-				setHovered(true);
 				return;
 			}
 
 			onActionChosen(id, e);
 		},
-		[disabled, id, onActionChosen, setSubMenuActivated, subMenu],
+		[
+			disabled,
+			id,
+			onActionChosen,
+			onItemSelected,
+			setSubMenuActivated,
+			subMenu,
+		],
 	);
 
-	const onPointerEnter = useCallback(() => {
-		if (disabled) {
+	useEffect(() => {
+		const element = ref.current;
+		hoveredRef.current = false;
+		setHovered(false);
+		if (!element || disabled) {
 			return;
 		}
 
-		onItemSelected(id);
-		setHovered(true);
-	}, [disabled, id, onItemSelected]);
+		return observeHover({
+			element,
+			onHoverChange: (isHovered) => {
+				hoveredRef.current = isHovered;
+				if (!isHovered && hoverTimer.current !== null) {
+					clearTimeout(hoverTimer.current);
+					hoverTimer.current = null;
+				}
 
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
+				setHovered(isHovered);
+				if (isHovered) {
+					onItemSelected(id);
+				}
+			},
+		});
+	}, [disabled, id, onItemSelected]);
 
 	const onQuitSubmenu = useCallback(() => {
 		setSubMenuActivated(false);
@@ -166,15 +188,23 @@ export const MenuSubItem: React.FC<{
 	}, [mobileLayout, selected, size, subMenu, subMenuActivated]);
 
 	useEffect(() => {
-		if (!hovered || !subMenu) {
+		if (!hovered || !selected || !subMenu || disabled) {
 			return;
 		}
 
-		const hi = setTimeout(() => {
-			setSubMenuActivated('with-mouse');
+		hoverTimer.current = setTimeout(() => {
+			hoverTimer.current = null;
+			if (hoveredRef.current && ref.current?.matches(':hover')) {
+				setSubMenuActivated('with-mouse');
+			}
 		}, 100);
-		return () => clearTimeout(hi);
-	}, [hovered, selected, setSubMenuActivated, subMenu]);
+		return () => {
+			if (hoverTimer.current !== null) {
+				clearTimeout(hoverTimer.current);
+				hoverTimer.current = null;
+			}
+		};
+	}, [disabled, hovered, selected, setSubMenuActivated, subMenu]);
 
 	useEffect(() => {
 		if (selected) {
@@ -189,8 +219,6 @@ export const MenuSubItem: React.FC<{
 		<div
 			ref={ref}
 			aria-label={typeof label === 'string' ? label : undefined}
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
 			style={style}
 			onPointerUp={onPointerUp}
 			role="button"

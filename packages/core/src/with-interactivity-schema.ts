@@ -25,13 +25,17 @@ import {
 	extendSchemaWithSequenceName,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {
+	OptimisticSequenceDeletion,
+	usePendingSequenceDeletions,
+} from './optimistic-sequence-deletion.js';
 import {createRuntimeValueStore} from './runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
-	VisualModeDragOverridesContext,
+	useDragOverridesForNodePath,
 	VisualModePropStatusesContext,
 } from './SequenceManager.js';
-import {useCurrentFrame} from './use-current-frame.js';
+import {useCurrentFrameWithOptionalSubscription} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
@@ -66,7 +70,11 @@ export const getRuntimeValueForSchemaKey = ({
 }): unknown => {
 	const value = getNestedValue(props, key);
 
-	if (flatSchema[key]?.type === 'text-content' && typeof value !== 'string') {
+	if (
+		(flatSchema[key]?.type === 'string' ||
+			flatSchema[key]?.type === 'text-content') &&
+		typeof value !== 'string'
+	) {
 		return undefined;
 	}
 
@@ -112,7 +120,11 @@ export const mergeValues = ({
 
 	for (const key of schemaKeys) {
 		const value = valuesDotNotation[key];
-		if (flatSchema[key]?.type === 'text-content' && value === undefined) {
+		if (
+			(flatSchema[key]?.type === 'string' ||
+				flatSchema[key]?.type === 'text-content') &&
+			value === undefined
+		) {
 			continue;
 		}
 
@@ -145,7 +157,8 @@ export const mergeValues = ({
 		[...propsToDelete].filter(
 			(key) =>
 				!(
-					flatSchema[key]?.type === 'text-content' &&
+					(flatSchema[key]?.type === 'string' ||
+						flatSchema[key]?.type === 'text-content') &&
 					valuesDotNotation[key] === undefined
 				),
 		),
@@ -154,8 +167,6 @@ export const mergeValues = ({
 
 	return merged;
 };
-
-const stackToOverrideMap: Record<string, string> = {};
 
 export type WithInteractivitySchemaOptions<
 	S extends InteractivitySchema,
@@ -183,7 +194,7 @@ export const DisableInteractivityProvider: React.FC<{
 	);
 };
 
-// Authoring surfaces outside the Studio, such as @remotion/canvas, opt into
+// Authoring surfaces outside the Studio, such as @remotion/sdk, opt into
 // populating `controls` and applying Visual Mode overrides.
 const EnableInteractivityContext = createContext(false);
 
@@ -211,6 +222,9 @@ export const withInteractivitySchema = <
 	const schemaWithSequenceName = extendSchemaWithSequenceName(schema);
 	const flatSchema = getFlatSchemaWithAllKeys(schemaWithSequenceName);
 	const flatKeys = Object.keys(flatSchema);
+	// A structural edit can put a different component at the same stack.
+	// Only reuse overrides for instances of this component.
+	const stackToOverrideMap: Record<string, string> = {};
 
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const {
@@ -219,6 +233,7 @@ export const withInteractivitySchema = <
 		} = props as Props & {readonly _remotionInternalStack?: string};
 		const cleanProps = propsWithoutInternalStack as Props;
 		const env = useRemotionEnvironment();
+		const pendingDeletions = usePendingSequenceDeletions();
 		const canUseRemotionHooks = useContext(CanUseRemotionHooks);
 		const disableInteractivity = useContext(DisableInteractivityContext);
 		const enableInteractivity = useContext(EnableInteractivityContext);
@@ -242,11 +257,7 @@ export const withInteractivitySchema = <
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {propStatuses} = useContext(VisualModePropStatusesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const {getDragOverrides} = useContext(VisualModeDragOverridesContext);
-		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const frame = useCurrentFrame();
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const videoConfig = useUnsafeVideoConfig();
 		const durationInFrames = videoConfig?.durationInFrames;
@@ -270,17 +281,30 @@ export const withInteractivitySchema = <
 			[durationInFrames, fps, height, width],
 		);
 
-		// If the parent has passed `controls`, we should not override it.
+		// Keep parent controls intact when adding missing source information.
 		// @ts-expect-error
-		if (cleanProps.controls) {
-			// @ts-expect-error `controls` is injected by another interactive wrapper.
-			const passedControls = cleanProps.controls as SequenceControls;
-			if (getStackForControls(passedControls) === null) {
-				setStackForControls(passedControls, internalStack);
+		const passedControls = cleanProps.controls as
+			| SequenceControls
+			| null
+			| undefined;
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const resolvedPassedControls = useMemo(() => {
+			if (
+				!passedControls ||
+				getStackForControls(passedControls) !== null ||
+				internalStack === undefined
+			) {
+				return passedControls;
 			}
 
+			const controlsWithStack = {...passedControls};
+			setStackForControls(controlsWithStack, internalStack);
+			return controlsWithStack;
+		}, [internalStack, passedControls]);
+		if (resolvedPassedControls) {
 			return React.createElement(Component, {
 				...cleanProps,
+				controls: resolvedPassedControls,
 				ref,
 			} as unknown as Props & {
 				controls: SequenceControls | undefined;
@@ -306,6 +330,28 @@ export const withInteractivitySchema = <
 		const nodePath = env.isReadOnlyStudio
 			? null
 			: (nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const dragOverrides = useDragOverridesForNodePath(nodePath);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const propStatus = useMemo(
+			() =>
+				nodePath === null
+					? undefined
+					: getPropStatusesCtx(propStatuses, {
+							...nodePath,
+							videoConfigValues,
+						}),
+			[nodePath, propStatuses, videoConfigValues],
+		);
+		// Runtime props already update through their owner. Only overrides with
+		// keyframes need this wrapper to subscribe to the advancing clock.
+		const needsFrame = flatKeys.some(
+			(key) =>
+				propStatus?.[key]?.status === 'keyframed' ||
+				dragOverrides[key]?.type === 'keyframed',
+		);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const frame = useCurrentFrameWithOptionalSubscription(needsFrame);
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable
@@ -342,7 +388,7 @@ export const withInteractivitySchema = <
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const controls = useMemo((): SequenceControls => {
-			return {
+			const controlsForRender = {
 				schema: schemaWithSequenceName,
 				currentRuntimeValueDotNotation,
 				runtimeValues: runtimeValueStore.store,
@@ -352,13 +398,22 @@ export const withInteractivitySchema = <
 				componentIdentity,
 				componentName,
 			};
+			setStackForControls(controlsForRender, internalStack);
+			return controlsForRender;
 		}, [
 			currentRuntimeValueDotNotation,
+			internalStack,
 			overrideId,
 			runtimeValueStore.store,
 			videoConfigValues,
 		]);
-		setStackForControls(controls, internalStack);
+
+		// Keep source identities available to parents that inspect their children
+		// before rendering them (Series and TransitionSeries).
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			OptimisticSequenceDeletion.register(internalStack ?? null, nodePath);
+		}, [internalStack, nodePath]);
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -366,20 +421,11 @@ export const withInteractivitySchema = <
 			return computeEffectiveSchemaValuesDotNotation({
 				schema: schemaWithSequenceName,
 				currentValue: currentRuntimeValueDotNotation,
-				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
-				propStatus:
-					nodePath === null
-						? undefined
-						: getPropStatusesCtx(propStatuses, nodePath),
+				overrideValues: dragOverrides,
+				propStatus,
 				frame,
 			});
-		}, [
-			currentRuntimeValueDotNotation,
-			getDragOverrides,
-			nodePath,
-			propStatuses,
-			frame,
-		]);
+		}, [currentRuntimeValueDotNotation, dragOverrides, propStatus, frame]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.
 		const activeKeys = selectActiveKeys(
@@ -395,6 +441,10 @@ export const withInteractivitySchema = <
 			schemaKeys: activeKeys,
 			propsToDelete,
 		});
+
+		if (OptimisticSequenceDeletion.isDeleted(nodePath, pendingDeletions)) {
+			return null;
+		}
 
 		return React.createElement(Component, {
 			...mergedProps,

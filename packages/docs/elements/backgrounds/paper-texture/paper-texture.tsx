@@ -1,10 +1,16 @@
 import {paper} from '@remotion/effects/paper';
 import React from 'react';
-import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	interpolate,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
-export const PaperTexture: React.FC = () => {
+const PaperTextureInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {height, width} = useVideoConfig();
+	const {durationInFrames, height, width} = useVideoConfig();
 
 	return (
 		<Solid
@@ -15,7 +21,7 @@ export const PaperTexture: React.FC = () => {
 				paper({
 					colorFront: 'white',
 					colorBack: 'white',
-					seed: interpolate(frame, [0, 120], [0, 1000], {
+					seed: interpolate(frame, [0, durationInFrames], [0, 1000], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						posterize: 30,
@@ -25,3 +31,8 @@ export const PaperTexture: React.FC = () => {
 		/>
 	);
 };
+
+export const PaperTexture = Interactive.create({
+	Component: PaperTextureInner,
+	layout: 'absolute-fill',
+});

@@ -70,51 +70,25 @@ type RecordingState = {
 	isFinalizing: boolean;
 };
 
-export type HtmlInCanvasElementImage = {
-	readonly width: number;
-	readonly height: number;
-	close: () => void;
-};
-
-type DrawElementImageSource = Element | HtmlInCanvasElementImage;
-
 type DrawElementImage = {
 	(
-		element: DrawElementImageSource,
+		element: Element,
 		dx: number,
 		dy: number,
 		dWidth?: number,
 		dHeight?: number,
-	): DOMMatrix;
-	(
-		element: DrawElementImageSource,
-		sx: number,
-		sy: number,
-		sWidth: number,
-		sHeight: number,
-		dx: number,
-		dy: number,
-		dWidth?: number,
-		dHeight?: number,
-	): DOMMatrix;
+	): void;
 };
 
 export type HtmlInCanvasElement = HTMLCanvasElement & {
 	layoutSubtree?: boolean;
 	requestPaint?: () => void;
-	captureElementImage?: (element: Element) => HtmlInCanvasElementImage;
 };
 
 export type HtmlInCanvasRenderingContext2D = CanvasRenderingContext2D & {
 	drawElementImage?: DrawElementImage;
 	reset?: () => void;
 };
-
-export type HtmlInCanvasOffscreenRenderingContext2D =
-	OffscreenCanvasRenderingContext2D & {
-		drawElementImage?: DrawElementImage;
-		reset?: () => void;
-	};
 
 type CanvasCaptureRecorderOptions = {
 	readonly format: CaptureFormat;
@@ -139,23 +113,18 @@ export const isHtmlInCanvasAvailable = () => {
 	const captureContext =
 		typeof OffscreenCanvas === 'undefined'
 			? null
-			: (new OffscreenCanvas(2, 2).getContext(
-					'2d',
-				) as HtmlInCanvasOffscreenRenderingContext2D | null);
+			: new OffscreenCanvas(2, 2).getContext('2d');
 
 	return (
 		typeof canvas.requestPaint === 'function' &&
-		typeof canvas.captureElementImage === 'function' &&
 		typeof context?.drawElementImage === 'function' &&
-		typeof captureContext?.drawElementImage === 'function' &&
+		captureContext !== null &&
 		typeof VideoFrame !== 'undefined'
 	);
 };
 
 export const resetCanvas = (
-	context:
-		| HtmlInCanvasRenderingContext2D
-		| HtmlInCanvasOffscreenRenderingContext2D,
+	context: HtmlInCanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 	canvas: HTMLCanvasElement | OffscreenCanvas,
 ) => {
 	if (typeof context.reset === 'function') {
@@ -307,6 +276,12 @@ const addFrame = (recording: RecordingState, canvas: OffscreenCanvas) => {
 			recording.encodingError = error;
 			recording.pendingFrame?.close();
 			recording.pendingFrame = null;
+			// eslint-disable-next-line no-console -- Surface encoder failures in the page DevTools console.
+			console.error(
+				'[Remotion Canvas Capture] Failed to encode a frame',
+				{frameCount: recording.frameCount},
+				error,
+			);
 			throw error;
 		} finally {
 			recording.isEncodingFrame = false;
@@ -389,6 +364,7 @@ export class CanvasCaptureRecorder {
 	readonly #options: CanvasCaptureRecorderOptions;
 	#recording: RecordingState | null = null;
 	#recordingAction: Promise<void> = Promise.resolve();
+	#cursorPosition: {clientX: number; clientY: number} | null = null;
 	#disposed = false;
 
 	constructor(options: CanvasCaptureRecorderOptions) {
@@ -396,6 +372,11 @@ export class CanvasCaptureRecorder {
 		window.addEventListener('pointermove', this.#onCursorMove);
 		// Native HTML drag-and-drop suppresses pointermove events while dragging.
 		window.addEventListener('dragover', this.#onCursorMove, true);
+		window.addEventListener('wheel', this.#onCursorMove, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener('scroll', this.#recordCursorPosition, true);
 		window.addEventListener('pointerdown', this.#onPointerDown, true);
 		window.addEventListener('pointerup', this.#onPointerUp, true);
 	}
@@ -470,6 +451,7 @@ export class CanvasCaptureRecorder {
 			captureMetadata: null,
 			isFinalizing: false,
 		};
+		this.#recordCursorPosition();
 	};
 
 	stopRecording = async (): Promise<File | null> => {
@@ -544,6 +526,8 @@ export class CanvasCaptureRecorder {
 		this.#disposed = true;
 		window.removeEventListener('pointermove', this.#onCursorMove);
 		window.removeEventListener('dragover', this.#onCursorMove, true);
+		window.removeEventListener('wheel', this.#onCursorMove, true);
+		window.removeEventListener('scroll', this.#recordCursorPosition, true);
 		window.removeEventListener('pointerdown', this.#onPointerDown, true);
 		window.removeEventListener('pointerup', this.#onPointerUp, true);
 
@@ -560,24 +544,28 @@ export class CanvasCaptureRecorder {
 	};
 
 	#onCursorMove = (event: MouseEvent) => {
+		this.#cursorPosition = {clientX: event.clientX, clientY: event.clientY};
+		this.#recordCursorPosition();
+	};
+
+	#recordCursorPosition = () => {
 		const recording = this.#recording;
-		if (!recording || recording.isFinalizing) {
+		if (!recording || recording.isFinalizing || !this.#cursorPosition) {
 			return;
 		}
 
+		const {clientX, clientY} = this.#cursorPosition;
 		const rect = this.#options.getContentRect();
 		const density = this.#options.getDensity();
 		recording.mouseMovements.push({
 			timeInSeconds: (performance.now() - recording.startedAt) / 1000,
-			clientX: event.clientX,
-			clientY: event.clientY,
-			pageX: event.pageX,
-			pageY: event.pageY,
-			canvasX: (event.clientX - rect.left) * density,
-			canvasY: (event.clientY - rect.top) * density,
-			cursor: getCursorForElement(
-				document.elementFromPoint(event.clientX, event.clientY),
-			),
+			clientX,
+			clientY,
+			pageX: clientX + window.scrollX,
+			pageY: clientY + window.scrollY,
+			canvasX: (clientX - rect.left) * density,
+			canvasY: (clientY - rect.top) * density,
+			cursor: getCursorForElement(document.elementFromPoint(clientX, clientY)),
 		});
 	};
 

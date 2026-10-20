@@ -1,12 +1,14 @@
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	EditorShowGuidesContext,
 	persistGuidesList,
 } from '../../state/editor-guides';
 import {useConfirmationDialog} from '../ConfirmationDialog';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {
 	deleteSelectedTimelineItems,
 	getTimelineSelectionAfterDeletingItems,
@@ -23,10 +25,11 @@ import {
 } from './update-selected-easing';
 
 export const useDeleteTimelineItems = () => {
+	const calculateTimeline = useTimelineCalculator();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -49,7 +52,6 @@ export const useDeleteTimelineItems = () => {
 				selectItems,
 			} = currentSelection.current;
 			const selectedItems = selectedItemsOverride ?? currentSelectedItems;
-			const sequences = sequencesRef.current;
 			const propStatuses = propStatusesRef.current;
 			const timelinePosition = getCurrentFrame();
 			if (selectedItems.length === 0) {
@@ -69,10 +71,13 @@ export const useDeleteTimelineItems = () => {
 				return;
 			}
 
+			const {tracks} = calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			});
 			const deletePromise = deleteSelectedTimelineItems({
 				selections: selectedItems,
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				tracks,
 				setPropStatuses,
 				clientId,
 				confirm,
@@ -114,8 +119,7 @@ export const useDeleteTimelineItems = () => {
 			if (easingSelections.length === selectedItems.length) {
 				const resetEasingPromise = updateSelectedTimelineEasings({
 					selections: easingSelections,
-					sequences,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					tracks,
 					propStatuses,
 					setPropStatuses,
 					clientId,
@@ -130,8 +134,7 @@ export const useDeleteTimelineItems = () => {
 
 			const resetPromise = resetSelectedTimelineProps({
 				selections: selectedItems,
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				tracks,
 				propStatuses,
 				setPropStatuses,
 				clientId,
@@ -142,9 +145,10 @@ export const useDeleteTimelineItems = () => {
 			}
 		},
 		[
+			calculateTimeline,
 			confirm,
 			currentSelection,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			previewServerState,
 			propStatusesRef,
 			sequencesRef,

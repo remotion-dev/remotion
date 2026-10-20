@@ -95,19 +95,20 @@ Set a static volume (0 to 1):
 <Video src={staticFile("video.mp4")} volume={0.5} />
 ```
 
-Or use a callback for dynamic volume based on the current frame:
-
 ```tsx
-import { interpolate } from "remotion";
+import { Video } from "@remotion/media";
+import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
+const frame = useCurrentFrame();
 const { fps } = useVideoConfig();
 
 return (
   <Video
     src={staticFile("video.mp4")}
-    volume={(f) =>
-      interpolate(f, [0, 1 * fps], [0, 1], { extrapolateRight: "clamp" })
-    }
+    volume={interpolate(frame, [0, 1 * fps], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    })}
   />
 );
 ```
@@ -139,17 +140,19 @@ Use `loop` to loop the video indefinitely:
 <Video src={staticFile("video.mp4")} loop />
 ```
 
-Use `loopVolumeCurveBehavior` to control how the frame count behaves when looping:
-
-- `"repeat"`: Frame count resets to 0 each loop (for `volume` callback)
-- `"extend"`: Frame count continues incrementing
-
 ```tsx
+import { Video } from "@remotion/media";
+import { interpolate, staticFile, useCurrentFrame } from "remotion";
+
+const frame = useCurrentFrame();
+
 <Video
   src={staticFile("video.mp4")}
   loop
-  loopVolumeCurveBehavior="extend"
-  volume={(f) => interpolate(f, [0, 300], [1, 0])} // Fade out over multiple loops
+  volume={interpolate(frame, [0, 300], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  })}
 />
 ```
 

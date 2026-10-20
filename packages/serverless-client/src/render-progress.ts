@@ -1,3 +1,5 @@
+import type {SeparateAudioOutput} from './constants';
+import type {ImageSequenceOutput} from './image-sequence';
 import type {ExpensiveChunk} from './most-expensive-chunks';
 import type {RenderMetadata} from './render-metadata';
 import type {
@@ -29,6 +31,9 @@ export type GenericRenderProgress<Provider extends CloudProvider> = {
 	renderMetadata: RenderMetadata<Provider> | null;
 	bucket: string;
 	outputFile: string | null;
+	separateAudio: SeparateAudioOutput | null;
+	outputSequence: ImageSequenceOutput | null;
+	framesUploaded: number | null;
 	outKey: string | null;
 	outBucket: string | null;
 	timeToFinish: number | null;

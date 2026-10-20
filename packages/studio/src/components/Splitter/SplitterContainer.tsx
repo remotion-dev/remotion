@@ -13,7 +13,7 @@ import type {
 	TSplitterContext,
 } from './SplitterContext';
 import {
-	getClampedSplitterFlex,
+	getSplitterFlexBounds,
 	SplitterContext,
 	SplitterLayoutContext,
 } from './SplitterContext';
@@ -77,9 +77,8 @@ export const SplitterContainer: React.FC<{
 		? (orientation === 'vertical' ? size.width : size.height) -
 			SPLITTER_HANDLE_SIZE
 		: null;
-	const effectiveFlexValue = getClampedSplitterFlex({
+	const flexBounds = getSplitterFlexBounds({
 		availableSize,
-		flexValue,
 		maxAntiFlexerSize,
 		maxFlex,
 		maxFlexerSize,
@@ -87,6 +86,22 @@ export const SplitterContainer: React.FC<{
 		minFlex,
 		minFlexerSize,
 	});
+	let effectiveFlexValue = Math.min(
+		flexBounds.maxFlex,
+		Math.max(flexBounds.minFlex, flexValue),
+	);
+	if (availableSize !== null && availableSize > 0) {
+		// Keep panel boundaries on whole pixels so toolbar icons stay crisp.
+		const minimumSize = Math.ceil(flexBounds.minFlex * availableSize);
+		const maximumSize = Math.floor(flexBounds.maxFlex * availableSize);
+		if (minimumSize <= maximumSize) {
+			effectiveFlexValue =
+				Math.min(
+					maximumSize,
+					Math.max(minimumSize, Math.round(flexValue * availableSize)),
+				) / availableSize;
+		}
+	}
 
 	const value: TSplitterContext = useMemo(() => {
 		return {

@@ -22,6 +22,7 @@ import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-times
 
 type VideoSinks = {
 	sampleSink: VideoSampleSink;
+	timeResolution: number;
 };
 
 type AudioSinks = {
@@ -45,20 +46,6 @@ export type VideoSinkResult =
 	| 'unknown-container-format'
 	| 'network-error';
 
-const getFormatOrNullOrNetworkError = async (
-	input: Input,
-): Promise<InputFormat | 'network-error' | null> => {
-	try {
-		return await input.getFormat();
-	} catch (err) {
-		if (isNetworkError(err as Error)) {
-			return 'network-error';
-		}
-
-		return null;
-	}
-};
-
 export const makeSinks = (
 	src: string,
 	logLevel: LogLevel,
@@ -81,11 +68,20 @@ export const makeSinks = (
 		}),
 	});
 	const getSinks = async () => {
-		const format = await getFormatOrNullOrNetworkError(input);
+		let format: InputFormat | null = null;
+		let formatDetectionError: Error | null = null;
+		try {
+			format = await input.getFormat();
+		} catch (error) {
+			formatDetectionError = error as Error;
+		}
+
+		const isNetworkFailure =
+			formatDetectionError !== null && isNetworkError(formatDetectionError);
 		const isMatroska = format === MATROSKA || format === WEBM;
 
 		const getVideoSinks = async (): Promise<VideoSinkResult> => {
-			if (format === 'network-error') {
+			if (isNetworkFailure) {
 				return 'network-error';
 			}
 
@@ -142,6 +138,7 @@ export const makeSinks = (
 
 			return {
 				sampleSink,
+				timeResolution: await videoTrack.getTimeResolution(),
 			};
 		};
 
@@ -164,12 +161,12 @@ export const makeSinks = (
 		const getAudioSinks = async (
 			index: number | null,
 		): Promise<AudioSinkResult> => {
-			if (format === null) {
-				return 'unknown-container-format';
+			if (isNetworkFailure) {
+				return 'network-error';
 			}
 
-			if (format === 'network-error') {
-				return 'network-error';
+			if (format === null) {
+				return 'unknown-container-format';
 			}
 
 			const [videoTrack, audioTracks] = await Promise.all([
@@ -211,6 +208,7 @@ export const makeSinks = (
 		};
 
 		return {
+			formatDetectionError,
 			getVideo: () => getVideoSinksPromise(),
 			getAudio: (index: number | null) => getAudioSinksPromise(index),
 			actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),

@@ -1,8 +1,10 @@
-import React, {forwardRef, useCallback} from 'react';
+import React, {forwardRef, useCallback, useContext} from 'react';
+import {resolveComponentIdentity} from './component-identity.js';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
 } from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {
@@ -11,12 +13,12 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	captionsSchema,
+	childrenSchema,
 	cropSchema,
 	premountSchema,
 	sequenceSchema,
 	svgPaintSchema,
 	svgStrokeSchema,
-	textContentSchema,
 	textSchema,
 	transformSchema,
 	type InteractivitySchema,
@@ -172,14 +174,14 @@ const interactiveBorderElementSchema = {
 const interactiveTextElementSchema = {
 	...interactiveBorderElementSchema,
 	...textSchema,
-	...textContentSchema,
+	...childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveSvgTextElementSchema = {
 	...interactiveElementSchema,
 	...svgPaintSchema,
 	...textSchema,
-	...textContentSchema,
+	...childrenSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveSvgElementSchema = {
@@ -280,30 +282,74 @@ type ComponentAcceptingStyle<
 		? unknown
 		: never);
 
-type WithSchema = {
+type WithSchemaOptions<
+	Options extends {schema: InteractivitySchema; componentName: string},
+	WithDefaults extends boolean,
+> = WithDefaults extends true
+	? Omit<Options, 'schema' | 'componentName' | 'wrapInSequence'> &
+			Partial<Pick<Options, 'schema' | 'componentName'>>
+	: Options;
+
+type WithSequence<WithDefaults extends boolean> = {
 	<S extends InteractivitySchema, Component extends React.ElementType>(
-		options: Omit<
-			WithInteractivitySchemaOptions<
-				S,
-				React.ComponentPropsWithoutRef<Component>
-			>,
-			'Component' | 'supportsEffects'
-		> & {
-			readonly Component: ComponentAcceptingStyle<
-				Component,
-				WithSchemaReservedKey
-			>;
-			readonly wrapInSequence: true;
-		},
+		options: WithSchemaOptions<
+			Omit<
+				WithInteractivitySchemaOptions<
+					S,
+					React.ComponentPropsWithoutRef<Component>
+				>,
+				'Component' | 'supportsEffects'
+			> & {
+				readonly Component: ComponentWithoutReservedProps<
+					Component,
+					WithSchemaReservedKey | 'style' | 'width' | 'height'
+				>;
+				readonly wrapInSequence: true;
+				readonly layout: 'absolute-fill';
+			},
+			WithDefaults
+		>,
+	): React.FC<
+		React.ComponentPropsWithoutRef<Component> &
+			InteractiveBaseProps &
+			InteractivePremountProps &
+			InteractiveCropProps &
+			InteractiveTransformProps &
+			Pick<SequenceProps, 'width' | 'height'> & {
+				readonly ref?: React.Ref<HTMLDivElement>;
+			}
+	>;
+	<S extends InteractivitySchema, Component extends React.ElementType>(
+		options: WithSchemaOptions<
+			Omit<
+				WithInteractivitySchemaOptions<
+					S,
+					React.ComponentPropsWithoutRef<Component>
+				>,
+				'Component' | 'supportsEffects'
+			> & {
+				readonly Component: ComponentAcceptingStyle<
+					Component,
+					WithSchemaReservedKey
+				>;
+				readonly wrapInSequence: true;
+				readonly layout?: 'none';
+			},
+			WithDefaults
+		>,
 	): React.FC<
 		React.ComponentPropsWithRef<Component> &
 			InteractiveBaseProps &
 			InteractivePremountProps &
 			InteractiveCropProps
 	>;
+};
+
+type WithSchema = WithSequence<false> & {
 	<S extends InteractivitySchema, Props extends object>(
 		options: WithInteractivitySchemaOptions<S, Props> & {
 			readonly wrapInSequence?: false;
+			readonly layout?: never;
 		},
 	): React.ComponentType<Props>;
 };
@@ -315,6 +361,7 @@ type WithSchemaImplementationOptions = Omit<
 	readonly Component: React.ComponentType<object>;
 	readonly supportsEffects?: boolean;
 	readonly wrapInSequence?: false | true;
+	readonly layout?: 'none' | 'absolute-fill';
 };
 
 const withSchema: WithSchema = (untypedOptions: unknown) => {
@@ -335,6 +382,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		componentName,
 		schema,
 		wrapInSequence: _,
+		layout = 'none',
 		...rest
 	} = options;
 	type ComponentWrappedInSequenceProps = React.ComponentProps<
@@ -342,13 +390,25 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 	> &
 		InteractiveBaseProps &
 		InteractivePremountProps &
-		InteractiveCropProps & {
+		InteractiveCropProps &
+		Pick<SequenceProps, 'width' | 'height'> & {
 			readonly controls: SequenceControls | undefined;
 		};
 	const ComponentWrappedInSequence = forwardRef<
 		unknown,
 		ComponentWrappedInSequenceProps
 	>((props, ref) => {
+		const {canvasContent, compositions} = useContext(CompositionManager);
+		// The render callback runs after the exported wrapper has been initialized.
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		const componentIdentity = resolveComponentIdentity(Wrapped);
+		const isCurrentComposition = compositions.some(
+			(composition) =>
+				canvasContent?.type === 'composition' &&
+				composition.id === canvasContent.compositionId &&
+				composition.componentFromProps === componentIdentity,
+		);
+		const {width, height, ...propsWithoutDimensions} = props;
 		const {
 			durationInFrames,
 			from,
@@ -365,7 +425,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			styleWhilePremounted,
 			styleWhilePostmounted,
 			...componentProps
-		} = props;
+		} = layout === 'absolute-fill' ? propsWithoutDimensions : props;
 		const {
 			cropLeft,
 			cropRight,
@@ -411,7 +471,18 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		return (
 			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
 				<SequenceWithoutSchema
-					layout="none"
+					_remotionInternalSingleChildComponent={
+						isCurrentComposition ? null : componentIdentity
+					}
+					layout={layout}
+					{...(layout === 'absolute-fill'
+						? {
+								width,
+								height,
+								style: {overflow: 'hidden', ...croppedStyle},
+								ref: ref as React.ForwardedRef<HTMLDivElement>,
+							}
+						: {})}
 					durationInFrames={durationInFrames}
 					from={from}
 					trimBefore={trimBefore}
@@ -420,7 +491,8 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 					freeze={freeze}
 					hidden={hidden}
 					name={name ?? componentName}
-					showInTimeline={showInTimeline}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive-create"
+					showInTimeline={isCurrentComposition ? false : showInTimeline}
 					controls={controls}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
@@ -429,8 +501,9 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 				>
 					{React.createElement(Component, {
 						...componentPropsWithoutCropping,
-						style: croppedStyle ?? undefined,
-						ref,
+						...(layout === 'none'
+							? {style: croppedStyle ?? undefined, ref}
+							: {}),
 					} as React.ComponentProps<typeof Component>)}
 				</SequenceWithoutSchema>
 			</Freeze>
@@ -457,6 +530,27 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			InteractivePremountProps &
 			InteractiveCropProps
 	>;
+};
+
+const create: WithSequence<true> = (untypedOptions: unknown) => {
+	const options = untypedOptions as Omit<
+		WithSchemaImplementationOptions,
+		'schema' | 'componentName' | 'wrapInSequence' | 'supportsEffects'
+	> &
+		Partial<Pick<WithSchemaImplementationOptions, 'schema' | 'componentName'>>;
+
+	return (withSchema as (options: WithSchemaImplementationOptions) => React.FC)(
+		{
+			...options,
+			wrapInSequence: true,
+			schema: options.schema ?? {},
+			componentName:
+				options.componentName ??
+				(options.Component.displayName ||
+					options.Component.name?.replace(/(.+)Inner$/, '$1') ||
+					'Component'),
+		},
+	);
 };
 
 const makeInteractiveElement = <Tag extends InteractiveTag>(
@@ -618,6 +712,7 @@ const makeInteractiveSvgStrokeElement = <Tag extends InteractiveSvgTag>(
 export const Interactive = {
 	baseSchema,
 	captionsSchema,
+	childrenSchema,
 	transformSchema,
 	textSchema,
 	backgroundSchema,
@@ -628,7 +723,15 @@ export const Interactive = {
 	svgStrokeSchema,
 	premountSchema,
 	sequenceSchema,
+	/**
+	 * @deprecated Use `Interactive.create()` instead: https://www.remotion.dev/docs/interactive-create
+	 */
 	withSchema,
+	/**
+	 * @description Creates a component with timing props and editable Studio controls.
+	 * @see [Documentation](https://www.remotion.dev/docs/interactive-create)
+	 */
+	create,
 	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveTextElement('a', '<Interactive.A>'),
 	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),

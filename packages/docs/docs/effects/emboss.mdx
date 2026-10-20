@@ -23,13 +23,13 @@ The effect preserves the source colors and alpha mask. Transparent regions stay 
 ```tsx twoslash title="MyComp.tsx"
 import {emboss} from '@remotion/effects/emboss';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -44,7 +44,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

@@ -1,7 +1,9 @@
+import type {VideoConfigValues} from 'remotion';
 import {
 	type CanUpdateSequencePropsResponse,
 	type CanUpdateSequencePropStatus,
 } from 'remotion';
+import {updateSourcePropStatus} from './update-source-prop-status';
 
 const getEasingIndexToRemove = ({
 	removedKeyframeIndex,
@@ -82,11 +84,13 @@ export const removeKeyframeFromPropStatus = ({
 
 export const optimisticDeleteSequenceKeyframe = ({
 	previous,
+	videoConfigValues,
 	fieldKey,
 	frame,
 	valueWhenLastKeyframeDeleted,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	fieldKey: string;
 	frame: number;
 	valueWhenLastKeyframeDeleted?: unknown;
@@ -104,10 +108,15 @@ export const optimisticDeleteSequenceKeyframe = ({
 		...previous,
 		props: {
 			...previous.props,
-			[fieldKey]: removeKeyframeFromPropStatus({
-				status,
-				frame,
-				valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+			[fieldKey]: updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					removeKeyframeFromPropStatus({
+						status: evaluatedStatus,
+						frame,
+						valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+					}),
 			}),
 		},
 	};
@@ -115,9 +124,11 @@ export const optimisticDeleteSequenceKeyframe = ({
 
 export const optimisticDeleteSequenceKeyframes = ({
 	previous,
+	videoConfigValues,
 	keyframes,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	keyframes: {
 		fieldKey: string;
 		frame: number;
@@ -128,6 +139,7 @@ export const optimisticDeleteSequenceKeyframes = ({
 		(current, keyframe) =>
 			optimisticDeleteSequenceKeyframe({
 				previous: current,
+				videoConfigValues,
 				fieldKey: keyframe.fieldKey,
 				frame: keyframe.frame,
 				valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
@@ -138,12 +150,14 @@ export const optimisticDeleteSequenceKeyframes = ({
 
 export const optimisticDeleteEffectKeyframe = ({
 	previous,
+	videoConfigValues,
 	effectIndex,
 	fieldKey,
 	frame,
 	valueWhenLastKeyframeDeleted,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	effectIndex: number;
 	fieldKey: string;
 	frame: number;
@@ -174,10 +188,15 @@ export const optimisticDeleteEffectKeyframe = ({
 		...target,
 		props: {
 			...target.props,
-			[fieldKey]: removeKeyframeFromPropStatus({
-				status,
-				frame,
-				valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+			[fieldKey]: updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					removeKeyframeFromPropStatus({
+						status: evaluatedStatus,
+						frame,
+						valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+					}),
 			}),
 		},
 	};
@@ -193,9 +212,11 @@ export const optimisticDeleteEffectKeyframe = ({
 
 export const optimisticDeleteEffectKeyframes = ({
 	previous,
+	videoConfigValues,
 	keyframes,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	keyframes: {
 		effectIndex: number;
 		fieldKey: string;
@@ -207,6 +228,7 @@ export const optimisticDeleteEffectKeyframes = ({
 		(current, keyframe) =>
 			optimisticDeleteEffectKeyframe({
 				previous: current,
+				videoConfigValues,
 				effectIndex: keyframe.effectIndex,
 				fieldKey: keyframe.fieldKey,
 				frame: keyframe.frame,

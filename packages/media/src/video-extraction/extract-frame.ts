@@ -118,6 +118,7 @@ const extractFrameInternal = async ({
 	try {
 		const keyframeBank = await mediaCache.keyframeManager.requestKeyframeBank({
 			videoSampleSink: video.sampleSink,
+			timeResolution: video.timeResolution,
 			timestamp: timeInSeconds,
 			src,
 			logLevel,

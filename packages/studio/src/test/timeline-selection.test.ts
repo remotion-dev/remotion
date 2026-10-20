@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {RefObject} from 'react';
 import {
 	Internals,
@@ -56,7 +57,6 @@ import {
 	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	getSelectedSequenceKeys,
-	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 	orderOutlinesForRendering,
 	selectedOutlineTransformOriginSnapThresholdPx,
@@ -76,6 +76,7 @@ import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
+import {getTimelineSequenceTimingLimits} from '../components/Timeline/get-timeline-sequence-timing-limits';
 import {
 	getKeyframeClipboardDataFromSelections,
 	getPasteKeyframeTarget,
@@ -300,6 +301,7 @@ const makeDurationPropStatuses = (
 	const propStatuses: PropStatuses = {};
 	for (const nodePath of nodePaths) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				durationInFrames: {
@@ -321,6 +323,7 @@ const makeFromPropStatuses = (
 	const propStatuses: PropStatuses = {};
 	for (const nodePath of nodePaths) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				from: {
@@ -340,10 +343,12 @@ const makeLeftEdgePropStatuses = (
 	nodePaths: readonly SequencePropsSubscriptionKey[],
 	includeTrimBefore = false,
 	includeTimelineRange = true,
+	durationInFramesCodeValues: readonly (number | undefined)[] | null = null,
 ): PropStatuses => {
 	const propStatuses: PropStatuses = {};
-	for (const nodePath of nodePaths) {
+	for (const [index, nodePath] of nodePaths.entries()) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				...(includeTimelineRange
@@ -351,7 +356,7 @@ const makeLeftEdgePropStatuses = (
 							durationInFrames: {
 								status: 'static' as const,
 								keyframeDisplayOffsetAdjustment: null,
-								codeValue: 100,
+								codeValue: durationInFramesCodeValues?.[index],
 							},
 							from: {
 								status: 'static' as const,
@@ -764,6 +769,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 	const nodePath = effectNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -863,6 +869,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 	const nodePath = effectPropNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -924,6 +931,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 });
 
 test('copying selected keyframes preserves their frame deltas', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const schema = {
@@ -931,6 +939,7 @@ test('copying selected keyframes preserves their frame deltas', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -964,8 +973,10 @@ test('copying selected keyframes preserves their frame deltas', () => {
 					segmentIndex: 0,
 				},
 			],
-			sequences: [makeTimelineSequence({schema, from: 20})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema, from: 20})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses,
 		}),
 	).toEqual({
@@ -983,6 +994,7 @@ test('copying selected keyframes preserves their frame deltas', () => {
 });
 
 test('pasting keyframes onto a sequence targets the copied property', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const schema = {
@@ -993,6 +1005,7 @@ test('pasting keyframes onto a sequence targets the copied property', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.translate': {
@@ -1021,8 +1034,10 @@ test('pasting keyframes onto a sequence targets the copied property', () => {
 				easing: [{type: 'linear'}],
 			},
 			timelinePosition: 50,
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses,
 		}),
 	).toMatchObject({
@@ -1038,6 +1053,7 @@ test('pasting keyframes onto a sequence targets the copied property', () => {
 });
 
 test('copies a keyframed sequence prop between components with matching schemas', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const sourceNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'style.rotate'],
@@ -1053,6 +1069,7 @@ test('copies a keyframed sequence prop between components with matching schemas'
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(sourceNodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.rotate': {
@@ -1072,6 +1089,7 @@ test('copies a keyframed sequence prop between components with matching schemas'
 			effects: [],
 		},
 		[Internals.makeSequencePropsSubscriptionKey(targetNodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.rotate': {
@@ -1098,8 +1116,10 @@ test('copies a keyframed sequence prop between components with matching schemas'
 			key: 'style.rotate',
 		},
 		propStatuses,
-		sequences,
-		overrideIdsToNodePaths,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
 	});
 
 	expect(payload).toMatchObject({
@@ -1117,8 +1137,10 @@ test('copies a keyframed sequence prop between components with matching schemas'
 			selectedItems: [{type: 'sequence', nodePathInfo: targetNodePathInfo}],
 			payload,
 			propStatuses,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths,
+			}).tracks,
 		}),
 	).toMatchObject({
 		type: 'valid',
@@ -1127,6 +1149,7 @@ test('copies a keyframed sequence prop between components with matching schemas'
 });
 
 test('copying selected keyframes requires one property', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
@@ -1142,6 +1165,7 @@ test('copying selected keyframes requires one property', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -1175,14 +1199,17 @@ test('copying selected keyframes requires one property', () => {
 				{type: 'keyframe', nodePathInfo: opacityNodePathInfo, frame: 10},
 				{type: 'keyframe', nodePathInfo: otherNodePathInfo, frame: 30},
 			],
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses,
 		}),
 	).toBe(null);
 });
 
 test('pasting keyframes targets one selected property at the playhead', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const schema = {
@@ -1190,6 +1217,7 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -1221,8 +1249,10 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 				easing: [{type: 'linear'}],
 			},
 			timelinePosition: 50,
-			sequences: [makeTimelineSequence({schema, from: 20})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema, from: 20})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses,
 		}),
 	).toEqual({
@@ -1243,6 +1273,7 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 });
 
 test('pasting keyframes replaces the destination range and preserves easing', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const schema = {
@@ -1250,6 +1281,7 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -1294,8 +1326,10 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 				easing: [copiedEasing],
 			},
 			timelinePosition: 50,
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses,
 		}),
 	).toEqual({
@@ -1316,6 +1350,7 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 });
 
 test('pasting a keyframe rejects an incompatible property', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'background'],
@@ -1326,6 +1361,7 @@ test('pasting a keyframe rejects an incompatible property', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				background: {
@@ -1357,14 +1393,17 @@ test('pasting a keyframe rejects an incompatible property', () => {
 				easing: [],
 			},
 			timelinePosition: 50,
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses,
 		}),
 	).toEqual({type: 'incompatible'} satisfies PasteKeyframeTarget);
 });
 
 test('copying a selected sequence easing creates an easing payload', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
@@ -1382,6 +1421,7 @@ test('copying a selected sequence easing creates an easing payload', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -1411,8 +1451,10 @@ test('copying a selected sequence easing creates an easing payload', () => {
 				toFrame: 100,
 				segmentIndex: 0,
 			},
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses,
 		}),
 	).toEqual({
@@ -1424,6 +1466,7 @@ test('copying a selected sequence easing creates an easing payload', () => {
 });
 
 test('copying a selected effect easing creates an easing payload', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const effectPropNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['effects', '0', 'intensity'],
@@ -1437,6 +1480,7 @@ test('copying a selected effect easing creates an easing payload', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -1474,13 +1518,15 @@ test('copying a selected effect easing creates an easing payload', () => {
 				toFrame: 100,
 				segmentIndex: 0,
 			},
-			sequences: [
-				makeTimelineSequence({
-					schema,
-					effects: [{schema: effectSchema}],
-				}),
-			],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [
+					makeTimelineSequence({
+						schema,
+						effects: [{schema: effectSchema}],
+					}),
+				],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses,
 		}),
 	).toEqual({
@@ -1492,6 +1538,7 @@ test('copying a selected effect easing creates an easing payload', () => {
 });
 
 test('pasting an effect prop targets a matching selected effect', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const effectNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['effects', '1'],
@@ -1504,6 +1551,7 @@ test('pasting an effect prop targets a matching selected effect', () => {
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -1541,13 +1589,15 @@ test('pasting an effect prop targets a matching selected effect', () => {
 				param: {type: 'static', value: 10},
 			},
 			propStatuses,
-			sequences: [
-				makeTimelineSequence({
-					schema: {},
-					effects: [{schema: effectSchema}, {schema: effectSchema}],
-				}),
-			],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [
+					makeTimelineSequence({
+						schema: {},
+						effects: [{schema: effectSchema}, {schema: effectSchema}],
+					}),
+				],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 		}),
 	).toEqual({
 		type: 'valid',
@@ -1565,6 +1615,7 @@ test('pasting an effect prop targets a matching selected effect', () => {
 });
 
 test('pasting an effect prop targets multiple matching selected effects', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const firstNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['effects', '0'],
@@ -1597,11 +1648,13 @@ test('pasting an effect prop targets multiple matching selected effects', () => 
 	} as const;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(firstNodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [effectStatus],
 		},
 		[Internals.makeSequencePropsSubscriptionKey(secondNodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [effectStatus],
@@ -1635,24 +1688,26 @@ test('pasting an effect prop targets multiple matching selected effects', () => 
 				param: {type: 'static', value: 10},
 			},
 			propStatuses,
-			sequences: [
-				makeTimelineSequence({
-					schema: {},
-					effects: [{schema: effectSchema}],
-					id: 'first',
-					overrideId: 'first',
-				}),
-				makeTimelineSequence({
-					schema: {},
-					effects: [{schema: effectSchema}],
-					id: 'second',
-					overrideId: 'second',
-				}),
-			],
-			overrideIdsToNodePaths: {
-				first: firstNodePath,
-				second: secondNodePath,
-			},
+			tracks: calculate({
+				sequences: [
+					makeTimelineSequence({
+						schema: {},
+						effects: [{schema: effectSchema}],
+						id: 'first',
+						overrideId: 'first',
+					}),
+					makeTimelineSequence({
+						schema: {},
+						effects: [{schema: effectSchema}],
+						id: 'second',
+						overrideId: 'second',
+					}),
+				],
+				overrideIdsToNodePaths: {
+					first: firstNodePath,
+					second: secondNodePath,
+				},
+			}).tracks,
 		}),
 	).toEqual({
 		type: 'valid',
@@ -1678,6 +1733,7 @@ test('pasting an effect prop targets multiple matching selected effects', () => 
 });
 
 test('pasting an effect prop requires the same effect type and prop key', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const effectPropNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['effects', '0', 'opacity'],
@@ -1691,6 +1747,7 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -1739,13 +1796,15 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 			],
 			payload: basePayload,
 			propStatuses,
-			sequences: [
-				makeTimelineSequence({
-					schema: {},
-					effects: [{schema: effectSchema}],
-				}),
-			],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [
+					makeTimelineSequence({
+						schema: {},
+						effects: [{schema: effectSchema}],
+					}),
+				],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 		}),
 	).toEqual({type: 'prop-mismatch'} satisfies PasteEffectPropTarget);
 
@@ -1756,18 +1815,21 @@ test('pasting an effect prop requires the same effect type and prop key', () => 
 			],
 			payload: basePayload,
 			propStatuses,
-			sequences: [
-				makeTimelineSequence({
-					schema: {},
-					effects: [{schema: effectSchema}],
-				}),
-			],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [
+					makeTimelineSequence({
+						schema: {},
+						effects: [{schema: effectSchema}],
+					}),
+				],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 		}),
 	).toEqual({type: 'effect-type-mismatch'} satisfies PasteEffectPropTarget);
 });
 
 test('Timeline duration drag applies the same delta to selected sequences', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -1796,10 +1858,13 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 			{type: 'sequence', nodePathInfo: secondNodePathInfo},
 		],
 		sequences,
-		overrideIdsToNodePaths: {
-			first: firstNodePathInfo.sequenceSubscriptionKey,
-			second: secondNodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				first: firstNodePathInfo.sequenceSubscriptionKey,
+				second: secondNodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeDurationPropStatuses([
 			firstNodePathInfo.sequenceSubscriptionKey,
 			secondNodePathInfo.sequenceSubscriptionKey,
@@ -1824,6 +1889,7 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 });
 
 test('Timeline duration drag clamps each selected media item to its asset end', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -1854,10 +1920,13 @@ test('Timeline duration drag clamps each selected media item to its asset end', 
 			{type: 'sequence' as const, nodePathInfo: secondNodePathInfo},
 		],
 		sequences,
-		overrideIdsToNodePaths: {
-			first: firstNodePathInfo.sequenceSubscriptionKey,
-			second: secondNodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				first: firstNodePathInfo.sequenceSubscriptionKey,
+				second: secondNodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeDurationPropStatuses([
 			firstNodePathInfo.sequenceSubscriptionKey,
 			secondNodePathInfo.sequenceSubscriptionKey,
@@ -1896,23 +1965,28 @@ test('Timeline duration drag clamps each selected media item to its asset end', 
 });
 
 test('Timeline duration drag uses the declared duration for negative from values', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			duration: 36,
+			from: -3,
+		}),
+	];
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
 		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				duration: 36,
-				from: -3,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			override: nodePathInfo.sequenceSubscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeDurationPropStatuses([
 			nodePathInfo.sequenceSubscriptionKey,
 		]),
@@ -1928,24 +2002,141 @@ test('Timeline duration drag uses the declared duration for negative from values
 	).toEqual([]);
 });
 
-test('Timeline duration drag clamps to the composition end', () => {
+test.each([
+	{
+		name: 'negative ancestor start',
+		parentFrom: -30,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 31,
+	},
+	{
+		name: 'positive child start under a negative ancestor',
+		parentFrom: -30,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 0,
+		childFrom: 10,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 21,
+	},
+	{
+		name: 'ancestor trimBefore',
+		parentFrom: 0,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 30,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 31,
+	},
+	{
+		name: 'sped-up ancestor',
+		parentFrom: -30,
+		parentPlaybackRate: 2,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 62,
+	},
+	{
+		name: 'sped-up ancestor with a slowed-down child',
+		parentFrom: -30,
+		parentPlaybackRate: 2,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 0.5,
+		expectedDurationInFrames: 31,
+	},
+])('Timeline duration drag retains one visible frame: $name', (scenario) => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
-	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const parent = makeTimelineSequence({
+		schema,
+		id: 'parent',
+		overrideId: 'parent',
+		from: scenario.parentFrom,
+		duration: 300,
+		trimBefore: scenario.parentTrimBefore,
+		sequencePlaybackRate: scenario.parentPlaybackRate,
+	});
+	const child = makeTimelineSequence({
+		schema,
+		id: 'child',
+		overrideId: 'child',
+		parentId: parent.id,
+		from: scenario.childFrom,
+		duration: 60 * scenario.parentPlaybackRate,
+		sequencePlaybackRate: scenario.childPlaybackRate,
+	});
+	const overrideIdsToNodePaths = {child: nodePath};
+	const sequences = [parent, child];
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
 		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				duration: 40,
-				from: 30,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			override: nodePathInfo.sequenceSubscriptionKey,
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
+		propStatuses: makeDurationPropStatuses([nodePath]),
+		timelineDurationInFrames: 600,
+	});
+	const changes = getTimelineSequenceDurationDragChanges({
+		targets: targets ?? [],
+		deltaFrames: -1000,
+	});
+
+	expect(changes.map(({fieldKey, value}) => ({fieldKey, value}))).toEqual([
+		{
+			fieldKey: 'durationInFrames',
+			value: scenario.expectedDurationInFrames,
 		},
+	]);
+
+	const resizedTracks = calculate({
+		sequences: [
+			parent,
+			{
+				...child,
+				duration: Number(changes[0].value) / child.sequencePlaybackRate,
+			},
+		],
+		overrideIdsToNodePaths,
+	}).tracks;
+	expect(
+		resizedTracks.find((track) => track.sequence.id === child.id)?.sequence
+			.duration,
+	).toBe(1);
+});
+
+test('Timeline duration drag clamps to the composition end', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			duration: 40,
+			from: 30,
+		}),
+	];
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeDurationPropStatuses([
 			nodePathInfo.sequenceSubscriptionKey,
 		]),
@@ -1962,6 +2153,7 @@ test('Timeline duration drag clamps to the composition end', () => {
 });
 
 test('Timeline duration drag supports interactive video clips', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const video = makeTimelineSequence({
 		schema: Internals.baseSchema,
@@ -1970,6 +2162,7 @@ test('Timeline duration drag supports interactive video clips', () => {
 	});
 
 	expect(isTimelineSequenceDurationDraggable(video)).toBe(true);
+	const sequences = [video];
 	expect(
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: nodePathInfo,
@@ -1979,10 +2172,13 @@ test('Timeline duration drag supports interactive video clips', () => {
 			},
 			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [video],
-			overrideIdsToNodePaths: {
-				override: nodePathInfo.sequenceSubscriptionKey,
-			},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths: {
+					override: nodePathInfo.sequenceSubscriptionKey,
+				},
+			}).tracks,
 			propStatuses: makeDurationPropStatuses([
 				nodePathInfo.sequenceSubscriptionKey,
 			]),
@@ -1995,6 +2191,8 @@ test('Timeline duration drag supports interactive video clips', () => {
 			initialDuration: 78,
 			maximumDuration: 1000,
 			minimumDuration: 1,
+			minimumDurationReason: 'Minimum duration',
+			maximumDurationReason: 'Composition edge',
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
 			schema: Internals.baseSchema,
 			endField: {fieldKey: 'durationInFrames', trimBefore: 0, playbackRate: 1},
@@ -2003,10 +2201,12 @@ test('Timeline duration drag supports interactive video clips', () => {
 });
 
 test('Timeline edge drags edit durationInFrames in the child clock', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				durationInFrames: {
@@ -2018,24 +2218,28 @@ test('Timeline edge drags edit durationInFrames in the child clock', () => {
 			effects: [],
 		},
 	};
+	const sequences = [
+		makeTimelineSequence({
+			schema: Internals.baseSchema,
+			duration: 10,
+			sequencePlaybackRate: 2,
+			currentRuntimeValueDotNotation: {
+				durationInFrames: 20,
+				playbackRate: 2,
+				trimBefore: 4,
+			},
+		}),
+	];
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
 		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema: Internals.baseSchema,
-				duration: 10,
-				sequencePlaybackRate: 2,
-				currentRuntimeValueDotNotation: {
-					durationInFrames: 20,
-					playbackRate: 2,
-					trimBefore: 4,
-				},
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 		timelineDurationInFrames: 1000,
 	});
@@ -2053,7 +2257,8 @@ test('Timeline edge drags edit durationInFrames in the child clock', () => {
 	).toMatchObject({fieldKey: 'durationInFrames', value: 24});
 });
 
-test('Left edge trim updates durationInFrames in the child clock', () => {
+test('Left edge trim preserves a recent right edge trim in the child clock', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const sequence = makeTimelineSequence({
@@ -2067,12 +2272,16 @@ test('Left edge trim updates durationInFrames in the child clock', () => {
 			trimBefore: 4,
 		},
 	});
+	const sequences = [sequence];
 	const targets = getTimelineSequenceLeftEdgeDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [sequence],
-		overrideIdsToNodePaths: {override: nodePath},
-		propStatuses: makeLeftEdgePropStatuses([nodePath], true),
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
+		propStatuses: makeLeftEdgePropStatuses([nodePath], true, true, [16]),
 	});
 
 	expect(
@@ -2082,12 +2291,13 @@ test('Left edge trim updates durationInFrames in the child clock', () => {
 		}).map((change) => [change.fieldKey, change.value]),
 	).toEqual([
 		['from', 2],
-		['durationInFrames', 16],
+		['durationInFrames', 12],
 		['trimBefore', 8],
 	]);
 });
 
 test('Looping timeline items cannot be resized or split', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const loopedSequence = {
 		...makeTimelineSequence({
@@ -2110,23 +2320,25 @@ test('Looping timeline items cannot be resized or split', () => {
 		...loopedSequence,
 		type: 'video',
 		src: 'video.mp4',
-		volume: 1,
-		doesVolumeChange: false,
 		muted: false,
 		startMediaFrom: 0,
 		mediaFrameAtSequenceZero: 0,
 		playbackRate: 1,
 		frozenMediaFrame: null,
 	} satisfies TSequence;
+	const sequences = [loopedVideo];
 	const resizeTargets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
 		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [selection],
-		sequences: [loopedVideo],
-		overrideIdsToNodePaths: {
-			override: nodePathInfo.sequenceSubscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeDurationPropStatuses([
 			nodePathInfo.sequenceSubscriptionKey,
 		]),
@@ -2148,7 +2360,6 @@ test('Media duration drag limits account for a negative from', () => {
 		displayDurationInFrames: 108,
 		displayStart: 0,
 		explicitDurationInFrames: 300,
-		hasImplicitDuration: false,
 		naturalMediaDuration: 33,
 		timelineDurationInFrames: 1000,
 	};
@@ -2169,14 +2380,13 @@ test('Media duration drag limits account for a negative from', () => {
 	).toEqual({initialDuration: 300, maximumDuration: 225});
 });
 
-test('Implicit media cannot be resized once its edge reaches the asset end', () => {
+test('Implicit media can be shortened once its edge reaches the asset end', () => {
 	const common = {
 		cascadedStart: -34,
 		displayDurationInFrames: 266,
 		displayStart: 0,
 		effectiveMaxMediaDuration: null,
 		explicitDurationInFrames: null,
-		hasImplicitDuration: true,
 		timelineDurationInFrames: 300,
 	};
 
@@ -2186,20 +2396,29 @@ test('Implicit media cannot be resized once its edge reaches the asset end', () 
 			// The video holds its last frame until the composition ends.
 			naturalMediaDuration: 220,
 		}),
-	).toBe(null);
+	).toEqual({initialDuration: 300, maximumDuration: 254});
 	expect(
 		getTimelineSequenceMediaDurationDragLimits({
 			...common,
 			// The composition ends before the source video does.
 			naturalMediaDuration: 400,
 		}),
-	).toEqual({initialDuration: 300, maximumDuration: 433});
+	).toEqual({initialDuration: 300, maximumDuration: 434});
 });
 
 test('Timeline duration drag clamps explicit audio and video to the asset end', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	for (const type of ['audio', 'video'] as const) {
 		const nodePathInfo = makeNodePathInfo(['body', type], []);
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const sequences = [
+			makeTimelineSequence({
+				schema: Internals.baseSchema,
+				type,
+				duration: 200,
+				from: -192,
+			}),
+		];
 		const targets = getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: nodePathInfo,
 			draggedSequenceMediaDurationDragLimits: {
@@ -2208,15 +2427,11 @@ test('Timeline duration drag clamps explicit audio and video to the asset end', 
 			},
 			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [
-				makeTimelineSequence({
-					schema: Internals.baseSchema,
-					type,
-					duration: 200,
-					from: -192,
-				}),
-			],
-			overrideIdsToNodePaths: {override: nodePath},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses: makeDurationPropStatuses([nodePath]),
 			timelineDurationInFrames: 1000,
 		});
@@ -2232,8 +2447,17 @@ test('Timeline duration drag clamps explicit audio and video to the asset end', 
 });
 
 test('An overlong explicit Video can be shortened without snapping', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const sequences = [
+		makeTimelineSequence({
+			schema: Internals.baseSchema,
+			type: 'video',
+			duration: 300,
+			from: -192,
+		}),
+	];
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		draggedSequenceMediaDurationDragLimits: {
@@ -2242,15 +2466,11 @@ test('An overlong explicit Video can be shortened without snapping', () => {
 		},
 		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema: Internals.baseSchema,
-				type: 'video',
-				duration: 300,
-				from: -192,
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses: makeDurationPropStatuses([nodePath]),
 		timelineDurationInFrames: 1000,
 	});
@@ -2271,6 +2491,7 @@ test('An overlong explicit Video can be shortened without snapping', () => {
 });
 
 test('Timeline duration drag trims audio and video without an explicit duration', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	for (const type of ['audio', 'video'] as const) {
 		const nodePathInfo = makeNodePathInfo(['body', type], []);
 		const media = makeTimelineSequence({
@@ -2279,6 +2500,7 @@ test('Timeline duration drag trims audio and video without an explicit duration'
 			duration: Infinity,
 		});
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const sequences = [media];
 		const targets = getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: nodePathInfo,
 			draggedSequenceMediaDurationDragLimits: {
@@ -2287,12 +2509,16 @@ test('Timeline duration drag trims audio and video without an explicit duration'
 			},
 			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [media],
-			overrideIdsToNodePaths: {
-				override: nodePath,
-			},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths: {
+					override: nodePath,
+				},
+			}).tracks,
 			propStatuses: {
 				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+					durationDependentKeyframes: null,
 					canUpdate: true,
 					props: {
 						durationInFrames: {
@@ -2335,24 +2561,30 @@ test('Timeline duration drag trims audio and video without an explicit duration'
 });
 
 test('Timeline duration drag waits for an effective implicit media duration', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const sequences = [
+		makeTimelineSequence({
+			schema: Internals.baseSchema,
+			type: 'video',
+			duration: Infinity,
+		}),
+	];
 	expect(
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: nodePathInfo,
 			draggedSequenceMediaDurationDragLimits: null,
 			selectedSequenceMediaDurationDragLimits: null,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [
-				makeTimelineSequence({
-					schema: Internals.baseSchema,
-					type: 'video',
-					duration: Infinity,
-				}),
-			],
-			overrideIdsToNodePaths: {override: nodePath},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			propStatuses: {
 				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+					durationDependentKeyframes: null,
 					canUpdate: true,
 					props: {
 						durationInFrames: {
@@ -2423,6 +2655,7 @@ test('Timeline duration drag clamps each selected sequence to one frame', () => 
 });
 
 test('TransitionSeries.Sequence resize clamps to adjacent transition durations', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePathInfo = makeNodePathInfo(['body', 2], []);
@@ -2475,7 +2708,10 @@ test('TransitionSeries.Sequence resize clamps to adjacent transition durations',
 		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems,
 		sequences,
-		overrideIdsToNodePaths,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
 		propStatuses,
 		timelineDurationInFrames: 1000,
 	});
@@ -2492,7 +2728,10 @@ test('TransitionSeries.Sequence resize clamps to adjacent transition durations',
 		draggedNodePathInfo: nodePathInfo,
 		selectedItems,
 		sequences,
-		overrideIdsToNodePaths,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
 		propStatuses,
 	});
 
@@ -2506,6 +2745,7 @@ test('TransitionSeries.Sequence resize clamps to adjacent transition durations',
 });
 
 test('Timeline duration drag is blocked if one selected sequence cannot update duration', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -2518,11 +2758,27 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 			secondNodePathInfo.sequenceSubscriptionKey,
 		)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [],
 	};
 
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			from: 10,
+		}),
+	];
 	expect(
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: firstNodePathInfo,
@@ -2532,25 +2788,14 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 				{type: 'sequence', nodePathInfo: firstNodePathInfo},
 				{type: 'sequence', nodePathInfo: secondNodePathInfo},
 			],
-			sequences: [
-				makeTimelineSequence({
-					schema,
-					id: 'first',
-					overrideId: 'first',
-					duration: 40,
-				}),
-				makeTimelineSequence({
-					schema,
-					id: 'second',
-					overrideId: 'second',
-					duration: 15,
-					from: 10,
-				}),
-			],
-			overrideIdsToNodePaths: {
-				first: firstNodePathInfo.sequenceSubscriptionKey,
-				second: secondNodePathInfo.sequenceSubscriptionKey,
-			},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths: {
+					first: firstNodePathInfo.sequenceSubscriptionKey,
+					second: secondNodePathInfo.sequenceSubscriptionKey,
+				},
+			}).tracks,
 			propStatuses,
 			timelineDurationInFrames: 1000,
 		}),
@@ -2558,6 +2803,7 @@ test('Timeline duration drag is blocked if one selected sequence cannot update d
 });
 
 test('Timeline duration drag is blocked if one selected sequence duration is keyframed', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -2571,6 +2817,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 			secondNodePathInfo.sequenceSubscriptionKey,
 		)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			durationInFrames: {
@@ -2587,6 +2834,21 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 		effects: [],
 	};
 
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			from: 10,
+		}),
+	];
 	expect(
 		getTimelineSequenceDurationDragTargets({
 			draggedNodePathInfo: firstNodePathInfo,
@@ -2596,25 +2858,14 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 				{type: 'sequence', nodePathInfo: firstNodePathInfo},
 				{type: 'sequence', nodePathInfo: secondNodePathInfo},
 			],
-			sequences: [
-				makeTimelineSequence({
-					schema,
-					id: 'first',
-					overrideId: 'first',
-					duration: 40,
-				}),
-				makeTimelineSequence({
-					schema,
-					id: 'second',
-					overrideId: 'second',
-					duration: 15,
-					from: 10,
-				}),
-			],
-			overrideIdsToNodePaths: {
-				first: firstNodePathInfo.sequenceSubscriptionKey,
-				second: secondNodePathInfo.sequenceSubscriptionKey,
-			},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths: {
+					first: firstNodePathInfo.sequenceSubscriptionKey,
+					second: secondNodePathInfo.sequenceSubscriptionKey,
+				},
+			}).tracks,
 			propStatuses,
 			timelineDurationInFrames: 1000,
 		}),
@@ -2622,10 +2873,33 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 });
 
 test('Timeline duration drag ignores selection if dragged sequence is not selected', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const thirdNodePathInfo = makeNodePathInfo(['body', 2], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			from: 10,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'third',
+			overrideId: 'third',
+			duration: 25,
+			from: 20,
+		}),
+	];
 	const targets = getTimelineSequenceDurationDragTargets({
 		draggedNodePathInfo: firstNodePathInfo,
 		draggedSequenceMediaDurationDragLimits: null,
@@ -2634,33 +2908,15 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 			{type: 'sequence', nodePathInfo: secondNodePathInfo},
 			{type: 'sequence', nodePathInfo: thirdNodePathInfo},
 		],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				id: 'first',
-				overrideId: 'first',
-				duration: 40,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'second',
-				overrideId: 'second',
-				duration: 15,
-				from: 10,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'third',
-				overrideId: 'third',
-				duration: 25,
-				from: 20,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			first: firstNodePathInfo.sequenceSubscriptionKey,
-			second: secondNodePathInfo.sequenceSubscriptionKey,
-			third: thirdNodePathInfo.sequenceSubscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				first: firstNodePathInfo.sequenceSubscriptionKey,
+				second: secondNodePathInfo.sequenceSubscriptionKey,
+				third: thirdNodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeDurationPropStatuses([
 			firstNodePathInfo.sequenceSubscriptionKey,
 			secondNodePathInfo.sequenceSubscriptionKey,
@@ -2675,36 +2931,41 @@ test('Timeline duration drag ignores selection if dragged sequence is not select
 });
 
 test('Timeline left edge drag adjusts from, duration and trimBefore for selected sequences', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+			from: 5,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			from: 10,
+			type: 'image',
+		}),
+	];
 	const targets = getTimelineSequenceLeftEdgeDragTargets({
 		draggedNodePathInfo: firstNodePathInfo,
 		selectedItems: [
 			{type: 'sequence', nodePathInfo: firstNodePathInfo},
 			{type: 'sequence', nodePathInfo: secondNodePathInfo},
 		],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				id: 'first',
-				overrideId: 'first',
-				duration: 40,
-				from: 5,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'second',
-				overrideId: 'second',
-				duration: 15,
-				from: 10,
-				type: 'image',
-			}),
-		],
-		overrideIdsToNodePaths: {
-			first: firstNodePathInfo.sequenceSubscriptionKey,
-			second: secondNodePathInfo.sequenceSubscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				first: firstNodePathInfo.sequenceSubscriptionKey,
+				second: secondNodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeLeftEdgePropStatuses(
 			[
 				firstNodePathInfo.sequenceSubscriptionKey,
@@ -2729,28 +2990,120 @@ test('Timeline left edge drag adjusts from, duration and trimBefore for selected
 	]);
 });
 
+test.each([
+	{durationInFrames: null, from: 0, parentRate: 1, childRate: 1},
+	{durationInFrames: 465, from: 33, parentRate: 1, childRate: 1},
+	{durationInFrames: 232.5, from: 33, parentRate: 2, childRate: 0.5},
+])(
+	'left edge trimming uses the visible start of a clipped child: %j',
+	({durationInFrames, from, parentRate, childRate}) => {
+		const calculate = CanvasInternals.createTimelineCalculator();
+		const schema = {} satisfies InteractivitySchema;
+		const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+		const child = makeTimelineSequence({
+			schema,
+			id: 'captions',
+			parentId: 'parent',
+			from,
+			duration: (durationInFrames ?? 498 * childRate) / childRate,
+			trimBefore: from * childRate,
+			sequencePlaybackRate: childRate,
+		});
+		const sequences = [
+			makeTimelineSequence({
+				schema,
+				id: 'parent',
+				overrideId: 'parent',
+				from: 30,
+				duration: 129 / parentRate,
+				trimBefore: 369,
+				sequencePlaybackRate: parentRate,
+			}),
+			child,
+		];
+		const overrideIdsToNodePaths = {
+			override: nodePathInfo.sequenceSubscriptionKey,
+		};
+		const targets = getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths,
+			}).tracks,
+			propStatuses: makeLeftEdgePropStatuses(
+				[nodePathInfo.sequenceSubscriptionKey],
+				true,
+				true,
+				[durationInFrames ?? undefined],
+			),
+		});
+		const changes = getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 6,
+		});
+		const values = Object.fromEntries(
+			changes.map((change) => {
+				if (typeof change.value !== 'number') {
+					throw new Error('Expected numeric trim values');
+				}
+
+				return [change.fieldKey, change.value] as const;
+			}),
+		);
+		expect(values).toEqual({
+			from: 369 + 6 * parentRate,
+			durationInFrames: (129 - 6 * parentRate) * childRate,
+			trimBefore: (369 + 6 * parentRate) * childRate,
+		});
+		const {tracks} = calculate({
+			sequences: [
+				sequences[0],
+				{
+					...child,
+					from: values.from,
+					duration: values.durationInFrames / childRate,
+					trimBefore: values.trimBefore,
+					autoDuration: false,
+				} as TSequence,
+			],
+			overrideIdsToNodePaths,
+		});
+		expect(
+			tracks.find((track) => track.sequence.id === 'captions')?.sequence,
+		).toMatchObject({from: 36, duration: 129 / parentRate - 6});
+	},
+);
+
 test('TransitionSeries.Sequence self-trim changes its duration and trimBefore', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const subscriptionKey = nodePathInfo.sequenceSubscriptionKey;
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
+			duration: 40,
+			from: 12,
+			isInsideSeries: true,
+			trimBefore: 3,
+		}),
+	];
 	const targets = getTimelineSequenceLeftEdgeDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
-				duration: 40,
-				from: 12,
-				isInsideSeries: true,
-				trimBefore: 3,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			override: subscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				override: subscriptionKey,
+			},
+		}).tracks,
 		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props: {
 					durationInFrames: {
@@ -2788,27 +3141,33 @@ test('TransitionSeries.Sequence self-trim changes its duration and trimBefore', 
 });
 
 test('Series.Sequence self-trim changes its duration and trimBefore', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const subscriptionKey = nodePathInfo.sequenceSubscriptionKey;
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			componentIdentity: 'dev.remotion.remotion.Series.Sequence',
+			duration: 40,
+			from: 12,
+			isInsideSeries: true,
+			trimBefore: 3,
+		}),
+	];
 	const targets = getTimelineSequenceLeftEdgeDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				componentIdentity: 'dev.remotion.remotion.Series.Sequence',
-				duration: 40,
-				from: 12,
-				isInsideSeries: true,
-				trimBefore: 3,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			override: subscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				override: subscriptionKey,
+			},
+		}).tracks,
 		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props: {
 					durationInFrames: {
@@ -2876,6 +3235,7 @@ test('Timeline left edge drag clamps trimBefore to the visible range', () => {
 });
 
 test('Timeline left edge drag scales media trimBefore by the runtime playbackRate', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const cases = [
 		{componentIdentity: 'dev.remotion.media.Video', type: 'video'},
@@ -2889,20 +3249,24 @@ test('Timeline left edge drag scales media trimBefore by the runtime playbackRat
 
 	for (const [index, testCase] of cases.entries()) {
 		const nodePathInfo = makeNodePathInfo(['body', index], []);
+		const sequences = [
+			makeTimelineSequence({
+				schema,
+				componentIdentity: testCase.componentIdentity,
+				currentRuntimeValueDotNotation: {playbackRate: 2},
+				type: testCase.type,
+			}),
+		];
 		const targets = getTimelineSequenceLeftEdgeDragTargets({
 			draggedNodePathInfo: nodePathInfo,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [
-				makeTimelineSequence({
-					schema,
-					componentIdentity: testCase.componentIdentity,
-					currentRuntimeValueDotNotation: {playbackRate: 2},
-					type: testCase.type,
-				}),
-			],
-			overrideIdsToNodePaths: {
-				override: nodePathInfo.sequenceSubscriptionKey,
-			},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths: {
+					override: nodePathInfo.sequenceSubscriptionKey,
+				},
+			}).tracks,
 			propStatuses: makeLeftEdgePropStatuses(
 				[nodePathInfo.sequenceSubscriptionKey],
 				true,
@@ -2960,23 +3324,28 @@ test('Timeline left edge drag reaches exact zero with fractional playback rates'
 });
 
 test('Timeline left edge drag adjusts and clamps media trimBefore', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			duration: 40,
+			from: 12,
+			startMediaFrom: 8,
+			type: 'video',
+		}),
+	];
 	const targets = getTimelineSequenceLeftEdgeDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				duration: 40,
-				from: 12,
-				startMediaFrom: 8,
-				type: 'video',
-			}),
-		],
-		overrideIdsToNodePaths: {
-			override: nodePathInfo.sequenceSubscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeLeftEdgePropStatuses(
 			[nodePathInfo.sequenceSubscriptionKey],
 			true,
@@ -2997,23 +3366,28 @@ test('Timeline left edge drag adjusts and clamps media trimBefore', () => {
 });
 
 test('Timeline left edge drag is blocked without timeline range props', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			duration: 40,
+			from: 0,
+			startMediaFrom: 8,
+			type: 'video',
+		}),
+	];
 	const targets = getTimelineSequenceLeftEdgeDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				duration: 40,
-				from: 0,
-				startMediaFrom: 8,
-				type: 'video',
-			}),
-		],
-		overrideIdsToNodePaths: {
-			override: nodePathInfo.sequenceSubscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses: makeLeftEdgePropStatuses(
 			[nodePathInfo.sequenceSubscriptionKey],
 			true,
@@ -3025,22 +3399,27 @@ test('Timeline left edge drag is blocked without timeline range props', () => {
 });
 
 test('Timeline left edge drag is blocked if trimBefore cannot update', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			type: 'audio',
+		}),
+	];
 	expect(
 		getTimelineSequenceLeftEdgeDragTargets({
 			draggedNodePathInfo: nodePathInfo,
 			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [
-				makeTimelineSequence({
-					schema,
-					type: 'audio',
-				}),
-			],
-			overrideIdsToNodePaths: {
-				override: nodePathInfo.sequenceSubscriptionKey,
-			},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths: {
+					override: nodePathInfo.sequenceSubscriptionKey,
+				},
+			}).tracks,
 			propStatuses: makeLeftEdgePropStatuses([
 				nodePathInfo.sequenceSubscriptionKey,
 			]),
@@ -3049,6 +3428,7 @@ test('Timeline left edge drag is blocked if trimBefore cannot update', () => {
 });
 
 test('Timeline from drag applies the same delta to selected sequences', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -3069,6 +3449,10 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 			type: 'audio',
 		}),
 	];
+	const overrideIdsToNodePaths = {
+		first: firstNodePathInfo.sequenceSubscriptionKey,
+		second: secondNodePathInfo.sequenceSubscriptionKey,
+	};
 	const targets = getTimelineSequenceFromDragTargets({
 		draggedNodePathInfo: firstNodePathInfo,
 		selectedItems: [
@@ -3076,10 +3460,11 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 			{type: 'sequence', nodePathInfo: secondNodePathInfo},
 		],
 		sequences,
-		overrideIdsToNodePaths: {
-			first: firstNodePathInfo.sequenceSubscriptionKey,
-			second: secondNodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
+		overrideIdsToNodePaths,
 		propStatuses: makeFromPropStatuses([
 			firstNodePathInfo.sequenceSubscriptionKey,
 			secondNodePathInfo.sequenceSubscriptionKey,
@@ -3089,7 +3474,7 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
 
 	for (const [deltaFrames, expected] of [
-		[-100, -24],
+		[-100, 0],
 		[100, 79],
 	]) {
 		expect(
@@ -3112,6 +3497,7 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 });
 
 test('Timeline from drag only moves selected sequences without selected ancestors', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
@@ -3138,6 +3524,11 @@ test('Timeline from drag only moves selected sequences without selected ancestor
 			type: 'video',
 		}),
 	];
+	const overrideIdsToNodePaths = {
+		parent: parentNodePathInfo.sequenceSubscriptionKey,
+		child: childNodePathInfo.sequenceSubscriptionKey,
+		video: videoNodePathInfo.sequenceSubscriptionKey,
+	};
 	const targets = getTimelineSequenceFromDragTargets({
 		draggedNodePathInfo: parentNodePathInfo,
 		selectedItems: [
@@ -3146,11 +3537,11 @@ test('Timeline from drag only moves selected sequences without selected ancestor
 			{type: 'sequence', nodePathInfo: videoNodePathInfo},
 		],
 		sequences,
-		overrideIdsToNodePaths: {
-			parent: parentNodePathInfo.sequenceSubscriptionKey,
-			child: childNodePathInfo.sequenceSubscriptionKey,
-			video: videoNodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
+		overrideIdsToNodePaths,
 		propStatuses: makeFromPropStatuses([
 			parentNodePathInfo.sequenceSubscriptionKey,
 			childNodePathInfo.sequenceSubscriptionKey,
@@ -3168,6 +3559,7 @@ test('Timeline from drag only moves selected sequences without selected ancestor
 });
 
 test('Timeline from drag moves all owned sequence keyframes by the same delta', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		'style.translate': {type: 'translate', default: '0px 0px'},
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
@@ -3176,6 +3568,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = makeFromPropStatuses([nodePath]);
 	propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			from: {
@@ -3212,17 +3605,23 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 		},
 		effects: [],
 	};
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			duration: 40,
+			from: 0,
+		}),
+	];
+	const overrideIdsToNodePaths = {override: nodePath};
 	const targets = getTimelineSequenceFromDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				duration: 40,
-				from: 0,
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
+		overrideIdsToNodePaths,
 		propStatuses,
 	});
 
@@ -3244,6 +3643,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 });
 
 test('Timeline from drag moves only descendant keyframes tied to an outer frame clock', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const parentNodePath = parentNodePathInfo.sequenceSubscriptionKey;
 	const outerFrameDescendantNodePath = makeNodePathInfo(
@@ -3270,6 +3670,7 @@ test('Timeline from drag moves only descendant keyframes tied to an outer frame 
 	propStatuses[
 		Internals.makeSequencePropsSubscriptionKey(outerFrameDescendantNodePath)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			color: {
@@ -3282,6 +3683,7 @@ test('Timeline from drag moves only descendant keyframes tied to an outer frame 
 	propStatuses[
 		Internals.makeSequencePropsSubscriptionKey(localFrameDescendantNodePath)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			color: {
@@ -3292,33 +3694,39 @@ test('Timeline from drag moves only descendant keyframes tied to an outer frame 
 		effects: [],
 	};
 
+	const sequences = [
+		makeTimelineSequence({
+			schema: {},
+			id: 'parent',
+			overrideId: 'parent-override',
+		}),
+		makeTimelineSequence({
+			schema: {color: {type: 'color', default: '#000000'}},
+			id: 'outer-frame-descendant',
+			overrideId: 'outer-frame-descendant-override',
+			parentId: 'parent',
+		}),
+		makeTimelineSequence({
+			schema: {color: {type: 'color', default: '#000000'}},
+			id: 'local-frame-descendant',
+			overrideId: 'local-frame-descendant-override',
+			parentId: 'parent',
+		}),
+	];
+	const overrideIdsToNodePaths = {
+		'parent-override': parentNodePath,
+		'outer-frame-descendant-override': outerFrameDescendantNodePath,
+		'local-frame-descendant-override': localFrameDescendantNodePath,
+	};
 	const targets = getTimelineSequenceFromDragTargets({
 		draggedNodePathInfo: parentNodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo: parentNodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema: {},
-				id: 'parent',
-				overrideId: 'parent-override',
-			}),
-			makeTimelineSequence({
-				schema: {color: {type: 'color', default: '#000000'}},
-				id: 'outer-frame-descendant',
-				overrideId: 'outer-frame-descendant-override',
-				parentId: 'parent',
-			}),
-			makeTimelineSequence({
-				schema: {color: {type: 'color', default: '#000000'}},
-				id: 'local-frame-descendant',
-				overrideId: 'local-frame-descendant-override',
-				parentId: 'parent',
-			}),
-		],
-		overrideIdsToNodePaths: {
-			'parent-override': parentNodePath,
-			'outer-frame-descendant-override': outerFrameDescendantNodePath,
-			'local-frame-descendant-override': localFrameDescendantNodePath,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
+		overrideIdsToNodePaths,
 		propStatuses,
 	});
 
@@ -3350,6 +3758,7 @@ test('Timeline from drag moves only descendant keyframes tied to an outer frame 
 });
 
 test('Timeline from drag moves owned effect keyframes by the same delta', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
@@ -3360,6 +3769,7 @@ test('Timeline from drag moves owned effect keyframes by the same delta', () => 
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = makeFromPropStatuses([nodePath]);
 	propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			from: {
@@ -3392,16 +3802,22 @@ test('Timeline from drag moves owned effect keyframes by the same delta', () => 
 			},
 		],
 	};
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			effects: [{schema: effectSchema}],
+		}),
+	];
+	const overrideIdsToNodePaths = {override: nodePath};
 	const targets = getTimelineSequenceFromDragTargets({
 		draggedNodePathInfo: nodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				effects: [{schema: effectSchema}],
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
+		overrideIdsToNodePaths,
 		propStatuses,
 	});
 
@@ -3436,6 +3852,7 @@ test('Timeline from drag snaps a root sequence to frame 0', () => {
 		parentPlaybackRate: 1,
 		canSnapToTimelineStart: true,
 		minimumDeltaFrames: -100,
+		maximumDeltaFrames: Infinity,
 		initialTimelineStart: 8,
 		effectKeyframes: [],
 		fileName: nodePath.absolutePath,
@@ -3488,6 +3905,7 @@ test('Timeline from drag does not snap nested sequences to the timeline start', 
 					parentPlaybackRate: 1,
 					canSnapToTimelineStart: false,
 					minimumDeltaFrames: -100,
+					maximumDeltaFrames: Infinity,
 					initialTimelineStart: 8,
 					effectKeyframes: [],
 					fileName: nodePath.absolutePath,
@@ -3501,31 +3919,38 @@ test('Timeline from drag does not snap nested sequences to the timeline start', 
 });
 
 test('Timeline from drag saves relative from for nested sequences', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const childNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'parent',
+			overrideId: 'parent',
+			duration: 100,
+			from: 50,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'child',
+			overrideId: 'child',
+			duration: 20,
+			from: 10,
+			parentId: 'parent',
+		}),
+	];
+	const overrideIdsToNodePaths = {
+		child: childNodePathInfo.sequenceSubscriptionKey,
+	};
 	const targets = getTimelineSequenceFromDragTargets({
 		draggedNodePathInfo: childNodePathInfo,
 		selectedItems: [{type: 'sequence', nodePathInfo: childNodePathInfo}],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				id: 'parent',
-				overrideId: 'parent',
-				duration: 100,
-				from: 50,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'child',
-				overrideId: 'child',
-				duration: 20,
-				from: 10,
-				parentId: 'parent',
-			}),
-		],
-		overrideIdsToNodePaths: {
-			child: childNodePathInfo.sequenceSubscriptionKey,
-		},
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
+		overrideIdsToNodePaths,
 		propStatuses: makeFromPropStatuses([
 			childNodePathInfo.sequenceSubscriptionKey,
 		]),
@@ -3541,6 +3966,7 @@ test('Timeline from drag saves relative from for nested sequences', () => {
 });
 
 test('Timeline from drag is blocked if one selected sequence cannot update from', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const firstNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const secondNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -3553,11 +3979,31 @@ test('Timeline from drag is blocked if one selected sequence cannot update from'
 			secondNodePathInfo.sequenceSubscriptionKey,
 		)
 	] = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [],
 	};
 
+	const sequences = [
+		makeTimelineSequence({
+			schema,
+			id: 'first',
+			overrideId: 'first',
+			duration: 40,
+		}),
+		makeTimelineSequence({
+			schema,
+			id: 'second',
+			overrideId: 'second',
+			duration: 15,
+			from: 10,
+		}),
+	];
+	const overrideIdsToNodePaths = {
+		first: firstNodePathInfo.sequenceSubscriptionKey,
+		second: secondNodePathInfo.sequenceSubscriptionKey,
+	};
 	expect(
 		getTimelineSequenceFromDragTargets({
 			draggedNodePathInfo: firstNodePathInfo,
@@ -3565,25 +4011,12 @@ test('Timeline from drag is blocked if one selected sequence cannot update from'
 				{type: 'sequence', nodePathInfo: firstNodePathInfo},
 				{type: 'sequence', nodePathInfo: secondNodePathInfo},
 			],
-			sequences: [
-				makeTimelineSequence({
-					schema,
-					id: 'first',
-					overrideId: 'first',
-					duration: 40,
-				}),
-				makeTimelineSequence({
-					schema,
-					id: 'second',
-					overrideId: 'second',
-					duration: 15,
-					from: 10,
-				}),
-			],
-			overrideIdsToNodePaths: {
-				first: firstNodePathInfo.sequenceSubscriptionKey,
-				second: secondNodePathInfo.sequenceSubscriptionKey,
-			},
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths,
+			}).tracks,
+			overrideIdsToNodePaths,
 			propStatuses,
 		}),
 	).toBe(null);
@@ -3597,6 +4030,7 @@ test('Timeline from drag removes the prop at the default value', () => {
 				parentPlaybackRate: 1,
 				canSnapToTimelineStart: true,
 				minimumDeltaFrames: -100,
+				maximumDeltaFrames: Infinity,
 				initialTimelineStart: 8,
 				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
@@ -3811,31 +4245,35 @@ test('Connected composition double-click respects frozen frames', () => {
 });
 
 test('Canvas outline hit targets render nested sequences above parents', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const refForOutline = {current: null};
 	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
-	const outlines = getSequencesWithSelectableOutlines({
+	const outlines = CanvasInternals.getCanvasSelectableOutlines({
 		timelinePosition: 0,
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				id: 'parent',
-				overrideId: 'parent',
-				refForOutline,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'child',
-				overrideId: 'child',
-				parentId: 'parent',
-				refForOutline,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			parent: parentNodePathInfo.sequenceSubscriptionKey,
-			child: childNodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					id: 'parent',
+					overrideId: 'parent',
+					refForOutline,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'child',
+					overrideId: 'child',
+					parentId: 'parent',
+					refForOutline,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				parent: parentNodePathInfo.sequenceSubscriptionKey,
+				child: childNodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
+		resolveSequenceNodePathInfo: null,
 	});
 
 	expect(outlines.map((outline) => outline.key)).toEqual([
@@ -3845,6 +4283,7 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 });
 
 test('Canvas outlines exclude descendants of connected compositions', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const ConnectedChild = () => null;
 	const schema = {} satisfies InteractivitySchema;
 	const refForOutline = {current: null};
@@ -3858,44 +4297,47 @@ test('Canvas outlines exclude descendants of connected compositions', () => {
 	const connectedComposition = {
 		componentFromProps: ConnectedChild,
 	} as unknown as _InternalTypes['AnyComposition'];
-	const outlines = getSequencesWithSelectableOutlines({
+	const outlines = CanvasInternals.getCanvasSelectableOutlines({
 		timelinePosition: 0,
-		compositions: [connectedComposition],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				id: 'connected',
-				overrideId: 'connected',
-				refForOutline,
-				singleChildComponent: ConnectedChild,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'child',
-				overrideId: 'child',
-				parentId: 'connected',
-				refForOutline,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'grandchild',
-				overrideId: 'grandchild',
-				parentId: 'child',
-				refForOutline,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'sibling',
-				overrideId: 'sibling',
-				refForOutline,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			connected: connectedNodePathInfo.sequenceSubscriptionKey,
-			child: childNodePathInfo.sequenceSubscriptionKey,
-			grandchild: grandchildNodePathInfo.sequenceSubscriptionKey,
-			sibling: siblingNodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			compositions: [connectedComposition],
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					id: 'connected',
+					overrideId: 'connected',
+					refForOutline,
+					singleChildComponent: ConnectedChild,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'child',
+					overrideId: 'child',
+					parentId: 'connected',
+					refForOutline,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'grandchild',
+					overrideId: 'grandchild',
+					parentId: 'child',
+					refForOutline,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'sibling',
+					overrideId: 'sibling',
+					refForOutline,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				connected: connectedNodePathInfo.sequenceSubscriptionKey,
+				child: childNodePathInfo.sequenceSubscriptionKey,
+				grandchild: grandchildNodePathInfo.sequenceSubscriptionKey,
+				sibling: siblingNodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
+		resolveSequenceNodePathInfo: null,
 	});
 
 	expect(outlines.map((outline) => outline.key)).toEqual([
@@ -4486,40 +4928,44 @@ test('Canvas outline rendering follows hidden intermediate ancestors', () => {
 });
 
 test('Canvas outline hit targets exclude sequences hidden from the timeline', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const refForOutline = {current: null};
 	const hiddenNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const visibleNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
-	const outlines = getSequencesWithSelectableOutlines({
+	const outlines = CanvasInternals.getCanvasSelectableOutlines({
 		timelinePosition: 0,
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				id: 'hidden',
-				overrideId: 'hidden',
-				refForOutline,
-				showInTimeline: false,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'visible',
-				overrideId: 'visible',
-				refForOutline,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'child',
-				overrideId: 'child',
-				parentId: 'hidden',
-				refForOutline,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			hidden: hiddenNodePathInfo.sequenceSubscriptionKey,
-			visible: visibleNodePathInfo.sequenceSubscriptionKey,
-			child: childNodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					id: 'hidden',
+					overrideId: 'hidden',
+					refForOutline,
+					showInTimeline: false,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'visible',
+					overrideId: 'visible',
+					refForOutline,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'child',
+					overrideId: 'child',
+					parentId: 'hidden',
+					refForOutline,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				hidden: hiddenNodePathInfo.sequenceSubscriptionKey,
+				visible: visibleNodePathInfo.sequenceSubscriptionKey,
+				child: childNodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
+		resolveSequenceNodePathInfo: null,
 	});
 
 	expect(outlines.map((outline) => outline.key).sort()).toEqual(
@@ -4531,46 +4977,50 @@ test('Canvas outline hit targets exclude sequences hidden from the timeline', ()
 });
 
 test('Canvas outline hit targets exclude premounted and postmounted sequences', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const refForOutline = {current: null};
 	const premountedNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const activeNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const postmountedNodePathInfo = makeNodePathInfo(['body', 2], []);
-	const outlines = getSequencesWithSelectableOutlines({
+	const outlines = CanvasInternals.getCanvasSelectableOutlines({
 		timelinePosition: 10,
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				id: 'premounted',
-				overrideId: 'premounted',
-				from: 20,
-				duration: 10,
-				premountDisplay: 10,
-				refForOutline,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'active',
-				overrideId: 'active',
-				from: 10,
-				duration: 10,
-				refForOutline,
-			}),
-			makeTimelineSequence({
-				schema,
-				id: 'postmounted',
-				overrideId: 'postmounted',
-				from: 0,
-				duration: 10,
-				postmountDisplay: 10,
-				refForOutline,
-			}),
-		],
-		overrideIdsToNodePaths: {
-			premounted: premountedNodePathInfo.sequenceSubscriptionKey,
-			active: activeNodePathInfo.sequenceSubscriptionKey,
-			postmounted: postmountedNodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					id: 'premounted',
+					overrideId: 'premounted',
+					from: 20,
+					duration: 10,
+					premountDisplay: 10,
+					refForOutline,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'active',
+					overrideId: 'active',
+					from: 10,
+					duration: 10,
+					refForOutline,
+				}),
+				makeTimelineSequence({
+					schema,
+					id: 'postmounted',
+					overrideId: 'postmounted',
+					from: 0,
+					duration: 10,
+					postmountDisplay: 10,
+					refForOutline,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				premounted: premountedNodePathInfo.sequenceSubscriptionKey,
+				active: activeNodePathInfo.sequenceSubscriptionKey,
+				postmounted: postmountedNodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
+		resolveSequenceNodePathInfo: null,
 	});
 
 	expect(outlines.map((outline) => outline.key)).toEqual([
@@ -5991,6 +6441,7 @@ const getUvHandlesForSelectedEffectChild = (selectedFieldKey: string) => {
 	} as const satisfies InteractivitySchema;
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -6183,6 +6634,7 @@ test('UV handles are requested for keyframed selected effect props', () => {
 	} as const satisfies InteractivitySchema;
 	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -6423,6 +6875,7 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 	const nodePath = sequenceNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -6454,6 +6907,8 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 				{
 					cascadedStart: 0,
 					localStart: 0,
+					parentVisibleStart: 0,
+					parentVisibleEnd: null,
 					depth: 0,
 					keyframeDisplayOffset: 0,
 					keyframePlaybackRate: 1,
@@ -6543,6 +6998,7 @@ test('Cmd+D duplicates selected timeline sequence and effect rows', () => {
 });
 
 test('Backspace reset targets multiple selected sequence props', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 		'style.rotate': {type: 'rotation-css', default: '0deg'},
@@ -6558,6 +7014,7 @@ test('Backspace reset targets multiple selected sequence props', () => {
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -6588,8 +7045,10 @@ test('Backspace reset targets multiple selected sequence props', () => {
 				key: 'style.rotate',
 			},
 		],
-		sequences: [makeTimelineSequence({schema})],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -6601,6 +7060,7 @@ test('Backspace reset targets multiple selected sequence props', () => {
 });
 
 test('Backspace reset targets stroke with the SVG default', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		stroke: {type: 'color', default: 'none'},
 	} satisfies InteractivitySchema;
@@ -6611,6 +7071,7 @@ test('Backspace reset targets stroke with the SVG default', () => {
 	const nodePath = strokeNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				stroke: {
@@ -6631,8 +7092,10 @@ test('Backspace reset targets stroke with the SVG default', () => {
 				key: 'stroke',
 			},
 		],
-		sequences: [makeTimelineSequence({schema})],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -6650,6 +7113,7 @@ test('Backspace reset targets stroke with the SVG default', () => {
 });
 
 test('Backspace reset targets border radius with the CSS default', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const radiusNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'style.borderRadius'],
@@ -6657,6 +7121,7 @@ test('Backspace reset targets border radius with the CSS default', () => {
 	const nodePath = radiusNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.borderRadius': {
@@ -6677,10 +7142,12 @@ test('Backspace reset targets border radius with the CSS default', () => {
 				key: 'style.borderRadius',
 			},
 		],
-		sequences: [
-			makeTimelineSequence({schema: NoReactInternals.sequenceSchema}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({schema: NoReactInternals.sequenceSchema}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -6698,6 +7165,7 @@ test('Backspace reset targets border radius with the CSS default', () => {
 });
 
 test('Backspace reset targets selected keyframed sequence props', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 	} satisfies InteractivitySchema;
@@ -6708,6 +7176,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -6736,8 +7205,10 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 				key: 'opacity',
 			},
 		],
-		sequences: [makeTimelineSequence({schema})],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -6755,6 +7226,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 });
 
 test('Backspace reset skips selected computed sequence props with defaults', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		'style.scale': {type: 'scale', default: 1, max: 100},
 	} satisfies InteractivitySchema;
@@ -6765,6 +7237,7 @@ test('Backspace reset skips selected computed sequence props with defaults', () 
 	const nodePath = scaleNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.scale': {
@@ -6783,8 +7256,10 @@ test('Backspace reset skips selected computed sequence props with defaults', () 
 				key: 'style.scale',
 			},
 		],
-		sequences: [makeTimelineSequence({schema})],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -6792,6 +7267,7 @@ test('Backspace reset skips selected computed sequence props with defaults', () 
 });
 
 test('Backspace reset targets flattened built-in keyframed sequence style props', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'style.opacity'],
@@ -6799,6 +7275,7 @@ test('Backspace reset targets flattened built-in keyframed sequence style props'
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				'style.opacity': {
@@ -6827,10 +7304,12 @@ test('Backspace reset targets flattened built-in keyframed sequence style props'
 				key: 'style.opacity',
 			},
 		],
-		sequences: [
-			makeTimelineSequence({schema: NoReactInternals.sequenceSchema}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({schema: NoReactInternals.sequenceSchema}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -6848,6 +7327,7 @@ test('Backspace reset targets flattened built-in keyframed sequence style props'
 });
 
 test('Backspace reset skips keyframed sequence props without defaults', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		opacity: {type: 'number', default: undefined, hiddenFromList: false},
 	} satisfies InteractivitySchema;
@@ -6858,6 +7338,7 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -6886,8 +7367,10 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 				key: 'opacity',
 			},
 		],
-		sequences: [makeTimelineSequence({schema})],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -7695,6 +8178,7 @@ test('Selected outline scale edge cursors follow rotated outlines', () => {
 });
 
 test('Backspace reset targets selected effect props', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
@@ -7706,6 +8190,7 @@ test('Backspace reset targets selected effect props', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -7735,13 +8220,15 @@ test('Backspace reset targets selected effect props', () => {
 				key: 'intensity',
 			},
 		],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				effects: [{schema: effectSchema}],
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -7760,6 +8247,7 @@ test('Backspace reset targets selected effect props', () => {
 });
 
 test('Backspace reset targets active enum variant effect props', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		colorMode: {
@@ -7783,6 +8271,7 @@ test('Backspace reset targets active enum variant effect props', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -7817,13 +8306,15 @@ test('Backspace reset targets active enum variant effect props', () => {
 				key: 'dotColor',
 			},
 		],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				effects: [{schema: effectSchema}],
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -7842,6 +8333,7 @@ test('Backspace reset targets active enum variant effect props', () => {
 });
 
 test('Backspace reset targets selected static blur radius with default', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		radius: {type: 'number', default: 40, hiddenFromList: false},
@@ -7853,6 +8345,7 @@ test('Backspace reset targets selected static blur radius with default', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -7882,13 +8375,15 @@ test('Backspace reset targets selected static blur radius with default', () => {
 				key: 'radius',
 			},
 		],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				effects: [{schema: effectSchema}],
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -7907,6 +8402,7 @@ test('Backspace reset targets selected static blur radius with default', () => {
 });
 
 test('Backspace reset targets selected keyframed effect props', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: 0, hiddenFromList: false},
@@ -7918,6 +8414,7 @@ test('Backspace reset targets selected keyframed effect props', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -7955,13 +8452,15 @@ test('Backspace reset targets selected keyframed effect props', () => {
 				key: 'intensity',
 			},
 		],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				effects: [{schema: effectSchema}],
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -7980,6 +8479,7 @@ test('Backspace reset targets selected keyframed effect props', () => {
 });
 
 test('Backspace reset skips keyframed effect props without defaults', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {} satisfies InteractivitySchema;
 	const effectSchema = {
 		intensity: {type: 'number', default: undefined, hiddenFromList: false},
@@ -7991,6 +8491,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {},
 			effects: [
@@ -8028,13 +8529,15 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 				key: 'intensity',
 			},
 		],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				effects: [{schema: effectSchema}],
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -8042,6 +8545,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 });
 
 test('Backspace reset targets mixed selected sequence and effect props', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 	} satisfies InteractivitySchema;
@@ -8059,6 +8563,7 @@ test('Backspace reset targets mixed selected sequence and effect props', () => {
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -8099,13 +8604,15 @@ test('Backspace reset targets mixed selected sequence and effect props', () => {
 				key: 'intensity',
 			},
 		],
-		sequences: [
-			makeTimelineSequence({
-				schema,
-				effects: [{schema: effectSchema}],
-			}),
-		],
-		overrideIdsToNodePaths: {override: nodePath},
+		tracks: calculate({
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					effects: [{schema: effectSchema}],
+				}),
+			],
+			overrideIdsToNodePaths: {override: nodePath},
+		}).tracks,
 		propStatuses,
 	});
 
@@ -8121,6 +8628,7 @@ test('Backspace reset targets mixed selected sequence and effect props', () => {
 });
 
 test('Backspace reset ignores incompatible mixed prop selections', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 	} satisfies InteractivitySchema;
@@ -8143,10 +8651,12 @@ test('Backspace reset ignores incompatible mixed prop selections', () => {
 					frame: 12,
 				},
 			],
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {
-				override: opacityNodePathInfo.sequenceSubscriptionKey,
-			},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema})],
+				overrideIdsToNodePaths: {
+					override: opacityNodePathInfo.sequenceSubscriptionKey,
+				},
+			}).tracks,
 			propStatuses: makeDurationPropStatuses([
 				opacityNodePathInfo.sequenceSubscriptionKey,
 			]),
@@ -8169,8 +8679,7 @@ test('Deleting unsupported mixed timeline selection types returns null', () => {
 					i: 0,
 				},
 			],
-			sequences: [],
-			overrideIdsToNodePaths: {},
+			tracks: [],
 			setPropStatuses: () => undefined,
 			clientId: 'client',
 			confirm,
@@ -8302,6 +8811,7 @@ test('Deleting keyframes across properties selects each affected property once',
 });
 
 test('Deleting selected keyframes ignores selected easings', async () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 	} satisfies InteractivitySchema;
@@ -8342,8 +8852,10 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 					segmentIndex: 0,
 				},
 			],
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			setPropStatuses: () => undefined,
 			clientId: 'client',
 			confirm: () => Promise.resolve(true),
@@ -8377,6 +8889,7 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 });
 
 test('Deleting all selected keyframes preserves the value at the playhead', async () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 	} satisfies InteractivitySchema;
@@ -8387,6 +8900,7 @@ test('Deleting all selected keyframes preserves the value at the playhead', asyn
 	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				opacity: {
@@ -8436,8 +8950,10 @@ test('Deleting all selected keyframes preserves the value at the playhead', asyn
 					frame: 10,
 				},
 			],
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
+			tracks: calculate({
+				sequences: [makeTimelineSequence({schema})],
+				overrideIdsToNodePaths: {override: nodePath},
+			}).tracks,
 			setPropStatuses: () => undefined,
 			clientId: 'client',
 			confirm: () => Promise.resolve(true),
@@ -9111,3 +9627,231 @@ test('Selected timeline rows do not reselect on pointer down without modifiers',
 		}),
 	).toBe(true);
 });
+
+test.each([
+	{
+		name: 'negative ancestor',
+		parentFrom: -30,
+		parentDuration: 300,
+		parentTrimBefore: 0,
+		childFrom: 10,
+		childDuration: 60,
+		deltaFrames: -10,
+		expectedFrom: 0,
+	},
+	{
+		name: 'trimmed ancestor',
+		parentFrom: 0,
+		parentDuration: 300,
+		parentTrimBefore: 30,
+		childFrom: 10,
+		childDuration: 60,
+		deltaFrames: -10,
+		expectedFrom: 0,
+	},
+	{
+		name: 'clipped trailing edge',
+		parentFrom: 0,
+		parentDuration: 60,
+		parentTrimBefore: 0,
+		childFrom: 40,
+		childDuration: 40,
+		deltaFrames: 10,
+		expectedFrom: 50,
+	},
+])('Timeline moves preserve existing ancestor clipping: $name', (scenario) => {
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const parent = makeTimelineSequence({
+		schema: {},
+		id: 'parent',
+		overrideId: 'parent',
+		from: scenario.parentFrom,
+		duration: scenario.parentDuration,
+		trimBefore: scenario.parentTrimBefore,
+	});
+	const child = makeTimelineSequence({
+		schema: {},
+		id: 'child',
+		overrideId: 'child',
+		parentId: parent.id,
+		from: scenario.childFrom,
+		duration: scenario.childDuration,
+	});
+	const sequences = [parent, child];
+	const overrideIdsToNodePaths = {child: nodePath};
+	const propStatuses = makeFromPropStatuses([nodePath]);
+	const {tracks} = calculate({sequences, overrideIdsToNodePaths});
+	const limits = getTimelineSequenceTimingLimits({
+		track: tracks.find((t) => t.sequence.id === child.id)!,
+		tracks,
+		sequences,
+		propStatuses,
+		timelineDurationInFrames: 600,
+		movingSequenceIds: null,
+	});
+	// Re-entering the existing From in the inspector must preserve it.
+	expect(
+		Math.max(limits.minimumFrom, Math.min(limits.maximumFrom, child.from)),
+	).toBe(child.from);
+	expect(scenario.expectedFrom).toBeGreaterThanOrEqual(limits.minimumFrom);
+	expect(scenario.expectedFrom).toBeLessThanOrEqual(limits.maximumFrom);
+	const targets = getTimelineSequenceFromDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [],
+		sequences,
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths,
+		}).tracks,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+	expect(targets).not.toBeNull();
+	const deltaFrames = getTimelineSequenceFromDragDelta({
+		targets: targets!,
+		deltaFrames: scenario.deltaFrames,
+		timelineDurationInFrames: 600,
+		pxPerFrame: 10,
+		snappingEnabled: false,
+	});
+	const changes = getTimelineSequenceFromDragChanges({
+		targets: targets!,
+		deltaFrames,
+	});
+	expect(changes.map((c) => c.value)).toEqual([scenario.expectedFrom]);
+	const movedTracks = calculate({
+		sequences: [parent, {...child, from: Number(changes[0].value)}],
+		overrideIdsToNodePaths,
+	}).tracks;
+	expect(
+		movedTracks.find((t) => t.sequence.id === child.id)!.sequence.duration,
+	).toBeGreaterThanOrEqual(1);
+});
+
+test.each([
+	{parentPlaybackRate: 1, media: false},
+	{parentPlaybackRate: 2, media: false},
+	{parentPlaybackRate: 1, media: true},
+])(
+	'Timeline moves stop at Track neighbours after timing edits: %j',
+	({parentPlaybackRate, media}) => {
+		const calculate = CanvasInternals.createTimelineCalculator();
+		const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 1], []);
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const parent = makeTimelineSequence({
+			schema: {},
+			id: 'track',
+			overrideId: 'track',
+			from: 30,
+			duration: 400,
+			sequencePlaybackRate: parentPlaybackRate,
+			componentIdentity: 'dev.remotion.remotion.Track',
+		});
+		parent.timelineTrack = {
+			id: parent.id,
+			role: 'track',
+			name: 'Track',
+			seriesOffset: null,
+		};
+		const previous = makeTimelineSequence({
+			schema: {},
+			id: 'previous',
+			overrideId: 'previous',
+			parentId: parent.id,
+			duration: 80,
+		});
+		const child = makeTimelineSequence({
+			schema: Internals.sequenceSchema,
+			id: 'child',
+			overrideId: 'child',
+			parentId: parent.id,
+			from: 100,
+			duration: media ? 34 : 40,
+			type: media ? 'video' : 'sequence',
+			componentIdentity: media ? 'dev.remotion.media.Video' : null,
+			currentRuntimeValueDotNotation: media
+				? {durationInFrames: 42, playbackRate: 2, trimBefore: 30}
+				: {},
+		});
+		const next = makeTimelineSequence({
+			schema: {},
+			id: 'next',
+			overrideId: 'next',
+			parentId: parent.id,
+			from: 160,
+			duration: 60,
+		});
+		for (const item of [previous, child, next])
+			item.timelineTrack = {
+				id: parent.id,
+				role: 'clip',
+				name: 'Track',
+				seriesOffset: null,
+			};
+		const sequences = [parent, previous, child, next];
+		const overrideIdsToNodePaths = {child: nodePath};
+		const propStatuses = makeFromPropStatuses([nodePath]);
+		if (media) {
+			const status =
+				propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)];
+			if (!status.canUpdate) throw new Error('Expected editable media');
+			status.props.durationInFrames = {
+				status: 'static',
+				codeValue: 68,
+				keyframeDisplayOffsetAdjustment: null,
+			};
+		}
+
+		const targets = getTimelineSequenceFromDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [],
+			sequences,
+			tracks: calculate({
+				sequences,
+				overrideIdsToNodePaths,
+			}).tracks,
+			overrideIdsToNodePaths,
+			propStatuses,
+		});
+		expect(targets).not.toBeNull();
+		for (const [requestedDelta, expectedFrom] of [
+			[-1000, 80],
+			[1000, media ? 126 : 120],
+		]) {
+			const deltaFrames = getTimelineSequenceFromDragDelta({
+				targets: targets!,
+				deltaFrames: requestedDelta,
+				timelineDurationInFrames: 600,
+				pxPerFrame: 10,
+				snappingEnabled: false,
+			});
+			const changes = getTimelineSequenceFromDragChanges({
+				targets: targets!,
+				deltaFrames,
+			});
+			expect(changes.map((c) => c.value)).toEqual([expectedFrom]);
+			const movedTracks = calculate({
+				sequences: [
+					parent,
+					previous,
+					{...child, from: Number(changes[0].value)},
+					next,
+				],
+				overrideIdsToNodePaths,
+			}).tracks;
+			const moved = movedTracks.find(
+				(t) => t.sequence.id === child.id,
+			)!.sequence;
+			const before = movedTracks.find(
+				(t) => t.sequence.id === previous.id,
+			)!.sequence;
+			const after = movedTracks.find(
+				(t) => t.sequence.id === next.id,
+			)!.sequence;
+			expect(moved.from).toBeGreaterThanOrEqual(before.from + before.duration);
+			expect(moved.from + moved.duration).toBeLessThanOrEqual(after.from);
+		}
+	},
+);

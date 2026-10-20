@@ -20,7 +20,7 @@ export type GetRenderProgressInput = {
 };
 
 /*
- * @description Gets the current status of a render originally triggered via renderMediaOnLambda().
+ * @description Gets the current status of a render triggered via renderMediaOnLambda() or renderFramesOnLambda().
  * @see [Documentation](https://remotion.dev/docs/lambda/getrenderprogress)
  */
 export const getRenderProgress = async (
@@ -62,5 +62,5 @@ export const getRenderProgress = async (
 			timeoutInTest: 120000,
 			requestHandler: input.requestHandler,
 		});
-	return result;
+	return {...result, separateAudio: result.separateAudio ?? null};
 };

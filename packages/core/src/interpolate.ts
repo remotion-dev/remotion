@@ -469,7 +469,18 @@ const parseStringInterpolationValue = (
 
 	const parts = output.trim().split(/\s+/);
 	if (parts.length < 1 || parts.length > 3 || parts[0] === '') {
-		throw new TypeError(
+		// Long text values (for example custom cursor CSS) may use hold easing.
+		// Malformed numeric transforms must still fail instead of becoming text.
+		const ErrorType =
+			outputType === undefined &&
+			parts.some(
+				(part) =>
+					!cssNumberRegex.test(part) &&
+					!transformOriginKeywords.has(part.toLowerCase()),
+			)
+				? UnsupportedStringInterpolationValueError
+				: TypeError;
+		throw new ErrorType(
 			`String outputRange values must contain 1 to 3 components, but got "${output}"`,
 		);
 	}
@@ -1437,3 +1448,19 @@ export function interpolate(
 	return interpolateNumber({input, inputRange, outputRange, options});
 }
 /* eslint-enable no-redeclare */
+
+export const prepareNumericInterpolation = ({
+	inputRange,
+	outputRange,
+	options,
+}: {
+	inputRange: readonly number[];
+	outputRange: readonly number[];
+	options: Omit<InterpolateOptions, 'outputType'>;
+}): ((input: number) => number) => {
+	// Validate the fixed inputs once, using the same checks as interpolate().
+	interpolate(inputRange[0], inputRange, outputRange, options);
+
+	return (input) =>
+		interpolateNumber({input, inputRange, outputRange, options});
+};

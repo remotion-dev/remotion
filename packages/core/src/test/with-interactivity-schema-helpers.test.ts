@@ -20,6 +20,7 @@ import {
 	captionsSchema,
 	cropSchema,
 	extendSchemaWithSequenceName,
+	loopField,
 	premountSchema,
 	sequenceCropSchema,
 	sequencePremountSchema,
@@ -150,17 +151,13 @@ test('baseSchema exposes common timeline fields', () => {
 			'showInTimeline',
 			'trimBefore',
 			'playbackRate',
-			'loop',
 		].sort(),
 	);
-	for (const schema of [
-		imgSchema,
-		animatedImageSchema,
-		canvasImageSchema,
-		solidSchema,
-	]) {
-		expect(schema.loop).toBe(baseSchema.loop);
+	for (const schema of [imgSchema, canvasImageSchema, solidSchema]) {
+		expect('loop' in schema).toBe(false);
 	}
+
+	expect(animatedImageSchema.loop).toBe(loopField);
 });
 
 test('pixelDensity is exposed only by canvas-backed component schemas', () => {
@@ -251,7 +248,6 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'freeze',
 			'trimBefore',
 			'playbackRate',
-			'loop',
 		].sort(),
 	);
 });
@@ -573,7 +569,6 @@ test('selectActiveKeys returns only the hidden + layout keys when layout=none', 
 			'from',
 			'trimBefore',
 			'playbackRate',
-			'loop',
 			'freeze',
 		].sort(),
 	);
@@ -596,7 +591,6 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'from',
 			'trimBefore',
 			'playbackRate',
-			'loop',
 			'freeze',
 			'style.translate',
 			'style.scale',
@@ -629,7 +623,6 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'from',
 			'trimBefore',
 			'playbackRate',
-			'loop',
 			'freeze',
 		].sort(),
 	);
@@ -682,7 +675,6 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 			'from',
 			'trimBefore',
 			'playbackRate',
-			'loop',
 			'freeze',
 		].sort(),
 	);

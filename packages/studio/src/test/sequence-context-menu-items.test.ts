@@ -193,7 +193,12 @@ test('sequence context menu adds frame copying and normalizes dividers', () => {
 			documentationLink: 'https://www.remotion.dev/docs/sequence',
 			type: 'sequence',
 		} as TSequence,
-		sourceActions: [renameSequenceItem],
+		sourceActions: {
+			rename: renameSequenceItem,
+			timing: [],
+			appearance: [],
+			unwrap: null,
+		},
 	});
 
 	expectNoExtraDividers(items);
@@ -236,6 +241,7 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 		canOpenInEditor: true,
 		codingAgentInfo: {
 			defaultCodingAgent: 'cursor',
+			runningCodingAgents: null,
 			installedCodingAgents: [
 				{
 					id: 'cursor',
@@ -257,6 +263,7 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 		duplicateDisabled: false,
 		editorInfo: {
 			defaultEditor: 'cursor',
+			runningEditors: null,
 			installedEditors: [
 				{
 					id: 'cursor',
@@ -286,6 +293,7 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 			source: '/project/src/Video.tsx',
 		},
 		selectAsset: noop,
+		sourceActions: null,
 		sequence: {displayName: 'Intro card'} as TSequence,
 	});
 
@@ -379,6 +387,7 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 		openInEditor: noop,
 		originalLocation: null,
 		selectAsset: noop,
+		sourceActions: null,
 		sequence: {
 			controls: {
 				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
@@ -424,6 +433,7 @@ test('programmatically duplicated sequence menus apply actions to all instances'
 		openInEditor: noop,
 		originalLocation: null,
 		selectAsset: noop,
+		sourceActions: null,
 		sequence: {} as TSequence,
 	});
 
@@ -459,6 +469,7 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 		openInEditor: noop,
 		originalLocation: null,
 		selectAsset: noop,
+		sourceActions: null,
 		sequence: {
 			controls: {
 				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
@@ -516,6 +527,7 @@ test('read-only sequence menus open source locations on GitHub', () => {
 			source: '/project/src/Video.tsx',
 		},
 		selectAsset: noop,
+		sourceActions: null,
 		sequence: {} as TSequence,
 	});
 

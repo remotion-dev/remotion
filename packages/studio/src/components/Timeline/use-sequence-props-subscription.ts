@@ -7,7 +7,6 @@ import type {
 	JsxComponentIdentity,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -27,7 +26,6 @@ export const useSequencePropsSubscription = ({
 	effects,
 	preferMappedNodePath,
 	stack,
-	videoConfigValues,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
@@ -36,7 +34,6 @@ export const useSequencePropsSubscription = ({
 	originalLocation: OriginalPosition | null;
 	preferMappedNodePath: boolean;
 	stack: string | null;
-	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
@@ -50,6 +47,7 @@ export const useSequencePropsSubscription = ({
 	);
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
+	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const [refreshToken, setRefreshToken] = useState(0);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
@@ -88,14 +86,16 @@ export const useSequencePropsSubscription = ({
 	}, [overrideId]);
 
 	useEffect(() => {
+		// Optimistic deletion can remount siblings with stacks from the old source.
+		// Wait for HMR before resolving those locations against the updated file.
 		if (
+			pendingDeletions.size > 0 ||
 			!clientId ||
 			!locationSource ||
 			!shouldSubscribeToSourceFile(locationSource) ||
 			!locationLine ||
 			locationColumn === null ||
-			!schema ||
-			videoConfigValues === null
+			!schema
 		) {
 			return;
 		}
@@ -115,7 +115,7 @@ export const useSequencePropsSubscription = ({
 				: null,
 			clientId,
 			stack,
-			videoConfigValues,
+
 			applyOnce: (result) => {
 				if (!result.success) {
 					return;
@@ -166,11 +166,11 @@ export const useSequencePropsSubscription = ({
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
 		preferMappedNodePath,
+		pendingDeletions,
 		refreshToken,
 		schema,
 		setPropStatuses,
 		setOverrideIdToNodePath,
 		stack,
-		videoConfigValues,
 	]);
 };

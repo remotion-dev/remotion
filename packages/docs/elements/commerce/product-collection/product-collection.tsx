@@ -6,8 +6,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
-	type InteractiveTransformProps,
-	type InteractivitySchema,
+	useVideoConfig,
 } from 'remotion';
 
 loadFont('normal', {
@@ -15,36 +14,19 @@ loadFont('normal', {
 	weights: ['500', '600', '700'],
 });
 
-export const productCollectionDurationInFrames = 150;
-
-type ProductCardProps = Omit<InteractiveTransformProps, 'style'> & {
+type ProductCardProps = {
 	readonly count: number;
 	readonly index: number;
 	readonly label: string;
-	readonly style: React.CSSProperties | null;
 };
 
-const productCardSchema = {
-	label: {
-		type: 'text-content',
-		default: 'A',
-		description: 'Card label',
-	},
-	count: {type: 'hidden'},
-	index: {type: 'hidden'},
-} as const satisfies InteractivitySchema;
-
-const ProductCardInner: React.FC<ProductCardProps> = ({
-	count,
-	index,
-	label,
-	style,
-}) => {
+const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames: cardDurationInFrames} = useVideoConfig();
 	const lastProductIndex = Math.max(0, count - 1);
 	const rawScrollPosition = interpolate(
 		frame,
-		[24, productCollectionDurationInFrames - 28],
+		[24, cardDurationInFrames - 28],
 		[0, lastProductIndex],
 		{
 			extrapolateLeft: 'clamp',
@@ -115,7 +97,6 @@ const ProductCardInner: React.FC<ProductCardProps> = ({
 		>
 			<div
 				style={{
-					...style,
 					backgroundColor: '#ffffff',
 					borderRadius: 6,
 					boxShadow: '0 2px 6px rgba(29, 29, 25, 0.12)',
@@ -169,15 +150,9 @@ const ProductCardInner: React.FC<ProductCardProps> = ({
 	);
 };
 
-const ProductCard = Interactive.withSchema({
-	Component: ProductCardInner,
-	componentName: '<ProductCard>',
-	schema: productCardSchema,
-	wrapInSequence: true,
-});
-
-export const ProductCollection = () => {
+const ProductCollectionInner: React.FC = () => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
@@ -192,12 +167,7 @@ export const ProductCollection = () => {
 				left: 60,
 				opacity: interpolate(
 					frame,
-					[
-						0,
-						10,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
+					[0, 10, durationInFrames - 8, durationInFrames - 1],
 					[0, 1, 1, 0],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -209,12 +179,7 @@ export const ProductCollection = () => {
 				position: 'absolute',
 				scale: interpolate(
 					frame,
-					[
-						0,
-						16,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
+					[0, 16, durationInFrames - 8, durationInFrames - 1],
 					[0.97, 1, 1, 0.98],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -227,12 +192,7 @@ export const ProductCollection = () => {
 				transform: 'perspective(100px)',
 				translate: interpolate(
 					frame,
-					[
-						0,
-						16,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
+					[0, 16, durationInFrames - 8, durationInFrames - 1],
 					['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -244,27 +204,14 @@ export const ProductCollection = () => {
 				willChange: 'transform, opacity',
 			}}
 		>
-			<ProductCard
-				count={3}
-				index={0}
-				label="A"
-				name="Card A"
-				style={{translate: '0px 0px'}}
-			/>
-			<ProductCard
-				count={3}
-				index={1}
-				label="B"
-				name="Card B"
-				style={{translate: '0px 0px'}}
-			/>
-			<ProductCard
-				count={3}
-				index={2}
-				label="C"
-				name="Card C"
-				style={{translate: '0px 0px'}}
-			/>
+			<ProductCard count={3} index={0} label="A" />
+			<ProductCard count={3} index={1} label="B" />
+			<ProductCard count={3} index={2} label="C" />
 		</Interactive.Div>
 	);
 };
+
+export const ProductCollection = Interactive.create({
+	Component: ProductCollectionInner,
+	layout: 'absolute-fill',
+});

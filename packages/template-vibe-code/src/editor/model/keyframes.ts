@@ -1,3 +1,4 @@
+import { Internals, type CanUpdateSequencePropStatus } from "remotion";
 import {
   getCanvasKeyframeEasingChange,
   getCanvasKeyframeEasingSegments,
@@ -9,7 +10,7 @@ import {
   type CanvasKeyframeEasingSegment,
   type CanvasSelectionItem,
   type SequenceNodePathInfo,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import { getNodeProps, type CodemodProject } from "@remotion/codemods";
 import type {
   CanUpdateSequencePropStatusKeyframed,
@@ -106,14 +107,13 @@ export const getKeyframedProps = ({
     }
 
     const fields = getVisibleFields(schema);
-    let props: ReturnType<typeof getNodeProps>["props"];
+    let props: Record<string, CanUpdateSequencePropStatus>;
     try {
-      props = getNodeProps({
+      props = Internals.evaluateSourcePropStatuses(getNodeProps({
         project,
         node,
         keys: fields.map(({ key }) => key),
-        videoConfig,
-      }).props;
+      }).props, layer.track.sequence.controls?.videoConfigValues ?? videoConfig);
     } catch {
       return [];
     }

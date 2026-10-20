@@ -202,6 +202,8 @@ export const TIMELINE_AUDIO_GRADIENT =
 	'var(--remotion-studio-timeline-audio-gradient)';
 export const TIMELINE_VIDEO_GRADIENT =
 	'var(--remotion-studio-timeline-video-gradient)';
+export const TIMELINE_CAPTIONS_GRADIENT =
+	'var(--remotion-studio-timeline-captions-gradient)';
 
 export const getBackgroundFromHoverState = ({
 	selected,

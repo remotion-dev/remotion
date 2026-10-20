@@ -80,7 +80,23 @@ Effects are applied in array order. Place `colorCorrection()` before `lut()` to 
 
 ## Previewing LUTs in the Studio
 
-You can drop .cube files into your public folder and preview LUTs by clicking on them in the Assets panel.
+You can drop `.cube` files into your [public folder](/docs/assets) and preview LUTs by clicking on them in the Assets panel.
+
+## Applying LUTs in the Studio<AvailableFrom v="4.0.535" />
+
+Drag a 3D `.cube` file from your computer or the Assets panel onto a video in the canvas or timeline.
+Studio adds a [`lut()`](/docs/effects/lut) effect to the video's source code and opens its inspector.
+
+<video
+  src="https://remotion.media/studio/lut-drop-demo-v1.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  controls
+  aria-label="Dragging a Cube LUT onto a video in Remotion Studio"
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
+/>
 
 ## See also
 

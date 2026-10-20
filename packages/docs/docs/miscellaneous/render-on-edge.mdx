@@ -13,5 +13,5 @@ The following constraints currently make it impossible to render videos on the e
 
 - _Lack of filesystem APIs_: The `fs` module is not available on the edge.
 - _Limited execution duration_: On Vercel, an edge function must respond within 30 seconds, on Cloudflare Workers, a function may only run for 10ms.
-- _Code size limit_: On Vercel, the maximum function size in 4MB, on Cloudflare Workers it is 5MB. Remotion currently needs ~150MB of space due to Chrome and FFmpeg being dependencies.
+- _Code size limit_: On Vercel, the maximum function size in 4MB, on Cloudflare Workers it is 5MB. Chrome and FFmpeg require hundreds of megabytes of disk space, depending on the platform.
 - _Memory limit_: Vercel Edge Functions only have 128MB of RAM available. Remotion currently works best with 2GB+ of RAM.

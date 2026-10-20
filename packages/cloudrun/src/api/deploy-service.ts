@@ -62,7 +62,7 @@ const deployServiceRaw = async ({
 	validateGcpRegion(region);
 	validateProjectID(projectID);
 	if (performImageVersionValidation) {
-		validateImageRemotionVersion();
+		await validateImageRemotionVersion();
 	}
 
 	const parent = `projects/${projectID}/locations/${region}`;

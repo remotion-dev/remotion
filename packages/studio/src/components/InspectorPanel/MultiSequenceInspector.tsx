@@ -6,7 +6,7 @@ import React, {
 	useSyncExternalStore,
 } from 'react';
 import {Internals} from 'remotion';
-import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
@@ -19,6 +19,8 @@ import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {findTrackForNodePathInfo} from '../Timeline/find-track-for-node-path-info';
+import {getCurrentFrame} from '../Timeline/imperative-state';
 import {splitSelectedTimelineItems} from '../Timeline/split-selected-timeline-item';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -60,8 +62,8 @@ export const MultiSequenceInspector: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({selections, readOnlyStudio}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {sequences} = useContext(Internals.SequenceManager);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const sequences = Internals.useSequenceManagerSequences();
+	const calculateTimeline = useTimelineCalculator();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -70,7 +72,7 @@ export const MultiSequenceInspector: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const targets = useMemo(() => {
-		const tracks = calculateTimeline({
+		const {tracks} = calculateTimeline({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
@@ -80,14 +82,10 @@ export const MultiSequenceInspector: React.FC<{
 			const key = stringifySequenceExpandedRowKey(
 				selection.nodePathInfo.sequenceSubscriptionKey,
 			);
-			const track = tracks.find(
-				(candidate) =>
-					candidate.nodePathInfo !== null &&
-					stringifySequenceExpandedRowKey(
-						candidate.nodePathInfo.sequenceSubscriptionKey,
-					) === key &&
-					candidate.nodePathInfo.index === selection.nodePathInfo.index,
-			);
+			const track = findTrackForNodePathInfo({
+				tracks,
+				nodePathInfo: selection.nodePathInfo,
+			});
 			if (!track?.sequence.controls || !track.nodePathInfo) {
 				return null;
 			}
@@ -105,32 +103,23 @@ export const MultiSequenceInspector: React.FC<{
 		}
 
 		return result;
-	}, [overrideIdToNodePathMappings, selections, sequences]);
+	}, [calculateTimeline, overrideIdToNodePathMappings, selections, sequences]);
 	const precomposeTargets = useMemo(() => {
-		const tracks = calculateTimeline({
+		const {tracks} = calculateTimeline({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
 		return selections.map(({nodePathInfo}) => {
-			const key = stringifySequenceExpandedRowKey(
-				nodePathInfo.sequenceSubscriptionKey,
-			);
-			const track = tracks.find(
-				(candidate) =>
-					candidate.nodePathInfo !== null &&
-					stringifySequenceExpandedRowKey(
-						candidate.nodePathInfo.sequenceSubscriptionKey,
-					) === key &&
-					candidate.nodePathInfo.index === nodePathInfo.index,
-			);
+			const track = findTrackForNodePathInfo({tracks, nodePathInfo});
 			return {
 				nodePathInfo,
 				displayName: track?.sequence.displayName ?? null,
 				line: null,
 				singleChildComponent: track?.sequence.singleChildComponent ?? null,
+				isTransition: track?.sequence.timelineTrack?.role === 'transition',
 			};
 		});
-	}, [overrideIdToNodePathMappings, selections, sequences]);
+	}, [calculateTimeline, overrideIdToNodePathMappings, selections, sequences]);
 	const store = useMemo(() => {
 		const stores = (targets ?? []).map(
 			(target) => target.controls.runtimeValues,
@@ -185,18 +174,20 @@ export const MultiSequenceInspector: React.FC<{
 
 		splitSelectedTimelineItems({
 			selections,
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			tracks: calculateTimeline({
+				sequences,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			}).tracks,
 			propStatuses,
-			splitFrame: timelinePosition,
+			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
 		canSplit,
+		calculateTimeline,
 		overrideIdToNodePathMappings,
 		propStatuses,
 		selections,
 		sequences,
-		timelinePosition,
 	]);
 
 	return (
@@ -222,6 +213,7 @@ export const MultiSequenceInspector: React.FC<{
 						return groupedFields.length === 0 ? null : (
 							<CollapsibleInspectorSection
 								key={group.id}
+								bodyPaddingBottom={8}
 								collapsible
 								label={group.label}
 								sectionId={`multi-sequence-${group.id}`}
@@ -243,6 +235,7 @@ export const MultiSequenceInspector: React.FC<{
 				</TimelineRowLayoutContext.Provider>
 			)}
 			<CollapsibleInspectorSection
+				bodyPaddingBottom={8}
 				collapsible
 				label="Actions"
 				sectionId="multi-sequence-actions"

@@ -16,7 +16,10 @@ import {
 import {formatLogFileLocation} from './format-log-file-location';
 import {waitForLiveEventsListener} from './live-events';
 import {broadcastSequenceNodePathMutation} from './sequence-node-path-mutation';
-import {suppressBundlerUpdateForFile} from './watch-ignore-next-change';
+import {
+	prepareBundlerForFileWrite,
+	suppressBundlerUpdateForFile,
+} from './watch-ignore-next-change';
 
 export interface UndoEntryDescription {
 	undoMessage: string;
@@ -41,6 +44,7 @@ type UndoEntryType =
 	| 'delete-nodes'
 	| 'duplicate-nodes'
 	| 'wrap-node'
+	| 'unwrap-node'
 	| 'precompose-jsx-nodes'
 	| 'split-sequences'
 	| 'split-video-from-audio'
@@ -463,6 +467,12 @@ export function popUndo(): UndoResponse {
 					(remapping): SequenceNodePathRemapping => ({
 						oldNodePath: remapping.newNodePath,
 						newNodePath: remapping.oldNodePath,
+						...(remapping.newJsxName === undefined
+							? {}
+							: {oldJsxName: remapping.newJsxName}),
+						...(remapping.oldJsxName === undefined
+							? {}
+							: {newJsxName: remapping.oldJsxName}),
 					}),
 				),
 			},
@@ -478,6 +488,7 @@ export function popUndo(): UndoResponse {
 		}
 
 		if (snapshot.oldContents === null) {
+			prepareBundlerForFileWrite(snapshot.filePath);
 			rmSync(snapshot.filePath, {force: true});
 		} else {
 			writeFileAndNotifyFileWatchers({

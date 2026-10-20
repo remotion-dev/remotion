@@ -25,6 +25,8 @@ const bucketName = 'source-bucket';
 const startedDate = Date.now() - 30000;
 
 const renderMetadata: RenderMetadata<MockProvider> = {
+	separateAudioTo: null,
+	separateAudioOutputFileIsConditional: null,
 	outputFileIsConditional: null,
 	audioBitrate: null,
 	audioCodec: null,
@@ -68,6 +70,7 @@ const renderMetadata: RenderMetadata<MockProvider> = {
 };
 
 const progress: OverallRenderProgress<MockProvider> = {
+	separateAudio: null,
 	cancellationEnabled: false,
 	chunks: [0, 1],
 	combinedFrames: 20,
@@ -75,6 +78,8 @@ const progress: OverallRenderProgress<MockProvider> = {
 	errors: [],
 	fatalErrorTimestamp: null,
 	framesEncoded: 20,
+	framesUploaded: 0,
+	uploadedSizeInBytes: 0,
 	framesRendered: 20,
 	functionLaunched: startedDate,
 	lambdasInvoked: 2,
@@ -135,6 +140,7 @@ const makeProviderSpecifics = ({
 			currentRegion,
 		}) => {
 			const {key, renderBucketName} = getExpectedOutName({
+				output: 'main',
 				renderMetadata: metadata,
 				bucketName,
 				customCredentials,
@@ -178,7 +184,10 @@ test('getProgress treats an existing output file as finished if postRenderData w
 		billingCurrency: 'CNY',
 		onHeadFile: ({bucketName: headedBucketName, key}) => {
 			headedFiles.push({bucketName: headedBucketName, key});
-			return Promise.resolve({ContentLength: 1234});
+			return Promise.resolve({
+				ContentLength: 1234,
+				Metadata: {'remotion-render-id': renderId},
+			});
 		},
 		renderProgress: null,
 	});
@@ -262,6 +271,8 @@ test('getProgress keeps direct render progress finite', async () => {
 		chunks: [],
 		combinedFrames: 0,
 		framesEncoded: 0,
+		framesUploaded: 0,
+		uploadedSizeInBytes: 0,
 		framesRendered: 0,
 		lambdasInvoked: 0,
 		renderMetadata: {

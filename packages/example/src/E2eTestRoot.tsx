@@ -1,5 +1,6 @@
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {Composition, Folder} from 'remotion';
+import {Composition, Folder, Solid} from 'remotion';
 import {BarChart} from './BarChart';
 import {
 	CAPTIONS_DURATION_IN_FRAMES,
@@ -12,6 +13,7 @@ import {
 	ErrorOverlayRepro,
 	UnsymbolicatedErrorOverlayRepro,
 } from './ErrorOverlayE2e/ErrorOverlayRepro';
+import {HiddenClipDragPreview} from './HiddenClipDragPreview';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
 import {Issue8216} from './Issue8216/Issue8216';
 import {LightLeakExample} from './LightLeak';
@@ -20,6 +22,7 @@ import {MovingPillCaptionsComposition} from './MovingPillCaptionsComposition';
 import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {SequencePlaybackRateE2e} from './SequencePlaybackRateE2e';
+import {SourceSubscriptionChurn} from './SourceSubscriptionChurn';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
@@ -29,9 +32,47 @@ import {InteractiveHtmlElements} from './VisualModeTests/InteractiveComponents';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
+const TransitionCursorE2e = () => (
+	<TransitionSeries>
+		<TransitionSeries.Sequence name="Outgoing scene" durationInFrames={90}>
+			<Solid color="blue" width={1280} height={720} />
+		</TransitionSeries.Sequence>
+		<TransitionSeries.Transition
+			timing={linearTiming({durationInFrames: 30})}
+		/>
+		<TransitionSeries.Sequence name="Incoming scene" durationInFrames={90}>
+			<Solid color="red" width={1280} height={720} />
+		</TransitionSeries.Sequence>
+	</TransitionSeries>
+);
+
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="transition-cursor"
+				component={TransitionCursorE2e}
+				durationInFrames={150}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+			<Composition
+				id="hidden-clip-drag-preview"
+				component={HiddenClipDragPreview}
+				durationInFrames={300}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+			<Composition
+				id="SourceSubscriptionChurn"
+				component={SourceSubscriptionChurn}
+				durationInFrames={600}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
 			<Composition
 				id="sequence-playback-rate"
 				component={SequencePlaybackRateE2e}

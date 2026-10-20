@@ -44,6 +44,10 @@ import {
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 } from './helpers/get-installed-dependencies';
+import {
+	getLocalPackageOverride,
+	localPackageRootKey,
+} from './helpers/get-local-package-override';
 import {getInstallCommand} from './helpers/install-command';
 import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
 import {
@@ -93,6 +97,8 @@ export const StudioServerInternals = {
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 	getInstallCommand,
+	getLocalPackageOverride,
+	localPackageRootKey,
 	getPackageManagerSpawnOptions,
 	addCompletedClientRender,
 	getCompletedClientRenders,

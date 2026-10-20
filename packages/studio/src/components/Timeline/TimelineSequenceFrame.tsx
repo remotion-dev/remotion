@@ -1,4 +1,6 @@
 import React from 'react';
+import type {TSequence} from 'remotion';
+import {useCurrentFrame} from 'remotion';
 import {CURRENT_COLOR, WHITE} from '../../helpers/colors';
 import {SnowflakeIcon} from '../../icons/snowflake';
 
@@ -23,22 +25,63 @@ const snowflakeStyle: React.CSSProperties = {
 };
 
 export const TimelineSequenceFrame: React.FC<{
-	readonly roundedFrame: number;
+	readonly s: TSequence;
+	readonly sequenceFrameOffset: number;
+	readonly displayDurationInFrames: number;
+	readonly paddingLeft: number;
 	readonly frozenFrame: number | null;
-	readonly premounted: boolean;
-	readonly postmounted: number | null;
-}> = ({roundedFrame, frozenFrame, premounted, postmounted}) => {
+	readonly showPremounting: boolean;
+}> = ({
+	s,
+	sequenceFrameOffset,
+	displayDurationInFrames,
+	paddingLeft,
+	frozenFrame,
+	showPremounting,
+}) => {
+	const frame = useCurrentFrame();
+	const relativeFrame = frame - s.from;
+	const sequenceFrame =
+		relativeFrame * s.sequencePlaybackRate + sequenceFrameOffset;
+	const roundedFrame = Math.round(sequenceFrame * 100) / 100;
+	const isInRange =
+		relativeFrame >= 0 && relativeFrame < displayDurationInFrames;
+	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
+	const isPremounting =
+		showPremounting &&
+		relativeFrameWithPremount >= 0 &&
+		relativeFrameWithPremount < displayDurationInFrames &&
+		!isInRange;
+	const relativeFrameWithPostmount = relativeFrame - displayDurationInFrames;
+	const isPostmounting =
+		relativeFrameWithPostmount >= 0 &&
+		relativeFrameWithPostmount < (s.postmountDisplay ?? 0) &&
+		!isInRange;
+
+	if (frozenFrame === null && !isInRange && !isPremounting && !isPostmounting) {
+		return null;
+	}
+
 	return (
-		<div style={relativeFrameStyle}>
-			{frozenFrame === null ? null : (
-				<SnowflakeIcon style={snowflakeStyle} color={CURRENT_COLOR} />
-			)}
-			{frozenFrame ??
-				(premounted
-					? '0 (Premounted)'
-					: postmounted !== null
-						? `${postmounted} (Postmounted)`
-						: roundedFrame)}
+		<div
+			style={{
+				paddingLeft,
+				height: '100%',
+				display: 'flex',
+				alignItems: 'center',
+			}}
+		>
+			<div style={relativeFrameStyle}>
+				{frozenFrame === null ? null : (
+					<SnowflakeIcon style={snowflakeStyle} color={CURRENT_COLOR} />
+				)}
+				{frozenFrame ??
+					(isPremounting
+						? '0 (Premounted)'
+						: isPostmounting
+							? `${s.duration - 1} (Postmounted)`
+							: roundedFrame)}
+			</div>
 		</div>
 	);
 };

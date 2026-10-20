@@ -23,6 +23,7 @@ const cliFlag = 'prores-profile' as const;
 
 export const proResProfileOption = {
 	name: 'ProRes profile',
+	addedIn: '2.1.6',
 	cliFlag,
 	description: () => (
 		<>
@@ -35,7 +36,7 @@ export const proResProfileOption = {
 		</>
 	),
 	ssrName: 'proResProfile' as const,
-	docLink: 'https://www.remotion.dev/docs/config#setproresprofile',
+	docLink: 'https://www.remotion.dev/docs/options/prores-profile',
 	type: undefined as ProResProfile | undefined,
 	getValue: (
 		{commandLine},

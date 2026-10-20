@@ -5,7 +5,7 @@ import {
 
 export const getElementDimensionsLabel = (definition: ElementDefinition) => {
 	if (definition.elementWidth === null || definition.elementHeight === null) {
-		return 'Adapts to composition';
+		return 'Flexible';
 	}
 
 	return `${definition.elementWidth} × ${definition.elementHeight}px`;

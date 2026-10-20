@@ -170,6 +170,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 						onVideoFrame={onVideoFrame}
 						{...otherProps}
 						ref={ref}
+						showInTimeline={showInTimeline}
 						_remotionInternalStack={_remotionInternalStack}
 					/>
 				</Sequence>

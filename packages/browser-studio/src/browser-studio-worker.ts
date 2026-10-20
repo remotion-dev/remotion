@@ -136,19 +136,25 @@ const createCompiler = async ({
 		});
 	}
 
+	// Older custom Studio releases do not expose previewBootstrap. Starting their
+	// preview entry early still installs their error overlay before user imports.
+	const studioBootstrap = useVendorBundle
+		? browserStudioVirtualFilePaths.studioBootstrap
+		: '@remotion/studio/previewEntry';
 	const entryPoints = getStudioEntryPoints({
 		environmentSetup: browserStudioVirtualFilePaths.setupEnvironment,
 		fastRefreshRuntime: browserStudioVirtualFilePaths.reactRefreshEntry,
 		reactScan: null,
 		reactShim: browserStudioVirtualFilePaths.reactShim,
 		sequenceStackTraces: browserStudioVirtualFilePaths.setupSequenceStackTraces,
+		studioBootstrap,
 		studioRenderEntry: useVendorBundle
 			? browserStudioVirtualFilePaths.studioPreviewEntry
 			: '@remotion/studio/previewEntry',
 		userDefinedComponent: normalizeVirtualPath(project.entryPoint),
 	});
 	entryPoints.splice(
-		entryPoints.length - 1,
+		entryPoints.indexOf(studioBootstrap),
 		0,
 		browserStudioVirtualFilePaths.browserRequireShim,
 	);

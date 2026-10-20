@@ -28,7 +28,7 @@ const result = await splitSequences({
 console.log(result);
 ```
 
-Adjusts `from`, `durationInFrames`, and `trimBefore`. Timing must be static; dynamic timing and spreads that may override it are rejected. The media file itself is unchanged.
+Adjusts `from`, `durationInFrames`, and `trimBefore`. Timing must be static; dynamic timing and spreads that may override it are rejected. Supported expressions such as `4 * fps` are kept when the new value can be written in the same form exactly. The media file itself is unchanged.
 
 ## Options
 
@@ -47,6 +47,10 @@ The node reference of a Remotion sequence, interactive element, or supported tim
 #### frame
 
 The integer frame at which to split, in the same parent timeline coordinate system as the node's `from` prop. It must be strictly inside the sequence.
+
+#### videoConfig?<AvailableFrom v="4.0.533" />
+
+The composition's `width`, `height`, `fps`, and `durationInFrames`. Supply these to interpret supported timing expressions using [`useVideoConfig()`](/docs/use-video-config). By default, those runtime values are unknown.
 
 ## Return value
 

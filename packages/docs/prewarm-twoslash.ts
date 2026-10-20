@@ -2,7 +2,7 @@ import type {ChildProcessWithoutNullStreams} from 'child_process';
 import {spawn} from 'child_process';
 import {existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync} from 'fs';
 import {createRequire} from 'module';
-import {availableParallelism, cpus, totalmem} from 'os';
+import {totalmem} from 'os';
 import {basename, dirname, join, resolve} from 'path';
 import {createInterface} from 'readline';
 import {Glob} from 'bun';
@@ -14,6 +14,7 @@ import {
 	readTwoslashCacheEntry,
 } from '../docusaurus-plugin/src/twoslash-cache';
 import {isTwoslashEnabled} from '../docusaurus-plugin/src/twoslash-enabled';
+import {defaultDocsBuildConcurrency} from './build-concurrency';
 import {expandElementSourceReferences} from './plugins/element-source-utils';
 
 const DOCS_ROOT = resolve(import.meta.dirname);
@@ -29,11 +30,6 @@ const GIB = 1024 * 1024 * 1024;
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 const lowMemoryBuild =
 	isVercel || process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
-const cpuCount =
-	typeof availableParallelism === 'function'
-		? availableParallelism()
-		: cpus().length;
-const cpuCap = Math.max(1, cpuCount - 1);
 // Each worker holds a TypeScript language service that can grow to >1GB.
 // Cap the worker count so the combined RSS leaves room for the OS and
 // other processes on low-memory machines.
@@ -46,7 +42,7 @@ const NUM_WORKERS =
 		? Math.max(1, workerCountOverride)
 		: lowMemoryBuild
 			? 2
-			: Math.min(cpuCap, memCap);
+			: Math.min(defaultDocsBuildConcurrency, memCap);
 
 // Per-worker RSS threshold after which a worker is replaced with a fresh
 // process. Derived from a global budget that leaves 25% of memory for the OS

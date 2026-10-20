@@ -138,7 +138,12 @@ export const precomposeJsxNodesHandler: ApiHandler<
 				absolutePath: filePath,
 				remappings: result.nodePathRemappings
 					.filter((remapping) => remapping.filePath === filePath)
-					.map(({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath})),
+					.map(({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+						oldNodePath,
+						newNodePath,
+						oldJsxName,
+						newJsxName,
+					})),
 			}));
 			const mutationFiles = remappingsByFile.filter(
 				({remappings}) => remappings.length > 0,

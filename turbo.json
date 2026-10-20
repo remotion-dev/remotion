@@ -1,5 +1,6 @@
 {
 	"$schema": "https://turbo.build/schema.json",
+	"agentGuidance": false,
 	"ui": "stream",
 	"globalEnv": ["ENABLE_EXPERIMENTAL_COREPACK"],
 	"tasks": {
@@ -77,6 +78,11 @@
 		},
 		"make": {
 			"dependsOn": ["^make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/.monorepo/builder.ts",
+				"$TURBO_ROOT$/packages/.monorepo/validate-exports.ts"
+			],
 			"outputs": ["dist"],
 			"outputLogs": "new-only"
 		},
@@ -108,13 +114,26 @@
 				"@remotion/brand#bundle",
 				"@remotion/example#bundle-testbed"
 			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/template-vibe-code/next.config.mjs",
+				"$TURBO_ROOT$/packages/template-vibe-code/package.json",
+				"$TURBO_ROOT$/packages/template-vibe-code/postcss.config.mjs",
+				"$TURBO_ROOT$/packages/template-vibe-code/public/preview.html",
+				"$TURBO_ROOT$/packages/template-vibe-code/scripts/**",
+				"$TURBO_ROOT$/packages/template-vibe-code/src/**",
+				"$TURBO_ROOT$/packages/template-vibe-code/styles/**",
+				"$TURBO_ROOT$/packages/template-vibe-code/tsconfig.json"
+			],
 			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
 			"env": [
 				"REMOTION_DOCS_DISABLE_TWOSLASH",
 				"REMOTION_DOCS_ENABLE_TWOSLASH"
 			],
 			"passThroughEnv": [
+				"DOCUSAURUS_SSG_WORKER_THREAD_COUNT",
 				"NODE_OPTIONS",
+				"RAYON_NUM_THREADS",
 				"REMOTION_DOCS_LOW_MEMORY_BUILD",
 				"TWOSLASH_RECYCLE_LIMIT_BYTES",
 				"TWOSLASH_STALL_TIMEOUT_MS",
@@ -170,6 +189,11 @@
 		"@remotion/google-fonts#make": {
 			"outputs": ["src", ".cache-css", "dist"],
 			"dependsOn": ["^make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/.monorepo/builder.ts",
+				"$TURBO_ROOT$/packages/.monorepo/validate-exports.ts"
+			],
 			"outputLogs": "new-only"
 		},
 		"@remotion/fig-autocomplete#make": {

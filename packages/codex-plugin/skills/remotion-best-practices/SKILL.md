@@ -40,6 +40,8 @@ For advanced rendering beyond simple `npx remotion render`, see: [Rendering Best
 
 ## Opening Remotion Studio
 
+When creating or editing a video, start Studio and open its preview as soon as the project can run, before building the composition. Keep it open while you work so the user can see changes and steer.
+
 To launch a project in Remotion Studio, open its exact local URL, or configure Studio CLI flags, load [Remotion Studio](./remotion-studio/REFERENCE.md).
 
 ## Captions
@@ -67,10 +69,14 @@ When running inside Codex, first try starting the Remotion Studio without openin
 npx remotion studio --no-open
 ```
 
+Open the exact printed URL in the Codex in-app browser and verify that Studio loads. Once a composition exists, verify that its video preview loads. If you cannot open it there, run Studio without `--no-open`.
+
 Only if that fails with file watcher limits such as `EMFILE: too many open files, watch`, retry with polling and without opening a browser from Codex:
 
 ```bash
 npx remotion studio --no-open --webpack-poll 1000
 ```
+
+After retrying, open the exact printed URL in the Codex in-app browser and verify that Studio loads. Once a composition exists, verify that its video preview loads. If you cannot open it there, retry without `--no-open`.
 
 If Studio still fails to start from Codex, ask the user to start it manually from their macOS Terminal and then continue using the already-running Studio. Sandbox errors while launching Chromium from Codex are likely caused by the Codex/macOS sandbox rather than the Remotion project.

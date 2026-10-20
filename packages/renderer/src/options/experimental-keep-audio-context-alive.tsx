@@ -6,6 +6,7 @@ const cliFlag = 'experimental-keep-audio-context-alive' as const;
 
 export const experimentalKeepAudioContextAliveOption = {
 	name: 'Keep AudioContext alive (experimental)',
+	addedIn: '4.0.508',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,7 +16,7 @@ export const experimentalKeepAudioContextAliveOption = {
 	),
 	ssrName: null,
 	docLink:
-		'https://www.remotion.dev/docs/config#setexperimentalkeepaudiocontextalive',
+		'https://www.remotion.dev/docs/options/experimental-keep-audio-context-alive',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

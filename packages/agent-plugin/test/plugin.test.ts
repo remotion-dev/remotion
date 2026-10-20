@@ -169,21 +169,20 @@ test('maps is available from either standalone parent skill', () => {
 	}
 });
 
-test('remotion-create opens the preview in the agent browser by default', () => {
-	const remotionCreateSkill = readFileSync(
-		path.join(generatedSkillsRoot, 'remotion-create', 'SKILL.md'),
+test('remotion-best-practices opens the preview in the agent browser by default', () => {
+	const previewSkill = readFileSync(
+		path.join(generatedSkillsRoot, 'remotion-best-practices', 'SKILL.md'),
 		'utf-8',
 	);
 
-	expect(remotionCreateSkill).toContain('start the preview server by default');
-	expect(remotionCreateSkill).toContain(
-		"Open the exact URL in the agent client's available browser.",
+	expect(previewSkill).toContain('start the preview server by default');
+	expect(previewSkill).toContain(
+		'Open the exact URL in the Codex in-app browser.',
 	);
-	expect(remotionCreateSkill).not.toContain('Codex in-app browser');
-	expect(remotionCreateSkill).not.toContain('tool_search');
-	expect(remotionCreateSkill).not.toContain(
-		'consider starting the preview server',
-	);
+	expect(previewSkill).not.toContain('If you have an in-app browser');
+	expect(previewSkill).not.toMatch(/^npx remotion studio$/m);
+	expect(previewSkill).not.toContain('tool_search');
+	expect(previewSkill).not.toContain('consider starting the preview server');
 });
 
 test('Codex troubleshooting does not open the system browser', () => {
@@ -220,13 +219,14 @@ test('portable build passes Vally lint and omits Codex troubleshooting', async (
 			path.join(cursorSkillsRoot, 'remotion-best-practices', 'SKILL.md'),
 			'utf-8',
 		);
-		const remotionCreateSkill = readFileSync(
-			path.join(cursorSkillsRoot, 'remotion-create', 'SKILL.md'),
+		const previewSkill = readFileSync(
+			path.join(cursorSkillsRoot, 'remotion-best-practices', 'SKILL.md'),
 			'utf-8',
 		);
-		expect(remotionCreateSkill).toContain(
-			"Open the exact URL in the agent client's available browser.",
+		expect(previewSkill).toContain(
+			"Open the exact URL in the agent client's available browser, such as the integrated browser in GitHub Copilot (VS Code) or Cursor.",
 		);
+		expect(previewSkill).not.toContain('Codex in-app browser');
 		expect(remotionSkill).not.toContain('## Codex troubleshooting');
 		expect(remotionSkill).not.toContain('## Agent client troubleshooting');
 		await expectVallyLintToPass(cursorSkillsRoot, cursorSkillsRoot);

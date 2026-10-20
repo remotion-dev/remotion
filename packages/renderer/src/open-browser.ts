@@ -271,6 +271,7 @@ export const internalOpenBrowser = async ({
 			chromiumOptions?.userAgent
 				? `--user-agent="${chromiumOptions.userAgent}"`
 				: null,
+			'--remotion-shared-memory-capture',
 			'--remote-debugging-port=0',
 			`--user-data-dir=${userDataDir}`,
 		].filter(Boolean) as string[],

@@ -1,15 +1,13 @@
 import type React from 'react';
 import {
 	forwardRef,
-	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
 	useState,
 } from 'react';
-import {cancelRender} from '../cancel-render.js';
 import type {SequenceControls} from '../CompositionManager.js';
-import type {EffectsProp} from '../effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import {
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
@@ -22,11 +20,13 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
+	loopField,
 	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -57,6 +57,7 @@ export const animatedImageSchema = {
 		keyframable: false,
 	},
 	...baseSchema,
+	loop: loopField,
 	...cropSchema,
 	...premountSchema,
 	...transformSchema,
@@ -85,6 +86,7 @@ const getCanvasPropsFromSequenceProps = (
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly controls: SequenceControls | undefined;
 };
 
@@ -103,19 +105,20 @@ const AnimatedImageContent = forwardRef<
 			fit = 'fill',
 			requestInit,
 			effects,
+			effectsOutputSize,
 			controls,
 			...props
 		},
 		canvasRef,
 	) => {
 		const resolvedSrc = resolveAnimatedImageSource(src);
-		const [imageDecoder, setImageDecoder] =
-			useState<RemotionImageDecoder | null>(null);
-		const {delayRender, continueRender} = useDelayRender();
-
-		const [decodeHandle] = useState(() =>
-			delayRender(`Rendering <AnimatedImage/> with src="${resolvedSrc}"`),
-		);
+		const [decodedImage, setDecodedImage] = useState<{
+			decoder: RemotionImageDecoder;
+			handle: number;
+		} | null>(null);
+		const imageDecoder = decodedImage?.decoder ?? null;
+		const activeDecoderRef = useRef<RemotionImageDecoder | null>(null);
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
@@ -131,6 +134,7 @@ const AnimatedImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 
 		useImperativeHandle(canvasRef, () => {
@@ -144,10 +148,14 @@ const AnimatedImageContent = forwardRef<
 
 		const [initialLoopBehavior] = useState(() => loopBehavior);
 
-		useEffect(() => {
+		useLayoutEffect(() => {
+			const decodeHandle = delayRender(
+				`Rendering <AnimatedImage/> with src="${resolvedSrc}"`,
+			);
 			const controller = new AbortController();
 			let cancelled = false;
 			let continued = false;
+			let decoder: RemotionImageDecoder | null = null;
 
 			const continueRenderOnce = () => {
 				if (continued) {
@@ -171,8 +179,9 @@ const AnimatedImageContent = forwardRef<
 						return;
 					}
 
-					setImageDecoder(d);
-					continueRenderOnce();
+					decoder = d;
+					activeDecoderRef.current = d;
+					setDecodedImage({decoder: d, handle: decodeHandle});
 				})
 				.catch((err) => {
 					if (cancelled) {
@@ -195,32 +204,37 @@ const AnimatedImageContent = forwardRef<
 
 			return () => {
 				cancelled = true;
+				activeDecoderRef.current = null;
+				decoder?.close();
 				controller.abort();
 				continueRenderOnce();
 			};
 		}, [
 			resolvedSrc,
-			decodeHandle,
 			onError,
 			requestInitKey,
 			initialLoopBehavior,
 			continueRender,
+			delayRender,
+			cancelRender,
 		]);
 
-		useEffect(() => {
-			return () => {
-				imageDecoder?.close();
-			};
-		}, [imageDecoder]);
-
 		useLayoutEffect(() => {
-			if (!imageDecoder) {
+			// Activity and Suspense can retain state after cleaning up effects.
+			// Wait for the current loading effect to publish a live decoder.
+			if (
+				!imageDecoder ||
+				!decodedImage ||
+				activeDecoderRef.current !== imageDecoder
+			) {
 				return;
 			}
 
 			const delay = delayRender(
 				`Rendering frame at ${currentTime} of <AnimatedImage src="${src}"/>`,
 			);
+			// The frame hold takes over only after the decoded image has committed.
+			continueRender(decodedImage.handle);
 
 			let cancelled = false;
 
@@ -262,6 +276,7 @@ const AnimatedImageContent = forwardRef<
 		}, [
 			currentTime,
 			imageDecoder,
+			decodedImage,
 			loopBehavior,
 			onError,
 			src,
@@ -271,6 +286,9 @@ const AnimatedImageContent = forwardRef<
 			fit,
 			width,
 			height,
+			cancelRender,
+			effectsOutputSize?.width,
+			effectsOutputSize?.height,
 		]);
 
 		return (
@@ -280,6 +298,7 @@ const AnimatedImageContent = forwardRef<
 				height={height}
 				fit={fit}
 				effects={memoizedEffects}
+				effectsOutputSize={effectsOutputSize ?? null}
 				{...props}
 			/>
 		);
@@ -311,6 +330,7 @@ const AnimatedImageInner = ({
 	cropBottom,
 	requestInit,
 	effects = [],
+	effectsOutputSize,
 	controls,
 	ref,
 	...sequenceProps
@@ -393,12 +413,17 @@ const AnimatedImageInner = ({
 				_remotionInternalIsPostmounting={postmountingActive}
 				{...sequenceProps}
 			>
-				<AnimatedImageContent
-					{...animatedImageProps}
-					ref={actualRef}
-					effects={effects}
-					controls={controls}
-				/>
+				{/* Hidden Activity cleans up effects but retains state. Unmount the
+				decoder so reactivation cannot reuse one that cleanup has closed. */}
+				<SequenceContent>
+					<AnimatedImageContent
+						{...animatedImageProps}
+						ref={actualRef}
+						effects={effects}
+						effectsOutputSize={effectsOutputSize ?? null}
+						controls={controls}
+					/>
+				</SequenceContent>
 			</Sequence>
 		</Freeze>
 	);
@@ -411,19 +436,22 @@ const AnimatedImageWithIntrinsicDuration = (
 	},
 ) => {
 	const {fps} = useVideoConfig();
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const {src, requestInit, trimBefore} = props;
 	const requestInitRef = useRef(requestInit);
 	requestInitRef.current = requestInit;
 	const onErrorRef = useRef(props.onError);
 	onErrorRef.current = props.onError;
-	const [handle] = useState(() =>
-		delayRender(`Finding duration of <AnimatedImage src="${src}" />`),
-	);
-	const [durationInFrames, setDurationInFrames] = useState<number | null>(null);
-	const [failed, setFailed] = useState(false);
+	const [duration, setDuration] = useState<{
+		durationInFrames: number;
+		handle: number;
+	} | null>(null);
+	const [failedHandle, setFailedHandle] = useState<number | null>(null);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		const handle = delayRender(
+			`Finding duration of <AnimatedImage src="${src}" />`,
+		);
 		const controller = new AbortController();
 		let cancelled = false;
 		getAnimatedImageDurationInSeconds({
@@ -432,9 +460,13 @@ const AnimatedImageWithIntrinsicDuration = (
 			requestInit: requestInitRef.current,
 			contentType: null,
 		})
-			.then((duration) => {
+			.then((durationInSeconds) => {
 				if (!cancelled) {
-					setDurationInFrames(Math.ceil(duration * fps) - (trimBefore ?? 0));
+					setDuration({
+						durationInFrames:
+							Math.ceil(durationInSeconds * fps) - (trimBefore ?? 0),
+						handle,
+					});
 				}
 			})
 			.catch((error) => {
@@ -444,7 +476,7 @@ const AnimatedImageWithIntrinsicDuration = (
 
 				if (onErrorRef.current) {
 					onErrorRef.current(error);
-					setFailed(true);
+					setFailedHandle(handle);
 				} else {
 					cancelRender(error);
 				}
@@ -455,19 +487,28 @@ const AnimatedImageWithIntrinsicDuration = (
 			controller.abort();
 			continueRender(handle);
 		};
-	}, [continueRender, fps, handle, src, trimBefore]);
+	}, [cancelRender, continueRender, delayRender, fps, src, trimBefore]);
 
-	useEffect(() => {
-		if (durationInFrames !== null || failed) {
-			continueRender(handle);
+	useLayoutEffect(() => {
+		if (duration !== null) {
+			continueRender(duration.handle);
 		}
-	}, [continueRender, durationInFrames, failed, handle]);
 
-	if (durationInFrames === null || failed) {
+		if (failedHandle !== null) {
+			continueRender(failedHandle);
+		}
+	}, [continueRender, duration, failedHandle]);
+
+	if (duration === null || failedHandle !== null) {
 		return null;
 	}
 
-	return <AnimatedImageInner {...props} durationInFrames={durationInFrames} />;
+	return (
+		<AnimatedImageInner
+			{...props}
+			durationInFrames={duration.durationInFrames}
+		/>
+	);
 };
 
 const AnimatedImageComponent = (

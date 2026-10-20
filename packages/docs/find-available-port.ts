@@ -23,7 +23,7 @@ void (async () => {
 		});
 
 		if (available) {
-			console.log(port);
+			process.stdout.write(`${port}\n`);
 			return;
 		}
 	}

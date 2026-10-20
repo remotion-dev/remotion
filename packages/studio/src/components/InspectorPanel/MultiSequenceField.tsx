@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -9,6 +15,7 @@ import type {
 	SchemaFieldInfo,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {ContextMenu} from '../ContextMenu';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {saveSequenceProps} from '../Timeline/save-sequence-prop';
 import {TimelineExpandArrowSpacer} from '../Timeline/TimelineExpandArrowButton';
@@ -19,6 +26,7 @@ import {
 	TimelineFieldValue,
 	UnsupportedStatus,
 } from '../Timeline/TimelineSchemaField';
+import {useClampSequenceTimingValue} from '../Timeline/use-clamp-sequence-timing-value';
 import {MultiSequenceNumberField} from './MultiSequenceNumberField';
 
 export type MultiSequenceTarget = {
@@ -31,6 +39,9 @@ export const MultiSequenceField: React.FC<{
 	readonly targets: MultiSequenceTarget[];
 	readonly readOnlyStudio: boolean;
 }> = ({field, targets, readOnlyStudio}) => {
+	const defaultPremountInSeconds = useContext(Internals.DefaultPremountContext);
+	const video = Internals.useVideo();
+	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -41,18 +52,31 @@ export const MultiSequenceField: React.FC<{
 		(target) =>
 			Internals.getPropStatusesCtx(propStatuses, target.nodePath)?.[field.key],
 	);
-	const values = statuses.map((status) =>
-		status?.status === 'static'
+	const inherited = statuses.map(
+		(status) =>
+			field.key === 'premountFor' &&
+			field.fieldSchema.default === undefined &&
+			status?.status === 'static' &&
+			status.codeValue === undefined,
+	);
+	const values = statuses.map((status, index) => {
+		const fps = targets[index].nodePath.videoConfigValues?.fps ?? video?.fps;
+		return status?.status === 'static'
 			? Internals.getEffectiveVisualModeValue({
 					propStatus: status,
 					dragOverrideValue: undefined,
-					defaultValue: field.fieldSchema.default,
+					defaultValue:
+						inherited[index] && fps !== undefined
+							? Math.round(defaultPremountInSeconds * fps)
+							: field.fieldSchema.default,
 					shouldResortToDefaultValueIfUndefined: true,
 				})
-			: undefined,
-	);
+			: undefined;
+	});
 	const mixed = values.some(
-		(value) => JSON.stringify(value) !== JSON.stringify(values[0]),
+		(value, index) =>
+			JSON.stringify(value) !== JSON.stringify(values[0]) ||
+			inherited[index] !== inherited[0],
 	);
 	const staticValues = statuses.every((status) => status?.status === 'static');
 	const editable =
@@ -61,26 +85,38 @@ export const MultiSequenceField: React.FC<{
 		previewServerState.type === 'connected' &&
 		staticValues;
 	const clear = useCallback(() => {
+		clearTimingLimits();
 		for (const target of targets) {
 			clearDragOverrides(target.nodePath);
 		}
-	}, [clearDragOverrides, targets]);
-	useEffect(() => clear, [clear]);
+	}, [clearDragOverrides, clearTimingLimits, targets]);
+	const targetsRef = useRef(targets);
+	targetsRef.current = targets;
+	useEffect(() => {
+		return () => {
+			for (const target of targetsRef.current) {
+				clearDragOverrides(target.nodePath);
+			}
+		};
+	}, [clearDragOverrides]);
 	const preview = useCallback(
 		(nextValues: unknown[]) => {
 			if (!editable) {
 				return;
 			}
 
+			const clamped = targets.map((target, index) =>
+				clampTimingValue(target.nodePath, field.key, nextValues[index]),
+			);
 			for (const [index, target] of targets.entries()) {
 				setDragOverrides(
 					target.nodePath,
 					field.key,
-					Internals.makeStaticDragOverride(nextValues[index]),
+					Internals.makeStaticDragOverride(clamped[index]),
 				);
 			}
 		},
-		[editable, field.key, setDragOverrides, targets],
+		[clampTimingValue, editable, field.key, setDragOverrides, targets],
 	);
 	const save = useCallback(
 		async (
@@ -92,13 +128,17 @@ export const MultiSequenceField: React.FC<{
 			}
 
 			try {
+				const clamped = targets.map((target, index) =>
+					clampTimingValue(target.nodePath, field.key, nextValues[index]),
+				);
 				await saveSequenceProps({
 					changes: targets.map((target, index) => ({
 						fileName: target.nodePath.absolutePath,
 						nodePath: target.nodePath,
 						fieldKey: field.key,
-						value: nextValues[index],
+						value: clamped[index],
 						defaultValue:
+							field.typeName === 'string' ||
 							field.typeName === 'text-content' ||
 							field.fieldSchema.default === undefined
 								? null
@@ -123,7 +163,15 @@ export const MultiSequenceField: React.FC<{
 				clear();
 			}
 		},
-		[clear, editable, field, previewServerState, setPropStatuses, targets],
+		[
+			clampTimingValue,
+			clear,
+			editable,
+			field,
+			previewServerState,
+			setPropStatuses,
+			targets,
+		],
 	);
 	let content: React.ReactNode;
 	if (!editable) {
@@ -159,6 +207,8 @@ export const MultiSequenceField: React.FC<{
 			<MultiSequenceNumberField
 				field={field}
 				values={values}
+				forceMixed={inherited.some((value) => value !== inherited[0])}
+				inherited={inherited.every(Boolean)}
 				onPreview={preview}
 				onSave={(next) => save(next, undefined)}
 				onClear={clear}
@@ -195,7 +245,9 @@ export const MultiSequenceField: React.FC<{
 						codeValue: mixed ? undefined : values[0],
 					}}
 					scaleLockNodePath={
-						field.typeName === 'text-content' ? null : targets[0].nodePath
+						field.typeName === 'string' || field.typeName === 'text-content'
+							? null
+							: targets[0].nodePath
 					}
 					onSave={(value, options) =>
 						save(
@@ -210,7 +262,7 @@ export const MultiSequenceField: React.FC<{
 		);
 	}
 
-	return (
+	const row = (
 		<TimelineRowChrome
 			depth={0}
 			eye={<TimelineLayerEyeSpacer />}
@@ -222,10 +274,39 @@ export const MultiSequenceField: React.FC<{
 			showSelectedBackground={false}
 			containsSelection={false}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<TimelineFieldRowContent field={field} rowDepth={0} selected={false}>
 				{content}
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>
+	);
+	if (field.key !== 'premountFor' || field.fieldSchema.default !== undefined) {
+		return row;
+	}
+
+	return (
+		<ContextMenu
+			getItems={() => [
+				{
+					type: 'item',
+					id: 'reset-premount-for',
+					keyHint: null,
+					label: 'Reset',
+					leftItem: null,
+					disabled: !editable || inherited.every(Boolean),
+					onClick: () =>
+						save(
+							targets.map(() => undefined),
+							undefined,
+						),
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'reset-premount-for',
+				},
+			]}
+		>
+			{row}
+		</ContextMenu>
 	);
 };

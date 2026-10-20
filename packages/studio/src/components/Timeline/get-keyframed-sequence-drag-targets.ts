@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	InteractivitySchema,
@@ -26,7 +26,7 @@ export type TimelineSequenceEffectKeyframeDragTarget =
 	};
 
 export const getKeyframedSequenceDragTargets = ({
-	nodePath,
+	nodePath: sourceNodePath,
 	sequence,
 	sequences,
 	propStatuses,
@@ -41,6 +41,10 @@ export const getKeyframedSequenceDragTargets = ({
 	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly sequenceKeyframes: TimelineSequenceKeyframeDragTarget[];
 } => {
+	const nodePath = {
+		...sourceNodePath,
+		videoConfigValues: sequence.controls?.videoConfigValues ?? null,
+	};
 	const status =
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)];
 	if (status === null || status === undefined || !status.canUpdate) {
@@ -51,7 +55,12 @@ export const getKeyframedSequenceDragTargets = ({
 	const sequenceKeyframes =
 		sequenceSchema === undefined
 			? []
-			: Object.entries(status.props).flatMap(([fieldKey, propStatus]) =>
+			: Object.entries(
+					Internals.evaluateSourcePropStatuses(
+						status.props,
+						sequence.controls?.videoConfigValues ?? null,
+					),
+				).flatMap(([fieldKey, propStatus]) =>
 					propStatus.status === 'keyframed' &&
 					(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
 						? [
@@ -80,25 +89,29 @@ export const getKeyframedSequenceDragTargets = ({
 			return [];
 		}
 
-		return Object.entries(effectStatus.props).flatMap(
-			([fieldKey, propStatus]) =>
-				propStatus.status === 'keyframed' &&
-				(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
-					? [
-							{
-								effectIndex: effectStatus.effectIndex,
-								parentPlaybackRate:
-									(propStatus.keyframePlaybackRateAdjustment ?? 1) *
-									getParentSequencePlaybackRate(sequence, sequences),
-								fileName: nodePath.absolutePath,
-								fieldKey,
-								isDescendant,
-								nodePath,
-								schema: effectSchema,
-								status: propStatus,
-							},
-						]
-					: [],
+		return Object.entries(
+			Internals.evaluateSourcePropStatuses(
+				effectStatus.props,
+				sequence.controls?.videoConfigValues ?? null,
+			),
+		).flatMap(([fieldKey, propStatus]) =>
+			propStatus.status === 'keyframed' &&
+			(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
+				? [
+						{
+							effectIndex: effectStatus.effectIndex,
+							parentPlaybackRate:
+								(propStatus.keyframePlaybackRateAdjustment ?? 1) *
+								getParentSequencePlaybackRate(sequence, sequences),
+							fileName: nodePath.absolutePath,
+							fieldKey,
+							isDescendant,
+							nodePath,
+							schema: effectSchema,
+							status: propStatus,
+						},
+					]
+				: [],
 		);
 	});
 

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-shared"
 	},
 	"name": "@remotion/studio-shared",
-	"version": "4.0.529",
+	"version": "4.0.537",
 	"description": "Internal package for shared objects between the Studio backend and frontend",
 	"main": "dist",
 	"module": "dist/esm/index.mjs",
@@ -69,7 +69,13 @@
 			"module": "./dist/esm/parse-spring-easing-config.mjs",
 			"import": "./dist/esm/parse-spring-easing-config.mjs"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./canvas-capture-handoff": {
+			"types": "./dist/canvas-capture-handoff.d.ts",
+			"require": "./dist/canvas-capture-handoff.js",
+			"module": "./dist/esm/canvas-capture-handoff.mjs",
+			"import": "./dist/esm/canvas-capture-handoff.mjs"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
@@ -87,6 +93,9 @@
 			],
 			"parse-spring-easing-config": [
 				"./dist/parse-spring-easing-config.d.ts"
+			],
+			"canvas-capture-handoff": [
+				"./dist/canvas-capture-handoff.d.ts"
 			]
 		}
 	}

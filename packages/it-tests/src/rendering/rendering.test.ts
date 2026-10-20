@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 test(
-	'Should be able to render video with custom port',
+	'Should render video with custom port using shared memory on supported platforms',
 	async () => {
 		const task = execa(
 			'bun',
@@ -46,6 +46,7 @@ test(
 				'h264',
 				'--color-space=bt709',
 				'--port=3536',
+				'--log=verbose',
 				outputPath,
 			],
 			{
@@ -53,13 +54,33 @@ test(
 			},
 		);
 		task.stderr?.pipe(process.stderr);
-		await task;
+		const {stdout} = await task;
 		const exists = fs.existsSync(outputPath);
 		expect(exists).toBe(true);
+		// This command is selected from the first captured frame, so a successful
+		// video proves that FFmpeg consumed shared-memory frames, not just a probe.
+		if (
+			process.platform === 'linux' ||
+			(process.platform === 'darwin' && process.arch === 'arm64')
+		) {
+			expect(stdout).toContain('-f,remotionshm');
+			expect(stdout).not.toContain('-f,image2pipe');
+		} else {
+			expect(stdout).toContain('-f,image2pipe');
+		}
 
 		const info = await RenderInternals.callFf({
 			bin: 'ffprobe',
-			args: [outputPath],
+			args: [
+				'-count_frames',
+				'-select_streams',
+				'v:0',
+				'-show_entries',
+				'stream=nb_read_frames',
+				'-of',
+				'default=noprint_wrappers=1:nokey=1',
+				outputPath,
+			],
 			indent: false,
 			logLevel: 'info',
 			binariesDirectory: null,
@@ -72,6 +93,7 @@ test(
 		expect(data).toContain('bt709');
 		expect(data).toContain('30 fps');
 		expect(data).toContain('Audio: aac');
+		expect(info.stdout.trim()).toBe('10');
 	},
 	{
 		timeout: 30000,
@@ -298,7 +320,7 @@ test(
 );
 
 test(
-	'Should render multiple frame ranges as one video',
+	'Should render multiple frame ranges as one video using JPEG screenshots when shared memory is disabled',
 	async () => {
 		const out = outputPath.replace('.mp4', '-multiple-ranges.mp4');
 		try {
@@ -312,6 +334,9 @@ test(
 					'ten-frame-tester',
 					'--frames=0-2,6-8',
 					'--codec=h264',
+					'--disable-shared-memory-capture',
+					'--image-format=jpeg',
+					'--log=verbose',
 					out,
 				],
 				{
@@ -321,6 +346,9 @@ test(
 			);
 
 			expect(task.exitCode).toBe(0);
+			expect(task.stdout).toContain('-f,image2pipe');
+			expect(task.stdout).toContain('-vcodec,mjpeg');
+			expect(task.stdout).not.toContain('-f,remotionshm');
 			const probe = await RenderInternals.callFf({
 				bin: 'ffprobe',
 				args: [
@@ -521,6 +549,7 @@ test(
 				'build',
 				'gif',
 				'--concurrency=1',
+				'--log=verbose',
 				'--frames=0-47',
 				'--muted',
 				outputPath,
@@ -553,6 +582,10 @@ test(
 		expect(data).toContain('Video: h264');
 		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
 			expect(data).toContain('bt709');
+		} else if (task.stdout.includes('-f,remotionshm')) {
+			expect(data).toContain(
+				'yuv420p(tv, unknown/bt709/iec61966-2-1, progressive)',
+			);
 		} else {
 			expect(data).not.toContain('bt709');
 		}
@@ -689,6 +722,7 @@ test(
 				'build',
 				'dynamic-duration',
 				'--concurrency=1',
+				'--log=verbose',
 				`--props`,
 				JSON.stringify({duration: randomDuration, offthread: true}),
 				'--separate-audio-to',
@@ -718,6 +752,10 @@ test(
 		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
 			expect(data).toContain(
 				`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive)`,
+			);
+		} else if (task.stdout.includes('-f,remotionshm')) {
+			expect(data).toContain(
+				`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive)`,
 			);
 		} else {
 			expect(data).toContain(

@@ -17,7 +17,12 @@ import {
 } from '@remotion/studio-shared';
 import type {namedTypes as AstNamedTypes} from 'ast-types';
 import * as recast from 'recast';
-import type {SequenceNodePath} from 'remotion';
+import type {
+	SequenceNodePath,
+	VideoConfigNumericExpression,
+	VideoConfigValues,
+} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
@@ -28,13 +33,28 @@ import {
 } from './get-node-path-remappings';
 import {printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
+import {ensureOfficialNamedImport} from './sequence-props/imports';
+import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
 import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
-import {applySourceEdits} from './source-edits';
+import {
+	parseVideoConfigNumericExpression,
+	updateVideoConfigNumericExpression,
+} from './sequence-props/video-config-numeric-expression';
+import {
+	getVideoConfigIdentifierValues,
+	type VideoConfigIdentifierValues,
+} from './sequence-props/video-config-values';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+} from './source-edits';
 import {
 	getEndOfLine,
 	getLineIndent,
 	indentContinuationLines,
 } from './source-style';
+import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
 const {builders: b, namedTypes} = recast.types;
 
@@ -43,25 +63,35 @@ const normalizeComputedTiming = (value: number): number => {
 	return Number.isInteger(value) ? value : Number(value.toPrecision(15));
 };
 
+// `null` means the prop is absent.
 type SequenceTiming = {
-	from: number;
-	durationInFrames: number;
-	trimBefore: number;
+	from: VideoConfigNumericExpression | null;
+	durationInFrames: VideoConfigNumericExpression | null;
+	trimBefore: VideoConfigNumericExpression | null;
 	playbackRate: number;
-	hasFrom: boolean;
-	hasDurationInFrames: boolean;
-	hasTrimBefore: boolean;
 };
 
 const jsxId = (name: string) => ({type: 'JSXIdentifier' as const, name});
 
-const numericAttribute = (name: string, value: number): JSXAttribute => ({
+const numericAttribute = ({
+	name,
+	value,
+	expression,
+}: {
+	name: string;
+	value: number;
+	expression: VideoConfigNumericExpression | null;
+}): JSXAttribute => ({
 	type: 'JSXAttribute',
 	name: jsxId(name),
 	value: {
 		type: 'JSXExpressionContainer',
 		expression:
-			value === Infinity ? b.identifier('Infinity') : b.numericLiteral(value),
+			value === Infinity
+				? b.identifier('Infinity')
+				: expression
+					? updateVideoConfigNumericExpression({expression, value})
+					: b.numericLiteral(value),
 	} as JSXExpressionContainer,
 });
 
@@ -78,9 +108,13 @@ const getAttributeName = (
 	return attribute.name.name;
 };
 
-const getStaticNumber = (
-	attribute: JSXElement['openingElement']['attributes'][number],
-): number | null => {
+const getStaticNumber = ({
+	attribute,
+	videoConfigValues,
+}: {
+	attribute: JSXElement['openingElement']['attributes'][number];
+	videoConfigValues: VideoConfigIdentifierValues;
+}): VideoConfigNumericExpression | null => {
 	if (attribute.type !== 'JSXAttribute') {
 		return null;
 	}
@@ -91,7 +125,7 @@ const getStaticNumber = (
 
 	if (attribute.value.type === 'StringLiteral') {
 		const parsed = Number(attribute.value.value);
-		return Number.isFinite(parsed) ? parsed : null;
+		return Number.isFinite(parsed) ? {type: 'literal', value: parsed} : null;
 	}
 
 	if (attribute.value.type !== 'JSXExpressionContainer') {
@@ -99,33 +133,31 @@ const getStaticNumber = (
 	}
 
 	const {expression} = attribute.value;
-	if (expression.type === 'NumericLiteral') {
-		return expression.value;
-	}
-
-	if (
-		expression.type === 'UnaryExpression' &&
-		expression.operator === '-' &&
-		expression.argument.type === 'NumericLiteral'
-	) {
-		return -expression.argument.value;
+	if (expression.type === 'JSXEmptyExpression') {
+		return null;
 	}
 
 	if (expression.type === 'Identifier' && expression.name === 'Infinity') {
-		return Infinity;
+		return {type: 'literal', value: Infinity};
 	}
 
-	return null;
+	return parseVideoConfigNumericExpression({
+		node: expression,
+		videoConfigValues,
+	});
 };
 
-const readSequenceTiming = (element: JSXElement): SequenceTiming => {
-	let from = 0;
-	let durationInFrames = Infinity;
-	let trimBefore = 0;
+const readSequenceTiming = ({
+	element,
+	videoConfigValues,
+}: {
+	element: JSXElement;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): SequenceTiming => {
+	let from: VideoConfigNumericExpression | null = null;
+	let durationInFrames: VideoConfigNumericExpression | null = null;
+	let trimBefore: VideoConfigNumericExpression | null = null;
 	let playbackRate = 1;
-	let hasFrom = false;
-	let hasDurationInFrames = false;
-	let hasTrimBefore = false;
 
 	for (const attribute of element.openingElement.attributes) {
 		const name = getAttributeName(attribute);
@@ -142,32 +174,34 @@ const readSequenceTiming = (element: JSXElement): SequenceTiming => {
 			continue;
 		}
 
-		const value = getStaticNumber(attribute);
+		const value = getStaticNumber({attribute, videoConfigValues});
 		if (value === null) {
 			throw new Error(`Cannot split sequence with dynamic ${name}`);
 		}
 
 		if (name === 'from') {
 			from = value;
-			hasFrom = true;
 		}
 
 		if (name === 'durationInFrames') {
 			durationInFrames = value;
-			hasDurationInFrames = true;
 		}
 
 		if (name === 'trimBefore') {
 			trimBefore = value;
-			hasTrimBefore = true;
 		}
 
 		if (name === 'playbackRate') {
-			if (!Number.isFinite(value) || value <= 0) {
+			if (
+				!Number.isFinite(
+					NoReactInternals.evaluateSourceNumericValue(value, null),
+				) ||
+				NoReactInternals.evaluateSourceNumericValue(value, null) <= 0
+			) {
 				throw new Error('Cannot split sequence with invalid playbackRate');
 			}
 
-			playbackRate = value;
+			playbackRate = NoReactInternals.evaluateSourceNumericValue(value, null);
 		}
 	}
 
@@ -176,9 +210,6 @@ const readSequenceTiming = (element: JSXElement): SequenceTiming => {
 		durationInFrames,
 		trimBefore,
 		playbackRate,
-		hasFrom,
-		hasDurationInFrames,
-		hasTrimBefore,
 	};
 };
 
@@ -186,11 +217,13 @@ const setNumericAttribute = ({
 	element,
 	name,
 	value,
+	expression,
 	omitIfMissing,
 }: {
 	element: JSXElement;
 	name: string;
 	value: number | null;
+	expression: VideoConfigNumericExpression | null;
 	omitIfMissing: boolean;
 }) => {
 	const {
@@ -208,7 +241,7 @@ const setNumericAttribute = ({
 		return;
 	}
 
-	const next = numericAttribute(name, value);
+	const next = numericAttribute({name, value, expression});
 	if (index === -1) {
 		attributes.push(next);
 	} else {
@@ -357,12 +390,14 @@ const getSplitSourceEdit = ({
 	left,
 	prettierConfigOverride,
 	right,
+	track,
 	wrapInFragment,
 }: {
 	input: string;
 	left: JSXElement;
 	prettierConfigOverride: Record<string, unknown> | null;
 	right: JSXElement;
+	track: JSXElement | null;
 	wrapInFragment: boolean;
 }) => {
 	if (!left.loc) {
@@ -390,9 +425,11 @@ const getSplitSourceEdit = ({
 				prettierConfigOverride: formattingConfig,
 			}),
 		});
-	const replacement = wrapInFragment
-		? print(makeFragment(left, right))
-		: `${print(left)}${isOnlyElementOnLine ? `${endOfLine}${lineIndent}` : ' '}${print(right)}`;
+	const replacement = track
+		? print(track)
+		: wrapInFragment
+			? print(makeFragment(left, right))
+			: `${print(left)}${isOnlyElementOnLine ? `${endOfLine}${lineIndent}` : ' '}${print(right)}`;
 
 	return {end, replacement, start};
 };
@@ -401,6 +438,7 @@ export type SplitJsxSequenceItem = {
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
+	videoConfigValues: VideoConfigValues | null;
 };
 
 export const splitJsxSequences = ({
@@ -415,6 +453,7 @@ export const splitJsxSequences = ({
 	output: string;
 	nodeLabels: string[];
 	logLines: number[];
+	insertedNodePaths: SequenceNodePath[];
 	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
 	if (splits.length === 0) {
@@ -423,55 +462,101 @@ export const splitJsxSequences = ({
 
 	const ast = parseAst(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);
-	const targets = splits.map(({nodePath, sequenceKeys, splitFrame}) => {
-		if (!Number.isFinite(splitFrame)) {
-			throw new Error('Split frame must be finite');
-		}
+	const importSnapshots = captureImportSnapshots(ast);
+	const targets = splits.map(
+		({nodePath, sequenceKeys, splitFrame, videoConfigValues}) => {
+			if (!Number.isFinite(splitFrame)) {
+				throw new Error('Split frame must be finite');
+			}
 
-		const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
-		if (!jsxPath) {
-			throw new Error(
-				'Could not find a JSX sequence at the specified location to split',
-			);
-		}
+			const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
+			if (!jsxPath) {
+				throw new Error(
+					'Could not find a JSX sequence at the specified location to split',
+				);
+			}
 
-		const jsxElement = jsxPath.node as JSXElement;
-		const tagName = getSplittableSequenceTagName(jsxElement);
-		if (!hasSequenceTimingTraits(sequenceKeys)) {
-			throw new Error(`<${tagName}> cannot be split`);
-		}
+			const jsxElement = jsxPath.node as JSXElement;
+			const tagName = getSplittableSequenceTagName(jsxElement);
+			if (!hasSequenceTimingTraits(sequenceKeys)) {
+				throw new Error(`<${tagName}> cannot be split`);
+			}
 
-		const timing = readSequenceTiming(jsxElement);
-		const contentDuration = timing.durationInFrames;
-		const timelineDuration = contentDuration / timing.playbackRate;
-		const finiteEnd =
-			timelineDuration === Infinity ? Infinity : timing.from + timelineDuration;
+			const timing = readSequenceTiming({
+				element: jsxElement,
+				videoConfigValues: getVideoConfigIdentifierValues({
+					ast,
+					videoConfigValues,
+				}),
+			});
+			const from =
+				timing.from === null
+					? 0
+					: NoReactInternals.evaluateSourceNumericValue(timing.from, null);
+			const contentDuration =
+				timing.durationInFrames === null
+					? Infinity
+					: NoReactInternals.evaluateSourceNumericValue(
+							timing.durationInFrames,
+							null,
+						);
+			const timelineDuration = contentDuration / timing.playbackRate;
+			const finiteEnd =
+				timelineDuration === Infinity ? Infinity : from + timelineDuration;
 
-		if (splitFrame <= timing.from) {
-			throw new Error('Cannot split at or before the sequence start');
-		}
+			if (splitFrame <= from) {
+				throw new Error('Cannot split at or before the sequence start');
+			}
 
-		if (splitFrame >= finiteEnd) {
-			throw new Error('Cannot split at or after the sequence end');
-		}
+			if (splitFrame >= finiteEnd) {
+				throw new Error('Cannot split at or after the sequence end');
+			}
 
-		return {
+			let isInsideTrack = false;
+			let ancestor = jsxPath.parentPath;
+			while (ancestor) {
+				if (
+					ancestor.node.type === 'JSXElement' &&
+					getJsxComponentIdentity({
+						ast,
+						jsxElement: (ancestor.node as JSXElement).openingElement,
+					}) === 'dev.remotion.remotion.Track'
+				) {
+					isInsideTrack = true;
+					break;
+				}
+
+				ancestor = ancestor.parentPath;
+			}
+
+			return {
+				isInsideTrack,
+				contentDuration,
+				from,
+				jsxElement,
+				jsxPath,
+				splitFrame,
+				timing,
+			};
+		},
+	);
+	const nodeLabels: string[] = [];
+	const logLines: number[] = [];
+	const insertedElements: JSXElement[] = [];
+	const sourceEdits = targets.map(
+		({
 			contentDuration,
+			from,
+			isInsideTrack,
 			jsxElement,
 			jsxPath,
 			splitFrame,
 			timing,
-		};
-	});
-	const nodeLabels: string[] = [];
-	const logLines: number[] = [];
-	const sourceEdits = targets.map(
-		({contentDuration, jsxElement, jsxPath, splitFrame, timing}) => {
+		}) => {
 			const right = cloneJsxElement(jsxElement);
+			insertedElements.push(right);
 			// Match Studio's numeric dragger precision while retaining fractional frames.
-			const leftTimelineDuration = normalizeComputedTiming(
-				splitFrame - timing.from,
-			);
+			const leftTimelineDuration = normalizeComputedTiming(splitFrame - from);
 			const leftDuration = normalizeComputedTiming(
 				leftTimelineDuration * timing.playbackRate,
 			);
@@ -480,32 +565,41 @@ export const splitJsxSequences = ({
 					? Infinity
 					: normalizeComputedTiming(contentDuration - leftDuration);
 			const rightTrimBefore = normalizeComputedTiming(
-				timing.trimBefore + leftDuration,
+				(timing.trimBefore === null
+					? 0
+					: NoReactInternals.evaluateSourceNumericValue(
+							timing.trimBefore,
+							null,
+						)) + leftDuration,
 			);
 
 			setNumericAttribute({
 				element: jsxElement,
 				name: 'durationInFrames',
 				value: leftDuration,
+				expression: timing.durationInFrames,
 				omitIfMissing: false,
 			});
 			setNumericAttribute({
 				element: right,
 				name: 'from',
 				value: splitFrame,
+				expression: timing.from,
 				omitIfMissing: false,
 			});
 			setNumericAttribute({
 				element: right,
 				name: 'durationInFrames',
 				value: rightDuration === Infinity ? null : rightDuration,
+				expression: timing.durationInFrames,
 				omitIfMissing: false,
 			});
 			setNumericAttribute({
 				element: right,
 				name: 'trimBefore',
 				value: rightTrimBefore === 0 ? null : rightTrimBefore,
-				omitIfMissing: !timing.hasTrimBefore && rightTrimBefore === 0,
+				expression: timing.trimBefore,
+				omitIfMissing: timing.trimBefore === null && rightTrimBefore === 0,
 			});
 			orderTimingAttributes(jsxElement);
 			orderTimingAttributes(right);
@@ -518,8 +612,88 @@ export const splitJsxSequences = ({
 			const isJsxChild =
 				namedTypes.JSXElement.check(parentPath.node) ||
 				namedTypes.JSXFragment.check(parentPath.node);
-			if (!insertAfter(parentPath.node, jsxElement, right)) {
-				jsxPath.replace(makeFragment(jsxElement, right));
+			let track: JSXElement | null = null;
+			if (isInsideTrack) {
+				if (!insertAfter(parentPath.node, jsxElement, right)) {
+					jsxPath.replace(makeFragment(jsxElement, right));
+				}
+			} else {
+				const trackLocalName = ensureOfficialNamedImport({
+					ast,
+					importedName: 'Track',
+					sourcePath: 'remotion',
+					preferredLocalName: 'Track',
+				});
+				const {attributes} = jsxElement.openingElement;
+				const nameAttribute = attributes.find(
+					(attribute) => getAttributeName(attribute) === 'name',
+				);
+				const sourceAttribute = attributes.find(
+					(attribute) => getAttributeName(attribute) === 'src',
+				);
+				let name: JSXAttribute['value'] =
+					nameAttribute?.type === 'JSXAttribute' ? nameAttribute.value : null;
+				if (!name && sourceAttribute?.type === 'JSXAttribute') {
+					const source = sourceAttribute.value;
+					const expression =
+						source?.type === 'JSXExpressionContainer'
+							? source.expression
+							: source;
+					const sourceValue =
+						expression?.type === 'StringLiteral'
+							? expression.value
+							: expression?.type === 'CallExpression' &&
+								  expression.arguments[0]?.type === 'StringLiteral' &&
+								  expression.callee.type === 'Identifier' &&
+								  expression.callee.name === 'staticFile'
+								? expression.arguments[0].value
+								: null;
+					if (sourceValue) {
+						let assetName = sourceValue.startsWith('data:')
+							? 'Data URL'
+							: sourceValue.startsWith('blob:')
+								? 'Blob URL'
+								: sourceValue.split(/[?#]/)[0].split(/[\\/]/).at(-1) ||
+									sourceValue;
+						try {
+							assetName = decodeURIComponent(assetName);
+						} catch {
+							// Keep filenames that contain malformed URI escapes readable.
+						}
+
+						name = {type: 'StringLiteral', value: assetName};
+					} else {
+						name = source;
+					}
+				}
+
+				track = {
+					type: 'JSXElement',
+					openingElement: {
+						type: 'JSXOpeningElement',
+						name: jsxId(trackLocalName),
+						attributes: [
+							{
+								type: 'JSXAttribute',
+								name: jsxId('name'),
+								value: name ?? {
+									type: 'StringLiteral',
+									value: getSplittableSequenceTagName(jsxElement),
+								},
+							},
+						],
+						selfClosing: false,
+					},
+					closingElement: {
+						type: 'JSXClosingElement',
+						name: jsxId(trackLocalName),
+					},
+					children: [
+						stripParenthesizedExtra(jsxElement),
+						stripParenthesizedExtra(right),
+					],
+				};
+				jsxPath.replace(track);
 			}
 
 			nodeLabels.push(getJsxElementTagLabel(jsxElement));
@@ -533,12 +707,24 @@ export const splitJsxSequences = ({
 				left: jsxElement,
 				prettierConfigOverride: prettierConfigOverride ?? null,
 				right,
+				track,
 				wrapInFragment: !isJsxChild,
 			});
 		},
 	);
-	const output = applySourceEdits({edits: sourceEdits, input});
-	const {nodePathRemappings} = getNodePathRemappings({
+	const output = applySourceEdits({
+		edits: [
+			...sourceEdits,
+			...getInsertImportSourceEdits({
+				ast,
+				input,
+				prettierConfigOverride: prettierConfigOverride ?? null,
+				snapshots: importSnapshots,
+			}),
+		],
+		input,
+	});
+	const {nodePathRemappings, finalNodePathByNode} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,
@@ -548,6 +734,14 @@ export const splitJsxSequences = ({
 		output,
 		nodeLabels,
 		logLines,
+		insertedNodePaths: insertedElements.map((element) => {
+			const nodePath = finalNodePathByNode.get(element.openingElement);
+			if (!nodePath) {
+				throw new Error('Could not locate the split clip after editing');
+			}
+
+			return nodePath;
+		}),
 		nodePathRemappings,
 	});
 };
@@ -557,12 +751,14 @@ export const splitJsxSequence = async ({
 	nodePath,
 	sequenceKeys,
 	splitFrame,
+	videoConfigValues,
 	prettierConfigOverride,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
+	videoConfigValues: VideoConfigValues | null;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
@@ -574,7 +770,7 @@ export const splitJsxSequence = async ({
 		await splitJsxSequences({
 			input,
 			prettierConfigOverride,
-			splits: [{nodePath, sequenceKeys, splitFrame}],
+			splits: [{nodePath, sequenceKeys, splitFrame, videoConfigValues}],
 		});
 
 	return {

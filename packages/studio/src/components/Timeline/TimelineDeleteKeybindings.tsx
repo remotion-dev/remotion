@@ -1,6 +1,7 @@
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {memo, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -10,13 +11,14 @@ import {getCurrentFrame} from './imperative-state';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {
 	useCurrentTimelineSelectionStateAsRef,
-	useTimelineSelection,
+	useTimelineSelectionCanSelect,
 } from './TimelineSelection';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 
-export const TimelineDeleteKeybindings: React.FC = () => {
+const TimelineDeleteKeybindingsUnmemoized: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -24,7 +26,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
-	const {canSelect} = useTimelineSelection();
+	const canSelect = useTimelineSelectionCanSelect();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
@@ -76,8 +78,10 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 				const splitPromise = splitSelectedTimelineItems({
 					selections: selectedItems,
-					sequences: sequencesRef.current,
-					overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+					tracks: calculateTimeline({
+						sequences: sequencesRef.current,
+						overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+					}).tracks,
 					propStatuses: propStatusesRef.current,
 					splitFrame: getCurrentFrame(),
 				});
@@ -104,6 +108,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		currentSelection,
 		deleteTimelineItems,
 		keybindings,
+		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
 		propStatusesRef,
 		previewServerState,
@@ -112,3 +117,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 	return null;
 };
+
+export const TimelineDeleteKeybindings = memo(
+	TimelineDeleteKeybindingsUnmemoized,
+);

@@ -357,6 +357,7 @@ const getFileSource = ({
 
 export type BrowserStudioProjectController = {
 	applyMutation: (mutation: ProjectMutation) => SequenceNodePathMutation | null;
+	clearPendingHmrEvent: () => void;
 	deleteStaticFile: BrowserStudioOperations['deleteStaticFile'];
 	emitEvent: (event: EventSourceEvent) => void;
 	findInFile: BrowserStudioOperations['findInFile'];
@@ -622,6 +623,12 @@ export const createBrowserStudioProjectController = ({
 				(remapping): SequenceNodePathRemapping => ({
 					oldNodePath: remapping.newNodePath,
 					newNodePath: remapping.oldNodePath,
+					...(remapping.newJsxName === undefined
+						? {}
+						: {oldJsxName: remapping.newJsxName}),
+					...(remapping.oldJsxName === undefined
+						? {}
+						: {newJsxName: remapping.oldJsxName}),
 				}),
 			),
 		}));
@@ -688,6 +695,9 @@ export const createBrowserStudioProjectController = ({
 			} catch (error) {
 				return Promise.reject(error);
 			}
+		},
+		clearPendingHmrEvent: () => {
+			latestHmrEvent = null;
 		},
 		emitEvent: emit,
 		findInFile: (request) => {

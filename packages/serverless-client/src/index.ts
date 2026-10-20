@@ -91,6 +91,7 @@ export {
 } from './get-or-create-bucket';
 export {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 export {getRemotionVersionFromIndexHtml} from './get-remotion-version-from-index-html';
+export {getSizeInBytes} from './get-size-in-bytes';
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 export {inspectErrors} from './inspect-error';
 export {makeBucketName} from './make-bucket-name';
@@ -153,3 +154,5 @@ export const validateDurationInFrames: typeof NoReactInternals.validateDurationI
 	NoReactInternals.validateDurationInFrames;
 export const validateCodec: typeof NoReactInternals.validateCodec =
 	NoReactInternals.validateCodec;
+
+export * from './image-sequence';

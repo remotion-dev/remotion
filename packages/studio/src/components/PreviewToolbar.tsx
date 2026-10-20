@@ -1,7 +1,8 @@
-import React, {useCallback, useContext, useState} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
-import {BACKGROUND, BORDER_BLACK_ALPHA_50} from '../helpers/colors';
+import {BACKGROUND, BLACK_ALPHA_50} from '../helpers/colors';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {
 	useIsStill,
@@ -33,7 +34,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	position: 'relative',
 	justifyContent: 'center',
-	borderTop: BORDER_BLACK_ALPHA_50,
+	boxShadow: `inset 0 1px ${BLACK_ALPHA_50}`,
 	alignItems: 'center',
 	flexDirection: 'row',
 	background: BACKGROUND,
@@ -86,6 +87,25 @@ export const PreviewToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const size = PlayerInternals.useElementSize(ref, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
+	const width = Math.round(size?.width ?? 0);
+	const containerStyle = useMemo((): React.CSSProperties => {
+		return {
+			...container,
+			// Keep the two flexible gaps equal in whole pixels at odd widths.
+			paddingRight: width % 2,
+		};
+	}, [width]);
+	const playButtonStyle = useMemo((): React.CSSProperties => {
+		return {
+			...centeredPlayButton,
+			left: size === null ? '50%' : Math.floor(width / 2),
+		};
+	}, [size, width]);
 	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 
 	const {playerMuted} = useContext(Internals.MediaVolumeContext);
@@ -117,7 +137,7 @@ export const PreviewToolbar: React.FC<{
 	);
 
 	return (
-		<div style={container} className="css-reset">
+		<div ref={ref} style={containerStyle} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
 				{isMobileLayout ? null : (
@@ -163,7 +183,7 @@ export const PreviewToolbar: React.FC<{
 			<Flex />
 
 			{isVideoComposition && isMobileLayout ? (
-				<div style={centeredPlayButton}>{playPause}</div>
+				<div style={playButtonStyle}>{playPause}</div>
 			) : null}
 			{isVideoComposition && !isMobileLayout ? (
 				<>

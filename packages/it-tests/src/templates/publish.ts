@@ -202,11 +202,10 @@ const publishAgentPlugins = async () => {
 				'.codex-plugin',
 				'assets',
 				'LICENSE',
-				'plugin.json',
 				'skills',
 				'README.md',
 			],
-			manifestPaths: ['plugin.json', '.codex-plugin/plugin.json'],
+			manifestPaths: ['.codex-plugin/plugin.json'],
 			name: 'codex-plugin',
 			repoName: 'codex-plugin',
 			skillsDir: path.join(agentPluginDir, 'skills'),
@@ -259,14 +258,7 @@ const publishCanvasCapture = async () => {
 	);
 	const installBrowserPath = path.join(workingDir, 'install-browser.sh');
 	copyFileSync(
-		path.join(
-			monorepoDir,
-			'.agents',
-			'skills',
-			'install-canvas-capture-browser',
-			'scripts',
-			'install-browser.sh',
-		),
+		path.join(packageDir, 'scripts', 'install-browser.sh'),
 		installBrowserPath,
 	);
 	chmodSync(installBrowserPath, 0o755);

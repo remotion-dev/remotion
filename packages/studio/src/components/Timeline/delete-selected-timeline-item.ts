@@ -1,6 +1,10 @@
-import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
+import type {PropStatuses} from 'remotion';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
+import {getSourceMutationRevision} from '../../helpers/source-mutation-queue';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
 import {deleteNodes} from '../delete-nodes-api';
 import {deleteEffects as deleteEffectsApi} from '../effect-operations-api';
@@ -53,7 +57,7 @@ export const deleteSequencesFromSource = async (
 		return false;
 	}
 
-	return deleteNodes({
+	const deletion = deleteNodes({
 		nodes: nodePathInfos.map((nodePathInfo) => {
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
@@ -62,13 +66,15 @@ export const deleteSequencesFromSource = async (
 				nodePath: nodePath.nodePath,
 			};
 		}),
-	})
+	});
+	const revision = getSourceMutationRevision();
+	return deletion
 		.then((result) => {
 			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 
-			return result.success;
+			return result.success && revision === getSourceMutationRevision();
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);
@@ -228,8 +234,7 @@ const containsOnlyKeyframesAndEasings = (
 
 export const deleteSelectedTimelineItems = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	setPropStatuses,
 	clientId,
 	confirm,
@@ -237,8 +242,7 @@ export const deleteSelectedTimelineItems = ({
 	timelinePosition,
 }: {
 	selections: readonly TimelineSelection[];
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
@@ -261,8 +265,7 @@ export const deleteSelectedTimelineItems = ({
 				nodePathInfo: selection.nodePathInfo,
 				frame: selection.frame,
 			})),
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			setPropStatuses,
 			clientId,
 			propStatuses,

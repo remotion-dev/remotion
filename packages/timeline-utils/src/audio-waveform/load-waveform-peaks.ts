@@ -3,14 +3,13 @@ import {ALL_FORMATS, AudioSampleSink, Input, UrlSource} from 'mediabunny';
 import {TARGET_SAMPLE_RATE} from './constants';
 import {getWaveformCacheKey} from './get-waveform-cache-key';
 import {getAudioSampleStartFrameAtTimelineZero} from './trim-audio-sample-before-zero';
-import {
-	createWaveformPeakProcessor,
-	emitWaveformProgress,
-} from './waveform-peak-processor';
+import {getWaveformMaxima, type WaveformMaxima} from './waveform-maxima';
+import {createWaveformPeakProcessor} from './waveform-peak-processor';
 const DEFAULT_PROGRESS_INTERVAL_IN_MS = 50;
 
 export type WaveformResult = {
 	readonly peaks: Float32Array;
+	readonly maxima: WaveformMaxima;
 	readonly averageVolume: number | null;
 };
 
@@ -21,6 +20,7 @@ export {TARGET_SAMPLE_RATE};
 type Progress = {
 	readonly averageVolume: number | null;
 	readonly peaks: Float32Array;
+	readonly maxima: WaveformMaxima;
 	readonly completedPeaks: number;
 	readonly totalPeaks: number;
 	readonly final: boolean;
@@ -45,13 +45,13 @@ export async function loadWaveformPeaks(
 	const cacheKey = getWaveformCacheKey(src, waveformSampleRate);
 	const cached = peaksCache.get(cacheKey);
 	if (cached) {
-		emitWaveformProgress({
+		options?.onProgress?.({
 			peaks: cached.peaks,
+			maxima: cached.maxima,
 			averageVolume: cached.averageVolume,
 			completedPeaks: cached.peaks.length,
 			totalPeaks: cached.peaks.length,
 			final: true,
-			onProgress: options?.onProgress,
 		});
 		return cached;
 	}
@@ -65,7 +65,7 @@ export async function loadWaveformPeaks(
 		const audioTrack =
 			typeof src === 'string' ? await input!.getPrimaryAudioTrack() : src;
 		if (!audioTrack) {
-			return {peaks: new Float32Array(0), averageVolume: null};
+			return {peaks: new Float32Array(0), maxima: [], averageVolume: null};
 		}
 
 		if (await audioTrack.isLive()) {
@@ -96,7 +96,13 @@ export async function loadWaveformPeaks(
 		const processor = createWaveformPeakProcessor({
 			totalPeaks,
 			samplesPerPeak,
-			onProgress: options?.onProgress,
+			onProgress: (progress) => {
+				const maxima = getWaveformMaxima(
+					progress.peaks,
+					progress.completedPeaks,
+				);
+				options?.onProgress?.({...progress, maxima});
+			},
 			progressIntervalInMs:
 				options?.progressIntervalInMs ??
 				DEFAULT_PROGRESS_INTERVAL_IN_MS *
@@ -107,7 +113,7 @@ export async function loadWaveformPeaks(
 		for await (const sample of sink.samples()) {
 			if (signal.aborted) {
 				sample.close();
-				return {peaks: new Float32Array(0), averageVolume: null};
+				return {peaks: new Float32Array(0), maxima: [], averageVolume: null};
 			}
 
 			const startFrame = getAudioSampleStartFrameAtTimelineZero(sample);
@@ -145,6 +151,7 @@ export async function loadWaveformPeaks(
 		processor.finalize();
 		const result = {
 			peaks: processor.peaks,
+			maxima: getWaveformMaxima(processor.peaks, null),
 			averageVolume: processor.averageVolume,
 		};
 		peaksCache.set(cacheKey, result);

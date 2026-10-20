@@ -3,7 +3,7 @@ import {
 	type CanvasOutlineDragChange,
 	type CanvasOutlineKeyframedDragChange,
 	type CanvasOutlineStaticDragChange,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatus,
 	DragOverrideValue,
@@ -96,7 +96,7 @@ export const getSelectedOutlineActiveSchema = ({
 	return Internals.flattenActiveSchema(schema, (key) => valuesDotNotation[key]);
 };
 
-// Moving outlines is shared with @remotion/canvas; the Studio adds scale,
+// Moving outlines is shared with @remotion/sdk; the Studio adds scale,
 // rotation, crop and transform-origin editing on top.
 export const {
 	isCanvasOutlineDragPastThreshold: isSelectedOutlineDragPastThreshold,

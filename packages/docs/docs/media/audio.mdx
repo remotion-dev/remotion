@@ -11,14 +11,14 @@ During rendering, it extracts the exact audio using [Mediabunny](/docs/mediabunn
 ## Example
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -26,14 +26,13 @@ export const MyVideo = () => {
 You can load a video from an URL as well:
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Audio} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio src="https://remotion.media/audio.wav" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -57,14 +56,14 @@ You can still wrap `<Audio>` in an outer [`<Sequence>`](/docs/sequence). Timing 
 :::
 
 ```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio from={30} durationInFrames={90} src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -91,15 +90,15 @@ The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio w
 For exact behavior, see [Timing and trimming](/docs/timing).
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio src={staticFile('audio.mp3')} trimBefore={60} durationInFrames={60} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -117,30 +116,32 @@ Removes a portion of the audio at the end (right side). If `durationInFrames` en
 Allows you to control the volume of the audio in it's entirety or frame by frame.  
 Read the page on [using audio](/docs/using-audio) to learn more.
 
+The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
+
 ```tsx twoslash title="Setting a static volume"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio volume={0.5} src={staticFile('background.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
 
 ```tsx twoslash title="Changing the volume over time"
-import {AbsoluteFill, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyVideo = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
+    <>
       <Audio volume={interpolate(frame, [0, 30], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('voice.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -185,15 +186,15 @@ export const MyVideo = () => {
 Controls the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
 
 ```tsx twoslash title="Example of a audio playing twice as fast"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio playbackRate={2} src={'https://remotion.media/audio.mp3'} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -201,7 +202,7 @@ export const MyComposition = () => {
 :::note
 Playing audio in reverse is not supported.
 
-Changing `playbackRate` also changes the audio pitch. Pitch-preserving speed changes are not supported by the Mediabunny and WebCodecs path. If the audio [falls back to `<Html5Audio>`](/docs/media/fallback) during preview or server-side rendering, audio pitch is preserved by default.
+Changing `playbackRate` also changes the audio pitch by default. Pass [`preservePitch={true}`](#preservepitch) to preserve the original pitch.
 :::
 
 ### `loop?`<AvailableFrom v="3.2.29" />
@@ -219,9 +220,32 @@ export const MyComposition = () => {
 
 ### `loopVolumeCurveBehavior?`
 
-Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
+This prop only applies to [`volume`](#volume) callbacks, which are no longer recommended.
 
-Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+When [`loop`](#loop) is enabled, `"repeat"` (default) resets the callback frame to `0` on each iteration, while `"extend"` keeps it increasing across iterations.
+
+It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
+
+### `preservePitch?`<AvailableFrom v="4.0.538" />
+
+Preserves the audio pitch when changing [`playbackRate`](#playbackrate), including playback speed inherited from parent [`<Sequence>`](/docs/sequence#playbackrate) components. Defaults to `false`. Applies during preview, [server-side rendering](/docs/ssr), and [client-side rendering](/docs/client-side-rendering).
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+import {staticFile} from 'remotion';
+// ---cut---
+export const MyComposition = () => (
+  <Audio src={staticFile('audio.wav')} playbackRate={1.4} preservePitch />
+);
+```
+
+The default retains the existing behavior of the Mediabunny and WebCodecs path: for example, `playbackRate={2}` doubles the pitch. Set `preservePitch={true}` to change speed without changing pitch. If you already compensate for speed with `toneFrequency`, remove that compensation when enabling `preservePitch` to avoid applying it twice.
+
+[`toneFrequency`](#tonefrequency) remains an independent pitch multiplier. For example, `toneFrequency={0.8}` lowers the pitch by 20% even when preserving pitch at a different speed. Keep `preservePitch` and the authored playback speed constant for each asset during rendering.
+
+In the Mediabunny and WebCodecs path, this prop does not compensate for the Studio's or [`<Player>`](/docs/player/player)'s playback speed. It only compensates for speed changes authored in the composition.
+
+When [falling back to a native media component](/docs/media/fallback), this prop is forwarded to [`<Html5Audio>`](/docs/html5-audio#preservepitch). An explicit `fallbackHtml5AudioProps.preservePitch` takes precedence. When neither setting is provided, the native fallback retains its existing default of preserving pitch. See the fallback component's documentation for server-side support. Native fallbacks do not apply `toneFrequency` during preview.
 
 ### `muted?`
 
@@ -252,15 +276,14 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 Select the audio stream to use. The default is `0`.
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -277,15 +300,14 @@ Accepts `"omit"`, `"same-origin"` (default behavior of `fetch()`) or `"include"`
 Set to `"include"` if you need to send cookies or authentication headers to a cross-origin audio URL.
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio requestInit={{credentials: 'include'}} src="https://example.com/protected-audio.mp3" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -298,15 +320,14 @@ Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range requ
 The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
 
 ```tsx twoslash
-import {AbsoluteFill} from 'remotion';
 import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio requestInit={{cache: 'no-store'}} src="https://remotion.media/audio.mp3" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

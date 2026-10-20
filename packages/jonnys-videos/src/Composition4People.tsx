@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+	Interactive,
 	AbsoluteFill,
 	CanvasImage,
 	Easing,
@@ -8,12 +9,13 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-export const Composition4People: React.FC = () => {
+const Composition4PeopleInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			name="People grid"
 			style={{
 				backgroundColor: 'black',
@@ -87,3 +89,8 @@ export const Composition4People: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const Composition4People = Interactive.create({
+	Component: Composition4PeopleInner,
+	layout: 'absolute-fill',
+});

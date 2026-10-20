@@ -22,6 +22,8 @@ import {
 	getRootFileForProject,
 } from './internals';
 import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
+import {computeEffectPropsStatusesFromContent} from './sequence-props/can-update-effect-props';
+import {getDurationDependentKeyframesFromContent} from './sequence-props/duration-dependent-keyframes';
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
@@ -58,7 +60,7 @@ export {
 	type DuplicateNodesOptions,
 	type DuplicateNodesResult,
 } from './duplicate-nodes';
-export {reorderNode, type ReorderNodeOptions} from './reorder-node';
+export {reorderNodes, type ReorderNodesOptions} from './reorder-nodes';
 export {splitSequences, type SplitSequencesOptions} from './split-sequences';
 export {detachAudio, type DetachAudioOptions} from './detach-audio';
 export type {
@@ -134,6 +136,7 @@ export type {
 } from './codemod-project';
 export {applyCodemodChanges} from './codemod-project';
 export {deleteNodes, type DeleteNodesOptions} from './delete-nodes';
+export {canUnwrapNode, unwrapNode, type UnwrapNodeOptions} from './unwrap-node';
 export {canWrapNode, wrapNode, type WrapNodeOptions} from './wrap-node';
 export {
 	canPrecomposeJsxNodes,
@@ -170,6 +173,8 @@ export type {
 } from './update-sequence-props';
 
 export const CodemodsInternals = {
+	computeEffectPropsStatusesFromContent,
+	getDurationDependentKeyframesFromContent,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	basicCaptionsElementSource,

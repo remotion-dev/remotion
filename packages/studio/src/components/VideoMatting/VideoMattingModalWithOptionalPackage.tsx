@@ -13,6 +13,8 @@ export const VideoMattingModalWithOptionalPackage: React.FC<{
 }> = ({state}) => (
 	<OptionalPackageModal
 		ariaLabel="Install video matting package to remove background"
+		installButtonText="Continue"
+		installMessage={null}
 		packageName={VIDEO_MATTING_PACKAGE}
 		title="Remove background"
 	>

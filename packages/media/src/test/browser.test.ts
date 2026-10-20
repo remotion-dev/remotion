@@ -62,6 +62,7 @@ test('Should be able to extract a frame', async () => {
 
 	const cacheStats = keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(1);
+	frame.close();
 });
 
 test('Should be able to extract the last frame', async () => {
@@ -113,6 +114,7 @@ test('Should be able to extract the last frame', async () => {
 
 	const cacheStats = keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(1);
+	frame.close();
 });
 
 test('Should manage the cache', async (t) => {
@@ -124,7 +126,7 @@ test('Should manage the cache', async (t) => {
 	keyframeManager.clearAll('info');
 
 	for (let i = 0; i < 50; i++) {
-		await extractFrameAndAudio({
+		const result = await extractFrameAndAudio({
 			sampleRate: 48000,
 			src: `/bigbuckbunny.mp4?i=${i}`,
 			timeInSeconds: 1,
@@ -142,6 +144,9 @@ test('Should manage the cache', async (t) => {
 			credentials: undefined,
 			mediaCache: globalMediaCache,
 		});
+		if (result.type === 'success') {
+			result.frame?.close();
+		}
 	}
 
 	const cacheStats = keyframeManager.getCacheStats();
@@ -259,4 +264,5 @@ test('Should be able to loop', async () => {
 	const {frame} = result;
 
 	assert(frame);
+	frame.close();
 });

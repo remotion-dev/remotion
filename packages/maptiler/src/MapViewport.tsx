@@ -1,7 +1,12 @@
-import {MapStyle, Map as MapTilerMap, type MapOptions} from '@maptiler/sdk';
+import {
+	config as maptilerConfig,
+	MapStyle,
+	Map as MapTilerMap,
+	type MapOptions,
+} from '@maptiler/sdk';
 import '@maptiler/sdk/style.css';
 import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
 	Interactive,
 	useDelayRender,
@@ -276,18 +281,20 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 	const onMapReadyRef = useRef(onMapReady);
 	onMapReadyRef.current = onMapReady;
 	const {continueRender, delayRender} = useDelayRender();
-	const [map, setMap] = useState<MapTilerMap | null>(null);
+	const [loadedMap, setLoadedMap] = useState<{
+		map: MapTilerMap;
+		handle: number;
+	} | null>(null);
+	const map = loadedMap?.map.style ? loadedMap.map : null;
 	const [cameraRevision, setCameraRevision] = useState(0);
 	const [styleRevision, setStyleRevision] = useState(0);
-	const [loadingHandle] = useState(() => delayRender('Loading MapTiler map'));
 	const contextValue = useMemo(
 		() => ({cameraRevision, map, styleRevision}),
 		[cameraRevision, map, styleRevision],
 	);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!apiKey) {
-			continueRender(loadingHandle);
 			return;
 		}
 
@@ -295,8 +302,16 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 			return;
 		}
 
+		const loadingHandle = delayRender('Loading MapTiler map');
+		let cancelled = false;
 		const initialCamera = initialCameraRef.current;
 		const initialOptions = initialMapOptionsRef.current;
+		lastMapStyleRef.current = initialOptions.mapStyle;
+		lastLayerVisibilityRef.current = {
+			administrativeBorders: initialOptions.administrativeBorders,
+			showLabels: initialOptions.showLabels,
+		};
+		maptilerConfig.telemetry = false;
 		// Keep MapTiler's logo and attribution visible:
 		// https://docs.maptiler.com/guides/map-design/attribution/remove-attribution/
 		const mapInstance = new MapTilerMap({
@@ -333,6 +348,10 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		mapRef.current = mapInstance;
 
 		mapInstance.on('load', () => {
+			if (cancelled) {
+				return;
+			}
+
 			stripStyleLayers({
 				administrativeBorders: initialOptions.administrativeBorders,
 				map: mapInstance,
@@ -340,21 +359,33 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 			});
 
 			mapInstance.once('idle', () => {
-				setMap(mapInstance);
+				if (cancelled) {
+					return;
+				}
+
+				setLoadedMap({map: mapInstance, handle: loadingHandle});
 				onMapReadyRef.current?.(mapInstance);
-				continueRender(loadingHandle);
 			});
 			mapInstance.triggerRepaint();
 		});
 
 		return () => {
+			cancelled = true;
+			setLoadedMap(null);
 			mapInstance.remove();
 			mapRef.current = null;
+			continueRender(loadingHandle);
 		};
-	}, [apiKey, continueRender, loadingHandle]);
+	}, [apiKey, continueRender, delayRender]);
 
-	useEffect(() => {
-		if (!map) {
+	useLayoutEffect(() => {
+		if (loadedMap) {
+			continueRender(loadedMap.handle);
+		}
+	}, [continueRender, loadedMap]);
+
+	useLayoutEffect(() => {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -423,9 +454,10 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		zoom,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (
 			!map ||
+			!map.style ||
 			(lastMapStyleRef.current === mapStyle &&
 				lastLayerVisibilityRef.current.showLabels === showLabels &&
 				lastLayerVisibilityRef.current.administrativeBorders ===
@@ -475,15 +507,15 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		showLabels,
 	]);
 
-	useEffect(() => {
-		if (map && language) {
+	useLayoutEffect(() => {
+		if (map?.style && language) {
 			map.setLanguage(language);
 			map.triggerRepaint();
 		}
 	}, [language, map]);
 
-	useEffect(() => {
-		if (!map) {
+	useLayoutEffect(() => {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -496,8 +528,8 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		map.triggerRepaint();
 	}, [map, terrain, terrainExaggeration]);
 
-	useEffect(() => {
-		if (map && projection) {
+	useLayoutEffect(() => {
+		if (map?.style && projection) {
 			map.setProjection(projection, {persist: true});
 			map.triggerRepaint();
 		}

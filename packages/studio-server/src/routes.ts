@@ -104,6 +104,7 @@ const handleRemotionConfig = (
 const handleFallback = async ({
 	remotionRoot,
 	hash,
+	outputHash,
 	response,
 	request,
 	getCurrentInputProps,
@@ -123,6 +124,7 @@ const handleFallback = async ({
 }: {
 	remotionRoot: string;
 	hash: string;
+	outputHash: string;
 	response: ServerResponse;
 	request: IncomingMessage;
 	publicDir: string;
@@ -190,6 +192,7 @@ const handleFallback = async ({
 		BundlerInternals.indexHtml({
 			importMap: null,
 			staticHash: hash,
+			outputHash,
 			publicPath: '/',
 			editorName: displayName,
 			envVariables: getEnvVariables(),
@@ -681,6 +684,7 @@ export const handleRoutes = ({
 	return handleFallback({
 		remotionRoot,
 		hash: staticHash,
+		outputHash,
 		response,
 		request,
 		getCurrentInputProps,

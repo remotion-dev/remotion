@@ -1,18 +1,27 @@
-import {installInStudio, setStudioDragData} from '@remotion/studio-protocol';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import Link from '@docusaurus/Link';
+import useBrokenLinks from '@docusaurus/useBrokenLinks';
+import {
+	isInsideStudio,
+	setStudioDragData,
+	subscribeToCaptionStyleSelection,
+} from '@remotion/studio-protocol';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
 import {
 	createElementPayloadFromDefinition,
+	installElementInStudio,
 	setElementDragImage,
 } from './element-drag-data';
 import {
+	getElementCategoryHeadingId,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 	type ElementCategory,
 } from './element-library-data';
 import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ELEMENT_PREVIEW_BACKGROUND} from './ElementPreviewComposition';
+import {useStudioInstallFallback} from './use-studio-install-fallback';
 import styles from './ElementLibrary.module.css';
 
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
@@ -39,39 +48,33 @@ const usePrefersReducedMotion = () => {
 
 const ElementCard: React.FC<{
 	readonly definition: ElementDefinition;
+	readonly isCaptionPicker: boolean;
+	readonly isSelected: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCode: string;
-}> = ({definition, prefersReducedMotion, sourceCode}) => {
+}> = ({
+	definition,
+	isCaptionPicker,
+	isSelected,
+	prefersReducedMotion,
+	sourceCode,
+}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
 	const [isInstalling, setIsInstalling] = useState(false);
-	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
-	const [installFailureCount, setInstallFailureCount] = useState(0);
+	const {
+		buttonLabel,
+		closeFallback,
+		failureCount,
+		isFallbackOpen,
+		showFallback,
+	} = useStudioInstallFallback('Use');
+	const installTriggerRef = useRef<HTMLElement>(null);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
 		!prefersReducedMotion && !playbackFailed && (isFocused || isPointerOver);
-	const elementPayload = useMemo(
-		() =>
-			createElementPayloadFromDefinition({
-				definition,
-				sourceCode,
-				installAssets: false,
-			}),
-		[definition, sourceCode],
-	);
-	const assetPayload = useMemo(
-		() =>
-			definition.assets.length === 0
-				? null
-				: createElementPayloadFromDefinition({
-						definition,
-						sourceCode,
-						installAssets: true,
-					}),
-		[definition, sourceCode],
-	);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -106,30 +109,31 @@ const ElementCard: React.FC<{
 	const installElement = async () => {
 		setIsInstalling(true);
 		try {
-			const result = await installInStudio({
-				payload: assetPayload ?? elementPayload,
-				fallbackPayload: assetPayload === null ? undefined : elementPayload,
-			});
+			const result = await installElementInStudio({definition, sourceCode});
 			if (!result.success) {
-				setInstallFailureCount((count) => count + 1);
-				setIsInstallFallbackOpen(true);
+				showFallback();
 				return;
 			}
 
-			setIsInstallFallbackOpen(false);
-			setInstallFailureCount(0);
+			closeFallback();
 			if (window.location.origin === 'https://www.remotion.dev') {
 				navigator.sendBeacon(
 					`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
 				);
 			}
 		} catch {
-			setInstallFailureCount((count) => count + 1);
-			setIsInstallFallbackOpen(true);
+			showFallback();
 		} finally {
 			setIsInstalling(false);
 		}
 	};
+
+	const onInstallClick = (event: React.MouseEvent<HTMLElement>) => {
+		installTriggerRef.current = event.currentTarget;
+		installElement();
+	};
+
+	const Card = isCaptionPicker ? 'button' : Link;
 
 	return (
 		<li
@@ -137,10 +141,18 @@ const ElementCard: React.FC<{
 			onPointerEnter={activateFromPointer}
 			onPointerLeave={() => setIsPointerOver(false)}
 		>
-			<a
+			<Card
 				className={styles.card}
 				draggable
-				href={getElementDocumentationUrl(definition)}
+				{...(isCaptionPicker
+					? {
+							type: 'button' as const,
+							onClick: onInstallClick,
+							disabled: isInstalling,
+							'aria-label': `Select ${definition.displayName}`,
+							'aria-pressed': isSelected,
+						}
+					: {to: getElementDocumentationUrl(definition)})}
 				onBlur={() => setIsFocused(false)}
 				onFocus={() => {
 					setPlaybackFailed(false);
@@ -149,7 +161,11 @@ const ElementCard: React.FC<{
 				onDragStart={(event) => {
 					setStudioDragData({
 						dataTransfer: event.dataTransfer,
-						payload: elementPayload,
+						payload: createElementPayloadFromDefinition({
+							definition,
+							sourceCode,
+							installAssets: false,
+						}),
 					});
 					setElementDragImage(event.dataTransfer, posterRef.current);
 				}}
@@ -185,13 +201,13 @@ const ElementCard: React.FC<{
 				<div className={styles.content}>
 					<span className={styles.title}>{definition.displayName}</span>
 				</div>
-			</a>
+			</Card>
 			<div aria-live="polite" className={styles.installAction}>
 				<BlueButton
 					aria-label={`Use – ${definition.displayName}`}
 					fullWidth={false}
 					loading={isInstalling}
-					onClick={installElement}
+					onClick={onInstallClick}
 					size="sm"
 					style={{padding: '5px 8px'}}
 					title="Install in the most recently focused Remotion Studio"
@@ -200,17 +216,16 @@ const ElementCard: React.FC<{
 				</BlueButton>
 			</div>
 			<ElementInstallFallbackModal
-				installFailureCount={installFailureCount}
+				buttonLabel={buttonLabel}
+				definition={definition}
+				installFailureCount={failureCount}
 				isInstalling={isInstalling}
-				isOpen={isInstallFallbackOpen}
-				onClose={() => {
-					setIsInstallFallbackOpen(false);
-					setInstallFailureCount(0);
-				}}
+				isOpen={isFallbackOpen}
+				onClose={closeFallback}
 				onInstall={installElement}
-				payload={elementPayload}
 				posterRef={posterRef}
 				sourceCode={sourceCode}
+				triggerRef={installTriggerRef}
 			/>
 		</li>
 	);
@@ -218,9 +233,17 @@ const ElementCard: React.FC<{
 
 const ElementGrid: React.FC<{
 	readonly definitions: readonly ElementDefinition[];
+	readonly isCaptionPicker: boolean;
+	readonly selectedSlug: string | null;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
-}> = ({definitions, prefersReducedMotion, sourceCodeBySlug}) => {
+}> = ({
+	definitions,
+	isCaptionPicker,
+	selectedSlug,
+	prefersReducedMotion,
+	sourceCodeBySlug,
+}) => {
 	return (
 		// The Algolia recordExtractor must remove this subtree before extracting records.
 		// This marker requires explicit crawler configuration; it is not built in.
@@ -241,6 +264,8 @@ const ElementGrid: React.FC<{
 					<ElementCard
 						key={definition.slug}
 						definition={definition}
+						isCaptionPicker={isCaptionPicker}
+						isSelected={isCaptionPicker && definition.slug === selectedSlug}
 						prefersReducedMotion={prefersReducedMotion}
 						sourceCode={sourceCode}
 					/>
@@ -254,11 +279,112 @@ export const ElementLibrary: React.FC<{
 	readonly category: ElementCategory | null;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
 }> = ({category, sourceCodeBySlug}) => {
-	const sections = getElementLibrarySections(category);
+	const brokenLinks = useBrokenLinks();
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const [isStudioEmbed, setIsStudioEmbed] = useState(false);
+	const [isCaptionPicker, setIsCaptionPicker] = useState(false);
+	const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+	const [query, setQuery] = useState('');
+	const searchRef = useRef<HTMLInputElement>(null);
+	const searchTerms = isStudioEmbed
+		? query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+		: [];
+	const sections = getElementLibrarySections(category)
+		.map((section) => ({
+			...section,
+			definitions: section.definitions.filter((definition) => {
+				const searchText = [
+					definition.displayName,
+					definition.description,
+					definition.slug.replace(/[-/]/g, ' '),
+					section.label,
+				]
+					.join(' ')
+					.toLowerCase();
+				return searchTerms.every((term) => searchText.includes(term));
+			}),
+		}))
+		.filter((section) => section.definitions.length > 0);
+
+	useLayoutEffect(() => {
+		const isEmbedded = isInsideStudio();
+		setIsStudioEmbed(isEmbedded);
+		setIsCaptionPicker(
+			isEmbedded &&
+				new URLSearchParams(window.location.search).get(
+					'remotion-studio-context',
+				) === 'captions',
+		);
+	}, []);
+
+	useEffect(() => subscribeToCaptionStyleSelection(setSelectedSlug), []);
 
 	return (
 		<div className={styles.library}>
+			{isStudioEmbed ? (
+				<div className={styles.searchToolbar}>
+					<div
+						aria-label="Elements"
+						className={styles.searchField}
+						role="search"
+					>
+						<svg
+							aria-hidden="true"
+							className={styles.searchIcon}
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							strokeWidth="1.75"
+						>
+							<circle cx="10.5" cy="10.5" r="6.5" />
+							<path d="m16 16 4.5 4.5" />
+						</svg>
+						<input
+							ref={searchRef}
+							aria-label="Search elements"
+							className={styles.searchInput}
+							onChange={(event) => setQuery(event.currentTarget.value)}
+							onKeyDown={(event) => {
+								if (event.key === 'Escape' && query !== '') {
+									event.preventDefault();
+									event.stopPropagation();
+									setQuery('');
+								}
+							}}
+							placeholder="Search elements…"
+							type="search"
+							value={query}
+						/>
+						{query !== '' ? (
+							<button
+								aria-label="Clear search"
+								className={styles.clearSearch}
+								onClick={() => {
+									setQuery('');
+									searchRef.current?.focus();
+								}}
+								type="button"
+							>
+								<svg
+									aria-hidden="true"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									strokeWidth="1.75"
+								>
+									<path d="m6 6 12 12M6 18 18 6" />
+								</svg>
+							</button>
+						) : null}
+					</div>
+				</div>
+			) : null}
+			{sections.length === 0 ? (
+				<div className={styles.emptyState}>
+					<strong>No elements found</strong>
+					<p>Try another search or browse another category.</p>
+				</div>
+			) : null}
 			{sections.map((section) => {
 				if (category !== null) {
 					return (
@@ -269,6 +395,8 @@ export const ElementLibrary: React.FC<{
 						>
 							<ElementGrid
 								definitions={section.definitions}
+								isCaptionPicker={isCaptionPicker}
+								selectedSlug={selectedSlug}
 								prefersReducedMotion={prefersReducedMotion}
 								sourceCodeBySlug={sourceCodeBySlug}
 							/>
@@ -276,7 +404,8 @@ export const ElementLibrary: React.FC<{
 					);
 				}
 
-				const categoryHeadingId = `element-category-${section.category}`;
+				const categoryHeadingId = getElementCategoryHeadingId(section.category);
+				brokenLinks.collectAnchor(categoryHeadingId);
 
 				return (
 					<section
@@ -284,11 +413,16 @@ export const ElementLibrary: React.FC<{
 						aria-labelledby={categoryHeadingId}
 						className={styles.section}
 					>
-						<h2 className={styles.categoryTitle} id={categoryHeadingId}>
+						<h2
+							className={`anchor ${styles.categoryTitle}`}
+							id={categoryHeadingId}
+						>
 							{section.label}
 						</h2>
 						<ElementGrid
 							definitions={section.definitions}
+							isCaptionPicker={isCaptionPicker}
+							selectedSlug={selectedSlug}
 							prefersReducedMotion={prefersReducedMotion}
 							sourceCodeBySlug={sourceCodeBySlug}
 						/>

@@ -1,6 +1,6 @@
 import type {AnimationItem} from 'lottie-web';
 import lottie from 'lottie-web';
-import {useEffect, useRef, useState} from 'react';
+import {useLayoutEffect, useRef} from 'react';
 import {
 	Freeze,
 	Sequence,
@@ -36,25 +36,15 @@ const LottieContent = ({
 	onAnimationLoadedRef.current = onAnimationLoaded;
 	const {delayRender, continueRender} = useDelayRender();
 
-	const [handle] = useState(() =>
-		delayRender('Waiting for Lottie animation to load'),
-	);
-
-	// If component unmounts, continue the render
-	useEffect(() => {
-		return () => {
-			continueRender(handle);
-		};
-	}, [handle, continueRender]);
-
 	const frame = useCurrentFrame();
 	currentFrameRef.current = frame;
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!containerRef.current) {
 			return;
 		}
 
+		const handle = delayRender('Waiting for Lottie animation to load');
 		animationRef.current = lottie.loadAnimation({
 			container: containerRef.current,
 			autoplay: false,
@@ -91,24 +81,25 @@ const LottieContent = ({
 		return () => {
 			animation.removeEventListener('DOMLoaded', onComplete);
 			animation.destroy();
+			continueRender(handle);
 		};
 	}, [
 		animationData,
 		assetsPath,
 		direction,
-		handle,
 		preserveAspectRatio,
 		renderer,
 		continueRender,
+		delayRender,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (animationRef.current && direction) {
 			animationRef.current.setDirection(direction === 'backward' ? -1 : 1);
 		}
 	}, [direction]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!animationRef.current) {
 			return;
 		}
@@ -227,6 +218,7 @@ export const Lottie = ({
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<Lottie>'}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/lottie/lottie"
 				showInTimeline={showInTimeline ?? false}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}

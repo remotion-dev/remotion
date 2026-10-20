@@ -14,11 +14,13 @@ import React, {
 	useState,
 } from 'react';
 import {
+	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_06,
 } from '../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../helpers/hoverable';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {ExternalLinkIcon} from '../icons/external-link';
 import {
@@ -64,7 +66,6 @@ const aboutEffectsRow: React.CSSProperties = {
 
 const aboutEffectsLink: React.CSSProperties = {
 	alignItems: 'center',
-	color: LIGHT_TEXT,
 	cursor: 'default',
 	display: 'inline-flex',
 	fontFamily: 'sans-serif',
@@ -73,11 +74,12 @@ const aboutEffectsLink: React.CSSProperties = {
 	lineHeight: '14px',
 	minWidth: 0,
 	textDecoration: 'none',
-};
-
-const aboutEffectsLinkHovered: React.CSSProperties = {
-	...aboutEffectsLink,
-	color: WHITE,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 };
 
 const aboutEffectsLabel: React.CSSProperties = {
@@ -150,7 +152,6 @@ const EffectPickerResult: React.FC<{
 	readonly selected: boolean;
 	readonly onSelected: (item: EffectCatalogItem) => void;
 }> = ({item, selected, onSelected}) => {
-	const [hovered, setHovered] = useState(false);
 	const [previewLoaded, setPreviewLoaded] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 
@@ -159,16 +160,14 @@ const EffectPickerResult: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...resultContainer,
-			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
+			...hoverableStyle({
+				idleBackground: selected ? WHITE_ALPHA_06 : TRANSPARENT,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
 		};
-	}, [hovered, selected]);
-
-	const labelStyle = useMemo((): React.CSSProperties => {
-		return {
-			...label,
-			color: selected || hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered, selected]);
+	}, [selected]);
 
 	const onClick = useCallback(() => {
 		onSelected(item);
@@ -200,9 +199,8 @@ const EffectPickerResult: React.FC<{
 			<div
 				ref={ref}
 				style={style}
+				className={HOVERABLE_CLASS_NAME}
 				onClick={onClick}
-				onMouseEnter={() => setHovered(true)}
-				onMouseLeave={() => setHovered(false)}
 			>
 				<div style={previewFrame}>
 					<img
@@ -216,7 +214,7 @@ const EffectPickerResult: React.FC<{
 						onLoad={() => setPreviewLoaded(true)}
 					/>
 				</div>
-				<div style={labelStyle}>{item.label}</div>
+				<div style={label}>{item.label}</div>
 			</div>
 		</ContextMenu>
 	);
@@ -226,7 +224,6 @@ const EffectPickerContent: React.FC<{
 	readonly state: AddEffectModalState;
 }> = ({state}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const [aboutEffectsHovered, setAboutEffectsHovered] = useState(false);
 	const [query, setQuery] = useState('');
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -353,16 +350,13 @@ const EffectPickerContent: React.FC<{
 						href="https://remotion.dev/effects"
 						target="_blank"
 						rel="noopener noreferrer"
-						style={
-							aboutEffectsHovered ? aboutEffectsLinkHovered : aboutEffectsLink
-						}
-						onMouseEnter={() => setAboutEffectsHovered(true)}
-						onMouseLeave={() => setAboutEffectsHovered(false)}
+						style={aboutEffectsLink}
+						className={HOVERABLE_CLASS_NAME}
 					>
 						<span style={aboutEffectsLabel}>About effects</span>
 						<ExternalLinkIcon
 							aria-hidden="true"
-							color={aboutEffectsHovered ? WHITE : LIGHT_TEXT}
+							color={CURRENT_COLOR}
 							style={aboutEffectsIcon}
 						/>
 					</a>

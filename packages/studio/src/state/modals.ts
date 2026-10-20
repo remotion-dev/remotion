@@ -160,6 +160,7 @@ export type AssetSelectionModalState = {
 
 export type TranscriptionModalState = {
 	type: 'transcribe';
+	captionStyle: ElementInstallRequest | null;
 	src: string;
 	displayName: string;
 	audioStreamIndex: number | null;
@@ -168,7 +169,6 @@ export type TranscriptionModalState = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
-		premountFor: number | null;
 	} | null;
 };
 
@@ -196,11 +196,19 @@ export type ElementInstallPlan = {
 	readonly filePath: string;
 };
 
+export type ElementLibraryModalState = {
+	readonly type: 'element-library';
+	readonly name: string;
+	readonly url: string;
+};
+
 export type ElementInstallModalState = {
 	readonly type: 'element-install';
 	readonly currentPlan: ElementInstallPlan | null;
 	readonly missingPackages: string[];
 	readonly newPlan: ElementInstallPlan;
+	readonly library: ElementLibraryModalState | null;
+	readonly onCancel: () => void;
 	readonly onClose: () => void;
 	readonly request: ElementInstallRequest;
 	readonly sourceIsUnverified: boolean;
@@ -315,6 +323,17 @@ export type ModalState =
 			wrapper: NodeWrapper;
 	  }
 	| {
+			type: 'unwrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
+	  }
+	| {
+			type: 'browser-studio-experimental-notice';
+	  }
+	| {
 			type: 'html-in-canvas-unavailable';
 			action: 'effects' | 'motion-blur';
 	  }
@@ -337,11 +356,7 @@ export type ModalState =
 				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
 			} | null;
 	  }
-	| {
-			type: 'element-library';
-			name: string;
-			url: string;
-	  }
+	| ElementLibraryModalState
 	| ElementInstallModalState
 	| AddEffectModalState
 	| AssetSelectionModalState

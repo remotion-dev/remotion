@@ -28,6 +28,7 @@ const {
 	scaleOption,
 	crfOption,
 	gopSizeOption,
+	disableSharedMemoryCaptureOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	enforceAudioOption,
@@ -332,6 +333,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const crf = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const gopSize = gopSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -387,6 +391,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		proResProfile,
 		x264Preset,
 		gopSize,
+		disableSharedMemoryCapture,
 		crf,
 		pixelFormat,
 		imageFormat: imageFormat ?? undefined,

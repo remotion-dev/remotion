@@ -12,6 +12,12 @@
  */
 
 import type {HotMiddlewareOptions, ModuleMap} from '@remotion/studio-shared';
+import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
+import {
+	addErrorToOverlay,
+	clearRecoveredRuntimeErrors,
+	getRuntimeErrors,
+} from '../error-overlay/runtime-error-store';
 import {reloadUrl} from '../helpers/url-state';
 
 if (!__webpack_module__.hot) {
@@ -67,9 +73,8 @@ export const processUpdate = function (
 	options: HotMiddlewareOptions,
 ) {
 	async function check() {
-		const cb = function (err: Error | null, updatedModules: ModuleId[] | null) {
-			if (err) return handleError(err);
-
+		try {
+			const updatedModules = await __webpack_module__.hot.check(false);
 			if (!updatedModules) {
 				if (options.warn) {
 					console.warn(
@@ -84,35 +89,74 @@ export const processUpdate = function (
 				return null;
 			}
 
-			const applyCallback = function (
-				applyErr: Error | null,
-				renewedModules: ModuleId[],
-			) {
-				if (applyErr) return handleError(applyErr);
+			const errorsBeforeUpdate = getRuntimeErrors();
+			const failedModules = new Set<ModuleId>();
+			let reactRefreshFinished = false;
+			const onReactRefreshFinished = () => {
+				reactRefreshFinished = true;
+			};
+
+			window.addEventListener(
+				REACT_REFRESH_FINISHED_EVENT,
+				onReactRefreshFinished,
+			);
+			try {
+				const renewedModules = await __webpack_module__.hot.apply({
+					...applyOptions,
+					onErrored(data) {
+						const moduleIds = [data.moduleId];
+						if (data.dependencyId !== undefined) {
+							moduleIds.push(data.dependencyId);
+						}
+
+						for (const moduleId of moduleIds) {
+							failedModules.add(moduleId);
+						}
+
+						const error =
+							data.error ??
+							data.originalError ??
+							new Error('Hot update failed');
+						addErrorToOverlay(
+							error instanceof Error ? error : new Error(String(error)),
+							moduleIds,
+						);
+						applyOptions.onErrored?.(data);
+					},
+				});
+				// Rspack schedules its refresh after apply. Flush it now so recovery
+				// follows the refreshed root, including errors from rendering it.
+				try {
+					window.remotion_performReactRefresh?.();
+				} catch (err) {
+					reactRefreshFinished = false;
+					addErrorToOverlay(
+						err instanceof Error ? err : new Error(String(err)),
+						null,
+					);
+				}
+
+				clearRecoveredRuntimeErrors({
+					errorsBeforeUpdate,
+					updatedModules: renewedModules,
+					failedModules,
+					moduleMap,
+					reactRefreshFinished,
+				});
 
 				if (!upToDate()) {
 					check();
 				}
 
 				logUpdates(updatedModules, renewedModules);
-			};
-
-			const applyResult = __webpack_module__.hot?.apply(applyOptions);
-			if ((applyResult as unknown as Promise<unknown>)?.then) {
-				// HotModuleReplacement.runtime.js refers to the result as `outdatedModules`
-				(applyResult as unknown as Promise<ModuleId[]>)
-					.then((outdatedModules) => {
-						applyCallback(null, outdatedModules);
-					})
-					.catch((_err: Error) => applyCallback(_err, []));
+			} finally {
+				window.removeEventListener(
+					REACT_REFRESH_FINISHED_EVENT,
+					onReactRefreshFinished,
+				);
 			}
-		};
-
-		try {
-			const result = await __webpack_module__.hot?.check(false);
-			cb(null, result);
 		} catch (err) {
-			cb(err as Error, []);
+			handleError(err as Error);
 		}
 	}
 

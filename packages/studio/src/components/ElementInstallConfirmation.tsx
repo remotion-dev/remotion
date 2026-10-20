@@ -261,7 +261,8 @@ const makeSourceControlsVisible = (sourceCode: string) => {
 export const ElementLibraryAddConfirmation: React.FC<{
 	readonly origin: string;
 	readonly url: string;
-}> = ({origin, url}) => {
+	readonly captionStylesUrl: string | null;
+}> = ({origin, url, captionStylesUrl}) => {
 	return (
 		<p
 			style={{
@@ -277,6 +278,9 @@ export const ElementLibraryAddConfirmation: React.FC<{
 			{origin.replace(/^https?:\/\//, '')} wants to add{' '}
 			{url.replace(/^https?:\/\//, '')} as an Element library to{' '}
 			{window.remotion_projectName ?? 'this Studio project'}.
+			{captionStylesUrl === null ? null : (
+				<> Caption styles will be loaded from {captionStylesUrl}.</>
+			)}
 		</p>
 	);
 };
@@ -311,11 +315,15 @@ export const ElementInstallConfirmation: React.FC<{
 		currentPlan,
 		missingPackages,
 		newPlan,
+		onCancel,
 		onClose,
 		request,
 		sourceIsUnverified,
 		sourceLabel,
 	} = state;
+	const isOfficialRemotionSource =
+		request.source.type === 'studio-protocol' &&
+		request.source.origin === 'https://www.remotion.dev';
 	const sourcePreview = useMemo(
 		() => makeSourceControlsVisible(request.element.sourceCode),
 		[request.element.sourceCode],
@@ -771,10 +779,6 @@ export const ElementInstallConfirmation: React.FC<{
 			// The insert operation revalidates this even if the name preflight is pending.
 			expectedFileState: activePlan?.expectedFileState ?? {exists: false},
 			from: mode === 'new-composition' ? null : request.from,
-			premountFor:
-				mode === 'new-composition'
-					? newCompositionValues.fps
-					: (currentCompositionMetadata?.fps ?? null),
 			overwriteExisting,
 			position: mode === 'new-composition' ? null : request.position,
 			undoRedoNavigation:
@@ -828,15 +832,13 @@ export const ElementInstallConfirmation: React.FC<{
 		selectComposition,
 		newCompositionValues.folder.folderName,
 		newCompositionValues.folder.parentName,
-		newCompositionValues.fps,
-		currentCompositionMetadata?.fps,
 	]);
 
 	const cancel = useCallback(() => {
 		if (!submitting) {
-			onClose();
+			onCancel();
 		}
-	}, [onClose, submitting]);
+	}, [onCancel, submitting]);
 
 	const destinationOptions = useMemo(
 		() => [
@@ -1059,12 +1061,14 @@ export const ElementInstallConfirmation: React.FC<{
 						</section>
 					) : null}
 
-					<div style={warningStyle}>
-						<WarningTriangle style={warningIconStyle} />
-						<p style={warningDescriptionStyle}>
-							Installed code can access your files and network.
-						</p>
-					</div>
+					{isOfficialRemotionSource ? null : (
+						<div style={warningStyle}>
+							<WarningTriangle style={warningIconStyle} />
+							<p style={warningDescriptionStyle}>
+								Installed code can access your files and network.
+							</p>
+						</div>
+					)}
 
 					<details style={sourceDetailsStyle}>
 						<summary

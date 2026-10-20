@@ -43,6 +43,7 @@ export const GenerateWithAgentModal: React.FC<{readonly state: State}> = ({
 					Ask a coding agent to generate content in this composition.
 				</div>
 				<AgentPrompt
+					action={null}
 					availableText="Start your prompt with:"
 					promptDetails={location ? ` ${location}` : ''}
 					skillId="remotion-markup"

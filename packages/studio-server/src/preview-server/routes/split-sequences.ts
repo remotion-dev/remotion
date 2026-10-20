@@ -55,17 +55,23 @@ export const splitSequencesHandler: ApiHandler<
 							rootDir: remotionRoot,
 						},
 						splits: fileSequences.map(
-							({nodePath, sequenceKeys, splitFrame}) => ({
+							({nodePath, sequenceKeys, splitFrame, videoConfigValues}) => ({
 								node: {filePath: absolutePath, nodePath},
 								sequenceKeys,
 								frame: splitFrame,
+								videoConfig: videoConfigValues ?? undefined,
 							}),
 						),
 					});
 					const output = result.changes[0]?.nextContents ?? fileContents;
 					const {nodeLabels, logLines} = result.editDetails[0];
 					const nodePathRemappings = result.nodePathRemappings.map(
-						({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+						({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+							oldNodePath,
+							newNodePath,
+							oldJsxName,
+							newJsxName,
+						}),
 					);
 
 					return {

@@ -7,6 +7,7 @@ import {
 	Sequence,
 	Internals,
 	type EffectsProp,
+	type EffectsOutputSize,
 	type HtmlInCanvasPixelDensity,
 	type HtmlInCanvasProps,
 	type InteractiveBaseProps,
@@ -34,6 +35,7 @@ export type AllShapesProps = Omit<
 	ShapeSequenceProps & {
 		readonly debug?: boolean;
 		readonly effects?: EffectsProp;
+		readonly effectsOutputSize?: EffectsOutputSize;
 		readonly pathStyle?: React.CSSProperties;
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
 	};
@@ -104,9 +106,7 @@ const RenderSvgWithTiming = ({
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? defaultName}
-				_remotionInternalDocumentationLink={
-					name === undefined ? documentationLink : undefined
-				}
+				_remotionInternalDocumentationLink={documentationLink}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -129,6 +129,7 @@ export const RenderSvg = ({
 	transformOrigin,
 	debug,
 	effects = [],
+	effectsOutputSize,
 	instructions,
 	pixelDensity,
 	durationInFrames,
@@ -273,6 +274,7 @@ export const RenderSvg = ({
 				width={Math.ceil(width)}
 				height={Math.ceil(height)}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize}
 				pixelDensity={pixelDensity}
 				showInTimeline={false}
 				style={actualStyle}

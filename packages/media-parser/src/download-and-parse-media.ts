@@ -7,6 +7,9 @@ import {Log} from './log';
 import type {DownloadAndParseMedia} from './options';
 import {webReader} from './web';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 	if (!options) {
 		return Promise.reject(

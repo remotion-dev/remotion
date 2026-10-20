@@ -1,18 +1,20 @@
+import type {VideoConfigValues} from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import type {DuplicateNodesResult} from './duplicate-nodes';
 import {getNodeProps} from './get-node-props';
-import {getNodes} from './get-nodes';
+import {getNodes, type CodemodNode} from './get-nodes';
 import {findProjectFile} from './internals';
-import {
-	getNodeEditResult,
-	getInsertedNodeReferences,
-	type NodeReference,
-} from './node-references';
+import {getNodeEditResult, type NodeReference} from './node-references';
 import {splitJsxSequences} from './split-jsx-sequence';
 
 export type SplitSequencesOptions<Project extends CodemodProject> = {
 	project: Project;
-	splits: {node: NodeReference; frame: number; sequenceKeys?: string[]}[];
+	splits: {
+		node: NodeReference;
+		frame: number;
+		sequenceKeys?: string[];
+		videoConfig?: VideoConfigValues;
+	}[];
 };
 
 export const splitSequences = async <Project extends CodemodProject>({
@@ -24,13 +26,22 @@ export const splitSequences = async <Project extends CodemodProject>({
 	}
 
 	const groups = new Map<string, typeof splits>();
+	const nodesByFile = new Map<string, Map<string, CodemodNode>>();
 	for (const split of splits) {
 		const filePath = findProjectFile({project, filePath: split.node.filePath});
 		if (split.sequenceKeys === undefined) {
-			const target = getNodes({project, filePath}).find(
-				(node) =>
-					JSON.stringify(node.nodePath) === JSON.stringify(split.node.nodePath),
-			);
+			let nodesByPath = nodesByFile.get(filePath);
+			if (!nodesByPath) {
+				nodesByPath = new Map(
+					getNodes({project, filePath}).map((node) => [
+						JSON.stringify(node.nodePath),
+						node,
+					]),
+				);
+				nodesByFile.set(filePath, nodesByPath);
+			}
+
+			const target = nodesByPath.get(JSON.stringify(split.node.nodePath));
 			if (
 				!target?.componentIdentity ||
 				!/^dev\.remotion\.(remotion\.(Sequence|Video|OffthreadVideo|Audio|experimental_Video|experimental_Audio|Interactive\.[A-Za-z]+)|media\.(Video|Audio))$/.test(
@@ -74,7 +85,7 @@ export const splitSequences = async <Project extends CodemodProject>({
 			filePath,
 			...(await splitJsxSequences({
 				input: project.files[filePath],
-				splits: group.map(({node, frame, sequenceKeys}) => ({
+				splits: group.map(({node, frame, sequenceKeys, videoConfig}) => ({
 					nodePath: node.nodePath,
 					splitFrame: frame,
 					sequenceKeys: sequenceKeys ?? [
@@ -82,6 +93,7 @@ export const splitSequences = async <Project extends CodemodProject>({
 						'durationInFrames',
 						'trimBefore',
 					],
+					videoConfigValues: videoConfig ?? null,
 				})),
 			})),
 		})),
@@ -94,6 +106,8 @@ export const splitSequences = async <Project extends CodemodProject>({
 			nodeLabels,
 			logLines,
 		})),
-		insertedNodes: getInsertedNodeReferences(result.nodePathRemappings),
+		insertedNodes: edits.flatMap(({filePath, insertedNodePaths}) =>
+			insertedNodePaths.map((nodePath) => ({filePath, nodePath})),
+		),
 	};
 };

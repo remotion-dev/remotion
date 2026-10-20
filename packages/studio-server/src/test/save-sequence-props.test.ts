@@ -281,6 +281,7 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 									confidence: null,
 									pageBreakAfter: null,
 								},
+								insertAfter: null,
 								changes: {text: 'Updated', pageBreakAfter: true},
 							},
 						],

@@ -155,12 +155,10 @@ export const TimelineLayerEye: React.FC<{
 		[onInvoked],
 	);
 
-	const onDoubleClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
-		(e) => {
+	const stopClickPropagation: React.MouseEventHandler<HTMLDivElement> =
+		useCallback((e) => {
 			e.stopPropagation();
-		},
-		[],
-	);
+		}, []);
 
 	return (
 		<div
@@ -169,7 +167,8 @@ export const TimelineLayerEye: React.FC<{
 			style={timelineLayerIconContainer}
 			draggable={false}
 			onDragStart={onDragStart}
-			onDoubleClick={onDoubleClick}
+			onClick={stopClickPropagation}
+			onDoubleClick={stopClickPropagation}
 			onPointerEnter={onInvoked === null ? undefined : onPointerEnter}
 			onPointerDown={onPointerDown}
 		>

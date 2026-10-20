@@ -67,6 +67,9 @@ import {validateServeUrl} from './validate-serveurl';
 export type {
 	CustomCredentials,
 	DeleteAfter,
+	ImageSequenceOutput,
+	ImageSequenceManifest,
+	ImageSequenceOutputPrefix,
 	WebhookErrorPayload,
 	WebhookPayload,
 	WebhookSuccessPayload,
@@ -217,3 +220,9 @@ export const LambdaClientInternals: {
 	getAwsPartitionMetadata,
 	getAwsRegionMetadata,
 };
+
+export {
+	renderFramesOnLambda,
+	type RenderFramesOnLambdaInput,
+	type RenderFramesOnLambdaOutput,
+} from './render-frames-on-lambda';

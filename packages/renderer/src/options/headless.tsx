@@ -7,6 +7,7 @@ const cliFlag = 'disable-headless' as const;
 
 export const headlessOption = {
 	name: 'Disable Headless Mode',
+	addedIn: '2.6.5',
 	cliFlag,
 	description: () => (
 		<>
@@ -18,7 +19,7 @@ export const headlessOption = {
 		</>
 	),
 	ssrName: 'headless',
-	docLink: 'https://www.remotion.dev/docs/chromium-flags#--disable-headless',
+	docLink: 'https://www.remotion.dev/docs/options/disable-headless',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

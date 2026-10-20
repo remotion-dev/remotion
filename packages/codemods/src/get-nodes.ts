@@ -1,7 +1,7 @@
 import * as recast from 'recast';
 import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
 import type {CodemodProject} from './codemod-project';
-import {captureJsxNodePaths} from './get-node-path-remappings';
+import {getJsxNodesWithPaths} from './get-node-path-remappings';
 import {findProjectFile} from './internals';
 import type {NodeReference} from './node-references';
 import {recastLocToOffset} from './recast-loc-to-offset';
@@ -27,7 +27,7 @@ export const getNodes = ({
 	const resolvedFilePath = findProjectFile({project, filePath});
 	const input = project.files[resolvedFilePath];
 	const {ast} = getReadOnlySourceSnapshot(input);
-	const captured = captureJsxNodePaths(ast);
+	const captured = getJsxNodesWithPaths(ast);
 	const nodePathByNode = new Map(
 		captured.map(({node, nodePath}) => [node, nodePath]),
 	);

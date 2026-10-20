@@ -85,28 +85,20 @@ const serializeArray = (values: (string | number)[], indentation: number) => {
 
 export const generateCanvasCaptureComposition = ({
 	componentName,
-	compositionId,
 	data,
 	durationInFrames,
-	fps,
-	height,
 	keyframeFps,
 	videoFileName,
 	videoHeight,
 	videoWidth,
-	width,
 }: {
 	readonly componentName: string;
-	readonly compositionId: string;
 	readonly data: CanvasCaptureData;
 	readonly durationInFrames: number;
-	readonly fps: number;
-	readonly height: number;
 	readonly keyframeFps: number;
 	readonly videoFileName: string;
 	readonly videoHeight: number;
 	readonly videoWidth: number;
-	readonly width: number;
 }) => {
 	const movements = collapseMouseMovementsByFrame({data, keyframeFps});
 	if (movements.length === 0) {
@@ -165,22 +157,15 @@ export const generateCanvasCaptureComposition = ({
 		[],
 	);
 
-	const customCursors: string[] = [];
 	const customCursorKeyframes = movements.reduce<
-		Array<{readonly frame: number; readonly value: number}>
+		Array<{readonly frame: number; readonly value: string}>
 	>((keyframes, movement) => {
 		if (!customCursorRegex.test(movement.cursor)) {
 			return keyframes;
 		}
 
-		let cursorIndex = customCursors.indexOf(movement.cursor);
-		if (cursorIndex === -1) {
-			cursorIndex = customCursors.length;
-			customCursors.push(movement.cursor);
-		}
-
-		if (keyframes.at(-1)?.value !== cursorIndex) {
-			keyframes.push({frame: movement.frame, value: cursorIndex});
+		if (keyframes.at(-1)?.value !== movement.cursor) {
+			keyframes.push({frame: movement.frame, value: movement.cursor});
 		}
 
 		return keyframes;
@@ -204,15 +189,14 @@ export const generateCanvasCaptureComposition = ({
 						extrapolateRight: 'clamp',
 					},
 				)}`;
+	// Keep the cursor shape as a direct interpolation so timeline moves retime it
+	// together with the cursor's position and scale.
 	const customCursorProp =
 		customCursorKeyframes.length === 0
 			? ''
 			: customCursorKeyframes.length === 1
-				? `\t\t\t\tcustomCursor={${serialize(customCursors[0])}}\n`
-				: `\t\t\t\tcustomCursor={${serializeArray(
-						customCursors,
-						5,
-					)}[interpolate(
+				? `\t\t\t\tcustomCursor={${serialize(customCursorKeyframes[0].value)}}\n`
+				: `\t\t\t\tcustomCursor={interpolate(
 					frame,
 					${serializeArray(
 						customCursorKeyframes.map((keyframe) => keyframe.frame),
@@ -227,7 +211,7 @@ export const generateCanvasCaptureComposition = ({
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					},
-				)]}
+				)}
 `;
 	const scale =
 		scaleKeyframes.length === 1
@@ -267,28 +251,23 @@ export const generateCanvasCaptureComposition = ({
 						},
 					)`;
 
-	const previewComponentName = componentName.endsWith('Composition')
-		? `${componentName.slice(0, -'Composition'.length)}Preview`
-		: `${componentName}Preview`;
-
 	return `import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
-	Composition,
 	Easing,
 	interpolate,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
 
-export const ${previewComponentName} = () => {
+export const ${componentName} = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			durationInFrames={${durationInFrames}}
-			premountFor={${fps}}
 			style={{
 				width: ${videoWidth},
 				height: ${videoHeight},
@@ -312,19 +291,6 @@ ${customCursorProp}				style={{
 				}}
 			/>
 		</AbsoluteFill>
-	);
-};
-
-export const ${componentName} = () => {
-	return (
-		<Composition
-			id={${serialize(compositionId)}}
-			component={${previewComponentName}}
-			width={${width}}
-			height={${height}}
-			fps={${fps}}
-			durationInFrames={${durationInFrames}}
-		/>
 	);
 };
 `;

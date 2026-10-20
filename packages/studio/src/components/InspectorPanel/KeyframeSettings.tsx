@@ -2,7 +2,7 @@ import {
 	getCanvasKeyframeSettings,
 	getCanvasKeyframeSettingsChange,
 	type CanvasKeyframeSettings,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 import React, {
 	useCallback,
 	useContext,
@@ -192,6 +192,7 @@ export const KeyframeSettings: React.FC<{
 
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
 			collapsible
 			label="Keyframe settings"
 			sectionId="keyframe-settings"

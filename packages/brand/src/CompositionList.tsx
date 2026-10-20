@@ -23,10 +23,11 @@ export const CompositionListPreview = () => {
 				}}
 			/>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 1418,
 					height: 2634,
-					translate: '437.9px -220.5px',
+					translate: '437.9px -500.5px',
 					rotate: '0.875901 0.468151 -0.116756 36.647887deg',
 				}}
 				from={-449}

@@ -156,6 +156,18 @@ class OutNameInputObject:
     key: str
     s3_output_provider: Optional[CustomCredentials] = None
 
+    def serialize_params(self) -> Dict:
+        """Serialize the output destination and any custom storage credentials."""
+        return {
+            'bucketName': self.bucketName,
+            'key': self.key,
+            's3OutputProvider': (
+                self.s3_output_provider.serialize_params()
+                if self.s3_output_provider is not None
+                else None
+            ),
+        }
+
 
 class DeleteAfter(Enum):
     """
@@ -337,6 +349,8 @@ class RenderMediaParams:
     encoding_max_rate: Optional[str] = None
     is_production: Optional[bool] = None
     sample_rate: int = 48000
+    disable_shared_memory_capture: bool = False
+    separate_audio_to: Optional[Union[str, OutNameInputObject]] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -362,6 +376,11 @@ class RenderMediaParams:
             'logLevel': self.log_level,
             'frameRange': self.frame_range,
             'outName': self.out_name,
+            'separateAudioTo': (
+                self.separate_audio_to.serialize_params()
+                if isinstance(self.separate_audio_to, OutNameInputObject)
+                else self.separate_audio_to
+            ),
             'preferLossless': self.prefer_lossless,
             'sampleRate': self.sample_rate,
             'timeoutInMilliseconds': self.timeout_in_milliseconds,
@@ -395,11 +414,13 @@ class RenderMediaParams:
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
             'gopSize': self.gop_size,
+            'disableSharedMemoryCapture': self.disable_shared_memory_capture,
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,
             'encodingMaxRate': self.encoding_max_rate,
             'isProduction': self.is_production,
             'type': 'start',
+            'output': {'type': 'media'},
         }
 
         if self.crf is not None:
@@ -430,6 +451,64 @@ class RenderMediaParams:
             parameters['forcePathStyle'] = self.force_path_style
         else:
             parameters['forcePathStyle'] = False
+        return parameters
+
+
+@dataclass
+class ImageSequenceOutputPrefix:
+    """Destination bucket and prefix for an image sequence."""
+
+    bucket_name: str
+    key_prefix: str
+    s3_output_provider: Optional[CustomCredentials] = None
+
+    def serialize_params(self) -> Dict:
+        """Convert the destination to the Lambda payload format."""
+        return {
+            'bucketName': self.bucket_name,
+            'keyPrefix': self.key_prefix,
+            's3OutputProvider': (
+                self.s3_output_provider.serialize_params()
+                if self.s3_output_provider is not None else None
+            ),
+        }
+
+
+@dataclass
+class RenderFramesParams(RenderMediaParams):
+    """Parameters for rendering a PNG or JPEG image sequence."""
+
+    codec: Optional[str] = None
+    image_format: Literal['png', 'jpeg'] = 'png'
+    jpeg_quality: Optional[int] = None
+    frame_range: Optional[Union[int, List[int]]] = None
+    output_prefix: Optional[Union[str, ImageSequenceOutputPrefix]] = None
+    image_sequence_pattern: Optional[str] = None
+
+    def serialize_params(self) -> Dict:
+        """Convert the sequence parameters to the Lambda payload format."""
+        if self.image_format not in ('png', 'jpeg'):
+            raise ValueError('image_format must be "png" or "jpeg".')
+        if self.jpeg_quality is not None and self.image_format != 'jpeg':
+            raise ValueError('jpeg_quality can only be passed with image_format="jpeg".')
+
+        parameters = super().serialize_params()
+        parameters.update({
+            'codec': None,
+            'muted': True,
+            'outName': None,
+            'numberOfGifLoops': None,
+            'jpegQuality': self.jpeg_quality if self.jpeg_quality is not None else 80,
+            'output': {
+                'type': 'sequence',
+                'outputPrefix': (
+                    self.output_prefix.serialize_params()
+                    if isinstance(self.output_prefix, ImageSequenceOutputPrefix)
+                    else self.output_prefix
+                ),
+                'imageSequencePattern': self.image_sequence_pattern,
+            },
+        })
         return parameters
 
 
@@ -587,3 +666,6 @@ class RenderMediaProgress:
     outputSizeInBytes: Optional[int] = None
     lambdasInvoked: int = 0
     framesRendered: Optional[int] = None
+    framesUploaded: Optional[int] = None
+    outputSequence: Optional[Dict[str, Any]] = None
+    separateAudio: Optional[Dict[str, Any]] = None

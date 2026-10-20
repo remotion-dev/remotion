@@ -1,51 +1,95 @@
 import {LightLeak} from '@remotion/light-leaks';
-import {AbsoluteFill, Series} from 'remotion';
+import {AbsoluteFill, Interactive, Series} from 'remotion';
 
-const SLOTS: {
-	hueShift: number;
-	seeds: [number, number, number];
-	style: React.CSSProperties;
-}[] = [
-	{
-		hueShift: 0,
-		seeds: [1, 3, 5],
-		style: {width: '50%', height: '50%', top: 0, left: 0},
-	},
-	{
-		hueShift: 200,
-		seeds: [7, 9, 11],
-		style: {width: '50%', height: '50%', top: 0, left: '50%'},
-	},
-	{
-		hueShift: 120,
-		seeds: [13, 15, 17],
-		style: {width: '50%', height: '50%', top: '50%', left: 0},
-	},
-	{
-		hueShift: 300,
-		seeds: [21, 23, 25],
-		style: {width: '50%', height: '50%', top: '50%', left: '50%'},
-	},
-];
-
-export const LightLeakGrid: React.FC<{durationInFrames: number}> = ({
-	durationInFrames,
-}) => {
-	const variationDuration = Math.ceil(durationInFrames / 3);
-
-	return (
-		<AbsoluteFill style={{backgroundColor: 'black'}}>
-			{SLOTS.map((slot) => (
-				<AbsoluteFill key={slot.hueShift} style={slot.style}>
-					<Series>
-						{slot.seeds.map((seed) => (
-							<Series.Sequence key={seed} durationInFrames={variationDuration}>
-								<LightLeak seed={seed} hueShift={slot.hueShift} />
-							</Series.Sequence>
-						))}
-					</Series>
-				</AbsoluteFill>
-			))}
-		</AbsoluteFill>
-	);
-};
+export const LightLeakGrid: React.FC = () => (
+	<AbsoluteFill style={{backgroundColor: 'black'}}>
+		<Interactive.Div
+			name="Warm light leaks"
+			style={{
+				position: 'absolute',
+				width: '50%',
+				height: '50%',
+				top: 0,
+				left: 0,
+			}}
+		>
+			<Series>
+				<Series.Sequence name="Warm variation 1" durationInFrames={60}>
+					<LightLeak seed={1} hueShift={0} />
+				</Series.Sequence>
+				<Series.Sequence name="Warm variation 2" durationInFrames={60}>
+					<LightLeak seed={3} hueShift={0} />
+				</Series.Sequence>
+				<Series.Sequence name="Warm variation 3" durationInFrames={60}>
+					<LightLeak seed={5} hueShift={0} />
+				</Series.Sequence>
+			</Series>
+		</Interactive.Div>
+		<Interactive.Div
+			name="Blue light leaks"
+			style={{
+				position: 'absolute',
+				width: '50%',
+				height: '50%',
+				top: 0,
+				left: '50%',
+			}}
+		>
+			<Series>
+				<Series.Sequence name="Blue variation 1" durationInFrames={60}>
+					<LightLeak seed={7} hueShift={200} />
+				</Series.Sequence>
+				<Series.Sequence name="Blue variation 2" durationInFrames={60}>
+					<LightLeak seed={9} hueShift={200} />
+				</Series.Sequence>
+				<Series.Sequence name="Blue variation 3" durationInFrames={60}>
+					<LightLeak seed={11} hueShift={200} />
+				</Series.Sequence>
+			</Series>
+		</Interactive.Div>
+		<Interactive.Div
+			name="Green light leaks"
+			style={{
+				position: 'absolute',
+				width: '50%',
+				height: '50%',
+				top: '50%',
+				left: 0,
+			}}
+		>
+			<Series>
+				<Series.Sequence name="Green variation 1" durationInFrames={60}>
+					<LightLeak seed={13} hueShift={120} />
+				</Series.Sequence>
+				<Series.Sequence name="Green variation 2" durationInFrames={60}>
+					<LightLeak seed={15} hueShift={120} />
+				</Series.Sequence>
+				<Series.Sequence name="Green variation 3" durationInFrames={60}>
+					<LightLeak seed={17} hueShift={120} />
+				</Series.Sequence>
+			</Series>
+		</Interactive.Div>
+		<Interactive.Div
+			name="Purple light leaks"
+			style={{
+				position: 'absolute',
+				width: '50%',
+				height: '50%',
+				top: '50%',
+				left: '50%',
+			}}
+		>
+			<Series>
+				<Series.Sequence name="Purple variation 1" durationInFrames={60}>
+					<LightLeak seed={21} hueShift={300} />
+				</Series.Sequence>
+				<Series.Sequence name="Purple variation 2" durationInFrames={60}>
+					<LightLeak seed={23} hueShift={300} />
+				</Series.Sequence>
+				<Series.Sequence name="Purple variation 3" durationInFrames={60}>
+					<LightLeak seed={25} hueShift={300} />
+				</Series.Sequence>
+			</Series>
+		</Interactive.Div>
+	</AbsoluteFill>
+);

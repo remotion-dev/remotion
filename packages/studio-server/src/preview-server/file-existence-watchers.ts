@@ -1,5 +1,5 @@
-import path from 'node:path';
 import {installFileWatcher} from '../file-watcher';
+import {resolveFileInsideProject} from '../helpers/resolve-file-inside-project';
 import {waitForLiveEventsListener} from './live-events';
 
 const fileExistenceWatchers: Record<string, Record<string, () => void>> = {};
@@ -13,7 +13,11 @@ export const subscribeToFileExistenceWatchers = ({
 	remotionRoot: string;
 	clientId: string;
 }): {exists: boolean} => {
-	const file = path.resolve(remotionRoot, relativeFile);
+	const {absolutePath: file} = resolveFileInsideProject({
+		remotionRoot,
+		fileName: relativeFile,
+		action: 'watch',
+	});
 
 	const {unwatch, exists} = installFileWatcher({
 		file,
@@ -58,7 +62,11 @@ export const unsubscribeFromFileExistenceWatchers = ({
 	remotionRoot: string;
 	clientId: string;
 }) => {
-	const actualPath = path.resolve(remotionRoot, file);
+	const {absolutePath: actualPath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName: file,
+		action: 'unwatch',
+	});
 	if (!fileExistenceWatchers[clientId]) {
 		return;
 	}

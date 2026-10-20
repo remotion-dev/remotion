@@ -4,7 +4,7 @@ import type {VideoConfigIdentifierValues} from './sequence-props/video-config-va
 
 type SourceSnapshot = {
 	ast: File;
-	videoConfigIdentifierValues: Map<string, VideoConfigIdentifierValues>;
+	videoConfigIdentifierValues: VideoConfigIdentifierValues | null;
 };
 
 // Public reads share immutable source snapshots, including across the awaits in
@@ -16,7 +16,7 @@ const maximumSnapshots = 8;
 export const getReadOnlySourceSnapshot = (input: string): SourceSnapshot => {
 	const snapshot = snapshots.get(input) ?? {
 		ast: parseAst(input),
-		videoConfigIdentifierValues: new Map<string, VideoConfigIdentifierValues>(),
+		videoConfigIdentifierValues: null,
 	};
 	// Refresh recency without retaining an unbounded number of edited versions.
 	snapshots.delete(input);

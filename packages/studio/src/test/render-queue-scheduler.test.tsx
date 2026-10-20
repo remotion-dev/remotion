@@ -25,6 +25,7 @@ const compositionRef: CompositionRef = {
 };
 
 const makeCaptionParams = (displayName: string): AddCaptionJobParams => ({
+	captionStyle: null,
 	src: `/${displayName}`,
 	displayName,
 	audioStreamIndex: null,

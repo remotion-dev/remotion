@@ -37,6 +37,7 @@ import type {
 	VideoConfigNumericExpression,
 	VideoConfigValues,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	ensureRemotionImports,
 	ensureUseCurrentFrameHook,
@@ -490,10 +491,13 @@ const getInterpolationExpression = (
 		}
 
 		keyframes.push({
-			frame: frameExpression.value,
+			frame: NoReactInternals.evaluateSourceNumericValue(frameExpression, null),
 			frameExpression: inputElement as ExpressionKind,
 			frameNumericExpression: frameExpression,
-			originalFrame: frameExpression.value,
+			originalFrame: NoReactInternals.evaluateSourceNumericValue(
+				frameExpression,
+				null,
+			),
 			output: outputElement as ExpressionKind,
 			value: extractStaticValue(outputElement),
 		});
@@ -1400,7 +1404,12 @@ const addKeyframe = ({
 	}
 
 	const staticValue =
-		staticNumericExpression?.value ?? extractStaticValue(expression);
+		staticNumericExpression === null
+			? extractStaticValue(expression)
+			: NoReactInternals.evaluateSourceNumericValue(
+					staticNumericExpression,
+					null,
+				);
 	const keyframes: InterpolateKeyframe[] = [
 		{
 			frame,

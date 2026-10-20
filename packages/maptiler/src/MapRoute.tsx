@@ -1,6 +1,13 @@
-import type {GeoJSONSource} from '@maptiler/sdk';
+import type {GeoJSONSource, Map as MapTilerMap} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
-import {useContext, useEffect, useMemo, useState, type FC} from 'react';
+import {
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+	type FC,
+} from 'react';
 import {
 	Interactive,
 	Freeze,
@@ -88,10 +95,16 @@ const MapRouteDrawing = ({
 }: MapRouteDrawingProps) => {
 	const {map} = useContext(MapTilerContext);
 	const {continueRender, delayRender} = useDelayRender();
-	const [isReady, setIsReady] = useState(false);
-	const [loadingHandle] = useState(() =>
-		delayRender(`Loading ${feature.properties.name} route`),
-	);
+	const [readyMap, setReadyMap] = useState<MapTilerMap | null>(null);
+	const isReady = map !== null && readyMap === map;
+	useLayoutEffect(() => {
+		if (isReady) {
+			return;
+		}
+
+		const handle = delayRender(`Loading ${feature.properties.name} route`);
+		return () => continueRender(handle);
+	}, [continueRender, delayRender, feature.properties.name, isReady]);
 	const route = useMemo(
 		() => lineString(feature.geometry.coordinates),
 		[feature],
@@ -104,8 +117,8 @@ const MapRouteDrawing = ({
 		glowLayerId,
 	]);
 
-	useEffect(() => {
-		if (!map) {
+	useLayoutEffect(() => {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -158,17 +171,17 @@ const MapRouteDrawing = ({
 		map.setPaintProperty(sourceId, 'line-width', strokeWidth);
 
 		applyPremountVisibility();
-		map.once('idle', () => {
-			setIsReady(true);
-			continueRender(loadingHandle);
-		});
+		const onIdle = () => setReadyMap(map);
+		map.once('idle', onIdle);
 		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+		};
 	}, [
 		applyPremountVisibility,
 		continueRender,
 		glow,
 		glowLayerId,
-		loadingHandle,
 		map,
 		route,
 		sourceId,
@@ -176,8 +189,8 @@ const MapRouteDrawing = ({
 		strokeWidth,
 	]);
 
-	useEffect(() => {
-		if (!isReady || !map) {
+	useLayoutEffect(() => {
+		if (!isReady || !map || !map.style) {
 			return;
 		}
 
@@ -190,8 +203,13 @@ const MapRouteDrawing = ({
 				Math.max(0.001, routeLength * Math.min(1, Math.max(0, progress))),
 			),
 		);
-		map.once('idle', () => continueRender(frameHandle));
+		const onIdle = () => continueRender(frameHandle);
+		map.once('idle', onIdle);
 		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+			continueRender(frameHandle);
+		};
 	}, [
 		continueRender,
 		delayRender,
@@ -210,6 +228,10 @@ const MapRouteDrawing = ({
 		}
 
 		return () => {
+			if (!map.style) {
+				return;
+			}
+
 			if (map.getLayer(sourceId)) {
 				map.removeLayer(sourceId);
 			}

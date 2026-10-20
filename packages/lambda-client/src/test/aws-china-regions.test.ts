@@ -111,10 +111,13 @@ test('AWS service and Console URLs use the region partition metadata', () => {
 	).toBe('https://bucket.s3.cn-north-1.amazonaws.com.cn/sites/site/index.html');
 	expect(
 		getOutputUrlFromMetadata({
+			output: 'main',
 			bucketName: 'bucket',
 			customCredentials: null,
 			currentRegion: 'cn-north-1',
 			renderMetadata: {
+				separateAudioTo: null,
+				separateAudioOutputFileIsConditional: null,
 				outputFileIsConditional: null,
 				outName: 'out.mp4',
 				privacy: 'public',

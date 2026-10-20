@@ -64,7 +64,7 @@ test.skipIf(process.platform !== 'win32')(
 			expect(result.status, result.stderr).toBe(0);
 
 			expect(readFileSync(npmInvocation, 'utf-8').trim()).toBe(
-				'i --save-exact --no-fund --no-audit remotion@4.0.513',
+				'i --save-exact --no-fund --no-audit --loglevel=error remotion@4.0.513',
 			);
 		} finally {
 			rmSync(temporaryDirectory, {recursive: true, force: true});

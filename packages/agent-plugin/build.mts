@@ -80,45 +80,61 @@ If Studio still fails to start from Codex, ask the user to start it manually fro
 	console.log('  Added Codex-only troubleshooting instructions');
 };
 
-const makeRemotionCreateOpenPreview = () => {
-	const remotionCreateSkill = join(skillsOut, 'remotion-create', 'SKILL.md');
-	if (!existsSync(remotionCreateSkill)) {
+const makeOpenPreviewClientSpecific = () => {
+	const remotionSkill = join(skillsOut, 'remotion-best-practices', 'SKILL.md');
+	if (!existsSync(remotionSkill)) {
 		return;
 	}
 
-	const currentInstructions = readFileSync(remotionCreateSkill, 'utf8');
-	const previewInstruction = [
-		'Instead of rendering the video, consider starting the preview server for faster iteration:',
-		'Start the preview server after building the composition:',
-	].find((instruction) => currentInstructions.includes(instruction));
-	if (!previewInstruction) {
-		throw new Error('Could not find a remotion-create preview instruction');
+	const currentInstructions = readFileSync(remotionSkill, 'utf8');
+	const browserSectionStart = '### If you are using Cursor';
+	const browserSectionEnd = '### More options';
+	const startIndex = currentInstructions.indexOf(browserSectionStart);
+	const endIndex = currentInstructions.indexOf(browserSectionEnd);
+	if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+		throw new Error(
+			`Could not find remotion-best-practices browser instructions between "${browserSectionStart}" and "${browserSectionEnd}"`,
+		);
 	}
 
-	const replacements = [
-		[
-			previewInstruction,
-			'After creating or updating the video, start the preview server by default:',
-		],
-		[
-			'If an in-harness browser is available, open it there.',
-			"Open the exact URL in the agent client's available browser. If no browser tool is available, keep the preview server running and provide the URL to the user.",
-		],
-	] as const;
+	const browserSection =
+		client === 'codex'
+			? `To start the preview server by default without opening the system browser, pass \`--no-open\`:
 
-	let instructions = currentInstructions;
-	for (const [genericInstruction, replacement] of replacements) {
-		if (!instructions.includes(genericInstruction)) {
-			throw new Error(
-				`Could not find remotion-create instruction: ${genericInstruction}`,
-			);
-		}
+\`\`\`bash
+npx remotion studio --no-open
+\`\`\`
 
-		instructions = instructions.replace(genericInstruction, replacement);
-	}
+This will start a long-running process and print the server URL for the preview.
+If the server is already started, it will print the URL.
+Open the exact URL in the Codex in-app browser. Verify that Studio loads. Once a composition exists, verify that its video preview loads. If the in-app browser is not available, keep the preview server running and provide the URL to the user.
+You can visit a specific composition by navigating to \`/[composition-id]\`, for example \`http://localhost:3000/MapAnimation\`.
 
-	writeFileSync(remotionCreateSkill, instructions);
-	console.log('  Made remotion-create open previews in the agent browser');
+:::note
+The Studio supports WebMCP tools.
+:::
+
+`
+			: `Run Studio without \`--no-open\` so it opens the browser automatically:
+
+\`\`\`bash
+npx remotion studio
+\`\`\`
+
+This will start a long-running process and print the server URL for the preview.
+If the server is already started, it will print the URL and refocus the browser.
+Open the exact URL in the agent client's available browser, such as the integrated browser in GitHub Copilot (VS Code) or Cursor. Verify that Studio loads. If no browser tool is available, keep the preview server running and provide the URL to the user.
+You can visit a specific composition by navigating to \`/[composition-id]\`, for example \`http://localhost:3000/MapAnimation\`.
+
+`;
+
+	const instructions =
+		currentInstructions.slice(0, startIndex) +
+		browserSection +
+		currentInstructions.slice(endIndex);
+
+	writeFileSync(remotionSkill, instructions);
+	console.log('  Made previews open in the agent browser');
 };
 
 console.log(
@@ -138,7 +154,7 @@ if (existsSync(packagesSkillsDir)) {
 	if (client === 'codex') {
 		addCodexOnlyInstructions();
 	}
-	makeRemotionCreateOpenPreview();
+	makeOpenPreviewClientSpecific();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');
 }

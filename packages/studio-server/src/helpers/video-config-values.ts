@@ -1,33 +1,22 @@
-import type {File} from '@babel/types';
+import type {File, Identifier} from '@babel/types';
 import * as recast from 'recast';
-import type {VideoConfigValues} from 'remotion';
+import type {VideoConfigNumericBinding, VideoConfigValues} from 'remotion';
 
-export type VideoConfigIdentifierValues = Record<string, number>;
+export type VideoConfigIdentifierValues =
+	| Map<Identifier, VideoConfigNumericBinding>
+	| Record<string, VideoConfigNumericBinding>;
 
-export const getVideoConfigIdentifierValues = ({
+export const getVideoConfigIdentifiers = ({
 	ast,
-	videoConfigValues,
 }: {
 	ast: File;
-	videoConfigValues: VideoConfigValues | null;
-}): VideoConfigIdentifierValues => {
-	const candidates = new Map<string, number>();
-	const otherDeclarations = new Set<string>();
-	const addCandidate = (identifier: string, value: number) => {
-		if (candidates.has(identifier) || otherDeclarations.has(identifier)) {
-			candidates.delete(identifier);
-			otherDeclarations.add(identifier);
-			return;
-		}
-
-		candidates.set(identifier, value);
-	};
+}): Map<Identifier, VideoConfigNumericBinding> => {
+	const candidates = new Map<Identifier, VideoConfigNumericBinding>();
 
 	recast.types.visit(ast, {
 		visitVariableDeclarator(path) {
 			const {id, init} = path.node;
 			const isVideoConfigDeclaration =
-				videoConfigValues !== null &&
 				id.type === 'ObjectPattern' &&
 				init?.type === 'CallExpression' &&
 				init.callee.type === 'Identifier' &&
@@ -50,14 +39,19 @@ export const getVideoConfigIdentifierValues = ({
 							: property.key.type === 'StringLiteral'
 								? property.key.value
 								: null;
-					if (configKey === null || !(configKey in videoConfigValues)) {
+					if (
+						configKey !== 'durationInFrames' &&
+						configKey !== 'fps' &&
+						configKey !== 'width' &&
+						configKey !== 'height'
+					) {
 						continue;
 					}
 
-					const value = videoConfigValues[configKey as keyof VideoConfigValues];
-					if (Number.isFinite(value)) {
-						addCandidate(property.value.name, value);
-					}
+					candidates.set(property.value as Identifier, {
+						type: 'video-config',
+						field: configKey,
+					});
 				}
 			} else if (id.type === 'Identifier') {
 				const declaration = path.parentPath.node;
@@ -70,10 +64,10 @@ export const getVideoConfigIdentifierValues = ({
 						: null;
 
 				if (numericConstant !== null) {
-					addCandidate(id.name, numericConstant);
-				} else {
-					candidates.delete(id.name);
-					otherDeclarations.add(id.name);
+					candidates.set(id as Identifier, {
+						type: 'constant',
+						value: numericConstant,
+					});
 				}
 			}
 
@@ -81,9 +75,41 @@ export const getVideoConfigIdentifierValues = ({
 		},
 	});
 
-	for (const identifier of otherDeclarations) {
-		candidates.delete(identifier);
-	}
+	// Resolve each reference to its declaration. Components may independently
+	// declare the same name, while parameters and other shadowing stay computed.
+	const bindings = new Map<Identifier, VideoConfigNumericBinding>();
+	recast.types.visit(ast, {
+		visitIdentifier(path) {
+			const declarations =
+				path.scope.lookup(path.node.name)?.getBindings()[path.node.name] ?? [];
+			if (declarations.length === 1) {
+				const binding = candidates.get(declarations[0].node as Identifier);
+				if (binding !== undefined) {
+					bindings.set(path.node as Identifier, binding);
+				}
+			}
 
-	return Object.fromEntries(candidates);
+			this.traverse(path);
+		},
+	});
+
+	return bindings;
 };
+
+// Editing uses the current instance's configuration supplied with the mutation.
+export const getVideoConfigIdentifierValues = ({
+	ast,
+	videoConfigValues,
+}: {
+	ast: File;
+	videoConfigValues: VideoConfigValues | null;
+}): VideoConfigIdentifierValues =>
+	new Map(
+		[...getVideoConfigIdentifiers({ast})].flatMap(([identifier, binding]) => {
+			if (binding.type === 'constant') return [[identifier, binding]];
+			const value = videoConfigValues?.[binding.field];
+			return value === undefined || !Number.isFinite(value)
+				? []
+				: [[identifier, {type: 'constant', value}]];
+		}),
+	);

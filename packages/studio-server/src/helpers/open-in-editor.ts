@@ -5,11 +5,10 @@
 */
 
 import type {ChildProcess} from 'node:child_process';
-import child_process, {exec} from 'node:child_process';
+import child_process from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import util from 'node:util';
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  *
@@ -19,25 +18,28 @@ import util from 'node:util';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {openInEditorViaUrlScheme} from './open-in-editor-url-scheme';
+import {getRunningProcesses} from './running-processes';
 
 const {Log} = RenderInternals;
 
-const execProm = util.promisify(exec);
-
 const isVsCodeDerivative = (editor: Editor) => {
-	return (
-		editor === 'code' ||
-		editor === 'code-insiders' ||
-		editor === 'Code.exe' ||
-		editor === 'vscodium' ||
-		editor === 'VSCodium.exe' ||
-		editor === 'codium' ||
-		editor === 'Code - Insiders.exe' ||
-		editor === 'cursor' ||
-		editor === 'Cursor.exe' ||
-		editor === 'windsurf' ||
-		editor === 'Windsurf.exe'
-	);
+	const editorBasename = path.basename(editor).replace(/\.(exe|cmd|bat)$/i, '');
+	return [
+		'code',
+		'Code',
+		'code-insiders',
+		'Code - Insiders',
+		'vscodium',
+		'VSCodium',
+		'codium',
+		'com.vscodium.codium',
+		'com.visualstudio.code',
+		'com.visualstudio.code.insiders',
+		'cursor',
+		'Cursor',
+		'windsurf',
+		'Windsurf',
+	].includes(editorBasename);
 };
 
 function isTerminalEditor(editor: Editor) {
@@ -280,6 +282,12 @@ function getArgumentsForLineNumber(
 		return ['--existing', fileName + ':' + lineNumber + ':' + colNumber];
 	}
 
+	if (isVsCodeDerivative(editor)) {
+		return isFolder
+			? [fileName]
+			: ['-g', fileName + ':' + lineNumber + ':' + colNumber];
+	}
+
 	switch (editorBasename) {
 		case 'atom':
 		case 'Atom':
@@ -307,21 +315,6 @@ function getArgumentsForLineNumber(
 		case 'mate':
 		case 'mine':
 			return ['--line', lineNumber, fileName];
-		case 'code':
-		case 'Code':
-		case 'code-insiders':
-		case 'Code - Insiders':
-		case 'vscodium':
-		case 'VSCodium':
-		case 'codium':
-		case 'com.vscodium.codium':
-		case 'com.visualstudio.code':
-		case 'com.visualstudio.code.insiders':
-		case 'cursor':
-		case 'Cursor':
-		case 'windsurf':
-		case 'Windsurf':
-			return ['-g', fileName + ':' + lineNumber + ':' + colNumber];
 		case 'appcode':
 		case 'clion':
 		case 'clion64':
@@ -372,27 +365,22 @@ export const findMacOsEditorsFromProcessOutput = (
 };
 
 export async function guessEditor(): Promise<ProcessAndCommand[]> {
-	// We can find out which editor is currently running by:
-	// `ps x` on macOS and Linux
-	// `Get-Process` on Windows
 	const availableEditors: ProcessAndCommand[] = [];
-	try {
+	const processes = await getRunningProcesses();
+	if (processes !== null) {
 		if (process.platform === 'darwin') {
-			const output = (await execProm('ps x')).stdout.toString();
+			const output = processes
+				.map(({executable}) => executable ?? '')
+				.join('\n');
 			return findMacOsEditorsFromProcessOutput(output);
 		}
 
 		if (process.platform === 'win32') {
-			// Some processes need elevated rights to get its executable path.
-			// Just filter them out upfront. This also saves 10-20ms on the command.
-			const output = (
-				await execProm(
-					'wmic process where "executablepath is not null" get executablepath',
-				)
-			).stdout.toString();
-			const runningProcesses = output.split('\r\n');
-			for (let i = 0; i < runningProcesses.length; i++) {
-				const processPath = runningProcesses[i].trim();
+			for (const {executable: processPath} of processes) {
+				if (processPath === null) {
+					continue;
+				}
+
 				const processName = path.basename(processPath);
 				if (COMMON_EDITORS_WIN.indexOf(processName as Editor) !== -1) {
 					availableEditors.push({
@@ -406,12 +394,9 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 		}
 
 		if (process.platform === 'linux') {
-			// --no-heading No header line
-			// x List all processes owned by you
-			// -o comm Need only names column
-			const output = (
-				await execProm('ps x --no-heading -o comm --sort=comm')
-			).stdout.toString();
+			const output = processes
+				.map(({executable}) => executable ?? '')
+				.join('\n');
 			const processNames = Object.keys(COMMON_EDITORS_LINUX);
 			for (let i = 0; i < processNames.length; i++) {
 				const processName = processNames[i];
@@ -425,8 +410,6 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 
 			return availableEditors;
 		}
-	} catch {
-		// Ignore...
 	}
 
 	// Last resort, use old skool env vars
@@ -453,21 +436,24 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export async function launchEditor({
-	colNumber,
-	editor,
-	fileName,
-	lineNumber,
-	vsCodeNewWindow,
-	logLevel,
-}: {
-	fileName: string;
-	lineNumber: number;
-	colNumber: number;
-	editor: ProcessAndCommand;
-	vsCodeNewWindow: boolean;
-	logLevel: LogLevel;
-}): Promise<boolean> {
+export async function launchEditor(
+	{
+		colNumber,
+		editor,
+		fileName,
+		lineNumber,
+		vsCodeNewWindow,
+		logLevel,
+	}: {
+		fileName: string;
+		lineNumber: number;
+		colNumber: number;
+		editor: ProcessAndCommand;
+		vsCodeNewWindow: boolean;
+		logLevel: LogLevel;
+	},
+	projectFolder: string | null = null,
+): Promise<boolean> {
 	if (!fs.existsSync(fileName)) {
 		return false;
 	}
@@ -489,6 +475,10 @@ export async function launchEditor({
 		return false;
 	}
 
+	const isDirectory = fs.statSync(fileName).isDirectory();
+	let folderToOpen =
+		isVsCodeDerivative(editor.command) && !isDirectory ? projectFolder : null;
+
 	if (
 		process.platform === 'linux' &&
 		fileName.startsWith('/mnt/') &&
@@ -501,6 +491,9 @@ export async function launchEditor({
 		// When a Windows editor is specified, interop functionality can
 		// handle the path translation, but only if a relative path is used.
 		fileName = path.relative('', fileName);
+		if (folderToOpen !== null) {
+			folderToOpen = path.relative('', folderToOpen);
+		}
 	}
 
 	// cmd.exe on Windows is vulnerable to RCE attacks given a file name of the
@@ -509,7 +502,10 @@ export async function launchEditor({
 	// of valid file names but should cover almost all of them in practice.
 	if (
 		process.platform === 'win32' &&
-		!WINDOWS_FILE_NAME_WHITELIST.test(fileName.trim())
+		[fileName, folderToOpen].some(
+			(target) =>
+				target !== null && !WINDOWS_FILE_NAME_WHITELIST.test(target.trim()),
+		)
 	) {
 		Log.error({indent: false, logLevel});
 		Log.error(
@@ -531,7 +527,8 @@ export async function launchEditor({
 	const shouldOpenVsCodeNewWindow =
 		isVsCodeDerivative(editor.command) && vsCodeNewWindow;
 
-	if (!shouldOpenVsCodeNewWindow) {
+	// The file URL cannot specify both a workspace folder and a source location.
+	if (!shouldOpenVsCodeNewWindow && folderToOpen === null && !isDirectory) {
 		const result = openInEditorViaUrlScheme({
 			editor: editor.command,
 			fileName,
@@ -548,7 +545,7 @@ export async function launchEditor({
 
 	const args = shouldOpenVsCodeNewWindow
 		? ['--new-window', fileName]
-		: lineNumber
+		: lineNumber && !isDirectory
 			? getArgumentsForLineNumber(
 					editor.command,
 					fileName,
@@ -556,6 +553,36 @@ export async function launchEditor({
 					colNumber,
 				)
 			: [fileName];
+
+	if (folderToOpen !== null) {
+		args.unshift(folderToOpen);
+	}
+
+	if (
+		process.platform === 'darwin' &&
+		isVsCodeDerivative(editor.command) &&
+		(folderToOpen !== null || isDirectory)
+	) {
+		const applicationPath = editor.process.match(
+			/^(.*?\.app)\/Contents\//,
+		)?.[1];
+		if (applicationPath && fs.existsSync(applicationPath)) {
+			// Match the CLI's native macOS launch without starting its Node.js wrapper.
+			// -n lets Electron receive the arguments and forward them to a running instance.
+			const opened = await new Promise<boolean>((resolve) => {
+				const proc = child_process.spawn(
+					'open',
+					['-n', '-g', '-a', applicationPath, '--args', ...args],
+					{stdio: 'ignore'},
+				);
+				proc.on('error', () => resolve(false));
+				proc.on('close', (code) => resolve(code === 0));
+			});
+			if (opened) {
+				return true;
+			}
+		}
+	}
 
 	if (_childProcess && isTerminalEditor(editor.command)) {
 		// There's an existing editor process already and it's attached

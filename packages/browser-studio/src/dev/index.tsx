@@ -14,6 +14,7 @@ createRoot(root).render(
 		initialElement={null}
 		project={createBlankTemplateProject()}
 		readOnly={false}
+		showExperimentalNotice
 		remotionPackageSource={{
 			baseUrl: new URL(
 				'/__remotion_browser_studio_workspace__/',

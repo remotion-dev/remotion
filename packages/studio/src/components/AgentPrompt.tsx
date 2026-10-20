@@ -1,7 +1,9 @@
 import React, {useCallback, useContext} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLACK_ALPHA_30, BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {getSkillPrefix} from '../helpers/get-skill-prefix';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
 import {SkillsIcon} from '../icons/skills';
@@ -66,10 +68,11 @@ const skillRowContainer: React.CSSProperties = {
 const skillError: React.CSSProperties = {marginTop: 10};
 
 export const AgentPrompt: React.FC<{
+	readonly action: React.ReactNode;
 	readonly availableText: string;
 	readonly promptDetails: string;
 	readonly skillId: string;
-}> = ({availableText, promptDetails, skillId}) => {
+}> = ({action, availableText, promptDetails, skillId}) => {
 	const {codingAgentInfo, remotionSkillsInfo, skillActionError} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const skill = remotionSkillsInfo?.skills.find(({name}) => name === skillId);
@@ -80,7 +83,7 @@ export const AgentPrompt: React.FC<{
 		!window.remotion_isReadOnlyStudio &&
 		previewServerState.type === 'connected' &&
 		remotionSkillsInfo !== null;
-	const skillName = `/${skillId}`;
+	const skillName = `${getSkillPrefix()}${skillId}`;
 	const prompt = `${skillName}${promptDetails}`;
 	const installCommand = 'npx remotion skills add';
 	const hasCodingAgent =
@@ -107,6 +110,10 @@ export const AgentPrompt: React.FC<{
 		),
 		[installCopied],
 	);
+
+	if (getBrowserStudioOperations() !== null) {
+		return null;
+	}
 
 	return (
 		<>
@@ -150,14 +157,15 @@ export const AgentPrompt: React.FC<{
 						? availableText
 						: `Then ${availableText.toLowerCase()}`}
 				</div>
-				{hasCodingAgent ? (
-					<CodingAgentButton
-						label="Open in"
-						prompt={prompt}
-						size="compact"
-						style={null}
-					/>
-				) : null}
+				{action ??
+					(hasCodingAgent ? (
+						<CodingAgentButton
+							label="Open in"
+							prompt={prompt}
+							size="compact"
+							style={null}
+						/>
+					) : null)}
 			</div>
 			<div style={commandField}>
 				<pre style={code}>

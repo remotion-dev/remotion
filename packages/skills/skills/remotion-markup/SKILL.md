@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.529
+version: 4.0.537
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -15,19 +15,38 @@ If you detect a surprising change made in the meanwhile, don't overwrite it, ass
 
 ## General rules
 
+Keep `useCurrentFrame()` in the smallest component that needs it. Extract
+frame-dependent audio volume, titles, and overlays into their own components
+instead of subscribing the whole composition or scene; otherwise unrelated
+descendants re-render on every frame. Preserve the existing frame coordinates
+when extracting across timing boundaries, and keep editable interpolations
+inline on the item's props.
+
+Inside a composition or scene component, get `fps` from `useVideoConfig()` for
+all seconds-to-frames calculations, including timing props such as `from`,
+`trimBefore` and `durationInFrames`. Keeping the expression on
+the JSX node, such as `trimBefore={4 * fps}`, lets Studio edit the timing and
+keeps it correct if the composition frame rate changes.
+
 Drive animations using `useCurrentFrame()` and `interpolate()`.  
 CSS `transition` or `animation` will not render correctly, they need to refactored.  
 Tailwind animation class will not render correctly, they need to be refactored.
 
 Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
-Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md)
+Before choosing the markup hierarchy, read
+[editable timeline structure](../remotion-interactivity/timeline-structure.md).
+Choose editing units first, then the tracks or shared timing boundaries they
+need. It includes a complete example with interactive components and their
+registrations. For source-editable styles, schemas, and keyframes, see
+[Remotion Interactivity](../remotion-interactivity/SKILL.md).
 
 ```tsx
-import { useCurrentFrame, Easing, interpolate, Interactive } from "remotion";
+import { useCurrentFrame, useVideoConfig, Easing, interpolate, Interactive } from "remotion";
 
 export const FadeIn = () => {
   const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
 
   return (
     <Interactive.Div
@@ -110,128 +129,13 @@ export const MyComposition = () => {
 };
 ```
 
-## Example scene
-
-```tsx
-import {
-  AbsoluteFill,
-  Easing,
-  Interactive,
-  interpolate,
-  useCurrentFrame,
-  useVideoConfig
-} from "remotion";
-
-export const Empty = () => {
-  const {fps} = useVideoConfig();
-  const frame = useCurrentFrame();
-
-  return (
-    <AbsoluteFill
-      name="Scene"
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white'
-      }}
-    >
-      <Interactive.Div
-        name="Title"
-        style={{
-          opacity: interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-          fontSize: 88
-        }}
-      >
-        Title
-      </Interactive.Div>
-      <Interactive.Div
-        name="Subtitle"
-        style={{
-          opacity: interpolate(frame, [2 * fps, 3 * fps, 8 * fps, 10 * fps], [0, 1, 1, 0], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-            easing: [Easing.bezier(0.16, 1, 0.3, 1), Easing.linear, Easing.bezier(0.16, 1, 0.3, 1)],
-          }),
-          fontSize: 32
-        }}
-      >
-        Subtitle
-      </Interactive.Div>
-    </AbsoluteFill>
-  );
-}
-```
+If the composition is primarily a timeline of video or audio clips, read
+[video-editing.md](video-editing.md) before choosing its source structure.
 
 ## Delaying, trimming
 
-Most components (`<AbsoluteFill>`, `<Interactive.*>` `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more) support the following props:
-
-### from
-
-```tsx
-<Img from={1 * fps} {/* ... */}/>
-<Video from={1 * fps} {/* ... */}/>
-<Interactive.Div from={1 * fps} {/* ... */}/>
-```
-
-When the element starts appearing in the timelien.
-
-### durationInFrames
-
-```tsx
-<Img durationInFrames={20 * fps} {/* ... */}/>
-<Interactive.Div durationInFrames={20 * fps} {/* ... */}/>
-```
-
-For how long the layer plays in the timeline.  
-For media, pass the natural duration of the media: `<Video durationInFrames={29.322 * fps}/>`
-
-### `trimBefore`
-
-Useful for components whose internal clock should start later:
-
-```tsx
-// Trim away first 2 seconds of footage
-<Video trimBefore={2 * fps} {/* ... */} />
-
-// `useCurrenFrame()` for children starts at `10 * fps`
-<Sequence trimBefore={10 * fps} {/* ... */} />
-```
-
-### `trimAfter`
-
-Ends the internal clock at a frame. Measured in the same clock as `trimBefore`, so the layer lasts `(trimAfter - trimBefore) / playbackRate` frames in the timeline unless `durationInFrames` is shorter:
-
-```tsx
-// Play the footage from second 2 to second 5
-<Video trimBefore={2 * fps} trimAfter={5 * fps} {/* ... */} />
-
-// Children see frames `10 * fps` through `15 * fps - 1`
-<Sequence trimBefore={10 * fps} trimAfter={15 * fps} {/* ... */} />
-```
-
-### `loop`
-
-Repeats the range between `trimBefore` and `trimAfter`. `durationInFrames` sets the total length. `<Video>` and `<Audio>` may omit `trimAfter` and loop the whole file; other layers need `trimAfter` because they have no intrinsic end:
-
-```tsx
-<Video loop durationInFrames={20 * fps} {/* ... */} />
-<Sequence trimAfter={2 * fps} durationInFrames={20 * fps} loop {/* ... */} />
-```
-
-`<Img>`, `<CanvasImage>`, `<Solid>` and shapes do not support `loop` because their output does not change over time.
-
-### Fallback
-
-If a component does not support these props, wrap it in`<Sequence>` from `remotion`, which has them.
-
-- `layout="absolute-fill"` makes the Sequence behave like AbsoluteFill
-- `layout="none"` is "headless" mode, no wrapper element is used.
+Use [sequencing](sequencing.md) to choose the timing boundary and
+[timing props](timing-props.md) for the supported props and order of operations.
 
 ## Maps
 
@@ -247,11 +151,10 @@ See [multi-scene-video.md](multi-scene-video.md) if planning to make a video wit
 
 ## Connected compositions
 
-When a scene or group of layers deserves its own editable timeline, follow [connected-compositions.md](connected-compositions.md). Prefer this structure for substantial scenes in a multi-scene video.
-
-For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, render one direct instance of it as the only child of a `<Sequence>`, `<Series.Sequence>`, or `<TransitionSeries.Sequence>`, and register that same component reference with a unique `<Composition>` in the root. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
-
-The extracted component may return a fragment; do not add a DOM wrapper. Preserve sibling order, props, keys, conditional rendering, dimensions, appearance, and timing. Trace values used by the selected markup: move their derivations only when the same scope and lifecycle are preserved, otherwise pass them as props. In particular, moving `useCurrentFrame()` or `useVideoConfig()` across a sequence boundary can change its result; pass the parent value when needed. If the selection or a behavior-preserving connected composition is unclear, ask for clarification instead of guessing.
+Read [connected compositions](connected-compositions.md) when a scene or group
+needs its own editable timeline, or when handling a Studio pre-compose request.
+It covers extraction, registration, inherited styles, and verification in both
+the parent and standalone views.
 
 ## Voiceover
 
@@ -264,10 +167,6 @@ See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embe
 ## Embedding Audio
 
 See [audio.md](audio.md) for advanced audio features like trimming, volume, speed, pitch.
-
-## Video editing
-
-See [video-editing.md](video-editing.md) for structuring editable video timelines in Remotion Studio.
 
 ## Cropping
 
@@ -283,14 +182,49 @@ When adding motion blur or a movement trail, read [motion-blur.md](motion-blur.m
 
 ## Visual and pixel effects
 
-When creating a visual effect, consider whether it is feasible using CSS and HTML, or whether a shader is needed.  
-Order or preference:
+When adding a visual effect, first identify the element or group it should affect.
+If the target component supports `effects` and a built-in effect below matches the
+request, prefer that effect over a CSS approximation. For example, apply
+`vignette()` directly to a `<Video>`'s `effects` prop when the vignette should
+affect that video.
 
-1. Regular HTML + CSS or other web techniques
-2. An effect applied to the element directly (`<Video>`, `<Img>`), or by wrapping the content in [`<HtmlInCanvas>`](html-in-canvas.md), which also accepts `effects`:
+These components accept `effects` directly:
 
-- A listed effect via [effects.md](effects.md)
-- A custom `createEffect()` via [effects.md](effects.md) when no preset is available.
+| Import from        | Components                                                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `remotion`         | `<Img>`, `<CanvasImage>`, `<AnimatedImage>`, `<Solid>`, `<HtmlInCanvas>`                                                      |
+| `@remotion/media`  | `<Video>`                                                                                                                     |
+| `@remotion/gif`    | `<Gif>`                                                                                                                       |
+| `@remotion/rive`   | `<RemotionRiveCanvas>`                                                                                                        |
+| `@remotion/shapes` | `<Arrow>`, `<Callout>`, `<Circle>`, `<Ellipse>`, `<Heart>`, `<Pie>`, `<Polygon>`, `<Rect>`, `<Spark>`, `<Star>`, `<Triangle>` |
+
+Ordinary HTML elements, `<Interactive.*>` DOM wrappers, `<AbsoluteFill>`, and
+`<Sequence>` do not accept `effects` directly. To apply effects to their content,
+wrap them in `<HtmlInCanvas>` and put the `effects` prop on the wrapper.
+
+For other elements, prefer regular HTML and CSS where suitable. Consider wrapping
+a group in [`<HtmlInCanvas>`](html-in-canvas.md) when post-processing the whole
+group is appropriate and the environment supports it.
+
+Read [effects.md](effects.md) before applying an effect for imports, parameters,
+and setup. It also covers reusable custom effects with `createEffect()` when no
+built-in effect matches.
+
+### Available effects
+
+Built-in effects from `@remotion/effects`:
+
+- Color and tone: `brightness()`, `colorCorrection()`, `colorKey()`, `contrast()`, `duotone()`, `exposure()`, `grayscale()`, `hue()`, `invert()`, `levels()`, `linearGradient()`, `linearGradientTint()`, `lut()`, `saturation()`, `shadowsHighlights()`, `thermalVision()`, `tint()`, `vibrance()`, `whiteBalance()`.
+- Blur and trails: `blur()`, `lightTrail()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `regionBlur()`, `zoomBlur()`.
+- Lighting: `dropShadow()`, `glow()`, `lightLeak()`, `shine()`, `starburst()`, `vignette()`.
+- Distortion and transforms: `barrelDistortion()`, `chromaticAberration()`, `cornerPin()`, `fisheye()`, `mirror()`, `noiseDisplacement()`, `scale()`, `skew()`, `tile()`, `uvTranslate()`, `wave()`, `xyTranslate()`.
+- Textures and patterns: `burlap()`, `checkerboard()`, `contourLines()`, `dotGrid()`, `emboss()`, `flannel()`, `gridlines()`, `halftone()`, `halftoneLinearGradient()`, `lines()`, `liquidContours()`, `noise()`, `paper()`, `pattern()`, `rings()`, `scanlines()`, `speckle()`, `tvSignalOff()`, `waves()`, `whiteNoise()`, `zigzag()`.
+- Edges: `outline()`, `roughenEdges()`, `shrinkwrap()`, `tear()`.
+- Pixelation and transitions: `evolve()`, `linearProgressivePixelate()`, `pixelate()`, `pixelDissolve()`, `radialProgressivePixelate()`, `venetianBlinds()`.
+
+## Color correction
+
+Read [color-correction.md](color-correction.md) for how to apply color correction, either using the `colorCorrection()` effect or `lut()` to apply a 3D `.cube` color grade.
 
 ## 3D content
 
@@ -311,6 +245,10 @@ For static maps, animated routes and markers, geographic explainers, Mapbox, Map
 ## Captions
 
 When dealing with captions or subtitles, load the [Remotion Captions](../remotion-captions/SKILL.md) skill for more information.
+
+## Arabic and right-to-left text
+
+For Arabic, Persian, Urdu or Hebrew text, read [arabic-text.md](arabic-text.md): set the base direction, animate by word, and split letters only in a way that keeps them joined.
 
 ## Google Fonts
 
@@ -360,9 +298,9 @@ When needing to detect and trim silent segments from video or audio files, load 
 
 See [calculate-metadata.md](calculate-metadata.md) for dynamically set composition duration, dimensions, and props.
 
-## Advanced compositions
+## Compositions and stills
 
-See [compositions.md](compositions.md) for how to define stills, folders, default props and for how to nest compositions. For Studio navigation into a scene's own timeline, use [connected compositions](connected-compositions.md).
+Before registering `<Composition>` or `<Still>` elements, read [compositions.md](compositions.md) for source-editable registrations, folders, default props and nesting. For Studio navigation into a scene's own timeline, use [connected compositions](connected-compositions.md).
 
 ## Advanced sequencing
 
@@ -380,6 +318,9 @@ This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and 
 
 ## Visual checks
 
-When a visual check is useful, open the [Remotion Studio](../remotion-studio/SKILL.md) for an interactive preview.
+Open the [Remotion Studio](../remotion-studio/SKILL.md) to check visual changes.
+When changing timeline structure, inspect the full composition as well as any
+connected components; verify the visible layers, cut timing, and synchronized
+content.
 
 You can also use [Rendering](../remotion-render/SKILL.md) to inspect one or several frames as images.

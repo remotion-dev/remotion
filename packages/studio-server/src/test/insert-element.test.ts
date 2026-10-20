@@ -78,14 +78,16 @@ const element: InsertElementRequest['element'] = {
 	durationInFrames: 72,
 	initialProps: null,
 	installationMode: null,
+	isCaptionStyle: false,
 	displayName: 'Lower Third',
 	slug: 'overlays/lower-third',
 	sourceCode: incomingElementSource,
 };
 
-type InsertElementTestRequest = Omit<InsertElementRequest, 'premountFor'> & {
-	premountFor?: number | null;
-};
+type InsertElementTestRequest = Extract<
+	InsertElementRequest,
+	{captionTarget: null}
+>;
 
 const makeFixture = () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-element-'));
@@ -132,7 +134,7 @@ const makeFixture = () => {
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
-			input: {...input, premountFor: input.premountFor ?? null},
+			input,
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,
@@ -157,6 +159,7 @@ const makeFixture = () => {
 			element,
 			expectedFileState,
 			from: null,
+			captionTarget: null,
 			overwriteExisting,
 			position: null,
 			undoRedoNavigation: null,
@@ -293,6 +296,7 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 				element: assetElement,
 				expectedFileState: null,
 				from: null,
+				captionTarget: null,
 				overwriteExisting: false,
 				position: null,
 				undoRedoNavigation: null,
@@ -398,6 +402,7 @@ test('rejects oversized mixed Element assets before writing any files, regardles
 					element: {...element, assets: orderedAssets},
 					expectedFileState: null,
 					from: null,
+					captionTarget: null,
 					overwriteExisting: false,
 					position: null,
 					undoRedoNavigation: null,
@@ -472,6 +477,7 @@ test('invalidates a new-composition install after an external component edit', a
 			element,
 			expectedFileState: {exists: false},
 			from: null,
+			captionTarget: null,
 			overwriteExisting: false,
 			position: null,
 			undoRedoNavigation: null,
@@ -580,9 +586,11 @@ test('installs structured initial props on a component-owned Sequence', async ()
 				...element,
 				initialProps: structuredInitialProps,
 				installationMode: 'component-owned-sequence',
+				isCaptionStyle: false,
 			},
 			expectedFileState: null,
 			from: 30,
+			captionTarget: null,
 			overwriteExisting: false,
 			position: {x: 120, y: 80},
 			undoRedoNavigation: null,
@@ -638,9 +646,11 @@ test('rejects contradictory component-owned installation props', async () => {
 					...element,
 					initialProps,
 					installationMode: 'component-owned-sequence',
+					isCaptionStyle: false,
 				},
 				expectedFileState: null,
 				from: 30,
+				captionTarget: null,
 				overwriteExisting: false,
 				position: {x: 120, y: 80},
 				undoRedoNavigation: null,
@@ -670,6 +680,7 @@ test('keeps wrapped installation and passes initial props to its child', async (
 			},
 			expectedFileState: null,
 			from: 12,
+			captionTarget: null,
 			overwriteExisting: false,
 			position: {x: 40, y: 50},
 			undoRedoNavigation: null,
@@ -701,6 +712,7 @@ test('materializes independent props for two component-owned copies', async () =
 			...element,
 			initialProps: structuredInitialProps,
 			installationMode: 'component-owned-sequence' as const,
+			isCaptionStyle: false,
 		};
 		const first = await fixture.callHandlerWithInput({
 			installationName: null,
@@ -709,6 +721,7 @@ test('materializes independent props for two component-owned copies', async () =
 			element: componentOwnedElement,
 			expectedFileState: null,
 			from: 0,
+			captionTarget: null,
 			overwriteExisting: false,
 			position: null,
 			undoRedoNavigation: null,
@@ -722,6 +735,7 @@ test('materializes independent props for two component-owned copies', async () =
 			element: componentOwnedElement,
 			expectedFileState: {exists: false},
 			from: 30,
+			captionTarget: null,
 			overwriteExisting: false,
 			position: null,
 			undoRedoNavigation: null,
@@ -766,6 +780,7 @@ test('installs independent named copies into the same and another composition', 
 			expectedFileState: {exists: false},
 			from: null,
 			position: null,
+			captionTarget: null,
 			overwriteExisting: false,
 			undoRedoNavigation: null,
 			newComposition: null,
@@ -896,6 +911,7 @@ test.each(['../outside', 'nested/name', 'Uppercase', '', 'name.element.tsx'])(
 					expectedFileState: null,
 					from: null,
 					position: null,
+					captionTarget: null,
 					overwriteExisting: false,
 					undoRedoNavigation: null,
 					newComposition: null,

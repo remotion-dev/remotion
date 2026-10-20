@@ -13,6 +13,7 @@ export const VideoPlaybackPreview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 4092,
 				height: 2876,

@@ -1,20 +1,27 @@
-import {canvasKeyframeEasingPresets} from '@remotion/canvas';
+import {canvasKeyframeEasingPresets} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WHITE_ALPHA_10} from '../../helpers/colors';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {EasingPresetPreview} from './EasingEditorModal';
+import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
+import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineEasingSelection,
 	useTimelineMarqueeSelectableItem,
 } from './TimelineSelection';
+import {getOriginalLocationFromStack} from './TimelineStack/get-stack';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {
 	getEasingSelections,
@@ -81,6 +88,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		readonly style: React.CSSProperties;
 	}
 > = ({fromFrame, toFrame, nodePathInfo, segmentIndex, style}) => {
+	const calculateTimeline = useTimelineCalculator();
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const {selected, onSelect, selectable, selectionItem} =
 		useTimelineEasingSelection({
@@ -89,7 +97,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			toFrame,
 			segmentIndex,
 		});
-	useTimelineMarqueeSelectableItem(selectionItem, buttonRef);
+	useTimelineMarqueeSelectableItem(selectionItem, buttonRef, null);
 	const interactiveStyle = useMemo(
 		() => ({
 			...style,
@@ -103,8 +111,8 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
@@ -123,8 +131,10 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 
 			const promise = updateSelectedTimelineEasings({
 				selections: getTargetSelections(),
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				tracks: calculateTimeline({
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+				}).tracks,
 				propStatuses: propStatusesRef.current,
 				setPropStatuses,
 				clientId: previewServerState.clientId,
@@ -133,8 +143,9 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			promise?.catch(() => undefined);
 		},
 		[
+			calculateTimeline,
 			getTargetSelections,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			previewServerState,
 			propStatusesRef,
 			sequencesRef,
@@ -155,29 +166,73 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 				});
 			}
 
-			return canvasKeyframeEasingPresets.map((preset) => ({
-				type: 'item' as const,
-				id: preset.id,
-				keyHint: null,
-				label: preset.label,
-				leftItem: (
-					<EasingPresetPreview
-						color={LIGHT_TEXT}
-						easing={preset.easing}
-						height={18}
-						nonScalingStroke
-						strokeWidth={5}
-						width={18}
-					/>
-				),
-				disabled: previewServerState.type !== 'connected',
-				onClick: () => updateEasing(preset.easing),
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: preset.id,
-			}));
+			const field = parseKeyframeFieldFromNodePath(nodePathInfo.auxiliaryKeys);
+			const track = findTrackForNodePathInfo({
+				tracks: calculateTimeline({
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+				}).tracks,
+				nodePathInfo,
+			});
+			const stack = track?.sequence.getStack() ?? null;
+
+			return [
+				getCopyContextForAgentsMenuItem({
+					contextForAgents:
+						field === null || stack === null
+							? null
+							: async () => {
+									const location = await getOriginalLocationFromStack(
+										stack,
+										'sequence',
+									);
+									return formatContextForAgents({
+										location,
+										name: `${field.type === 'effect' ? 'Effect property' : 'Property'} "${field.fieldKey}", easing from frame ${fromFrame} to ${toFrame}`,
+										root: window.remotion_cwd,
+									});
+								},
+				}),
+				{
+					type: 'divider',
+					id: 'copy-context-for-agents-divider',
+				},
+				...canvasKeyframeEasingPresets.map((preset) => ({
+					type: 'item' as const,
+					id: preset.id,
+					keyHint: null,
+					label: preset.label,
+					leftItem: (
+						<EasingPresetPreview
+							color={LIGHT_TEXT}
+							easing={preset.easing}
+							height={18}
+							nonScalingStroke
+							strokeWidth={1.5}
+							width={18}
+						/>
+					),
+					disabled: previewServerState.type !== 'connected',
+					onClick: () => updateEasing(preset.easing),
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: preset.id,
+				})),
+			];
 		},
-		[onSelect, previewServerState.type, selectable, selected, updateEasing],
+		[
+			calculateTimeline,
+			fromFrame,
+			nodePathInfo,
+			onSelect,
+			overrideIdToNodePathMappingsRef,
+			previewServerState.type,
+			selectable,
+			selected,
+			sequencesRef,
+			toFrame,
+			updateEasing,
+		],
 	);
 
 	const onPointerDown = useTimelineEasingKeyframeDrag({

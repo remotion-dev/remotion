@@ -26,7 +26,7 @@ async function invokeWebhookRaw({
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'Content-Length': String(jsonPayload.length),
+			'Content-Length': String(Buffer.byteLength(jsonPayload)),
 			'X-Remotion-Mode': 'production',
 			'X-Remotion-Signature': calculateSignature(jsonPayload, secret),
 			'X-Remotion-Status': payload.type,

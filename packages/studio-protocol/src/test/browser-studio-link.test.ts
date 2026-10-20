@@ -29,6 +29,7 @@ test('preserves a configured Browser Studio endpoint', () => {
 		endpoint: 'https://studio.example.test/new?template=blank',
 		payload,
 	});
+
 	const parsedUrl = new URL(url);
 
 	expect(parsedUrl.origin).toBe('https://studio.example.test');

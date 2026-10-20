@@ -21,39 +21,6 @@ export const MyCompositionSchema = z.object({
 
 export type MyCompositionProps = z.infer<typeof MyCompositionSchema>;
 
-export const VIDEO_FILES = [
-	'whats1.mov',
-	'whats2.mov',
-	'whats3.mov',
-	'whats4.mov',
-	'whats5.mov',
-	'whats6.mov',
-	'whats7.mov',
-	'whats8.mov',
-	'whats9.mov',
-	'whats10.mov',
-	'whats11.mov',
-];
-
-// Leading silence end (seconds) and trailing silence start (seconds) for each video
-// Detected via ffmpeg silencedetect using adaptive per-video EBU R128 loudness threshold
-export const SILENCES: Record<
-	string,
-	{leadingEnd: number; trailingStart: number}
-> = {
-	'whats1.mov': {leadingEnd: 0.9, trailingStart: 4.67},
-	'whats2.mov': {leadingEnd: 6.37, trailingStart: 31.8},
-	'whats3.mov': {leadingEnd: 2.3, trailingStart: 44.5},
-	'whats4.mov': {leadingEnd: 1.5, trailingStart: 38.77},
-	'whats5.mov': {leadingEnd: 3.04, trailingStart: 25.31},
-	'whats6.mov': {leadingEnd: 2.32, trailingStart: 31.64},
-	'whats7.mov': {leadingEnd: 4.21, trailingStart: 39.27},
-	'whats8.mov': {leadingEnd: 2.7, trailingStart: 29},
-	'whats9.mov': {leadingEnd: 1.5, trailingStart: 18.5},
-	'whats10.mov': {leadingEnd: 1.84, trailingStart: 15.85},
-	'whats11.mov': {leadingEnd: 3.27, trailingStart: 28},
-};
-
 export const MyComposition: React.FC<MyCompositionProps> = ({platform}) => {
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>

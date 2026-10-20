@@ -37,6 +37,9 @@ export type MediaParserController = {
 	};
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const mediaParserController = (): MediaParserController => {
 	const abortController = new AbortController();
 	const emitter = new MediaParserEmitter();

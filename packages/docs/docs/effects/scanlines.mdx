@@ -23,13 +23,13 @@ The effect is additive and preserves the source alpha mask. Transparent regions 
 ```tsx twoslash title="MyComp.tsx"
 import {scanlines} from '@remotion/effects/scanlines';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -41,7 +41,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

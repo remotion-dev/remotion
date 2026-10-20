@@ -1,22 +1,25 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import type React from 'react';
 import {useCallback, useContext} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	InteractivitySchema,
-	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	TSequence,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
@@ -217,14 +220,12 @@ const getTimelineKeyframeDragTarget = ({
 	propStatuses,
 	displayFrame,
 	nodePathInfo,
-	overrideIdsToNodePaths,
-	sequences,
+	tracks,
 }: {
 	readonly propStatuses: PropStatuses;
 	readonly displayFrame: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-	readonly sequences: TSequence[];
+	readonly tracks: readonly TimelineTrackData[];
 }): TimelineKeyframeDragTarget | null => {
 	const field = parseKeyframeFieldFromNodePath(nodePathInfo.auxiliaryKeys);
 	if (field === null) {
@@ -232,8 +233,7 @@ const getTimelineKeyframeDragTarget = ({
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo,
 	});
 	const sequence = track?.sequence ?? null;
@@ -241,7 +241,10 @@ const getTimelineKeyframeDragTarget = ({
 		return null;
 	}
 
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const nodePath = {
+		...nodePathInfo.sequenceSubscriptionKey,
+		videoConfigValues: sequence.controls.videoConfigValues,
+	};
 	const fileName = nodePath.absolutePath;
 	const sequenceStatus = getCodeValueForTarget({propStatuses, nodePath});
 	if (!sequenceStatus?.canUpdate) {
@@ -257,7 +260,10 @@ const getTimelineKeyframeDragTarget = ({
 			return null;
 		}
 
-		const effectPropStatus = effectStatus.props[field.fieldKey];
+		const effectPropStatus = Internals.evaluateSourcePropStatuses(
+			effectStatus.props,
+			nodePath.videoConfigValues,
+		)[field.fieldKey];
 		if (effectPropStatus?.status !== 'keyframed') {
 			return null;
 		}
@@ -296,7 +302,10 @@ const getTimelineKeyframeDragTarget = ({
 		};
 	}
 
-	const sequencePropStatus = sequenceStatus.props[field.fieldKey];
+	const sequencePropStatus = Internals.evaluateSourcePropStatuses(
+		sequenceStatus.props,
+		nodePath.videoConfigValues,
+	)[field.fieldKey];
 	if (sequencePropStatus?.status !== 'keyframed') {
 		return null;
 	}
@@ -476,9 +485,10 @@ export const useTimelineKeyframeDrag = ({
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -539,20 +549,25 @@ export const useTimelineKeyframeDrag = ({
 			let lastDelta = 0;
 			const propStatuses = propStatusesRef.current;
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
 
 			const resolveDragTargets = () => {
 				if (dragTargets !== null) {
 					return dragTargets;
 				}
 
+				const {tracks} = calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				});
 				dragTargets = keyframesToDrag
 					.map((keyframe) =>
 						getTimelineKeyframeDragTarget({
 							propStatuses,
 							displayFrame: keyframe.frame,
 							nodePathInfo: keyframe.nodePathInfo,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
-							sequences,
+							tracks,
 						}),
 					)
 					.filter(
@@ -731,7 +746,8 @@ export const useTimelineKeyframeDrag = ({
 			frame,
 			nodePathInfo,
 			onSelect,
-			overrideIdToNodePathMappings,
+			calculateTimeline,
+			overrideIdToNodePathMappingsRef,
 			propStatusesRef,
 			previewServerState,
 			selectable,
@@ -761,9 +777,10 @@ export const useTimelineEasingKeyframeDrag = ({
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -816,20 +833,25 @@ export const useTimelineEasingKeyframeDrag = ({
 			let lastDelta = 0;
 			const propStatuses = propStatusesRef.current;
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
 
 			const resolveDragTargets = () => {
 				if (dragTargets !== null) {
 					return dragTargets;
 				}
 
+				const {tracks} = calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				});
 				dragTargets = keyframesToDrag
 					.map((keyframe) =>
 						getTimelineKeyframeDragTarget({
 							propStatuses,
 							displayFrame: keyframe.frame,
 							nodePathInfo: keyframe.nodePathInfo,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
-							sequences,
+							tracks,
 						}),
 					)
 					.filter(
@@ -1005,7 +1027,8 @@ export const useTimelineEasingKeyframeDrag = ({
 			clearDraggedKeyframes,
 			currentSelection,
 			onSelect,
-			overrideIdToNodePathMappings,
+			calculateTimeline,
+			overrideIdToNodePathMappingsRef,
 			propStatusesRef,
 			previewServerState,
 			selectable,

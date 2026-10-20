@@ -3,11 +3,20 @@
 import React from 'react';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 
+const videoSources: Record<string, string> = {
+	Video: 'video-playback-2026-09-22.mp4',
+	Audio: 'audio-waveform.mp4',
+	Captions: 'captions-2026-10-20-7c7e04671491.mp4',
+	AI: 'ai-prompt-2026-10-20-77a73116a839.mp4',
+	Parameterization: 'parameterization-2026-10-20-748a8dcc4089.mp4',
+	Rendering: 'render-modal-codec.mp4',
+};
+
 export const ExploreSection: React.FC = () => {
 	return (
-		<section className="mx-auto max-w-[1000px] px-5 pt-24 pb-24">
-			<SectionTitle>Explore Remotion</SectionTitle>
-			<p className="mx-auto mt-3 mb-10 max-w-[760px] text-center fontbrand text-balance leading-relaxed">
+		<section className="mx-auto max-w-[1000px] px-5 pt-24 pb-24 [&_h2]:mb-0">
+			<SectionTitle>Problems we solve</SectionTitle>
+			<p className="mx-auto mt-2 mb-10 max-w-[760px] text-center fontbrand text-balance leading-relaxed">
 				Our mission is to explode the world of video creation into pieces and
 				let you assemble them.
 			</p>
@@ -47,7 +56,7 @@ export const ExploreSection: React.FC = () => {
 							}
 						}}
 					>
-						{item === 'Video' || item === 'Rendering' || item === 'Audio' ? (
+						{videoSources[item] ? (
 							<video
 								className="explore-video pointer-events-none absolute inset-0 h-full w-full object-cover"
 								muted
@@ -57,7 +66,7 @@ export const ExploreSection: React.FC = () => {
 								aria-hidden="true"
 							>
 								<source
-									src={`https://remotion.media/explore-remotion/${item === 'Video' ? 'video-playback-2026-09-22' : item === 'Rendering' ? 'render-modal-codec' : 'audio-waveform'}.mp4`}
+									src={`https://remotion.media/explore-remotion/${videoSources[item]}`}
 									type="video/mp4"
 								/>
 							</video>
@@ -65,7 +74,7 @@ export const ExploreSection: React.FC = () => {
 						<h3
 							className="relative z-10 m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-2xl"
 							style={
-								item === 'Video' || item === 'Rendering' || item === 'Audio'
+								videoSources[item]
 									? {
 											textShadow:
 												'0 1px 2px #000, 0 2px 8px #000, 0 0 16px #000',

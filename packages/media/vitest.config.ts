@@ -1,5 +1,5 @@
 import path from 'node:path';
-import {webdriverio} from '@vitest/browser-webdriverio';
+import {playwright} from '@vitest/browser-playwright';
 import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
@@ -16,9 +16,10 @@ export default defineConfig({
 		],
 	},
 	test: {
+		fileParallelism: false,
 		browser: {
-			provider: webdriverio(),
-			instances: [{browser: 'chrome'}],
+			provider: playwright(),
+			instances: [{browser: 'chromium'}],
 			headless: true,
 			screenshotFailures: false,
 			expect: {

@@ -9,6 +9,7 @@ import {
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
+import {CloseUpFrame} from './CloseUpFrame';
 
 const PitchCorr = () => {
 	const frame = useCurrentFrame();
@@ -701,7 +702,7 @@ const PitchCorr = () => {
 	);
 };
 
-export const PitchCorrectionPreview = () => {
+const PitchCorrectionContent = () => {
 	return (
 		<HtmlInCanvas
 			width={1920}
@@ -715,10 +716,11 @@ export const PitchCorrectionPreview = () => {
 			]}
 		>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 1976,
 					height: 1440,
-					translate: '215.7px -412.3px',
+					translate: '315.7px -632.3px',
 					rotate: '-0.747627 0.633442 -0.19951 27.805983deg',
 					scale: 1.337,
 				}}
@@ -728,6 +730,14 @@ export const PitchCorrectionPreview = () => {
 				<PitchCorr />
 			</AbsoluteFill>
 		</HtmlInCanvas>
+	);
+};
+
+export const PitchCorrectionPreview = () => {
+	return (
+		<CloseUpFrame>
+			<PitchCorrectionContent />
+		</CloseUpFrame>
 	);
 };
 

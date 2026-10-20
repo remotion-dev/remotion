@@ -21,7 +21,7 @@ export const getPlayerFps = (fps: number | null | undefined) => {
 		return 30;
 	}
 
-	return fps;
+	return Math.max(30, fps);
 };
 
 export const getDurationInFrames = ({

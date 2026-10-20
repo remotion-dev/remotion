@@ -7,7 +7,7 @@ import {
 	type CanvasOutlineTranslateSession,
 	type CanvasOutlineTranslateTarget,
 	type CanvasSelectableOutline,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,

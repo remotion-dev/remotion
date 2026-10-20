@@ -15,6 +15,7 @@ export const isTimelineFieldStacked = ({
 	readonly transform3DMode: boolean;
 }) => {
 	return (
+		field.typeName === 'string' ||
 		field.typeName === 'text-content' ||
 		field.typeName === 'svg-path' ||
 		(transform3DMode &&

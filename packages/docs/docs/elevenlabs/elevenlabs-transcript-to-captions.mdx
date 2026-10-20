@@ -6,7 +6,7 @@ crumb: '@remotion/elevenlabs'
 
 # elevenLabsTranscriptToCaptions()<AvailableFrom v="4.0.443"/>
 
-Turns the output from the [ElevenLabs Speech to Text API](https://elevenlabs.io/docs/api-reference/speech-to-text/convert) into an array of [`Caption`](/docs/captions/caption) objects.
+Converts an [ElevenLabs Speech to Text API](https://elevenlabs.io/docs/api-reference/speech-to-text/convert) response or a JSON transcript exported from ElevenLabs into an array of [`Caption`](/docs/captions/caption) objects.
 
 This function can be used in any JavaScript environment, but you should not use the ElevenLabs API in the browser because your API key will be exposed.
 
@@ -43,32 +43,66 @@ An object with the following property:
 
 #### `transcript`
 
-A Speech-to-Text response with a `words` array (request `timestamps_granularity: "word"`), or a segmented JSON export with a top-level `language_code` field (which can be `null`) and `segments` containing `text`, `start_time`, `end_time`, and optionally timed `words`. <AvailableFrom v="4.0.530" inline /> Segmented exports use absolute seconds; when timed words are available they are preserved, otherwise each segment becomes one caption.
+Pass the parsed JSON object in either of the following formats. The function converts it locally without calling the ElevenLabs API.
 
-A segmented export uses this structure (example text and times are illustrative):
+##### Speech-to-Text API response
 
-```json title="Segmented JSON export"
+The response must include a `words` array. Set `timestamps_granularity` to `"word"` when calling the API, as shown in the [example above](#example).
+
+```json title="Speech-to-Text response (required fields)"
 {
-  "language_code": null,
+  "language_code": "en",
+  "words": [
+    {"text": "Hello", "type": "word", "start": 0, "end": 0.5}
+  ]
+}
+```
+
+Each `"word"` entry becomes one caption. `start` and `end` are measured in seconds from the start of the audio.
+
+Entries with `type: "audio_event"` are skipped. Entries with `type: "spacing"` do not produce captions, but their start times are used as the start times of the following words.
+
+##### JSON export<AvailableFrom v="4.0.530" />
+
+You can also pass a JSON transcript exported from ElevenLabs. It must contain a `language_code` field (which can be `null`) and a `segments` array:
+
+```json title="JSON export without word-level timing"
+{
+  "language_code": "en",
   "segments": [
     {
-      "text": "Hello",
+      "text": "Hello world",
       "start_time": 0,
-      "end_time": 0.5,
-      "words": [{"text": "Hello", "start_time": 0, "end_time": 0.5}]
+      "end_time": 1
     }
   ]
 }
 ```
 
-The `words` array should contain objects with the following fields:
+Each segment becomes one caption unless it contains a non-empty `words` array. In that case, each word becomes a caption instead:
 
-- `text`: The word text
-- `type`: `"word"`, `"spacing"`, or `"audio_event"` — only `"word"` entries are used
-- `start`: Start time in seconds
-- `end`: End time in seconds
+```json title="JSON export with word-level timing"
+{
+  "language_code": "en",
+  "segments": [
+    {
+      "text": "Hello world",
+      "start_time": 0,
+      "end_time": 1,
+      "words": [
+        {"text": "Hello", "start_time": 0, "end_time": 0.5},
+        {"text": " world", "start_time": 0.5, "end_time": 1}
+      ]
+    }
+  ]
+}
+```
 
-Invalid consumed fields, negative or reversed timings, and unknown entry types throw an error naming the field. Audio events are intentionally omitted; spacing entries inform the timing of subsequent words. The converter runs locally and does not call the ElevenLabs API.
+All `start_time` and `end_time` values are measured in seconds from the start of the audio, not from the start of the segment.
+
+##### Invalid input
+
+The function throws an error if required fields are missing or invalid, timestamps are negative, or an end time is earlier than its start time.
 
 ### Return value
 

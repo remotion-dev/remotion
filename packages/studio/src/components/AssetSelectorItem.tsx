@@ -50,6 +50,7 @@ import {
 } from './asset-context-menu';
 import {AssetFileIcon} from './AssetFileIcon';
 import {ContextMenu} from './ContextMenu';
+import {LUT_ASSET_DRAG_TYPE} from './effect-drag-and-drop';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -127,7 +128,11 @@ export const getCanDragAsset = ({
 	readOnlyStudio: boolean;
 	relativePath: string;
 }) => {
-	return !readOnlyStudio && getAssetElementFromPath(relativePath) !== null;
+	return (
+		!readOnlyStudio &&
+		(getAssetElementFromPath(relativePath) !== null ||
+			getPreviewFileType(relativePath) === 'lut')
+	);
 };
 
 export const getAssetFolderContextMenuItems = ({
@@ -255,7 +260,7 @@ const AssetFolderItem: React.FC<{
 	const folderStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			paddingLeft: 4 + level * 8,
+			paddingLeft: 12 + (level - 1) * 11,
 			...hoverableStyle({
 				idleBackground: TRANSPARENT,
 				hoverBackground: WHITE_ALPHA_06,
@@ -583,6 +588,9 @@ const AssetSelectorItem: React.FC<{
 				durationInSeconds,
 			});
 			e.dataTransfer.setData(dragData.mimeType, dragData.payload);
+			if (previewFileType === 'lut') {
+				e.dataTransfer.setData(LUT_ASSET_DRAG_TYPE, '');
+			}
 		},
 		[canDragAsset, previewFileType, relativePath],
 	);
@@ -600,7 +608,7 @@ const AssetSelectorItem: React.FC<{
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
-			paddingLeft: 12 + level * 8,
+			paddingLeft: 12 + level * 11,
 		};
 	}, [level, selected]);
 

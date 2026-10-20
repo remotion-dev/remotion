@@ -7,14 +7,10 @@ export const didUnmountReactApp = () => {
 	return !Internals.getPreviewDomElement()?.hasChildNodes();
 };
 
-export function startReportingRuntimeErrors(onError: () => void) {
+export function startReportingRuntimeErrors() {
 	if (stopListeningToRuntimeErrors !== null) {
 		throw new Error('Already listening');
 	}
 
-	const handleRuntimeError = () => {
-		onError();
-	};
-
-	stopListeningToRuntimeErrors = listenToRuntimeErrors(handleRuntimeError);
+	stopListeningToRuntimeErrors = listenToRuntimeErrors();
 }

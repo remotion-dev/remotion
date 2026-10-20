@@ -1,5 +1,5 @@
-import {afterEach, expect, test} from 'bun:test';
-import React, {createRef, useContext} from 'react';
+import {afterEach, expect, mock, spyOn, test} from 'bun:test';
+import React, {createRef, useContext, useLayoutEffect} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
@@ -71,3 +71,101 @@ test('Player seeks publish boundaries before frame updates and stay local to eac
 	expect(view.getByTestId('frame-0').textContent).toBe('90');
 	expect(revision.current).toBe(5);
 });
+
+// Regression from kino-ai/kino#4121: a delayed callback skips the stopping frame.
+test.each([
+	{rate: 1, initial: 7, expected: 9},
+	{rate: -1, initial: 2, expected: 0},
+	{rate: 1, initial: 5, inFrame: 3, outFrame: 7, expected: 7},
+	{rate: -1, initial: 5, inFrame: 3, outFrame: 7, expected: 3},
+	{rate: 1, initial: 7, moveToBeginningWhenEnded: true, expected: 0},
+	{rate: -1, initial: 2, moveToBeginningWhenEnded: true, expected: 9},
+	{rate: 1, initial: 5, inFrame: 3, outFrame: 7, loop: true, expected: 3},
+	{rate: -1, initial: 5, inFrame: 3, outFrame: 7, loop: true, expected: 7},
+])(
+	'late playback callback displays $expected at $rate x from $initial (loop=$loop, reset=$moveToBeginningWhenEnded)',
+	({
+		rate,
+		initial,
+		expected,
+		inFrame,
+		outFrame,
+		loop = false,
+		moveToBeginningWhenEnded = false,
+	}) => {
+		let now = 0;
+		let nextRaf = 0;
+		const rafs = new Map<number, FrameRequestCallback>();
+		const clock = spyOn(performance, 'now').mockImplementation(() => now);
+		const raf = spyOn(globalThis, 'requestAnimationFrame').mockImplementation(
+			(callback) => {
+				const id = ++nextRaf;
+				rafs.set(id, callback);
+				return id;
+			},
+		);
+		const cancel = spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(
+			(id) => {
+				rafs.delete(id);
+			},
+		);
+		const player = createRef<PlayerRef>();
+		let displayed = -1;
+		const ended = mock(() => {});
+		const Composition = () => {
+			const frame = useCurrentFrame();
+			useLayoutEffect(() => {
+				displayed = frame;
+			}, [frame]);
+			return null;
+		};
+
+		const tick = (time: number) => {
+			now = time;
+			const pending = [...rafs.values()];
+			rafs.clear();
+			act(() => {
+				for (const callback of pending) callback(time);
+			});
+		};
+
+		try {
+			render(
+				<Player
+					ref={player}
+					component={Composition}
+					durationInFrames={10}
+					initialFrame={initial}
+					inFrame={inFrame}
+					outFrame={outFrame}
+					compositionWidth={320}
+					compositionHeight={180}
+					fps={30}
+					playbackRate={rate}
+					loop={loop}
+					moveToBeginningWhenEnded={moveToBeginningWhenEnded}
+					initiallyMuted
+					numberOfSharedAudioTags={0}
+				/>,
+			);
+			player.current!.addEventListener('ended', ended);
+			act(() => player.current!.play());
+			// Three frame intervals elapse before the first scheduled callback.
+			tick(101);
+			expect(player.current!.getCurrentFrame()).toBe(expected);
+			expect(displayed).toBe(expected);
+			expect(ended).toHaveBeenCalledTimes(loop ? 0 : 1);
+			expect(player.current!.isPlaying()).toBe(loop);
+			if (!loop) {
+				tick(500);
+				expect(player.current!.getCurrentFrame()).toBe(expected);
+				expect(ended).toHaveBeenCalledTimes(1);
+			}
+		} finally {
+			cleanup();
+			clock.mockRestore();
+			raf.mockRestore();
+			cancel.mockRestore();
+		}
+	},
+);

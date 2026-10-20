@@ -23,10 +23,30 @@ import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
+import {useConfirmationDialog} from './ConfirmationDialog';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
+import {useDownloadProject} from './use-download-project';
+
+const serverRenderInstructions: React.CSSProperties = {
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: '0 0 16px',
+};
+
+const serverRenderCommands: React.CSSProperties = {
+	fontFamily: 'monospace',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: '0 0 16px',
+	padding: 12,
+	backgroundColor: 'rgba(255, 255, 255, 0.05)',
+	borderRadius: 4,
+	userSelect: 'text',
+};
 
 const segmentedButtonStyle: React.CSSProperties = {
 	height: 28,
@@ -118,6 +138,38 @@ const RenderButtonInner: React.FC<{
 		.previewServerState.type;
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const canServerRender = connectionStatus === 'connected' && !isBrowserStudio;
+	const confirm = useConfirmationDialog();
+	const downloadProject = useDownloadProject();
+	const openServerRenderHandoff = useCallback(async () => {
+		if (downloadProject === null) {
+			return;
+		}
+
+		const confirmed = await confirm({
+			title: 'Server-side render',
+			message: (
+				<>
+					<p style={serverRenderInstructions}>
+						Render on your computer for full Remotion compatibility and more
+						export formats, including ProRes.
+					</p>
+					<p style={serverRenderInstructions}>
+						Download and unzip, then run in the project folder (Node.js
+						required):
+					</p>
+					<pre style={serverRenderCommands}>{'npm install\nnpm run dev'}</pre>
+					<p style={{...serverRenderInstructions, marginBottom: 0}}>
+						In the Studio that opens, select your composition and click Render.
+					</p>
+				</>
+			),
+			confirmLabel: 'Download project',
+			cancelLabel: 'Cancel',
+		});
+		if (confirmed) {
+			await downloadProject();
+		}
+	}, [confirm, downloadProject]);
 
 	const renderType: RenderType = useMemo(() => {
 		if (readOnlyStudio) {
@@ -347,7 +399,7 @@ const RenderButtonInner: React.FC<{
 		[openClientRenderModal, openServerRenderModal],
 	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
-		if (readOnlyStudio) {
+		if (readOnlyStudio && !isBrowserStudio) {
 			return [
 				{
 					type: 'item' as const,
@@ -375,14 +427,18 @@ const RenderButtonInner: React.FC<{
 		}
 
 		return [
-			...(canServerRender
+			...(canServerRender || isBrowserStudio
 				? [
 						{
 							type: 'item' as const,
 							id: 'server-render',
-							label: 'Server-side render',
+							label: isBrowserStudio
+								? 'Server-side render...'
+								: 'Server-side render',
 							value: 'server-render',
-							onClick: () => handleRenderTypeChange('server-render'),
+							onClick: isBrowserStudio
+								? openServerRenderHandoff
+								: () => handleRenderTypeChange('server-render'),
 							keyHint: null,
 							leftItem: null,
 							subMenu: null,
@@ -402,7 +458,13 @@ const RenderButtonInner: React.FC<{
 				quickSwitcherLabel: null,
 			},
 		];
-	}, [canServerRender, handleRenderTypeChange, readOnlyStudio]);
+	}, [
+		canServerRender,
+		handleRenderTypeChange,
+		isBrowserStudio,
+		openServerRenderHandoff,
+		readOnlyStudio,
+	]);
 
 	const renderLabel =
 		renderType === 'server-render'
@@ -412,7 +474,7 @@ const RenderButtonInner: React.FC<{
 				: 'Render in browser';
 	const showRenderLabel = !narrow || renderType !== 'server-render';
 	const segments = useMemo((): SegmentedButtonSegment[] => {
-		return [
+		const buttonSegments: SegmentedButtonSegment[] = [
 			{
 				ariaLabel: showRenderLabel ? tooltip : renderLabel,
 				buttonId: 'render-modal-button',
@@ -448,7 +510,10 @@ const RenderButtonInner: React.FC<{
 				tooltipLabel: showRenderLabel ? null : renderLabel,
 				type: 'action',
 			},
-			{
+		];
+
+		if (dropdownValues.length > 1) {
+			buttonSegments.push({
 				ariaLabel: 'Select render type',
 				buttonId: null,
 				disabled: false,
@@ -465,8 +530,10 @@ const RenderButtonInner: React.FC<{
 				tooltipLabel: null,
 				type: 'menu',
 				values: dropdownValues,
-			},
-		];
+			});
+		}
+
+		return buttonSegments;
 	}, [
 		controlSize,
 		dropdownValues,

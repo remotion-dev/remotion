@@ -1,6 +1,13 @@
-import type {GeoJSONSource} from '@maptiler/sdk';
+import type {GeoJSONSource, Map as MapTilerMap} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
-import {useContext, useEffect, useMemo, useState, type FC} from 'react';
+import {
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+	type FC,
+} from 'react';
 import {
 	Interactive,
 	Freeze,
@@ -114,10 +121,16 @@ const MapRegionDrawing = ({
 }: MapRegionDrawingProps) => {
 	const {map} = useContext(MapTilerContext);
 	const {continueRender, delayRender} = useDelayRender();
-	const [isReady, setIsReady] = useState(false);
-	const [loadingHandle] = useState(() =>
-		delayRender(`Loading ${feature.properties.name} geometry`),
-	);
+	const [readyMap, setReadyMap] = useState<MapTilerMap | null>(null);
+	const isReady = map !== null && readyMap === map;
+	useLayoutEffect(() => {
+		if (isReady) {
+			return;
+		}
+
+		const handle = delayRender(`Loading ${feature.properties.name} geometry`);
+		return () => continueRender(handle);
+	}, [continueRender, delayRender, feature.properties.name, isReady]);
 	const outline = useMemo(
 		() => lineString(feature.geometry.coordinates[0]),
 		[feature],
@@ -132,8 +145,8 @@ const MapRegionDrawing = ({
 		outlineGlowLayerId,
 	]);
 
-	useEffect(() => {
-		if (!map) {
+	useLayoutEffect(() => {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -209,11 +222,12 @@ const MapRegionDrawing = ({
 		map.setPaintProperty(outlineSourceId, 'line-width', strokeWidth);
 
 		applyPremountVisibility();
-		map.once('idle', () => {
-			setIsReady(true);
-			continueRender(loadingHandle);
-		});
+		const onIdle = () => setReadyMap(map);
+		map.once('idle', onIdle);
 		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+		};
 	}, [
 		applyPremountVisibility,
 		continueRender,
@@ -221,7 +235,6 @@ const MapRegionDrawing = ({
 		fillColor,
 		fillSourceId,
 		glow,
-		loadingHandle,
 		map,
 		outline,
 		outlineGlowLayerId,
@@ -230,8 +243,8 @@ const MapRegionDrawing = ({
 		strokeWidth,
 	]);
 
-	useEffect(() => {
-		if (!isReady || !map) {
+	useLayoutEffect(() => {
+		if (!isReady || !map || !map.style) {
 			return;
 		}
 
@@ -249,8 +262,13 @@ const MapRegionDrawing = ({
 			'fill-opacity',
 			Math.min(1, Math.max(0, fill)),
 		);
-		map.once('idle', () => continueRender(frameHandle));
+		const onIdle = () => continueRender(frameHandle);
+		map.once('idle', onIdle);
 		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+			continueRender(frameHandle);
+		};
 	}, [
 		continueRender,
 		delayRender,
@@ -271,6 +289,10 @@ const MapRegionDrawing = ({
 		}
 
 		return () => {
+			if (!map.style) {
+				return;
+			}
+
 			if (map.getLayer(outlineSourceId)) {
 				map.removeLayer(outlineSourceId);
 			}

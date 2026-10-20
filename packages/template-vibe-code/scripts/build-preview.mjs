@@ -15,6 +15,7 @@ import { copyFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { compilerAssets } from "./compiler-assets.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
@@ -42,11 +43,7 @@ const compilerDist = path.join(
 );
 const compilerDir = path.join(root, "public", "compiler");
 await mkdir(compilerDir, { recursive: true });
-for (const asset of [
-  "browser-bundler-worker.js",
-  "rspack.wasm32-wasi.wasm",
-  "wasi-worker-browser.mjs",
-]) {
+for (const asset of compilerAssets) {
   await copyFile(path.join(compilerDist, asset), path.join(compilerDir, asset));
 }
 

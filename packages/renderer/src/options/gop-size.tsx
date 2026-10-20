@@ -23,6 +23,7 @@ const cliFlag = 'gop' as const;
 
 export const gopSizeOption = {
 	name: 'GOP size',
+	addedIn: '4.0.466',
 	cliFlag,
 	description: () => (
 		<>
@@ -31,7 +32,7 @@ export const gopSizeOption = {
 		</>
 	),
 	ssrName: 'gopSize',
-	docLink: 'https://www.remotion.dev/docs/config#setgopsize',
+	docLink: 'https://www.remotion.dev/docs/options/gop',
 	type: null as number | null,
 	getValue: ({commandLine}) => {
 		const value = commandLine[cliFlag];

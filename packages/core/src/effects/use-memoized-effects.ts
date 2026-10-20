@@ -1,11 +1,14 @@
-import {useContext, useLayoutEffect, useRef} from 'react';
+import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import {evaluateSourcePropStatuses} from '../evaluate-source-expressions.js';
 import {
 	getFrameInKeyframedStatusClock,
 	resolveDragOverrideValue,
 } from '../get-effective-visual-mode-value.js';
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
+import {areRegistryEntriesEqual} from '../registry-store.js';
 import {createRuntimeValueStore} from '../runtime-value-store.js';
 import type {RuntimeValueStore} from '../runtime-value-store.js';
+import {SequenceActivityDormantContext} from '../sequence-activity-context.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import type {
 	CannotUpdateEffectReason,
@@ -13,21 +16,44 @@ import type {
 } from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
-	VisualModeDragOverridesContext,
+	useEffectDragOverridesForNodePath,
 	VisualModePropStatusesContext,
 	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
-import {useCurrentFrame} from '../use-current-frame.js';
+import {useCurrentFrameWithOptionalSubscription} from '../use-current-frame.js';
 import {
 	type CanUpdateSequencePropStatus,
 	type DragOverrideValue,
 	type PropStatuses,
 } from '../use-schema.js';
+import type {VideoConfigValues} from '../video-config.js';
 import type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
 	EffectDefinition,
 } from './effect-types.js';
+
+const emptyDragOverrides: Record<string, DragOverrideValue> = {};
+const useCacheCommitEffect = React.useInsertionEffect ?? useLayoutEffect;
+
+const areEffectParamsEqual = (previous: unknown, next: unknown): boolean => {
+	if (Object.is(previous, next)) {
+		return true;
+	}
+
+	if (
+		previous === null ||
+		next === null ||
+		typeof previous !== 'object' ||
+		typeof next !== 'object' ||
+		Object.getPrototypeOf(previous) !== Object.prototype ||
+		Object.getPrototypeOf(next) !== Object.prototype
+	) {
+		return false;
+	}
+
+	return areRegistryEntriesEqual(previous, next);
+};
 
 const mergeOverrides = ({
 	descriptor,
@@ -112,40 +138,91 @@ export const useMemoizedEffectDefinitions = (
 ): readonly EffectDefinition<unknown>[] & {
 	readonly runtimeValues: readonly RuntimeValueStore[];
 } => {
+	const activityDormant = useContext(SequenceActivityDormantContext);
 	const previousRef = useRef<{
-		readonly definitions: readonly EffectDefinition<unknown>[];
+		readonly definitions: readonly EffectDefinition<unknown>[] & {
+			readonly runtimeValues: readonly RuntimeValueStore[];
+		};
 		readonly controllers: ReturnType<typeof createRuntimeValueStore>[];
 	} | null>(null);
-
-	const definitions = effects.map((descriptor) => descriptor.definition);
 
 	const previous = previousRef.current;
 	const isSame =
 		previous !== null &&
-		previous.definitions.length === definitions.length &&
+		previous.definitions.length === effects.length &&
 		previous.definitions.every(
-			(definition, i) => definition === definitions[i],
+			(definition, i) => definition === effects[i].definition,
 		);
 	const controllers = isSame
 		? previous.controllers
 		: effects.map((effect) =>
 				createRuntimeValueStore(effect.params as Record<string, unknown>),
 			);
-	const stableDefinitions = isSame ? previous.definitions : definitions;
+	const stableDefinitions = isSame
+		? previous.definitions
+		: Object.assign(
+				effects.map((descriptor) => descriptor.definition),
+				{
+					runtimeValues: controllers.map((controller) => controller.store),
+				},
+			);
 
+	useCacheCommitEffect(() => {
+		// Insertion effects also run for hidden Activity commits. Store listeners
+		// must run after React finishes committing, never inside an insertion effect.
+		previousRef.current = {definitions: stableDefinitions, controllers};
+		if (!activityDormant || controllers.length === 0) {
+			return;
+		}
+
+		if (
+			controllers.every((controller, index) =>
+				areEffectParamsEqual(
+					controller.store.getSnapshot(),
+					effects[index]?.params,
+				),
+			)
+		) {
+			return;
+		}
+
+		let cancelled = false;
+		queueMicrotask(() => {
+			if (cancelled) {
+				return;
+			}
+
+			controllers.forEach((controller, index) => {
+				const snapshot = effects[index]?.params as Record<string, unknown>;
+				const currentSnapshot = controller.store.getSnapshot();
+				// Equivalent inline params should not notify inspector subscribers on
+				// every dormant render. Preserve changes to keys and leaf references.
+				if (areEffectParamsEqual(snapshot, currentSnapshot)) {
+					return;
+				}
+
+				controller.setSnapshot(snapshot);
+			});
+		});
+		return () => {
+			// A newer commit or unmount supersedes this pending publication.
+			cancelled = true;
+		};
+	}, [activityDormant, controllers, effects, stableDefinitions]);
 	useLayoutEffect(() => {
 		// Stores are intentionally updated without changing the registered effect
 		// array, so frame-dependent parameters don't re-register the Sequence.
 		stableDefinitions.forEach((_definition, index) => {
 			const snapshot = effects[index]?.params as Record<string, unknown>;
-			controllers[index].setSnapshot(snapshot);
+			if (
+				!areEffectParamsEqual(controllers[index].store.getSnapshot(), snapshot)
+			) {
+				controllers[index].setSnapshot(snapshot);
+			}
 		});
 	}, [controllers, effects, stableDefinitions]);
 
-	previousRef.current = {definitions: stableDefinitions, controllers};
-	return Object.assign(stableDefinitions, {
-		runtimeValues: controllers.map((controller) => controller.store),
-	});
+	return stableDefinitions;
 };
 
 type EffectStatus =
@@ -189,7 +266,10 @@ export const getEffectPropStatusesCtx = ({
 		return {type: 'cannot-update-effect', reason: effect.reason};
 	}
 
-	return {type: 'can-update-effect', props: effect.props};
+	return {
+		type: 'can-update-effect',
+		props: evaluateSourcePropStatuses(effect.props, nodePath.videoConfigValues),
+	};
 };
 
 export const getPropStatusesCtx = (
@@ -205,23 +285,36 @@ export const getPropStatusesCtx = (
 		return undefined;
 	}
 
-	return status.props;
+	return evaluateSourcePropStatuses(status.props, nodePath.videoConfigValues);
 };
 
 export type GetPropStatusesType = typeof getPropStatusesCtx;
 
+type PreparedEffect = {
+	readonly definition: EffectDefinition<unknown>;
+	readonly sourceKey: string;
+	readonly params: unknown;
+	readonly propStatus: Record<string, CanUpdateSequencePropStatus> | null;
+	readonly dragOverrides: Record<string, DragOverrideValue> | null;
+	readonly frame: number | null;
+	readonly value: EffectDefinitionAndStack<unknown>;
+};
+
 export const useMemoizedEffects = ({
 	effects,
 	overrideId,
+	videoConfigValues,
 }: {
 	effects: readonly EffectDescriptor<unknown>[];
 	readonly overrideId: string | null;
+	videoConfigValues: VideoConfigValues | null;
 }): EffectDefinitionAndStack<unknown>[] => {
-	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
+	const previousRef = useRef<{
+		readonly prepared: PreparedEffect[];
+		readonly effects: EffectDefinitionAndStack<unknown>[];
+	} | null>(null);
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
-	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
-	const frame = useCurrentFrame();
 
 	const {overrideIdToNodePathMappings} = useContext(
 		OverrideIdsToNodePathsGettersContext,
@@ -232,28 +325,66 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
+	const effectDragOverrides = useEffectDragOverridesForNodePath(nodePath);
 
-	const resolved = effects.map((descriptor, index) => {
-		if (nodePath === null) {
-			return {
-				descriptor,
-				params: descriptor.params,
-				effectKey: descriptor.effectKey,
-			};
-		}
+	const effectPropStatuses = useMemo(
+		() =>
+			Array.from({length: effects.length}, (_, effectIndex) => {
+				if (nodePath === null) {
+					return null;
+				}
 
-		const effectStatus = getEffectPropStatusesCtx({
-			propStatuses,
-			nodePath,
-			effectIndex: index,
-		});
-		const propStatusOverrides =
-			effectStatus.type === 'can-update-effect'
-				? resolvePropStatusOverrides(effectStatus.props, frame)
-				: null;
-		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
+				const status = getEffectPropStatusesCtx({
+					propStatuses,
+					nodePath: {...nodePath, videoConfigValues},
+					effectIndex,
+				});
+				return status.type === 'can-update-effect' ? status.props : null;
+			}),
+		[effects.length, nodePath, propStatuses, videoConfigValues],
+	);
+	const animatedEffects = useMemo(
+		() =>
+			effectPropStatuses.map(
+				(status, index) =>
+					Object.values(status ?? {}).some(
+						(prop) => prop.status === 'keyframed',
+					) ||
+					Object.values(effectDragOverrides[index] ?? emptyDragOverrides).some(
+						(override) => override.type === 'keyframed',
+					),
+			),
+		[effectDragOverrides, effectPropStatuses],
+	);
+	// Runtime animations arrive through props. Only source/drag keyframes need
+	// their own clock, and an animated effect must not invalidate static siblings.
+	const frame = useCurrentFrameWithOptionalSubscription(
+		animatedEffects.some(Boolean),
+	);
+
+	const prepared = effects.map((descriptor, index): PreparedEffect => {
+		const propStatus = effectPropStatuses[index];
+		const dragOverridesMap = effectDragOverrides[index] ?? emptyDragOverrides;
 		const dragOverrides =
 			Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
+		const effectFrame = animatedEffects[index] ? frame : null;
+		const cached = previous?.prepared[index];
+		if (
+			cached &&
+			cached.definition === descriptor.definition &&
+			cached.sourceKey === descriptor.effectKey &&
+			areEffectParamsEqual(cached.params, descriptor.params) &&
+			cached.propStatus === propStatus &&
+			cached.dragOverrides === dragOverrides &&
+			cached.frame === effectFrame
+		) {
+			return cached;
+		}
+
+		const propStatusOverrides = resolvePropStatusOverrides(
+			propStatus ?? undefined,
+			frame,
+		);
 
 		const {params, effectKey} = mergeOverrides({
 			descriptor,
@@ -262,30 +393,42 @@ export const useMemoizedEffects = ({
 			frame,
 		});
 
-		return {descriptor, params, effectKey};
+		return {
+			definition: descriptor.definition,
+			sourceKey: descriptor.effectKey,
+			// Snapshot plain params so shallow comparisons see in-place field edits.
+			params:
+				descriptor.params !== null &&
+				typeof descriptor.params === 'object' &&
+				Object.getPrototypeOf(descriptor.params) === Object.prototype
+					? {...descriptor.params}
+					: descriptor.params,
+			propStatus,
+			dragOverrides,
+			frame: effectFrame,
+			value:
+				cached?.value.definition === descriptor.definition &&
+				cached.value.effectKey === effectKey
+					? cached.value
+					: {
+							definition: descriptor.definition,
+							effectKey,
+							params,
+							memoized: true,
+						},
+		};
 	});
 
 	const isSame =
 		previous !== null &&
-		previous.length === resolved.length &&
-		previous.every(
-			(p, i) =>
-				p.definition === resolved[i].descriptor.definition &&
-				p.effectKey === resolved[i].effectKey,
-		);
+		previous.effects.length === prepared.length &&
+		previous.effects.every((effect, i) => effect === prepared[i].value);
 
-	if (isSame) {
-		return previous;
-	}
-
-	const next: EffectDefinitionAndStack<unknown>[] = resolved.map(
-		({descriptor, params, effectKey}) => ({
-			definition: descriptor.definition,
-			effectKey,
-			params,
-			memoized: true,
-		}),
-	);
-	previousRef.current = next;
+	const next: EffectDefinitionAndStack<unknown>[] = isSame
+		? previous.effects
+		: prepared.map((effect) => effect.value);
+	useCacheCommitEffect(() => {
+		previousRef.current = {prepared, effects: next};
+	}, [next, prepared]);
 	return next;
 };

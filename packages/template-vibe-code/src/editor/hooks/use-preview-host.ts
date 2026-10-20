@@ -3,15 +3,16 @@
 import type {
   CanvasSequencePropChange,
   CanvasSequencePropStatusResolver,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import { useEffect, useRef, useState } from "react";
+import { BASE_PATH } from "@/lib/base-path";
 import type { PreviewHost, PreviewKeyEvent } from "@/preview/bridge";
 
 export const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
 /**
- * Loads /preview.html into the iframe and connects to the preview host that
+ * Loads preview.html into the iframe and connects to the preview host that
  * the iframe exposes on its window.
  */
 export const usePreviewHost = ({
@@ -106,7 +107,7 @@ export const usePreviewHost = ({
 
     iframe.addEventListener("load", onLoad);
     iframe.addEventListener("error", onIframeError);
-    iframe.src = "/preview.html";
+    iframe.src = `${BASE_PATH}/preview.html`;
 
     return () => {
       disposed = true;

@@ -2,6 +2,7 @@ import {
 	StudioProtocolInternals,
 	type AddElementLibraryToStudioResult,
 } from '@remotion/studio-protocol';
+import {normalizeHttpUrl} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -9,6 +10,7 @@ import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {AssetSelectorModal} from './AssetSelectorModal';
+import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
@@ -40,7 +42,7 @@ import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
 import {VideoMattingModalWithOptionalPackage} from './VideoMatting/VideoMattingModalWithOptionalPackage';
-import {WrapRefactorModal} from './WrapRefactorModal';
+import {WrapperRefactorModal} from './WrapperRefactorModal';
 
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
@@ -55,17 +57,25 @@ export const Modals: React.FC<{
 	const confirm = useConfirmationDialog();
 	const requestElementLibraryAddition = useCallback(
 		async ({
+			captionStylesUrl,
 			displayName,
 			origin,
 			url,
 		}: {
+			readonly captionStylesUrl: string | null;
 			readonly displayName: string | null;
 			readonly origin: string;
 			readonly url: string;
 		}) => {
 			const confirmed = await confirm({
 				title: 'Add Element Library',
-				message: <ElementLibraryAddConfirmation origin={origin} url={url} />,
+				message: (
+					<ElementLibraryAddConfirmation
+						origin={origin}
+						url={url}
+						captionStylesUrl={captionStylesUrl}
+					/>
+				),
 				confirmLabel: 'Add Element Library',
 				cancelLabel: 'Cancel',
 			});
@@ -88,7 +98,11 @@ export const Modals: React.FC<{
 						{
 							setter: 'addElementLibrary',
 							type: 'set',
-							value: displayName === null ? {url} : {url, displayName},
+							value: {
+								url,
+								...(displayName === null ? {} : {displayName}),
+								...(captionStylesUrl === null ? {} : {captionStylesUrl}),
+							},
 						},
 					],
 				});
@@ -181,18 +195,26 @@ export const Modals: React.FC<{
 				// The response below explains that the URL is invalid.
 			}
 
+			const captionStylesUrl =
+				request.captionStylesUrl === null
+					? null
+					: normalizeHttpUrl(request.captionStylesUrl);
+			const invalidCaptionStylesUrl =
+				request.captionStylesUrl !== null && captionStylesUrl === null;
+
 			const displayName = request.displayName?.trim() ?? null;
 			const canAddLibrary =
 				!isBrowserStudio &&
 				!readOnlyStudio &&
 				previewServerState.type === 'connected';
 			const result: AddElementLibraryToStudioResult =
-				normalizedUrl === null
+				normalizedUrl === null || invalidCaptionStylesUrl
 					? {
 							success: false,
 							code: 'invalid-url',
-							message:
-								'The Element Library URL must be an absolute HTTP or HTTPS URL.',
+							message: invalidCaptionStylesUrl
+								? 'The caption styles URL must be an absolute HTTP or HTTPS URL.'
+								: 'The Element Library URL must be an absolute HTTP or HTTPS URL.',
 						}
 					: displayName === ''
 						? {
@@ -222,6 +244,7 @@ export const Modals: React.FC<{
 				responsePort.close();
 				if (result.success && normalizedUrl !== null) {
 					requestElementLibraryAddition({
+						captionStylesUrl,
 						displayName,
 						origin: event.origin,
 						url: normalizedUrl,
@@ -241,8 +264,18 @@ export const Modals: React.FC<{
 		requestElementLibraryAddition,
 	]);
 
+	const library =
+		modalContextType?.type === 'element-library'
+			? modalContextType
+			: modalContextType?.type === 'element-install'
+				? modalContextType.library
+				: null;
+
 	return (
 		<>
+			{modalContextType?.type === 'browser-studio-experimental-notice' ? (
+				<BrowserStudioExperimentingNotice />
+			) : null}
 			{modalContextType && modalContextType.type === 'new-comp' && (
 				<NewComposition
 					folderName={modalContextType.folderName}
@@ -400,8 +433,10 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
 				<GenerateWithAgentModal state={modalContextType} />
 			) : null}
-			{modalContextType && modalContextType.type === 'wrap-refactor' ? (
-				<WrapRefactorModal state={modalContextType} />
+			{modalContextType &&
+			(modalContextType.type === 'wrap-refactor' ||
+				modalContextType.type === 'unwrap-refactor') ? (
+				<WrapperRefactorModal state={modalContextType} />
 			) : null}
 			{modalContextType &&
 			modalContextType.type === 'html-in-canvas-unavailable' ? (
@@ -422,15 +457,20 @@ export const Modals: React.FC<{
 					state={modalContextType}
 				/>
 			) : null}
-			{modalContextType && modalContextType.type === 'element-library' && (
+			{library === null ? null : (
 				<ElementLibraryModal
-					name={modalContextType.name}
-					url={modalContextType.url}
+					name={library.name}
+					url={library.url}
+					installState={
+						modalContextType?.type === 'element-install'
+							? modalContextType
+							: null
+					}
 				/>
 			)}
-			{modalContextType && modalContextType.type === 'element-install' && (
+			{modalContextType?.type === 'element-install' && library === null ? (
 				<ElementInstallConfirmation state={modalContextType} />
-			)}
+			) : null}
 			{modalContextType && modalContextType.type === 'add-effect' && (
 				<EffectPickerModal state={modalContextType} />
 			)}

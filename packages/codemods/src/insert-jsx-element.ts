@@ -22,6 +22,7 @@ import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getInteractiveComponent} from './get-interactive-component';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
@@ -963,7 +964,6 @@ const createSequenceWrappedElement = ({
 	durationInFrames,
 	from,
 	name,
-	premountFor,
 	position,
 	sequenceLocalName,
 }: {
@@ -972,7 +972,6 @@ const createSequenceWrappedElement = ({
 	durationInFrames: number | null;
 	from: number | null;
 	name: string | null;
-	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 	sequenceLocalName: string;
 }): namedTypes.JSXElement => {
@@ -981,9 +980,6 @@ const createSequenceWrappedElement = ({
 			recast.types.builders.jsxIdentifier(sequenceLocalName),
 			[
 				...(from === null ? [] : [createNumberAttribute('from', from)]),
-				...(premountFor === null
-					? []
-					: [createNumberAttribute('premountFor', premountFor)]),
 				...(name === null ? [] : [createStringAttribute('name', name)]),
 				...(dimensions !== null
 					? [
@@ -1010,14 +1006,12 @@ const createSvgElement = async ({
 	from,
 	interactiveLocalName,
 	markup,
-	premountFor,
 	position,
 }: {
 	environment: CodemodEnvironment;
 	from: number | null;
 	interactiveLocalName: string;
 	markup: string;
-	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 }): Promise<namedTypes.JSXElement> => {
 	const svgElement = await environment.svgMarkupToJsx(markup);
@@ -1025,10 +1019,6 @@ const createSvgElement = async ({
 	svgElement.openingElement.attributes = attributes;
 	if (from !== null) {
 		attributes.push(createNumberAttribute('from', from));
-	}
-
-	if (premountFor !== null) {
-		attributes.push(createNumberAttribute('premountFor', premountFor));
 	}
 
 	const styleAttribute = attributes.find(
@@ -1475,11 +1465,38 @@ export const getDeclarationByExportName = ({
 	ast: File;
 	exportName: string | 'default';
 }): LocalComponentDeclaration | DefaultExportDeclaration | null => {
-	if (exportName === 'default') {
-		return getDefaultExportDeclaration(ast);
+	let declaration =
+		exportName === 'default'
+			? getDefaultExportDeclaration(ast)
+			: findLocalComponentDeclaration({ast, name: exportName});
+	const visited = new Set<typeof declaration>();
+	while (declaration) {
+		if (visited.has(declaration)) {
+			throw new Error('Circular Interactive component reference');
+		}
+
+		visited.add(declaration);
+		const component = getInteractiveComponent({
+			ast,
+			declaration: declaration as never,
+		});
+		if (!component) {
+			break;
+		}
+
+		if (component.type === 'Identifier') {
+			const inner = findLocalComponentDeclaration({ast, name: component.name});
+			if (!inner) {
+				break;
+			}
+
+			declaration = inner;
+		} else {
+			declaration = component as DefaultExportDeclaration;
+		}
 	}
 
-	return findLocalComponentDeclaration({ast, name: exportName});
+	return declaration;
 };
 
 export const addElementToComponentRoot = ({
@@ -1795,10 +1812,12 @@ const getComponentLocationInFile = async ({
 }): Promise<ResolvedCompositionComponentWithFile> => {
 	const ast =
 		providedAst ?? parseAst(await readSourceFile({environment, fileName}));
+	const declaration = getDeclarationByExportName({ast, exportName});
 	const location =
-		exportName === 'default'
+		(declaration ? locationFromNode(declaration) : null) ??
+		(exportName === 'default'
 			? findDefaultExportLocation(ast)
-			: findLocalSymbolLocation({ast, name: exportName});
+			: findLocalSymbolLocation({ast, name: exportName}));
 	const canAddSequence = canAddSequenceToComponent({
 		ast,
 		exportName,
@@ -1841,6 +1860,27 @@ const getComponentLocationRecursively = async ({
 			exportName,
 		});
 		if (localDeclaration) {
+			const component = getInteractiveComponent({
+				ast,
+				declaration: localDeclaration as never,
+			});
+			const imported =
+				component?.type === 'Identifier'
+					? findImportTarget({ast, componentName: component.name})
+					: null;
+			if (imported) {
+				return await getComponentLocationRecursively({
+					environment,
+					fileName: resolveImportPath({
+						environment,
+						importPath: imported.importPath,
+						fromFile: fileName,
+					}),
+					exportName: imported.exportName,
+					visited,
+				});
+			}
+
 			return await getComponentLocationInFile({
 				environment,
 				fileName,
@@ -1936,10 +1976,11 @@ export async function resolveCompositionComponentWithFile({
 
 	const importTarget = findImportTarget({ast, componentName});
 	if (!importTarget) {
-		return getComponentLocationInFile({
+		return getComponentLocationRecursively({
 			environment,
 			fileName: compositionFileName,
 			exportName: componentName,
+			visited: new Set(),
 		});
 	}
 
@@ -2100,14 +2141,12 @@ const createInsertableJsxElement = ({
 	element,
 	environment,
 	from,
-	premountFor,
 }: {
 	ast: File;
 	destinationFileName: string;
 	element: PipelineInsertableElement;
 	environment: CodemodEnvironment;
 	from: number | null;
-	premountFor: number | null;
 }): Promise<namedTypes.JSXElement> => {
 	if (element.type === 'svg') {
 		return createSvgElement({
@@ -2115,7 +2154,6 @@ const createInsertableJsxElement = ({
 			from,
 			interactiveLocalName: ensureInteractiveImport(ast),
 			markup: element.markup,
-			premountFor,
 			position: element.position,
 		});
 	}
@@ -2144,7 +2182,6 @@ export const insertJsxElementIntoComposition = async ({
 	element,
 	environment,
 	from,
-	premountFor,
 	prettierConfigOverride,
 	wrapInSequence,
 }: {
@@ -2153,7 +2190,6 @@ export const insertJsxElementIntoComposition = async ({
 	element: InsertableCompositionElement;
 	environment: CodemodEnvironment;
 	from: number | null;
-	premountFor: number | null;
 	prettierConfigOverride: Record<string, unknown> | null;
 	wrapInSequence: {
 		dimensions: {width: number; height: number} | null;
@@ -2182,13 +2218,6 @@ export const insertJsxElementIntoComposition = async ({
 		(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
 	) {
 		throw new Error('from must be a non-negative integer');
-	}
-
-	if (
-		premountFor !== null &&
-		(!Number.isInteger(premountFor) || premountFor < 0)
-	) {
-		throw new Error('premountFor must be a non-negative integer');
 	}
 
 	if (
@@ -2250,7 +2279,6 @@ export const insertJsxElementIntoComposition = async ({
 		element,
 		environment,
 		from,
-		premountFor: sequenceWrapper === null ? premountFor : null,
 	});
 	const finalElementToInsert = sequenceWrapper
 		? createSequenceWrappedElement({
@@ -2259,7 +2287,6 @@ export const insertJsxElementIntoComposition = async ({
 				durationInFrames: sequenceWrapper.durationInFrames ?? null,
 				from: sequenceWrapper.from,
 				name: sequenceWrapper.name,
-				premountFor,
 				position: sequenceWrapper.position,
 				sequenceLocalName: ensureSequenceImport(ast),
 			})
@@ -2345,7 +2372,6 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 			svgMarkupToJsx,
 		}),
 		from: request.from,
-		premountFor: request.premountFor,
 		prettierConfigOverride: null,
 		wrapInSequence,
 	});

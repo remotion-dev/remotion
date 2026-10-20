@@ -1,6 +1,7 @@
 import type {ProviderSpecifics} from '@remotion/serverless-client';
 import {
 	getExpectedOutName,
+	getImageSequenceFrameKey,
 	getOverallProgressFromStorage,
 	rendersPrefix,
 	type CustomCredentials,
@@ -17,6 +18,7 @@ export type DeleteRenderInput = {
 	bucketName: string;
 	renderId: string;
 	customCredentials?: CustomCredentials<AwsProvider>;
+	separateAudioCredentials?: CustomCredentials<AwsProvider>;
 	forcePathStyle?: boolean;
 	requestHandler?: RequestHandler;
 };
@@ -45,21 +47,80 @@ export const internalDeleteRender = async (
 		return {freedBytes: 0};
 	}
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+	const mainOutput = getExpectedOutName({
+		output: 'main',
 		renderMetadata: progress.renderMetadata,
 		bucketName: input.bucketName,
 		customCredentials: input.customCredentials ?? null,
 		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
 	});
+	const separateAudioOutput =
+		(progress.renderMetadata.separateAudioTo ?? null) === null
+			? null
+			: getExpectedOutName({
+					output: 'separate-audio',
+					renderMetadata: progress.renderMetadata,
+					bucketName: input.bucketName,
+					customCredentials:
+						input.separateAudioCredentials ?? input.customCredentials ?? null,
+					bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+				});
 
-	await input.providerSpecifics.deleteFile({
-		bucketName: renderBucketName,
-		customCredentials,
-		key,
-		region: input.region,
-		forcePathStyle: input.forcePathStyle,
-		requestHandler: input.requestHandler,
-	});
+	if (progress.renderMetadata.type === 'sequence') {
+		const {renderBucketName, customCredentials} = mainOutput;
+		const metadata = progress.renderMetadata;
+		const sequence = metadata.outputSequence;
+		const frames = Array.from(
+			{
+				length:
+					Math.floor(
+						(metadata.frameRange[1] - metadata.frameRange[0]) /
+							metadata.everyNthFrame,
+					) + 1,
+			},
+			(_, index) => metadata.frameRange[0] + index * metadata.everyNthFrame,
+		);
+		const keys = [
+			...frames.map((frame) =>
+				getImageSequenceFrameKey({
+					frame,
+					keyPrefix: sequence.keyPrefix,
+					imageFormat: sequence.imageFormat,
+					imageSequencePattern: metadata.imageSequencePattern,
+					framePadding: metadata.framePadding,
+				}),
+			),
+			`${sequence.keyPrefix}.remotion-render.json`,
+		];
+		for (let index = 0; index < keys.length; index += 25) {
+			await Promise.all(
+				keys.slice(index, index + 25).map((frameKey) =>
+					input.providerSpecifics.deleteFile({
+						bucketName: renderBucketName,
+						key: frameKey,
+						region: input.region,
+						customCredentials,
+						forcePathStyle: input.forcePathStyle,
+						requestHandler: input.requestHandler,
+					}),
+				),
+			);
+		}
+	}
+
+	for (const {key, renderBucketName, customCredentials} of [
+		mainOutput,
+		...(separateAudioOutput === null ? [] : [separateAudioOutput]),
+	]) {
+		await input.providerSpecifics.deleteFile({
+			bucketName: renderBucketName,
+			customCredentials,
+			key,
+			region: input.region,
+			forcePathStyle: input.forcePathStyle,
+			requestHandler: input.requestHandler,
+		});
+	}
 
 	let files = await input.providerSpecifics.listObjects({
 		bucketName: input.bucketName,
@@ -102,7 +163,7 @@ export const internalDeleteRender = async (
 };
 
 /*
- * @description Deletes a rendered video, audio or still and its associated metadata.
+ * @description Deletes a rendered video, audio, still or image sequence and its associated metadata.
  * @see [Documentation](https://remotion.dev/docs/lambda/deleterender)
  */
 export const deleteRender = (input: DeleteRenderInput) => {

@@ -721,7 +721,6 @@ export const saveSequencePropsHandler: ApiHandler<
 					) ?? target.nodePath.nodePath,
 				componentIdentity: null,
 				effects: [],
-				videoConfigValues: target.nodePath.videoConfigValues,
 			};
 			const newStatus = computeSequencePropsStatusFromContent({
 				...statusInput,

@@ -17,6 +17,8 @@ type MockProvider = {
 };
 
 const testRenderMetadata: RenderMetadata<MockProvider> = {
+	separateAudioTo: null,
+	separateAudioOutputFileIsConditional: null,
 	outputFileIsConditional: null,
 	compositionId: 'react-svg',
 	estimatedRenderLambdaInvokations: 100,
@@ -59,6 +61,7 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 test('Should get a custom outname', () => {
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: testRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -81,6 +84,7 @@ test('Should save to a different outname', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -108,6 +112,7 @@ test('Should preserve custom provider regions outside the built-in AWS list', ()
 
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: {
@@ -132,6 +137,88 @@ test('Should preserve custom provider regions outside the built-in AWS list', ()
 	});
 });
 
+test('Should default key when outName specifies custom s3OutputProvider without key for video', () => {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
+		...testRenderMetadata,
+		audioCodec: 'pcm-16',
+		outName: {
+			bucketName: 'renders-dev.mykaraoke.video',
+			s3OutputProvider: {
+				endpoint: 'https://fly.storage.tigris.dev',
+			},
+		},
+		privacy: 'private',
+	};
+
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: {
+				endpoint: 'https://fly.storage.tigris.dev',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+				region: 'auto',
+				forcePathStyle: false,
+			},
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: {
+			endpoint: 'https://fly.storage.tigris.dev',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: 'auto',
+			forcePathStyle: false,
+		},
+		renderBucketName: 'renders-dev.mykaraoke.video',
+		key: 'renders/9n8dsfafs/out.mkv',
+	});
+});
+
+test('Should default key when outName specifies custom s3OutputProvider without key for still', () => {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
+		...testRenderMetadata,
+		type: 'still',
+		codec: null,
+		imageFormat: 'png',
+		outName: {
+			bucketName: 'renders-dev.mykaraoke.video',
+			s3OutputProvider: {
+				endpoint: 'https://fly.storage.tigris.dev',
+			},
+		},
+		privacy: 'no-acl',
+	};
+
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: {
+				endpoint: 'https://fly.storage.tigris.dev',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+				region: 'auto',
+				forcePathStyle: true,
+			},
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: {
+			endpoint: 'https://fly.storage.tigris.dev',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: 'auto',
+			forcePathStyle: true,
+		},
+		renderBucketName: 'renders-dev.mykaraoke.video',
+		key: 'renders/9n8dsfafs/out.png',
+	});
+});
+
 test('For stills', () => {
 	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
@@ -141,6 +228,7 @@ test('For stills', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -163,6 +251,7 @@ test('Just a custom name', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -185,6 +274,7 @@ test('Should throw on invalid names', () => {
 	};
 	expect(() => {
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -204,6 +294,7 @@ test('Should allow outName an outname with a slash', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,
@@ -227,6 +318,7 @@ test('Should allow outName an outname with colon', () => {
 	};
 	expect(
 		getExpectedOutName({
+			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
 			customCredentials: null,

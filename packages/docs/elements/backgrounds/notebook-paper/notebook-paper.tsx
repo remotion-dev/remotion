@@ -1,9 +1,9 @@
 import {gridlines} from '@remotion/effects/gridlines';
 import {paper} from '@remotion/effects/paper';
 import React from 'react';
-import {Solid, useVideoConfig} from 'remotion';
+import {Interactive, Solid, useVideoConfig} from 'remotion';
 
-export const NotebookPaper: React.FC = () => {
+const NotebookPaperInner: React.FC = () => {
 	const {height, width} = useVideoConfig();
 
 	return (
@@ -34,3 +34,8 @@ export const NotebookPaper: React.FC = () => {
 		/>
 	);
 };
+
+export const NotebookPaper = Interactive.create({
+	Component: NotebookPaperInner,
+	layout: 'absolute-fill',
+});

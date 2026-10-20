@@ -13,6 +13,7 @@ import {
 	subscribeToPreviewServerEvents,
 	type PreviewServerConnectionState,
 } from './preview-server-events';
+import {getStudioDefaultPremountInSeconds} from './studio-runtime-config';
 import {reloadUrl} from './url-state';
 
 type Context = {
@@ -187,7 +188,11 @@ export const PreviewServerConnection: React.FC<{
 
 	return (
 		<StudioServerConnectionCtx.Provider value={context}>
-			{children}
+			<Internals.DefaultPremountContext.Provider
+				value={getStudioDefaultPremountInSeconds()}
+			>
+				{children}
+			</Internals.DefaultPremountContext.Provider>
 		</StudioServerConnectionCtx.Provider>
 	);
 };

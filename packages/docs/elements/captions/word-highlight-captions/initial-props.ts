@@ -55,5 +55,4 @@ export const wordHighlightCaptionsInitialProps = {
 	],
 	combineTokensWithinMilliseconds: 800,
 	width: 682,
-	height: 252,
 } satisfies ComponentProps<typeof WordHighlightCaptions>;

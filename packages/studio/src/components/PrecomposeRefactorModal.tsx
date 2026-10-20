@@ -1,10 +1,13 @@
-import React, {useContext} from 'react';
+import React, {useCallback, useContext, useRef} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
+import {getCodexAnnotation} from '../helpers/get-codex-annotation';
+import {requestCodexAnnotation} from '../helpers/request-codex-annotation';
 import type {ModalState} from '../state/modals';
 import {AgentPrompt} from './AgentPrompt';
+import {ModalButton} from './ModalButton';
 import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
@@ -41,7 +44,19 @@ export const PrecomposeRefactorModal: React.FC<{readonly state: State}> = ({
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {error, remotionSkillsInfo} = useSettings();
+	const annotationTarget = useRef<HTMLDivElement>(null);
+	const markupSkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-markup',
+	);
+	const markupSkillAvailable = Boolean(
+		markupSkill?.installedInProject || markupSkill?.installedGlobally,
+	);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const canAnnotate =
+		!isBrowserStudio &&
+		markupSkillAvailable &&
+		!window.remotion_isReadOnlyStudio &&
+		getCodexAnnotation() !== null;
 	const canSuggestAgent =
 		!isBrowserStudio &&
 		!window.remotion_isReadOnlyStudio &&
@@ -63,17 +78,36 @@ export const PrecomposeRefactorModal: React.FC<{readonly state: State}> = ({
 		targets.length === 1
 			? ` Pre-compose ${targets[0]}`
 			: ` Pre-compose these sequences: ${targets.join('; ')}`;
+	const selection = targets.join('; ');
+	const onSendToChatGPT = useCallback(() => {
+		requestCodexAnnotation({
+			target: annotationTarget.current,
+			initialComment: '$remotion-markup',
+			metadata: {
+				action: 'Pre-compose',
+				sequenceCount: targets.length,
+				...(selection.length <= 256 ? {selection} : {}),
+			},
+		});
+	}, [selection, targets.length]);
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
 			<ModalHeader title="Pre-compose" />
-			<div style={container}>
+			<div ref={annotationTarget} style={container}>
 				<div style={text}>
 					Move these items into their own composition and re-import them into
 					this composition.
 				</div>
-				{canSuggestAgent ? (
+				{canSuggestAgent || canAnnotate ? (
 					<AgentPrompt
+						action={
+							canAnnotate ? (
+								<ModalButton size="compact" onClick={onSendToChatGPT}>
+									Send to ChatGPT
+								</ModalButton>
+							) : null
+						}
 						availableText="You can pre-compose using an agent:"
 						promptDetails={promptDetails}
 						skillId="remotion-markup"
@@ -81,7 +115,7 @@ export const PrecomposeRefactorModal: React.FC<{readonly state: State}> = ({
 				) : (
 					<div style={text}>
 						{isBrowserStudio
-							? 'Agent-assisted refactoring is unavailable in Browser Studio.'
+							? 'Agent-assisted refactoring is unavailable in remotion.dev/new.'
 							: remotionSkillsInfo === null && error === null
 								? 'Checking whether /remotion-markup is available...'
 								: 'The /remotion-markup Agent Skill is unavailable in this Studio.'}

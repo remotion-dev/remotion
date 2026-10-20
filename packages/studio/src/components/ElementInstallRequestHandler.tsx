@@ -4,26 +4,26 @@ import {
 } from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import {
-	type FC,
 	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
 	useRef,
 	useState,
+	type FC,
 } from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getMissingPackages} from '../helpers/install-required-package';
-import {SetSelectedModalContext} from '../state/modals';
+import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {prepareElementInstall} from './element-install-api';
 import {
 	enqueueElementInstallRequest,
 	subscribeToElementInstallRequests,
 } from './element-install-request';
-import {getElementPositionForDrop, getFromForDrop} from './import-assets';
+import {getElementPositionForDrop} from './import-assets';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -34,6 +34,11 @@ export const ElementInstallRequestHandler: FC = () => {
 	);
 	const config = Internals.useUnsafeVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const selectedModal = useContext(SelectedModalContext);
+	const selectedModalRef = useRef(selectedModal);
+	selectedModalRef.current = selectedModal;
+	const showingExperimentalNotice =
+		selectedModal?.type === 'browser-studio-experimental-notice';
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
 	);
@@ -160,6 +165,24 @@ export const ElementInstallRequestHandler: FC = () => {
 				return;
 			}
 
+			const modal = selectedModalRef.current;
+			const selectsCaptionStyle =
+				modal?.type === 'transcribe' && modal.target !== null;
+			if (
+				selectsCaptionStyle &&
+				(payload.element.isCaptionStyle !== true ||
+					payload.element.installationMode !== 'component-owned-sequence')
+			) {
+				responsePort.postMessage({
+					success: false,
+					code: 'request-rejected',
+					message: 'This Element is not a caption style',
+				} satisfies InstallInStudioResult);
+				window.setTimeout(() => responsePort.close(), 1000);
+				showNotification('This Element is not a caption style', 4000);
+				return;
+			}
+
 			const request: ElementInstallRequest | null = canInstallElement
 				? {
 						clientId: previewServerClientId,
@@ -171,6 +194,7 @@ export const ElementInstallRequestHandler: FC = () => {
 							durationInFrames: payload.element.durationInFrames ?? null,
 							initialProps: payload.element.initialProps ?? null,
 							installationMode: payload.element.installationMode ?? null,
+							isCaptionStyle: payload.element.isCaptionStyle ?? false,
 						},
 						from: null,
 						id: crypto.randomUUID(),
@@ -192,17 +216,27 @@ export const ElementInstallRequestHandler: FC = () => {
 				: {
 						success: false,
 						code: 'no-installable-target',
-						message:
-							'Open a Remotion Studio that is not read-only, then try again.',
+						message: 'Focus Remotion Studio, then try again.',
 					};
 
 			const timeout = window.setTimeout(() => responsePort.close(), 1000);
 			responsePort.onmessage = () => {
 				window.clearTimeout(timeout);
 				responsePort.close();
-				if (request !== null) {
-					enqueueElementInstallRequest(request);
+				if (request === null) {
+					return;
 				}
+
+				if (selectsCaptionStyle) {
+					setSelectedModal((current) =>
+						current?.type === 'transcribe' && current.target !== null
+							? {...current, captionStyle: request}
+							: current,
+					);
+					return;
+				}
+
+				enqueueElementInstallRequest(request);
 			};
 
 			responsePort.postMessage(result);
@@ -215,6 +249,7 @@ export const ElementInstallRequestHandler: FC = () => {
 		compositionFile,
 		currentCompositionId,
 		previewServerClientId,
+		setSelectedModal,
 	]);
 
 	useEffect(() => {
@@ -226,13 +261,7 @@ export const ElementInstallRequestHandler: FC = () => {
 			const requestWithDefaults = shouldAddCompositionDefaults
 				? {
 						...request,
-						from:
-							request.from ??
-							getFromForDrop({
-								durationInFrames: request.element.durationInFrames,
-								from: getCurrentFrame(),
-								preferCompositionStart: true,
-							}),
+						from: request.from ?? getCurrentFrame(),
 						position:
 							request.position ??
 							getElementPositionForDrop({
@@ -252,7 +281,7 @@ export const ElementInstallRequestHandler: FC = () => {
 	}, [config]);
 
 	useEffect(() => {
-		if (!canInstallElement) {
+		if (!canInstallElement || showingExperimentalNotice) {
 			return;
 		}
 
@@ -276,10 +305,19 @@ export const ElementInstallRequestHandler: FC = () => {
 				type: 'browser-studio-link',
 			},
 		});
-	}, [canInstallElement, compositionFile, currentCompositionId]);
+	}, [
+		canInstallElement,
+		compositionFile,
+		currentCompositionId,
+		showingExperimentalNotice,
+	]);
 
 	useEffect(() => {
-		if (activeRequest !== null || pendingRequests.length === 0) {
+		if (
+			activeRequest !== null ||
+			pendingRequests.length === 0 ||
+			showingExperimentalNotice
+		) {
 			return;
 		}
 
@@ -290,10 +328,19 @@ export const ElementInstallRequestHandler: FC = () => {
 
 		setActiveRequest(nextRequest);
 		setPendingRequests(remainingRequests);
-	}, [activeRequest, pendingRequests]);
+	}, [activeRequest, pendingRequests, showingExperimentalNotice]);
 
 	const closeElementInstallDialog = useCallback(() => {
-		setSelectedModal(null);
+		setSelectedModal((modal) =>
+			modal?.type === 'element-install' ? null : modal,
+		);
+		setActiveRequest(null);
+	}, [setSelectedModal]);
+
+	const cancelElementInstallDialog = useCallback(() => {
+		setSelectedModal((modal) =>
+			modal?.type === 'element-install' ? modal.library : modal,
+		);
 		setActiveRequest(null);
 	}, [setSelectedModal]);
 
@@ -373,16 +420,22 @@ export const ElementInstallRequestHandler: FC = () => {
 					(source.type === 'browser-studio-link' && source.origin === null);
 				const currentPlan =
 					currentPreflight?.success === true ? currentPreflight.plan : null;
-				setSelectedModal({
+				setSelectedModal((modal) => ({
 					type: 'element-install',
 					currentPlan,
+					library:
+						activeRequest.source.type === 'studio-protocol' &&
+						modal?.type === 'element-library'
+							? modal
+							: null,
 					missingPackages,
 					newPlan: newPreflight.plan,
+					onCancel: cancelElementInstallDialog,
 					onClose: closeElementInstallDialog,
 					request: activeRequest,
 					sourceIsUnverified,
 					sourceLabel,
-				});
+				}));
 			} catch (error) {
 				if (canceled) {
 					return;
@@ -402,7 +455,12 @@ export const ElementInstallRequestHandler: FC = () => {
 		return () => {
 			canceled = true;
 		};
-	}, [activeRequest, closeElementInstallDialog, setSelectedModal]);
+	}, [
+		activeRequest,
+		cancelElementInstallDialog,
+		closeElementInstallDialog,
+		setSelectedModal,
+	]);
 
 	return null;
 };

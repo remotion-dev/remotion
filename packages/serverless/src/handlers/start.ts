@@ -34,7 +34,10 @@ export const startHandler = async <Provider extends CloudProvider>({
 	}
 
 	checkVersionMismatch({
-		apiName: 'renderMediaOnLambda()',
+		apiName:
+			params.output?.type === 'sequence'
+				? 'renderFramesOnLambda()'
+				: 'renderMediaOnLambda()',
 		insideFunctionSpecifics,
 		params,
 	});
@@ -92,6 +95,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		bucketName,
 		renderId: options.renderId,
 		codec: params.codec,
+		output: params.output,
 		imageFormat: params.imageFormat,
 		crf: params.crf ?? null,
 		envVariables: params.envVariables,
@@ -103,12 +107,14 @@ export const startHandler = async <Provider extends CloudProvider>({
 				? insideFunctionSpecifics.defaultX264Preset
 				: null),
 		gopSize: params.gopSize ?? null,
+		disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
 		logLevel: params.logLevel,
 		frameRange: params.frameRange,
 		outName: params.outName,
+		separateAudioTo: params.separateAudioTo ?? null,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,

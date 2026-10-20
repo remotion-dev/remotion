@@ -61,7 +61,7 @@ test('creates and registers an interactive Canvas Capture composition', () => {
 		"import {CanvasCaptureComposition} from './CanvasCaptureComposition';",
 	);
 	expect(getChangedContents(result, compositionFile)).toMatch(
-		/<Folder name="Captures">\s*<CanvasCaptureComposition \/>\s*<\/Folder>/,
+		/<Folder name="Captures">\s*<Composition\s+id="canvas-capture-promo"\s+component=\{CanvasCaptureComposition\}\s+durationInFrames=\{500\}\s+fps=\{60\}\s+width=\{1920\}\s+height=\{1080\}\s*\/>\s*<\/Folder>/,
 	);
 	expect(result.changes.map((change) => change.filePath)).toEqual([
 		compositionFile,

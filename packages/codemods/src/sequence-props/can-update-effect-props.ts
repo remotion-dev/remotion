@@ -9,10 +9,9 @@ import type {
 } from '@babel/types';
 import type {
 	CanUpdateEffectPropsResponse,
-	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropSource,
 	SequenceNodePath,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
 import {
 	extractStaticValue,
@@ -27,11 +26,11 @@ import {
 import {parseAst} from './parse-ast';
 import {parseVideoConfigNumericExpression} from './video-config-numeric-expression';
 import {
-	getVideoConfigIdentifierValues,
+	getVideoConfigIdentifiers,
 	type VideoConfigIdentifierValues,
 } from './video-config-values';
 
-const staticStatus = (codeValue: unknown): CanUpdateSequencePropStatus => ({
+const staticStatus = (codeValue: unknown): CanUpdateSequencePropSource => ({
 	status: 'static',
 	keyframeDisplayOffsetAdjustment: null,
 	codeValue,
@@ -192,8 +191,8 @@ const getPropsFromObjectExpression = ({
 	objExpr: ObjectExpression;
 	keys: string[];
 	videoConfigValues: VideoConfigIdentifierValues;
-}): Record<string, CanUpdateSequencePropStatus> => {
-	const out: Record<string, CanUpdateSequencePropStatus> = {};
+}): Record<string, CanUpdateSequencePropSource> => {
+	const out: Record<string, CanUpdateSequencePropSource> = {};
 
 	for (const key of keys) {
 		const prop = objExpr.properties.find(
@@ -219,7 +218,10 @@ const getPropsFromObjectExpression = ({
 				? {
 						status: 'static',
 						keyframeDisplayOffsetAdjustment: null,
-						codeValue: numericExpression.value,
+						codeValue:
+							numericExpression.type === 'literal'
+								? numericExpression.value
+								: undefined,
 						...(numericExpression.type === 'literal'
 							? {}
 							: {numericExpression}),
@@ -286,7 +288,7 @@ export const computeEffectPropStatus = ({
 		fallbackCallee: target.callee,
 	});
 	if (call.arguments.length === 0) {
-		const emptyProps: Record<string, CanUpdateSequencePropStatus> = {};
+		const emptyProps: Record<string, CanUpdateSequencePropSource> = {};
 		for (const key of keys) {
 			emptyProps[key] = staticStatus(undefined);
 		}
@@ -330,18 +332,15 @@ export const computeEffectPropsStatusesFromContent = ({
 	sequenceNodePath,
 	effects,
 	keysFor,
-	videoConfigValues,
 }: {
 	fileContents: string;
 	sequenceNodePath: SequenceNodePath;
 	effects: InteractivitySchema[];
 	keysFor: (effect: InteractivitySchema) => string[];
-	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateEffectPropsResponse[] => {
 	const ast = parseAst(fileContents);
-	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+	const videoConfigIdentifierValues = getVideoConfigIdentifiers({
 		ast,
-		videoConfigValues,
 	});
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
 	if (!jsx) {

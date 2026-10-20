@@ -56,6 +56,7 @@ test('concurrent playheads on the same src do not clear each other`s banks', asy
 			const bank = await manager.requestKeyframeBank({
 				timestamp,
 				videoSampleSink: sink,
+				timeResolution: 1000,
 				src,
 				logLevel: 'error',
 				maxCacheSize: 100 * 1024 * 1024,
@@ -89,6 +90,7 @@ test('banks that are no longer being read still get cleared', async () => {
 		const bank = await manager.requestKeyframeBank({
 			timestamp,
 			videoSampleSink: sink,
+			timeResolution: 1000,
 			src,
 			logLevel: 'error',
 			maxCacheSize: 100 * 1024 * 1024,
@@ -152,6 +154,7 @@ test('a bank is not cleared while it is decoding a frame', async () => {
 		manager.requestKeyframeBank({
 			timestamp,
 			videoSampleSink: sink,
+			timeResolution: 1000,
 			src: 'same-video.mp4',
 			logLevel: 'error',
 			maxCacheSize: 100 * 1024 * 1024,

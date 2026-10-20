@@ -66,12 +66,6 @@ test.describe('node-path cache for stale source maps', () => {
 		const videoLineIndex = lines.findIndex((l) => l.includes('<Video'));
 		expect(videoLineIndex).toBeGreaterThan(-1);
 		const videoLine = videoLineIndex + 1; // 1-indexed
-		const videoConfigValues = {
-			durationInFrames: 100,
-			fps: 30,
-			height: 1080,
-			width: 1920,
-		};
 
 		// 1. Initial subscription → resolves line to AST nodePath and caches it
 		const result1 = await subscribeToSequenceProps({
@@ -84,7 +78,6 @@ test.describe('node-path cache for stale source maps', () => {
 			assetKeys: [],
 			keys: getAllSchemaKeys(NoReactInternals.sequenceSchema),
 			clientId: 'e2e-cache-test-1',
-			videoConfigValues,
 		});
 		expect(result1.success).toBe(true);
 		assert(result1.success);
@@ -121,7 +114,6 @@ test.describe('node-path cache for stale source maps', () => {
 			assetKeys: [],
 			effects: [],
 			clientId: 'e2e-cache-test-2',
-			videoConfigValues,
 		});
 		expect(result2.success).toBe(true);
 		assert(result2.success);
@@ -152,7 +144,6 @@ test.describe('node-path cache for stale source maps', () => {
 			assetKeys: [],
 			effects: [],
 			clientId: 'e2e-identity-mismatch-1',
-			videoConfigValues,
 		});
 		expect(identityResult.success).toBe(true);
 		assert(identityResult.success);
@@ -190,7 +181,6 @@ test.describe('node-path cache for stale source maps', () => {
 			assetKeys: [],
 			effects: [],
 			clientId: 'e2e-identity-mismatch-2',
-			videoConfigValues,
 		});
 		expect(reconnectResult.success).toBe(true);
 		assert(reconnectResult.success);

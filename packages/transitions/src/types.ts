@@ -1,6 +1,6 @@
 import type React from 'react';
 import type {ComponentType} from 'react';
-import type {AbsoluteFillLayout} from 'remotion';
+import type {AbsoluteFillLayout, SequencePropsWithoutDuration} from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 
 export type PresentationDirection = 'entering' | 'exiting';
@@ -47,8 +47,9 @@ export type TransitionSeriesOverlayProps = Pick<
 	| 'postmountFor'
 	| 'styleWhilePremounted'
 	| 'styleWhilePostmounted'
-> & {
-	readonly durationInFrames: number;
-	readonly offset?: number;
-	readonly children: React.ReactNode;
-};
+> &
+	Pick<SequencePropsWithoutDuration, 'hidden'> & {
+		readonly durationInFrames: number;
+		readonly offset?: number;
+		readonly children: React.ReactNode;
+	};

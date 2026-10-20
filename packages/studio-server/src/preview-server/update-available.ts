@@ -1,7 +1,11 @@
+import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import type {UpdateAvailableResponse} from '@remotion/studio-shared';
 import semver from 'semver';
-import {detectOutdatedRemotionSkills} from '../detect-outdated-remotion-skills';
+import {
+	detectOutdatedRemotionSkills,
+	readRemotionSkill,
+} from '../detect-outdated-remotion-skills';
 import {getLatestRemotionVersion} from '../get-latest-remotion-version';
 import {getPackageManager} from './get-package-manager';
 
@@ -11,7 +15,10 @@ const getSkillsUpdateInfo = ({
 }: {
 	remotionRoot: string;
 	currentVersion: string;
-}) => {
+}): Pick<
+	UpdateAvailableResponse,
+	'skillsUpdateAvailable' | 'skillsUpdateDetails'
+> => {
 	const projectSkills = detectOutdatedRemotionSkills({
 		cwd: remotionRoot,
 		currentVersion,
@@ -19,6 +26,26 @@ const getSkillsUpdateInfo = ({
 
 	return {
 		skillsUpdateAvailable: projectSkills.type === 'outdated',
+		skillsUpdateDetails:
+			projectSkills.type === 'outdated'
+				? {
+						outdatedSkills: projectSkills.outdatedSkillNames.map((name) => {
+							const {version} = readRemotionSkill(
+								path.join(projectSkills.skillsDirectory, name, 'SKILL.md'),
+							);
+							return {
+								name,
+								installedVersion: version,
+								reason:
+									version === null
+										? 'missing-version'
+										: semver.valid(version) === null
+											? 'invalid-version'
+											: 'older-version',
+							};
+						}),
+					}
+				: null,
 	};
 };
 

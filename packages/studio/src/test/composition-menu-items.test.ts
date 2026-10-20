@@ -106,6 +106,7 @@ const commonArgs = {
 		defaultEditorName: 'Code',
 		editorInfo: {
 			defaultEditor: 'vscode' as const,
+			runningEditors: null,
 			installedEditors: [
 				{id: 'vscode' as const, name: 'Code', nameWithType: 'Code'},
 			],
@@ -323,6 +324,7 @@ test('interactive composition context menus list GitHub as an alternative', () =
 			...commonArgs.openInApps,
 			codingAgentInfo: {
 				defaultCodingAgent: 'cursor',
+				runningCodingAgents: null,
 				installedCodingAgents: [
 					{
 						id: 'cursor',
@@ -335,6 +337,7 @@ test('interactive composition context menus list GitHub as an alternative', () =
 			},
 			editorInfo: {
 				defaultEditor: 'vscode',
+				runningEditors: null,
 				installedEditors: [
 					{id: 'vscode', name: 'Code', nameWithType: 'Code'},
 					{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},

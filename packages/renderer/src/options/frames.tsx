@@ -125,6 +125,7 @@ const parseFrameRangeFromCli = (
 
 export const framesOption = {
 	name: 'Frame Range',
+	addedIn: '2.0.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -134,7 +135,7 @@ export const framesOption = {
 		</>
 	),
 	ssrName: 'frameRange' as const,
-	docLink: 'https://www.remotion.dev/docs/config#setframerange',
+	docLink: 'https://www.remotion.dev/docs/options/frames',
 	type: null as FrameSelection,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

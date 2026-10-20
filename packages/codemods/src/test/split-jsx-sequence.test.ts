@@ -25,6 +25,7 @@ test('splits fractional timing without persisting arithmetic noise', async () =>
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 		splitFrame: 1,
+		videoConfigValues: null,
 	});
 	expect(output).toContain('durationInFrames={0.9}');
 	expect(output).toContain('durationInFrames={0.3}');
@@ -60,6 +61,7 @@ test('splits multiple sibling sequences from the same source snapshot', async ()
 			nodePath,
 			sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 			splitFrame: 30,
+			videoConfigValues: null,
 		})),
 	});
 
@@ -77,7 +79,7 @@ test('splits multiple sibling sequences from the same source snapshot', async ()
 	);
 	expect(
 		nodePathRemappings.filter((remapping) => remapping.oldNodePath === null),
-	).toHaveLength(2);
+	).toHaveLength(4);
 });
 
 test('splitting a sped-up sequence preserves its child clock across a fractional parent frame', async () => {
@@ -97,6 +99,7 @@ test('splitting a sped-up sequence preserves its child clock across a fractional
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames', 'trimBefore', 'playbackRate'],
 		splitFrame: 22.5,
+		videoConfigValues: null,
 	});
 	expect(output.replace(/\s+/g, ' ')).toContain(
 		'from={10} durationInFrames={25} trimBefore={5} playbackRate={2}',
@@ -134,6 +137,7 @@ const split = async (
 		nodePath: lineColumnToNodePath(input, sequenceLine),
 		sequenceKeys,
 		splitFrame,
+		videoConfigValues: null,
 	});
 
 	return output;
@@ -146,7 +150,7 @@ test('splitJsxSequence splits a sequence with no duration', async () => {
 	expect(output).toContain('<Sequence from={30} trimBefore={30} />');
 });
 
-test('splitJsxSequence remaps following JSX siblings', async () => {
+test('splitJsxSequence remaps wrapped clips and preserves following JSX siblings', async () => {
 	const input = wrap(
 		'<Sequence name="split" from={0} durationInFrames={50} />\n\t\t\t<Sequence name="following" />',
 	);
@@ -155,20 +159,30 @@ test('splitJsxSequence remaps following JSX siblings', async () => {
 		nodePath: lineContainingToNodePath(input, 'name="split"'),
 		sequenceKeys: sequenceTimingKeys,
 		splitFrame: 30,
+		videoConfigValues: null,
 	});
 
+	expect(lineContainingToNodePath(output, 'name="following"')).toEqual(
+		lineContainingToNodePath(input, 'name="following"'),
+	);
 	expect(nodePathRemappings).toEqual([
 		{
 			oldNodePath: lineContainingToNodePath(input, 'name="split"'),
-			newNodePath: lineContainingToNodePath(output, 'name="split"'),
+			newNodePath: lineContainingToNodePath(output, '<Sequence name="split"'),
+			oldJsxName: 'Sequence',
+			newJsxName: 'Sequence',
 		},
 		{
-			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
-			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+			oldNodePath: null,
+			newNodePath: lineContainingToNodePath(output, '<Track'),
+			oldJsxName: null,
+			newJsxName: 'Track',
 		},
 		{
 			oldNodePath: null,
 			newNodePath: lineContainingToNodePath(output, 'from={30}'),
+			oldJsxName: null,
+			newJsxName: 'Sequence',
 		},
 	]);
 });
@@ -194,10 +208,17 @@ test('splitJsxSequence keeps missing left from omitted', async () => {
 });
 
 test('splitJsxSequence splits finite duration and trimBefore', async () => {
-	const output = await split(
-		'<Sequence from={10} durationInFrames={50} trimBefore={5} />',
-		30,
-	);
+	const input = `import {Sequence, Track as TimelineTrack} from 'remotion';
+export const Comp = () => <TimelineTrack name="Existing"><Sequence from={10} durationInFrames={50} trimBefore={5} /></TimelineTrack>;`;
+	const {output} = await splitJsxSequence({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Sequence'),
+		sequenceKeys: sequenceTimingKeys,
+		splitFrame: 30,
+		videoConfigValues: null,
+	});
+	expect(output.match(/<TimelineTrack /g)).toHaveLength(1);
+	expect(output).not.toContain('<Track');
 
 	expect(output).toContain(
 		'<Sequence from={10} durationInFrames={20} trimBefore={5} />',
@@ -230,11 +251,10 @@ export const Comp = () => {
 		nodePath: lineContainingToNodePath(input, '<Sequence'),
 		sequenceKeys: sequenceTimingKeys,
 		splitFrame: 30,
+		videoConfigValues: null,
 	});
 
-	expect(output).toStartWith(
-		'const deliberatelyUnformatted = {value : true}\n',
-	);
+	expect(output).toContain('const deliberatelyUnformatted = {value : true}\n');
 	expect(output).toContain(
 		'<Sequence name="clip" from={0} durationInFrames={30}>\n',
 	);
@@ -245,7 +265,7 @@ export const Comp = () => {
 	expect(output).toEndWith('  )\n}\n');
 });
 
-test('splitJsxSequence formats a split component root as a fragment', async () => {
+test('splitJsxSequence formats a split component root as a named track', async () => {
 	const input = `export const Comp = () => <Sequence from={0} durationInFrames={50}><span>Hi</span></Sequence>;
 
 const keep = { value : true }
@@ -255,16 +275,18 @@ const keep = { value : true }
 		nodePath: lineContainingToNodePath(input, '<Sequence'),
 		sequenceKeys: sequenceTimingKeys,
 		splitFrame: 30,
+		videoConfigValues: null,
 	});
 
-	expect(output).toBe(`export const Comp = () => <>
+	expect(output).toBe(`import { Track } from "remotion"
+export const Comp = () => <Track name="Sequence">
   <Sequence from={0} durationInFrames={30}>
     <span>Hi</span>
   </Sequence>
   <Sequence from={30} durationInFrames={20} trimBefore={30}>
     <span>Hi</span>
   </Sequence>
-</>;
+</Track>;
 
 const keep = { value : true }
 `);
@@ -276,6 +298,7 @@ test('splitJsxSequence splits a video with a negative from', async () => {
 		100,
 	);
 
+	expect(output).toContain('<Track name="video.mov">');
 	expect(output).toContain('from={-2644}');
 	expect(output).toContain('durationInFrames={2744}');
 	expect(output).toContain('trimBefore={272}');

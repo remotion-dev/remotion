@@ -6,6 +6,7 @@ let currentDirectory: string | null = null;
 
 export const binariesDirectoryOption = {
 	name: 'Binaries Directory',
+	addedIn: '4.0.120',
 	cliFlag,
 	description: () => (
 		<>
@@ -21,7 +22,7 @@ export const binariesDirectoryOption = {
 		</>
 	),
 	ssrName: 'binariesDirectory' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer',
+	docLink: 'https://www.remotion.dev/docs/options/binaries-directory',
 	type: '' as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

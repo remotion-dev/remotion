@@ -11,7 +11,7 @@ import type {
   CanvasController,
   CanvasSequencePropChange,
   CanvasSequencePropStatusResolver,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import type { PlayerRef } from "@remotion/player";
 import type {
   CanRenderMediaOnWebResult,

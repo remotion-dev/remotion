@@ -28,7 +28,7 @@ Use [`useDelayRender()`](/docs/use-delay-render) to wait for the map to load. Th
 
 ```tsx twoslash
 import {useEffect, useRef, useState} from 'react';
-import {AbsoluteFill, useDelayRender, useVideoConfig} from 'remotion';
+import {useDelayRender, useVideoConfig} from 'remotion';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -74,9 +74,9 @@ export const MapComposition = () => {
   }, [handle, continueRender]);
 
   return (
-    <AbsoluteFill>
+    <>
       <div ref={ref} style={{width, height, position: 'absolute'}} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

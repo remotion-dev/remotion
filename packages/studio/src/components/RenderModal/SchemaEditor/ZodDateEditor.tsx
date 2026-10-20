@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useMemo, useRef} from 'react';
 import React, {useCallback} from 'react';
 import {WHITE_ALPHA_30} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
@@ -61,6 +61,7 @@ export const ZodDateEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({jsonPath, value, setValue, schema, onRemove, mayPad}) => {
+	const valueOnFocus = useRef(value.getTime());
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			// React does not support e.target.valueAsDate :(
@@ -69,9 +70,17 @@ export const ZodDateEditor: React.FC<{
 		[setValue],
 	);
 
+	const onFocus: React.FocusEventHandler<HTMLInputElement> = useCallback(() => {
+		valueOnFocus.current = value.getTime();
+	}, [value]);
+
 	const onBlur: React.FocusEventHandler<HTMLInputElement> = useCallback(() => {
+		if (Object.is(valueOnFocus.current, value.getTime())) {
+			return;
+		}
+
 		setValue((v) => v, {shouldSave: true});
-	}, [setValue]);
+	}, [setValue, value]);
 
 	const zodValidation = useMemo(
 		() => zodSafeParse(schema, value),
@@ -95,6 +104,7 @@ export const ZodDateEditor: React.FC<{
 					status={zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
+					onFocus={onFocus}
 					onBlur={onBlur}
 					style={inputStyle}
 					rightAlign={false}

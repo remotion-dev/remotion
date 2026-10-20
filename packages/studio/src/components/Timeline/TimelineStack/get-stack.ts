@@ -11,6 +11,20 @@ const traceMapPromises: Partial<Record<string, Promise<TraceMap>>> = {};
 const traceMapsByOriginalSource = new Map<string, TraceMap>();
 const sourceMapFilesCache = new WeakMap<TraceMap, Record<string, string>>();
 
+const isInternalSource = (source: string | null): boolean => {
+	if (source === null) {
+		return false;
+	}
+
+	const normalizedSource = source.replaceAll('\\', '/');
+	// Generated and Remotion runtime files are not authored sequence locations.
+	return (
+		/(?:^|\/)node_modules\//.test(normalizedSource) ||
+		/(?:^|\/)dist\/(?:[^/]+\/)*[^/]+\.(?:cjs|mjs|js)$/.test(normalizedSource) ||
+		/(?:^|\/)(?:packages\/)?core\/src\//.test(normalizedSource)
+	);
+};
+
 const getSourceMapCache = (fileName: string): Promise<TraceMap> => {
 	if (traceMapCache[fileName]) {
 		return Promise.resolve(traceMapCache[fileName]);
@@ -84,6 +98,10 @@ export const getOriginalLocationFromStack = async (
 	// Bundlers that record the JSX source location skip symbolication.
 	const originalSource = Internals.parseOriginalSourceStack(stack);
 	if (originalSource) {
+		if (isInternalSource(originalSource.fileName)) {
+			return null;
+		}
+
 		return {
 			column: originalSource.column,
 			line: originalSource.line,
@@ -97,5 +115,5 @@ export const getOriginalLocationFromStack = async (
 		location.lineNumber as number,
 		location.columnNumber as number,
 	);
-	return originalPosition;
+	return isInternalSource(originalPosition.source) ? null : originalPosition;
 };

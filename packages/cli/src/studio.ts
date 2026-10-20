@@ -42,8 +42,10 @@ const {
 	askAIOption,
 	interactivityOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	audioLatencyHintOption,
 	ipv4Option,
@@ -55,6 +57,9 @@ const {
 	previewSampleRateOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
+	showPremountingOption,
 	publicLicenseKeyOption,
 	beepOnFinishOption,
 	logLevelOption,
@@ -162,13 +167,30 @@ export const studioCommand = async (
 			commandLine: parsedCli,
 		}).value;
 
+		const sequenceActivityLimit = sequenceActivityLimitOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+		const configuredSequenceActivityLimit =
+			sequenceActivityLimitOption.getConfigValue();
+
 		return {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			defaultPremountInSeconds: defaultPremountInSecondsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			showPremounting: showPremountingOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			showLayerFrameNumbers: showLayerFrameNumbersOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			keyboardShortcuts: ConfigInternals.getKeyboardShortcuts(),
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
 			}).value,
 			elementLibraries: ConfigInternals.getElementLibraries(),
+			sequenceActivityLimit:
+				sequenceActivityLimit === Infinity ? null : sequenceActivityLimit,
 			interactivityEnabled: interactivityOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -185,12 +207,23 @@ export const studioCommand = async (
 			publicLicenseKey: publicLicenseKeyOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			canvasTabsEnabled: canvasTabsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			configFileStudioSettings: {
+				showLayerFrameNumbers: showLayerFrameNumbersOption.getConfigValue(),
+				showPremounting: showPremountingOption.getConfigValue(),
+				defaultPremountInSeconds:
+					defaultPremountInSecondsOption.getConfigValue(),
 				askAIEnabled: askAIOption.getConfigValue(),
 				audioLatencyHint: audioLatencyHintOption.getConfigValue(),
 				beepOnFinish: beepOnFinishOption.getConfigValue(),
 				enableCrossSiteIsolation:
 					enableCrossSiteIsolationOption.getConfigValue(),
+				sequenceActivityLimit:
+					configuredSequenceActivityLimit === Infinity
+						? null
+						: configuredSequenceActivityLimit,
 				interactivityEnabled: interactivityOption.getConfigValue(),
 				keyboardShortcutsEnabled: keyboardShortcutsOption.getConfigValue(),
 				logLevel: logLevelOption.getConfigValue(),
@@ -198,6 +231,7 @@ export const studioCommand = async (
 					StudioServerInternals.getConfiguredMaxTimelineTracks(),
 				numberOfSharedAudioTags: numberOfSharedAudioTagsOption.getConfigValue(),
 				rspack: rspackOption.getConfigValue(),
+				canvasTabsEnabled: canvasTabsOption.getConfigValue(),
 			},
 		};
 	};

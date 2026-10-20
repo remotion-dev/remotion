@@ -15,7 +15,6 @@ import {UploadIcon} from '../icons/upload';
 import {FilmIcon} from '../icons/video';
 import {CompositionListContext} from '../state/composition-list';
 import {SetSelectedModalContext} from '../state/modals';
-import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
 import {canvasTabsRef} from './CanvasTabsRef';
 import {FramePersistor} from './FramePersistor';
@@ -23,6 +22,8 @@ import {pickFilesToImport} from './import-assets';
 import {
 	InspectorQuickAction,
 	inspectorActionIconStyle,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './InspectorPanel/common';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -55,11 +56,16 @@ const welcomeActions: React.CSSProperties = {
 	width: 220,
 };
 
+const welcomeLabel: React.CSSProperties = {
+	...loaderLabel,
+	textAlign: 'center',
+};
+
 const WelcomeActions: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {compositions} = useContext(Internals.CompositionManager);
-	const leftSidebarStatus = useResponsiveSidebarStatus();
+	const leftSidebarStatus = useResponsiveSidebarStatus('left');
 	const selectAsset = useSelectAsset();
 	const staticFiles = useStaticFiles();
 	const canMutateProject =
@@ -196,49 +202,59 @@ const WelcomeActions: React.FC = () => {
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 		>
-			<div style={welcomeActions}>
-				{leftSidebarStatus === 'collapsed' && compositions.length > 0 ? (
-					<InspectorQuickAction
-						disabled={false}
-						onClick={openComposition}
-						renderIcon={(color) => (
-							<SearchIcon color={color} style={inspectorActionIconStyle} />
-						)}
-					>
-						Open composition
-					</InspectorQuickAction>
-				) : null}
-				<InspectorQuickAction
-					disabled={!canMutateProject}
-					onClick={newComposition}
-					renderIcon={(color) => (
-						<FilmIcon color={color} style={inspectorActionIconStyle} />
-					)}
-				>
-					New composition
-				</InspectorQuickAction>
-				<InspectorQuickAction
-					disabled={!canMutateProject}
-					onClick={importAsset}
-					renderIcon={(color) => (
-						<UploadIcon color={color} style={inspectorActionIconStyle} />
-					)}
-				>
-					Import asset
-				</InspectorQuickAction>
-				<InspectorQuickAction
-					disabled={false}
-					onClick={browseElements}
-					renderIcon={(color) => (
-						<BrowseElementsIcon
-							color={color}
-							style={inspectorActionIconStyle}
-						/>
-					)}
-				>
-					Browse Elements
-				</InspectorQuickAction>
-			</div>
+			{canMutateProject ||
+			(leftSidebarStatus === 'collapsed' && compositions.length > 0) ? (
+				<div style={welcomeActions}>
+					{leftSidebarStatus === 'collapsed' && compositions.length > 0 ? (
+						<InspectorQuickAction
+							disabled={false}
+							onClick={openComposition}
+							renderIcon={(color) => (
+								<SearchIcon color={color} style={inspectorActionIconStyle} />
+							)}
+						>
+							Open composition
+						</InspectorQuickAction>
+					) : null}
+					{canMutateProject ? (
+						<>
+							<InspectorQuickAction
+								disabled={false}
+								onClick={newComposition}
+								renderIcon={(color) => (
+									<FilmIcon color={color} style={inspectorActionIconStyle} />
+								)}
+							>
+								New composition
+							</InspectorQuickAction>
+							<InspectorQuickAction
+								disabled={false}
+								onClick={importAsset}
+								renderIcon={(color) => (
+									<UploadIcon color={color} style={inspectorActionIconStyle} />
+								)}
+							>
+								Import asset
+							</InspectorQuickAction>
+							<InspectorQuickAction
+								disabled={false}
+								iconContainerStyle={largeInspectorActionIconContainerStyle}
+								onClick={browseElements}
+								renderIcon={(color) => (
+									<BrowseElementsIcon
+										color={color}
+										style={largeInspectorActionIconStyle}
+									/>
+								)}
+							>
+								Browse Elements
+							</InspectorQuickAction>
+						</>
+					) : null}
+				</div>
+			) : (
+				<div style={welcomeLabel}>Select a composition to get started.</div>
+			)}
 		</div>
 	);
 };
@@ -247,7 +263,6 @@ export const CanvasOrLoading: React.FC<{
 	readonly size: Size;
 }> = ({size}) => {
 	const resolved = Internals.useResolvedVideoConfig(null);
-	const {setZoom} = useContext(TimelineZoomCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {compositionListState} = useContext(CompositionListContext);
 	const {error: renderError} = useContext(RenderErrorContext);
@@ -269,7 +284,7 @@ export const CanvasOrLoading: React.FC<{
 				durationInFrames: c.durationInFrames,
 			});
 		});
-	}, [resolved, setZoom]);
+	}, [resolved]);
 
 	if (renderError) {
 		return (

@@ -8,6 +8,7 @@ const cliFlag = 'runs' as const;
 
 export const runsOption = {
 	name: 'Benchmark runs',
+	addedIn: '3.2.28',
 	cliFlag,
 	description: () => (
 		<>
@@ -16,7 +17,7 @@ export const runsOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/benchmark#--runs',
+	docLink: 'https://www.remotion.dev/docs/options/runs',
 	type: DEFAULT_RUNS as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

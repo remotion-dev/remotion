@@ -1,5 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 import {AnimatedImage, Html5Audio, Html5Video, Internals} from 'remotion';
 import {Player} from '../Player.js';
 import {act, cleanup, render} from './test-utils.js';
@@ -17,26 +17,17 @@ test('Player resolves media sources when its origin is opaque', () => {
 		const [audioSource, setAudioSourceState] = useState(
 			'https://example.com/audio.mp3',
 		);
-		const sequenceManagerContext = useMemo(
-			() => ({
-				registerSequence: () => undefined,
-				unregisterSequence: () => undefined,
-				updateSequence: null,
-				sequences: [],
-			}),
-			[],
-		);
 		setAudioSource = setAudioSourceState;
 
 		return (
-			<Internals.SequenceManager.Provider value={sequenceManagerContext}>
+			<Internals.SequenceManagerProvider>
 				<Html5Video src="/video.mp4" />
 				<Html5Audio src={audioSource} />
 				<AnimatedImage
 					src="https://example.com/image.gif"
 					onError={() => undefined}
 				/>
-			</Internals.SequenceManager.Provider>
+			</Internals.SequenceManagerProvider>
 		);
 	};
 

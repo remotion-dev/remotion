@@ -138,7 +138,6 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 		element: createElementFromInsertable({
 			element: {height: 720, position: null, type: 'solid', width: 1280},
 			from: null,
-			premountFor: null,
 			wrapInSequence: null,
 		}),
 		target: {
@@ -177,7 +176,6 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 				compositionId: 'MyComp',
 				element: {height: 720, position: null, type: 'solid', width: 1280},
 				from: null,
-				premountFor: null,
 			},
 			svgMarkupToJsx: () => {
 				throw new Error('SVG conversion should not be called');
@@ -215,7 +213,6 @@ export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 				type: 'asset',
 			},
 			from: null,
-			premountFor: null,
 			wrapInSequence: null,
 		}),
 		target,
@@ -235,7 +232,6 @@ export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 				type: 'component',
 			},
 			from: 12,
-			premountFor: null,
 			wrapInSequence: {
 				dimensions: {width: 400, height: 300},
 				durationInFrames: 60,

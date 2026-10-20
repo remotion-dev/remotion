@@ -34,6 +34,8 @@ import type {
 	PrecomposeJsxNodesResponse,
 	DuplicateNodesRequest,
 	DuplicateNodesResponse,
+	UnwrapNodeRequest,
+	UnwrapNodeResponse,
 	WrapNodeRequest,
 	WrapNodeResponse,
 	InsertCompositionElementRequest,
@@ -189,6 +191,7 @@ export type BrowserStudioOperations = {
 	duplicateNodes: (
 		request: DuplicateNodesRequest,
 	) => Promise<DuplicateNodesResponse>;
+	unwrapNode: (request: UnwrapNodeRequest) => Promise<UnwrapNodeResponse>;
 	wrapNode: (request: WrapNodeRequest) => Promise<WrapNodeResponse>;
 	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
@@ -269,5 +272,6 @@ export type BrowserStudioOperations = {
 declare global {
 	interface Window {
 		remotion_browserStudio?: BrowserStudioOperations;
+		remotion_showBrowserStudioExperimentalNotice: boolean | null;
 	}
 }

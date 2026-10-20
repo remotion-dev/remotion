@@ -73,7 +73,6 @@ export const Comp = () => (
 					nodePath: lineContainingToNodePath(current, tag),
 					captions,
 					durationInFrames,
-					premountFor: 30,
 				},
 				entryPoint,
 				remotionRoot,
@@ -112,7 +111,7 @@ export const Comp = () => (
 			readdirSync(remotionRoot).filter((file) => file.endsWith('.element.tsx')),
 		).toEqual(['basic-captions.element.tsx']);
 		expect(written.match(/<BasicCaptions/g)).toHaveLength(2);
-		expect(written).toContain('"text": " Hello"');
+		expect(written).toContain("text: ' Hello'");
 		expect(written.replace(/\s+/g, ' ')).toContain(
 			'<BasicCaptions captions={[',
 		);
@@ -131,6 +130,7 @@ test('wraps a root Audio in a fragment when adding captions', () => {
 	const input = `import {Audio} from 'remotion';
 export const Comp = () => <Audio src="voice.mp3" />;`;
 	const {output} = insertBasicCaptions({
+		element: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Audio'),
 		captions: [
@@ -143,12 +143,11 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 			},
 		],
 		durationInFrames: 30,
-		premountFor: 30,
 	});
 
 	expect(output).toContain('<>');
 	expect(output).toContain('<Audio src="voice.mp3" />');
-	expect(output).toContain('<BasicCaptions captions={[');
+	expect(output.replace(/\s+/g, ' ')).toContain('<BasicCaptions captions={[');
 	expect(output).toContain('durationInFrames={30}');
 });
 
@@ -182,21 +181,21 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 		},
 	];
 	const first = insertBasicCaptions({
+		element: null,
 		input,
 		nodePath: lineContainingToNodePath(input, '<Audio'),
 		captions,
 		durationInFrames: 30,
-		premountFor: 30,
 		importPath: localElement.importPath,
 	});
 	const second = insertBasicCaptions({
+		element: null,
 		input: first.output,
 		nodePath: lineContainingToNodePath(first.output, '<Audio'),
 		captions,
 		durationInFrames: 30,
-		premountFor: 30,
 		importPath: localElement.importPath,
 	});
-	expect(second.output.match(/<BasicCaptions captions/g)).toHaveLength(2);
+	expect(second.output.match(/<BasicCaptions\b/g)).toHaveLength(2);
 	expect(second.output.match(/import \{BasicCaptions\}/g)).toHaveLength(1);
 });

@@ -10,13 +10,13 @@ crumb: 'API'
 Renders a solid-color rectangle on a [`<canvas>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas) element.
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Solid} from 'remotion';
+import {Solid} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Solid color="#3344ff" width={1920} height={1080} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -50,14 +50,14 @@ Set a higher value to paint to a higher-resolution backing canvas while keeping 
 This is useful to counteract quality loss when the `<Solid>` is scaled up – for example via the [`scale`](/docs/scaling) render option, or on a high-DPI display in the preview. Pass [`usePixelDensity()`](/docs/use-pixel-density) to use the render `scale` while rendering and `window.devicePixelRatio` while previewing:
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Solid, usePixelDensity} from 'remotion';
+import {Solid, usePixelDensity} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const pixelDensity = usePixelDensity();
   return (
-    <AbsoluteFill>
+    <>
       <Solid color="#3344ff" width={1920} height={1080} pixelDensity={pixelDensity} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

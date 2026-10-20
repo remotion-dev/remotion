@@ -22,18 +22,13 @@ The effect renders static procedural linework. Animate its parameters, such as `
 
 ```tsx twoslash title="MyComp.tsx"
 import {contourLines} from '@remotion/effects/contour-lines';
-import {
-  AbsoluteFill,
-  CanvasImage,
-  staticFile,
-  useCurrentFrame,
-} from 'remotion';
+import {CanvasImage, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
+    <>
       <CanvasImage
         src={staticFile('image.png')}
         width={1280}
@@ -53,7 +48,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

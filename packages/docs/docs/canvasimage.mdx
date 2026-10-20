@@ -14,13 +14,13 @@ Drawback: Assets must support CORS.
 Use [`<Img>`](/docs/img) if you want a component based on the regular `<img>` tag.
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+import {CanvasImage, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <CanvasImage src={staticFile('image.png')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

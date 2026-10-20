@@ -117,6 +117,7 @@ const getBorderRadiusFields = (
 		getDragOverrides: () => ({}),
 		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props,
 				effects: [],
@@ -132,6 +133,7 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 		nodePath,
 		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props: {},
 				effects: [
@@ -199,6 +201,7 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 		nodePath,
 		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+				durationDependentKeyframes: null,
 				canUpdate: true,
 				props: {},
 				effects: [

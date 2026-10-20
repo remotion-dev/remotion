@@ -1,9 +1,10 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, Interactive} from 'remotion';
 
-export const ElementComponent: React.FC = () => {
+const ElementComponentInner: React.FC = () => {
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				alignItems: 'center',
 				backgroundColor: '#111827',
@@ -19,3 +20,8 @@ export const ElementComponent: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const ElementComponent = Interactive.create({
+	Component: ElementComponentInner,
+	layout: 'absolute-fill',
+});

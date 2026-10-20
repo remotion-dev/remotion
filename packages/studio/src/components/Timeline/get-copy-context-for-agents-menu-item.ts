@@ -1,10 +1,12 @@
+import {copyText} from '../../helpers/copy-text';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 
 export const getCopyContextForAgentsMenuItem = ({
 	contextForAgents,
 }: {
-	readonly contextForAgents: string | null;
+	// Pass a function to only resolve the context once the item is clicked.
+	readonly contextForAgents: string | null | (() => Promise<string | null>);
 }): ComboboxValue => {
 	return {
 		type: 'item',
@@ -18,10 +20,20 @@ export const getCopyContextForAgentsMenuItem = ({
 				return;
 			}
 
-			navigator.clipboard.writeText(contextForAgents).catch((err) => {
+			copyText(
+				typeof contextForAgents === 'string'
+					? contextForAgents
+					: contextForAgents().then((context) => {
+							if (!context) {
+								throw new Error('No source location found');
+							}
+
+							return context;
+						}),
+			).catch((err) => {
 				showNotification(
 					`Could not copy to clipboard: ${(err as Error).message}`,
-					1000,
+					2000,
 				);
 			});
 		},

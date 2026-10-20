@@ -471,6 +471,8 @@ const getRules = (typescript: boolean) => {
 		// Turning off rules that are too strict or don't apply to Remotion
 		'react/jsx-no-constructed-context-values': 'off',
 		'no-console': 'off',
+		'no-use-before-define': 'off',
+		'@typescript-eslint/no-use-before-define': 'off',
 		'react/react-in-jsx-scope': 'off',
 		'react/jsx-key': 'off',
 		'react/jsx-no-target-blank': 'off',

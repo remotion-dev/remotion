@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {BLACK} from '../../helpers/colors';
 import {
@@ -11,7 +11,10 @@ import {
 } from '../../helpers/get-timeline-max-zoom';
 import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
 import {CanvasZoomIcon, CanvasZoomOutIcon} from '../../icons/canvas-zoom';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
+import {
+	TimelineZoomCtx,
+	TimelineZoomImperativeContext,
+} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
 import {ControlButton} from '../ControlButton';
@@ -19,6 +22,16 @@ import {Spacing} from '../layout';
 import {scrollableRef} from './timeline-refs';
 
 const TIMELINE_ZOOM_BUTTON_FACTOR = 1.2;
+const timelineZoomKeys = [
+	'ArrowLeft',
+	'ArrowRight',
+	'ArrowUp',
+	'ArrowDown',
+	'PageUp',
+	'PageDown',
+	'Home',
+	'End',
+];
 
 const container: React.CSSProperties = {
 	color: BLACK,
@@ -37,6 +50,8 @@ const TimelineZoomSlider: React.FC<{
 	readonly timelineViewportWidth: number;
 }> = ({maxWidth, minZoom, timelineViewportWidth}) => {
 	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
+	const {beginZoom, endZoom} = useContext(TimelineZoomImperativeContext);
+	useEffect(() => endZoom, [endZoom]);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {tabIndex} = useZIndex();
 	const isVideoComposition = useIsVideoComposition();
@@ -85,6 +100,28 @@ const TimelineZoomSlider: React.FC<{
 			step={TIMELINE_ZOOM_SLIDER_PROPS.step}
 			value={timelineZoomToSliderValue({zoom, minZoom})}
 			onChange={onChange}
+			onPointerDown={(event) => {
+				if (event.button !== 0) {
+					return;
+				}
+
+				event.currentTarget.setPointerCapture(event.pointerId);
+				beginZoom();
+			}}
+			onPointerUp={endZoom}
+			onPointerCancel={endZoom}
+			onLostPointerCapture={endZoom}
+			onBlur={endZoom}
+			onKeyDown={(event) => {
+				if (timelineZoomKeys.includes(event.key)) {
+					beginZoom();
+				}
+			}}
+			onKeyUp={(event) => {
+				if (timelineZoomKeys.includes(event.key)) {
+					endZoom();
+				}
+			}}
 			className="__remotion-timeline-slider"
 			tabIndex={tabIndex}
 		/>
@@ -94,7 +131,7 @@ const TimelineZoomSlider: React.FC<{
 const TimelineZoomControlsInner: React.FC<{
 	readonly sliderMaxWidth?: number;
 }> = ({sliderMaxWidth}) => {
-	const {setZoom} = useContext(TimelineZoomCtx);
+	const {setZoom} = useContext(TimelineZoomImperativeContext);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const timelineSize = PlayerInternals.useElementSize(scrollableRef, {
 		triggerOnWindowResize: true,

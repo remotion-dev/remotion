@@ -13,15 +13,14 @@ import {
 } from 'remotion';
 
 type BasicCaptionsProps = InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
 const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 	captions,
-	combineTokensWithinMilliseconds = 2000,
-	height = 220,
+	combineTokensWithinMilliseconds = 3000,
 	style,
 	width = 900,
 }) => {
@@ -53,7 +52,6 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 				left: '50%',
 				transform: 'translateX(-50%)',
 				width,
-				height,
 				...style,
 			}}
 		>
@@ -93,29 +91,20 @@ const basicCaptionsSchema = {
 		description: 'Caption area width',
 		hiddenFromList: false,
 	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
-		hiddenFromList: false,
-	},
 	combineTokensWithinMilliseconds: {
 		type: 'number',
 		min: 0,
 		step: 50,
-		default: 2000,
+		default: 3000,
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
 } as const satisfies InteractivitySchema;
 
-export const BasicCaptions = Interactive.withSchema({
+export const BasicCaptions = Interactive.create({
 	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
 	schema: basicCaptionsSchema,
-	wrapInSequence: true,
 });
 `;
 

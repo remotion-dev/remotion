@@ -1786,6 +1786,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./CinzelDecorative') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Clarity City',
+		importName: 'ClarityCity',
+		load: () => import('./ClarityCity') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Clicker Script',
 		importName: 'ClickerScript',
 		load: () => import('./ClickerScript') as Promise<GoogleFont>,
@@ -3596,6 +3601,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./IslandMoments') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Isometra',
+		importName: 'Isometra',
+		load: () => import('./Isometra') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Istok Web',
 		importName: 'IstokWeb',
 		load: () => import('./IstokWeb') as Promise<GoogleFont>,
@@ -4066,6 +4076,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Kreon') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Kripa',
+		importName: 'Kripa',
+		load: () => import('./Kripa') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Kristi',
 		importName: 'Kristi',
 		load: () => import('./Kristi') as Promise<GoogleFont>,
@@ -4334,6 +4349,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Libre Bodoni',
 		importName: 'LibreBodoni',
 		load: () => import('./LibreBodoni') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libre Caslon Condensed',
+		importName: 'LibreCaslonCondensed',
+		load: () => import('./LibreCaslonCondensed') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Libre Caslon Display',

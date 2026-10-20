@@ -69,6 +69,7 @@ export type BrowserStudioProps = {
 		sourceOrigin: string | null;
 	} | null;
 	iframeSrc?: string;
+	showExperimentalNotice?: boolean;
 	remotionPackageSource?: BrowserStudioRemotionPackageSource;
 	dependencyResolver?: BrowserStudioDependencyResolver;
 	onCompileStateChange?: (state: CompileState) => void;

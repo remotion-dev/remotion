@@ -8,6 +8,7 @@ import type {
 	Statement,
 	StringLiteral,
 } from '@babel/types';
+import {getInteractiveComponent} from './get-interactive-component';
 
 // Keep this entry browser-safe. The main codemod entry imports Recast, which
 // depends on Node built-ins and cannot be loaded by a static Studio bundle.
@@ -376,6 +377,7 @@ const resolveDeclaration = ({
 	}
 
 	const file = parseSource(source);
+	let localName = exportName;
 	if (exportName === 'default') {
 		const defaultExport = file.program.body.find(
 			(statement) => statement.type === 'ExportDefaultDeclaration',
@@ -384,23 +386,44 @@ const resolveDeclaration = ({
 			defaultExport?.type === 'ExportDefaultDeclaration' &&
 			defaultExport.declaration.type === 'Identifier'
 		) {
-			for (const statement of file.program.body) {
-				const declaration = getDeclaration(
-					statement,
-					defaultExport.declaration.name,
-				);
-				if (declaration) {
-					return {declaration, exportName, filePath, source};
-				}
-			}
+			localName = defaultExport.declaration.name;
 		}
 	}
 
 	for (const statement of file.program.body) {
-		const declaration = getDeclaration(statement, exportName);
+		let declaration = getDeclaration(statement, localName);
 		if (declaration) {
+			let component = getInteractiveComponent({ast: file, declaration});
+			while (component) {
+				if (component.type === 'Identifier') {
+					return resolveDeclaration({
+						filePath,
+						exportName: component.name,
+						project,
+						visited,
+					});
+				}
+
+				declaration = component;
+				component = getInteractiveComponent({ast: file, declaration});
+			}
+
 			return {declaration, exportName, filePath, source};
 		}
+	}
+
+	const importedComponent = findImportedComponent(file, localName);
+	if (importedComponent) {
+		return resolveDeclaration({
+			filePath: resolveImport({
+				fromFile: filePath,
+				importPath: importedComponent.path,
+				project,
+			}),
+			exportName: importedComponent.exportName,
+			project,
+			visited,
+		});
 	}
 
 	if (exportName !== 'default') {

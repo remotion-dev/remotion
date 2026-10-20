@@ -34,10 +34,10 @@ import type {MaxCanvasSinkFrameSize} from './video/props';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
-	| {type: 'unknown-container-format'}
+	| {type: 'unknown-container-format'; error: Error}
 	| {type: 'cannot-decode'}
 	| {type: 'cannot-decode-prores'}
-	| {type: 'network-error'}
+	| {type: 'network-error'; error: Error}
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
 
@@ -324,7 +324,7 @@ export class MediaPlayer {
 					error,
 				);
 
-				return {type: 'unknown-container-format'};
+				return {type: 'unknown-container-format', error: err};
 			}
 
 			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
@@ -378,6 +378,7 @@ export class MediaPlayer {
 				}
 
 				this.videoIteratorManager = await videoIteratorManager({
+					getIsDisposed: () => this.isDisposalError(),
 					videoTrack,
 					delayPlaybackHandleIfNotPremounting:
 						this.delayPlaybackHandleIfNotPremounting,
@@ -394,6 +395,10 @@ export class MediaPlayer {
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
 				});
+			}
+
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
 			}
 
 			const startTime = this.getTrimmedTime(startTimeUnresolved);
@@ -480,6 +485,10 @@ export class MediaPlayer {
 				);
 			}
 
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
+			}
+
 			return {type: 'success', durationInSeconds};
 		} catch (error) {
 			const err = error as Error;
@@ -490,7 +499,7 @@ export class MediaPlayer {
 					`[MediaPlayer] Network/CORS error for ${this.src}`,
 					err,
 				);
-				return {type: 'network-error'};
+				return {type: 'network-error', error: err};
 			}
 
 			Internals.Log.error(
@@ -772,6 +781,9 @@ export class MediaPlayer {
 		}
 
 		this.disposed = true;
+		// Cancel pending paints before waiting for initialization to settle.
+		this.nonceManager.createAsyncOperation();
+		this.videoIteratorManager?.destroy();
 
 		if (this.initializationPromise) {
 			try {
@@ -784,8 +796,6 @@ export class MediaPlayer {
 			}
 		}
 
-		// Mark all async operations as stale
-		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroyIterator();
 		// Release our reference to the shared Input; it is only disposed once the

@@ -10,6 +10,7 @@ import {
 
 test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			opacity: {
@@ -22,6 +23,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 	};
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'opacity',
 		frame: 25,
@@ -45,6 +47,7 @@ test('optimisticAddSequenceKeyframe converts a static prop to a single keyframe'
 
 test('optimisticAddSequenceKeyframe adds a missing prop before keyframing it', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [],
@@ -58,6 +61,7 @@ test('optimisticAddSequenceKeyframe adds a missing prop before keyframing it', (
 	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'opacity',
 		frame: 25,
@@ -80,6 +84,7 @@ test('optimisticAddSequenceKeyframe adds a missing prop before keyframing it', (
 
 test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.translate': {
@@ -98,6 +103,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () =
 	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.translate',
 		frame: 44,
@@ -121,6 +127,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for translate fields', () =
 
 test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.rotate': {
@@ -139,6 +146,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', (
 	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.rotate',
 		frame: 44,
@@ -162,6 +170,7 @@ test('optimisticAddSequenceKeyframe uses interpolate for rotation-css fields', (
 
 test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			playbackRate: {
@@ -182,6 +191,7 @@ test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'playbackRate',
 		frame: 25,
@@ -194,6 +204,7 @@ test('optimisticAddSequenceKeyframe ignores non-keyframable fields', () => {
 
 test('optimisticAddSequenceKeyframe ignores enum fields', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			layout: {
@@ -216,6 +227,7 @@ test('optimisticAddSequenceKeyframe ignores enum fields', () => {
 	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'layout',
 		frame: 25,
@@ -239,6 +251,7 @@ test('optimisticAddSequenceKeyframe uses hold easing for enabled enum fields', (
 		},
 	} satisfies InteractivitySchema;
 	const initial: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			cursor: {
@@ -250,6 +263,7 @@ test('optimisticAddSequenceKeyframe uses hold easing for enabled enum fields', (
 		effects: [],
 	};
 	const withFirstKeyframe = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous: initial,
 		fieldKey: 'cursor',
 		frame: 0,
@@ -257,6 +271,7 @@ test('optimisticAddSequenceKeyframe uses hold easing for enabled enum fields', (
 		schema,
 	});
 	const withSecondKeyframe = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous: withFirstKeyframe,
 		fieldKey: 'cursor',
 		frame: 100,
@@ -283,6 +298,7 @@ test('optimisticAddSequenceKeyframe uses hold easing for enabled enum fields', (
 
 test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolation', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			scale: {
@@ -303,6 +319,7 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 	};
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'scale',
 		frame: 30,
@@ -328,6 +345,7 @@ test('optimisticAddSequenceKeyframe appends a keyframe to an existing interpolat
 
 test('optimisticAddSequenceKeyframe duplicates the easing for the split segment', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			scale: {
@@ -352,6 +370,7 @@ test('optimisticAddSequenceKeyframe duplicates the easing for the split segment'
 	};
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'scale',
 		frame: 38,
@@ -376,6 +395,7 @@ test('optimisticAddSequenceKeyframe duplicates the easing for the split segment'
 
 test('optimisticAddSequenceKeyframe uses linear easing outside the keyframe range', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			scale: {
@@ -396,6 +416,7 @@ test('optimisticAddSequenceKeyframe uses linear easing outside the keyframe rang
 	};
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'scale',
 		frame: 90,
@@ -419,6 +440,7 @@ test('optimisticAddSequenceKeyframe uses linear easing outside the keyframe rang
 
 test('optimisticAddSequenceKeyframe updates an existing keyframe at the same frame', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			scale: {
@@ -439,6 +461,7 @@ test('optimisticAddSequenceKeyframe updates an existing keyframe at the same fra
 	};
 
 	const updated = optimisticAddSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'scale',
 		frame: 60,
@@ -463,6 +486,7 @@ test('optimisticAddSequenceKeyframe updates an existing keyframe at the same fra
 
 test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [
@@ -488,6 +512,7 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 	};
 
 	const updated = optimisticAddEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',
@@ -517,6 +542,7 @@ test('optimisticAddEffectKeyframe appends a keyframe on the target effect', () =
 
 test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [
@@ -537,6 +563,7 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 	};
 
 	const updated = optimisticAddEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',
@@ -565,6 +592,7 @@ test('optimisticAddEffectKeyframe converts a static prop to a single keyframe', 
 
 test('optimisticAddEffectKeyframe adds a missing prop before keyframing it', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [
@@ -586,6 +614,7 @@ test('optimisticAddEffectKeyframe adds a missing prop before keyframing it', () 
 	} satisfies InteractivitySchema;
 
 	const updated = optimisticAddEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'startBlur',

@@ -14,6 +14,8 @@ const completedStatus: S3RendererStatus = {
 	lambdaInvoked: true,
 	renderedFrames: 20,
 	encodedFrames: 20,
+	uploadedFrames: 0,
+	uploadedSizeInBytes: 0,
 	startedAt: 100,
 	completedAt: 200,
 	videoKey: 'video',

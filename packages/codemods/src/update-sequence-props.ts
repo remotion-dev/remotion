@@ -1061,7 +1061,8 @@ const updateSequencePropsNode = ({
 			return parseValueExpression(value);
 		}
 
-		return expression.value === value
+		return NoReactInternals.evaluateSourceNumericValue(expression, null) ===
+			value
 			? (existing as ExpressionKind)
 			: updateVideoConfigNumericExpression({expression, value});
 	};

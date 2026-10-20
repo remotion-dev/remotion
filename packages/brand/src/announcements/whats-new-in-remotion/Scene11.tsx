@@ -1,18 +1,18 @@
 import {Video} from '@remotion/media';
-import {Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {assetUrl} from './assets';
-import {SILENCES} from './Composition';
 import type {EndCardPlatform} from './EndCard';
 import {EndCard} from './EndCard';
-
-const FILE = 'whats11.mov';
 
 export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const silence = SILENCES[FILE];
-	const trimBefore = Math.floor(silence.leadingEnd * fps);
-	const trimAfter = Math.ceil(silence.trailingStart * fps);
 
 	return (
 		<>
@@ -30,11 +30,12 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 						},
 					),
 				}}
-				src={assetUrl(FILE)}
-				trimBefore={trimBefore}
-				trimAfter={trimAfter}
+				src={assetUrl('whats11.mov')}
+				trimBefore={98}
+				trimAfter={840}
 			/>
-			<div
+			<Interactive.Div
+				name="End card panel"
 				style={{
 					backgroundColor: 'white',
 					bottom: 0,
@@ -56,7 +57,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				}}
 			>
 				<EndCard platform={platform} />
-			</div>
+			</Interactive.Div>
 		</>
 	);
 };

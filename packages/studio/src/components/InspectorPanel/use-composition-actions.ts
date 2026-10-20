@@ -1,10 +1,19 @@
 import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
-import {useCallback, useContext, useMemo, useState} from 'react';
+import {
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+	type MouseEvent,
+} from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {getRelativeFileLocation} from '../../helpers/format-file-location';
+import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
+import {requestCodexAnnotation} from '../../helpers/request-codex-annotation';
 import {SetSelectedModalContext} from '../../state/modals';
 import {callApi} from '../call-api';
 import type {CompositionDragData} from '../composition-drag-data';
@@ -15,6 +24,7 @@ import {
 	pickFilesToImport,
 } from '../import-assets';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {useSettings} from '../SettingsContext';
 import {getOriginalLocationFromStack} from '../Timeline/TimelineStack/get-stack';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 
@@ -24,10 +34,18 @@ export const useCompositionActions = () => {
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [isAddingSolid, setIsAddingSolid] = useState(false);
+	const [isAddingText, setIsAddingText] = useState(false);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [isAddingComposition, setIsAddingComposition] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {remotionSkillsInfo} = useSettings();
+	const markupSkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-markup',
+	);
+	const markupSkillAvailable = Boolean(
+		markupSkill?.installedInProject || markupSkill?.installedGlobally,
+	);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const browserStudioOperations = getBrowserStudioOperations();
@@ -67,6 +85,8 @@ export const useCompositionActions = () => {
 		compositionFile !== null &&
 		videoConfig !== null;
 	const canInsertSolid = canShowInsertSolid && !isAddingSolid;
+	const canShowInsertText = canShowInsertSolid;
+	const canInsertText = canShowInsertText && !isAddingText;
 
 	const canShowInsertAsset =
 		previewInteractive &&
@@ -78,9 +98,9 @@ export const useCompositionActions = () => {
 	const canShowInsertComposition = canShowInsertAsset && videoConfig !== null;
 	const canInsertComposition = canShowInsertComposition && !isAddingComposition;
 	const canShowGenerateWithAgent =
-		previewInteractive &&
-		!window.remotion_isReadOnlyStudio &&
 		browserStudioOperations === null &&
+		!window.remotion_isReadOnlyStudio &&
+		(previewInteractive || getCodexAnnotation() !== null) &&
 		currentCompositionId !== null;
 
 	const insertSolid = useCallback(async () => {
@@ -99,7 +119,6 @@ export const useCompositionActions = () => {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
-				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -124,6 +143,86 @@ export const useCompositionActions = () => {
 	}, [
 		browserStudioOperations,
 		canInsertSolid,
+		compositionFile,
+		currentCompositionId,
+		videoConfig,
+	]);
+
+	const insertText = useCallback(async () => {
+		if (
+			!canInsertText ||
+			currentCompositionId === null ||
+			compositionFile === null ||
+			videoConfig === null
+		) {
+			return;
+		}
+
+		setIsAddingText(true);
+		try {
+			const fontSize = Math.max(
+				1,
+				Math.round(Math.min(videoConfig.width, videoConfig.height) * 0.075),
+			);
+			const preview = Internals.portalNode();
+			const previewRect = preview.getBoundingClientRect();
+			if (previewRect.width === 0 || previewRect.height === 0) {
+				throw new Error(
+					'The composition preview is not ready for text insertion.',
+				);
+			}
+
+			// Measure the text in the preview to account for its font metrics and zoom.
+			const measurement = document.createElement('div');
+			measurement.textContent = 'Text';
+			Object.assign(measurement.style, {
+				position: 'absolute',
+				fontFamily: 'sans-serif',
+				fontSize: `${fontSize}px`,
+				visibility: 'hidden',
+				pointerEvents: 'none',
+			});
+			preview.appendChild(measurement);
+			let textRect: DOMRect;
+			try {
+				textRect = measurement.getBoundingClientRect();
+			} finally {
+				measurement.remove();
+			}
+
+			const scale = previewRect.width / videoConfig.width;
+			const request: InsertCompositionElementRequest = {
+				compositionFile,
+				compositionId: currentCompositionId,
+				from: null,
+				element: {
+					type: 'text',
+					text: 'Text',
+					fontSize,
+					color: 'white',
+					position: {
+						x: (videoConfig.width - textRect.width / scale) / 2,
+						y: (videoConfig.height - textRect.height / scale) / 2,
+					},
+				},
+			};
+			const result = browserStudioOperations
+				? await browserStudioOperations.insertCompositionElement(request)
+				: await callApi('/api/insert-composition-element', request);
+
+			if (result.success) {
+				return;
+			}
+
+			showNotification(result.reason, 4000);
+		} catch (err) {
+			showNotification((err as Error).message, 4000);
+		} finally {
+			setIsAddingText(false);
+		}
+	}, [
+		browserStudioOperations,
+		canInsertText,
 		compositionFile,
 		currentCompositionId,
 		videoConfig,
@@ -247,7 +346,6 @@ export const useCompositionActions = () => {
 					compositionFile,
 					compositionId: currentCompositionId,
 					dropPosition: null,
-					fps: videoConfig.fps,
 					from: null,
 					preferCompositionStart: null,
 				});
@@ -293,28 +391,75 @@ export const useCompositionActions = () => {
 		setSelectedModal,
 	]);
 
-	const generateWithAgent = useCallback(() => {
-		if (currentCompositionId === null) {
-			return;
-		}
+	const generateWithAgent = useCallback(
+		(event: MouseEvent<HTMLButtonElement>) => {
+			if (!canShowGenerateWithAgent || currentCompositionId === null) {
+				return;
+			}
 
-		setSelectedModal({
-			type: 'generate-with-agent',
-			location: compositionComponentInfo?.location ?? null,
-		});
-	}, [compositionComponentInfo, currentCompositionId, setSelectedModal]);
+			const location = compositionComponentInfo?.location ?? null;
+			if (markupSkillAvailable && getCodexAnnotation() !== null) {
+				const sourceLocation = getRelativeFileLocation({
+					location,
+					root: window.remotion_cwd,
+				});
+				const metadata: Record<string, string | number> = {};
+				if (currentCompositionId.length <= 256) {
+					metadata.composition = currentCompositionId;
+				}
+
+				if (sourceLocation && sourceLocation.filename.length <= 256) {
+					const withSource = {
+						...metadata,
+						source: sourceLocation.filename,
+						line: sourceLocation.line,
+					};
+					if (
+						new TextEncoder().encode(JSON.stringify(withSource)).length <= 2048
+					) {
+						metadata.source = sourceLocation.filename;
+						metadata.line = sourceLocation.line;
+					}
+				}
+
+				const accepted = requestCodexAnnotation({
+					target: event.currentTarget,
+					initialComment: '$remotion-markup',
+					metadata,
+				});
+				if (accepted) {
+					return;
+				}
+			}
+
+			setSelectedModal({
+				type: 'generate-with-agent',
+				location,
+			});
+		},
+		[
+			canShowGenerateWithAgent,
+			compositionComponentInfo,
+			currentCompositionId,
+			markupSkillAvailable,
+			setSelectedModal,
+		],
+	);
 
 	return {
 		canInsertAsset,
 		canInsertComposition,
 		canInsertSolid,
+		canInsertText,
 		canShowInsertAsset,
 		canShowInsertComposition,
 		canShowInsertSolid,
+		canShowInsertText,
 		canShowGenerateWithAgent,
 		insertAsset,
 		insertComposition,
 		insertSolid,
+		insertText,
 		generateWithAgent,
 	};
 };

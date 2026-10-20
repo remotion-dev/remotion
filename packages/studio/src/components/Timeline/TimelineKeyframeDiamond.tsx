@@ -38,7 +38,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 	const ref = useRef<HTMLButtonElement>(null);
 	const {selected, onSelect, selectable, selectionItem} =
 		useTimelineKeyframeSelection(nodePathInfo, frame);
-	useTimelineMarqueeSelectableItem(selectionItem, ref);
+	useTimelineMarqueeSelectableItem(selectionItem, ref, null);
 	const {isKeyframeDragging} = useTimelineKeyframeDragState();
 	const visuallySelected =
 		selected || isKeyframeDragging({nodePathInfo, frame});

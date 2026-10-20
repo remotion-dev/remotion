@@ -33,6 +33,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	name,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	preservePitch,
 	trimAfter,
 	trimBefore,
 	onError,
@@ -166,6 +167,19 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					setReplaceWithHtml5Audio(true);
 				};
 
+				if (
+					(result.type === 'unknown-container-format' ||
+						result.type === 'network-error') &&
+					result.error
+				) {
+					handleError(
+						result.error,
+						result.error,
+						`Failed to read ${src}: ${result.error.message}, falling back to <Html5Audio>`,
+					);
+					return;
+				}
+
 				if (result.type === 'unknown-container-format') {
 					handleError(
 						new Error(`Unknown container format ${src}.`),
@@ -244,7 +258,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						startInVideo,
 						timestamp: audio.timestamp,
 						duration: audio.durationInMicroSeconds,
-						toneFrequency: toneFrequency ?? 1,
+						toneFrequency:
+							(toneFrequency ?? 1) /
+							(preservePitch ? (playbackRate ?? 1) * sequencePlaybackRate : 1),
 					});
 				}
 
@@ -289,6 +305,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		volumeProp,
 		audioStreamIndex,
 		toneFrequency,
+		preservePitch,
 		trimAfter,
 		trimBefore,
 		replaceWithHtml5Audio,
@@ -318,7 +335,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				acceptableTimeShiftInSeconds={
 					fallbackHtml5AudioProps?.acceptableTimeShiftInSeconds
 				}
-				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? true}
+				preservePitch={
+					fallbackHtml5AudioProps?.preservePitch ?? preservePitch ?? true
+				}
 				name={name}
 				showInTimeline={showInTimeline}
 			/>
