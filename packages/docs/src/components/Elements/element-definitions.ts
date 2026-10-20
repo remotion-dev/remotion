@@ -928,10 +928,10 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl:
-				'https://remotion.media/elements/maps-spinning-globe-preview-519f9607-5856-4487-b5bf-8648f3c004af.png',
-			backgroundTheme: 'dark',
+				'https://remotion.media/elements/maps-spinning-globe-preview-074f0f12-5bf4-4357-a622-5afe8a371b5d.png',
+			backgroundTheme: 'light',
 			videoUrl:
-				'https://remotion.media/elements/maps-spinning-globe-preview-519f9607-5856-4487-b5bf-8648f3c004af.mp4',
+				'https://remotion.media/elements/maps-spinning-globe-preview-074f0f12-5bf4-4357-a622-5afe8a371b5d.mp4',
 		},
 		safeArea: 0,
 		initialProps: spinningGlobeInitialProps,
