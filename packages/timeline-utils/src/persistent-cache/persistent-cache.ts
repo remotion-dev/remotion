@@ -53,11 +53,6 @@ type ThumbnailRecord = {
 	readonly image: Blob;
 };
 
-type Fingerprint = {
-	readonly value: string;
-	readonly maxAgeMs: number | null;
-};
-
 type PendingThumbnail = {
 	readonly src: string;
 	readonly aspectRatio: number | null;
@@ -71,8 +66,11 @@ type PendingThumbnail = {
 const ALL_STORES = ['sources', 'waveforms', 'thumbnails'];
 
 let databasePromise: Promise<IDBDatabase | null> | null = null;
-const remoteFingerprints = new Map<string, Promise<Fingerprint | null>>();
-const preparedSources = new Map<string, Promise<IDBDatabase | null>>();
+const UNVALIDATED = 'unvalidated';
+
+const remoteFingerprints = new Map<string, Promise<string | null>>();
+const readableSources = new Map<string, Promise<IDBDatabase | null>>();
+const writableSources = new Map<string, Promise<IDBDatabase | null>>();
 let pendingThumbnails: PendingThumbnail[] = [];
 let thumbnailFlushTimeout: ReturnType<typeof setTimeout> | null = null;
 let evictionTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -136,7 +134,8 @@ const openDatabase = (): Promise<IDBDatabase | null> => {
 			database.onversionchange = () => {
 				database.close();
 				databasePromise = null;
-				preparedSources.clear();
+				readableSources.clear();
+				writableSources.clear();
 			};
 
 			resolve(database);
@@ -148,24 +147,20 @@ const openDatabase = (): Promise<IDBDatabase | null> => {
 	return databasePromise;
 };
 
-const getFingerprint = (src: string): Promise<Fingerprint | null> => {
-	if (src.startsWith('blob:') || src.startsWith('data:')) {
-		return Promise.resolve(null);
-	}
-
-	// The Studio knows size and modification time of public folder files,
-	// so they can be validated without a request.
+// The Studio knows size and modification time of public folder files, so
+// they can be validated without a request.
+const getStaticFileFingerprint = (src: string): string | null => {
 	const staticFile =
 		typeof window === 'undefined'
 			? undefined
 			: window.remotion_staticFiles?.find((file) => file.src === src);
-	if (staticFile) {
-		return Promise.resolve({
-			value: `static:${staticFile.sizeInBytes}:${staticFile.lastModified}`,
-			maxAgeMs: null,
-		});
-	}
 
+	return staticFile
+		? `static:${staticFile.sizeInBytes}:${staticFile.lastModified}`
+		: null;
+};
+
+const getRemoteFingerprint = (src: string): Promise<string | null> => {
 	const existing = remoteFingerprints.get(src);
 	if (existing) {
 		return existing;
@@ -173,7 +168,7 @@ const getFingerprint = (src: string): Promise<Fingerprint | null> => {
 
 	// A ranged GET instead of HEAD, because presigned URLs are only signed for GET.
 	const promise = fetch(src, {headers: {Range: 'bytes=0-0'}, cache: 'no-store'})
-		.then((response): Fingerprint | null => {
+		.then((response) => {
 			response.body?.cancel().catch(() => undefined);
 			if (!response.ok) {
 				return null;
@@ -182,17 +177,18 @@ const getFingerprint = (src: string): Promise<Fingerprint | null> => {
 			const etag = response.headers.get('etag');
 			const lastModified = response.headers.get('last-modified');
 			if (etag === null && lastModified === null) {
-				return {
-					value: 'unvalidated',
-					maxAgeMs: MAX_AGE_WITHOUT_VALIDATOR_MS,
-				};
+				return UNVALIDATED;
 			}
 
-			return {value: `remote:${etag}:${lastModified}`, maxAgeMs: null};
+			return `remote:${etag}:${lastModified}`;
 		})
 		.catch(() => null);
 	remoteFingerprints.set(src, promise);
 	return promise;
+};
+
+const isCacheable = (src: string) => {
+	return !src.startsWith('blob:') && !src.startsWith('data:');
 };
 
 // 'budget' keeps the cache below its size limit, 'halve' makes room after
@@ -308,70 +304,134 @@ const scheduleEviction = () => {
 	}, EVICTION_DELAY_MS);
 };
 
-// Resolves to the database if cached data for `src` may be read and written.
-// Purges the data of a source that has changed since it was cached.
-const getDatabaseForSource = async (
-	src: string,
-): Promise<IDBDatabase | null> => {
-	// Avoid the fingerprint request if there is no database to use it with.
-	const database = await openDatabase();
-	if (!database) {
-		return null;
+// Resolves to the database if `src` has cached data that may be read.
+// Remote sources are not validated before reading: on a slow connection, the
+// request would wait behind the media downloads and delay drawing. They are
+// validated in the background instead, and purged if they changed, so that
+// the next page load recomputes them.
+const getReadableDatabase = (src: string): Promise<IDBDatabase | null> => {
+	if (!isCacheable(src)) {
+		return Promise.resolve(null);
 	}
 
-	const fingerprint = await getFingerprint(src);
-	if (!fingerprint) {
-		return null;
-	}
-
-	const key = `${fingerprint.value}|${src}`;
-	const existing = preparedSources.get(key);
+	const staticFingerprint = getStaticFileFingerprint(src);
+	const key = `${staticFingerprint ?? 'remote'}|${src}`;
+	const existing = readableSources.get(key);
 	if (existing) {
 		return existing;
 	}
 
 	const promise = (async () => {
+		const database = await openDatabase();
+		if (!database) {
+			return null;
+		}
+
 		const transaction = database.transaction(ALL_STORES, 'readwrite');
 		const sources = transaction.objectStore('sources');
 		const source: SourceRecord | undefined = await toPromise(sources.get(src));
-		const now = Date.now();
-		const stale =
-			source !== undefined &&
-			(source.fingerprint !== fingerprint.value ||
-				(fingerprint.maxAgeMs !== null &&
-					now - source.createdAt > fingerprint.maxAgeMs));
-		if (stale) {
-			deleteSourceData(transaction, src);
+		if (!source) {
+			return null;
 		}
 
-		const record: SourceRecord =
-			source && !stale
-				? {...source, lastAccessedAt: now}
-				: {
-						src,
-						fingerprint: fingerprint.value,
-						createdAt: now,
-						lastAccessedAt: now,
-						aspectRatio: null,
-						durationInSeconds: null,
-						waveformBytes: 0,
-						thumbnailBytes: 0,
-					};
-		sources.put(record);
+		const now = Date.now();
+		const usable =
+			staticFingerprint === null
+				? source.fingerprint !== UNVALIDATED ||
+					now - source.createdAt <= MAX_AGE_WITHOUT_VALIDATOR_MS
+				: source.fingerprint === staticFingerprint;
+		if (!usable) {
+			deleteSourceData(transaction, src);
+			await transactionDone(transaction);
+			return null;
+		}
+
+		sources.put({...source, lastAccessedAt: now} satisfies SourceRecord);
 		await transactionDone(transaction);
 
-		if (record.aspectRatio !== null && !aspectRatioCache.has(src)) {
-			aspectRatioCache.set(src, record.aspectRatio);
+		if (source.aspectRatio !== null && !aspectRatioCache.has(src)) {
+			aspectRatioCache.set(src, source.aspectRatio);
 		}
 
-		if (record.durationInSeconds !== null && !mediaDurationCache.has(src)) {
-			mediaDurationCache.set(src, record.durationInSeconds);
+		if (source.durationInSeconds !== null && !mediaDurationCache.has(src)) {
+			mediaDurationCache.set(src, source.durationInSeconds);
+		}
+
+		if (staticFingerprint === null) {
+			getRemoteFingerprint(src)
+				.then((fingerprint) => {
+					if (fingerprint === null || fingerprint === source.fingerprint) {
+						return;
+					}
+
+					const purge = database.transaction(ALL_STORES, 'readwrite');
+					deleteSourceData(purge, src);
+					return transactionDone(purge);
+				})
+				.catch(() => undefined);
 		}
 
 		scheduleEviction();
 		return database;
 	})().catch(() => null);
-	preparedSources.set(key, promise);
+	readableSources.set(key, promise);
+	return promise;
+};
+
+// Resolves to the database once `src` has a record that new data can be
+// added to. Creating one requires the fingerprint of the source.
+const getWritableDatabase = (src: string): Promise<IDBDatabase | null> => {
+	if (!isCacheable(src)) {
+		return Promise.resolve(null);
+	}
+
+	const staticFingerprint = getStaticFileFingerprint(src);
+	const key = `${staticFingerprint ?? 'remote'}|${src}`;
+	const existing = writableSources.get(key);
+	if (existing) {
+		return existing;
+	}
+
+	const promise = (async () => {
+		// Avoid the fingerprint request if there is no database to use it with.
+		const database = await openDatabase();
+		if (!database) {
+			return null;
+		}
+
+		// Also purges data of a source that has changed.
+		if (await getReadableDatabase(src)) {
+			return database;
+		}
+
+		const fingerprint = staticFingerprint ?? (await getRemoteFingerprint(src));
+		if (fingerprint === null) {
+			return null;
+		}
+
+		const transaction = database.transaction(ALL_STORES, 'readwrite');
+		const sources = transaction.objectStore('sources');
+		const current: SourceRecord | undefined = await toPromise(sources.get(src));
+		if (current?.fingerprint !== fingerprint) {
+			deleteSourceData(transaction, src);
+			const now = Date.now();
+			sources.put({
+				src,
+				fingerprint,
+				createdAt: now,
+				lastAccessedAt: now,
+				aspectRatio: null,
+				durationInSeconds: null,
+				waveformBytes: 0,
+				thumbnailBytes: 0,
+			} satisfies SourceRecord);
+		}
+
+		await transactionDone(transaction);
+		scheduleEviction();
+		return database;
+	})().catch(() => null);
+	writableSources.set(key, promise);
 	return promise;
 };
 
@@ -389,7 +449,7 @@ export const readWaveformFromPersistentCache = async ({
 	readonly waveformSampleRate: number;
 }): Promise<WaveformResult | null> => {
 	try {
-		const database = await getDatabaseForSource(src);
+		const database = await getReadableDatabase(src);
 		if (!database) {
 			return null;
 		}
@@ -425,7 +485,7 @@ export const writeWaveformToPersistentCache = ({
 	readonly result: WaveformResult;
 }) => {
 	(async () => {
-		const database = await getDatabaseForSource(src);
+		const database = await getWritableDatabase(src);
 		if (!database) {
 			return;
 		}
@@ -481,7 +541,7 @@ export const hydrateThumbnailsFromPersistentCache = async ({
 	readonly getTimestamps: () => number[];
 }): Promise<void> => {
 	try {
-		const database = await getDatabaseForSource(src);
+		const database = await getReadableDatabase(src);
 		if (!database) {
 			return;
 		}
@@ -580,7 +640,7 @@ const flushThumbnails = async () => {
 	for (const [src, byKey] of bySrc) {
 		const thumbnails = Array.from(byKey.values());
 		try {
-			const database = await getDatabaseForSource(src);
+			const database = await getWritableDatabase(src);
 			if (!database) {
 				continue;
 			}
@@ -689,5 +749,6 @@ export const clearPersistentTimelineCache = async () => {
 	}
 
 	await transactionDone(transaction);
-	preparedSources.clear();
+	readableSources.clear();
+	writableSources.clear();
 };
