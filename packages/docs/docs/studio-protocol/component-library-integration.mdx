@@ -12,6 +12,16 @@ An Element contains the source code for one component. It also contains the data
 Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list.
 A component that follows the [Element guidelines](/docs/studio/creating-elements) is usually ready for Studio.
 
+## Start from a template
+
+To create your own Element Library, start with the [Element Library template](https://github.com/remotion-dev/template-element-library). It includes a React Router and Tailwind CSS website, four editable example Elements, an authoring Studio, and installation through the Studio Protocol.
+
+Follow the [template README](https://github.com/remotion-dev/template-element-library#readme) to run the website, add your own Elements, and deploy your library.
+
+The rest of this guide explains the integration if you are building from scratch or adding Studio support to an existing library.
+
+## Integration workflow
+
 Use this procedure to preview and deliver a component:
 
 <Step>1</Step> Show the component in a [`<Player>`](/docs/player).<br />
