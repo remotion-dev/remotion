@@ -985,13 +985,12 @@ export const startContent = () => {
 						!state.hasTarget ||
 						state.encoderSupport !== 'supported'));
 			renderControlsPrimary(primaryLabel, primaryDisabled);
-			const closeLabel = state.recording
-				? 'Stop recording before clearing selection'
-				: state.hasCompletedRecording
-					? 'Discard recording'
-					: state.hasTarget
-						? 'Clear selection'
-						: 'Close';
+			controlsClose.hidden = state.recording || startingRecording;
+			const closeLabel = state.hasCompletedRecording
+				? 'Discard recording'
+				: state.hasTarget
+					? 'Clear selection'
+					: 'Close';
 			controlsClose.ariaLabel = closeLabel;
 			controlsClose.dataset.tooltip = closeLabel;
 			controlsClose.disabled =
