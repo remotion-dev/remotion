@@ -7,46 +7,23 @@ crumb: '@remotion/studio-protocol'
 
 # Integrating an Element Library with Studio
 
-An Element contains the source code for one component. It also contains the data that Studio needs to insert the component.
+Make sure your library's components follow the [Element guidelines](/docs/studio/creating-elements).
 
-Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list.
-A component that follows the [Element guidelines](/docs/studio/creating-elements) is usually ready for Studio.
+## Template with best practices
 
-Use this procedure to preview and deliver a component:
+The [Element Library template](https://github.com/remotion-dev/template-element-library) is a working library website for previewing, installing, and authoring Elements.
 
-<Step>1</Step> Show the component in a [`<Player>`](/docs/player).<br />
-<Step>2</Step> Pass the component source code to [`createElementPayload()`](/docs/studio-protocol/create-element-payload).<br />
-<Step>3</Step> Use the payload to install the Element or drag the Element into Studio.
+The rest of this page is for building a library from scratch or adding Studio support to an existing one.
 
-The website can reuse, combine, or change source code before the website creates the payload. The website can also let users change the source code. Studio receives only the final payload.
+## 1. Share the Element source
 
-## Show a Player preview
+Import the component file twice. Render the component in a [`<Player>`](/docs/player) so users can see it before installing, and pass the file's source code as a string to [`createElementPayload()`](/docs/studio-protocol/create-element-payload). The preview and the installed Element then run the same code. Use the same dimensions and duration in both.
 
-Show each component in a [`<Player>`](/docs/player). The preview lets users examine the component before they send it to Studio.
-
-Import the component normally for the preview. The website bundler then compiles the component.
-
-Use the same dimensions and duration in the Player and the Element payload.
-
-### Asset handling<AvailableFrom v="4.0.528" />
-
-Images, audio, and video that your preview loads from URLs can be downloaded into the user's `public` folder when they install the Element, or keep loading from their URLs.
-
-Pass each asset to the component as a prop, such as `src`, instead of hardcoding its URL. Your preview passes the URL. The installed Element gets either `src={staticFile('my-element/logo.png')}` or the same URL. The component source doesn't change.
-
-To download an asset, declare it in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets) and replace its URL in the payload's `initialProps` with [`staticFileRef()`](/docs/studio-protocol/static-file-ref). Studio saves the file and passes it to the component with [`staticFile()`](/docs/staticfile). See the [`staticFileRef()` example](/docs/studio-protocol/static-file-ref#example).
-
-To keep an asset remote, leave its URL in `initialProps`.
-
-## Reuse component code
-
-Use the same implementation in the Player preview and the installed Element. Import the component module for the Player. Load the component source as a string for the payload.
-
-For a self-contained `.tsx` component, both imports can point to the same file. This avoids a separate Element implementation.
+Studio receives only the payload. Before creating it, your website can combine or modify the source code, or let users edit it interactively.
 
 ### Vite
 
-Vite lets you import file content with [`?raw`](https://vite.dev/guide/assets#importing-asset-as-string). The following imports load the same `.tsx` file in two forms. The normal import provides the component and its Element definition. The `?raw` import provides the source code string.
+Append [`?raw`](https://vite.dev/guide/assets#importing-asset-as-string) to an import to get the file content as a string:
 
 ```tsx title="LowerThirdGalleryItem.tsx"
 import {Player} from '@remotion/player';
@@ -75,36 +52,93 @@ export const LowerThirdGalleryItem = () => {
 };
 ```
 
-The shape of `lowerThirdElementDefinition` is specific to the Element Library. The Studio Protocol does not require this object.
-
 ### Next.js
 
-Next.js can use Webpack or Turbopack. The method that gets the source code string depends on the selected bundler.
+How you get the source code string depends on the bundler:
 
-The Studio Protocol does not require a specific method. It requires only that the browser receives the final source code string.
+- With Webpack, add an [`asset/source` rule](https://webpack.js.org/guides/asset-modules/#source-assets) to support `?raw` imports.
+- With Turbopack, write a custom script that generates a module exporting the component source as a string.
 
-With Webpack, an [`asset/source` rule](https://webpack.js.org/guides/asset-modules/#source-assets) can provide `?raw` imports.
+## 2. Handle assets<AvailableFrom v="4.0.528" /> {#asset-handling}
 
-With Turbopack, a script could create a module that exports the same component source as a string.
+Pass each image, audio, and video URL to the component as a prop named after its content, such as `logoUrl` or `audioUrl`, instead of hardcoding it:
 
-## Add install actions
+```tsx twoslash title="PodcastIntro.tsx"
+import {Audio} from '@remotion/media';
 
-Create one payload for both install actions. Run the actions in the browser.
+export const PodcastIntro = ({audioUrl}: {audioUrl: string}) => {
+  return <Audio src={audioUrl} />;
+};
+```
 
-- Let users click an Install in Studio button. Use [`installInStudio()`](/docs/studio-protocol/install-in-studio) for this action.
-- Let users drag the component into Studio. Use [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) for this action.
+The preview passes the URL through the `<Player>`'s `inputProps`. On install, Studio can download each asset into the user's project or leave it remote.
 
-When Studio embeds the library through Browse Elements, use [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio) to hide actions that are redundant inside the Studio iframe.
+### Let Studio download assets (recommended)
 
-## Test the integration
+Declare the asset in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets) and reference its path in `initialProps` with [`staticFileRef()`](/docs/studio-protocol/static-file-ref):
 
-- Compare the Player preview with the installed Element.
-- Validate each payload with `createElementPayload()`.
-- Test installation and cross-tab drag-and-drop from the production website.
-- Install the Element in a clean Remotion project. Check for unresolved imports and package dependencies.
-- Verify that installed assets appear in the public directory and render or play from local files. Confirm that assets intended to stay remote still use their URLs.
-- Treat the source code as public. The browser receives it, and Studio shows it.
-- Serve the production website through HTTPS. HTTP is supported only on `localhost` and `127.0.0.1`.
+```ts twoslash title="element-payload.ts"
+import {createElementPayload, staticFileRef} from '@remotion/studio-protocol';
+const sourceCode = '';
+// ---cut---
+const music = {
+  path: 'podcast-intro/music.mp3',
+  type: 'url',
+  url: 'https://cdn.example.com/music.mp3',
+} as const;
+
+const payload = createElementPayload({
+  displayName: 'Podcast Intro',
+  slug: 'podcast-intro',
+  sourceCode,
+  dependencies: [],
+  dimensions: {width: 1920, height: 1080},
+  durationInFrames: 150,
+  assets: [music],
+  initialProps: {
+    audioUrl: staticFileRef(music.path),
+  },
+});
+```
+
+On install, Studio saves the file to `public/podcast-intro/music.mp3` and inserts the Element with [`staticFile()`](/docs/staticfile), so it plays offline:
+
+```tsx title="Generated component invocation"
+<PodcastIntro audioUrl={staticFile('podcast-intro/music.mp3')} />
+```
+
+### Keep assets remote
+
+Put the URL in `initialProps`, for example `{audioUrl: 'https://cdn.example.com/music.mp3'}`. The installed Element loads the asset from that URL.
+
+## 3. Add install actions
+
+Create one payload and use it for both actions in the browser:
+
+- An Install in Studio button that calls [`installInStudio()`](/docs/studio-protocol/install-in-studio).
+- Dragging the component into Studio with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data).
+
+When Studio embeds your library in Browse Elements, use [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio) to hide actions that are redundant inside the Studio iframe.
+
+### Fallbacks
+
+If no Studio receives the request, `installInStudio()` resolves with `success: false` and a [`code`](/docs/studio-protocol/install-in-studio#code). Show a message that tells the user what to do, for example:
+
+- `no-compatible-studio`: Start Remotion Studio.
+- `no-installable-target`: Open a video in Studio.
+- `studio-upgrade-required`: [Upgrade Remotion](/docs/upgrading).
+
+Also offer a way around the failure:
+
+- A Try again button that is also draggable into Studio.
+- A Copy source button, so the user can paste the code into a new `.tsx` file.
+
+## 4. Test the integration
+
+<Step>1</Step> Run your website in dev mode and install an Element into Studio with both the install button and drag-and-drop.<br />
+<Step>2</Step> Check that the Element's assets and dependencies are in the project.
+
+In production, serve your website over HTTPS. HTTP works only on `localhost` and `127.0.0.1`.
 
 ## See also
 
