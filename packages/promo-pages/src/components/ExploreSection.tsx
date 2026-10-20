@@ -8,8 +8,10 @@ const videoSources: Record<string, string> = {
 	Audio: 'audio-waveform.mp4',
 	Captions: 'captions-2026-10-20-7c7e04671491.mp4',
 	AI: 'ai-prompt-2026-10-20-77a73116a839.mp4',
-	Parameterization: 'parameterization-2026-10-20-748a8dcc4089.mp4',
+	Parameterization: 'parameterization-blue-2026-10-20-6278779b9cd1.mp4',
 	Rendering: 'render-modal-codec.mp4',
+	Effects: 'effects-2026-10-20-869defbc5f69.mp4',
+	Transitions: 'transitions-2026-10-20-b49c7dfb4fe1.mp4',
 };
 
 export const ExploreSection: React.FC = () => {
@@ -17,8 +19,8 @@ export const ExploreSection: React.FC = () => {
 		<section className="mx-auto max-w-[1000px] px-5 pt-24 pb-24 [&_h2]:mb-0">
 			<SectionTitle>Problems we solve</SectionTitle>
 			<p className="mx-auto mt-2 mb-10 max-w-[760px] text-center fontbrand text-balance leading-relaxed">
-				Our mission is to explode the world of video creation into pieces and
-				let you assemble them.
+				We explode the world of video creation into pieces and let you assemble
+				them.
 			</p>
 			<div className="grid grid-cols-2 border-t border-l border-[#353b40] min-[700px]:grid-cols-3">
 				{[

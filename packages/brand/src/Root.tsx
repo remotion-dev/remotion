@@ -81,6 +81,7 @@ import {
 	ZigzagLinearBlurShowcase,
 	zigzagLinearBlurShowcaseDurationInFrames,
 } from './effects/ZigzagLinearBlurShowcase';
+import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {
@@ -92,9 +93,11 @@ import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/Aud
 import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
+import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
 import {ExploreRemotionParameterization} from './HomepageAssets/ExploreRemotion/Parameterization';
 import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
+import {ExploreRemotionTransitions} from './HomepageAssets/ExploreRemotion/Transitions';
 import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
@@ -152,6 +155,7 @@ import {TimelineLeftDragComposition} from './TimelineLeftDragComposition';
 import {TimelineSourceOnlyTrimComposition} from './TimelineSourceOnlyTrimComposition';
 import {TimelineSourceOnlyTrimWideComposition} from './TimelineSourceOnlyTrimWideComposition';
 import {TimelineVideoRollingEditComposition} from './TimelineVideoRollingEditComposition';
+import {TransitionsRecordingComposition} from './TransitionsRecordingComposition';
 import {Codex, codexSchema} from './video-elements/Codex';
 import {
 	FlyingCardsLeft,
@@ -284,6 +288,22 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionTransitions"
+						component={ExploreRemotionTransitions}
+						durationInFrames={263}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionEffects"
+						component={ExploreRemotionEffects}
+						durationInFrames={513}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
 					<Composition
 						id="ExploreRemotionParameterization"
 						component={ExploreRemotionParameterization}
@@ -1195,6 +1215,22 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				durationInFrames={933}
 				fps={60}
 				width={2032}
+				height={1440}
+			/>
+			<Composition
+				id="EffectsRecording"
+				component={EffectsRecordingComposition}
+				durationInFrames={513}
+				fps={60}
+				width={1568}
+				height={1440}
+			/>
+			<Composition
+				id="TransitionsRecording"
+				component={TransitionsRecordingComposition}
+				durationInFrames={263}
+				fps={60}
+				width={1918}
 				height={1440}
 			/>
 		</>

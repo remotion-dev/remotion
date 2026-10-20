@@ -1,5 +1,3 @@
-import {colorCorrection} from '@remotion/effects/color-correction';
-import {grayscale} from '@remotion/effects/grayscale';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
 import {ParameterizationRecordingComposition} from '../../ParameterizationRecordingComposition';
@@ -10,14 +8,6 @@ export const ExploreRemotionParameterization = () => {
 			width={1080}
 			height={1080}
 			effects={[
-				grayscale({}),
-				colorCorrection({
-					pivot: 0,
-					shadows: 1,
-					whites: 0.26,
-					blacks: -1,
-					temperature: -1,
-				}),
 				radialProgressiveBlur({
 					height: 1.661,
 					rotation: 56.3,
