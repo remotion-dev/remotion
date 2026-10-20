@@ -272,9 +272,9 @@ test.for(['error', 'cancel'] as const)(
 				settled = true;
 				return null;
 			},
-			(reason: unknown) => {
+			(rejection: unknown) => {
 				settled = true;
-				return reason;
+				return rejection;
 			},
 		);
 
