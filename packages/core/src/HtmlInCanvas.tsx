@@ -459,6 +459,7 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
 		// captureElementImage() only accepts immediate children of the layout canvas.
 		readonly _remotionInternalCanvasSiblings?: React.ReactNode;
+		readonly _remotionInternalFallbackLabel?: string;
 	};
 /* eslint-enable react/require-default-props */
 
@@ -1111,6 +1112,7 @@ const HtmlInCanvasInner = forwardRef<
 			onInit,
 			pixelDensity,
 			_remotionInternalCanvasSiblings,
+			_remotionInternalFallbackLabel = 'Effects are not visible',
 			controls,
 			style,
 			cropLeft,
@@ -1199,7 +1201,10 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
 					{!isRendering && unsupportedMessage !== null ? (
-						<HtmlInCanvasFallback style={{width, height, ...croppedStyle}}>
+						<HtmlInCanvasFallback
+							style={{width, height, ...croppedStyle}}
+							label={_remotionInternalFallbackLabel}
+						>
 							<DefaultPremountContext.Provider value={0}>
 								<div style={{width, height}}>{children}</div>
 							</DefaultPremountContext.Provider>

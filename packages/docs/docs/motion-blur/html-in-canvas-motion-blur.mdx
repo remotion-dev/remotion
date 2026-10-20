@@ -14,7 +14,7 @@ crumb: '@remotion/motion-blur'
 `<HtmlInCanvasMotionBlur>` is the state-of-the-art recommended way to achieve motion blur in Remotion.  
 It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) to be enabled during preview. Rendering needs no configuration.
 
-From <AvailableFrom v="4.0.538" inline />, if HTML-in-canvas is unavailable during preview, the component displays its children at the current frame without motion blur and shows an "Effects are not visible" warning. Rendering still fails when HTML-in-canvas is unavailable.
+From <AvailableFrom v="4.0.538" inline />, if HTML-in-canvas is unavailable during preview, the component displays its children at the current frame without motion blur and shows a "Motion blur is not visible" warning. Rendering still fails when HTML-in-canvas is unavailable.
 
 ```tsx twoslash title="MyComposition.tsx"
 import {

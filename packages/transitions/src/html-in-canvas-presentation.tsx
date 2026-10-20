@@ -331,6 +331,7 @@ export const HtmlInCanvasPresentation = <
 				: props.presentationProgress < 0.5;
 		return (
 			<Internals.HtmlInCanvasFallback
+				label="Effects are not visible"
 				style={{
 					position: 'absolute',
 					inset: 0,

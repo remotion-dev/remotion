@@ -258,6 +258,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			{...{controls}}
 			onPaint={onPaint}
 			_remotionInternalCanvasSiblings={sampleElements.slice(1)}
+			_remotionInternalFallbackLabel="Motion blur is not visible"
 		>
 			{passThrough ? children : sampleElements[0]}
 		</HtmlInCanvas>

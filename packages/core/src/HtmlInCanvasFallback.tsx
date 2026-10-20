@@ -3,7 +3,8 @@ import React from 'react';
 export const HtmlInCanvasFallback: React.FC<{
 	readonly children: React.ReactNode;
 	readonly style: React.CSSProperties;
-}> = ({children, style}) => {
+	readonly label: string;
+}> = ({children, style, label}) => {
 	return (
 		<div style={{position: 'relative', ...style}}>
 			{children}
@@ -44,7 +45,7 @@ export const HtmlInCanvasFallback: React.FC<{
 						color: '#e8bdc3',
 					}}
 				>
-					Effects are not visible
+					{label}
 				</div>
 			</div>
 		</div>
