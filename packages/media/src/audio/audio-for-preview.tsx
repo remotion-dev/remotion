@@ -94,6 +94,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
+	const preservePitchOnPlayback = useContext(Internals.PlaybackPitchContext);
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
@@ -137,7 +138,11 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
 	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
 	const effectiveToneFrequency =
-		(toneFrequency ?? 1) / (preservePitch ? effectivePlaybackRate : 1);
+		(toneFrequency ?? 1) /
+		(preservePitch ? effectivePlaybackRate : 1) /
+		(preservePitchOnPlayback && globalPlaybackRate > 0
+			? globalPlaybackRate
+			: 1);
 	const initialToneFrequencyRef = useRef(effectiveToneFrequency);
 	const sequenceDurationInFrames =
 		videoConfig.durationInFrames / sequencePlaybackRate;

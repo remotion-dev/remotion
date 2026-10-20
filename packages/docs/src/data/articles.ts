@@ -1324,6 +1324,15 @@ export const articles = [
 		slug: 'options/prefer-lossless',
 	},
 	{
+		id: 'options/preserve-pitch-on-playback',
+		title: 'Preserve pitch on playback',
+		relativePath: 'docs/options/preserve-pitch-on-playback.mdx',
+		compId: 'articles-docs-options-preserve-pitch-on-playback',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/preserve-pitch-on-playback',
+	},
+	{
 		id: 'options/preview-sample-rate',
 		title: 'Preview Sample Rate',
 		relativePath: 'docs/options/preview-sample-rate.mdx',

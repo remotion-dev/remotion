@@ -155,6 +155,7 @@ import {
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
 import {playbackLogging} from './playback-logging.js';
+import {PlaybackPitchContext} from './playback-pitch-context';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -528,6 +529,7 @@ export const Internals = {
 	DelayRenderContextType,
 	TimelineContext,
 	usePlaying,
+	PlaybackPitchContext,
 	PlaybackRateContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
