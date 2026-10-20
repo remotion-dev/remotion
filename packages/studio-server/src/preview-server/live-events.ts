@@ -62,7 +62,6 @@ export const makeLiveEventsRouter = (
 	let clients: Client[] = [];
 	let newClientListeners: (() => void)[] = [];
 	let latestAppInfoMessage: string | null = null;
-	let appInfoTimeout: Timer | null = null;
 	let refreshingAppInfo = false;
 	let appInfoRefreshRequested = false;
 	let closed = false;
@@ -79,10 +78,6 @@ export const makeLiveEventsRouter = (
 
 		refreshingAppInfo = true;
 		appInfoRefreshRequested = false;
-		if (appInfoTimeout !== null) {
-			clearTimeout(appInfoTimeout);
-			appInfoTimeout = null;
-		}
 
 		getAppInfo()
 			.then((appInfo): EventSourceEvent => ({type: 'app-info', appInfo}))
@@ -109,10 +104,6 @@ export const makeLiveEventsRouter = (
 				refreshingAppInfo = false;
 				if (appInfoRefreshRequested) {
 					refreshAppInfo();
-				} else if (!closed && clients.length > 0) {
-					// Process changes have no portable Node.js notification API. Share
-					// one scan across all clients and only push changed snapshots.
-					appInfoTimeout = setTimeout(refreshAppInfo, 5000);
 				}
 			});
 	};
@@ -167,11 +158,6 @@ export const makeLiveEventsRouter = (
 
 			// If all clients disconnected, print a comment so user can easily restart it.
 			if (clients.length === 0) {
-				if (appInfoTimeout !== null) {
-					clearTimeout(appInfoTimeout);
-					appInfoTimeout = null;
-				}
-
 				latestAppInfoMessage = null;
 				clearPrintPortMessageTimeout();
 
@@ -223,11 +209,6 @@ export const makeLiveEventsRouter = (
 			}
 
 			closed = true;
-			if (appInfoTimeout !== null) {
-				clearTimeout(appInfoTimeout);
-				appInfoTimeout = null;
-			}
-
 			return Promise.all(
 				clients.map((client) => {
 					return new Promise<void>((resolve) => {
