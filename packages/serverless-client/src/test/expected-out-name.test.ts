@@ -74,12 +74,13 @@ test('Should get a custom outname', () => {
 	});
 });
 
-test('Should save to a different outname', () => {
+test('Should use the default key in a different bucket', () => {
 	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
+		audioCodec: 'pcm-16',
 		outName: {
 			bucketName: 'my-bucket',
-			key: 'my-key',
+			s3OutputProvider: {endpoint: 'https://storage.example.com'},
 		},
 	};
 	expect(
@@ -87,13 +88,23 @@ test('Should save to a different outname', () => {
 			output: 'main',
 			renderMetadata: newRenderMetadata,
 			bucketName,
-			customCredentials: null,
+			customCredentials: {
+				endpoint: 'https://storage.example.com',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+			},
 			bucketNamePrefix: 'remotionlambda-',
 		}),
 	).toEqual({
-		customCredentials: null,
+		customCredentials: {
+			endpoint: 'https://storage.example.com',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: undefined,
+			forcePathStyle: false,
+		},
 		renderBucketName: 'my-bucket',
-		key: 'my-key',
+		key: 'renders/9n8dsfafs/out.mkv',
 	});
 });
 
@@ -143,6 +154,7 @@ test('For stills', () => {
 		codec: null,
 		type: 'still',
 		imageFormat: 'png',
+		outName: {bucketName: 'my-bucket'},
 	};
 	expect(
 		getExpectedOutName({
@@ -154,7 +166,7 @@ test('For stills', () => {
 		}),
 	).toEqual({
 		customCredentials: null,
-		renderBucketName: 'remotionlambda-98fsduf',
+		renderBucketName: 'my-bucket',
 		key: 'renders/9n8dsfafs/out.png',
 	});
 });

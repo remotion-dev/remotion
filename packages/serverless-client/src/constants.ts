@@ -59,7 +59,7 @@ export type OutNameInput<Provider extends CloudProvider> =
 	| string
 	| {
 			bucketName: string;
-			key: string;
+			key?: string;
 			s3OutputProvider?: CustomCredentials<Provider>;
 	  };
 
@@ -373,7 +373,7 @@ export type OutNameInputWithoutCredentials =
 	| string
 	| {
 			bucketName: string;
-			key: string;
+			key?: string;
 			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
 	  };
 
@@ -388,7 +388,7 @@ export const outName = (renderId: string, extension: string) =>
 export const customOutName = <Provider extends CloudProvider>(
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput<Provider>,
+	name: string | (OutNameInput<Provider> & {key: string}),
 ): OutNameOutput<Provider> => {
 	if (typeof name === 'string') {
 		return {

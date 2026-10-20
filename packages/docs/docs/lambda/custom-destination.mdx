@@ -20,7 +20,19 @@ The output name must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
 
 ## Customizing the output bucket
 
-To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with the `key` and `bucketName` values:
+To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with `bucketName` and an optional `key`.
+
+From <AvailableFrom v="4.0.538" inline />, you can omit `key` to use `renders/${renderId}/out.{extension}` in the destination bucket, including when using `s3OutputProvider`. The extension is chosen from the codec and audio options, or the image format for stills.
+
+If you specify `key`, include the extension. For media, you can import `getFileExtensionFromCodec()` from `@remotion/renderer` to derive it:
+
+```ts twoslash title="Choosing a file extension"
+import {getFileExtensionFromCodec} from '@remotion/renderer';
+
+const extension = getFileExtensionFromCodec('h264', null); // "mp4"
+```
+
+The second argument is the audio codec, or `null` to use the codec's default extension. Use `null` when saving audio separately with `separateAudioTo`.
 
 ```tsx twoslash {13-16}
 import {renderMediaOnLambda} from '@remotion/lambda';
@@ -37,7 +49,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   maxRetries: 1,
   privacy: 'no-acl',
   outName: {
-    key: 'my-output',
+    key: 'my-output.mp4',
     bucketName: 'output-bucket',
   },
 });
@@ -100,7 +112,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   maxRetries: 1,
   privacy: 'no-acl',
   outName: {
-    key: 'my-output',
+    key: 'my-output.mp4',
     bucketName: 'output-bucket',
     s3OutputProvider: {
       endpoint: 'https://fra1.digitaloceanspaces.com',

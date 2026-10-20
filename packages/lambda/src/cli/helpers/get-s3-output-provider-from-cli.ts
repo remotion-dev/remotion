@@ -54,7 +54,7 @@ export const makeOutNameWithCustomCredentials = ({
 	bucketName: string | undefined;
 	key: string | undefined;
 	s3OutputProvider: CustomCredentials<AwsProvider> | null;
-}): OutNameInput<AwsProvider> | null => {
+}): string | (OutNameInput<AwsProvider> & {key: string}) | null => {
 	if (!s3OutputProvider) {
 		return key ?? null;
 	}
