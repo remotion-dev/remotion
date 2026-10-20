@@ -3,7 +3,7 @@ import {getLambdaClient} from './aws-clients';
 import type {
 	DeleteFunction,
 	DeleteFunctionInput as GenericDeleteFunctionInput,
-} from './provider-implementation';
+} from './aws-operations';
 import type {RequestHandler} from './types';
 
 export type DeleteFunctionInput = GenericDeleteFunctionInput & {

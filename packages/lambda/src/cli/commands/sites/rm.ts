@@ -1,9 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {
-	LambdaClientInternals,
-	getSites,
-	type ProviderSpecifics,
-} from '@remotion/lambda-client';
+import {LambdaClientInternals, getSites} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {deleteSite} from '../../../api/delete-site';
 import {parsedLambdaCli} from '../../args';
@@ -13,11 +9,7 @@ import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 export const SITES_RM_COMMAND = 'rm';
 
-export const sitesRmSubcommand = async (
-	args: string[],
-	logLevel: LogLevel,
-	implementation: ProviderSpecifics,
-) => {
+export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {
 		Log.error(
 			{indent: false, logLevel},
@@ -44,7 +36,6 @@ export const sitesRmSubcommand = async (
 				region,
 				enableFolderExpiry: false,
 				customCredentials: null,
-				providerSpecifics: implementation,
 				forcePathStyle: false,
 				skipPutAcl: false,
 				requestHandler: null,

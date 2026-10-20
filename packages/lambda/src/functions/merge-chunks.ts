@@ -5,7 +5,6 @@ import type {
 	CustomCredentials,
 	PostRenderData,
 	Privacy,
-	ProviderSpecifics,
 	RenderMetadata,
 	SerializedInputProps,
 	ServerlessCodec,
@@ -22,7 +21,6 @@ import type {DownloadBehavior} from 'remotion/no-react';
 import {concatVideos} from './concat-videos';
 import {finishRender} from './finish-render';
 import type {OverallProgressHelper} from './overall-render-progress';
-import type {InsideFunctionSpecifics} from './provider-implementation';
 
 type MergeChunksAndFinishRenderInput = {
 	bucketName: string;
@@ -52,8 +50,6 @@ type MergeChunksAndFinishRenderInput = {
 	files: string[];
 	overallProgress: OverallProgressHelper;
 	startTime: number;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	forcePathStyle: boolean;
 	everyNthFrame: number;
 	frameRange: SingleFrameRange | null;
@@ -96,7 +92,6 @@ export const mergeChunksAndFinishRender = async (
 		cancelSignal: undefined,
 		preferLossless: options.preferLossless,
 		metadata: options.renderMetadata.metadata,
-		insideFunctionSpecifics: options.insideFunctionSpecifics,
 		compositionDurationInFrames: options.numberOfFrames,
 		everyNthFrame: options.everyNthFrame,
 		frameRange: options.frameRange,
@@ -123,8 +118,6 @@ export const mergeChunksAndFinishRender = async (
 			logLevel: options.logLevel,
 			overallProgress: options.overallProgress,
 			startTime: options.startTime,
-			providerSpecifics: options.providerSpecifics,
-			insideFunctionSpecifics: options.insideFunctionSpecifics,
 			forcePathStyle: options.forcePathStyle,
 			storageClass: options.storageClass,
 			requestHandler: options.requestHandler,

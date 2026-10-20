@@ -1,21 +1,19 @@
 import type {_Object} from '@aws-sdk/client-s3';
-import type {FullClientSpecifics} from '../functions/provider-implementation';
+import {readDirectory} from './read-dir';
 
 export const getS3DiffOperations = async ({
 	objects,
 	bundle,
 	prefix,
 	onProgress,
-	fullClientSpecifics,
 }: {
 	objects: _Object[];
 	bundle: string;
 	prefix: string;
 	onProgress: (bytes: number) => void;
-	fullClientSpecifics: FullClientSpecifics;
 }) => {
 	let totalBytes = 0;
-	const dir = fullClientSpecifics.readDirectory({
+	const dir = readDirectory({
 		dir: bundle,
 		etags: {},
 		originalDir: bundle,

@@ -1,13 +1,8 @@
-import type {Await, ProviderSpecifics} from '@remotion/lambda-client';
+import type {Await} from '@remotion/lambda-client';
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import type {
-	CloseBrowserInstance,
-	ForgetBrowserEventLoop,
-	GetBrowserInstance,
-	InsideFunctionSpecifics,
-} from './provider-implementation';
+import {getChromiumPath} from './helpers/get-chromium-path';
 
 export type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;
@@ -49,9 +44,12 @@ const waitForLaunched = () => {
 	});
 };
 
-export const forgetBrowserEventLoopImplementation: ForgetBrowserEventLoop = ({
+export const forgetBrowserEventLoop = ({
 	logLevel,
 	launchedBrowser,
+}: {
+	logLevel: LogLevel;
+	launchedBrowser: LaunchedBrowser;
 }) => {
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
@@ -61,8 +59,10 @@ export const forgetBrowserEventLoopImplementation: ForgetBrowserEventLoop = ({
 	launchedBrowser.instance.runner.deleteBrowserCaches();
 };
 
-export const closeBrowserInstanceImplementation: CloseBrowserInstance = async ({
+export const closeBrowserInstance = async ({
 	launchedBrowser,
+}: {
+	launchedBrowser: LaunchedBrowser;
 }) => {
 	if (_browserInstance === launchedBrowser) {
 		_browserInstance = null;
@@ -71,21 +71,20 @@ export const closeBrowserInstanceImplementation: CloseBrowserInstance = async ({
 	await launchedBrowser.instance.close({silent: true});
 };
 
-export const getBrowserInstanceImplementation: GetBrowserInstance = async ({
+export const getBrowserInstance = async ({
 	logLevel,
 	indent,
 	chromiumOptions,
-	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
+		// The CLI can pass null; Lambda still needs software rendering.
+		gl: chromiumOptions.gl ?? 'swangle',
+		enableMultiProcessOnLinux: false,
 		darkMode: chromiumOptions.darkMode ?? false,
 		disableWebSecurity: chromiumOptions.disableWebSecurity ?? false,
 		headless: chromiumOptions.headless ?? true,
@@ -120,7 +119,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async ({
 		launching = true;
 
 		try {
-			const execPath = providerSpecifics.getChromiumPath();
+			const execPath = getChromiumPath();
 
 			const instance = await RenderInternals.internalOpenBrowser({
 				browser: 'chrome',
@@ -150,7 +149,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async ({
 					{indent: false, logLevel},
 					'Browser disconnected or crashed.',
 				);
-				insideFunctionSpecifics.forgetBrowserEventLoop({
+				forgetBrowserEventLoop({
 					logLevel,
 					launchedBrowser,
 				});
@@ -177,12 +176,10 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async ({
 		_browserInstance.instance.runner.rememberEventLoop();
 		await _browserInstance.instance.close({silent: true});
 		_browserInstance = null;
-		return insideFunctionSpecifics.getBrowserInstance({
+		return getBrowserInstance({
 			logLevel,
 			indent,
 			chromiumOptions,
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
 	}
 

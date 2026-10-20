@@ -2,7 +2,6 @@ import {
 	LambdaClientInternals,
 	ServerlessRoutines,
 	type OrError,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 	type StreamingPayload,
 } from '@remotion/lambda-client';
@@ -14,10 +13,11 @@ import type {RequestContext} from './handlers/renderer';
 import {rendererHandler} from './handlers/renderer';
 import {startHandler} from './handlers/start';
 import {stillHandler} from './handlers/still';
+import {deleteTmpDir} from './helpers/clean-tmpdir';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {infoHandler} from './info';
 import {getWarm, setWarm} from './is-warm';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
-import type {InsideFunctionSpecifics} from './provider-implementation';
 import {makeS3RendererOutput} from './s3-renderer-output';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
 
@@ -25,14 +25,10 @@ export const innerHandler = async ({
 	params,
 	responseWriter,
 	context,
-	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<void> => {
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
@@ -42,17 +38,17 @@ export const innerHandler = async ({
 		context.requestId,
 	);
 
-	await insideFunctionSpecifics.deleteTmpDir();
+	await deleteTmpDir();
 	const isWarm = getWarm();
 	setWarm();
 
 	if (params.type === ServerlessRoutines.still) {
-		providerSpecifics.validateDeleteAfter(params.deleteAfter);
-		const renderId = insideFunctionSpecifics.generateRandomId({
+		LambdaClientInternals.validateDeleteAfter(params.deleteAfter);
+		const renderId = LambdaClientInternals.generateRandomHashWithLifeCycleRule({
 			deleteAfter: params.deleteAfter,
-			randomHashFn: providerSpecifics.randomHash,
+			randomHashFn: LambdaClientInternals.randomHashImplementation,
 		});
-		if (providerSpecifics.printLoggingHelper) {
+		if (LambdaClientInternals.isInsideLambda()) {
 			printLoggingGrepHelper(
 				ServerlessRoutines.still,
 				{
@@ -107,8 +103,6 @@ export const innerHandler = async ({
 					renderId,
 					onStream,
 					timeoutInMilliseconds,
-					providerSpecifics,
-					insideFunctionSpecifics,
 				})
 					.then((r) => {
 						if (!params.streamed && r.type === 'error') {
@@ -137,12 +131,13 @@ export const innerHandler = async ({
 
 	if (params.type === ServerlessRoutines.start) {
 		try {
-			const renderId = insideFunctionSpecifics.generateRandomId({
-				deleteAfter: params.deleteAfter,
-				randomHashFn: providerSpecifics.randomHash,
-			});
+			const renderId =
+				LambdaClientInternals.generateRandomHashWithLifeCycleRule({
+					deleteAfter: params.deleteAfter,
+					randomHashFn: LambdaClientInternals.randomHashImplementation,
+				});
 
-			if (providerSpecifics.printLoggingHelper) {
+			if (LambdaClientInternals.isInsideLambda()) {
 				printLoggingGrepHelper(
 					ServerlessRoutines.start,
 					{
@@ -161,8 +156,6 @@ export const innerHandler = async ({
 					timeoutInMilliseconds,
 					renderId,
 				},
-				providerSpecifics,
-				insideFunctionSpecifics,
 			});
 
 			await responseWriter.write(
@@ -187,7 +180,7 @@ export const innerHandler = async ({
 	}
 
 	if (params.type === ServerlessRoutines.launch) {
-		if (providerSpecifics.printLoggingHelper) {
+		if (LambdaClientInternals.isInsideLambda()) {
 			printLoggingGrepHelper(
 				ServerlessRoutines.launch,
 				{
@@ -206,8 +199,6 @@ export const innerHandler = async ({
 				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 				requestContext: context,
 			},
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
 
 		await responseWriter.write(new TextEncoder().encode(JSON.stringify({})));
@@ -216,7 +207,7 @@ export const innerHandler = async ({
 	}
 
 	if (params.type === ServerlessRoutines.status) {
-		if (providerSpecifics.printLoggingHelper) {
+		if (LambdaClientInternals.isInsideLambda()) {
 			printLoggingGrepHelper(
 				ServerlessRoutines.status,
 				{
@@ -233,8 +224,6 @@ export const innerHandler = async ({
 				expectedBucketOwner: context.expectedBucketOwner,
 				timeoutInMilliseconds,
 				retriesRemaining: 2,
-				providerSpecifics,
-				insideFunctionSpecifics,
 			},
 		});
 
@@ -246,7 +235,7 @@ export const innerHandler = async ({
 	}
 
 	if (params.type === ServerlessRoutines.renderer) {
-		if (providerSpecifics.printLoggingHelper) {
+		if (LambdaClientInternals.isInsideLambda()) {
 			printLoggingGrepHelper(
 				ServerlessRoutines.renderer,
 				{
@@ -262,15 +251,15 @@ export const innerHandler = async ({
 			);
 		}
 
-		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
-		const transport = providerSpecifics.getRendererFunctionTransport(region);
+		const region = getCurrentRegionInFunction();
+		const transport =
+			LambdaClientInternals.getRendererFunctionTransport(region);
 		const s3Output =
 			transport === 's3'
 				? makeS3RendererOutput({
 						params,
 						expectedBucketOwner: context.expectedBucketOwner,
 						region,
-						providerSpecifics,
 					})
 				: null;
 		await s3Output?.initialize();
@@ -305,8 +294,6 @@ export const innerHandler = async ({
 				onMediaFiles: s3Output?.uploadMediaAndComplete ?? null,
 				executionMode: 'invoked',
 				requestContext: context,
-				providerSpecifics,
-				insideFunctionSpecifics,
 			})
 				.then((res) => {
 					resolve(res);
@@ -322,7 +309,7 @@ export const innerHandler = async ({
 	}
 
 	if (params.type === ServerlessRoutines.info) {
-		if (providerSpecifics.printLoggingHelper) {
+		if (LambdaClientInternals.isInsideLambda()) {
 			printLoggingGrepHelper(
 				ServerlessRoutines.info,
 				{
@@ -341,7 +328,7 @@ export const innerHandler = async ({
 	}
 
 	if (params.type === ServerlessRoutines.compositions) {
-		if (providerSpecifics.printLoggingHelper) {
+		if (LambdaClientInternals.isInsideLambda()) {
 			printLoggingGrepHelper(
 				ServerlessRoutines.compositions,
 				{
@@ -356,8 +343,6 @@ export const innerHandler = async ({
 			options: {
 				expectedBucketOwner: context.expectedBucketOwner,
 			},
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
 
 		await responseWriter.write(
@@ -377,22 +362,16 @@ export const innerRoutine = async ({
 	params,
 	responseWriter,
 	context,
-	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<void> => {
 	try {
 		await innerHandler({
 			params,
 			responseWriter,
 			context,
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
 	} catch (err) {
 		const res: OrError<0> = {

@@ -1,9 +1,6 @@
 import * as Crypto from 'node:crypto';
 import {RenderInternals} from '@remotion/renderer';
-import type {
-	InvokeWebhook,
-	InvokeWebhookOptions,
-} from './provider-implementation';
+import type {InvokeWebhook, InvokeWebhookOptions} from './types';
 
 export function calculateSignature(payload: string, secret: string | null) {
 	if (!secret) {

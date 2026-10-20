@@ -1,5 +1,7 @@
 import {NoReactAPIs} from '@remotion/renderer/pure';
+import {getBillingCurrency} from './aws-region-metadata';
 import {calculateChunkTimes} from './calculate-chunk-times';
+import {REMOTION_BUCKET_PREFIX, MAX_EPHEMERAL_STORAGE_IN_MB} from './constants';
 import {estimatePriceFromMetadata} from './estimate-price-from-bucket';
 import {getExpectedOutName} from './expected-out-name';
 import {
@@ -11,7 +13,7 @@ import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 import {inspectErrors} from './inspect-error';
 import {makeTimeoutError} from './make-timeout-error';
-import type {ProviderSpecifics} from './provider-implementation';
+import {parseFunctionName} from './parse-function-name';
 import type {AwsRegion} from './regions';
 import type {CleanupInfo, GenericRenderProgress} from './render-progress';
 import type {CustomCredentials} from './shared-constants';
@@ -27,7 +29,6 @@ type GetProgressInput = {
 	memorySizeInMb: number;
 	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials | null;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	functionName: string;
 	requestHandler: RequestHandler | null;
@@ -41,18 +42,16 @@ export const getProgress = async ({
 	memorySizeInMb,
 	timeoutInMilliseconds,
 	customCredentials,
-	providerSpecifics,
 	forcePathStyle,
 	functionName,
 	requestHandler,
 }: GetProgressInput): Promise<GenericRenderProgress> => {
-	const billingCurrency = providerSpecifics.getBillingCurrency(region);
+	const billingCurrency = getBillingCurrency(region);
 	const overallProgress = await getOverallProgressFromStorage({
 		renderId,
 		bucketName,
 		expectedBucketOwner,
 		region,
-		providerSpecifics,
 		forcePathStyle,
 		requestHandler,
 	});
@@ -75,7 +74,7 @@ export const getProgress = async ({
 			renderMetadata: overallProgress.renderMetadata,
 			bucketName,
 			customCredentials,
-			bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+			bucketNamePrefix: REMOTION_BUCKET_PREFIX,
 		});
 
 		const totalFrameCount = NoReactAPIs.getFramesToRender(
@@ -222,13 +221,12 @@ export const getProgress = async ({
 	const priceFromBucket = estimatePriceFromMetadata({
 		renderMetadata,
 		memorySizeInMb:
-			providerSpecifics.parseFunctionName(renderMetadata.rendererFunctionName)
-				?.memorySizeInMb ?? memorySizeInMb,
+			parseFunctionName(renderMetadata.rendererFunctionName)?.memorySizeInMb ??
+			memorySizeInMb,
 		functionsInvoked: overallProgress.lambdasInvoked ?? 0,
-		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
+		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 		timings: overallProgress.timings ?? [],
 		region,
-		providerSpecifics,
 		fatalErrorTimestamp: overallProgress.fatalErrorTimestamp ?? null,
 	});
 
@@ -283,7 +281,6 @@ export const getProgress = async ({
 			renderMetadata,
 			region,
 			currentRegion: region,
-			providerSpecifics,
 			forcePathStyle,
 			requestHandler,
 		}).catch((err) => {
@@ -303,7 +300,7 @@ export const getProgress = async ({
 				renderMetadata,
 				bucketName,
 				customCredentials,
-				bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+				bucketNamePrefix: REMOTION_BUCKET_PREFIX,
 			});
 			const now = Date.now();
 			const timeToFinishChunks = calculateChunkTimes({
@@ -373,7 +370,6 @@ export const getProgress = async ({
 					missingChunks: missingChunks ?? [],
 					region,
 					functionName,
-					providerSpecifics,
 				})
 			: null,
 		...errorExplanations,

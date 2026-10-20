@@ -14,7 +14,6 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {_InternalTypes} from 'remotion';
 import {NoReactInternals, type DownloadBehavior} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import {awsImplementation} from './aws-provider';
 import {
 	compressInputProps,
 	getNeedsToUpload,
@@ -25,6 +24,7 @@ import {getSizeInBytes} from './get-size-in-bytes';
 import type {ServerlessRenderOutput} from './image-sequence';
 import type {AwsRegion} from './regions';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
+import {getRendererFunctionTransport} from './renderer-transport';
 import {
 	ServerlessRoutines,
 	type DeleteAfter,
@@ -186,11 +186,9 @@ export const makeLambdaRenderMediaPayload = async ({
 				getSizeInBytes(stringifiedInputProps),
 				getSizeInBytes(JSON.stringify(envVariables)),
 			],
-			providerSpecifics: awsImplementation,
 		}),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
-		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: privacy === 'no-acl',
 		requestHandler: requestHandler ?? null,
@@ -321,11 +319,9 @@ export const makeLambdaRenderStillPayload = async ({
 				getSizeInBytes(stringifiedInputProps),
 				getSizeInBytes(JSON.stringify(envVariables)),
 			],
-			providerSpecifics: awsImplementation,
 		}),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
-		providerSpecifics: awsImplementation,
 		forcePathStyle,
 		skipPutAcl: privacy === 'no-acl',
 		requestHandler,
@@ -358,9 +354,7 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoCacheSizeInBytes,
 		deleteAfter,
 		type: ServerlessRoutines.still,
-		streamed:
-			awsImplementation.getRendererFunctionTransport(region) ===
-			'response-streaming',
+		streamed: getRendererFunctionTransport(region) === 'response-streaming',
 		forcePathStyle,
 		licenseKey: licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,

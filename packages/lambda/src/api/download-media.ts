@@ -4,7 +4,6 @@ import {
 	LambdaClientInternals,
 	type AwsRegion,
 	type CustomCredentials,
-	type ProviderSpecifics,
 	type RenderOutput,
 	type RequestHandler,
 } from '@remotion/lambda-client';
@@ -49,20 +48,19 @@ export type DownloadMediaOutput = {
 
 export const internalDownloadMedia = async (
 	input: InternalDownloadMediaInput & {
-		providerSpecifics: ProviderSpecifics;
 		forcePathStyle: boolean;
 	},
 ): Promise<DownloadMediaOutput> => {
-	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
-		region: input.region,
-	});
+	const expectedBucketOwner =
+		await LambdaClientInternals.getAccountIdImplementation({
+			region: input.region,
+		});
 	const overallProgress =
 		await LambdaClientInternals.getOverallProgressFromStorage({
 			bucketName: input.bucketName,
 			expectedBucketOwner,
 			region: input.region,
 			renderId: input.renderId,
-			providerSpecifics: input.providerSpecifics,
 			forcePathStyle: input.forcePathStyle,
 			requestHandler: input.requestHandler,
 		});
@@ -189,7 +187,6 @@ export const downloadMedia = (
 
 	return internalDownloadMedia({
 		...input,
-		providerSpecifics: LambdaClientInternals.awsImplementation,
 		output: input.output ?? 'main',
 		forcePathStyle: false,
 		onProgress: input.onProgress ?? (() => undefined),

@@ -1,9 +1,9 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import {mkdtemp, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import type {Readable} from 'node:stream';
-import type {ProviderSpecifics} from '@remotion/lambda-client';
+import * as writeFileModule from '../../../../lambda-client/src/write-file';
 import {makeS3RendererOutput} from '../../functions/s3-renderer-output';
 
 const bodyToBytes = async (
@@ -39,28 +39,26 @@ const bodyToBytes = async (
 
 test('S3 renderer output publishes media and artifacts before completion', async () => {
 	const directory = await mkdtemp(join(tmpdir(), 'remotion-s3-output-'));
+	const objects = new Map<string, Uint8Array>();
+	const statusWrites: Array<Record<string, unknown>> = [];
+	const write = spyOn(
+		writeFileModule,
+		'lambdaWriteFileImplementation',
+	).mockImplementation(async ({key, body}) => {
+		const bytes = await bodyToBytes(body as string | Uint8Array | Readable);
+		objects.set(key, bytes);
+		if (key.endsWith('/status.json')) {
+			statusWrites.push(
+				JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>,
+			);
+		}
+	});
 	try {
 		const video = join(directory, 'video');
 		const audio = join(directory, 'audio');
 		await writeFile(video, 'video-content');
 		await writeFile(audio, 'audio-content');
 
-		const objects = new Map<string, Uint8Array>();
-		const statusWrites: Array<Record<string, unknown>> = [];
-		const providerSpecifics = {
-			writeFile: async ({key, body}: {key: string; body: unknown}) => {
-				const bytes = await bodyToBytes(body as string | Uint8Array | Readable);
-				objects.set(key, bytes);
-				if (key.endsWith('/status.json')) {
-					statusWrites.push(
-						JSON.parse(new TextDecoder().decode(bytes)) as Record<
-							string,
-							unknown
-						>,
-					);
-				}
-			},
-		} as unknown as ProviderSpecifics;
 		const output = makeS3RendererOutput({
 			params: {
 				type: 'renderer',
@@ -73,7 +71,6 @@ test('S3 renderer output publishes media and artifacts before completion', async
 			} as never,
 			expectedBucketOwner: 'owner',
 			region: 'eu-central-1',
-			providerSpecifics,
 		});
 
 		await output.initialize();
@@ -136,6 +133,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 			),
 		).toBe('artifact-content');
 	} finally {
+		write.mockRestore();
 		await rm(directory, {recursive: true, force: true});
 	}
 });

@@ -1,6 +1,6 @@
 import {GetCallerIdentityCommand} from '@aws-sdk/client-sts';
 import {getStsClient} from './aws-clients';
-import type {GetAccountId} from './provider-implementation';
+import type {GetAccountId} from './aws-operations';
 import type {AwsRegion} from './regions';
 import {validateAwsRegion} from './validate-aws-region';
 

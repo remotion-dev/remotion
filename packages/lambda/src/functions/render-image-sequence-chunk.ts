@@ -2,7 +2,6 @@ import {
 	LambdaClientInternals,
 	ServerlessRoutines,
 	type OnStream,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import type {
@@ -12,8 +11,8 @@ import type {
 	HeadlessBrowser,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {onDownloadsHelper} from './on-downloads-helpers';
-import type {InsideFunctionSpecifics} from './provider-implementation';
 
 export const renderImageSequenceChunk = async ({
 	params,
@@ -25,8 +24,6 @@ export const renderImageSequenceChunk = async ({
 	onStream,
 	logs,
 	cancelSignal,
-	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload;
 	browser: HeadlessBrowser;
@@ -37,8 +34,6 @@ export const renderImageSequenceChunk = async ({
 	onStream: OnStream;
 	logs: BrowserLog[];
 	cancelSignal: CancelSignal | null;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (
 		params.type !== ServerlessRoutines.renderer ||
@@ -94,7 +89,7 @@ export const renderImageSequenceChunk = async ({
 		onStart: null,
 		onFrameUpdate: null,
 		onFrameBuffer: async (buffer, frame) => {
-			await providerSpecifics.writeFile({
+			await LambdaClientInternals.lambdaWriteFileImplementation({
 				bucketName: output.bucketName,
 				key: LambdaClientInternals.getImageSequenceFrameKey({...output, frame}),
 				body: new Uint8Array(
@@ -102,7 +97,7 @@ export const renderImageSequenceChunk = async ({
 					buffer.byteOffset,
 					buffer.byteLength,
 				),
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				region: getCurrentRegionInFunction(),
 				privacy: params.privacy,
 				expectedBucketOwner,
 				downloadBehavior: output.downloadBehavior,

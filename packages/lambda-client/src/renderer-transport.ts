@@ -1,8 +1,18 @@
 import type {DownloadBehavior} from 'remotion/no-react';
+import {getAwsRegionMetadata} from './aws-region-metadata';
+import type {AwsRegion} from './regions';
 import {rendersPrefix} from './shared-constants';
 import type {FunctionErrorInfo} from './write-error-to-storage';
 
 export type RendererFunctionTransport = 'response-streaming' | 's3';
+
+// Lambda response streaming is not available in the AWS China partition.
+export const getRendererFunctionTransport = (
+	region: AwsRegion,
+): RendererFunctionTransport =>
+	getAwsRegionMetadata(region).partition === 'aws-cn'
+		? 's3'
+		: 'response-streaming';
 
 export type S3RendererArtifactMetadata = {
 	filename: string;

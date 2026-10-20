@@ -2,12 +2,18 @@ import type {LogLevel} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalGetOrCreateBucket} from './get-or-create-bucket';
 import {inputPropsKey, resolvedPropsKey} from './input-props-keys';
-import type {ProviderSpecifics} from './provider-implementation';
+import {randomHashImplementation} from './random-hash';
+import {lambdaReadFileImplementation} from './read-file';
 import type {AwsRegion} from './regions';
+import {
+	MAX_STILL_INLINE_PAYLOAD_SIZE,
+	MAX_NON_INLINE_PAYLOAD_SIZE_PER_FUNCTION,
+} from './shared-constants';
 import type {SerializedInputProps} from './shared-constants';
 import {streamToString} from './stream-to-string';
 import type {RequestHandler} from './types';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
+import {lambdaWriteFileImplementation} from './write-file';
 
 type PropsType = 'input-props' | 'resolved-props';
 
@@ -40,17 +46,15 @@ export const serializeOrThrow = (
 export const getNeedsToUpload = ({
 	type,
 	sizes,
-	providerSpecifics,
 }: {
 	type: 'still' | 'video-or-audio';
 	sizes: number[];
-	providerSpecifics: ProviderSpecifics;
 }) => {
 	const MARGIN = 5_000 + MAX_WEBHOOK_CUSTOM_DATA_SIZE;
 	const MAX_INLINE_PAYLOAD_SIZE =
 		(type === 'still'
-			? providerSpecifics.getMaxStillInlinePayloadSize()
-			: providerSpecifics.getMaxNonInlinePayloadSizePerFunction()) - MARGIN;
+			? MAX_STILL_INLINE_PAYLOAD_SIZE
+			: MAX_NON_INLINE_PAYLOAD_SIZE_PER_FUNCTION) - MARGIN;
 
 	const sizesAlreadyUsed = sizes.reduce((a, b) => a + b);
 
@@ -61,7 +65,7 @@ export const getNeedsToUpload = ({
 				MAX_INLINE_PAYLOAD_SIZE / 1000,
 			)}KB (${Math.ceil(
 				sizesAlreadyUsed / 1024,
-			)}KB) in size. Uploading them to ${providerSpecifics.serverStorageProductName()} to circumvent AWS Lambda payload size, which may lead to slowdown.`,
+			)}KB) in size. Uploading them to ${'S3'} to circumvent AWS Lambda payload size, which may lead to slowdown.`,
 		);
 		return true;
 	}
@@ -75,7 +79,6 @@ type CompressInputPropsInput = {
 	userSpecifiedBucketName: string | null;
 	propsType: PropsType;
 	needsToUpload: boolean;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
 	requestHandler: RequestHandler | null;
@@ -88,13 +91,12 @@ export const compressInputProps = async ({
 	userSpecifiedBucketName,
 	propsType,
 	needsToUpload,
-	providerSpecifics,
 	forcePathStyle,
 	skipPutAcl,
 	requestHandler,
 	logLevel,
 }: CompressInputPropsInput): Promise<SerializedInputProps> => {
-	const hash = providerSpecifics.randomHash();
+	const hash = randomHashImplementation();
 
 	if (needsToUpload) {
 		const bucketName =
@@ -104,7 +106,6 @@ export const compressInputProps = async ({
 					region,
 					enableFolderExpiry: null,
 					customCredentials: null,
-					providerSpecifics,
 					forcePathStyle,
 					skipPutAcl,
 					requestHandler,
@@ -112,7 +113,7 @@ export const compressInputProps = async ({
 				})
 			).bucketName;
 
-		await providerSpecifics.writeFile({
+		await lambdaWriteFileImplementation({
 			body: stringifiedInputProps,
 			bucketName,
 			region,
@@ -145,7 +146,6 @@ type DecompressInputPropsInput = {
 	bucketName: string;
 	expectedBucketOwner: string | null;
 	propsType: PropsType;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 };
@@ -156,7 +156,6 @@ export const decompressInputProps = async ({
 	bucketName,
 	expectedBucketOwner,
 	propsType,
-	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
 }: DecompressInputPropsInput): Promise<string> => {
@@ -165,7 +164,7 @@ export const decompressInputProps = async ({
 	}
 
 	try {
-		const response = await providerSpecifics.readFile({
+		const response = await lambdaReadFileImplementation({
 			bucketName,
 			expectedBucketOwner,
 			key: makeKey(propsType, serialized.hash),

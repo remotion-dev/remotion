@@ -1,12 +1,15 @@
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from '../get-browser-instance';
 import type {LaunchedBrowser} from '../get-browser-instance';
-import type {InsideFunctionSpecifics} from '../provider-implementation';
+import {getCurrentRegionInFunction} from '../helpers/get-current-region';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
@@ -16,13 +19,9 @@ type Options = {
 export const compositionsHandler = async ({
 	params,
 	options,
-	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload;
 	options: Options;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (params.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');
@@ -30,21 +29,18 @@ export const compositionsHandler = async ({
 
 	checkVersionMismatch({
 		apiName: 'getCompositionsOnLambda()',
-		insideFunctionSpecifics,
 		params,
 	});
 
 	let instance: LaunchedBrowser | undefined;
 
 	try {
-		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
+		const region = getCurrentRegionInFunction();
 
-		const browserInstancePromise = insideFunctionSpecifics.getBrowserInstance({
+		const browserInstancePromise = getBrowserInstance({
 			logLevel: params.logLevel,
 			indent: false,
 			chromiumOptions: params.chromiumOptions,
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
 		const bucketName = await (params.bucketName
 			? Promise.resolve(params.bucketName)
@@ -52,7 +48,6 @@ export const compositionsHandler = async ({
 					region,
 					enableFolderExpiry: null,
 					customCredentials: null,
-					providerSpecifics,
 					forcePathStyle: params.forcePathStyle,
 					skipPutAcl: false,
 					requestHandler: null,
@@ -63,15 +58,14 @@ export const compositionsHandler = async ({
 			await LambdaClientInternals.decompressInputProps({
 				bucketName,
 				expectedBucketOwner: options.expectedBucketOwner,
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				region: getCurrentRegionInFunction(),
 				serialized: params.inputProps,
 				propsType: 'input-props',
-				providerSpecifics,
 				forcePathStyle: params.forcePathStyle,
 				requestHandler: null,
 			});
 
-		const realServeUrl = providerSpecifics.convertToServeUrl({
+		const realServeUrl = LambdaClientInternals.convertToServeUrlImplementation({
 			urlOrId: params.serveUrl,
 			region,
 			bucketName,
@@ -108,7 +102,7 @@ export const compositionsHandler = async ({
 		});
 	} finally {
 		if (instance) {
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,
 			});

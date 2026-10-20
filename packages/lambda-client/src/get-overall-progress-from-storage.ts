@@ -1,5 +1,5 @@
 import type {OverallRenderProgress} from './overall-render-progress';
-import type {ProviderSpecifics} from './provider-implementation';
+import {lambdaReadFileImplementation} from './read-file';
 import type {AwsRegion} from './regions';
 import {overallProgressKey} from './shared-constants';
 import {streamToString} from './stream-to-string';
@@ -10,7 +10,6 @@ type GetOverallProgressFromStorageInput = {
 	expectedBucketOwner: string | null;
 	bucketName: string;
 	region: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 };
@@ -20,12 +19,11 @@ export const getOverallProgressFromStorage = async ({
 	bucketName,
 	expectedBucketOwner,
 	region,
-	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
 }: GetOverallProgressFromStorageInput) => {
 	try {
-		const Body = await providerSpecifics.readFile({
+		const Body = await lambdaReadFileImplementation({
 			bucketName,
 			key: overallProgressKey(renderId),
 			expectedBucketOwner,

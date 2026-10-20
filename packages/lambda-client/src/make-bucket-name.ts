@@ -1,9 +1,7 @@
-import type {ProviderSpecifics} from './provider-implementation';
+import {REMOTION_BUCKET_PREFIX} from './constants';
+import {randomHashImplementation} from './random-hash';
 import type {AwsRegion} from './regions';
 
-export const makeBucketName = (
-	region: AwsRegion,
-	providerSpecifics: ProviderSpecifics,
-) => {
-	return `${providerSpecifics.getBucketPrefix()}${region.replace(/-/g, '')}-${providerSpecifics.randomHash()}`;
+export const makeBucketName = (region: AwsRegion) => {
+	return `${REMOTION_BUCKET_PREFIX}${region.replace(/-/g, '')}-${randomHashImplementation()}`;
 };

@@ -1,14 +1,11 @@
 import {
 	LambdaClientInternals,
 	type AwsRegion,
-	type ProviderSpecifics,
 	type RequestHandler,
 } from '@remotion/lambda-client';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import {awsFullClientSpecifics} from '../functions/full-client-implementation';
-import type {FullClientSpecifics} from '../functions/provider-implementation';
 import {
 	deploySiteWithBundle,
 	type DeploySiteOutput,
@@ -38,8 +35,6 @@ export type DeploySiteFromBundleInput = MandatoryParameters &
 export type InternalDeploySiteFromBundleInput = MandatoryParameters &
 	OptionalParameters & {
 		indent: boolean;
-		providerSpecifics: ProviderSpecifics;
-		fullClientSpecifics: FullClientSpecifics;
 	};
 
 const mandatoryDeploySiteFromBundle = ({
@@ -50,9 +45,7 @@ const mandatoryDeploySiteFromBundle = ({
 	options,
 	privacy,
 	throwIfSiteExists,
-	providerSpecifics,
 	forcePathStyle,
-	fullClientSpecifics,
 	requestHandler,
 }: InternalDeploySiteFromBundleInput): DeploySiteFromBundleOutput => {
 	const resolvedBundleDir = validateBundleDir(bundleDir);
@@ -64,9 +57,7 @@ const mandatoryDeploySiteFromBundle = ({
 		options,
 		privacy,
 		throwIfSiteExists,
-		providerSpecifics,
 		forcePathStyle,
-		fullClientSpecifics,
 		requestHandler,
 		getBundle: () => Promise.resolve(resolvedBundleDir),
 	});
@@ -89,14 +80,11 @@ export const deploySiteFromBundle = (args: DeploySiteFromBundleInput) => {
 		region: args.region,
 		options: args.options ?? {},
 		privacy: args.privacy ?? 'public',
-		siteName:
-			args.siteName ?? LambdaClientInternals.awsImplementation.randomHash(),
+		siteName: args.siteName ?? LambdaClientInternals.randomHashImplementation(),
 		indent: false,
 		logLevel: args.logLevel ?? 'info',
 		throwIfSiteExists: args.throwIfSiteExists ?? false,
-		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: args.forcePathStyle ?? false,
-		fullClientSpecifics: awsFullClientSpecifics,
 		requestHandler: args.requestHandler ?? null,
 	});
 };

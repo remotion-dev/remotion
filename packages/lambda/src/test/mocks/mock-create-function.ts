@@ -1,5 +1,5 @@
 import {VERSION} from 'remotion/version';
-import type {CreateFunction} from '../../functions/provider-implementation';
+import type {CreateFunction} from '../../functions/types';
 import {addFunction} from './mock-functions';
 
 type MockCreateFunctionCall = {

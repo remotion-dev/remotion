@@ -2,7 +2,7 @@ import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import {awsImplementation} from './aws-provider';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {
 	compressInputProps,
 	getNeedsToUpload,
@@ -66,9 +66,7 @@ export const getCompositionsOnLambda = async ({
 				getSizeInBytes(stringifiedInputProps),
 				getSizeInBytes(JSON.stringify(envVariables ?? {})),
 			],
-			providerSpecifics: awsImplementation,
 		}),
-		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: false,
 		requestHandler,
@@ -76,7 +74,7 @@ export const getCompositionsOnLambda = async ({
 	});
 
 	try {
-		const res = await awsImplementation.callFunctionSync({
+		const res = await callFunctionSyncImplementation({
 			functionName,
 			type: ServerlessRoutines.compositions,
 			payload: {

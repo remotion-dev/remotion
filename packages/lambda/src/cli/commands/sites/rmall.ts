@@ -1,9 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {
-	LambdaClientInternals,
-	getSites,
-	type ProviderSpecifics,
-} from '@remotion/lambda-client';
+import {LambdaClientInternals, getSites} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {deleteSite} from '../../../api/delete-site';
 import {parsedLambdaCli} from '../../args';
@@ -13,10 +9,7 @@ import {Log} from '../../log';
 
 export const SITES_RMALL_COMMAND = 'rmall';
 
-export const sitesRmallSubcommand = async (
-	logLevel: LogLevel,
-	implementation: ProviderSpecifics,
-) => {
+export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
 	const deployedSites = await getSites({
 		region,
@@ -29,7 +22,6 @@ export const sitesRmallSubcommand = async (
 				region,
 				enableFolderExpiry: false,
 				customCredentials: null,
-				providerSpecifics: implementation,
 				forcePathStyle: false,
 				skipPutAcl: false,
 				requestHandler: null,

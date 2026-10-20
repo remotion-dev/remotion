@@ -1,14 +1,13 @@
-import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
 import {cancellationKey} from './shared-constants';
 import type {RequestHandler} from './types';
+import {lambdaWriteFileImplementation} from './write-file';
 
 type WriteCancellationSignalInput = {
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string | null;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 };
@@ -18,11 +17,10 @@ export const writeCancellationSignal = async ({
 	renderId,
 	region,
 	expectedBucketOwner,
-	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
 }: WriteCancellationSignalInput) => {
-	await providerSpecifics.writeFile({
+	await lambdaWriteFileImplementation({
 		bucketName,
 		key: cancellationKey(renderId),
 		body: JSON.stringify({cancelledAt: Date.now()}),

@@ -1,10 +1,11 @@
-import {awsImplementation} from './aws-provider';
 import {cleanItems} from './clean-items';
 import {REMOTION_BUCKET_PREFIX} from './constants';
+import {lambdaDeleteFileImplementation} from './delete-file';
 import {getExpectedOutName} from './expected-out-name';
+import {getAccountIdImplementation} from './get-account-id';
 import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 import {getImageSequenceFrameKey} from './image-sequence';
-import type {ProviderSpecifics} from './provider-implementation';
+import {lambdaLsImplementation} from './list-objects';
 import type {AwsRegion} from './regions';
 import {rendersPrefix, type CustomCredentials} from './shared-constants';
 import type {RequestHandler} from './types';
@@ -21,11 +22,10 @@ export type DeleteRenderInput = {
 
 export const internalDeleteRender = async (
 	input: DeleteRenderInput & {
-		providerSpecifics: ProviderSpecifics;
 		forcePathStyle: boolean;
 	},
 ) => {
-	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
+	const expectedBucketOwner = await getAccountIdImplementation({
 		region: input.region,
 	});
 	const progress = await getOverallProgressFromStorage({
@@ -33,7 +33,6 @@ export const internalDeleteRender = async (
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
-		providerSpecifics: input.providerSpecifics,
 		forcePathStyle: input.forcePathStyle,
 		requestHandler: input.requestHandler,
 	});
@@ -91,7 +90,7 @@ export const internalDeleteRender = async (
 		for (let index = 0; index < keys.length; index += 25) {
 			await Promise.all(
 				keys.slice(index, index + 25).map((frameKey) =>
-					input.providerSpecifics.deleteFile({
+					lambdaDeleteFileImplementation({
 						bucketName: renderBucketName,
 						key: frameKey,
 						region: input.region,
@@ -108,7 +107,7 @@ export const internalDeleteRender = async (
 		mainOutput,
 		...(separateAudioOutput === null ? [] : [separateAudioOutput]),
 	]) {
-		await input.providerSpecifics.deleteFile({
+		await lambdaDeleteFileImplementation({
 			bucketName: renderBucketName,
 			customCredentials,
 			key,
@@ -118,7 +117,7 @@ export const internalDeleteRender = async (
 		});
 	}
 
-	let files = await input.providerSpecifics.listObjects({
+	let files = await lambdaLsImplementation({
 		bucketName: input.bucketName,
 		prefix: rendersPrefix(input.renderId),
 		region: input.region,
@@ -139,11 +138,10 @@ export const internalDeleteRender = async (
 			onAfterItemDeleted: () => undefined,
 			onBeforeItemDeleted: () => undefined,
 			region: input.region,
-			providerSpecifics: input.providerSpecifics,
 			forcePathStyle: input.forcePathStyle,
 			requestHandler: input.requestHandler,
 		});
-		files = await input.providerSpecifics.listObjects({
+		files = await lambdaLsImplementation({
 			bucketName: input.bucketName,
 			prefix: rendersPrefix(input.renderId),
 			region: input.region,
@@ -165,7 +163,6 @@ export const internalDeleteRender = async (
 export const deleteRender = (input: DeleteRenderInput) => {
 	return internalDeleteRender({
 		...input,
-		providerSpecifics: awsImplementation,
 		forcePathStyle: input.forcePathStyle ?? false,
 	});
 };

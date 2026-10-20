@@ -1,5 +1,5 @@
 import type {LifecycleRule} from '@aws-sdk/client-s3';
-import type {ProviderSpecifics} from './provider-implementation';
+import type {RandomHash} from './aws-operations';
 import {expiryDays, type DeleteAfter} from './shared-constants';
 import {truthy} from './truthy';
 
@@ -33,7 +33,7 @@ export const generateRandomHashWithLifeCycleRule = ({
 	randomHashFn,
 }: {
 	deleteAfter: DeleteAfter | null;
-	randomHashFn: ProviderSpecifics['randomHash'];
+	randomHashFn: RandomHash;
 }) => {
 	return [deleteAfter, randomHashFn()].filter(truthy).join('-');
 };

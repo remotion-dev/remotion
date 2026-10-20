@@ -1,13 +1,20 @@
-import {expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
 import {Readable} from 'node:stream';
-import {
-	ServerlessRoutines,
-	type ProviderSpecifics,
-} from '@remotion/lambda-client';
+import {ServerlessRoutines} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
+import * as lifecycle from '../../../../lambda-client/src/lifecycle';
+import * as readFile from '../../../../lambda-client/src/read-file';
+import * as currentFunctionName from '../../functions/helpers/get-current-function-name';
+import * as currentMemorySize from '../../functions/helpers/get-current-memory-size';
+import * as currentRegion from '../../functions/helpers/get-current-region';
 import {innerHandler, innerRoutine} from '../../functions/inner-routine';
 import {makeInitialOverallRenderProgress} from '../../functions/overall-render-progress';
-import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
+
+const spies: {mockRestore: () => void}[] = [];
+
+afterEach(() => {
+	spies.splice(0).forEach((spy) => spy.mockRestore());
+});
 
 test('progress works without AWS context or a bucket owner', async () => {
 	const previousFlag = process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA;
@@ -15,6 +22,29 @@ test('progress works without AWS context or a bucket owner', async () => {
 	const chunks: Uint8Array[] = [];
 	let ended = false;
 	const reads: Array<string | null> = [];
+	spies.push(
+		spyOn(readFile, 'lambdaReadFileImplementation').mockImplementation(
+			({expectedBucketOwner}) => {
+				reads.push(expectedBucketOwner);
+				return Promise.resolve(
+					Readable.from([
+						Buffer.from(
+							JSON.stringify(
+								makeInitialOverallRenderProgress(Date.now() + 120_000, false),
+							),
+						),
+					]),
+				);
+			},
+		),
+		spyOn(currentRegion, 'getCurrentRegionInFunction').mockReturnValue(
+			'eu-central-1',
+		),
+		spyOn(currentMemorySize, 'getCurrentMemorySizeInMb').mockReturnValue(2048),
+		spyOn(currentFunctionName, 'getCurrentFunctionName').mockReturnValue(
+			'render-worker',
+		),
+	);
 
 	try {
 		await innerHandler({
@@ -42,28 +72,6 @@ test('progress works without AWS context or a bucket owner', async () => {
 					return Promise.resolve();
 				},
 			},
-			providerSpecifics: {
-				printLoggingHelper: false,
-				getBillingCurrency: () => 'USD',
-				readFile: ({expectedBucketOwner}) => {
-					reads.push(expectedBucketOwner);
-					return Promise.resolve(
-						Readable.from([
-							Buffer.from(
-								JSON.stringify(
-									makeInitialOverallRenderProgress(Date.now() + 120_000, false),
-								),
-							),
-						]),
-					);
-				},
-			} as Partial<ProviderSpecifics> as ProviderSpecifics,
-			insideFunctionSpecifics: {
-				deleteTmpDir: () => Promise.resolve(),
-				getCurrentRegionInFunction: () => 'eu-central-1',
-				getCurrentMemorySizeInMb: () => 2048,
-				getCurrentFunctionName: () => 'render-worker',
-			} as unknown as InsideFunctionSpecifics,
 		});
 
 		expect(ended).toBe(true);
@@ -115,16 +123,6 @@ test('buffered still errors are written to the response', async () => {
 			expectedBucketOwner: null,
 			getRemainingTimeInMillis: () => 120_000,
 		},
-		providerSpecifics: {
-			isFlakyError: () => false,
-			printLoggingHelper: false,
-			randomHash: () => 'random-hash',
-			validateDeleteAfter: () => undefined,
-		} as unknown as ProviderSpecifics,
-		insideFunctionSpecifics: {
-			deleteTmpDir: () => Promise.resolve(),
-			generateRandomId: () => 'render-id',
-		} as unknown as InsideFunctionSpecifics,
 	});
 
 	expect(ended).toBe(true);
@@ -146,6 +144,13 @@ test('buffered still errors are written to the response', async () => {
 test('buffered render start exceptions are written to the response', async () => {
 	const chunks: Uint8Array[] = [];
 	let ended = false;
+	spies.push(
+		spyOn(lifecycle, 'generateRandomHashWithLifeCycleRule').mockImplementation(
+			() => {
+				throw new Error('Could not generate a render ID');
+			},
+		),
+	);
 
 	await innerRoutine({
 		params: {
@@ -170,16 +175,6 @@ test('buffered render start exceptions are written to the response', async () =>
 			expectedBucketOwner: null,
 			getRemainingTimeInMillis: () => 120_000,
 		},
-		providerSpecifics: {
-			printLoggingHelper: false,
-			randomHash: () => 'random-hash',
-		} as unknown as ProviderSpecifics,
-		insideFunctionSpecifics: {
-			deleteTmpDir: () => Promise.resolve(),
-			generateRandomId: () => {
-				throw new Error('Could not generate a render ID');
-			},
-		} as unknown as InsideFunctionSpecifics,
 	});
 
 	expect(ended).toBe(true);

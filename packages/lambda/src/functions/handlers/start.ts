@@ -1,11 +1,12 @@
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
+import {DEFAULT_X264_PRESET} from '../helpers/default-x264-preset';
+import {getCurrentFunctionName} from '../helpers/get-current-function-name';
+import {getCurrentRegionInFunction} from '../helpers/get-current-region';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
-import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
@@ -17,13 +18,9 @@ type Options = {
 export const startHandler = async ({
 	params,
 	options,
-	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload;
 	options: Options;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
@@ -34,34 +31,32 @@ export const startHandler = async ({
 			params.output?.type === 'sequence'
 				? 'renderFramesOnLambda()'
 				: 'renderMediaOnLambda()',
-		insideFunctionSpecifics,
 		params,
 	});
 
-	const region = insideFunctionSpecifics.getCurrentRegionInFunction();
+	const region = getCurrentRegionInFunction();
 	const bucketName =
 		params.bucketName ??
 		(
 			await LambdaClientInternals.internalGetOrCreateBucket({
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				region: getCurrentRegionInFunction(),
 				enableFolderExpiry: null,
 				customCredentials: null,
-				providerSpecifics,
 				forcePathStyle: params.forcePathStyle,
 				skipPutAcl: false,
 				requestHandler: null,
 				logLevel: params.logLevel,
 			})
 		).bucketName;
-	const realServeUrl = providerSpecifics.convertToServeUrl({
+	const realServeUrl = LambdaClientInternals.convertToServeUrlImplementation({
 		urlOrId: params.serveUrl,
 		region,
 		bucketName,
 	});
 
-	providerSpecifics.validateDeleteAfter(params.deleteAfter);
+	LambdaClientInternals.validateDeleteAfter(params.deleteAfter);
 
-	const initialFile = providerSpecifics.writeFile({
+	const initialFile = LambdaClientInternals.lambdaWriteFileImplementation({
 		bucketName,
 		downloadBehavior: null,
 		region,
@@ -99,9 +94,7 @@ export const startHandler = async ({
 		proResProfile: params.proResProfile ?? null,
 		x264Preset:
 			params.x264Preset ??
-			(params.codec === 'h264'
-				? insideFunctionSpecifics.defaultX264Preset
-				: null),
+			(params.codec === 'h264' ? DEFAULT_X264_PRESET : null),
 		gopSize: params.gopSize ?? null,
 		disableSharedMemoryCapture: params.disableSharedMemoryCapture,
 		jpegQuality: params.jpegQuality,
@@ -145,8 +138,8 @@ export const startHandler = async ({
 		sampleRate: params.sampleRate ?? 48000,
 	};
 
-	await providerSpecifics.callFunctionAsync({
-		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
+	await LambdaClientInternals.callFunctionAsyncImplementation({
+		functionName: getCurrentFunctionName(),
 		type: ServerlessRoutines.launch,
 		payload,
 		region,

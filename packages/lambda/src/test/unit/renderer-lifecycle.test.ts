@@ -1,20 +1,25 @@
-import {expect, mock, spyOn, test} from 'bun:test';
+import {afterEach, expect, mock, spyOn, test} from 'bun:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type {
-	ProviderSpecifics,
-	StreamingPayload,
-} from '@remotion/lambda-client';
+import type {StreamingPayload} from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import {
-	closeBrowserInstanceImplementation,
-	getBrowserInstanceImplementation,
-} from '../../functions/get-browser-instance';
+import * as isFlakyError from '../../../../lambda-client/src/is-flaky-error';
+import * as browserInstance from '../../functions/get-browser-instance';
 import type {LaunchedBrowser} from '../../functions/get-browser-instance';
 import {rendererHandler} from '../../functions/handlers/renderer';
-import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
+import * as chromiumPath from '../../functions/helpers/get-chromium-path';
+import * as currentRegion from '../../functions/helpers/get-current-region';
+import * as getTmpDir from '../../functions/helpers/get-tmp-dir';
+
+const spies: {mockRestore: () => void}[] = [];
+// Captured before any spy replaces the live bindings.
+const {closeBrowserInstance, getBrowserInstance} = browserInstance;
+
+afterEach(() => {
+	spies.splice(0).forEach((spy) => spy.mockRestore());
+});
 
 // Next.js declares process.env.NODE_ENV as readonly; the handlers branch on it.
 const setNodeEnv = (value: string | undefined) => {
@@ -37,7 +42,6 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 			fs.mkdtempSync(path.join(testRoot, 'render-')),
 		);
 		const launchError = new Error(`Failed ${failure}`);
-		const diagnostics: string[] = [];
 		const tmpDirState = {
 			files: [{filename: 'provider-cache', size: 123}],
 			total: 123,
@@ -61,10 +65,38 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 			slowestFrames: [],
 		} as never);
 		const onMediaFiles = mock(() => Promise.resolve());
-		const forgetBrowserEventLoop = mock(() => undefined);
 		let launchedBrowser: LaunchedBrowser | null = null;
 		const scheduledCallbacks: Array<() => void> = [];
 		let currentInvocation = 'A';
+		const forgetBrowserEventLoop = spyOn(
+			browserInstance,
+			'forgetBrowserEventLoop',
+		).mockImplementation(() => undefined);
+		spies.push(
+			forgetBrowserEventLoop,
+			spyOn(isFlakyError, 'isFlakyError').mockImplementation(
+				(err) => err === launchError,
+			),
+			spyOn(chromiumPath, 'getChromiumPath').mockImplementation(() => {
+				if (failure === 'Chromium path lookup' && currentInvocation === 'A') {
+					throw launchError;
+				}
+
+				return '/mock-chrome';
+			}),
+			spyOn(getTmpDir, 'getTmpDirStateIfENoSp').mockImplementation(
+				() => tmpDirState,
+			),
+			spyOn(currentRegion, 'getCurrentRegionInFunction').mockReturnValue(
+				'eu-central-1',
+			),
+			spyOn(browserInstance, 'getBrowserInstance').mockImplementation(
+				async (options) => {
+					launchedBrowser = await getBrowserInstance(options);
+					return launchedBrowser;
+				},
+			),
+		);
 		const exits: string[] = [];
 		const timeoutSpy = spyOn(globalThis, 'setTimeout').mockImplementation(((
 			callback: (...args: never[]) => void,
@@ -107,42 +139,11 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 						streamedMessages.push(message);
 						return Promise.resolve();
 					},
-					providerSpecifics: {
-						isFlakyError: (err: Error) => err === launchError,
-						getChromiumPath: () => {
-							if (
-								failure === 'Chromium path lookup' &&
-								currentInvocation === 'A'
-							) {
-								throw launchError;
-							}
-
-							return '/mock-chrome';
-						},
-					} as unknown as ProviderSpecifics,
 					requestContext: {
 						requestId: currentInvocation,
 						expectedBucketOwner: null,
 						getRemainingTimeInMillis: () => 120_000,
 					},
-					insideFunctionSpecifics: {
-						normalizeChromiumOptions: null,
-						getTmpDirState: () => tmpDirState,
-						startRendererDiagnostics: (requestId) => {
-							diagnostics.push(`start-${requestId}`);
-							return () => {
-								diagnostics.push(`end-${requestId}`);
-							};
-						},
-						getCurrentRegionInFunction: () => 'eu-central-1',
-						getBrowserInstance: async (options) => {
-							launchedBrowser = await getBrowserInstanceImplementation(options);
-							return launchedBrowser;
-						},
-						closeBrowserInstance: closeBrowserInstanceImplementation,
-						forgetBrowserEventLoop,
-						timer: () => ({end: () => undefined}),
-					} satisfies Partial<InsideFunctionSpecifics> as unknown as InsideFunctionSpecifics,
 					onMediaFiles,
 					executionMode: 'invoked',
 				});
@@ -170,24 +171,26 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 				failure === 'browser launch' ? 2 : 1,
 			);
 			expect(renderMediaSpy).toHaveBeenCalledTimes(1);
-			for (const spy of [openBrowserSpy, renderMediaSpy]) {
-				expect(spy).toHaveBeenLastCalledWith(
-					expect.objectContaining({
-						chromiumOptions: expect.objectContaining({
-							gl: 'angle',
-							enableMultiProcessOnLinux: true,
-						}),
+			// Lambda renders with software GL in a single browser process.
+			expect(openBrowserSpy).toHaveBeenLastCalledWith(
+				expect.objectContaining({
+					chromiumOptions: expect.objectContaining({
+						gl: 'swangle',
+						enableMultiProcessOnLinux: false,
 					}),
-				);
-			}
-
-			expect(diagnostics).toEqual(['start-A', 'end-A', 'start-B', 'end-B']);
+				}),
+			);
+			expect(renderMediaSpy).toHaveBeenLastCalledWith(
+				expect.objectContaining({
+					chromiumOptions: expect.objectContaining({gl: 'swangle'}),
+				}),
+			);
 			expect(onMediaFiles).toHaveBeenCalledTimes(1);
 			expect(forgetBrowserEventLoop).toHaveBeenCalledTimes(1);
 			expect(exits).toEqual([]);
 		} finally {
 			if (launchedBrowser) {
-				await closeBrowserInstanceImplementation({launchedBrowser});
+				await closeBrowserInstance({launchedBrowser});
 			}
 
 			tmpDirSpy.mockRestore();
@@ -221,10 +224,23 @@ test('a flaky renderer invocation closes its browser before returning', async ()
 		failClosing = () => reject(new Error('Could not close browser'));
 	});
 	const streamedMessages: StreamingPayload[] = [];
-	const closeBrowserInstance = mock(() => {
+	const closeBrowser = spyOn(
+		browserInstance,
+		'closeBrowserInstance',
+	).mockImplementation(() => {
 		notifyCloseStarted();
 		return closing;
 	});
+	spies.push(
+		closeBrowser,
+		spyOn(isFlakyError, 'isFlakyError').mockImplementation(() => true),
+		spyOn(currentRegion, 'getCurrentRegionInFunction').mockReturnValue(
+			'eu-central-1',
+		),
+		spyOn(browserInstance, 'getBrowserInstance').mockImplementation(() =>
+			Promise.resolve(browser as never),
+		),
+	);
 
 	try {
 		setNodeEnv('production');
@@ -248,19 +264,11 @@ test('a flaky renderer invocation closes its browser before returning', async ()
 				streamedMessages.push(message);
 				return Promise.resolve();
 			},
-			providerSpecifics: {
-				isFlakyError: () => true,
-			} as unknown as ProviderSpecifics,
 			requestContext: {
 				requestId: 'invocation-a',
 				expectedBucketOwner: null,
 				getRemainingTimeInMillis: () => 120_000,
 			},
-			insideFunctionSpecifics: {
-				getCurrentRegionInFunction: () => 'eu-central-1',
-				getBrowserInstance: () => Promise.resolve(browser as never),
-				closeBrowserInstance,
-			} as unknown as InsideFunctionSpecifics,
 			onMediaFiles: null,
 			executionMode: 'invoked',
 		});
@@ -271,8 +279,8 @@ test('a flaky renderer invocation closes its browser before returning', async ()
 				handlerPromise.then(() => 'handler-returned'),
 			]),
 		).toBe('close-started');
-		expect(closeBrowserInstance).toHaveBeenCalledTimes(1);
-		expect(closeBrowserInstance).toHaveBeenCalledWith({
+		expect(closeBrowser).toHaveBeenCalledTimes(1);
+		expect(closeBrowser).toHaveBeenCalledWith({
 			launchedBrowser: browser,
 		});
 
@@ -333,30 +341,25 @@ test('closing a cached browser makes the next invocation launch a new one', asyn
 	openBrowserSpy.mockImplementationOnce(() =>
 		Promise.resolve(secondBrowser as never),
 	);
-	const providerSpecifics = {
-		getChromiumPath: () => '/mock-chrome',
-	} as unknown as ProviderSpecifics;
-	const insideFunctionSpecifics = {
-		getBrowserInstance: getBrowserInstanceImplementation,
-	} as unknown as InsideFunctionSpecifics;
+	spies.push(
+		spyOn(chromiumPath, 'getChromiumPath').mockImplementation(
+			() => '/mock-chrome',
+		),
+	);
 	let first: LaunchedBrowser | null = null;
 	let second: LaunchedBrowser | null = null;
 
 	try {
-		first = await getBrowserInstanceImplementation({
+		first = await getBrowserInstance({
 			logLevel: 'error',
 			indent: false,
 			chromiumOptions: {},
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
-		await closeBrowserInstanceImplementation({launchedBrowser: first});
-		second = await getBrowserInstanceImplementation({
+		await closeBrowserInstance({launchedBrowser: first});
+		second = await getBrowserInstance({
 			logLevel: 'error',
 			indent: false,
 			chromiumOptions: {},
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
 
 		expect(openBrowserSpy).toHaveBeenCalledTimes(2);
@@ -364,11 +367,11 @@ test('closing a cached browser makes the next invocation launch a new one', asyn
 		expect(second.instance as unknown).toBe(secondBrowser);
 	} finally {
 		if (second) {
-			await closeBrowserInstanceImplementation({launchedBrowser: second});
+			await closeBrowserInstance({launchedBrowser: second});
 		}
 
 		if (first) {
-			await closeBrowserInstanceImplementation({launchedBrowser: first});
+			await closeBrowserInstance({launchedBrowser: first});
 		}
 
 		openBrowserSpy.mockRestore();

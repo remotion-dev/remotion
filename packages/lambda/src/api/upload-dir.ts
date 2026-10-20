@@ -9,7 +9,7 @@ import {
 	type RequestHandler,
 } from '@remotion/lambda-client';
 import mimeTypes from 'mime-types';
-import type {UploadDirProgress} from '../functions/provider-implementation';
+import type {UploadDirProgress} from '../functions/types';
 import {makeS3Key} from '../shared/make-s3-key';
 import {multipartUploadPartSize} from '../shared/multipart-upload-part-size';
 import {waitForPromisesToFinish} from '../shared/wait-for-promises-to-finish';

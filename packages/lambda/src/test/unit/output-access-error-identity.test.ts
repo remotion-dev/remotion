@@ -1,4 +1,12 @@
-import {expect, mock, spyOn, test} from 'bun:test';
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	expect,
+	mock,
+	spyOn,
+	test,
+} from 'bun:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,16 +16,24 @@ import {
 	OutputFileAccessDeniedError,
 	ServerlessRoutines,
 	type OverallRenderProgress,
-	type ProviderSpecifics,
 	type RenderMetadata,
 	type ServerlessPayloads,
 } from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
+import * as headFileModule from '../../../../lambda-client/src/head-file';
+import * as readFileModule from '../../../../lambda-client/src/read-file';
+import * as writeFileModule from '../../../../lambda-client/src/write-file';
+import * as browserInstance from '../../functions/get-browser-instance';
 import {launchHandler} from '../../functions/handlers/launch';
 import {progressHandler} from '../../functions/handlers/progress';
-import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
+import * as currentFunctionName from '../../functions/helpers/get-current-function-name';
+import * as currentMemorySize from '../../functions/helpers/get-current-memory-size';
+import * as currentRegion from '../../functions/helpers/get-current-region';
 import * as directRenderer from '../../functions/render-with-single-function';
+
+// The real implementation is needed to produce normalized storage errors.
+const realHeadFile = headFileModule.lambdaHeadFileImplementation;
 
 const region = 'us-east-1';
 const renderId = 'output-access-test';
@@ -84,15 +100,32 @@ const params: ServerlessPayloads['launch'] = {
 	sampleRate: 48000,
 };
 
-const insideFunctionSpecifics = {
-	getCurrentRegionInFunction: () => region,
-	getCurrentMemorySizeInMb: () => 2048,
-	getCurrentFunctionName: () => 'render-worker',
-	getBrowserInstance: () => Promise.resolve({instance: {}}),
-	forgetBrowserEventLoop: () => undefined,
-	timer: () => ({end: () => undefined}),
-	normalizeChromiumOptions: null,
-} as unknown as InsideFunctionSpecifics;
+const runtimeSpies: {mockRestore: () => void}[] = [];
+const fixtureSpies: {mockRestore: () => void}[] = [];
+
+beforeAll(() => {
+	runtimeSpies.push(
+		spyOn(currentRegion, 'getCurrentRegionInFunction').mockReturnValue(region),
+		spyOn(currentMemorySize, 'getCurrentMemorySizeInMb').mockReturnValue(2048),
+		spyOn(currentFunctionName, 'getCurrentFunctionName').mockReturnValue(
+			'render-worker',
+		),
+		spyOn(browserInstance, 'getBrowserInstance').mockImplementation(() =>
+			Promise.resolve({instance: {}} as never),
+		),
+		spyOn(browserInstance, 'forgetBrowserEventLoop').mockImplementation(
+			() => undefined,
+		),
+	);
+});
+
+afterAll(() => {
+	runtimeSpies.splice(0).forEach((spy) => spy.mockRestore());
+});
+
+afterEach(() => {
+	fixtureSpies.splice(0).forEach((spy) => spy.mockRestore());
+});
 
 const makeFixture = (headError: unknown) => {
 	let storedProgress: OverallRenderProgress | null = null;
@@ -126,24 +159,29 @@ const makeFixture = (headError: unknown) => {
 			storedProgress = JSON.parse(body as string);
 		},
 	);
-	const providerSpecifics: ProviderSpecifics = {
-		...LambdaClientInternals.awsImplementation,
-		headFile,
-		writeFile,
-		writeFileIfNotExists,
-		supportsConditionalOutput: () => true,
-		readFile: () =>
-			Promise.resolve(
-				Readable.from([Buffer.from(JSON.stringify(storedProgress))]),
-			),
-		getChromiumPath: () => null,
-		estimatePrice: () => 0,
-		parseFunctionName: () => null,
-		getEphemeralStorageForPriceCalculation: () => 512,
-		getBillingCurrency: () => 'USD',
-	} satisfies ProviderSpecifics;
+	fixtureSpies.splice(0).forEach((spy) => spy.mockRestore());
+	fixtureSpies.push(
+		spyOn(headFileModule, 'lambdaHeadFileImplementation').mockImplementation(
+			headFile,
+		),
+		spyOn(writeFileModule, 'lambdaWriteFileImplementation').mockImplementation(
+			writeFile,
+		),
+		spyOn(
+			writeFileModule,
+			'lambdaWriteFileIfNotExistsImplementation',
+		).mockImplementation(writeFileIfNotExists),
+		spyOn(writeFileModule, 'supportsConditionalOutput').mockImplementation(
+			() => true,
+		),
+		spyOn(readFileModule, 'lambdaReadFileImplementation').mockImplementation(
+			() =>
+				Promise.resolve(
+					Readable.from([Buffer.from(JSON.stringify(storedProgress))]),
+				),
+		),
+	);
 	return {
-		providerSpecifics,
 		headFile,
 		writeFile,
 		writeFileIfNotExists,
@@ -173,7 +211,7 @@ const getBundledHeadError = async (httpStatusCode: number) => {
 		Promise.reject(sdkError),
 	);
 	try {
-		await LambdaClientInternals.awsImplementation.headFile({
+		await realHeadFile({
 			...input,
 			bucketName: destination,
 			key: 'output.mp4',
@@ -199,13 +237,11 @@ const getBundledHeadError = async (httpStatusCode: number) => {
 };
 
 const invokeLaunch = (
-	fixture: ReturnType<typeof makeFixture>,
+	_fixture: ReturnType<typeof makeFixture>,
 	overwrite = false,
 ) =>
 	launchHandler({
 		params: {...params, overwrite},
-		providerSpecifics: fixture.providerSpecifics,
-		insideFunctionSpecifics,
 		options: {
 			expectedBucketOwner: null,
 			getRemainingTimeInMillis: () => 120000,
@@ -282,7 +318,7 @@ const completedProgress = (): OverallRenderProgress => {
 };
 
 const invokeProgress = (
-	fixture: ReturnType<typeof makeFixture>,
+	_fixture: ReturnType<typeof makeFixture>,
 	timeoutInMilliseconds = 120000,
 ) =>
 	progressHandler({
@@ -299,8 +335,6 @@ const invokeProgress = (
 			expectedBucketOwner: null,
 			timeoutInMilliseconds,
 			retriesRemaining: 0,
-			providerSpecifics: fixture.providerSpecifics,
-			insideFunctionSpecifics,
 		},
 	});
 
@@ -389,17 +423,15 @@ test.each(['normalized', 'constructed'] as const)(
 				),
 			).toBe(true);
 
-			for (const conditionalSupport of [false, true]) {
-				const unsupported = makeFixture(error);
-				unsupported.providerSpecifics.supportsConditionalOutput = () =>
-					conditionalSupport;
-				if (conditionalSupport) {
-					unsupported.providerSpecifics.writeFileIfNotExists = null;
-				}
-
-				await expect(invokeLaunch(unsupported)).rejects.toBe(error);
-				expect(unsupported.writeFileIfNotExists).not.toHaveBeenCalled();
-			}
+			// Destinations without conditional uploads keep denied reads fatal.
+			const unsupported = makeFixture(error);
+			fixtureSpies.push(
+				spyOn(writeFileModule, 'supportsConditionalOutput').mockImplementation(
+					() => false,
+				),
+			);
+			await expect(invokeLaunch(unsupported)).rejects.toBe(error);
+			expect(unsupported.writeFileIfNotExists).not.toHaveBeenCalled();
 
 			for (const unrelated of [
 				await getBundledHeadError(500),

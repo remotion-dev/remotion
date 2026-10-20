@@ -7,7 +7,8 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {DownloadBehavior} from 'remotion/no-react';
-import {awsImplementation} from './aws-provider';
+import {callFunctionWithStreamingImplementation} from './call-lambda-streaming';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {DEFAULT_MAX_RETRIES} from './constants';
 import {getCloudwatchMethodUrl, getLambdaInsightsUrl} from './get-aws-urls';
 import {makeLambdaRenderStillPayload} from './make-lambda-payload';
@@ -86,43 +87,42 @@ const innerRenderStillOnLambda = async (
 		const res = payload.streamed
 			? await new Promise<RenderStillFunctionResponsePayload>(
 					(resolve, reject) => {
-						awsImplementation
-							.callFunctionStreaming<ServerlessRoutines.still>({
-								functionName,
-								type: ServerlessRoutines.still,
-								payload,
-								region,
-								receivedStreamingPayload: ({message}) => {
-									if (message.type === 'render-id-determined') {
-										onInit?.({
+						callFunctionWithStreamingImplementation<ServerlessRoutines.still>({
+							functionName,
+							type: ServerlessRoutines.still,
+							payload,
+							region,
+							receivedStreamingPayload: ({message}) => {
+								if (message.type === 'render-id-determined') {
+									onInit?.({
+										renderId: message.payload.renderId,
+										cloudWatchLogs: getCloudwatchMethodUrl({
+											functionName,
+											method: ServerlessRoutines.still,
+											region,
+											rendererFunctionName: null,
 											renderId: message.payload.renderId,
-											cloudWatchLogs: getCloudwatchMethodUrl({
-												functionName,
-												method: ServerlessRoutines.still,
-												region,
-												rendererFunctionName: null,
-												renderId: message.payload.renderId,
-											}),
-											lambdaInsightsUrl: getLambdaInsightsUrl({
-												functionName,
-												region,
-											}),
-										});
-									}
+										}),
+										lambdaInsightsUrl: getLambdaInsightsUrl({
+											functionName,
+											region,
+										}),
+									});
+								}
 
-									if (message.type === 'error-occurred') {
-										reject(new Error(message.payload.error));
-									}
+								if (message.type === 'error-occurred') {
+									reject(new Error(message.payload.error));
+								}
 
-									if (message.type === 'still-rendered') {
-										resolve(message.payload);
-									}
-								},
-								timeoutInTest: 120000,
-								retriesRemaining: input.maxRetries,
-								getBinaryPayloadSink: null,
-								requestHandler: input.requestHandler,
-							})
+								if (message.type === 'still-rendered') {
+									resolve(message.payload);
+								}
+							},
+							timeoutInTest: 120000,
+							retriesRemaining: input.maxRetries,
+							getBinaryPayloadSink: null,
+							requestHandler: input.requestHandler,
+						})
 							.then(() => {
 								reject(new Error('Expected response to be streamed'));
 							})
@@ -131,7 +131,7 @@ const innerRenderStillOnLambda = async (
 							});
 					},
 				)
-			: ((await awsImplementation.callFunctionSync<ServerlessRoutines.still>({
+			: ((await callFunctionSyncImplementation<ServerlessRoutines.still>({
 					functionName,
 					type: ServerlessRoutines.still,
 					payload,

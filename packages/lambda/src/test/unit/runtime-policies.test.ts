@@ -2,14 +2,12 @@ import {expect, mock, spyOn, test} from 'bun:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {
-	LambdaClientInternals,
-	type StreamingPayload,
-} from '@remotion/lambda-client';
+import type {StreamingPayload} from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import {serverAwsImplementation} from '../../functions/aws-server-implementation';
+import * as browserInstance from '../../functions/get-browser-instance';
 import {rendererHandler} from '../../functions/handlers/renderer';
+import * as currentRegion from '../../functions/helpers/get-current-region';
 
 test.each(['angle', null] as const)(
 	'Lambda renders with software GL and one browser process for gl=%s',
@@ -37,9 +35,21 @@ test.each(['angle', null] as const)(
 			'internalRenderMedia',
 		).mockResolvedValue({slowestFrames: []} as never);
 		const messages: StreamingPayload[] = [];
+		const originalGetBrowserInstance = browserInstance.getBrowserInstance;
 		let launchedBrowser: Awaited<
-			ReturnType<typeof serverAwsImplementation.getBrowserInstance>
+			ReturnType<typeof originalGetBrowserInstance>
 		> | null = null;
+		const regionSpy = spyOn(
+			currentRegion,
+			'getCurrentRegionInFunction',
+		).mockReturnValue('us-east-1');
+		const browserSpy = spyOn(
+			browserInstance,
+			'getBrowserInstance',
+		).mockImplementation(async (options) => {
+			launchedBrowser = await originalGetBrowserInstance(options);
+			return launchedBrowser;
+		});
 		const chromiumOptions = {gl, enableMultiProcessOnLinux: true};
 
 		try {
@@ -69,16 +79,6 @@ test.each(['angle', null] as const)(
 					messages.push(message);
 					return Promise.resolve();
 				},
-				providerSpecifics: LambdaClientInternals.awsImplementation,
-				insideFunctionSpecifics: {
-					...serverAwsImplementation,
-					getCurrentRegionInFunction: () => 'us-east-1',
-					getBrowserInstance: async (options) => {
-						launchedBrowser =
-							await serverAwsImplementation.getBrowserInstance(options);
-						return launchedBrowser;
-					},
-				},
 				requestContext: {
 					requestId: 'request-id',
 					expectedBucketOwner: '123456789012',
@@ -107,12 +107,13 @@ test.each(['angle', null] as const)(
 				}),
 			);
 			expect(chromiumOptions).toEqual({gl, enableMultiProcessOnLinux: true});
-			expect(serverAwsImplementation.startRendererDiagnostics).toBeNull();
 		} finally {
 			if (launchedBrowser) {
-				await serverAwsImplementation.closeBrowserInstance({launchedBrowser});
+				await browserInstance.closeBrowserInstance({launchedBrowser});
 			}
 
+			regionSpy.mockRestore();
+			browserSpy.mockRestore();
 			tmpDirSpy.mockRestore();
 			openBrowserSpy.mockRestore();
 			renderMediaSpy.mockRestore();

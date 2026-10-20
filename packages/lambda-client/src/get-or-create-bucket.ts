@@ -1,7 +1,11 @@
 import type {LogLevel} from 'remotion';
+import {getServiceDnsSuffix} from './aws-region-metadata';
 import {checkBucketListing} from './check-bucket-listing';
+import {REMOTION_BUCKET_PREFIX} from './constants';
+import {createBucket} from './create-bucket';
+import {getRemotionBuckets} from './get-buckets';
+import {applyLifeCyleOperation} from './lifecycle-rules';
 import {makeBucketName} from './make-bucket-name';
-import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
 import type {CustomCredentials} from './shared-constants';
 import type {RequestHandler} from './types';
@@ -10,7 +14,6 @@ type GetOrCreateBucketInputInner = {
 	region: AwsRegion;
 	enableFolderExpiry: boolean | null;
 	customCredentials: CustomCredentials | null;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
 	logLevel: LogLevel;
@@ -34,7 +37,7 @@ export type GetOrCreateBucketOutput = {
 export const internalGetOrCreateBucket = async (
 	params: GetOrCreateBucketInputInner,
 ): Promise<GetOrCreateBucketOutput> => {
-	const remotionBuckets = await params.providerSpecifics.getBuckets({
+	const remotionBuckets = await getRemotionBuckets({
 		region: params.region,
 		forceBucketName: null,
 		forcePathStyle: params.forcePathStyle,
@@ -46,7 +49,7 @@ export const internalGetOrCreateBucket = async (
 				(b) => b.name,
 			)}) in your S3 region (${
 				params.region
-			}) starting with "${params.providerSpecifics.getBucketPrefix()}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`,
+			}) starting with "${REMOTION_BUCKET_PREFIX}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`,
 		);
 	}
 
@@ -54,7 +57,7 @@ export const internalGetOrCreateBucket = async (
 	if (remotionBuckets.length === 1) {
 		const existingBucketName = remotionBuckets[0].name;
 		// apply to existing bucket
-		await params.providerSpecifics.applyLifeCycle({
+		await applyLifeCyleOperation({
 			enableFolderExpiry: enableFolderExpiry ?? null,
 			bucketName: existingBucketName,
 			region,
@@ -66,15 +69,15 @@ export const internalGetOrCreateBucket = async (
 		await checkBucketListing({
 			bucketName: existingBucketName,
 			region,
-			dnsSuffix: params.providerSpecifics.getServiceDnsSuffix(region),
+			dnsSuffix: getServiceDnsSuffix(region),
 		});
 
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
 
-	const bucketName = makeBucketName(params.region, params.providerSpecifics);
+	const bucketName = makeBucketName(params.region);
 
-	await params.providerSpecifics.createBucket({
+	await createBucket({
 		bucketName,
 		region: params.region,
 		forcePathStyle: params.forcePathStyle,
@@ -84,7 +87,7 @@ export const internalGetOrCreateBucket = async (
 	});
 
 	// apply to newly created bucket
-	await params.providerSpecifics.applyLifeCycle({
+	await applyLifeCyleOperation({
 		enableFolderExpiry: enableFolderExpiry ?? null,
 		bucketName,
 		region,

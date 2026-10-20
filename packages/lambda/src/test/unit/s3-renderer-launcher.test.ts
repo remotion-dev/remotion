@@ -1,17 +1,26 @@
-import {expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
 import {mkdtemp, readFile, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Readable} from 'node:stream';
 import {
 	LambdaClientInternals,
-	type ProviderSpecifics,
 	type S3RendererStatus,
 } from '@remotion/lambda-client';
 import type {EmittedArtifact} from '@remotion/renderer';
+import * as callLambdaAsync from '../../../../lambda-client/src/call-lambda-async';
+import * as deleteFile from '../../../../lambda-client/src/delete-file';
+import * as readFileModule from '../../../../lambda-client/src/read-file';
+import * as rendererTransport from '../../../../lambda-client/src/renderer-transport';
+import * as currentRegion from '../../functions/helpers/get-current-region';
 import type {OverallProgressHelper} from '../../functions/overall-render-progress';
-import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
 import {renderRendererFunctionWithRetry} from '../../functions/stream-renderer';
+
+const spies: {mockRestore: () => void}[] = [];
+
+afterEach(() => {
+	spies.splice(0).forEach((spy) => spy.mockRestore());
+});
 
 test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', async () => {
 	const directory = await mkdtemp(join(tmpdir(), 'remotion-s3-launcher-'));
@@ -59,9 +68,15 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 				},
 			],
 		};
-		const providerSpecifics = {
-			getRendererFunctionTransport: () => 's3',
-			callFunctionAsync: () => {
+		spies.push(
+			spyOn(
+				rendererTransport,
+				'getRendererFunctionTransport',
+			).mockImplementation(() => 's3'),
+			spyOn(
+				callLambdaAsync,
+				'callFunctionAsyncImplementation',
+			).mockImplementation(() => {
 				asyncInvocations++;
 				objects.set(videoKey, new TextEncoder().encode('video'));
 				objects.set(artifactKey, new TextEncoder().encode('artifact'));
@@ -70,25 +85,30 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 					new TextEncoder().encode(JSON.stringify(status)),
 				);
 				return Promise.resolve();
-			},
-			readFile: ({key}: {key: string}) => {
-				const value = objects.get(key);
-				if (!value) {
-					const error = new Error(`Missing ${key}`);
-					error.name = 'NoSuchKey';
-					throw error;
-				}
+			}),
+			spyOn(readFileModule, 'lambdaReadFileImplementation').mockImplementation(
+				({key}) => {
+					const value = objects.get(key);
+					if (!value) {
+						const error = new Error(`Missing ${key}`);
+						error.name = 'NoSuchKey';
+						throw error;
+					}
 
-				return Promise.resolve(Readable.from([value]));
-			},
-			deleteFile: ({key}: {key: string}) => {
-				deleted.push(key);
-				objects.delete(key);
-				return Promise.resolve();
-			},
-			isFlakyError: () => false,
-			getLoggingUrlForRendererFunction: () => 'https://logs.example.com',
-		} as unknown as ProviderSpecifics;
+					return Promise.resolve(Readable.from([value]));
+				},
+			),
+			spyOn(deleteFile, 'lambdaDeleteFileImplementation').mockImplementation(
+				({key}) => {
+					deleted.push(key);
+					objects.delete(key);
+					return Promise.resolve();
+				},
+			),
+			spyOn(currentRegion, 'getCurrentRegionInFunction').mockImplementation(
+				() => 'eu-central-1',
+			),
+		);
 
 		const frames: Array<{rendered: number; encoded: number}> = [];
 		let lambdasInvoked = 0;
@@ -105,9 +125,6 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 				completedChunks++;
 			},
 		} as unknown as OverallProgressHelper;
-		const insideFunctionSpecifics = {
-			getCurrentRegionInFunction: () => 'eu-central-1',
-		} as unknown as InsideFunctionSpecifics;
 		const files: string[] = [];
 		const artifacts: EmittedArtifact[] = [];
 		const artifactSources: Array<{chunk: number; attempt: number}> = [];
@@ -133,8 +150,6 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 				artifactSources.push({chunk, attempt});
 				return {type: 'accepted'};
 			},
-			providerSpecifics,
-			insideFunctionSpecifics,
 			requestHandler: null,
 			expectedBucketOwner: 'owner',
 		});

@@ -17,8 +17,6 @@ import {Log} from '../../cli/log';
 import {innerHandler} from '../../functions/inner-routine';
 import {ResponseStream} from '../../functions/streaming/response-stream';
 import {streamWriter} from '../../functions/streaming/stream-writer';
-import {mockServerImplementation} from '../mock-implementation';
-import {mockImplementation} from './mock-implementation';
 import {trackMockInvocation} from './mock-invocations';
 
 export const getMockCallFunctionStreaming: CallFunctionStreaming = async <
@@ -81,8 +79,6 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming = async <
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			requestId: 'fake',
 		},
-		providerSpecifics: mockImplementation,
-		insideFunctionSpecifics: mockServerImplementation,
 	});
 
 	responseStream._finish();
@@ -102,8 +98,6 @@ export const getMockCallFunctionAsync: CallFunctionAsync = async <
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			requestId: 'fake',
 		},
-		providerSpecifics: mockImplementation,
-		insideFunctionSpecifics: mockServerImplementation,
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
 	});
@@ -126,8 +120,6 @@ export const getMockCallFunctionSync: CallFunctionSync = async <
 		},
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
-		providerSpecifics: mockImplementation,
-		insideFunctionSpecifics: mockServerImplementation,
 	});
 
 	responseStream._finish();

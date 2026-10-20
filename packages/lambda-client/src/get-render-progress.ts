@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {awsImplementation} from './aws-provider';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import type {RenderProgress} from './constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
 import {parseFunctionName} from './parse-function-name';
@@ -46,7 +46,6 @@ export const getRenderProgress = async (
 			forcePathStyle: input.forcePathStyle ?? false,
 			customCredentials: input.s3OutputProvider ?? null,
 			expectedBucketOwner: null,
-			providerSpecifics: awsImplementation,
 			memorySizeInMb: parsed.memorySizeInMb,
 			timeoutInMilliseconds: parsed.timeoutInSeconds * 1000,
 			functionName: input.functionName,
@@ -55,7 +54,7 @@ export const getRenderProgress = async (
 	}
 
 	const result =
-		await awsImplementation.callFunctionSync<ServerlessRoutines.status>({
+		await callFunctionSyncImplementation<ServerlessRoutines.status>({
 			functionName: input.functionName,
 			type: ServerlessRoutines.status,
 			payload: getRenderProgressPayload(input),

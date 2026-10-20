@@ -4,7 +4,6 @@ import {
 	LambdaClientInternals,
 	ServerlessRoutines,
 	type OnStream,
-	type ProviderSpecifics,
 	type ReceivedArtifact,
 	type RenderMetadata,
 	type RenderStillFunctionResponsePayload,
@@ -15,9 +14,18 @@ import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {cleanupSerializedInputProps} from '../cleanup-serialized-input-props';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from '../get-browser-instance';
+import {getChromiumPath} from '../helpers/get-chromium-path';
+import {getCurrentFunctionName} from '../helpers/get-current-function-name';
+import {getCurrentMemorySizeInMb} from '../helpers/get-current-memory-size';
+import {getCurrentRegionInFunction} from '../helpers/get-current-region';
+import {getTmpDirStateIfENoSp} from '../helpers/get-tmp-dir';
+import {makeAwsArtifact} from '../helpers/make-aws-artifact';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
-import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {removeOutnameCredentials} from '../remove-outname-credentials';
 import {validateComposition} from '../validate-composition';
 import {checkVersionMismatch} from './check-version-mismatch';
@@ -29,8 +37,6 @@ type Options = {
 	expectedBucketOwner: string | null;
 	onStream: OnStream;
 	timeoutInMilliseconds: number;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 };
 
 const innerStillHandler = async (
@@ -40,8 +46,6 @@ const innerStillHandler = async (
 		renderId,
 		onStream,
 		timeoutInMilliseconds,
-		providerSpecifics,
-		insideFunctionSpecifics,
 	}: Options,
 	cleanup: CleanupFn[],
 ) => {
@@ -51,7 +55,6 @@ const innerStillHandler = async (
 
 	checkVersionMismatch({
 		apiName: 'renderStillOnLambda()',
-		insideFunctionSpecifics,
 		params,
 	});
 
@@ -62,22 +65,20 @@ const innerStillHandler = async (
 		codec: null,
 		audioCodecSetting: null,
 		separateAudioTo: null,
-		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		bucketNamePrefix: LambdaClientInternals.REMOTION_BUCKET_PREFIX,
 	});
 
 	const start = Date.now();
 
-	const browserInstancePromise = insideFunctionSpecifics.getBrowserInstance({
+	const browserInstancePromise = getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
-		providerSpecifics,
-		insideFunctionSpecifics,
 	});
 
 	browserInstancePromise.then((instance) => {
 		cleanup.push(() => {
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			forgetBrowserEventLoop({
 				logLevel:
 					params.type === ServerlessRoutines.still ? params.logLevel : 'error',
 				launchedBrowser: instance,
@@ -90,10 +91,9 @@ const innerStillHandler = async (
 	const bucketNamePromise =
 		params.bucketName ??
 		LambdaClientInternals.internalGetOrCreateBucket({
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			region: getCurrentRegionInFunction(),
 			enableFolderExpiry: null,
 			customCredentials: null,
-			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			skipPutAcl: false,
 			requestHandler: null,
@@ -104,7 +104,7 @@ const innerStillHandler = async (
 
 	const outputPath = path.join(outputDir, 'output');
 
-	const region = insideFunctionSpecifics.getCurrentRegionInFunction();
+	const region = getCurrentRegionInFunction();
 	const bucketName = await bucketNamePromise;
 	const serializedInputPropsWithCustomSchema =
 		await LambdaClientInternals.decompressInputProps({
@@ -113,12 +113,11 @@ const innerStillHandler = async (
 			region,
 			serialized: params.inputProps,
 			propsType: 'input-props',
-			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			requestHandler: null,
 		});
 
-	const serveUrl = providerSpecifics.convertToServeUrl({
+	const serveUrl = LambdaClientInternals.convertToServeUrlImplementation({
 		urlOrId: params.serveUrl,
 		region,
 		bucketName,
@@ -168,7 +167,6 @@ const innerStillHandler = async (
 			throw new Error('Should not download a browser in Lambda');
 		},
 		onServeUrlVisited: () => undefined,
-		providerSpecifics,
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	});
@@ -189,8 +187,8 @@ const innerStillHandler = async (
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
-		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		memorySizeInMb: getCurrentMemorySizeInMb(),
+		region: getCurrentRegionInFunction(),
 		renderId,
 		outName: removeOutnameCredentials(params.outName ?? undefined),
 		privacy: params.privacy,
@@ -200,8 +198,8 @@ const innerStillHandler = async (
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: null,
 		metadata: null,
-		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
-		rendererFunctionName: insideFunctionSpecifics.getCurrentFunctionName(),
+		functionName: getCurrentFunctionName(),
+		rendererFunctionName: getCurrentFunctionName(),
 		dimensions: {
 			height: composition.height * params.scale,
 			width: composition.width * params.scale,
@@ -212,11 +210,11 @@ const innerStillHandler = async (
 	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds, false);
 	still.renderMetadata = renderMetadata;
 
-	await providerSpecifics.writeFile({
+	await LambdaClientInternals.lambdaWriteFileImplementation({
 		bucketName,
 		key: LambdaClientInternals.overallProgressKey(renderId),
 		body: JSON.stringify(still),
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		region: getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner,
 		downloadBehavior: null,
@@ -240,7 +238,7 @@ const innerStillHandler = async (
 			customCredentials: LambdaClientInternals.getCredentialsFromOutName(
 				params.outName,
 			),
-			bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+			bucketNamePrefix: LambdaClientInternals.REMOTION_BUCKET_PREFIX,
 		});
 
 	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
@@ -254,7 +252,7 @@ const innerStillHandler = async (
 		);
 
 		receivedArtifact.push(
-			insideFunctionSpecifics.makeArtifactWithDetails({
+			makeAwsArtifact({
 				storageKey,
 				artifact,
 				region,
@@ -267,20 +265,19 @@ const innerStillHandler = async (
 			{indent: false, logLevel: params.logLevel},
 			'Writing artifact ' + artifact.filename + ' to S3',
 		);
-		providerSpecifics
-			.writeFile({
-				bucketName: renderBucketName,
-				key: storageKey,
-				body: artifact.content,
-				region,
-				privacy: params.privacy,
-				expectedBucketOwner,
-				downloadBehavior: params.downloadBehavior,
-				customCredentials,
-				forcePathStyle: params.forcePathStyle,
-				storageClass: params.storageClass,
-				requestHandler: null,
-			})
+		LambdaClientInternals.lambdaWriteFileImplementation({
+			bucketName: renderBucketName,
+			key: storageKey,
+			body: artifact.content,
+			region,
+			privacy: params.privacy,
+			expectedBucketOwner,
+			downloadBehavior: params.downloadBehavior,
+			customCredentials,
+			forcePathStyle: params.forcePathStyle,
+			storageClass: params.storageClass,
+			requestHandler: null,
+		})
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},
@@ -314,7 +311,7 @@ const innerStillHandler = async (
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
-		browserExecutable: providerSpecifics.getChromiumPath(),
+		browserExecutable: getChromiumPath(),
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,
@@ -342,13 +339,13 @@ const innerStillHandler = async (
 
 	const {size} = await fs.promises.stat(outputPath);
 
-	await providerSpecifics.writeFile({
+	await LambdaClientInternals.lambdaWriteFileImplementation({
 		bucketName: renderBucketName,
 		key,
 		privacy: params.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner,
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		region: getCurrentRegionInFunction(),
 		downloadBehavior: params.downloadBehavior,
 		customCredentials,
 		forcePathStyle: params.forcePathStyle,
@@ -359,9 +356,8 @@ const innerStillHandler = async (
 	await Promise.all([
 		fs.promises.rm(outputPath, {recursive: true}),
 		cleanupSerializedInputProps({
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			region: getCurrentRegionInFunction(),
 			serialized: params.inputProps,
-			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 		}),
 		server.closeServer(true),
@@ -374,20 +370,20 @@ const innerStillHandler = async (
 		}),
 	]);
 
-	const estimatedPrice = providerSpecifics.estimatePrice({
+	const estimatedPrice = LambdaClientInternals.estimatePrice({
 		durationInMilliseconds: Date.now() - start + 100,
-		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		memorySizeInMb: getCurrentMemorySizeInMb(),
+		region: getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
-		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
+		diskSizeInMb: LambdaClientInternals.MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
-	const {key: outKey, url} = providerSpecifics.getOutputUrl({
+	const {key: outKey, url} = LambdaClientInternals.getOutputUrlFromMetadata({
 		output: 'main',
 		renderMetadata,
 		bucketName,
 		customCredentials,
-		currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		currentRegion: getCurrentRegionInFunction(),
 	});
 
 	const payload: RenderStillFunctionResponsePayload = {
@@ -398,9 +394,7 @@ const innerStillHandler = async (
 		bucketName,
 		estimatedPrice: LambdaClientInternals.formatCostsInfo(
 			estimatedPrice,
-			providerSpecifics.getBillingCurrency(
-				insideFunctionSpecifics.getCurrentRegionInFunction(),
-			),
+			LambdaClientInternals.getBillingCurrency(getCurrentRegionInFunction()),
 		),
 		renderId,
 		outKey,
@@ -443,7 +437,7 @@ export const stillHandler = async (
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError = options.providerSpecifics.isFlakyError(err as Error);
+		const isBrowserError = LambdaClientInternals.isFlakyError(err as Error);
 		const willRetry = isBrowserError || params.maxRetries > 0;
 
 		RenderInternals.Log.error(
@@ -470,10 +464,7 @@ export const stillHandler = async (
 						frame: params.frame,
 						type: 'renderer',
 						isFatal: false,
-						tmpDir:
-							options.insideFunctionSpecifics.getTmpDirState?.(
-								(err as Error).stack as string,
-							) ?? null,
+						tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 						attempt: params.attempt,
 						totalAttempts: 1 + params.maxRetries,
 						willRetry,

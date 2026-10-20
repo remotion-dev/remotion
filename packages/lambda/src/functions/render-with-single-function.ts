@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import {join} from 'node:path';
 import {
 	ServerlessRoutines,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import {
@@ -19,9 +18,10 @@ import type {VideoConfig} from 'remotion/no-react';
 import type {OnArtifactFromRenderer} from './artifact-registry';
 import {startCancellationPolling} from './cancellation-polling';
 import type {LaunchedBrowser} from './get-browser-instance';
+import {getChromiumPath} from './helpers/get-chromium-path';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {onDownloadsHelper} from './on-downloads-helpers';
 import type {OverallProgressHelper} from './overall-render-progress';
-import type {InsideFunctionSpecifics} from './provider-implementation';
 
 export const renderWithSingleFunction = async ({
 	params,
@@ -32,8 +32,6 @@ export const renderWithSingleFunction = async ({
 	chromiumOptions,
 	overallProgress,
 	onArtifact,
-	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload;
 	composition: VideoConfig;
@@ -43,8 +41,6 @@ export const renderWithSingleFunction = async ({
 	chromiumOptions: ChromiumOptions;
 	overallProgress: OverallProgressHelper;
 	onArtifact: OnArtifactFromRenderer;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<{
 	outputFile: string;
 	separateAudioFile: string | null;
@@ -85,8 +81,7 @@ export const renderWithSingleFunction = async ({
 		? startCancellationPolling({
 				bucketName: params.bucketName,
 				renderId: params.renderId,
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-				providerSpecifics,
+				region: getCurrentRegionInFunction(),
 				forcePathStyle: params.forcePathStyle,
 				intervalInMilliseconds: 1000,
 				logLevel: params.logLevel,
@@ -132,7 +127,7 @@ export const renderWithSingleFunction = async ({
 			encodingMaxRate: params.encodingMaxRate as Bitrate | null,
 			audioCodec: params.audioCodec,
 			preferLossless: params.preferLossless,
-			browserExecutable: providerSpecifics.getChromiumPath(),
+			browserExecutable: getChromiumPath(),
 			cancelSignal: params.enableCancellation ? cancelSignal : undefined,
 			disallowParallelEncoding: false,
 			disableSharedMemoryCapture: params.disableSharedMemoryCapture,

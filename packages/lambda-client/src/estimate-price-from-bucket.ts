@@ -1,5 +1,5 @@
 import {calculateBillingDuration} from './calculate-billing-duration';
-import type {ProviderSpecifics} from './provider-implementation';
+import {estimatePrice} from './estimate-price';
 import type {AwsRegion} from './regions';
 import type {RenderMetadata} from './render-metadata';
 import type {ParsedTiming} from './types';
@@ -11,7 +11,6 @@ export const estimatePriceFromMetadata = ({
 	functionsInvoked,
 	timings,
 	region,
-	providerSpecifics,
 	fatalErrorTimestamp,
 }: {
 	renderMetadata: RenderMetadata | null;
@@ -20,7 +19,6 @@ export const estimatePriceFromMetadata = ({
 	functionsInvoked: number;
 	timings: ParsedTiming[];
 	region: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 	fatalErrorTimestamp: number | null;
 }) => {
 	if (!renderMetadata) {
@@ -37,15 +35,13 @@ export const estimatePriceFromMetadata = ({
 	});
 
 	const accruedSoFar = Number(
-		providerSpecifics
-			.estimatePrice({
-				region,
-				durationInMilliseconds: estimatedBillingDurationInMilliseconds,
-				memorySizeInMb,
-				diskSizeInMb,
-				lambdasInvoked: functionsInvoked,
-			})
-			.toPrecision(5),
+		estimatePrice({
+			region,
+			durationInMilliseconds: estimatedBillingDurationInMilliseconds,
+			memorySizeInMb,
+			diskSizeInMb,
+			lambdasInvoked: functionsInvoked,
+		}).toPrecision(5),
 	);
 
 	return {accruedSoFar, estimatedBillingDurationInMilliseconds};

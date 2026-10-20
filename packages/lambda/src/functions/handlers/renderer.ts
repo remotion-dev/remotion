@@ -5,7 +5,6 @@ import {
 	ServerlessRoutines,
 	type ObjectChunkTimingData,
 	type OnStream,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import type {
@@ -19,10 +18,23 @@ import {makeCancelSignal, RenderInternals} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {VERSION} from 'remotion/version';
 import {startCancellationPolling} from '../cancellation-polling';
+import {
+	closeBrowserInstance,
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from '../get-browser-instance';
 import type {LaunchedBrowser} from '../get-browser-instance';
+import {getChromiumPath} from '../helpers/get-chromium-path';
+import {getCurrentRegionInFunction} from '../helpers/get-current-region';
+import {getTmpDirStateIfENoSp} from '../helpers/get-tmp-dir';
+import {startLeakDetection} from '../helpers/leak-detection';
+import {normalizeChromiumOptions} from '../helpers/normalize-chromium-options';
+import {timer} from '../helpers/timer';
+import {enableNodeIntrospection} from '../helpers/why-is-node-running';
 import {onDownloadsHelper} from '../on-downloads-helpers';
-import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {renderImageSequenceChunk} from '../render-image-sequence-chunk';
+
+const ENABLE_SLOW_LEAK_DETECTION = false;
 
 type Options = {
 	expectedBucketOwner: string | null;
@@ -40,8 +52,6 @@ const renderHandler = async ({
 	options,
 	logs,
 	onStream,
-	providerSpecifics,
-	insideFunctionSpecifics,
 	onBrowserInstance,
 	onMediaFiles,
 	cancelSignal,
@@ -50,8 +60,6 @@ const renderHandler = async ({
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	onBrowserInstance: (browserInstance: LaunchedBrowser) => void;
 	onMediaFiles:
 		| ((options: {
@@ -67,11 +75,10 @@ const renderHandler = async ({
 		throw new Error('Params must be renderer');
 	}
 
-	const chromiumOptions =
-		insideFunctionSpecifics.normalizeChromiumOptions?.({
-			chromiumOptions: params.chromiumOptions,
-			logLevel: params.logLevel,
-		}) ?? params.chromiumOptions;
+	const chromiumOptions = normalizeChromiumOptions({
+		chromiumOptions: params.chromiumOptions,
+		logLevel: params.logLevel,
+	});
 
 	if (params.launchFunctionConfig.version !== VERSION) {
 		throw new Error(
@@ -82,10 +89,9 @@ const renderHandler = async ({
 	const inputPropsPromise = LambdaClientInternals.decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
-		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		requestHandler: null,
 	});
@@ -93,10 +99,9 @@ const renderHandler = async ({
 	const resolvedPropsPromise = LambdaClientInternals.decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		region: getCurrentRegionInFunction(),
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
-		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		requestHandler: null,
 	});
@@ -106,12 +111,10 @@ const renderHandler = async ({
 		`Waiting for browser instance`,
 	);
 
-	const browserInstance = await insideFunctionSpecifics.getBrowserInstance({
+	const browserInstance = await getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions,
-		providerSpecifics,
-		insideFunctionSpecifics,
 	});
 
 	onBrowserInstance(browserInstance);
@@ -127,8 +130,6 @@ const renderHandler = async ({
 			onStream,
 			logs,
 			cancelSignal,
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
 		return {};
 	}
@@ -359,7 +360,7 @@ const renderHandler = async ({
 			encodingMaxRate: params.encodingMaxRate,
 			audioCodec,
 			preferLossless: params.preferLossless,
-			browserExecutable: providerSpecifics.getChromiumPath(),
+			browserExecutable: getChromiumPath(),
 			cancelSignal: cancelSignal ?? undefined,
 			disallowParallelEncoding: false,
 			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
@@ -405,7 +406,7 @@ const renderHandler = async ({
 			.catch((err) => reject(err));
 	});
 
-	const streamTimer = insideFunctionSpecifics.timer(
+	const streamTimer = timer(
 		'Streaming chunk to the main function',
 		params.logLevel,
 	);
@@ -420,10 +421,7 @@ const renderHandler = async ({
 		});
 	} else {
 		if (audioOutputLocation) {
-			const audioChunkTimer = insideFunctionSpecifics.timer(
-				'Sending audio chunk',
-				params.logLevel,
-			);
+			const audioChunkTimer = timer('Sending audio chunk', params.logLevel);
 			await onStream({
 				type: 'audio-chunk-rendered',
 				payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
@@ -431,10 +429,7 @@ const renderHandler = async ({
 			audioChunkTimer.end();
 		}
 
-		const videoChunkTimer = insideFunctionSpecifics.timer(
-			'Sending main chunk',
-			params.logLevel,
-		);
+		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
 		await onStream({
 			type: NoReactAPIs.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
@@ -480,9 +475,7 @@ export const rendererHandler = async ({
 	onStream,
 	options,
 	params,
-	providerSpecifics,
 	requestContext,
-	insideFunctionSpecifics,
 	onMediaFiles,
 	executionMode,
 }: {
@@ -490,8 +483,6 @@ export const rendererHandler = async ({
 	options: Options;
 	onStream: OnStream;
 	requestContext: RequestContext;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	onMediaFiles:
 		| ((options: {
 				videoOutputLocation: string;
@@ -508,10 +499,9 @@ export const rendererHandler = async ({
 
 	const logs: BrowserLog[] = [];
 
-	const finishRendererDiagnostics =
-		insideFunctionSpecifics.startRendererDiagnostics?.(
-			requestContext.requestId,
-		) ?? null;
+	const nodeIntrospection = ENABLE_SLOW_LEAK_DETECTION
+		? enableNodeIntrospection(true)
+		: null;
 	let shouldKeepBrowserOpen = true;
 	let instance: LaunchedBrowser | undefined;
 	let cancellationRequested = false;
@@ -520,8 +510,7 @@ export const rendererHandler = async ({
 		? startCancellationPolling({
 				bucketName: params.bucketName,
 				renderId: params.renderId,
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-				providerSpecifics,
+				region: getCurrentRegionInFunction(),
 				forcePathStyle: params.forcePathStyle,
 				intervalInMilliseconds: 1000,
 				logLevel: params.logLevel,
@@ -538,8 +527,6 @@ export const rendererHandler = async ({
 			options,
 			logs,
 			onStream,
-			providerSpecifics,
-			insideFunctionSpecifics,
 			onBrowserInstance: (browserInstance) => {
 				instance = browserInstance;
 			},
@@ -555,7 +542,7 @@ export const rendererHandler = async ({
 
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isRetryableError = providerSpecifics.isFlakyError(err as Error);
+		const isRetryableError = LambdaClientInternals.isFlakyError(err as Error);
 		if (isRetryableError) {
 			shouldKeepBrowserOpen = false;
 		}
@@ -588,10 +575,7 @@ export const rendererHandler = async ({
 					frame: null,
 					type: 'renderer',
 					isFatal: !shouldRetry,
-					tmpDir:
-						insideFunctionSpecifics.getTmpDirState?.(
-							(err as Error).stack as string,
-						) ?? null,
+					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 					attempt: params.attempt,
 					totalAttempts: params.retriesLeft + params.attempt,
 					willRetry: shouldRetry,
@@ -602,7 +586,7 @@ export const rendererHandler = async ({
 		stopCancellationPolling();
 		if (!shouldKeepBrowserOpen && instance) {
 			try {
-				await insideFunctionSpecifics.closeBrowserInstance({
+				await closeBrowserInstance({
 					launchedBrowser: instance,
 				});
 			} catch (err) {
@@ -617,7 +601,7 @@ export const rendererHandler = async ({
 			shouldKeepBrowserOpen &&
 			instance
 		) {
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,
 			});
@@ -630,6 +614,8 @@ export const rendererHandler = async ({
 			);
 		}
 
-		finishRendererDiagnostics?.();
+		if (nodeIntrospection) {
+			startLeakDetection(nodeIntrospection, requestContext.requestId);
+		}
 	}
 };

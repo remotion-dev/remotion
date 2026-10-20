@@ -8,7 +8,6 @@ import {
 	type ImageSequenceManifest,
 	type ImageSequenceOutput,
 	type PostRenderData,
-	type ProviderSpecifics,
 	type RenderMetadata,
 	type RendererOutput,
 	type ServerlessPayload,
@@ -27,12 +26,23 @@ import {cleanupProps} from '../cleanup-props';
 import {createPostRenderData} from '../create-post-render-data';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
 import {finishRender} from '../finish-render';
+import {
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from '../get-browser-instance';
 import type {LaunchedBrowser} from '../get-browser-instance';
+import {getCurrentFunctionName} from '../helpers/get-current-function-name';
+import {getCurrentMemorySizeInMb} from '../helpers/get-current-memory-size';
+import {getCurrentRegionInFunction} from '../helpers/get-current-region';
+import {getTmpDirStateIfENoSp} from '../helpers/get-tmp-dir';
+import {makeAwsArtifact} from '../helpers/make-aws-artifact';
+import {normalizeChromiumOptions} from '../helpers/normalize-chromium-options';
+import {timer} from '../helpers/timer';
+import {invokeWebhook} from '../invoke-webhook';
 import {mergeChunksAndFinishRender} from '../merge-chunks';
 import type {OverallProgressHelper} from '../overall-render-progress';
 import {makeOverallRenderProgress} from '../overall-render-progress';
 import {planFrameRanges} from '../plan-frame-ranges';
-import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {removeOutnameCredentials} from '../remove-outname-credentials';
 import {renderWithSingleFunction} from '../render-with-single-function';
 import {renderRendererFunctionWithRetry} from '../stream-renderer';
@@ -51,16 +61,12 @@ const innerLaunchHandler = async ({
 	options,
 	overallProgress,
 	registerCleanupTask,
-	providerSpecifics,
-	insideFunctionSpecifics,
 	onBrowser,
 }: {
 	params: ServerlessPayload;
 	options: Options;
 	overallProgress: OverallProgressHelper;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	onBrowser: (browser: LaunchedBrowser) => void;
 }): Promise<PostRenderData> => {
 	if (params.type !== ServerlessRoutines.launch) {
@@ -130,23 +136,21 @@ const innerLaunchHandler = async ({
 			codec: null,
 			audioCodecSetting: audioCodec,
 			separateAudioTo: null,
-			bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+			bucketNamePrefix: LambdaClientInternals.REMOTION_BUCKET_PREFIX,
 		});
 	}
 
 	const startedDate = Date.now();
 
-	const chromiumParams = insideFunctionSpecifics.normalizeChromiumOptions?.({
+	const chromiumParams = normalizeChromiumOptions({
 		chromiumOptions: params.chromiumOptions ?? {},
 		logLevel: params.logLevel,
-	}) ?? {...(params.chromiumOptions ?? {})};
+	});
 
-	const browserInstance = insideFunctionSpecifics.getBrowserInstance({
+	const browserInstance = getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: chromiumParams,
-		providerSpecifics,
-		insideFunctionSpecifics,
 	});
 
 	browserInstance.then((b) => {
@@ -156,10 +160,9 @@ const innerLaunchHandler = async ({
 	const inputPropsPromise = LambdaClientInternals.decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
-		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		requestHandler: null,
 	});
@@ -216,7 +219,6 @@ const innerLaunchHandler = async ({
 		onServeUrlVisited: () => {
 			overallProgress.setServeUrlOpened(Date.now());
 		},
-		providerSpecifics,
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	});
@@ -355,7 +357,7 @@ const innerLaunchHandler = async ({
 		codec: params.codec,
 		audioCodecSetting: audioCodec,
 		separateAudioTo: separateAudioFilename?.toLowerCase() ?? null,
-		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		bucketNamePrefix: LambdaClientInternals.REMOTION_BUCKET_PREFIX,
 	});
 	LambdaClientInternals.validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
@@ -390,17 +392,15 @@ const innerLaunchHandler = async ({
 				: LambdaClientInternals.getSizeInBytes(params.inputProps.payload),
 			LambdaClientInternals.getSizeInBytes(JSON.stringify(params.envVariables)),
 		],
-		providerSpecifics,
 	});
 
 	const serializedResolvedProps =
 		await LambdaClientInternals.compressInputProps({
 			propsType: 'resolved-props',
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			region: getCurrentRegionInFunction(),
 			stringifiedInputProps: serializedResolved,
 			userSpecifiedBucketName: params.bucketName,
 			needsToUpload,
-			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			skipPutAcl: false,
 			requestHandler: null,
@@ -411,9 +411,7 @@ const innerLaunchHandler = async ({
 		return cleanupProps({
 			serializedResolvedProps,
 			inputProps: params.inputProps,
-			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
-			insideFunctionSpecifics,
 		});
 	});
 
@@ -491,8 +489,7 @@ const innerLaunchHandler = async ({
 	);
 
 	const rendererFunctionName =
-		params.rendererFunctionName ??
-		insideFunctionSpecifics.getCurrentFunctionName();
+		params.rendererFunctionName ?? getCurrentFunctionName();
 	const shouldRenderDirectly =
 		rendererOutput.type === 'media' &&
 		params.concurrency === 1 &&
@@ -506,18 +503,16 @@ const innerLaunchHandler = async ({
 			separateAudioTo === null
 				? null
 				: !params.overwrite &&
-					providerSpecifics.supportsConditionalOutput({
+					LambdaClientInternals.supportsConditionalOutput({
 						customCredentials:
 							LambdaClientInternals.getCredentialsFromOutName(separateAudioTo),
-					}) &&
-					providerSpecifics.writeFileIfNotExists !== null,
+					}),
 		outputFileIsConditional:
 			!params.overwrite &&
-			providerSpecifics.supportsConditionalOutput({
+			LambdaClientInternals.supportsConditionalOutput({
 				customCredentials:
 					LambdaClientInternals.getCredentialsFromOutName(outName),
-			}) &&
-			providerSpecifics.writeFileIfNotExists !== null,
+			}),
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
@@ -547,8 +542,8 @@ const innerLaunchHandler = async ({
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda,
-		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		memorySizeInMb: getCurrentMemorySizeInMb(),
+		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: removeOutnameCredentials(outName ?? undefined),
 		privacy: params.privacy,
@@ -560,14 +555,13 @@ const innerLaunchHandler = async ({
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: params.audioBitrate,
 		metadata: params.metadata,
-		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
+		functionName: getCurrentFunctionName(),
 		dimensions: {
 			width: comp.width * (params.scale ?? 1),
 			height: comp.height * (params.scale ?? 1),
 		},
 		rendererFunctionName:
-			params.rendererFunctionName ??
-			insideFunctionSpecifics.getCurrentFunctionName(),
+			params.rendererFunctionName ?? getCurrentFunctionName(),
 		scale: params.scale,
 	};
 
@@ -578,7 +572,7 @@ const innerLaunchHandler = async ({
 			bucketName: params.bucketName,
 			customCredentials:
 				LambdaClientInternals.getCredentialsFromOutName(outName),
-			bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+			bucketNamePrefix: LambdaClientInternals.REMOTION_BUCKET_PREFIX,
 		});
 	const separateAudioDestination =
 		separateAudioTo === null
@@ -589,7 +583,7 @@ const innerLaunchHandler = async ({
 					bucketName: params.bucketName,
 					customCredentials:
 						LambdaClientInternals.getCredentialsFromOutName(separateAudioTo),
-					bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+					bucketNamePrefix: LambdaClientInternals.REMOTION_BUCKET_PREFIX,
 				});
 	if (
 		separateAudioDestination !== null &&
@@ -604,17 +598,19 @@ const innerLaunchHandler = async ({
 	}
 
 	if (outputSequence !== null) {
-		outputSequence.manifestUrl = providerSpecifics.getOutputUrl({
-			output: 'main',
-			bucketName: params.bucketName,
-			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
-			customCredentials,
-			renderMetadata,
-		}).url;
+		outputSequence.manifestUrl = LambdaClientInternals.getOutputUrlFromMetadata(
+			{
+				output: 'main',
+				bucketName: params.bucketName,
+				currentRegion: getCurrentRegionInFunction(),
+				customCredentials,
+				renderMetadata,
+			},
+		).url;
 	}
 
 	if (!params.overwrite) {
-		const findOutputFile = insideFunctionSpecifics.timer(
+		const findOutputFile = timer(
 			'Checking if output file already exists',
 			params.logLevel,
 		);
@@ -641,9 +637,8 @@ const innerLaunchHandler = async ({
 				bucketName: params.bucketName,
 				customCredentials: destination.customCredentials,
 				renderMetadata,
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-				currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
-				providerSpecifics,
+				region: getCurrentRegionInFunction(),
+				currentRegion: getCurrentRegionInFunction(),
 				forcePathStyle: params.forcePathStyle,
 				requestHandler: null,
 			}).catch((err) => {
@@ -659,7 +654,7 @@ const innerLaunchHandler = async ({
 			});
 			if (output) {
 				throw new TypeError(
-					`Output file "${destination.key}" in bucket "${destination.renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in ${params.output.type === 'sequence' ? 'renderFramesOnLambda()' : 'renderMediaOnLambda()'} to overwrite it.`,
+					`Output file "${destination.key}" in bucket "${destination.renderBucketName}" in region "${getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in ${params.output.type === 'sequence' ? 'renderFramesOnLambda()' : 'renderMediaOnLambda()'} to overwrite it.`,
 				);
 			}
 		}
@@ -687,10 +682,10 @@ const innerLaunchHandler = async ({
 				await Promise.all(
 					keys.slice(index, index + 25).map(async (frameKey) => {
 						try {
-							await providerSpecifics.headFile({
+							await LambdaClientInternals.lambdaHeadFileImplementation({
 								bucketName: renderBucketName,
 								key: frameKey,
-								region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+								region: getCurrentRegionInFunction(),
 								customCredentials,
 								forcePathStyle: params.forcePathStyle,
 								requestHandler: null,
@@ -713,15 +708,14 @@ const innerLaunchHandler = async ({
 
 		const write =
 			!params.overwrite &&
-			providerSpecifics.supportsConditionalOutput({customCredentials}) &&
-			providerSpecifics.writeFileIfNotExists !== null
-				? providerSpecifics.writeFileIfNotExists
-				: providerSpecifics.writeFile;
+			LambdaClientInternals.supportsConditionalOutput({customCredentials})
+				? LambdaClientInternals.lambdaWriteFileIfNotExistsImplementation
+				: LambdaClientInternals.lambdaWriteFileImplementation;
 		await write({
 			bucketName: renderBucketName,
 			key: reservationKey,
 			body: JSON.stringify({renderId: params.renderId}),
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			region: getCurrentRegionInFunction(),
 			privacy: params.privacy,
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: null,
@@ -732,10 +726,10 @@ const innerLaunchHandler = async ({
 		});
 		overallProgress.setRenderMetadata(renderMetadata);
 		if (params.overwrite) {
-			await providerSpecifics.deleteFile({
+			await LambdaClientInternals.lambdaDeleteFileImplementation({
 				bucketName: renderBucketName,
 				key,
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				region: getCurrentRegionInFunction(),
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
 				requestHandler: null,
@@ -759,7 +753,7 @@ const innerLaunchHandler = async ({
 			return artifactRegistration;
 		}
 
-		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
+		const region = getCurrentRegionInFunction();
 		const storageKey = LambdaClientInternals.artifactName(
 			renderMetadata.renderId,
 			artifact.filename,
@@ -770,20 +764,19 @@ const innerLaunchHandler = async ({
 			{indent: false, logLevel: params.logLevel},
 			'Writing artifact ' + artifact.filename + ' to S3',
 		);
-		const artifactUpload = providerSpecifics
-			.writeFile({
-				bucketName: renderBucketName,
-				key: storageKey,
-				body: artifact.content,
-				region,
-				privacy: params.privacy,
-				expectedBucketOwner: options.expectedBucketOwner,
-				downloadBehavior: artifact.downloadBehavior ?? params.downloadBehavior,
-				customCredentials,
-				forcePathStyle: params.forcePathStyle,
-				storageClass: params.storageClass,
-				requestHandler: null,
-			})
+		const artifactUpload = LambdaClientInternals.lambdaWriteFileImplementation({
+			bucketName: renderBucketName,
+			key: storageKey,
+			body: artifact.content,
+			region,
+			privacy: params.privacy,
+			expectedBucketOwner: options.expectedBucketOwner,
+			downloadBehavior: artifact.downloadBehavior ?? params.downloadBehavior,
+			customCredentials,
+			forcePathStyle: params.forcePathStyle,
+			storageClass: params.storageClass,
+			requestHandler: null,
+		})
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},
@@ -791,7 +784,7 @@ const innerLaunchHandler = async ({
 				);
 
 				overallProgress.addReceivedArtifact(
-					insideFunctionSpecifics.makeArtifactWithDetails({
+					makeAwsArtifact({
 						region,
 						renderBucketName,
 						storageKey,
@@ -843,8 +836,6 @@ const innerLaunchHandler = async ({
 					overallProgress,
 					logLevel: params.logLevel,
 					onArtifact,
-					providerSpecifics,
-					insideFunctionSpecifics,
 					requestHandler: null,
 					expectedBucketOwner: options.expectedBucketOwner,
 				}),
@@ -878,11 +869,11 @@ const innerLaunchHandler = async ({
 			})),
 		};
 		const manifestBody = JSON.stringify(manifest);
-		await providerSpecifics.writeFile({
+		await LambdaClientInternals.lambdaWriteFileImplementation({
 			bucketName: renderBucketName,
 			key,
 			body: manifestBody,
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			region: getCurrentRegionInFunction(),
 			privacy: params.privacy,
 			expectedBucketOwner: options.expectedBucketOwner,
 			downloadBehavior: {type: 'play-in-browser'},
@@ -894,13 +885,11 @@ const innerLaunchHandler = async ({
 		const cleanup = await cleanupProps({
 			inputProps: params.inputProps,
 			serializedResolvedProps,
-			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
-			insideFunctionSpecifics,
 		});
 		postRenderData = createPostRenderData({
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-			memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
+			region: getCurrentRegionInFunction(),
+			memorySizeInMb: getCurrentMemorySizeInMb(),
 			renderMetadata,
 			errorExplanations: LambdaClientInternals.inspectErrors({
 				errors: progress.errors,
@@ -916,19 +905,16 @@ const innerLaunchHandler = async ({
 			timeToFinish: Date.now() - startTime,
 			outputSize:
 				progress.uploadedSizeInBytes + Buffer.byteLength(manifestBody),
-			providerSpecifics,
 		});
 		await overallProgress.setPostRenderData(postRenderData);
-		await providerSpecifics
-			.deleteFile({
-				bucketName: renderBucketName,
-				key: `${rendererOutput.keyPrefix}.remotion-render.json`,
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-				customCredentials,
-				forcePathStyle: params.forcePathStyle,
-				requestHandler: null,
-			})
-			.catch(() => undefined);
+		await LambdaClientInternals.lambdaDeleteFileImplementation({
+			bucketName: renderBucketName,
+			key: `${rendererOutput.keyPrefix}.remotion-render.json`,
+			region: getCurrentRegionInFunction(),
+			customCredentials,
+			forcePathStyle: params.forcePathStyle,
+			requestHandler: null,
+		}).catch(() => undefined);
 	} else if (shouldRenderDirectly) {
 		const directRender = await renderWithSingleFunction({
 			params: {...params, audioCodec},
@@ -939,8 +925,6 @@ const innerLaunchHandler = async ({
 			chromiumOptions: chromiumParams,
 			overallProgress,
 			onArtifact,
-			providerSpecifics,
-			insideFunctionSpecifics,
 		});
 		try {
 			postRenderData = await finishRender({
@@ -960,8 +944,6 @@ const innerLaunchHandler = async ({
 				logLevel: params.logLevel,
 				overallProgress,
 				startTime,
-				providerSpecifics,
-				insideFunctionSpecifics,
 				forcePathStyle: params.forcePathStyle,
 				storageClass: params.storageClass,
 				requestHandler: null,
@@ -999,8 +981,6 @@ const innerLaunchHandler = async ({
 					payload,
 					logLevel: params.logLevel,
 					onArtifact,
-					providerSpecifics,
-					insideFunctionSpecifics,
 					requestHandler: null,
 					expectedBucketOwner: options.expectedBucketOwner,
 				});
@@ -1038,9 +1018,7 @@ const innerLaunchHandler = async ({
 			files: files.sort(),
 			overallProgress,
 			startTime,
-			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
-			insideFunctionSpecifics,
 			everyNthFrame: params.everyNthFrame,
 			frameRange: params.frameRange,
 			storageClass: params.storageClass,
@@ -1051,25 +1029,28 @@ const innerLaunchHandler = async ({
 
 	if (
 		!shouldRenderDirectly &&
-		providerSpecifics.getRendererFunctionTransport(
-			insideFunctionSpecifics.getCurrentRegionInFunction(),
+		LambdaClientInternals.getRendererFunctionTransport(
+			getCurrentRegionInFunction(),
 		) === 's3'
 	) {
 		try {
-			const transportObjects = await providerSpecifics.listObjects({
-				bucketName: params.bucketName,
-				prefix: LambdaClientInternals.rendererTransportPrefix(params.renderId),
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-				expectedBucketOwner: options.expectedBucketOwner,
-				forcePathStyle: params.forcePathStyle,
-				requestHandler: null,
-			});
+			const transportObjects =
+				await LambdaClientInternals.lambdaLsImplementation({
+					bucketName: params.bucketName,
+					prefix: LambdaClientInternals.rendererTransportPrefix(
+						params.renderId,
+					),
+					region: getCurrentRegionInFunction(),
+					expectedBucketOwner: options.expectedBucketOwner,
+					forcePathStyle: params.forcePathStyle,
+					requestHandler: null,
+				});
 			await Promise.all(
 				transportObjects.map((object) =>
-					providerSpecifics.deleteFile({
+					LambdaClientInternals.lambdaDeleteFileImplementation({
 						bucketName: params.bucketName,
 						key: object.Key,
-						region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+						region: getCurrentRegionInFunction(),
 						customCredentials: null,
 						forcePathStyle: params.forcePathStyle,
 						requestHandler: null,
@@ -1093,13 +1074,9 @@ type CleanupTask = () => Promise<unknown>;
 export const launchHandler = async ({
 	params,
 	options,
-	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload;
 	options: Options;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<void> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -1146,9 +1123,8 @@ export const launchHandler = async ({
 			await LambdaClientInternals.writeCancellationSignal({
 				bucketName: params.bucketName,
 				renderId: params.renderId,
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				region: getCurrentRegionInFunction(),
 				expectedBucketOwner: options.expectedBucketOwner,
-				providerSpecifics,
 				forcePathStyle: params.forcePathStyle,
 				requestHandler: null,
 			});
@@ -1201,7 +1177,7 @@ export const launchHandler = async ({
 		}
 
 		try {
-			await insideFunctionSpecifics.invokeWebhook({
+			await invokeWebhook({
 				options: {
 					url: params.webhook.url,
 					secret: params.webhook.secret,
@@ -1274,10 +1250,9 @@ export const launchHandler = async ({
 		renderId: params.renderId,
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		region: getCurrentRegionInFunction(),
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 		logLevel: params.logLevel,
-		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 	});
 
@@ -1287,8 +1262,6 @@ export const launchHandler = async ({
 			options,
 			overallProgress,
 			registerCleanupTask,
-			providerSpecifics,
-			insideFunctionSpecifics,
 			onBrowser: (browser) => {
 				instance = browser;
 			},
@@ -1308,7 +1281,7 @@ export const launchHandler = async ({
 		}
 
 		try {
-			await insideFunctionSpecifics.invokeWebhook({
+			await invokeWebhook({
 				options: {
 					url: params.webhook.url,
 					secret: params.webhook.secret,
@@ -1380,10 +1353,7 @@ export const launchHandler = async ({
 			stack: (err as Error).stack as string,
 			type: 'stitcher',
 			isFatal: true,
-			tmpDir:
-				insideFunctionSpecifics.getTmpDirState?.(
-					(err as Error).stack as string,
-				) ?? null,
+			tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 			attempt: 1,
 			totalAttempts: 1,
 			willRetry: false,
@@ -1401,7 +1371,7 @@ export const launchHandler = async ({
 
 		if (params.webhook && !webhookInvoked) {
 			try {
-				await insideFunctionSpecifics.invokeWebhook({
+				await invokeWebhook({
 					options: {
 						url: params.webhook.url,
 						secret: params.webhook.secret,
@@ -1449,7 +1419,7 @@ export const launchHandler = async ({
 		}
 	} finally {
 		if (instance) {
-			insideFunctionSpecifics.forgetBrowserEventLoop({
+			forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,
 			});

@@ -1,8 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {
-	LambdaClientInternals,
-	type ProviderSpecifics,
-} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -12,7 +9,6 @@ import {
 import type {LogLevel} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../../api/deploy-function';
-import type {FullClientSpecifics} from '../../../functions/provider-implementation';
 import {validateCustomRoleArn} from '../../../shared/validate-custom-role-arn';
 import {validateTimeout} from '../../../shared/validate-timeout';
 import {validateVpcSecurityGroupIds} from '../../../shared/validate-vpc-security-group-ids';
@@ -25,12 +21,8 @@ export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
 export const functionsDeploySubcommand = async ({
 	logLevel,
-	providerSpecifics,
-	fullClientSpecifics,
 }: {
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics;
-	fullClientSpecifics: FullClientSpecifics;
 }) => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
@@ -119,8 +111,6 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference,
-		providerSpecifics,
-		fullClientSpecifics,
 		requestHandler: null,
 	});
 	if (CliInternals.quietFlagProvided()) {

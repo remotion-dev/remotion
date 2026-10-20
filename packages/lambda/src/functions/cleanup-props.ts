@@ -1,36 +1,27 @@
-import type {
-	ProviderSpecifics,
-	SerializedInputProps,
-} from '@remotion/lambda-client';
+import type {SerializedInputProps} from '@remotion/lambda-client';
 import {
 	cleanupSerializedInputProps,
 	cleanupSerializedResolvedProps,
 } from './cleanup-serialized-input-props';
-import type {InsideFunctionSpecifics} from './provider-implementation';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
 export const cleanupProps = ({
 	serializedResolvedProps,
 	inputProps,
-	providerSpecifics,
 	forcePathStyle,
-	insideFunctionSpecifics,
 }: {
 	serializedResolvedProps: SerializedInputProps;
 	inputProps: SerializedInputProps;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<[number, number]> => {
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		region: getCurrentRegionInFunction(),
 		serialized: inputProps,
-		providerSpecifics,
 		forcePathStyle,
 	});
 	const cleanupResolvedInputPropsProm = cleanupSerializedResolvedProps({
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		region: getCurrentRegionInFunction(),
 		serialized: serializedResolvedProps,
-		providerSpecifics,
 		forcePathStyle,
 	});
 

@@ -11,7 +11,7 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {_InternalTypes} from 'remotion';
 import type {DownloadBehavior} from 'remotion/no-react';
-import {awsImplementation} from './aws-provider';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
@@ -106,7 +106,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 	const {functionName, region, rendererFunctionName} = input;
 
 	try {
-		const res = await awsImplementation.callFunctionSync({
+		const res = await callFunctionSyncImplementation({
 			functionName,
 			type: ServerlessRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),

@@ -3,7 +3,6 @@ import {
 	LambdaClientInternals,
 	ServerlessRoutines,
 	type OnStream,
-	type ProviderSpecifics,
 	type S3RendererArtifactMetadata,
 	type S3RendererStatus,
 	type ServerlessPayload,
@@ -15,12 +14,10 @@ export const makeS3RendererOutput = ({
 	params,
 	expectedBucketOwner,
 	region,
-	providerSpecifics,
 }: {
 	params: ServerlessPayload;
 	expectedBucketOwner: string | null;
 	region: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 }) => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer payload');
@@ -47,7 +44,7 @@ export const makeS3RendererOutput = ({
 
 	const writeStatus = (status: S3RendererStatus) => {
 		writeQueue = writeQueue.then(() =>
-			providerSpecifics.writeFile({
+			LambdaClientInternals.lambdaWriteFileImplementation({
 				bucketName: params.bucketName,
 				key: statusKey,
 				body: JSON.stringify(status),
@@ -122,7 +119,7 @@ export const makeS3RendererOutput = ({
 				downloadBehavior: artifact.downloadBehavior,
 			};
 			artifacts.push({key, metadata});
-			const upload = providerSpecifics.writeFile({
+			const upload = LambdaClientInternals.lambdaWriteFileImplementation({
 				bucketName: params.bucketName,
 				key,
 				body: artifact.content,
@@ -211,7 +208,7 @@ export const makeS3RendererOutput = ({
 		await Promise.all([
 			...artifactUploads,
 			videoKey
-				? providerSpecifics.writeFile({
+				? LambdaClientInternals.lambdaWriteFileImplementation({
 						bucketName: params.bucketName,
 						key: videoKey,
 						body: createReadStream(videoOutputLocation),
@@ -226,7 +223,7 @@ export const makeS3RendererOutput = ({
 					})
 				: null,
 			audioKey
-				? providerSpecifics.writeFile({
+				? LambdaClientInternals.lambdaWriteFileImplementation({
 						bucketName: params.bucketName,
 						key: audioKey,
 						body: createReadStream(audioOutputLocation ?? videoOutputLocation),

@@ -1,5 +1,5 @@
 import {DOCS_URL} from './docs-url';
-import type {ProviderSpecifics} from './provider-implementation';
+import {getCloudwatchRendererUrl, getCloudwatchMethodUrl} from './get-aws-urls';
 import type {AwsRegion} from './regions';
 import type {RenderMetadata} from './render-metadata';
 import {ServerlessRoutines} from './shared-constants';
@@ -10,13 +10,11 @@ const makeChunkMissingMessage = ({
 	missingChunks,
 	renderMetadata,
 	region,
-	providerSpecifics,
 	functionName,
 }: {
 	missingChunks: number[];
 	renderMetadata: RenderMetadata;
 	region: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 	functionName: string;
 }) => {
 	if (missingChunks.length === 0) {
@@ -43,15 +41,13 @@ const makeChunkMissingMessage = ({
 
 				return [
 					msg,
-					`▸ Logs for chunk ${ch}: ${providerSpecifics.getLoggingUrlForRendererFunction(
-						{
-							functionName,
-							region,
-							rendererFunctionName: null,
-							renderId: renderMetadata.renderId,
-							chunk: ch,
-						},
-					)}`,
+					`▸ Logs for chunk ${ch}: ${getCloudwatchRendererUrl({
+						functionName,
+						region,
+						rendererFunctionName: null,
+						renderId: renderMetadata.renderId,
+						chunk: ch,
+					})}`,
 				].join('\n');
 			})
 			.slice(0, 5),
@@ -65,7 +61,6 @@ export const makeTimeoutMessage = ({
 	renderId,
 	functionName,
 	region,
-	providerSpecifics,
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
@@ -73,18 +68,16 @@ export const makeTimeoutMessage = ({
 	renderId: string;
 	region: AwsRegion;
 	functionName: string;
-	providerSpecifics: ProviderSpecifics;
 }) => {
-	const cloudWatchRendererUrl =
-		providerSpecifics.getLoggingUrlForRendererFunction({
-			renderId,
-			functionName,
-			region,
-			rendererFunctionName: functionName,
-			chunk: null,
-		});
+	const cloudWatchRendererUrl = getCloudwatchRendererUrl({
+		renderId,
+		functionName,
+		region,
+		rendererFunctionName: functionName,
+		chunk: null,
+	});
 
-	const cloudWatchLaunchUrl = providerSpecifics.getLoggingUrlForMethod({
+	const cloudWatchLaunchUrl = getCloudwatchMethodUrl({
 		renderId,
 		functionName,
 		method: ServerlessRoutines.launch,
@@ -97,7 +90,6 @@ export const makeTimeoutMessage = ({
 			missingChunks,
 			renderMetadata,
 			region,
-			providerSpecifics,
 			functionName,
 		}),
 		'',

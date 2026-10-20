@@ -1,8 +1,8 @@
 import {ListObjectsV2Command} from '@aws-sdk/client-s3';
+import type {ListObjects} from './aws-operations';
 import {getS3Client} from './get-s3-client';
-import type {ProviderSpecifics} from './provider-implementation';
 
-export const lambdaLsImplementation: ProviderSpecifics['listObjects'] = async ({
+export const lambdaLsImplementation: ListObjects = async ({
 	bucketName,
 	prefix,
 	region,

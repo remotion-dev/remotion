@@ -8,9 +8,11 @@ import {
 } from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
 import {makeProgressString} from '../../../cli/commands/render/progress';
-import {mockImplementation} from '../../mocks/mock-implementation';
+import {useFakeAws} from '../../mocks/fake-aws';
 import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
 import {simulateLambdaRender} from '../simulate-lambda-render';
+
+useFakeAws();
 
 // Browser startup, rendering, audio encoding, and output probing can exceed 5 seconds.
 test('Should directly render final media with one Lambda', async () => {
@@ -70,7 +72,7 @@ test('Should directly render final media with one Lambda', async () => {
 
 	unlinkSync(tmpfile);
 
-	const files = await mockImplementation.listObjects({
+	const files = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
@@ -85,11 +87,10 @@ test('Should directly render final media with one Lambda', async () => {
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		renderId,
-		providerSpecifics: mockImplementation,
 		forcePathStyle: false,
 	});
 
-	const expectFiles = await mockImplementation.listObjects({
+	const expectFiles = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',

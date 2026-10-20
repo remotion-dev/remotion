@@ -1,7 +1,7 @@
 import {GetBucketLocationCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
+import type {GetBuckets} from './aws-operations';
 import {REMOTION_BUCKET_PREFIX} from './constants';
 import {getS3Client} from './get-s3-client';
-import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
 import {parseBucketName} from './validate-bucketname';
 
@@ -11,7 +11,7 @@ export type BucketWithLocation = {
 	region: AwsRegion;
 };
 
-export const getRemotionBuckets: ProviderSpecifics['getBuckets'] = async ({
+export const getRemotionBuckets: GetBuckets = async ({
 	region,
 	forceBucketName,
 	forcePathStyle,

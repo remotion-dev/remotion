@@ -1,13 +1,14 @@
-import {expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
 import {Readable} from 'node:stream';
-import {getExpectedOutName} from '../expected-out-name';
+import type {HeadFile} from '../aws-operations';
+import * as awsRegionMetadata from '../aws-region-metadata';
+import * as estimatePriceModule from '../estimate-price';
+import type {EstimatePriceInput} from '../estimate-price';
 import {OutputFileAccessDeniedError} from '../find-output-file-in-bucket';
+import * as headFile from '../head-file';
 import type {OverallRenderProgress} from '../overall-render-progress';
 import {getProgress} from '../progress';
-import type {
-	EstimatePriceInput,
-	ProviderSpecifics,
-} from '../provider-implementation';
+import * as readFile from '../read-file';
 import type {RenderMetadata} from '../render-metadata';
 import {overallProgressKey} from '../shared-constants';
 
@@ -89,89 +90,50 @@ const progress: OverallRenderProgress = {
 	],
 };
 
-const makeProviderSpecifics = ({
-	onEstimatePrice,
+const spies: {mockRestore: () => void}[] = [];
+
+afterEach(() => {
+	spies.splice(0).forEach((spy) => spy.mockRestore());
+});
+
+const installFakes = ({
+	onEstimatePrice = null,
 	onHeadFile,
 	billingCurrency = 'USD',
 	renderProgress,
 }: {
-	onEstimatePrice?: (input: EstimatePriceInput) => number;
-	onHeadFile: ProviderSpecifics['headFile'];
+	onEstimatePrice?: ((input: EstimatePriceInput) => number) | null;
+	onHeadFile: HeadFile;
 	billingCurrency?: 'USD' | 'CNY';
 	renderProgress: OverallRenderProgress | null;
-}): ProviderSpecifics => {
-	return {
-		applyLifeCycle: () => Promise.resolve(),
-		bucketExists: () => Promise.resolve(true),
-		callFunctionAsync: () => Promise.resolve(),
-		callFunctionStreaming: () => Promise.resolve(),
-		callFunctionSync: () => Promise.reject(new Error('Not implemented')),
-		checkCredentials: () => undefined,
-		convertToServeUrl: () => 'serve-url',
-		createBucket: () => Promise.resolve(),
-		deleteFile: () => Promise.resolve(),
-		deleteFunction: () => Promise.resolve(),
-		estimatePrice: (input) => onEstimatePrice?.(input) ?? 0.01,
-		getAccountId: () => Promise.resolve('123456789012'),
-		getBucketPrefix: () => 'remotionlambda-',
-		getBuckets: () => Promise.resolve([]),
-		getChromiumPath: () => null,
-		getEphemeralStorageForPriceCalculation: () => 512,
-		getBillingCurrency: () => billingCurrency,
-		getRendererFunctionTransport: () => 'response-streaming',
-		getServiceDnsSuffix: () => 'example.com',
-		getFunctions: () => Promise.resolve([]),
-		getLoggingUrlForMethod: () => 'logs',
-		getLoggingUrlForRendererFunction: () => 'logs',
-		getMaxNonInlinePayloadSizePerFunction: () => 0,
-		getMaxStillInlinePayloadSize: () => 0,
-		getOutputUrl: ({
-			renderMetadata: metadata,
-			customCredentials,
-			currentRegion,
-		}) => {
-			const {key, renderBucketName} = getExpectedOutName({
-				output: 'main',
-				renderMetadata: metadata,
-				bucketName,
-				customCredentials,
-				bucketNamePrefix: 'remotionlambda-',
-			});
-			return {
-				key,
-				url: `https://s3.${currentRegion}.amazonaws.com/${renderBucketName}/${key}`,
-			};
-		},
-		isFlakyError: () => false,
-		listObjects: () => Promise.resolve([]),
-		parseFunctionName: () => ({
-			diskSizeInMb: 512,
-			memorySizeInMb: 2048,
-			timeoutInSeconds: 120,
-			version: '4.0.0',
-		}),
-		printLoggingHelper: false,
-		randomHash: () => 'hash',
-		readFile: ({key}) => {
-			expect(key).toBe(overallProgressKey(renderId));
-			return Promise.resolve(
-				Readable.from([
-					Buffer.from(JSON.stringify(renderProgress ?? progress)),
-				]),
-			);
-		},
-		serverStorageProductName: () => 'S3',
-		validateDeleteAfter: () => undefined,
-		writeFile: () => Promise.resolve(),
-		supportsConditionalOutput: () => true,
-		writeFileIfNotExists: null,
-		headFile: onHeadFile,
-	};
+}) => {
+	spies.splice(0).forEach((spy) => spy.mockRestore());
+	spies.push(
+		spyOn(estimatePriceModule, 'estimatePrice').mockImplementation(
+			(input) => onEstimatePrice?.(input) ?? 0.01,
+		),
+		spyOn(awsRegionMetadata, 'getBillingCurrency').mockImplementation(
+			() => billingCurrency,
+		),
+		spyOn(readFile, 'lambdaReadFileImplementation').mockImplementation(
+			({key}) => {
+				expect(key).toBe(overallProgressKey(renderId));
+				return Promise.resolve(
+					Readable.from([
+						Buffer.from(JSON.stringify(renderProgress ?? progress)),
+					]),
+				);
+			},
+		),
+		spyOn(headFile, 'lambdaHeadFileImplementation').mockImplementation(
+			onHeadFile,
+		),
+	);
 };
 
 test('getProgress treats an existing output file as finished if postRenderData was not persisted', async () => {
 	const headedFiles: {bucketName: string; key: string}[] = [];
-	const providerSpecifics = makeProviderSpecifics({
+	installFakes({
 		billingCurrency: 'CNY',
 		onHeadFile: ({bucketName: headedBucketName, key}) => {
 			headedFiles.push({bucketName: headedBucketName, key});
@@ -190,7 +152,6 @@ test('getProgress treats an existing output file as finished if postRenderData w
 		forcePathStyle: false,
 		functionName: renderMetadata.functionName,
 		memorySizeInMb: 2048,
-		providerSpecifics,
 		region: 'eu-central-1',
 		renderId,
 		requestHandler: null,
@@ -221,9 +182,13 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 		progress.chunks = [];
 		progress.lambdasInvoked = 1;
 
-		const providerSpecifics = makeProviderSpecifics({
+		installFakes({
 			onEstimatePrice: (input) => {
 				priceInputs.push(input);
+				if (!('durationInMilliseconds' in input)) {
+					throw new Error('Expected durationInMilliseconds');
+				}
+
 				return input.durationInMilliseconds;
 			},
 			onHeadFile: () => Promise.resolve({ContentLength: 0}),
@@ -237,7 +202,6 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 			forcePathStyle: false,
 			functionName: renderMetadata.functionName,
 			memorySizeInMb: 2048,
-			providerSpecifics,
 			region: 'eu-central-1',
 			renderId,
 			requestHandler: null,
@@ -274,7 +238,7 @@ test('getProgress keeps direct render progress finite', async () => {
 		},
 		timeToCombine: null,
 	};
-	const providerSpecifics = makeProviderSpecifics({
+	installFakes({
 		onHeadFile: () => Promise.reject(new Error('Unexpected headFile call')),
 		renderProgress: directProgress,
 	});
@@ -288,7 +252,6 @@ test('getProgress keeps direct render progress finite', async () => {
 			forcePathStyle: false,
 			functionName: renderMetadata.functionName,
 			memorySizeInMb: 2048,
-			providerSpecifics,
 			region: 'eu-central-1',
 			renderId,
 			requestHandler: null,
@@ -304,7 +267,7 @@ test('getProgress keeps direct render progress finite', async () => {
 
 test('getProgress falls back to persisted progress when destination reads are denied', async () => {
 	let heads = 0;
-	const providerSpecifics = makeProviderSpecifics({
+	installFakes({
 		renderProgress: null,
 		onHeadFile: () => {
 			heads++;
@@ -322,7 +285,6 @@ test('getProgress falls back to persisted progress when destination reads are de
 			forcePathStyle: false,
 			functionName: renderMetadata.functionName,
 			memorySizeInMb: 2048,
-			providerSpecifics,
 			region: 'eu-central-1',
 			requestHandler: null,
 			timeoutInMilliseconds,
@@ -355,7 +317,7 @@ test('getProgress preserves upload failures and unexpected storage errors', asyn
 		$metadata: {httpStatusCode: 500},
 	});
 	for (const errors of [[uploadFailure], []]) {
-		const providerSpecifics = makeProviderSpecifics({
+		installFakes({
 			renderProgress: {...progress, errors},
 			onHeadFile: () => {
 				heads++;
@@ -370,7 +332,6 @@ test('getProgress preserves upload failures and unexpected storage errors', asyn
 			forcePathStyle: false,
 			functionName: renderMetadata.functionName,
 			memorySizeInMb: 2048,
-			providerSpecifics,
 			region: 'eu-central-1',
 			requestHandler: null,
 			timeoutInMilliseconds: 120000,

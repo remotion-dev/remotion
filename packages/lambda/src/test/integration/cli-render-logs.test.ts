@@ -7,12 +7,12 @@ import {
 } from '@remotion/lambda-client';
 import {parsedLambdaCli} from '../../cli/args';
 import {renderCommand} from '../../cli/commands/render/render';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {fakeAws, useFakeAws, type FakeAwsDefaults} from '../mocks/fake-aws';
 import {doAfter, doBefore, getProcessWriteOutput} from './console-hooks';
 
+useFakeAws();
+
 const enableCancellationOption = CliInternals.parsedCli['enable-cancellation'];
-const originalCallFunctionSync =
-	LambdaClientInternals.awsImplementation.callFunctionSync;
 const originalFunctionName = parsedLambdaCli['function-name'];
 const originalRegion = parsedLambdaCli.region;
 const originalConcurrency = parsedLambdaCli.concurrency;
@@ -28,8 +28,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	LambdaClientInternals.awsImplementation.callFunctionSync =
-		originalCallFunctionSync;
 	CliInternals.parsedCli['enable-cancellation'] = enableCancellationOption;
 	parsedLambdaCli['function-name'] = originalFunctionName;
 	parsedLambdaCli.region = originalRegion;
@@ -45,7 +43,7 @@ test('Only shows the main CloudWatch logs for a direct single-function render', 
 	});
 	const pendingStatus = new Promise<never>(() => undefined);
 
-	LambdaClientInternals.awsImplementation.callFunctionSync = ((input) => {
+	fakeAws().callFunctionSync.mockImplementation(((input) => {
 		if (input.type === 'start') {
 			return Promise.resolve({bucketName: 'bucket', renderId: 'render-id'});
 		}
@@ -58,7 +56,7 @@ test('Only shows the main CloudWatch logs for a direct single-function render', 
 		return Promise.reject(
 			new Error(`Unexpected Lambda routine: ${input.type}`),
 		);
-	}) as typeof originalCallFunctionSync;
+	}) as FakeAwsDefaults['callFunctionSync']);
 
 	let resolveExit: (exitCode: number) => void = () => undefined;
 	const exitCode = new Promise<number>((resolve) => {
@@ -74,7 +72,6 @@ test('Only shows the main CloudWatch logs for a direct single-function render', 
 		args: ['https://example.com', 'composition-id'],
 		remotionRoot: process.cwd(),
 		logLevel: 'verbose',
-		providerSpecifics: mockImplementation,
 	}).catch(() => undefined);
 
 	try {

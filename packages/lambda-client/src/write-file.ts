@@ -5,10 +5,10 @@ import {
 } from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import mimeTypes from 'mime-types';
+/* eslint-disable no-console */
+import type {WriteFileInput} from './aws-operations';
 import {getContentDispositionHeader} from './content-disposition-header';
 import {getS3Client} from './get-s3-client';
-/* eslint-disable no-console */
-import type {WriteFileInput} from './provider-implementation';
 import type {CustomCredentials} from './shared-constants';
 
 // Files larger than 100MB will use multipart upload
@@ -166,3 +166,11 @@ export const lambdaWriteFileIfNotExistsImplementation = (
 
 	return writeFileWithRetries({...params, ifNotExists: true});
 };
+
+// Only S3 itself is trusted to honor atomic create-only uploads;
+// custom S3-compatible output providers may not.
+export const supportsConditionalOutput = ({
+	customCredentials,
+}: {
+	customCredentials: CustomCredentials | null;
+}): boolean => customCredentials === null;

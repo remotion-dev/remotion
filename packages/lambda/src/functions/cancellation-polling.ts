@@ -1,8 +1,4 @@
-import {
-	LambdaClientInternals,
-	type ProviderSpecifics,
-	type AwsRegion,
-} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsRegion} from '@remotion/lambda-client';
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 
 const isMissingCancellationSignalError = (err: unknown) => {
@@ -19,7 +15,6 @@ export const startCancellationPolling = ({
 	bucketName,
 	renderId,
 	region,
-	providerSpecifics,
 	forcePathStyle,
 	intervalInMilliseconds,
 	logLevel,
@@ -28,7 +23,6 @@ export const startCancellationPolling = ({
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	intervalInMilliseconds: number;
 	logLevel: LogLevel;
@@ -39,7 +33,7 @@ export const startCancellationPolling = ({
 
 	const poll = async () => {
 		try {
-			await providerSpecifics.headFile({
+			await LambdaClientInternals.lambdaHeadFileImplementation({
 				bucketName,
 				key: LambdaClientInternals.cancellationKey(renderId),
 				region,

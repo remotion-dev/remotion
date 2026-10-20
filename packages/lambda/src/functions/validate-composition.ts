@@ -1,4 +1,4 @@
-import type {Await, ProviderSpecifics} from '@remotion/lambda-client';
+import type {Await} from '@remotion/lambda-client';
 import type {
 	ChromiumOptions,
 	LogLevel,
@@ -9,6 +9,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
+import {getChromiumPath} from './helpers/get-chromium-path';
 
 type ValidateCompositionOptions = {
 	serveUrl: string;
@@ -30,7 +31,6 @@ type ValidateCompositionOptions = {
 	offthreadVideoThreads: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
-	providerSpecifics: ProviderSpecifics;
 };
 
 export const validateComposition = async ({
@@ -51,7 +51,6 @@ export const validateComposition = async ({
 	offthreadVideoCacheSizeInBytes,
 	onBrowserDownload,
 	onServeUrlVisited,
-	providerSpecifics,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
 }: ValidateCompositionOptions): Promise<VideoConfig> => {
@@ -63,7 +62,7 @@ export const validateComposition = async ({
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,
-		browserExecutable: providerSpecifics.getChromiumPath(),
+		browserExecutable: getChromiumPath(),
 		serveUrl,
 		logLevel,
 		indent: false,

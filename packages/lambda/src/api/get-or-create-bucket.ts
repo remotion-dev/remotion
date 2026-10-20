@@ -12,7 +12,6 @@ export const getOrCreateBucket = (options: GetOrCreateBucketInput) => {
 		region: options.region,
 		enableFolderExpiry: options.enableFolderExpiry ?? null,
 		customCredentials: options.customCredentials ?? null,
-		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: false,
 		skipPutAcl: false,
 		requestHandler: options.requestHandler ?? null,

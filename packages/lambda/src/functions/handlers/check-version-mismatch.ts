@@ -3,15 +3,13 @@ import {
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
-import type {InsideFunctionSpecifics} from '../provider-implementation';
+import {getCurrentFunctionName} from '../helpers/get-current-function-name';
 
 export const checkVersionMismatch = ({
 	params,
-	insideFunctionSpecifics,
 	apiName,
 }: {
 	params: ServerlessPayload;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	apiName: string;
 }) => {
 	if (params.type === ServerlessRoutines.info) {
@@ -29,14 +27,14 @@ export const checkVersionMismatch = ({
 	if (params.version !== VERSION) {
 		if (!params.version) {
 			throw new Error(
-				`Version mismatch: When calling ${apiName}, you called the function ${insideFunctionSpecifics.getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package sent an incompatible payload: ${JSON.stringify(
+				`Version mismatch: When calling ${apiName}, you called the function ${getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package sent an incompatible payload: ${JSON.stringify(
 					params,
 				)}. Expected it to contain {version: ${VERSION}}`,
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: When calling ${apiName}, you passed ${insideFunctionSpecifics.getCurrentFunctionName()} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call getRenderProgress(). See: https://www.remotion.dev/docs/lambda/upgrading`,
+			`Version mismatch: When calling ${apiName}, you passed ${getCurrentFunctionName()} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call getRenderProgress(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 		);
 	}
 };

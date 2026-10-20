@@ -1,5 +1,7 @@
+import {REMOTION_BUCKET_PREFIX} from './constants';
 import {getExpectedOutName} from './expected-out-name';
-import type {ProviderSpecifics} from './provider-implementation';
+import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
+import {lambdaHeadFileImplementation} from './head-file';
 import type {AwsRegion} from './regions';
 import type {RenderMetadata} from './render-metadata';
 import type {CustomCredentials, RenderOutput} from './shared-constants';
@@ -34,7 +36,6 @@ type FindOutputFileInBucketInput = {
 	bucketName: string;
 	customCredentials: CustomCredentials | null;
 	currentRegion: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 	output: RenderOutput;
@@ -46,7 +47,6 @@ export const findOutputFileInBucket = async ({
 	bucketName,
 	customCredentials,
 	currentRegion,
-	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
 	output,
@@ -55,12 +55,12 @@ export const findOutputFileInBucket = async ({
 		renderMetadata,
 		bucketName,
 		customCredentials,
-		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
 		output,
 	});
 
 	try {
-		const metadata = await providerSpecifics.headFile({
+		const metadata = await lambdaHeadFileImplementation({
 			bucketName: renderBucketName,
 			key,
 			region,
@@ -70,7 +70,7 @@ export const findOutputFileInBucket = async ({
 		});
 
 		return {
-			url: providerSpecifics.getOutputUrl({
+			url: getOutputUrlFromMetadata({
 				renderMetadata,
 				bucketName,
 				customCredentials,

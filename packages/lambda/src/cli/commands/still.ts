@@ -1,10 +1,7 @@
 import path from 'path';
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import {
-	LambdaClientInternals,
-	type ProviderSpecifics,
-} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -66,12 +63,10 @@ export const stillCommand = async ({
 	args,
 	remotionRoot,
 	logLevel,
-	providerSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics;
 }) => {
 	const serveUrl = args[0];
 
@@ -236,7 +231,7 @@ export const stillCommand = async ({
 		s3OutputProvider,
 	});
 
-	const functionName = await findFunctionName({logLevel, providerSpecifics});
+	const functionName = await findFunctionName({logLevel});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -379,7 +374,6 @@ export const stillCommand = async ({
 			region,
 			renderId: res.renderId,
 			logLevel,
-			providerSpecifics: providerSpecifics,
 			forcePathStyle: parsedLambdaCli['force-path-style'],
 			signal: new AbortController().signal,
 			customCredentials: s3OutputProvider,

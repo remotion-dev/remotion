@@ -1,6 +1,6 @@
+import type {GetLoggingUrlForRendererFunction} from './aws-operations';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
-import type {GetLoggingUrlForRendererFunction} from './provider-implementation';
 import type {AwsRegion} from './regions';
 import type {ServerlessRoutines} from './shared-constants';
 

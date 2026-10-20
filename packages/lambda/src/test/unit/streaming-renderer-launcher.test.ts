@@ -1,74 +1,94 @@
-import {expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
 import {join} from 'node:path';
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
 	type OnMessage,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import type {EmittedArtifact} from '@remotion/renderer';
+import * as callLambdaStreaming from '../../../../lambda-client/src/call-lambda-streaming';
+import * as rendererTransport from '../../../../lambda-client/src/renderer-transport';
 import {makeArtifactRegistry} from '../../functions/artifact-registry';
+import * as currentRegion from '../../functions/helpers/get-current-region';
 import type {OverallProgressHelper} from '../../functions/overall-render-progress';
-import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
 import {renderRendererFunctionWithRetry} from '../../functions/stream-renderer';
+
+const spies: {mockRestore: () => void}[] = [];
+
+afterEach(() => {
+	spies.splice(0).forEach((spy) => spy.mockRestore());
+});
+
+const useStreamingTransport = (
+	callFunctionStreaming: (options: {
+		payload: ServerlessPayload;
+		receivedStreamingPayload: OnMessage;
+	}) => Promise<void>,
+) => {
+	spies.push(
+		spyOn(rendererTransport, 'getRendererFunctionTransport').mockImplementation(
+			() => 'response-streaming',
+		),
+		spyOn(
+			callLambdaStreaming,
+			'callFunctionWithStreamingImplementation',
+		).mockImplementation(
+			callFunctionStreaming as typeof callLambdaStreaming.callFunctionWithStreamingImplementation,
+		),
+		spyOn(currentRegion, 'getCurrentRegionInFunction').mockImplementation(
+			() => 'eu-central-1',
+		),
+	);
+};
 
 test('an artifact replayed by a retried streaming chunk is idempotent', async () => {
 	const attempts: number[] = [];
-	const providerSpecifics = {
-		getRendererFunctionTransport: () => 'response-streaming',
-		callFunctionStreaming: ({
-			payload,
-			receivedStreamingPayload,
-		}: {
-			payload: ServerlessPayload;
-			receivedStreamingPayload: OnMessage;
-		}) => {
-			if (payload.type !== ServerlessRoutines.renderer) {
-				throw new Error('Expected renderer payload');
-			}
+	useStreamingTransport(({payload, receivedStreamingPayload}) => {
+		if (payload.type !== ServerlessRoutines.renderer) {
+			throw new Error('Expected renderer payload');
+		}
 
-			attempts.push(payload.attempt);
+		attempts.push(payload.attempt);
+		receivedStreamingPayload({
+			successType: 'success',
+			message: {
+				type: 'artifact-emitted',
+				payload: {
+					artifact: LambdaClientInternals.serializeArtifact({
+						filename: 'thumbnail.jpeg',
+						frame: 0,
+						content: 'thumbnail',
+						downloadBehavior: null,
+					}),
+				},
+			},
+		});
+
+		if (payload.attempt === 1) {
 			receivedStreamingPayload({
-				successType: 'success',
+				successType: 'error',
 				message: {
-					type: 'artifact-emitted',
+					type: 'error-occurred',
 					payload: {
-						artifact: LambdaClientInternals.serializeArtifact({
-							filename: 'thumbnail.jpeg',
-							frame: 0,
-							content: 'thumbnail',
-							downloadBehavior: null,
-						}),
+						error: 'Flaky renderer error',
+						shouldRetry: true,
+						errorInfo: {} as never,
 					},
 				},
 			});
+		} else {
+			receivedStreamingPayload({
+				successType: 'success',
+				message: {
+					type: 'chunk-complete',
+					payload: {start: 100, rendered: 200},
+				},
+			});
+		}
 
-			if (payload.attempt === 1) {
-				receivedStreamingPayload({
-					successType: 'error',
-					message: {
-						type: 'error-occurred',
-						payload: {
-							error: 'Flaky renderer error',
-							shouldRetry: true,
-							errorInfo: {} as never,
-						},
-					},
-				});
-			} else {
-				receivedStreamingPayload({
-					successType: 'success',
-					message: {
-						type: 'chunk-complete',
-						payload: {start: 100, rendered: 200},
-					},
-				});
-			}
-
-			return Promise.resolve();
-		},
-	} as unknown as ProviderSpecifics;
+		return Promise.resolve();
+	});
 	const retries: number[] = [];
 	let completedChunks = 0;
 	const overallProgress = {
@@ -79,9 +99,6 @@ test('an artifact replayed by a retried streaming chunk is idempotent', async ()
 			completedChunks++;
 		},
 	} as unknown as OverallProgressHelper;
-	const insideFunctionSpecifics = {
-		getCurrentRegionInFunction: () => 'eu-central-1',
-	} as unknown as InsideFunctionSpecifics;
 	const artifactRegistry = makeArtifactRegistry();
 	const acceptedArtifacts: EmittedArtifact[] = [];
 
@@ -114,8 +131,6 @@ test('an artifact replayed by a retried streaming chunk is idempotent', async ()
 
 			return result;
 		},
-		providerSpecifics,
-		insideFunctionSpecifics,
 		requestHandler: null,
 		expectedBucketOwner: 'owner',
 	});
@@ -134,50 +149,38 @@ test('an artifact replayed by a retried streaming chunk is idempotent', async ()
 });
 
 test('a chunk file replayed by a retried streaming chunk is only merged once', async () => {
-	const providerSpecifics = {
-		getRendererFunctionTransport: () => 'response-streaming',
-		callFunctionStreaming: ({
-			payload,
-			receivedStreamingPayload,
-		}: {
-			payload: ServerlessPayload;
-			receivedStreamingPayload: OnMessage;
-		}) => {
-			if (payload.type !== ServerlessRoutines.renderer) {
-				throw new Error('Expected renderer payload');
-			}
+	useStreamingTransport(({payload, receivedStreamingPayload}) => {
+		if (payload.type !== ServerlessRoutines.renderer) {
+			throw new Error('Expected renderer payload');
+		}
 
-			receivedStreamingPayload({
-				successType: 'success',
-				message: {type: 'audio-chunk-rendered', payload: new Uint8Array()},
-			});
+		receivedStreamingPayload({
+			successType: 'success',
+			message: {type: 'audio-chunk-rendered', payload: new Uint8Array()},
+		});
 
-			if (payload.attempt === 1) {
-				return Promise.reject(new Error('socket hang up'));
-			}
+		if (payload.attempt === 1) {
+			return Promise.reject(new Error('socket hang up'));
+		}
 
-			receivedStreamingPayload({
-				successType: 'success',
-				message: {type: 'video-chunk-rendered', payload: new Uint8Array()},
-			});
-			receivedStreamingPayload({
-				successType: 'success',
-				message: {
-					type: 'chunk-complete',
-					payload: {start: 100, rendered: 200},
-				},
-			});
+		receivedStreamingPayload({
+			successType: 'success',
+			message: {type: 'video-chunk-rendered', payload: new Uint8Array()},
+		});
+		receivedStreamingPayload({
+			successType: 'success',
+			message: {
+				type: 'chunk-complete',
+				payload: {start: 100, rendered: 200},
+			},
+		});
 
-			return Promise.resolve();
-		},
-	} as unknown as ProviderSpecifics;
+		return Promise.resolve();
+	});
 	const overallProgress = {
 		addRetry: () => undefined,
 		addChunkCompleted: () => undefined,
 	} as unknown as OverallProgressHelper;
-	const insideFunctionSpecifics = {
-		getCurrentRegionInFunction: () => 'eu-central-1',
-	} as unknown as InsideFunctionSpecifics;
 	const files: string[] = [];
 
 	await renderRendererFunctionWithRetry({
@@ -199,8 +202,6 @@ test('a chunk file replayed by a retried streaming chunk is only merged once', a
 		onArtifact: () => {
 			throw new Error('No artifacts expected');
 		},
-		providerSpecifics,
-		insideFunctionSpecifics,
 		requestHandler: null,
 		expectedBucketOwner: 'owner',
 	});

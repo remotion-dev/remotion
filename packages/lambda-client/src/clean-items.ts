@@ -1,5 +1,5 @@
+import {lambdaDeleteFileImplementation} from './delete-file';
 import {pLimit} from './p-limit';
-import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
 
@@ -11,7 +11,6 @@ type CleanItemsInput = {
 	list: string[];
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 };
@@ -22,7 +21,6 @@ export const cleanItems = ({
 	onBeforeItemDeleted,
 	region,
 	list,
-	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
 }: CleanItemsInput) => {
@@ -33,7 +31,7 @@ export const cleanItems = ({
 					bucketName: bucket,
 					itemName: object,
 				});
-				await providerSpecifics.deleteFile({
+				await lambdaDeleteFileImplementation({
 					bucketName: bucket,
 					key: object,
 					region,

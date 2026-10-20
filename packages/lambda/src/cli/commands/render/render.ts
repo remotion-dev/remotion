@@ -5,7 +5,6 @@ import {
 	LambdaClientInternals,
 	getRenderProgress,
 	type EnhancedErrorInfo,
-	type ProviderSpecifics,
 	type ServerlessCodec,
 } from '@remotion/lambda-client';
 import {
@@ -88,12 +87,10 @@ export const renderCommand = async ({
 	args,
 	remotionRoot,
 	logLevel,
-	providerSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics;
 }) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -388,7 +385,7 @@ export const renderCommand = async ({
 		throw new Error('Expected image format to be resolved');
 	}
 
-	const functionName = await findFunctionName({logLevel, providerSpecifics});
+	const functionName = await findFunctionName({logLevel});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -512,7 +509,6 @@ export const renderCommand = async ({
 				renderId: res.renderId,
 				forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
 				requestHandler: null,
-				providerSpecifics,
 			});
 		} catch (err) {
 			Log.error(
@@ -700,7 +696,6 @@ export const renderCommand = async ({
 							false,
 						);
 					},
-					providerSpecifics: providerSpecifics,
 					forcePathStyle: parsedLambdaCli['force-path-style'],
 					signal: new AbortController().signal,
 					customCredentials: s3OutputProvider,

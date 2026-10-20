@@ -2,18 +2,17 @@ import {
 	LambdaClientInternals,
 	ServerlessRoutines,
 	type GenericRenderProgress,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
-import type {InsideFunctionSpecifics} from '../provider-implementation';
+import {getCurrentFunctionName} from '../helpers/get-current-function-name';
+import {getCurrentMemorySizeInMb} from '../helpers/get-current-memory-size';
+import {getCurrentRegionInFunction} from '../helpers/get-current-region';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
 	expectedBucketOwner: string | null;
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 };
 
 export const progressHandler = async ({
@@ -29,7 +28,6 @@ export const progressHandler = async ({
 
 	checkVersionMismatch({
 		apiName: 'getRenderProgress()',
-		insideFunctionSpecifics: options.insideFunctionSpecifics,
 		params,
 	});
 
@@ -38,14 +36,12 @@ export const progressHandler = async ({
 			bucketName: params.bucketName,
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
-			memorySizeInMb:
-				options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
+			region: getCurrentRegionInFunction(),
+			memorySizeInMb: getCurrentMemorySizeInMb(),
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
 			customCredentials: params.s3OutputProvider ?? null,
-			providerSpecifics: options.providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
-			functionName: options.insideFunctionSpecifics.getCurrentFunctionName(),
+			functionName: getCurrentFunctionName(),
 			requestHandler: null,
 		});
 		return progress;
@@ -64,8 +60,6 @@ export const progressHandler = async ({
 					expectedBucketOwner: options.expectedBucketOwner,
 					timeoutInMilliseconds: options.timeoutInMilliseconds,
 					retriesRemaining: options.retriesRemaining - 1,
-					providerSpecifics: options.providerSpecifics,
-					insideFunctionSpecifics: options.insideFunctionSpecifics,
 				},
 			});
 		}

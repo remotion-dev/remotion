@@ -3,7 +3,6 @@ import {
 	type EnhancedErrorInfo,
 	type OverallRenderProgress,
 	type PostRenderData,
-	type ProviderSpecifics,
 	type RenderMetadata,
 	type AwsRegion,
 } from '@remotion/lambda-client';
@@ -20,7 +19,6 @@ export const createPostRenderData = ({
 	overallProgress,
 	timeToFinish,
 	outputSize,
-	providerSpecifics,
 }: {
 	region: AwsRegion;
 	memorySizeInMb: number;
@@ -32,7 +30,6 @@ export const createPostRenderData = ({
 	overallProgress: OverallRenderProgress;
 	timeToFinish: number;
 	outputSize: number;
-	providerSpecifics: ProviderSpecifics;
 }): PostRenderData => {
 	const parsedTimings = overallProgress.timings;
 
@@ -43,14 +40,15 @@ export const createPostRenderData = ({
 			elapsedTimeOfUnfinishedChunks: 0,
 		});
 
-	const cost = providerSpecifics.estimatePrice({
+	const cost = LambdaClientInternals.estimatePrice({
 		durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 		memorySizeInMb:
-			providerSpecifics.parseFunctionName(renderMetadata.rendererFunctionName)
-				?.memorySizeInMb ?? memorySizeInMb,
+			LambdaClientInternals.parseFunctionName(
+				renderMetadata.rendererFunctionName,
+			)?.memorySizeInMb ?? memorySizeInMb,
 		region,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
-		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
+		diskSizeInMb: LambdaClientInternals.MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
 	if (!outputFile) {
@@ -58,7 +56,7 @@ export const createPostRenderData = ({
 	}
 
 	const endTime = Date.now();
-	const billingCurrency = providerSpecifics.getBillingCurrency(region);
+	const billingCurrency = LambdaClientInternals.getBillingCurrency(region);
 
 	if (
 		renderMetadata.type !== 'sequence' &&

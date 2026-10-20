@@ -4,7 +4,6 @@ import {
 	type FunctionErrorInfo,
 	type OverallRenderProgress,
 	type PostRenderData,
-	type ProviderSpecifics,
 	type ReceivedArtifact,
 	type RenderMetadata,
 	type SeparateAudioOutput,
@@ -95,7 +94,6 @@ export const makeOverallRenderProgress = ({
 	region,
 	timeoutTimestamp,
 	logLevel,
-	providerSpecifics,
 	forcePathStyle,
 	cancellationEnabled,
 }: {
@@ -105,7 +103,6 @@ export const makeOverallRenderProgress = ({
 	region: AwsRegion;
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	cancellationEnabled: boolean;
 }): OverallProgressHelper => {
@@ -134,7 +131,7 @@ export const makeOverallRenderProgress = ({
 		for (let attempt = 1; attempt <= progressUploadAttempts; attempt++) {
 			const start = Date.now();
 			try {
-				await providerSpecifics.writeFile({
+				await LambdaClientInternals.lambdaWriteFileImplementation({
 					body,
 					bucketName,
 					customCredentials: null,

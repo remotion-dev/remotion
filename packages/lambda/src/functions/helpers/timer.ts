@@ -1,6 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {DebuggingTimer} from '../provider-implementation';
+import type {DebuggingTimer} from '../types';
 
 const formatTime = (time: number) => {
 	return time + 'ms';

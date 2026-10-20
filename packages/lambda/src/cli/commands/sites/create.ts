@@ -1,15 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import {
-	LambdaClientInternals,
-	type Privacy,
-	type ProviderSpecifics,
-} from '@remotion/lambda-client';
+import {LambdaClientInternals, type Privacy} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';
 import {LambdaInternals} from '../../../internals';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
@@ -45,7 +40,6 @@ export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint({
 		args,
@@ -142,7 +136,6 @@ export const sitesCreateSubcommand = async (
 				region: getAwsRegion(),
 				enableFolderExpiry,
 				customCredentials: null,
-				providerSpecifics: implementation,
 				forcePathStyle: false,
 				skipPutAcl: parsedLambdaCli.privacy === 'no-acl',
 				requestHandler: null,
@@ -182,7 +175,8 @@ export const sitesCreateSubcommand = async (
 
 	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,
-		siteName: desiredSiteName ?? implementation.randomHash(),
+		siteName:
+			desiredSiteName ?? LambdaClientInternals.randomHashImplementation(),
 		bucketName,
 		options: {
 			publicDir,
@@ -239,9 +233,7 @@ export const sitesCreateSubcommand = async (
 		indent: false,
 		logLevel,
 		throwIfSiteExists,
-		providerSpecifics: implementation,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
-		fullClientSpecifics: awsFullClientSpecifics,
 		requestHandler: null,
 	});
 

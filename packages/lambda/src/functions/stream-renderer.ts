@@ -6,15 +6,14 @@ import {
 	ServerlessRoutines,
 	type GetBinaryPayloadSink,
 	type OnMessage,
-	type ProviderSpecifics,
 	type ServerlessPayload,
 	type RequestHandler,
 } from '@remotion/lambda-client';
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {OnArtifactFromRenderer} from './artifact-registry';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import type {OverallProgressHelper} from './overall-render-progress';
-import type {InsideFunctionSpecifics} from './provider-implementation';
 import {artifactFromS3} from './s3-renderer-output';
 
 type StreamRendererResponse =
@@ -35,8 +34,6 @@ const streamRenderer = ({
 	files,
 	logLevel,
 	onArtifact,
-	providerSpecifics,
-	insideFunctionSpecifics,
 	requestHandler,
 }: {
 	payload: ServerlessPayload;
@@ -46,8 +43,6 @@ const streamRenderer = ({
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: OnArtifactFromRenderer;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	requestHandler: RequestHandler | null;
 	expectedBucketOwner: string | null;
 }) => {
@@ -227,18 +222,17 @@ const streamRenderer = ({
 			throw new Error(`Unknown message type ${message.type}`);
 		};
 
-		providerSpecifics
-			.callFunctionStreaming({
-				functionName,
-				payload,
-				retriesRemaining: 1,
-				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-				timeoutInTest: 12000,
-				type: ServerlessRoutines.renderer,
-				receivedStreamingPayload,
-				requestHandler,
-				getBinaryPayloadSink,
-			})
+		LambdaClientInternals.callFunctionWithStreamingImplementation({
+			functionName,
+			payload,
+			retriesRemaining: 1,
+			region: getCurrentRegionInFunction(),
+			timeoutInTest: 12000,
+			type: ServerlessRoutines.renderer,
+			receivedStreamingPayload,
+			requestHandler,
+			getBinaryPayloadSink,
+		})
 			.then(() => {
 				if (payload.output.type === 'sequence' && !chunkCompleted) {
 					resolve({
@@ -314,8 +308,6 @@ const s3Renderer = async ({
 	files,
 	logLevel,
 	onArtifact,
-	providerSpecifics,
-	insideFunctionSpecifics,
 	requestHandler,
 	expectedBucketOwner,
 }: {
@@ -326,8 +318,6 @@ const s3Renderer = async ({
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: OnArtifactFromRenderer;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	requestHandler: RequestHandler | null;
 	expectedBucketOwner: string | null;
 }): Promise<StreamRendererResponse> => {
@@ -335,9 +325,9 @@ const s3Renderer = async ({
 		throw new Error('Expected renderer type');
 	}
 
-	const region = insideFunctionSpecifics.getCurrentRegionInFunction();
+	const region = getCurrentRegionInFunction();
 	try {
-		await providerSpecifics.callFunctionAsync({
+		await LambdaClientInternals.callFunctionAsyncImplementation({
 			functionName,
 			payload,
 			region,
@@ -349,7 +339,7 @@ const s3Renderer = async ({
 		return {
 			type: 'error',
 			error: (err as Error).stack ?? (err as Error).message,
-			shouldRetry: providerSpecifics.isFlakyError(err as Error),
+			shouldRetry: LambdaClientInternals.isFlakyError(err as Error),
 		};
 	}
 
@@ -366,14 +356,15 @@ const s3Renderer = async ({
 
 	while (Date.now() < timeoutTimestamp) {
 		try {
-			const statusStream = await providerSpecifics.readFile({
-				bucketName: payload.bucketName,
-				key: statusKey,
-				region,
-				expectedBucketOwner,
-				forcePathStyle: payload.forcePathStyle,
-				requestHandler,
-			});
+			const statusStream =
+				await LambdaClientInternals.lambdaReadFileImplementation({
+					bucketName: payload.bucketName,
+					key: statusKey,
+					region,
+					expectedBucketOwner,
+					forcePathStyle: payload.forcePathStyle,
+					requestHandler,
+				});
 			const status = LambdaClientInternals.parseS3RendererStatus({
 				value: JSON.parse(
 					await LambdaClientInternals.streamToString(statusStream),
@@ -415,16 +406,14 @@ const s3Renderer = async ({
 					index: payload.chunk,
 					rendered: 0,
 				});
-				await providerSpecifics
-					.deleteFile({
-						bucketName: payload.bucketName,
-						key: statusKey,
-						region,
-						customCredentials: null,
-						forcePathStyle: payload.forcePathStyle,
-						requestHandler,
-					})
-					.catch(() => undefined);
+				await LambdaClientInternals.lambdaDeleteFileImplementation({
+					bucketName: payload.bucketName,
+					key: statusKey,
+					region,
+					customCredentials: null,
+					forcePathStyle: payload.forcePathStyle,
+					requestHandler,
+				}).catch(() => undefined);
 				return {
 					type: 'error',
 					error: status.errorInfo.stack,
@@ -438,14 +427,15 @@ const s3Renderer = async ({
 				for (const artifact of status.artifacts) {
 					let artifactStream;
 					try {
-						artifactStream = await providerSpecifics.readFile({
-							bucketName: payload.bucketName,
-							key: artifact.key,
-							region,
-							expectedBucketOwner,
-							forcePathStyle: payload.forcePathStyle,
-							requestHandler,
-						});
+						artifactStream =
+							await LambdaClientInternals.lambdaReadFileImplementation({
+								bucketName: payload.bucketName,
+								key: artifact.key,
+								region,
+								expectedBucketOwner,
+								forcePathStyle: payload.forcePathStyle,
+								requestHandler,
+							});
 					} catch (err) {
 						if (isMissingObjectError(err)) {
 							throw new Error(
@@ -480,7 +470,7 @@ const s3Renderer = async ({
 					);
 					let media;
 					try {
-						media = await providerSpecifics.readFile({
+						media = await LambdaClientInternals.lambdaReadFileImplementation({
 							bucketName: payload.bucketName,
 							key,
 							region,
@@ -532,22 +522,20 @@ const s3Renderer = async ({
 					status.completedAt,
 				);
 				for (const key of [...downloadedKeys, statusKey]) {
-					await providerSpecifics
-						.deleteFile({
-							bucketName: payload.bucketName,
-							key,
-							region,
-							customCredentials: null,
-							forcePathStyle: payload.forcePathStyle,
-							requestHandler,
-						})
-						.catch((err) => {
-							RenderInternals.Log.warn(
-								{indent: false, logLevel},
-								`Could not clean up renderer transport object ${key}`,
-								err,
-							);
-						});
+					await LambdaClientInternals.lambdaDeleteFileImplementation({
+						bucketName: payload.bucketName,
+						key,
+						region,
+						customCredentials: null,
+						forcePathStyle: payload.forcePathStyle,
+						requestHandler,
+					}).catch((err) => {
+						RenderInternals.Log.warn(
+							{indent: false, logLevel},
+							`Could not clean up renderer transport object ${key}`,
+							err,
+						);
+					});
 				}
 
 				return {type: 'success'};
@@ -555,7 +543,7 @@ const s3Renderer = async ({
 		} catch (err) {
 			if (
 				!isMissingObjectError(err) &&
-				!providerSpecifics.isFlakyError(err as Error)
+				!LambdaClientInternals.isFlakyError(err as Error)
 			) {
 				return {
 					type: 'error',
@@ -571,7 +559,7 @@ const s3Renderer = async ({
 
 	return {
 		type: 'error',
-		error: `Renderer chunk ${payload.chunk}, attempt ${payload.attempt} did not publish a status before the launcher deadline. Logs: ${providerSpecifics.getLoggingUrlForRendererFunction(
+		error: `Renderer chunk ${payload.chunk}, attempt ${payload.attempt} did not publish a status before the launcher deadline. Logs: ${LambdaClientInternals.getCloudwatchRendererUrl(
 			{
 				region,
 				functionName,
@@ -592,8 +580,6 @@ type RenderRendererFunctionWithRetryInput = {
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: OnArtifactFromRenderer;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	requestHandler: RequestHandler | null;
 	expectedBucketOwner: string | null;
 };
@@ -606,8 +592,6 @@ export const renderRendererFunctionWithRetry = async ({
 	overallProgress,
 	logLevel,
 	onArtifact,
-	providerSpecifics,
-	insideFunctionSpecifics,
 	requestHandler,
 	expectedBucketOwner,
 }: RenderRendererFunctionWithRetryInput): Promise<unknown> => {
@@ -615,8 +599,8 @@ export const renderRendererFunctionWithRetry = async ({
 		throw new Error('Expected renderer type');
 	}
 
-	const transport = providerSpecifics.getRendererFunctionTransport(
-		insideFunctionSpecifics.getCurrentRegionInFunction(),
+	const transport = LambdaClientInternals.getRendererFunctionTransport(
+		getCurrentRegionInFunction(),
 	);
 	const result = await (transport === 's3' ? s3Renderer : streamRenderer)({
 		files,
@@ -626,8 +610,6 @@ export const renderRendererFunctionWithRetry = async ({
 		payload,
 		logLevel,
 		onArtifact,
-		providerSpecifics,
-		insideFunctionSpecifics,
 		requestHandler,
 		expectedBucketOwner,
 	});
@@ -655,8 +637,6 @@ export const renderRendererFunctionWithRetry = async ({
 			},
 			logLevel,
 			onArtifact,
-			providerSpecifics,
-			insideFunctionSpecifics,
 			requestHandler,
 			expectedBucketOwner,
 		});

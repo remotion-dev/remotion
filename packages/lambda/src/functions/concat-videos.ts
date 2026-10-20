@@ -12,7 +12,7 @@ import type {
 	LogLevel,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {InsideFunctionSpecifics} from './provider-implementation';
+import {timer} from './helpers/timer';
 
 export const concatVideos = async ({
 	onProgress,
@@ -29,7 +29,6 @@ export const concatVideos = async ({
 	cancelSignal,
 	preferLossless,
 	metadata,
-	insideFunctionSpecifics,
 	everyNthFrame,
 	frameRange,
 	compositionDurationInFrames,
@@ -51,7 +50,6 @@ export const concatVideos = async ({
 	cancelSignal: CancelSignal | undefined;
 	preferLossless: boolean;
 	metadata: Record<string, string> | null;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	compositionDurationInFrames: number;
 	everyNthFrame: number;
 	frameRange: SingleFrameRange | null;
@@ -78,7 +76,7 @@ export const concatVideos = async ({
 					`audio.${RenderInternals.getExtensionOfFilename(separateAudioFilename)?.toLowerCase()}`,
 				);
 	const outfile = join(outputDirectory, `concat.${extension}`);
-	const combine = insideFunctionSpecifics.timer('Combine chunks', logLevel);
+	const combine = timer('Combine chunks', logLevel);
 
 	const audioFiles = files.filter((f) => f.endsWith('audio'));
 	const videoFiles = files.filter((f) => f.endsWith('video'));

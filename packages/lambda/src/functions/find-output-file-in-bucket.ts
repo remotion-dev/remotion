@@ -2,7 +2,6 @@ import {
 	LambdaClientInternals,
 	type CustomCredentials,
 	type OutputFileMetadata,
-	type ProviderSpecifics,
 	type RenderMetadata,
 	type RenderOutput,
 	type AwsRegion,
@@ -17,7 +16,6 @@ type FindOutputFileInBucketInput = {
 	bucketName: string;
 	customCredentials: CustomCredentials | null;
 	currentRegion: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 	output: RenderOutput;
@@ -29,7 +27,6 @@ export const findOutputFileInBucket = ({
 	bucketName,
 	customCredentials,
 	currentRegion,
-	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
 	output,
@@ -44,7 +41,6 @@ export const findOutputFileInBucket = ({
 		bucketName,
 		customCredentials,
 		currentRegion,
-		providerSpecifics,
 		forcePathStyle,
 		requestHandler,
 		output,

@@ -1,6 +1,5 @@
 import {
 	LambdaClientInternals,
-	type ProviderSpecifics,
 	type SerializedInputProps,
 	type AwsRegion,
 } from '@remotion/lambda-client';
@@ -8,12 +7,10 @@ import {
 export const cleanupSerializedInputProps = async ({
 	serialized,
 	region,
-	providerSpecifics,
 	forcePathStyle,
 }: {
 	serialized: SerializedInputProps;
 	region: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
@@ -21,7 +18,7 @@ export const cleanupSerializedInputProps = async ({
 	}
 
 	const time = Date.now();
-	await providerSpecifics.deleteFile({
+	await LambdaClientInternals.lambdaDeleteFileImplementation({
 		bucketName: serialized.bucketName,
 		key: LambdaClientInternals.inputPropsKey(serialized.hash),
 		region,
@@ -36,12 +33,10 @@ export const cleanupSerializedInputProps = async ({
 export const cleanupSerializedResolvedProps = async ({
 	serialized,
 	region,
-	providerSpecifics,
 	forcePathStyle,
 }: {
 	serialized: SerializedInputProps;
 	region: AwsRegion;
-	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
@@ -49,7 +44,7 @@ export const cleanupSerializedResolvedProps = async ({
 	}
 
 	const time = Date.now();
-	await providerSpecifics.deleteFile({
+	await LambdaClientInternals.lambdaDeleteFileImplementation({
 		bucketName: serialized.bucketName,
 		key: LambdaClientInternals.resolvedPropsKey(serialized.hash),
 		region,

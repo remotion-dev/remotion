@@ -1,55 +1,10 @@
-import {expect, test} from 'bun:test';
-import type {PostRenderData, ProviderSpecifics} from '@remotion/lambda-client';
+import {expect, spyOn, test} from 'bun:test';
+import type {PostRenderData} from '@remotion/lambda-client';
+import * as writeFile from '../../../../lambda-client/src/write-file';
 import {
 	makeInitialOverallRenderProgress,
 	makeOverallRenderProgress,
 } from '../../functions/overall-render-progress';
-
-const makeProviderSpecifics = ({
-	writeFile,
-}: {
-	writeFile: ProviderSpecifics['writeFile'];
-}): ProviderSpecifics => {
-	return {
-		applyLifeCycle: () => Promise.resolve(),
-		bucketExists: () => Promise.resolve(true),
-		callFunctionAsync: () => Promise.resolve(),
-		callFunctionStreaming: () => Promise.resolve(),
-		callFunctionSync: () => Promise.reject(new Error('Not implemented')),
-		checkCredentials: () => undefined,
-		convertToServeUrl: () => 'serve-url',
-		createBucket: () => Promise.resolve(),
-		deleteFile: () => Promise.resolve(),
-		deleteFunction: () => Promise.resolve(),
-		estimatePrice: () => 0,
-		getAccountId: () => Promise.resolve('123456789012'),
-		getBucketPrefix: () => 'remotionlambda-',
-		getBuckets: () => Promise.resolve([]),
-		getChromiumPath: () => null,
-		getEphemeralStorageForPriceCalculation: () => 512,
-		getBillingCurrency: () => 'USD',
-		getRendererFunctionTransport: () => 'response-streaming',
-		getServiceDnsSuffix: () => 'example.com',
-		getFunctions: () => Promise.resolve([]),
-		getLoggingUrlForMethod: () => 'logs',
-		getLoggingUrlForRendererFunction: () => 'logs',
-		getMaxNonInlinePayloadSizePerFunction: () => 0,
-		getMaxStillInlinePayloadSize: () => 0,
-		getOutputUrl: () => ({key: 'out.mp4', url: 'https://example.com/out.mp4'}),
-		headFile: () => Promise.resolve({}),
-		isFlakyError: () => false,
-		listObjects: () => Promise.resolve([]),
-		parseFunctionName: () => null,
-		printLoggingHelper: false,
-		randomHash: () => 'hash',
-		readFile: () => Promise.reject(new Error('Not implemented')),
-		serverStorageProductName: () => 'S3',
-		validateDeleteAfter: () => undefined,
-		writeFile,
-		supportsConditionalOutput: () => true,
-		writeFileIfNotExists: null,
-	};
-};
 
 const postRenderData: PostRenderData = {
 	separateAudio: null,
@@ -88,16 +43,17 @@ test('stores whether cancellation is enabled', () => {
 test('setPostRenderData retries transient progress upload failures', async () => {
 	let attempts = 0;
 	let persistedBody: string | null = null;
-	const providerSpecifics = makeProviderSpecifics({
-		writeFile: ({body}) => {
-			attempts++;
-			if (attempts < 3) {
-				return Promise.reject(new Error('Temporary progress upload failure'));
-			}
+	const write = spyOn(
+		writeFile,
+		'lambdaWriteFileImplementation',
+	).mockImplementation(({body}) => {
+		attempts++;
+		if (attempts < 3) {
+			return Promise.reject(new Error('Temporary progress upload failure'));
+		}
 
-			persistedBody = String(body);
-			return Promise.resolve();
-		},
+		persistedBody = String(body);
+		return Promise.resolve();
 	});
 	const overallProgress = makeOverallRenderProgress({
 		cancellationEnabled: false,
@@ -105,13 +61,16 @@ test('setPostRenderData retries transient progress upload failures', async () =>
 		expectedBucketOwner: '123456789012',
 		forcePathStyle: false,
 		logLevel: 'error',
-		providerSpecifics,
 		region: 'eu-central-1',
 		renderId: 'render-id',
 		timeoutTimestamp: 1,
 	});
 
-	await overallProgress.setPostRenderData(postRenderData);
+	try {
+		await overallProgress.setPostRenderData(postRenderData);
+	} finally {
+		write.mockRestore();
+	}
 
 	expect(attempts).toBe(3);
 	if (persistedBody === null) {

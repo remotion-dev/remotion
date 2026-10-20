@@ -5,7 +5,6 @@ import {
 	type CustomCredentials,
 	type PostRenderData,
 	type Privacy,
-	type ProviderSpecifics,
 	type RenderMetadata,
 	type SerializedInputProps,
 	type WriteFileInput,
@@ -15,8 +14,10 @@ import type {LogLevel} from '@remotion/renderer';
 import type {DownloadBehavior} from 'remotion/no-react';
 import {cleanupProps} from './cleanup-props';
 import {createPostRenderData} from './create-post-render-data';
+import {getCurrentMemorySizeInMb} from './helpers/get-current-memory-size';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {timer} from './helpers/timer';
 import type {OverallProgressHelper} from './overall-render-progress';
-import type {InsideFunctionSpecifics} from './provider-implementation';
 
 type FinishRenderInput = {
 	expectedBucketOwner: string | null;
@@ -31,8 +32,6 @@ type FinishRenderInput = {
 	logLevel: LogLevel;
 	overallProgress: OverallProgressHelper;
 	startTime: number;
-	providerSpecifics: ProviderSpecifics;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	forcePathStyle: boolean;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null;
@@ -56,8 +55,6 @@ export const finishRender = async ({
 	logLevel,
 	overallProgress,
 	startTime,
-	providerSpecifics,
-	insideFunctionSpecifics,
 	forcePathStyle,
 	storageClass,
 	requestHandler,
@@ -84,7 +81,7 @@ export const finishRender = async ({
 					renderMetadata,
 					bucketName,
 					customCredentials: separateAudioCredentials,
-					bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+					bucketNamePrefix: LambdaClientInternals.REMOTION_BUCKET_PREFIX,
 				});
 	for (const file of [
 		...(separateAudioFile === null || separateAudioDestination === null
@@ -107,7 +104,7 @@ export const finishRender = async ({
 		},
 	]) {
 		const sizeInBytes = fs.statSync(file.file).size;
-		const writeToBucket = insideFunctionSpecifics.timer(
+		const writeToBucket = timer(
 			`Writing to bucket (${sizeInBytes} bytes)`,
 			logLevel,
 		);
@@ -116,7 +113,7 @@ export const finishRender = async ({
 			bucketName: file.renderBucketName,
 			key: file.key,
 			body,
-			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			region: getCurrentRegionInFunction(),
 			privacy,
 			expectedBucketOwner,
 			downloadBehavior:
@@ -131,15 +128,11 @@ export const finishRender = async ({
 		};
 		try {
 			if (file.conditional) {
-				if (providerSpecifics.writeFileIfNotExists === null) {
-					throw new Error(
-						'The provider does not support conditional output uploads',
-					);
-				}
-
-				await providerSpecifics.writeFileIfNotExists(writeOptions);
+				await LambdaClientInternals.lambdaWriteFileIfNotExistsImplementation(
+					writeOptions,
+				);
 			} else {
-				await providerSpecifics.writeFile(writeOptions);
+				await LambdaClientInternals.lambdaWriteFileImplementation(writeOptions);
 			}
 		} finally {
 			body.destroy();
@@ -147,12 +140,12 @@ export const finishRender = async ({
 
 		writeToBucket.end();
 		if (file.output === 'separate-audio') {
-			const {url} = providerSpecifics.getOutputUrl({
+			const {url} = LambdaClientInternals.getOutputUrlFromMetadata({
 				output: 'separate-audio',
 				bucketName,
 				renderMetadata,
 				customCredentials: file.customCredentials,
-				currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				currentRegion: getCurrentRegionInFunction(),
 			});
 			// Persist the audio upload before publishing the main file so progress
 			// recovery cannot finish a render with a missing audio output.
@@ -172,22 +165,20 @@ export const finishRender = async ({
 	const cleanupProm = cleanupProps({
 		inputProps,
 		serializedResolvedProps,
-		providerSpecifics,
 		forcePathStyle,
-		insideFunctionSpecifics,
 	});
 
-	const {url: outputUrl} = providerSpecifics.getOutputUrl({
+	const {url: outputUrl} = LambdaClientInternals.getOutputUrlFromMetadata({
 		output: 'main',
 		bucketName: renderBucketName,
-		currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
+		currentRegion: getCurrentRegionInFunction(),
 		customCredentials,
 		renderMetadata,
 	});
 
 	const postRenderData = createPostRenderData({
-		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
-		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
+		region: getCurrentRegionInFunction(),
+		memorySizeInMb: getCurrentMemorySizeInMb(),
 		renderMetadata,
 		errorExplanations,
 		timeToDelete: (await cleanupProm).reduce((a, b) => Math.max(a, b), 0),
@@ -200,7 +191,6 @@ export const finishRender = async ({
 		timeToCombine,
 		overallProgress: overallProgress.get(),
 		timeToFinish: Date.now() - startTime,
-		providerSpecifics,
 	});
 
 	await overallProgress.setPostRenderData(postRenderData);

@@ -1,10 +1,10 @@
+// Must run before any other module is evaluated.
+import './helpers/set-lambda-env';
 import {
-	LambdaClientInternals,
 	ServerlessRoutines,
 	type OrError,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
-import {serverAwsImplementation} from './aws-server-implementation';
 import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
 import {streamifyResponse} from './helpers/streamify-response';
 import {innerHandler} from './inner-routine';
@@ -52,8 +52,6 @@ export const routine = async (
 				expectedBucketOwner,
 				getRemainingTimeInMillis: () => context.getRemainingTimeInMillis(),
 			},
-			providerSpecifics: LambdaClientInternals.awsImplementation,
-			insideFunctionSpecifics: serverAwsImplementation,
 		});
 	} catch (err) {
 		if (!buffered) {

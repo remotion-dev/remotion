@@ -1,14 +1,9 @@
 import {CliInternals} from '@remotion/cli';
-import {
-	LambdaClientInternals,
-	type ProviderSpecifics,
-} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
-import {awsFullClientSpecifics} from '../functions/full-client-implementation';
-import type {FullClientSpecifics} from '../functions/provider-implementation';
 import {parsedLambdaCli} from './args';
 import {
 	COMPOSITIONS_COMMAND,
@@ -49,14 +44,10 @@ const matchCommand = ({
 	args,
 	remotionRoot,
 	logLevel,
-	providerSpecifics,
-	fullClientSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics;
-	fullClientSpecifics: FullClientSpecifics;
 }) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(args, logLevel);
@@ -64,7 +55,7 @@ const matchCommand = ({
 	}
 
 	if (requiresCredentials(args)) {
-		providerSpecifics.checkCredentials();
+		LambdaClientInternals.checkCredentials();
 	}
 
 	if (args[0] === RENDER_COMMAND) {
@@ -72,7 +63,6 @@ const matchCommand = ({
 			args: args.slice(1),
 			remotionRoot,
 			logLevel,
-			providerSpecifics,
 		});
 	}
 
@@ -81,7 +71,6 @@ const matchCommand = ({
 			args: args.slice(1),
 			remotionRoot,
 			logLevel,
-			providerSpecifics: providerSpecifics,
 		});
 	}
 
@@ -89,7 +78,6 @@ const matchCommand = ({
 		return compositionsCommand({
 			args: args.slice(1),
 			logLevel,
-			providerSpecifics,
 		});
 	}
 
@@ -97,8 +85,6 @@ const matchCommand = ({
 		return functionsCommand({
 			args: args.slice(1),
 			logLevel,
-			fullClientSpecifics,
-			providerSpecifics,
 		});
 	}
 
@@ -115,12 +101,7 @@ const matchCommand = ({
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(
-			args.slice(1),
-			remotionRoot,
-			logLevel,
-			providerSpecifics,
-		);
+		return sitesCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === 'upload') {
@@ -176,18 +157,12 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	_providerSpecifics: ProviderSpecifics | null,
-	fullClientSpecifics: FullClientSpecifics | null,
 ) => {
 	try {
-		const providerSpecifics =
-			_providerSpecifics ?? LambdaClientInternals.awsImplementation;
 		await matchCommand({
 			args,
 			remotionRoot,
 			logLevel,
-			providerSpecifics: providerSpecifics,
-			fullClientSpecifics: fullClientSpecifics ?? awsFullClientSpecifics,
 		});
 	} catch (err) {
 		const error = err as Error;
@@ -306,11 +281,5 @@ export const cli = async (logLevel: LogLevel) => {
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	await CliInternals.initializeCli(remotionRoot);
 
-	await executeCommand(
-		parsedLambdaCli._,
-		remotionRoot,
-		logLevel,
-		LambdaClientInternals.awsImplementation,
-		awsFullClientSpecifics,
-	);
+	await executeCommand(parsedLambdaCli._, remotionRoot, logLevel);
 };
