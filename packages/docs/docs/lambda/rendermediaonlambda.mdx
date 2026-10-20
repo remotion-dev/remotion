@@ -260,7 +260,7 @@ It can either be:
 
 Save the mixed audio as a separate file and omit the audio track from the video. By default, audio is included in the video.
 
-A string such as `"audio.wav"` saves to `renders/{renderId}/audio.wav` in the render bucket. An object with `bucketName`, `key` and an optional `s3OutputProvider` supports a [custom destination](/docs/lambda/custom-destination), using the same rules as [`outName`](/docs/lambda/rendermediaonlambda#outname).
+A string such as `"audio.wav"` saves to `renders/{renderId}/audio.wav` in the render bucket. An object with `bucketName`, `key` and an optional `s3OutputProvider` supports a [custom destination](/docs/lambda/custom-destination). The `key` is required for `separateAudioTo` and must include an audio file extension.
 
 ```ts twoslash title="Render video and audio separately"
 import {renderMediaOnLambda} from '@remotion/lambda/client';

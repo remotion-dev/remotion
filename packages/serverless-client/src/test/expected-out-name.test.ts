@@ -140,6 +140,7 @@ test('Should preserve custom provider regions outside the built-in AWS list', ()
 test('Should default key when outName specifies custom s3OutputProvider without key for video', () => {
 	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,
+		audioCodec: 'pcm-16',
 		outName: {
 			bucketName: 'renders-dev.mykaraoke.video',
 			s3OutputProvider: {
@@ -172,7 +173,7 @@ test('Should default key when outName specifies custom s3OutputProvider without 
 			forcePathStyle: false,
 		},
 		renderBucketName: 'renders-dev.mykaraoke.video',
-		key: 'renders/9n8dsfafs/out.mp4',
+		key: 'renders/9n8dsfafs/out.mkv',
 	});
 });
 

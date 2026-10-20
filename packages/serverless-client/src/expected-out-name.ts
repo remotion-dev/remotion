@@ -32,30 +32,6 @@ export const getCredentialsFromOutName = <Provider extends CloudProvider>(
 	return name.s3OutputProvider ?? null;
 };
 
-const getDefaultKey = <Provider extends CloudProvider>({
-	renderMetadata,
-	separateAudioFilename,
-}: {
-	renderMetadata: RenderMetadata<Provider>;
-	separateAudioFilename: string | null;
-}): string => {
-	if (renderMetadata.type === 'still') {
-		return outStillName(renderMetadata.renderId, renderMetadata.imageFormat);
-	}
-
-	if (renderMetadata.type === 'video') {
-		return outName(
-			renderMetadata.renderId,
-			NoReactAPIs.getFileExtensionFromCodec(
-				renderMetadata.codec as Codec,
-				separateAudioFilename === null ? renderMetadata.audioCodec : null,
-			),
-		);
-	}
-
-	throw new TypeError('no type passed');
-};
-
 export const getExpectedOutName = <Provider extends CloudProvider>({
 	renderMetadata,
 	bucketName,
@@ -101,35 +77,48 @@ export const getExpectedOutName = <Provider extends CloudProvider>({
 			separateAudioTo: separateAudioFilename?.toLowerCase() ?? null,
 			bucketNamePrefix,
 		});
+		if (typeof outNameValue === 'string') {
+			return customOutName(renderMetadata.renderId, bucketName, outNameValue);
+		}
 
-		const defaultKey =
-			output === 'separate-audio' ||
-			typeof outNameValue === 'string' ||
-			outNameValue.key !== undefined
-				? undefined
-				: getDefaultKey({
-						renderMetadata,
-						separateAudioFilename,
-					});
-
-		return customOutName(
-			renderMetadata.renderId,
-			bucketName,
-			outNameValue,
-			defaultKey,
-		);
+		if (outNameValue.key !== undefined) {
+			return customOutName(renderMetadata.renderId, bucketName, {
+				...outNameValue,
+				key: outNameValue.key,
+			});
+		}
 	}
 
 	if (output === 'separate-audio') {
 		throw new Error('This render does not have a separate audio output.');
 	}
 
-	return {
-		renderBucketName: bucketName,
-		key: getDefaultKey({
-			renderMetadata,
-			separateAudioFilename,
-		}),
-		customCredentials: null,
-	};
+	const destination =
+		typeof outNameValue === 'object' && outNameValue !== null
+			? outNameValue
+			: null;
+
+	if (renderMetadata.type === 'still') {
+		return {
+			renderBucketName: destination?.bucketName ?? bucketName,
+			key: outStillName(renderMetadata.renderId, renderMetadata.imageFormat),
+			customCredentials: destination?.s3OutputProvider ?? null,
+		};
+	}
+
+	if (renderMetadata.type === 'video') {
+		return {
+			renderBucketName: destination?.bucketName ?? bucketName,
+			key: outName(
+				renderMetadata.renderId,
+				NoReactAPIs.getFileExtensionFromCodec(
+					renderMetadata.codec as Codec,
+					separateAudioFilename === null ? renderMetadata.audioCodec : null,
+				),
+			),
+			customCredentials: destination?.s3OutputProvider ?? null,
+		};
+	}
+
+	throw new TypeError('no type passed');
 };

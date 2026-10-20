@@ -63,6 +63,10 @@ export type OutNameInput<Provider extends CloudProvider> =
 			s3OutputProvider?: CustomCredentials<Provider>;
 	  };
 
+export type OutNameInputWithKey<Provider extends CloudProvider> =
+	| string
+	| (OutNameInput<Provider> & {key: string});
+
 export type RenderOutput = 'main' | 'separate-audio';
 
 export type SeparateAudioOutput = {
@@ -150,7 +154,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<Provider> | null;
-	separateAudioTo: OutNameInput<Provider> | null;
+	separateAudioTo: OutNameInputWithKey<Provider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -219,7 +223,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		logLevel: LogLevel;
 		frameRange: SingleFrameRange | null;
 		outName: OutNameInput<Provider> | null;
-		separateAudioTo: OutNameInput<Provider> | null;
+		separateAudioTo: OutNameInputWithKey<Provider> | null;
 		timeoutInMilliseconds: number;
 		// Non-JS SDKs may not set chromiumOptions, may be undefined
 		chromiumOptions: ChromiumOptions | undefined;
@@ -388,8 +392,7 @@ export const outName = (renderId: string, extension: string) =>
 export const customOutName = <Provider extends CloudProvider>(
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput<Provider>,
-	defaultKey?: string,
+	name: OutNameInputWithKey<Provider>,
 ): OutNameOutput<Provider> => {
 	if (typeof name === 'string') {
 		return {
@@ -399,15 +402,8 @@ export const customOutName = <Provider extends CloudProvider>(
 		};
 	}
 
-	const resolvedKey = name.key ?? defaultKey;
-	if (typeof resolvedKey !== 'string') {
-		throw new TypeError(
-			'The S3 key must be specified or a default key must be available.',
-		);
-	}
-
 	return {
-		key: resolvedKey,
+		key: name.key,
 		renderBucketName: name.bucketName,
 		customCredentials: name.s3OutputProvider ?? null,
 	};

@@ -38,7 +38,7 @@ export const validateOutname = ({
 	}
 
 	if (typeof outName !== 'string') {
-		if (typeof outName.key !== 'undefined') {
+		if (outName.key !== undefined) {
 			validateS3Key(outName.key);
 		}
 

@@ -9,6 +9,7 @@ import type {
 	DownloadBehavior,
 	LogLevel,
 	OutNameInput,
+	OutNameInputWithKey,
 	PixelFormat,
 	Privacy,
 	ServerlessCodec,
@@ -66,7 +67,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
-	separateAudioTo: OutNameInput<AwsProvider> | null;
+	separateAudioTo: OutNameInputWithKey<AwsProvider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
