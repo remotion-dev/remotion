@@ -1,12 +1,20 @@
-import {ALL_FORMATS, Input, UrlSource, VideoSampleSink} from 'mediabunny';
+import {
+	ALL_FORMATS,
+	CanvasSink,
+	Input,
+	UrlSource,
+	VideoSampleSink,
+} from 'mediabunny';
 import {assert, expect, test} from 'vitest';
 import {
 	getMaxVideoCacheSize,
 	globalMediaCache,
 	keyframeManager,
 } from '../caches';
+import {makePrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 import {extractFrame} from '../video-extraction/extract-frame';
 import {makeKeyframeBank} from '../video-extraction/keyframe-bank';
+import {createVideoIterator} from '../video/video-preview-iterator';
 
 const openBankAt = async (src: string, timestamp: number) => {
 	const input = new Input({
@@ -108,4 +116,39 @@ test('does not skip frames around reordered open-GOP keyframes', async () => {
 	}
 
 	keyframeManager.clearAll('info');
+});
+
+test('preview playback starts decoding at a millisecond-quantized WebM keyframe', async () => {
+	const input = new Input({
+		source: new UrlSource('/millisecond-keyframe.webm'),
+		formats: ALL_FORMATS,
+	});
+	const track = await input.getPrimaryVideoTrack();
+	assert(track);
+
+	const realSink = new CanvasSink(track);
+	const decodedTimestamps: number[] = [];
+	const sink = {
+		async *canvases(start?: number, end?: number) {
+			for await (const canvas of realSink.canvases(start, end)) {
+				decodedTimestamps.push(canvas.timestamp);
+				yield canvas;
+			}
+		},
+	} as CanvasSink;
+
+	const cache = makePrewarmedVideoIteratorCache(
+		sink,
+		await track.getTimeResolution(),
+	);
+	const iterator = await createVideoIterator(62 / 30, cache);
+
+	try {
+		expect(iterator.initialFrame?.timestamp).toBe(2.067);
+		expect(decodedTimestamps[0]).toBe(2.067);
+	} finally {
+		iterator.destroy();
+		cache.destroy();
+		input.dispose();
+	}
 });
