@@ -572,8 +572,7 @@ export const StudioSettings: React.FC = () => {
 							}}
 						>
 							Keep audio pitch unchanged when adjusting the Studio playback
-							speed. Applies to Audio and Video from @remotion/media. Native
-							media and rendered output are unaffected.
+							speed. Applies to Audio and Video from @remotion/media.
 						</div>
 					</InfoBubble>
 				</div>
