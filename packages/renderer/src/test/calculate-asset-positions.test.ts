@@ -25,7 +25,6 @@ const makeAsset = ({
 		playbackRate: 1,
 		mediaFrame: mediaFrame ?? frame,
 		toneFrequency: 1,
-		preservePitch: true,
 		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	};
