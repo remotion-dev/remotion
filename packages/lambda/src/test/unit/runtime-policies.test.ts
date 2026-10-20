@@ -4,7 +4,6 @@ import os from 'node:os';
 import path from 'node:path';
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type StreamingPayload,
 } from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
@@ -37,14 +36,14 @@ test.each(['angle', null] as const)(
 			RenderInternals,
 			'internalRenderMedia',
 		).mockResolvedValue({slowestFrames: []} as never);
-		const messages: StreamingPayload<AwsProvider>[] = [];
+		const messages: StreamingPayload[] = [];
 		let launchedBrowser: Awaited<
 			ReturnType<typeof serverAwsImplementation.getBrowserInstance>
 		> | null = null;
 		const chromiumOptions = {gl, enableMultiProcessOnLinux: true};
 
 		try {
-			await rendererHandler<AwsProvider>({
+			await rendererHandler({
 				params: {
 					type: 'renderer',
 					output: {type: 'media'},

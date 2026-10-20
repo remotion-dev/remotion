@@ -1,9 +1,9 @@
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './types';
+import type {AwsRegion} from './regions';
 
-export const makeBucketName = <Provider extends CloudProvider>(
-	region: Provider['region'],
-	providerSpecifics: ProviderSpecifics<Provider>,
+export const makeBucketName = (
+	region: AwsRegion,
+	providerSpecifics: ProviderSpecifics,
 ) => {
 	return `${providerSpecifics.getBucketPrefix()}${region.replace(/-/g, '')}-${providerSpecifics.randomHash()}`;
 };

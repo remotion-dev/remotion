@@ -1,9 +1,10 @@
 import {calculateBillingDuration} from './calculate-billing-duration';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {AwsRegion} from './regions';
 import type {RenderMetadata} from './render-metadata';
-import type {CloudProvider, ParsedTiming} from './types';
+import type {ParsedTiming} from './types';
 
-export const estimatePriceFromMetadata = <Provider extends CloudProvider>({
+export const estimatePriceFromMetadata = ({
 	renderMetadata,
 	memorySizeInMb,
 	diskSizeInMb,
@@ -13,13 +14,13 @@ export const estimatePriceFromMetadata = <Provider extends CloudProvider>({
 	providerSpecifics,
 	fatalErrorTimestamp,
 }: {
-	renderMetadata: RenderMetadata<Provider> | null;
+	renderMetadata: RenderMetadata | null;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	functionsInvoked: number;
 	timings: ParsedTiming[];
-	region: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	region: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
 	fatalErrorTimestamp: number | null;
 }) => {
 	if (!renderMetadata) {

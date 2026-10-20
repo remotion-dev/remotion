@@ -2,7 +2,6 @@ import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type AwsRegion,
 	type CustomCredentials,
 	type ProviderSpecifics,
@@ -21,7 +20,7 @@ type InternalDownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress: LambdaReadFileProgress;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	logLevel: LogLevel;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
@@ -35,7 +34,7 @@ export type DownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
-	customCredentials?: CustomCredentials<AwsProvider>;
+	customCredentials?: CustomCredentials;
 	logLevel?: LogLevel;
 	forcePathStyle?: boolean;
 	requestHandler?: RequestHandler;
@@ -50,7 +49,7 @@ export type DownloadMediaOutput = {
 
 export const internalDownloadMedia = async (
 	input: InternalDownloadMediaInput & {
-		providerSpecifics: ProviderSpecifics<AwsProvider>;
+		providerSpecifics: ProviderSpecifics;
 		forcePathStyle: boolean;
 	},
 ): Promise<DownloadMediaOutput> => {

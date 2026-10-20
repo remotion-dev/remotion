@@ -1,7 +1,6 @@
 import {
 	LambdaClientInternals,
 	type ChunkRetry,
-	type CloudProvider,
 	type FunctionErrorInfo,
 	type OverallRenderProgress,
 	type PostRenderData,
@@ -9,6 +8,7 @@ import {
 	type ReceivedArtifact,
 	type RenderMetadata,
 	type SeparateAudioOutput,
+	type AwsRegion,
 } from '@remotion/lambda-client';
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 
@@ -20,7 +20,7 @@ const wait = (duration: number) => {
 	});
 };
 
-export type OverallProgressHelper<Provider extends CloudProvider> = {
+export type OverallProgressHelper = {
 	upload: (reason: string) => Promise<void>;
 	setFrames: ({
 		encoded,
@@ -45,26 +45,22 @@ export type OverallProgressHelper<Provider extends CloudProvider> = {
 	setCombinedFrames: (framesEncoded: number) => void;
 	setTimeToCombine: (timeToCombine: number) => void;
 	addRetry: (retry: ChunkRetry) => void;
-	setPostRenderData: (
-		postRenderData: PostRenderData<Provider>,
-	) => Promise<void>;
-	setRenderMetadata: (renderMetadata: RenderMetadata<Provider>) => void;
+	setPostRenderData: (postRenderData: PostRenderData) => Promise<void>;
+	setRenderMetadata: (renderMetadata: RenderMetadata) => void;
 	setSeparateAudio: (separateAudio: SeparateAudioOutput) => Promise<void>;
 	addErrorWithoutUpload: (errorInfo: FunctionErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
-	get: () => OverallRenderProgress<Provider>;
+	get: () => OverallRenderProgress;
 	setServeUrlOpened: (timestamp: number) => void;
 	setCompositionValidated: (timestamp: number) => void;
-	addReceivedArtifact: (asset: ReceivedArtifact<Provider>) => void;
-	getReceivedArtifacts: () => ReceivedArtifact<Provider>[];
+	addReceivedArtifact: (asset: ReceivedArtifact) => void;
+	getReceivedArtifacts: () => ReceivedArtifact[];
 };
 
-export const makeInitialOverallRenderProgress = <
-	Provider extends CloudProvider,
->(
+export const makeInitialOverallRenderProgress = (
 	timeoutTimestamp: number,
 	cancellationEnabled: boolean,
-): OverallRenderProgress<Provider> => {
+): OverallRenderProgress => {
 	return {
 		cancellationEnabled,
 		chunks: [],
@@ -92,7 +88,7 @@ export const makeInitialOverallRenderProgress = <
 	};
 };
 
-export const makeOverallRenderProgress = <Provider extends CloudProvider>({
+export const makeOverallRenderProgress = ({
 	renderId,
 	bucketName,
 	expectedBucketOwner,
@@ -106,20 +102,20 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 	renderId: string;
 	bucketName: string;
 	expectedBucketOwner: string | null;
-	region: Provider['region'];
+	region: AwsRegion;
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	cancellationEnabled: boolean;
-}): OverallProgressHelper<Provider> => {
+}): OverallProgressHelper => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
 	let framesUploaded: number[] = [];
 	let uploadedSizes: number[] = [];
 	let lambdasInvoked: boolean[] = [];
 
-	const renderProgress: OverallRenderProgress<Provider> =
+	const renderProgress: OverallRenderProgress =
 		makeInitialOverallRenderProgress(timeoutTimestamp, cancellationEnabled);
 
 	let dirty = false;

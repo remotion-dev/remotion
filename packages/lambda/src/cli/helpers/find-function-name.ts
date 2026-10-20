@@ -1,5 +1,4 @@
 import {
-	AwsProvider,
 	LambdaClientInternals,
 	type ProviderSpecifics,
 } from '@remotion/lambda-client';
@@ -20,7 +19,7 @@ export const findFunctionName = async ({
 	providerSpecifics,
 }: {
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 }) => {
 	const remotionLambdas = await providerSpecifics.getFunctions({
 		region: getAwsRegion(),

@@ -5,7 +5,6 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {random} from 'remotion/no-react';
-import type {AwsProvider} from './aws-provider';
 import {checkCredentials} from './check-credentials';
 import {getCredentials} from './get-credentials';
 import {getEnvVariable} from './get-env-variable';
@@ -31,7 +30,7 @@ const getCredentialsHash = ({
 	forcePathStyle,
 }: {
 	region: string;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	service: keyof ServiceMapping;
 	forcePathStyle: boolean;
 }): string => {
@@ -114,7 +113,7 @@ export function getServiceClient<T extends keyof ServiceMapping>({
 }: {
 	region: string;
 	service: T;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 }): ServiceMapping[T] {

@@ -1,13 +1,15 @@
 import type {BundlerInternals} from '@remotion/bundler';
 import type {
-	CloudProvider,
 	DeleteAfter,
 	FunctionErrorInfo,
 	Privacy,
 	ProviderSpecifics,
 	ReceivedArtifact,
 	WebhookPayload,
+	AwsRegion,
+	RequestHandler,
 } from '@remotion/lambda-client';
+import type {RuntimePreference} from '@remotion/lambda-client';
 import type {
 	ChromiumOptions,
 	EmittedArtifact,
@@ -16,12 +18,12 @@ import type {
 } from '@remotion/renderer';
 import type {LaunchedBrowser} from './get-browser-instance';
 
-export type MakeArtifactWithDetails<Provider extends CloudProvider> = (params: {
-	region: Provider['region'];
+export type MakeArtifactWithDetails = (params: {
+	region: AwsRegion;
 	renderBucketName: string;
 	storageKey: string;
 	artifact: EmittedArtifact;
-}) => ReceivedArtifact<Provider>;
+}) => ReceivedArtifact;
 
 export type DebuggingTimer = (
 	label: string,
@@ -30,7 +32,7 @@ export type DebuggingTimer = (
 	end: () => void;
 };
 
-export type GetBrowserInstance = <Provider extends CloudProvider>({
+export type GetBrowserInstance = ({
 	logLevel,
 	indent,
 	chromiumOptions,
@@ -40,8 +42,8 @@ export type GetBrowserInstance = <Provider extends CloudProvider>({
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => Promise<LaunchedBrowser>;
 
 export type ForgetBrowserEventLoop = (options: {
@@ -81,31 +83,41 @@ export type UploadDirProgress = {
 	sizeUploaded: number;
 };
 
-export type UploadDir<Provider extends CloudProvider> = (options: {
+export type UploadDir = (options: {
 	bucket: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	localDir: string;
 	keyPrefix: string;
 	onProgress: (progress: UploadDirProgress) => void;
 	privacy: Privacy;
 	toUpload: string[];
 	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 }) => Promise<void>;
 
-type CreateFunctionOptions<Provider extends CloudProvider> = {
-	region: Provider['region'];
+type CreateFunctionOptions = {
+	region: AwsRegion;
 	logLevel: LogLevel;
 	ephemerealStorageInMb: number;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;
 	functionName: string;
 	zipFile: string;
-	requestHandler: Provider['requestHandler'] | null;
-} & Provider['creationFunctionOptions'];
+	requestHandler: RequestHandler | null;
+	createCloudWatchLogGroup: boolean;
+	accountId: string;
+	alreadyCreated: boolean;
+	retentionInDays: number;
+	customRoleArn: string;
+	customLayerArns: string[] | null;
+	enableLambdaInsights: boolean;
+	vpcSubnetIds: string;
+	vpcSecurityGroupIds: string;
+	runtimePreference: RuntimePreference;
+};
 
-export type CreateFunction<Provider extends CloudProvider> = (
-	options: CreateFunctionOptions<Provider>,
+export type CreateFunction = (
+	options: CreateFunctionOptions,
 ) => Promise<{FunctionName: string}>;
 
 export type InvokeWebhookOptions = {
@@ -123,7 +135,7 @@ export type InvokeWebhookParams = {
 
 export type InvokeWebhook = (params: InvokeWebhookParams) => Promise<void>;
 
-export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
+export type InsideFunctionSpecifics = {
 	defaultX264Preset: X264Preset | null;
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
@@ -134,8 +146,8 @@ export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
 	getCurrentFunctionName: () => string;
 	getCurrentMemorySizeInMb: () => number;
 	invokeWebhook: InvokeWebhook;
-	getCurrentRegionInFunction: () => Provider['region'];
-	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
+	getCurrentRegionInFunction: () => AwsRegion;
+	makeArtifactWithDetails: MakeArtifactWithDetails;
 	normalizeChromiumOptions:
 		| ((options: {
 				chromiumOptions: ChromiumOptions;
@@ -146,10 +158,10 @@ export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
 	startRendererDiagnostics: ((requestId: string) => () => void) | null;
 };
 
-export type FullClientSpecifics<Provider extends CloudProvider> = {
+export type FullClientSpecifics = {
 	id: '__remotion_full_client_specifics';
 	bundleSite: typeof BundlerInternals.internalBundle;
 	readDirectory: ReadDir;
-	uploadDir: UploadDir<Provider>;
-	createFunction: CreateFunction<Provider>;
+	uploadDir: UploadDir;
+	createFunction: CreateFunction;
 };

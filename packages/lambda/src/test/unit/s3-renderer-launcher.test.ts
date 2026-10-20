@@ -13,15 +13,6 @@ import type {OverallProgressHelper} from '../../functions/overall-render-progres
 import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
 import {renderRendererFunctionWithRetry} from '../../functions/stream-renderer';
 
-type MockProvider = {
-	type: 'mock';
-	region: 'mock-region';
-	receivedArtifactType: never;
-	creationFunctionOptions: never;
-	storageClass: never;
-	requestHandler: never;
-};
-
 test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', async () => {
 	const directory = await mkdtemp(join(tmpdir(), 'remotion-s3-launcher-'));
 	try {
@@ -97,7 +88,7 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 			},
 			isFlakyError: () => false,
 			getLoggingUrlForRendererFunction: () => 'https://logs.example.com',
-		} as unknown as ProviderSpecifics<MockProvider>;
+		} as unknown as ProviderSpecifics;
 
 		const frames: Array<{rendered: number; encoded: number}> = [];
 		let lambdasInvoked = 0;
@@ -113,10 +104,10 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 			addChunkCompleted: () => {
 				completedChunks++;
 			},
-		} as unknown as OverallProgressHelper<MockProvider>;
+		} as unknown as OverallProgressHelper;
 		const insideFunctionSpecifics = {
-			getCurrentRegionInFunction: () => 'mock-region',
-		} as unknown as InsideFunctionSpecifics<MockProvider>;
+			getCurrentRegionInFunction: () => 'eu-central-1',
+		} as unknown as InsideFunctionSpecifics;
 		const files: string[] = [];
 		const artifacts: EmittedArtifact[] = [];
 		const artifactSources: Array<{chunk: number; attempt: number}> = [];

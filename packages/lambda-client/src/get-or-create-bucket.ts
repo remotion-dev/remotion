@@ -2,26 +2,27 @@ import type {LogLevel} from 'remotion';
 import {checkBucketListing} from './check-bucket-listing';
 import {makeBucketName} from './make-bucket-name';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {AwsRegion} from './regions';
 import type {CustomCredentials} from './shared-constants';
-import type {CloudProvider} from './types';
+import type {RequestHandler} from './types';
 
-type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
-	region: Provider['region'];
+type GetOrCreateBucketInputInner = {
+	region: AwsRegion;
 	enableFolderExpiry: boolean | null;
-	customCredentials: CustomCredentials<Provider> | null;
-	providerSpecifics: ProviderSpecifics<Provider>;
+	customCredentials: CustomCredentials | null;
+	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
 	logLevel: LogLevel;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 };
 
-export type GetOrCreateBucketInput<Provider extends CloudProvider> = {
-	region: Provider['region'];
+export type GetOrCreateBucketInput = {
+	region: AwsRegion;
 	enableFolderExpiry?: boolean;
-	customCredentials?: CustomCredentials<Provider>;
+	customCredentials?: CustomCredentials;
 	forcePathStyle?: boolean;
-	requestHandler?: Provider['requestHandler'];
+	requestHandler?: RequestHandler;
 	logLevel?: LogLevel;
 };
 
@@ -30,8 +31,8 @@ export type GetOrCreateBucketOutput = {
 	alreadyExisted: boolean;
 };
 
-export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
-	params: GetOrCreateBucketInputInner<Provider>,
+export const internalGetOrCreateBucket = async (
+	params: GetOrCreateBucketInputInner,
 ): Promise<GetOrCreateBucketOutput> => {
 	const remotionBuckets = await params.providerSpecifics.getBuckets({
 		region: params.region,

@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, type ProviderSpecifics} from '@remotion/lambda-client';
+import {type ProviderSpecifics} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -17,7 +17,7 @@ export const functionsLsCommand = async ({
 	providerSpecifics,
 }: {
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 }) => {
 	const region = getAwsRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({

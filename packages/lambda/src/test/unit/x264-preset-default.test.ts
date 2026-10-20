@@ -1,7 +1,6 @@
 import {expect, test} from 'bun:test';
 import {
 	ServerlessRoutines,
-	type AwsProvider,
 	type ProviderSpecifics,
 	type ServerlessPayload,
 	type ServerlessStartPayload,
@@ -16,7 +15,7 @@ import {mockImplementation} from '../mocks/mock-implementation';
 const makeStartPayload = ({
 	codec,
 	x264Preset,
-}: Pick<ServerlessStartPayload<AwsProvider>, 'codec' | 'x264Preset'>) => {
+}: Pick<ServerlessStartPayload, 'codec' | 'x264Preset'>) => {
 	return {
 		type: ServerlessRoutines.start,
 		output: {type: 'media'},
@@ -76,18 +75,18 @@ const makeStartPayload = ({
 		storageClass: null,
 		isProduction: true,
 		sampleRate: 48_000,
-	} satisfies ServerlessStartPayload<AwsProvider>;
+	} satisfies ServerlessStartPayload;
 };
 
 test('resolves the Lambda x264 preset at the runtime boundary', async () => {
-	const launchedPayloads: ServerlessPayload<AwsProvider>[] = [];
+	const launchedPayloads: ServerlessPayload[] = [];
 	const providerSpecifics = {
 		...mockImplementation,
 		callFunctionAsync: ({payload}) => {
 			launchedPayloads.push(payload);
 			return Promise.resolve();
 		},
-	} satisfies ProviderSpecifics<AwsProvider>;
+	} satisfies ProviderSpecifics;
 
 	for (const payload of [
 		makeStartPayload({codec: 'h264', x264Preset: null}),

@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {Readable} from 'node:stream';
-import {awsImplementation, type AwsProvider} from '../aws-provider';
+import {awsImplementation} from '../aws-provider';
 import {internalCancelRenderOnLambda} from '../cancel-render-on-lambda';
 import type {ProviderSpecifics} from '../provider-implementation';
 import {cancellationKey, overallProgressKey} from '../shared-constants';
@@ -10,8 +10,8 @@ const makeProviderSpecifics = ({
 	onWrite,
 }: {
 	cancellationEnabled: boolean | undefined;
-	onWrite: ProviderSpecifics<AwsProvider>['writeFile'];
-}): ProviderSpecifics<AwsProvider> => {
+	onWrite: ProviderSpecifics['writeFile'];
+}): ProviderSpecifics => {
 	return {
 		...awsImplementation,
 		getAccountId: () => Promise.resolve('123456789012'),

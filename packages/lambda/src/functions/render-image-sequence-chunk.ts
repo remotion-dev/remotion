@@ -1,7 +1,6 @@
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type OnStream,
 	type ProviderSpecifics,
 	type ServerlessPayload,
@@ -16,7 +15,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {onDownloadsHelper} from './on-downloads-helpers';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
-export const renderImageSequenceChunk = async <Provider extends CloudProvider>({
+export const renderImageSequenceChunk = async ({
 	params,
 	browser,
 	chromiumOptions,
@@ -29,17 +28,17 @@ export const renderImageSequenceChunk = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	insideFunctionSpecifics,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	browser: HeadlessBrowser;
 	chromiumOptions: ChromiumOptions;
 	serializedInputProps: string;
 	serializedResolvedProps: string;
 	expectedBucketOwner: string | null;
-	onStream: OnStream<Provider>;
+	onStream: OnStream;
 	logs: BrowserLog[];
 	cancelSignal: CancelSignal | null;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (
 		params.type !== ServerlessRoutines.renderer ||

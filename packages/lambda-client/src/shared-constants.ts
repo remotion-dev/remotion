@@ -1,5 +1,6 @@
 export const COMMAND_NOT_FOUND = 'Command not found';
 
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
 	AudioCodec,
 	ChromiumOptions,
@@ -20,7 +21,8 @@ import type {
 	ServerlessRenderOutput,
 } from './image-sequence';
 import type {ExpensiveChunk} from './most-expensive-chunks';
-import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
+import type {AwsRegion} from './regions';
+import type {ChunkRetry, ReceivedArtifact} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 // Needs to be in sync with renderer/src/options/delete-after.ts#L7
@@ -48,19 +50,18 @@ export type CustomCredentialsWithoutSensitiveData = {
 	forcePathStyle?: boolean;
 };
 
-export type CustomCredentials<Provider extends CloudProvider> =
-	CustomCredentialsWithoutSensitiveData & {
-		accessKeyId: string | null;
-		secretAccessKey: string | null;
-		region?: Provider['region'] | (string & {});
-	};
+export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
+	accessKeyId: string | null;
+	secretAccessKey: string | null;
+	region?: AwsRegion | (string & {});
+};
 
-export type OutNameInput<Provider extends CloudProvider> =
+export type OutNameInput =
 	| string
 	| {
 			bucketName: string;
 			key: string;
-			s3OutputProvider?: CustomCredentials<Provider>;
+			s3OutputProvider?: CustomCredentials;
 	  };
 
 export type RenderOutput = 'main' | 'separate-audio';
@@ -114,21 +115,21 @@ export type WebhookOption = Prettify<
 	  >)
 >;
 
-export type ServerlessStatusPayload<Provider extends CloudProvider> = {
+export type ServerlessStatusPayload = {
 	type: ServerlessRoutines.status;
 	bucketName: string;
 	renderId: string;
 	version: string;
 	logLevel: LogLevel;
 	forcePathStyle: boolean;
-	s3OutputProvider: CustomCredentials<Provider> | null;
+	s3OutputProvider: CustomCredentials | null;
 };
 
-export type ServerlessStartPayload<Provider extends CloudProvider> = {
+export type ServerlessStartPayload = {
 	enableCancellation: boolean | null;
 	rendererFunctionName: string | null;
 	type: ServerlessRoutines.start;
-	output: ServerlessRenderOutput<Provider>;
+	output: ServerlessRenderOutput;
 	serveUrl: string;
 	composition: string;
 	framesPerLambda: number | null;
@@ -149,8 +150,8 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	privacy: Privacy;
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
-	outName: OutNameInput<Provider> | null;
-	separateAudioTo: OutNameInput<Provider> | null;
+	outName: OutNameInput | null;
+	separateAudioTo: OutNameInput | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -180,22 +181,22 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
 	licenseKey: string | null;
-	storageClass: Provider['storageClass'] | null;
+	storageClass: StorageClass | null;
 	isProduction: boolean | null;
 	sampleRate: number;
 };
 
-export type ServerlessPayloads<Provider extends CloudProvider> = {
+export type ServerlessPayloads = {
 	info: {
 		type: ServerlessRoutines.info;
 		logLevel: LogLevel;
 	};
-	start: ServerlessStartPayload<Provider>;
+	start: ServerlessStartPayload;
 	launch: {
 		enableCancellation: boolean | null;
 		rendererFunctionName: string | null;
 		type: ServerlessRoutines.launch;
-		output: ServerlessRenderOutput<Provider>;
+		output: ServerlessRenderOutput;
 		serveUrl: string;
 		composition: string;
 		framesPerFunction: number | null;
@@ -218,8 +219,8 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		privacy: Privacy;
 		logLevel: LogLevel;
 		frameRange: SingleFrameRange | null;
-		outName: OutNameInput<Provider> | null;
-		separateAudioTo: OutNameInput<Provider> | null;
+		outName: OutNameInput | null;
+		separateAudioTo: OutNameInput | null;
 		timeoutInMilliseconds: number;
 		// Non-JS SDKs may not set chromiumOptions, may be undefined
 		chromiumOptions: ChromiumOptions | undefined;
@@ -248,16 +249,16 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
 		licenseKey: string | null;
-		storageClass: Provider['storageClass'] | null;
+		storageClass: StorageClass | null;
 		isProduction: boolean;
 		sampleRate: number;
 	};
-	status: ServerlessStatusPayload<Provider>;
+	status: ServerlessStatusPayload;
 	renderer: {
 		enableCancellation: boolean | null;
 		concurrencyPerLambda: number;
 		type: ServerlessRoutines.renderer;
-		output: RendererOutput<Provider>;
+		output: RendererOutput;
 		serveUrl: string;
 		frameRange: [number, number];
 		chunk: number;
@@ -323,7 +324,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		frame: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
-		outName: OutNameInput<Provider> | null;
+		outName: OutNameInput | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
@@ -341,7 +342,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		streamed: boolean;
 		forcePathStyle: boolean;
 		licenseKey: string | null;
-		storageClass: Provider['storageClass'] | null;
+		storageClass: StorageClass | null;
 		isProduction: boolean | null;
 	};
 	compositions: {
@@ -360,13 +361,12 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 	};
 };
 
-export type ServerlessPayload<Provider extends CloudProvider> =
-	ServerlessPayloads<Provider>[ServerlessRoutines];
+export type ServerlessPayload = ServerlessPayloads[ServerlessRoutines];
 
-export type OutNameOutput<Provider extends CloudProvider> = {
+export type OutNameOutput = {
 	renderBucketName: string;
 	key: string;
-	customCredentials: CustomCredentials<Provider> | null;
+	customCredentials: CustomCredentials | null;
 };
 
 export type OutNameInputWithoutCredentials =
@@ -385,11 +385,11 @@ export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
 
-export const customOutName = <Provider extends CloudProvider>(
+export const customOutName = (
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput<Provider>,
-): OutNameOutput<Provider> => {
+	name: OutNameInput,
+): OutNameOutput => {
 	if (typeof name === 'string') {
 		return {
 			renderBucketName: bucketName,
@@ -414,7 +414,7 @@ export const cancellationKey = (renderId: string) =>
 export const artifactName = (renderId: string, name: string) =>
 	`${rendersPrefix(renderId)}/artifacts/${name}`;
 
-export type PostRenderData<Provider extends CloudProvider> = {
+export type PostRenderData = {
 	cost: AfterRenderCost;
 	outputFile: string | null;
 	separateAudio: SeparateAudioOutput | null;
@@ -435,7 +435,7 @@ export type PostRenderData<Provider extends CloudProvider> = {
 	estimatedBillingDurationInMilliseconds: number;
 	deleteAfter: DeleteAfter | null;
 	timeToCombine: number | null;
-	artifactProgress: ReceivedArtifact<Provider>[];
+	artifactProgress: ReceivedArtifact[];
 };
 
 export type AfterRenderCost = {

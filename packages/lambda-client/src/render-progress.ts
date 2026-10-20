@@ -2,12 +2,7 @@ import type {ImageSequenceOutput} from './image-sequence';
 import type {ExpensiveChunk} from './most-expensive-chunks';
 import type {RenderMetadata} from './render-metadata';
 import type {SeparateAudioOutput} from './shared-constants';
-import type {
-	ChunkRetry,
-	CloudProvider,
-	CostsInfo,
-	ReceivedArtifact,
-} from './types';
+import type {ChunkRetry, CostsInfo, ReceivedArtifact} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export type CleanupInfo = {
@@ -22,13 +17,13 @@ type EncodingProgress = {
 	timeToCombine: number | null;
 };
 
-export type GenericRenderProgress<Provider extends CloudProvider> = {
+export type GenericRenderProgress = {
 	chunks: number;
 	done: boolean;
 	encodingStatus: EncodingProgress | null;
 	costs: CostsInfo;
 	renderId: string;
-	renderMetadata: RenderMetadata<Provider> | null;
+	renderMetadata: RenderMetadata | null;
 	bucket: string;
 	outputFile: string | null;
 	separateAudio: SeparateAudioOutput | null;
@@ -59,5 +54,5 @@ export type GenericRenderProgress<Provider extends CloudProvider> = {
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	artifacts: ReceivedArtifact<Provider>[];
+	artifacts: ReceivedArtifact[];
 };

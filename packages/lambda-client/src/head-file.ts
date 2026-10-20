@@ -1,10 +1,9 @@
 import {HeadObjectCommand} from '@aws-sdk/client-s3';
-import type {AwsProvider} from './aws-provider';
 import {OutputFileAccessDeniedError} from './find-output-file-in-bucket';
 import {getS3Client} from './get-s3-client';
 import type {ProviderSpecifics} from './provider-implementation';
 
-export const lambdaHeadFileImplementation: ProviderSpecifics<AwsProvider>['headFile'] =
+export const lambdaHeadFileImplementation: ProviderSpecifics['headFile'] =
 	async ({
 		bucketName,
 		key,

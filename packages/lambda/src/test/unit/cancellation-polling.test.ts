@@ -1,18 +1,9 @@
 import {expect, test} from 'bun:test';
 import {
 	LambdaClientInternals,
-	type CloudProvider,
 	type ProviderSpecifics,
 } from '@remotion/lambda-client';
 import {startCancellationPolling} from '../../functions/cancellation-polling';
-
-type MockProvider = CloudProvider<
-	'eu-central-1',
-	{s3Key: string; s3Url: string},
-	{},
-	'standard',
-	{}
->;
 
 test('polls until the cancellation signal exists', async () => {
 	let checks = 0;
@@ -33,8 +24,8 @@ test('polls until the cancellation signal exists', async () => {
 					}
 
 					return Promise.resolve({});
-				}) as ProviderSpecifics<MockProvider>['headFile'],
-			} as unknown as ProviderSpecifics<MockProvider>,
+				}) as ProviderSpecifics['headFile'],
+			} as unknown as ProviderSpecifics,
 			forcePathStyle: false,
 			intervalInMilliseconds: 1,
 			logLevel: 'error',

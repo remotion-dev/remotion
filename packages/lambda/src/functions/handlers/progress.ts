@@ -1,7 +1,6 @@
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type GenericRenderProgress,
 	type ProviderSpecifics,
 	type ServerlessPayload,
@@ -9,21 +8,21 @@ import {
 import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
-type Options<Provider extends CloudProvider> = {
+type Options = {
 	expectedBucketOwner: string | null;
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 };
 
-export const progressHandler = async <Provider extends CloudProvider>({
+export const progressHandler = async ({
 	params,
 	options,
 }: {
-	params: ServerlessPayload<Provider>;
-	options: Options<Provider>;
-}): Promise<GenericRenderProgress<Provider>> => {
+	params: ServerlessPayload;
+	options: Options;
+}): Promise<GenericRenderProgress> => {
 	if (params.type !== ServerlessRoutines.status) {
 		throw new TypeError('Expected status type');
 	}

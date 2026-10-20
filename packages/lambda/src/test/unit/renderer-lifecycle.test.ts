@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type {
-	CloudProvider,
 	ProviderSpecifics,
 	StreamingPayload,
 } from '@remotion/lambda-client';
@@ -26,14 +25,6 @@ const setNodeEnv = (value: string | undefined) => {
 		env.NODE_ENV = value;
 	}
 };
-
-type MockProvider = CloudProvider<
-	'mock-region',
-	Record<string, never>,
-	Record<string, never>,
-	'normal',
-	Record<string, never>
->;
 
 test.each(['browser launch', 'Chromium path lookup'] as const)(
 	'a failed %s allows the next renderer invocation to complete without exiting',
@@ -85,12 +76,12 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 		const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
 			exits.push(currentInvocation);
 		}) as typeof process.exit);
-		const streamedMessages: StreamingPayload<MockProvider>[] = [];
+		const streamedMessages: StreamingPayload[] = [];
 
 		try {
 			setNodeEnv('production');
 			const invoke = () =>
-				rendererHandler<MockProvider>({
+				rendererHandler({
 					params: {
 						type: 'renderer',
 						output: {type: 'media'},
@@ -128,7 +119,7 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 
 							return '/mock-chrome';
 						},
-					} as unknown as ProviderSpecifics<MockProvider>,
+					} as unknown as ProviderSpecifics,
 					requestContext: {
 						requestId: currentInvocation,
 						expectedBucketOwner: null,
@@ -143,7 +134,7 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 								diagnostics.push(`end-${requestId}`);
 							};
 						},
-						getCurrentRegionInFunction: () => 'mock-region',
+						getCurrentRegionInFunction: () => 'eu-central-1',
 						getBrowserInstance: async (options) => {
 							launchedBrowser = await getBrowserInstanceImplementation(options);
 							return launchedBrowser;
@@ -151,9 +142,7 @@ test.each(['browser launch', 'Chromium path lookup'] as const)(
 						closeBrowserInstance: closeBrowserInstanceImplementation,
 						forgetBrowserEventLoop,
 						timer: () => ({end: () => undefined}),
-					} satisfies Partial<
-						InsideFunctionSpecifics<MockProvider>
-					> as unknown as InsideFunctionSpecifics<MockProvider>,
+					} satisfies Partial<InsideFunctionSpecifics> as unknown as InsideFunctionSpecifics,
 					onMediaFiles,
 					executionMode: 'invoked',
 				});
@@ -231,7 +220,7 @@ test('a flaky renderer invocation closes its browser before returning', async ()
 	const closing = new Promise<void>((_resolve, reject) => {
 		failClosing = () => reject(new Error('Could not close browser'));
 	});
-	const streamedMessages: StreamingPayload<MockProvider>[] = [];
+	const streamedMessages: StreamingPayload[] = [];
 	const closeBrowserInstance = mock(() => {
 		notifyCloseStarted();
 		return closing;
@@ -239,7 +228,7 @@ test('a flaky renderer invocation closes its browser before returning', async ()
 
 	try {
 		setNodeEnv('production');
-		const handlerPromise = rendererHandler<MockProvider>({
+		const handlerPromise = rendererHandler({
 			params: {
 				type: 'renderer',
 				output: {type: 'media'},
@@ -261,17 +250,17 @@ test('a flaky renderer invocation closes its browser before returning', async ()
 			},
 			providerSpecifics: {
 				isFlakyError: () => true,
-			} as unknown as ProviderSpecifics<MockProvider>,
+			} as unknown as ProviderSpecifics,
 			requestContext: {
 				requestId: 'invocation-a',
 				expectedBucketOwner: null,
 				getRemainingTimeInMillis: () => 120_000,
 			},
 			insideFunctionSpecifics: {
-				getCurrentRegionInFunction: () => 'mock-region',
+				getCurrentRegionInFunction: () => 'eu-central-1',
 				getBrowserInstance: () => Promise.resolve(browser as never),
 				closeBrowserInstance,
-			} as unknown as InsideFunctionSpecifics<MockProvider>,
+			} as unknown as InsideFunctionSpecifics,
 			onMediaFiles: null,
 			executionMode: 'invoked',
 		});
@@ -346,10 +335,10 @@ test('closing a cached browser makes the next invocation launch a new one', asyn
 	);
 	const providerSpecifics = {
 		getChromiumPath: () => '/mock-chrome',
-	} as unknown as ProviderSpecifics<MockProvider>;
+	} as unknown as ProviderSpecifics;
 	const insideFunctionSpecifics = {
 		getBrowserInstance: getBrowserInstanceImplementation,
-	} as unknown as InsideFunctionSpecifics<MockProvider>;
+	} as unknown as InsideFunctionSpecifics;
 	let first: LaunchedBrowser | null = null;
 	let second: LaunchedBrowser | null = null;
 

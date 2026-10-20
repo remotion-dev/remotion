@@ -1,8 +1,4 @@
-import type {
-	Await,
-	CloudProvider,
-	ProviderSpecifics,
-} from '@remotion/lambda-client';
+import type {Await, ProviderSpecifics} from '@remotion/lambda-client';
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
@@ -75,9 +71,7 @@ export const closeBrowserInstanceImplementation: CloseBrowserInstance = async ({
 	await launchedBrowser.instance.close({silent: true});
 };
 
-export const getBrowserInstanceImplementation: GetBrowserInstance = async <
-	Provider extends CloudProvider,
->({
+export const getBrowserInstanceImplementation: GetBrowserInstance = async ({
 	logLevel,
 	indent,
 	chromiumOptions,
@@ -87,8 +81,8 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,

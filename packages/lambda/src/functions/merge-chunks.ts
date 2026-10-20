@@ -1,7 +1,7 @@
 import {rm} from 'node:fs/promises';
 import {dirname} from 'node:path';
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
-	CloudProvider,
 	CustomCredentials,
 	PostRenderData,
 	Privacy,
@@ -9,6 +9,7 @@ import type {
 	RenderMetadata,
 	SerializedInputProps,
 	ServerlessCodec,
+	RequestHandler,
 } from '@remotion/lambda-client';
 import type {
 	AudioCodec,
@@ -23,9 +24,7 @@ import {finishRender} from './finish-render';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
-export const mergeChunksAndFinishRender = async <
-	Provider extends CloudProvider,
->(options: {
+type MergeChunksAndFinishRenderInput = {
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string | null;
@@ -36,13 +35,13 @@ export const mergeChunksAndFinishRender = async <
 	numberOfGifLoops: number | null;
 	audioCodec: AudioCodec | null;
 	renderBucketName: string;
-	customCredentials: CustomCredentials<Provider> | null;
+	customCredentials: CustomCredentials | null;
 	downloadBehavior: DownloadBehavior;
 	key: string;
 	privacy: Privacy;
 	inputProps: SerializedInputProps;
 	serializedResolvedProps: SerializedInputProps;
-	renderMetadata: RenderMetadata<Provider>;
+	renderMetadata: RenderMetadata;
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
@@ -51,19 +50,23 @@ export const mergeChunksAndFinishRender = async <
 	compositionStart: number;
 	outdir: string;
 	files: string[];
-	overallProgress: OverallProgressHelper<Provider>;
+	overallProgress: OverallProgressHelper;
 	startTime: number;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	forcePathStyle: boolean;
 	everyNthFrame: number;
 	frameRange: SingleFrameRange | null;
-	storageClass: Provider['storageClass'] | null;
-	requestHandler: Provider['requestHandler'] | null;
+	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null;
 	sampleRate: number;
 	separateAudioFilename: string | null;
-	separateAudioCredentials: CustomCredentials<Provider> | null;
-}): Promise<PostRenderData<Provider>> => {
+	separateAudioCredentials: CustomCredentials | null;
+};
+
+export const mergeChunksAndFinishRender = async (
+	options: MergeChunksAndFinishRenderInput,
+): Promise<PostRenderData> => {
 	const onProgress: CombineChunksOnProgress = ({frames: framesEncoded}) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
 	};

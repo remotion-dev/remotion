@@ -1,7 +1,6 @@
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type AwsProvider,
 	type OrError,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
@@ -19,7 +18,7 @@ type LambdaRequestContext = {
 };
 
 export const routine = async (
-	params: ServerlessPayload<AwsProvider>,
+	params: ServerlessPayload,
 	responseStream: ResponseStream,
 	context: LambdaRequestContext,
 ): Promise<void> => {

@@ -1,10 +1,10 @@
 import {makeTimeoutMessage} from './make-timeout-message';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {AwsRegion} from './regions';
 import type {RenderMetadata} from './render-metadata';
-import type {CloudProvider} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
 
-export const makeTimeoutError = <Provider extends CloudProvider>({
+export const makeTimeoutError = ({
 	timeoutInMilliseconds,
 	missingChunks,
 	renderMetadata,
@@ -14,12 +14,12 @@ export const makeTimeoutError = <Provider extends CloudProvider>({
 	providerSpecifics,
 }: {
 	timeoutInMilliseconds: number;
-	renderMetadata: RenderMetadata<Provider>;
+	renderMetadata: RenderMetadata;
 	renderId: string;
 	missingChunks: number[];
 	functionName: string;
-	region: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	region: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
 }): EnhancedErrorInfo => {
 	const message = makeTimeoutMessage({
 		missingChunks,

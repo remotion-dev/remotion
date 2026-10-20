@@ -1,5 +1,4 @@
 import type {S3Client} from '@aws-sdk/client-s3';
-import type {AwsProvider} from './aws-provider';
 import {getServiceClient} from './get-service-client';
 import type {AwsRegion} from './regions';
 import type {CustomCredentials} from './shared-constants';
@@ -12,7 +11,7 @@ export function getS3Client({
 	requestHandler,
 }: {
 	region: AwsRegion;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 }): S3Client {

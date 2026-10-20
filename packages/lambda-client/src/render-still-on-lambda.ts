@@ -7,7 +7,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {DownloadBehavior} from 'remotion/no-react';
-import {awsImplementation, type AwsProvider} from './aws-provider';
+import {awsImplementation} from './aws-provider';
 import {DEFAULT_MAX_RETRIES} from './constants';
 import {getCloudwatchMethodUrl, getLambdaInsightsUrl} from './get-aws-urls';
 import {makeLambdaRenderStillPayload} from './make-lambda-payload';
@@ -38,7 +38,7 @@ type OptionalParameters = {
 	maxRetries: number;
 	envVariables: Record<string, string>;
 	frame: number;
-	outName: OutNameInput<AwsProvider> | null;
+	outName: OutNameInput | null;
 	chromiumOptions: ChromiumOptions;
 	downloadBehavior: DownloadBehavior;
 	forceWidth: number | null;
@@ -74,7 +74,7 @@ export type RenderStillOnLambdaOutput = {
 	bucketName: string;
 	renderId: string;
 	cloudWatchLogs: string;
-	artifacts: ReceivedArtifact<AwsProvider>[];
+	artifacts: ReceivedArtifact[];
 };
 
 const innerRenderStillOnLambda = async (
@@ -84,7 +84,7 @@ const innerRenderStillOnLambda = async (
 	try {
 		const payload = await makeLambdaRenderStillPayload(input);
 		const res = payload.streamed
-			? await new Promise<RenderStillFunctionResponsePayload<AwsProvider>>(
+			? await new Promise<RenderStillFunctionResponsePayload>(
 					(resolve, reject) => {
 						awsImplementation
 							.callFunctionStreaming<ServerlessRoutines.still>({
@@ -138,7 +138,7 @@ const innerRenderStillOnLambda = async (
 					region,
 					timeoutInTest: 120000,
 					requestHandler: input.requestHandler,
-				})) as unknown as RenderStillFunctionResponsePayload<AwsProvider>);
+				})) as unknown as RenderStillFunctionResponsePayload);
 
 		if (!payload.streamed) {
 			onInit?.({

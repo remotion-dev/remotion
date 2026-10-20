@@ -3,7 +3,6 @@ import path from 'node:path';
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type ObjectChunkTimingData,
 	type OnStream,
 	type ProviderSpecifics,
@@ -36,7 +35,7 @@ export type RequestContext = {
 	requestId: string;
 };
 
-const renderHandler = async <Provider extends CloudProvider>({
+const renderHandler = async ({
 	params,
 	options,
 	logs,
@@ -47,12 +46,12 @@ const renderHandler = async <Provider extends CloudProvider>({
 	onMediaFiles,
 	cancelSignal,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	options: Options;
 	logs: BrowserLog[];
-	onStream: OnStream<Provider>;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	onStream: OnStream;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	onBrowserInstance: (browserInstance: LaunchedBrowser) => void;
 	onMediaFiles:
 		| ((options: {
@@ -477,7 +476,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	return {};
 };
 
-export const rendererHandler = async <Provider extends CloudProvider>({
+export const rendererHandler = async ({
 	onStream,
 	options,
 	params,
@@ -487,12 +486,12 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	onMediaFiles,
 	executionMode,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	options: Options;
-	onStream: OnStream<Provider>;
+	onStream: OnStream;
 	requestContext: RequestContext;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	onMediaFiles:
 		| ((options: {
 				videoOutputLocation: string;

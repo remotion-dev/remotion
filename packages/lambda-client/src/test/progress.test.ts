@@ -10,21 +10,12 @@ import type {
 } from '../provider-implementation';
 import type {RenderMetadata} from '../render-metadata';
 import {overallProgressKey} from '../shared-constants';
-import type {CloudProvider} from '../types';
-
-type MockProvider = CloudProvider<
-	'eu-central-1',
-	{s3Key: string; s3Url: string},
-	{},
-	'standard',
-	{}
->;
 
 const renderId = 'test-render';
 const bucketName = 'source-bucket';
 const startedDate = Date.now() - 30000;
 
-const renderMetadata: RenderMetadata<MockProvider> = {
+const renderMetadata: RenderMetadata = {
 	separateAudioTo: null,
 	separateAudioOutputFileIsConditional: null,
 	outputFileIsConditional: null,
@@ -69,7 +60,7 @@ const renderMetadata: RenderMetadata<MockProvider> = {
 	type: 'video',
 };
 
-const progress: OverallRenderProgress<MockProvider> = {
+const progress: OverallRenderProgress = {
 	separateAudio: null,
 	cancellationEnabled: false,
 	chunks: [0, 1],
@@ -104,11 +95,11 @@ const makeProviderSpecifics = ({
 	billingCurrency = 'USD',
 	renderProgress,
 }: {
-	onEstimatePrice?: (input: EstimatePriceInput<MockProvider>) => number;
-	onHeadFile: ProviderSpecifics<MockProvider>['headFile'];
+	onEstimatePrice?: (input: EstimatePriceInput) => number;
+	onHeadFile: ProviderSpecifics['headFile'];
 	billingCurrency?: 'USD' | 'CNY';
-	renderProgress: OverallRenderProgress<MockProvider> | null;
-}): ProviderSpecifics<MockProvider> => {
+	renderProgress: OverallRenderProgress | null;
+}): ProviderSpecifics => {
 	return {
 		applyLifeCycle: () => Promise.resolve(),
 		bucketExists: () => Promise.resolve(true),
@@ -220,7 +211,7 @@ test('getProgress treats an existing output file as finished if postRenderData w
 });
 
 test('getProgress estimates costs from invoked lambdas only', async () => {
-	const priceInputs: EstimatePriceInput<MockProvider>[] = [];
+	const priceInputs: EstimatePriceInput[] = [];
 	const originalTimings = progress.timings;
 	const originalChunks = progress.chunks;
 	const originalLambdasInvoked = progress.lambdasInvoked;
@@ -266,7 +257,7 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 });
 
 test('getProgress keeps direct render progress finite', async () => {
-	const directProgress: OverallRenderProgress<MockProvider> = {
+	const directProgress: OverallRenderProgress = {
 		...progress,
 		chunks: [],
 		combinedFrames: 0,

@@ -18,7 +18,7 @@ import {
 	type OnMessage,
 	type StreamingMessage,
 } from './streaming/streaming';
-import type {CallFunctionOptions, CloudProvider} from './types';
+import type {CallFunctionOptions} from './types';
 import type {RequestHandler} from './types';
 
 const STREAM_STALL_TIMEOUT = 30000;
@@ -33,7 +33,7 @@ export const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 	}
 };
 
-const invokeStreamOrTimeout = async <Provider extends CloudProvider>({
+const invokeStreamOrTimeout = async ({
 	region,
 	timeoutInTest,
 	functionName,
@@ -41,12 +41,12 @@ const invokeStreamOrTimeout = async <Provider extends CloudProvider>({
 	payload,
 	requestHandler,
 }: {
-	region: Provider['region'];
+	region: AwsRegion;
 	timeoutInTest: number;
 	functionName: string;
 	type: string;
 	payload: Record<string, unknown>;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 }) => {
 	const resProm = getLambdaClient(
 		region as AwsRegion,
@@ -83,7 +83,6 @@ const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
 const callLambdaWithStreamingWithoutRetry = async <
 	T extends ServerlessRoutines,
-	Provider extends CloudProvider,
 >({
 	functionName,
 	type,
@@ -93,8 +92,8 @@ const callLambdaWithStreamingWithoutRetry = async <
 	receivedStreamingPayload,
 	requestHandler,
 	getBinaryPayloadSink,
-}: CallFunctionOptions<T, Provider> & {
-	receivedStreamingPayload: OnMessage<Provider>;
+}: CallFunctionOptions<T> & {
+	receivedStreamingPayload: OnMessage;
 	getBinaryPayloadSink: GetBinaryPayloadSink | null;
 }): Promise<void> => {
 	const res = await invokeStreamOrTimeout({
@@ -116,7 +115,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 					? parseJsonOrThrowSource(data, messageType)
 					: data;
 
-			const message: StreamingMessage<Provider> = {
+			const message: StreamingMessage = {
 				successType: status,
 				message: {
 					type: messageType,
@@ -196,11 +195,10 @@ const callLambdaWithStreamingWithoutRetry = async <
 };
 
 export const callFunctionWithStreamingImplementation = async <
-	Provider extends CloudProvider,
 	T extends ServerlessRoutines,
 >(
-	options: CallFunctionOptions<T, Provider> & {
-		receivedStreamingPayload: OnMessage<Provider>;
+	options: CallFunctionOptions<T> & {
+		receivedStreamingPayload: OnMessage;
 		retriesRemaining: number;
 		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
@@ -210,7 +208,7 @@ export const callFunctionWithStreamingImplementation = async <
 
 	try {
 		// Do not remove this await
-		await callLambdaWithStreamingWithoutRetry<T, Provider>(options);
+		await callLambdaWithStreamingWithoutRetry<T>(options);
 	} catch (err) {
 		if (
 			(err as Error).stack?.includes('TooManyRequestsException') ||

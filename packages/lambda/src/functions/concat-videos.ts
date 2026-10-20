@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import {join} from 'node:path';
 import {
 	LambdaClientInternals,
-	type CloudProvider,
 	type ServerlessCodec,
 } from '@remotion/lambda-client';
 import type {
@@ -15,7 +14,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
-export const concatVideos = async <Provider extends CloudProvider>({
+export const concatVideos = async ({
 	onProgress,
 	codec,
 	fps,
@@ -52,7 +51,7 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	cancelSignal: CancelSignal | undefined;
 	preferLossless: boolean;
 	metadata: Record<string, string> | null;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	compositionDurationInFrames: number;
 	everyNthFrame: number;
 	frameRange: SingleFrameRange | null;

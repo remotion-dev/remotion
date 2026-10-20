@@ -13,15 +13,6 @@ import type {OverallProgressHelper} from '../../functions/overall-render-progres
 import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
 import {renderRendererFunctionWithRetry} from '../../functions/stream-renderer';
 
-type MockProvider = {
-	type: 'mock';
-	region: 'mock-region';
-	receivedArtifactType: never;
-	creationFunctionOptions: never;
-	storageClass: never;
-	requestHandler: never;
-};
-
 test('an artifact replayed by a retried streaming chunk is idempotent', async () => {
 	const attempts: number[] = [];
 	const providerSpecifics = {
@@ -30,8 +21,8 @@ test('an artifact replayed by a retried streaming chunk is idempotent', async ()
 			payload,
 			receivedStreamingPayload,
 		}: {
-			payload: ServerlessPayload<MockProvider>;
-			receivedStreamingPayload: OnMessage<MockProvider>;
+			payload: ServerlessPayload;
+			receivedStreamingPayload: OnMessage;
 		}) => {
 			if (payload.type !== ServerlessRoutines.renderer) {
 				throw new Error('Expected renderer payload');
@@ -77,7 +68,7 @@ test('an artifact replayed by a retried streaming chunk is idempotent', async ()
 
 			return Promise.resolve();
 		},
-	} as unknown as ProviderSpecifics<MockProvider>;
+	} as unknown as ProviderSpecifics;
 	const retries: number[] = [];
 	let completedChunks = 0;
 	const overallProgress = {
@@ -87,10 +78,10 @@ test('an artifact replayed by a retried streaming chunk is idempotent', async ()
 		addChunkCompleted: () => {
 			completedChunks++;
 		},
-	} as unknown as OverallProgressHelper<MockProvider>;
+	} as unknown as OverallProgressHelper;
 	const insideFunctionSpecifics = {
-		getCurrentRegionInFunction: () => 'mock-region',
-	} as unknown as InsideFunctionSpecifics<MockProvider>;
+		getCurrentRegionInFunction: () => 'eu-central-1',
+	} as unknown as InsideFunctionSpecifics;
 	const artifactRegistry = makeArtifactRegistry();
 	const acceptedArtifacts: EmittedArtifact[] = [];
 
@@ -149,8 +140,8 @@ test('a chunk file replayed by a retried streaming chunk is only merged once', a
 			payload,
 			receivedStreamingPayload,
 		}: {
-			payload: ServerlessPayload<MockProvider>;
-			receivedStreamingPayload: OnMessage<MockProvider>;
+			payload: ServerlessPayload;
+			receivedStreamingPayload: OnMessage;
 		}) => {
 			if (payload.type !== ServerlessRoutines.renderer) {
 				throw new Error('Expected renderer payload');
@@ -179,14 +170,14 @@ test('a chunk file replayed by a retried streaming chunk is only merged once', a
 
 			return Promise.resolve();
 		},
-	} as unknown as ProviderSpecifics<MockProvider>;
+	} as unknown as ProviderSpecifics;
 	const overallProgress = {
 		addRetry: () => undefined,
 		addChunkCompleted: () => undefined,
-	} as unknown as OverallProgressHelper<MockProvider>;
+	} as unknown as OverallProgressHelper;
 	const insideFunctionSpecifics = {
-		getCurrentRegionInFunction: () => 'mock-region',
-	} as unknown as InsideFunctionSpecifics<MockProvider>;
+		getCurrentRegionInFunction: () => 'eu-central-1',
+	} as unknown as InsideFunctionSpecifics;
 	const files: string[] = [];
 
 	await renderRendererFunctionWithRetry({

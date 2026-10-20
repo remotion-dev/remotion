@@ -1,4 +1,4 @@
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import {
@@ -18,7 +18,7 @@ import type {InsideFunctionSpecifics} from './provider-implementation';
 
 const ENABLE_SLOW_LEAK_DETECTION = false;
 
-export const serverAwsImplementation: InsideFunctionSpecifics<AwsProvider> = {
+export const serverAwsImplementation: InsideFunctionSpecifics = {
 	defaultX264Preset: NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 		? 'veryfast'
 		: null,

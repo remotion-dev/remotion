@@ -1,9 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {
-	AwsProvider,
-	deleteFunction,
-	type ProviderSpecifics,
-} from '@remotion/lambda-client';
+import {deleteFunction, type ProviderSpecifics} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {getFunctionInfo} from '../../../api/get-function-info';
 import {getAwsRegion} from '../../get-aws-region';
@@ -17,7 +13,7 @@ export const functionsRmallCommand = async ({
 	providerSpecifics,
 }: {
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 }) => {
 	const region = getAwsRegion();
 	const functions = await providerSpecifics.getFunctions({

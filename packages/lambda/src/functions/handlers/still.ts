@@ -3,7 +3,6 @@ import path from 'node:path';
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type OnStream,
 	type ProviderSpecifics,
 	type ReceivedArtifact,
@@ -24,17 +23,17 @@ import {validateComposition} from '../validate-composition';
 import {checkVersionMismatch} from './check-version-mismatch';
 import {sendTelemetryEvent} from './send-telemetry-event';
 
-type Options<Provider extends CloudProvider> = {
-	params: ServerlessPayload<Provider>;
+type Options = {
+	params: ServerlessPayload;
 	renderId: string;
 	expectedBucketOwner: string | null;
-	onStream: OnStream<Provider>;
+	onStream: OnStream;
 	timeoutInMilliseconds: number;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 };
 
-const innerStillHandler = async <Provider extends CloudProvider>(
+const innerStillHandler = async (
 	{
 		params,
 		expectedBucketOwner,
@@ -43,7 +42,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		timeoutInMilliseconds,
 		providerSpecifics,
 		insideFunctionSpecifics,
-	}: Options<Provider>,
+	}: Options,
 	cleanup: CleanupFn[],
 ) => {
 	if (params.type !== ServerlessRoutines.still) {
@@ -174,7 +173,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	});
 
-	const renderMetadata: RenderMetadata<Provider> = {
+	const renderMetadata: RenderMetadata = {
 		separateAudioTo: null,
 		separateAudioOutputFileIsConditional: null,
 		outputFileIsConditional: null,
@@ -231,7 +230,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		throw new Error('Should not download a browser in Lambda');
 	};
 
-	const receivedArtifact: ReceivedArtifact<Provider>[] = [];
+	const receivedArtifact: ReceivedArtifact[] = [];
 
 	const {key, renderBucketName, customCredentials} =
 		LambdaClientInternals.getExpectedOutName({
@@ -391,7 +390,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 	});
 
-	const payload: RenderStillFunctionResponsePayload<Provider> = {
+	const payload: RenderStillFunctionResponsePayload = {
 		type: 'success' as const,
 		output: url,
 		size,
@@ -418,8 +417,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 type CleanupFn = () => Promise<unknown>;
 
-export const stillHandler = async <Provider extends CloudProvider>(
-	options: Options<Provider>,
+export const stillHandler = async (
+	options: Options,
 ): Promise<
 	| {
 			type: 'success';

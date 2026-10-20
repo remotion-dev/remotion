@@ -1,15 +1,15 @@
 import {
 	LambdaClientInternals,
-	type CloudProvider,
 	type EnhancedErrorInfo,
 	type OverallRenderProgress,
 	type PostRenderData,
 	type ProviderSpecifics,
 	type RenderMetadata,
+	type AwsRegion,
 } from '@remotion/lambda-client';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 
-export const createPostRenderData = <Provider extends CloudProvider>({
+export const createPostRenderData = ({
 	region,
 	memorySizeInMb,
 	renderMetadata,
@@ -22,18 +22,18 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 	outputSize,
 	providerSpecifics,
 }: {
-	region: Provider['region'];
+	region: AwsRegion;
 	memorySizeInMb: number;
-	renderMetadata: RenderMetadata<Provider>;
+	renderMetadata: RenderMetadata;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 	timeToCombine: number | null;
-	overallProgress: OverallRenderProgress<Provider>;
+	overallProgress: OverallRenderProgress;
 	timeToFinish: number;
 	outputSize: number;
-	providerSpecifics: ProviderSpecifics<Provider>;
-}): PostRenderData<Provider> => {
+	providerSpecifics: ProviderSpecifics;
+}): PostRenderData => {
 	const parsedTimings = overallProgress.timings;
 
 	const estimatedBillingDurationInMilliseconds =

@@ -1,12 +1,12 @@
 import {DOCS_URL} from './docs-url';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {AwsRegion} from './regions';
 import type {RenderMetadata} from './render-metadata';
 import {ServerlessRoutines} from './shared-constants';
-import type {CloudProvider} from './types';
 
 const MAX_MISSING_CHUNKS = 5;
 
-const makeChunkMissingMessage = <Provider extends CloudProvider>({
+const makeChunkMissingMessage = ({
 	missingChunks,
 	renderMetadata,
 	region,
@@ -14,9 +14,9 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 	functionName,
 }: {
 	missingChunks: number[];
-	renderMetadata: RenderMetadata<Provider>;
-	region: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	renderMetadata: RenderMetadata;
+	region: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
 	functionName: string;
 }) => {
 	if (missingChunks.length === 0) {
@@ -58,7 +58,7 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 	].join('\n');
 };
 
-export const makeTimeoutMessage = <Provider extends CloudProvider>({
+export const makeTimeoutMessage = ({
 	timeoutInMilliseconds,
 	missingChunks,
 	renderMetadata,
@@ -69,11 +69,11 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
-	renderMetadata: RenderMetadata<Provider>;
+	renderMetadata: RenderMetadata;
 	renderId: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	functionName: string;
-	providerSpecifics: ProviderSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
 }) => {
 	const cloudWatchRendererUrl =
 		providerSpecifics.getLoggingUrlForRendererFunction({

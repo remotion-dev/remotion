@@ -4,19 +4,7 @@ import type {RenderMetadata} from '../render-metadata';
 
 const bucketName = 'remotionlambda-98fsduf';
 
-type MockProvider = {
-	type: 'aws';
-	region: 'eu-central';
-	receivedArtifactType: {
-		s3Key: string;
-		s3Url: string;
-	};
-	creationFunctionOptions: {};
-	storageClass: string;
-	requestHandler: null;
-};
-
-const testRenderMetadata: RenderMetadata<MockProvider> = {
+const testRenderMetadata: RenderMetadata = {
 	separateAudioTo: null,
 	separateAudioOutputFileIsConditional: null,
 	outputFileIsConditional: null,
@@ -35,7 +23,7 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 	functionName: 'remotion-render-4-0-187-mem3000mb-disk10000mb-120sec',
 	rendererFunctionName: 'remotion-render-4-0-187-mem3000mb-disk10000mb-120sec',
 	outName: undefined,
-	region: 'eu-central',
+	region: 'eu-central-1',
 	renderId: '9n8dsfafs',
 	siteId: 'my-site',
 	startedDate: Date.now(),
@@ -75,7 +63,7 @@ test('Should get a custom outname', () => {
 });
 
 test('Should save to a different outname', () => {
-	const newRenderMetadata: RenderMetadata<MockProvider> = {
+	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		outName: {
 			bucketName: 'my-bucket',
@@ -98,7 +86,7 @@ test('Should save to a different outname', () => {
 });
 
 test('Should preserve custom provider regions outside the built-in AWS list', () => {
-	const newRenderMetadata: RenderMetadata<MockProvider> = {
+	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		outName: {
 			bucketName: 'my-bucket',
@@ -138,7 +126,7 @@ test('Should preserve custom provider regions outside the built-in AWS list', ()
 });
 
 test('For stills', () => {
-	const newRenderMetadata: RenderMetadata<MockProvider> = {
+	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		codec: null,
 		type: 'still',
@@ -160,7 +148,7 @@ test('For stills', () => {
 });
 
 test('Just a custom name', () => {
-	const newRenderMetadata: RenderMetadata<MockProvider> = {
+	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		type: 'still',
 		imageFormat: 'jpeg',
@@ -183,7 +171,7 @@ test('Just a custom name', () => {
 });
 
 test('Should throw on invalid names', () => {
-	const newRenderMetadata: RenderMetadata<MockProvider> = {
+	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		type: 'still',
 		imageFormat: 'png',
@@ -202,7 +190,7 @@ test('Should throw on invalid names', () => {
 });
 
 test('Should allow outName an outname with a slash', () => {
-	const newRenderMetadata: RenderMetadata<MockProvider> = {
+	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		codec: null,
 		audioCodec: null,
@@ -226,7 +214,7 @@ test('Should allow outName an outname with a slash', () => {
 });
 
 test('Should allow outName an outname with colon', () => {
-	const newRenderMetadata: RenderMetadata<MockProvider> = {
+	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		codec: null,
 		audioCodec: null,

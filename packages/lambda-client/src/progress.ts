@@ -12,13 +12,28 @@ import {getOverallProgressFromStorage} from './get-overall-progress-from-storage
 import {inspectErrors} from './inspect-error';
 import {makeTimeoutError} from './make-timeout-error';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {AwsRegion} from './regions';
 import type {CleanupInfo, GenericRenderProgress} from './render-progress';
 import type {CustomCredentials} from './shared-constants';
 import {truthy} from './truthy';
-import type {CloudProvider} from './types';
+import type {RequestHandler} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
 
-export const getProgress = async <Provider extends CloudProvider>({
+type GetProgressInput = {
+	bucketName: string;
+	renderId: string;
+	expectedBucketOwner: string | null;
+	region: AwsRegion;
+	memorySizeInMb: number;
+	timeoutInMilliseconds: number;
+	customCredentials: CustomCredentials | null;
+	providerSpecifics: ProviderSpecifics;
+	forcePathStyle: boolean;
+	functionName: string;
+	requestHandler: RequestHandler | null;
+};
+
+export const getProgress = async ({
 	bucketName,
 	renderId,
 	expectedBucketOwner,
@@ -30,19 +45,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	forcePathStyle,
 	functionName,
 	requestHandler,
-}: {
-	bucketName: string;
-	renderId: string;
-	expectedBucketOwner: string | null;
-	region: Provider['region'];
-	memorySizeInMb: number;
-	timeoutInMilliseconds: number;
-	customCredentials: CustomCredentials<Provider> | null;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	forcePathStyle: boolean;
-	functionName: string;
-	requestHandler: Provider['requestHandler'] | null;
-}): Promise<GenericRenderProgress<Provider>> => {
+}: GetProgressInput): Promise<GenericRenderProgress> => {
 	const billingCurrency = providerSpecifics.getBillingCurrency(region);
 	const overallProgress = await getOverallProgressFromStorage({
 		renderId,

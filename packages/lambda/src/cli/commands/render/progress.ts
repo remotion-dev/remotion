@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {
 	LambdaClientInternals,
-	type CloudProvider,
 	type ReceivedArtifact,
 } from '@remotion/lambda-client';
 import type {RenderProgress} from '@remotion/lambda-client/constants';
@@ -230,9 +229,7 @@ const makeTopRow = (overall: RenderProgress) => {
 
 const ARTIFACTS_SHOWN = 5;
 
-export const makeArtifactProgress = <Provider extends CloudProvider>(
-	artifactProgress: ReceivedArtifact<Provider>[],
-) => {
+export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
 	if (artifactProgress.length === 0) {
 		return null;
 	}

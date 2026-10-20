@@ -1,13 +1,10 @@
 import {
 	ServerlessRoutines,
-	type CloudProvider,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 
-export const infoHandler = <Provider extends CloudProvider>(
-	serverlessParams: ServerlessPayload<Provider>,
-) => {
+export const infoHandler = (serverlessParams: ServerlessPayload) => {
 	if (serverlessParams.type !== ServerlessRoutines.info) {
 		throw new TypeError('Expected info type');
 	}

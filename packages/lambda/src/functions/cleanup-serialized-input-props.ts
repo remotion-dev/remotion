@@ -1,21 +1,19 @@
 import {
 	LambdaClientInternals,
-	type CloudProvider,
 	type ProviderSpecifics,
 	type SerializedInputProps,
+	type AwsRegion,
 } from '@remotion/lambda-client';
 
-export const cleanupSerializedInputProps = async <
-	Provider extends CloudProvider,
->({
+export const cleanupSerializedInputProps = async ({
 	serialized,
 	region,
 	providerSpecifics,
 	forcePathStyle,
 }: {
 	serialized: SerializedInputProps;
-	region: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	region: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {
@@ -35,17 +33,15 @@ export const cleanupSerializedInputProps = async <
 	return Date.now() - time;
 };
 
-export const cleanupSerializedResolvedProps = async <
-	Provider extends CloudProvider,
->({
+export const cleanupSerializedResolvedProps = async ({
 	serialized,
 	region,
 	providerSpecifics,
 	forcePathStyle,
 }: {
 	serialized: SerializedInputProps;
-	region: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	region: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 }): Promise<number> => {
 	if (serialized.type === 'payload') {

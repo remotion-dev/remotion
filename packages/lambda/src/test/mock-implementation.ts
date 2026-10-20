@@ -1,7 +1,6 @@
 import {
 	LambdaClientInternals,
 	speculateFunctionName,
-	type AwsProvider,
 } from '@remotion/lambda-client';
 import {openBrowser} from '@remotion/renderer';
 import {Log} from '../cli/log';
@@ -33,7 +32,7 @@ export const getBrowserInstance: GetBrowserInstance = async ({
 
 const paramsArray: InvokeWebhookParams[] = [];
 
-export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
+export const mockServerImplementation: InsideFunctionSpecifics = {
 	defaultX264Preset: serverAwsImplementation.defaultX264Preset,
 	forgetBrowserEventLoop: ({launchedBrowser}) => {
 		browsersOpen.delete(launchedBrowser.instance.id);
@@ -85,7 +84,7 @@ export const getWebhookCalls = () => {
 	return paramsArray;
 };
 
-export const mockFullClientSpecifics: FullClientSpecifics<AwsProvider> = {
+export const mockFullClientSpecifics: FullClientSpecifics = {
 	bundleSite: mockBundleSite,
 	id: '__remotion_full_client_specifics',
 	readDirectory: mockReadDirectory,

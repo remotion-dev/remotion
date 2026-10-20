@@ -1,7 +1,7 @@
 import type {GetPayloadSink, PayloadSink} from '@remotion/streaming';
 import {makeStreamPayloadMessage} from '@remotion/streaming';
 import type {SerializedArtifact} from '../serialize-artifact';
-import type {CloudProvider, RenderStillFunctionResponsePayload} from '../types';
+import type {RenderStillFunctionResponsePayload} from '../types';
 import type {FunctionErrorInfo} from '../write-error-to-storage';
 
 const framesUploaded = 'frames-uploaded' as const;
@@ -44,7 +44,7 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[artifactEmitted]: 'json',
 };
 
-export type StreamingPayload<Provider extends CloudProvider> =
+export type StreamingPayload =
 	| {
 			type: typeof framesUploaded;
 			payload: {uploaded: number; sizeInBytes: number};
@@ -80,7 +80,7 @@ export type StreamingPayload<Provider extends CloudProvider> =
 	  }
 	| {
 			type: typeof stillRendered;
-			payload: RenderStillFunctionResponsePayload<Provider>;
+			payload: RenderStillFunctionResponsePayload;
 	  }
 	| {
 			type: typeof chunkComplete;
@@ -125,14 +125,12 @@ const messageTypeToMessageId = (messageType: MessageType): MessageTypeId => {
 	return id;
 };
 
-export type StreamingMessage<Provider extends CloudProvider> = {
+export type StreamingMessage = {
 	successType: 'error' | 'success';
-	message: StreamingPayload<Provider>;
+	message: StreamingPayload;
 };
 
-export type OnMessage<Provider extends CloudProvider> = (
-	options: StreamingMessage<Provider>,
-) => void;
+export type OnMessage = (options: StreamingMessage) => void;
 
 export type BinaryMessageType =
 	| typeof videoChunkRendered
@@ -162,15 +160,9 @@ export const binaryPayloadSinkForStreamer = (
 	};
 };
 
-export type OnStream<Provider extends CloudProvider> = (
-	payload: StreamingPayload<Provider>,
-) => Promise<void>;
+export type OnStream = (payload: StreamingPayload) => Promise<void>;
 
-export const makeStreamPayload = <Provider extends CloudProvider>({
-	message,
-}: {
-	message: StreamingPayload<Provider>;
-}) => {
+export const makeStreamPayload = ({message}: {message: StreamingPayload}) => {
 	const body =
 		formatMap[message.type] === 'json'
 			? new TextEncoder().encode(JSON.stringify(message.payload))

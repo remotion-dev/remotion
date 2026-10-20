@@ -1,4 +1,3 @@
-import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {cleanItems} from './clean-items';
 import {REMOTION_BUCKET_PREFIX} from './constants';
@@ -14,15 +13,15 @@ export type DeleteRenderInput = {
 	region: AwsRegion;
 	bucketName: string;
 	renderId: string;
-	customCredentials?: CustomCredentials<AwsProvider>;
-	separateAudioCredentials?: CustomCredentials<AwsProvider>;
+	customCredentials?: CustomCredentials;
+	separateAudioCredentials?: CustomCredentials;
 	forcePathStyle?: boolean;
 	requestHandler?: RequestHandler;
 };
 
 export const internalDeleteRender = async (
 	input: DeleteRenderInput & {
-		providerSpecifics: ProviderSpecifics<AwsProvider>;
+		providerSpecifics: ProviderSpecifics;
 		forcePathStyle: boolean;
 	},
 ) => {

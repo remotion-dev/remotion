@@ -1,22 +1,22 @@
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {DownloadBehavior} from 'remotion/no-react';
 import type {CustomCredentials} from './shared-constants';
-import type {CloudProvider} from './types';
 
 export type ImageSequenceFormat = 'png' | 'jpeg';
 
-export type ImageSequenceOutputPrefix<Provider extends CloudProvider> =
+export type ImageSequenceOutputPrefix =
 	| string
 	| {
 			bucketName: string;
 			keyPrefix: string;
-			s3OutputProvider?: CustomCredentials<Provider>;
+			s3OutputProvider?: CustomCredentials;
 	  };
 
-export type ServerlessRenderOutput<Provider extends CloudProvider> =
+export type ServerlessRenderOutput =
 	| {type: 'media'}
 	| {
 			type: 'sequence';
-			outputPrefix: ImageSequenceOutputPrefix<Provider> | null;
+			outputPrefix: ImageSequenceOutputPrefix | null;
 			imageSequencePattern: string | null;
 	  };
 
@@ -40,7 +40,7 @@ export type ImageSequenceManifest = {
 	frames: {frame: number; key: string}[];
 };
 
-export type RendererOutput<Provider extends CloudProvider> =
+export type RendererOutput =
 	| {type: 'media'}
 	| {
 			type: 'sequence';
@@ -49,8 +49,8 @@ export type RendererOutput<Provider extends CloudProvider> =
 			imageFormat: ImageSequenceFormat;
 			imageSequencePattern: string;
 			framePadding: number;
-			customCredentials: CustomCredentials<Provider> | null;
-			storageClass: Provider['storageClass'] | null;
+			customCredentials: CustomCredentials | null;
+			storageClass: StorageClass | null;
 			downloadBehavior: DownloadBehavior;
 	  };
 

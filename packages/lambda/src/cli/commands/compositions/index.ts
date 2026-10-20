@@ -1,6 +1,5 @@
 import {CliInternals} from '@remotion/cli';
 import {
-	AwsProvider,
 	LambdaClientInternals,
 	getCompositionsOnLambda,
 	type ProviderSpecifics,
@@ -35,7 +34,7 @@ export const compositionsCommand = async ({
 }: {
 	args: string[];
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 }) => {
 	const serveUrl = args[0];
 

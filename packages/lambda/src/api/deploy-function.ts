@@ -2,7 +2,6 @@ import {
 	LambdaClientInternals,
 	speculateFunctionName,
 	type AwsRegion,
-	type CloudProvider,
 	type ProviderSpecifics,
 	type RequestHandler,
 	type RuntimePreference,
@@ -50,12 +49,12 @@ export type DeployFunctionOutput = {
 	alreadyExisted: boolean;
 };
 
-export const internalDeployFunction = async <Provider extends CloudProvider>(
+export const internalDeployFunction = async (
 	params: MandatoryParameters &
 		OptionalParameters & {
 			customLayerArns: string[] | null;
-			providerSpecifics: ProviderSpecifics<Provider>;
-			fullClientSpecifics: FullClientSpecifics<Provider>;
+			providerSpecifics: ProviderSpecifics;
+			fullClientSpecifics: FullClientSpecifics;
 		},
 ): Promise<DeployFunctionOutput> => {
 	LambdaClientInternals.validateMemorySize(params.memorySizeInMb);

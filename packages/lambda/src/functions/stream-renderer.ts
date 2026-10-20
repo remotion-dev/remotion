@@ -4,11 +4,11 @@ import {join} from 'path';
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type GetBinaryPayloadSink,
 	type OnMessage,
 	type ProviderSpecifics,
 	type ServerlessPayload,
+	type RequestHandler,
 } from '@remotion/lambda-client';
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -27,7 +27,7 @@ type StreamRendererResponse =
 			shouldRetry: boolean;
 	  };
 
-const streamRenderer = <Provider extends CloudProvider>({
+const streamRenderer = ({
 	payload,
 	functionName,
 	outdir,
@@ -39,16 +39,16 @@ const streamRenderer = <Provider extends CloudProvider>({
 	insideFunctionSpecifics,
 	requestHandler,
 }: {
-	payload: ServerlessPayload<Provider>;
+	payload: ServerlessPayload;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper<Provider>;
+	overallProgress: OverallProgressHelper;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: OnArtifactFromRenderer;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-	requestHandler: Provider['requestHandler'] | null;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
+	requestHandler: RequestHandler | null;
 	expectedBucketOwner: string | null;
 }) => {
 	if (payload.type !== ServerlessRoutines.renderer) {
@@ -86,7 +86,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 			};
 		};
 
-		const receivedStreamingPayload: OnMessage<Provider> = ({message}) => {
+		const receivedStreamingPayload: OnMessage = ({message}) => {
 			if (message.type === 'lambda-invoked') {
 				overallProgress.setLambdaInvoked(payload.chunk);
 				return;
@@ -306,7 +306,7 @@ const readStreamAsBytes = async (
 	return result;
 };
 
-const s3Renderer = async <Provider extends CloudProvider>({
+const s3Renderer = async ({
 	payload,
 	functionName,
 	outdir,
@@ -319,16 +319,16 @@ const s3Renderer = async <Provider extends CloudProvider>({
 	requestHandler,
 	expectedBucketOwner,
 }: {
-	payload: ServerlessPayload<Provider>;
+	payload: ServerlessPayload;
 	functionName: string;
 	outdir: string;
-	overallProgress: OverallProgressHelper<Provider>;
+	overallProgress: OverallProgressHelper;
 	files: string[];
 	logLevel: LogLevel;
 	onArtifact: OnArtifactFromRenderer;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-	requestHandler: Provider['requestHandler'] | null;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
+	requestHandler: RequestHandler | null;
 	expectedBucketOwner: string | null;
 }): Promise<StreamRendererResponse> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
@@ -584,9 +584,21 @@ const s3Renderer = async <Provider extends CloudProvider>({
 	};
 };
 
-export const renderRendererFunctionWithRetry = async <
-	Provider extends CloudProvider,
->({
+type RenderRendererFunctionWithRetryInput = {
+	payload: ServerlessPayload;
+	functionName: string;
+	outdir: string;
+	overallProgress: OverallProgressHelper;
+	files: string[];
+	logLevel: LogLevel;
+	onArtifact: OnArtifactFromRenderer;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
+	requestHandler: RequestHandler | null;
+	expectedBucketOwner: string | null;
+};
+
+export const renderRendererFunctionWithRetry = async ({
 	payload,
 	files,
 	functionName,
@@ -598,19 +610,7 @@ export const renderRendererFunctionWithRetry = async <
 	insideFunctionSpecifics,
 	requestHandler,
 	expectedBucketOwner,
-}: {
-	payload: ServerlessPayload<Provider>;
-	functionName: string;
-	outdir: string;
-	overallProgress: OverallProgressHelper<Provider>;
-	files: string[];
-	logLevel: LogLevel;
-	onArtifact: OnArtifactFromRenderer;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-	requestHandler: Provider['requestHandler'] | null;
-	expectedBucketOwner: string | null;
-}): Promise<unknown> => {
+}: RenderRendererFunctionWithRetryInput): Promise<unknown> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}

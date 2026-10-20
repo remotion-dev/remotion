@@ -6,13 +6,13 @@ import type {
 } from '@remotion/renderer';
 import type {DownloadBehavior} from 'remotion';
 import type {ImageSequenceOutput} from './image-sequence';
+import type {AwsRegion} from './regions';
 import type {
 	OutNameInputWithoutCredentials,
 	Privacy,
 	SerializedInputProps,
 	ServerlessCodec,
 } from './shared-constants';
-import type {CloudProvider} from './types';
 
 type Discriminated =
 	| {
@@ -45,7 +45,7 @@ type Dimensions = {
 	height: number;
 };
 
-export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
+export type RenderMetadata = Discriminated & {
 	siteId: string;
 	startedDate: number;
 	totalChunks: number;
@@ -59,7 +59,7 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	functionName: string;
 	rendererFunctionName: string;
 	lambdaVersion: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	renderId: string;
 	outName: OutNameInputWithoutCredentials | undefined;
 	separateAudioTo: OutNameInputWithoutCredentials | null;

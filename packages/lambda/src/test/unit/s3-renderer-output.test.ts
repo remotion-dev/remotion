@@ -6,15 +6,6 @@ import type {Readable} from 'node:stream';
 import type {ProviderSpecifics} from '@remotion/lambda-client';
 import {makeS3RendererOutput} from '../../functions/s3-renderer-output';
 
-type MockProvider = {
-	type: 'mock';
-	region: 'mock-region';
-	receivedArtifactType: never;
-	creationFunctionOptions: never;
-	storageClass: never;
-	requestHandler: never;
-};
-
 const bodyToBytes = async (
 	body: string | Uint8Array | NodeJS.ReadableStream,
 ) => {
@@ -69,7 +60,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 					);
 				}
 			},
-		} as unknown as ProviderSpecifics<MockProvider>;
+		} as unknown as ProviderSpecifics;
 		const output = makeS3RendererOutput({
 			params: {
 				type: 'renderer',
@@ -81,7 +72,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 				forcePathStyle: false,
 			} as never,
 			expectedBucketOwner: 'owner',
-			region: 'mock-region',
+			region: 'eu-central-1',
 			providerSpecifics,
 		});
 

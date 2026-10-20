@@ -1,4 +1,4 @@
-import {awsImplementation, type AwsProvider} from './aws-provider';
+import {awsImplementation} from './aws-provider';
 import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
@@ -19,7 +19,7 @@ type InternalCancelRenderOnLambdaInput = Omit<
 > & {
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 };
 
 export const internalCancelRenderOnLambda = async (

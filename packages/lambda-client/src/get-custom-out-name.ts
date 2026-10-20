@@ -4,17 +4,16 @@ import type {
 	OutNameInputWithoutCredentials,
 	Privacy,
 } from './shared-constants';
-import type {CloudProvider} from './types';
 
-export const getCustomOutName = <Provider extends CloudProvider>({
+export const getCustomOutName = ({
 	outName,
 	privacy,
 	customCredentials,
 }: {
 	outName: OutNameInputWithoutCredentials | null;
 	privacy: Privacy;
-	customCredentials: CustomCredentials<Provider> | null;
-}): OutNameInput<Provider> | null => {
+	customCredentials: CustomCredentials | null;
+}): OutNameInput | null => {
 	if (outName === null) {
 		return null;
 	}

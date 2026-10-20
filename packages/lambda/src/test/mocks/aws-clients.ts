@@ -1,6 +1,5 @@
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type CallFunctionAsync,
 	type CallFunctionOptions,
 	type CallFunctionStreaming,
@@ -22,11 +21,11 @@ import {mockServerImplementation} from '../mock-implementation';
 import {mockImplementation} from './mock-implementation';
 import {trackMockInvocation} from './mock-invocations';
 
-export const getMockCallFunctionStreaming: CallFunctionStreaming<
-	AwsProvider
-> = async <T extends ServerlessRoutines>(
-	params: CallFunctionOptions<T, AwsProvider> & {
-		receivedStreamingPayload: OnMessage<AwsProvider>;
+export const getMockCallFunctionStreaming: CallFunctionStreaming = async <
+	T extends ServerlessRoutines,
+>(
+	params: CallFunctionOptions<T> & {
+		receivedStreamingPayload: OnMessage;
 		retriesRemaining: number;
 		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
@@ -44,7 +43,7 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 					? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
 					: data;
 
-			const message: StreamingMessage<AwsProvider> = {
+			const message: StreamingMessage = {
 				successType: status,
 				message: {
 					type: messageType,
@@ -66,7 +65,7 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		'Called Lambda function',
 		params.payload,
 	);
-	await innerHandler<AwsProvider>({
+	await innerHandler({
 		params: params.payload,
 		responseWriter: {
 			async write(message) {
@@ -90,14 +89,14 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	responseStream.end();
 };
 
-export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
+export const getMockCallFunctionAsync: CallFunctionAsync = async <
 	T extends ServerlessRoutines,
 >(
-	params: CallFunctionOptions<T, AwsProvider>,
+	params: CallFunctionOptions<T>,
 ) => {
 	trackMockInvocation(params.payload);
 	const responseStream = new ResponseStream();
-	await innerHandler<AwsProvider>({
+	await innerHandler({
 		context: {
 			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
@@ -113,13 +112,13 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 	responseStream.end();
 };
 
-export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
+export const getMockCallFunctionSync: CallFunctionSync = async <
 	T extends ServerlessRoutines,
 >(
-	params: CallFunctionOptions<T, AwsProvider>,
-): Promise<ServerlessReturnValues<AwsProvider>[T]> => {
+	params: CallFunctionOptions<T>,
+): Promise<ServerlessReturnValues[T]> => {
 	const responseStream = new ResponseStream();
-	await innerHandler<AwsProvider>({
+	await innerHandler({
 		context: {
 			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
@@ -136,7 +135,7 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 
 	const parsed = JSON.parse(
 		new TextDecoder().decode(responseStream.getBufferedData()),
-	) as OrError<Awaited<ServerlessReturnValues<AwsProvider>[T]>>;
+	) as OrError<Awaited<ServerlessReturnValues[T]>>;
 	if (parsed.type === 'error') {
 		throw new Error(parsed.message);
 	}

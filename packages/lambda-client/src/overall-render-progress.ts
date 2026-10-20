@@ -1,14 +1,9 @@
 import type {RenderMetadata} from './render-metadata';
 import type {PostRenderData, SeparateAudioOutput} from './shared-constants';
-import type {
-	ChunkRetry,
-	CloudProvider,
-	ParsedTiming,
-	ReceivedArtifact,
-} from './types';
+import type {ChunkRetry, ParsedTiming, ReceivedArtifact} from './types';
 import type {FunctionErrorInfo} from './write-error-to-storage';
 
-export type OverallRenderProgress<Provider extends CloudProvider> = {
+export type OverallRenderProgress = {
 	/**
 	 * Whether renderers poll for a cancellation signal.
 	 */
@@ -24,15 +19,15 @@ export type OverallRenderProgress<Provider extends CloudProvider> = {
 	timeToRenderFrames: number | null;
 	lambdasInvoked: number;
 	retries: ChunkRetry[];
-	postRenderData: PostRenderData<Provider> | null;
+	postRenderData: PostRenderData | null;
 	separateAudio: SeparateAudioOutput | null;
 	timings: ParsedTiming[];
-	renderMetadata: RenderMetadata<Provider> | null;
+	renderMetadata: RenderMetadata | null;
 	errors: FunctionErrorInfo[];
 	fatalErrorTimestamp: number | null;
 	timeoutTimestamp: number;
 	functionLaunched: number;
 	serveUrlOpened: number | null;
 	compositionValidated: number | null;
-	receivedArtifact: ReceivedArtifact<Provider>[];
+	receivedArtifact: ReceivedArtifact[];
 };

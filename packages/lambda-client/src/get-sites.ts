@@ -1,5 +1,4 @@
 import {VERSION} from 'remotion/version';
-import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {getSitesKey} from './constants';
 import type {BucketWithLocation} from './get-buckets';
@@ -46,7 +45,7 @@ export const internalGetSites = async ({
 	compatibleOnly,
 	requestHandler,
 }: GetSitesInternalInput & {
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 }): Promise<GetSitesOutput> => {
 	const remotionBuckets = forceBucketName
 		? await providerSpecifics.getBuckets({

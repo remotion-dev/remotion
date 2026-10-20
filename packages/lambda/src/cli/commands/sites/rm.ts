@@ -1,6 +1,5 @@
 import {CliInternals} from '@remotion/cli';
 import {
-	AwsProvider,
 	LambdaClientInternals,
 	getSites,
 	type ProviderSpecifics,
@@ -17,7 +16,7 @@ export const SITES_RM_COMMAND = 'rm';
 export const sitesRmSubcommand = async (
 	args: string[],
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
+	implementation: ProviderSpecifics,
 ) => {
 	if (args.length === 0) {
 		Log.error(

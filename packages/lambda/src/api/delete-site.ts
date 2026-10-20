@@ -1,6 +1,5 @@
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type AwsRegion,
 	type ProviderSpecifics,
 	type RequestHandler,
@@ -38,7 +37,7 @@ export const internalDeleteSite = async ({
 	forcePathStyle,
 	requestHandler,
 }: DeleteSiteInput & {
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 }): Promise<DeleteSiteOutput> => {
 	const accountId = await providerSpecifics.getAccountId({region});
 

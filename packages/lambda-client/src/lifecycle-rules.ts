@@ -3,7 +3,6 @@ import {
 	PutBucketLifecycleConfigurationCommand,
 } from '@aws-sdk/client-s3';
 import {createLifeCycleInput, deleteLifeCycleInput} from './apply-lifecycle';
-import type {AwsProvider} from './aws-provider';
 import {getS3Client} from './get-s3-client';
 import {getLifeCycleRules} from './lifecycle';
 import type {AwsRegion} from './regions';
@@ -19,7 +18,7 @@ const createLCRules = async ({
 }: {
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 }) => {
@@ -57,7 +56,7 @@ const deleteLCRules = async ({
 }: {
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 }) => {
@@ -91,7 +90,7 @@ export async function applyLifeCyleOperation({
 	enableFolderExpiry: boolean | null;
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 }): Promise<void> {

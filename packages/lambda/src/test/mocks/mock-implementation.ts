@@ -3,7 +3,6 @@ import path from 'path';
 import {
 	LambdaClientInternals,
 	estimatePrice,
-	type AwsProvider,
 	type ProviderSpecifics,
 } from '@remotion/lambda-client';
 import {REMOTION_BUCKET_PREFIX} from '@remotion/lambda-client/constants';
@@ -25,7 +24,7 @@ import {
 	writeMockS3File,
 } from './mock-store';
 
-export const mockImplementation: ProviderSpecifics<AwsProvider> = {
+export const mockImplementation: ProviderSpecifics = {
 	getAccountId: () =>
 		Promise.resolve('aws:iam::123456789'.match(/aws:iam::([0-9]+)/)?.[1]!),
 	getMaxNonInlinePayloadSizePerFunction: () => 200_000,

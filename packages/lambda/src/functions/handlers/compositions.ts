@@ -1,7 +1,6 @@
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
@@ -14,16 +13,16 @@ type Options = {
 	expectedBucketOwner: string | null;
 };
 
-export const compositionsHandler = async <Provider extends CloudProvider>({
+export const compositionsHandler = async ({
 	params,
 	options,
 	providerSpecifics,
 	insideFunctionSpecifics,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	options: Options;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (params.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');

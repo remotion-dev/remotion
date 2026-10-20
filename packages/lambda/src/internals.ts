@@ -1,5 +1,4 @@
 import type {
-	AwsProvider,
 	AwsRegion,
 	ProviderSpecifics,
 	RuntimePreference,
@@ -20,8 +19,8 @@ export const LambdaInternals: {
 		args: string[],
 		remotionRoot: string,
 		logLevel: LogLevel,
-		providerSpecifics: ProviderSpecifics<AwsProvider> | null,
-		fullClientSpecifics: FullClientSpecifics<AwsProvider> | null,
+		providerSpecifics: ProviderSpecifics | null,
+		fullClientSpecifics: FullClientSpecifics | null,
 	) => Promise<void>;
 	internalDeploySite: (input: InternalDeploySiteInput) => DeploySiteOutput;
 	getLayers: (options: {

@@ -1,6 +1,5 @@
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type AwsRegion,
 	type ProviderSpecifics,
 	type RequestHandler,
@@ -40,9 +39,9 @@ export type DeploySiteWithBundleInput = {
 	options: DeploySiteWithBundleOptions;
 	privacy: 'public' | 'no-acl';
 	throwIfSiteExists: boolean;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+	fullClientSpecifics: FullClientSpecifics;
 	requestHandler: RequestHandler | null;
 	getBundle: () => Promise<string>;
 };

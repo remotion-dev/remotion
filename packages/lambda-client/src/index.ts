@@ -136,7 +136,6 @@ import {validateWebhook} from './validate-webhook';
 import {writeCancellationSignal} from './write-cancellation-signal';
 
 export {appRouterWebhook, NextWebhookArgs} from './app-router-webhook';
-export {AwsProvider} from './aws-provider';
 export {
 	cancelRenderOnLambda,
 	type CancelRenderOnLambdaInput,
@@ -272,7 +271,6 @@ export type {
 export type {
 	CallFunctionOptions,
 	ChunkRetry,
-	CloudProvider,
 	CostsInfo,
 	ObjectChunkTimingData,
 	ParsedTiming,

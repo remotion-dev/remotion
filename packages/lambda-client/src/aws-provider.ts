@@ -1,32 +1,4 @@
-import type {ProviderSpecifics} from './provider-implementation';
-import type {AwsRegion} from './regions';
-import {expiryDays} from './shared-constants';
-
-export type AwsProvider = {
-	type: 'aws';
-	region: AwsRegion;
-	receivedArtifactType: {
-		s3Key: string;
-		s3Url: string;
-	};
-	creationFunctionOptions: {
-		createCloudWatchLogGroup: boolean;
-		accountId: string;
-		alreadyCreated: boolean;
-		retentionInDays: number;
-		customRoleArn: string;
-		customLayerArns: string[] | null;
-		enableLambdaInsights: boolean;
-		vpcSubnetIds: string;
-		vpcSecurityGroupIds: string;
-		runtimePreference: RuntimePreference;
-	};
-	storageClass: StorageClass;
-	requestHandler: RequestHandler | null | undefined;
-};
-
 import {EventEmitter} from 'node:events';
-import type {StorageClass} from '@aws-sdk/client-s3';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {bucketExistsInRegionImplementation} from './bucket-exists';
 import {callFunctionAsyncImplementation} from './call-lambda-async';
@@ -49,10 +21,10 @@ import {isFlakyError} from './is-flaky-error';
 import {applyLifeCyleOperation} from './lifecycle-rules';
 import {lambdaLsImplementation} from './list-objects';
 import {parseFunctionName} from './parse-function-name';
+import type {ProviderSpecifics} from './provider-implementation';
 import {randomHashImplementation} from './random-hash';
 import {lambdaReadFileImplementation} from './read-file';
-import type {RuntimePreference} from './runtime-preference';
-import type {RequestHandler} from './types';
+import {expiryDays} from './shared-constants';
 import {
 	lambdaWriteFileImplementation,
 	lambdaWriteFileIfNotExistsImplementation,
@@ -102,7 +74,7 @@ const validateDeleteAfter = (lifeCycleValue: unknown) => {
 	}
 };
 
-export const awsImplementation: ProviderSpecifics<AwsProvider> = {
+export const awsImplementation: ProviderSpecifics = {
 	getChromiumPath() {
 		return '/opt/bin/chromium';
 	},

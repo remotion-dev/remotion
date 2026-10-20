@@ -1,4 +1,5 @@
 import type {LambdaClient} from '@aws-sdk/client-lambda';
+import type {AwsRegion} from './regions';
 import type {ServerlessPayloads, ServerlessRoutines} from './shared-constants';
 
 // Extract RequestHandler type from AWS SDK LambdaClient constructor
@@ -7,33 +8,12 @@ type LambdaClientConfig = NonNullable<
 >;
 export type RequestHandler = LambdaClientConfig['requestHandler'];
 
-export interface CloudProvider<
-	Region extends string = string,
-	ReceivedArtifactType extends Record<string, unknown> = Record<
-		string,
-		unknown
-	>,
-	CreateFunctionSpecifics extends Record<string, unknown> = Record<
-		string,
-		unknown
-	>,
-	StorageClass extends string = string,
-	RequestHandlerType extends object = object,
-> {
-	type: string;
-	region: Region;
-	receivedArtifactType: ReceivedArtifactType;
-	creationFunctionOptions: CreateFunctionSpecifics;
-	storageClass: StorageClass;
-	requestHandler: RequestHandlerType | null | undefined;
-}
-
-export type ReceivedArtifact<Provider extends CloudProvider> = {
+export type ReceivedArtifact = {
 	filename: string;
 	sizeInBytes: number;
 	s3Url: string;
 	s3Key: string;
-} & Provider['receivedArtifactType'];
+};
 
 export type CostsInfo = {
 	accruedSoFar: number;
@@ -42,18 +22,17 @@ export type CostsInfo = {
 	disclaimer: string;
 };
 
-export type RenderStillFunctionResponsePayload<Provider extends CloudProvider> =
-	{
-		type: 'success';
-		output: string;
-		outKey: string;
-		size: number;
-		bucketName: string;
-		sizeInBytes: number;
-		estimatedPrice: CostsInfo;
-		renderId: string;
-		receivedArtifacts: ReceivedArtifact<Provider>[];
-	};
+export type RenderStillFunctionResponsePayload = {
+	type: 'success';
+	output: string;
+	outKey: string;
+	size: number;
+	bucketName: string;
+	sizeInBytes: number;
+	estimatedPrice: CostsInfo;
+	renderId: string;
+	receivedArtifacts: ReceivedArtifact[];
+};
 
 export type ChunkRetry = {
 	chunk: number;
@@ -67,16 +46,13 @@ export type ParsedTiming = {
 	rendered: number;
 };
 
-export type CallFunctionOptions<
-	T extends ServerlessRoutines,
-	Provider extends CloudProvider,
-> = {
+export type CallFunctionOptions<T extends ServerlessRoutines> = {
 	functionName: string;
 	type: T;
-	payload: ServerlessPayloads<Provider>[T];
-	region: Provider['region'];
+	payload: ServerlessPayloads[T];
+	region: AwsRegion;
 	timeoutInTest: number;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 };
 
 export type ObjectChunkTimingData = {

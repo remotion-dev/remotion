@@ -2,21 +2,12 @@ import {expect, test} from 'bun:test';
 import {Readable} from 'node:stream';
 import {
 	ServerlessRoutines,
-	type CloudProvider,
 	type ProviderSpecifics,
 } from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 import {innerHandler, innerRoutine} from '../../functions/inner-routine';
 import {makeInitialOverallRenderProgress} from '../../functions/overall-render-progress';
 import type {InsideFunctionSpecifics} from '../../functions/provider-implementation';
-
-type MockProvider = CloudProvider<
-	'mock-region',
-	Record<string, never>,
-	Record<string, never>,
-	'normal',
-	Record<string, never>
->;
 
 test('progress works without AWS context or a bucket owner', async () => {
 	const previousFlag = process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA;
@@ -26,7 +17,7 @@ test('progress works without AWS context or a bucket owner', async () => {
 	const reads: Array<string | null> = [];
 
 	try {
-		await innerHandler<MockProvider>({
+		await innerHandler({
 			params: {
 				type: ServerlessRoutines.status,
 				version: VERSION,
@@ -66,15 +57,13 @@ test('progress works without AWS context or a bucket owner', async () => {
 						]),
 					);
 				},
-			} as Partial<
-				ProviderSpecifics<MockProvider>
-			> as ProviderSpecifics<MockProvider>,
+			} as Partial<ProviderSpecifics> as ProviderSpecifics,
 			insideFunctionSpecifics: {
 				deleteTmpDir: () => Promise.resolve(),
-				getCurrentRegionInFunction: () => 'mock-region',
+				getCurrentRegionInFunction: () => 'eu-central-1',
 				getCurrentMemorySizeInMb: () => 2048,
 				getCurrentFunctionName: () => 'render-worker',
-			} as InsideFunctionSpecifics<MockProvider>,
+			} as unknown as InsideFunctionSpecifics,
 		});
 
 		expect(ended).toBe(true);
@@ -99,7 +88,7 @@ test('buffered still errors are written to the response', async () => {
 	const chunks: Uint8Array[] = [];
 	let ended = false;
 
-	await innerHandler<MockProvider>({
+	await innerHandler({
 		params: {
 			type: 'still',
 			streamed: false,
@@ -131,11 +120,11 @@ test('buffered still errors are written to the response', async () => {
 			printLoggingHelper: false,
 			randomHash: () => 'random-hash',
 			validateDeleteAfter: () => undefined,
-		} as unknown as ProviderSpecifics<MockProvider>,
+		} as unknown as ProviderSpecifics,
 		insideFunctionSpecifics: {
 			deleteTmpDir: () => Promise.resolve(),
 			generateRandomId: () => 'render-id',
-		} as unknown as InsideFunctionSpecifics<MockProvider>,
+		} as unknown as InsideFunctionSpecifics,
 	});
 
 	expect(ended).toBe(true);
@@ -158,7 +147,7 @@ test('buffered render start exceptions are written to the response', async () =>
 	const chunks: Uint8Array[] = [];
 	let ended = false;
 
-	await innerRoutine<MockProvider>({
+	await innerRoutine({
 		params: {
 			type: 'start',
 			output: {type: 'media'},
@@ -184,13 +173,13 @@ test('buffered render start exceptions are written to the response', async () =>
 		providerSpecifics: {
 			printLoggingHelper: false,
 			randomHash: () => 'random-hash',
-		} as unknown as ProviderSpecifics<MockProvider>,
+		} as unknown as ProviderSpecifics,
 		insideFunctionSpecifics: {
 			deleteTmpDir: () => Promise.resolve(),
 			generateRandomId: () => {
 				throw new Error('Could not generate a render ID');
 			},
-		} as unknown as InsideFunctionSpecifics<MockProvider>,
+		} as unknown as InsideFunctionSpecifics,
 	});
 
 	expect(ended).toBe(true);

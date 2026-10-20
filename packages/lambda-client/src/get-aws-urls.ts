@@ -1,4 +1,3 @@
-import type {AwsProvider} from './aws-provider';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
 import type {GetLoggingUrlForRendererFunction} from './provider-implementation';
@@ -50,9 +49,13 @@ export const getLambdaInsightsUrl = ({
 	return `https://${region}.${consoleDomain}/cloudwatch/home?region=${region}#lambda-insights:functions/${functionName}`;
 };
 
-export const getCloudwatchRendererUrl: GetLoggingUrlForRendererFunction<
-	AwsProvider
-> = ({region, functionName, renderId, rendererFunctionName, chunk}) => {
+export const getCloudwatchRendererUrl: GetLoggingUrlForRendererFunction = ({
+	region,
+	functionName,
+	renderId,
+	rendererFunctionName,
+	chunk,
+}) => {
 	const functionNameToUse = rendererFunctionName ?? functionName;
 	const query = `"method=renderer,renderId=${renderId}${
 		chunk === null ? '' : `,chunk=${chunk},`

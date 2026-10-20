@@ -1,8 +1,19 @@
 import type {ProviderSpecifics} from './provider-implementation';
+import type {AwsRegion} from './regions';
 import {cancellationKey} from './shared-constants';
-import type {CloudProvider} from './types';
+import type {RequestHandler} from './types';
 
-export const writeCancellationSignal = async <Provider extends CloudProvider>({
+type WriteCancellationSignalInput = {
+	bucketName: string;
+	renderId: string;
+	region: AwsRegion;
+	expectedBucketOwner: string | null;
+	providerSpecifics: ProviderSpecifics;
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
+};
+
+export const writeCancellationSignal = async ({
 	bucketName,
 	renderId,
 	region,
@@ -10,15 +21,7 @@ export const writeCancellationSignal = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
-}: {
-	bucketName: string;
-	renderId: string;
-	region: Provider['region'];
-	expectedBucketOwner: string | null;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
-}) => {
+}: WriteCancellationSignalInput) => {
 	await providerSpecifics.writeFile({
 		bucketName,
 		key: cancellationKey(renderId),

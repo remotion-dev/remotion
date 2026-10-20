@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {
-	AwsProvider,
 	LambdaClientInternals,
 	type Privacy,
 	type ProviderSpecifics,
@@ -46,7 +45,7 @@ export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
+	implementation: ProviderSpecifics,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint({
 		args,

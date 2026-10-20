@@ -1,8 +1,4 @@
-import type {
-	Await,
-	CloudProvider,
-	ProviderSpecifics,
-} from '@remotion/lambda-client';
+import type {Await, ProviderSpecifics} from '@remotion/lambda-client';
 import type {
 	ChromiumOptions,
 	LogLevel,
@@ -14,7 +10,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 
-type ValidateCompositionOptions<Provider extends CloudProvider> = {
+type ValidateCompositionOptions = {
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
@@ -34,10 +30,10 @@ type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	offthreadVideoThreads: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
-	providerSpecifics: ProviderSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
 };
 
-export const validateComposition = async <Provider extends CloudProvider>({
+export const validateComposition = async ({
 	serveUrl,
 	composition,
 	browserInstance,
@@ -58,7 +54,7 @@ export const validateComposition = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
-}: ValidateCompositionOptions<Provider>): Promise<VideoConfig> => {
+}: ValidateCompositionOptions): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,

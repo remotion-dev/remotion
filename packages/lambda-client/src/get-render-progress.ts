@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
-import {awsImplementation, type AwsProvider} from './aws-provider';
+import {awsImplementation} from './aws-provider';
 import type {RenderProgress} from './constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
 import {parseFunctionName} from './parse-function-name';
@@ -14,7 +14,7 @@ export type GetRenderProgressInput = {
 	renderId: string;
 	region: AwsRegion;
 	logLevel?: LogLevel;
-	s3OutputProvider?: CustomCredentials<AwsProvider>;
+	s3OutputProvider?: CustomCredentials;
 	forcePathStyle?: boolean;
 	skipLambdaInvocation?: boolean;
 	requestHandler?: RequestHandler;
@@ -39,7 +39,7 @@ export const getRenderProgress = async (
 			);
 		}
 
-		return getProgress<AwsProvider>({
+		return getProgress({
 			bucketName: input.bucketName,
 			renderId: input.renderId,
 			region: input.region,

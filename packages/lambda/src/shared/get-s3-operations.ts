@@ -1,5 +1,4 @@
 import type {_Object} from '@aws-sdk/client-s3';
-import type {AwsProvider} from '@remotion/lambda-client';
 import type {FullClientSpecifics} from '../functions/provider-implementation';
 
 export const getS3DiffOperations = async ({
@@ -13,7 +12,7 @@ export const getS3DiffOperations = async ({
 	bundle: string;
 	prefix: string;
 	onProgress: (bytes: number) => void;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+	fullClientSpecifics: FullClientSpecifics;
 }) => {
 	let totalBytes = 0;
 	const dir = fullClientSpecifics.readDirectory({

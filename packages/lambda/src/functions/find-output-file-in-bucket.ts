@@ -1,16 +1,29 @@
 import {
 	LambdaClientInternals,
-	type CloudProvider,
 	type CustomCredentials,
 	type OutputFileMetadata,
 	type ProviderSpecifics,
 	type RenderMetadata,
 	type RenderOutput,
+	type AwsRegion,
+	type RequestHandler,
 } from '@remotion/lambda-client';
 
 export type {OutputFileMetadata} from '@remotion/lambda-client';
 
-export const findOutputFileInBucket = <Provider extends CloudProvider>({
+type FindOutputFileInBucketInput = {
+	region: AwsRegion;
+	renderMetadata: RenderMetadata;
+	bucketName: string;
+	customCredentials: CustomCredentials | null;
+	currentRegion: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
+	output: RenderOutput;
+};
+
+export const findOutputFileInBucket = ({
 	region,
 	renderMetadata,
 	bucketName,
@@ -20,17 +33,7 @@ export const findOutputFileInBucket = <Provider extends CloudProvider>({
 	forcePathStyle,
 	requestHandler,
 	output,
-}: {
-	region: Provider['region'];
-	renderMetadata: RenderMetadata<Provider>;
-	bucketName: string;
-	customCredentials: CustomCredentials<Provider> | null;
-	currentRegion: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
-	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
-	output: RenderOutput;
-}): Promise<OutputFileMetadata | null> => {
+}: FindOutputFileInBucketInput): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');
 	}

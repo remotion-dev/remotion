@@ -7,7 +7,6 @@ import {
 } from '@remotion/bundler';
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type AwsRegion,
 	type ProviderSpecifics,
 	type RequestHandler,
@@ -77,8 +76,8 @@ const mandatoryDeploySite = async ({
 	requestHandler,
 }: MandatoryParameters &
 	OptionalParameters & {
-		providerSpecifics: ProviderSpecifics<AwsProvider>;
-		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+		providerSpecifics: ProviderSpecifics;
+		fullClientSpecifics: FullClientSpecifics;
 	}): DeploySiteOutput => {
 	let generatedBundleDir: string | null = null;
 
@@ -172,8 +171,8 @@ const mandatoryDeploySite = async ({
 
 export type InternalDeploySiteInput = MandatoryParameters &
 	OptionalParameters & {
-		providerSpecifics: ProviderSpecifics<AwsProvider>;
-		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+		providerSpecifics: ProviderSpecifics;
+		fullClientSpecifics: FullClientSpecifics;
 	};
 
 export const internalDeploySite: (

@@ -1,8 +1,9 @@
 import {getExpectedOutName} from './expected-out-name';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {AwsRegion} from './regions';
 import type {RenderMetadata} from './render-metadata';
 import type {CustomCredentials, RenderOutput} from './shared-constants';
-import type {CloudProvider} from './types';
+import type {RequestHandler} from './types';
 
 export type OutputFileMetadata = {
 	url: string;
@@ -27,7 +28,19 @@ export class OutputFileAccessDeniedError extends Error {
 	}
 }
 
-export const findOutputFileInBucket = async <Provider extends CloudProvider>({
+type FindOutputFileInBucketInput = {
+	region: AwsRegion;
+	renderMetadata: RenderMetadata;
+	bucketName: string;
+	customCredentials: CustomCredentials | null;
+	currentRegion: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
+	output: RenderOutput;
+};
+
+export const findOutputFileInBucket = async ({
 	region,
 	renderMetadata,
 	bucketName,
@@ -37,17 +50,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	forcePathStyle,
 	requestHandler,
 	output,
-}: {
-	region: Provider['region'];
-	renderMetadata: RenderMetadata<Provider>;
-	bucketName: string;
-	customCredentials: CustomCredentials<Provider> | null;
-	currentRegion: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
-	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
-	output: RenderOutput;
-}): Promise<OutputFileMetadata | null> => {
+}: FindOutputFileInBucketInput): Promise<OutputFileMetadata | null> => {
 	const {renderBucketName, key} = getExpectedOutName({
 		renderMetadata,
 		bucketName,

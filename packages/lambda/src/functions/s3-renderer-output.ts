@@ -2,25 +2,25 @@ import {createReadStream} from 'node:fs';
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type OnStream,
 	type ProviderSpecifics,
 	type S3RendererArtifactMetadata,
 	type S3RendererStatus,
 	type ServerlessPayload,
+	type AwsRegion,
 } from '@remotion/lambda-client';
 import type {EmittedArtifact} from '@remotion/renderer';
 
-export const makeS3RendererOutput = <Provider extends CloudProvider>({
+export const makeS3RendererOutput = ({
 	params,
 	expectedBucketOwner,
 	region,
 	providerSpecifics,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	expectedBucketOwner: string | null;
-	region: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	region: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
 }) => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer payload');
@@ -79,7 +79,7 @@ export const makeS3RendererOutput = <Provider extends CloudProvider>({
 
 	const initialize = () => writeStatus(runningStatus());
 
-	const onStream: OnStream<Provider> = async (message) => {
+	const onStream: OnStream = async (message) => {
 		if (message.type === 'lambda-invoked') {
 			lambdaInvoked = true;
 			await writeStatus(runningStatus());

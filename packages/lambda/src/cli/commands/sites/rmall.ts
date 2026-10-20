@@ -1,6 +1,5 @@
 import {CliInternals} from '@remotion/cli';
 import {
-	AwsProvider,
 	LambdaClientInternals,
 	getSites,
 	type ProviderSpecifics,
@@ -16,7 +15,7 @@ export const SITES_RMALL_COMMAND = 'rmall';
 
 export const sitesRmallSubcommand = async (
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
+	implementation: ProviderSpecifics,
 ) => {
 	const region = getAwsRegion();
 	const deployedSites = await getSites({

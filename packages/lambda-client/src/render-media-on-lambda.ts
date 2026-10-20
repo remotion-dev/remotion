@@ -11,7 +11,7 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {_InternalTypes} from 'remotion';
 import type {DownloadBehavior} from 'remotion/no-react';
-import {awsImplementation, type AwsProvider} from './aws-provider';
+import {awsImplementation} from './aws-provider';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
@@ -54,8 +54,8 @@ export type RenderMediaOnLambdaInput = {
 	framesPerLambda?: number;
 	concurrency?: number;
 	frameRange?: SingleFrameRange;
-	outName?: OutNameInput<AwsProvider>;
-	separateAudioTo?: OutNameInput<AwsProvider>;
+	outName?: OutNameInput;
+	separateAudioTo?: OutNameInput;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;

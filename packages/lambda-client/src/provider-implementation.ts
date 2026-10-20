@@ -1,7 +1,9 @@
 import type {Readable} from 'node:stream';
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {LogLevel} from '@remotion/renderer';
 import type {DownloadBehavior} from 'remotion';
 import type {BillingCurrency} from './format-costs-info';
+import type {AwsRegion} from './regions';
 import type {RenderMetadata} from './render-metadata';
 import type {RendererFunctionTransport} from './renderer-transport';
 import type {ServerlessReturnValues} from './return-values';
@@ -12,7 +14,7 @@ import type {
 	ServerlessRoutines,
 } from './shared-constants';
 import type {GetBinaryPayloadSink, OnMessage} from './streaming/streaming';
-import type {CallFunctionOptions, CloudProvider} from './types';
+import type {CallFunctionOptions, RequestHandler} from './types';
 
 export type ParseFunctionName = (functionName: string) => {
 	version: string;
@@ -21,70 +23,70 @@ export type ParseFunctionName = (functionName: string) => {
 	timeoutInSeconds: number;
 } | null;
 
-type DeleteFile<Provider extends CloudProvider> = (params: {
+type DeleteFile = (params: {
 	bucketName: string;
 	key: string;
-	region: Provider['region'];
-	customCredentials: CustomCredentials<Provider> | null;
+	region: AwsRegion;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 }) => Promise<void>;
 
-export type BucketWithLocation<Provider extends CloudProvider> = {
+export type BucketWithLocation = {
 	name: string;
 	creationDate: number;
-	region: Provider['region'];
+	region: AwsRegion;
 };
 
-type BucketExists<Provider extends CloudProvider> = (params: {
+type BucketExists = (params: {
 	bucketName: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 }) => Promise<boolean>;
 
-type ReadFile<Provider extends CloudProvider> = (params: {
+type ReadFile = (params: {
 	bucketName: string;
 	key: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 }) => Promise<Readable>;
 
-type GetBuckets<Provider extends CloudProvider> = (options: {
-	region: Provider['region'];
+type GetBuckets = (options: {
+	region: AwsRegion;
 	forceBucketName: string | null;
 	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
-}) => Promise<BucketWithLocation<Provider>[]>;
+	requestHandler: RequestHandler | null;
+}) => Promise<BucketWithLocation[]>;
 
-type CreateBucket<Provider extends CloudProvider> = (params: {
-	region: Provider['region'];
+type CreateBucket = (params: {
+	region: AwsRegion;
 	bucketName: string;
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 	logLevel: LogLevel;
 }) => Promise<void>;
 
-type ApplyLifeCycle<Provider extends CloudProvider> = (params: {
+type ApplyLifeCycle = (params: {
 	enableFolderExpiry: boolean | null;
 	bucketName: string;
-	region: Provider['region'];
-	customCredentials: CustomCredentials<Provider> | null;
+	region: AwsRegion;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 }) => Promise<void>;
 
-type ListObjects<Provider extends CloudProvider> = (params: {
+type ListObjects = (params: {
 	bucketName: string;
 	prefix: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 	continuationToken?: string;
 }) => Promise<BucketObject[]>;
 
@@ -95,15 +97,13 @@ type BucketObject = {
 	Size: number;
 };
 
-type HeadFile<Provider extends CloudProvider> = (
-	params: HeadFileInput<Provider>,
-) => Promise<HeadFileOutput>;
+type HeadFile = (params: HeadFileInput) => Promise<HeadFileOutput>;
 
 type RandomHash = () => string;
 
-type ConvertToServeUrl<Provider extends CloudProvider> = (params: {
+type ConvertToServeUrl = (params: {
 	urlOrId: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	bucketName: string;
 }) => string;
 
@@ -113,124 +113,109 @@ type HeadFileOutput = {
 	Metadata?: Record<string, string> | undefined;
 };
 
-export type DeleteFunctionInput<Provider extends CloudProvider> = {
-	region: Provider['region'];
+export type DeleteFunctionInput = {
+	region: AwsRegion;
 	functionName: string;
 };
 
-export type DeleteFunction<Provider extends CloudProvider> = (
-	options: DeleteFunctionInput<Provider>,
-) => Promise<void>;
+export type DeleteFunction = (options: DeleteFunctionInput) => Promise<void>;
 
-export type WriteFileInput<Provider extends CloudProvider> = {
+export type WriteFileInput = {
 	bucketName: string;
 	key: string;
 	body: Readable | string | Uint8Array;
-	region: Provider['region'];
+	region: AwsRegion;
 	privacy: Privacy;
 	expectedBucketOwner: string | null;
 	downloadBehavior: DownloadBehavior | null;
-	customCredentials: CustomCredentials<Provider> | null;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
-	storageClass: Provider['storageClass'] | null;
-	requestHandler: Provider['requestHandler'] | null;
+	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null;
 	metadata?: Record<string, string> | null;
 };
 
-type WriteFile<Provider extends CloudProvider> = (
-	params: WriteFileInput<Provider>,
-) => Promise<void>;
+type WriteFile = (params: WriteFileInput) => Promise<void>;
 
-type HeadFileInput<Provider extends CloudProvider> = {
+type HeadFileInput = {
 	bucketName: string;
 	key: string;
-	region: Provider['region'];
-	customCredentials: CustomCredentials<Provider> | null;
+	region: AwsRegion;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
+	requestHandler: RequestHandler | null;
 };
 
-export type CallFunctionAsync<Provider extends CloudProvider> = <
-	T extends ServerlessRoutines,
->({
+export type CallFunctionAsync = <T extends ServerlessRoutines>({
 	functionName,
 	payload,
 	region,
 	timeoutInTest,
 	requestHandler,
-}: CallFunctionOptions<T, Provider>) => Promise<void>;
+}: CallFunctionOptions<T>) => Promise<void>;
 
-export type CallFunctionStreaming<Provider extends CloudProvider> = <
-	T extends ServerlessRoutines,
->(
-	options: CallFunctionOptions<T, Provider> & {
-		receivedStreamingPayload: OnMessage<Provider>;
+export type CallFunctionStreaming = <T extends ServerlessRoutines>(
+	options: CallFunctionOptions<T> & {
+		receivedStreamingPayload: OnMessage;
 		retriesRemaining: number;
 		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ) => Promise<void>;
 
-export type CallFunctionSync<Provider extends CloudProvider> = <
-	T extends ServerlessRoutines,
->({
+export type CallFunctionSync = <T extends ServerlessRoutines>({
 	functionName,
 	payload,
 	region,
 	timeoutInTest,
-}: CallFunctionOptions<T, Provider>) => Promise<
-	ServerlessReturnValues<Provider>[T]
->;
+}: CallFunctionOptions<T>) => Promise<ServerlessReturnValues[T]>;
 
-export type GetOutputUrl<Provider extends CloudProvider> = (options: {
+export type GetOutputUrl = (options: {
 	output: RenderOutput;
-	renderMetadata: RenderMetadata<Provider>;
+	renderMetadata: RenderMetadata;
 	bucketName: string;
-	customCredentials: CustomCredentials<Provider> | null;
-	currentRegion: Provider['region'];
+	customCredentials: CustomCredentials | null;
+	currentRegion: AwsRegion;
 }) => {url: string; key: string};
 
-export type EstimatePriceInput<Provider extends CloudProvider> = {
-	region: Provider['region'];
+export type EstimatePriceInput = {
+	region: AwsRegion;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	lambdasInvoked: number;
 	durationInMilliseconds: number;
 };
 
-export type EstimatePrice<Provider extends CloudProvider> = ({
+export type EstimatePrice = ({
 	region,
 	memorySizeInMb,
 	diskSizeInMb,
 	lambdasInvoked,
 	...other
-}: EstimatePriceInput<Provider>) => number;
+}: EstimatePriceInput) => number;
 
-export type GetLoggingUrlForRendererFunction<Provider extends CloudProvider> =
-	(options: {
-		region: Provider['region'];
-		functionName: string;
-		rendererFunctionName: string | null;
-		renderId: string;
-		chunk: null | number;
-	}) => string;
+export type GetLoggingUrlForRendererFunction = (options: {
+	region: AwsRegion;
+	functionName: string;
+	rendererFunctionName: string | null;
+	renderId: string;
+	chunk: null | number;
+}) => string;
 
-export type GetFunctionsInput<Provider extends CloudProvider> = {
-	region: Provider['region'];
+export type GetFunctionsInput = {
+	region: AwsRegion;
 	compatibleOnly: boolean;
 	logLevel?: LogLevel;
 };
 
-export type GetLoggingUrlForMethod<Provider extends CloudProvider> = (options: {
-	region: Provider['region'];
+export type GetLoggingUrlForMethod = (options: {
+	region: AwsRegion;
 	functionName: string;
 	method: ServerlessRoutines;
 	rendererFunctionName: string | null;
 	renderId: string;
 }) => string;
 
-export type GetAccountId<Provider extends CloudProvider> = (options: {
-	region: Provider['region'];
-}) => Promise<string>;
+export type GetAccountId = (options: {region: AwsRegion}) => Promise<string>;
 
 export type FunctionInfo = {
 	functionName: string;
@@ -240,53 +225,53 @@ export type FunctionInfo = {
 	diskSizeInMb: number;
 };
 
-export type GetFunctions<Provider extends CloudProvider> = (
-	params: GetFunctionsInput<Provider>,
+export type GetFunctions = (
+	params: GetFunctionsInput,
 ) => Promise<FunctionInfo[]>;
 
-export type ProviderSpecifics<Provider extends CloudProvider> = {
+export type ProviderSpecifics = {
 	getChromiumPath: () => string | null;
-	getBuckets: GetBuckets<Provider>;
+	getBuckets: GetBuckets;
 	getBucketPrefix: () => string;
-	createBucket: CreateBucket<Provider>;
-	applyLifeCycle: ApplyLifeCycle<Provider>;
-	listObjects: ListObjects<Provider>;
-	deleteFile: DeleteFile<Provider>;
-	bucketExists: BucketExists<Provider>;
+	createBucket: CreateBucket;
+	applyLifeCycle: ApplyLifeCycle;
+	listObjects: ListObjects;
+	deleteFile: DeleteFile;
+	bucketExists: BucketExists;
 	randomHash: RandomHash;
-	readFile: ReadFile<Provider>;
-	writeFile: WriteFile<Provider>;
+	readFile: ReadFile;
+	writeFile: WriteFile;
 	// Whether this destination supports atomic create-only output uploads.
 	supportsConditionalOutput: (params: {
-		customCredentials: CustomCredentials<Provider> | null;
+		customCredentials: CustomCredentials | null;
 	}) => boolean;
-	writeFileIfNotExists: WriteFile<Provider> | null;
+	writeFileIfNotExists: WriteFile | null;
 	// Normalize permission failures to OutputFileAccessDeniedError and missing files
 	// to an error named NotFound. Other errors must propagate unchanged.
-	headFile: HeadFile<Provider>;
-	convertToServeUrl: ConvertToServeUrl<Provider>;
+	headFile: HeadFile;
+	convertToServeUrl: ConvertToServeUrl;
 	printLoggingHelper: boolean;
 	validateDeleteAfter: (lifeCycleValue: unknown) => void;
-	callFunctionAsync: CallFunctionAsync<Provider>;
-	callFunctionStreaming: CallFunctionStreaming<Provider>;
-	callFunctionSync: CallFunctionSync<Provider>;
-	estimatePrice: EstimatePrice<Provider>;
-	getLoggingUrlForRendererFunction: GetLoggingUrlForRendererFunction<Provider>;
-	getLoggingUrlForMethod: GetLoggingUrlForMethod<Provider>;
+	callFunctionAsync: CallFunctionAsync;
+	callFunctionStreaming: CallFunctionStreaming;
+	callFunctionSync: CallFunctionSync;
+	estimatePrice: EstimatePrice;
+	getLoggingUrlForRendererFunction: GetLoggingUrlForRendererFunction;
+	getLoggingUrlForMethod: GetLoggingUrlForMethod;
 	getEphemeralStorageForPriceCalculation: () => number;
-	getBillingCurrency: (region: Provider['region']) => BillingCurrency;
+	getBillingCurrency: (region: AwsRegion) => BillingCurrency;
 	getRendererFunctionTransport: (
-		region: Provider['region'],
+		region: AwsRegion,
 	) => RendererFunctionTransport;
-	getServiceDnsSuffix: (region: Provider['region']) => string;
-	getOutputUrl: GetOutputUrl<Provider>;
+	getServiceDnsSuffix: (region: AwsRegion) => string;
+	getOutputUrl: GetOutputUrl;
 	isFlakyError: (err: Error) => boolean;
 	serverStorageProductName: () => string;
 	getMaxStillInlinePayloadSize: () => number;
 	getMaxNonInlinePayloadSizePerFunction: () => number;
-	getAccountId: GetAccountId<Provider>;
-	deleteFunction: DeleteFunction<Provider>;
-	getFunctions: GetFunctions<Provider>;
+	getAccountId: GetAccountId;
+	deleteFunction: DeleteFunction;
+	getFunctions: GetFunctions;
 	parseFunctionName: ParseFunctionName;
 	checkCredentials: () => void;
 };

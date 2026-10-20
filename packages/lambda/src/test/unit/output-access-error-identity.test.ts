@@ -7,7 +7,6 @@ import {
 	LambdaClientInternals,
 	OutputFileAccessDeniedError,
 	ServerlessRoutines,
-	type AwsProvider,
 	type OverallRenderProgress,
 	type ProviderSpecifics,
 	type RenderMetadata,
@@ -24,7 +23,7 @@ const region = 'us-east-1';
 const renderId = 'output-access-test';
 const bucketName = 'render-bucket';
 const destination = 'output-bucket';
-const params: ServerlessPayloads<AwsProvider>['launch'] = {
+const params: ServerlessPayloads['launch'] = {
 	type: ServerlessRoutines.launch,
 	output: {type: 'media'},
 	composition: 'comp',
@@ -93,10 +92,10 @@ const insideFunctionSpecifics = {
 	forgetBrowserEventLoop: () => undefined,
 	timer: () => ({end: () => undefined}),
 	normalizeChromiumOptions: null,
-} as unknown as InsideFunctionSpecifics<AwsProvider>;
+} as unknown as InsideFunctionSpecifics;
 
 const makeFixture = (headError: unknown) => {
-	let storedProgress: OverallRenderProgress<AwsProvider> | null = null;
+	let storedProgress: OverallRenderProgress | null = null;
 	let output: Buffer | null = null;
 	const conflict = new Error('Output already exists');
 	const writeFileIfNotExists = mock(async ({body}: {body: unknown}) => {
@@ -127,7 +126,7 @@ const makeFixture = (headError: unknown) => {
 			storedProgress = JSON.parse(body as string);
 		},
 	);
-	const providerSpecifics: ProviderSpecifics<AwsProvider> = {
+	const providerSpecifics: ProviderSpecifics = {
 		...LambdaClientInternals.awsImplementation,
 		headFile,
 		writeFile,
@@ -142,7 +141,7 @@ const makeFixture = (headError: unknown) => {
 		parseFunctionName: () => null,
 		getEphemeralStorageForPriceCalculation: () => 512,
 		getBillingCurrency: () => 'USD',
-	} satisfies ProviderSpecifics<AwsProvider>;
+	} satisfies ProviderSpecifics;
 	return {
 		providerSpecifics,
 		headFile,
@@ -151,7 +150,7 @@ const makeFixture = (headError: unknown) => {
 		conflict,
 		getOutput: () => output,
 		getProgress: () => storedProgress!,
-		setProgress: (progress: OverallRenderProgress<AwsProvider>) => {
+		setProgress: (progress: OverallRenderProgress) => {
 			storedProgress = progress;
 		},
 	};
@@ -218,9 +217,9 @@ const invokeLaunch = (
 		},
 	});
 
-const completedProgress = (): OverallRenderProgress<AwsProvider> => {
+const completedProgress = (): OverallRenderProgress => {
 	const startedDate = Date.now() - 30000;
-	const renderMetadata: RenderMetadata<AwsProvider> = {
+	const renderMetadata: RenderMetadata = {
 		type: 'video',
 		imageFormat: 'png',
 		muted: true,

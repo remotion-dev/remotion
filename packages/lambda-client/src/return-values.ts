@@ -1,7 +1,6 @@
 import type {VideoConfig} from 'remotion/no-react';
 import type {GenericRenderProgress} from './render-progress';
 import type {ServerlessRoutines} from './shared-constants';
-import type {CloudProvider} from './types';
 
 export type OrError<T> =
 	| T
@@ -11,7 +10,7 @@ export type OrError<T> =
 			stack: string;
 	  };
 
-export interface ServerlessReturnValues<Provider extends CloudProvider> {
+export interface ServerlessReturnValues {
 	[ServerlessRoutines.start]: Promise<{
 		type: 'success';
 		bucketName: string;
@@ -23,7 +22,7 @@ export interface ServerlessReturnValues<Provider extends CloudProvider> {
 	[ServerlessRoutines.renderer]: Promise<{
 		type: 'success';
 	}>;
-	[ServerlessRoutines.status]: Promise<GenericRenderProgress<Provider>>;
+	[ServerlessRoutines.status]: Promise<GenericRenderProgress>;
 	[ServerlessRoutines.info]: {
 		version: string;
 		type: 'success';

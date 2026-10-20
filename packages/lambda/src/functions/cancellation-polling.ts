@@ -1,7 +1,7 @@
 import {
 	LambdaClientInternals,
-	type CloudProvider,
 	type ProviderSpecifics,
+	type AwsRegion,
 } from '@remotion/lambda-client';
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 
@@ -15,7 +15,7 @@ const isMissingCancellationSignalError = (err: unknown) => {
 	);
 };
 
-export const startCancellationPolling = <Provider extends CloudProvider>({
+export const startCancellationPolling = ({
 	bucketName,
 	renderId,
 	region,
@@ -27,8 +27,8 @@ export const startCancellationPolling = <Provider extends CloudProvider>({
 }: {
 	bucketName: string;
 	renderId: string;
-	region: Provider['region'];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	region: AwsRegion;
+	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
 	intervalInMilliseconds: number;
 	logLevel: LogLevel;

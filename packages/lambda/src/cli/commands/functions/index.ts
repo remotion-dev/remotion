@@ -2,7 +2,6 @@ import {CliInternals} from '@remotion/cli';
 import type {ProviderSpecifics} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import {AwsProvider} from '../../../client';
 import type {FullClientSpecifics} from '../../../functions/provider-implementation';
 import {quit} from '../../helpers/quit';
 import {FUNCTIONS_COMMAND} from '../command-names';
@@ -66,8 +65,8 @@ export const functionsCommand = ({
 }: {
 	args: string[];
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
+	fullClientSpecifics: FullClientSpecifics;
 }) => {
 	if (args[0] === FUNCTIONS_LS_SUBCOMMAND) {
 		return functionsLsCommand({logLevel, providerSpecifics});

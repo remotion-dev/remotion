@@ -1,5 +1,4 @@
 import type {
-	CloudProvider,
 	ProviderSpecifics,
 	SerializedInputProps,
 } from '@remotion/lambda-client';
@@ -9,7 +8,7 @@ import {
 } from './cleanup-serialized-input-props';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
-export const cleanupProps = <Provider extends CloudProvider>({
+export const cleanupProps = ({
 	serializedResolvedProps,
 	inputProps,
 	providerSpecifics,
@@ -18,9 +17,9 @@ export const cleanupProps = <Provider extends CloudProvider>({
 }: {
 	serializedResolvedProps: SerializedInputProps;
 	inputProps: SerializedInputProps;
-	providerSpecifics: ProviderSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
 	forcePathStyle: boolean;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<[number, number]> => {
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
 		region: insideFunctionSpecifics.getCurrentRegionInFunction(),

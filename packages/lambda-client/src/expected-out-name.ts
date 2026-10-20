@@ -11,12 +11,11 @@ import {
 	type OutNameOutput,
 	type RenderOutput,
 } from './shared-constants';
-import type {CloudProvider} from './types';
 import {validateOutname} from './validate-outname';
 
-export const getCredentialsFromOutName = <Provider extends CloudProvider>(
-	name: OutNameInput<Provider> | null,
-): CustomCredentials<Provider> | null => {
+export const getCredentialsFromOutName = (
+	name: OutNameInput | null,
+): CustomCredentials | null => {
 	if (typeof name === 'string') {
 		return null;
 	}
@@ -32,19 +31,19 @@ export const getCredentialsFromOutName = <Provider extends CloudProvider>(
 	return name.s3OutputProvider ?? null;
 };
 
-export const getExpectedOutName = <Provider extends CloudProvider>({
+export const getExpectedOutName = ({
 	renderMetadata,
 	bucketName,
 	customCredentials,
 	bucketNamePrefix,
 	output,
 }: {
-	renderMetadata: RenderMetadata<Provider>;
+	renderMetadata: RenderMetadata;
 	bucketName: string;
-	customCredentials: CustomCredentials<Provider> | null;
+	customCredentials: CustomCredentials | null;
 	bucketNamePrefix: string;
 	output: RenderOutput;
-}): OutNameOutput<Provider> => {
+}): OutNameOutput => {
 	if (renderMetadata.type === 'sequence') {
 		if (output === 'separate-audio') {
 			throw new Error('This render does not have a separate audio output.');

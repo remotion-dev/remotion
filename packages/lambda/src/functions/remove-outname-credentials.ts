@@ -1,11 +1,10 @@
 import type {
-	CloudProvider,
 	OutNameInput,
 	OutNameInputWithoutCredentials,
 } from '@remotion/lambda-client';
 
-export const removeOutnameCredentials = <Provider extends CloudProvider>(
-	outname: OutNameInput<Provider> | undefined,
+export const removeOutnameCredentials = (
+	outname: OutNameInput | undefined,
 ): OutNameInputWithoutCredentials | undefined => {
 	if (outname === undefined) {
 		return undefined;

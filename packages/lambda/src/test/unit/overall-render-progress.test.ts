@@ -1,27 +1,15 @@
 import {expect, test} from 'bun:test';
-import type {
-	CloudProvider,
-	PostRenderData,
-	ProviderSpecifics,
-} from '@remotion/lambda-client';
+import type {PostRenderData, ProviderSpecifics} from '@remotion/lambda-client';
 import {
 	makeInitialOverallRenderProgress,
 	makeOverallRenderProgress,
 } from '../../functions/overall-render-progress';
 
-type MockProvider = CloudProvider<
-	'eu-central-1',
-	{s3Key: string; s3Url: string},
-	{},
-	'standard',
-	{}
->;
-
 const makeProviderSpecifics = ({
 	writeFile,
 }: {
-	writeFile: ProviderSpecifics<MockProvider>['writeFile'];
-}): ProviderSpecifics<MockProvider> => {
+	writeFile: ProviderSpecifics['writeFile'];
+}): ProviderSpecifics => {
 	return {
 		applyLifeCycle: () => Promise.resolve(),
 		bucketExists: () => Promise.resolve(true),
@@ -63,7 +51,7 @@ const makeProviderSpecifics = ({
 	};
 };
 
-const postRenderData: PostRenderData<MockProvider> = {
+const postRenderData: PostRenderData = {
 	separateAudio: null,
 	artifactProgress: [],
 	cost: {
@@ -93,7 +81,7 @@ const postRenderData: PostRenderData<MockProvider> = {
 };
 
 test('stores whether cancellation is enabled', () => {
-	const progress = makeInitialOverallRenderProgress<MockProvider>(1, true);
+	const progress = makeInitialOverallRenderProgress(1, true);
 	expect(progress.cancellationEnabled).toBe(true);
 });
 

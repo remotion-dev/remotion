@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import {join} from 'node:path';
 import {
 	ServerlessRoutines,
-	type CloudProvider,
 	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
@@ -24,7 +23,7 @@ import {onDownloadsHelper} from './on-downloads-helpers';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
-export const renderWithSingleFunction = async <Provider extends CloudProvider>({
+export const renderWithSingleFunction = async ({
 	params,
 	composition,
 	serializedInputPropsWithCustomSchema,
@@ -36,16 +35,16 @@ export const renderWithSingleFunction = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	insideFunctionSpecifics,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	composition: VideoConfig;
 	serializedInputPropsWithCustomSchema: string;
 	frameRange: ResolvedFrameRange;
 	browserInstance: LaunchedBrowser['instance'];
 	chromiumOptions: ChromiumOptions;
-	overallProgress: OverallProgressHelper<Provider>;
+	overallProgress: OverallProgressHelper;
 	onArtifact: OnArtifactFromRenderer;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<{
 	outputFile: string;
 	separateAudioFile: string | null;

@@ -3,9 +3,10 @@ import {NoReactInternals} from 'remotion/no-react';
 import {internalGetOrCreateBucket} from './get-or-create-bucket';
 import {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 import type {ProviderSpecifics} from './provider-implementation';
+import type {AwsRegion} from './regions';
 import type {SerializedInputProps} from './shared-constants';
 import {streamToString} from './stream-to-string';
-import type {CloudProvider} from './types';
+import type {RequestHandler} from './types';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
@@ -36,14 +37,14 @@ export const serializeOrThrow = (
 	}
 };
 
-export const getNeedsToUpload = <Provider extends CloudProvider>({
+export const getNeedsToUpload = ({
 	type,
 	sizes,
 	providerSpecifics,
 }: {
 	type: 'still' | 'video-or-audio';
 	sizes: number[];
-	providerSpecifics: ProviderSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
 }) => {
 	const MARGIN = 5_000 + MAX_WEBHOOK_CUSTOM_DATA_SIZE;
 	const MAX_INLINE_PAYLOAD_SIZE =
@@ -68,7 +69,20 @@ export const getNeedsToUpload = <Provider extends CloudProvider>({
 	return false;
 };
 
-export const compressInputProps = async <Provider extends CloudProvider>({
+type CompressInputPropsInput = {
+	stringifiedInputProps: string;
+	region: AwsRegion;
+	userSpecifiedBucketName: string | null;
+	propsType: PropsType;
+	needsToUpload: boolean;
+	providerSpecifics: ProviderSpecifics;
+	forcePathStyle: boolean;
+	skipPutAcl: boolean;
+	requestHandler: RequestHandler | null;
+	logLevel: LogLevel;
+};
+
+export const compressInputProps = async ({
 	stringifiedInputProps,
 	region,
 	userSpecifiedBucketName,
@@ -79,18 +93,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	skipPutAcl,
 	requestHandler,
 	logLevel,
-}: {
-	stringifiedInputProps: string;
-	region: Provider['region'];
-	userSpecifiedBucketName: string | null;
-	propsType: PropsType;
-	needsToUpload: boolean;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	forcePathStyle: boolean;
-	skipPutAcl: boolean;
-	requestHandler: Provider['requestHandler'] | undefined;
-	logLevel: LogLevel;
-}): Promise<SerializedInputProps> => {
+}: CompressInputPropsInput): Promise<SerializedInputProps> => {
 	const hash = providerSpecifics.randomHash();
 
 	if (needsToUpload) {
@@ -136,7 +139,18 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	};
 };
 
-export const decompressInputProps = async <Provider extends CloudProvider>({
+type DecompressInputPropsInput = {
+	serialized: SerializedInputProps;
+	region: AwsRegion;
+	bucketName: string;
+	expectedBucketOwner: string | null;
+	propsType: PropsType;
+	providerSpecifics: ProviderSpecifics;
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
+};
+
+export const decompressInputProps = async ({
 	serialized,
 	region,
 	bucketName,
@@ -145,16 +159,7 @@ export const decompressInputProps = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
-}: {
-	serialized: SerializedInputProps;
-	region: Provider['region'];
-	bucketName: string;
-	expectedBucketOwner: string | null;
-	propsType: PropsType;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
-}): Promise<string> => {
+}: DecompressInputPropsInput): Promise<string> => {
 	if (serialized.type === 'payload') {
 		return serialized.payload;
 	}

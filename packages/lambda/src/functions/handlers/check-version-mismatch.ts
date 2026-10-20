@@ -1,18 +1,17 @@
 import {
 	ServerlessRoutines,
-	type CloudProvider,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
 
-export const checkVersionMismatch = <Provider extends CloudProvider>({
+export const checkVersionMismatch = ({
 	params,
 	insideFunctionSpecifics,
 	apiName,
 }: {
-	params: ServerlessPayload<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	params: ServerlessPayload;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	apiName: string;
 }) => {
 	if (params.type === ServerlessRoutines.info) {

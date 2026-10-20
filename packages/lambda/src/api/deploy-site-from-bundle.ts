@@ -1,6 +1,5 @@
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type AwsRegion,
 	type ProviderSpecifics,
 	type RequestHandler,
@@ -39,8 +38,8 @@ export type DeploySiteFromBundleInput = MandatoryParameters &
 export type InternalDeploySiteFromBundleInput = MandatoryParameters &
 	OptionalParameters & {
 		indent: boolean;
-		providerSpecifics: ProviderSpecifics<AwsProvider>;
-		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+		providerSpecifics: ProviderSpecifics;
+		fullClientSpecifics: FullClientSpecifics;
 	};
 
 const mandatoryDeploySiteFromBundle = ({

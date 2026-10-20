@@ -1,5 +1,4 @@
 import type {
-	AwsProvider,
 	AwsRegion,
 	DeleteFunction,
 	FunctionInfo,
@@ -20,10 +19,7 @@ export const addFunction = (fn: FunctionInfo, region: AwsRegion) => {
 	});
 };
 
-export const deleteMockFunction: DeleteFunction<AwsProvider> = ({
-	functionName,
-	region,
-}) => {
+export const deleteMockFunction: DeleteFunction = ({functionName, region}) => {
 	mockFunctionsStore = mockFunctionsStore.filter(
 		(fn) => fn.functionName !== functionName && fn.region !== region,
 	);
@@ -36,10 +32,7 @@ export const findFunction = (name: string, region: string) => {
 	);
 };
 
-export const getAllMockFunctions: GetFunctions<AwsProvider> = ({
-	compatibleOnly,
-	region,
-}) => {
+export const getAllMockFunctions: GetFunctions = ({compatibleOnly, region}) => {
 	return Promise.resolve(
 		mockFunctionsStore
 			.filter(

@@ -1,5 +1,4 @@
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {AwsProvider} from './aws-provider';
 import type {
 	ImageSequenceFormat,
 	ImageSequenceOutputPrefix,
@@ -52,7 +51,7 @@ export type RenderFramesOnLambdaInput = Pick<
 	| 'enableCancellation'
 > & {
 	imageFormat?: ImageSequenceFormat;
-	outputPrefix?: ImageSequenceOutputPrefix<AwsProvider>;
+	outputPrefix?: ImageSequenceOutputPrefix;
 	imageSequencePattern?: string;
 };
 

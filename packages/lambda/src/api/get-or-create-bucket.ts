@@ -1,6 +1,5 @@
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type GetOrCreateBucketInput,
 } from '@remotion/lambda-client';
 
@@ -8,9 +7,7 @@ import {
  * @description Creates a Cloud Storage bucket for Remotion Cloud Run in your GCP project. If one already exists, it will get returned instead.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/getorcreatebucket)
  */
-export const getOrCreateBucket = (
-	options: GetOrCreateBucketInput<AwsProvider>,
-) => {
+export const getOrCreateBucket = (options: GetOrCreateBucketInput) => {
 	return LambdaClientInternals.internalGetOrCreateBucket({
 		region: options.region,
 		enableFolderExpiry: options.enableFolderExpiry ?? null,

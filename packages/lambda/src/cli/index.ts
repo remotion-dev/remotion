@@ -1,6 +1,5 @@
 import {CliInternals} from '@remotion/cli';
 import {
-	AwsProvider,
 	LambdaClientInternals,
 	type ProviderSpecifics,
 } from '@remotion/lambda-client';
@@ -56,8 +55,8 @@ const matchCommand = ({
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
+	fullClientSpecifics: FullClientSpecifics;
 }) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(args, logLevel);
@@ -177,8 +176,8 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	_providerSpecifics: ProviderSpecifics<AwsProvider> | null,
-	fullClientSpecifics: FullClientSpecifics<AwsProvider> | null,
+	_providerSpecifics: ProviderSpecifics | null,
+	fullClientSpecifics: FullClientSpecifics | null,
 ) => {
 	try {
 		const providerSpecifics =

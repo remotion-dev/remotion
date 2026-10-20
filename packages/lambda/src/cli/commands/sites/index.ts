@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, type ProviderSpecifics} from '@remotion/lambda-client';
+import {type ProviderSpecifics} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {quit} from '../../helpers/quit';
@@ -60,7 +60,7 @@ export const sitesCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	providerSpecifics: ProviderSpecifics<AwsProvider>,
+	providerSpecifics: ProviderSpecifics,
 ) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
 		return sitesLsSubcommand(logLevel);

@@ -1,12 +1,11 @@
 import {DeleteObjectCommand} from '@aws-sdk/client-s3';
-import type {AwsProvider} from './aws-provider';
 import {getS3Client} from './get-s3-client';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {AwsRegion} from './regions';
 import type {CustomCredentials} from './shared-constants';
 import type {RequestHandler} from './types';
 
-export const lambdaDeleteFileImplementation: ProviderSpecifics<AwsProvider>['deleteFile'] =
+export const lambdaDeleteFileImplementation: ProviderSpecifics['deleteFile'] =
 	async ({
 		bucketName,
 		key,
@@ -18,7 +17,7 @@ export const lambdaDeleteFileImplementation: ProviderSpecifics<AwsProvider>['del
 		region: AwsRegion;
 		bucketName: string;
 		key: string;
-		customCredentials: CustomCredentials<AwsProvider> | null;
+		customCredentials: CustomCredentials | null;
 		forcePathStyle: boolean;
 		requestHandler: RequestHandler | null;
 	}) => {

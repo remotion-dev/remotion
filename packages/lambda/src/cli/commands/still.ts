@@ -2,7 +2,6 @@ import path from 'path';
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {
-	AwsProvider,
 	LambdaClientInternals,
 	type ProviderSpecifics,
 } from '@remotion/lambda-client';
@@ -72,7 +71,7 @@ export const stillCommand = async ({
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
 }) => {
 	const serveUrl = args[0];
 

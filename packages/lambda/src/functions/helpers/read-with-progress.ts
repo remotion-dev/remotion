@@ -2,7 +2,6 @@ import {GetObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import {
 	LambdaClientInternals,
-	type AwsProvider,
 	type AwsRegion,
 	type CustomCredentials,
 	type RequestHandler,
@@ -23,7 +22,7 @@ type LambdaDownloadFileWithProgressInput = {
 	expectedBucketOwner: string;
 	outputPath: string;
 	onProgress: LambdaReadFileProgress;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	logLevel: LogLevel;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler;

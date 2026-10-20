@@ -1,7 +1,6 @@
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type OrError,
 	type ProviderSpecifics,
 	type ServerlessPayload,
@@ -22,18 +21,18 @@ import type {InsideFunctionSpecifics} from './provider-implementation';
 import {makeS3RendererOutput} from './s3-renderer-output';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
 
-export const innerHandler = async <Provider extends CloudProvider>({
+export const innerHandler = async ({
 	params,
 	responseWriter,
 	context,
 	providerSpecifics,
 	insideFunctionSpecifics,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<void> => {
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
@@ -67,7 +66,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 
 		try {
 			await new Promise((resolve, reject) => {
-				const onStream = async (payload: StreamingPayload<Provider>) => {
+				const onStream = async (payload: StreamingPayload) => {
 					if (!params.streamed) {
 						if (payload.type !== 'still-rendered') {
 							throw new Error('Expected still-rendered');
@@ -374,18 +373,18 @@ export const innerHandler = async <Provider extends CloudProvider>({
 	);
 };
 
-export const innerRoutine = async <Provider extends CloudProvider>({
+export const innerRoutine = async ({
 	params,
 	responseWriter,
 	context,
 	providerSpecifics,
 	insideFunctionSpecifics,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<void> => {
 	try {
 		await innerHandler({

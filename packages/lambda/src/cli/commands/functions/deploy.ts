@@ -1,6 +1,5 @@
 import {CliInternals} from '@remotion/cli';
 import {
-	AwsProvider,
 	LambdaClientInternals,
 	type ProviderSpecifics,
 } from '@remotion/lambda-client';
@@ -30,8 +29,8 @@ export const functionsDeploySubcommand = async ({
 	fullClientSpecifics,
 }: {
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics;
+	fullClientSpecifics: FullClientSpecifics;
 }) => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;

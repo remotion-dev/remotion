@@ -1,7 +1,7 @@
 import fs from 'node:fs';
+import type {StorageClass} from '@aws-sdk/client-s3';
 import {
 	LambdaClientInternals,
-	type CloudProvider,
 	type CustomCredentials,
 	type PostRenderData,
 	type Privacy,
@@ -9,6 +9,7 @@ import {
 	type RenderMetadata,
 	type SerializedInputProps,
 	type WriteFileInput,
+	type RequestHandler,
 } from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import type {DownloadBehavior} from 'remotion/no-react';
@@ -17,7 +18,32 @@ import {createPostRenderData} from './create-post-render-data';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
-export const finishRender = async <Provider extends CloudProvider>({
+type FinishRenderInput = {
+	expectedBucketOwner: string | null;
+	renderBucketName: string;
+	customCredentials: CustomCredentials | null;
+	downloadBehavior: DownloadBehavior;
+	key: string;
+	privacy: Privacy;
+	inputProps: SerializedInputProps;
+	serializedResolvedProps: SerializedInputProps;
+	renderMetadata: RenderMetadata;
+	logLevel: LogLevel;
+	overallProgress: OverallProgressHelper;
+	startTime: number;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
+	forcePathStyle: boolean;
+	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null;
+	outputFile: string;
+	timeToCombine: number | null;
+	bucketName: string;
+	separateAudioFile: string | null;
+	separateAudioCredentials: CustomCredentials | null;
+};
+
+export const finishRender = async ({
 	expectedBucketOwner,
 	renderBucketName,
 	customCredentials,
@@ -40,30 +66,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 	bucketName,
 	separateAudioFile,
 	separateAudioCredentials,
-}: {
-	expectedBucketOwner: string | null;
-	renderBucketName: string;
-	customCredentials: CustomCredentials<Provider> | null;
-	downloadBehavior: DownloadBehavior;
-	key: string;
-	privacy: Privacy;
-	inputProps: SerializedInputProps;
-	serializedResolvedProps: SerializedInputProps;
-	renderMetadata: RenderMetadata<Provider>;
-	logLevel: LogLevel;
-	overallProgress: OverallProgressHelper<Provider>;
-	startTime: number;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-	forcePathStyle: boolean;
-	storageClass: Provider['storageClass'] | null;
-	requestHandler: Provider['requestHandler'] | null;
-	outputFile: string;
-	timeToCombine: number | null;
-	bucketName: string;
-	separateAudioFile: string | null;
-	separateAudioCredentials: CustomCredentials<Provider> | null;
-}): Promise<PostRenderData<Provider>> => {
+}: FinishRenderInput): Promise<PostRenderData> => {
 	const outputSize = fs.statSync(outputFile).size;
 
 	if (
@@ -109,7 +112,7 @@ export const finishRender = async <Provider extends CloudProvider>({
 			logLevel,
 		);
 		const body = fs.createReadStream(file.file);
-		const writeOptions: WriteFileInput<Provider> = {
+		const writeOptions: WriteFileInput = {
 			bucketName: file.renderBucketName,
 			key: file.key,
 			body,

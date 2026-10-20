@@ -1,7 +1,7 @@
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {MakeArtifactWithDetails} from '../provider-implementation';
 
-export const makeAwsArtifact: MakeArtifactWithDetails<AwsProvider> = ({
+export const makeAwsArtifact: MakeArtifactWithDetails = ({
 	region,
 	renderBucketName,
 	storageKey,

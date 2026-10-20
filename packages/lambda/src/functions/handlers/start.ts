@@ -1,7 +1,6 @@
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
-	type CloudProvider,
 	type ProviderSpecifics,
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
@@ -15,16 +14,16 @@ type Options = {
 	renderId: string;
 };
 
-export const startHandler = async <Provider extends CloudProvider>({
+export const startHandler = async ({
 	params,
 	options,
 	providerSpecifics,
 	insideFunctionSpecifics,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	options: Options;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
@@ -81,7 +80,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		requestHandler: null,
 	});
 
-	const payload: ServerlessPayload<Provider> = {
+	const payload: ServerlessPayload = {
 		enableCancellation: params.enableCancellation ?? false,
 		type: ServerlessRoutines.launch,
 		framesPerFunction: params.framesPerLambda,

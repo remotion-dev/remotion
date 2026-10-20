@@ -1,10 +1,22 @@
 import {pLimit} from './p-limit';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './types';
+import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 const limit = pLimit(10);
 
-export const cleanItems = <Provider extends CloudProvider>({
+type CleanItemsInput = {
+	bucket: string;
+	region: AwsRegion;
+	list: string[];
+	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	providerSpecifics: ProviderSpecifics;
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
+};
+
+export const cleanItems = ({
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
@@ -13,16 +25,7 @@ export const cleanItems = <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
-}: {
-	bucket: string;
-	region: Provider['region'];
-	list: string[];
-	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
-}) => {
+}: CleanItemsInput) => {
 	return Promise.all(
 		list.map((object) =>
 			limit(async () => {

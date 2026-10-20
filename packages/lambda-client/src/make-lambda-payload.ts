@@ -14,7 +14,6 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {_InternalTypes} from 'remotion';
 import {NoReactInternals, type DownloadBehavior} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {
 	compressInputProps,
@@ -51,7 +50,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	composition: string;
 	inputProps: Record<string, unknown>;
 	codec: ServerlessCodec | null;
-	output: ServerlessRenderOutput<AwsProvider>;
+	output: ServerlessRenderOutput;
 	imageFormat: VideoImageFormat;
 	crf: number | undefined;
 	envVariables: Record<string, string>;
@@ -66,8 +65,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	concurrency: number | null;
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
-	outName: OutNameInput<AwsProvider> | null;
-	separateAudioTo: OutNameInput<AwsProvider> | null;
+	outName: OutNameInput | null;
+	separateAudioTo: OutNameInput | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -160,9 +159,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	requestHandler,
 	isProduction,
 	sampleRate,
-}: InnerRenderMediaOnLambdaInput): Promise<
-	ServerlessStartPayload<AwsProvider>
-> => {
+}: InnerRenderMediaOnLambdaInput): Promise<ServerlessStartPayload> => {
 	const actualCodec = codec === null ? null : validateLambdaCodec(codec);
 
 	if ((output.type === 'sequence') !== (actualCodec === null)) {
@@ -267,7 +264,7 @@ export const getRenderProgressPayload = ({
 	s3OutputProvider,
 	logLevel,
 	forcePathStyle,
-}: GetRenderProgressInput): ServerlessStatusPayload<AwsProvider> => {
+}: GetRenderProgressInput): ServerlessStatusPayload => {
 	return {
 		type: ServerlessRoutines.status,
 		bucketName,
@@ -311,7 +308,7 @@ export const makeLambdaRenderStillPayload = async ({
 	mediaCacheSizeInBytes,
 	isProduction,
 }: RenderStillOnLambdaNonNullInput): Promise<
-	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
+	ServerlessPayloads[ServerlessRoutines.still]
 > => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 

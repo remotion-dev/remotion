@@ -5,7 +5,6 @@ import {
 	LambdaClientInternals,
 	OutputFileAccessDeniedError,
 	ServerlessRoutines,
-	type CloudProvider,
 	type ImageSequenceManifest,
 	type ImageSequenceOutput,
 	type PostRenderData,
@@ -47,7 +46,7 @@ type Options = {
 	requestContext: RequestContext | null;
 };
 
-const innerLaunchHandler = async <Provider extends CloudProvider>({
+const innerLaunchHandler = async ({
 	params,
 	options,
 	overallProgress,
@@ -56,14 +55,14 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	insideFunctionSpecifics,
 	onBrowser,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	options: Options;
-	overallProgress: OverallProgressHelper<Provider>;
+	overallProgress: OverallProgressHelper;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	onBrowser: (browser: LaunchedBrowser) => void;
-}): Promise<PostRenderData<Provider>> => {
+}): Promise<PostRenderData> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
@@ -252,7 +251,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.everyNthFrame,
 	);
 
-	let rendererOutput: RendererOutput<Provider> = {type: 'media'};
+	let rendererOutput: RendererOutput = {type: 'media'};
 	let outputSequence: ImageSequenceOutput | null = null;
 	let {outName} = params;
 	if (params.output.type === 'sequence') {
@@ -409,7 +408,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		});
 
 	registerCleanupTask(() => {
-		return cleanupProps<Provider>({
+		return cleanupProps({
 			serializedResolvedProps,
 			inputProps: params.inputProps,
 			providerSpecifics,
@@ -425,7 +424,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	const progressEveryNthFrame = Math.ceil(chunks.length / 15);
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
-		const payload: ServerlessPayload<Provider> = {
+		const payload: ServerlessPayload = {
 			enableCancellation: params.enableCancellation ?? false,
 			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
@@ -500,7 +499,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.rendererFunctionName === null &&
 		options.requestContext !== null;
 
-	const renderMetadata: RenderMetadata<Provider> = {
+	const renderMetadata: RenderMetadata = {
 		separateAudioTo:
 			removeOutnameCredentials(separateAudioTo ?? undefined) ?? null,
 		separateAudioOutputFileIsConditional:
@@ -825,7 +824,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		return artifactRegistration;
 	};
 
-	let postRenderData: PostRenderData<Provider>;
+	let postRenderData: PostRenderData;
 	if (
 		rendererOutput.type === 'sequence' &&
 		renderMetadata.type === 'sequence'
@@ -1091,16 +1090,16 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 type CleanupTask = () => Promise<unknown>;
 
-export const launchHandler = async <Provider extends CloudProvider>({
+export const launchHandler = async ({
 	params,
 	options,
 	providerSpecifics,
 	insideFunctionSpecifics,
 }: {
-	params: ServerlessPayload<Provider>;
+	params: ServerlessPayload;
 	options: Options;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	providerSpecifics: ProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<void> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
