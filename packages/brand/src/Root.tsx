@@ -92,6 +92,7 @@ import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/Aud
 import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
+import {ExploreRemotionParameterization} from './HomepageAssets/ExploreRemotion/Parameterization';
 import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
 import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
@@ -116,6 +117,7 @@ import {KeyframeMove} from './KeyframeMove';
 import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import {NestingCompositions} from './NestingCompositions';
+import {ParameterizationRecordingComposition} from './ParameterizationRecordingComposition';
 import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
@@ -282,6 +284,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionParameterization"
+						component={ExploreRemotionParameterization}
+						durationInFrames={204}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
 					<Composition
 						id="ExploreRemotionAI"
 						component={ExploreRemotionAI}
@@ -1177,6 +1187,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				durationInFrames={748}
 				fps={60}
 				width={1494}
+				height={1440}
+			/>
+			<Composition
+				id="ParameterizationRecording"
+				component={ParameterizationRecordingComposition}
+				durationInFrames={933}
+				fps={60}
+				width={2032}
 				height={1440}
 			/>
 		</>

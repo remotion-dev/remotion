@@ -8,6 +8,7 @@ const videoSources: Record<string, string> = {
 	Audio: 'audio-waveform.mp4',
 	Captions: 'captions-2026-10-20-7c7e04671491.mp4',
 	AI: 'ai-prompt-2026-10-20-77a73116a839.mp4',
+	Parameterization: 'parameterization-2026-10-20-748a8dcc4089.mp4',
 	Rendering: 'render-modal-codec.mp4',
 };
 
