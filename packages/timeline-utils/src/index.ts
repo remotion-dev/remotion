@@ -44,6 +44,11 @@ export {
 } from './loop-display';
 export type {LoopDisplaySegment, TimelineLoopDisplay} from './loop-display';
 export {
+	clearPersistentTimelineCache,
+	hydrateThumbnailsFromPersistentCache,
+	writeThumbnailToPersistentCache,
+} from './persistent-cache/persistent-cache';
+export {
 	WEBCODECS_TIMESCALE,
 	calculateTimestampSlots,
 	drawSlot,

@@ -7,7 +7,7 @@ import {
 } from './frame-database';
 
 export const WEBCODECS_TIMESCALE = 1_000_000;
-const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
+export const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
 
 export const getDurationOfOneFrame = ({
 	visualizationWidth,
