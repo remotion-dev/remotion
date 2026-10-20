@@ -592,8 +592,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 				loop={loop}
 				showInTimeline={showInTimeline}
 				_remotionInternalStack={_remotionInternalStack ?? undefined}
-				preservePitch={preservePitch}
 				{...fallbackOffthreadVideoProps}
+				preservePitch={
+					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch
+				}
 			/>
 		);
 	}

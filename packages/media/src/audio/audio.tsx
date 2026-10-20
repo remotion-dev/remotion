@@ -184,7 +184,11 @@ const AudioInner: React.FC<
 	}
 
 	validateMediaProps(
-		{playbackRate: props.playbackRate, volume: props.volume},
+		{
+			playbackRate: props.playbackRate,
+			preservePitch: props.preservePitch,
+			volume: props.volume,
+		},
 		'Audio',
 	);
 	validateToneFrequency({
@@ -230,6 +234,7 @@ const AudioInner: React.FC<
 						<AudioForPreview
 							name={name}
 							{...otherProps}
+							preservePitch={props.preservePitch ?? true}
 							trimAfter={effectiveTrimAfter}
 							style={premountingStyle}
 							_remotionInternalStack={sourceStack}

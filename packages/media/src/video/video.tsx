@@ -146,7 +146,6 @@ const InnerVideo: React.FC<
 		trimAfter,
 	});
 
-	validateMediaProps({playbackRate, volume}, 'Video');
 	validateToneFrequency({toneFrequency, component: 'Video'});
 
 	if (environment.isRendering) {
@@ -295,6 +294,8 @@ const VideoInner: React.FC<
 	cropBottom,
 	...props
 }) => {
+	validateMediaProps({playbackRate, preservePitch, volume}, 'Video');
+
 	const sourceStack = controls
 		? (Internals.getStackForControls(controls) ?? undefined)
 		: undefined;

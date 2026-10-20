@@ -430,11 +430,11 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				style={style ?? undefined}
 				_remotionInternalStack={_remotionInternalStack ?? undefined}
 				toneFrequency={toneFrequency}
-				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? preservePitch}
 				audioStreamIndex={audioStreamIndex}
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
 				crossOrigin={fallbackHtml5AudioProps?.crossOrigin}
 				{...fallbackHtml5AudioProps}
+				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? preservePitch}
 			/>
 		);
 	}
@@ -464,7 +464,7 @@ type InnerAudioProps = {
 	readonly trimBefore?: number | undefined;
 	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio?: boolean;
-	readonly preservePitch?: boolean;
+	readonly preservePitch: boolean;
 	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
@@ -489,7 +489,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	_remotionInternalStack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
-	preservePitch = true,
+	preservePitch,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
 	onError,
