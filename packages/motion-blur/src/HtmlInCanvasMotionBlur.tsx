@@ -215,22 +215,26 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 		[actualSamples],
 	);
 
-	const sampleElements = Array.from({length: actualSamples}, (_, index) => {
-		return (
-			<MotionBlurSample
-				key={index}
-				width={width}
-				height={height}
-				index={index}
-				count={actualSamples}
-				shutterInFrames={shutterInFrames}
-				firstFrame={firstFrame}
-				lastFrame={lastFrame}
-			>
-				{children}
-			</MotionBlurSample>
-		);
-	});
+	const passThrough = Internals.useHtmlInCanvasUnsupportedMessage() !== null;
+	const sampleElements = Array.from(
+		{length: passThrough ? 0 : actualSamples},
+		(_, index) => {
+			return (
+				<MotionBlurSample
+					key={index}
+					width={width}
+					height={height}
+					index={index}
+					count={actualSamples}
+					shutterInFrames={shutterInFrames}
+					firstFrame={firstFrame}
+					lastFrame={lastFrame}
+				>
+					{children}
+				</MotionBlurSample>
+			);
+		},
+	);
 
 	// The root wrapper holds the first sample. The rest must be canvas children.
 	// Reuse HtmlInCanvas's Sequence for the motion blur controls.
@@ -254,8 +258,9 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			{...{controls}}
 			onPaint={onPaint}
 			_remotionInternalCanvasSiblings={sampleElements.slice(1)}
+			_remotionInternalFallbackLabel="Motion blur is not visible"
 		>
-			{sampleElements[0]}
+			{passThrough ? children : sampleElements[0]}
 		</HtmlInCanvas>
 	);
 };

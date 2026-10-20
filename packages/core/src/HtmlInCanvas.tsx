@@ -18,6 +18,7 @@ import {
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
+import {HtmlInCanvasFallback} from './HtmlInCanvasFallback.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -458,6 +459,7 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
 		// captureElementImage() only accepts immediate children of the layout canvas.
 		readonly _remotionInternalCanvasSiblings?: React.ReactNode;
+		readonly _remotionInternalFallbackLabel?: string;
 	};
 /* eslint-enable react/require-default-props */
 
@@ -470,6 +472,19 @@ type HtmlInCanvasPaintState = {
 
 const HtmlInCanvasAncestorContext =
 	createContext<HtmlInCanvasPaintState | null>(null);
+
+export const useHtmlInCanvasUnsupportedMessage = (): string | null => {
+	const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
+	if (!isHtmlInCanvasSupported()) {
+		return getHtmlInCanvasUnsupportedMessage();
+	}
+
+	if (ancestorPaintState && !isHtmlInCanvasNestingSupported()) {
+		return `Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer with HTML-in-canvas enabled.`;
+	}
+
+	return null;
+};
 
 type HtmlInCanvasContentProps = {
 	readonly width: number;
@@ -1097,6 +1112,7 @@ const HtmlInCanvasInner = forwardRef<
 			onInit,
 			pixelDensity,
 			_remotionInternalCanvasSiblings,
+			_remotionInternalFallbackLabel = 'Effects are not visible',
 			controls,
 			style,
 			cropLeft,
@@ -1114,6 +1130,9 @@ const HtmlInCanvasInner = forwardRef<
 		ref,
 	) => {
 		const {isRendering} = useRemotionEnvironment();
+		const unsupportedMessage = useHtmlInCanvasUnsupportedMessage();
+		assertHtmlInCanvasDimensions(width, height);
+		resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const Content = isRendering
 			? HtmlInCanvasContentForRendering
 			: HtmlInCanvasContent;
@@ -1181,22 +1200,33 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<Content
-						ref={setCanvasRef}
-						renderFrame={null}
-						width={width}
-						height={height}
-						effects={effects}
-						effectsOutputSize={effectsOutputSize ?? null}
-						onPaint={onPaint}
-						onInit={onInit}
-						pixelDensity={pixelDensity}
-						canvasSiblings={_remotionInternalCanvasSiblings ?? null}
-						controls={controls}
-						style={croppedStyle ?? undefined}
-					>
-						{children}
-					</Content>
+					{!isRendering && unsupportedMessage !== null ? (
+						<HtmlInCanvasFallback
+							style={{width, height, ...croppedStyle}}
+							label={_remotionInternalFallbackLabel}
+						>
+							<DefaultPremountContext.Provider value={0}>
+								<div style={{width, height}}>{children}</div>
+							</DefaultPremountContext.Provider>
+						</HtmlInCanvasFallback>
+					) : (
+						<Content
+							ref={setCanvasRef}
+							renderFrame={null}
+							width={width}
+							height={height}
+							effects={effects}
+							effectsOutputSize={effectsOutputSize ?? null}
+							onPaint={onPaint}
+							onInit={onInit}
+							pixelDensity={pixelDensity}
+							canvasSiblings={_remotionInternalCanvasSiblings ?? null}
+							controls={controls}
+							style={croppedStyle ?? undefined}
+						>
+							{children}
+						</Content>
+					)}
 				</Sequence>
 			</Freeze>
 		);

@@ -115,6 +115,7 @@ import {
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
+import {HtmlInCanvasFallbackExample} from './HtmlInCanvas/fallback';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
@@ -1273,6 +1274,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-fallback"
+						component={HtmlInCanvasFallbackExample}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={180}
+					/>
 					<Composition
 						id="html-in-canvas-nested"
 						component={HtmlInCanvasNested}

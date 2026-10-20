@@ -106,6 +106,8 @@ import {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useHtmlInCanvasUnsupportedMessage} from './HtmlInCanvas.js';
+import {HtmlInCanvasFallback} from './HtmlInCanvasFallback.js';
 import {
 	getInputPropsOverride,
 	setInputPropsOverride,
@@ -353,6 +355,8 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	HtmlInCanvasFallback,
+	useHtmlInCanvasUnsupportedMessage,
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 	createElementSourceProxy,
