@@ -29,6 +29,8 @@ import {CloseUp6} from './CloseUp6';
 import {CloseUp7} from './CloseUp7';
 import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
+import {ColorCorrectionDemo} from './ColorCorrectionDemo';
+import {ColorCorrectionRecordingComposition} from './ColorCorrectionRecordingComposition';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -91,6 +93,7 @@ import {
 import {ExploreRemotionAI} from './HomepageAssets/ExploreRemotion/AI';
 import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/AudioWaveform';
 import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
+import {ExploreRemotionColorCorrection} from './HomepageAssets/ExploreRemotion/ColorCorrection';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
 import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
@@ -192,6 +195,14 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="ColorCorrectionDemo"
+				component={ColorCorrectionDemo}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
 			<DocsAnimationCompositions />
 			<Composition
 				id="TimelineLayoutReveal"
@@ -288,6 +299,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionColorCorrection"
+						component={ExploreRemotionColorCorrection}
+						durationInFrames={180}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
 					<Composition
 						id="ExploreRemotionTransitions"
 						component={ExploreRemotionTransitions}
@@ -1231,6 +1250,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				durationInFrames={263}
 				fps={60}
 				width={1918}
+				height={1440}
+			/>
+			<Composition
+				id="ColorCorrectionRecording"
+				component={ColorCorrectionRecordingComposition}
+				durationInFrames={485}
+				fps={60}
+				width={1620}
 				height={1440}
 			/>
 		</>
