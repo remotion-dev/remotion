@@ -41,6 +41,7 @@ export const parseRenderOutputDragData = (
 ): RenderOutputDragData | null => {
 	try {
 		const parsed = z.safeParse(renderOutputDragDataSchema, JSON.parse(value));
+
 		return parsed.success
 			? makeRenderOutputDragData({
 					outputPath: parsed.data.outputPath,

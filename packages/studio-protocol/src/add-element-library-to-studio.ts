@@ -129,6 +129,7 @@ export const parseStudioProtocolAddElementLibraryRequest = (
 		studioProtocolAddElementLibraryRequestSchema,
 		value,
 	);
+
 	return parsed.success ? parsed.data : null;
 };
 
@@ -139,13 +140,103 @@ export const parseStudioProtocolIframeAddElementLibraryRequest = (
 		studioProtocolIframeAddElementLibraryRequestSchema,
 		value,
 	);
+
 	return parsed.success ? parsed.data : null;
 };
 
 const failure = (
 	code: AddElementLibraryToStudioErrorCode,
 	message: string,
-): AddElementLibraryToStudioResult => ({success: false, code, message});
+): Extract<AddElementLibraryToStudioResult, {success: false}> => ({
+	success: false,
+	code,
+	message,
+});
+
+type ElementLibraryDetails = Pick<
+	StudioProtocolAddElementLibraryRequest,
+	'url' | 'displayName' | 'captionStylesUrl'
+>;
+
+const normalizeElementLibraryDetails = ({
+	url,
+	displayName,
+	captionStylesUrl,
+}: ElementLibraryDetails):
+	| {success: true; details: ElementLibraryDetails}
+	| Extract<AddElementLibraryToStudioResult, {success: false}> => {
+	if (!z.safeParse(z.string(), url).success) {
+		return failure('invalid-url', 'The Element Library URL must be a string.');
+	}
+
+	let normalizedUrl: string;
+
+	try {
+		const parsedUrl = new URL(url);
+
+		if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+			return failure(
+				'invalid-url',
+				'The Element Library URL must use HTTP or HTTPS.',
+			);
+		}
+
+		normalizedUrl = parsedUrl.href;
+	} catch {
+		return failure(
+			'invalid-url',
+			'The Element Library URL must be an absolute HTTP or HTTPS URL.',
+		);
+	}
+
+	let normalizedCaptionStylesUrl: string | null = null;
+
+	if (captionStylesUrl !== null) {
+		try {
+			if (!z.safeParse(z.string(), captionStylesUrl).success) {
+				throw new Error('Invalid URL');
+			}
+
+			const parsedUrl = new URL(captionStylesUrl);
+
+			if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+				throw new Error('Unsupported protocol');
+			}
+
+			normalizedCaptionStylesUrl = parsedUrl.href;
+		} catch {
+			return failure(
+				'invalid-url',
+				'The caption styles URL must be an absolute HTTP or HTTPS URL.',
+			);
+		}
+	}
+
+	if (!z.safeParse(z.nullable(z.string()), displayName).success) {
+		return failure(
+			'invalid-display-name',
+			'The Element Library display name must be a string.',
+		);
+	}
+
+	const normalizedDisplayName = displayName?.trim() ?? null;
+
+	if (normalizedDisplayName === '') {
+		return failure(
+			'invalid-display-name',
+			'The Element Library display name must not be empty.',
+		);
+	}
+
+	return {
+		success: true,
+		details: {
+			url: normalizedUrl,
+			displayName: normalizedDisplayName,
+			captionStylesUrl: normalizedCaptionStylesUrl,
+		},
+	};
+};
 
 export const addElementLibraryToStudioWithDependencies = async (
 	{
@@ -166,65 +257,18 @@ export const addElementLibraryToStudioWithDependencies = async (
 		);
 	}
 
-	if (typeof url !== 'string') {
-		return failure('invalid-url', 'The Element Library URL must be a string.');
-	}
+	const normalized = normalizeElementLibraryDetails({
+		url,
+		displayName,
+		captionStylesUrl,
+	});
 
-	let normalizedUrl: string;
-	try {
-		const parsedUrl = new URL(url);
-		if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-			return failure(
-				'invalid-url',
-				'The Element Library URL must use HTTP or HTTPS.',
-			);
-		}
-
-		normalizedUrl = parsedUrl.href;
-	} catch {
-		return failure(
-			'invalid-url',
-			'The Element Library URL must be an absolute HTTP or HTTPS URL.',
-		);
-	}
-
-	let normalizedCaptionStylesUrl: string | null = null;
-	if (captionStylesUrl !== null) {
-		try {
-			if (typeof captionStylesUrl !== 'string') {
-				throw new Error('Invalid URL');
-			}
-
-			const parsedUrl = new URL(captionStylesUrl);
-			if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-				throw new Error('Unsupported protocol');
-			}
-
-			normalizedCaptionStylesUrl = parsedUrl.href;
-		} catch {
-			return failure(
-				'invalid-url',
-				'The caption styles URL must be an absolute HTTP or HTTPS URL.',
-			);
-		}
-	}
-
-	if (displayName !== null && typeof displayName !== 'string') {
-		return failure(
-			'invalid-display-name',
-			'The Element Library display name must be a string.',
-		);
-	}
-
-	const normalizedDisplayName = displayName?.trim() ?? null;
-	if (normalizedDisplayName === '') {
-		return failure(
-			'invalid-display-name',
-			'The Element Library display name must not be empty.',
-		);
+	if (!normalized.success) {
+		return normalized;
 	}
 
 	const discovery = await discoverStudios(dependencies);
+
 	if (discovery.studios.length === 0) {
 		if (discovery.foundUnsupportedProtocol) {
 			return failure(
@@ -248,8 +292,10 @@ export const addElementLibraryToStudioWithDependencies = async (
 
 	const supportedStudios = discovery.studios.flatMap((studio) => {
 		const capability = getAddElementLibraryCapability(studio.descriptor);
+
 		return capability === null ? [] : [{...studio, capability}];
 	});
+
 	if (supportedStudios.length === 0) {
 		return failure(
 			'studio-upgrade-required',
@@ -258,21 +304,28 @@ export const addElementLibraryToStudioWithDependencies = async (
 	}
 
 	const now = dependencies.now();
+
 	const configurable = supportedStudios
-		.filter(({capability}) => {
-			const {target} = capability;
-			return target !== null && target.expiresAt > now;
+		.flatMap((studio) => {
+			const {target} = studio.capability;
+
+			if (target === null || target.expiresAt <= now) {
+				return [];
+			}
+
+			return [{...studio, target}];
 		})
 		.sort((a, b) => {
-			const focusDifference =
-				b.capability.target!.lastFocusedAt - a.capability.target!.lastFocusedAt;
+			const focusDifference = b.target.lastFocusedAt - a.target.lastFocusedAt;
+
 			return focusDifference === 0
 				? b.discoveredAt - a.discoveredAt
 				: focusDifference;
 		});
+
 	const selected = configurable[0];
-	const selectedTarget = selected?.capability.target;
-	if (!selected || selectedTarget === null || selectedTarget === undefined) {
+
+	if (!selected) {
 		return failure(
 			'no-configurable-target',
 			'Focus a writable Remotion Studio tab, then try again.',
@@ -280,16 +333,16 @@ export const addElementLibraryToStudioWithDependencies = async (
 	}
 
 	let response: Response;
+
 	try {
 		const requestBody = {
 			operation: 'add-element-library',
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
-			targetId: selectedTarget.id,
-			url: normalizedUrl,
-			displayName: normalizedDisplayName,
-			captionStylesUrl: normalizedCaptionStylesUrl,
+			targetId: selected.target.id,
+			...normalized.details,
 		} satisfies StudioProtocolAddElementLibraryRequest;
+
 		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
 			url: `${selected.origin}/api/studio-protocol/element-library`,
@@ -301,6 +354,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 		});
 	} catch (error) {
 		const timedOut = isAbortError(error);
+
 		return failure(
 			timedOut ? 'request-timed-out' : 'network-error',
 			timedOut
@@ -310,6 +364,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 	}
 
 	let result: unknown;
+
 	try {
 		result = await response.json();
 	} catch {
@@ -332,15 +387,15 @@ export const addElementLibraryToStudioWithDependencies = async (
 	}
 
 	const protocolError = parseStudioProtocolError(result);
+
 	if (protocolError !== null) {
-		return failure(
-			protocolError.code === 'target-expired'
-				? 'target-expired'
-				: protocolError.code === 'no-config-file'
-					? 'no-config-file'
-					: 'request-rejected',
-			protocolError.message,
-		);
+		const {code, message} = protocolError;
+
+		if (code === 'target-expired' || code === 'no-config-file') {
+			return failure(code, message);
+		}
+
+		return failure('request-rejected', message);
 	}
 
 	return failure(
@@ -362,6 +417,7 @@ const addElementLibraryToParentStudio = (
 
 	return new Promise((resolve) => {
 		const channel = new MessageChannel();
+
 		const timeout = setTimeout(() => {
 			channel.port1.close();
 			resolve(null);
@@ -372,6 +428,7 @@ const addElementLibraryToParentStudio = (
 				addElementLibraryToStudioResultSchema,
 				event.data,
 			);
+
 			if (!response.success) {
 				return;
 			}
@@ -391,33 +448,26 @@ export const addElementLibraryToStudio = async ({
 	displayName,
 	url,
 }: AddElementLibraryToStudioInput): Promise<AddElementLibraryToStudioResult> => {
-	if (typeof url === 'string') {
+	const normalized = normalizeElementLibraryDetails({
+		url,
+		displayName: displayName ?? null,
+		captionStylesUrl: captionStylesUrl ?? null,
+	});
+
+	if (normalized.success) {
 		try {
-			const parsedUrl = new URL(url);
-			const parsedCaptionStylesUrl =
-				captionStylesUrl === undefined ? null : new URL(captionStylesUrl);
-			const normalizedDisplayName = displayName?.trim() ?? null;
-			if (
-				(parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') &&
-				(parsedCaptionStylesUrl === null ||
-					parsedCaptionStylesUrl.protocol === 'http:' ||
-					parsedCaptionStylesUrl.protocol === 'https:') &&
-				normalizedDisplayName !== ''
-			) {
-				const parentResult = await addElementLibraryToParentStudio({
-					operation: 'add-element-library',
-					protocol: 'remotion-studio-protocol',
-					protocolVersion: 1,
-					url: parsedUrl.href,
-					displayName: normalizedDisplayName,
-					captionStylesUrl: parsedCaptionStylesUrl?.href ?? null,
-				});
-				if (parentResult !== null) {
-					return parentResult;
-				}
+			const parentResult = await addElementLibraryToParentStudio({
+				operation: 'add-element-library',
+				protocol: 'remotion-studio-protocol',
+				protocolVersion: 1,
+				...normalized.details,
+			});
+
+			if (parentResult !== null) {
+				return parentResult;
 			}
 		} catch {
-			// The shared validation below returns the public invalid URL result.
+			// If the parent is unavailable, try local Studio discovery below.
 		}
 	}
 

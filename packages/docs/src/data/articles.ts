@@ -8843,6 +8843,15 @@ export const articles = [
 		slug: 'studio/browse-elements',
 	},
 	{
+		id: 'studio/creating-elements',
+		title: 'Creating Elements',
+		relativePath: 'docs/studio/creating-elements.mdx',
+		compId: 'articles-docs-studio-creating-elements',
+		crumb: null,
+		noAi: false,
+		slug: 'studio/creating-elements',
+	},
+	{
 		id: 'studio/delete-static-file',
 		title: 'deleteStaticFile()',
 		relativePath: 'docs/studio/delete-static-file.mdx',
