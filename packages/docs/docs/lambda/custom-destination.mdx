@@ -24,15 +24,7 @@ To render into a different bucket, specify the `outName` option to [`renderMedia
 
 From <AvailableFrom v="4.0.538" inline />, you can omit `key` to use `renders/${renderId}/out.{extension}` in the destination bucket, including when using `s3OutputProvider`. The extension is chosen from the codec and audio options, or the image format for stills.
 
-If you specify `key`, include the extension. For media, you can import `getFileExtensionFromCodec()` from `@remotion/renderer` to derive it:
-
-```ts twoslash title="Choosing a file extension"
-import {getFileExtensionFromCodec} from '@remotion/renderer';
-
-const extension = getFileExtensionFromCodec('h264', null); // "mp4"
-```
-
-The second argument is the audio codec, or `null` to use the codec's default extension. Use `null` when saving audio separately with `separateAudioTo`.
+If you specify `key`, include the extension.
 
 ```tsx twoslash {13-16}
 import {renderMediaOnLambda} from '@remotion/lambda';
