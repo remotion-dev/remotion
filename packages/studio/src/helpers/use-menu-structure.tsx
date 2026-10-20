@@ -1,5 +1,4 @@
 import type {EditorPickerId} from '@remotion/studio-shared';
-import {clearPersistentTimelineCache} from '@remotion/timeline-utils';
 import {useContext, useEffect, useMemo} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
@@ -938,32 +937,6 @@ const useMenuStructureBase = ({
 								subMenu: null,
 								quickSwitcherLabel: `Install package...`,
 							},
-					{
-						id: 'clear-timeline-cache',
-						value: 'clear-timeline-cache',
-						label: 'Clear timeline cache',
-						onClick: () => {
-							closeMenu();
-							clearPersistentTimelineCache()
-								.then(() => {
-									showNotification(
-										'Cleared cached waveforms and thumbnails',
-										2000,
-									);
-								})
-								.catch((err) => {
-									showNotification(
-										`Could not clear timeline cache: ${(err as Error).message}`,
-										2000,
-									);
-								});
-						},
-						type: 'item' as const,
-						keyHint: null,
-						leftItem: null,
-						subMenu: null,
-						quickSwitcherLabel: 'Clear timeline cache',
-					},
 				].filter(Internals.truthy),
 				quickSwitcherLabel: null,
 			},

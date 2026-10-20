@@ -785,19 +785,3 @@ export const writeThumbnailToPersistentCache = ({
 		}, THUMBNAIL_FLUSH_DELAY_MS);
 	}
 };
-
-export const clearPersistentTimelineCache = async () => {
-	const database = await openDatabase();
-	if (!database) {
-		return;
-	}
-
-	const transaction = database.transaction(ALL_STORES, 'readwrite');
-	for (const name of ALL_STORES) {
-		transaction.objectStore(name).clear();
-	}
-
-	await transactionDone(transaction);
-	readableSources.clear();
-	writableSources.clear();
-};
