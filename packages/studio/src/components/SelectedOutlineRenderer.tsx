@@ -114,33 +114,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		[getContextMenuOpenByKey],
 	);
 	const hoverController = useContext(TimelineSequenceHoverContext);
-	const selectableOutlineTargets = useMemo(() => {
-		const rotatingSequenceIds = new Set(
-			outlineTargets
-				.filter((target) => target.selectedForRotation)
-				.map((target) => target.sequence.id),
-		);
-		if (rotatingSequenceIds.size === 0) {
-			return outlineTargets;
-		}
-
-		const parentBySequenceId = new Map(
-			sequences.map((sequence) => [sequence.id, sequence.parent]),
-		);
-		// Descendants must not intercept hover or dragging until rotation mode ends.
-		return outlineTargets.filter((target) => {
-			let parentId = target.sequence.parent;
-			while (parentId !== null) {
-				if (rotatingSequenceIds.has(parentId)) {
-					return false;
-				}
-
-				parentId = parentBySequenceId.get(parentId) ?? null;
-			}
-
-			return true;
-		});
-	}, [outlineTargets, sequences]);
 	const {
 		outlinesForRendering,
 		outlinesByKey,
@@ -148,7 +121,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		hoveredNodePathKey,
 	} = useCanvasOutlines({
 		contentRoot: Internals.portalNode(),
-		targets: selectableOutlineTargets,
+		targets: outlineTargets,
 		sequences,
 		hoverController,
 		freezeOrder: dragging,
