@@ -63,6 +63,7 @@ const SpinningGlobeInner: React.FC<SpinningGlobeProps> = ({
 		<div style={{width: 840, height: 840, ...style}}>
 			<CanvasImage
 				src={src}
+				pauseWhenLoading
 				width={840}
 				height={840}
 				fit="fill"
