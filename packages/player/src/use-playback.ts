@@ -35,8 +35,9 @@ const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
 // restart the clock from the current frame and lose the already elapsed
 // portion of the frame.
 // A fresh clock is created only where a restart is correct: when starting
-// playback, or when the fps or playback rate changed mid-playback.
+// playback, or when the composition, fps or playback rate changed mid-playback.
 type PlaybackClock = {
+	compositionId: string;
 	startedTime: number;
 	framesAdvanced: number;
 	fps: number;
@@ -63,6 +64,9 @@ export const usePlayback = ({
 	muted: boolean;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
+	const fps = config?.fps ?? null;
+	const durationInFrames = config?.durationInFrames ?? null;
+	const compositionId = config?.id ?? null;
 	const frame = Internals.Timeline.useTimelinePosition();
 	const playing = Internals.usePlaying();
 	const {pause, emitter, isPlaying} = usePlayerMethods();
@@ -82,6 +86,8 @@ export const usePlayback = ({
 
 	const lastTimeUpdateTimestamp = useRef<number>(0);
 	const playbackClockRef = useRef<PlaybackClock | null>(null);
+	const previousMutedRef = useRef(muted);
+	const anchoredAudioContextRef = useRef<AudioContext | null>(null);
 
 	useBrowserMediaSession({
 		browserMediaControlsBehavior,
@@ -100,7 +106,7 @@ export const usePlayback = ({
 			return;
 		}
 
-		if (!config) {
+		if (fps === null) {
 			return;
 		}
 
@@ -111,7 +117,7 @@ export const usePlayback = ({
 		const changed = setGlobalTimeAnchor({
 			audioContext: sharedAudioContext.audioContext,
 			audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-			absoluteTimeInSeconds: frame / config.fps,
+			absoluteTimeInSeconds: frame / fps,
 			globalPlaybackRate: playbackRate,
 			logLevel,
 			force: false,
@@ -119,7 +125,7 @@ export const usePlayback = ({
 		if (changed) {
 			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 		}
-	}, [config, frame, logLevel, playbackRate, sharedAudioContext, muted]);
+	}, [fps, frame, logLevel, playbackRate, sharedAudioContext, muted]);
 
 	// When the audio context is suspended, we use the opportunity to
 	// re-anchor the time to be exact.
@@ -129,7 +135,7 @@ export const usePlayback = ({
 			return;
 		}
 
-		if (!config) {
+		if (fps === null) {
 			return;
 		}
 
@@ -143,7 +149,7 @@ export const usePlayback = ({
 				const changed = setGlobalTimeAnchor({
 					audioContext,
 					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+					absoluteTimeInSeconds: getCurrentFrame() / fps,
 					globalPlaybackRate: playbackRate,
 					logLevel,
 					force: true,
@@ -158,17 +164,14 @@ export const usePlayback = ({
 		return () => {
 			audioContext?.removeEventListener('statechange', callback);
 		};
-	}, [
-		config,
-		getCurrentFrame,
-		logLevel,
-		muted,
-		playbackRate,
-		sharedAudioContext,
-	]);
+	}, [fps, getCurrentFrame, logLevel, muted, playbackRate, sharedAudioContext]);
 
 	useEffect(() => {
-		if (!config) {
+		const wasMuted = previousMutedRef.current;
+		previousMutedRef.current = muted;
+
+		if (fps === null || durationInFrames === null || compositionId === null) {
+			playbackClockRef.current = null;
 			return;
 		}
 
@@ -178,19 +181,23 @@ export const usePlayback = ({
 			return;
 		}
 
-		// Either carry over the previous clock or start a fresh one.
+		// Duration and range changes update the endpoint without losing elapsed
+		// sub-frame time. A different composition or timebase needs a fresh clock.
 		const previousClock = playbackClockRef.current;
-		const clock: PlaybackClock =
-			previousClock !== null &&
-			previousClock.fps === config.fps &&
-			previousClock.playbackRate === playbackRate
-				? previousClock
-				: {
-						startedTime: performance.now(),
-						framesAdvanced: 0,
-						fps: config.fps,
-						playbackRate,
-					};
+		const shouldRestartClock =
+			previousClock === null ||
+			previousClock.compositionId !== compositionId ||
+			previousClock.fps !== fps ||
+			previousClock.playbackRate !== playbackRate;
+		const clock: PlaybackClock = shouldRestartClock
+			? {
+					compositionId,
+					startedTime: performance.now(),
+					framesAdvanced: 0,
+					fps,
+					playbackRate,
+				}
+			: previousClock;
 		playbackClockRef.current = clock;
 
 		if (
@@ -198,23 +205,28 @@ export const usePlayback = ({
 			sharedAudioContext.audioContext &&
 			!muted
 		) {
-			// With _experimentalKeepAudioContextAlive, the context clock keeps
-			// running while frames are not advancing (pauses, buffering, muted playback), so
-			// the anchor is stale by the length of the stall. Without this mode,
-			// the 'statechange' listener above re-anchors on the
-			// suspended-to-running transition, but that transition never happens
-			// here. Re-anchor from the current frame instead, and tell the audio
-			// iterators so they drop the nodes they queued against the old
-			// anchor and reschedule.
+			const didUnmute = wasMuted && !muted;
+			const didReplaceAudioContext =
+				anchoredAudioContextRef.current !== sharedAudioContext.audioContext;
+			const shouldRescheduleAudio =
+				shouldRestartClock || didUnmute || didReplaceAudioContext;
+
+			// The native clock keeps running through pauses and muted playback.
+			// These transitions need an exact anchor, as does a replacement context
+			// with its own time origin. Other effect re-runs use the drift tolerance
+			// so duration changes do not introduce frame-quantized audio shifts.
 			const changed = setGlobalTimeAnchor({
 				audioContext: sharedAudioContext.audioContext,
 				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-				absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+				absoluteTimeInSeconds: getCurrentFrame() / fps,
 				globalPlaybackRate: playbackRate,
 				logLevel,
-				force: true,
+				force: shouldRescheduleAudio,
 			});
-			if (changed) {
+			anchoredAudioContextRef.current = sharedAudioContext.audioContext;
+			// A changed timebase can invalidate queued audio even if the anchor
+			// happens to remain numerically equal (for example at frame zero).
+			if (changed || shouldRescheduleAudio) {
 				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 			}
 		}
@@ -264,7 +276,7 @@ export const usePlayback = ({
 			}
 
 			const time = performance.now() - clock.startedTime;
-			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
+			const actualLastFrame = outFrame ?? durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
 			const seekRevision = seek?.revision.current ?? null;
@@ -279,7 +291,7 @@ export const usePlayback = ({
 				time,
 				currentFrame,
 				playbackSpeed: playbackRate,
-				fps: config.fps,
+				fps,
 				actualFirstFrame,
 				actualLastFrame,
 				framesAdvanced: clock.framesAdvanced,
@@ -298,7 +310,7 @@ export const usePlayback = ({
 
 			if (frameToDisplay !== currentFrame && !isBuffering()) {
 				playbackFrame = frameToDisplay;
-				setFrameFromPlayback((c) => ({...c, [config.id]: frameToDisplay}));
+				setFrameFromPlayback((c) => ({...c, [compositionId]: frameToDisplay}));
 			}
 
 			if (hasEnded) {
@@ -372,7 +384,7 @@ export const usePlayback = ({
 				reqAnimFrameCall = {
 					type: 'timeout',
 					// Note: Most likely, this will not be 1000 / fps, but the browser will throttle it to ~1/sec.
-					id: setTimeout(callback, 1000 / config.fps),
+					id: setTimeout(callback, 1000 / fps),
 				};
 				return;
 			}
@@ -400,7 +412,9 @@ export const usePlayback = ({
 			stop();
 		};
 	}, [
-		config,
+		compositionId,
+		durationInFrames,
+		fps,
 		loop,
 		pause,
 		playing,
