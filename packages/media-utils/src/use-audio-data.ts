@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {cancelRender, useDelayRender} from 'remotion';
+import {useDelayRender} from 'remotion';
 import {getAudioData} from './get-audio-data';
 import type {MediaUtilsAudioData} from './types';
 
@@ -36,7 +36,7 @@ export const useAudioData = (
 	}, []);
 
 	const [metadata, setMetadata] = useState<MediaUtilsAudioData | null>(null);
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const sampleRate = options?.sampleRate;
 	const [initialRequestInit] = useState(options?.requestInit);
 
@@ -60,7 +60,14 @@ export const useAudioData = (
 		}
 
 		continueRender(handle);
-	}, [src, sampleRate, initialRequestInit, delayRender, continueRender]);
+	}, [
+		src,
+		sampleRate,
+		initialRequestInit,
+		delayRender,
+		continueRender,
+		cancelRender,
+	]);
 
 	useLayoutEffect(() => {
 		fetchMetadata();
