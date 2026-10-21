@@ -99,16 +99,50 @@ export const setupHtmlInCanvas = ({
 
 const waitForPaint = (
 	layoutCanvas: HTMLCanvasWithLayoutSubtree,
+	signal: AbortSignal | null,
 ): Promise<void> => {
-	return new Promise((resolve) => {
-		// Chromium dispatches paint during compositor commit. Resume in a new task
-		// so WebGL context eviction cannot destroy a texture layer during commit.
-		// Remove this workaround once the Chromium fix ships in supported Chrome versions.
-		// https://github.com/remotion-dev/remotion/issues/12293
-		layoutCanvas.addEventListener('paint', () => setTimeout(resolve, 0), {
-			once: true,
-		});
-		layoutCanvas.requestPaint!();
+	return new Promise((resolve, reject) => {
+		let paintTimer: ReturnType<typeof setTimeout> | null = null;
+		let onPaint: () => void = () => undefined;
+		let onAbort: () => void = () => undefined;
+
+		const cleanup = () => {
+			layoutCanvas.removeEventListener('paint', onPaint);
+			signal?.removeEventListener('abort', onAbort);
+			if (paintTimer !== null) {
+				clearTimeout(paintTimer);
+			}
+		};
+
+		onAbort = () => {
+			cleanup();
+			reject(signal!.reason);
+		};
+
+		onPaint = () => {
+			// Chromium dispatches paint during compositor commit. Resume in a new task
+			// so WebGL context eviction cannot destroy a texture layer during commit.
+			// Remove this workaround once the Chromium fix ships in supported Chrome versions.
+			// https://github.com/remotion-dev/remotion/issues/12293
+			paintTimer = setTimeout(() => {
+				cleanup();
+				resolve();
+			}, 0);
+		};
+
+		if (signal?.aborted) {
+			onAbort();
+			return;
+		}
+
+		layoutCanvas.addEventListener('paint', onPaint, {once: true});
+		signal?.addEventListener('abort', onAbort, {once: true});
+		try {
+			layoutCanvas.requestPaint!();
+		} catch (error) {
+			cleanup();
+			reject(error);
+		}
 	});
 };
 
@@ -124,11 +158,13 @@ export const drawWithHtmlInCanvas = async ({
 	element,
 	scaledWidth,
 	scaledHeight,
+	signal,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
 	scaledWidth: number;
 	scaledHeight: number;
+	signal: AbortSignal | null;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 
@@ -140,7 +176,7 @@ export const drawWithHtmlInCanvas = async ({
 		layoutCanvas.height = scaledHeight;
 	}
 
-	await waitForPaint(layoutCanvas);
+	await waitForPaint(layoutCanvas, signal);
 
 	ctx.reset();
 	ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
