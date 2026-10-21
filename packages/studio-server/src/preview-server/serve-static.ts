@@ -123,13 +123,18 @@ export const serveStatic = async function ({
 
 	const hasRange = req.headers.range && lstat.size;
 	if (!hasRange) {
-		const readStream = createReadStream(path);
 		res.setHeader(
 			'content-type',
 			RenderInternals.mimeLookup(path) || 'application/octet-stream',
 		);
 		res.setHeader('content-length', lstat.size);
 		res.writeHead(200);
+		if (req.method === 'HEAD') {
+			res.end();
+			return;
+		}
+
+		const readStream = createReadStream(path);
 		readStream.pipe(res);
 		return;
 	}
@@ -153,6 +158,11 @@ export const serveStatic = async function ({
 		res.setHeader('content-length', end - start + 1);
 
 		res.writeHead(206);
+		if (req.method === 'HEAD') {
+			res.end();
+			return;
+		}
+
 		const readStream = createReadStream(path, {
 			start,
 			end,
