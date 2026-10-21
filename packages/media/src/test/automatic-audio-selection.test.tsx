@@ -1,6 +1,5 @@
 import {Player} from '@remotion/player';
 import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
-import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {expect, test, vi} from 'vitest';
 import {page} from 'vitest/browser';
