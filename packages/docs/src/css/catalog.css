@@ -1,0 +1,130 @@
+/* Shared Docusaurus catalog skin. Sidebar membership and mobile navigation
+   remain owned by Docusaurus; catalogs opt in at DocRoot/Layout. */
+.catalog-layout {
+	--catalog-background: #f8f9fb;
+	--catalog-muted-color: #59616d;
+	--catalog-divider: rgb(17 24 39 / 10%);
+	--catalog-hover: rgb(17 24 39 / 4%);
+	--doc-sidebar-width: 254px;
+	--ifm-background-color: var(--catalog-background);
+	--ifm-menu-color: var(--catalog-muted-color);
+	--ifm-menu-color-background-hover: var(--catalog-hover);
+	--ifm-menu-color-background-active: var(--catalog-hover);
+}
+
+.catalog-layout[data-theme='dark'] {
+	--catalog-background: #18191a;
+	--catalog-muted-color: #afb5bf;
+	--catalog-divider: rgb(255 255 255 / 10%);
+	--catalog-hover: rgb(255 255 255 / 6%);
+}
+
+.catalog-layout main {
+	min-width: 0;
+}
+
+.catalog-layout main > .container {
+	max-width: 1440px;
+	/* Override Docusaurus's !important container spacing utilities. */
+	padding: 32px clamp(20px, 3.33vw, 48px) 64px !important;
+}
+
+.catalog-layout article:has(.catalog-hero) > .elements-embed-breadcrumbs {
+	display: none;
+}
+
+.catalog-layout .menu {
+	padding: 32px 20px;
+	font-family: 'GTPlanar', sans-serif;
+	font-size: 1rem;
+}
+
+.catalog-layout .menu__link {
+	min-height: 36px;
+	padding: 6px 12px;
+	border-radius: 6px;
+	font-weight: 400;
+}
+
+.catalog-layout .menu__link:focus-visible,
+.catalog-layout .menu__caret:focus-visible,
+.catalog-layout .navbar-sidebar__back:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.catalog-sidebar-root > .menu__list-item-collapsible > .menu__link {
+	min-height: 44px;
+	color: var(--ifm-font-color-base);
+	font-size: 1.125rem;
+	font-weight: 500;
+}
+
+.catalog-sidebar-root > .menu__list {
+	margin: 8px 0 0;
+	padding-left: 0;
+}
+
+.catalog-sidebar-root > .menu__list-item-collapsible--active,
+.catalog-sidebar-root > .menu__list-item-collapsible > .menu__link--active {
+	background: transparent;
+}
+
+.catalog-sidebar-root > .menu__list-item-collapsible > .menu__link--active {
+	color: var(--ifm-font-color-base);
+}
+
+.catalog-sidebar-root .menu__list-item {
+	margin-top: 0;
+}
+
+.catalog-sidebar-root .menu__link--active {
+	background: var(--catalog-hover);
+	color: var(--ifm-color-primary);
+}
+
+.catalog-layout .menu .catalog-sidebar-divider {
+	margin: 16px 0;
+	padding: 0;
+}
+
+.catalog-sidebar-divider hr {
+	height: 1px;
+	margin: 0;
+	border: 0;
+	background: var(--catalog-divider);
+}
+
+.catalog-layout .menu .catalog-sidebar-libraries {
+	margin-top: 0;
+}
+
+@media (max-width: 996px) {
+	.catalog-layout .menu {
+		padding: 16px;
+	}
+
+	.catalog-layout .menu__link {
+		min-height: 44px;
+	}
+
+	.catalog-layout .navbar-sidebar__back {
+		width: 100%;
+		min-height: 44px;
+		margin: 0;
+		padding: 8px 12px;
+	}
+}
+
+/* Studio uses the same cards in a denser, application-sized catalog. */
+.catalog-layout:has(.studio-elements-embed) main > .container {
+	padding: 24px !important;
+}
+
+.catalog-layout:has(.studio-elements-embed) .menu {
+	padding: 16px 12px;
+}
+
+.studio-elements-embed .catalog-sidebar-divider {
+	display: none;
+}

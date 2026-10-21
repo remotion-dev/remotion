@@ -1,5 +1,4 @@
 import Head from '@docusaurus/Head';
-import Link from '@docusaurus/Link';
 import {
 	isInsideStudio,
 	StudioProtocolInternals,
@@ -25,7 +24,6 @@ import {
 	createElementPayloadFromDefinition,
 	installElementInStudio,
 } from './element-drag-data';
-import {getElementCategoryHeadingId} from './element-library-data';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
@@ -171,12 +169,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
-			<Link
-				className={styles.catalogLink}
-				to={`/elements/#${getElementCategoryHeadingId(definition.category)}`}
-			>
-				← All Elements
-			</Link>
 			<img
 				ref={posterRef}
 				alt=""

@@ -1,0 +1,88 @@
+.hero {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	padding: 24px 0 32px;
+	text-align: center;
+}
+
+.hero .title:first-child {
+	max-width: 24ch;
+	margin: 0;
+	font-size: clamp(2.5rem, 5.2vw, 5rem);
+	font-weight: 500;
+	letter-spacing: -0.045em;
+	text-wrap: balance;
+}
+
+.hero .description {
+	max-width: 44ch;
+	margin: 0;
+	color: var(--catalog-muted-color);
+	font-family: 'GTPlanar', sans-serif;
+	font-size: 1rem;
+	line-height: 1.8;
+	text-wrap: pretty;
+}
+
+.description p {
+	margin: 0;
+}
+
+.description a {
+	text-decoration: none;
+}
+
+.description a:hover {
+	text-decoration: underline;
+}
+
+@media (max-width: 599px) {
+	.hero {
+		gap: 20px;
+		padding: 16px 0 32px;
+	}
+
+	.hero .description {
+		font-size: clamp(1rem, 4.3vw, 1.125rem);
+		line-height: 1.6;
+	}
+
+	.description :global(.catalog-lead) {
+		display: block;
+	}
+
+	.description br {
+		display: none;
+	}
+
+	.description a {
+		white-space: nowrap;
+	}
+}
+
+:global(.studio-elements-embed) .hero {
+	align-items: flex-start;
+	gap: 12px;
+	padding: 0;
+	text-align: left;
+}
+
+:global(.studio-elements-embed) .hero .title {
+	font-size: 2rem;
+}
+
+:global(.studio-elements-embed) .hero .description {
+	max-width: 56ch;
+	font-size: 1rem;
+	line-height: 1.8;
+}
+
+:global(.studio-elements-embed) .description :global(.catalog-lead) {
+	display: inline;
+}
+
+:global(.studio-elements-embed) .description br {
+	display: initial;
+}
