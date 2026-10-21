@@ -3,7 +3,7 @@ import React from 'react';
 import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
 
 export const LONG_SHADOWS_PREVIEW_PARAMS = {
-	length: 240,
+	length: 1000,
 	angle: 45,
 	color: '#777777',
 	opacity: 1,

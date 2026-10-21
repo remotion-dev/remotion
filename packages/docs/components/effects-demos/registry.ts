@@ -110,7 +110,10 @@ import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-pro
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
-import {EffectsLongShadowsPreview} from '../effects/effects-long-shadows-preview';
+import {
+	EffectsLongShadowsPreview,
+	LONG_SHADOWS_PREVIEW_PARAMS,
+} from '../effects/effects-long-shadows-preview';
 import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
@@ -341,6 +344,7 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/long-shadows',
 		comp: EffectsLongShadowsPreview,
 		schema: longShadows().definition.schema,
+		initialValues: LONG_SHADOWS_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
