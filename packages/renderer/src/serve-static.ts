@@ -5,7 +5,6 @@ import type {Compositor} from './compositor/compositor';
 import {getDesiredPort} from './get-port';
 import type {LogLevel} from './log-level';
 import {startOffthreadVideoServer} from './offthread-video-server';
-import {getPortConfig} from './port-config';
 import {serveHandler} from './serve-handler';
 
 export const serveStatic = async (
@@ -82,7 +81,8 @@ export const serveStatic = async (
 
 	const maxTries = 10;
 
-	const portConfig = getPortConfig(options.forceIPv4);
+	// Rendering only needs local access, unlike the Studio server.
+	const host = '127.0.0.1';
 
 	for (let i = 0; i < maxTries; i++) {
 		let unlock = () => {};
@@ -92,11 +92,11 @@ export const serveStatic = async (
 					desiredPort: options?.port ?? undefined,
 					from: 3000,
 					to: 3100,
-					hostsToTry: portConfig.hostsToTry,
+					hostsToTry: [host],
 				})
 					.then(({port, unlockPort}) => {
 						unlock = unlockPort;
-						server.listen({port, host: portConfig.host});
+						server.listen({port, host});
 						server.on('listening', () => {
 							resolve(port);
 							return unlock();

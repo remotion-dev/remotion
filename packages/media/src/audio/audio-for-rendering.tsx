@@ -32,6 +32,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	name,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	preservePitch,
 	trimAfter,
 	trimBefore,
 	onError,
@@ -260,7 +261,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						startInVideo,
 						timestamp: audio.timestamp,
 						duration: audio.durationInMicroSeconds,
-						toneFrequency: toneFrequency ?? 1,
+						toneFrequency:
+							(toneFrequency ?? 1) /
+							(preservePitch ? (playbackRate ?? 1) * sequencePlaybackRate : 1),
 					});
 				}
 
@@ -306,6 +309,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		volumeProp,
 		audioStreamIndex,
 		toneFrequency,
+		preservePitch,
 		trimAfter,
 		trimBefore,
 		replaceWithHtml5Audio,
@@ -335,7 +339,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				acceptableTimeShiftInSeconds={
 					fallbackHtml5AudioProps?.acceptableTimeShiftInSeconds
 				}
-				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? true}
+				preservePitch={
+					fallbackHtml5AudioProps?.preservePitch ?? preservePitch ?? true
+				}
 				name={name}
 				showInTimeline={showInTimeline}
 			/>

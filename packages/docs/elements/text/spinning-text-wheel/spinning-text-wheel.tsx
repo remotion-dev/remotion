@@ -137,9 +137,8 @@ const SpinningTextWheelInner: React.FC<SpinningTextWheelProps> = ({
 	);
 };
 
-export const SpinningTextWheel = Interactive.withSchema({
+export const SpinningTextWheel = Interactive.create({
 	Component: SpinningTextWheelInner,
 	componentName: '<SpinningTextWheel>',
 	schema: spinningTextWheelSchema,
-	wrapInSequence: true,
 });

@@ -29,10 +29,7 @@ const RotatingStarburstInner: React.FC = () => {
 	);
 };
 
-export const RotatingStarburst = Interactive.withSchema({
+export const RotatingStarburst = Interactive.create({
 	Component: RotatingStarburstInner,
-	componentName: 'RotatingStarburst',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

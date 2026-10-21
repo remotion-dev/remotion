@@ -5,18 +5,17 @@ import {
 	type RspackOverrideFn,
 	type WebpackOverrideFn,
 } from '@remotion/bundler';
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsRegion,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {getSitesKey} from '@remotion/lambda-client/constants';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {
-	FullClientSpecifics,
-	ProviderSpecifics,
-	UploadDirProgress,
-} from '@remotion/serverless';
-import {awsFullClientSpecifics} from '../functions/full-client-implementation';
+import type {UploadDirProgress} from '../functions/types';
+import {bundleSite} from '../shared/bundle-site';
 import {
 	deploySiteWithBundle,
 	type DeploySiteOutput,
@@ -67,15 +66,9 @@ const mandatoryDeploySite = async ({
 	privacy,
 	gitSource,
 	throwIfSiteExists,
-	providerSpecifics,
 	forcePathStyle,
-	fullClientSpecifics,
 	requestHandler,
-}: MandatoryParameters &
-	OptionalParameters & {
-		providerSpecifics: ProviderSpecifics<AwsProvider>;
-		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
-	}): DeploySiteOutput => {
+}: MandatoryParameters & OptionalParameters & {}): DeploySiteOutput => {
 	let generatedBundleDir: string | null = null;
 
 	let deploymentOutcome:
@@ -90,12 +83,10 @@ const mandatoryDeploySite = async ({
 			options,
 			privacy,
 			throwIfSiteExists,
-			providerSpecifics,
 			forcePathStyle,
-			fullClientSpecifics,
 			requestHandler,
 			getBundle: async () => {
-				const bundleDir = await fullClientSpecifics.bundleSite({
+				const bundleDir = await bundleSite({
 					publicPath: `/${getSitesKey(siteName)}/`,
 					bundlerOverride: options.bundlerOverride ?? ((f) => f),
 					rspackOverride: options.rspackOverride ?? ((f) => f),
@@ -167,10 +158,7 @@ const mandatoryDeploySite = async ({
 };
 
 export type InternalDeploySiteInput = MandatoryParameters &
-	OptionalParameters & {
-		providerSpecifics: ProviderSpecifics<AwsProvider>;
-		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
-	};
+	OptionalParameters & {};
 
 export const internalDeploySite: (
 	input: InternalDeploySiteInput,
@@ -188,14 +176,11 @@ export const deploySite = (args: DeploySiteInput) => {
 		gitSource: args.gitSource ?? null,
 		options: args.options ?? {},
 		privacy: args.privacy ?? 'public',
-		siteName:
-			args.siteName ?? LambdaClientInternals.awsImplementation.randomHash(),
+		siteName: args.siteName ?? LambdaClientInternals.randomHashImplementation(),
 		indent: false,
 		logLevel: 'info',
 		throwIfSiteExists: args.throwIfSiteExists ?? false,
-		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: args.forcePathStyle ?? false,
-		fullClientSpecifics: awsFullClientSpecifics,
 		requestHandler: args.requestHandler ?? null,
 	});
 };

@@ -1,15 +1,14 @@
-import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {
-	getRemotionVersionFromIndexHtml,
-	streamToString,
-	VERSION,
-} from '@remotion/serverless-client';
-import type {AwsProvider} from './aws-provider';
-import {awsImplementation} from './aws-provider';
+import {VERSION} from 'remotion/version';
 import {getSitesKey} from './constants';
+import {getAccountIdImplementation} from './get-account-id';
+import {getRemotionBuckets} from './get-buckets';
 import type {BucketWithLocation} from './get-buckets';
+import {getRemotionVersionFromIndexHtml} from './get-remotion-version-from-index-html';
+import {lambdaLsImplementation} from './list-objects';
 import {makeS3ServeUrl} from './make-s3-url';
+import {lambdaReadFileImplementation} from './read-file';
 import type {AwsRegion} from './regions';
+import {streamToString} from './stream-to-string';
 import type {RequestHandler} from './types';
 
 type Site = {
@@ -43,32 +42,29 @@ export type GetSitesOutput = {
 export const internalGetSites = async ({
 	region,
 	forceBucketName,
-	providerSpecifics,
 	forcePathStyle,
 	compatibleOnly,
 	requestHandler,
-}: GetSitesInternalInput & {
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-}): Promise<GetSitesOutput> => {
+}: GetSitesInternalInput & {}): Promise<GetSitesOutput> => {
 	const remotionBuckets = forceBucketName
-		? await providerSpecifics.getBuckets({
+		? await getRemotionBuckets({
 				region,
 				forceBucketName,
 				forcePathStyle,
 				requestHandler,
 			})
-		: await providerSpecifics.getBuckets({
+		: await getRemotionBuckets({
 				region,
 				forceBucketName: null,
 				forcePathStyle,
 				requestHandler,
 			});
-	const accountId = await providerSpecifics.getAccountId({region});
+	const accountId = await getAccountIdImplementation({region});
 
 	const sites: {[key: string]: Site} = {};
 
 	for (const bucket of remotionBuckets) {
-		const ls = await providerSpecifics.listObjects({
+		const ls = await lambdaLsImplementation({
 			bucketName: bucket.name,
 			prefix: getSitesKey(''),
 			region,
@@ -126,7 +122,7 @@ export const internalGetSites = async ({
 	await Promise.all(
 		sitesArray.map(async (site) => {
 			try {
-				const body = await providerSpecifics.readFile({
+				const body = await lambdaReadFileImplementation({
 					bucketName: site.bucketName,
 					key: `${getSitesKey(site.id)}/index.html`,
 					region,
@@ -165,7 +161,6 @@ export const getSites = ({
 		forceBucketName: forceBucketName ?? null,
 		forcePathStyle: forcePathStyle ?? false,
 		compatibleOnly: compatibleOnly ?? false,
-		providerSpecifics: awsImplementation,
 		requestHandler: requestHandler ?? null,
 	});
 };

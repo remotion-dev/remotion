@@ -77,6 +77,7 @@ import {unsubscribeFromDefaultProps} from './routes/unsubscribe-from-default-pro
 import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-existence';
 import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-props';
 import {unwrapFolderHandler} from './routes/unwrap-folder';
+import {unwrapNodeHandler} from './routes/unwrap-node';
 import {handleUpdate} from './routes/update-available';
 import {updateCompositionMetadataHandler} from './routes/update-composition-metadata';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
@@ -151,6 +152,7 @@ export const allApiRoutes: {
 	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-nodes': deleteNodesHandler,
 	'/api/duplicate-nodes': duplicateNodesHandler,
+	'/api/unwrap-node': unwrapNodeHandler,
 	'/api/wrap-node': wrapNodeHandler,
 	'/api/precompose-jsx-nodes': precomposeJsxNodesHandler,
 	'/api/split-sequences': splitSequencesHandler,

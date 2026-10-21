@@ -4,10 +4,10 @@ import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
 	Composition,
-	interpolate,
-	useCurrentFrame,
-	Solid,
 	HtmlInCanvas,
+	interpolate,
+	Solid,
+	useCurrentFrame,
 } from 'remotion';
 
 export const CloseUp8Preview = () => {
@@ -19,7 +19,7 @@ export const CloseUp8Preview = () => {
 			height={1080}
 			effects={[
 				radialProgressiveBlur({
-					center: [0.185, 0.716],
+					center: [0.445, 0.485],
 					width: 2.047,
 					height: 1.784,
 					endBlur: 15,
@@ -36,10 +36,11 @@ export const CloseUp8Preview = () => {
 				}}
 			/>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 3102,
 					height: 3030,
-					translate: '-15.7px -1683.5px',
+					translate: '484.3px -1933.5px',
 					scale: 0.725,
 					rotate: '0.997177 -0.007592 -0.074696 53.392063deg',
 					transformOrigin: '10.15% 86.1%',

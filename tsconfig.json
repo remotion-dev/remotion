@@ -172,6 +172,9 @@
 			"path": "./packages/template-react-router"
 		},
 		{
+			"path": "./packages/template-element-library"
+		},
+		{
 			"path": "./packages/template-tiktok"
 		},
 		{
@@ -230,12 +233,6 @@
 		},
 		{
 			"path": "./packages/streaming"
-		},
-		{
-			"path": "./packages/serverless"
-		},
-		{
-			"path": "./packages/serverless-client"
 		},
 		{
 			"path": "./packages/docusaurus-plugin"

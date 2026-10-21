@@ -33,6 +33,8 @@ import {
 } from './get-node-path-remappings';
 import {printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
+import {ensureOfficialNamedImport} from './sequence-props/imports';
+import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
 import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
 import {
 	parseVideoConfigNumericExpression,
@@ -42,12 +44,17 @@ import {
 	getVideoConfigIdentifierValues,
 	type VideoConfigIdentifierValues,
 } from './sequence-props/video-config-values';
-import {applySourceEdits} from './source-edits';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+} from './source-edits';
 import {
 	getEndOfLine,
 	getLineIndent,
 	indentContinuationLines,
 } from './source-style';
+import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
 const {builders: b, namedTypes} = recast.types;
 
@@ -383,12 +390,14 @@ const getSplitSourceEdit = ({
 	left,
 	prettierConfigOverride,
 	right,
+	track,
 	wrapInFragment,
 }: {
 	input: string;
 	left: JSXElement;
 	prettierConfigOverride: Record<string, unknown> | null;
 	right: JSXElement;
+	track: JSXElement | null;
 	wrapInFragment: boolean;
 }) => {
 	if (!left.loc) {
@@ -416,9 +425,11 @@ const getSplitSourceEdit = ({
 				prettierConfigOverride: formattingConfig,
 			}),
 		});
-	const replacement = wrapInFragment
-		? print(makeFragment(left, right))
-		: `${print(left)}${isOnlyElementOnLine ? `${endOfLine}${lineIndent}` : ' '}${print(right)}`;
+	const replacement = track
+		? print(track)
+		: wrapInFragment
+			? print(makeFragment(left, right))
+			: `${print(left)}${isOnlyElementOnLine ? `${endOfLine}${lineIndent}` : ' '}${print(right)}`;
 
 	return {end, replacement, start};
 };
@@ -442,6 +453,7 @@ export const splitJsxSequences = ({
 	output: string;
 	nodeLabels: string[];
 	logLines: number[];
+	insertedNodePaths: SequenceNodePath[];
 	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
 	if (splits.length === 0) {
@@ -450,6 +462,7 @@ export const splitJsxSequences = ({
 
 	const ast = parseAst(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);
+	const importSnapshots = captureImportSnapshots(ast);
 	const targets = splits.map(
 		({nodePath, sequenceKeys, splitFrame, videoConfigValues}) => {
 			if (!Number.isFinite(splitFrame)) {
@@ -499,7 +512,25 @@ export const splitJsxSequences = ({
 				throw new Error('Cannot split at or after the sequence end');
 			}
 
+			let isInsideTrack = false;
+			let ancestor = jsxPath.parentPath;
+			while (ancestor) {
+				if (
+					ancestor.node.type === 'JSXElement' &&
+					getJsxComponentIdentity({
+						ast,
+						jsxElement: (ancestor.node as JSXElement).openingElement,
+					}) === 'dev.remotion.remotion.Track'
+				) {
+					isInsideTrack = true;
+					break;
+				}
+
+				ancestor = ancestor.parentPath;
+			}
+
 			return {
+				isInsideTrack,
 				contentDuration,
 				from,
 				jsxElement,
@@ -511,9 +542,19 @@ export const splitJsxSequences = ({
 	);
 	const nodeLabels: string[] = [];
 	const logLines: number[] = [];
+	const insertedElements: JSXElement[] = [];
 	const sourceEdits = targets.map(
-		({contentDuration, from, jsxElement, jsxPath, splitFrame, timing}) => {
+		({
+			contentDuration,
+			from,
+			isInsideTrack,
+			jsxElement,
+			jsxPath,
+			splitFrame,
+			timing,
+		}) => {
 			const right = cloneJsxElement(jsxElement);
+			insertedElements.push(right);
 			// Match Studio's numeric dragger precision while retaining fractional frames.
 			const leftTimelineDuration = normalizeComputedTiming(splitFrame - from);
 			const leftDuration = normalizeComputedTiming(
@@ -571,8 +612,88 @@ export const splitJsxSequences = ({
 			const isJsxChild =
 				namedTypes.JSXElement.check(parentPath.node) ||
 				namedTypes.JSXFragment.check(parentPath.node);
-			if (!insertAfter(parentPath.node, jsxElement, right)) {
-				jsxPath.replace(makeFragment(jsxElement, right));
+			let track: JSXElement | null = null;
+			if (isInsideTrack) {
+				if (!insertAfter(parentPath.node, jsxElement, right)) {
+					jsxPath.replace(makeFragment(jsxElement, right));
+				}
+			} else {
+				const trackLocalName = ensureOfficialNamedImport({
+					ast,
+					importedName: 'Track',
+					sourcePath: 'remotion',
+					preferredLocalName: 'Track',
+				});
+				const {attributes} = jsxElement.openingElement;
+				const nameAttribute = attributes.find(
+					(attribute) => getAttributeName(attribute) === 'name',
+				);
+				const sourceAttribute = attributes.find(
+					(attribute) => getAttributeName(attribute) === 'src',
+				);
+				let name: JSXAttribute['value'] =
+					nameAttribute?.type === 'JSXAttribute' ? nameAttribute.value : null;
+				if (!name && sourceAttribute?.type === 'JSXAttribute') {
+					const source = sourceAttribute.value;
+					const expression =
+						source?.type === 'JSXExpressionContainer'
+							? source.expression
+							: source;
+					const sourceValue =
+						expression?.type === 'StringLiteral'
+							? expression.value
+							: expression?.type === 'CallExpression' &&
+								  expression.arguments[0]?.type === 'StringLiteral' &&
+								  expression.callee.type === 'Identifier' &&
+								  expression.callee.name === 'staticFile'
+								? expression.arguments[0].value
+								: null;
+					if (sourceValue) {
+						let assetName = sourceValue.startsWith('data:')
+							? 'Data URL'
+							: sourceValue.startsWith('blob:')
+								? 'Blob URL'
+								: sourceValue.split(/[?#]/)[0].split(/[\\/]/).at(-1) ||
+									sourceValue;
+						try {
+							assetName = decodeURIComponent(assetName);
+						} catch {
+							// Keep filenames that contain malformed URI escapes readable.
+						}
+
+						name = {type: 'StringLiteral', value: assetName};
+					} else {
+						name = source;
+					}
+				}
+
+				track = {
+					type: 'JSXElement',
+					openingElement: {
+						type: 'JSXOpeningElement',
+						name: jsxId(trackLocalName),
+						attributes: [
+							{
+								type: 'JSXAttribute',
+								name: jsxId('name'),
+								value: name ?? {
+									type: 'StringLiteral',
+									value: getSplittableSequenceTagName(jsxElement),
+								},
+							},
+						],
+						selfClosing: false,
+					},
+					closingElement: {
+						type: 'JSXClosingElement',
+						name: jsxId(trackLocalName),
+					},
+					children: [
+						stripParenthesizedExtra(jsxElement),
+						stripParenthesizedExtra(right),
+					],
+				};
+				jsxPath.replace(track);
 			}
 
 			nodeLabels.push(getJsxElementTagLabel(jsxElement));
@@ -586,12 +707,24 @@ export const splitJsxSequences = ({
 				left: jsxElement,
 				prettierConfigOverride: prettierConfigOverride ?? null,
 				right,
+				track,
 				wrapInFragment: !isJsxChild,
 			});
 		},
 	);
-	const output = applySourceEdits({edits: sourceEdits, input});
-	const {nodePathRemappings} = getNodePathRemappings({
+	const output = applySourceEdits({
+		edits: [
+			...sourceEdits,
+			...getInsertImportSourceEdits({
+				ast,
+				input,
+				prettierConfigOverride: prettierConfigOverride ?? null,
+				snapshots: importSnapshots,
+			}),
+		],
+		input,
+	});
+	const {nodePathRemappings, finalNodePathByNode} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,
@@ -601,6 +734,14 @@ export const splitJsxSequences = ({
 		output,
 		nodeLabels,
 		logLines,
+		insertedNodePaths: insertedElements.map((element) => {
+			const nodePath = finalNodePathByNode.get(element.openingElement);
+			if (!nodePath) {
+				throw new Error('Could not locate the split clip after editing');
+			}
+
+			return nodePath;
+		}),
 		nodePathRemappings,
 	});
 };

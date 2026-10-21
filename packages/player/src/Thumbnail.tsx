@@ -152,6 +152,7 @@ const ThumbnailFn = <
 				<SharedPlayerContexts
 					timelineContext={timelineState}
 					playbackRateContext={playbackRateContext}
+					preservePitch={false}
 					component={Component}
 					compositionHeight={compositionHeight}
 					compositionWidth={compositionWidth}

@@ -74,7 +74,9 @@ export const useRenameStaticFile = ({
 	readonly relativePath: string;
 	readonly staticFiles: StaticFile[];
 }) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	return useCallback(
@@ -111,6 +113,7 @@ export const useRenameStaticFile = ({
 					newRelativePath,
 				});
 
+				const {canvasContent} = compositionManagerRef.current;
 				if (
 					canvasContent?.type === 'asset' &&
 					canvasContent.asset === relativePath
@@ -129,6 +132,6 @@ export const useRenameStaticFile = ({
 				return false;
 			}
 		},
-		[canvasContent, relativePath, setCanvasContent, staticFiles],
+		[compositionManagerRef, relativePath, setCanvasContent, staticFiles],
 	);
 };

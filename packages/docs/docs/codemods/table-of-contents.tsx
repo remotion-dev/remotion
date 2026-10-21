@@ -144,6 +144,10 @@ export const TableOfContents: React.FC = () => {
 					same position.
 				</div>
 			</TOCItem>
+			<TOCItem link="/docs/codemods/unwrap-node">
+				<strong>unwrapNode()</strong>
+				<div>Removes a wrapper and keeps its children.</div>
+			</TOCItem>
 			<TOCItem link="/docs/codemods/update-composition-metadata">
 				<strong>updateCompositionMetadata()</strong>
 				<div>

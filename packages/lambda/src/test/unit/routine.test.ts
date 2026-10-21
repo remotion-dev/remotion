@@ -1,37 +1,37 @@
 import {expect, spyOn, test} from 'bun:test';
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import {
-	ResponseStream,
-	ServerlessRoutines,
-	VERSION,
-} from '@remotion/serverless';
+import {ServerlessRoutines} from '@remotion/lambda-client';
+import {VERSION} from 'remotion/version';
+import * as readFile from '../../../../lambda-client/src/read-file';
 import {routine} from '../../functions';
-import {serverAwsImplementation} from '../../functions/aws-server-implementation';
+import * as cleanTmpdir from '../../functions/helpers/clean-tmpdir';
+import * as currentFunctionName from '../../functions/helpers/get-current-function-name';
+import * as currentMemorySize from '../../functions/helpers/get-current-memory-size';
+import * as currentRegion from '../../functions/helpers/get-current-region';
+import {ResponseStream} from '../../functions/streaming/response-stream';
 
 test('Lambda context is normalized while preserving storage ownership', async () => {
 	const previousFlag = process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA;
 	// Replace Lambda's filesystem and runtime environment, keeping dispatch and
 	// progress handling real. The real cleanup deletes the Lambda /tmp directory.
-	const cleanup = spyOn(
-		serverAwsImplementation,
-		'deleteTmpDir',
-	).mockResolvedValue();
+	const cleanup = spyOn(cleanTmpdir, 'deleteTmpDir').mockImplementation(
+		() => undefined,
+	);
 	const region = spyOn(
-		serverAwsImplementation,
+		currentRegion,
 		'getCurrentRegionInFunction',
 	).mockReturnValue('us-east-1');
 	const memory = spyOn(
-		serverAwsImplementation,
+		currentMemorySize,
 		'getCurrentMemorySizeInMb',
 	).mockReturnValue(2048);
 	const name = spyOn(
-		serverAwsImplementation,
+		currentFunctionName,
 		'getCurrentFunctionName',
 	).mockReturnValue('render-worker');
 	const storageError = new Error('Storage unavailable');
 	const read = spyOn(
-		LambdaClientInternals.awsImplementation,
-		'readFile',
+		readFile,
+		'lambdaReadFileImplementation',
 	).mockRejectedValue(storageError);
 	const context = {
 		awsRequestId: 'request-id',

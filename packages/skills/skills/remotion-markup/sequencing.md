@@ -5,47 +5,24 @@ metadata:
   tags: sequence, series, timing, delay, trim
 ---
 
-Prefer timing props directly on built-in interactive components and custom
-components made with `Interactive.create()`.  
-Avoid wrapping a single timing-capable component in a redundant `<Sequence>`.
-Put `name`, `from`, `durationInFrames`, `loop`, and `volume`
-directly on `<Audio>` from `@remotion/media` whenever their combination gives the intended timing.
+# Choose the timing boundary
 
-See [Remotion Interactivity](../remotion-interactivity/SKILL.md) for creating
-schema-wrapped components and [connected compositions](connected-compositions.md)
-for registering them with their own Studio timelines.
+Put timing props directly on a built-in interactive component or one made with
+`Interactive.create()` when that item should be edited independently. Set audio
+timing and volume on `Audio` from `@remotion/media`.
 
-```tsx
-// Title and Subtitle are exported with Interactive.create().
-<>
-  <Title name="Title" from={30} durationInFrames={60} />
-  <Subtitle name="Subtitle" from={60} durationInFrames={60} />
-</>
-```
+Use a shared `Sequence` when several layers must inherit the same trim, speed,
+or start time, when overriding dimensions for descendants, or when the child
+does not accept timing props. Choose `layout="none"` if the group should not
+add a layout element; otherwise its absolute-fill layout also positions the
+contents.
 
-Use an explicit `<Sequence>` when multiple siblings need one shared clock,
-when overriding dimensions for descendants, or when the child does not accept
-timing props. Its default layout adds an absolutely positioned fill element;
-use `layout="none"` when no layout wrapper is needed.
+Use `Track` for non-overlapping items with independent positions and
+`TransitionSeries` for consecutive items that should shift together when a
+duration changes. Keep the series' own sequence boundaries, including when a
+child already accepts timing props.
 
-## TransitionSeries
-
-Use `<TransitionSeries>` for consecutive scenes, with or without transitions. Without a transition, the scenes play without overlap.
-
-```tsx
-import { TransitionSeries } from "@remotion/transitions";
-
-<TransitionSeries>
-  <TransitionSeries.Sequence durationInFrames={45}>
-    <Intro />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Sequence durationInFrames={60}>
-    <MainContent />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Sequence durationInFrames={30}>
-    <Outro />
-  </TransitionSeries.Sequence>
-</TransitionSeries>;
-```
-
-The items will be wrapped in an absolute fill element by default when using `<TransitionSeries.Sequence>`, unless the `layout` prop is set to `none`.
+Follow [editable timeline structure](../remotion-interactivity/timeline-structure.md)
+for grouping and examples. See [timing props](timing-props.md) for how `from`,
+`trimBefore`, duration, speed, and looping combine, and
+[editable video timelines](video-editing.md) for synchronized footage and captions.

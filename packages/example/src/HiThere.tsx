@@ -17,6 +17,7 @@ export const HiTherePreview = () => {
 		<>
 			<HtmlInCanvas width={1920} height={1080} durationInFrames={350}>
 				<AbsoluteFill
+					name="Canvas Capture"
 					durationInFrames={825}
 					style={{
 						width: 3340,

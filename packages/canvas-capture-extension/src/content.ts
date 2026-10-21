@@ -923,11 +923,16 @@ export const startContent = () => {
 			const requirementMessage = browserRequirementIssue
 				? browserRequirementMessages[browserRequirementIssue]
 				: null;
+			const recordingError = state.error && requirementMessage === null;
 			controlsErrorTitle.textContent =
-				requirementMessage?.title ?? "Browser can't encode this resolution";
+				requirementMessage?.title ??
+				(recordingError
+					? 'Could not record'
+					: "Browser can't encode this resolution");
 			controlsErrorDescription.textContent =
-				requirementMessage?.description ?? '';
-			controlsErrorDescription.hidden = requirementMessage === null;
+				requirementMessage?.description ?? (recordingError ? state.status : '');
+			controlsErrorDescription.hidden =
+				requirementMessage === null && !recordingError;
 			controlsOpenSetup.hidden =
 				browserRequirementIssue !== 'html-in-canvas-unavailable';
 			controlsEncodingError.classList.toggle(
@@ -936,6 +941,7 @@ export const startContent = () => {
 			);
 			controlsEncodingError.style.display =
 				requirementMessage ||
+				recordingError ||
 				(state.hasTarget && state.encoderSupport === 'unsupported')
 					? 'block'
 					: 'none';
@@ -985,13 +991,12 @@ export const startContent = () => {
 						!state.hasTarget ||
 						state.encoderSupport !== 'supported'));
 			renderControlsPrimary(primaryLabel, primaryDisabled);
-			const closeLabel = state.recording
-				? 'Stop recording before clearing selection'
-				: state.hasCompletedRecording
-					? 'Discard recording'
-					: state.hasTarget
-						? 'Clear selection'
-						: 'Close';
+			controlsClose.hidden = state.recording || startingRecording;
+			const closeLabel = state.hasCompletedRecording
+				? 'Discard recording'
+				: state.hasTarget
+					? 'Clear selection'
+					: 'Close';
 			controlsClose.ariaLabel = closeLabel;
 			controlsClose.dataset.tooltip = closeLabel;
 			controlsClose.disabled =

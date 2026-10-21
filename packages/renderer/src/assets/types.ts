@@ -6,7 +6,7 @@ import type {AudioOrVideoAsset} from 'remotion/no-react';
 // type instead.
 export type UnsafeAsset = Omit<
 	AudioOrVideoAsset,
-	'frame' | 'id' | 'volume' | 'mediaFrame' | 'audioStartFrom'
+	'frame' | 'id' | 'volume' | 'mediaFrame' | 'audioStartFrom' | 'preservePitch'
 > & {
 	startInVideo: number;
 	duration: number | null;
@@ -16,6 +16,7 @@ export type UnsafeAsset = Omit<
 	playbackRate: number;
 	toneFrequency: number;
 	audioStreamIndex: number;
+	preservePitch: boolean;
 };
 
 // Volume can either be static, for all frames the same,

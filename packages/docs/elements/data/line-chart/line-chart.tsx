@@ -244,9 +244,7 @@ const LineChartInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	);
 };
 
-export const LineChart = Interactive.withSchema({
+export const LineChart = Interactive.create({
 	Component: LineChartInner,
 	componentName: '<LineChart>',
-	schema: {},
-	wrapInSequence: true,
 });

@@ -320,7 +320,7 @@ const BasicsSourceOnlyTrimInner = ({
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
-					name="Radial focus"
+					name="Canvas Capture"
 					width={2496}
 					height={1440}
 					effects={[
@@ -336,7 +336,7 @@ const BasicsSourceOnlyTrimInner = ({
 					durationInFrames={375}
 					premountFor={fps}
 					style={{
-						translate: '-380px -520px',
+						translate: '-720px -520px',
 						scale: 1.15,
 						rotate: '-2deg',
 						transformOrigin: '0 0',
@@ -347,13 +347,13 @@ const BasicsSourceOnlyTrimInner = ({
 				</HtmlInCanvas>
 			) : (
 				<AbsoluteFill
-					name="Radial focus"
+					name="Canvas Capture"
 					durationInFrames={375}
 					premountFor={fps}
 					style={{
 						width: 2496,
 						height: 1440,
-						translate: '-380px -520px',
+						translate: '-720px -520px',
 						scale: 1.15,
 						rotate: '-2deg',
 						transformOrigin: '0 0',

@@ -192,9 +192,7 @@ const NewsArticleHighlightInner: React.FC<InteractiveTransformProps> = ({
 	);
 };
 
-export const NewsArticleHighlight = Interactive.withSchema({
+export const NewsArticleHighlight = Interactive.create({
 	Component: NewsArticleHighlightInner,
 	componentName: '<NewsArticleHighlight>',
-	schema: {},
-	wrapInSequence: true,
 });

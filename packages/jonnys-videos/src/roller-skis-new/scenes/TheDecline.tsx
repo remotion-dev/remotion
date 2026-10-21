@@ -1,13 +1,8 @@
-import {Audio, Video} from '@remotion/media';
+import {Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {
-	Easing,
-	Interactive,
-	interpolate,
-	Series,
-	useCurrentFrame,
-} from 'remotion';
-import {Callout} from '../elements/Callout';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {CalloutWithSound} from '../elements/Callout';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
 const TheDeclineInner: React.FC = () => {
@@ -15,8 +10,8 @@ const TheDeclineInner: React.FC = () => {
 
 	return (
 		<>
-			<Series>
-				<Series.Sequence
+			<TransitionSeries name="The decline shots">
+				<TransitionSeries.Sequence
 					name="Standing on top"
 					trimBefore={30}
 					durationInFrames={68}
@@ -80,8 +75,8 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Small decline"
 					trimBefore={113}
 					durationInFrames={83}
@@ -173,8 +168,8 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Problems with roller skis"
 					trimBefore={257}
 					durationInFrames={93}
@@ -259,8 +254,12 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence name="Freeze" durationInFrames={39} freeze={349}>
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
+					name="Freeze"
+					durationInFrames={39}
+					freeze={349}
+				>
 					<Video
 						name="IMG_0464"
 						src={
@@ -280,8 +279,8 @@ const TheDeclineInner: React.FC = () => {
 							}),
 						}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Stopped filming"
 					trimBefore={22}
 					durationInFrames={113}
@@ -380,8 +379,8 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Kindergarten kids"
 					trimBefore={151}
 					durationInFrames={51}
@@ -438,8 +437,8 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Did not want to"
 					trimBefore={221}
 					durationInFrames={23}
@@ -489,8 +488,8 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Film with them around"
 					trimBefore={261}
 					durationInFrames={115}
@@ -617,8 +616,8 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="And falling"
 					trimBefore={392}
 					durationInFrames={34}
@@ -654,8 +653,8 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Down this decline"
 					trimBefore={446}
 					durationInFrames={63}
@@ -698,8 +697,8 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="How it went"
 					trimBefore={548}
 					durationInFrames={372}
@@ -980,9 +979,9 @@ const TheDeclineInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-			</Series>
-			<Callout
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
+			<CalloutWithSound
 				name="Problem callout"
 				from={244}
 				durationInFrames={152}
@@ -991,12 +990,9 @@ const TheDeclineInner: React.FC = () => {
 				icon="warning"
 				accentColor="#dc2626"
 				style={{position: 'absolute', left: 80, top: 70}}
-			/>
-			<Audio
-				name="Record scratch"
-				src="https://remotion.media/record-scratch.wav"
-				from={244}
-				volume={0.6}
+				sound="https://remotion.media/record-scratch.wav"
+				soundVolume={0.6}
+				soundFrom={0}
 			/>
 		</>
 	);

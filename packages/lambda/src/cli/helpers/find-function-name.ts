@@ -1,7 +1,6 @@
-import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
-import {ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {parsedLambdaCli} from '../args';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
@@ -12,14 +11,8 @@ import {getAwsRegion} from '../get-aws-region';
 import {Log} from '../log';
 import {quit} from './quit';
 
-export const findFunctionName = async ({
-	logLevel,
-	providerSpecifics,
-}: {
-	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-}) => {
-	const remotionLambdas = await providerSpecifics.getFunctions({
+export const findFunctionName = async ({logLevel}: {logLevel: LogLevel}) => {
+	const remotionLambdas = await LambdaClientInternals.getFunctions({
 		region: getAwsRegion(),
 		compatibleOnly: false,
 	});

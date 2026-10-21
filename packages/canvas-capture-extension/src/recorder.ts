@@ -75,6 +75,14 @@ type DrawElementImage = {
 		element: Element,
 		dx: number,
 		dy: number,
+		dWidth: number,
+		dHeight: number,
+		options: {readonly preserveElementGeometry: boolean},
+	): void;
+	(
+		element: Element,
+		dx: number,
+		dy: number,
 		dWidth?: number,
 		dHeight?: number,
 	): void;

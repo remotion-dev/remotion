@@ -19,6 +19,7 @@ export const makeBrowserStudioOperations = (
 		duplicateComposition: () => unusedOperation('duplicateComposition'),
 		duplicateNodes: () => unusedOperation('duplicateNodes'),
 		precomposeJsxNodes: () => unusedOperation('precomposeJsxNodes'),
+		unwrapNode: () => unusedOperation('unwrapNode'),
 		wrapNode: () => unusedOperation('wrapNode'),
 		effects: {
 			addEffect: () => unusedOperation('effects'),

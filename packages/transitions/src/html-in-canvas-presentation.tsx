@@ -5,6 +5,7 @@ import {
 	HtmlInCanvas,
 	Internals,
 	useDelayRender,
+	useRemotionEnvironment,
 	type EffectsProp,
 	type EffectsOutputSize,
 } from 'remotion';
@@ -14,7 +15,7 @@ import type {
 	TransitionPresentationComponentProps,
 } from './types';
 
-export const HtmlInCanvasPresentation = <
+const HtmlInCanvasPresentationWithSupport = <
 	TPassedProps extends Record<string, unknown>,
 >({
 	children,
@@ -29,13 +30,9 @@ export const HtmlInCanvasPresentation = <
 	bothEnteringAndExiting,
 }: TransitionPresentationComponentProps<TPassedProps> & {
 	readonly shader: HtmlInCanvasShader<TPassedProps>;
-	readonly effects?: EffectsProp;
+	readonly effects: EffectsProp | null;
 	readonly effectsOutputSize: EffectsOutputSize | null;
 }) => {
-	if (!HtmlInCanvas.isSupported()) {
-		throw new Error(getHtmlInCanvasUnsupportedMessage());
-	}
-
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
@@ -313,6 +310,42 @@ export const HtmlInCanvasPresentation = <
 	);
 };
 
+export const HtmlInCanvasPresentation = <
+	TPassedProps extends Record<string, unknown>,
+>(
+	props: TransitionPresentationComponentProps<TPassedProps> & {
+		readonly shader: HtmlInCanvasShader<TPassedProps>;
+		readonly effects: EffectsProp | null;
+		readonly effectsOutputSize: EffectsOutputSize | null;
+	},
+) => {
+	const {isRendering} = useRemotionEnvironment();
+	if (!HtmlInCanvas.isSupported()) {
+		if (isRendering) {
+			throw new Error(getHtmlInCanvasUnsupportedMessage());
+		}
+
+		const visible =
+			props.presentationDirection === 'entering'
+				? props.presentationProgress >= 0.5
+				: props.presentationProgress < 0.5;
+		return (
+			<Internals.HtmlInCanvasFallback
+				label="Transition is not visible"
+				style={{
+					position: 'absolute',
+					inset: 0,
+					visibility: visible ? 'visible' : 'hidden',
+				}}
+			>
+				{props.children}
+			</Internals.HtmlInCanvasFallback>
+		);
+	}
+
+	return <HtmlInCanvasPresentationWithSupport {...props} />;
+};
+
 export type HtmlInCanvasShaderDrawParams<Props> = {
 	prevImage: OffscreenCanvas | null;
 	nextImage: OffscreenCanvas | null;
@@ -350,7 +383,7 @@ export const makeHtmlInCanvasPresentation = <
 			<HtmlInCanvasPresentation
 				shader={shader}
 				passedProps={restPassedProps as TPassedProps}
-				effects={effects}
+				effects={effects ?? null}
 				effectsOutputSize={effectsOutputSize ?? null}
 				{...otherProps}
 			/>

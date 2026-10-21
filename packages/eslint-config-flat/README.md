@@ -1,6 +1,6 @@
 # @remotion/eslint-config-flat
 
-Default configuration for Remotion templates (ESLint 9 and 10)
+Default configuration for Remotion templates (ESLint >= 9)
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/eslint-config-flat.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/eslint-config-flat?minimal=true)
 

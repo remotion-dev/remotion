@@ -1,0 +1,75 @@
+---
+image: /generated/articles-docs-captions-parse-vtt.png
+title: parseVtt()
+crumb: '@remotion/captions'
+---
+
+# parseVtt()<AvailableFrom v="4.0.537"/>
+
+Parses the contents of a WebVTT file (`.vtt`) and returns an array of [`Caption`](/docs/captions/caption) items.
+
+```tsx twoslash title="Example usage"
+import {parseVtt} from '@remotion/captions';
+
+const input = `WEBVTT
+
+00:00:00.000 --> 00:00:02.500
+Welcome to the Example WebVTT File!
+
+00:00:03.000 --> 00:00:06.000
+This is a demonstration of WebVTT subtitles.
+`.trim();
+
+const {captions} = parseVtt({input});
+
+/* captions = [
+  {
+    confidence: 1,
+    endMs: 2500,
+    startMs: 0,
+    text: 'Welcome to the Example WebVTT File!',
+    timestampMs: 1250,
+  },
+  {
+    confidence: 1,
+    endMs: 6000,
+    startMs: 3000,
+    text: 'This is a demonstration of WebVTT subtitles.',
+    timestampMs: 4500,
+  },
+]
+*/
+```
+
+## API
+
+### `input`
+
+The contents of a `.vtt` file as a `string`.
+
+## Return value
+
+An object with the following properties:
+
+### `captions`
+
+An array of [`Caption`](/docs/captions/caption) items.
+
+## Behavior
+
+- The `WEBVTT` header is optional and ignored, including any trailing text on the header line.
+- A cue may be preceded by an optional identifier on its own line.
+- Timestamps accept both `HH:MM:SS.mmm` and the shorter `MM:SS.mmm` form, and a comma may be used as the millisecond separator.
+- Cue settings after the timestamps (such as `align:start position:10%`) are ignored.
+- `NOTE`, `STYLE` and `REGION` blocks are skipped.
+- Multi-line cue text is joined with `\n`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/captions/src/parse-vtt.ts)
+- [`parseSrt()`](/docs/captions/parse-srt)
+- [`@remotion/captions`](/docs/captions/api)

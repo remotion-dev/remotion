@@ -1,11 +1,13 @@
-import type {FunctionErrorInfo} from '@remotion/serverless';
-import {errorIsOutOfSpaceError} from '@remotion/serverless';
+import {
+	LambdaClientInternals,
+	type FunctionErrorInfo,
+} from '@remotion/lambda-client';
 import {getFolderFiles} from './get-folder-files';
 
 export const getTmpDirStateIfENoSp = (
 	err: string,
 ): FunctionErrorInfo['tmpDir'] => {
-	if (!errorIsOutOfSpaceError(err)) {
+	if (!LambdaClientInternals.errorIsOutOfSpaceError(err)) {
 		return null;
 	}
 

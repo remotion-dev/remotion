@@ -1,8 +1,6 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, getSites} from '@remotion/lambda-client';
+import {LambdaClientInternals, getSites} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {deleteSite} from '../../../api/delete-site';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -11,11 +9,7 @@ import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 export const SITES_RM_COMMAND = 'rm';
 
-export const sitesRmSubcommand = async (
-	args: string[],
-	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
-) => {
+export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {
 		Log.error(
 			{indent: false, logLevel},
@@ -38,11 +32,10 @@ export const sitesRmSubcommand = async (
 	const bucketName =
 		parsedLambdaCli['force-bucket-name'] ??
 		(
-			await internalGetOrCreateBucket({
+			await LambdaClientInternals.internalGetOrCreateBucket({
 				region,
 				enableFolderExpiry: false,
 				customCredentials: null,
-				providerSpecifics: implementation,
 				forcePathStyle: false,
 				skipPutAcl: false,
 				requestHandler: null,

@@ -13,10 +13,11 @@ export const RenderModalCodecPreview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 3084,
 				height: 3588,
-				translate: '-786.8px -665.4px',
+				translate: '-946.8px -905.4px',
 				rotate: '0.904608 0.351506 -0.241096 27.995464deg',
 				transformOrigin: '27.8% 28.65%',
 				scale: 0.933,

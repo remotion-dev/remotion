@@ -211,10 +211,7 @@ const ProductCollectionInner: React.FC = () => {
 	);
 };
 
-export const ProductCollection = Interactive.withSchema({
+export const ProductCollection = Interactive.create({
 	Component: ProductCollectionInner,
-	componentName: 'ProductCollection',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

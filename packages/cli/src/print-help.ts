@@ -79,6 +79,7 @@ const studioOptions = options(
 		'disable-git-source',
 		'audio-latency-hint',
 		'disable-keyboard-shortcuts',
+		'preserve-pitch-on-playback',
 		'disable-canvas-tabs',
 		'disable-interactivity',
 		'sequence-activity-limit',
