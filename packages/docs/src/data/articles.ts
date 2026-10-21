@@ -6544,6 +6544,15 @@ export const articles = [
 		slug: 'miscellaneous/linux-dependencies',
 	},
 	{
+		id: 'miscellaneous/no-remotion-app',
+		title: 'Why is there no Remotion App?',
+		relativePath: 'docs/miscellaneous/no-remotion-app.mdx',
+		compId: 'articles-docs-miscellaneous-no-remotion-app',
+		crumb: null,
+		noAi: false,
+		slug: 'miscellaneous/no-remotion-app',
+	},
+	{
 		id: 'miscellaneous/linux-single-process',
 		title: 'Multiple cores on Linux',
 		relativePath: 'docs/miscellaneous/linux-single-process.mdx',

@@ -1687,6 +1687,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/cross-origin-isolation',
 				'cors-issues',
 				'react-native',
+				'miscellaneous/no-remotion-app',
 				'detect-remotion',
 			],
 		},
