@@ -28,10 +28,18 @@ test('resumes the same export after an outage longer than both deadlines', async
 
 			return originalFetch(url, init);
 		});
+	// Leave 3 seconds for extraction after reconnecting on a shared CI runner.
+	// The 6.5-second outage still exceeds this and the 5.5-second readiness deadline.
 	const Component: React.FC = () => (
 		<>
-			<Video src={staticFile('video.mp4') + '?offline-recovery'} />
-			<Audio src={staticFile('dialogue.wav') + '?offline-recovery'} />
+			<Video
+				src={staticFile('video.mp4') + '?offline-recovery'}
+				delayRenderTimeoutInMilliseconds={5000}
+			/>
+			<Audio
+				src={staticFile('dialogue.wav') + '?offline-recovery'}
+				delayRenderTimeoutInMilliseconds={5000}
+			/>
 		</>
 	);
 	const controller = new AbortController();
