@@ -108,6 +108,7 @@
 		"@remotion/web-renderer": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",
+		"@remotion/wordart": "workspace:*",
 		"@remotion/whisper-webgpu": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/zod-types-v3": "workspace:*",

@@ -623,6 +623,7 @@
         "@remotion/webcodecs": "workspace:*",
         "@remotion/whisper-web": "workspace:*",
         "@remotion/whisper-webgpu": "workspace:*",
+        "@remotion/wordart": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "@remotion/zod-types-v3": "workspace:*",
         "@rive-app/canvas-advanced": "2.31.5",
@@ -872,6 +873,7 @@
         "@remotion/three": "workspace:*",
         "@remotion/transitions": "workspace:*",
         "@remotion/whisper-web": "workspace:*",
+        "@remotion/wordart": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "@remotion/zod-types-v3": "workspace:*",
         "@shopify/react-native-skia": "2.0.0",
@@ -2891,6 +2893,24 @@
         "@huggingface/transformers": "4.2.0",
       },
     },
+    "packages/wordart": {
+      "name": "@remotion/wordart",
+      "version": "4.0.536",
+      "dependencies": {
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0",
+      },
+    },
     "packages/zod-types": {
       "name": "@remotion/zod-types",
       "version": "4.0.536",
@@ -4752,6 +4772,8 @@
     "@remotion/whisper-web": ["@remotion/whisper-web@workspace:packages/whisper-web"],
 
     "@remotion/whisper-webgpu": ["@remotion/whisper-webgpu@workspace:packages/whisper-webgpu"],
+
+    "@remotion/wordart": ["@remotion/wordart@workspace:packages/wordart"],
 
     "@remotion/zod-types": ["@remotion/zod-types@workspace:packages/zod-types"],
 
@@ -10782,6 +10804,10 @@
     "@remotion/web-renderer/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
 
     "@remotion/webcodecs/vite": ["vite@6.4.3", "", { "dependencies": { "esbuild": "^0.25.0", "fdir": "^6.4.4", "picomatch": "^4.0.2", "postcss": "^8.5.3", "rollup": "^4.34.9", "tinyglobby": "^0.2.13" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^18.0.0 || ^20.0.0 || >=22.0.0", "jiti": ">=1.21.0", "less": "*", "lightningcss": "^1.21.0", "sass": "*", "sass-embedded": "*", "stylus": "*", "sugarss": "*", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "jiti", "less", "lightningcss", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-NTKlcQjlAK7MlQoyb6LgaqHc8sso/pVyUJYWMws3jg21uTJw/LddqIFPcPqP6PzpgbIcZyKI85sFE4HBrQDA8A=="],
+
+    "@remotion/wordart/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
+
+    "@remotion/wordart/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
 
     "@remotion/zod-types-v3/zod": ["zod@3.22.3", "", {}, "sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug=="],
 

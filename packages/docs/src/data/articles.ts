@@ -11003,4 +11003,22 @@ export const articles = [
 		noAi: false,
 		slug: 'prompts/submit',
 	},
+	{
+		id: 'wordart/index',
+		title: '@remotion/wordart',
+		relativePath: 'docs/wordart/index.mdx',
+		compId: 'articles-docs-wordart-index',
+		crumb: 'API',
+		noAi: false,
+		slug: 'wordart/index',
+	},
+	{
+		id: 'wordart/word-art',
+		title: '<WordArt>',
+		relativePath: 'docs/wordart/word-art.mdx',
+		compId: 'articles-docs-wordart-word-art',
+		crumb: '@remotion/wordart',
+		noAi: false,
+		slug: 'wordart/word-art',
+	},
 ];

@@ -108,4 +108,5 @@ export const listOfRemotionPackages = [
 	'@remotion/vercel',
 	'@remotion/sfx',
 	'@remotion/effects',
+	'@remotion/wordart',
 ];

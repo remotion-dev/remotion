@@ -215,6 +215,7 @@ import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
 import {WhatsNewRoot} from './WhatsNew/Root';
+import {WordArtGallery} from './WordArt';
 import {ZodV4SchemaTest, zodV4Schema} from './ZodV4SchemaTest';
 // @ts-expect-error no types
 import styles from './styles.module.scss';
@@ -487,6 +488,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="wordart"
+				component={WordArtGallery}
+				width={1280}
+				height={800}
+				fps={30}
+				durationInFrames={150}
+			/>
 			<Composition
 				id="CommittedRenderHolds"
 				component={CommittedRenderHolds}

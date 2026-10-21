@@ -82,6 +82,7 @@
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",
+		"@remotion/wordart": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/zod-types-v3": "workspace:*",
 		"@shopify/react-native-skia": "2.0.0",

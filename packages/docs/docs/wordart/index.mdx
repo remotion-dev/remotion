@@ -1,0 +1,38 @@
+---
+image: /generated/articles-docs-wordart-index.png
+title: '@remotion/wordart'
+crumb: API
+---
+
+# @remotion/wordart<AvailableFrom v="4.0.537" />
+
+Four classic WordArt-inspired text styles for Remotion: rainbow, orange 3D, blue wave, and chrome.
+
+<Installation pkg="@remotion/wordart" />
+
+Requires React 18 or later.
+
+## APIs
+
+import {TableOfContents} from './table-of-contents';
+
+<TableOfContents />
+
+## Presets
+
+| `preset`    | Appearance                                                          |
+| ----------- | ------------------------------------------------------------------- |
+| `rainbow`   | Arched rainbow gradient with a gray drop shadow                     |
+| `orange`    | Gold-to-orange gradient, rising slant, and deep brown extrusion     |
+| `blue-wave` | Cyan-to-blue gradient on a wavy baseline with dark blue extrusion   |
+| `chrome`    | Reflective silver gradient, slanted letters, and a metallic outline |
+
+The presets use SVG text, gradients, and layered extrusion. Text stays editable and scales without image assets. Curved baselines rotate individual glyphs along a path; they do not deform the glyph outlines.
+
+## Fonts
+
+The default font stack is `Arial Black, Arial, sans-serif`. No font files are bundled. To get the same appearance on your computer and a render server, [load a font](/docs/fonts) and pass its family to [`<WordArt>`](/docs/wordart/word-art).
+
+## License
+
+[Remotion License](/docs/license)

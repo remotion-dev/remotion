@@ -302,6 +302,9 @@
 		},
 		{
 			"path": "./packages/sfx"
+		},
+		{
+			"path": "./packages/wordart"
 		}
 	]
 }

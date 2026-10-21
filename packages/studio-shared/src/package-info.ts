@@ -110,6 +110,7 @@ const allPackages = [
 	'vercel',
 	'sfx',
 	'effects',
+	'wordart',
 ] as const;
 
 export type Pkgs = (typeof allPackages)[number];
@@ -291,6 +292,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	vercel: 'Render Remotion videos on Vercel Sandbox',
 	sfx: 'Sound effect library',
 	effects: 'Effects that can be applied to Remotion-based canvas components',
+	wordart: 'Classic WordArt text styles for Remotion',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -419,6 +421,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	vercel: true,
 	sfx: true,
 	effects: true,
+	wordart: true,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -533,4 +536,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	vercel: 'https://www.remotion.dev/docs/vercel/api',
 	sfx: 'https://www.remotion.dev/docs/sfx',
 	effects: 'https://www.remotion.dev/docs/effects/api',
+	wordart: 'https://www.remotion.dev/docs/wordart',
 };

@@ -1061,6 +1061,12 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/wordart',
+			link: {type: 'doc', id: 'wordart/index'},
+			items: ['wordart/word-art'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/zod-types',
 			link: {
 				type: 'doc',
