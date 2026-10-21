@@ -75,6 +75,10 @@ export const getVideoConfigIdentifiers = ({
 		},
 	});
 
+	if (candidates.size === 0) {
+		return candidates;
+	}
+
 	// Resolve each reference to its declaration. Components may independently
 	// declare the same name, while parameters and other shadowing stay computed.
 	const bindings = new Map<Identifier, VideoConfigNumericBinding>();
