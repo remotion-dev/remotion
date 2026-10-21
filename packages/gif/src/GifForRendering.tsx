@@ -116,6 +116,7 @@ export const GifForRendering = forwardRef<
 						onError: currentOnError.current,
 						error: err,
 						defaultAction: currentOnError.current ? 'handled' : 'fail',
+						actions: ['handled', 'fail'],
 					});
 					if (aborted) return;
 					if (result.action === 'fail') {

@@ -12,7 +12,7 @@ export const handleImageError = async ({
 	onHandled,
 }: {
 	error: Error;
-	onError: MediaErrorHandler<'handled' | 'fail' | 'wait'> | undefined;
+	onError: MediaErrorHandler | undefined;
 	isCancelled: () => boolean;
 	cancelRender: (error: unknown) => never;
 	onHandled: (() => void) | null;
@@ -22,6 +22,7 @@ export const handleImageError = async ({
 		error,
 		onError,
 		defaultAction: onError ? 'handled' : 'fail',
+		actions: ['handled', 'fail'],
 	});
 	if (isCancelled()) return;
 	// Explicit recovery completes when the source is replaced or unmounted.

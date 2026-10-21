@@ -303,6 +303,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						onError,
 						error: proresError,
 						defaultAction: 'fail',
+						actions: ['handled', 'fail'],
 					});
 					if (cancelled || mediaCache.isDisposed()) return;
 					if (decision.action !== 'handled') cancelRender(decision.error);

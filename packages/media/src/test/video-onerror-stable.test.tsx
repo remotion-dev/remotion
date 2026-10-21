@@ -4,6 +4,7 @@ import {createRoot} from 'react-dom/client';
 import {expect, test, vi} from 'vitest';
 import {Audio} from '../audio/audio';
 import {MediaPlayer} from '../media-player';
+import {callOnErrorAndResolve} from '../on-error';
 import {Video} from '../video/video';
 
 const waitFor = async (predicate: () => boolean) => {
@@ -229,3 +230,32 @@ test.each(['video', 'audio'] as const)(
 		}
 	},
 );
+
+// PR #12290 review: explicit failure keeps browser-render context, while a
+// handler's rejected replacement Error keeps its identity and custom fields.
+test('browser failure decisions distinguish the asset error from handler rejection', async () => {
+	const assetError = new Error('Unknown container format');
+	const browserError = new Error(
+		'Cannot render video: Unknown container format',
+	);
+	const options = {
+		error: assetError,
+		clientSideError: browserError,
+		disallowFallback: false,
+		isClientSideRendering: true,
+	};
+	expect(
+		await callOnErrorAndResolve({...options, onError: () => 'fail'}),
+	).toEqual(['fail', browserError]);
+	expect(browserError.cause).toBe(assetError);
+	const replacement = Object.assign(new Error('Replacement failed'), {
+		assetId: 'asset-1',
+	});
+	const [action, error] = await callOnErrorAndResolve({
+		...options,
+		onError: () => Promise.reject(replacement),
+	});
+	expect(action).toBe('fail');
+	expect(error).toBe(replacement);
+	expect(error).toHaveProperty('assetId', 'asset-1');
+});

@@ -1,11 +1,13 @@
 import {Gif} from '@remotion/gif';
 import {Audio, Video} from '@remotion/media';
+import {Player} from '@remotion/player';
 import React, {
 	startTransition,
 	Suspense,
 	useLayoutEffect,
 	useState,
 } from 'react';
+import {createRoot} from 'react-dom/client';
 import {
 	AnimatedImage,
 	CanvasImage,
@@ -13,6 +15,7 @@ import {
 	type MediaErrorHandler,
 } from 'remotion';
 import {expect, test, vi} from 'vitest';
+import {server} from 'vitest/browser';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {withResolvers} from '../with-resolvers';
@@ -351,3 +354,97 @@ test('a legacy native image callback does not mark a broken image ready', async 
 		URL.revokeObjectURL(src);
 	}
 }, 10000);
+
+// PR #12290 review: legacy logging callbacks may return incidental values.
+// These callbacks must still release the default CanvasImage error hold.
+test.each(['count', 'event-id', 'error', 'response'] as const)(
+	'legacy image callback returning %s does not leave rendering pending',
+	async (returned) => {
+		const src = URL.createObjectURL(new Blob(['invalid image']));
+		const errors: Error[] = [];
+		const onError: MediaErrorHandler = (error) => {
+			const count = errors.push(error);
+			if (returned === 'count') return count;
+			if (returned === 'event-id') return 'sentry-event-id';
+			if (returned === 'error') return error;
+
+			return Promise.resolve(new Response('logged'));
+		};
+
+		const controller = new AbortController();
+		try {
+			const result = await renderStillOnWeb({
+				composition: composition(() => (
+					<CanvasImage src={src} maxRetries={0} onError={onError} />
+				)),
+				inputProps: {},
+				licenseKey: 'free-license',
+				frame: 0,
+				signal: controller.signal,
+				delayRenderTimeoutInMilliseconds: 2500,
+			});
+			expect((await result.blob()).size).toBeGreaterThan(0);
+			expect(errors).toHaveLength(1);
+		} finally {
+			controller.abort();
+			URL.revokeObjectURL(src);
+		}
+	},
+);
+
+// PR #12290 review: retain source context for the original GIF failure,
+// and preserve a handler's own replacement Error rather than wrapping it.
+// WebKit's GIF worker does not deliver its parse failure in this harness.
+test.skipIf(server.browser === 'webkit').each(['fail', 'reject'] as const)(
+	'GIF preview %s keeps the appropriate error context',
+	async (decision) => {
+		const container = document.createElement('div');
+		document.body.appendChild(container);
+		const root = createRoot(container);
+		const src = URL.createObjectURL(
+			new Blob(['invalid GIF'], {type: 'text/plain'}),
+		);
+		const replacement = new Error('Application GIF recovery failed');
+		let caught: Error | null = null;
+		const Component = () => (
+			<Gif
+				src={src}
+				onError={() =>
+					decision === 'fail' ? 'fail' : Promise.reject(replacement)
+				}
+			/>
+		);
+		root.render(
+			<Player
+				acknowledgeRemotionLicense
+				component={Component}
+				durationInFrames={1}
+				fps={30}
+				compositionWidth={16}
+				compositionHeight={16}
+				inputProps={{}}
+				errorFallback={({error}) => {
+					caught = error;
+					return null;
+				}}
+			/>,
+		);
+		try {
+			await vi.waitFor(() => expect(caught).not.toBeNull(), {timeout: 5000});
+			if (decision === 'reject') {
+				expect(caught).toBe(replacement);
+			} else {
+				expect(caught).toHaveProperty('message', expect.stringContaining(src));
+				expect(caught).toHaveProperty(
+					'message',
+					expect.stringContaining('Wrong content type'),
+				);
+			}
+		} finally {
+			root.unmount();
+			container.remove();
+			URL.revokeObjectURL(src);
+		}
+	},
+	10000,
+);

@@ -317,6 +317,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 				action === 'fallback' &&
 				!(error instanceof ProResDecoderNotEnabledError)
 			) {
+				Internals.Log.warn(
+					{logLevel, tag: '@remotion/media'},
+					`[VideoForPreview] Failed to initialize or play ${preloadedSrc}, falling back to <Html5Video>.`,
+					error,
+				);
 				setShouldFallbackToNativeVideo(true);
 			} else {
 				setTerminalError(errorToUse);

@@ -236,6 +236,11 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 			if (cancelled) return;
 			if (action === 'handled') return;
 			if (action === 'fallback') {
+				Internals.Log.warn(
+					{logLevel, tag: '@remotion/media'},
+					`[AudioForPreview] Failed to initialize or play ${preloadedSrc}, falling back to <Html5Audio>.`,
+					error,
+				);
 				setShouldFallbackToNativeAudio(true);
 			} else {
 				setTerminalError(errorToUse);

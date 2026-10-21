@@ -214,10 +214,10 @@ const ImgContent: React.FC<ImgContentProps> = ({
 				),
 				onError:
 					onError || onImageError
-						? async (error) => {
+						? (error) => {
 								onError?.(e);
 								// Legacy void callbacks own replacement; do not export a broken image.
-								return (await onImageError?.(error)) ?? 'wait';
+								return onImageError?.(error);
 							}
 						: undefined,
 				isCancelled: () => request.cancelled,

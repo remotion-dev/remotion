@@ -3,8 +3,8 @@ export type MediaErrorEvent = {
 	error: Error;
 };
 
-export type MediaErrorAction = 'fallback' | 'fail' | 'handled';
-export type MediaOnError = MediaErrorHandler<MediaErrorAction>;
+export type MediaErrorAction = 'fallback' | 'fail';
+export type MediaOnError = MediaErrorHandler<MediaErrorAction | 'handled'>;
 
 export const callOnErrorAndResolve = async ({
 	onError,
@@ -18,16 +18,16 @@ export const callOnErrorAndResolve = async ({
 	clientSideError: Error;
 	disallowFallback: boolean;
 	isClientSideRendering: boolean;
-}): Promise<[MediaErrorAction, Error]> => {
-	const result = await Internals.resolveMediaError<MediaErrorAction>({
+}): Promise<[MediaErrorAction | 'handled', Error]> => {
+	const result = await Internals.resolveMediaError<
+		MediaErrorAction | 'handled'
+	>({
 		onError,
 		error,
 		defaultAction: disallowFallback ? 'fail' : 'fallback',
+		actions: ['fallback', 'fail', 'handled'],
 	});
-	if (
-		result.action === 'handled' ||
-		(result.action === 'fail' && !result.isDefaultAction)
-	)
+	if (result.action === 'handled' || result.isHandlerError)
 		return [result.action, result.error];
 
 	if (isClientSideRendering) {

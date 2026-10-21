@@ -52,7 +52,10 @@ export const GifForDevelopment = forwardRef<
 
 			return parsedGif as GifState;
 		});
-		const [error, setError] = useState<Error | null>(null);
+		const [failure, setFailure] = useState<{
+			error: Error;
+			isHandlerError: boolean;
+		} | null>(null);
 
 		const currentOnLoad = useRef(onLoad);
 		const currentOnError = useRef(onError);
@@ -92,9 +95,14 @@ export const GifForDevelopment = forwardRef<
 						onError: currentOnError.current,
 						error: err,
 						defaultAction: currentOnError.current ? 'handled' : 'fail',
+						actions: ['handled', 'fail'],
 					});
 					if (aborted) return;
-					if (result.action === 'fail') setError(result.error);
+					if (result.action === 'fail')
+						setFailure({
+							error: result.error,
+							isHandlerError: result.isHandlerError,
+						});
 				});
 
 			return () => {
@@ -105,8 +113,9 @@ export const GifForDevelopment = forwardRef<
 			};
 		}, [cacheKey, resolvedSrc]);
 
-		if (error) {
-			if (currentOnError.current) throw error;
+		if (failure) {
+			const {error, isHandlerError} = failure;
+			if (isHandlerError) throw error;
 			console.error(error.stack);
 			if (isCorsError(error)) {
 				throw new Error(
