@@ -16,9 +16,9 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "node node_modules/typescript-native/bin/tsc -w",
+		"watch": "tsc -w",
 		"test": "node src/test/execute.mjs",
-		"make": "node node_modules/typescript-native/bin/tsc && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
 		"mediabunny": "catalog:",
@@ -38,7 +38,7 @@
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"vitest": "catalog:",
-		"typescript-native": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [],
 	"publishConfig": {

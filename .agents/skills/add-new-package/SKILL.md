@@ -51,8 +51,8 @@ For the documentation version, increment the patch version by 1 as it will only 
 
 - Use `"workspace:*"` for internal dependencies
 - Use `"catalog:"` for shared external dependency versions
-- The `make` script is: `node node_modules/typescript-native/bin/tsc && bun --env-file=../.env.bundle bundle.ts`
+- The `make` script is: `tsc && bun --env-file=../.env.bundle bundle.ts`
 - Add `"type": "module"` to `package.json`
-- Add `"typescript-native": "catalog:"` to devDependencies. This alias installs the native compiler alongside the legacy `typescript` package used by compiler API tooling. Use the explicit CLI path to avoid their shared `tsc` executable name.
+- Add `"typescript": "catalog:"` to devDependencies. This installs the native TypeScript compiler used by package builds.
 - Types/main point to `dist/index.d.ts` and `dist/index.js` (not `dist/cjs/`)
 - Packages with React components need `peerDependencies` for `react` and `react-dom`

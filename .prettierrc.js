@@ -17,5 +17,7 @@ module.exports = {
 			},
 		},
 	],
-	plugins: [require.resolve('prettier-plugin-organize-imports')],
+	plugins: [
+		require.resolve('@remotion/typescript-tools/prettier-organize-imports'),
+	],
 };

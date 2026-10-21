@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "turbo run lint test --no-update-notifier",
 		"typecheck": "bun check",
-		"ts-build": "node node_modules/typescript-native/bin/tsc -b --verbose --watch",
+		"ts-build": "tsc -b --verbose --watch",
 		"stylecheck": "turbo run lint formatting --no-update-notifier && bun run checkskills",
 		"formatting": "turbo run formatting --no-update-notifier",
 		"format": "bun pre-commit.ts",
@@ -72,15 +72,14 @@
 		"@types/react-dom": "catalog:",
 		"oxfmt": "0.35.0",
 		"prettier": "catalog:",
-		"prettier-plugin-organize-imports": "3.2.4",
+		"@remotion/typescript-tools": "workspace:*",
 		"react-scan": "0.5.7",
 		"vite": "6.4.4"
 	},
 	"dependencies": {
-		"typescript-native": "catalog:",
 		"p-limit": "7.2.0",
 		"turbo": "2.11.6",
-		"typescript": "5.9.3"
+		"typescript": "catalog:"
 	},
 	"packageManager": "bun@1.4.3",
 	"overrides": {
@@ -156,7 +155,7 @@
 			"@vitest/browser-playwright": "5.0.3",
 			"playwright": "1.60.0",
 			"vitest": "5.0.3",
-			"typescript-native": "npm:typescript@7.1.0-beta"
+			"typescript": "7.1.0-beta"
 		}
 	}
 }

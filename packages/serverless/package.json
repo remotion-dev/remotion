@@ -11,7 +11,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"test": "bun test src",
-		"make": "node node_modules/typescript-native/bin/tsc -d"
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -31,7 +31,7 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"typescript-native": "catalog:"
+		"typescript": "catalog:"
 	},
 	"exports": {
 		".": "./dist/index.js",
