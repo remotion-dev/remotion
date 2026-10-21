@@ -1813,26 +1813,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const displayDurationInFrames = s.loopDisplay
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
-	const timelineVolume = useMemo(() => {
-		if (typeof waveformVolume === 'number' && Number.isFinite(waveformVolume)) {
-			return {type: 'constant' as const, value: Math.max(0, waveformVolume)};
-		}
-
-		return getTimelineVolume({
-			status: typeof waveformVolume === 'number' ? null : waveformVolume,
-			displayDurationInFrames,
-			firstDisplayFrame: s.from + (s.loopDisplay?.startOffset ?? 0),
-			keyframeDisplayOffset,
-			keyframePlaybackRate,
-		});
-	}, [
-		displayDurationInFrames,
-		keyframeDisplayOffset,
-		keyframePlaybackRate,
-		s.from,
-		s.loopDisplay?.startOffset,
-		waveformVolume,
-	]);
 
 	const isMedia = s.type === 'audio' || s.type === 'video';
 	const durationInFramesCodeValue =
@@ -1986,7 +1966,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		getContextMenuItems,
 		frozenFrame,
 		onSequenceClick,
-		timelineVolume,
+		waveformVolume,
 		displayDurationInFrames,
 		mediaDurationDragLimits,
 		hasCaptionsSchema,
@@ -2027,6 +2007,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		labelStartFrame,
 		connectedCompositions,
 		nodePathInfo,
+		keyframeDisplayOffset,
 		keyframePlaybackRate,
 		sequenceFrameOffset,
 		cascadedStart,
@@ -2067,7 +2048,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		getContextMenuItems,
 		frozenFrame,
 		onSequenceClick,
-		timelineVolume,
+		waveformVolume,
 		displayDurationInFrames,
 		mediaDurationDragLimits,
 		hasCaptionsSchema,
@@ -2143,6 +2124,34 @@ const TimelineSequenceLayoutInner: React.FC<{
 		premountWidth,
 		renderWindow,
 		width,
+	]);
+	const mediaVisible =
+		isMedia && visibleLayout !== null && visibleLayout.media !== null;
+	const timelineVolume = useMemo(() => {
+		// Hidden clips keep their source state mounted, but do not need a waveform.
+		if (!mediaVisible) {
+			return {type: 'constant' as const, value: 1};
+		}
+
+		if (typeof waveformVolume === 'number' && Number.isFinite(waveformVolume)) {
+			return {type: 'constant' as const, value: Math.max(0, waveformVolume)};
+		}
+
+		return getTimelineVolume({
+			status: typeof waveformVolume === 'number' ? null : waveformVolume,
+			displayDurationInFrames,
+			firstDisplayFrame: s.from + (s.loopDisplay?.startOffset ?? 0),
+			keyframeDisplayOffset,
+			keyframePlaybackRate,
+		});
+	}, [
+		displayDurationInFrames,
+		keyframeDisplayOffset,
+		keyframePlaybackRate,
+		mediaVisible,
+		s.from,
+		s.loopDisplay?.startOffset,
+		waveformVolume,
 	]);
 	const mediaVisualizationStyle = useMemo((): React.CSSProperties => {
 		return {
