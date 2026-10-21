@@ -69,6 +69,9 @@ export const extractFrameViaBroadcastChannel = async ({
 	requestInit?: MediaRequestInit;
 	mediaCache: MediaCache;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
+	// Client-side renders, including Firefox and Safari, extract media in this
+	// realm. They never clone errors through BroadcastChannel, preserving causes.
+	// Only secondary tabs in the server's Chromium renderer use the channel below.
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
 			sampleRate,
