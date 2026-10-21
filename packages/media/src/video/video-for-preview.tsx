@@ -388,7 +388,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 					if (result.type === 'cannot-decode') {
 						handleError(
-							new Error(`Cannot decode ${preloadedSrc}.`),
+							result.error,
 							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
 						return;

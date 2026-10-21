@@ -22,7 +22,7 @@ export type ExtractFrameViaBroadcastChannelResult =
 			audio: PcmS16AudioData | null;
 			durationInSeconds: number | null;
 	  }
-	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'cannot-decode'; durationInSeconds: number | null; error: Error}
 	| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 	| {type: 'network-error'; error: Error | null}
@@ -158,6 +158,7 @@ export const extractFrameViaBroadcastChannel = async ({
 				if (data.type === 'response-cannot-decode') {
 					resolve({
 						type: 'cannot-decode',
+						error: data.error,
 						durationInSeconds: data.durationInSeconds,
 					});
 					return;

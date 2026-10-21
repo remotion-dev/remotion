@@ -19,6 +19,7 @@ export type MessageFromMainTab =
 	  }
 	| {
 			type: 'response-cannot-decode';
+			error: Error;
 			id: string;
 			durationInSeconds: number | null;
 	  }
@@ -124,6 +125,7 @@ export const addBroadcastChannelListener = () => {
 					if (result.type === 'cannot-decode') {
 						const cannotDecodeResponse: MessageFromMainTab = {
 							type: 'response-cannot-decode',
+							error: result.error,
 							id: data.id,
 							durationInSeconds: result.durationInSeconds,
 						};

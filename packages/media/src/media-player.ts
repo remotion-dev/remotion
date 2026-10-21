@@ -35,7 +35,7 @@ import type {MaxCanvasSinkFrameSize} from './video/props';
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
 	| {type: 'unknown-container-format'; error: Error}
-	| {type: 'cannot-decode'}
+	| {type: 'cannot-decode'; error: Error}
 	| {type: 'cannot-decode-prores'}
 	| {type: 'network-error'; error: Error}
 	| {type: 'no-tracks'}
@@ -370,7 +370,12 @@ export class MediaPlayer {
 						return {type: 'cannot-decode-prores'};
 					}
 
-					return {type: 'cannot-decode'};
+					return {
+						type: 'cannot-decode',
+						error: new Error(
+							`Cannot decode video track ${videoTrack.id} (${videoTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+						),
+					};
 				}
 
 				if (this.isDisposalError()) {
@@ -424,7 +429,12 @@ export class MediaPlayer {
 
 				const canDecode = await audioTrack.canDecode();
 				if (!canDecode) {
-					return {type: 'cannot-decode'};
+					return {
+						type: 'cannot-decode',
+						error: new Error(
+							`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+						),
+					};
 				}
 
 				if (this.isDisposalError()) {
