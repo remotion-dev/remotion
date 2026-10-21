@@ -356,6 +356,7 @@ const VideoInner: React.FC<
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
 		overrideId: controls?.overrideId ?? null,
+		runtimeValues: controls?.runtimeValues ?? null,
 		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(

@@ -1,6 +1,11 @@
 import React, {useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
+import {EffectPicker} from './EffectPicker';
+import {
+	EffectPickerSetterContext,
+	EffectPickerStateContext,
+} from './EffectPickerProvider';
 import {AssetInspector} from './InspectorPanel/AssetInspector';
 import {InspectorMessage} from './InspectorPanel/common';
 import {CompositionInspector} from './InspectorPanel/CompositionInspector';
@@ -19,10 +24,16 @@ export const InspectorPanel: React.FC<{
 }> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {selectedItems} = useTimelineSelection();
+	const effectPicker = useContext(EffectPickerStateContext);
+	const {closeEffectPicker} = useContext(EffectPickerSetterContext);
 	const sameSequenceInspectorSelection = useMemo(
 		() => getSameSequenceInspectorSelection(selectedItems),
 		[selectedItems],
 	);
+
+	if (effectPicker !== null) {
+		return <EffectPicker state={effectPicker} onBack={closeEffectPicker} />;
+	}
 
 	if (selectedItems.length === 0) {
 		if (canvasContent?.type === 'asset') {

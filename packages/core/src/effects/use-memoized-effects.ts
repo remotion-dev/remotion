@@ -26,6 +26,7 @@ import {
 	type PropStatuses,
 } from '../use-schema.js';
 import type {VideoConfigValues} from '../video-config.js';
+import {useEffectPreview} from './effect-preview.js';
 import type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
@@ -275,14 +276,17 @@ export type GetPropStatusesType = typeof getPropStatusesCtx;
 
 export const useMemoizedEffects = ({
 	effects,
+	runtimeValues,
 	overrideId,
 	videoConfigValues,
 }: {
 	effects: readonly EffectDescriptor<unknown>[];
+	readonly runtimeValues: RuntimeValueStore | null;
 	readonly overrideId: string | null;
 	videoConfigValues: VideoConfigValues | null;
 }): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
+	const preview = useEffectPreview(runtimeValues);
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
 	const frame = useCurrentFrame();
@@ -329,6 +333,14 @@ export const useMemoizedEffects = ({
 
 		return {descriptor, params, effectKey};
 	});
+
+	if (preview !== null) {
+		resolved.push({
+			descriptor: preview,
+			params: preview.params,
+			effectKey: preview.effectKey,
+		});
+	}
 
 	const isSame =
 		previous !== null &&

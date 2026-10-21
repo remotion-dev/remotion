@@ -74,6 +74,7 @@ export const HtmlInCanvasPresentation = <
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
 		overrideId: null,
+		runtimeValues: null,
 		videoConfigValues: null,
 	});
 

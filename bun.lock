@@ -1874,6 +1874,7 @@
         "@jridgewell/trace-mapping": "0.3.31",
         "@remotion/captions": "workspace:*",
         "@remotion/codemods": "workspace:*",
+        "@remotion/effects": "workspace:*",
         "@remotion/elevenlabs": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
