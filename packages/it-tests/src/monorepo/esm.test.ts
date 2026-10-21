@@ -92,5 +92,20 @@ test('Google font ESM entries share loaded font faces with from-info', () => {
 		]);
 		assert.equal(constructed, 2);
 		assert.equal(added.size, 2);
+
+		const iframeFaces = new Set();
+		const iframeDocument = {fonts: {add: (face) => iframeFaces.add(face)}};
+		const iframeOptions = {...options, document: iframeDocument};
+		await Promise.all([
+			loadFont('normal', iframeOptions).waitUntilDone(),
+			loadFontFromInfo(info, 'normal', iframeOptions).waitUntilDone(),
+			loadVariableFont('normal', iframeOptions).waitUntilDone(),
+			loadVariableFontFromInfo(info, 'normal', iframeOptions).waitUntilDone(),
+		]);
+		assert.equal(constructed, 4);
+		assert.equal(iframeFaces.size, 2);
+		await loadFontFromInfo(info, 'normal', options).waitUntilDone();
+		assert.equal(constructed, 4);
+		assert.equal(added.size, 2);
 	"`);
 });
