@@ -386,6 +386,7 @@ export class MediaPlayer {
 				}
 
 				this.videoIteratorManager = await videoIteratorManager({
+					fps: this.fps,
 					getIsDisposed: () => this.isDisposalError(),
 					videoTrack,
 					delayPlaybackHandleIfNotPremounting:

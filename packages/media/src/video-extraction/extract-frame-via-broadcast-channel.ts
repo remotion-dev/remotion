@@ -19,6 +19,7 @@ export type ExtractFrameViaBroadcastChannelResult =
 	| {
 			type: 'success';
 			frame: ImageBitmap | null;
+			frameTimestampInSeconds: number | null;
 			audio: PcmS16AudioData | null;
 			durationInSeconds: number | null;
 	  }
@@ -145,6 +146,7 @@ export const extractFrameViaBroadcastChannel = async ({
 					resolve({
 						type: 'success',
 						frame: data.frame ? data.frame : null,
+						frameTimestampInSeconds: data.frameTimestampInSeconds,
 						audio: data.audio ? data.audio : null,
 						durationInSeconds: data.durationInSeconds
 							? data.durationInSeconds

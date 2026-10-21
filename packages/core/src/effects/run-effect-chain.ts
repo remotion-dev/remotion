@@ -3,6 +3,7 @@ import {groupByBackend} from './effect-internals.js';
 import type {
 	EffectDefinition,
 	EffectDefinitionAndStack,
+	EffectFrameTiming,
 } from './effect-types.js';
 import {getGpuDevice} from './gpu-device.js';
 
@@ -97,6 +98,7 @@ const ensureSetup = <S>(
 export type EffectChainOutput = HTMLCanvasElement | OffscreenCanvas;
 
 export type RunEffectChainOptions = {
+	readonly frameTiming?: EffectFrameTiming;
 	readonly state: EffectChainState;
 	readonly source: CanvasImageSource;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
@@ -109,7 +111,15 @@ export type RunEffectChainOptions = {
 // completed and wrote to `output`, `false` if it was superseded by a newer
 // run (caller should not act on a stale result).
 const runEffectChainWithoutResize = async (
-	{state, source, effects, output, width, height}: RunEffectChainOptions,
+	{
+		state,
+		source,
+		effects,
+		output,
+		width,
+		height,
+		frameTiming,
+	}: RunEffectChainOptions,
 	initialFlipSourceY: boolean,
 	runId: number,
 ): Promise<boolean> => {
@@ -181,6 +191,7 @@ const runEffectChainWithoutResize = async (
 				const setupState = ensureSetup(state, def, dst);
 
 				def.apply({
+					frameTiming,
 					source: currentImage,
 					target: dst,
 					state: setupState,
@@ -257,6 +268,13 @@ const runEffectChainWithoutResize = async (
 export const runEffectChain = async (
 	options: RunEffectChainOptions,
 ): Promise<boolean> => {
+	// Snapshot before resizing or acquiring a GPU device can yield to another frame.
+	options = {
+		...options,
+		frameTiming: options.frameTiming
+			? Object.freeze({...options.frameTiming})
+			: undefined,
+	};
 	const {state, source, width, height, effects} = options;
 	// Keep one ID across resizing and effect passes so callers can cancel the run.
 	const runId = ++state.currentRunId;

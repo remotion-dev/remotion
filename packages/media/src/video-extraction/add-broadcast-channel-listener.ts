@@ -9,6 +9,7 @@ export type MessageFromMainTab =
 			type: 'response-success';
 			id: string;
 			frame: ImageBitmap | null;
+			frameTimestampInSeconds: number | null;
 			audio: PcmS16AudioData | null;
 			durationInSeconds: number | null;
 	  }
@@ -186,7 +187,8 @@ export const addBroadcastChannelListener = () => {
 						return;
 					}
 
-					const {frame, audio, durationInSeconds} = result;
+					const {frame, audio, durationInSeconds, frameTimestampInSeconds} =
+						result;
 
 					const imageBitmap = frame ? await createImageBitmap(frame) : null;
 					if (frame) {
@@ -197,6 +199,7 @@ export const addBroadcastChannelListener = () => {
 						type: 'response-success',
 						id: data.id,
 						frame: imageBitmap,
+						frameTimestampInSeconds,
 						audio,
 						durationInSeconds: durationInSeconds ?? null,
 					};

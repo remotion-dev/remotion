@@ -351,6 +351,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 						if (effects.length > 0) {
 							const completed = await Internals.runEffectChain({
+								frameTiming: {
+									timestampInSeconds: result.frameTimestampInSeconds!,
+									fps,
+								},
 								state: effectChainState.get(
 									imageBitmap.width,
 									imageBitmap.height,

@@ -167,6 +167,9 @@ export const extractFrameAndAudio = async ({
 
 		return {
 			type: 'success',
+			frameTimestampInSeconds: video?.frame
+				? video.frame.timestamp / 1_000_000
+				: null,
 			frame: video?.frame
 				? await rotateFrame({
 						frame: video.frame,
