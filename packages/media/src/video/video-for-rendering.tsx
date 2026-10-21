@@ -50,7 +50,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly delayRenderRetries: number | null;
 	readonly delayRenderTimeoutInMilliseconds: number | null;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
-	readonly audioStreamIndex: number;
+	readonly audioStreamIndex: number | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly _remotionInternalStack: string | undefined;
 	readonly toneFrequency: number;

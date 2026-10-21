@@ -273,7 +273,7 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 
 ### `audioStreamIndex?`
 
-Select the audio stream to use. The default is `0`.
+Select the audio stream to use by its zero-based index. If omitted, Remotion automatically selects a decodable audio track paired with the video, or the first decodable audio track for an audio-only file. An explicit index is always honored, even if that track cannot be decoded.
 
 ```tsx twoslash
 import {Audio} from '@remotion/media';
