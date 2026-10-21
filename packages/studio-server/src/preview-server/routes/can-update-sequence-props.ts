@@ -13,7 +13,7 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import {CodemodsInternals, getNodeProps, getNodes} from '@remotion/codemods';
+import {CodemodsInternals, getNodeProps} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
@@ -1353,19 +1353,9 @@ export const resolveSequencePropsNodePathsFromFilename = ({
 		action: 'read',
 	});
 	const fileContents = readFileSync(absolutePath, 'utf-8');
-	const nodes = getNodes({
-		project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
-		filePath: absolutePath,
-	});
-	return targets.map(({line, column}) => {
-		const lineMatches = nodes.filter((node) => node.location?.line === line);
-		const exactMatches = lineMatches.filter(
-			(node) => node.location?.column === column,
-		);
-		return (
-			(exactMatches.length === 1 ? exactMatches[0] : lineMatches.at(-1))
-				?.nodePath ?? null
-		);
+	return CodemodsInternals.resolveNodePathsFromLocations({
+		fileContents,
+		targets,
 	});
 };
 
