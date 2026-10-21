@@ -1,12 +1,14 @@
 import path from 'path';
-import type {DocusaurusContext} from '@docusaurus/types';
+import type {DocusaurusContext, Plugin} from '@docusaurus/types';
 import {remarkTwoslash} from './shiki';
+import {getTwoslashEngine} from './twoslash-cache';
 /**
  * @param {import("@docusaurus/types").DocusaurusContext} context
  * @param {import("remark-shiki-twoslash").Settings} pluginOptions
  * @returns {import("@docusaurus/types").Preset}
  */
 export function shiki(context: DocusaurusContext, pluginOptions: any) {
+	const engine = getTwoslashEngine();
 	const options = {...pluginOptions, wrapFragments: true};
 
 	// So, how do we hijack the code renderer? We mostly override the user's configuration for
@@ -131,5 +133,33 @@ export function shiki(context: DocusaurusContext, pluginOptions: any) {
 
 	return {
 		themes: [path.resolve(process.cwd(), './docusaurus-theme-shiki-twoslash')],
+		plugins: [
+			(): Plugin => ({
+				name: 'remotion-twoslash-cache',
+				configureWebpack(config) {
+					// Environment changes do not invalidate compiled MDX. Keep each
+					// engine's output separate in both supported persistent caches.
+					const suffix = `-twoslash-${engine}`;
+					if (
+						typeof config.cache === 'object' &&
+						config.cache.type === 'filesystem'
+					) {
+						config.cache.version = `${config.cache.version ?? ''}${suffix}`;
+					}
+
+					// Docusaurus's public types use Webpack's configuration type.
+					const rspackCache = (
+						config.experiments as
+							| {cache: {type: string; version: string} | undefined}
+							| undefined
+					)?.cache;
+					if (rspackCache?.type === 'persistent') {
+						rspackCache.version = `${rspackCache.version ?? ''}${suffix}`;
+					}
+
+					return {};
+				},
+			}),
+		],
 	};
 }

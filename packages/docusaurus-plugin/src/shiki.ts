@@ -1,7 +1,6 @@
 import {lex, parse} from 'fenceparser';
 import type {BundledLanguage, BundledTheme, HighlighterGeneric} from 'shiki';
 import {createHighlighter} from 'shiki';
-import type {BuildVisitor} from 'unist-util-visit';
 import {visit} from 'unist-util-visit';
 import {cachedTwoslashCall} from './caching';
 import {setupNodeForTwoslashException} from './exceptionMessageDOM';
@@ -25,11 +24,6 @@ interface TwoslashSettings {
 	defaultCompilerOptions?: Record<string, unknown>;
 	[key: string]: unknown;
 }
-
-// A set of includes which can be pulled via a set ID
-const includes = new Map<string, string>();
-
-const parsingNewFile = () => includes.clear();
 
 const parseFence = (fence: string): Fence => {
 	const [lang, ...tokens] = lex(fence);
@@ -106,9 +100,10 @@ const getHighlighterInstance = (
 const remarkVisitor =
 	(
 		highlighter: HighlighterGeneric<BundledLanguage, BundledTheme>,
-		twoslashSettings: TwoslashSettings = {},
-	): BuildVisitor<Node, 'code' | 'html'> =>
-	(node: Node) => {
+		twoslashSettings: TwoslashSettings,
+		includes: Map<string, string>,
+	) =>
+	async (node: Node): Promise<void> => {
 		const code = node;
 		let fence: Fence;
 
@@ -151,7 +146,11 @@ const remarkVisitor =
 			// Twoslash code block — use cached call
 			const importedCode = replaceIncludesInCode(includes, node.value);
 			try {
-				shikiHTML = cachedTwoslashCall(importedCode, fence.lang, highlighter);
+				shikiHTML = await cachedTwoslashCall(
+					importedCode,
+					fence.lang,
+					highlighter,
+				);
 			} catch (error) {
 				const shouldAlwaysRaise =
 					process && process.env && Boolean(process.env.CI);
@@ -320,8 +319,15 @@ const remarkVisitor =
 export function remarkTwoslash(settings: TwoslashSettings = {}) {
 	const transform = async (markdownAST: Node) => {
 		const highlighter = await getHighlighterInstance(settings);
-		parsingNewFile();
-		visit(markdownAST, 'code', remarkVisitor(highlighter, settings));
+		const includes = new Map<string, string>();
+		const nodes: Node[] = [];
+		visit(markdownAST, 'code', (node) => {
+			nodes.push(node);
+		});
+		const visitor = remarkVisitor(highlighter, settings, includes);
+		for (const node of nodes) {
+			await visitor(node);
+		}
 	};
 
 	return transform;

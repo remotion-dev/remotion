@@ -62,6 +62,7 @@ Add a ref to a React Player and pass it to another component:
 // @filename: ./remotion/MyVideo.tsx
 export const MyVideo = () => <></>;
 // @filename: ./remotion/TimeDisplay.tsx
+import type {PlayerRef} from '@remotion/player';
 export const TimeDisplay: React.FC<{
   playerRef: React.RefObject<PlayerRef | null>;
 }> = () => <></>;

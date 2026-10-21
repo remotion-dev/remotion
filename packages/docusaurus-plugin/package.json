@@ -14,6 +14,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"twoslash-protocol": "0.3.6",
 		"@remotion/typescript-tools": "workspace:*",
 		"shiki": "3.22.0",
 		"unified": "11.0.5",

@@ -12,10 +12,21 @@ import {
 import {createRequire} from 'module';
 import {dirname, join, relative, resolve} from 'path';
 
-export const TWOSLASH_CACHE_SCHEMA_VERSION = 2;
+export const TWOSLASH_CACHE_SCHEMA_VERSION = 3;
 export const TWOSLASH_THEME = 'github-dark';
 export const TWOSLASH_EXPLICIT_TRIGGER = false;
 export const TWOSLASH_RENDERER = 'classic';
+// Match @shikijs/twoslash's default language filter for both engines.
+export const TWOSLASH_LANGUAGES = ['ts', 'tsx'];
+
+export const getTwoslashEngine = (): 'legacy' | 'native' => {
+	const engine = process.env.REMOTION_DOCS_TWOSLASH_ENGINE ?? 'legacy';
+	if (engine !== 'legacy' && engine !== 'native') {
+		throw new Error(`Unknown Twoslash engine: ${engine}`);
+	}
+
+	return engine;
+};
 
 export const getTwoslashCompilerOptions = () => ({
 	types: ['node'],
@@ -98,7 +109,12 @@ export const getTwoslashVersions = (
 	return {
 		twoslash: findPackageVersion('twoslash', toolingRequire.resolve),
 		shiki: findPackageVersion('shiki', resolvePackage),
-		typescript: findPackageVersion('typescript', toolingRequire.resolve),
+		typescript: findPackageVersion(
+			'typescript',
+			getTwoslashEngine() === 'native'
+				? resolvePackage
+				: toolingRequire.resolve,
+		),
 		shikiTwoslash: findPackageVersion(
 			'@shikijs/twoslash',
 			toolingRequire.resolve,
@@ -266,7 +282,12 @@ export const createTwoslashCacheContext = ({
 	versions: TwoslashVersions;
 }): TwoslashCacheContext => {
 	return {
-		localRoot: join(docsRoot, 'node_modules', '.cache', 'twoslash'),
+		localRoot: join(
+			docsRoot,
+			'node_modules',
+			'.cache',
+			getTwoslashEngine() === 'native' ? 'twoslash-native' : 'twoslash',
+		),
 		environmentHash: getTwoslashEnvironmentHash(docsRoot),
 		versions,
 		workspacePackages: getTwoslashWorkspacePackages(docsRoot),

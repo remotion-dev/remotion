@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import {createRequire} from 'module';
 import {resolve} from 'path';
+import type {TwoslashShikiFunction} from '@remotion/typescript-tools/shiki-twoslash';
 import {
 	rendererClassic,
 	transformerTwoslash,
@@ -11,9 +12,11 @@ import {
 	createTwoslashCacheContext,
 	getTwoslashCacheKey,
 	getTwoslashCompilerOptions,
+	getTwoslashEngine,
 	getTwoslashVersions,
 	readTwoslashCacheEntry,
 	TWOSLASH_EXPLICIT_TRIGGER,
+	TWOSLASH_LANGUAGES,
 	TWOSLASH_THEME,
 	writeTwoslashCacheEntry,
 } from './twoslash-cache';
@@ -46,12 +49,12 @@ const getCacheContext = () => {
 /**
  * Keeps a local cache of the final HTML in node_modules/.cache/twoslash.
  */
-export const cachedTwoslashCall = (
+export const cachedTwoslashCall = async (
 	code: string,
 	lang: string,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	highlighter: HighlighterGeneric<any, any>,
-): string => {
+): Promise<string> => {
 	const context = getCacheContext();
 	const key = getTwoslashCacheKey({code, lang, context});
 	const cached = readTwoslashCacheEntry({context, key});
@@ -63,17 +66,36 @@ export const cachedTwoslashCall = (
 		return cached;
 	}
 
-	const twoslasher = getTwoslasher();
+	let twoslasher: TwoslashShikiFunction | null = null;
+	if (getTwoslashEngine() === 'native' && TWOSLASH_LANGUAGES.includes(lang)) {
+		const {createNativeTwoslasher} = await import('./native-twoslash');
+		const nativeTwoslasher = await createNativeTwoslasher({
+			rootDirectory: resolve(process.cwd()),
+			compilerOptions: getTwoslashCompilerOptions(),
+		});
+		try {
+			const result = await nativeTwoslasher(code, lang);
+			twoslasher = () => result;
+		} finally {
+			await nativeTwoslasher.dispose();
+		}
+	} else if (getTwoslashEngine() === 'legacy') {
+		twoslasher = getTwoslasher();
+	}
+
 	const html = highlighter.codeToHtml(code, {
 		lang,
 		theme: TWOSLASH_THEME,
-		transformers: [
-			transformerTwoslash({
-				twoslasher,
-				renderer: rendererClassic(),
-				explicitTrigger: TWOSLASH_EXPLICIT_TRIGGER,
-			}),
-		],
+		transformers: twoslasher
+			? [
+					transformerTwoslash({
+						twoslasher,
+						langs: TWOSLASH_LANGUAGES,
+						renderer: rendererClassic(),
+						explicitTrigger: TWOSLASH_EXPLICIT_TRIGGER,
+					}),
+				]
+			: [],
 	});
 
 	writeTwoslashCacheEntry({context, key, html});

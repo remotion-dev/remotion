@@ -685,6 +685,7 @@
         "@types/dom-webcodecs": "catalog:",
         "fenceparser": "2.2.0",
         "shiki": "3.22.0",
+        "twoslash-protocol": "0.3.6",
         "unified": "11.0.5",
         "unist-util-visit": "5.1.0",
       },
