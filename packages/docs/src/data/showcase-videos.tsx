@@ -438,12 +438,12 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		],
 	},
 	{
-		title: 'snapcn - Launch video',
+		title: 'snapcn - shadcn-style Remotion components',
 		type: 'mux_video',
 		time: '10',
 		muxId: 'YDhzEciwsdMZvHDu8W4Vz9VqtJINRv5RnED00PNqpj3k',
 		description:
-			'A launch video made entirely from snapcn components. snapcn is an open-source shadcn registry of Remotion components for product videos: text animations, captions, device mockups and full scenes, copied into your project with the shadcn CLI.',
+			'Open-source Remotion components for product videos: text animations, captions, device mockups and full scenes. Add one with `npx shadcn add @snapcn/<name>` and the code is copied into your project to edit. This launch video was made entirely from snapcn components.',
 		height: 1080,
 		width: 1920,
 		submittedOn: new Date('10-21-2026'),
