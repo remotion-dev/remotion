@@ -204,18 +204,19 @@ export const groupNodeReferencesByFile = ({
 	}
 
 	const groups = new Map<string, SequenceNodePath[]>();
+	const seenPathsByFile = new Map<string, Set<string>>();
 	for (const node of nodes) {
 		const filePath = findProjectFile({project, filePath: node.filePath});
 		const paths = groups.get(filePath) ?? [];
-		if (
-			!paths.some(
-				(path) => JSON.stringify(path) === JSON.stringify(node.nodePath),
-			)
-		) {
+		const seenPaths = seenPathsByFile.get(filePath) ?? new Set<string>();
+		const key = JSON.stringify(node.nodePath);
+		if (!seenPaths.has(key)) {
 			paths.push(node.nodePath);
+			seenPaths.add(key);
 		}
 
 		groups.set(filePath, paths);
+		seenPathsByFile.set(filePath, seenPaths);
 	}
 
 	return groups;
