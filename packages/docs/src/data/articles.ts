@@ -3709,6 +3709,15 @@ export const articles = [
 		slug: 'effects/liquid-contours',
 	},
 	{
+		id: 'effects/long-shadows',
+		title: 'longShadows()',
+		relativePath: 'docs/effects/long-shadows.mdx',
+		compId: 'articles-docs-effects-long-shadows',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/long-shadows',
+	},
+	{
 		id: 'effects/lut',
 		title: 'lut()',
 		relativePath: 'docs/effects/lut.mdx',

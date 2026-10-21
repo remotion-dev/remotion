@@ -33,6 +33,7 @@ import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
 import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
+import {longShadows} from '@remotion/effects/long-shadows';
 import {lut} from '@remotion/effects/lut';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
@@ -109,6 +110,7 @@ import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-pro
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
+import {EffectsLongShadowsPreview} from '../effects/effects-long-shadows-preview';
 import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
@@ -331,6 +333,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/drop-shadow',
 		comp: EffectsDropShadowPreview,
 		schema: dropShadow().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-long-shadows',
+		effectName: 'longShadows',
+		effectImportPath: '@remotion/effects/long-shadows',
+		comp: EffectsLongShadowsPreview,
+		schema: longShadows().definition.schema,
 	},
 	{
 		...defaults,

@@ -204,6 +204,11 @@
 			"module": "./dist/esm/levels.mjs",
 			"import": "./dist/esm/levels.mjs"
 		},
+		"./long-shadows": {
+			"types": "./dist/long-shadows.d.ts",
+			"module": "./dist/esm/long-shadows.mjs",
+			"import": "./dist/esm/long-shadows.mjs"
+		},
 		"./lut": {
 			"types": "./dist/lut.d.ts",
 			"module": "./dist/esm/lut.mjs",
@@ -504,6 +509,9 @@
 			],
 			"levels": [
 				"dist/levels.d.ts"
+			],
+			"long-shadows": [
+				"dist/long-shadows.d.ts"
 			],
 			"lut": [
 				"dist/lut.d.ts"
