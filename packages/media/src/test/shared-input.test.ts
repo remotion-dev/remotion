@@ -2,6 +2,7 @@ import {ALL_FORMATS, EncodedPacketSink, Input, UrlSource} from 'mediabunny';
 import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {acquireSharedInput} from '../get-shared-input';
+import {makeSinks} from '../video-extraction/get-frames-since-keyframe';
 
 test('shares a main-thread Input acquired outside @remotion/media', async () => {
 	const src = 'https://example.com/shared-input.mp4';
@@ -108,5 +109,44 @@ test('handles failed prefetches while still rejecting required reads', async () 
 		await Promise.resolve();
 		fetchSpy.mockRestore();
 		warnSpy.mockRestore();
+	}
+});
+
+// PR #12021: disposing an extraction input must release its reconnect wait
+// even when Mediabunny does not abort the fetch request's signal itself.
+test('disposing an offline extraction input releases its wait without reconnecting', async () => {
+	const online = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+	const fetchSpy = vi
+		.spyOn(globalThis, 'fetch')
+		.mockRejectedValue(new TypeError('Offline'));
+	const {dispose} = Input.prototype;
+	const disposeSpy = vi
+		.spyOn(Input.prototype, 'dispose')
+		.mockImplementation(function (this: Input) {
+			expect(fetchSpy.mock.calls[0]?.[1]?.signal?.aborted).toBe(true);
+			dispose.call(this);
+		});
+	const waits: boolean[] = [];
+	const sinks = makeSinks(
+		'https://example.com/offline-disposal.mp4',
+		'error',
+		undefined,
+		undefined,
+		(waiting) => waits.push(waiting),
+	);
+	try {
+		await vi.waitFor(() => expect(waits).toEqual([true]));
+		sinks.dispose();
+		const result = await sinks.promise;
+		expect(result.formatDetectionError?.name).toBe('InputDisposedError');
+		await vi.waitFor(() => expect(waits).toEqual([true, false]));
+		window.dispatchEvent(new Event('online'));
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(fetchSpy).toHaveBeenCalledTimes(1);
+	} finally {
+		disposeSpy.mockRestore();
+		sinks.dispose();
+		online.mockRestore();
+		fetchSpy.mockRestore();
 	}
 });
