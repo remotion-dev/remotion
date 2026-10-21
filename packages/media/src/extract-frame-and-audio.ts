@@ -44,6 +44,7 @@ export const extractFrameAndAudio = async ({
 	requestInit?: MediaRequestInit;
 	mediaCache: MediaCache;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
+	let extractedFrame: VideoFrame | null = null;
 	try {
 		if (includeVideo || includeAudio) {
 			const sink = await mediaCache.sinkManager.getSink(
@@ -63,7 +64,7 @@ export const extractFrameAndAudio = async ({
 			}
 		}
 
-		const [video, audio] = await Promise.all([
+		const [videoResult, audioResult] = await Promise.allSettled([
 			includeVideo
 				? extractFrame({
 						src,
@@ -100,6 +101,20 @@ export const extractFrameAndAudio = async ({
 					})
 				: null,
 		]);
+
+		// Wait for both branches before releasing a frame: audio can reject
+		// while video extraction is still producing its owned VideoFrame.
+		if (videoResult.status === 'rejected') {
+			throw videoResult.reason;
+		}
+
+		const video = videoResult.value;
+		extractedFrame = video?.type === 'success' ? video.frame : null;
+		if (audioResult.status === 'rejected') {
+			throw audioResult.reason;
+		}
+
+		const audio = audioResult.value;
 
 		if (video?.type === 'cannot-decode') {
 			return {
@@ -164,5 +179,7 @@ export const extractFrameAndAudio = async ({
 		}
 
 		throw err;
+	} finally {
+		extractedFrame?.close();
 	}
 };
