@@ -10,17 +10,11 @@ const sidebars: SidebarsConfig = {
 	elementsSidebar: [
 		{
 			type: 'category',
-			label: 'All Elements',
-			className: 'elements-sidebar-root',
+			label: 'Elements',
+			className: 'elements-sidebar-root catalog-sidebar-root',
 			link: {type: 'doc', id: 'index'},
 			collapsible: false,
 			items: [
-				{
-					type: 'html',
-					value:
-						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
-					defaultStyle: true,
-				},
 				...elementCategories.map(({category, label}) => ({
 					type: 'category' as const,
 					label,
@@ -40,11 +34,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'html',
-			value:
-				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+			value: '<hr />',
+			className: 'catalog-sidebar-divider',
 			defaultStyle: true,
 		},
-		'libraries',
+		{
+			type: 'doc',
+			id: 'libraries',
+			className: 'catalog-sidebar-libraries',
+		},
 	],
 };
 
