@@ -414,6 +414,10 @@ export const SequenceManagerProvider: React.FC<{
 	});
 	const [propStatuses, setPropStatusesMapState] = useState<PropStatuses>({});
 	const propStatusesRef = useRef(propStatuses);
+	// Elements read their own status from the latest requested map, so one that
+	// rerenders together with a status update never renders the previous status.
+	// The layout effect wakes up the elements that did not rerender.
+	const requestedPropStatusesRef = useRef(propStatuses);
 	const propStatusListeners = useRef(new Map<string, Set<() => void>>());
 	useIsomorphicLayoutEffect(() => {
 		const previous = propStatusesRef.current;
@@ -688,6 +692,19 @@ export const SequenceManagerProvider: React.FC<{
 		[],
 	);
 
+	const updatePropStatuses = useCallback(
+		(update: (prev: PropStatuses) => PropStatuses) => {
+			const previous = requestedPropStatusesRef.current;
+			const next = update(previous);
+			if (next === previous) {
+				return;
+			}
+
+			requestedPropStatusesRef.current = next;
+			setPropStatusesMapState(next);
+		},
+		[],
+	);
 	const setPropStatuses = useCallback(
 		(
 			nodePath: SequencePropsSubscriptionKey,
@@ -695,7 +712,7 @@ export const SequenceManagerProvider: React.FC<{
 				prev: CanUpdateSequencePropsResponse,
 			) => CanUpdateSequencePropsResponse,
 		) => {
-			setPropStatusesMapState((prev) => {
+			updatePropStatuses((prev) => {
 				const key = makeSequencePropsSubscriptionKey(nodePath);
 
 				const prevKey = prev[key];
@@ -708,11 +725,11 @@ export const SequenceManagerProvider: React.FC<{
 				return {...prev, [key]: newKey};
 			});
 		},
-		[],
+		[updatePropStatuses],
 	);
 	const remapPropStatuses = useCallback(
 		(remappings: readonly SequencePropsStatusRemapping[]) => {
-			setPropStatusesMapState((prev) => {
+			updatePropStatuses((prev) => {
 				const next = {...prev};
 				for (const remapping of remappings) {
 					delete next[
@@ -730,7 +747,7 @@ export const SequenceManagerProvider: React.FC<{
 				return next;
 			});
 		},
-		[],
+		[updatePropStatuses],
 	);
 
 	const dragOverridesSubscription = useMemo<
@@ -795,7 +812,7 @@ export const SequenceManagerProvider: React.FC<{
 				};
 			},
 			getSnapshot: (key) =>
-				key === null ? null : (propStatusesRef.current[key] ?? null),
+				key === null ? null : (requestedPropStatusesRef.current[key] ?? null),
 		}),
 		[],
 	);
