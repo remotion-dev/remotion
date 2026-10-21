@@ -156,5 +156,8 @@
 			"vitest": "5.0.3",
 			"typescript": "7.1.0-beta"
 		}
+	},
+	"patchedDependencies": {
+		"typescript@7.1.0-beta": "patches/typescript@7.1.0-beta.patch"
 	}
 }

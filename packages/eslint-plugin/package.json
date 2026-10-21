@@ -7,7 +7,7 @@
 	"description": "Rules for writing Remotion code",
 	"scripts": {
 		"test": "node src/tests/execute.mjs",
-		"make": "../../node_modules/.bin/tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node ../../node_modules/typescript/bin/tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"main": "dist/index.js",
 	"bugs": {

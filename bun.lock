@@ -2939,6 +2939,9 @@
       },
     },
   },
+  "patchedDependencies": {
+    "typescript@7.1.0-beta": "patches/typescript@7.1.0-beta.patch",
+  },
   "overrides": {
     "@aws-sdk/xml-builder": "3.972.5",
     "@remix-run/dev": "2.17.4",
