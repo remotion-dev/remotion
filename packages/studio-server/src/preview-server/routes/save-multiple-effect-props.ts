@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs';
+import type {File} from '@babel/types';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	SaveMultipleEffectPropsEdit,
@@ -211,6 +212,7 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 				]),
 			).values(),
 		];
+		const statusAsts = new Map<string, File>();
 		const results: SaveMultipleEffectPropsResult[] = statusTargets.map(
 			(edit) => {
 				const {absolutePath} = resolveFileInsideProject({
@@ -223,7 +225,12 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 					throw new Error('Could not compute effect prop edit status');
 				}
 
-				const ast = parseAst(output);
+				let ast = statusAsts.get(absolutePath);
+				if (!ast) {
+					ast = parseAst(output);
+					statusAsts.set(absolutePath, ast);
+				}
+
 				const jsx = findJsxElementAtNodePath(
 					ast,
 					edit.sequenceNodePath.nodePath,
