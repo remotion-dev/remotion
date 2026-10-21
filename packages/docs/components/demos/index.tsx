@@ -12,10 +12,12 @@ import type {DemoType, Option} from './types';
 import {
 	animationMathDemo,
 	arrowDemo,
+	blueWaveWordArtDemo,
 	blurSlidePresentationDemo,
 	bookFlipPresentationDemo,
 	calloutDemo,
 	circleDemo,
+	chromeWordArtDemo,
 	clockWipePresentationDemo,
 	crosswarpPresentationDemo,
 	crossZoomPresentationDemo,
@@ -48,9 +50,11 @@ import {
 	noiseDemo,
 	nonePresentationDemo,
 	opacityDemo,
+	orangeWordArtDemo,
 	pieDemo,
 	polygonDemo,
 	pushCutPresentationDemo,
+	rainbowWordArtDemo,
 	rectDemo,
 	ripplePresentationDemo,
 	rotateDemo,
@@ -125,6 +129,10 @@ const dragPreviewSource: React.CSSProperties = {
 };
 
 const demos: DemoType[] = [
+	rainbowWordArtDemo,
+	orangeWordArtDemo,
+	blueWaveWordArtDemo,
+	chromeWordArtDemo,
 	motionBlurTrailDemo,
 	motionBlurCameraDemo,
 	motionBlurHtmlInCanvasDemo,

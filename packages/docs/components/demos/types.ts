@@ -76,6 +76,12 @@ import {
 	TranslateDemo,
 } from './Translate';
 import {TriangleDemo} from './Triangle';
+import {
+	BlueWaveWordArtDemo,
+	ChromeWordArtDemo,
+	OrangeWordArtDemo,
+	RainbowWordArtDemo,
+} from './WordArtDemo';
 import {ZoomBlurDocsDemo} from './ZoomBlurDemo';
 import {ZoomInOutDocsDemo} from './ZoomInOutDemo';
 
@@ -133,6 +139,78 @@ export type DemoType = {
 	controls: boolean;
 	logLevel: LogLevel;
 };
+
+const makeWordArtDemo = ({
+	id,
+	comp,
+	depth,
+}: {
+	id: string;
+	comp: DemoType['comp'];
+	depth: number;
+}): DemoType => {
+	return {
+		id,
+		comp,
+		compWidth: 1200,
+		compHeight: 440,
+		fps: 30,
+		durationInFrames: 1,
+		autoPlay: false,
+		controls: false,
+		logLevel: 'info',
+		options: [
+			{
+				name: 'text',
+				type: 'string',
+				default: 'WordArt',
+				optional: 'no',
+			},
+			{
+				name: 'depth',
+				type: 'numeric',
+				default: depth,
+				min: 0,
+				max: 40,
+				step: 0.5,
+				optional: 'no',
+			},
+			{
+				name: 'distortion',
+				type: 'numeric',
+				default: 1,
+				min: 0,
+				max: 1,
+				step: 0.01,
+				optional: 'no',
+			},
+		],
+	};
+};
+
+export const rainbowWordArtDemo = makeWordArtDemo({
+	id: 'wordart-rainbow',
+	comp: RainbowWordArtDemo,
+	depth: 0,
+});
+
+export const orangeWordArtDemo = makeWordArtDemo({
+	id: 'wordart-orange',
+	comp: OrangeWordArtDemo,
+	depth: 28,
+});
+
+export const blueWaveWordArtDemo = makeWordArtDemo({
+	id: 'wordart-blue-wave',
+	comp: BlueWaveWordArtDemo,
+	depth: 12,
+});
+
+export const chromeWordArtDemo = makeWordArtDemo({
+	id: 'wordart-chrome',
+	comp: ChromeWordArtDemo,
+	depth: 5,
+});
 
 export const arrowDemo: DemoType = {
 	comp: ArrowDemo,
