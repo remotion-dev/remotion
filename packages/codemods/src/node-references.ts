@@ -192,6 +192,51 @@ export const getUpdatedNodeReference = ({
 	return {filePath, nodePath: remapping?.newNodePath ?? node.nodePath};
 };
 
+export const getUpdatedNodeReferences = ({
+	project,
+	nodes,
+	nodePathRemappings,
+}: {
+	project: CodemodProject;
+	nodes: readonly NodeReference[];
+	nodePathRemappings: NodePathRemapping[];
+}): NodeReference[] => {
+	if (nodes.length === 1) {
+		return [
+			getUpdatedNodeReference({project, node: nodes[0], nodePathRemappings}),
+		];
+	}
+
+	const pathsByFile = new Map<string, Map<string, SequenceNodePath | null>>();
+	for (const {filePath, oldNodePath, newNodePath} of nodePathRemappings) {
+		if (oldNodePath === null) {
+			continue;
+		}
+
+		const paths =
+			pathsByFile.get(filePath) ?? new Map<string, SequenceNodePath | null>();
+		const key = JSON.stringify(oldNodePath);
+		// Match the first remapping, as the single-node lookup does.
+		if (!paths.has(key)) {
+			paths.set(key, newNodePath);
+		}
+
+		pathsByFile.set(filePath, paths);
+	}
+
+	return nodes.map((node) => {
+		const filePath = findProjectFile({project, filePath: node.filePath});
+		const nodePath = pathsByFile
+			.get(filePath)
+			?.get(JSON.stringify(node.nodePath));
+		if (nodePath === null) {
+			throw new Error('The JSX node was removed');
+		}
+
+		return {filePath, nodePath: nodePath ?? node.nodePath};
+	});
+};
+
 export const groupNodeReferencesByFile = ({
 	project,
 	nodes,
