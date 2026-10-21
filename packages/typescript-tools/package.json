@@ -18,10 +18,6 @@
 			"types": "./eslint-parser.d.ts",
 			"default": "./eslint-parser.js"
 		},
-		"./prettier-organize-imports": {
-			"types": "./prettier-organize-imports.d.ts",
-			"default": "./prettier-organize-imports.js"
-		},
 		"./twoslash": {
 			"types": "./twoslash.d.ts",
 			"default": "./twoslash.mjs"
@@ -36,8 +32,6 @@
 		"@typescript-eslint/eslint-plugin": "8.71.2",
 		"@typescript-eslint/parser": "8.71.2",
 		"eslint": "catalog:",
-		"prettier": "catalog:",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"twoslash": "0.3.6",
 		"typescript": "5.9.3"
 	}

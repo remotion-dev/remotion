@@ -65,7 +65,6 @@
     "@types/web": "0.0.187",
     "@types/webrtc": "0.0.44",
     "@vitejs/plugin-react": "4.3.4",
-    "prettier": "3.8.1",
-    "prettier-plugin-organize-imports": "3.2.3"
+    "prettier": "3.8.1"
   }
 }
