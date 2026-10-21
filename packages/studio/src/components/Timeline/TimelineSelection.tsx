@@ -614,6 +614,25 @@ export const getTimelineSelectionFromNodePathInfo = (
 
 export const getTimelineSelectionKey = getCanvasSelectionItemKey;
 
+const selectedKeysByItems = new WeakMap<
+	readonly TimelineSelection[],
+	ReadonlySet<string>
+>();
+
+const getTimelineSelectedKeys = (
+	selectedItems: readonly TimelineSelection[],
+): ReadonlySet<string> => {
+	const cached = selectedKeysByItems.get(selectedItems);
+	if (cached !== undefined) {
+		return cached;
+	}
+
+	// Share membership checks across rows without retaining old selections.
+	const keys = new Set(selectedItems.map(getTimelineSelectionKey));
+	selectedKeysByItems.set(selectedItems, keys);
+	return keys;
+};
+
 const nodePathDescendsFrom = (
 	descendant: SequenceNodePathInfo,
 	ancestor: SequenceNodePathInfo,
@@ -1242,7 +1261,7 @@ export const TimelineSelectionProvider: React.FC<{
 	}, [selectionController, timelineSelectionScope]);
 
 	const selectedKeys = useMemo(
-		() => new Set(availableSelectedItems.map(getTimelineSelectionKey)),
+		() => getTimelineSelectedKeys(availableSelectedItems),
 		[availableSelectedItems],
 	);
 
@@ -1951,9 +1970,7 @@ const useTimelineSelectionItem = <
 		}
 
 		const snapshot = selectionContext.getSnapshot();
-		return snapshot.selectedItems.some(
-			(item) => getTimelineSelectionKey(item) === selectionItemKey,
-		)
+		return getTimelineSelectedKeys(snapshot.selectedItems).has(selectionItemKey)
 			? snapshot
 			: null;
 	}, [selectionContext, selectionItemKey]);
