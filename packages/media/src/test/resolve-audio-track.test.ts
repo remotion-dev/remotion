@@ -7,7 +7,9 @@ import {expect, test, vi} from 'vitest';
 import {resolveAudioTrack} from '../helpers/resolve-audio-track';
 
 const audioTrack = (decodable: boolean) =>
-	({canDecode: vi.fn(async () => decodable)}) as unknown as InputAudioTrack;
+	({
+		canDecode: vi.fn(() => Promise.resolve(decodable)),
+	}) as unknown as InputAudioTrack;
 
 const videoTrack = (pairable: InputAudioTrack[]) =>
 	({
@@ -18,6 +20,7 @@ const videoTrack = (pairable: InputAudioTrack[]) =>
 						return track;
 					}
 				}
+
 				return null;
 			},
 		),
