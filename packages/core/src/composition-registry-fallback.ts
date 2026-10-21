@@ -12,13 +12,30 @@ export type CommittedCompositionEntry =
 	| {readonly type: 'composition'; readonly value: AnyComposition}
 	| {readonly type: 'folder'; readonly value: TFolder};
 
-export const CompositionRegistryFallbackContext = createContext<{
+type CompositionRegistryFallback = {
 	readonly entries: Map<object, CommittedCompositionEntry>;
 	readonly notifyCommit: () => void;
-} | null>(null);
+};
+
+export const CompositionRegistryFallbackContext =
+	createContext<CompositionRegistryFallback | null>(null);
 
 const useIsomorphicLayoutEffect =
 	typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+const createEntryCleanup = (
+	registry: CompositionRegistryFallback | null,
+	identity: object,
+) => {
+	if (registry === null) {
+		return;
+	}
+
+	return () => {
+		registry.entries.delete(identity);
+		registry.notifyCommit();
+	};
+};
 
 // The fallback stages descriptors during layout effects and publishes one
 // complete snapshot after the commit, including mount and unmount changes.
@@ -40,15 +57,10 @@ export const useCommittedCompositionEntry = (
 
 		registry.notifyCommit();
 	}, [entry, registry]);
-	useIsomorphicLayoutEffect(() => {
-		if (registry === null) {
-			return;
-		}
-
-		const identity = key.current;
-		return () => {
-			registry.entries.delete(identity);
-			registry.notifyCommit();
-		};
-	}, [registry]);
+	// The cleanup outlives entry changes. Binding a separate factory prevents it
+	// from sharing a closure with the original entry, even after minification.
+	useIsomorphicLayoutEffect(
+		createEntryCleanup.bind(null, registry, key.current),
+		[registry],
+	);
 };
