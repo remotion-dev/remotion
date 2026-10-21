@@ -11,6 +11,7 @@ const TextBackgroundCompositionInner: React.FC = () => {
 	return (
 		<>
 			<Video
+				name="DJ show intro"
 				src={asset('text-background.mov')}
 				style={{
 					width: 1920,
@@ -24,48 +25,30 @@ const TextBackgroundCompositionInner: React.FC = () => {
 				name="ArrowLogo"
 				width={1920}
 				height={1080}
-				durationInFrames={137}
+				durationInFrames={62}
 				style={{
 					position: 'absolute',
-					scale: interpolate(frame, [94, 99], [0, 0.606], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-						],
-					}),
+					scale: 0.606,
 					translate: interpolate(
 						frame,
-						[94, 99],
-						['-214px -287px', '-262.4px -318.1px'],
+						[72, 80, 122, 134],
+						[
+							'1137.6px -318.1px',
+							'-262.4px -318.1px',
+							'-262.4px -318.1px',
+							'-1662.4px -318.1px',
+						],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: Easing.inOut(Easing.cubic),
 						},
 					),
 					transformOrigin: interpolate(frame, [99], ['43.51% 92.58%'], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
-					rotate: interpolate(frame, [94, 103], ['45deg', '-43deg'], {
+					rotate: interpolate(frame, [72, 84], ['45deg', '-43deg'], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						easing: [
@@ -80,7 +63,7 @@ const TextBackgroundCompositionInner: React.FC = () => {
 						],
 					}),
 				}}
-				from={94}
+				from={72}
 			/>
 			<ArrowLogoRemotion
 				name="ArrowLogoRemotion"
@@ -89,22 +72,17 @@ const TextBackgroundCompositionInner: React.FC = () => {
 				durationInFrames={240}
 				style={{
 					position: 'absolute',
-					translate: '-202.5px 320.6px',
-					scale: interpolate(frame, [134, 140], [0, 0.736], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-						easing: [
-							Easing.spring({
-								damping: 200,
-								mass: 1,
-								stiffness: 100,
-								allowTail: true,
-								durationRestThreshold: 0.02,
-								overshootClamping: false,
-							}),
-						],
-					}),
+					translate: interpolate(
+						frame,
+						[134, 140],
+						['1197.5px 320.6px', '-202.5px 320.6px'],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.cubic),
+						},
+					),
+					scale: 0.736,
 					transformOrigin: '50.46% 15.88%',
 				}}
 				from={134}

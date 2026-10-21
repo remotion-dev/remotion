@@ -1,24 +1,17 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
-	_InternalTypes,
 	AudioCodec,
-	BrowserSafeApis,
 	ChromiumOptions,
-	DownloadBehavior,
-	OutNameInput,
 	PixelFormat,
-	Privacy,
-	ServerlessCodec,
 	SingleFrameRange,
 	ToOptions,
 	VideoImageFormat,
-	WebhookOption,
-} from '@remotion/serverless-client';
-import {
-	ServerlessRoutines,
-	wrapWithErrorHandling,
-} from '@remotion/serverless-client';
-import {awsImplementation, type AwsProvider} from './aws-provider';
+} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {_InternalTypes} from 'remotion';
+import type {DownloadBehavior} from 'remotion/no-react';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
@@ -29,6 +22,14 @@ import {
 import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 import type {AwsRegion} from './regions';
+import {
+	ServerlessRoutines,
+	type OutNameInput,
+	type OutNameInputWithKey,
+	type Privacy,
+	type ServerlessCodec,
+	type WebhookOption,
+} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type RenderMediaOnLambdaInput = {
@@ -54,8 +55,8 @@ export type RenderMediaOnLambdaInput = {
 	framesPerLambda?: number;
 	concurrency?: number;
 	frameRange?: SingleFrameRange;
-	outName?: OutNameInput<AwsProvider>;
-	separateAudioTo?: OutNameInput<AwsProvider>;
+	outName?: OutNameInput;
+	separateAudioTo?: OutNameInputWithKey;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
@@ -106,7 +107,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 	const {functionName, region, rendererFunctionName} = input;
 
 	try {
-		const res = await awsImplementation.callFunctionSync({
+		const res = await callFunctionSyncImplementation({
 			functionName,
 			type: ServerlessRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),

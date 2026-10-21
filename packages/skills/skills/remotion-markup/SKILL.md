@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.536
+version: 4.0.537
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -14,6 +14,13 @@ Users may make edits in the code outside of the conversation.
 If you detect a surprising change made in the meanwhile, don't overwrite it, assume it was intentional or ask for confirmation.
 
 ## General rules
+
+Keep `useCurrentFrame()` in the smallest component that needs it. Extract
+frame-dependent audio volume, titles, and overlays into their own components
+instead of subscribing the whole composition or scene; otherwise unrelated
+descendants re-render on every frame. Preserve the existing frame coordinates
+when extracting across timing boundaries, and keep editable interpolations
+inline on the item's props.
 
 Inside a composition or scene component, get `fps` from `useVideoConfig()` for
 all seconds-to-frames calculations, including timing props such as `from`,
@@ -238,6 +245,10 @@ For static maps, animated routes and markers, geographic explainers, Mapbox, Map
 ## Captions
 
 When dealing with captions or subtitles, load the [Remotion Captions](../remotion-captions/SKILL.md) skill for more information.
+
+## Arabic and right-to-left text
+
+For Arabic, Persian, Urdu or Hebrew text, read [arabic-text.md](arabic-text.md): set the base direction, animate by word, and split letters only in a way that keeps them joined.
 
 ## Google Fonts
 

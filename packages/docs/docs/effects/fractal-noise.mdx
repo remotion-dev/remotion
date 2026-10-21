@@ -1,0 +1,160 @@
+---
+image: /generated/articles-docs-effects-fractal-noise.png
+slug: /effects/fractal-noise
+title: fractalNoise()
+sidebar_label: fractalNoise()
+crumb: '@remotion/effects'
+---
+
+# fractalNoise()<AvailableFrom v="4.0.537" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Generates layered grayscale noise for clouds, smoke and organic textures. Animate `evolution` to morph the pattern smoothly, or animate the offsets to move it.
+
+The effect replaces the source colors and preserves its alpha mask. Apply it to a [`<Solid>`](/docs/solid) for a background, or to text and shapes to fill them with noise.
+
+## Preview
+
+<Demo type="fractal-noise" />
+
+## Controls
+
+<EffectsDemo type="effects-fractal-noise" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {fractalNoise} from '@remotion/effects/fractal-noise';
+import {interpolate, Solid, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Solid
+      name="Evolving clouds"
+      color="black"
+      width={1280}
+      height={720}
+      effects={[
+        fractalNoise({
+          scale: 300,
+          complexity: 6,
+          contrast: 2,
+          cycleEvolution: true,
+          evolution: interpolate(frame, [0, 180], [0, 360]),
+        }),
+      ]}
+    />
+  );
+};
+```
+
+This example loops every 180 frames. Combine the effect with [`tint()`](/docs/effects/tint) or [`duotone()`](/docs/effects/duotone) to color the texture.
+
+## API
+
+Pass an object with the following properties. You can also call `fractalNoise()` without arguments.
+
+### `fractalType?`
+
+Texture style. Defaults to `"basic"`.
+
+- `"basic"`: Layered clouds.
+- `"turbulent-smooth"`: Broad, smooth ridges.
+- `"turbulent-basic"`: Folded noise with sharper ridges.
+- `"turbulent-sharp"`: Narrow, high-contrast ridges.
+- `"dynamic"`: Noise warped by another noise field.
+- `"dynamic-twist"`: Twisted noise.
+- `"dynamic-progressive"`: Increasingly warped fine detail.
+- `"max"`: The strongest value from the layers.
+- `"strings"`: Thin strands around each layer's mid-gray values.
+
+### `noiseType?`
+
+Interpolation between noise cells. Defaults to `"soft-linear"`.
+
+- `"block"`: Hard-edged cells.
+- `"linear"`: Linear interpolation.
+- `"soft-linear"`: Smooth, filtered interpolation.
+- `"spline"`: Cubic interpolation.
+
+All modes evolve smoothly over time, including `"block"`.
+
+### `scale?`
+
+Size of the largest noise cells in pixels. Must be at least `1`. Defaults to `100`.
+
+Larger values produce broader shapes.
+
+### `complexity?`
+
+Number of noise layers, from `1` to `20`. Defaults to `6`. Fractional values fade in the next layer, allowing smooth animation of detail.
+
+Higher values add finer detail and take longer to render.
+
+### `evolution?`
+
+Evolution in degrees. Defaults to `0`. Animate this value to morph the texture without moving it.
+
+By default, `360` continues to a new pattern. Enable `cycleEvolution` to repeat the pattern after `cycle * 360` degrees.
+
+### `contrast?`
+
+Contrast multiplier around mid-gray. Must be non-negative. Defaults to `1`. Use `0` for flat gray before brightness is applied. Output values are clipped to black and white.
+
+### `brightness?`
+
+Brightness added after contrast. Defaults to `0`. A value of `1` adds the full black-to-white range; negative values darken the texture.
+
+### `offsetX?`
+
+Horizontal translation of the texture in pixels. Positive values move it right. Defaults to `0`.
+
+### `offsetY?`
+
+Vertical translation of the texture in pixels. Positive values move it down. Defaults to `0`.
+
+### `subInfluence?`
+
+Strength of each layer relative to the preceding layer, from `0` to `1`. Defaults to `0.7`. Use `0` to keep only the largest layer.
+
+### `subScaling?`
+
+Cell size of each layer relative to the preceding layer, from `0.1` to `1`. Defaults to `0.56`. Lower values add finer detail more quickly.
+
+### `cycleEvolution?`
+
+Whether to repeat the texture after `cycle` revolutions. Defaults to `false`.
+
+### `cycle?`
+
+Length of the evolution loop in revolutions, where one revolution is `360` degrees. Must be an integer from `1` to `65535`. Defaults to `1`. Used when `cycleEvolution` is `true`.
+
+### `seed?`
+
+Integer from `0` to `4294967295` selecting a repeatable noise pattern. Defaults to `0`. Animate `evolution` instead of `seed` for smooth changes.
+
+### `invert?`
+
+Whether to invert the generated grayscale values. Defaults to `false`.
+
+### `amount?`
+
+Mix with the source, from `0` (unchanged) to `1` (noise only). Defaults to `1`. Source transparency is preserved at every value.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`fractalNoise()` uses WebGL2. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## See also
+
+- [`noise()`](/docs/effects/noise)
+- [`liquidContours()`](/docs/effects/liquid-contours)
+- [`tint()`](/docs/effects/tint)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/tree/main/packages/effects/src/fractal-noise)

@@ -28,6 +28,10 @@ type WrappedPage = {
 	readonly canvas: HtmlInCanvasElement;
 	readonly content: HTMLElement;
 	readonly getSize: () => {readonly width: number; readonly height: number};
+	readonly getViewportOrigin: () => {
+		readonly left: number;
+		readonly top: number;
+	};
 	readonly restore: () => void;
 };
 
@@ -35,8 +39,23 @@ const getPageSize = (
 	content: HTMLElement,
 	minimum: {readonly width: number; readonly height: number},
 ) => ({
-	width: Math.max(minimum.width, content.scrollWidth, window.innerWidth),
-	height: Math.max(minimum.height, content.scrollHeight, window.innerHeight),
+	// Ink overflow from animated/transformed descendants must not feed back
+	// into their containing block and enlarge the page on every paint.
+	width: Math.max(minimum.width, window.innerWidth),
+	height: Math.max(
+		minimum.height,
+		window.innerHeight,
+		...[...content.children].map((child) => {
+			if (!(child instanceof HTMLElement)) {
+				return 0;
+			}
+
+			const {position} = getComputedStyle(child);
+			return position === 'fixed' || position === 'absolute'
+				? 0
+				: child.offsetTop + child.offsetHeight;
+		}),
+	),
 });
 
 const getWholePageSize = () => ({
@@ -69,9 +88,15 @@ const validateCaptureSize = ({
 		width,
 		height,
 	};
-	const displayDensity = Math.max(window.devicePixelRatio, scale);
-	const displayWidth = Math.max(1, Math.round(width * displayDensity));
-	const displayHeight = Math.max(1, Math.round(height * displayDensity));
+	// The page display is viewport-sized. Only the selected output uses `scale`.
+	const displayWidth = Math.max(
+		1,
+		Math.round(window.innerWidth * window.devicePixelRatio),
+	);
+	const displayHeight = Math.max(
+		1,
+		Math.round(window.innerHeight * window.devicePixelRatio),
+	);
 	const outputSize = getScaledCanvasSize(
 		resolvedCrop.width,
 		resolvedCrop.height,
@@ -179,6 +204,10 @@ export const getMaximumCaptureScale = async (
 const wrapWholePage = (): WrappedPage => {
 	const {body} = document;
 	const minimumSize = getWholePageSize();
+	const bodyRect = body.getBoundingClientRect();
+	const pageLeft = bodyRect.left + window.scrollX;
+	const pageTop = bodyRect.top + window.scrollY;
+	const spacer = document.createElement('div');
 	const canvas = document.createElement('canvas') as HtmlInCanvasElement;
 	const content = document.createElement('div');
 	canvas.setAttribute('content', 'drawable');
@@ -186,17 +215,22 @@ const wrapWholePage = (): WrappedPage => {
 	canvas.setAttribute('layoutsubtree', '');
 	content.setAttribute('drawable', '');
 	canvas.style.display = 'block';
-	canvas.style.position = 'relative';
+	canvas.style.position = 'fixed';
+	canvas.style.left = '0';
+	canvas.style.top = '0';
 	content.style.position = 'absolute';
 	content.style.inset = '0';
 	content.style.display = 'block';
-	canvas.style.width = `${minimumSize.width}px`;
-	canvas.style.height = `${minimumSize.height}px`;
+	canvas.style.width = `${window.innerWidth}px`;
+	canvas.style.height = `${window.innerHeight}px`;
+	spacer.style.width = `${minimumSize.width}px`;
+	spacer.style.height = `${minimumSize.height}px`;
 	content.style.width = `${minimumSize.width}px`;
 	content.style.height = `${minimumSize.height}px`;
 
 	const pageNodes = [...body.childNodes];
-	body.appendChild(canvas);
+	body.appendChild(spacer);
+	spacer.appendChild(canvas);
 	canvas.appendChild(content);
 	// Keep both parents connected so moveBefore() preserves scroll positions,
 	// focus, and other DOM state when moving the page into the capture subtree.
@@ -241,8 +275,8 @@ const wrapWholePage = (): WrappedPage => {
 	canvasObserver.observe(content, {childList: true, subtree: true});
 
 	const initialSize = getPageSize(content, minimumSize);
-	canvas.style.width = `${initialSize.width}px`;
-	canvas.style.height = `${initialSize.height}px`;
+	spacer.style.width = `${initialSize.width}px`;
+	spacer.style.height = `${initialSize.height}px`;
 	content.style.width = `${initialSize.width}px`;
 	content.style.height = `${initialSize.height}px`;
 
@@ -254,16 +288,20 @@ const wrapWholePage = (): WrappedPage => {
 	return {
 		canvas,
 		content,
+		getViewportOrigin: () => ({
+			left: pageLeft - window.scrollX,
+			top: pageTop - window.scrollY,
+		}),
 		getSize: () => {
 			const size = getPageSize(content, minimumSize);
 			const width = `${size.width}px`;
 			const height = `${size.height}px`;
-			if (canvas.style.width !== width) {
-				canvas.style.width = width;
+			if (spacer.style.width !== width) {
+				spacer.style.width = width;
 			}
 
-			if (canvas.style.height !== height) {
-				canvas.style.height = height;
+			if (spacer.style.height !== height) {
+				spacer.style.height = height;
 			}
 
 			if (content.style.width !== width) {
@@ -289,10 +327,10 @@ const wrapWholePage = (): WrappedPage => {
 			originalCanvasContent.clear();
 
 			while (content.firstChild) {
-				body.moveBefore(content.firstChild, canvas);
+				body.moveBefore(content.firstChild, spacer);
 			}
 
-			canvas.remove();
+			spacer.remove();
 		},
 	};
 };
@@ -360,9 +398,9 @@ export class PageCapture {
 			this.#assertValidSize(sourceSize.width, sourceSize.height);
 			syncDisplayCanvasSize(
 				this.#wrapped.canvas,
-				sourceSize.width,
-				sourceSize.height,
-				Math.max(window.devicePixelRatio, this.#scale),
+				window.innerWidth,
+				window.innerHeight,
+				window.devicePixelRatio,
 			);
 			const initialCrop = this.#crop ?? {left: 0, top: 0, ...sourceSize};
 			syncCanvasSize(
@@ -396,12 +434,6 @@ export class PageCapture {
 		const {width, height} = this.#wrapped.getSize();
 		const outputSize = this.#assertValidSize(width, height);
 		await assertCanEncodeCapture(this.#format, outputSize);
-		syncDisplayCanvasSize(
-			this.#wrapped.canvas,
-			width,
-			height,
-			Math.max(window.devicePixelRatio, this.#scale),
-		);
 		await this.#recorder.startRecording();
 		this.#requestPaint();
 	};
@@ -478,71 +510,93 @@ export class PageCapture {
 	#getRecordingRect = () => {
 		const crop = this.#crop;
 		if (!crop) {
-			return this.#wrapped.content.getBoundingClientRect();
+			const {left, top} = this.#wrapped.getViewportOrigin();
+			const {width, height} = this.#wrapped.getSize();
+			return new DOMRect(left, top, width, height);
 		}
 
 		return new DOMRect(crop.left, crop.top, crop.width, crop.height);
 	};
 
 	#draw = () => {
+		if (this.#restored) {
+			return;
+		}
+
 		const {width, height} = this.#wrapped.getSize();
 		if (width <= 0 || height <= 0) {
 			return;
 		}
 
 		this.#assertValidSize(width, height);
-		const contentRect = this.#wrapped.content.getBoundingClientRect();
-		// Follow the viewport without shrinking the output at the page edges.
-		// drawImage clips any missing source pixels, leaving the matte visible.
-		const crop = this.#crop
-			? {
-					...this.#crop,
-					left: this.#crop.left - contentRect.left,
-					top: this.#crop.top - contentRect.top,
-				}
-			: {left: 0, top: 0, width, height};
-		syncDisplayCanvasSize(
-			this.#wrapped.canvas,
-			width,
-			height,
-			Math.max(window.devicePixelRatio, this.#scale),
-		);
-		syncCanvasSize(this.#captureCanvas, crop.width, crop.height, this.#scale);
-		resetCanvas(this.#context, this.#wrapped.canvas);
-		const displayScaleX = this.#wrapped.canvas.width / width;
-		const displayScaleY = this.#wrapped.canvas.height / height;
-		this.#context.scale(displayScaleX, displayScaleY);
-		this.#context.drawElementImage!(this.#wrapped.content, 0, 0, width, height);
+		const origin = this.#wrapped.getViewportOrigin();
+		const crop = this.#crop ?? {...origin, width, height};
+		try {
+			// Rasterize only the output rectangle. Drawing with offsets clips the
+			// page's paint record without allocating a full-page bitmap.
+			syncCanvasSize(
+				this.#wrapped.canvas,
+				crop.width,
+				crop.height,
+				this.#scale,
+			);
+			syncCanvasSize(this.#captureCanvas, crop.width, crop.height, this.#scale);
+			resetCanvas(this.#context, this.#wrapped.canvas);
+			this.#context.scale(
+				this.#wrapped.canvas.width / crop.width,
+				this.#wrapped.canvas.height / crop.height,
+			);
+			this.#context.drawElementImage!(
+				this.#wrapped.content,
+				origin.left - crop.left,
+				origin.top - crop.top,
+				width,
+				height,
+				{preserveElementGeometry: true},
+			);
+			resetCanvas(this.#captureContext, this.#captureCanvas);
+			for (const color of this.#matteColors) {
+				this.#captureContext.fillStyle = color;
+				this.#captureContext.fillRect(
+					0,
+					0,
+					this.#captureCanvas.width,
+					this.#captureCanvas.height,
+				);
+			}
 
-		resetCanvas(this.#captureContext, this.#captureCanvas);
-		for (const color of this.#matteColors) {
-			this.#captureContext.fillStyle = color;
-			this.#captureContext.fillRect(
-				0,
-				0,
-				this.#captureCanvas.width,
-				this.#captureCanvas.height,
+			this.#captureContext.drawImage(this.#wrapped.canvas, 0, 0);
+			this.#dragImages.draw(this.#captureContext, this.#getRecordingRect(), {
+				canvas: this.#wrapped.canvas,
+				content: this.#wrapped.content,
+				rect: new DOMRect(crop.left, crop.top, crop.width, crop.height),
+				backgroundColors: this.#matteColors,
+			});
+			this.#recorder.addFrame(this.#captureCanvas);
+		} finally {
+			// Only the final viewport pass is presented on screen. Its geometry
+			// update keeps hit testing aligned with the visible page after scrolling.
+			this.#wrapped.canvas.style.width = `${window.innerWidth}px`;
+			this.#wrapped.canvas.style.height = `${window.innerHeight}px`;
+			syncDisplayCanvasSize(
+				this.#wrapped.canvas,
+				window.innerWidth,
+				window.innerHeight,
+				window.devicePixelRatio,
+			);
+			resetCanvas(this.#context, this.#wrapped.canvas);
+			this.#context.scale(
+				this.#wrapped.canvas.width / window.innerWidth,
+				this.#wrapped.canvas.height / window.innerHeight,
+			);
+			this.#context.drawElementImage!(
+				this.#wrapped.content,
+				origin.left,
+				origin.top,
+				width,
+				height,
 			);
 		}
-
-		this.#captureContext.drawImage(
-			this.#wrapped.canvas,
-			crop.left * displayScaleX,
-			crop.top * displayScaleY,
-			crop.width * displayScaleX,
-			crop.height * displayScaleY,
-			0,
-			0,
-			this.#captureCanvas.width,
-			this.#captureCanvas.height,
-		);
-
-		this.#dragImages.draw(this.#captureContext, this.#getRecordingRect(), {
-			canvas: this.#wrapped.canvas,
-			content: this.#wrapped.content,
-			backgroundColors: this.#matteColors,
-		});
-		this.#recorder.addFrame(this.#captureCanvas);
 	};
 
 	#onPaint = () => {

@@ -25,6 +25,7 @@ export type ComponentDragData = {
 const componentIdentifierSchema = z
 	.string()
 	.check(z.regex(/^[A-Z_$][A-Za-z0-9_$]*$/));
+
 const componentImportPathSchema = z
 	.string()
 	.check(
@@ -38,6 +39,7 @@ const componentImportPathSchema = z
 				/^[A-Za-z0-9@._/-]+$/.test(value),
 		),
 	);
+
 const componentPropNameSchema = z
 	.string()
 	.check(
@@ -45,20 +47,25 @@ const componentPropNameSchema = z
 			(value) => value !== 'style' && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(value),
 		),
 	);
+
 const componentPropSchema = z.object({
 	name: componentPropNameSchema,
 	value: z.union([z.string(), z.number(), z.boolean()]),
 });
+
 const componentPropsSchema = z.array(componentPropSchema).check(
 	z.refine((props) => {
 		const names = props.map((prop) => prop.name);
+
 		return new Set(names).size === names.length;
 	}),
 );
+
 const componentDimensionsSchema = z.object({
 	width: z.number().check(z.nonnegative()),
 	height: z.number().check(z.nonnegative()),
 });
+
 const componentDragDataSchema = z.object({
 	type: z.literal('remotion-component'),
 	version: z.literal(1),
@@ -99,16 +106,21 @@ export const makeComponentDragData = ({
 	importPath: string;
 	props: ComponentProp[];
 }): ComponentDragData => {
+	const component: ComponentDragData['component'] = {
+		componentName,
+		importName,
+		importPath,
+		props,
+	};
+
+	if (dimensions) {
+		component.dimensions = dimensions;
+	}
+
 	return {
 		type: 'remotion-component',
 		version: 1,
-		component: {
-			componentName,
-			...(dimensions ? {dimensions} : {}),
-			importName,
-			importPath,
-			props,
-		},
+		component,
 	};
 };
 
@@ -117,6 +129,7 @@ export const parseComponentDragData = (
 ): ComponentDragData | null => {
 	try {
 		const parsed = z.safeParse(componentDragDataSchema, JSON.parse(value));
+
 		if (!parsed.success) {
 			return null;
 		}

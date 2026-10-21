@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import * as z from 'zod/mini';
 import {
 	StudioProtocolInternals,
 	type MakeComponentDragDataInput,
@@ -7,17 +8,23 @@ import {
 const makeComponentDragData = (
 	input: Omit<MakeComponentDragDataInput, 'type'>,
 ) => StudioProtocolInternals.makeDragData({type: 'component', ...input}).data;
+
+const dimensionsSchema = z.object({
+	width: z.number().check(z.positive()),
+	height: z.number().check(z.positive()),
+});
+
 const parseComponentDragData = (payload: string) => {
 	let dimensions: MakeComponentDragDataInput['dimensions'];
+
 	try {
-		const candidate = JSON.parse(payload)?.component?.dimensions;
-		if (
-			typeof candidate?.width === 'number' &&
-			candidate.width > 0 &&
-			typeof candidate?.height === 'number' &&
-			candidate.height > 0
-		) {
-			dimensions = candidate;
+		const parsedDimensions = z.safeParse(
+			dimensionsSchema,
+			JSON.parse(payload)?.component?.dimensions,
+		);
+
+		if (parsedDimensions.success) {
+			dimensions = parsedDimensions.data;
 		}
 	} catch {
 		// The unified parser handles the malformed payload below.
@@ -31,7 +38,9 @@ const parseComponentDragData = (payload: string) => {
 		importPath: 'test',
 		props: [],
 	});
+
 	const parsed = StudioProtocolInternals.parseDragData({mimeType, payload});
+
 	return parsed?.type === 'component' ? parsed.data : null;
 };
 

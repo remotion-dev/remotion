@@ -1,42 +1,46 @@
-import {expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
 import {Readable} from 'node:stream';
-import {
-	cancellationKey,
-	overallProgressKey,
-	type ProviderSpecifics,
-} from '@remotion/serverless-client';
-import {awsImplementation, type AwsProvider} from '../aws-provider';
+import type {WriteFile} from '../aws-operations';
 import {internalCancelRenderOnLambda} from '../cancel-render-on-lambda';
+import * as getAccountId from '../get-account-id';
+import * as readFile from '../read-file';
+import {cancellationKey, overallProgressKey} from '../shared-constants';
+import * as writeFile from '../write-file';
 
-const makeProviderSpecifics = ({
+const spies: {mockRestore: () => void}[] = [];
+
+const installFakes = ({
 	cancellationEnabled,
 	onWrite,
 }: {
 	cancellationEnabled: boolean | undefined;
-	onWrite: ProviderSpecifics<AwsProvider>['writeFile'];
-}): ProviderSpecifics<AwsProvider> => {
-	return {
-		...awsImplementation,
-		getAccountId: () => Promise.resolve('123456789012'),
-		readFile: ({key}) => {
-			expect(key).toBe(overallProgressKey('render-id'));
-			return Promise.resolve(
-				Readable.from([
-					Buffer.from(
-						JSON.stringify({
-							cancellationEnabled,
-						}),
-					),
-				]),
-			);
-		},
-		writeFile: onWrite,
-	};
+	onWrite: WriteFile;
+}) => {
+	spies.push(
+		spyOn(getAccountId, 'getAccountIdImplementation').mockImplementation(() =>
+			Promise.resolve('123456789012'),
+		),
+		spyOn(readFile, 'lambdaReadFileImplementation').mockImplementation(
+			({key}) => {
+				expect(key).toBe(overallProgressKey('render-id'));
+				return Promise.resolve(
+					Readable.from([Buffer.from(JSON.stringify({cancellationEnabled}))]),
+				);
+			},
+		),
+		spyOn(writeFile, 'lambdaWriteFileImplementation').mockImplementation(
+			onWrite,
+		),
+	);
 };
+
+afterEach(() => {
+	spies.splice(0).forEach((spy) => spy.mockRestore());
+});
 
 test('writes a cancellation signal for an opted-in render', async () => {
 	let writes = 0;
-	const providerSpecifics = makeProviderSpecifics({
+	installFakes({
 		cancellationEnabled: true,
 		onWrite: (input) => {
 			writes++;
@@ -54,7 +58,6 @@ test('writes a cancellation signal for an opted-in render', async () => {
 		region: 'us-east-1',
 		forcePathStyle: false,
 		requestHandler: null,
-		providerSpecifics,
 	});
 
 	expect(writes).toBe(1);
@@ -62,7 +65,7 @@ test('writes a cancellation signal for an opted-in render', async () => {
 
 test('rejects cancellation if the render did not opt in', async () => {
 	let writes = 0;
-	const providerSpecifics = makeProviderSpecifics({
+	installFakes({
 		cancellationEnabled: undefined,
 		onWrite: () => {
 			writes++;
@@ -77,7 +80,6 @@ test('rejects cancellation if the render did not opt in', async () => {
 			region: 'us-east-1',
 			forcePathStyle: false,
 			requestHandler: null,
-			providerSpecifics,
 		}),
 	).rejects.toThrow('enableCancellation: true');
 	expect(writes).toBe(0);

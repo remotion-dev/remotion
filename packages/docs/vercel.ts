@@ -90,14 +90,30 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
+		routes.redirect('/elements/guidelines', '/docs/studio/creating-elements', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/elements/guidelines.md',
+			'/docs/studio/creating-elements.md',
+			{permanent: true},
+		),
+		routes.redirect('/elements/contributing', '/docs/contributing/elements', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/elements/contributing.md',
+			'/docs/contributing/elements.md',
+			{permanent: true},
+		),
 		routes.redirect(
 			'/elements/submit-an-element',
-			'/elements/contributing#submit-an-element',
+			'/docs/contributing/elements',
 			{permanent: true},
 		),
 		routes.redirect(
 			'/elements/submit-an-element.md',
-			'/elements/contributing.md#submit-an-element',
+			'/docs/contributing/elements.md',
 			{permanent: true},
 		),
 		routes.redirect(
@@ -153,6 +169,9 @@ export const config: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/issues/new/choose',
 			{permanent: false},
 		),
+		routes.redirect('/inbox', 'https://github.com/remotion-dev/inbox/issues', {
+			permanent: false,
+		}),
 		routes.redirect(
 			'/vision',
 			'https://github.com/remotion-dev/remotion/issues/9081',

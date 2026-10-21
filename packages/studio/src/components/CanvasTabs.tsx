@@ -172,8 +172,8 @@ const dropIndicatorStyle: React.CSSProperties = {
 };
 
 const tabStyle: React.CSSProperties = {
-	gap: 6,
 	minWidth: 0,
+	position: 'relative',
 	width: '100%',
 	boxSizing: 'border-box',
 };
@@ -191,6 +191,7 @@ const labelStyle: React.CSSProperties = {
 const tooltipTriggerStyle: React.CSSProperties = {
 	flex: 1,
 	minWidth: 0,
+	marginRight: 'var(--remotion-canvas-tab-close-space, 26px)',
 };
 
 const tooltipContentStyle: React.CSSProperties = {
@@ -204,21 +205,30 @@ const tooltipTitleStyle: React.CSSProperties = {
 };
 
 const closeStyle: React.CSSProperties = {
-	flexShrink: 0,
 	height: 20,
+	position: 'absolute',
+	right: 3,
+	top: '50%',
+	transform: 'translateY(-50%)',
 	width: 20,
+	// Let the tab's CSS control visibility instead of InlineAction's defaults.
+	opacity: undefined,
+	pointerEvents: undefined,
 };
 
 const CanvasTab: React.FC<{
 	readonly tab: CanvasContent;
 	readonly selected: boolean;
-	readonly onSelect: () => void;
-	readonly onDragFocus: () => void;
-	readonly onClose: () => void;
-	readonly onCloseOthers: () => void;
+	readonly onSelect: (content: CanvasContent, replace: boolean) => void;
+	readonly onDragFocus: (content: CanvasContent) => void;
+	readonly onClose: (content: CanvasContent) => void;
+	readonly onCloseOthers: (content: CanvasContent) => void;
 	readonly canCloseOthers: boolean;
 	readonly dropIndicator: 'before' | 'after' | null;
-	readonly onDragStart: React.DragEventHandler<HTMLDivElement>;
+	readonly onDragStart: (
+		content: CanvasContent,
+		event: React.DragEvent<HTMLDivElement>,
+	) => void;
 	readonly onDragEnd: React.DragEventHandler<HTMLDivElement>;
 }> = ({
 	tab,
@@ -245,6 +255,11 @@ const CanvasTab: React.FC<{
 	const assetMetadataRequested = useRef(false);
 	const compositionMetadataRequested = useRef(false);
 	const dragFocusTimer = useRef<number | null>(null);
+	const onCloseTab = useCallback(() => onClose(tab), [onClose, tab]);
+	const onCloseOtherTabs = useCallback(
+		() => onCloseOthers(tab),
+		[onCloseOthers, tab],
+	);
 	const cancelDragFocus = useCallback(() => {
 		if (dragFocusTimer.current !== null) {
 			window.clearTimeout(dragFocusTimer.current);
@@ -272,10 +287,10 @@ const CanvasTab: React.FC<{
 
 			dragFocusTimer.current = window.setTimeout(() => {
 				dragFocusTimer.current = null;
-				onDragFocus();
+				onDragFocus(tab);
 			}, 500);
 		},
-		[onDragFocus, selected, tab.type],
+		[onDragFocus, selected, tab],
 	);
 	const onDragLeave = useCallback(
 		(event: React.DragEvent<HTMLDivElement>) => {
@@ -330,7 +345,7 @@ const CanvasTab: React.FC<{
 				label: 'Close',
 				keyHint: null,
 				leftItem: null,
-				onClick: onClose,
+				onClick: onCloseTab,
 				quickSwitcherLabel: null,
 				subMenu: null,
 			},
@@ -341,7 +356,7 @@ const CanvasTab: React.FC<{
 				label: 'Close Others',
 				keyHint: null,
 				leftItem: null,
-				onClick: onCloseOthers,
+				onClick: onCloseOtherTabs,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				disabled: !canCloseOthers,
@@ -352,8 +367,8 @@ const CanvasTab: React.FC<{
 		composition,
 		connectionStatus,
 		getAssetContextMenuItems,
-		onClose,
-		onCloseOthers,
+		onCloseTab,
+		onCloseOtherTabs,
 		openInApps,
 		resolvedLocation,
 		setSelectedModal,
@@ -409,7 +424,7 @@ const CanvasTab: React.FC<{
 	const tabElement = (
 		<Tab
 			selected={selected}
-			onClick={selected ? noop : onSelect}
+			onClick={selected ? noop : () => onSelect(tab, false)}
 			onDragEnter={onDragEnter}
 			onDragLeave={onDragLeave}
 			style={tabStyle}
@@ -461,9 +476,10 @@ const CanvasTab: React.FC<{
 			</ActionTooltip>
 			<InlineAction
 				aria-label={`Close ${label} tab`}
+				className="__remotion-canvas-tab-close"
 				onClick={(event) => {
 					event.stopPropagation();
-					onClose();
+					onCloseTab();
 				}}
 				renderAction={() => <CancelIcon height={16} width={16} />}
 				style={closeStyle}
@@ -474,9 +490,11 @@ const CanvasTab: React.FC<{
 
 	return (
 		<div
+			className="__remotion-canvas-tab"
+			data-selected={selected}
 			style={tabWrapperStyle}
 			draggable
-			onDragStart={onDragStart}
+			onDragStart={(event) => onDragStart(tab, event)}
 			onDragEnd={onDragEnd}
 			onDrop={cancelDragFocus}
 		>
@@ -493,7 +511,9 @@ const CanvasTab: React.FC<{
 	);
 };
 
-export const CanvasTabs: React.FC = () => {
+const MemoizedCanvasTab = React.memo(CanvasTab);
+
+export const CanvasTabs: React.FC = React.memo(() => {
 	const {studioRuntimeConfig} = useSettings();
 	const canvasTabsEnabled = studioRuntimeConfig?.canvasTabsEnabled ?? true;
 	const {canvasContent, compositions} = useContext(
@@ -711,6 +731,28 @@ export const CanvasTabs: React.FC = () => {
 		return children.length;
 	}, []);
 
+	const onTabDragStart = useCallback(
+		(content: CanvasContent, event: React.DragEvent<HTMLDivElement>) => {
+			const key = getTabKey(content);
+			draggedTabKey.current = key;
+			event.dataTransfer.setData(canvasTabDragMimeType, key);
+			event.dataTransfer.effectAllowed = 'move';
+		},
+		[],
+	);
+
+	const onTabDragFocus = useCallback(
+		(content: CanvasContent) => {
+			const route = getTabRoute(content);
+			if (route !== null && route !== getRoute()) {
+				replaceUrl(route);
+			}
+
+			setCanvasContent(content);
+		},
+		[setCanvasContent],
+	);
+
 	const onTabDragEnd = useCallback(() => {
 		draggedTabKey.current = null;
 		setDropIndex(null);
@@ -897,23 +939,16 @@ export const CanvasTabs: React.FC = () => {
 				{tabs.map((tab, index) => {
 					const key = getTabKey(tab);
 					return (
-						<CanvasTab
+						<MemoizedCanvasTab
 							key={key}
 							tab={tab}
 							selected={
 								canvasContent !== null && getTabKey(canvasContent) === key
 							}
-							onSelect={() => selectTab(tab, false)}
-							onDragFocus={() => {
-								const route = getTabRoute(tab);
-								if (route !== null && route !== getRoute()) {
-									replaceUrl(route);
-								}
-
-								setCanvasContent(tab);
-							}}
-							onClose={() => closeTab(tab)}
-							onCloseOthers={() => closeOtherTabs(tab)}
+							onSelect={selectTab}
+							onDragFocus={onTabDragFocus}
+							onClose={closeTab}
+							onCloseOthers={closeOtherTabs}
 							canCloseOthers={tabs.length > 1}
 							dropIndicator={
 								dropIndex === index
@@ -922,16 +957,26 @@ export const CanvasTabs: React.FC = () => {
 										? 'after'
 										: null
 							}
-							onDragStart={(event) => {
-								draggedTabKey.current = key;
-								event.dataTransfer.setData(canvasTabDragMimeType, key);
-								event.dataTransfer.effectAllowed = 'move';
-							}}
+							onDragStart={onTabDragStart}
 							onDragEnd={onTabDragEnd}
 						/>
 					);
 				})}
 			</Tabs>
+			<style>{`
+				@media (hover: hover) {
+					.__remotion-canvas-tab:not([data-selected="true"]):not(:hover):not(:focus-within) {
+						--remotion-canvas-tab-close-space: 0px;
+					}
+
+					.__remotion-canvas-tab:not([data-selected="true"]):not(:hover):not(:focus-within) .__remotion-canvas-tab-close {
+						opacity: 0;
+						pointer-events: none;
+					}
+				}
+			`}</style>
 		</div>
 	);
-};
+});
+
+CanvasTabs.displayName = 'CanvasTabs';

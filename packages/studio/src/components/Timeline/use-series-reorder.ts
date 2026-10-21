@@ -14,6 +14,7 @@ import {reorderSequence} from '../reorder-sequence-api';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {scrollableRef} from './timeline-refs';
 import {
+	getTimelineContentWidth,
 	SCROLL_INCREMENT,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
@@ -21,7 +22,6 @@ import {
 	isTimelineSelectionModifierEvent,
 	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
-import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const SERIES_REORDER_SEAM_SNAP_DISTANCE = 12;
 
@@ -29,7 +29,6 @@ export const useSeriesReorder = (
 	items: readonly TimelineTrackWithDisplayGroup[],
 ) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const timelineWidth = useContext(TimelineWidthContext);
 	const video = Internals.useVideo();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [dropIndicatorLeft, setDropIndicatorLeft] = useState<number | null>(
@@ -44,13 +43,14 @@ export const useSeriesReorder = (
 
 	const onPointerDownCapture = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			const timelineWidth = getTimelineContentWidth();
 			if (
 				e.button !== 0 ||
 				!e.isPrimary ||
 				isTimelineSelectionModifierEvent(e) ||
 				!isStudioInteractivityEnabled() ||
 				previewServerState.type !== 'connected' ||
-				timelineWidth === null ||
+				timelineWidth <= TIMELINE_PADDING * 2 ||
 				video === null ||
 				!(e.target instanceof Element) ||
 				e.target.closest('button, input, textarea, select, [role="separator"]')
@@ -329,7 +329,7 @@ export const useSeriesReorder = (
 				},
 			});
 		},
-		[currentSelection, items, previewServerState, timelineWidth, video],
+		[currentSelection, items, previewServerState, video],
 	);
 	const onClickCapture = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
 		if (suppressNextClick.current) {

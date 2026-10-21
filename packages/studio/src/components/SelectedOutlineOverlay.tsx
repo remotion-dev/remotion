@@ -912,6 +912,46 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		sequences,
 	]);
 
+	const selectedRotationKey = selectedRotationInfo?.sequenceKey ?? null;
+	const getSelectableOutlinesForCanvas = useMemo(() => {
+		if (selectedRotationKey === null) {
+			return getSelectableOutlines;
+		}
+
+		let candidates: SelectableOutlines | null = null;
+		return (timelinePosition: number) => {
+			if (candidates === null) {
+				const outlines = getSelectableOutlines(null);
+				const rotatingSequenceIds = new Set(
+					outlines
+						.filter((target) => target.key === selectedRotationKey)
+						.map((target) => target.sequence.id),
+				);
+				const parentBySequenceId = new Map(
+					sequences.map((sequence) => [sequence.id, sequence.parent]),
+				);
+				// Resolve ancestry on first demand, not on each frame or hover update.
+				candidates = outlines.filter((target) => {
+					let parentId = target.sequence.parent;
+					while (parentId !== null) {
+						if (rotatingSequenceIds.has(parentId)) {
+							return false;
+						}
+
+						parentId = parentBySequenceId.get(parentId) ?? null;
+					}
+
+					return true;
+				});
+			}
+
+			return getCanvasVisibleOutlineTargets({
+				targets: candidates,
+				timelinePosition,
+			});
+		};
+	}, [getSelectableOutlines, selectedRotationKey, sequences]);
+
 	const calculateOutlineTargetsForCurrentState =
 		useCallback<CalculateOutlineTargets>(
 			(options) =>
@@ -1091,7 +1131,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					draggingOutline={draggingOutline}
 					getAllDragTargets={getAllDragTargets}
 					getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
-					getSelectableOutlines={getSelectableOutlines}
+					getSelectableOutlines={getSelectableOutlinesForCanvas}
 					hoveredTimelineNodePathKey={hoveredTimelineNodePathKey}
 					measureAllOutlines={measureAllOutlines}
 					onDraggingChange={onDraggingChange}

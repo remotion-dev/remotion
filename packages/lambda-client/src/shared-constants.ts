@@ -1,0 +1,458 @@
+export const COMMAND_NOT_FOUND = 'Command not found';
+
+import type {StorageClass} from '@aws-sdk/client-s3';
+import type {
+	AudioCodec,
+	ChromiumOptions,
+	ColorSpace,
+	LogLevel,
+	PixelFormat,
+	StillImageFormat,
+	SingleFrameRange,
+	ToOptions,
+	VideoImageFormat,
+	X264Preset,
+} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {_InternalTypes, DownloadBehavior} from 'remotion';
+import type {
+	ImageSequenceOutput,
+	RendererOutput,
+	ServerlessRenderOutput,
+} from './image-sequence';
+import type {ExpensiveChunk} from './most-expensive-chunks';
+import type {AwsRegion} from './regions';
+import type {ChunkRetry, ReceivedArtifact} from './types';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
+
+// Needs to be in sync with renderer/src/options/delete-after.ts#L7
+export const expiryDays = {
+	'1-day': 1,
+	'3-days': 3,
+	'7-days': 7,
+	'30-days': 30,
+} as const;
+
+export type DeleteAfter = keyof typeof expiryDays;
+
+export enum ServerlessRoutines {
+	info = 'info',
+	start = 'start',
+	launch = 'launch',
+	status = 'status',
+	renderer = 'renderer',
+	still = 'still',
+	compositions = 'compositions',
+}
+
+export type CustomCredentialsWithoutSensitiveData = {
+	endpoint: string;
+	forcePathStyle?: boolean;
+};
+
+export type CustomCredentials = CustomCredentialsWithoutSensitiveData & {
+	accessKeyId: string | null;
+	secretAccessKey: string | null;
+	region?: AwsRegion | (string & {});
+};
+
+export type OutNameInput =
+	| string
+	| {
+			bucketName: string;
+			key?: string;
+			s3OutputProvider?: CustomCredentials;
+	  };
+
+export type OutNameInputWithKey = string | (OutNameInput & {key: string});
+
+export type RenderOutput = 'main' | 'separate-audio';
+
+export type SeparateAudioOutput = {
+	url: string;
+	bucketName: string;
+	key: string;
+	sizeInBytes: number;
+};
+
+export type SerializedInputProps =
+	| {
+			type: 'bucket-url';
+			hash: string;
+			bucketName: string;
+	  }
+	| {
+			type: 'payload';
+			payload: string;
+	  };
+
+export const serverlessCodecs = [
+	'h264',
+	'h265',
+	'vp8',
+	'vp9',
+	'mp3',
+	'aac',
+	'wav',
+	'gif',
+	'prores',
+] as const;
+
+export type ServerlessCodec = (typeof serverlessCodecs)[number];
+export type Privacy = 'public' | 'private' | 'no-acl';
+
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
+
+export type WebhookOption = Prettify<
+	| null
+	| ({
+			url: string;
+			secret: string | null;
+	  } & Partial<
+			ToOptions<{
+				customData: typeof BrowserSafeApis.options.webhookCustomDataOption;
+			}>
+	  >)
+>;
+
+export type ServerlessStatusPayload = {
+	type: ServerlessRoutines.status;
+	bucketName: string;
+	renderId: string;
+	version: string;
+	logLevel: LogLevel;
+	forcePathStyle: boolean;
+	s3OutputProvider: CustomCredentials | null;
+};
+
+export type ServerlessStartPayload = {
+	enableCancellation: boolean | null;
+	rendererFunctionName: string | null;
+	type: ServerlessRoutines.start;
+	output: ServerlessRenderOutput;
+	serveUrl: string;
+	composition: string;
+	framesPerLambda: number | null;
+	concurrency: number | null;
+	inputProps: SerializedInputProps;
+	codec: ServerlessCodec | null;
+	audioCodec: AudioCodec | null;
+	imageFormat: VideoImageFormat;
+	crf: number | undefined | null;
+	envVariables: Record<string, string> | undefined;
+	pixelFormat: PixelFormat | undefined | null;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined | null;
+	x264Preset: X264Preset | null;
+	gopSize: number | null;
+	disableSharedMemoryCapture: boolean;
+	jpegQuality: number | undefined;
+	maxRetries: number;
+	privacy: Privacy;
+	logLevel: LogLevel;
+	frameRange: SingleFrameRange | null;
+	outName: OutNameInput | null;
+	separateAudioTo: OutNameInputWithKey | null;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	scale: number;
+	everyNthFrame: number;
+	numberOfGifLoops: number | null;
+	concurrencyPerLambda: number;
+	downloadBehavior: DownloadBehavior;
+	muted: boolean;
+	version: string;
+	overwrite: boolean;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
+	webhook: WebhookOption;
+	forceHeight: number | null;
+	forceWidth: number | null;
+	forceFps: number | null;
+	forceDurationInFrames: number | null;
+	bucketName: string | null;
+	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
+	mediaCacheSizeInBytes: number | null;
+	deleteAfter: DeleteAfter | null;
+	colorSpace: ColorSpace | null;
+	preferLossless: boolean;
+	forcePathStyle: boolean;
+	metadata: Record<string, string> | null;
+	licenseKey: string | null;
+	storageClass: StorageClass | null;
+	isProduction: boolean | null;
+	sampleRate: number;
+};
+
+export type ServerlessPayloads = {
+	info: {
+		type: ServerlessRoutines.info;
+		logLevel: LogLevel;
+	};
+	start: ServerlessStartPayload;
+	launch: {
+		enableCancellation: boolean | null;
+		rendererFunctionName: string | null;
+		type: ServerlessRoutines.launch;
+		output: ServerlessRenderOutput;
+		serveUrl: string;
+		composition: string;
+		framesPerFunction: number | null;
+		concurrency: number | null;
+		bucketName: string;
+		inputProps: SerializedInputProps;
+		renderId: string;
+		imageFormat: VideoImageFormat;
+		codec: ServerlessCodec | null;
+		audioCodec: AudioCodec | null;
+		crf: number | null;
+		envVariables: Record<string, string> | undefined;
+		pixelFormat: PixelFormat | null;
+		proResProfile: _InternalTypes['ProResProfile'] | null;
+		x264Preset: X264Preset | null;
+		gopSize: number | null;
+		disableSharedMemoryCapture: boolean;
+		jpegQuality: number | undefined;
+		maxRetries: number;
+		privacy: Privacy;
+		logLevel: LogLevel;
+		frameRange: SingleFrameRange | null;
+		outName: OutNameInput | null;
+		separateAudioTo: OutNameInputWithKey | null;
+		timeoutInMilliseconds: number;
+		// Non-JS SDKs may not set chromiumOptions, may be undefined
+		chromiumOptions: ChromiumOptions | undefined;
+		scale: number;
+		everyNthFrame: number;
+		numberOfGifLoops: number | null;
+		concurrencyPerFunction: number;
+		downloadBehavior: DownloadBehavior;
+		muted: boolean;
+		overwrite: boolean;
+		audioBitrate: string | null;
+		videoBitrate: string | null;
+		encodingMaxRate: string | null;
+		encodingBufferSize: string | null;
+		webhook: WebhookOption;
+		forceHeight: number | null;
+		forceWidth: number | null;
+		forceFps: number | null;
+		forceDurationInFrames: number | null;
+		offthreadVideoCacheSizeInBytes: number | null;
+		offthreadVideoThreads: number | null;
+		mediaCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
+		colorSpace: ColorSpace | null;
+		preferLossless: boolean;
+		forcePathStyle: boolean;
+		metadata: Record<string, string> | null;
+		licenseKey: string | null;
+		storageClass: StorageClass | null;
+		isProduction: boolean;
+		sampleRate: number;
+	};
+	status: ServerlessStatusPayload;
+	renderer: {
+		enableCancellation: boolean | null;
+		concurrencyPerLambda: number;
+		type: ServerlessRoutines.renderer;
+		output: RendererOutput;
+		serveUrl: string;
+		frameRange: [number, number];
+		chunk: number;
+		bucketName: string;
+		composition: string;
+		fps: number;
+		height: number;
+		width: number;
+		durationInFrames: number;
+		retriesLeft: number;
+		inputProps: SerializedInputProps;
+		renderId: string;
+		imageFormat: VideoImageFormat;
+		codec: ServerlessCodec | null;
+		crf: number | null;
+		proResProfile: _InternalTypes['ProResProfile'] | null;
+		x264Preset: X264Preset | null;
+		gopSize: number | null;
+		disableSharedMemoryCapture: boolean;
+		pixelFormat: PixelFormat | null;
+		jpegQuality: number | undefined;
+		envVariables: Record<string, string> | undefined;
+		privacy: Privacy;
+		attempt: number;
+		logLevel: LogLevel;
+		timeoutInMilliseconds: number;
+		chromiumOptions: ChromiumOptions;
+		resolvedProps: SerializedInputProps;
+		scale: number;
+		everyNthFrame: number;
+		muted: boolean;
+		audioCodec: AudioCodec | null;
+		audioBitrate: string | null;
+		videoBitrate: string | null;
+		encodingBufferSize: string | null;
+		encodingMaxRate: string | null;
+		launchFunctionConfig: {
+			version: string;
+		};
+		preferLossless: boolean;
+		offthreadVideoCacheSizeInBytes: number | null;
+		offthreadVideoThreads: number | null;
+		mediaCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
+		colorSpace: ColorSpace | null;
+		compositionStart: number;
+		framesPerLambda: number;
+		progressEveryNthFrame: number;
+		forcePathStyle: boolean;
+		metadata: Record<string, string> | null;
+		sampleRate: number;
+	};
+	still: {
+		type: ServerlessRoutines.still;
+		serveUrl: string;
+		composition: string;
+		inputProps: SerializedInputProps;
+		imageFormat: StillImageFormat;
+		envVariables: Record<string, string>;
+		attempt: number;
+		jpegQuality: number | undefined;
+		maxRetries: number;
+		frame: number;
+		privacy: Privacy;
+		logLevel: LogLevel;
+		outName: OutNameInput | null;
+		timeoutInMilliseconds: number;
+		chromiumOptions: ChromiumOptions;
+		scale: number;
+		downloadBehavior: DownloadBehavior;
+		version: string;
+		forceHeight: number | null;
+		forceWidth: number | null;
+		forceFps: number | null;
+		forceDurationInFrames: number | null;
+		bucketName: string | null;
+		offthreadVideoCacheSizeInBytes: number | null;
+		offthreadVideoThreads: number | null;
+		mediaCacheSizeInBytes: number | null;
+		deleteAfter: DeleteAfter | null;
+		streamed: boolean;
+		forcePathStyle: boolean;
+		licenseKey: string | null;
+		storageClass: StorageClass | null;
+		isProduction: boolean | null;
+	};
+	compositions: {
+		type: ServerlessRoutines.compositions;
+		version: string;
+		chromiumOptions: ChromiumOptions;
+		logLevel: LogLevel;
+		inputProps: SerializedInputProps;
+		envVariables: Record<string, string> | undefined;
+		timeoutInMilliseconds: number;
+		serveUrl: string;
+		bucketName: string | null;
+		offthreadVideoCacheSizeInBytes: number | null;
+		mediaCacheSizeInBytes: number | null;
+		forcePathStyle: boolean;
+	};
+};
+
+export type ServerlessPayload = ServerlessPayloads[ServerlessRoutines];
+
+export type OutNameOutput = {
+	renderBucketName: string;
+	key: string;
+	customCredentials: CustomCredentials | null;
+};
+
+export type OutNameInputWithoutCredentials =
+	| string
+	| {
+			bucketName: string;
+			key?: string;
+			s3OutputProvider?: CustomCredentialsWithoutSensitiveData;
+	  };
+
+export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
+
+export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
+	`${rendersPrefix(renderId)}/out.${imageFormat}`;
+
+export const outName = (renderId: string, extension: string) =>
+	`${rendersPrefix(renderId)}/out.${extension}`;
+
+export const customOutName = (
+	renderId: string,
+	bucketName: string,
+	name: OutNameInputWithKey,
+): OutNameOutput => {
+	if (typeof name === 'string') {
+		return {
+			renderBucketName: bucketName,
+			key: `${rendersPrefix(renderId)}/${name}`,
+			customCredentials: null,
+		};
+	}
+
+	return {
+		key: name.key,
+		renderBucketName: name.bucketName,
+		customCredentials: name.s3OutputProvider ?? null,
+	};
+};
+
+export const overallProgressKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/progress.json`;
+
+export const cancellationKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/cancel.json`;
+
+export const artifactName = (renderId: string, name: string) =>
+	`${rendersPrefix(renderId)}/artifacts/${name}`;
+
+export type PostRenderData = {
+	cost: AfterRenderCost;
+	outputFile: string | null;
+	separateAudio: SeparateAudioOutput | null;
+	outputSequence: ImageSequenceOutput | null;
+	outputSize: number;
+	renderSize: number;
+	timeToFinish: number;
+	timeToRenderFrames: number;
+	errors: EnhancedErrorInfo[];
+	startTime: number;
+	endTime: number;
+	filesCleanedUp: number;
+	timeToEncode: number | null;
+	timeToCleanUp: number;
+	timeToRenderChunks: number;
+	retriesInfo: ChunkRetry[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
+	estimatedBillingDurationInMilliseconds: number;
+	deleteAfter: DeleteAfter | null;
+	timeToCombine: number | null;
+	artifactProgress: ReceivedArtifact[];
+};
+
+export type AfterRenderCost = {
+	estimatedCost: number;
+	estimatedDisplayCost: string;
+	currency: string;
+	disclaimer: string;
+};
+
+export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
+export const MAX_FUNCTIONS_PER_RENDER = 200;
+export const MAX_STILL_INLINE_PAYLOAD_SIZE = 5_000_000;
+export const MAX_NON_INLINE_PAYLOAD_SIZE_PER_FUNCTION = 200_000;
+export const MINIMUM_FRAMES_PER_FUNCTION = 5;
+
+export const REMOTION_CONCATENATED_TOKEN = 'remotion-concatenated-token';
+
+export const RENDERER_PATH_TOKEN = 'remotion-bucket';

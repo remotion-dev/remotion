@@ -9,11 +9,17 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import {
 	subscribeToDefaultProps,
 	unsubscribeFromDefaultProps,
 } from './default-props-api';
 import type {TypeCanSaveState} from './RenderModal/get-render-modal-warnings';
+import {
+	getCachedResolvedStack,
+	hasResolvedStack,
+	useResolvedStack,
+} from './Timeline/use-resolved-stack';
 
 type AllCompStates = {
 	[key: string]: TypeCanSaveState;
@@ -35,6 +41,19 @@ export const ObserveDefaultProps: React.FC<{
 		StudioServerConnectionCtx,
 	);
 	const {updateProps} = useContext(Internals.EditorPropsContext);
+	const {compositions} = useContext(Internals.CompositionManager);
+	const stack = compositions.find((c) => c.id === compositionId)?.stack ?? null;
+	// Re-renders once the stack is resolved, including when it resolves to null.
+	// The location is read from the shared cache, so it always belongs to the
+	// current composition, not the previously selected one.
+	useResolvedStack(stack);
+	const resolvedLocation = getCachedResolvedStack(stack);
+	const symbolicatedStack = useMemo(
+		() => resolvedStackToSymbolicated(resolvedLocation),
+		[resolvedLocation],
+	);
+	// Wait for the registration location so the server checks the right file
+	const stackResolved = hasResolvedStack(stack);
 
 	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
 		useState<AllCompStates>({});
@@ -92,12 +111,13 @@ export const ObserveDefaultProps: React.FC<{
 		if (
 			(readOnlyStudio && !getBrowserStudioOperations()) ||
 			!clientId ||
-			compositionId === null
+			compositionId === null ||
+			!stackResolved
 		) {
 			return;
 		}
 
-		subscribeToDefaultProps({compositionId, clientId})
+		subscribeToDefaultProps({compositionId, clientId, symbolicatedStack})
 			.then((can) => {
 				applyResult(compositionId, can);
 			})
@@ -116,7 +136,14 @@ export const ObserveDefaultProps: React.FC<{
 				// Ignore errors during cleanup
 			});
 		};
-	}, [readOnlyStudio, clientId, compositionId, applyResult]);
+	}, [
+		readOnlyStudio,
+		clientId,
+		compositionId,
+		applyResult,
+		stackResolved,
+		symbolicatedStack,
+	]);
 
 	useEffect(() => {
 		const unsub = subscribeToEvent('default-props-updatable-changed', (e) => {

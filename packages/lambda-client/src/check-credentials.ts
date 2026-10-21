@@ -1,7 +1,8 @@
-import {DOCS_URL, truthy} from '@remotion/serverless-client';
+import {DOCS_URL} from './docs-url';
 import {getEnvVariable} from './get-env-variable';
 import {getIsCli} from './is-cli';
 import {isLikelyToHaveAwsProfile} from './is-likely-to-have-aws-profile';
+import {truthy} from './truthy';
 
 const messageForVariable = (variable: string) => {
 	return [

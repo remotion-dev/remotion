@@ -1,0 +1,102 @@
+---
+image: /generated/articles-docs-effects-cylinder.png
+slug: /effects/cylinder
+title: cylinder()
+sidebar_label: cylinder()
+crumb: '@remotion/effects'
+---
+
+# cylinder()<AvailableFrom v="4.0.537" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Wraps canvas content around an open cylinder. Animate the texture rotation to spin text or images around it, and tilt the cylinder in three dimensions.
+
+## Spinning text
+
+<Demo type="cylinder-text" />
+
+Transparent areas reveal the back of the cylinder when `render` is `'both'`.
+
+## Preview
+
+<EffectsDemo type="effects-cylinder" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {CanvasImage, useCurrentFrame} from 'remotion';
+import {cylinder} from '@remotion/effects/cylinder';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <CanvasImage
+      src="https://remotion.media/transition-bg-blue.jpg"
+      width={1280}
+      height={720}
+      fit="cover"
+      effects={[
+        cylinder({
+          radius: 300,
+          rotation: frame * 2,
+          rotationX: 30,
+          rotationZ: -15,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+### `radius?`
+
+Cylinder radius in pixels. Must be greater than `0`. Defaults to `250`.
+The entire source width wraps once around the circumference. The source height is the cylinder height.
+
+### `rotation?`
+
+Texture rotation around the cylinder, in degrees. Defaults to `0`. Animate from `0` to `360` for one revolution.
+
+### `rotationX?`
+
+Cylinder rotation around the X axis, in degrees. Defaults to `0`.
+
+### `rotationY?`
+
+Cylinder rotation around the Y axis, in degrees. Defaults to `0`.
+
+### `rotationZ?`
+
+Cylinder rotation around the Z axis, in degrees. Defaults to `0`.
+Axis rotations are applied in X, Y, then Z order. The projection is orthographic, and the cylinder has no end caps.
+
+### `position?`
+
+Center as `[x, y]` fractions of the canvas dimensions. Defaults to `[0.5, 0.5]`. Values outside the `0`–`1` range move the center beyond the canvas.
+
+### `render?`
+
+Which faces to render: `'both'`, `'front'`, or `'back'`. Defaults to `'both'`. The front face is composited over the back face.
+
+### `shading?`
+
+Darkening toward the cylinder's silhouette, from `0` to `1`. Defaults to `0.35`. Set to `0` to preserve the source colors.
+
+### `disabled?`
+
+When `true`, skips the effect. Defaults to `false`.
+
+## Requirements
+
+`cylinder()` requires WebGPU. See [Using WebGL and WebGPU during renders](/docs/webgl) for rendering configuration.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`<CanvasImage>`](/docs/canvasimage)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/cylinder/index.ts)
