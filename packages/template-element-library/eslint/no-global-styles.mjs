@@ -5,7 +5,7 @@ export default {
     type: "problem",
     docs: {
       description: "Keep Element styles local to the Element.",
-      url: "https://www.remotion.dev/docs/studio/creating-elements#make-it-portable",
+      url: "https://www.remotion.dev/docs/elements#make-it-portable",
     },
     schema: [],
     messages: {
