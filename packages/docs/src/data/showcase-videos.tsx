@@ -437,6 +437,31 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 		],
 	},
+	{
+		title: 'snapcn - Launch video',
+		type: 'mux_video',
+		time: '10',
+		muxId: 'YDhzEciwsdMZvHDu8W4Vz9VqtJINRv5RnED00PNqpj3k',
+		description:
+			'A launch video made entirely from snapcn components. snapcn is an open-source shadcn registry of Remotion components for product videos: text animations, captions, device mockups and full scenes, copied into your project with the shadcn CLI.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('10-21-2026'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://snapcn.dev',
+			},
+			{
+				type: 'source_code',
+				url: 'https://github.com/shadcn-labs/snapcn',
+			},
+		],
+		author: {
+			url: 'https://x.com/SriNath693',
+			name: 'Sri Somanaath',
+		},
+	},
 	/*
   {
 		title: 'Clippulse - Animated social media videos',
