@@ -1,4 +1,9 @@
-import {AudioBufferSink, CanvasSink, InputVideoTrack} from 'mediabunny';
+import {
+	AudioBufferSink,
+	CanvasSink,
+	InputAudioTrack,
+	InputVideoTrack,
+} from 'mediabunny';
 import type {EffectDefinitionAndStack} from 'remotion';
 import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
@@ -486,5 +491,41 @@ test('disposal clears a rendered canvas only once', async () => {
 		}
 	} finally {
 		await player.dispose();
+	}
+});
+
+// Regression: unsupported audio blocked even the muted video surface.
+test('draws muted video with unsupported audio and reports it on unmute', async () => {
+	const support = vi
+		.spyOn(InputAudioTrack.prototype, 'canDecode')
+		.mockResolvedValue(false);
+	const errors: Error[] = [];
+	let frames = 0;
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(
+		sharedAudioContext,
+		(error) => errors.push(error),
+		'video',
+		{
+			src: '/bigbuckbunny.mp4',
+			canvas: document.createElement('canvas'),
+			onVideoFrameCallback: () => {
+				frames++;
+			},
+		},
+	);
+	try {
+		expect((await player.initialize(0, true, 1)).type).toBe('success');
+		expect(frames).toBeGreaterThan(0);
+		expect(errors).toHaveLength(0);
+		player.setMuted(false);
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('Cannot decode audio');
+		player.setMuted(false);
+		expect(errors).toHaveLength(1);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+		support.mockRestore();
 	}
 });
