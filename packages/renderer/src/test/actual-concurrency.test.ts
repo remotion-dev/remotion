@@ -27,3 +27,30 @@ test('Slightly over 100% is ok as long as it is rounded', () => {
 test('Should also accept integers', () => {
 	expect(resolveConcurrency(1)).toBe(1);
 });
+
+test.skipIf((getCpuCount() as number) < 2)(
+	'62.5% should be 5/8 of the cores',
+	() => {
+		expect(resolveConcurrency('62.5%')).toBe(
+			Math.floor((getCpuCount() as number) * 0.625),
+		);
+	},
+);
+
+test.skipIf((getCpuCount() as number) < 2)(
+	'87.5% should be 7/8 of the cores',
+	() => {
+		expect(resolveConcurrency('87.5%')).toBe(
+			Math.floor((getCpuCount() as number) * 0.875),
+		);
+	},
+);
+
+test.skipIf((getCpuCount() as number) < 8)(
+	'12.5% should be 1/8 of the cores',
+	() => {
+		expect(resolveConcurrency('12.5%')).toBe(
+			Math.floor((getCpuCount() as number) * 0.125),
+		);
+	},
+);
