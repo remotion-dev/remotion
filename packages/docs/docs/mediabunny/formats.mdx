@@ -101,6 +101,8 @@ registerAc3Decoder();
 registerAc3Encoder();
 ```
 
+Registration applies to the current JavaScript environment and Mediabunny instance. Register the decoder before mounting `<Video>` or `<Audio>`, or starting a browser render, in every page or worker that decodes the original media. For example, registering it in a proxy-generation worker does not enable it in the Player page or a separate render window. Ensure the extension and `@remotion/media` use the same Mediabunny instance.
+
 ### DTS<AvailableFrom v="4.0.520" />
 
 DTS is not natively supported by WebCodecs and is not enabled by default in [`@remotion/media`](/docs/media).
