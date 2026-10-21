@@ -12,6 +12,7 @@ import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
+import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
 import {
 	acquireSequencePropsSubscription,
 	subscribeToSequencePropsRefresh,
@@ -121,7 +122,10 @@ export const useSequencePropsSubscription = ({
 					return;
 				}
 
-				setPropStatuses(result.nodePath, () => result.status);
+				// Edits that shift source lines resubscribe every following node.
+				setPropStatuses(result.nodePath, (prev) =>
+					deepEqual(prev, result.status) ? prev : result.status,
+				);
 			},
 			applyEach: (result) => {
 				if (!result.success) {
