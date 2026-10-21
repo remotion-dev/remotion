@@ -163,7 +163,7 @@ const loadImage = ({
 			return;
 		}
 
-		image.crossOrigin = crossOrigin ?? 'anonymous';
+		image.crossOrigin = crossOrigin || 'anonymous';
 		image.src = src;
 	});
 };

@@ -91,7 +91,7 @@ const {
 	previewSampleRateOption,
 	rspackOption,
 	skipSkillsOption,
-} = BrowserSafeApis.options;
+}: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
 	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<

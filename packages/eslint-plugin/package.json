@@ -7,7 +7,7 @@
 	"description": "Rules for writing Remotion code",
 	"scripts": {
 		"test": "node src/tests/execute.mjs",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node node_modules/typescript-native/bin/tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"main": "dist/index.js",
 	"bugs": {
@@ -31,7 +31,7 @@
 		"eslint-v9": "npm:eslint@9.39.5",
 		"eslint-v10": "npm:eslint@10.12.0",
 		"typescript-eslint": "8.71.2",
-		"@typescript/native-preview": "catalog:"
+		"typescript-native": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",

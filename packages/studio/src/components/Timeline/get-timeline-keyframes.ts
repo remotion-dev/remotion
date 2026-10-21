@@ -9,4 +9,4 @@ export const {
 	getKeyframeSourceFrame,
 	getTimelineKeyframes,
 	resolveKeyframeSourceFrame,
-} = CanvasInternals;
+}: typeof CanvasInternals = CanvasInternals;

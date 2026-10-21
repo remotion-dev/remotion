@@ -3,7 +3,9 @@ import {CodemodsInternals} from '@remotion/codemods';
 import type {CanUpdateDefaultPropsResponse} from '@remotion/studio-shared';
 import {getProjectInfo} from '../project-info';
 
-export const {computeCanUpdateDefaultPropsFromContent} = CodemodsInternals;
+export const {
+	computeCanUpdateDefaultPropsFromContent,
+}: typeof CodemodsInternals = CodemodsInternals;
 
 export const checkIfTypeScriptFile = (file: string) => {
 	if (
