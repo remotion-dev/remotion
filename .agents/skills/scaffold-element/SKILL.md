@@ -5,7 +5,7 @@ description: Scaffold a new Remotion Element for development in the docs Remotio
 
 # Scaffold a Remotion Element
 
-Read the [Element guidelines](../../../packages/docs/docs/studio/creating-elements.mdx) for design and implementation guidance and the [Element contribution guide](../../../packages/docs/docs/contributing/elements.mdx) for the official gallery submission process. Then follow its [Develop the Element](../../../packages/docs/docs/contributing/elements.mdx#1-develop-the-element) section.
+Read the [Element guidelines](../../../packages/docs/docs/elements.mdx) for design and implementation guidance and the [Element contribution guide](../../../packages/docs/docs/contributing/elements.mdx) for the official gallery submission process. Then follow its [Develop the Element](../../../packages/docs/docs/contributing/elements.mdx#1-develop-the-element) section.
 
 After scaffolding, suggest opening Docs Studio to preview the Element. If the user agrees, start it without opening a browser automatically:
 
