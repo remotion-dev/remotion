@@ -1,8 +1,8 @@
 import {createRequire} from 'node:module';
 import {FlatCompat} from '@eslint/eslintrc';
 import js from '@eslint/js';
-import typescriptPlugin from '@typescript-eslint/eslint-plugin';
-import parser from '@typescript-eslint/parser';
+import parser from '@remotion/typescript-tools/eslint-parser';
+import typescriptPlugin from '@remotion/typescript-tools/eslint-plugin';
 
 const require = createRequire(import.meta.url);
 const __dirname = new URL('.', import.meta.url).pathname;

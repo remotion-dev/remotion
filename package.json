@@ -72,15 +72,13 @@
 		"@types/react-dom": "catalog:",
 		"oxfmt": "0.35.0",
 		"prettier": "catalog:",
-		"prettier-plugin-organize-imports": "3.2.4",
 		"react-scan": "0.5.7",
 		"vite": "6.4.4"
 	},
 	"dependencies": {
-		"@typescript/native-preview": "catalog:",
 		"p-limit": "7.2.0",
 		"turbo": "2.11.6",
-		"typescript": "5.9.3"
+		"typescript": "catalog:"
 	},
 	"packageManager": "bun@1.4.3",
 	"overrides": {
@@ -156,7 +154,10 @@
 			"@vitest/browser-playwright": "5.0.3",
 			"playwright": "1.60.0",
 			"vitest": "5.0.3",
-			"@typescript/native-preview": "7.0.0-dev.20260217.1"
+			"typescript": "7.1.0-beta"
 		}
+	},
+	"patchedDependencies": {
+		"typescript@7.1.0-beta": "patches/typescript@7.1.0-beta.patch"
 	}
 }

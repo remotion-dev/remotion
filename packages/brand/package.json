@@ -45,7 +45,7 @@
 		"@remotion/transitions": "workspace:*",
 		"@types/opentype.js": "1.3.4",
 		"@types/styled-components": "5.1.34",
-		"@typescript/native-preview": "catalog:",
+		"typescript": "catalog:",
 		"codehike": "1.0.4",
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",

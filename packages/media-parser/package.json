@@ -9,7 +9,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"prepublishOnly": "bun ensure-correct-version.ts"
 	},
 	"devDependencies": {
@@ -19,7 +19,7 @@
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",
 		"@types/bun": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

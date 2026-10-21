@@ -14,8 +14,8 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsgo -w",
-		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsc -w",
+		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Brayden Blackwell",
 	"contributors": [],
@@ -48,7 +48,7 @@
 		"@happy-dom/global-registrator": "14.5.1",
 		"eslint": "catalog:",
 		"gsap": "3.15.0",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [
 		"remotion",

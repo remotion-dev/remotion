@@ -115,6 +115,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
+		"typescript": "5.9.3",
 		"@playwright/test": "1.60.0",
 		"sharp": "catalog:",
 		"@types/dom-webcodecs": "catalog:",

@@ -15,8 +15,8 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"watch": "tsgo -w",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsc -w",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
 		"dist",
@@ -37,7 +37,7 @@
 		"vite": "6.4.3",
 		"@playwright/test": "1.60.0",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [],
 	"publishConfig": {

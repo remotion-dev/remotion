@@ -7,7 +7,7 @@
 	"description": "Rules for writing Remotion code",
 	"scripts": {
 		"test": "node src/tests/execute.mjs",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node ../../node_modules/typescript/bin/tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"main": "dist/index.js",
 	"bugs": {
@@ -16,7 +16,8 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "ISC",
 	"dependencies": {
-		"@typescript-eslint/utils": "5.19.0"
+		"@typescript-eslint/utils": "5.19.0",
+		"typescript": "5.9.3"
 	},
 	"keywords": [
 		"eslint",
@@ -30,8 +31,7 @@
 		"eslint": "8.57.0",
 		"eslint-v9": "npm:eslint@9.39.5",
 		"eslint-v10": "npm:eslint@10.12.0",
-		"typescript-eslint": "8.71.2",
-		"@typescript/native-preview": "catalog:"
+		"typescript-eslint": "8.71.2"
 	},
 	"exports": {
 		"./package.json": "./package.json",

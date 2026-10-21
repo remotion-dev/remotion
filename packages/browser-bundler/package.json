@@ -14,8 +14,8 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsgo -w",
-		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsc -w",
+		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -58,7 +58,7 @@
 		"@testing-library/react": "16.1.0",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
-		"@typescript/native-preview": "catalog:",
+		"typescript": "catalog:",
 		"eslint": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:"

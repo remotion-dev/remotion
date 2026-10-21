@@ -17,8 +17,8 @@
 		"formatting": "oxfmt src e2e playwright.config.ts --check",
 		"format": "oxfmt src e2e playwright.config.ts",
 		"lint": "eslint src e2e playwright.config.ts",
-		"watch": "tsgo -w",
-		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsc -w",
+		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -58,7 +58,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
-		"@typescript/native-preview": "catalog:",
+		"typescript": "catalog:",
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",
 		"react": "catalog:",

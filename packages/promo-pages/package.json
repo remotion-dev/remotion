@@ -34,6 +34,7 @@
 		"@mediabunny/mp3-encoder": "catalog:"
 	},
 	"devDependencies": {
+		"typescript": "5.9.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@eslint/eslintrc": "3.1.0",
 		"@types/react": "catalog:",
