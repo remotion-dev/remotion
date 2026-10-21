@@ -1,10 +1,5 @@
 import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useMemo,
-	useSyncExternalStore,
-} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -14,6 +9,7 @@ import {
 	getFieldsToShow,
 	SCHEMA_FIELD_GROUPS,
 } from '../../helpers/timeline-layout';
+import {useRuntimeValueSnapshots} from '../../helpers/use-runtime-values';
 import {SplitIcon} from '../../icons/split';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
@@ -120,31 +116,11 @@ export const MultiSequenceInspector: React.FC<{
 			};
 		});
 	}, [calculateTimeline, overrideIdToNodePathMappings, selections, sequences]);
-	const store = useMemo(() => {
-		const stores = (targets ?? []).map(
-			(target) => target.controls.runtimeValues,
-		);
-		let snapshots = stores.map((value) => value.getSnapshot());
-		return {
-			subscribe: (listener: () => void) => {
-				const unsubscribes = stores.map((value) => value.subscribe(listener));
-				return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
-			},
-			getSnapshot: () => {
-				const next = stores.map((value) => value.getSnapshot());
-				if (next.some((value, index) => value !== snapshots[index])) {
-					snapshots = next;
-				}
-
-				return snapshots;
-			},
-		};
-	}, [targets]);
-	const runtimeValues = useSyncExternalStore(
-		store.subscribe,
-		store.getSnapshot,
-		store.getSnapshot,
+	const runtimeControls = useMemo(
+		() => (targets ?? []).map((target) => target.controls),
+		[targets],
 	);
+	const runtimeValues = useRuntimeValueSnapshots(runtimeControls);
 	const fields = useMemo(() => {
 		const allFields = (targets ?? []).map(
 			(target, index) =>
