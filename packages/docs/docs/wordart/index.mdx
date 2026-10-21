@@ -4,34 +4,57 @@ title: '@remotion/wordart'
 crumb: API
 ---
 
-# @remotion/wordart<AvailableFrom v="4.0.537" />
+# @remotion/wordart<AvailableFrom v="4.0.538" />
 
-Four classic WordArt-inspired text styles for Remotion: rainbow, orange 3D, blue wave, and chrome.
+Four classic WordArt-inspired text components for Remotion: rainbow, orange 3D, blue wave, and chrome.
 
 <Installation pkg="@remotion/wordart" />
 
 Requires React 18 or later.
 
-## APIs
+## Components
 
 import {TableOfContents} from './table-of-contents';
 
 <TableOfContents />
 
-## Presets
-
-| `preset`    | Appearance                                                          |
-| ----------- | ------------------------------------------------------------------- |
-| `rainbow`   | Arched rainbow gradient with a gray drop shadow                     |
-| `orange`    | Gold-to-orange gradient, rising slant, and deep brown extrusion     |
-| `blue-wave` | Cyan-to-blue gradient on a wavy baseline with dark blue extrusion   |
-| `chrome`    | Reflective silver gradient, slanted letters, and a metallic outline |
-
-The presets use SVG text, gradients, and layered extrusion. Text stays editable and scales without image assets. Curved baselines rotate individual glyphs along a path; they do not deform the glyph outlines.
+The components use SVG text, gradients, and layered extrusion. Text stays editable and scales without image assets. Curved baselines rotate individual glyphs along a path; they do not deform the glyph outlines.
 
 ## Fonts
 
-The default font stack is `Arial Black, Arial, sans-serif`. No font files are bundled. To get the same appearance on your computer and a render server, [load a font](/docs/fonts) and pass its family to [`<WordArt>`](/docs/wordart/word-art).
+The default font stack is `Arial Black, Arial, sans-serif`. No font files are bundled. To get the same appearance on your computer and a render server, [load a font](/docs/fonts) and pass its family to the component's `fontFamily` prop.
+
+## Common props
+
+All four components accept the exported `WordArtProps` type. Each component also accepts `depth` and `distortion`, documented on its page with the corresponding defaults.
+
+### children
+
+A string containing the text. Text is stretched horizontally to fit the component, including short strings. It does not wrap. Use separate components for multiple lines.
+
+### width?
+
+The SVG width in pixels. Must be a finite number greater than zero. Default: `800`.
+
+### height?
+
+The SVG height in pixels. Must be a finite number greater than zero. Default: `288`. The artwork keeps its `1000:360` aspect ratio inside the given dimensions, including space for shadows and extrusion. Overflow is visible so font overhangs are not clipped. Set `style={{overflow: 'hidden'}}` to clip to the SVG bounds.
+
+### fontFamily?
+
+The font family for the letters. Default: `"Arial Black, Arial, sans-serif"`. [Load custom fonts](/docs/fonts) before rendering; this prop does not load fonts.
+
+### fontWeight?
+
+The font weight. Default: `900`. Choose a weight available in your loaded font.
+
+### style?
+
+CSS styles applied to the root SVG. Use this for positioning, opacity, and transforms. Use `fontFamily` and `fontWeight` to change the letters.
+
+### className?
+
+A CSS class name applied to the root SVG.
 
 ## License
 

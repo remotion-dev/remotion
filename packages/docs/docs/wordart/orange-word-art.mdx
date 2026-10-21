@@ -1,0 +1,70 @@
+---
+image: /generated/articles-docs-wordart-orange-word-art.png
+title: '<OrangeWordArt>'
+crumb: '@remotion/wordart'
+---
+
+# &lt;OrangeWordArt&gt;<AvailableFrom v="4.0.538" />
+
+Slanted gold-to-orange text with deep brown extrusion.
+
+```tsx twoslash title="MyComposition.tsx"
+import {OrangeWordArt} from '@remotion/wordart';
+import {AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => (
+  <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+    <OrangeWordArt width={800} height={288}>
+      Back to 1997
+    </OrangeWordArt>
+  </AbsoluteFill>
+);
+```
+
+## Animation
+
+The component has no automatic animation. Drive its props using [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate).
+
+```tsx twoslash title="AnimatedWordArt.tsx"
+import {OrangeWordArt} from '@remotion/wordart';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const AnimatedWordArt = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const progress = interpolate(frame, [0, fps], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <OrangeWordArt distortion={progress} depth={progress * 28}>
+      WordArt
+    </OrangeWordArt>
+  );
+};
+```
+
+## Props
+
+Accepts the [common WordArt props](/docs/wordart#common-props), plus the following:
+
+### depth?
+
+Extrusion distance in SVG design units, from `0` to `40`. Default: `28`. Fractional values are supported.
+
+### distortion?
+
+Controls the rising slant, from `0` (straight) to `1` (full slant). Default: `1`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+For [client-side rendering](/docs/client-side-rendering), SVG content requires an [`<HtmlInCanvas>`](/docs/html-in-canvas) wrapper and a compatible browser.
+
+## See also
+
+- [@remotion/wordart](/docs/wordart)
+- [Fonts](/docs/fonts)
+- [Animating properties](/docs/animating-properties)

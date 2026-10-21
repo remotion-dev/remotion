@@ -1,24 +1,10 @@
 import React, {useId} from 'react';
 import {presets, type WordArtPreset} from './presets';
+import type {WordArtProps} from './types';
 
-export type WordArtProps = {
-	readonly children: string;
-	readonly preset: WordArtPreset;
-	readonly width?: number;
-	readonly height?: number;
-	readonly fontFamily?: string;
-	readonly fontWeight?: React.CSSProperties['fontWeight'];
-	readonly depth?: number;
-	readonly distortion?: number;
-	readonly style?: React.CSSProperties;
-	readonly className?: string;
-};
-
-/**
- * Classic decorative text with SVG gradients, curved baselines, and extrusion.
- * @see [Documentation](https://www.remotion.dev/docs/wordart/word-art)
- */
-export const WordArt: React.FC<WordArtProps> = ({
+export const WordArtRenderer: React.FC<
+	WordArtProps & {readonly preset: WordArtPreset}
+> = ({
 	children,
 	preset,
 	width = 800,

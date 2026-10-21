@@ -1,0 +1,70 @@
+---
+image: /generated/articles-docs-wordart-blue-wave-word-art.png
+title: '<BlueWaveWordArt>'
+crumb: '@remotion/wordart'
+---
+
+# &lt;BlueWaveWordArt&gt;<AvailableFrom v="4.0.538" />
+
+Cyan-to-blue text on a wavy baseline with dark blue extrusion.
+
+```tsx twoslash title="MyComposition.tsx"
+import {BlueWaveWordArt} from '@remotion/wordart';
+import {AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => (
+  <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+    <BlueWaveWordArt width={800} height={288}>
+      Back to 1997
+    </BlueWaveWordArt>
+  </AbsoluteFill>
+);
+```
+
+## Animation
+
+The component has no automatic animation. Drive its props using [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate).
+
+```tsx twoslash title="AnimatedWordArt.tsx"
+import {BlueWaveWordArt} from '@remotion/wordart';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const AnimatedWordArt = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const progress = interpolate(frame, [0, fps], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <BlueWaveWordArt distortion={progress} depth={progress * 12}>
+      WordArt
+    </BlueWaveWordArt>
+  );
+};
+```
+
+## Props
+
+Accepts the [common WordArt props](/docs/wordart#common-props), plus the following:
+
+### depth?
+
+Extrusion distance in SVG design units, from `0` to `40`. Default: `12`. Fractional values are supported.
+
+### distortion?
+
+Controls the wavy baseline, from `0` (straight) to `1` (full wave). Default: `1`. A single character uses a straight baseline.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+For [client-side rendering](/docs/client-side-rendering), SVG content requires an [`<HtmlInCanvas>`](/docs/html-in-canvas) wrapper and a compatible browser.
+
+## See also
+
+- [@remotion/wordart](/docs/wordart)
+- [Fonts](/docs/fonts)
+- [Animating properties](/docs/animating-properties)

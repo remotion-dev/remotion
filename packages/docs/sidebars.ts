@@ -1070,7 +1070,12 @@ const sidebars: SidebarsConfig = {
 			type: 'category',
 			label: '@remotion/wordart',
 			link: {type: 'doc', id: 'wordart/index'},
-			items: ['wordart/word-art'],
+			items: [
+				'wordart/rainbow-word-art',
+				'wordart/orange-word-art',
+				'wordart/blue-wave-word-art',
+				'wordart/chrome-word-art',
+			],
 		},
 		{
 			type: 'category',

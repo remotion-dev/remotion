@@ -1,4 +1,9 @@
-import {WordArt} from '@remotion/wordart';
+import {
+	RainbowWordArt,
+	OrangeWordArt,
+	BlueWaveWordArt,
+	ChromeWordArt,
+} from '@remotion/wordart';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -33,30 +38,58 @@ export const WordArtGallery: React.FC = () => {
 					marginTop: 40,
 				}}
 			>
-				{(['rainbow', 'orange', 'blue-wave', 'chrome'] as const).map(
-					(preset, index) => (
-						<div
-							key={preset}
-							style={{
-								background: 'white',
-								border: '1px solid #dddcd6',
-								padding: '20px 24px',
-							}}
-						>
-							<div style={{fontSize: 16, color: '#77766f'}}>
-								0{index + 1} / {preset}
-							</div>
-							<WordArt
-								preset={preset}
-								width={510}
-								height={210}
-								distortion={distortion}
-							>
-								WordArt
-							</WordArt>
-						</div>
-					),
-				)}
+				<div
+					style={{
+						background: 'white',
+						border: '1px solid #dddcd6',
+						padding: '20px 24px',
+					}}
+				>
+					<div style={{fontSize: 16, color: '#77766f'}}>
+						01 / RainbowWordArt
+					</div>
+					<RainbowWordArt width={510} height={210} distortion={distortion}>
+						WordArt
+					</RainbowWordArt>
+				</div>
+				<div
+					style={{
+						background: 'white',
+						border: '1px solid #dddcd6',
+						padding: '20px 24px',
+					}}
+				>
+					<div style={{fontSize: 16, color: '#77766f'}}>02 / OrangeWordArt</div>
+					<OrangeWordArt width={510} height={210} distortion={distortion}>
+						WordArt
+					</OrangeWordArt>
+				</div>
+				<div
+					style={{
+						background: 'white',
+						border: '1px solid #dddcd6',
+						padding: '20px 24px',
+					}}
+				>
+					<div style={{fontSize: 16, color: '#77766f'}}>
+						03 / BlueWaveWordArt
+					</div>
+					<BlueWaveWordArt width={510} height={210} distortion={distortion}>
+						WordArt
+					</BlueWaveWordArt>
+				</div>
+				<div
+					style={{
+						background: 'white',
+						border: '1px solid #dddcd6',
+						padding: '20px 24px',
+					}}
+				>
+					<div style={{fontSize: 16, color: '#77766f'}}>04 / ChromeWordArt</div>
+					<ChromeWordArt width={510} height={210} distortion={distortion}>
+						WordArt
+					</ChromeWordArt>
+				</div>
 			</div>
 		</AbsoluteFill>
 	);
