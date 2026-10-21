@@ -103,6 +103,9 @@ const waitForPaint = (
 ): Promise<void> => {
 	return new Promise((resolve, reject) => {
 		let paintTimer: ReturnType<typeof setTimeout> | null = null;
+		let onPaint: () => void = () => undefined;
+		let onAbort: () => void = () => undefined;
+
 		const cleanup = () => {
 			layoutCanvas.removeEventListener('paint', onPaint);
 			signal?.removeEventListener('abort', onAbort);
@@ -110,11 +113,13 @@ const waitForPaint = (
 				clearTimeout(paintTimer);
 			}
 		};
-		const onAbort = () => {
+
+		onAbort = () => {
 			cleanup();
 			reject(signal!.reason);
 		};
-		const onPaint = () => {
+
+		onPaint = () => {
 			// Chromium dispatches paint during compositor commit. Resume in a new task
 			// so WebGL context eviction cannot destroy a texture layer during commit.
 			// Remove this workaround once the Chromium fix ships in supported Chrome versions.
@@ -124,6 +129,7 @@ const waitForPaint = (
 				resolve();
 			}, 0);
 		};
+
 		if (signal?.aborted) {
 			onAbort();
 			return;
