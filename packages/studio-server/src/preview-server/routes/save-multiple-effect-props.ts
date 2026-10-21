@@ -16,7 +16,10 @@ import {
 } from '../../codemods/update-effect-props/update-effect-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
-import {getVideoConfigIdentifierValues} from '../../helpers/video-config-values';
+import {
+	getVideoConfigIdentifiers,
+	resolveVideoConfigIdentifierValues,
+} from '../../helpers/video-config-values';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -213,6 +216,11 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 			).values(),
 		];
 		const statusAsts = new Map<string, File>();
+		// Share binding analysis, but resolve each target's video configuration below.
+		const statusIdentifiers = new Map<
+			string,
+			ReturnType<typeof getVideoConfigIdentifiers>
+		>();
 		const results: SaveMultipleEffectPropsResult[] = statusTargets.map(
 			(edit) => {
 				const {absolutePath} = resolveFileInsideProject({
@@ -235,22 +243,32 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 					ast,
 					edit.sequenceNodePath.nodePath,
 				);
-				const status = jsx
-					? computeEffectPropStatus({
-							ast,
-							jsx,
-							effectIndex: edit.effectIndex,
-							keys: getAllSchemaKeys(edit.schema),
-							videoConfigValues: getVideoConfigIdentifierValues({
-								ast,
-								videoConfigValues: edit.sequenceNodePath.videoConfigValues,
-							}),
-						})
-					: {
-							canUpdate: false as const,
-							effectIndex: edit.effectIndex,
-							reason: 'not-found' as const,
-						};
+				let status: SaveMultipleEffectPropsResult['status'];
+				if (jsx) {
+					const keys = getAllSchemaKeys(edit.schema);
+					let identifiers = statusIdentifiers.get(absolutePath);
+					if (!identifiers) {
+						identifiers = getVideoConfigIdentifiers({ast});
+						statusIdentifiers.set(absolutePath, identifiers);
+					}
+
+					status = computeEffectPropStatus({
+						ast,
+						jsx,
+						effectIndex: edit.effectIndex,
+						keys,
+						videoConfigValues: resolveVideoConfigIdentifierValues({
+							identifiers,
+							videoConfigValues: edit.sequenceNodePath.videoConfigValues,
+						}),
+					});
+				} else {
+					status = {
+						canUpdate: false,
+						effectIndex: edit.effectIndex,
+						reason: 'not-found',
+					};
+				}
 
 				return {
 					fileName: edit.fileName,
