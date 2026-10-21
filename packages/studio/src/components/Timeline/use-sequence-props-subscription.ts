@@ -13,6 +13,7 @@ import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {
 	acquireSequencePropsSubscription,
 	subscribeToSequencePropsRefresh,
@@ -40,8 +41,8 @@ export const useSequencePropsSubscription = ({
 	const {setOverrideIdToNodePath} = useContext(
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {migrateExpandedTracksForSubscriptionKey} = useContext(
 		ExpandedTracksSetterContext,
@@ -51,8 +52,6 @@ export const useSequencePropsSubscription = ({
 	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const [refreshToken, setRefreshToken] = useState(0);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
-	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
-	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 	const effectsSignature = useMemo(
 		() =>
@@ -169,6 +168,7 @@ export const useSequencePropsSubscription = ({
 		locationSource,
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
+		overrideIdToNodePathMappingsRef,
 		preferMappedNodePath,
 		pendingDeletions,
 		refreshToken,
