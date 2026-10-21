@@ -211,3 +211,89 @@ test('a chunk file replayed by a retried streaming chunk is only merged once', a
 		join('/tmp', 'chunk:00000000:video'),
 	]);
 });
+
+test('an artifact replayed after a cut-off stream in the same attempt is idempotent', async () => {
+	const attempts: number[] = [];
+	useStreamingTransport(({payload, receivedStreamingPayload}) => {
+		if (payload.type !== ServerlessRoutines.renderer) {
+			throw new Error('Expected renderer payload');
+		}
+
+		attempts.push(payload.attempt);
+		for (let i = 0; i < 2; i++) {
+			receivedStreamingPayload({
+				successType: 'success',
+				message: {type: 'lambda-invoked', payload: {attempt: payload.attempt}},
+			});
+			receivedStreamingPayload({
+				successType: 'success',
+				message: {
+					type: 'artifact-emitted',
+					payload: {
+						artifact: LambdaClientInternals.serializeArtifact({
+							filename: 'thumbnail.jpeg',
+							frame: 0,
+							content: 'thumbnail',
+							downloadBehavior: null,
+						}),
+					},
+				},
+			});
+		}
+
+		receivedStreamingPayload({
+			successType: 'success',
+			message: {type: 'chunk-complete', payload: {start: 100, rendered: 200}},
+		});
+
+		return Promise.resolve();
+	});
+	let completedChunks = 0;
+	const overallProgress = {
+		setLambdaInvoked: () => undefined,
+		addChunkCompleted: () => {
+			completedChunks++;
+		},
+	} as unknown as OverallProgressHelper;
+	const artifactRegistry = makeArtifactRegistry();
+	const acceptedArtifacts: EmittedArtifact[] = [];
+
+	await renderRendererFunctionWithRetry({
+		payload: {
+			type: 'renderer',
+			output: {type: 'media'},
+			bucketName: 'bucket',
+			renderId: 'render-id',
+			chunk: 0,
+			attempt: 1,
+			retriesLeft: 1,
+			forcePathStyle: false,
+		} as never,
+		files: [],
+		functionName: 'renderer-function',
+		outdir: '/tmp',
+		overallProgress,
+		logLevel: 'info',
+		onArtifact: ({artifact, chunk, attempt}) => {
+			const result = artifactRegistry.registerArtifact({
+				chunk,
+				frame: artifact.frame,
+				attempt,
+				filename: artifact.filename,
+			});
+			if (result.type === 'accepted') {
+				acceptedArtifacts.push(artifact);
+			}
+
+			return result;
+		},
+		requestHandler: null,
+		expectedBucketOwner: 'owner',
+	});
+
+	expect(attempts).toEqual([1]);
+	expect(completedChunks).toBe(1);
+	expect(acceptedArtifacts.map((artifact) => artifact.filename)).toEqual([
+		'thumbnail.jpeg',
+	]);
+});
