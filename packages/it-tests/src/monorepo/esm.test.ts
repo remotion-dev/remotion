@@ -67,7 +67,10 @@ test('Google font ESM entries share loaded font faces with from-info', () => {
 			constructor() { constructed++; }
 			load() { return Promise.resolve(this); }
 		};
-		globalThis.fetch = async () => new Response(new Uint8Array([0]));
+		globalThis.fetch = async () => ({
+			ok: true,
+			arrayBuffer: async () => new ArrayBuffer(1),
+		});
 
 		const options = {document, weights: ['400'], subsets: ['latin']};
 		const info = getInfo();
