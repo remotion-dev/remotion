@@ -614,6 +614,31 @@ export const getTimelineSelectionFromNodePathInfo = (
 
 export const getTimelineSelectionKey = getCanvasSelectionItemKey;
 
+const multiSelectedSequenceNodePathInfosByItems = new WeakMap<
+	readonly TimelineSelection[],
+	readonly SequenceNodePathInfo[] | null
+>();
+
+export const getMultiSelectedSequenceNodePathInfos = (
+	selectedItems: readonly TimelineSelection[],
+): readonly SequenceNodePathInfo[] | null => {
+	const cached = multiSelectedSequenceNodePathInfosByItems.get(selectedItems);
+	if (cached !== undefined) {
+		return cached;
+	}
+
+	// All selected clips and labels can share the same action targets.
+	const nodePathInfos =
+		selectedItems.length < 2 ||
+		selectedItems.some((item) => item.type !== 'sequence')
+			? null
+			: selectedItems.flatMap((item) =>
+					item.type === 'sequence' ? [item.nodePathInfo] : [],
+				);
+	multiSelectedSequenceNodePathInfosByItems.set(selectedItems, nodePathInfos);
+	return nodePathInfos;
+};
+
 const selectedKeysByItems = new WeakMap<
 	readonly TimelineSelection[],
 	ReadonlySet<string>

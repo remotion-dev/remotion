@@ -108,6 +108,7 @@ import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	getMultiSelectedSequenceNodePathInfos,
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
@@ -409,19 +410,9 @@ const TimelineSequenceItemInner: React.FC<{
 	const {onSelect, selectable, selected, selectedItems, selectItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const selectedSequenceNodePathInfos = useMemo(() => {
-		if (
-			!selected ||
-			selectedItems.length < 2 ||
-			selectedItems.some((item) => item.type !== 'sequence')
-		) {
-			return null;
-		}
-
-		return selectedItems.flatMap((item) =>
-			item.type === 'sequence' ? [item.nodePathInfo] : [],
-		);
-	}, [selected, selectedItems]);
+	const selectedSequenceNodePathInfos = selected
+		? getMultiSelectedSequenceNodePathInfos(selectedItems)
+		: null;
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	useEffect(() => {

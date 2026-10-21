@@ -107,6 +107,7 @@ import {
 	TimelineSceneRangeContext,
 } from './TimelineSceneRangeContext';
 import {
+	getMultiSelectedSequenceNodePathInfos,
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
@@ -1451,19 +1452,9 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected, selectedItems} =
 		useTimelineRowSelection(nodePathInfo);
-	const selectedSequenceNodePathInfos = useMemo(() => {
-		if (
-			!selected ||
-			selectedItems.length < 2 ||
-			selectedItems.some((item) => item.type !== 'sequence')
-		) {
-			return null;
-		}
-
-		return selectedItems.flatMap((item) =>
-			item.type === 'sequence' ? [item.nodePathInfo] : [],
-		);
-	}, [selected, selectedItems]);
+	const selectedSequenceNodePathInfos = selected
+		? getMultiSelectedSequenceNodePathInfos(selectedItems)
+		: null;
 	const performSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (isTimelineSelectionModifierEvent(e)) {
