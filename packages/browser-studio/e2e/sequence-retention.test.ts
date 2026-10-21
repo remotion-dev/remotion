@@ -20,7 +20,7 @@ for (const layout of ['none', 'absolute-fill'] as const) {
 						context: import.meta.dirname,
 						entry: './sequence-retention-app.tsx',
 						mode: 'production',
-						optimization: {minimize: false},
+						optimization: {minimize: true},
 						output: {path: output, filename: 'app.js'},
 						resolve: {
 							extensions: ['.tsx', '.ts', '.js'],
