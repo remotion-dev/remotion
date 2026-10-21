@@ -197,6 +197,15 @@ const publishAgentPlugins = async () => {
 
 	await Promise.all([
 		publishBuiltAgentPlugin({
+			commitMessage: 'Update Agent Plugin',
+			filesToCopy: ['LICENSE', 'plugin.json', 'skills'],
+			manifestPaths: ['plugin.json'],
+			name: 'agent-plugin',
+			readme: 'README.cursor.md',
+			repoName: 'agent-plugin',
+			skillsDir: cursorSkillsDir,
+		}),
+		publishBuiltAgentPlugin({
 			commitMessage: 'Update Codex plugin',
 			filesToCopy: [
 				'.codex-plugin',
