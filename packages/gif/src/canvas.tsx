@@ -254,6 +254,7 @@ export const Canvas = forwardRef(
 			let cancelled = false;
 
 			runEffectChain({
+				frameTiming: null,
 				state,
 				source: sourceCanvas,
 				effects,

@@ -400,6 +400,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		let cancelled = false;
 
 		runEffectChain({
+			frameTiming: null,
 			state,
 			source: sourceCanvas,
 			effects: memoizedEffects,

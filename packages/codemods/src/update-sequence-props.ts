@@ -1486,10 +1486,13 @@ export const updateMultipleSequenceProps = ({
 					jsxElement,
 					updates,
 					schema,
-					videoConfigValues: getVideoConfigIdentifierValues({
-						ast,
-						videoConfigValues,
-					}),
+					// Only numeric updates without clipboard expressions use these bindings.
+					videoConfigValues: updates.some(
+						({value, clipboardParam}) =>
+							typeof value === 'number' && !clipboardParam,
+					)
+						? getVideoConfigIdentifierValues({ast, videoConfigValues})
+						: new Map(),
 					clipboardParamLocalNames,
 				}),
 			};

@@ -70,11 +70,14 @@ For quick project-specific effects, keep the effect next to the composition, for
 - `documentationLink`: URL or `null`.
 - `backend`: `"2d"`, `"webgl2"` or `"webgpu"`.
 - `calculateKey(params)`: stable string containing every resolved parameter that changes output.
+- `frameDependent(params)` (optional): return `true` when a static canvas should redraw every frame, for example for animated grain or flicker. The predicate receives effective parameters, including Studio overrides; disabled effects do not subscribe.
 - `setup(target)`: create reusable backend state, or return `null`.
-- `apply({source, target, width, height, params, state, flipSourceY})`: draw the transformed result into `target`.
+- `apply({source, target, width, height, params, state, flipSourceY, frameTiming})`: draw the transformed result into `target`.
 - `cleanup(state)`: free resources created by `setup()`.
 - `schema`: an `InteractivitySchema` for Studio controls. `disabled` is added automatically.
 - `validateParams(params)`: throw on missing or invalid values.
+
+`frameTiming`, when provided, is an immutable `{timestampInSeconds, fps}` snapshot captured before asynchronous processing. Video and animated-image sources provide decoded media time; `fps` is the composition frame rate. Static canvases with an enabled `frameDependent` effect provide local composition time, including enclosing Sequence timing. Otherwise their time is zero and they stay unsubscribed. Keep time out of authored parameters and `calculateKey()`.
 
 Use `backend: "2d"` for simple pixel, filter, drawImage, or image-data effects. Use WebGL2 only when shader math or GPU performance is needed; during renders, enable WebGL as shown above.
 

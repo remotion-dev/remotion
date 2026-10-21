@@ -98,7 +98,7 @@ const ensureSetup = <S>(
 export type EffectChainOutput = HTMLCanvasElement | OffscreenCanvas;
 
 export type RunEffectChainOptions = {
-	readonly frameTiming?: EffectFrameTiming;
+	readonly frameTiming: EffectFrameTiming | null;
 	readonly state: EffectChainState;
 	readonly source: CanvasImageSource;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
@@ -191,7 +191,7 @@ const runEffectChainWithoutResize = async (
 				const setupState = ensureSetup(state, def, dst);
 
 				def.apply({
-					frameTiming,
+					frameTiming: frameTiming ?? undefined,
 					source: currentImage,
 					target: dst,
 					state: setupState,
@@ -273,7 +273,7 @@ export const runEffectChain = async (
 		...options,
 		frameTiming: options.frameTiming
 			? Object.freeze({...options.frameTiming})
-			: undefined,
+			: null,
 	};
 	const {state, source, width, height, effects} = options;
 	// Keep one ID across resizing and effect passes so callers can cancel the run.
