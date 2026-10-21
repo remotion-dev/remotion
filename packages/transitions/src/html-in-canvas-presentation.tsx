@@ -5,7 +5,9 @@ import {
 	HtmlInCanvas,
 	Internals,
 	useDelayRender,
+	useRemotionEnvironment,
 	type EffectsProp,
+	type EffectsOutputSize,
 } from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
@@ -13,7 +15,7 @@ import type {
 	TransitionPresentationComponentProps,
 } from './types';
 
-export const HtmlInCanvasPresentation = <
+const HtmlInCanvasPresentationWithSupport = <
 	TPassedProps extends Record<string, unknown>,
 >({
 	children,
@@ -23,16 +25,14 @@ export const HtmlInCanvasPresentation = <
 	presentationDirection,
 	shader,
 	effects,
+	effectsOutputSize,
 	passedProps,
 	bothEnteringAndExiting,
 }: TransitionPresentationComponentProps<TPassedProps> & {
 	readonly shader: HtmlInCanvasShader<TPassedProps>;
-	readonly effects?: EffectsProp;
+	readonly effects: EffectsProp | null;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 }) => {
-	if (!HtmlInCanvas.isSupported()) {
-		throw new Error(getHtmlInCanvasUnsupportedMessage());
-	}
-
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
@@ -103,7 +103,7 @@ export const HtmlInCanvasPresentation = <
 		};
 	}, [instance]);
 
-	const chainState = Internals.useEffectChainState();
+	const chainState = Internals.useEffectChainState(effectsOutputSize);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
@@ -251,7 +251,7 @@ export const HtmlInCanvasPresentation = <
 		}
 
 		canvas.requestPaint?.();
-	}, [presentationProgress, passThrough, memoizedEffects]);
+	}, [presentationProgress, passThrough, memoizedEffects, chainState]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -310,6 +310,42 @@ export const HtmlInCanvasPresentation = <
 	);
 };
 
+export const HtmlInCanvasPresentation = <
+	TPassedProps extends Record<string, unknown>,
+>(
+	props: TransitionPresentationComponentProps<TPassedProps> & {
+		readonly shader: HtmlInCanvasShader<TPassedProps>;
+		readonly effects: EffectsProp | null;
+		readonly effectsOutputSize: EffectsOutputSize | null;
+	},
+) => {
+	const {isRendering} = useRemotionEnvironment();
+	if (!HtmlInCanvas.isSupported()) {
+		if (isRendering) {
+			throw new Error(getHtmlInCanvasUnsupportedMessage());
+		}
+
+		const visible =
+			props.presentationDirection === 'entering'
+				? props.presentationProgress >= 0.5
+				: props.presentationProgress < 0.5;
+		return (
+			<Internals.HtmlInCanvasFallback
+				label="Transition is not visible"
+				style={{
+					position: 'absolute',
+					inset: 0,
+					visibility: visible ? 'visible' : 'hidden',
+				}}
+			>
+				{props.children}
+			</Internals.HtmlInCanvasFallback>
+		);
+	}
+
+	return <HtmlInCanvasPresentationWithSupport {...props} />;
+};
+
 export type HtmlInCanvasShaderDrawParams<Props> = {
 	prevImage: OffscreenCanvas | null;
 	nextImage: OffscreenCanvas | null;
@@ -334,17 +370,21 @@ export const makeHtmlInCanvasPresentation = <
 >(
 	shader: HtmlInCanvasShader<TPassedProps>,
 ) => {
-	type AugmentedProps = TPassedProps & {effects?: EffectsProp};
+	type AugmentedProps = TPassedProps & {
+		effects?: EffectsProp;
+		effectsOutputSize?: EffectsOutputSize;
+	};
 	const CompWithShader: React.FC<
 		TransitionPresentationComponentProps<AugmentedProps>
 	> = (props) => {
 		const {passedProps, ...otherProps} = props;
-		const {effects, ...restPassedProps} = props.passedProps;
+		const {effects, effectsOutputSize, ...restPassedProps} = props.passedProps;
 		return (
 			<HtmlInCanvasPresentation
 				shader={shader}
 				passedProps={restPassedProps as TPassedProps}
-				effects={effects}
+				effects={effects ?? null}
+				effectsOutputSize={effectsOutputSize ?? null}
 				{...otherProps}
 			/>
 		);

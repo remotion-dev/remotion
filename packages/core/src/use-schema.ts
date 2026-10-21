@@ -341,7 +341,9 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 					? dragOverride.value
 					: currentValue[key];
 		} else if (isKeyframedStatus(status)) {
-			if (field?.type === 'array' || field?.keyframable === false) {
+			// keyframable controls authoring new keyframes in Studio. Existing
+			// keyframes still need to follow the preview clock and drag overrides.
+			if (field?.type === 'array') {
 				value = currentValue[key];
 			} else {
 				const dragOverride = resolveDragOverrideValue({

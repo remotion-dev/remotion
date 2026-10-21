@@ -1,12 +1,13 @@
 import {Audio, Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {Interactive, Series} from 'remotion';
+import {Interactive} from 'remotion';
 
 const RideMontageInner: React.FC = () => {
 	return (
 		<>
-			<Series>
-				<Series.Sequence
+			<TransitionSeries name="Ride montage shots">
+				<TransitionSeries.Sequence
 					name="Under the trees"
 					trimBefore={99}
 					durationInFrames={145}
@@ -21,8 +22,8 @@ const RideMontageInner: React.FC = () => {
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Pass-by"
 					trimBefore={1422}
 					durationInFrames={105}
@@ -36,8 +37,8 @@ const RideMontageInner: React.FC = () => {
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
-				</Series.Sequence>
-			</Series>
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
 			<Audio
 				name="Whoosh"
 				src="https://remotion.media/whoosh.wav"

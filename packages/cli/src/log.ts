@@ -1,3 +1,3 @@
 import {RenderInternals} from '@remotion/renderer';
 
-export const {Log} = RenderInternals;
+export const {Log}: typeof RenderInternals = RenderInternals;

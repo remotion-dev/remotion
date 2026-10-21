@@ -2,7 +2,7 @@ import {Audio} from '@remotion/media';
 import {evolvePath} from '@remotion/paths';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
 	Easing,
 	Interactive,
 	interpolate,
@@ -875,17 +875,11 @@ const AppWindow: React.FC = () => {
 	);
 };
 
-export const Interface: React.FC = () => {
+const InterfaceInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: '#0E0F13',
-				backgroundImage:
-					'radial-gradient(circle at 70% 48%, rgba(255, 74, 28, 0.22), transparent 42%), radial-gradient(circle at 12% 92%, rgba(96, 110, 255, 0.12), transparent 40%)',
-			}}
-		>
+		<>
 			<div
 				style={{
 					position: 'absolute',
@@ -1004,30 +998,44 @@ export const Interface: React.FC = () => {
 				color={colors.paper}
 				start={16}
 			/>
-			<Audio
-				name="Toggle click"
-				src="https://remotion.media/portfolio-reel/v1/sfx/mouse-click.wav"
-				from={TOGGLE_CLICK}
-				volume={0.8}
-			/>
-			<Audio
-				name="Toggle switch"
-				src="https://remotion.media/portfolio-reel/v1/sfx/switch.wav"
-				from={TOGGLE_CLICK + 2}
-				volume={0.5}
-			/>
-			<Audio
-				name="Publish click"
-				src="https://remotion.media/portfolio-reel/v1/sfx/mouse-click.wav"
-				from={PUBLISH_CLICK}
-				volume={0.8}
-			/>
-			<Audio
-				name="Toast ding"
-				src="https://remotion.media/portfolio-reel/v1/sfx/ding.wav"
-				from={148}
-				volume={0.22}
-			/>
-		</AbsoluteFill>
+			<Track name="Mouse clicks">
+				<Audio
+					durationInFrames={12}
+					name="Toggle click"
+					src="https://remotion.media/portfolio-reel/v1/sfx/mouse-click.wav"
+					from={TOGGLE_CLICK}
+					volume={0.8}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Publish click"
+					src="https://remotion.media/portfolio-reel/v1/sfx/mouse-click.wav"
+					from={PUBLISH_CLICK}
+					volume={0.8}
+				/>
+			</Track>
+			<Track name="Interface feedback">
+				<Audio
+					durationInFrames={10}
+					name="Toggle switch"
+					src="https://remotion.media/portfolio-reel/v1/sfx/switch.wav"
+					from={TOGGLE_CLICK + 2}
+					volume={0.5}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="Toast ding"
+					src="https://remotion.media/portfolio-reel/v1/sfx/ding.wav"
+					from={148}
+					volume={0.22}
+				/>
+			</Track>
+		</>
 	);
 };
+
+export const Interface = Interactive.create({
+	Component: InterfaceInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});

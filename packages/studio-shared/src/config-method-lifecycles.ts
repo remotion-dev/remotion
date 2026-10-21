@@ -82,6 +82,7 @@ export const configMethodLifecycles = {
 	setPixelFormat: 'runtime',
 	setPort: 'restart',
 	setPreferLosslessAudio: 'runtime',
+	setPreservePitchOnPlayback: 'runtime',
 	setPreviewSampleRate: 'reload',
 	setProResProfile: 'runtime',
 	setPublicDir: 'restart',

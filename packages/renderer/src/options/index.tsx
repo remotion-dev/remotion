@@ -72,6 +72,7 @@ import {packageManagerOption} from './package-manager';
 import {pixelFormatOption} from './pixel-format';
 import {portOption} from './port';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {preservePitchOnPlaybackOption} from './preserve-pitch-on-playback';
 import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
 import {proResProfileOption} from './prores-profile';
@@ -103,6 +104,7 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	preservePitchOnPlaybackOption,
 	showLayerFrameNumbersOption,
 	showPremountingOption,
 	allowHtmlInCanvasOption,

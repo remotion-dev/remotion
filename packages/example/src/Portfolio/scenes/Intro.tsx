@@ -1,27 +1,15 @@
 import {Audio} from '@remotion/media';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Easing,
-	Interactive,
-	interpolate,
-	useCurrentFrame,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {RiseText} from '../components/RiseText';
 import {Typewriter} from '../components/Typewriter';
 import {mono, sans, serif} from '../theme';
 
-export const Intro: React.FC = () => {
+const IntroInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: '#0B0B0F',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
-		>
+		<>
 			<Interactive.Div
 				name="Title group"
 				style={{
@@ -202,6 +190,12 @@ export const Intro: React.FC = () => {
 				from={128}
 				volume={0.55}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const Intro = Interactive.create({
+	Component: IntroInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});

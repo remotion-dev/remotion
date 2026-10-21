@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {CodemodsInternals, getNodeProps, getNodes} from '@remotion/codemods';
+import {CanvasInternals} from '@remotion/sdk';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {waitFor} from '@testing-library/react';
 import type {
@@ -16,7 +17,6 @@ import {
 	getTimelineSequenceLeftEdgeDragChanges,
 	getTimelineSequenceLeftEdgeDragTargets,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 import {makeRuntimeValueStore} from './make-runtime-value-store';
 
@@ -162,7 +162,8 @@ const getTargets = (
 	propStatuses: PropStatuses,
 	id: string,
 ) => {
-	const tracks = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const {tracks} = calculate({
 		sequences: fixture.sequences,
 		overrideIdsToNodePaths: fixture.mappings,
 	});
@@ -176,7 +177,7 @@ const getTargets = (
 		selectedSequenceMediaDurationDragLimits: null,
 		selectedItems: [],
 		sequences: fixture.sequences,
-		overrideIdsToNodePaths: fixture.mappings,
+		tracks,
 		propStatuses,
 		timelineDurationInFrames: 1000,
 	})!;
@@ -195,6 +196,7 @@ const makeSourceOnlyFixture = ({
 	parentPlaybackRate: number;
 	range: string;
 }) => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const fixture = makeFixture(range, 'child', 120);
 	// A declared source out-point bounds these unit tests without fetching media.
 	const runtime = {
@@ -264,7 +266,7 @@ export const App = () => <Video from={0} trimBefore={${trimBefore}} trimAfter={3
 			effectKeys: [],
 		});
 	prepareSource(fixture);
-	const tracks = calculateTimeline({
+	const {tracks} = calculate({
 		sequences: fixture.sequences,
 		overrideIdsToNodePaths: fixture.mappings,
 	});
@@ -276,7 +278,7 @@ export const App = () => <Video from={0} trimBefore={${trimBefore}} trimAfter={3
 			draggedNodePathInfo: mediaTrack.nodePathInfo!,
 			selectedItems: [],
 			sequences: fixture.sequences,
-			overrideIdsToNodePaths: fixture.mappings,
+			tracks,
 			propStatuses: fixture.propStatuses,
 			timelineDurationInFrames: 1000,
 			trimBeforeOnly: true,
@@ -332,6 +334,7 @@ test.each([
 		maximumTrim: 60,
 	},
 ])('source-only trims preserve the visible range: %j', (testCase) => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const {fixture, targets, mediaTrack} = makeSourceOnlyFixture({
 		...testCase,
 		range: '[0, 1]',
@@ -382,7 +385,7 @@ test.each([
 
 		expect(actual).toEqual(expected);
 		if (deltaFrames === 0) expect(changes).toEqual([]);
-		const updatedTracks = calculateTimeline({
+		const updatedTracks = calculate({
 			sequences: fixture.sequences.map((sequence) =>
 				sequence.id === 'parent'
 					? {
@@ -393,7 +396,7 @@ test.each([
 					: sequence,
 			),
 			overrideIdsToNodePaths: fixture.mappings,
-		});
+		}).tracks;
 		const updated = updatedTracks.find(
 			(track) => track.sequence.id === 'parent',
 		)!;
@@ -436,6 +439,7 @@ test.each([
 );
 
 test('source-only edits do not replace an animated trimBefore', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const {fixture} = makeSourceOnlyFixture({
 		trimBefore: 20,
 		explicitDuration: true,
@@ -460,16 +464,17 @@ export const App = () => {
 		Internals.getPropStatusesCtx(fixture.propStatuses, nodePath)?.trimBefore
 			.status,
 	).toBe('keyframed');
-	const track = calculateTimeline({
+	const {tracks} = calculate({
 		sequences: fixture.sequences,
 		overrideIdsToNodePaths: fixture.mappings,
-	}).find((item) => item.sequence.id === 'parent')!;
+	});
+	const track = tracks.find((item) => item.sequence.id === 'parent')!;
 	expect(
 		getTimelineSequenceLeftEdgeDragTargets({
 			draggedNodePathInfo: track.nodePathInfo!,
 			selectedItems: [],
 			sequences: fixture.sequences,
-			overrideIdsToNodePaths: fixture.mappings,
+			tracks,
 			propStatuses: fixture.propStatuses,
 			timelineDurationInFrames: 1000,
 			trimBeforeOnly: true,
@@ -541,6 +546,7 @@ test.each([
 	'dev.remotion.remotion.Series.Sequence',
 	'dev.remotion.transitions.TransitionSeries.Sequence',
 ])('left-edge trims respect keyframe bounds for %s', (componentIdentity) => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	for (const {
 		range,
 		deltaFrames,
@@ -610,7 +616,7 @@ test.each([
 		fixture.sequences[0].controls!.componentIdentity = componentIdentity;
 		fixture.sequences[1].controls!.videoConfigValues = config(60 + trimBefore);
 		prepareSource(fixture);
-		const tracks = calculateTimeline({
+		const {tracks} = calculate({
 			sequences: fixture.sequences,
 			overrideIdsToNodePaths: fixture.mappings,
 		});
@@ -620,7 +626,7 @@ test.each([
 			)!.nodePathInfo!,
 			selectedItems: [],
 			sequences: fixture.sequences,
-			overrideIdsToNodePaths: fixture.mappings,
+			tracks,
 			propStatuses: fixture.propStatuses,
 			timelineDurationInFrames: 1000,
 			trimBeforeOnly: false,

@@ -1,7 +1,8 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
+	Interactive,
 	interpolate,
 	interpolateColors,
 	Sequence,
@@ -87,11 +88,11 @@ const RspackConfig: React.FC = () => (
 	</Panel>
 );
 
-const FasterSlam: React.FC = () => {
+const FasterSlamInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const p = pop(frame, 12, 8);
 	return (
-		<AbsoluteFill>
+		<>
 			<SpeedLines color="rgba(255,196,0,0.9)" />
 			<div
 				style={{
@@ -124,7 +125,7 @@ const FasterSlam: React.FC = () => {
 					Faster
 				</div>
 			</div>
-		</AbsoluteFill>
+		</>
 	);
 };
 
@@ -412,14 +413,17 @@ const Roadmap: React.FC = () => {
 	);
 };
 
-export const BundlingScene: React.FC = () => {
+const BundlingSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const captions = getCaptionPlacement(frame, layout);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<Backdrop accent={accents.bundling} />
-			<Stage keyframes={layout}>
+			<Stage
+				style={{overflow: 'visible', flexDirection: 'column'}}
+				keyframes={layout}
+			>
 				<Series>
 					<Series.Sequence
 						name="Faster bundling"
@@ -519,9 +523,12 @@ export const BundlingScene: React.FC = () => {
 			<Sequence name="Rspack config" from={48} durationInFrames={152}>
 				<RspackConfig />
 			</Sequence>
-			<Sequence name="Faster slam" from={200} durationInFrames={43}>
-				<FasterSlam />
-			</Sequence>
+			<FasterSlam
+				name="Faster slam"
+				from={200}
+				durationInFrames={43}
+				style={{overflow: 'visible', flexDirection: 'column'}}
+			/>
 			<Sequence name="Race" from={245} durationInFrames={139}>
 				<Race />
 			</Sequence>
@@ -1002,54 +1009,73 @@ export const BundlingScene: React.FC = () => {
 				]}
 			/>
 
-			<Audio
-				name="Sticker whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={0}
-				volume={0.3}
-			/>
-			<Audio
-				name="Split whip"
-				src="https://remotion.media/whip.wav"
-				from={40}
-				volume={0.16}
-			/>
-			<Audio
-				name="Faster whip"
-				src="https://remotion.media/whip.wav"
-				from={210}
-				volume={0.4}
-			/>
-			<Audio
-				name="Race whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={258}
-				volume={0.24}
-			/>
-			<Audio
-				name="Twice ding"
-				src="https://remotion.media/ding.wav"
-				from={345}
-				volume={0.22}
-			/>
-			<Audio
-				name="Canvas switch"
-				src="https://remotion.media/switch.wav"
-				from={472}
-				volume={0.26}
-			/>
-			<Audio
-				name="Today click"
-				src="https://remotion.media/mouse-click.wav"
-				from={584}
-				volume={0.3}
-			/>
-			<Audio
-				name="Default click"
-				src="https://remotion.media/mouse-click.wav"
-				from={624}
-				volume={0.3}
-			/>
-		</AbsoluteFill>
+			<Track name="Sound effects">
+				<Audio
+					durationInFrames={5}
+					name="Sticker whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={0}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Split whip"
+					src="https://remotion.media/whip.wav"
+					from={40}
+					volume={0.16}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Faster whip"
+					src="https://remotion.media/whip.wav"
+					from={210}
+					volume={0.4}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Race whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={258}
+					volume={0.24}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="Twice ding"
+					src="https://remotion.media/ding.wav"
+					from={345}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={10}
+					name="Canvas switch"
+					src="https://remotion.media/switch.wav"
+					from={472}
+					volume={0.26}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Today click"
+					src="https://remotion.media/mouse-click.wav"
+					from={584}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Default click"
+					src="https://remotion.media/mouse-click.wav"
+					from={624}
+					volume={0.3}
+				/>
+			</Track>
+		</>
 	);
 };
+
+const FasterSlam = Interactive.create({
+	Component: FasterSlamInner,
+	layout: 'absolute-fill',
+});
+export const BundlingScene = Interactive.create({
+	Component: BundlingSceneInner,
+	layout: 'absolute-fill',
+});

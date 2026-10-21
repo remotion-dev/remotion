@@ -1,14 +1,24 @@
+import type {
+	ArtifactAsset,
+	AudioOrVideoAsset as InternalAudioOrVideoAsset,
+	InlineAudioAsset,
+} from './CompositionManager';
 import {
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 } from './evaluate-source-expressions.js';
 import {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
-export type {
-	ArtifactAsset,
-	AudioOrVideoAsset,
-	InlineAudioAsset,
-	TRenderAsset,
-} from './CompositionManager';
+export type {ArtifactAsset, InlineAudioAsset} from './CompositionManager';
+
+// Older consumers can still supply assets without a pitch preference.
+export type AudioOrVideoAsset = Omit<
+	InternalAudioOrVideoAsset,
+	'preservePitch'
+> & {
+	preservePitch?: boolean | null;
+};
+
+export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset | InlineAudioAsset;
 export type {DownloadBehavior} from './download-behavior';
 export {
 	assertValidInterpolateEasingOption,

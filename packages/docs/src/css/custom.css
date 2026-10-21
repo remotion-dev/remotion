@@ -122,6 +122,16 @@ html:has(.studio-caption-picker),
 }
 
 @media (min-width: 997px) {
+	/* Keep empty sidebar space from pushing the category links above the viewport
+	   when the catalog footer comes into view. */
+	.plugin-id-elements .theme-doc-sidebar-container > div {
+		height: auto;
+	}
+
+	.plugin-id-elements .theme-doc-sidebar-container .menu {
+		max-height: calc(100vh - var(--ifm-navbar-height));
+	}
+
 	.studio-elements-embed {
 		--ifm-navbar-height: 0px;
 	}
@@ -136,28 +146,14 @@ html:has(.studio-caption-picker),
 }
 
 @media (max-width: 996px) {
-	/* Keep the mobile sidebar toggle so categories remain navigable. */
+	/* Keep the mobile sidebar toggle for library navigation. */
 	.studio-elements-embed .navbar__items--right {
 		display: none;
 	}
 }
 
-.elements-sidebar-root > .menu__list {
-	padding-left: 0;
-}
-
-.elements-sidebar-root > .menu__list-item-collapsible > .menu__caret {
-	display: none;
-}
-
-.elements-sidebar-root > .menu__list-item-collapsible--active > .menu__link {
-	pointer-events: none;
-}
-
-.elements-sidebar-root
-	> .menu__list-item-collapsible:not(.menu__list-item-collapsible--active)
-	> .menu__link--active {
-	color: var(--ifm-menu-color);
+.theme-doc-sidebar-item-link > hr {
+	background-color: var(--border-color);
 }
 
 :root {
@@ -349,6 +345,17 @@ code {
 	margin-left: 6px;
 	border-radius: 4px;
 	transform: none !important;
+}
+
+/* Keep dropdown carets beside their labels, including near the mobile breakpoint. */
+.navbar__item.dropdown > .navbar__link {
+	white-space: nowrap;
+}
+
+@media screen and (min-width: 997px) and (max-width: 1100px) {
+	.navbar {
+		--ifm-navbar-item-padding-horizontal: 0.5rem;
+	}
 }
 
 .header-github-link::before {

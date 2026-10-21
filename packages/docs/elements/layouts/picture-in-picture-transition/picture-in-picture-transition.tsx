@@ -169,10 +169,7 @@ const PictureInPictureTransitionInner: React.FC = () => {
 	);
 };
 
-export const PictureInPictureTransition = Interactive.withSchema({
+export const PictureInPictureTransition = Interactive.create({
 	Component: PictureInPictureTransitionInner,
-	componentName: 'PictureInPictureTransition',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

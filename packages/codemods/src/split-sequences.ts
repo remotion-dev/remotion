@@ -4,11 +4,7 @@ import type {DuplicateNodesResult} from './duplicate-nodes';
 import {getNodeProps} from './get-node-props';
 import {getNodes, type CodemodNode} from './get-nodes';
 import {findProjectFile} from './internals';
-import {
-	getNodeEditResult,
-	getInsertedNodeReferences,
-	type NodeReference,
-} from './node-references';
+import {getNodeEditResult, type NodeReference} from './node-references';
 import {splitJsxSequences} from './split-jsx-sequence';
 
 export type SplitSequencesOptions<Project extends CodemodProject> = {
@@ -110,6 +106,8 @@ export const splitSequences = async <Project extends CodemodProject>({
 			nodeLabels,
 			logLines,
 		})),
-		insertedNodes: getInsertedNodeReferences(result.nodePathRemappings),
+		insertedNodes: edits.flatMap(({filePath, insertedNodePaths}) =>
+			insertedNodePaths.map((nodePath) => ({filePath, nodePath})),
+		),
 	};
 };

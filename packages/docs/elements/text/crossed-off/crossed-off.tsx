@@ -54,9 +54,7 @@ const CrossedOffTextInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	);
 };
 
-export const CrossedOffText = Interactive.withSchema({
+export const CrossedOffText = Interactive.create({
 	Component: CrossedOffTextInner,
 	componentName: '<CrossedOffText>',
-	schema: {},
-	wrapInSequence: true,
 });

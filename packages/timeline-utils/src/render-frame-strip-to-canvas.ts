@@ -4,11 +4,13 @@ import {
 	aspectRatioCache,
 	getAspectRatioFromCache,
 	makeFrameDatabaseKey,
+	mediaDurationCache,
 } from './frame-database';
 import {
 	ensureSlots,
 	fillFrameWhereItFits,
 	fillWithCachedFrames,
+	getSlotsToExtract,
 	WEBCODECS_TIMESCALE,
 } from './render-frame-strip';
 import {resizeVideoFrame} from './resize-video-frame';
@@ -89,10 +91,7 @@ export const renderFrameStripToCanvas = async ({
 			horizontalOffset,
 		});
 
-		const hasUnfilledSlots = Array.from(filledSlots.values()).some(
-			(value) => value === undefined,
-		);
-		if (!hasUnfilledSlots) {
+		if (getSlotsToExtract({filledSlots, src}).length === 0) {
 			return;
 		}
 	}
@@ -100,9 +99,12 @@ export const renderFrameStripToCanvas = async ({
 	await extractFrames({
 		src,
 		signal,
-		timestampsInSeconds: ({track}) => {
+		timestampsInSeconds: ({track, durationInSeconds}) => {
 			aspectRatio = track.width / track.height;
 			aspectRatioCache.set(src, aspectRatio);
+			if (durationInSeconds !== null) {
+				mediaDurationCache.set(src, durationInSeconds);
+			}
 
 			ensureSlots({
 				filledSlots,
@@ -113,7 +115,7 @@ export const renderFrameStripToCanvas = async ({
 				frameHeight,
 			});
 
-			return Array.from(filledSlots.keys()).map(
+			return getSlotsToExtract({filledSlots, src}).map(
 				(timestamp) => timestamp / WEBCODECS_TIMESCALE,
 			);
 		},
@@ -150,6 +152,7 @@ export const renderFrameStripToCanvas = async ({
 
 				fillFrameWhereItFits({
 					ctx,
+					src,
 					filledSlots,
 					visualizationWidth: drawingWidth,
 					frame: transformed,

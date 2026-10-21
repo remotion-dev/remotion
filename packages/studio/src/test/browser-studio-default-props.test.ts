@@ -44,6 +44,7 @@ test('routes default prop subscriptions through Browser Studio operations', asyn
 		await subscribeToDefaultProps({
 			clientId: 'browser-studio',
 			compositionId: 'MyComp',
+			symbolicatedStack: null,
 		}),
 	).toEqual({canUpdate: true, currentDefaultProps: {title: 'Hello'}});
 	await unsubscribeFromDefaultProps({

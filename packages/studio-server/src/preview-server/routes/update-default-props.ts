@@ -8,14 +8,16 @@ import type {
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
-import {getProjectInfo} from '../project-info';
 import {
 	printUndoHint,
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {checkIfTypeScriptFile} from './can-update-default-props';
+import {
+	checkIfTypeScriptFile,
+	getDefaultPropsFile,
+} from './can-update-default-props';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -25,7 +27,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse
 > = ({
-	input: {compositionId, defaultProps, enumPaths},
+	input: {compositionId, defaultProps, enumPaths, symbolicatedStack},
 	remotionRoot,
 	entryPoint,
 	logLevel,
@@ -36,20 +38,21 @@ export const updateDefaultPropsHandler: ApiHandler<
 				{indent: false, logLevel},
 				`[update-default-props] Received request for compositionId="${compositionId}"`,
 			);
-			const projectInfo = await getProjectInfo(remotionRoot, entryPoint);
-			if (!projectInfo.rootFile) {
-				throw new Error('Cannot find root file in project');
-			}
+			const compositionFile = await getDefaultPropsFile({
+				symbolicatedStack,
+				remotionRoot,
+				entryPoint,
+			});
 
-			checkIfTypeScriptFile(projectInfo.rootFile);
+			checkIfTypeScriptFile(compositionFile);
 
-			const fileContents = readFileSync(projectInfo.rootFile, 'utf-8');
+			const fileContents = readFileSync(compositionFile, 'utf-8');
 			const result = setCompositionDefaultProps({
 				project: {
-					files: {[projectInfo.rootFile]: fileContents},
+					files: {[compositionFile]: fileContents},
 					rootDir: remotionRoot,
 				},
-				compositionFile: projectInfo.rootFile,
+				compositionFile,
 				compositionId,
 				defaultProps: JSON.parse(defaultProps),
 				enumPaths,
@@ -58,7 +61,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 			const output = result.changes[0]?.nextContents ?? fileContents;
 
 			pushToUndoStack({
-				filePath: projectInfo.rootFile,
+				filePath: compositionFile,
 				oldContents: fileContents,
 				newContents: null,
 				logLevel,
@@ -72,10 +75,10 @@ export const updateDefaultPropsHandler: ApiHandler<
 				suppressHmrOnFileRestore: true,
 				nodePathRemappings: null,
 			});
-			suppressUndoStackInvalidation(projectInfo.rootFile);
-			suppressBundlerUpdateForFile(projectInfo.rootFile);
+			suppressUndoStackInvalidation(compositionFile);
+			suppressBundlerUpdateForFile(compositionFile);
 			writeFileAndNotifyFileWatchers({
-				file: projectInfo.rootFile,
+				file: compositionFile,
 				content: output,
 				originatorClientId: undefined,
 				metadata: null,
@@ -83,7 +86,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
-				absolutePath: projectInfo.rootFile,
+				absolutePath: compositionFile,
 				line: logLine,
 			});
 			RenderInternals.Log.info(

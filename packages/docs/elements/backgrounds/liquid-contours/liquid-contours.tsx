@@ -28,10 +28,7 @@ const LiquidContoursInner: React.FC = () => {
 	);
 };
 
-export const LiquidContours = Interactive.withSchema({
+export const LiquidContours = Interactive.create({
 	Component: LiquidContoursInner,
-	componentName: 'LiquidContours',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

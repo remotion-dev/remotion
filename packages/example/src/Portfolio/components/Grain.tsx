@@ -8,6 +8,7 @@ export const Grain: React.FC = () => {
 
 	return (
 		<Solid
+			name="Film grain"
 			width={960}
 			height={540}
 			color="#808080"

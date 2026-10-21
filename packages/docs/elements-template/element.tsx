@@ -21,10 +21,7 @@ const ElementComponentInner: React.FC = () => {
 	);
 };
 
-export const ElementComponent = Interactive.withSchema({
+export const ElementComponent = Interactive.create({
 	Component: ElementComponentInner,
-	componentName: 'ElementComponent',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

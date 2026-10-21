@@ -197,6 +197,15 @@ const publishAgentPlugins = async () => {
 
 	await Promise.all([
 		publishBuiltAgentPlugin({
+			commitMessage: 'Update Agent Plugin',
+			filesToCopy: ['LICENSE', 'plugin.json', 'skills'],
+			manifestPaths: ['plugin.json'],
+			name: 'agent-plugin',
+			readme: 'README.cursor.md',
+			repoName: 'agent-plugin',
+			skillsDir: cursorSkillsDir,
+		}),
+		publishBuiltAgentPlugin({
 			commitMessage: 'Update Codex plugin',
 			filesToCopy: [
 				'.codex-plugin',
@@ -258,14 +267,7 @@ const publishCanvasCapture = async () => {
 	);
 	const installBrowserPath = path.join(workingDir, 'install-browser.sh');
 	copyFileSync(
-		path.join(
-			monorepoDir,
-			'.agents',
-			'skills',
-			'install-canvas-capture-browser',
-			'scripts',
-			'install-browser.sh',
-		),
+		path.join(packageDir, 'scripts', 'install-browser.sh'),
 		installBrowserPath,
 	);
 	chmodSync(installBrowserPath, 0o755);

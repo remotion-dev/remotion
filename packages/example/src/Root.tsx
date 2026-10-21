@@ -115,6 +115,7 @@ import {
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
+import {HtmlInCanvasFallbackExample} from './HtmlInCanvas/fallback';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
@@ -190,6 +191,7 @@ import {VideoTextureDemo} from './ThreeScene/Scene';
 import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
+import {TrackAudioIntrinsicDurationRepro} from './TrackAudioIntrinsicDurationRepro';
 import {AudioTransition} from './Transitions/AudioTransition';
 import {
 	BasicTransition,
@@ -1272,6 +1274,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-fallback"
+						component={HtmlInCanvasFallbackExample}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={180}
+					/>
 					<Composition
 						id="html-in-canvas-nested"
 						component={HtmlInCanvasNested}
@@ -3039,6 +3049,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="tracks">
+				<Composition
+					id="track-audio-intrinsic-duration-repro"
+					component={TrackAudioIntrinsicDurationRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={90}
+				/>
 				<Composition
 					id="track-sequence-props"
 					component={TrackSequenceProps}

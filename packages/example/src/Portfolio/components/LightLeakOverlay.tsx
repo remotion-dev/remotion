@@ -8,6 +8,7 @@ export const LightLeakOverlay: React.FC = () => {
 
 	return (
 		<Solid
+			name="Light leak"
 			width={width}
 			height={height}
 			style={{mixBlendMode: 'screen'}}

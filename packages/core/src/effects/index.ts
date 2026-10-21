@@ -7,6 +7,7 @@ export type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
 	EffectsProp,
+	EffectsOutputSize,
 	EffectDefinition,
 	EffectFactory,
 } from './effect-types.js';

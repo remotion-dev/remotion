@@ -1,0 +1,50 @@
+---
+image: /generated/articles-docs-contributing-elements.png
+title: Contributing an Element
+sidebar_label: Contributing an Element
+crumb: Contributing
+description: Create and submit a Remotion Element for the Elements gallery.
+---
+
+# Contributing an Element
+
+First, [set up the repository](/docs/contributing).
+
+Use your AI coding agent to build an Element. Give it this page and the [Element guidelines](/docs/elements).
+
+## 1. Develop the Element
+
+Use any [existing Element](https://github.com/remotion-dev/remotion/tree/main/packages/docs/elements) as a reference. For example, give your agent this prompt:
+
+```text title="Example prompt"
+Create a dotted paper background Element.
+Use the notebook paper Element as a reference.
+```
+
+See the guidelines for [dependencies](/docs/elements#dependencies), [assets](/docs/elements#assets), and [initial props](/docs/elements#initial-props).
+
+Open Studio to check the animation:
+
+```bash title="Terminal"
+cd packages/docs
+bun remotion
+```
+
+## 2. Prepare previews
+
+Ask your agent to render previews and run the tests. For the example above, run these commands from `packages/docs`:
+
+```bash title="Terminal"
+bun run render-element-previews --element=backgrounds/dotted-paper
+bun test src/test/elements.test.ts
+```
+
+Review the PNG and MP4 files in `.element-previews/backgrounds/dotted-paper`. Choose a clear poster frame and check the full animation.
+
+Ask your agent to include the preview files in the pull request and use them on the Element page.
+
+## 3. Open the pull request
+
+Submit the Element and its previews. Include links to any source of inspiration.
+
+Keep “Allow edits from maintainers” enabled. After approval, a maintainer uploads the previews to static storage.

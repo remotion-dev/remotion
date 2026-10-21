@@ -29,6 +29,7 @@ export const GifForRendering = forwardRef<
 			delayRenderTimeoutInMilliseconds,
 			requestInit,
 			effects,
+			effectsOutputSize = null,
 			...props
 		},
 		ref,
@@ -165,6 +166,7 @@ export const GifForRendering = forwardRef<
 				width={width}
 				height={height}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize}
 				{...props}
 				ref={ref}
 			/>

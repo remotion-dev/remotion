@@ -13,6 +13,7 @@ import React, {
 } from 'react';
 import type {InteractivitySchemaField} from 'remotion';
 import {Easing, Internals} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -734,6 +735,7 @@ export const EasingEditor: React.FC<{
 		modeItems: SegmentedControlItem[],
 	) => React.ReactNode;
 }> = ({state, renderHeader}) => {
+	const calculateTimeline = useTimelineCalculator();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -775,11 +777,14 @@ export const EasingEditor: React.FC<{
 	const getCurrentEasingUpdates = useCallback(() => {
 		return getSelectedEasingUpdates({
 			selections: state.selections,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			tracks: calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			}).tracks,
 			propStatuses: propStatusesRef.current,
 		});
 	}, [
+		calculateTimeline,
 		overrideIdToNodePathMappings,
 		propStatusesRef,
 		sequencesRef,
@@ -883,8 +888,10 @@ export const EasingEditor: React.FC<{
 
 			const promise = updateSelectedTimelineEasings({
 				selections: state.selections,
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				tracks: calculateTimeline({
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				}).tracks,
 				propStatuses: propStatusesRef.current,
 				setPropStatuses,
 				clientId: previewServerState.clientId,
@@ -903,6 +910,7 @@ export const EasingEditor: React.FC<{
 				});
 		},
 		[
+			calculateTimeline,
 			clearPendingEasingDragOverrides,
 			getCurrentEasingUpdates,
 			overrideIdToNodePathMappings,

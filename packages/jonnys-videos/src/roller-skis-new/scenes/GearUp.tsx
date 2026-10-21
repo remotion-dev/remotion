@@ -1,6 +1,7 @@
 import {Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {AbsoluteFill, Interactive, Series} from 'remotion';
+import {Track, AbsoluteFill, Interactive} from 'remotion';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 import {SpeedBadge} from '../elements/SpeedBadge';
 import {TitleCard} from '../elements/TitleCard';
@@ -8,8 +9,8 @@ import {TitleCard} from '../elements/TitleCard';
 const GearUpInner: React.FC = () => {
 	return (
 		<AbsoluteFill showInTimeline={false} style={{backgroundColor: 'black'}}>
-			<Series>
-				<Series.Sequence
+			<TransitionSeries name="Gear up shots">
+				<TransitionSeries.Sequence
 					name="Strapping in (6x)"
 					trimBefore={60}
 					durationInFrames={528}
@@ -24,8 +25,12 @@ const GearUpInner: React.FC = () => {
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence name="Damn it" trimBefore={591} durationInFrames={39}>
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
+					name="Damn it"
+					trimBefore={591}
+					durationInFrames={39}
+				>
 					<Video
 						name="IMG_0457"
 						src={
@@ -50,8 +55,8 @@ const GearUpInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Strapping in (8x)"
 					trimBefore={630}
 					durationInFrames={576}
@@ -66,8 +71,8 @@ const GearUpInner: React.FC = () => {
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Lets get to work"
 					trimBefore={1202}
 					durationInFrames={58}
@@ -124,8 +129,8 @@ const GearUpInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Skiing off (2x)"
 					trimBefore={1260}
 					durationInFrames={150}
@@ -140,8 +145,8 @@ const GearUpInner: React.FC = () => {
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
-				</Series.Sequence>
-			</Series>
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
 			<TitleCard
 				name="Title"
 				durationInFrames={84}
@@ -150,27 +155,29 @@ const GearUpInner: React.FC = () => {
 				kicker="Zürich · 8 AM"
 				accentColor="#2563eb"
 			/>
-			<SpeedBadge
-				name="6x badge"
-				from={6}
-				durationInFrames={82}
-				speed="6×"
-				style={{position: 'absolute', right: 80, top: 70}}
-			/>
-			<SpeedBadge
-				name="8x badge"
-				from={127}
-				durationInFrames={72}
-				speed={'12x'}
-				style={{position: 'absolute', right: 80, top: 70}}
-			/>
-			<SpeedBadge
-				name="2x badge"
-				from={257}
-				durationInFrames={75}
-				speed="2×"
-				style={{position: 'absolute', right: 80, top: 70}}
-			/>
+			<Track name="Speed badges">
+				<SpeedBadge
+					name="6x badge"
+					from={6}
+					durationInFrames={82}
+					speed="6×"
+					style={{position: 'absolute', right: 80, top: 70}}
+				/>
+				<SpeedBadge
+					name="8x badge"
+					from={127}
+					durationInFrames={72}
+					speed={'12x'}
+					style={{position: 'absolute', right: 80, top: 70}}
+				/>
+				<SpeedBadge
+					name="2x badge"
+					from={257}
+					durationInFrames={75}
+					speed="2×"
+					style={{position: 'absolute', right: 80, top: 70}}
+				/>
+			</Track>
 		</AbsoluteFill>
 	);
 };

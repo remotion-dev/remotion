@@ -1,6 +1,9 @@
 import React, {useCallback, useImperativeHandle, useMemo, useRef} from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
-import type {EffectDefinitionAndStack} from '../effects/effect-types.js';
+import type {
+	EffectDefinitionAndStack,
+	EffectsOutputSize,
+} from '../effects/effect-types.js';
 import {runEffectChain} from '../effects/run-effect-chain.js';
 import {useEffectChainState} from '../effects/use-effect-chain-state.js';
 import type {AnimatedImageCanvasProps, AnimatedImageFillMode} from './props';
@@ -15,6 +18,7 @@ type Props = {
 
 	readonly style?: React.CSSProperties;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly effectsOutputSize: EffectsOutputSize | null;
 } & AnimatedImageCanvasProps;
 
 export type AnimatedImageCanvasRef = {
@@ -26,9 +30,12 @@ export type AnimatedImageCanvasRef = {
 const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 	AnimatedImageCanvasRef,
 	Props
-> = ({width, height, fit, className, style, effects, ...props}, ref) => {
+> = (
+	{width, height, fit, className, style, effects, effectsOutputSize, ...props},
+	ref,
+) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const chainState = useEffectChainState();
+	const chainState = useEffectChainState(effectsOutputSize);
 
 	const sourceCanvas = useMemo(() => {
 		if (typeof document === 'undefined') {

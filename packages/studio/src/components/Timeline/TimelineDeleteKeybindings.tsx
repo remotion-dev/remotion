@@ -1,6 +1,7 @@
 import type React from 'react';
 import {memo, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -17,6 +18,7 @@ import {useDeleteTimelineItems} from './use-delete-timeline-items';
 const TimelineDeleteKeybindingsUnmemoized: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -76,8 +78,10 @@ const TimelineDeleteKeybindingsUnmemoized: React.FC = () => {
 
 				const splitPromise = splitSelectedTimelineItems({
 					selections: selectedItems,
-					sequences: sequencesRef.current,
-					overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+					tracks: calculateTimeline({
+						sequences: sequencesRef.current,
+						overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+					}).tracks,
 					propStatuses: propStatusesRef.current,
 					splitFrame: getCurrentFrame(),
 				});
@@ -104,6 +108,7 @@ const TimelineDeleteKeybindingsUnmemoized: React.FC = () => {
 		currentSelection,
 		deleteTimelineItems,
 		keybindings,
+		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
 		propStatusesRef,
 		previewServerState,

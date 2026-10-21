@@ -1,18 +1,17 @@
 import {expect, test} from 'bun:test';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {internalDeploySite} from '../../api/deploy-site';
-import {mockFullClientSpecifics} from '../mock-implementation';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {useFakeAws} from '../mocks/fake-aws';
 import {resetMockStore} from '../mocks/mock-store';
+
+useFakeAws();
 
 test('Should have no buckets at first', async () => {
 	resetMockStore();
 	expect(
 		await LambdaClientInternals.internalGetSites({
 			region: 'us-east-1',
-			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			forceBucketName: null,
 			compatibleOnly: false,
@@ -23,9 +22,8 @@ test('Should have no buckets at first', async () => {
 
 test('Should have a site after deploying', async () => {
 	resetMockStore();
-	await internalGetOrCreateBucket({
+	await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'eu-central-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
@@ -42,12 +40,10 @@ test('Should have a site after deploying', async () => {
 			gitSource: null,
 			logLevel: 'info',
 			indent: false,
-			providerSpecifics: mockImplementation,
 			privacy: 'public',
 			throwIfSiteExists: true,
 			options: {},
 			forcePathStyle: false,
-			fullClientSpecifics: mockFullClientSpecifics,
 			requestHandler: null,
 		}),
 	).toEqual({
@@ -63,7 +59,6 @@ test('Should have a site after deploying', async () => {
 	expect(
 		await LambdaClientInternals.internalGetSites({
 			region: 'eu-central-1',
-			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			forceBucketName: null,
 			compatibleOnly: false,
@@ -93,9 +88,8 @@ test('Should have a site after deploying', async () => {
 
 test('Should filter sites by compatibleOnly', async () => {
 	resetMockStore();
-	await internalGetOrCreateBucket({
+	await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'eu-central-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
@@ -111,18 +105,15 @@ test('Should filter sites by compatibleOnly', async () => {
 		gitSource: null,
 		logLevel: 'info',
 		indent: false,
-		providerSpecifics: mockImplementation,
 		privacy: 'public',
 		throwIfSiteExists: true,
 		options: {},
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 
 	const {sites} = await LambdaClientInternals.internalGetSites({
 		region: 'eu-central-1',
-		providerSpecifics: mockImplementation,
 		forcePathStyle: false,
 		forceBucketName: null,
 		compatibleOnly: true,

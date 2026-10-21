@@ -38,6 +38,7 @@ import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
 	SequenceActivityContext,
 	SequenceActivityDormantContext,
+	SequenceActivitySuspensionContext,
 } from './sequence-activity-context.js';
 import {
 	getSequenceCropClipPath,
@@ -173,6 +174,33 @@ export type SequenceProps = {
 	readonly durationInFrames?: number;
 } & SequencePropsWithoutDuration;
 
+// These callbacks can survive many renders. Keep their closure scopes separate
+// from the render scope, which also captures children in memo factories.
+const useSequenceValueGetter = <T,>(value: T) => {
+	return useCallback(() => value, [value]);
+};
+
+const useSequenceRefGetter = <T,>(ref: React.RefObject<T>) => {
+	return useCallback(() => ref.current, [ref]);
+};
+
+const useSequenceWrapperRef = (
+	ref: React.ForwardedRef<HTMLDivElement>,
+	wrapperRef: React.RefObject<HTMLDivElement | null>,
+) => {
+	return useCallback(
+		(node: HTMLDivElement | null) => {
+			wrapperRef.current = node;
+			if (typeof ref === 'function') {
+				ref(node);
+			} else if (ref) {
+				ref.current = node;
+			}
+		},
+		[ref, wrapperRef],
+	);
+};
+
 const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
@@ -214,6 +242,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const parentSequence = useContext(SequenceContext);
 	const activityRequested = useContext(SequenceActivityContext);
 	const parentDormant = useContext(SequenceActivityDormantContext);
+	const activitySuspended = useContext(SequenceActivitySuspensionContext);
+	const hadActivity = useRef(false);
 	const env = useRemotionEnvironment();
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const timelineTrack = useContext(TimelineTrackContext);
@@ -565,7 +595,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);
-	const getStack = useCallback(() => registrationStack, [registrationStack]);
+	const getStack = useSequenceValueGetter(registrationStack);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
 	const currentFrame =
 		registeredFrozenFrame ??
@@ -574,7 +604,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	useLayoutEffect(() => {
 		currentFrameRef.current = currentFrame;
 	}, [currentFrame]);
-	const getCurrentFrame = useCallback(() => currentFrameRef.current, []);
+	const getCurrentFrame = useSequenceRefGetter(currentFrameRef);
 	const registeredTrimBefore = trimBefore === 0 ? null : trimBefore;
 	const parentCumulatedNegativeFrom =
 		parentSequence?.cumulatedNegativeFrom ?? 0;
@@ -666,7 +696,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			controlsSupportsEffects,
 		]);
 
-	const getSequenceForRegistration = useCallback((): TSequence => {
+	const sequenceForRegistration = useMemo((): TSequence => {
 		const trackRegistration = timelineTrack
 			? {
 					timelineTrack: {
@@ -804,6 +834,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		frozenMediaFrame,
 		singleChildComponent,
 	]);
+	const getSequenceForRegistration = useSequenceValueGetter(
+		sequenceForRegistration,
+	);
 	const registration = useSequenceRegistration({
 		getSequence:
 			env.isStudio || sequenceRegistrationEnabled
@@ -839,7 +872,17 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				}
 			: null,
 	);
-	const renderActivity = activityEnabled && (!activityDormant || admitted);
+	const renderActivity =
+		activityEnabled &&
+		(!activityDormant ||
+			admitted ||
+			(activitySuspended && hadActivity.current));
+	// A scene visited during playback must keep its children and registrations
+	// when it leaves the viewport, even if it was outside the discovery budget.
+	const useCommitEffect = React.useInsertionEffect ?? useLayoutEffect;
+	useCommitEffect(() => {
+		hadActivity.current = renderActivity;
+	}, [renderActivity]);
 	const content = (activityEnabled ? renderActivity : contentVisible)
 		? children
 		: null;
@@ -867,18 +910,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		style: styleIfThere,
 	});
 
-	const sequenceRef = useCallback(
-		(node: HTMLDivElement | null) => {
-			wrapperRefForOutline.current = node;
-
-			if (typeof ref === 'function') {
-				ref(node);
-			} else if (ref) {
-				ref.current = node;
-			}
-		},
-		[ref],
-	);
+	const sequenceRef = useSequenceWrapperRef(ref, wrapperRefForOutline);
 
 	const defaultStyle: React.CSSProperties = useMemo(() => {
 		return {

@@ -1,12 +1,13 @@
 import {Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {Interactive, Series} from 'remotion';
+import {Interactive} from 'remotion';
 
 const OffWeGoInner: React.FC = () => {
 	return (
 		<>
-			<Series>
-				<Series.Sequence
+			<TransitionSeries name="Off we go shots">
+				<TransitionSeries.Sequence
 					name="Skiing away"
 					trimBefore={486}
 					durationInFrames={108}
@@ -20,8 +21,8 @@ const OffWeGoInner: React.FC = () => {
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
-				</Series.Sequence>
-			</Series>
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
 		</>
 	);
 };

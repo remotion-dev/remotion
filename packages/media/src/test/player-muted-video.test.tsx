@@ -78,11 +78,17 @@ test('renders an initially muted video and resumes audio after reverse playback'
 		);
 
 		const forwardFrame = playerRef.current!.getCurrentFrame();
-		starts.mockClear();
 		// J changes the Player's global rate while playback continues.
 		renderPlayer(-1);
 		await waitFor(
 			() => playerRef.current!.getCurrentFrame() < forwardFrame - 2,
+		);
+		// Changing the prop updates the global rate in a passive effect. Begin
+		// observing silence only after the Player has entered reverse playback.
+		starts.mockClear();
+		const reversingFrame = playerRef.current!.getCurrentFrame();
+		await waitFor(
+			() => playerRef.current!.getCurrentFrame() < reversingFrame - 2,
 		);
 		expect(startedMediaNodes()).toHaveLength(0);
 

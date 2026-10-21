@@ -323,6 +323,14 @@ export type ModalState =
 			wrapper: NodeWrapper;
 	  }
 	| {
+			type: 'unwrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
+	  }
+	| {
 			type: 'browser-studio-experimental-notice';
 	  }
 	| {

@@ -18,6 +18,7 @@ import type {
 } from './CompositionManagerContext';
 import {
 	CompositionManager,
+	CompositionManagerRefContext,
 	CompositionSetters,
 } from './CompositionManagerContext';
 import type {BaseMetadata} from './CompositionManagerContext.js';
@@ -172,6 +173,9 @@ export const CompositionManagerProvider = ({
 			canvasContent,
 		]);
 
+	const compositionManagerRef = useRef(compositionManagerContextValue);
+	compositionManagerRef.current = compositionManagerContextValue;
+
 	if (registrationError !== null) {
 		throw registrationError;
 	}
@@ -182,9 +186,11 @@ export const CompositionManagerProvider = ({
 			onSnapshot={onCommitRegistrations}
 		>
 			<CompositionManager.Provider value={compositionManagerContextValue}>
-				<CompositionSetters.Provider value={compositionManagerSetters}>
-					{children}
-				</CompositionSetters.Provider>
+				<CompositionManagerRefContext.Provider value={compositionManagerRef}>
+					<CompositionSetters.Provider value={compositionManagerSetters}>
+						{children}
+					</CompositionSetters.Provider>
+				</CompositionManagerRefContext.Provider>
 			</CompositionManager.Provider>
 		</CompositionRegistryProvider>
 	);

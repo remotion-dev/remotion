@@ -1,5 +1,8 @@
 {
   "name": "template-recorder",
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
   "private": true,
   "version": "4.0.277",
   "type": "module",
@@ -37,9 +40,9 @@
     "class-variance-authority": "0.7.0",
     "clsx": "2.0.0",
     "connect": "3.7.0",
-    "eslint": "9.39.5",
+    "eslint": "10.12.0",
     "lucide-react": "0.516.0",
-    "mediabunny": "1.61.3",
+    "mediabunny": "1.62.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "1.14.0",
@@ -62,7 +65,6 @@
     "@types/web": "0.0.187",
     "@types/webrtc": "0.0.44",
     "@vitejs/plugin-react": "4.3.4",
-    "prettier": "3.8.1",
-    "prettier-plugin-organize-imports": "3.2.3"
+    "prettier": "3.8.1"
   }
 }

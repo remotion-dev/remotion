@@ -1,12 +1,7 @@
 import {Audio, Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {
-	Easing,
-	Interactive,
-	interpolate,
-	Series,
-	useCurrentFrame,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {LocationLowerThird} from '../elements/LocationLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
@@ -15,8 +10,8 @@ const ArrivalInner: React.FC = () => {
 
 	return (
 		<>
-			<Series>
-				<Series.Sequence
+			<TransitionSeries name="Arrival shots">
+				<TransitionSeries.Sequence
 					name="Low angle"
 					trimBefore={75}
 					durationInFrames={135}
@@ -30,8 +25,8 @@ const ArrivalInner: React.FC = () => {
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Remotion headquarters"
 					trimBefore={98}
 					durationInFrames={124}
@@ -104,8 +99,8 @@ const ArrivalInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Here we are"
 					trimBefore={60}
 					durationInFrames={50}
@@ -148,8 +143,8 @@ const ArrivalInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Mehmet is working"
 					trimBefore={125}
 					durationInFrames={117}
@@ -213,8 +208,8 @@ const ArrivalInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-			</Series>
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
 			<LocationLowerThird
 				name="Location"
 				from={15}

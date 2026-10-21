@@ -120,9 +120,8 @@ const MirroredAudioSpectrumContent: React.FC<MirroredAudioSpectrumProps> = ({
 	);
 };
 
-export const MirroredAudioSpectrum = Interactive.withSchema({
+export const MirroredAudioSpectrum = Interactive.create({
 	Component: MirroredAudioSpectrumContent,
 	componentName: '<MirroredAudioSpectrum>',
 	schema: mirroredAudioSpectrumSchema,
-	wrapInSequence: true,
 });

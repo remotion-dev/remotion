@@ -98,6 +98,7 @@ test('can evict WebGL contexts after native capture without crashing', async (t)
 			element,
 			scaledWidth: 100,
 			scaledHeight: 100,
+			signal: null,
 		});
 		const lostBefore = contexts.filter((gl) => gl.isContextLost()).length;
 		// Without a task boundary in waitForPaint, this continuation still runs

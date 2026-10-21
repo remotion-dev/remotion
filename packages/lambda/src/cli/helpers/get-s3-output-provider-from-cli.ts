@@ -1,6 +1,9 @@
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {CustomCredentials, OutNameInput} from '@remotion/serverless';
-import type {AwsProvider} from '../../client';
+import {
+	LambdaClientInternals,
+	type AwsRegion,
+	type CustomCredentials,
+	type OutNameInputWithKey,
+} from '@remotion/lambda-client';
 
 export const S3_OUTPUT_PROVIDER_ACCESS_KEY_ID_ENV_NAME =
 	'REMOTION_S3_OUTPUT_PROVIDER_ACCESS_KEY_ID';
@@ -13,9 +16,9 @@ export const getS3OutputProviderFromCli = ({
 	forcePathStyle,
 }: {
 	endpoint: string | undefined;
-	region: AwsProvider['region'] | (string & {}) | undefined;
+	region: AwsRegion | (string & {}) | undefined;
 	forcePathStyle: boolean | undefined;
-}): CustomCredentials<AwsProvider> | null => {
+}): CustomCredentials | null => {
 	const hasAnyS3OutputProviderFlag =
 		endpoint !== undefined ||
 		region !== undefined ||
@@ -53,8 +56,8 @@ export const makeOutNameWithCustomCredentials = ({
 }: {
 	bucketName: string | undefined;
 	key: string | undefined;
-	s3OutputProvider: CustomCredentials<AwsProvider> | null;
-}): OutNameInput<AwsProvider> | null => {
+	s3OutputProvider: CustomCredentials | null;
+}): OutNameInputWithKey | null => {
 	if (!s3OutputProvider) {
 		return key ?? null;
 	}

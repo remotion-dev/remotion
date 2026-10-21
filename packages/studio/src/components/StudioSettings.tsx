@@ -51,6 +51,7 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	preservePitchOnPlayback: null,
 	showLayerFrameNumbers: null,
 	showPremounting: null,
 	defaultPremountInSeconds: null,
@@ -243,6 +244,7 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setPreservePitchOnPlayback', settings.preservePitchOnPlayback),
 			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
 			update('setShowPremounting', settings.showPremounting),
 			update('setEnableCrossSiteIsolation', settings.enableCrossSiteIsolation),
@@ -554,6 +556,40 @@ export const StudioSettings: React.FC = () => {
 			</div>
 
 			<p style={sectionTitle}>Playback</p>
+			<div style={optionRow}>
+				<div style={label}>
+					Preserve pitch
+					<InfoBubble
+						aria-label="About preserving pitch"
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							Keep audio pitch unchanged when adjusting the Studio playback
+							speed. Applies to Audio and Video from @remotion/media.
+						</div>
+					</InfoBubble>
+				</div>
+				<label style={rightRow} aria-label="Preserve pitch">
+					<Checkbox
+						checked={settings.preservePitchOnPlayback !== false}
+						name="Preserve pitch"
+						onChange={(event) =>
+							changeSetting(
+								'preservePitchOnPlayback',
+								'setPreservePitchOnPlayback',
+								event.target.checked ? null : false,
+							)
+						}
+					/>
+				</label>
+			</div>
 			<ConfigNumber
 				defaultValue={NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS}
 				description={

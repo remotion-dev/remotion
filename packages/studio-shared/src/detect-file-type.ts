@@ -206,6 +206,140 @@ const isJpeg = (data: Uint8Array): JpegType | null => {
 	return {dimensions: dim, type: 'jpeg'};
 };
 
+const getJxlDimensions = (data: Uint8Array): FileDimensions | null => {
+	let codestream = data;
+	if (data[0] !== 0xff || data[1] !== 0x0a) {
+		const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+		// The size and orientation fields fit in the first 16 codestream bytes.
+		const header = new Uint8Array(16);
+		let headerLength = 0;
+		let offset = 12;
+		let partialIndex = 0;
+		while (offset + 8 <= data.length) {
+			let boxSize = view.getUint32(offset, false);
+			const boxType = view.getUint32(offset + 4, false);
+			let boxHeaderSize = 8;
+			if (boxSize === 1) {
+				if (offset + 16 > data.length) {
+					return null;
+				}
+
+				boxSize =
+					view.getUint32(offset + 8, false) * 2 ** 32 +
+					view.getUint32(offset + 12, false);
+				boxHeaderSize = 16;
+			} else if (boxSize === 0) {
+				boxSize = data.length - offset;
+			}
+
+			if (
+				!Number.isSafeInteger(boxSize) ||
+				boxSize < boxHeaderSize ||
+				boxSize > data.length - offset
+			) {
+				return null;
+			}
+
+			const end = offset + boxSize;
+			if (boxType === 0x6a786c63) {
+				// jxlc contains a complete codestream.
+				if (partialIndex !== 0) {
+					return null;
+				}
+
+				codestream = data.subarray(offset + boxHeaderSize, end);
+				break;
+			}
+
+			if (boxType === 0x6a786c70) {
+				// jxlp starts with a part index; its high bit marks the last part.
+				if (boxSize < boxHeaderSize + 4) {
+					return null;
+				}
+
+				const index = view.getUint32(offset + boxHeaderSize, false);
+				if ((index & 0x7fffffff) !== partialIndex) {
+					return null;
+				}
+
+				partialIndex++;
+				const bytes = data.subarray(
+					offset + boxHeaderSize + 4,
+					Math.min(end, offset + boxHeaderSize + 4 + 16 - headerLength),
+				);
+				header.set(bytes, headerLength);
+				headerLength += bytes.length;
+				codestream = header.subarray(0, headerLength);
+				if (headerLength === header.length || (index & 0x80000000) !== 0) {
+					break;
+				}
+			}
+
+			offset = end;
+		}
+	}
+
+	if (codestream[0] !== 0xff || codestream[1] !== 0x0a) {
+		return null;
+	}
+
+	let bitOffset = 16;
+	let truncated = false;
+	const readBits = (count: number): number => {
+		if (bitOffset + count > codestream.length * 8) {
+			truncated = true;
+			return 0;
+		}
+
+		let value = 0;
+		for (let bit = 0; bit < count; bit++) {
+			value += ((codestream[bitOffset >> 3] >> (bitOffset & 7)) & 1) * 2 ** bit;
+			bitOffset++;
+		}
+
+		return value;
+	};
+
+	// JPEG XL SizeHeader: compact multiples of 8, or U32(9, 13, 18, 30).
+	const small = readBits(1) === 1;
+	const height = small
+		? (readBits(5) + 1) * 8
+		: readBits([9, 13, 18, 30][readBits(2)]) + 1;
+	const ratio = readBits(3);
+	const width =
+		ratio === 0
+			? small
+				? (readBits(5) + 1) * 8
+				: readBits([9, 13, 18, 30][readBits(2)]) + 1
+			: Math.floor(
+					(height * [0, 1, 12, 4, 3, 16, 5, 2][ratio]) /
+						[1, 1, 10, 3, 2, 9, 4, 1][ratio],
+				);
+	// Non-default image metadata may specify an EXIF-style orientation.
+	const orientation =
+		readBits(1) === 0 && readBits(1) === 1 ? readBits(3) + 1 : 1;
+	if (truncated) {
+		return null;
+	}
+
+	return orientation > 4 ? {width: height, height: width} : {width, height};
+};
+
+const isJxl = (data: Uint8Array): JxlType | null => {
+	const codestreamPattern = new Uint8Array([0xff, 0x0a]);
+	const containerPattern = new Uint8Array([
+		0x00, 0x00, 0x00, 0x0c, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a,
+	]);
+	if (
+		matchesPattern(codestreamPattern)(data) ||
+		matchesPattern(containerPattern)(data)
+	) {
+		return {type: 'jxl', dimensions: getJxlDimensions(data)};
+	}
+
+	return null;
+};
+
 const getGifDimensions = (data: Uint8Array): FileDimensions | null => {
 	if (data.length < 10) {
 		return null;
@@ -418,6 +552,11 @@ export type JpegType = {
 	dimensions: FileDimensions | null;
 };
 
+export type JxlType = {
+	type: 'jxl';
+	dimensions: FileDimensions | null;
+};
+
 export type WebpType = {
 	type: 'webp';
 	dimensions: FileDimensions | null;
@@ -439,6 +578,7 @@ export type UnknownType = {
 
 export type FileType =
 	| JpegType
+	| JxlType
 	| WebpType
 	| RiffType
 	| WebmType
@@ -459,6 +599,7 @@ export type FileType =
 
 export type ImageFileType =
 	| JpegType
+	| JxlType
 	| WebpType
 	| GifType
 	| PngType
@@ -470,6 +611,7 @@ export const isImageFileType = (
 ): fileType is ImageFileType => {
 	return (
 		fileType.type === 'jpeg' ||
+		fileType.type === 'jxl' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'gif' ||
 		fileType.type === 'png' ||
@@ -479,6 +621,11 @@ export const isImageFileType = (
 };
 
 export const detectFileType = (data: Uint8Array): FileType => {
+	const jxl = isJxl(data);
+	if (jxl) {
+		return jxl;
+	}
+
 	if (isRiffWave(data)) {
 		return {type: 'wav'};
 	}

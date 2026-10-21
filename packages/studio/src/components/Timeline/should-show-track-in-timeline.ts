@@ -4,7 +4,7 @@ import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-k
 // - The sequence opted-in via `showInTimeline` (the default).
 //   Children of a sequence with `showInTimeline: false` keep being listed
 //   on their own; their depth is independently flattened by
-//   `getTimelineNestedLevel` so the parent does not contribute an indent.
+//   the timeline calculator so the parent does not contribute an indent.
 // - The sequence has a positive duration.
 // - The sequence starts before the composition ends.
 export const shouldShowTrackInTimeline = (

@@ -8,10 +8,15 @@ import {subscribeToDefaultPropsWatchers} from '../default-props-watchers';
 export const subscribeToDefaultProps: ApiHandler<
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse
-> = ({input: {compositionId, clientId}, remotionRoot, entryPoint}) => {
+> = ({
+	input: {compositionId, clientId, symbolicatedStack},
+	remotionRoot,
+	entryPoint,
+}) => {
 	return subscribeToDefaultPropsWatchers({
 		compositionId,
 		clientId,
+		symbolicatedStack,
 		remotionRoot,
 		entryPoint,
 	});

@@ -195,9 +195,7 @@ const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
 	);
 };
 
-export const LocationLowerThird = Interactive.withSchema({
+export const LocationLowerThird = Interactive.create({
 	Component: LocationLowerThirdInner,
 	componentName: '<LocationLowerThird>',
-	schema: {},
-	wrapInSequence: true,
 });

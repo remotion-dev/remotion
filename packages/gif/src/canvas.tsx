@@ -7,7 +7,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type {EffectDefinitionAndStack} from 'remotion';
+import type {EffectDefinitionAndStack, EffectsOutputSize} from 'remotion';
 import {Internals, useDelayRender} from 'remotion';
 import type {GifFillMode} from './props';
 import {useElementSize} from './use-element-size';
@@ -108,11 +108,22 @@ type Props = {
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
 export const Canvas = forwardRef(
 	(
-		{index, frames, width, height, fit, className, style, effects}: Props,
+		{
+			index,
+			frames,
+			width,
+			height,
+			fit,
+			className,
+			style,
+			effects,
+			effectsOutputSize,
+		}: Props,
 		ref,
 	) => {
 		const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -136,7 +147,7 @@ export const Canvas = forwardRef(
 			return document.createElement('canvas');
 		}, []);
 
-		const chainState = useEffectChainState();
+		const chainState = useEffectChainState(effectsOutputSize);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 		const size = useElementSize(canvasRef);
