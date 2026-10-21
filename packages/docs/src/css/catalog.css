@@ -47,7 +47,8 @@
 }
 
 .catalog-layout .menu__link:focus-visible,
-.catalog-layout .menu__caret:focus-visible {
+.catalog-layout .menu__caret:focus-visible,
+.catalog-layout .navbar-sidebar__back:focus-visible {
 	outline: 2px solid var(--ifm-color-primary);
 	outline-offset: 2px;
 }
@@ -105,6 +106,13 @@
 
 	.catalog-layout .menu__link {
 		min-height: 44px;
+	}
+
+	.catalog-layout .navbar-sidebar__back {
+		width: 100%;
+		min-height: 44px;
+		margin: 0;
+		padding: 8px 12px;
 	}
 }
 

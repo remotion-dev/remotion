@@ -111,7 +111,7 @@
 
 .grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 16px;
 	margin: 0;
 	padding: 0;
@@ -210,30 +210,21 @@
 
 .content {
 	min-width: 0;
-	padding: 18px 0;
+	padding: 8px 0;
 }
 
 .title {
 	display: block;
 	margin: 0;
 	font-family: 'GTPlanar';
-	font-size: 1.125rem;
+	font-size: 1rem;
 	font-weight: 400;
 	text-wrap: balance;
 }
 
 @container element-library (min-width: 600px) {
 	.grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 24px;
-	}
-
-	.content {
-		padding: 8px 0;
-	}
-
-	.title {
-		font-size: 1rem;
 	}
 }
 

@@ -45,7 +45,20 @@
 	}
 
 	.hero .description {
-		font-size: 1.25rem;
+		font-size: clamp(1rem, 4.3vw, 1.125rem);
+		line-height: 1.6;
+	}
+
+	.description :global(.catalog-lead) {
+		display: block;
+	}
+
+	.description br {
+		display: none;
+	}
+
+	.description a {
+		white-space: nowrap;
 	}
 }
 
@@ -63,4 +76,13 @@
 :global(.studio-elements-embed) .hero .description {
 	max-width: 56ch;
 	font-size: 1rem;
+	line-height: 1.8;
+}
+
+:global(.studio-elements-embed) .description :global(.catalog-lead) {
+	display: inline;
+}
+
+:global(.studio-elements-embed) .description br {
+	display: initial;
 }
