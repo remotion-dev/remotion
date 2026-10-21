@@ -1,14 +1,8 @@
 import React, {useContext, useMemo} from 'react';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
-import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
-import {
-	getTimelineLayerHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
-} from '../../helpers/timeline-layout';
+import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
-import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
-import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
+import {getTimelineSequenceHeight} from './timeline-track-groups';
 import {
 	getTimelineSelectedTrackHighlightStyle,
 	TIMELINE_SELECTED_BACKGROUND,
@@ -16,18 +10,23 @@ import {
 } from './TimelineSelection';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineWidthContext} from './TimelineWidthProvider';
-import {useResolvedStack} from './use-resolved-stack';
 
 const emptyConnectedCompositions = [] as const;
+
+const TimelineTrackHighlight: React.FC<{readonly background: string}> = ({
+	background,
+}) => {
+	const timelineWidth = useContext(TimelineWidthContext);
+	return timelineWidth === null ? null : (
+		<div
+			style={getTimelineSelectedTrackHighlightStyle(timelineWidth, background)}
+		/>
+	);
+};
 
 const TimelineTrackUnmemoized: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
-	const annotationLocation = useResolvedStack(track.sequence.getStack());
-	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const previewServerConnected = previewServerState.type === 'connected';
-	const timelineWidth = useContext(TimelineWidthContext);
 	const {hovered, onPointerEnter, onPointerLeave} = useTimelineSequenceHover(
 		track.nodePathInfo,
 	);
@@ -41,35 +40,18 @@ const TimelineTrackUnmemoized: React.FC<{
 
 	const layerStyle = useMemo(
 		(): React.CSSProperties => ({
-			height: getTimelineLayerHeight(track.sequence.type),
+			height: getTimelineSequenceHeight(track.sequence),
 			marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
 			position: 'relative',
 		}),
-		[track.sequence.type],
+		[track.sequence],
 	);
-
-	const showExpandedKeyframes =
-		track.nodePathInfo !== null &&
-		previewServerConnected &&
-		getIsExpanded(track.nodePathInfo);
 
 	return (
 		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
-			<div
-				style={layerStyle}
-				{...getSequenceAnnotationAttributes({
-					sequence: track.sequence,
-					location: annotationLocation,
-					surface: 'track',
-				})}
-			>
-				{rowHighlightBackground && timelineWidth !== null ? (
-					<div
-						style={getTimelineSelectedTrackHighlightStyle(
-							timelineWidth,
-							rowHighlightBackground,
-						)}
-					/>
+			<div style={layerStyle}>
+				{rowHighlightBackground ? (
+					<TimelineTrackHighlight background={rowHighlightBackground} />
 				) : null}
 				<TimelineSequence
 					s={track.sequence}
@@ -87,14 +69,6 @@ const TimelineTrackUnmemoized: React.FC<{
 					sequenceFrameOffset={track.sequenceFrameOffset}
 				/>
 			</div>
-			{showExpandedKeyframes && track.nodePathInfo ? (
-				<TimelineExpandedTrackKeyframes
-					sequence={track.sequence}
-					nodePathInfo={track.nodePathInfo}
-					keyframeDisplayOffset={track.keyframeDisplayOffset}
-					keyframePlaybackRate={track.keyframePlaybackRate}
-				/>
-			) : null}
 		</div>
 	);
 };

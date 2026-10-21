@@ -38,6 +38,7 @@ import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
 	SequenceActivityContext,
 	SequenceActivityDormantContext,
+	SequenceActivitySuspensionContext,
 } from './sequence-activity-context.js';
 import {
 	getSequenceCropClipPath,
@@ -214,6 +215,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const parentSequence = useContext(SequenceContext);
 	const activityRequested = useContext(SequenceActivityContext);
 	const parentDormant = useContext(SequenceActivityDormantContext);
+	const activitySuspended = useContext(SequenceActivitySuspensionContext);
+	const hadActivity = useRef(false);
 	const env = useRemotionEnvironment();
 	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
 	const timelineTrack = useContext(TimelineTrackContext);
@@ -839,7 +842,17 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				}
 			: null,
 	);
-	const renderActivity = activityEnabled && (!activityDormant || admitted);
+	const renderActivity =
+		activityEnabled &&
+		(!activityDormant ||
+			admitted ||
+			(activitySuspended && hadActivity.current));
+	// A scene visited during playback must keep its children and registrations
+	// when it leaves the viewport, even if it was outside the discovery budget.
+	const useCommitEffect = React.useInsertionEffect ?? useLayoutEffect;
+	useCommitEffect(() => {
+		hadActivity.current = renderActivity;
+	}, [renderActivity]);
 	const content = (activityEnabled ? renderActivity : contentVisible)
 		? children
 		: null;

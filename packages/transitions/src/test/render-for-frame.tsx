@@ -20,11 +20,13 @@ export const renderForFrame = (frame: number, markup: React.ReactNode) => {
 				<Internals.CompositionManager.Provider
 					value={makeMockCompositionManagerContext()}
 				>
-					<Internals.TimelineContext.Provider
-						value={makeTimelineContext(frame)}
-					>
-						{markup}
-					</Internals.TimelineContext.Provider>
+					<Internals.VideoProvider>
+						<Internals.TimelineContext.Provider
+							value={makeTimelineContext(frame)}
+						>
+							{markup}
+						</Internals.TimelineContext.Provider>
+					</Internals.VideoProvider>
 				</Internals.CompositionManager.Provider>
 			</Internals.CanUseRemotionHooksProvider>
 		</Internals.RemotionEnvironmentContext>,

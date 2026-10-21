@@ -12,11 +12,6 @@ metadata:
 - **Transitions** (`<TransitionSeries.Transition>`) — crossfade, slide, wipe, etc. between two scenes. Shortens the timeline because both scenes play simultaneously during the transition.
 - **Overlays** (`<TransitionSeries.Overlay>`) — render an effect (e.g. a light leak) on top of the cut point without shortening the timeline.
 
-Set `premountFor={fps}` on every `<TransitionSeries.Sequence>` and
-`<TransitionSeries.Overlay>`, using `fps` from `useVideoConfig()`. Premount
-timed children inside those items as well. `<TransitionSeries.Transition>`
-does not accept `premountFor`.
-
 For a multi-scene timeline, keep the outer `<TransitionSeries>` visible in the
 timeline. Studio favors the active scene sequence when the two have the same
 full-frame canvas outline.
@@ -26,47 +21,93 @@ Children are absolutely positioned.
 ## Prerequisites
 
 ```bash
-npx remotion add @remotion/transitions
+bunx remotion add @remotion/transitions
 ```
 
 ## Transition example
 
-```tsx
-import { TransitionSeries, linearTiming } from "@remotion/transitions";
-import { fade } from "@remotion/transitions/fade";
+Use the connected `Chapter` scene from the
+[composition example](../remotion-interactivity/timeline-structure.md).
 
-<TransitionSeries>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
-    <SceneA />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Transition
-    presentation={fade()}
-    timing={linearTiming({ durationInFrames: 15 })}
-  />
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
-    <SceneB />
-  </TransitionSeries.Sequence>
-</TransitionSeries>;
+```tsx title="TransitionVideo.tsx"
+import {TransitionSeries, linearTiming} from '@remotion/transitions';
+import {fade} from '@remotion/transitions/fade';
+import {Chapter} from './Chapter';
+
+export const TransitionVideo = () => (
+  <TransitionSeries>
+    <TransitionSeries.Sequence name="Opening" durationInFrames={60}>
+      <Chapter title="Introduction" style={{backgroundColor: '#111111'}} />
+    </TransitionSeries.Sequence>
+    <TransitionSeries.Transition
+      presentation={fade()}
+      timing={linearTiming({durationInFrames: 15})}
+    />
+    <TransitionSeries.Sequence name="Feature" durationInFrames={60}>
+      <Chapter title="New features" style={{backgroundColor: '#243b53'}} />
+    </TransitionSeries.Sequence>
+  </TransitionSeries>
+);
+```
+
+## Custom presentation
+
+```tsx title="SlideInPresentation.tsx"
+import type {TransitionPresentationComponentProps} from '@remotion/transitions';
+
+export const SlideInPresentation = ({
+  children,
+  presentationDirection,
+  presentationProgress,
+}: TransitionPresentationComponentProps<Record<string, never>>) => {
+  if (presentationDirection === 'exiting') {
+    return <>{children}</>;
+  }
+
+  return (
+    <div style={{position: 'absolute', inset: 0, overflow: 'hidden'}}>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          translate: `${(1 - presentationProgress) * 100}% 0`,
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+```
+
+Use it in place of `fade()` in `TransitionVideo.tsx`:
+
+```tsx
+import {TransitionSeries, linearTiming} from '@remotion/transitions';
+import {SlideInPresentation} from './SlideInPresentation';
+
+<TransitionSeries.Transition
+  presentation={{component: SlideInPresentation, props: {}}}
+  timing={linearTiming({durationInFrames: 15})}
+/>;
 ```
 
 ## Overlay example
 
-Any React component can be used as an overlay. For a ready-made effect, see the **light-leaks** rule.
-
-```tsx
+```tsx title="LightLeakOverlay.tsx"
 import {lightLeak} from '@remotion/effects/light-leak';
-import {TransitionSeries} from '@remotion/transitions';
-import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import type {CSSProperties} from 'react';
+import {Interactive, interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
-const LightLeakOverlay: React.FC = () => {
+const LightLeakOverlayInner = ({style}: {readonly style?: CSSProperties}) => {
   const frame = useCurrentFrame();
-  const {durationInFrames, fps, height, width} = useVideoConfig();
+  const {durationInFrames, height, width} = useVideoConfig();
 
   return (
     <Solid
       width={width}
       height={height}
-      premountFor={fps}
+      style={style}
       effects={[
         lightLeak({
           progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
@@ -79,68 +120,62 @@ const LightLeakOverlay: React.FC = () => {
   );
 };
 
-<TransitionSeries>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
-    <SceneA />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Overlay durationInFrames={20} premountFor={fps}>
-    <LightLeakOverlay />
-  </TransitionSeries.Overlay>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
-    <SceneB />
-  </TransitionSeries.Sequence>
-</TransitionSeries>;
+export const LightLeakOverlay = Interactive.create({
+  Component: LightLeakOverlayInner,
+  layout: 'none',
+});
+```
+
+```tsx title="OverlayVideo.tsx"
+import {TransitionSeries} from '@remotion/transitions';
+import {Chapter} from './Chapter';
+import {LightLeakOverlay} from './LightLeakOverlay';
+
+export const OverlayVideo = () => (
+  <TransitionSeries>
+    <TransitionSeries.Sequence name="Opening" durationInFrames={60}>
+      <Chapter title="Introduction" style={{backgroundColor: '#111111'}} />
+    </TransitionSeries.Sequence>
+    <TransitionSeries.Overlay durationInFrames={20}>
+      <LightLeakOverlay name="Light leak" />
+    </TransitionSeries.Overlay>
+    <TransitionSeries.Sequence name="Feature" durationInFrames={60}>
+      <Chapter title="New features" style={{backgroundColor: '#243b53'}} />
+    </TransitionSeries.Sequence>
+  </TransitionSeries>
+);
 ```
 
 ## Mixing transitions and overlays
 
-Transitions and overlays can coexist in the same `<TransitionSeries>`, but an overlay cannot be adjacent to a transition or another overlay.
+Separate overlays and transitions with a scene.
 
-```tsx
-import {lightLeak} from '@remotion/effects/light-leak';
+```tsx title="MixedVideo.tsx"
 import {TransitionSeries, linearTiming} from '@remotion/transitions';
 import {fade} from '@remotion/transitions/fade';
-import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Chapter} from './Chapter';
+import {LightLeakOverlay} from './LightLeakOverlay';
 
-const LightLeakOverlay: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {durationInFrames, fps, height, width} = useVideoConfig();
-
-  return (
-    <Solid
-      width={width}
-      height={height}
-      premountFor={fps}
-      effects={[
-        lightLeak({
-          progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
-            extrapolateLeft: 'clamp',
-            extrapolateRight: 'clamp',
-          }),
-        }),
-      ]}
+export const MixedVideo = () => (
+  <TransitionSeries>
+    <TransitionSeries.Sequence name="Opening" durationInFrames={60}>
+      <Chapter title="Introduction" style={{backgroundColor: '#111111'}} />
+    </TransitionSeries.Sequence>
+    <TransitionSeries.Overlay durationInFrames={30}>
+      <LightLeakOverlay name="Light leak" />
+    </TransitionSeries.Overlay>
+    <TransitionSeries.Sequence name="Feature" durationInFrames={60}>
+      <Chapter title="New features" style={{backgroundColor: '#243b53'}} />
+    </TransitionSeries.Sequence>
+    <TransitionSeries.Transition
+      presentation={fade()}
+      timing={linearTiming({durationInFrames: 15})}
     />
-  );
-};
-
-<TransitionSeries>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
-    <SceneA />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Overlay durationInFrames={30} premountFor={fps}>
-    <LightLeakOverlay />
-  </TransitionSeries.Overlay>
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
-    <SceneB />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Transition
-    presentation={fade()}
-    timing={linearTiming({ durationInFrames: 15 })}
-  />
-  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
-    <SceneC />
-  </TransitionSeries.Sequence>
-</TransitionSeries>;
+    <TransitionSeries.Sequence name="Closing" durationInFrames={60}>
+      <Chapter title="Thank you" style={{backgroundColor: '#382345'}} />
+    </TransitionSeries.Sequence>
+  </TransitionSeries>
+);
 ```
 
 ## Transition props
@@ -156,7 +191,6 @@ const LightLeakOverlay: React.FC = () => {
 
 - `durationInFrames` — how long the overlay is visible (positive integer).
 - `offset?` — shifts the overlay relative to the cut point center. Positive = later, negative = earlier. Default: `0`.
-- `premountFor` — set to `fps` for one second of premounting.
 
 ## Available transition types
 
@@ -173,6 +207,7 @@ import { clockWipe } from "@remotion/transitions/clock-wipe";
 ## Slide transition with direction
 
 ```tsx
+import {TransitionSeries, linearTiming} from "@remotion/transitions";
 import { slide } from "@remotion/transitions/slide";
 
 <TransitionSeries.Transition

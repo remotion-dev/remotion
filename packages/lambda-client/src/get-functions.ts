@@ -1,8 +1,9 @@
 import type {FunctionConfiguration} from '@aws-sdk/client-lambda';
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
-import type {FunctionInfo, LogLevel} from '@remotion/serverless-client';
-import {VERSION} from '@remotion/serverless-client';
+import type {LogLevel} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
 import {getLambdaClient} from './aws-clients';
+import type {FunctionInfo} from './aws-operations';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB, RENDER_FN_PREFIX} from './constants';
 import {getFunctionVersion} from './get-function-version';
 import type {AwsRegion} from './regions';

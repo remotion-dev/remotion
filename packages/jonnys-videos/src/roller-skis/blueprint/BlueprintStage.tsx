@@ -81,10 +81,8 @@ const blueprintStageSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const BlueprintStage = Interactive.withSchema({
+export const BlueprintStage = Interactive.create({
 	Component: BlueprintStageInner,
-	componentName: 'BlueprintStage',
 	schema: blueprintStageSchema,
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

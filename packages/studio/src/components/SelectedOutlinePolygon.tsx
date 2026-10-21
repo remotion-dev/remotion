@@ -10,7 +10,6 @@ import {
 import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-click';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {isMac} from '../helpers/is-mac';
-import type {getSequenceAnnotationAttributes} from '../helpers/sequence-annotation';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
@@ -47,7 +46,10 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
-import {useTimelineSelection} from './Timeline/TimelineSelection';
+import {
+	isTimelineSelectionModifierEvent,
+	useCurrentTimelineSelectionStateAsRef,
+} from './Timeline/TimelineSelection';
 
 const {
 	CanvasOutlinePolygon,
@@ -60,9 +62,6 @@ export const SELECTED_OUTLINE_KEY_ATTR =
 	'data-remotion-studio-selected-outline-key';
 
 const SelectedOutlinePolygonUnmemoized: React.FC<{
-	readonly annotationAttributes: ReturnType<
-		typeof getSequenceAnnotationAttributes
-	> | null;
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly containsSelection: boolean;
@@ -93,7 +92,6 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly showSelectedOutline: boolean;
 	readonly translateWithCommandKey: boolean;
 }> = ({
-	annotationAttributes,
 	compositionHeight,
 	compositionWidth,
 	containsSelection,
@@ -121,8 +119,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		[],
 	);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -130,7 +128,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const polygonRef = useRef<SVGPolygonElement>(null);
-	const {selectItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	useEffect(() => {
 		if (!effectDropHovered) {
@@ -234,7 +232,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				captureTarget: event.currentTarget,
 				dragStates: getCanvasOutlineTranslateDragStates({
 					dragTargets,
-					getDragOverrides,
+					getDragOverrides: dragOverridesRef.current.getDragOverrides,
 					timelinePosition: getCurrentFrame(),
 				}),
 				scale,
@@ -331,7 +329,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			editorSnapping,
 			getAllDragOutlines,
 			getAllDragTargets,
-			getDragOverrides,
+			dragOverridesRef,
 			getTarget,
 			guidesList,
 			onDraggingChange,
@@ -347,6 +345,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 	const performDoubleClick = React.useCallback(
 		(event: React.MouseEvent<SVGPolygonElement>) => {
+			if (isTimelineSelectionModifierEvent(event)) {
+				return;
+			}
+
 			const target = getTarget();
 			if (target === undefined) {
 				return;
@@ -431,16 +433,15 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				fileName: effectDrop.fileName,
 				nodePathInfo: effectDrop.nodePathInfo,
 				clientId: effectDrop.clientId,
-				selectItems,
+				selectItems: currentSelection.current.selectItems,
 			});
 		},
-		[getEffectDropTarget, selectItems],
+		[currentSelection, getEffectDropTarget],
 	);
 
 	return (
 		<CanvasOutlinePolygon
 			ref={polygonRef}
-			{...annotationAttributes}
 			{...{
 				[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true',
 				[SELECTED_OUTLINE_KEY_ATTR]: outline.key,

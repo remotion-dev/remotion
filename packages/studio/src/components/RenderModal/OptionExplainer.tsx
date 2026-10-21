@@ -4,6 +4,7 @@ import {BLUE, INPUT_BACKGROUND, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {MenuDivider} from '../Menu/MenuDivider';
 import {CliCopyButton} from './CliCopyButton';
+import {INFO_TOOLTIP_FONT_SIZE} from './InfoTooltip';
 
 export type OptionExplainerOption = Pick<
 	AnyRemotionOption<unknown>,
@@ -13,7 +14,7 @@ export type OptionExplainerOption = Pick<
 };
 
 const container: React.CSSProperties = {
-	fontSize: 14,
+	fontSize: INFO_TOOLTIP_FONT_SIZE,
 	paddingTop: 10,
 	paddingBottom: 10,
 	backgroundColor: INPUT_BACKGROUND,
@@ -26,20 +27,18 @@ const padding: React.CSSProperties = {
 };
 
 const title: React.CSSProperties = {
-	fontSize: 14,
+	fontSize: INFO_TOOLTIP_FONT_SIZE,
 };
-
-const DESCRIPTION_FONT_SIZE_PX = 14;
 
 const description: React.CSSProperties = {
 	color: LIGHT_TEXT,
-	fontSize: DESCRIPTION_FONT_SIZE_PX,
+	fontSize: INFO_TOOLTIP_FONT_SIZE,
 	lineHeight: 1.5,
 	maxWidth: 400,
 };
 
 const link: React.CSSProperties = {
-	fontSize: 14,
+	fontSize: INFO_TOOLTIP_FONT_SIZE,
 	maxWidth: 200,
 	color: BLUE,
 	wordWrap: 'break-word',
@@ -48,7 +47,7 @@ const link: React.CSSProperties = {
 
 const infoRow: React.CSSProperties = {
 	...padding,
-	fontSize: 14,
+	fontSize: INFO_TOOLTIP_FONT_SIZE,
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
@@ -56,7 +55,7 @@ const infoRow: React.CSSProperties = {
 
 const infoRowLabel: React.CSSProperties = {
 	width: 150,
-	fontSize: 14,
+	fontSize: INFO_TOOLTIP_FONT_SIZE,
 	color: WHITE,
 };
 
@@ -111,7 +110,7 @@ export const OptionExplainer: React.FC<{
 							.__remotion-option-explainer-description,
 							.__remotion-option-explainer-description * {
 								color: inherit;
-								font-size: ${DESCRIPTION_FONT_SIZE_PX}px;
+								font-size: ${INFO_TOOLTIP_FONT_SIZE}px;
 								line-height: inherit;
 							}
 

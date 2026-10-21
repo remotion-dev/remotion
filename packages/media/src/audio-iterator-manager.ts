@@ -211,11 +211,7 @@ export const audioIteratorManager = ({
 		audioBufferIterator.addQueuedAudioNode({
 			node,
 			timestamp: mediaTimestamp,
-			buffer,
 			sourceDurationInSeconds,
-			scheduledTime: started.scheduledTime,
-			playbackRate,
-			scheduledAtAnchor: sharedAudioContext.audioSyncAnchor.value,
 		});
 	};
 
@@ -423,7 +419,7 @@ export const audioIteratorManager = ({
 		) => number | null;
 		logLevel: LogLevel;
 		loop: boolean;
-		unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+		unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean | void;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
 		// Audio iterators only schedule forward. Studio's reverse playback must

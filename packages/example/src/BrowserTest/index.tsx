@@ -3,9 +3,9 @@ import {Video} from '@remotion/media';
 import {ThreeCanvas} from '@remotion/three';
 import React, {useCallback, useEffect} from 'react';
 import {
-	AbsoluteFill,
 	Img,
-	Sequence,
+	Interactive,
+	Track,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
@@ -46,143 +46,184 @@ const Orb: React.FC = () => {
 	);
 };
 
-const OrbScene: React.FC = () => {
-	const {height, width} = useVideoConfig();
-
-	return (
-		<ThreeCanvas
-			width={width}
-			height={height}
-			gl={{
-				alpha: false,
-				antialias: false,
-				stencil: false,
-				depth: false,
-			}}
-			onCreated={(state) => state.gl.setClearColor('white')}
-		>
-			<ambientLight intensity={1.5} color={0xffffff} />
-			<pointLight position={[10, 10, 0]} />
-			<Orb />
-		</ThreeCanvas>
-	);
-};
-
-const Blur: React.FC = () => {
+const BlurInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const blur = Math.sin(frame / 10) * 20 + 20;
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
+		<>
 			<Img
+				name="Blurred photo"
 				style={{filter: `blur(${blur}px)`}}
 				src="https://images.unsplash.com/photo-1696938944368-7abfb4233ded?auto=format&fit=crop&q=80&w=1740&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 			/>
-			<AbsoluteFill
+			<div
 				style={{
+					position: 'absolute',
+					inset: 0,
+					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
 					fontFamily: 'sans-serif',
 					fontSize: 80,
 				}}
 			>
-				<h1>Blur</h1>
-			</AbsoluteFill>
-		</AbsoluteFill>
+				<Interactive.H1 name="Blur label">Blur</Interactive.H1>
+			</div>
+		</>
 	);
 };
 
-const Shadows: React.FC = () => {
+const Blur = Interactive.create({
+	Component: BlurInner,
+	layout: 'absolute-fill',
+});
+
+const ShadowsInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const scale = 1 + Math.sin(frame / 100) * 0.2;
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
+		<>
 			{new Array(10).fill(0).map((_, i) => (
-				<AbsoluteFill
+				<div
 					key={i}
-					style={{justifyContent: 'center', alignItems: 'center'}}
-				>
-					<div
-						style={{
-							height: 1700 - i * 180 * scale,
-							width: 1700 - i * 180 * scale,
-							borderRadius: '50%',
-							position: 'absolute',
-							backgroundColor: 'white',
-							boxShadow: '0px 0px 50px 50px rgba(0, 0, 0, 0.1)',
-						}}
-					/>
-				</AbsoluteFill>
+					style={{
+						height: 1700 - i * 180 * scale,
+						width: 1700 - i * 180 * scale,
+						borderRadius: '50%',
+						position: 'absolute',
+						backgroundColor: 'white',
+						boxShadow: '0px 0px 50px 50px rgba(0, 0, 0, 0.1)',
+					}}
+				/>
 			))}
-			<AbsoluteFill
+			<Interactive.H1 name="Shadows label" style={{position: 'relative'}}>
+				Shadows
+			</Interactive.H1>
+		</>
+	);
+};
+
+const Shadows = Interactive.create({
+	Component: ShadowsInner,
+	layout: 'absolute-fill',
+});
+
+const GpuSceneInner: React.FC = () => {
+	const {width, height} = useVideoConfig();
+
+	return (
+		<>
+			<ThreeCanvas
+				name="WebGL orb"
+				width={width}
+				height={height}
 				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					scale: 0.5,
+					transformOrigin: '0 0',
+				}}
+				gl={{alpha: false, antialias: false, stencil: false, depth: false}}
+				onCreated={(state) => state.gl.setClearColor('white')}
+			>
+				<ambientLight intensity={1.5} color={0xffffff} />
+				<pointLight position={[10, 10, 0]} />
+				<Orb />
+			</ThreeCanvas>
+			<Shadows
+				name="Shadows"
+				style={{
+					scale: 0.5,
+					transformOrigin: '0 100%',
 					justifyContent: 'center',
 					alignItems: 'center',
 					fontFamily: 'sans-serif',
 					fontSize: 80,
 				}}
-			>
-				<h1>Shadows</h1>
-			</AbsoluteFill>
-		</AbsoluteFill>
-	);
-};
-
-const GpuScene: React.FC = () => {
-	return (
-		<AbsoluteFill>
-			<AbsoluteFill style={{transform: 'scale(0.5)', transformOrigin: '0 0'}}>
-				<OrbScene />
-			</AbsoluteFill>
-			<AbsoluteFill
-				style={{transform: 'scale(0.5)', transformOrigin: '0 100%'}}
-			>
-				<Shadows />
-			</AbsoluteFill>
-			<AbsoluteFill
-				style={{transform: 'scale(0.5)', transformOrigin: '100% 100%'}}
-			>
-				<Blur />
-			</AbsoluteFill>
-			<AbsoluteFill
-				style={{transform: 'scale(0.5)', transformOrigin: '100% 0%'}}
-			>
-				<Blur />
-			</AbsoluteFill>
-		</AbsoluteFill>
-	);
-};
-
-const MediaVideos: React.FC = () => {
-	return (
-		<AbsoluteFill>
-			<AbsoluteFill style={{transform: 'scale(0.5)', transformOrigin: '0 0'}}>
-				<Video src="https://remotion.media/video-h264.mp4" />
-			</AbsoluteFill>
-			<AbsoluteFill
-				style={{transform: 'scale(0.5)', transformOrigin: '100% 0'}}
-			>
-				<Video src="https://remotion.media/video-h265.mp4" />
-			</AbsoluteFill>
-			<AbsoluteFill
+			/>
+			<Blur
+				name="Bottom right blur"
 				style={{
+					scale: 0.5,
+					transformOrigin: '100% 100%',
+					flexDirection: 'column',
+				}}
+			/>
+			<Blur
+				name="Top right blur"
+				style={{
+					scale: 0.5,
+					transformOrigin: '100% 0%',
+					flexDirection: 'column',
+				}}
+			/>
+		</>
+	);
+};
+
+const GpuScene = Interactive.create({
+	Component: GpuSceneInner,
+	layout: 'absolute-fill',
+});
+
+const MediaVideosInner: React.FC = () => {
+	return (
+		<>
+			<Video
+				name="H.264 video"
+				src="https://remotion.media/video-h264.mp4"
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					scale: 0.5,
+					transformOrigin: '0 0',
+				}}
+			/>
+			<Video
+				name="H.265 video"
+				src="https://remotion.media/video-h265.mp4"
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					scale: 0.5,
+					transformOrigin: '100% 0',
+				}}
+			/>
+			<div
+				style={{
+					position: 'absolute',
+					inset: 0,
+					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
 					top: '50%',
+					width: '100%',
+					height: '100%',
 					fontFamily: 'sans-serif',
 					fontSize: 40,
 				}}
 			>
-				<div>
-					<p>Left: H.264 | Right: H.265</p>
-				</div>
-			</AbsoluteFill>
-		</AbsoluteFill>
+				<Interactive.P name="Codec labels">
+					Left: H.264 | Right: H.265
+				</Interactive.P>
+			</div>
+		</>
 	);
 };
 
-const WebGLCheck: React.FC = () => {
+const MediaVideos = Interactive.create({
+	Component: MediaVideosInner,
+	layout: 'absolute-fill',
+});
+
+const WebGLCheckInner: React.FC = () => {
 	const {cancelRender} = useDelayRender();
 
 	const check = useCallback(() => {
@@ -219,36 +260,31 @@ const WebGLCheck: React.FC = () => {
 	}, [check]);
 
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				fontFamily: 'monospace',
-				fontSize: 36,
-				backgroundColor: '#1a1a2e',
-				color: 'white',
-			}}
-		>
+		<>
 			<div style={{textAlign: 'center', lineHeight: 2}}>
-				<h1 style={{fontSize: 60, marginBottom: 40}}>WebGL Check</h1>
+				<Interactive.H1
+					name="WebGL label"
+					style={{fontSize: 60, marginBottom: 40}}
+				>
+					WebGL Check
+				</Interactive.H1>
 			</div>
-		</AbsoluteFill>
+		</>
 	);
 };
 
-const SystemFontCheck: React.FC = () => {
+const WebGLCheck = Interactive.create({
+	Component: WebGLCheckInner,
+	schema: {...Interactive.textSchema, ...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});
+
+const SystemFontCheckInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const opacity = Math.min(1, frame / 30);
 
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: 'white',
-				justifyContent: 'center',
-				alignItems: 'center',
-				padding: 40,
-			}}
-		>
+		<>
 			<div
 				style={{
 					display: 'flex',
@@ -258,7 +294,8 @@ const SystemFontCheck: React.FC = () => {
 					opacity,
 				}}
 			>
-				<h1
+				<Interactive.H1
+					name="System font heading"
 					style={{
 						fontFamily: 'sans-serif',
 						fontSize: 120,
@@ -268,8 +305,9 @@ const SystemFontCheck: React.FC = () => {
 					}}
 				>
 					System Font Test
-				</h1>
-				<p
+				</Interactive.H1>
+				<Interactive.P
+					name="Serif sample"
 					style={{
 						fontFamily: 'serif',
 						fontSize: 60,
@@ -278,8 +316,9 @@ const SystemFontCheck: React.FC = () => {
 					}}
 				>
 					Serif: The quick brown fox
-				</p>
-				<p
+				</Interactive.P>
+				<Interactive.P
+					name="Sans-serif sample"
 					style={{
 						fontFamily: 'sans-serif',
 						fontSize: 60,
@@ -288,8 +327,9 @@ const SystemFontCheck: React.FC = () => {
 					}}
 				>
 					Sans-serif: jumps over the lazy dog
-				</p>
-				<p
+				</Interactive.P>
+				<Interactive.P
+					name="Monospace sample"
 					style={{
 						fontFamily: 'monospace',
 						fontSize: 48,
@@ -298,34 +338,58 @@ const SystemFontCheck: React.FC = () => {
 					}}
 				>
 					Monospace: 0123456789 !@#$%
-				</p>
+				</Interactive.P>
 			</div>
-		</AbsoluteFill>
+		</>
 	);
 };
 
-const FPS = 30;
-const DURATION_IN_FRAMES = 2 * 60 * FPS; // 2 minutes
-const SCENE_DURATION = Math.floor(DURATION_IN_FRAMES / 4);
+const SystemFontCheck = Interactive.create({
+	Component: SystemFontCheckInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});
 
 export const BrowserTest: React.FC = () => {
 	return (
-		<AbsoluteFill>
-			<Sequence durationInFrames={SCENE_DURATION}>
-				<SystemFontCheck />
-			</Sequence>
-			<Sequence from={SCENE_DURATION} durationInFrames={SCENE_DURATION}>
-				<GpuScene />
-			</Sequence>
-			<Sequence from={SCENE_DURATION * 2} durationInFrames={SCENE_DURATION}>
-				<MediaVideos />
-			</Sequence>
-			<Sequence
-				from={SCENE_DURATION * 3}
-				durationInFrames={DURATION_IN_FRAMES - SCENE_DURATION * 3}
-			>
-				<WebGLCheck />
-			</Sequence>
-		</AbsoluteFill>
+		<Track name="Browser checks">
+			<SystemFontCheck
+				name="System fonts"
+				durationInFrames={900}
+				style={{
+					backgroundColor: 'white',
+					justifyContent: 'center',
+					alignItems: 'center',
+					padding: 40,
+					overflow: 'visible',
+				}}
+			/>
+			<GpuScene
+				name="GPU effects"
+				from={900}
+				durationInFrames={900}
+				style={{overflow: 'visible'}}
+			/>
+			<MediaVideos
+				name="Video codecs"
+				from={1800}
+				durationInFrames={900}
+				style={{overflow: 'visible'}}
+			/>
+			<WebGLCheck
+				name="WebGL availability"
+				from={2700}
+				durationInFrames={900}
+				style={{
+					justifyContent: 'center',
+					alignItems: 'center',
+					fontFamily: 'monospace',
+					fontSize: 36,
+					backgroundColor: '#1a1a2e',
+					color: 'white',
+					overflow: 'visible',
+				}}
+			/>
+		</Track>
 	);
 };

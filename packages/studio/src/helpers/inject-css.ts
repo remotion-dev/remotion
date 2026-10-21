@@ -30,11 +30,11 @@ const makeDefaultGlobalCSS = () => {
   html.__remotion-slide-forward,
   html.__remotion-slide-backward {
     view-transition-name: none;
-    --remotion-slide-distance: 100%;
+    --remotion-slide-distance: 15%;
   }
 
   html.__remotion-slide-backward {
-    --remotion-slide-distance: -100%;
+    --remotion-slide-distance: -15%;
   }
 
   html.__remotion-slide-forward::view-transition,
@@ -43,11 +43,13 @@ const makeDefaultGlobalCSS = () => {
   }
 
   @keyframes remotion-slide-out {
-    to { transform: translateX(calc(-1 * var(--remotion-slide-distance))); }
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(calc(-1 * var(--remotion-slide-distance))); }
   }
 
   @keyframes remotion-slide-in {
-    from { transform: translateX(var(--remotion-slide-distance)); }
+    from { opacity: 0; transform: translateX(var(--remotion-slide-distance)); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
   .remotion-splitter {
@@ -181,6 +183,10 @@ const makeDefaultGlobalCSS = () => {
 
 	.__remotion_input_dragger:hover > span:first-child {
     color: ${BLUE_HOVERED} !important;
+  }
+
+  .__remotion_input_dragger_input::selection {
+    background-color: #4E4E4E;
   }
 
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {

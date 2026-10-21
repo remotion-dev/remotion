@@ -1,11 +1,19 @@
 import {beforeAll, expect, test} from 'bun:test';
 import path from 'path';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {getWebhookCalls, resetWebhookCalls} from '../mock-implementation';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {
+	getWebhookCalls,
+	resetWebhookCalls,
+	useFakeAws,
+} from '../mocks/fake-aws';
 import {waitUntilDone} from './wait-until-done';
+
+useFakeAws();
 
 beforeAll(async () => {
 	await ensureBrowser();
@@ -34,7 +42,7 @@ test(
 			forceIPv4: false,
 		});
 
-		const res = await mockImplementation.callFunctionSync({
+		const res = await LambdaClientInternals.callFunctionSyncImplementation({
 			type: ServerlessRoutines.start,
 			payload: {
 				enableCancellation: false,
@@ -166,7 +174,7 @@ test(
 
 		resetWebhookCalls();
 
-		await mockImplementation.callFunctionSync({
+		await LambdaClientInternals.callFunctionSyncImplementation({
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			type: ServerlessRoutines.launch,

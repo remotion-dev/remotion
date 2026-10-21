@@ -1,24 +1,18 @@
 import React from 'react';
-import {
-	AbsoluteFill,
-	Easing,
-	Interactive,
-	interpolate,
-	useCurrentFrame,
-} from 'remotion';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {RiseText} from '../components/RiseText';
 import {BEAT, colors, mono, sans, serif} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
-export const Outro: React.FC = () => {
+const OutroInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const sinceBeat = (frame - 15) % BEAT;
 	const pulse =
 		frame >= 90 ? interpolate(sinceBeat, [0, 3, 12], [1, 1.16, 1], clamp) : 1;
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#0B0B0F'}}>
+		<>
 			<Interactive.Div
 				name="Sign-off"
 				style={{
@@ -219,6 +213,12 @@ export const Outro: React.FC = () => {
 					</div>
 				</Interactive.Div>
 			</Interactive.Div>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const Outro = Interactive.create({
+	Component: OutroInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});

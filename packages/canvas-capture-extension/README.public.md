@@ -8,6 +8,11 @@ HTML-in-canvas implementation.
 
 Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled.
 
+Chrome 155 and newer can install the extension and display the browser setup requirements. In a supported Chrome version,
+open `chrome://flags/#canvas-draw-element`, enable Canvas Draw Element, and restart
+Chrome. The recorder shows a setup warning if the required APIs are unavailable;
+this does not necessarily mean the flag is disabled.
+
 Follow the [Canvas Capture installation guide](https://www.remotion.dev/docs/canvas-capture/installation).
 
 ## Development

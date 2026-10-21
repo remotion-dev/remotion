@@ -65,18 +65,15 @@ export const MyComposition: React.FC = () => {
         name="Opening"
         trimBefore={4 * fps}
         durationInFrames={20 * fps}
-        premountFor={fps}
       >
         <Video
           name="Opening footage"
           src={staticFile("opening.mp4")}
-          premountFor={fps}
           objectFit="cover"
           style={{ width: "100%", height: "100%" }}
         />
         <BasicCaptions
           name="Opening captions"
-          premountFor={fps}
           width={900}
           style={{
             position: "absolute",
@@ -105,18 +102,15 @@ export const MyComposition: React.FC = () => {
         name="Next clip"
         trimBefore={1 * fps}
         durationInFrames={5 * fps}
-        premountFor={fps}
       >
         <Video
           name="Next footage"
           src={staticFile("next.mp4")}
-          premountFor={fps}
           objectFit="cover"
           style={{ width: "100%", height: "100%" }}
         />
         <BasicCaptions
           name="Next captions"
-          premountFor={fps}
           width={900}
           style={{
             position: "absolute",

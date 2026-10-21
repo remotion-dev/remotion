@@ -1,27 +1,27 @@
 import React from 'react';
 import {
-	useVideoConfig,
-	AbsoluteFill,
 	Easing,
 	CanvasImage,
 	Interactive,
+	Solid,
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
 import {asset} from './assets';
 
 const ForkDropInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			premountFor={fps}
-			style={{overflow: 'hidden'}}
-		>
+		<>
+			<Solid
+				name="Cursor UI background"
+				color="#ffffff"
+				width={1080}
+				height={1160}
+				style={{position: 'absolute'}}
+			/>
 			<CanvasImage
-				premountFor={fps}
 				name="Cursor chat window"
 				src={asset('Screenshot 2026-07-19 at 16.26.01.png')}
 				style={{
@@ -33,7 +33,6 @@ const ForkDropInner: React.FC = () => {
 				}}
 			/>
 			<Interactive.Div
-				premountFor={fps}
 				name="Chat drop highlight"
 				style={{
 					position: 'absolute',
@@ -60,7 +59,6 @@ const ForkDropInner: React.FC = () => {
 				}}
 			/>
 			<Interactive.Div
-				premountFor={fps}
 				name="Forked Hugging Face page"
 				style={{
 					position: 'absolute',
@@ -68,10 +66,6 @@ const ForkDropInner: React.FC = () => {
 					top: 0,
 					width: 1428,
 					height: 786,
-					overflow: 'hidden',
-					borderRadius: 30,
-					border: '8px solid rgba(255, 255, 255, 0.95)',
-					boxShadow: '0 24px 60px rgba(0, 0, 0, 0.28)',
 					translate: interpolate(
 						frame,
 						[0, 30, 38],
@@ -82,12 +76,13 @@ const ForkDropInner: React.FC = () => {
 							easing: Easing.bezier(0.33, 0, 0.2, 1),
 						},
 					),
-					scale: interpolate(frame, [0, 30, 38], [0.3, 0.215, 0.225], {
+					scale: interpolate(frame, [0, 30], [0.3, 0.225], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-						easing: Easing.out(Easing.back(1.8)),
+						easing: Easing.bezier(0.33, 0, 0.2, 1),
+						output: 'perceptual-scale',
 					}),
-					rotate: interpolate(frame, [0, 30, 38], ['-5deg', '2deg', '0deg'], {
+					rotate: interpolate(frame, [0, 30], ['-5deg', '0deg'], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						easing: Easing.out(Easing.cubic),
@@ -96,14 +91,12 @@ const ForkDropInner: React.FC = () => {
 				}}
 			>
 				<CanvasImage
-					premountFor={fps}
 					src={asset('Screenshot 2026-07-19 at 14.35.33.png')}
 					style={{width: 1428, height: 786}}
 					showInTimeline={false}
 				/>
 			</Interactive.Div>
 			<CanvasImage
-				premountFor={fps}
 				name="Dragging fork"
 				src={asset('elegant-silver-fork-free-png.webp')}
 				style={{
@@ -142,14 +135,11 @@ const ForkDropInner: React.FC = () => {
 					filter: 'drop-shadow(0 20px 18px rgba(0, 0, 0, 0.28))',
 				}}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 
-export const ForkDrop = Interactive.withSchema({
+export const ForkDrop = Interactive.create({
 	Component: ForkDropInner,
-	componentName: 'ForkDrop',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

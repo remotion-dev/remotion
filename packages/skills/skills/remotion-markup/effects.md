@@ -11,6 +11,9 @@ or when considering canvas post-processing or a reusable custom effect.
 Docs: https://www.remotion.dev/docs/effects
 Custom effect docs: https://www.remotion.dev/docs/create-effect
 
+For exposure, white balance, tonal adjustments, and LUTs, read
+[color-correction.md](color-correction.md).
+
 ## Usage
 
 Install the package that provides the chosen effect:
@@ -49,7 +52,7 @@ import {blur} from '@remotion/effects/blur';
 
 Use the effect docs for exact props and imports. Most `@remotion/effects` imports use `@remotion/effects/<effect-slug>`; `uvTranslate()` and `xyTranslate()` use `@remotion/effects/translate`.
 
-These effects use WebGL2. During renders, enable WebGL with:
+Most effects use WebGL2; `cylinder()`, `sphere()`, and `pageTurn()` use WebGPU. During renders, enable WebGL and WebGPU with:
 
 ```ts
 import {Config} from '@remotion/cli/config';

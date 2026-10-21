@@ -288,6 +288,16 @@ Whatever you typed your `Props` as.
 
 A `presentation` that you can pass to a [`<TransitionSeries.Transition>`](/docs/transitions/transitionseries#transitionseriestransition).
 
+The returned function accepts your shader props and the following options:
+
+### `effects`?
+
+[Effects](/docs/effects/api) to apply after the transition shader. Defaults to an empty array.
+
+### `effectsOutputSize`?<AvailableFrom v="4.0.536" />
+
+An object with positive integer `width` and `height` values that sets the [effect resolution](/docs/effects/api#effect-resolution). By default, effects use the transition canvas dimensions. This does not change the shader or output dimensions.
+
 ## Types
 
 ### `HtmlInCanvasShader`

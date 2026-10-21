@@ -102,9 +102,8 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 	);
 };
 
-export const BasicCaptions = Interactive.withSchema({
+export const BasicCaptions = Interactive.create({
 	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
 	schema: basicCaptionsSchema,
-	wrapInSequence: true,
 });

@@ -90,10 +90,7 @@ const ZurichPhotoInner: React.FC = () => {
 	);
 };
 
-export const ZurichPhoto = Interactive.withSchema({
+export const ZurichPhoto = Interactive.create({
 	Component: ZurichPhotoInner,
-	componentName: 'ZurichPhoto',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

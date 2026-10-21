@@ -1,21 +1,41 @@
 import React, {useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {getTimelineSceneMask} from './get-timeline-scene-mask';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {
+	TIMELINE_ITEM_BORDER_BOTTOM,
+	TIMELINE_PADDING,
+} from '../../helpers/timeline-layout';
+import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
+import {
+	getTimelineSceneClipPath,
+	TIMELINE_CHILD_TRANSITION_SEAM_Y,
+} from './get-timeline-scene-clip-path';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {timelineDurationRef, timelineLayerLayoutsRef} from './timeline-refs';
 import type {TimelineSceneRange} from './timeline-series-layout';
+import {getTimelineSequenceHeight} from './timeline-track-groups';
+import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {TimelinePackedTrack} from './TimelinePackedTrack';
-import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {
+	TimelineInheritedSceneRangeContext,
+	TimelineSceneClipHeightContext,
+	TimelineSceneRangeContext,
+} from './TimelineSceneRangeContext';
 import {TimelineTrack} from './TimelineTrack';
+import {TimelineTrimOutlineContainer} from './TimelineTrimOutline';
 import {TimelineViewportContext} from './TimelineViewport';
-import {useTimelineVirtualization} from './TimelineVirtualization';
+import {
+	type TimelineVirtualRow,
+	useTimelineVirtualization,
+} from './TimelineVirtualization';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
 	position: 'relative',
+	// Keep trim handles below the pinned ruler and its scrubbing target.
+	isolation: 'isolate',
 };
 
 const timelineContent: React.CSSProperties = {
@@ -27,21 +47,141 @@ const timelineContent: React.CSSProperties = {
 const TimelineSceneTrackContent: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sceneRange: TimelineSceneRange;
-}> = React.memo(({children, sceneRange}) => {
+	readonly height: number;
+}> = React.memo(({children, sceneRange, height}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
-	const active = frame >= sceneRange.from && frame < sceneRange.end;
+	const active = frame >= sceneRange.activeFrom && frame < sceneRange.activeEnd;
 	return (
-		<TimelineSceneRangeContext.Provider value={sceneRange}>
-			<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
-		</TimelineSceneRangeContext.Provider>
+		<TimelineSceneClipHeightContext.Provider value={height}>
+			<TimelineInheritedSceneRangeContext.Provider value={sceneRange}>
+				<TimelineSceneRangeContext.Provider value={sceneRange}>
+					<div style={{opacity: active ? 1 : 0.5}}>{children}</div>
+				</TimelineSceneRangeContext.Provider>
+			</TimelineInheritedSceneRangeContext.Provider>
+		</TimelineSceneClipHeightContext.Provider>
 	);
 });
+
+// Row styles and children must be created inside the memo boundary so a
+// different clip changing does not rerender this row's outline and contents.
+const TimelineTrackRow: React.FC<{
+	readonly row: TimelineVirtualRow;
+	readonly start: number;
+	readonly height: number;
+}> = React.memo(({row, start, height}) => {
+	const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} = row;
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const showExpandedKeyframes =
+		items === null &&
+		track.nodePathInfo !== null &&
+		previewServerState.type === 'connected' &&
+		getIsExpanded(track.nodePathInfo);
+	const clippedHeight =
+		items === null
+			? getTimelineSequenceHeight(track.sequence) + TIMELINE_ITEM_BORDER_BOTTOM
+			: height;
+	const trackContent =
+		items === null ? (
+			<TimelineTrack track={track} />
+		) : (
+			<TimelinePackedTrack
+				track={track}
+				items={items}
+				auxiliaryRows={auxiliaryRows}
+				auxiliaryRowOffsets={auxiliaryRowOffsets}
+			/>
+		);
+
+	return (
+		<TimelineTrackRowLayout
+			sceneRange={sceneRange}
+			start={start}
+			height={height}
+			clippedHeight={clippedHeight}
+			keyframes={
+				showExpandedKeyframes && track.nodePathInfo ? (
+					<TimelineExpandedTrackKeyframes
+						sequence={track.sequence}
+						nodePathInfo={track.nodePathInfo}
+						keyframeDisplayOffset={track.keyframeDisplayOffset}
+						keyframePlaybackRate={track.keyframePlaybackRate}
+					/>
+				) : null
+			}
+		>
+			{sceneRange === null ? (
+				trackContent
+			) : (
+				<TimelineSceneTrackContent
+					sceneRange={sceneRange}
+					height={clippedHeight}
+				>
+					{trackContent}
+				</TimelineSceneTrackContent>
+			)}
+		</TimelineTrackRowLayout>
+	);
+});
+
+// Only horizontal geometry subscribes to width; track contents stay stable.
+const TimelineTrackRowLayout: React.FC<{
+	readonly sceneRange: TimelineSceneRange | null;
+	readonly start: number;
+	readonly height: number;
+	readonly clippedHeight: number;
+	readonly children: React.ReactNode;
+	readonly keyframes: React.ReactNode;
+}> = ({sceneRange, start, height, clippedHeight, children, keyframes}) => {
+	const windowWidth = useContext(TimelineWidthContext);
+	const video = Internals.useUnsafeVideoConfig();
+	const durationInFrames = video?.durationInFrames ?? null;
+	return (
+		<div
+			style={{
+				height,
+				left: TIMELINE_PADDING,
+				position: 'absolute',
+				right: TIMELINE_PADDING,
+				// Sequence bars use the full zoomed timeline width, while this
+				// row's parent only fills the viewport. Clip in the same space.
+				width:
+					sceneRange !== null && windowWidth !== null
+						? windowWidth - TIMELINE_PADDING * 2
+						: undefined,
+				top: start,
+				pointerEvents: 'none',
+			}}
+		>
+			<TimelineTrimOutlineContainer
+				style={{height: clippedHeight, position: 'relative'}}
+				clipPath={
+					durationInFrames !== null && windowWidth !== null
+						? (getTimelineSceneClipPath({
+								sceneRange,
+								durationInFrames,
+								offsetInFrames: 0,
+								pixelsPerFrame:
+									(windowWidth - TIMELINE_PADDING * 2) / durationInFrames,
+								height: clippedHeight,
+								seamY: TIMELINE_CHILD_TRANSITION_SEAM_Y,
+								transitionCutout: null,
+								cropHeight: null,
+							}) ?? null)
+						: null
+				}
+			>
+				{children}
+			</TimelineTrimOutlineContainer>
+			{keyframes}
+		</div>
+	);
+};
 
 const TimelineTracksInner: React.FC<{
 	readonly hasBeenCut: boolean;
 }> = ({hasBeenCut}) => {
 	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
-	const video = Internals.useUnsafeVideoConfig();
 	const windowWidth = useContext(TimelineWidthContext);
 	const renderWindow = useContext(TimelineViewportContext);
 	useImperativeHandle(timelineDurationRef, () => ({
@@ -93,62 +233,16 @@ const TimelineTracksInner: React.FC<{
 	}, []);
 
 	return (
-		<div style={timelineStyle} {...{'oai-annotation-container': ''}}>
+		<div style={timelineStyle}>
 			<div style={{...content, height: tracksEnd}}>
-				{virtualItems.map((virtualItem) => {
-					const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} =
-						rows[virtualItem.index];
-					const trackContent =
-						items === null ? (
-							<TimelineTrack track={track} />
-						) : (
-							<TimelinePackedTrack
-								track={track}
-								items={items}
-								auxiliaryRows={auxiliaryRows}
-								auxiliaryRowOffsets={auxiliaryRowOffsets}
-							/>
-						);
-
-					return (
-						<div
-							key={virtualItem.key}
-							style={{
-								height: virtualItem.size,
-								left: TIMELINE_PADDING,
-								position: 'absolute',
-								right: TIMELINE_PADDING,
-								// Sequence bars use the full zoomed timeline width, while this
-								// row's parent only fills the viewport. Clip in the same space.
-								width:
-									sceneRange !== null && windowWidth !== null
-										? windowWidth - TIMELINE_PADDING * 2
-										: undefined,
-								top: virtualItem.start,
-								// Fade the shared rows on either side of the transition midpoint.
-								maskImage: video
-									? getTimelineSceneMask({
-											sceneRange,
-											durationInFrames: video.durationInFrames,
-											offsetInFrames: 0,
-										})
-									: undefined,
-								clipPath:
-									sceneRange === null || !video
-										? undefined
-										: `inset(0 ${Math.max(0, 100 - (sceneRange.end / video.durationInFrames) * 100)}% 0 ${Math.max(0, (sceneRange.from / video.durationInFrames) * 100)}%)`,
-							}}
-						>
-							{sceneRange === null ? (
-								trackContent
-							) : (
-								<TimelineSceneTrackContent sceneRange={sceneRange}>
-									{trackContent}
-								</TimelineSceneTrackContent>
-							)}
-						</div>
-					);
-				})}
+				{virtualItems.map((virtualItem) => (
+					<TimelineTrackRow
+						key={virtualItem.key}
+						row={rows[virtualItem.index]}
+						start={virtualItem.start}
+						height={virtualItem.size}
+					/>
+				))}
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
 		</div>

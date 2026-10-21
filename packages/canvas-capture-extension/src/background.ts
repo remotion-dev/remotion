@@ -1,10 +1,14 @@
 import {browser} from 'wxt/browser';
+import {canvasSetupUrl} from './browser-requirements';
+import {startCaptureHandoff} from './handoff-server';
 import {
 	captureControllerMessageType,
+	openCaptureSetupMessageType,
 	type CaptureControllerRequest,
 } from './messages';
 
 export const startBackground = () => {
+	startCaptureHandoff();
 	browser.action.onClicked.addListener(async (tab) => {
 		if (tab.id === undefined) {
 			return;
@@ -30,6 +34,12 @@ export const startBackground = () => {
 				await browser.tabs.sendMessage(tab.id, request);
 			}
 
+			await browser.scripting.executeScript({
+				target: {tabId: tab.id},
+				files: ['/shot-tools.js'],
+				world: 'MAIN',
+			});
+
 			await browser.action.setBadgeText({tabId: tab.id, text: ''});
 			await browser.action.setTitle({
 				tabId: tab.id,
@@ -54,18 +64,15 @@ export const startBackground = () => {
 		if (
 			typeof message !== 'object' ||
 			message === null ||
-			!('type' in message) ||
-			message.type !== 'remotion-canvas-capture-open' ||
-			!('captureId' in message) ||
-			typeof message.captureId !== 'string' ||
-			!('destination' in message) ||
-			(message.destination !== 'convert' && message.destination !== 'new')
+			!('type' in message)
 		) {
 			return;
 		}
 
-		const url = new URL(`https://www.remotion.dev/${message.destination}`);
-		url.searchParams.set('canvas-capture', message.captureId);
-		return browser.tabs.create({url: url.toString()});
+		if (message.type === openCaptureSetupMessageType) {
+			return browser.tabs
+				.create({url: canvasSetupUrl, active: true})
+				.then(() => ({opened: true}));
+		}
 	});
 };

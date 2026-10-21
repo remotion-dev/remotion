@@ -9,13 +9,14 @@ import {
 } from '@remotion/lambda-client/constants';
 import {parsedLambdaCli} from '../../cli/args';
 import {LambdaInternals} from '../../internals';
-import {mockFullClientSpecifics} from '../mock-implementation';
+import {useFakeAws} from '../mocks/fake-aws';
 import {
 	clearMockCreateFunctionCalls,
 	getMockCreateFunctionCalls,
 } from '../mocks/mock-create-function';
-import {mockImplementation} from '../mocks/mock-implementation';
 import {doAfter, doBefore, getProcessWriteOutput} from './console-hooks';
+
+useFakeAws();
 
 const remotionRoot = process.cwd();
 
@@ -33,8 +34,6 @@ test('Deploy function', async () => {
 		['functions', 'deploy'],
 		remotionRoot,
 		'verbose',
-		mockImplementation,
-		mockFullClientSpecifics,
 	);
 	expect(getProcessWriteOutput()).toContain(
 		`Deployed as remotion-render-${LambdaClientInternals.LAMBDA_VERSION_STRING}-mem${DEFAULT_MEMORY_SIZE}mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`,
@@ -46,15 +45,11 @@ test('Deploy function and list it', async () => {
 		['functions', 'deploy'],
 		remotionRoot,
 		'info',
-		mockImplementation,
-		mockFullClientSpecifics,
 	);
 	await LambdaInternals.executeCommand(
 		['functions', 'ls'],
 		remotionRoot,
 		'info',
-		mockImplementation,
-		mockFullClientSpecifics,
 	);
 	expect(getProcessWriteOutput()).toContain('Getting functions...');
 	expect(getProcessWriteOutput()).toContain('Memory (MB)');
@@ -66,15 +61,11 @@ test('Deploy function and it already exists should fail', async () => {
 		['functions', 'deploy'],
 		remotionRoot,
 		'info',
-		mockImplementation,
-		mockFullClientSpecifics,
 	);
 	await LambdaInternals.executeCommand(
 		['functions', 'deploy'],
 		remotionRoot,
 		'info',
-		mockImplementation,
-		mockFullClientSpecifics,
 	);
 
 	expect(getProcessWriteOutput()).toMatch(/Already exists as remotion-render/);
@@ -89,8 +80,6 @@ test('Deploy function with custom Layer ARNs', async () => {
 		['functions', 'deploy'],
 		remotionRoot,
 		'info',
-		mockImplementation,
-		mockFullClientSpecifics,
 	);
 
 	expect(getMockCreateFunctionCalls().at(-1)?.customLayerArns).toEqual([
@@ -107,8 +96,6 @@ test('If no functions are there and is quiet, should return "()"', async () => {
 		['functions', 'ls'],
 		remotionRoot,
 		'info',
-		mockImplementation,
-		mockFullClientSpecifics,
 	);
 	expect(getProcessWriteOutput()).toBe('()');
 });
@@ -118,8 +105,6 @@ test('Should handle functions rm called with no functions', async () => {
 		['functions', 'rm', '()'],
 		remotionRoot,
 		'info',
-		mockImplementation,
-		mockFullClientSpecifics,
 	);
 	expect(getProcessWriteOutput()).toBe('No functions to remove.');
 });

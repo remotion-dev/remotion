@@ -7,5 +7,5 @@ export type SharedAudioContextForMediaPlayer = {
 	scheduleAudioNode: (
 		options: ScheduleAudioNodeOptions,
 	) => ScheduleAudioNodeResult;
-	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+	unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean | void;
 };

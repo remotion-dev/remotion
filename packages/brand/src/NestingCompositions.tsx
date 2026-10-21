@@ -4,23 +4,24 @@ import {
 	AbsoluteFill,
 	Composition,
 	Easing,
+	Interactive,
 	interpolate,
-	Sequence,
 	useCurrentFrame,
 } from 'remotion';
 
-export function Precomposition() {
+const PrecompositionInner = () => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			durationInFrames={438}
 			trimBefore={323}
 			premountFor={60}
 			style={{
 				width: 3126,
 				height: 2958,
-				translate: '-603px -939px',
-				scale: 0.716,
+				translate: '-1190px -492px',
+				scale: 1,
 			}}
 		>
 			<Video
@@ -500,22 +501,26 @@ export function Precomposition() {
 			/>
 		</AbsoluteFill>
 	);
-}
+};
+
+export const Precomposition = Interactive.withSchema({
+	Component: PrecompositionInner,
+	componentName: 'Precomposition',
+	schema: {},
+	wrapInSequence: true,
+	layout: 'absolute-fill',
+});
 
 export const NestingCompositionsPreview = () => {
 	return (
 		<>
-			<Sequence layout="none" name={'Precomposition'} durationInFrames={158}>
-				<Precomposition />
-			</Sequence>
-			<Sequence
-				layout="none"
+			<Precomposition name={'Precomposition'} durationInFrames={158} />
+			<Precomposition
 				name={'Precomposition'}
 				from={158}
 				trimBefore={186}
-			>
-				<Precomposition />
-			</Sequence>
+				premountFor={60}
+			/>
 		</>
 	);
 };

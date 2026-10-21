@@ -1,82 +1,6 @@
-export type {
-	EnhancedErrorInfo,
-	GetOrCreateBucketInput,
-	GetOrCreateBucketOutput,
-} from '@remotion/serverless-client';
 export type {RuntimePreference} from './runtime-preference';
-import {
-	getCloudWatchLogsClient,
-	getIamClient,
-	getLambdaClient,
-	getServiceQuotasClient,
-	getStsClient,
-} from './aws-clients';
-import {awsImplementation} from './aws-provider';
-import {
-	getAwsPartitionMetadata,
-	getAwsRegionMetadata,
-} from './aws-region-metadata';
-import {parseJsonOrThrowSource} from './call-lambda-streaming';
-import {internalCancelRenderOnLambda} from './cancel-render-on-lambda';
-import {cleanItems} from './clean-items';
-import {
-	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-	MAX_EPHEMERAL_STORAGE_IN_MB,
-} from './constants';
-import {convertToServeUrlImplementation} from './convert-to-serve-url';
-import {internalDeleteRender} from './delete-render';
-import {
-	getCloudwatchMethodUrl,
-	getCloudwatchRendererUrl,
-	getLambdaFunctionUrl,
-	getS3BucketUrl,
-	getS3RenderUrl,
-} from './get-aws-urls';
-import {getEnvVariable} from './get-env-variable';
-import {getS3Client} from './get-s3-client';
-import {internalGetSites} from './get-sites';
-import {isFlakyError} from './is-flaky-error';
-import {LAMBDA_VERSION_STRING} from './lambda-version-string';
-import {
-	generateRandomHashWithLifeCycleRule,
-	getLifeCycleRules,
-} from './lifecycle';
-import {
-	getRenderProgressPayload,
-	makeLambdaRenderMediaPayload,
-	makeLambdaRenderStillPayload,
-} from './make-lambda-payload';
-import {makeS3ServeUrl} from './make-s3-url';
-import {pLimit} from './p-limit';
-import {parseFunctionName} from './parse-function-name';
-import {randomHashImplementation} from './random-hash';
-import {
-	internalRenderMediaOnLambdaRaw,
-	renderMediaOnLambdaOptionalToRequired,
-} from './render-media-on-lambda';
-import {internalRenderStillOnLambda} from './render-still-on-lambda';
-import {runtimePreferenceOptions} from './runtime-preference';
-import {innerSpeculateFunctionName} from './speculate-function-name';
-import {validateAwsRegion} from './validate-aws-region';
-import {parseBucketName} from './validate-bucketname';
-import {validateDiskSizeInMb} from './validate-disk-size-in-mb';
-import {validateMemorySize} from './validate-memory-size';
-import {validateServeUrl} from './validate-serveurl';
 
-export type {
-	CustomCredentials,
-	DeleteAfter,
-	ImageSequenceOutput,
-	ImageSequenceManifest,
-	ImageSequenceOutputPrefix,
-	WebhookErrorPayload,
-	WebhookPayload,
-	WebhookSuccessPayload,
-	WebhookTimeoutPayload,
-} from '@remotion/serverless-client';
-export {appRouterWebhook, NextWebhookArgs} from './app-router-webhook';
-export {AwsProvider} from './aws-provider';
+export {appRouterWebhook, type NextWebhookArgs} from './app-router-webhook';
 export {
 	cancelRenderOnLambda,
 	type CancelRenderOnLambdaInput,
@@ -87,9 +11,9 @@ export type {
 	AwsRegionMetadata,
 } from './aws-region-metadata';
 export type {RenderProgress} from './constants';
-export {deleteFunction, DeleteFunctionInput} from './delete-function';
+export {deleteFunction, type DeleteFunctionInput} from './delete-function';
 export {deleteRender, type DeleteRenderInput} from './delete-render';
-export {estimatePrice, EstimatePriceInput} from './estimate-price';
+export {estimatePrice, type EstimatePriceInput} from './estimate-price';
 export {expressWebhook} from './express-webhook';
 export {
 	getAwsClient,
@@ -126,103 +50,107 @@ export {
 } from './speculate-function-name';
 export type {RequestHandler} from './types';
 export {validateWebhookSignature} from './validate-webhook-signature';
-
-export const LambdaClientInternals: {
-	generateRandomHashWithLifeCycleRule: typeof generateRandomHashWithLifeCycleRule;
-	getLambdaClient: typeof getLambdaClient;
-	getS3Client: typeof getS3Client;
-	getS3RenderUrl: typeof getS3RenderUrl;
-	getIamClient: typeof getIamClient;
-	getStsClient: typeof getStsClient;
-	getCloudWatchLogsClient: typeof getCloudWatchLogsClient;
-	getServiceQuotasClient: typeof getServiceQuotasClient;
-	parseJsonOrThrowSource: typeof parseJsonOrThrowSource;
-	getCloudwatchMethodUrl: typeof getCloudwatchMethodUrl;
-	getCloudwatchRendererUrl: typeof getCloudwatchRendererUrl;
-	getLambdaFunctionUrl: typeof getLambdaFunctionUrl;
-	getS3BucketUrl: typeof getS3BucketUrl;
-	MAX_EPHEMERAL_STORAGE_IN_MB: typeof MAX_EPHEMERAL_STORAGE_IN_MB;
-	parseFunctionName: typeof parseFunctionName;
-	isFlakyError: typeof isFlakyError;
-	convertToServeUrlImplementation: typeof convertToServeUrlImplementation;
-	randomHashImplementation: typeof randomHashImplementation;
-	parseBucketName: typeof parseBucketName;
-	makeLambdaRenderMediaPayload: typeof makeLambdaRenderMediaPayload;
-	renderMediaOnLambdaOptionalToRequired: typeof renderMediaOnLambdaOptionalToRequired;
-	internalDeleteRender: typeof internalDeleteRender;
-	internalCancelRenderOnLambda: typeof internalCancelRenderOnLambda;
-	internalGetSites: typeof internalGetSites;
-	getLifeCycleRules: typeof getLifeCycleRules;
-	awsImplementation: typeof awsImplementation;
-	runtimePreferenceOptions: typeof runtimePreferenceOptions;
-	validateAwsRegion: typeof validateAwsRegion;
-	validateDiskSizeInMb: typeof validateDiskSizeInMb;
-	validateMemorySize: typeof validateMemorySize;
-	DEFAULT_CLOUDWATCH_RETENTION_PERIOD: typeof DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB: typeof DEFAULT_EPHEMERAL_STORAGE_IN_MB;
-	LAMBDA_VERSION_STRING: typeof LAMBDA_VERSION_STRING;
-	pLimit: typeof pLimit;
-	makeS3ServeUrl: typeof makeS3ServeUrl;
-	validateServeUrl: typeof validateServeUrl;
-	getEnvVariable: typeof getEnvVariable;
-	internalRenderMediaOnLambdaRaw: typeof internalRenderMediaOnLambdaRaw;
-	internalRenderStillOnLambda: typeof internalRenderStillOnLambda;
-	cleanItems: typeof cleanItems;
-	makeLambdaRenderStillPayload: typeof makeLambdaRenderStillPayload;
-	getRenderProgressPayload: typeof getRenderProgressPayload;
-	innerSpeculateFunctionName: typeof innerSpeculateFunctionName;
-	getAwsPartitionMetadata: typeof getAwsPartitionMetadata;
-	getAwsRegionMetadata: typeof getAwsRegionMetadata;
-} = {
-	generateRandomHashWithLifeCycleRule,
-	getLambdaClient,
-	getS3Client,
-	getS3RenderUrl,
-	getIamClient,
-	getStsClient,
-	getCloudWatchLogsClient,
-	getServiceQuotasClient,
-	parseJsonOrThrowSource,
-	getCloudwatchMethodUrl,
-	getCloudwatchRendererUrl,
-	getLambdaFunctionUrl,
-	getS3BucketUrl,
-	MAX_EPHEMERAL_STORAGE_IN_MB,
-	parseFunctionName,
-	isFlakyError,
-	convertToServeUrlImplementation,
-	randomHashImplementation,
-	parseBucketName,
-	makeLambdaRenderMediaPayload,
-	renderMediaOnLambdaOptionalToRequired,
-	internalDeleteRender,
-	internalCancelRenderOnLambda,
-	internalGetSites,
-	getLifeCycleRules,
-	awsImplementation,
-	runtimePreferenceOptions,
-	validateAwsRegion,
-	validateDiskSizeInMb,
-	validateMemorySize,
-	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-	LAMBDA_VERSION_STRING,
-	pLimit,
-	makeS3ServeUrl,
-	validateServeUrl,
-	getEnvVariable,
-	internalRenderMediaOnLambdaRaw,
-	internalRenderStillOnLambda,
-	cleanItems,
-	makeLambdaRenderStillPayload,
-	getRenderProgressPayload,
-	innerSpeculateFunctionName,
-	getAwsPartitionMetadata,
-	getAwsRegionMetadata,
-};
-
 export {
 	renderFramesOnLambda,
 	type RenderFramesOnLambdaInput,
 	type RenderFramesOnLambdaOutput,
 } from './render-frames-on-lambda';
+
+// Shared between the client and the Lambda function runtime.
+export {OutputFileAccessDeniedError} from './find-output-file-in-bucket';
+export {ServerlessRoutines} from './shared-constants';
+
+export type {Await} from './await';
+export type {OutputFileMetadata} from './find-output-file-in-bucket';
+export type {BillingCurrency} from './format-costs-info';
+export type {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
+export type {
+	GetOrCreateBucketInput,
+	GetOrCreateBucketOutput,
+} from './get-or-create-bucket';
+export type {
+	ImageSequenceFormat,
+	ImageSequenceManifest,
+	ImageSequenceOutput,
+	ImageSequenceOutputPrefix,
+	RendererOutput,
+	ServerlessRenderOutput,
+} from './image-sequence';
+export type {ExpensiveChunk} from './most-expensive-chunks';
+export type {OverallRenderProgress} from './overall-render-progress';
+export type {
+	BucketWithLocation,
+	CallFunctionAsync,
+	CallFunctionStreaming,
+	CallFunctionSync,
+	DeleteFunction,
+	EstimatePrice,
+	FunctionInfo,
+	GetAccountId,
+	GetFunctions,
+	GetLoggingUrlForMethod,
+	GetLoggingUrlForRendererFunction,
+	GetOutputUrl,
+	ParseFunctionName,
+	WriteFileInput,
+} from './aws-operations';
+export type {RenderMetadata} from './render-metadata';
+export type {CleanupInfo, GenericRenderProgress} from './render-progress';
+export type {
+	RendererFunctionTransport,
+	S3RendererArtifactMetadata,
+	S3RendererStatus,
+} from './renderer-transport';
+export type {OrError, ServerlessReturnValues} from './return-values';
+export type {SerializedArtifact} from './serialize-artifact';
+export type {
+	AfterRenderCost,
+	CustomCredentials,
+	CustomCredentialsWithoutSensitiveData,
+	DeleteAfter,
+	OutNameInput,
+	OutNameInputWithKey,
+	OutNameInputWithoutCredentials,
+	OutNameOutput,
+	PostRenderData,
+	Privacy,
+	RenderOutput,
+	SeparateAudioOutput,
+	SerializedInputProps,
+	ServerlessCodec,
+	ServerlessPayload,
+	ServerlessPayloads,
+	ServerlessStartPayload,
+	ServerlessStatusPayload,
+	WebhookOption,
+} from './shared-constants';
+export type {
+	BinaryMessageType,
+	GetBinaryPayloadSink,
+	MessageTypeId,
+	OnMessage,
+	OnStream,
+	StreamingMessage,
+	StreamingPayload,
+} from './streaming/streaming';
+export type {
+	CallFunctionOptions,
+	ChunkRetry,
+	CostsInfo,
+	ObjectChunkTimingData,
+	ParsedTiming,
+	ReceivedArtifact,
+	RenderStillFunctionResponsePayload,
+} from './types';
+export type {
+	WebhookErrorPayload,
+	WebhookPayload,
+	WebhookSuccessPayload,
+	WebhookTimeoutPayload,
+} from './webhook-types';
+export type {
+	EnhancedErrorInfo,
+	FunctionErrorInfo,
+} from './write-error-to-storage';
+
+export * as LambdaClientInternals from './internals';

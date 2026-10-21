@@ -64,8 +64,8 @@ Never leave both a fallback and the media it replaces active. A visual overlay r
 
 1. Find the `<Composition>` and note its `fps`, `durationInFrames`, `width` and `height`. If it has `calculateMetadata`, read what that function returns, and use the input props that are actually being used.
 2. Walk the component tree and collect every media element with a real `src`.
-3. For each media element, compute its **absolute start frame** by adding up the `from` prop of every `<Sequence>` it is nested in. `<Series>` and `<TransitionSeries>` place their children back to back, so accumulate their `durationInFrames`.
-4. Note `durationInFrames` of the closest wrapping `<Sequence>`, or the remaining composition duration if there is none.
+3. For each media element, compute its **absolute start frame** from its own `from` prop plus the timing offsets of its ancestors, including `<Sequence>` and other components that accept timing props. `<Series>` and `<TransitionSeries>` place their children back to back, so accumulate their `durationInFrames`.
+4. Note the media element's own `durationInFrames`, if set. Limit its active interval to the duration limits of its ancestors and the composition, as well as the available source duration.
 5. Note `trimBefore` and `trimAfter`, which are in frames and describe which part of the source file is used.
 6. Inventory every visible or audible construct that is not faithfully covered by those native clips. Group dependent constructs into the smallest intervals that can be rendered without changing their appearance or sound.
 
@@ -274,10 +274,13 @@ Write one video track and one audio track unless the composition clearly needs m
 
 The example maps to this composition at 30fps:
 
-```tsx
-<Sequence from={30} durationInFrames={150}>
-  <Video src={staticFile("interview.mp4")} trimBefore={60} />
-</Sequence>
+```tsx title="MyComposition.tsx"
+<Video
+  src={staticFile("interview.mp4")}
+  from={30}
+  durationInFrames={150}
+  trimBefore={60}
+/>
 <Audio src={staticFile("music.mp3")} />
 ```
 

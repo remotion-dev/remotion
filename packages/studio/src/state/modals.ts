@@ -169,7 +169,6 @@ export type TranscriptionModalState = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
-		premountFor: number | null;
 	} | null;
 };
 
@@ -322,6 +321,14 @@ export type ModalState =
 				line: number;
 			};
 			wrapper: NodeWrapper;
+	  }
+	| {
+			type: 'unwrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
 	  }
 	| {
 			type: 'browser-studio-experimental-notice';

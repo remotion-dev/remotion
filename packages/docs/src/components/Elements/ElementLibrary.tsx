@@ -1,5 +1,10 @@
 import Link from '@docusaurus/Link';
-import {isInsideStudio, setStudioDragData} from '@remotion/studio-protocol';
+import useBrokenLinks from '@docusaurus/useBrokenLinks';
+import {
+	isInsideStudio,
+	setStudioDragData,
+	subscribeToCaptionStyleSelection,
+} from '@remotion/studio-protocol';
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
@@ -9,6 +14,7 @@ import {
 	setElementDragImage,
 } from './element-drag-data';
 import {
+	getElementCategoryHeadingId,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 	type ElementCategory,
@@ -43,9 +49,16 @@ const usePrefersReducedMotion = () => {
 const ElementCard: React.FC<{
 	readonly definition: ElementDefinition;
 	readonly isCaptionPicker: boolean;
+	readonly isSelected: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCode: string;
-}> = ({definition, isCaptionPicker, prefersReducedMotion, sourceCode}) => {
+}> = ({
+	definition,
+	isCaptionPicker,
+	isSelected,
+	prefersReducedMotion,
+	sourceCode,
+}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
@@ -137,6 +150,7 @@ const ElementCard: React.FC<{
 							onClick: onInstallClick,
 							disabled: isInstalling,
 							'aria-label': `Select ${definition.displayName}`,
+							'aria-pressed': isSelected,
 						}
 					: {to: getElementDocumentationUrl(definition)})}
 				onBlur={() => setIsFocused(false)}
@@ -220,11 +234,13 @@ const ElementCard: React.FC<{
 const ElementGrid: React.FC<{
 	readonly definitions: readonly ElementDefinition[];
 	readonly isCaptionPicker: boolean;
+	readonly selectedSlug: string | null;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
 }> = ({
 	definitions,
 	isCaptionPicker,
+	selectedSlug,
 	prefersReducedMotion,
 	sourceCodeBySlug,
 }) => {
@@ -249,6 +265,7 @@ const ElementGrid: React.FC<{
 						key={definition.slug}
 						definition={definition}
 						isCaptionPicker={isCaptionPicker}
+						isSelected={isCaptionPicker && definition.slug === selectedSlug}
 						prefersReducedMotion={prefersReducedMotion}
 						sourceCode={sourceCode}
 					/>
@@ -262,21 +279,112 @@ export const ElementLibrary: React.FC<{
 	readonly category: ElementCategory | null;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
 }> = ({category, sourceCodeBySlug}) => {
-	const sections = getElementLibrarySections(category);
+	const brokenLinks = useBrokenLinks();
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const [isStudioEmbed, setIsStudioEmbed] = useState(false);
 	const [isCaptionPicker, setIsCaptionPicker] = useState(false);
+	const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+	const [query, setQuery] = useState('');
+	const searchRef = useRef<HTMLInputElement>(null);
+	const searchTerms = isStudioEmbed
+		? query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+		: [];
+	const sections = getElementLibrarySections(category)
+		.map((section) => ({
+			...section,
+			definitions: section.definitions.filter((definition) => {
+				const searchText = [
+					definition.displayName,
+					definition.description,
+					definition.slug.replace(/[-/]/g, ' '),
+					section.label,
+				]
+					.join(' ')
+					.toLowerCase();
+				return searchTerms.every((term) => searchText.includes(term));
+			}),
+		}))
+		.filter((section) => section.definitions.length > 0);
 
 	useLayoutEffect(() => {
+		const isEmbedded = isInsideStudio();
+		setIsStudioEmbed(isEmbedded);
 		setIsCaptionPicker(
-			isInsideStudio() &&
+			isEmbedded &&
 				new URLSearchParams(window.location.search).get(
 					'remotion-studio-context',
 				) === 'captions',
 		);
 	}, []);
 
+	useEffect(() => subscribeToCaptionStyleSelection(setSelectedSlug), []);
+
 	return (
 		<div className={styles.library}>
+			{isStudioEmbed ? (
+				<div className={styles.searchToolbar}>
+					<div
+						aria-label="Elements"
+						className={styles.searchField}
+						role="search"
+					>
+						<svg
+							aria-hidden="true"
+							className={styles.searchIcon}
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							strokeWidth="1.75"
+						>
+							<circle cx="10.5" cy="10.5" r="6.5" />
+							<path d="m16 16 4.5 4.5" />
+						</svg>
+						<input
+							ref={searchRef}
+							aria-label="Search elements"
+							className={styles.searchInput}
+							onChange={(event) => setQuery(event.currentTarget.value)}
+							onKeyDown={(event) => {
+								if (event.key === 'Escape' && query !== '') {
+									event.preventDefault();
+									event.stopPropagation();
+									setQuery('');
+								}
+							}}
+							placeholder="Search elements…"
+							type="search"
+							value={query}
+						/>
+						{query !== '' ? (
+							<button
+								aria-label="Clear search"
+								className={styles.clearSearch}
+								onClick={() => {
+									setQuery('');
+									searchRef.current?.focus();
+								}}
+								type="button"
+							>
+								<svg
+									aria-hidden="true"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									strokeWidth="1.75"
+								>
+									<path d="m6 6 12 12M6 18 18 6" />
+								</svg>
+							</button>
+						) : null}
+					</div>
+				</div>
+			) : null}
+			{sections.length === 0 ? (
+				<div className={styles.emptyState}>
+					<strong>No elements found</strong>
+					<p>Try another search or browse another category.</p>
+				</div>
+			) : null}
 			{sections.map((section) => {
 				if (category !== null) {
 					return (
@@ -288,6 +396,7 @@ export const ElementLibrary: React.FC<{
 							<ElementGrid
 								definitions={section.definitions}
 								isCaptionPicker={isCaptionPicker}
+								selectedSlug={selectedSlug}
 								prefersReducedMotion={prefersReducedMotion}
 								sourceCodeBySlug={sourceCodeBySlug}
 							/>
@@ -295,7 +404,8 @@ export const ElementLibrary: React.FC<{
 					);
 				}
 
-				const categoryHeadingId = `element-category-${section.category}`;
+				const categoryHeadingId = getElementCategoryHeadingId(section.category);
+				brokenLinks.collectAnchor(categoryHeadingId);
 
 				return (
 					<section
@@ -303,12 +413,16 @@ export const ElementLibrary: React.FC<{
 						aria-labelledby={categoryHeadingId}
 						className={styles.section}
 					>
-						<h2 className={styles.categoryTitle} id={categoryHeadingId}>
+						<h2
+							className={`anchor ${styles.categoryTitle}`}
+							id={categoryHeadingId}
+						>
 							{section.label}
 						</h2>
 						<ElementGrid
 							definitions={section.definitions}
 							isCaptionPicker={isCaptionPicker}
+							selectedSlug={selectedSlug}
 							prefersReducedMotion={prefersReducedMotion}
 							sourceCodeBySlug={sourceCodeBySlug}
 						/>

@@ -10,11 +10,10 @@ import {
 	Internals,
 	type CanUpdateSequencePropStatus,
 	type InteractivitySchema,
-	type OverrideIdToNodePaths,
 	type PropStatuses,
 	type SequencePropsSubscriptionKey,
-	type TSequence,
 } from 'remotion';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
 	getKeyframePlaybackRate,
@@ -82,13 +81,11 @@ const getKeyframeFieldIdentity = (
 
 const resolveKeyframeField = ({
 	selection,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	readonly selection: TimelineSelection;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }): ResolvedKeyframeField | null => {
 	if (
@@ -106,8 +103,7 @@ const resolveKeyframeField = ({
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo: selection.nodePathInfo,
 	});
 	if (!track || track.nodePathInfo === null) {
@@ -209,13 +205,11 @@ const areResolvedFieldsEqual = (
 
 export const getKeyframeClipboardDataFromSelections = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	readonly selections: readonly TimelineSelection[];
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }): KeyframeClipboardData | null => {
 	const keyframeSelections = selections.filter(
@@ -237,8 +231,7 @@ export const getKeyframeClipboardDataFromSelections = ({
 		selection,
 		resolved: resolveKeyframeField({
 			selection,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			propStatuses,
 		}),
 	}));
@@ -310,8 +303,7 @@ export const getKeyframeClipboardDataFromSelections = ({
 	for (const easingSelection of easingSelections) {
 		const resolved = resolveKeyframeField({
 			selection: easingSelection,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			propStatuses,
 		});
 		if (
@@ -407,15 +399,13 @@ export const getPasteKeyframeTarget = ({
 	selectedItems,
 	payload,
 	timelinePosition,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly payload: KeyframeClipboardData;
 	readonly timelinePosition: number;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }): PasteKeyframeTarget => {
 	if (selectedItems.length === 0) {
@@ -444,8 +434,7 @@ export const getPasteKeyframeTarget = ({
 	const resolvedFields = resolvedSelectedItems.map((item) =>
 		resolveKeyframeField({
 			selection: item,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			propStatuses,
 		}),
 	);

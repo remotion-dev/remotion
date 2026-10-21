@@ -115,9 +115,11 @@ import {
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
+import {HtmlInCanvasFallbackExample} from './HtmlInCanvas/fallback';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
+import {KeyframeTrimTestbed} from './KeyframeTrimTestbed';
 import {Layers} from './Layers';
 import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
@@ -189,8 +191,12 @@ import {VideoTextureDemo} from './ThreeScene/Scene';
 import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
+import {TrackAudioIntrinsicDurationRepro} from './TrackAudioIntrinsicDurationRepro';
 import {AudioTransition} from './Transitions/AudioTransition';
-import {BasicTransition} from './Transitions/BasicTransition';
+import {
+	BasicTransition,
+	BasicTransitionSceneB,
+} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
 import {
 	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
@@ -1268,6 +1274,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-fallback"
+						component={HtmlInCanvasFallbackExample}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={180}
+					/>
 					<Composition
 						id="html-in-canvas-nested"
 						component={HtmlInCanvasNested}
@@ -2457,7 +2471,15 @@ export const Index: React.FC = () => {
 					component={BasicTransition}
 					fps={30}
 					height={1080}
-					durationInFrames={300}
+					durationInFrames={336}
+					width={1920}
+				/>
+				<Composition
+					id="transition-scene-b"
+					component={BasicTransitionSceneB}
+					fps={30}
+					height={1080}
+					durationInFrames={30}
 					width={1920}
 				/>
 				<Composition
@@ -3028,6 +3050,14 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="tracks">
 				<Composition
+					id="track-audio-intrinsic-duration-repro"
+					component={TrackAudioIntrinsicDurationRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
 					id="track-sequence-props"
 					component={TrackSequenceProps}
 					width={1280}
@@ -3127,6 +3157,14 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="keyframe-trim-testbed"
+					component={KeyframeTrimTestbed}
+					width={1920}
+					height={1440}
+					fps={30}
+					durationInFrames={180}
+				/>
 				<Composition
 					id="SourceSubscriptionChurn"
 					component={SourceSubscriptionChurn}

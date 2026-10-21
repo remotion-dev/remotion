@@ -32,7 +32,7 @@ Each track includes `sequence` registration data, `depth`, `nodePathInfo`, and t
 
 #### sequence.controls<AvailableFrom v="4.0.529" />
 
-The interactivity data of the mounted element, or `null` for elements that do not register any. The `<Canvas>` populates it for built-in elements and for components wrapped with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+The interactivity data of the mounted element, or `null` for elements that do not register any. The `<Canvas>` populates it for built-in elements and for components wrapped with [`Interactive.create()`](/docs/interactive-create).
 
 `schema` is the element's interactivity schema, describing the editable props, their types, ranges and defaults. `runtimeValues` is a store of the current prop values in dot notation, for example `style.opacity`; read it with `getSnapshot()` and `subscribe()`. `supportsEffects` tells whether effects can be added to the element, `componentIdentity` identifies the component and `overrideId` identifies the JSX element the sequence was created from. Sequences rendered from the same element, for example in a `.map()` loop, share an `overrideId`.
 

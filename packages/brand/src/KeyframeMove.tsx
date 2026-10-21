@@ -7,16 +7,18 @@ import {
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
+import {CloseUpFrame} from './CloseUpFrame';
 
-export const KeyframeMovePreview = () => {
+const KeyframeMoveContent = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 3860,
 				height: 2284,
-				translate: '-777.7px -602px',
+				translate: '-1197.7px -902px',
 				rotate: '0.797028 0.589106 -0.13304 28.019126deg',
 				scale: 0.67,
 			}}
@@ -876,6 +878,14 @@ export const KeyframeMovePreview = () => {
 				}}
 			/>
 		</AbsoluteFill>
+	);
+};
+
+export const KeyframeMovePreview = () => {
+	return (
+		<CloseUpFrame>
+			<KeyframeMoveContent />
+		</CloseUpFrame>
 	);
 };
 

@@ -1,4 +1,8 @@
 import {getVideoMetadata} from '@remotion/media-utils';
+import {
+	readMediaMetadataFromPersistentCache,
+	writeMediaMetadataToPersistentCache,
+} from '@remotion/timeline-utils';
 import type {
 	FrameRateMetrics,
 	InputAudioTrack,
@@ -9,6 +13,8 @@ import {useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {getDurationOrCompute} from './get-duration-or-compute';
 
+// Persisted by the timeline cache of @remotion/timeline-utils. Bump its
+// SCHEMA_VERSION when changing this type.
 export type MediaMetadata = {
 	duration: number;
 	format: string | null;
@@ -185,9 +191,23 @@ export const getMediaMetadata = (
 		return pendingRequest;
 	}
 
-	const request = getMediabunnyMetadata(src)
-		.catch(() => null)
-		.then((metadata) => metadata ?? getFallbackVideoMetadata(src))
+	// The timeline can only draw a media clip once its duration is known, so
+	// metadata from a previous page load avoids waiting for the network.
+	const request = readMediaMetadataFromPersistentCache(src)
+		.then(async (persisted) => {
+			if (persisted) {
+				return persisted as MediaMetadata;
+			}
+
+			const metadata =
+				(await getMediabunnyMetadata(src).catch(() => null)) ??
+				(await getFallbackVideoMetadata(src));
+			if (metadata) {
+				writeMediaMetadataToPersistentCache({src, mediaMetadata: metadata});
+			}
+
+			return metadata;
+		})
 		.then((metadata) => {
 			if (metadata) {
 				cache.set(src, metadata);
@@ -207,13 +227,14 @@ export const getMediaMetadata = (
 export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 	const resolvedSrc = Internals.usePreload(src ?? '');
 	const metadataSrc = src === null ? null : resolvedSrc;
-	const [mediaMetadata, setMediaMetadata] = useState<MediaMetadata | null>(
-		metadataSrc ? getCachedMediaMetadata(metadataSrc) : null,
-	);
+	const [state, setState] = useState(() => ({
+		src: metadataSrc,
+		metadata: metadataSrc ? getCachedMediaMetadata(metadataSrc) : null,
+	}));
 
 	useEffect(() => {
 		const cached = metadataSrc ? getCachedMediaMetadata(metadataSrc) : null;
-		setMediaMetadata(cached);
+		setState({src: metadataSrc, metadata: cached});
 
 		if (!metadataSrc || cached) {
 			return;
@@ -227,14 +248,14 @@ export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 					return;
 				}
 
-				setMediaMetadata(metadata);
+				setState({src: metadataSrc, metadata});
 			})
 			.catch(() => {
 				if (cancelled) {
 					return;
 				}
 
-				setMediaMetadata(null);
+				setState({src: metadataSrc, metadata: null});
 			});
 
 		return () => {
@@ -242,5 +263,6 @@ export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 		};
 	}, [metadataSrc]);
 
-	return mediaMetadata;
+	// A changed source must not borrow the previous source's duration for a render.
+	return state.src === metadataSrc ? state.metadata : null;
 };

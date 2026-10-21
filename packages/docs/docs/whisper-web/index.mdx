@@ -7,8 +7,10 @@ crumb: 'Transcribe audio in browser'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-:::warning
-Unstable API: This package is experimental and might not become stable. Prefer [`@remotion/whisper-webgpu`](/docs/whisper-webgpu), which uses WebGPU and does not require cross-origin isolation.
+# ~~@remotion/whisper-web~~
+
+:::info Deprecated
+`@remotion/whisper-web` is deprecated and will no longer be published starting with Remotion 5.0. Migrate to [`@remotion/whisper-webgpu`](/docs/whisper-webgpu), which uses WebGPU and does not require cross-origin isolation. Existing 4.x versions remain available.
 :::
 
 Similar to [@remotion/install-whisper-cpp](/docs/install-whisper-cpp) but for the browser. Allows you to transcribe audio locally in the browser, with the help of WASM.

@@ -2,8 +2,8 @@ import type {CodemodProject} from './codemod-project';
 import {findProjectFile} from './internals';
 import {type NodeReference} from './node-references';
 import {findJsxElementAtNodePath} from './sequence-props';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {findEffectsAttr} from './sequence-props/can-update-effect-props';
-import {parseAst} from './sequence-props/parse-ast';
 
 export type EffectReference = NodeReference & {effectIndex: number};
 
@@ -16,7 +16,7 @@ export const getEffectSource = ({
 }) => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
-	const ast = parseAst(input);
+	const {ast} = getReadOnlySourceSnapshot(input);
 	const jsx = findJsxElementAtNodePath(ast, node.nodePath);
 	if (!jsx) {
 		throw new Error('Could not find the JSX node');

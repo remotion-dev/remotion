@@ -5,14 +5,17 @@ title: 'Preloading assets'
 crumb: '@remotion/player'
 ---
 
-By default, assets such as videos, audio, or images will only be loaded as they enter the video. When using the [Remotion Player](/docs/terminology/player), you may want to preload those assets beforehand to make them play immediately once they enter the video.
+Assets should be preloaded before entering the scene so they are ready once they should be played.
 
-Two ways of preloading are supported:
+The recommended way is to use a [**default premounting for all items in the `<Player />`**](/docs/player/premounting#default-premounting-in-the-player).
 
-- Signaling to the browser that assets should be loaded using the [`@remotion/preload`](/docs/preload) APIs
-- Fetching the assets beforehand and then playing them locally using [`prefetch()`](/docs/prefetch)
+This article documents 2 other, **not recommended** approaches which were developed when Remotion was not yet as mature.
 
 ## Preloading videos using `@remotion/preload`
+
+:::warn
+Don't use this for preloading audio and video: It only works for native HTML5 tags such as `<video>` and `<audio>`, but not for Remotion's own implementations such as `<Video>` and `<Audio>`.
+:::
 
 By preloading, a `<link type='preload'>` tag is placed on the page, signaling to the browser that it may start loading the media.  
 For videos, use [`preloadVideo()`](/docs/preload/preload-video) API, for audio use [`preloadAudio()`](/docs/preload/preload-audio), for images use [`preloadImage()`](/docs/preload/preload-image). Perform the preload outside a component or inside an [`useEffect()`](https://react.dev/reference/react/useEffect).
@@ -32,8 +35,8 @@ unpreloadAudio();
 
 _Available in v3.2.23_
 
-:::note
-Prefetch is not recommended for most cases. [See recommendations](/docs/troubleshooting/player-flicker#strategies).
+:::warn
+Don't use this: It first needs to download the whole media and keep it in memory.
 :::
 
 By prefetching, the full media is downloaded and turned into a Blob URL using [`URL.createObjectURL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL).  
@@ -53,10 +56,6 @@ free();
 ```
 
 ## `@remotion/preload` vs. `prefetch()`
-
-[`prefetch()`](/docs/prefetch) is a more reliable way of ensuring the media is ready when it needs to displayed, but the asset needs to be downloaded in full for it.
-
-[`@remotion/preload`](/docs/preload) is preferrable if the asset is large since you don't have to wait for it finish downloading,
 
 <table>
   <tr>

@@ -1,7 +1,8 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
+	Interactive,
 	interpolate,
 	Sequence,
 	Series,
@@ -339,18 +340,18 @@ const Zod4: React.FC = () => {
 				</Stamp>
 			</div>
 			{frame >= 124 ? (
-				<Sequence from={124} layout="none">
-					<Burst
-						x={250}
-						y={260}
-						colors={[
-							colors.blue,
-							accents.agents,
-							accents.bundling,
-							colors.success,
-						]}
-					/>
-				</Sequence>
+				<Burst
+					from={124}
+					style={{overflow: 'visible', flexDirection: 'column'}}
+					x={250}
+					y={260}
+					colors={[
+						colors.blue,
+						accents.agents,
+						accents.bundling,
+						colors.success,
+					]}
+				/>
 			) : null}
 		</Panel>
 	);
@@ -413,14 +414,17 @@ const LetUsKnow: React.FC = () => (
 	</div>
 );
 
-export const AgentsScene: React.FC = () => {
+const AgentsSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const captions = getCaptionPlacement(frame, layout);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<Backdrop accent={accents.agents} />
-			<Stage keyframes={layout}>
+			<Stage
+				style={{overflow: 'visible', flexDirection: 'column'}}
+				keyframes={layout}
+			>
 				<Series>
 					<Series.Sequence
 						name="Better with agents"
@@ -1147,66 +1151,85 @@ export const AgentsScene: React.FC = () => {
 				]}
 			/>
 
-			<Audio
-				name="Sticker whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={1}
-				volume={0.3}
-			/>
-			<Audio
-				name="Split whip"
-				src="https://remotion.media/whip.wav"
-				from={92}
-				volume={0.16}
-			/>
-			<Audio
-				name="Rough edges"
-				src="https://remotion.media/windows-xp-error.wav"
-				from={272}
-				volume={0.16}
-			/>
-			<Audio
-				name="Fixed"
-				src="https://remotion.media/ding.wav"
-				from={362}
-				volume={0.2}
-			/>
-			<Audio
-				name="Studio running"
-				src="https://remotion.media/mouse-click.wav"
-				from={408}
-				volume={0.3}
-			/>
-			<Audio
-				name="Prevented"
-				src="https://remotion.media/switch.wav"
-				from={562}
-				volume={0.24}
-			/>
-			<Audio
-				name="Error gone"
-				src="https://remotion.media/whoosh.wav"
-				from={720}
-				volume={0.32}
-			/>
-			<Audio
-				name="Finally stamp"
-				src="https://remotion.media/shutter-modern.wav"
-				from={826}
-				volume={0.22}
-			/>
-			<Audio
-				name="Zod 4"
-				src="https://remotion.media/yippee.wav"
-				from={874}
-				volume={0.14}
-			/>
-			<Audio
-				name="Let us know"
-				src="https://remotion.media/mouse-click.wav"
-				from={906}
-				volume={0.3}
-			/>
-		</AbsoluteFill>
+			<Track name="Sound effects">
+				<Audio
+					durationInFrames={5}
+					name="Sticker whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={1}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Split whip"
+					src="https://remotion.media/whip.wav"
+					from={92}
+					volume={0.16}
+				/>
+				<Audio
+					durationInFrames={30}
+					name="Rough edges"
+					src="https://remotion.media/windows-xp-error.wav"
+					from={272}
+					volume={0.16}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="Fixed"
+					src="https://remotion.media/ding.wav"
+					from={362}
+					volume={0.2}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Studio running"
+					src="https://remotion.media/mouse-click.wav"
+					from={408}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={10}
+					name="Prevented"
+					src="https://remotion.media/switch.wav"
+					from={562}
+					volume={0.24}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Error gone"
+					src="https://remotion.media/whoosh.wav"
+					from={720}
+					volume={0.32}
+				/>
+				<Audio
+					durationInFrames={15}
+					name="Finally stamp"
+					src="https://remotion.media/shutter-modern.wav"
+					from={826}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={80}
+					name="Zod 4"
+					src="https://remotion.media/yippee.wav"
+					from={874}
+					volume={0.14}
+				/>
+			</Track>
+			<Track name="Overlapping sound effects">
+				<Audio
+					durationInFrames={12}
+					name="Let us know"
+					src="https://remotion.media/mouse-click.wav"
+					from={906}
+					volume={0.3}
+				/>
+			</Track>
+		</>
 	);
 };
+
+export const AgentsScene = Interactive.create({
+	Component: AgentsSceneInner,
+	layout: 'absolute-fill',
+});

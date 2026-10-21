@@ -378,6 +378,7 @@ export class MediaPlayer {
 				}
 
 				this.videoIteratorManager = await videoIteratorManager({
+					getIsDisposed: () => this.isDisposalError(),
 					videoTrack,
 					delayPlaybackHandleIfNotPremounting:
 						this.delayPlaybackHandleIfNotPremounting,
@@ -394,6 +395,10 @@ export class MediaPlayer {
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
 				});
+			}
+
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
 			}
 
 			const startTime = this.getTrimmedTime(startTimeUnresolved);
@@ -478,6 +483,10 @@ export class MediaPlayer {
 					'[MediaPlayer] Failed to start audio and video iterators',
 					error,
 				);
+			}
+
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
 			}
 
 			return {type: 'success', durationInSeconds};
@@ -772,6 +781,9 @@ export class MediaPlayer {
 		}
 
 		this.disposed = true;
+		// Cancel pending paints before waiting for initialization to settle.
+		this.nonceManager.createAsyncOperation();
+		this.videoIteratorManager?.destroy();
 
 		if (this.initializationPromise) {
 			try {
@@ -784,8 +796,6 @@ export class MediaPlayer {
 			}
 		}
 
-		// Mark all async operations as stale
-		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroyIterator();
 		// Release our reference to the shared Input; it is only disposed once the

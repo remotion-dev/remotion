@@ -270,9 +270,8 @@ const PoppingWordCaptionsContent: React.FC<PoppingWordCaptionsProps> = ({
 	);
 };
 
-export const PoppingWordCaptions = Interactive.withSchema({
+export const PoppingWordCaptions = Interactive.create({
 	Component: PoppingWordCaptionsContent,
 	componentName: '<PoppingWordCaptions>',
 	schema: poppingWordCaptionsSchema,
-	wrapInSequence: true,
 });

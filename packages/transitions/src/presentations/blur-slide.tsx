@@ -1,4 +1,4 @@
-import type {EffectsProp} from 'remotion';
+import type {EffectsProp, EffectsOutputSize} from 'remotion';
 import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import {makeHtmlInCanvasPresentation} from '../html-in-canvas-presentation';
 import type {TransitionPresentation} from '../types';
@@ -384,8 +384,16 @@ export const blurSlideShader = (
 const makeBlurSlide = makeHtmlInCanvasPresentation(blurSlideShader);
 
 export const blurSlide = (
-	props: BlurSlideProps & {effects?: EffectsProp} = {},
-): TransitionPresentation<BlurSlideProps & {effects?: EffectsProp}> => {
+	props: BlurSlideProps & {
+		effects?: EffectsProp;
+		effectsOutputSize?: EffectsOutputSize;
+	} = {},
+): TransitionPresentation<
+	BlurSlideProps & {
+		effects?: EffectsProp;
+		effectsOutputSize?: EffectsOutputSize;
+	}
+> => {
 	validateProps(props);
 	return makeBlurSlide(props);
 };

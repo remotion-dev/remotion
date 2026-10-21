@@ -339,10 +339,7 @@ const YouTubeEndCardInner = () => {
 	);
 };
 
-export const YouTubeEndCard = Interactive.withSchema({
+export const YouTubeEndCard = Interactive.create({
 	Component: YouTubeEndCardInner,
-	componentName: 'YouTubeEndCard',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

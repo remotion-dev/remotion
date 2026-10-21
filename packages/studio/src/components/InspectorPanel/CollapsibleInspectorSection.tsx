@@ -5,10 +5,11 @@ import {useInspectorSectionExpanded} from './use-inspector-section-expanded';
 
 export const CollapsibleInspectorSection: React.FC<{
 	readonly children: React.ReactNode;
+	readonly bodyPaddingBottom: number;
 	readonly collapsible: boolean;
 	readonly label: string;
 	readonly sectionId: string;
-}> = ({children, collapsible, label, sectionId}) => {
+}> = ({children, bodyPaddingBottom, collapsible, label, sectionId}) => {
 	const [expanded, setExpanded] = useInspectorSectionExpanded(sectionId);
 
 	return (
@@ -21,7 +22,10 @@ export const CollapsibleInspectorSection: React.FC<{
 					onToggle={collapsible ? () => setExpanded(!expanded) : null}
 				/>
 			</InspectorSectionHeader>
-			<InspectorSectionBody expanded={!collapsible || expanded}>
+			<InspectorSectionBody
+				expanded={!collapsible || expanded}
+				paddingBottom={bodyPaddingBottom}
+			>
 				{children}
 			</InspectorSectionBody>
 		</>

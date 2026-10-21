@@ -1,13 +1,12 @@
 import {S3Client} from '@aws-sdk/client-s3';
-import type {GetOutputUrl} from '@remotion/serverless-client';
-import {getExpectedOutName} from '@remotion/serverless-client';
-import type {AwsProvider} from './aws-provider';
+import type {GetOutputUrl} from './aws-operations';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {REMOTION_BUCKET_PREFIX} from './constants';
+import {getExpectedOutName} from './expected-out-name';
 
 const {endpointProvider} = new S3Client({region: 'us-east-1'}).config;
 
-export const getOutputUrlFromMetadata: GetOutputUrl<AwsProvider> = ({
+export const getOutputUrlFromMetadata: GetOutputUrl = ({
 	renderMetadata,
 	bucketName,
 	customCredentials,

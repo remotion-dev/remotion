@@ -2,11 +2,13 @@ import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import {useCallback, useContext, useRef} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
-import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {getTimelineSequenceTimingLimits} from './get-timeline-sequence-timing-limits';
 
 export const useClampSequenceTimingValue = () => {
+	const calculateTimeline = useTimelineCalculator();
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -34,10 +36,19 @@ export const useClampSequenceTimingValue = () => {
 			let limits = limitsRef.current.get(key);
 			if (!limits) {
 				const sequences = sequencesRef.current;
-				const tracks = calculateTimeline({
+				const {tracks} = calculateTimeline({
 					sequences,
 					overrideIdsToNodePaths: mappingsRef.current,
 				});
+				const propStatuses =
+					fieldKey === 'from'
+						? propStatusesRef.current
+						: getKeyframeTrimConstraints({
+								propStatuses: propStatusesRef.current,
+								overrideIdsToNodePaths: mappingsRef.current,
+								sequences,
+								affectedNodePaths: [nodePath],
+							});
 				const matching = tracks.filter(
 					(track) =>
 						track.nodePathInfo &&
@@ -47,7 +58,7 @@ export const useClampSequenceTimingValue = () => {
 				);
 				for (const track of matching) {
 					const next = getTimelineSequenceTimingLimits({
-						propStatuses: propStatusesRef.current,
+						propStatuses,
 						movingSequenceIds: null,
 						track,
 						tracks,
@@ -114,7 +125,13 @@ export const useClampSequenceTimingValue = () => {
 				),
 			);
 		},
-		[mappingsRef, sequencesRef, propStatusesRef, video?.durationInFrames],
+		[
+			calculateTimeline,
+			mappingsRef,
+			sequencesRef,
+			propStatusesRef,
+			video?.durationInFrames,
+		],
 	);
 	return {clampTimingValue, clearTimingLimits};
 };

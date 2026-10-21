@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import {Editor} from './components/Editor';
 import {EditorContexts} from './components/EditorContexts';
 import {ServerDisconnected} from './components/Notifications/ServerDisconnected';
+import {PlaybackPitchSettingsProvider} from './components/PlaybackPitchSettingsProvider';
 import {SequenceActivitySettingsProvider} from './components/SequenceActivitySettingsProvider';
 import {StaticFilesProvider} from './components/use-static-files';
 import {FastRefreshProvider} from './FastRefreshProvider';
@@ -79,7 +80,9 @@ export const Studio: React.FC<{
 	return (
 		<FastRefreshProvider>
 			<SequenceActivitySettingsProvider>
-				<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+				<PlaybackPitchSettingsProvider>
+					<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+				</PlaybackPitchSettingsProvider>
 			</SequenceActivitySettingsProvider>
 		</FastRefreshProvider>
 	);

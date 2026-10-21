@@ -6,7 +6,7 @@ import type {
 	ExtrapolateType,
 	InterpolateOptions,
 } from './interpolate.js';
-import {interpolate} from './interpolate.js';
+import {interpolate, prepareNumericInterpolation} from './interpolate.js';
 import type {
 	CanUpdateSequencePropStatusEasing,
 	CanUpdateSequencePropStatusKeyframed,
@@ -64,6 +64,57 @@ const easingToFn = ({
 			throw new TypeError(
 				`Unsupported easing: ${JSON.stringify(easing satisfies never)}`,
 			);
+	}
+};
+
+export const prepareNumericKeyframedStatus = ({
+	forceSpringAllowTail,
+	status,
+}: {
+	forceSpringAllowTail: boolean | null;
+	status: CanUpdateSequencePropStatusKeyframed;
+}): ((frame: number) => number | null) | null => {
+	if (
+		status.interpolationFunction !== 'interpolate' ||
+		status.keyframes.length === 0
+	) {
+		return null;
+	}
+
+	const sortedKeyframes = [...status.keyframes].sort(
+		(a, b) => a.frame - b.frame,
+	);
+	const inputRange = sortedKeyframes.map((keyframe) => keyframe.frame);
+	const outputRange = sortedKeyframes.map((keyframe) => keyframe.value);
+	if (
+		!outputRange.every((value): value is number => typeof value === 'number')
+	) {
+		return null;
+	}
+
+	try {
+		const evaluate = prepareNumericInterpolation({
+			inputRange,
+			outputRange,
+			options: {
+				easing: status.easing.map((easing) =>
+					easingToFn({easing, forceSpringAllowTail}),
+				),
+				extrapolateLeft: status.clamping.left,
+				extrapolateRight: status.clamping.right,
+				output: status.output,
+				posterize: status.posterize,
+			},
+		});
+		return (frame) => {
+			try {
+				return evaluate(frame);
+			} catch {
+				return null;
+			}
+		};
+	} catch {
+		return null;
 	}
 };
 

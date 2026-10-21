@@ -82,6 +82,7 @@ export const GuideInspector: React.FC<{
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<CollapsibleInspectorSection
+				bodyPaddingBottom={8}
 				collapsible
 				label={`${guide.orientation === 'vertical' ? 'Vertical' : 'Horizontal'} guide`}
 				sectionId="guide"

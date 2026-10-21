@@ -446,7 +446,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 		<Internals.ResolveCompositionContext.Provider
 			value={resolvedConfigsIncludingStaticOnes}
 		>
-			{children}
+			<Internals.VideoProvider>{children}</Internals.VideoProvider>
 		</Internals.ResolveCompositionContext.Provider>
 	);
 };

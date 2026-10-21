@@ -14,14 +14,14 @@ import {reorderSequence} from '../reorder-sequence-api';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {scrollableRef} from './timeline-refs';
 import {
+	getTimelineContentWidth,
 	SCROLL_INCREMENT,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
 import {
 	isTimelineSelectionModifierEvent,
-	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
-import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const SERIES_REORDER_SEAM_SNAP_DISTANCE = 12;
 
@@ -29,9 +29,8 @@ export const useSeriesReorder = (
 	items: readonly TimelineTrackWithDisplayGroup[],
 ) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const timelineWidth = useContext(TimelineWidthContext);
 	const video = Internals.useVideo();
-	const {selectedItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [dropIndicatorLeft, setDropIndicatorLeft] = useState<number | null>(
 		null,
 	);
@@ -44,13 +43,14 @@ export const useSeriesReorder = (
 
 	const onPointerDownCapture = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			const timelineWidth = getTimelineContentWidth();
 			if (
 				e.button !== 0 ||
 				!e.isPrimary ||
 				isTimelineSelectionModifierEvent(e) ||
 				!isStudioInteractivityEnabled() ||
 				previewServerState.type !== 'connected' ||
-				timelineWidth === null ||
+				timelineWidth <= TIMELINE_PADDING * 2 ||
 				video === null ||
 				!(e.target instanceof Element) ||
 				e.target.closest('button, input, textarea, select, [role="separator"]')
@@ -82,7 +82,7 @@ export const useSeriesReorder = (
 			);
 			const sourceInfos = getCanvasSequenceReorderSelection({
 				draggedItem: {type: 'sequence', nodePathInfo: draggedItem.nodePathInfo},
-				selectedItems,
+				selectedItems: currentSelection.current.selectedItems,
 			});
 			const sourceKeys = sourceInfos.map((info) =>
 				Internals.makeSequencePropsSubscriptionKey(
@@ -329,7 +329,7 @@ export const useSeriesReorder = (
 				},
 			});
 		},
-		[items, previewServerState, selectedItems, timelineWidth, video],
+		[currentSelection, items, previewServerState, video],
 	);
 	const onClickCapture = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
 		if (suppressNextClick.current) {

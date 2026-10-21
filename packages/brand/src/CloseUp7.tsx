@@ -20,7 +20,7 @@ export const CloseUp7Preview = () => {
 			height={2310}
 			effects={[
 				radialProgressiveBlur({
-					center: [0.226, 0.322],
+					center: [0.28, 0.253],
 					endBlur: 10,
 					height: 0.36,
 					width: 0.201,
@@ -29,10 +29,11 @@ export const CloseUp7Preview = () => {
 			]}
 		>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 3320,
 					height: 2310,
-					translate: '-1492.7px -203.4px',
+					translate: '-1312.7px -363.4px',
 					rotate: '0.974685 0.089312 -0.204969 52.344171deg',
 					scale: 1.51,
 				}}

@@ -50,6 +50,7 @@ export const ConnectedCompositionsSection: React.FC<{
 }> = ({connectedCompositions}) => {
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={0}
 			collapsible
 			label="Connected compositions"
 			sectionId="connected-compositions"

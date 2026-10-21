@@ -45,6 +45,7 @@ type NewAudioForPreviewProps = {
 	readonly showInTimeline: boolean;
 	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio: boolean;
+	readonly preservePitch: boolean | null;
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
@@ -69,6 +70,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	_remotionInternalStack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	preservePitch,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
 	onError,
@@ -82,7 +84,6 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
-	const initialToneFrequencyRef = useRef(toneFrequency ?? 1);
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
@@ -93,6 +94,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
+	const preservePitchOnPlayback = useContext(Internals.PlaybackPitchContext);
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
@@ -135,6 +137,13 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const parentSequence = useContext(SequenceContext);
 	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
 	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
+	const effectiveToneFrequency =
+		(toneFrequency ?? 1) /
+		(preservePitch ? effectivePlaybackRate : 1) /
+		(preservePitchOnPlayback && globalPlaybackRate > 0
+			? globalPlaybackRate
+			: 1);
+	const initialToneFrequencyRef = useRef(effectiveToneFrequency);
 	const sequenceDurationInFrames =
 		videoConfig.durationInFrames / sequencePlaybackRate;
 	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
@@ -185,7 +194,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		effectiveMuted: mediaPlayerMuted,
 		userPreferredVolume,
 		playbackRate: effectivePlaybackRate,
-		toneFrequency: toneFrequency ?? 1,
+		toneFrequency: effectiveToneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
@@ -430,6 +439,9 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
 				crossOrigin={fallbackHtml5AudioProps?.crossOrigin}
 				{...fallbackHtml5AudioProps}
+				preservePitch={
+					fallbackHtml5AudioProps?.preservePitch ?? preservePitch ?? true
+				}
 			/>
 		);
 	}
@@ -459,6 +471,7 @@ type InnerAudioProps = {
 	readonly trimBefore?: number | undefined;
 	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio?: boolean;
+	readonly preservePitch: boolean | null;
 	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
@@ -483,6 +496,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	_remotionInternalStack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	preservePitch,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
 	onError,
@@ -547,6 +561,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			_remotionInternalStack={_remotionInternalStack}
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
+			preservePitch={preservePitch}
 			onError={onError}
 			credentials={credentials}
 			requestInit={requestInit}

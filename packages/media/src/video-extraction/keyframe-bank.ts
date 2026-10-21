@@ -48,15 +48,20 @@ export const makeKeyframeBank = async ({
 	logLevel: parentLogLevel,
 	src,
 	videoSampleSink,
+	timeResolution,
 	initialTimestampRequest,
 }: {
 	logLevel: LogLevel;
 	src: string;
 	videoSampleSink: VideoSampleSink;
+	timeResolution: number;
 	initialTimestampRequest: number;
 }) => {
+	// Snap to the track's own timestamp grid: WebM stores milliseconds, so frame 62
+	// at 30fps (2.0667s) is stored at 2.067s and must not seek into the previous GOP.
+	// MP4 timescales like 30000 keep fractional keyframes such as 61061/30000 exact.
 	const sampleIterator = videoSampleSink.samples(
-		roundTo4Digits(initialTimestampRequest),
+		Math.round(initialTimestampRequest * timeResolution) / timeResolution,
 	);
 
 	const frames: Record<number, VideoSampleWithoutDuration> = {};

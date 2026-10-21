@@ -3,6 +3,9 @@ on:
     branches:
       - main
   pull_request:
+permissions:
+  contents: read
+
 name: Install and Test
 
 concurrency:
@@ -36,11 +39,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
           filter: blob:none
-      - uses: oven-sh/setup-bun@v2.1.2
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
-          bun-version: 1.3.3
+          bun-version: 1.4.3
       - name: Query Turborepo task graph and create CI plan
         id: query
         run: bun .github/scripts/ci.ts plan
@@ -53,16 +57,18 @@ jobs:
     name: Lambda integration tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 25
-      - uses: oven-sh/setup-bun@v2.1.2
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
-          bun-version: 1.3.3
+          bun-version: 1.4.3
       - name: Install
         run: bun ci
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Test Lambda IT
         run: |
           bun run testlambda
@@ -82,16 +88,18 @@ jobs:
     name: Next.js SSR build
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 25
-      - uses: oven-sh/setup-bun@v2.1.2
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
-          bun-version: 1.3.3
+          bun-version: 1.4.3
       - name: Install
         run: bun ci
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Build Next.js SSR app
         timeout-minutes: 10
         run: |
@@ -104,16 +112,18 @@ jobs:
     name: Browser tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 25
-      - uses: oven-sh/setup-bun@v2.1.2
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
-          bun-version: 1.3.3
+          bun-version: 1.4.3
       - name: Install
         run: bun ci
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Install E2E deps
         run: cd packages/example && bunx playwright install --with-deps
       - name: Test Example E2E
@@ -135,18 +145,20 @@ jobs:
     name: Web renderer tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 26
-      - uses: oven-sh/setup-bun@v2.1.2
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
-          bun-version: 1.3.3
+          bun-version: 1.4.3
       - name: Install
         run: bun ci
       - name: Install deps
         run: cd packages/web-renderer && bunx playwright install --with-deps && cd ../media && bunx playwright install --with-deps
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Test web renderer
         run: |
           bun run testwebrenderer
@@ -161,16 +173,18 @@ jobs:
     name: SSR tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 16
-      - uses: oven-sh/setup-bun@v2.1.2
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
-          bun-version: 1.3.3
+          bun-version: 1.4.3
       - name: Install
         run: bun ci
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Test SSR
         timeout-minutes: 15
         run: |
@@ -183,13 +197,15 @@ jobs:
     name: Monorepo tests
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - parallel:
           - uses: actions/setup-node@v6
             with:
               node-version: 16
-          - uses: oven-sh/setup-bun@v2.1.2
+          - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
             with:
-              bun-version: 1.3.3
+              bun-version: 1.4.3
           - name: Setup Go
             uses: actions/setup-go@v6
             with:
@@ -199,11 +215,11 @@ jobs:
             uses: actions/setup-python@v6
             with:
               python-version: '3.11'
-          - uses: ruby/setup-ruby@master
+          - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
             with:
               ruby-version: '3.1'
           - name: Setup PHP
-            uses: shivammathur/setup-php@v2
+            uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
             with:
               php-version: '8.4'
               tools: none
@@ -213,7 +229,7 @@ jobs:
           - name: Install
             run: bun ci
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Monorepo checks
         timeout-minutes: 10
         run: |
@@ -234,13 +250,15 @@ jobs:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - parallel:
           - uses: actions/setup-node@v6
             with:
               node-version: 25
-          - uses: oven-sh/setup-bun@v2.1.2
+          - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
             with:
-              bun-version: 1.3.3
+              bun-version: 1.4.3
           - name: Cache Bun dependencies (Windows)
             if: matrix.os == 'windows-latest'
             uses: actions/cache@v5
@@ -252,7 +270,7 @@ jobs:
       - name: Install
         run: bun ci
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Test templates
         timeout-minutes: 20
         run: |
@@ -269,20 +287,21 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
           filter: blob:none
       - uses: actions/setup-node@v6
         with:
           node-version: 25
-      - uses: oven-sh/setup-bun@v2.1.2
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
         with:
-          bun-version: 1.3.3
+          bun-version: 1.4.3
       - name: Install
         run: bun ci
         env:
           CI: true
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Perform stylecheck
         timeout-minutes: 10
         run: |
@@ -308,15 +327,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
           filter: blob:none
       - parallel:
           - uses: actions/setup-node@v6
             with:
               node-version: ${{ matrix.node_version }}
-          - uses: oven-sh/setup-bun@v2.1.2
+          - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
             with:
-              bun-version: 1.3.3
+              bun-version: 1.4.3
           - name: Cache Bun dependencies (Windows)
             if: matrix.os == 'windows-latest'
             uses: actions/cache@v5
@@ -328,15 +348,20 @@ jobs:
       - name: Install
         run: bun ci
       - name: Cache Turbo
-        uses: rharkor/caching-for-turbo@v2.3.11
+        uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Install Media browser
         if: matrix.os == 'macos-latest' && needs.affected.outputs.build == 'true'
         run: cd packages/media && bunx playwright install --with-deps chromium
-      - name: Build & Test
+      - name: Build packages
         if: needs.affected.outputs.build == 'true'
         timeout-minutes: 30
         run: |
-          bunx turbo run make test ${{ github.event_name == 'pull_request' && needs.affected.outputs.full_ci != 'true' && '--affected' || '' }} --concurrency=1 --no-update-notifier
+          bunx turbo run make ${{ github.event_name == 'pull_request' && needs.affected.outputs.full_ci != 'true' && '--affected' || '' }} --concurrency=2 --no-update-notifier
+      - name: Test packages
+        if: needs.affected.outputs.build == 'true'
+        timeout-minutes: 30
+        run: |
+          bunx turbo run test ${{ github.event_name == 'pull_request' && needs.affected.outputs.full_ci != 'true' && '--affected' || '' }} --concurrency=1 --no-update-notifier
       - name: Bundle example
         if: matrix.os == 'ubuntu-latest' && needs.affected.outputs.bundle_example == 'true'
         run: |
@@ -368,9 +393,11 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2.1.2
         with:
-          bun-version: 1.3.3
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
+        with:
+          bun-version: 1.4.3
       - name: Validate required CI results
         env:
           CI_PLAN: ${{ needs.affected.outputs.plan }}
