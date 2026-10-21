@@ -11,6 +11,8 @@ export const subscribeToSequenceProps: ApiHandler<
 	SubscribeToSequencePropsBatchRequest,
 	SubscribeToSequencePropsBatchResponse
 > = ({input, remotionRoot, logLevel}) => {
+	// Source contents are shared only within this synchronous subscription batch.
+	const fileContentsCache = new Map<string, string>();
 	const unresolvedByFile = new Map<
 		string,
 		{index: number; line: number; column: number}[]
@@ -32,6 +34,7 @@ export const subscribeToSequenceProps: ApiHandler<
 				fileName,
 				targets: unresolved,
 				remotionRoot,
+				fileContentsCache,
 			});
 			for (const [index, nodePath] of nodePaths.entries()) {
 				if (nodePath) {
@@ -72,6 +75,7 @@ export const subscribeToSequenceProps: ApiHandler<
 				clientId,
 
 				logLevel,
+				fileContentsCache,
 			}),
 	);
 	return Promise.resolve({results});
