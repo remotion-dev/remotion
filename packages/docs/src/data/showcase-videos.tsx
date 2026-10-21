@@ -443,7 +443,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		time: '10',
 		muxId: 'YDhzEciwsdMZvHDu8W4Vz9VqtJINRv5RnED00PNqpj3k',
 		description:
-			'Open-source Remotion components for product videos: text animations, captions, device mockups and full scenes. Add one with `npx shadcn add @snapcn/<name>` and the code is copied into your project to edit. This launch video was made entirely from snapcn components.',
+			'Open-source Remotion components for product videos: text animations, captions, device mockups and full scenes. Add one with npx shadcn add @snapcn/<name> and the code is copied into your project to edit. This launch video was made entirely from snapcn components.',
 		height: 1080,
 		width: 1920,
 		submittedOn: new Date('10-21-2026'),
