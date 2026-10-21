@@ -242,6 +242,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'captions/caption',
 				'captions/parse-srt',
+				'captions/parse-vtt',
 				'captions/serialize-srt',
 				'captions/create-tiktok-style-captions',
 			],
@@ -283,6 +284,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'effects/barrel-distortion',
+				'effects/bevel-alpha',
 				'effects/blur',
 				'effects/brightness',
 				'effects/burlap',
@@ -293,6 +295,7 @@ const sidebars: SidebarsConfig = {
 				'effects/contrast',
 				'effects/contour-lines',
 				'effects/corner-pin',
+				'effects/cylinder',
 				'effects/dot-grid',
 				'effects/drop-shadow',
 				'effects/duotone',
@@ -301,6 +304,7 @@ const sidebars: SidebarsConfig = {
 				'effects/exposure',
 				'effects/fisheye',
 				'effects/flannel',
+				'effects/fractal-noise',
 				'effects/glow',
 				'effects/grayscale',
 				'effects/gridlines',
@@ -308,6 +312,7 @@ const sidebars: SidebarsConfig = {
 				'effects/halftone-linear-gradient',
 				'effects/hue',
 				'effects/invert',
+				'effects/lens-blur',
 				'effects/levels',
 				'effects/linear-gradient',
 				'effects/linear-gradient-tint',
@@ -322,6 +327,7 @@ const sidebars: SidebarsConfig = {
 				'effects/noise',
 				'effects/noise-displacement',
 				'effects/outline',
+				'effects/page-turn',
 				'effects/paper',
 				'effects/pattern',
 				'effects/pixel-dissolve',
@@ -339,11 +345,13 @@ const sidebars: SidebarsConfig = {
 				'effects/shrinkwrap',
 				'effects/skew',
 				'effects/speckle',
+				'effects/sphere',
 				'effects/starburst',
 				'effects/tear',
 				'effects/thermal-vision',
 				'effects/tile',
 				'effects/tint',
+				'effects/turbulent-displace',
 				'effects/tv-signal-off',
 				'effects/uv-translate',
 				'effects/venetian-blinds',
@@ -846,7 +854,6 @@ const sidebars: SidebarsConfig = {
 				id: 'studio-protocol/index',
 			},
 			items: [
-				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
 				'studio-protocol/static-file-ref',
 				'studio-protocol/build-open-in-remotion-new-url',
@@ -1455,7 +1462,6 @@ const sidebars: SidebarsConfig = {
 			label: 'Studio',
 			items: [
 				'studio/studio',
-				'studio/browse-elements',
 				'studio/open-in-editor',
 				'studio/shortcuts',
 				'studio/quick-switcher',
@@ -1466,6 +1472,7 @@ const sidebars: SidebarsConfig = {
 				'studio/deploy-static',
 				'studio/deploy-server',
 				'studio/remotion-dev-new',
+				'studio/browse-elements',
 			],
 		},
 		{
@@ -1488,8 +1495,8 @@ const sidebars: SidebarsConfig = {
 				'player/current-time',
 				'troubleshooting/player-flicker',
 				'player/buffer-state',
-				'player/preloading',
 				'player/premounting',
+				'player/preloading',
 				'player/best-practices',
 				'player/drag-and-drop/index',
 				'player/custom-controls',
@@ -1592,6 +1599,15 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'category',
+			label: 'Elements',
+			link: {
+				type: 'doc',
+				id: 'elements',
+			},
+			items: ['elements', 'elements/libraries'],
+		},
+		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
@@ -1664,6 +1680,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'security',
 				'chromium-flags',
+				'html-in-canvas-bugs',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
 				'miscellaneous/ffmpeg-license',
@@ -1772,6 +1789,7 @@ const sidebars: SidebarsConfig = {
 				'contributing/web-renderer',
 				'contributing/presentation',
 				'contributing/sfx',
+				'contributing/elements',
 				'authoring-packages',
 			],
 		},

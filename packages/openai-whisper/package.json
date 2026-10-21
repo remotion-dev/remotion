@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/openai-whisper"
 	},
 	"name": "@remotion/openai-whisper",
-	"version": "4.0.536",
+	"version": "4.0.537",
 	"description": "Work with the output of the OpenAI Whisper API",
 	"main": "dist/index.js",
 	"module": "dist/esm/index.mjs",
@@ -15,7 +15,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
@@ -28,7 +28,7 @@
 		"openai": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [
 		"remotion"

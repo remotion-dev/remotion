@@ -13,12 +13,10 @@ import React, {
 } from 'react';
 import {
 	AbsoluteFill,
-	Easing,
 	HtmlInCanvas,
 	Interactive,
 	interpolate,
 	interpolateColors,
-	spring,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
@@ -31,18 +29,27 @@ import {
 
 export const CAPTIONS_HEIGHT = 360;
 
+export type CaptionsTheme = 'dark' | 'paper';
+
 type AnimatedCaptionsProps = {
 	readonly captions: Caption[] | null;
 	readonly captionsSrc: string | null;
 	readonly voiceoverSrc: string | null;
+	readonly theme?: CaptionsTheme;
 };
+
+// dark: white text with a gray glow (for dark backgrounds)
+// paper: ink on paper, no glow
+const CAPTION_COLORS = {
+	dark: {idle: '#d9d9d9', focused: '#ffffff'},
+	paper: {idle: '#2a2a30', focused: '#000000'},
+} as const;
 
 const animatedCaptionsSchema = {
 	...Interactive.captionsSchema,
 } as const satisfies InteractivitySchema;
 
 const SWITCH_CAPTIONS_EVERY_MS = 1100;
-const FISHEYE_CENTER_MOVE_MAX_DURATION_IN_SECONDS = 0.2;
 const RADIAL_BLUR_START = 0.5;
 const RADIAL_BLUR_FOCUS_PADDING_IN_PIXELS = 8;
 const CAPTION_PAGE_LAYOUT = {
@@ -72,6 +79,7 @@ type CaptionPageProps = {
 	focusedTokenIndex: number;
 	page: TikTokPage;
 	pageKey: string;
+	theme: CaptionsTheme;
 	onWordFocusRegions: (
 		pageKey: string,
 		regions: readonly WordFocusRegion[],
@@ -83,8 +91,10 @@ const CaptionPageInner: React.FC<CaptionPageProps> = ({
 	focusedTokenIndex,
 	page,
 	pageKey,
+	theme,
 	onWordFocusRegions,
 }) => {
+	const {idle, focused} = CAPTION_COLORS[theme];
 	const containerRef = useRef<HTMLDivElement>(null);
 	const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
 
@@ -157,18 +167,14 @@ const CaptionPageInner: React.FC<CaptionPageProps> = ({
 							style={{
 								color:
 									tokenIndex === focusedTokenIndex
-										? interpolateColors(
-												focusProgress,
-												[0, 1],
-												['#d9d9d9', '#ffffff'],
-											)
+										? interpolateColors(focusProgress, [0, 1], [idle, focused])
 										: tokenIndex === focusedTokenIndex - 1
 											? interpolateColors(
 													focusProgress,
 													[0, 1],
-													['#ffffff', '#d9d9d9'],
+													[focused, idle],
 												)
-											: '#d9d9d9',
+											: idle,
 								display: 'inline-block',
 								marginLeft: tokenIndex === 0 ? 0 : 26,
 							}}
@@ -190,7 +196,8 @@ const CaptionPage = Interactive.create({
 const AnimatedCaptionsContent: React.FC<{
 	readonly captions: Caption[];
 	readonly voiceoverSrc: string | null;
-}> = ({captions, voiceoverSrc}) => {
+	readonly theme: CaptionsTheme;
+}> = ({captions, voiceoverSrc, theme}) => {
 	const {fps, height, width} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const [wordFocusRegionsByPage, setWordFocusRegionsByPage] = useState<
@@ -260,74 +267,59 @@ const AnimatedCaptionsContent: React.FC<{
 	const currentPageWordFocusRegions = currentPageKey
 		? wordFocusRegionsByPage[currentPageKey]
 		: null;
-	const targetRegion =
-		currentPageWordFocusRegions?.[focusedTokenIndex] ??
-		DEFAULT_WORD_FOCUS_REGION;
-	const previousRegion = currentPageWordFocusRegions?.[
-		focusedTokenIndex - 1
-	] ?? {
-		...DEFAULT_WORD_FOCUS_REGION,
-		width: targetRegion.width,
-		height: targetRegion.height,
-	};
+	const firstRegion =
+		currentPageWordFocusRegions?.[0] ?? DEFAULT_WORD_FOCUS_REGION;
+	const lastRegion = currentPageWordFocusRegions?.at(-1) ?? firstRegion;
+	const pageStartFrame = currentPage
+		? Math.round((currentPage.startMs / 1000) * fps)
+		: frame;
+	const nextPage = pages[currentPageIndex + 1];
+	const naturalEndFrame = currentPage
+		? Math.ceil(((currentPage.startMs + currentPage.durationMs) / 1000) * fps)
+		: frame + 1;
+	const pageEndFrame = nextPage
+		? Math.min(Math.round((nextPage.startMs / 1000) * fps), naturalEndFrame)
+		: naturalEndFrame;
+	// Move continuously for the whole page; token boundaries only change highlighting.
+	const pageProgress = interpolate(
+		frame,
+		[pageStartFrame, Math.max(pageStartFrame + 1, pageEndFrame - 1)],
+		[0, 1],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
 	const focusedToken = currentPage?.tokens[focusedTokenIndex] ?? null;
 	const focusedTokenStartFrame = focusedToken
 		? Math.round((focusedToken.fromMs / 1000) * fps)
 		: frame;
-	const focusedTokenDurationInFrames = focusedToken
-		? Math.max(
-				2,
-				Math.round(((focusedToken.toMs - focusedToken.fromMs) / 1000) * fps),
-			)
-		: 2;
-	const focusedTokenFrame = frame - focusedTokenStartFrame;
-	const centerProgress = !focusedToken
-		? 1
-		: spring({
-				frame: focusedTokenFrame,
-				fps,
-				durationInFrames: Math.max(
-					1,
-					Math.min(
-						focusedTokenDurationInFrames,
-						Math.round(FISHEYE_CENTER_MOVE_MAX_DURATION_IN_SECONDS * fps),
-					),
-				),
-				config: {
-					damping: 200,
-					overshootClamping: true,
-				},
-			});
-	const focusProgress = interpolate(centerProgress, [0, 1], [0, 1], {
-		easing: Easing.spring({damping: 200}),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const focusProgress = interpolate(
+		frame,
+		[focusedTokenStartFrame, focusedTokenStartFrame + Math.max(1, 0.15 * fps)],
+		[0, 1],
+		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+	);
 	const fisheyeCenter = [
 		interpolate(
-			focusProgress,
+			pageProgress,
 			[0, 1],
-			[previousRegion.center[0], targetRegion.center[0]],
+			[firstRegion.center[0], lastRegion.center[0]],
 		),
 		interpolate(
-			focusProgress,
+			pageProgress,
 			[0, 1],
-			[previousRegion.center[1], targetRegion.center[1]],
+			[firstRegion.center[1], lastRegion.center[1]],
 		),
 	] as const satisfies FisheyeCenter;
 	const radialBlurWidth =
-		(interpolate(
-			centerProgress,
-			[0, 1],
-			[previousRegion.width, targetRegion.width],
+		(Math.max(
+			firstRegion.width,
+			...(currentPageWordFocusRegions?.map((region) => region.width) ?? []),
 		) *
 			Math.SQRT2) /
 		RADIAL_BLUR_START;
 	const radialBlurHeight =
-		(interpolate(
-			centerProgress,
-			[0, 1],
-			[previousRegion.height, targetRegion.height],
+		(Math.max(
+			firstRegion.height,
+			...(currentPageWordFocusRegions?.map((region) => region.height) ?? []),
 		) *
 			Math.SQRT2) /
 		RADIAL_BLUR_START;
@@ -343,6 +335,7 @@ const AnimatedCaptionsContent: React.FC<{
 				height={height}
 				effects={[
 					glow({
+						disabled: theme === 'paper',
 						intensity: 0.6,
 						color: 'gray',
 						radius: 100,
@@ -388,6 +381,7 @@ const AnimatedCaptionsContent: React.FC<{
 							focusedTokenIndex={focusedTokenIndex}
 							page={page}
 							pageKey={pageKey}
+							theme={theme}
 							onWordFocusRegions={onWordFocusRegions}
 						/>
 					);
@@ -400,7 +394,8 @@ const AnimatedCaptionsContent: React.FC<{
 const FetchedAnimatedCaptions: React.FC<{
 	readonly captionsSrc: string;
 	readonly voiceoverSrc: string | null;
-}> = ({captionsSrc, voiceoverSrc}) => {
+	readonly theme: CaptionsTheme;
+}> = ({captionsSrc, voiceoverSrc, theme}) => {
 	const [captions, setCaptions] = useState<Caption[] | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading captions'));
@@ -428,7 +423,11 @@ const FetchedAnimatedCaptions: React.FC<{
 	}
 
 	return (
-		<AnimatedCaptionsContent captions={captions} voiceoverSrc={voiceoverSrc} />
+		<AnimatedCaptionsContent
+			captions={captions}
+			voiceoverSrc={voiceoverSrc}
+			theme={theme}
+		/>
 	);
 };
 
@@ -436,6 +435,7 @@ const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({
 	captions,
 	captionsSrc,
 	voiceoverSrc,
+	theme = 'dark',
 }) => {
 	return (
 		<>
@@ -443,11 +443,13 @@ const AnimatedCaptionsInner: React.FC<AnimatedCaptionsProps> = ({
 				<AnimatedCaptionsContent
 					captions={captions}
 					voiceoverSrc={voiceoverSrc}
+					theme={theme}
 				/>
 			) : captionsSrc ? (
 				<FetchedAnimatedCaptions
 					captionsSrc={captionsSrc}
 					voiceoverSrc={voiceoverSrc}
+					theme={theme}
 				/>
 			) : null}
 		</>

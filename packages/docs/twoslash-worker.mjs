@@ -1,9 +1,12 @@
 import {existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync} from 'fs';
 import {dirname} from 'path';
 import {createInterface} from 'readline';
-import {rendererClassic, transformerTwoslash} from '@shikijs/twoslash';
+import {
+	rendererClassic,
+	transformerTwoslash,
+} from '@remotion/typescript-tools/shiki-twoslash';
+import {createTwoslasher} from '@remotion/typescript-tools/twoslash';
 import {createHighlighter} from 'shiki';
-import {createTwoslasher} from 'twoslash';
 import {
 	getTwoslashCompilerOptions,
 	TWOSLASH_EXPLICIT_TRIGGER,

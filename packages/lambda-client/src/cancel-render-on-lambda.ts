@@ -1,11 +1,8 @@
-import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {
-	getOverallProgressFromStorage,
-	writeCancellationSignal,
-} from '@remotion/serverless-client';
-import {awsImplementation, type AwsProvider} from './aws-provider';
+import {getAccountIdImplementation} from './get-account-id';
+import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
+import {writeCancellationSignal} from './write-cancellation-signal';
 
 export type CancelRenderOnLambdaInput = {
 	region: AwsRegion;
@@ -21,13 +18,12 @@ type InternalCancelRenderOnLambdaInput = Omit<
 > & {
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
 };
 
 export const internalCancelRenderOnLambda = async (
 	input: InternalCancelRenderOnLambdaInput,
 ): Promise<void> => {
-	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
+	const expectedBucketOwner = await getAccountIdImplementation({
 		region: input.region,
 	});
 	const progress = await getOverallProgressFromStorage({
@@ -35,7 +31,6 @@ export const internalCancelRenderOnLambda = async (
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
-		providerSpecifics: input.providerSpecifics,
 		forcePathStyle: input.forcePathStyle,
 		requestHandler: input.requestHandler,
 	});
@@ -51,7 +46,6 @@ export const internalCancelRenderOnLambda = async (
 		renderId: input.renderId,
 		region: input.region,
 		expectedBucketOwner,
-		providerSpecifics: input.providerSpecifics,
 		forcePathStyle: input.forcePathStyle,
 		requestHandler: input.requestHandler,
 	});
@@ -68,6 +62,5 @@ export const cancelRenderOnLambda = (
 		...input,
 		forcePathStyle: input.forcePathStyle ?? false,
 		requestHandler: input.requestHandler ?? null,
-		providerSpecifics: awsImplementation,
 	});
 };

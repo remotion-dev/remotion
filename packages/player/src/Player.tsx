@@ -69,6 +69,11 @@ export type PlayerProps<
 	readonly spaceKeyToPlayOrPause?: boolean;
 	readonly numberOfSharedAudioTags?: number;
 	readonly playbackRate?: number;
+	/**
+	 * Preserve @remotion/media audio pitch when changing the Player playback rate.
+	 * @default false
+	 */
+	readonly preservePitch?: boolean;
 	readonly renderLoading?: RenderLoading;
 	readonly moveToBeginningWhenEnded?: boolean;
 	readonly className?: string;
@@ -168,6 +173,7 @@ const PlayerFn = <
 			: 5,
 		errorFallback = () => '⚠️',
 		playbackRate = 1,
+		preservePitch = false,
 		renderLoading,
 		className,
 		showPosterWhenUnplayed,
@@ -320,6 +326,12 @@ const PlayerFn = <
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
 			`'controls' must be a boolean or undefined but got '${typeof controls}' instead`,
+		);
+	}
+
+	if (typeof preservePitch !== 'boolean') {
+		throw new TypeError(
+			`'preservePitch' must be a boolean but got '${typeof preservePitch}' instead`,
 		);
 	}
 
@@ -520,6 +532,7 @@ const PlayerFn = <
 				<SharedPlayerContexts
 					timelineContext={timelineContextValue}
 					playbackRateContext={playbackRateContextValue}
+					preservePitch={preservePitch}
 					component={component}
 					compositionHeight={compositionHeight}
 					compositionWidth={compositionWidth}

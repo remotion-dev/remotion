@@ -124,6 +124,32 @@ $client->cancelRenderOnLambda(
 );
 ```
 
+## Verifying webhooks<AvailableFrom v="4.0.538" />
+
+If you [set up a webhook](/docs/lambda/webhooks) with a secret, Remotion signs every request so you can confirm it was sent by Remotion and that the body was not modified. The PHP client ships `WebhookSignature::validate()`, the equivalent of [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) in the JavaScript client.
+
+Pass the webhook secret, the raw request body exactly as it was received, and the `X-Remotion-Signature` header. It throws if the request cannot be verified and returns nothing if it is authentic.
+
+```php title="webhook.php"
+use Remotion\LambdaPhp\WebhookSignature;
+
+$secret = getenv('REMOTION_WEBHOOK_SECRET');
+$body = file_get_contents('php://input');
+
+WebhookSignature::validate(
+  $secret,
+  $body,
+  $_SERVER['HTTP_X_REMOTION_SIGNATURE'] ?? null
+);
+
+// The request is authentic. Decode the body only now.
+$payload = json_decode($body, true);
+
+http_response_code(200);
+```
+
+Read the body first and verify before decoding it. The signature covers the exact bytes that were sent, so decoding and re-encoding the body can change whitespace and how numbers are serialized, which would make a genuine request fail the check. Pass the body as it arrived (`file_get_contents('php://input')`) rather than a decoded array.
+
 ## Changelog
 
 - `v4.0.15`: The fields are now typed. `->setInputProps()` now works as intended, serializing the input props to JSON for you.

@@ -11,7 +11,7 @@ export const resolveConcurrency = (userPreference: number | string | null) => {
 	let rounded;
 
 	if (typeof userPreference === 'string') {
-		const percentage = parseInt(userPreference.slice(0, -1), 10);
+		const percentage = parseFloat(userPreference.slice(0, -1));
 		rounded = Math.floor((percentage / 100) * maxCpus);
 	} else {
 		rounded = Math.floor(userPreference);

@@ -1,13 +1,18 @@
 import {expect, test} from 'bun:test';
 import path from 'path';
-import {ServerlessRoutines} from '@remotion/serverless';
-import {mockImplementation} from '../../mocks/mock-implementation';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
+import {useFakeAws} from '../../mocks/fake-aws';
+
+useFakeAws();
 
 test(
 	'Should fail when using an incompatible version',
 	async () => {
 		try {
-			const aha = await mockImplementation.callFunctionSync({
+			const aha = await LambdaClientInternals.callFunctionSyncImplementation({
 				type: ServerlessRoutines.launch,
 				payload: {
 					enableCancellation: false,

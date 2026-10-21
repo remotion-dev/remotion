@@ -9,7 +9,7 @@ export const persistPlaybackRate = (option: number) => {
 };
 
 export const loadPlaybackRate = () => {
-	if (typeof window !== 'undefined') {
+	if (typeof window === 'undefined') {
 		return 1;
 	}
 
@@ -18,5 +18,8 @@ export const loadPlaybackRate = () => {
 		return 1;
 	}
 
-	return Number(item);
+	// Only restore rates the Studio can select, so a stale or corrupted value
+	// (e.g. 0 or NaN) cannot stall playback after a reload.
+	const playbackRate = Number(item);
+	return commonPlaybackRates.includes(playbackRate) ? playbackRate : 1;
 };

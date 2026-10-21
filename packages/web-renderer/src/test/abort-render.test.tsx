@@ -218,3 +218,83 @@ test('should not send failed telemetry when renderStillOnWeb() is aborted', asyn
 
 	expect(vi.mocked(telemetry.sendUsageEvent).mock.calls.length).toBe(0);
 });
+
+test.for(['error', 'cancel'] as const)(
+	'waits for the output stream to close after %s',
+	async (mode, t) => {
+		if (t.task.file.projectName === 'webkit') {
+			t.skip();
+			return;
+		}
+
+		const controller = new AbortController();
+		let finishClose!: () => void;
+		let startClose!: () => void;
+		const closeStarted = new Promise<void>((resolve) => {
+			startClose = resolve;
+		});
+		const closeFinished = new Promise<void>((resolve) => {
+			finishClose = resolve;
+		});
+		const outputWritable = new WritableStream({
+			close: () => {
+				startClose();
+				return closeFinished;
+			},
+		});
+		const error = new Error('Deliberate frame failure');
+		let settled = false;
+		const result = renderMediaOnWeb({
+			licenseKey: 'free-license',
+			composition: {
+				component: () => null,
+				id: 'await-output-cleanup',
+				width: 64,
+				height: 64,
+				fps: 30,
+				durationInFrames: 3,
+			},
+			container: 'webm',
+			videoCodec: 'vp8',
+			outputWritable,
+			signal: controller.signal,
+			onFrame: (frame) => {
+				if (mode === 'error') {
+					frame.close();
+					throw error;
+				}
+
+				controller.abort();
+				return frame;
+			},
+		}).then(
+			() => {
+				settled = true;
+				return null;
+			},
+			(rejection: unknown) => {
+				settled = true;
+				return rejection;
+			},
+		);
+
+		try {
+			await closeStarted;
+			// Let render rejection settle if cleanup was started without being awaited.
+			await new Promise((resolve) => setTimeout(resolve, 0));
+			expect(settled).toBe(false);
+		} finally {
+			finishClose();
+		}
+
+		const reason = await result;
+		if (mode === 'error') {
+			expect(reason).toBe(error);
+		} else {
+			expect(reason).toBeInstanceOf(Error);
+			expect((reason as Error).message).toBe(
+				'renderMediaOnWeb() was cancelled',
+			);
+		}
+	},
+);

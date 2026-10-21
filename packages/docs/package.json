@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.536",
+	"version": "4.0.537",
 	"scripts": {
 		"formatting": "oxfmt src standalone generate-option-docs.ts option-description.ts option-references.ts docs/options --check",
 		"format": "oxfmt src standalone generate-option-docs.ts option-description.ts option-references.ts docs/options",
@@ -26,6 +26,7 @@
 		"upload-element-preview": "bun run upload-element-preview.ts"
 	},
 	"dependencies": {
+		"@remotion/typescript-tools": "workspace:*",
 		"@huggingface/transformers": "catalog:",
 		"@remotion/studio-protocol": "workspace:*",
 		"@aws-sdk/s3-request-presigner": "catalog:",
@@ -113,7 +114,6 @@
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/zod-types-v3": "workspace:*",
 		"@rive-app/canvas-advanced": "2.31.5",
-		"@shikijs/twoslash": "3.22.0",
 		"@shopify/react-native-skia": "2.0.0",
 		"@swc/core": "1.13.5",
 		"@turf/turf": "7.3.2",
@@ -146,7 +146,6 @@
 		"shiki": "3.22.0",
 		"template-vibe-code": "workspace:*",
 		"three": "catalog:",
-		"twoslash": "0.3.6",
 		"uuid": "14.0.0",
 		"zod": "catalog:"
 	},

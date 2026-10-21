@@ -68,8 +68,6 @@ export const listOfRemotionPackages = [
 	'@remotion/skia',
 	'@remotion/promo-pages',
 	'@remotion/streaming',
-	'@remotion/serverless',
-	'@remotion/serverless-client',
 	'@remotion/skills',
 	'@remotion/skills-evals',
 	'@remotion/codemods',

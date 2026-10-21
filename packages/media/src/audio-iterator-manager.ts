@@ -211,11 +211,7 @@ export const audioIteratorManager = ({
 		audioBufferIterator.addQueuedAudioNode({
 			node,
 			timestamp: mediaTimestamp,
-			buffer,
 			sourceDurationInSeconds,
-			scheduledTime: started.scheduledTime,
-			playbackRate,
-			scheduledAtAnchor: sharedAudioContext.audioSyncAnchor.value,
 		});
 	};
 

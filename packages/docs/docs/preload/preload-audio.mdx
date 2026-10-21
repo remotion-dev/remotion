@@ -12,9 +12,9 @@ This function preloads audio in the DOM so that when an HTML5 `<audio>` element 
 
 It only affects HTML5 audio elements such as [`<Html5Audio>`](/docs/html5-audio), not [`<Audio>` from `@remotion/media`](/docs/media/audio).
 
-While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the Studio.
-
-An alternative to `preloadAudio()` is the [`prefetch()`](/docs/prefetch) API. See [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch) to decide which one is better for your usecase.
+:::warning
+Using `preloadAudio()` is not recommended. Use [premounting](/docs/player/premounting) instead to give media time to load and initialize before it starts playing in the [Player](/docs/player) or [Studio](/docs/studio).
+:::
 
 ## Usage
 

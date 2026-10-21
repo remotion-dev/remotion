@@ -1,49 +1,45 @@
-import {expect, mock, spyOn, test} from 'bun:test';
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	expect,
+	mock,
+	spyOn,
+	test,
+} from 'bun:test';
 import fs from 'node:fs';
-import {createRequire} from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import {Readable} from 'node:stream';
-import type * as LambdaClientPackage from '@remotion/lambda-client';
-import type {AwsProvider} from '@remotion/lambda-client';
-import type * as RendererPackage from '@remotion/renderer';
-import type * as ServerlessPackage from '@remotion/serverless';
-import type {
-	InsideFunctionSpecifics,
-	OverallRenderProgress,
-	ProviderSpecifics,
-	RenderMetadata,
-	ServerlessPayloads,
-} from '@remotion/serverless';
-
-// Use the shipped CommonJS entrypoints, not source aliases. lambda-client
-// bundles its own serverless-client, while the handlers load another copy.
-const requirePackage = createRequire(__filename);
-const {LambdaClientInternals} = requirePackage(
-	'@remotion/lambda-client',
-) as typeof LambdaClientPackage;
-const {RenderInternals} = requirePackage(
-	'@remotion/renderer',
-) as typeof RendererPackage;
-const {
-	launchHandler,
-	progressHandler,
+import {
+	LambdaClientInternals,
 	OutputFileAccessDeniedError,
 	ServerlessRoutines,
-	VERSION,
-} = requirePackage('@remotion/serverless') as typeof ServerlessPackage;
-const directRenderer = requirePackage(
-	path.join(
-		path.dirname(requirePackage.resolve('@remotion/serverless')),
-		'render-with-single-function.js',
-	),
-);
+	type OverallRenderProgress,
+	type RenderMetadata,
+	type ServerlessPayloads,
+} from '@remotion/lambda-client';
+import {RenderInternals} from '@remotion/renderer';
+import {VERSION} from 'remotion/version';
+import * as headFileModule from '../../../../lambda-client/src/head-file';
+import * as readFileModule from '../../../../lambda-client/src/read-file';
+import * as writeFileModule from '../../../../lambda-client/src/write-file';
+import * as browserInstance from '../../functions/get-browser-instance';
+import {launchHandler} from '../../functions/handlers/launch';
+import {progressHandler} from '../../functions/handlers/progress';
+import * as currentFunctionName from '../../functions/helpers/get-current-function-name';
+import * as currentMemorySize from '../../functions/helpers/get-current-memory-size';
+import * as currentRegion from '../../functions/helpers/get-current-region';
+import * as directRenderer from '../../functions/render-with-single-function';
+
+// The real implementation is needed to produce normalized storage errors.
+const realHeadFile = headFileModule.lambdaHeadFileImplementation;
 
 const region = 'us-east-1';
 const renderId = 'output-access-test';
 const bucketName = 'render-bucket';
 const destination = 'output-bucket';
-const params: ServerlessPayloads<AwsProvider>['launch'] = {
+const params: ServerlessPayloads['launch'] = {
 	type: ServerlessRoutines.launch,
 	output: {type: 'media'},
 	composition: 'comp',
@@ -54,7 +50,7 @@ const params: ServerlessPayloads<AwsProvider>['launch'] = {
 	audioCodec: null,
 	imageFormat: 'png',
 	inputProps: {type: 'payload', payload: '{}'},
-	outName: {bucketName: destination, key: 'output.mp4'},
+	outName: {bucketName: destination},
 	separateAudioTo: null,
 	concurrency: 1,
 	framesPerFunction: null,
@@ -104,18 +100,35 @@ const params: ServerlessPayloads<AwsProvider>['launch'] = {
 	sampleRate: 48000,
 };
 
-const insideFunctionSpecifics = {
-	getCurrentRegionInFunction: () => region,
-	getCurrentMemorySizeInMb: () => 2048,
-	getCurrentFunctionName: () => 'render-worker',
-	getBrowserInstance: () => Promise.resolve({instance: {}}),
-	forgetBrowserEventLoop: () => undefined,
-	timer: () => ({end: () => undefined}),
-	normalizeChromiumOptions: null,
-} as unknown as InsideFunctionSpecifics<AwsProvider>;
+const runtimeSpies: {mockRestore: () => void}[] = [];
+const fixtureSpies: {mockRestore: () => void}[] = [];
+
+beforeAll(() => {
+	runtimeSpies.push(
+		spyOn(currentRegion, 'getCurrentRegionInFunction').mockReturnValue(region),
+		spyOn(currentMemorySize, 'getCurrentMemorySizeInMb').mockReturnValue(2048),
+		spyOn(currentFunctionName, 'getCurrentFunctionName').mockReturnValue(
+			'render-worker',
+		),
+		spyOn(browserInstance, 'getBrowserInstance').mockImplementation(() =>
+			Promise.resolve({instance: {}} as never),
+		),
+		spyOn(browserInstance, 'forgetBrowserEventLoop').mockImplementation(
+			() => undefined,
+		),
+	);
+});
+
+afterAll(() => {
+	runtimeSpies.splice(0).forEach((spy) => spy.mockRestore());
+});
+
+afterEach(() => {
+	fixtureSpies.splice(0).forEach((spy) => spy.mockRestore());
+});
 
 const makeFixture = (headError: unknown) => {
-	let storedProgress: OverallRenderProgress<AwsProvider> | null = null;
+	let storedProgress: OverallRenderProgress | null = null;
 	let output: Buffer | null = null;
 	const conflict = new Error('Output already exists');
 	const writeFileIfNotExists = mock(async ({body}: {body: unknown}) => {
@@ -146,31 +159,36 @@ const makeFixture = (headError: unknown) => {
 			storedProgress = JSON.parse(body as string);
 		},
 	);
-	const providerSpecifics: ProviderSpecifics<AwsProvider> = {
-		...LambdaClientInternals.awsImplementation,
-		headFile,
-		writeFile,
-		writeFileIfNotExists,
-		supportsConditionalOutput: () => true,
-		readFile: () =>
-			Promise.resolve(
-				Readable.from([Buffer.from(JSON.stringify(storedProgress))]),
-			),
-		getChromiumPath: () => null,
-		estimatePrice: () => 0,
-		parseFunctionName: () => null,
-		getEphemeralStorageForPriceCalculation: () => 512,
-		getBillingCurrency: () => 'USD',
-	} satisfies ProviderSpecifics<AwsProvider>;
+	fixtureSpies.splice(0).forEach((spy) => spy.mockRestore());
+	fixtureSpies.push(
+		spyOn(headFileModule, 'lambdaHeadFileImplementation').mockImplementation(
+			headFile,
+		),
+		spyOn(writeFileModule, 'lambdaWriteFileImplementation').mockImplementation(
+			writeFile,
+		),
+		spyOn(
+			writeFileModule,
+			'lambdaWriteFileIfNotExistsImplementation',
+		).mockImplementation(writeFileIfNotExists),
+		spyOn(writeFileModule, 'supportsConditionalOutput').mockImplementation(
+			() => true,
+		),
+		spyOn(readFileModule, 'lambdaReadFileImplementation').mockImplementation(
+			() =>
+				Promise.resolve(
+					Readable.from([Buffer.from(JSON.stringify(storedProgress))]),
+				),
+		),
+	);
 	return {
-		providerSpecifics,
 		headFile,
 		writeFile,
 		writeFileIfNotExists,
 		conflict,
 		getOutput: () => output,
 		getProgress: () => storedProgress!,
-		setProgress: (progress: OverallRenderProgress<AwsProvider>) => {
+		setProgress: (progress: OverallRenderProgress) => {
 			storedProgress = progress;
 		},
 	};
@@ -193,7 +211,7 @@ const getBundledHeadError = async (httpStatusCode: number) => {
 		Promise.reject(sdkError),
 	);
 	try {
-		await LambdaClientInternals.awsImplementation.headFile({
+		await realHeadFile({
 			...input,
 			bucketName: destination,
 			key: 'output.mp4',
@@ -219,13 +237,11 @@ const getBundledHeadError = async (httpStatusCode: number) => {
 };
 
 const invokeLaunch = (
-	fixture: ReturnType<typeof makeFixture>,
+	_fixture: ReturnType<typeof makeFixture>,
 	overwrite = false,
 ) =>
 	launchHandler({
 		params: {...params, overwrite},
-		providerSpecifics: fixture.providerSpecifics,
-		insideFunctionSpecifics,
 		options: {
 			expectedBucketOwner: null,
 			getRemainingTimeInMillis: () => 120000,
@@ -237,9 +253,9 @@ const invokeLaunch = (
 		},
 	});
 
-const completedProgress = (): OverallRenderProgress<AwsProvider> => {
+const completedProgress = (): OverallRenderProgress => {
 	const startedDate = Date.now() - 30000;
-	const renderMetadata: RenderMetadata<AwsProvider> = {
+	const renderMetadata: RenderMetadata = {
 		type: 'video',
 		imageFormat: 'png',
 		muted: true,
@@ -302,7 +318,7 @@ const completedProgress = (): OverallRenderProgress<AwsProvider> => {
 };
 
 const invokeProgress = (
-	fixture: ReturnType<typeof makeFixture>,
+	_fixture: ReturnType<typeof makeFixture>,
 	timeoutInMilliseconds = 120000,
 ) =>
 	progressHandler({
@@ -319,23 +335,17 @@ const invokeProgress = (
 			expectedBucketOwner: null,
 			timeoutInMilliseconds,
 			retriesRemaining: 0,
-			providerSpecifics: fixture.providerSpecifics,
-			insideFunctionSpecifics,
 		},
 	});
 
-test.each(['bundled', 'same package'] as const)(
+test.each(['normalized', 'constructed'] as const)(
 	'packaged launch accepts %s access errors and retains final overwrite protection',
 	async (copy) => {
 		const error =
-			copy === 'bundled'
+			copy === 'normalized'
 				? await getBundledHeadError(403)
 				: new OutputFileAccessDeniedError('Denied');
-		if (copy === 'bundled') {
-			expect(Object.getPrototypeOf(error)).not.toBe(
-				OutputFileAccessDeniedError.prototype,
-			);
-		}
+		expect(error).toBeInstanceOf(OutputFileAccessDeniedError);
 
 		const fixture = makeFixture(error);
 		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'output-access-'));
@@ -398,7 +408,12 @@ test.each(['bundled', 'same package'] as const)(
 		);
 		try {
 			await invokeLaunch(fixture);
-			expect(fixture.writeFileIfNotExists).toHaveBeenCalledTimes(1);
+			expect(fixture.writeFileIfNotExists).toHaveBeenCalledWith(
+				expect.objectContaining({
+					bucketName: destination,
+					key: `renders/${renderId}/out.mp4`,
+				}),
+			);
 			expect(fixture.getOutput()!.toString()).toBe('rendered output');
 			expect(fixture.getProgress().postRenderData).not.toBeNull();
 			expect(
@@ -413,17 +428,15 @@ test.each(['bundled', 'same package'] as const)(
 				),
 			).toBe(true);
 
-			for (const conditionalSupport of [false, true]) {
-				const unsupported = makeFixture(error);
-				unsupported.providerSpecifics.supportsConditionalOutput = () =>
-					conditionalSupport;
-				if (conditionalSupport) {
-					unsupported.providerSpecifics.writeFileIfNotExists = null;
-				}
-
-				await expect(invokeLaunch(unsupported)).rejects.toBe(error);
-				expect(unsupported.writeFileIfNotExists).not.toHaveBeenCalled();
-			}
+			// Destinations without conditional uploads keep denied reads fatal.
+			const unsupported = makeFixture(error);
+			fixtureSpies.push(
+				spyOn(writeFileModule, 'supportsConditionalOutput').mockImplementation(
+					() => false,
+				),
+			);
+			await expect(invokeLaunch(unsupported)).rejects.toBe(error);
+			expect(unsupported.writeFileIfNotExists).not.toHaveBeenCalled();
 
 			for (const unrelated of [
 				await getBundledHeadError(500),
@@ -461,11 +474,11 @@ test.each(['bundled', 'same package'] as const)(
 	},
 );
 
-test.each(['bundled', 'same package'] as const)(
+test.each(['normalized', 'constructed'] as const)(
 	'packaged status falls back for %s access errors, including timed out recovery',
 	async (copy) => {
 		const fixture = makeFixture(
-			copy === 'bundled'
+			copy === 'normalized'
 				? await getBundledHeadError(403)
 				: new OutputFileAccessDeniedError('Denied'),
 		);
