@@ -154,6 +154,7 @@ const HtmlInCanvasPresentationWithSupport = <
 				});
 
 				await Internals.runEffectChain({
+					frameTiming: null,
 					state: chainState.get(width, height)!,
 					source: shaderCanvas,
 					effects: effectsRef.current ?? [],

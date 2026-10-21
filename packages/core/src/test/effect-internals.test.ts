@@ -62,6 +62,7 @@ test('closes a resized effect source after its chain is cancelled', async () => 
 	const state = createEffectChainState(2, 2);
 	try {
 		const rendering = runEffectChain({
+			frameTiming: null,
 			state,
 			source: document.createElement('canvas'),
 			output: document.createElement('canvas'),
@@ -167,6 +168,7 @@ test.each(['2d', 'webgl2'] as const)(
 		};
 		const render = (texts: string[]) =>
 			runEffectChain({
+				frameTiming: null,
 				state,
 				source,
 				output,

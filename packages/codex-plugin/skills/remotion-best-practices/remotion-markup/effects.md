@@ -71,10 +71,12 @@ For quick project-specific effects, keep the effect next to the composition, for
 - `backend`: `"2d"`, `"webgl2"` or `"webgpu"`.
 - `calculateKey(params)`: stable string containing every resolved parameter that changes output.
 - `setup(target)`: create reusable backend state, or return `null`.
-- `apply({source, target, width, height, params, state, flipSourceY})`: draw the transformed result into `target`.
+- `apply({source, target, width, height, params, state, flipSourceY, frameTiming})`: draw the transformed result into `target`.
 - `cleanup(state)`: free resources created by `setup()`.
 - `schema`: an `InteractivitySchema` for Studio controls. `disabled` is added automatically.
 - `validateParams(params)`: throw on missing or invalid values.
+
+`frameTiming`, when provided, is an immutable `{timestampInSeconds, fps}` snapshot captured before asynchronous processing. Video and animated-image sources provide decoded media time; `fps` is the composition frame rate. Keep time out of authored parameters and `calculateKey()`.
 
 Use `backend: "2d"` for simple pixel, filter, drawImage, or image-data effects. Use WebGL2 only when shader math or GPU performance is needed; during renders, enable WebGL as shown above.
 

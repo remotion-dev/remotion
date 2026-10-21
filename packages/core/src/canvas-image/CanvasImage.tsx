@@ -465,6 +465,7 @@ const CanvasImageContent = forwardRef<
 			);
 
 			runEffectChain({
+				frameTiming: null,
 				state: chainState.get(canvasWidth, canvasHeight)!,
 				source: sourceCanvas,
 				effects: memoizedEffects,

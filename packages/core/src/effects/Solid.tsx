@@ -212,6 +212,7 @@ const SolidInner: React.FC<
 		}
 
 		runEffectChain({
+			frameTiming: null,
 			state: chainState.get(canvasWidth, canvasHeight)!,
 			source: sourceCanvas,
 			effects: memoizedEffects,

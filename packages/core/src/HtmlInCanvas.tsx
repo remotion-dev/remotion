@@ -852,6 +852,7 @@ const HtmlInCanvasContent = forwardRef<
 					const state = chainState.get(canvasWidth, canvasHeight);
 					if (state) {
 						await runEffectChain({
+							frameTiming: null,
 							state,
 							source: effectSourceCanvas ?? paintTarget,
 							effects: effectsRef.current,
