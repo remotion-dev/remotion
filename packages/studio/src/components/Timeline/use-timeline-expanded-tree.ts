@@ -1,3 +1,4 @@
+import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -40,9 +41,63 @@ export const useTimelineSequenceHasExpandableContent = ({
 		() => getSelectedTimelineExpandedRowKeys(selectedItems),
 		[selectedItems],
 	);
+	const canHaveExpandableContent = useMemo(() => {
+		if (nodePathInfo === null) {
+			return false;
+		}
+
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const sourceKey = stringifySequenceExpandedRowKey(nodePath);
+		if (
+			selectedItems.some(
+				(item) =>
+					item.type !== 'guide' &&
+					stringifySequenceExpandedRowKey(
+						item.nodePathInfo.sequenceSubscriptionKey,
+					) === sourceKey,
+			)
+		) {
+			return true;
+		}
+
+		if (
+			Object.values(
+				Internals.getPropStatusesCtx(visualModePropStatuses, nodePath) ?? {},
+			).some((status) => status.status === 'keyframed') ||
+			Object.values(getDragOverrides(nodePath)).some(
+				(override) => override.type === 'keyframed',
+			)
+		) {
+			return true;
+		}
+
+		return sequence.effects.some((_, effectIndex) => {
+			const status = Internals.getEffectPropStatusesCtx({
+				propStatuses: visualModePropStatuses,
+				nodePath,
+				effectIndex,
+			});
+			return (
+				(status.type === 'can-update-effect' &&
+					Object.values(status.props).some(
+						(prop) => prop.status === 'keyframed',
+					)) ||
+				Object.values(getEffectDragOverrides(nodePath, effectIndex)).some(
+					(override) => override.type === 'keyframed',
+				)
+			);
+		});
+	}, [
+		getDragOverrides,
+		getEffectDragOverrides,
+		nodePathInfo,
+		selectedItems,
+		sequence.effects,
+		visualModePropStatuses,
+	]);
 	const selectHasExpandableContent = useCallback(
 		(runtimeValues: Readonly<Record<string, unknown>>) => {
-			if (nodePathInfo === null) {
+			if (!canHaveExpandableContent || nodePathInfo === null) {
 				return false;
 			}
 
@@ -76,6 +131,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 			);
 		},
 		[
+			canHaveExpandableContent,
 			getDragOverrides,
 			getEffectDragOverrides,
 			nodePathInfo,
@@ -86,7 +142,9 @@ export const useTimelineSequenceHasExpandableContent = ({
 	);
 
 	return useRuntimeValueSelector({
-		controls: sequence.controls,
+		// Runtime values can change active enum fields, but cannot introduce a
+		// selection or keyframes. Most code-animated tracks need no subscription.
+		controls: canHaveExpandableContent ? sequence.controls : null,
 		selector: selectHasExpandableContent,
 	});
 };
