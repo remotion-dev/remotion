@@ -1,4 +1,3 @@
-import {readFileSync} from 'node:fs';
 import type {
 	CallExpression,
 	Expression,
@@ -32,6 +31,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
+import {readSourceFile} from '../../helpers/read-source-file';
 import {
 	FileOutsideProjectError,
 	resolveFileInsideProject,
@@ -1342,17 +1342,19 @@ export const resolveSequencePropsNodePathsFromFilename = ({
 	fileName,
 	targets,
 	remotionRoot,
+	fileContentsCache,
 }: {
 	fileName: string;
 	targets: {line: number; column: number}[];
 	remotionRoot: string;
+	fileContentsCache: Map<string, string> | null;
 }) => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
 		fileName,
 		action: 'read',
 	});
-	const fileContents = readFileSync(absolutePath, 'utf-8');
+	const fileContents = readSourceFile({absolutePath, fileContentsCache});
 	return CodemodsInternals.resolveNodePathsFromLocations({
 		fileContents,
 		targets,
@@ -1404,6 +1406,7 @@ export const computeSequencePropsStatus = ({
 	assetKeys = [],
 	effects,
 	remotionRoot,
+	fileContentsCache,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -1412,6 +1415,7 @@ export const computeSequencePropsStatus = ({
 	assetKeys?: string[];
 	effects: string[][];
 	remotionRoot: string;
+	fileContentsCache: Map<string, string> | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
@@ -1419,7 +1423,7 @@ export const computeSequencePropsStatus = ({
 		action: 'read',
 	});
 
-	const fileContents = readFileSync(absolutePath, 'utf-8');
+	const fileContents = readSourceFile({absolutePath, fileContentsCache});
 	return computeSequencePropsStatusFromContent({
 		fileContents,
 		nodePath,
@@ -1440,6 +1444,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 	effects,
 	remotionRoot,
 	logLevel,
+	fileContentsCache,
 }: {
 	fileName: string;
 	line: number;
@@ -1450,6 +1455,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
+	fileContentsCache: Map<string, string> | null;
 }): SubscribeToSequencePropsResponse => {
 	try {
 		const {absolutePath} = resolveFileInsideProject({
@@ -1462,6 +1468,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 			fileName,
 			targets: [{line, column}],
 			remotionRoot,
+			fileContentsCache,
 		});
 		if (!resolvedNodePath) {
 			return {
@@ -1482,6 +1489,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 				assetKeys,
 				effects,
 				remotionRoot,
+				fileContentsCache,
 			}),
 			nodePath: {
 				absolutePath,
