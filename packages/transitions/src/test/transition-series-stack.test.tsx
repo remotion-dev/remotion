@@ -115,6 +115,14 @@ const SequenceTestWrapper: React.FC<{
 		() => ({propStatuses}),
 		[propStatuses],
 	);
+	const visualModePropStatusesSubscription = useMemo(
+		() => ({
+			subscribe: () => () => undefined,
+			getSnapshot: (key: string | null) =>
+				key === null ? null : (propStatuses[key] ?? null),
+		}),
+		[propStatuses],
+	);
 	const overrideIdToNodePathContext = useMemo(
 		() => ({overrideIdToNodePathMappings}),
 		[overrideIdToNodePathMappings],
@@ -141,15 +149,19 @@ const SequenceTestWrapper: React.FC<{
 									<ObserveSequenceRegistrations
 										onRegisterSequence={onRegisterSequence}
 									/>
-									<Internals.VisualModePropStatusesContext.Provider
-										value={visualModePropStatuses}
+									<Internals.VisualModePropStatusesSubscriptionContext.Provider
+										value={visualModePropStatusesSubscription}
 									>
-										<Internals.VisualModeSettersContext.Provider
-											value={visualModeSetters}
+										<Internals.VisualModePropStatusesContext.Provider
+											value={visualModePropStatuses}
 										>
-											{children}
-										</Internals.VisualModeSettersContext.Provider>
-									</Internals.VisualModePropStatusesContext.Provider>
+											<Internals.VisualModeSettersContext.Provider
+												value={visualModeSetters}
+											>
+												{children}
+											</Internals.VisualModeSettersContext.Provider>
+										</Internals.VisualModePropStatusesContext.Provider>
+									</Internals.VisualModePropStatusesSubscriptionContext.Provider>
 								</Internals.SequenceManagerProvider>
 							</Internals.OverrideIdsToNodePathsGettersContext.Provider>
 						</Internals.TimelineContext.Provider>
