@@ -10,7 +10,7 @@ type ExtractFrameResult =
 			rotation: number;
 			durationInSeconds: number | null;
 	  }
-	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'cannot-decode'; durationInSeconds: number | null; error: Error}
 	| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 	| {type: 'unknown-container-format'}
@@ -66,7 +66,13 @@ const extractFrameInternal = async ({
 	}
 
 	if (video === 'cannot-decode') {
-		return {type: 'cannot-decode', durationInSeconds: mediaDurationInSeconds};
+		return {
+			type: 'cannot-decode',
+			durationInSeconds: mediaDurationInSeconds,
+			error: new Error(
+				`The video track in ${src} has a codec or configuration the browser cannot decode.`,
+			),
+		};
 	}
 
 	if (video === 'cannot-decode-prores') {
@@ -150,7 +156,14 @@ const extractFrameInternal = async ({
 			`Error decoding ${src} at time ${timeInSeconds}: ${err}`,
 			err,
 		);
-		return {type: 'cannot-decode', durationInSeconds: mediaDurationInSeconds};
+		return {
+			type: 'cannot-decode',
+			durationInSeconds: mediaDurationInSeconds,
+			error: new Error(
+				`Video decoding failed for ${src} at ${timeInSeconds}s: ${err}`,
+				{cause: err},
+			),
+		};
 	}
 };
 

@@ -285,10 +285,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 				if (result.type === 'cannot-decode') {
 					handleError(
-						new Error(`Cannot decode ${src}.`),
-						new Error(
-							`Cannot render video "${src}": The video could not be decoded by the browser.`,
-						),
+						result.error,
+						new Error(`Cannot render video "${src}": ${result.error.message}`, {
+							cause: result.error,
+						}),
 						`Cannot decode ${src}, falling back to <OffthreadVideo>`,
 						result.durationInSeconds,
 					);
