@@ -45,10 +45,7 @@ const ShineInner: React.FC = () => {
 	);
 };
 
-export const Shine = Interactive.withSchema({
+export const Shine = Interactive.create({
 	Component: ShineInner,
-	componentName: 'Shine',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

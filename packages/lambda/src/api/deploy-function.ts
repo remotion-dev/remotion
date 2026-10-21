@@ -1,25 +1,21 @@
-import type {RequestHandler, RuntimePreference} from '@remotion/lambda-client';
 import {
 	LambdaClientInternals,
 	speculateFunctionName,
 	type AwsRegion,
+	type RequestHandler,
+	type RuntimePreference,
 } from '@remotion/lambda-client';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {
-	CloudProvider,
-	FullClientSpecifics,
-	ProviderSpecifics,
-} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {validateRuntimePreference} from '../shared/get-layers';
 import {validateCustomLayerArns} from '../shared/validate-custom-layer-arns';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
 import {validateTimeout} from '../shared/validate-timeout';
+import {createFunction} from './create-function';
 
 type MandatoryParameters = {
 	createCloudWatchLogGroup: boolean;
@@ -51,12 +47,10 @@ export type DeployFunctionOutput = {
 	alreadyExisted: boolean;
 };
 
-export const internalDeployFunction = async <Provider extends CloudProvider>(
+export const internalDeployFunction = async (
 	params: MandatoryParameters &
 		OptionalParameters & {
 			customLayerArns: string[] | null;
-			providerSpecifics: ProviderSpecifics<Provider>;
-			fullClientSpecifics: FullClientSpecifics<Provider>;
 		},
 ): Promise<DeployFunctionOutput> => {
 	LambdaClientInternals.validateMemorySize(params.memorySizeInMb);
@@ -78,11 +72,11 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 		memorySizeInMb: params.memorySizeInMb,
 		timeoutInSeconds: params.timeoutInSeconds,
 	});
-	const accountId = await params.providerSpecifics.getAccountId({
+	const accountId = await LambdaClientInternals.getAccountIdImplementation({
 		region: params.region,
 	});
 
-	const fns = await params.providerSpecifics.getFunctions({
+	const fns = await LambdaClientInternals.getFunctions({
 		compatibleOnly: true,
 		region: params.region,
 	});
@@ -95,7 +89,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 			f.diskSizeInMb === params.diskSizeInMb,
 	);
 
-	const created = await params.fullClientSpecifics.createFunction({
+	const created = await createFunction({
 		createCloudWatchLogGroup: params.createCloudWatchLogGroup,
 		region: params.region,
 		zipFile: FUNCTION_ZIP_ARM64,
@@ -176,8 +170,6 @@ export const deployFunction = ({
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference: runtimePreference ?? 'default',
-		providerSpecifics: LambdaClientInternals.awsImplementation,
-		fullClientSpecifics: awsFullClientSpecifics,
 		requestHandler,
 	});
 };

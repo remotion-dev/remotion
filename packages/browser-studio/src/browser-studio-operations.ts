@@ -14,6 +14,8 @@ import {
 	duplicateComposition as duplicateCompositionCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
 	duplicateNodes as duplicateNodesCodemod,
+	canUnwrapNode,
+	unwrapNode as unwrapNodeCodemod,
 	canWrapNode,
 	wrapNode as wrapNodeCodemod,
 	getNodeProps,
@@ -1434,6 +1436,49 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const unwrapNode: BrowserStudioOperations['unwrapNode'] = ({
+		fileName,
+		compositionId,
+		nodePath,
+		dryRun,
+	}) => {
+		try {
+			const project = getProject();
+			const filePath = findProjectFile({project, filePath: fileName});
+			const canUnwrap = canUnwrapNode({
+				input: project.files[filePath],
+				nodePath,
+			});
+			if (dryRun) {
+				return Promise.resolve({
+					success: true,
+					canUnwrap,
+					nodePathMutation: null,
+				});
+			}
+
+			const result = unwrapNodeCodemod({project, node: {filePath, nodePath}});
+			const {childNodePath} = result;
+			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
+				timelineSelection:
+					childNodePath === null
+						? null
+						: {compositionId, absolutePath: filePath, nodePath: childNodePath},
+				fileName,
+				mutate: (current) => applyCodemodChanges(current, result.changes),
+				nodePathMutationFiles: getNodePathMutationFiles(result),
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not unwrap JSX node');
+			}
+
+			return Promise.resolve({success: true, canUnwrap, nodePathMutation});
+		} catch (error) {
+			return Promise.resolve(getStructuredError(error));
+		}
+	};
+
 	const wrapNode: BrowserStudioOperations['wrapNode'] = ({
 		fileName,
 		compositionId,
@@ -2487,6 +2532,7 @@ export const createBrowserStudioOperations = ({
 		deleteComposition: deleteCompositionOperation,
 		precomposeJsxNodes,
 		duplicateNodes,
+		unwrapNode,
 		wrapNode,
 		effects: effectOperations,
 		clearPendingHmrEvent: controller.clearPendingHmrEvent,

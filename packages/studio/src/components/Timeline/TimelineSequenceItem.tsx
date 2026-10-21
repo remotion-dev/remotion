@@ -85,6 +85,7 @@ import {
 	getSequenceContextMenuItems,
 } from './get-sequence-context-menu-items';
 import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
+import {getSequenceUnwrapMenuItem} from './get-sequence-unwrap-menu-item';
 import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
 import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
@@ -390,6 +391,9 @@ const TimelineSequenceItemInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const isStill = useIsStill();
 	const canMutateEffects =
 		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
@@ -399,7 +403,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
-	const assetContextMenu = useAssetTimelineContextMenu();
+	const getAssetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected, selectedItems, selectItem} =
@@ -1380,6 +1384,7 @@ const TimelineSequenceItemInner: React.FC<{
 		(event: MouseEvent) => {
 			const contextMenuTarget =
 				event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+			const assetContextMenu = getAssetContextMenu();
 			if (assetContextMenu !== null) {
 				return assetContextMenu;
 			}
@@ -1390,6 +1395,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 			if (selectedSequenceNodePathInfos !== null) {
 				return getMultiSequenceContextMenuItems({
+					selectedItemCount: selectedSequenceNodePathInfos.length,
 					getContextForAgents: () =>
 						getSequencesContextForAgents({
 							nodePathInfos: selectedSequenceNodePathInfos,
@@ -1406,6 +1412,20 @@ const TimelineSequenceItemInner: React.FC<{
 					onSplitSelectedSequences,
 				});
 			}
+
+			const {canvasContent} = compositionManagerRef.current;
+			const unwrapMenuItem = getSequenceUnwrapMenuItem({
+				sequence,
+				sourceLocation: validatedLocation,
+				setSelectedModal,
+				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				compositionId:
+					canvasContent?.type === 'composition'
+						? canvasContent.compositionId
+						: null,
+				isTransition: sequence.timelineTrack?.role === 'transition',
+				nodePath,
+			});
 
 			const splitMenuItem = getSequenceSplitMenuItem({
 				nodePathInfo,
@@ -1464,68 +1484,8 @@ const TimelineSequenceItemInner: React.FC<{
 					selectAsset,
 					sequence,
 					sourceActions: isStudioInteractivityEnabled()
-						? [
-								...(nodePathInfo?.supportsEffects
-									? [
-											{
-												type: 'item' as const,
-												id: 'add-effect',
-												keyHint: null,
-												label: 'Add effect...',
-												leftItem: null,
-												disabled: !canAddEffect,
-												onClick: onAddEffect,
-												quickSwitcherLabel: null,
-												subMenu: null,
-												value: 'add-effect',
-											},
-										]
-									: []),
-								...(canCrop
-									? [
-											{
-												type: 'item' as const,
-												id: 'crop',
-												keyHint: null,
-												label: isProgrammaticallyDuplicated
-													? 'Crop all'
-													: 'Crop',
-												leftItem: null,
-												disabled: false,
-												onClick: onCrop,
-												quickSwitcherLabel: null,
-												subMenu: null,
-												value: 'crop',
-											},
-										]
-									: []),
-								...(canRotate
-									? [
-											{
-												type: 'item' as const,
-												id: 'rotate',
-												keyHint: null,
-												label: isProgrammaticallyDuplicated
-													? 'Rotate all'
-													: 'Rotate',
-												leftItem: null,
-												disabled: false,
-												onClick: onRotate,
-												quickSwitcherLabel: null,
-												subMenu: null,
-												value: 'rotate',
-											},
-										]
-									: []),
-								...(canCrop || canRotate
-									? [
-											{
-												type: 'divider' as const,
-												id: 'transform-controls-divider',
-											},
-										]
-									: []),
-								{
+						? {
+								rename: {
 									type: 'item' as const,
 									id: 'rename-sequence',
 									keyHint: null,
@@ -1539,18 +1499,76 @@ const TimelineSequenceItemInner: React.FC<{
 									subMenu: null,
 									value: 'rename-sequence',
 								},
-								...(!isPackedTrack && splitMenuItem ? [splitMenuItem] : []),
-								...(!isPackedTrack && freezeFrameMenuItem
-									? [freezeFrameMenuItem]
-									: []),
-							]
-						: [],
+								timing: [
+									...(!isPackedTrack && splitMenuItem ? [splitMenuItem] : []),
+									...(!isPackedTrack && freezeFrameMenuItem
+										? [freezeFrameMenuItem]
+										: []),
+								],
+								appearance: [
+									...(canCrop
+										? [
+												{
+													type: 'item' as const,
+													id: 'crop',
+													keyHint: null,
+													label: isProgrammaticallyDuplicated
+														? 'Crop all'
+														: 'Crop',
+													leftItem: null,
+													disabled: false,
+													onClick: onCrop,
+													quickSwitcherLabel: null,
+													subMenu: null,
+													value: 'crop',
+												},
+											]
+										: []),
+									...(canRotate
+										? [
+												{
+													type: 'item' as const,
+													id: 'rotate',
+													keyHint: null,
+													label: isProgrammaticallyDuplicated
+														? 'Rotate all'
+														: 'Rotate',
+													leftItem: null,
+													disabled: false,
+													onClick: onRotate,
+													quickSwitcherLabel: null,
+													subMenu: null,
+													value: 'rotate',
+												},
+											]
+										: []),
+									...(nodePathInfo?.supportsEffects
+										? [
+												{
+													type: 'item' as const,
+													id: 'add-effect',
+													keyHint: null,
+													label: 'Add effect...',
+													leftItem: null,
+													disabled: !canAddEffect,
+													onClick: onAddEffect,
+													quickSwitcherLabel: null,
+													subMenu: null,
+													value: 'add-effect',
+												},
+											]
+										: []),
+								],
+								unwrap: unwrapMenuItem,
+							}
+						: null,
 				},
 				contextMenuTarget,
 			);
 		},
 		[
-			assetContextMenu,
+			getAssetContextMenu,
+			compositionManagerRef,
 			canAddEffect,
 			canCrop,
 			canRotate,
@@ -1598,7 +1616,7 @@ const TimelineSequenceItemInner: React.FC<{
 			sequencesRef,
 			setSelectedModal,
 			setPropStatuses,
-			validatedLocation?.source,
+			validatedLocation,
 		],
 	);
 	const canDropEffect =

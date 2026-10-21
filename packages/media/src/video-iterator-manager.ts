@@ -124,8 +124,10 @@ export const videoIteratorManager = async ({
 	// Effects expect a source with the size of the output.
 	let upscaledFrame: OffscreenCanvas | null = null;
 
-	const prewarmedVideoIteratorCache =
-		makePrewarmedVideoIteratorCache(canvasSink);
+	const prewarmedVideoIteratorCache = makePrewarmedVideoIteratorCache(
+		canvasSink,
+		await videoTrack.getTimeResolution(),
+	);
 
 	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
 		if (destroyed) {

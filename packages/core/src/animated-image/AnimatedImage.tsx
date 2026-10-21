@@ -1,7 +1,6 @@
 import type React from 'react';
 import {
 	forwardRef,
-	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
@@ -118,6 +117,7 @@ const AnimatedImageContent = forwardRef<
 			handle: number;
 		} | null>(null);
 		const imageDecoder = decodedImage?.decoder ?? null;
+		const activeDecoderRef = useRef<RemotionImageDecoder | null>(null);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 		const frame = useCurrentFrame();
@@ -155,6 +155,7 @@ const AnimatedImageContent = forwardRef<
 			const controller = new AbortController();
 			let cancelled = false;
 			let continued = false;
+			let decoder: RemotionImageDecoder | null = null;
 
 			const continueRenderOnce = () => {
 				if (continued) {
@@ -178,6 +179,8 @@ const AnimatedImageContent = forwardRef<
 						return;
 					}
 
+					decoder = d;
+					activeDecoderRef.current = d;
 					setDecodedImage({decoder: d, handle: decodeHandle});
 				})
 				.catch((err) => {
@@ -201,6 +204,8 @@ const AnimatedImageContent = forwardRef<
 
 			return () => {
 				cancelled = true;
+				activeDecoderRef.current = null;
+				decoder?.close();
 				controller.abort();
 				continueRenderOnce();
 			};
@@ -214,14 +219,14 @@ const AnimatedImageContent = forwardRef<
 			cancelRender,
 		]);
 
-		useEffect(() => {
-			return () => {
-				imageDecoder?.close();
-			};
-		}, [imageDecoder]);
-
 		useLayoutEffect(() => {
-			if (!imageDecoder || !decodedImage) {
+			// Activity and Suspense can retain state after cleaning up effects.
+			// Wait for the current loading effect to publish a live decoder.
+			if (
+				!imageDecoder ||
+				!decodedImage ||
+				activeDecoderRef.current !== imageDecoder
+			) {
 				return;
 			}
 

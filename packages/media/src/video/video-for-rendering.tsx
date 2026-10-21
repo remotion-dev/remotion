@@ -54,6 +54,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly _remotionInternalStack: string | undefined;
 	readonly toneFrequency: number;
+	readonly preservePitch: boolean | null;
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
 	readonly headless: boolean;
@@ -87,6 +88,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	disallowFallbackToOffthreadVideo,
 	_remotionInternalStack,
 	toneFrequency,
+	preservePitch,
 	trimAfterValue,
 	trimBeforeValue,
 	headless,
@@ -416,7 +418,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						startInVideo,
 						timestamp: audio.timestamp,
 						duration: audio.durationInMicroSeconds,
-						toneFrequency,
+						toneFrequency:
+							toneFrequency /
+							(preservePitch ? playbackRate * sequencePlaybackRate : 1),
 					});
 				}
 
@@ -463,6 +467,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		audioStreamIndex,
 		disallowFallbackToOffthreadVideo,
 		toneFrequency,
+		preservePitch,
 		trimAfterValue,
 		trimBeforeValue,
 		videoEnabled,
@@ -530,7 +535,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				durationInFrames={undefined}
 				trimBefore={trimBeforeValue}
 				useWebAudioApi={fallbackOffthreadVideoProps?.useWebAudioApi ?? false}
-				preservePitch={fallbackOffthreadVideoProps?.preservePitch ?? true}
+				preservePitch={
+					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch ?? true
+				}
 				startFrom={undefined}
 				endAt={undefined}
 				_remotionInternalStack={_remotionInternalStack}

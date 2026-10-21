@@ -1,10 +1,11 @@
 import {expect, test} from 'bun:test';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {makeBucketName} from '@remotion/serverless';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {useFakeAws} from '../mocks/fake-aws';
+
+useFakeAws();
 
 test('Generate and parse bucket names correctly', () => {
-	const name = makeBucketName('us-east-1', mockImplementation);
+	const name = LambdaClientInternals.makeBucketName('us-east-1');
 	expect(name).toBe('remotionlambda-useast1-abcdef');
 
 	const parsed = LambdaClientInternals.parseBucketName(name);

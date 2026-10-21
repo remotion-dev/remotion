@@ -234,8 +234,13 @@ export const subscribeToSequencePropsWatchers = ({
 
 	const absolutePath = path.resolve(remotionRoot, fileName);
 
-	// Cache the resolved nodePath for future lookups with stale source maps
-	setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
+	// A preferred path may have been remapped while these coordinates still
+	// come from the previous bundle. Caching that pair can make a later mount
+	// at the same location inherit a different sibling's props after Refresh.
+	// Only a location-based subscription can establish a location cache entry.
+	if (preferredNodePath === null) {
+		setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
+	}
 
 	const {nodePath} = initialResult;
 	const watcherKey = getWatcherKey(nodePath, assetKeys);

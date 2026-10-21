@@ -3,6 +3,7 @@ export const packagesRemovedInV5 = [
 	'@remotion/media-parser',
 	'@remotion/starburst',
 	'@remotion/webcodecs',
+	'@remotion/whisper-web',
 ] as const;
 
 const packagesRemovedInV5Set = new Set<string>(packagesRemovedInV5);

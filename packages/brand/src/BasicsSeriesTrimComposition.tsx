@@ -361,7 +361,7 @@ const BasicsSeriesTrimInner = ({
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
-					name="Radial focus"
+					name="Canvas Capture"
 					width={2560}
 					height={924}
 					effects={[
@@ -377,7 +377,7 @@ const BasicsSeriesTrimInner = ({
 					durationInFrames={463}
 					premountFor={fps}
 					style={{
-						translate: '-170px 50px',
+						translate: '-830px 150px',
 						scale: 0.9,
 						rotate: '-2deg',
 						transformOrigin: '0 0',
@@ -388,13 +388,13 @@ const BasicsSeriesTrimInner = ({
 				</HtmlInCanvas>
 			) : (
 				<AbsoluteFill
-					name="Radial focus"
+					name="Canvas Capture"
 					durationInFrames={463}
 					premountFor={fps}
 					style={{
 						width: 2560,
 						height: 924,
-						translate: '-170px 50px',
+						translate: '-830px 150px',
 						scale: 0.9,
 						rotate: '-2deg',
 						transformOrigin: '0 0',

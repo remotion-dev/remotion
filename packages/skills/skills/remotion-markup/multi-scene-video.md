@@ -1,32 +1,21 @@
 # Multi-scene videos
 
-Put successive scenes in a named `Track`. Make each scene with
-`Interactive.create({layout: 'absolute-fill'})` and register it as a connected
-composition. Write each instance separately with inline timing and props.
+Give each substantial scene its own component and connect it when it benefits
+from an independent editing timeline. Keep each instance's name, timing, and
+props inline in the parent.
 
-```tsx title="MyVideo.tsx"
-import {Track, useVideoConfig} from 'remotion';
-import {OpeningScene} from './OpeningScene';
-import {FeatureScene} from './FeatureScene';
+Choose the parent structure from the editing behavior:
 
-export const MyVideo = () => {
-  const {fps} = useVideoConfig();
+- For independent scene start times, use a named `Track` with explicit `from`
+  and `durationInFrames` on each scene. Its items must not overlap.
+- For scenes that should remain adjacent as their durations change, use
+  `TransitionSeries`. Keep each scene inside its own
+  `TransitionSeries.Sequence`, with duration and source trim on that boundary.
+  Add transitions when needed and account for their overlaps in the total
+  composition duration.
 
-  return (
-    <Track name="Scenes">
-      <OpeningScene name="Opening" durationInFrames={3 * fps} />
-      <FeatureScene name="Feature" from={3 * fps} durationInFrames={4 * fps} />
-    </Track>
-  );
-};
-```
-
-Follow the complete [Track + connected compositions example](../remotion-interactivity/timeline-structure.md)
-for scene definitions and `Root.tsx`. Register `OpeningScene`, `FeatureScene`,
-and `MyVideo` using those same exported component references, with representative
-inline defaults. At 30 fps, this parent lasts 210 frames.
-
-When adding overlapping transitions, use
-[`TransitionSeries`](transitions.md) instead of `Track`. Keep each scene as the
-only child of its `TransitionSeries.Sequence`, and subtract transition overlaps
-from the parent duration.
+Follow [editable timeline structure](../remotion-interactivity/timeline-structure.md)
+for a complete scene, parent, and registration example. See
+[transitions](transitions.md) for transition timing and presentations, and
+[connected compositions](connected-compositions.md) for extraction and
+verification in the full video.

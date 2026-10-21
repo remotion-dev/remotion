@@ -13,6 +13,7 @@ export const CanvasCaptureComposition = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			durationInFrames={500}
 			style={{
 				width: 3026,

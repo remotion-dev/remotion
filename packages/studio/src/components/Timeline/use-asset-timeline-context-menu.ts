@@ -1,4 +1,4 @@
-import {useContext, useMemo} from 'react';
+import {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -8,11 +8,16 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 
-export const useAssetTimelineContextMenu = (): ComboboxValue[] | null => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
+export const useAssetTimelineContextMenu = (): (() =>
+	| ComboboxValue[]
+	| null) => {
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 
-	return useMemo(() => {
+	return useCallback(() => {
+		const {canvasContent} = compositionManagerRef.current;
 		if (canvasContent?.type !== 'asset') {
 			return null;
 		}
@@ -52,5 +57,5 @@ export const useAssetTimelineContextMenu = (): ComboboxValue[] | null => {
 			},
 			copyContextItem,
 		];
-	}, [canvasContent, previewServerState.type]);
+	}, [compositionManagerRef, previewServerState.type]);
 };

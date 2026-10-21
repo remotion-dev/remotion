@@ -153,6 +153,18 @@ A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `
 
 Default `1`.
 
+### `preservePitch?`<AvailableFrom v="4.0.538" />
+
+Preserves audio pitch when changing the Player's [`playbackRate`](#playbackrate). Defaults to `false`.
+
+Applies to [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`. `toneFrequency` remains an independent pitch multiplier.
+
+For example, with `<Player playbackRate={2} preservePitch>`, a clip authored at normal speed keeps its original pitch. A clip with `playbackRate={2}` still has twice the original pitch unless that clip also has `preservePitch` enabled.
+
+This prop does not affect native media components (`<Html5Audio>`, `<Html5Video>`, `<OffthreadVideo>`) or native fallbacks. Those retain their own `preservePitch` behavior. It does not affect rendering.
+
+The Studio has a separate [preserve-pitch-on-playback setting](/docs/options/preserve-pitch-on-playback), which defaults to `true`.
+
 ### `errorFallback?`
 
 A callback for rendering a custom error message. See [Handling errors](#handling-errors) section for an example.

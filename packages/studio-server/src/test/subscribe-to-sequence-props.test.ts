@@ -2,16 +2,20 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {basename, join} from 'node:path';
-import type {SubscribeToSequencePropsRequest} from '@remotion/studio-shared';
+import type {
+	SubscribeToSequencePropsRequest,
+	UnsubscribeFromSequencePropsRequest,
+} from '@remotion/studio-shared';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {subscribeToSequenceProps} from '../preview-server/routes/subscribe-to-sequence-props';
+import {unsubscribeFromSequenceProps} from '../preview-server/routes/unsubscribe-from-sequence-props';
 import {unsubscribeClientSequencePropsWatchers} from '../preview-server/sequence-props-watchers';
 import {lineColumnToNodePath} from './test-utils';
 
-test('resolves batched sequence prop subscriptions through the handler', async () => {
+test('subscribes and unsubscribes batched sequence props through the handlers', async () => {
 	const firstInput = `import {Interactive} from 'remotion';
 
 export const First = () => {
@@ -29,9 +33,21 @@ export const Second = () => {
 	return <Interactive.Div name="Three" />;
 };
 `;
-	const cleanupFileWatcher = setFileWatcherRegistry(
-		createFileWatcherRegistry(),
-	);
+	const registry = createFileWatcherRegistry();
+	const unwatchedFiles: string[] = [];
+	const cleanupFileWatcher = setFileWatcherRegistry({
+		...registry,
+		installFileWatcher: (options) => {
+			const watcher = registry.installFileWatcher(options);
+			return {
+				...watcher,
+				unwatch: () => {
+					watcher.unwatch();
+					unwatchedFiles.push(options.file);
+				},
+			};
+		},
+	});
 	const remotionRoot = mkdtempSync(join(tmpdir(), 'remotion-subscriptions-'));
 	const uniqueSuffix = basename(remotionRoot);
 	const firstFileName = `First-${uniqueSuffix}.tsx`;
@@ -78,14 +94,13 @@ export const Second = () => {
 	];
 
 	try {
-		const response = await subscribeToSequenceProps({
+		const handlerOptions = {
 			binariesDirectory: null,
 			configFile: null,
 			entryPoint: join(remotionRoot, firstFileName),
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			input: {requests},
-			logLevel: 'error',
+			logLevel: 'error' as const,
 			methods: {
 				addJob: () => undefined,
 				cancelJob: () => undefined,
@@ -95,6 +110,10 @@ export const Second = () => {
 			remotionRoot,
 			request: {} as never,
 			response: {} as never,
+		};
+		const response = await subscribeToSequenceProps({
+			...handlerOptions,
+			input: {requests},
 		});
 		const expectedNodePaths = [
 			lineColumnToNodePath(firstInput, 6),
@@ -103,6 +122,7 @@ export const Second = () => {
 			lineColumnToNodePath(secondInput, 4),
 		];
 		const expectedNames = ['One', 'Two', 'Three', 'Three'];
+		const unsubscriptions: UnsubscribeFromSequencePropsRequest[] = [];
 		expect(response.results).toHaveLength(requests.length);
 		for (const [index, result] of response.results.entries()) {
 			if (!result.success) {
@@ -115,7 +135,34 @@ export const Second = () => {
 				keyframeDisplayOffsetAdjustment: null,
 				codeValue: expectedNames[index],
 			});
+			unsubscriptions.push({
+				fileName: requests[index].fileName,
+				nodePath: result.nodePath,
+				clientId,
+				sequenceKeys: requestBase.keys,
+				assetKeys: requestBase.assetKeys,
+				effectKeys: requestBase.effects,
+			});
 		}
+
+		await unsubscribeFromSequenceProps({
+			...handlerOptions,
+			input: {requests: unsubscriptions.slice(0, 3)},
+		});
+		// The duplicate subscription to the second file keeps its watcher alive.
+		expect(unwatchedFiles).toEqual([
+			join(remotionRoot, firstFileName),
+			join(remotionRoot, firstFileName),
+		]);
+		await unsubscribeFromSequenceProps({
+			...handlerOptions,
+			input: {requests: unsubscriptions.slice(3)},
+		});
+		expect(unwatchedFiles).toEqual([
+			join(remotionRoot, firstFileName),
+			join(remotionRoot, firstFileName),
+			join(remotionRoot, secondFileName),
+		]);
 	} finally {
 		unsubscribeClientSequencePropsWatchers(clientId);
 		cleanupFileWatcher();

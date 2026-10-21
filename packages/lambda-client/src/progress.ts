@@ -1,0 +1,458 @@
+import {NoReactAPIs} from '@remotion/renderer/pure';
+import {getBillingCurrency} from './aws-region-metadata';
+import {calculateChunkTimes} from './calculate-chunk-times';
+import {REMOTION_BUCKET_PREFIX, MAX_EPHEMERAL_STORAGE_IN_MB} from './constants';
+import {estimatePriceFromMetadata} from './estimate-price-from-bucket';
+import {getExpectedOutName} from './expected-out-name';
+import {
+	findOutputFileInBucket,
+	OutputFileAccessDeniedError,
+} from './find-output-file-in-bucket';
+import {formatCostsInfo} from './format-costs-info';
+import {getOverallProgress} from './get-overall-progress';
+import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
+import {inspectErrors} from './inspect-error';
+import {makeTimeoutError} from './make-timeout-error';
+import {parseFunctionName} from './parse-function-name';
+import type {AwsRegion} from './regions';
+import type {CleanupInfo, GenericRenderProgress} from './render-progress';
+import type {CustomCredentials} from './shared-constants';
+import {truthy} from './truthy';
+import type {RequestHandler} from './types';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
+
+type GetProgressInput = {
+	bucketName: string;
+	renderId: string;
+	expectedBucketOwner: string | null;
+	region: AwsRegion;
+	memorySizeInMb: number;
+	timeoutInMilliseconds: number;
+	customCredentials: CustomCredentials | null;
+	forcePathStyle: boolean;
+	functionName: string;
+	requestHandler: RequestHandler | null;
+};
+
+export const getProgress = async ({
+	bucketName,
+	renderId,
+	expectedBucketOwner,
+	region,
+	memorySizeInMb,
+	timeoutInMilliseconds,
+	customCredentials,
+	forcePathStyle,
+	functionName,
+	requestHandler,
+}: GetProgressInput): Promise<GenericRenderProgress> => {
+	const billingCurrency = getBillingCurrency(region);
+	const overallProgress = await getOverallProgressFromStorage({
+		renderId,
+		bucketName,
+		expectedBucketOwner,
+		region,
+		forcePathStyle,
+		requestHandler,
+	});
+
+	if (overallProgress.postRenderData) {
+		if (!overallProgress.renderMetadata) {
+			throw new Error(
+				'No render metadata found even though render is finished',
+			);
+		}
+
+		if (overallProgress.renderMetadata.type === 'still') {
+			throw new Error(
+				"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
+			);
+		}
+
+		const outData = getExpectedOutName({
+			output: 'main',
+			renderMetadata: overallProgress.renderMetadata,
+			bucketName,
+			customCredentials,
+			bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+		});
+
+		const totalFrameCount = NoReactAPIs.getFramesToRender(
+			overallProgress.renderMetadata.frameRange,
+			overallProgress.renderMetadata.everyNthFrame,
+		).length;
+
+		return {
+			framesRendered: totalFrameCount,
+			bucket: bucketName,
+			renderSize: overallProgress.postRenderData.renderSize,
+			chunks: overallProgress.renderMetadata.totalChunks,
+			cleanup: {
+				doneIn: overallProgress.postRenderData.timeToCleanUp,
+				filesDeleted: overallProgress.postRenderData.filesCleanedUp,
+				minFilesToDelete: overallProgress.postRenderData.filesCleanedUp,
+			},
+			costs: {
+				accruedSoFar: overallProgress.postRenderData.cost.estimatedCost,
+				displayCost: overallProgress.postRenderData.cost.estimatedDisplayCost,
+				currency: overallProgress.postRenderData.cost.currency,
+				disclaimer: overallProgress.postRenderData.cost.disclaimer,
+			},
+			currentTime: Date.now(),
+			done: true,
+			encodingStatus:
+				overallProgress.renderMetadata.type === 'sequence'
+					? null
+					: {
+							framesEncoded: totalFrameCount,
+							combinedFrames: totalFrameCount,
+							timeToCombine: overallProgress.postRenderData.timeToCombine,
+						},
+			errors: overallProgress.postRenderData.errors,
+			fatalErrorEncountered: false,
+			lambdasInvoked: overallProgress.renderMetadata.totalChunks,
+			outputFile: overallProgress.postRenderData.outputFile,
+			separateAudio: overallProgress.postRenderData.separateAudio ?? null,
+			outputSequence: overallProgress.postRenderData.outputSequence,
+			framesUploaded:
+				overallProgress.renderMetadata.type === 'sequence'
+					? totalFrameCount
+					: null,
+			renderId,
+			timeToFinish: overallProgress.postRenderData.timeToFinish,
+			timeToFinishChunks: overallProgress.postRenderData.timeToRenderChunks,
+			timeToRenderFrames: overallProgress.postRenderData.timeToRenderFrames,
+			overallProgress: 1,
+			retriesInfo: overallProgress.postRenderData.retriesInfo,
+			outKey:
+				overallProgress.renderMetadata.type === 'sequence' ? null : outData.key,
+			outBucket: outData.renderBucketName,
+			mostExpensiveFrameRanges:
+				overallProgress.postRenderData.mostExpensiveFrameRanges ?? null,
+			timeToEncode: overallProgress.postRenderData.timeToEncode,
+			outputSizeInBytes: overallProgress.postRenderData.outputSize,
+			type: 'success',
+			estimatedBillingDurationInMilliseconds:
+				overallProgress.postRenderData.estimatedBillingDurationInMilliseconds,
+			timeToCombine: overallProgress.postRenderData.timeToCombine,
+			combinedFrames:
+				overallProgress.renderMetadata.type === 'sequence'
+					? 0
+					: totalFrameCount,
+			renderMetadata: overallProgress.renderMetadata,
+			timeoutTimestamp: overallProgress.timeoutTimestamp,
+			compositionValidated: overallProgress.compositionValidated,
+			functionLaunched: overallProgress.functionLaunched,
+			serveUrlOpened: overallProgress.serveUrlOpened,
+			artifacts: overallProgress.receivedArtifact,
+		};
+	}
+
+	const {renderMetadata} = overallProgress;
+
+	const errorExplanations = inspectErrors({
+		errors: overallProgress.errors,
+	});
+
+	const chunkCount = overallProgress.chunks.length ?? 0;
+
+	const cleanup: CleanupInfo = {
+		doneIn: null,
+		minFilesToDelete: 0,
+		filesDeleted: 0,
+	};
+
+	if (renderMetadata === null) {
+		return {
+			framesRendered: overallProgress.framesRendered ?? 0,
+			chunks: chunkCount,
+			done: false,
+			encodingStatus: {
+				framesEncoded: overallProgress.framesEncoded,
+				combinedFrames: overallProgress.combinedFrames,
+				timeToCombine: overallProgress.timeToCombine,
+			},
+			timeToRenderFrames: overallProgress.timeToRenderFrames,
+			costs: formatCostsInfo(0, billingCurrency),
+			renderId,
+			renderMetadata,
+			bucket: bucketName,
+			outputFile: null,
+			separateAudio: null,
+			outputSequence: null,
+			framesUploaded: null,
+			timeToFinish: null,
+			errors: errorExplanations,
+			fatalErrorEncountered: errorExplanations.some(
+				(f) => f.isFatal && !f.willRetry,
+			),
+			currentTime: Date.now(),
+			renderSize: 0,
+			lambdasInvoked: overallProgress.lambdasInvoked ?? 0,
+			cleanup,
+			timeToFinishChunks: null,
+			overallProgress: getOverallProgress({
+				encoding: 0,
+				invoking: 0,
+				frames: 0,
+				gotComposition: overallProgress.compositionValidated,
+				visitedServeUrl: overallProgress.serveUrlOpened,
+				invokedLambda: overallProgress.lambdasInvoked,
+				combining: 0,
+			}),
+			retriesInfo: overallProgress.retries ?? [],
+			outKey: null,
+			outBucket: null,
+			mostExpensiveFrameRanges: null,
+			timeToEncode: overallProgress.timeToEncode,
+			outputSizeInBytes: null,
+			estimatedBillingDurationInMilliseconds: null,
+			combinedFrames: overallProgress.combinedFrames ?? 0,
+			timeToCombine: overallProgress.timeToCombine ?? null,
+			timeoutTimestamp: overallProgress.timeoutTimestamp,
+			type: 'success',
+			compositionValidated: overallProgress.compositionValidated,
+			functionLaunched: overallProgress.functionLaunched,
+			serveUrlOpened: overallProgress.serveUrlOpened,
+			artifacts: overallProgress.receivedArtifact,
+		};
+	}
+
+	const priceFromBucket = estimatePriceFromMetadata({
+		renderMetadata,
+		memorySizeInMb:
+			parseFunctionName(renderMetadata.rendererFunctionName)?.memorySizeInMb ??
+			memorySizeInMb,
+		functionsInvoked: overallProgress.lambdasInvoked ?? 0,
+		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+		timings: overallProgress.timings ?? [],
+		region,
+		fatalErrorTimestamp: overallProgress.fatalErrorTimestamp ?? null,
+	});
+
+	if (renderMetadata.type === 'still') {
+		throw new Error(
+			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
+		);
+	}
+
+	const frameCount = NoReactAPIs.getFramesToRender(
+		renderMetadata.frameRange,
+		renderMetadata.everyNthFrame,
+	).length;
+
+	const missingChunks = new Array(renderMetadata.totalChunks)
+		.fill(true)
+		.map((_, i) => i)
+		.filter((index) => {
+			return (
+				typeof (overallProgress.chunks ?? []).find((c) => c === index) ===
+				'undefined'
+			);
+		});
+	const allChunks = missingChunks.length === 0;
+	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
+
+	// 1. If we have missing chunks, we consider it timed out
+	const isBeyondTimeoutAndMissingChunks =
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000 &&
+		missingChunks &&
+		missingChunks.length > 0;
+
+	// 2. If we have no missing chunks, but the encoding is not done, even after the additional `merge` function has been spawned, we consider it timed out
+	const isBeyondTimeoutAndHasStitchTimeout =
+		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
+
+	const shouldCheckForCompletedOutput =
+		renderMetadata.type !== 'sequence' &&
+		allChunks &&
+		((renderMetadata.separateAudioTo ?? null) === null ||
+			(overallProgress.separateAudio ?? null) !== null) &&
+		!errorExplanations.some((error) => error.isFatal && !error.willRetry) &&
+		(isBeyondTimeoutAndHasStitchTimeout ||
+			(overallProgress.combinedFrames >= frameCount &&
+				overallProgress.timeToCombine !== null));
+
+	if (shouldCheckForCompletedOutput) {
+		const outputFile = await findOutputFileInBucket({
+			output: 'main',
+			bucketName,
+			customCredentials,
+			renderMetadata,
+			region,
+			currentRegion: region,
+			forcePathStyle,
+			requestHandler,
+		}).catch((err) => {
+			if (OutputFileAccessDeniedError.isInstance(err)) {
+				// Recovery is optional; normal progress remains authoritative.
+				return null;
+			}
+
+			throw err;
+		});
+
+		// A shared output key can still contain an earlier render while uploading.
+		// Untagged outputs must rely on persisted postRenderData for completion.
+		if (outputFile && outputFile.renderId === renderId) {
+			const outData = getExpectedOutName({
+				output: 'main',
+				renderMetadata,
+				bucketName,
+				customCredentials,
+				bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+			});
+			const now = Date.now();
+			const timeToFinishChunks = calculateChunkTimes({
+				type: 'absolute-time',
+				timings: overallProgress.timings,
+			});
+
+			return {
+				framesRendered: frameCount,
+				bucket: bucketName,
+				renderSize: outputFile.sizeInBytes ?? 0,
+				chunks: renderMetadata.totalChunks,
+				cleanup: {
+					doneIn: null,
+					filesDeleted: 0,
+					minFilesToDelete: 0,
+				},
+				costs: priceFromBucket
+					? formatCostsInfo(priceFromBucket.accruedSoFar, billingCurrency)
+					: formatCostsInfo(0, billingCurrency),
+				currentTime: now,
+				done: true,
+				encodingStatus: {
+					framesEncoded: frameCount,
+					combinedFrames: frameCount,
+					timeToCombine: overallProgress.timeToCombine,
+				},
+				errors: errorExplanations,
+				fatalErrorEncountered: false,
+				lambdasInvoked: renderMetadata.totalChunks,
+				outputFile: outputFile.url,
+				separateAudio: overallProgress.separateAudio ?? null,
+				outputSequence: null,
+				framesUploaded: null,
+				renderId,
+				timeToFinish: now - renderMetadata.startedDate,
+				timeToFinishChunks,
+				timeToRenderFrames: overallProgress.timeToRenderFrames,
+				overallProgress: 1,
+				retriesInfo: overallProgress.retries ?? [],
+				outKey: outData.key,
+				outBucket: outData.renderBucketName,
+				mostExpensiveFrameRanges: null,
+				timeToEncode: overallProgress.timeToEncode,
+				outputSizeInBytes: outputFile.sizeInBytes ?? 0,
+				type: 'success',
+				estimatedBillingDurationInMilliseconds:
+					priceFromBucket?.estimatedBillingDurationInMilliseconds ?? null,
+				timeToCombine: overallProgress.timeToCombine,
+				combinedFrames: frameCount,
+				renderMetadata,
+				timeoutTimestamp: overallProgress.timeoutTimestamp,
+				compositionValidated: overallProgress.compositionValidated,
+				functionLaunched: overallProgress.functionLaunched,
+				serveUrlOpened: overallProgress.serveUrlOpened,
+				artifacts: overallProgress.receivedArtifact,
+			};
+		}
+	}
+
+	const allErrors: EnhancedErrorInfo[] = [
+		isBeyondTimeoutAndMissingChunks || isBeyondTimeoutAndHasStitchTimeout
+			? makeTimeoutError({
+					timeoutInMilliseconds,
+					renderMetadata,
+					renderId,
+					missingChunks: missingChunks ?? [],
+					region,
+					functionName,
+				})
+			: null,
+		...errorExplanations,
+	].filter(truthy);
+
+	return {
+		framesRendered: overallProgress.framesRendered ?? 0,
+		chunks: chunkCount,
+		done: false,
+		encodingStatus:
+			renderMetadata.type === 'sequence'
+				? null
+				: {
+						framesEncoded: overallProgress.framesEncoded,
+						combinedFrames: overallProgress.combinedFrames,
+						timeToCombine: overallProgress.timeToCombine,
+					},
+		timeToRenderFrames: overallProgress.timeToRenderFrames,
+		costs: priceFromBucket
+			? formatCostsInfo(priceFromBucket.accruedSoFar, billingCurrency)
+			: formatCostsInfo(0, billingCurrency),
+		renderId,
+		renderMetadata,
+		bucket: bucketName,
+		outputFile: null,
+		separateAudio: null,
+		outputSequence: null,
+		framesUploaded:
+			renderMetadata?.type === 'sequence'
+				? overallProgress.framesUploaded
+				: null,
+		timeToFinish: null,
+		errors: allErrors,
+		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),
+		currentTime: Date.now(),
+		renderSize:
+			renderMetadata.type === 'sequence'
+				? overallProgress.uploadedSizeInBytes
+				: 0,
+		lambdasInvoked: overallProgress.lambdasInvoked ?? 0,
+		cleanup,
+		timeToFinishChunks:
+			allChunks && overallProgress
+				? calculateChunkTimes({
+						type: 'absolute-time',
+						timings: overallProgress.timings,
+					})
+				: null,
+		overallProgress: getOverallProgress({
+			encoding: frameCount
+				? (renderMetadata.type === 'sequence'
+						? overallProgress.framesUploaded
+						: (overallProgress.framesEncoded ?? 0)) / frameCount
+				: 0,
+			invoking:
+				renderMetadata.estimatedRenderLambdaInvokations === 0
+					? (overallProgress.lambdasInvoked ?? 0) > 0
+						? 1
+						: 0
+					: (overallProgress.lambdasInvoked ?? 0) /
+						renderMetadata.estimatedRenderLambdaInvokations,
+			frames: (overallProgress.framesRendered ?? 0) / (frameCount ?? 1),
+			gotComposition: overallProgress.compositionValidated,
+			visitedServeUrl: overallProgress.serveUrlOpened,
+			invokedLambda: overallProgress.lambdasInvoked,
+			combining: overallProgress.combinedFrames / (frameCount ?? 1),
+		}),
+		retriesInfo: overallProgress.retries ?? [],
+		outKey: null,
+		outBucket: null,
+		mostExpensiveFrameRanges: null,
+		timeToEncode: overallProgress.timeToEncode,
+		outputSizeInBytes: null,
+		estimatedBillingDurationInMilliseconds: priceFromBucket
+			? priceFromBucket.estimatedBillingDurationInMilliseconds
+			: null,
+		combinedFrames: overallProgress.combinedFrames ?? 0,
+		timeToCombine: overallProgress.timeToCombine ?? null,
+		timeoutTimestamp: overallProgress.timeoutTimestamp,
+		type: 'success',
+		compositionValidated: overallProgress.compositionValidated,
+		functionLaunched: overallProgress.functionLaunched,
+		serveUrlOpened: overallProgress.serveUrlOpened,
+		artifacts: overallProgress.receivedArtifact,
+	};
+};

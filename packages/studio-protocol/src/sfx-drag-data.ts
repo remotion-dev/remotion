@@ -33,6 +33,7 @@ export const makeSfxDragData = ({
 export const parseSfxDragData = (value: string): SfxDragData | null => {
 	try {
 		const parsed = z.safeParse(sfxDragDataSchema, JSON.parse(value));
+
 		return parsed.success
 			? makeSfxDragData({
 					name: parsed.data.sfx.name,

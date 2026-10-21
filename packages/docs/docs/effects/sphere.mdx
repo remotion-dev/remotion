@@ -1,0 +1,100 @@
+---
+image: /generated/articles-docs-effects-sphere.png
+slug: /effects/sphere
+title: sphere()
+sidebar_label: sphere()
+crumb: '@remotion/effects'
+---
+
+# sphere()<AvailableFrom v="4.0.537" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Wraps canvas content around a sphere using an orthographic projection. Rotate it in three dimensions to create globes or spherical text and image effects.
+
+## Spinning globe
+
+<Demo type="sphere-globe" />
+
+## Preview
+
+<EffectsDemo type="effects-sphere" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {CanvasImage, useCurrentFrame} from 'remotion';
+import {sphere} from '@remotion/effects/sphere';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <CanvasImage
+      src="https://remotion.media/earth.jpg"
+      width={1280}
+      height={720}
+      fit="fill"
+      effects={[
+        sphere({
+          radius: 300,
+          rotationY: frame * 1.5,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## Texture mapping
+
+The entire source width maps to 360° of longitude, and its height maps from the north pole to the south pole. Use an equirectangular image for a globe.
+
+Set [`<CanvasImage>`](/docs/canvasimage)'s `fit` to `'fill'` to preserve the full texture when the canvas and image have different aspect ratios. `'cover'` crops the texture before it reaches the effect.
+
+## API
+
+### `radius?`
+
+Sphere radius in pixels. Must be greater than `0`. Defaults to `250`.
+Pixels outside the sphere are transparent.
+
+### `rotationX?`
+
+Rotation around the X axis, in degrees. Defaults to `0`.
+
+### `rotationY?`
+
+Rotation around the Y axis, in degrees. Defaults to `0`. Animate from `0` to `360` to complete one revolution.
+
+### `rotationZ?`
+
+Rotation around the Z axis, in degrees. Defaults to `0`. Axis rotations are applied in X, Y, then Z order.
+
+### `position?`
+
+Center as `[x, y]` fractions of the canvas dimensions. Defaults to `[0.5, 0.5]`. Values outside the `0`–`1` range move the center beyond the canvas.
+
+### `render?`
+
+Which faces to render: `'both'`, `'front'`, or `'back'`. Defaults to `'both'`. The front face is composited over the back, which shows through transparent parts of the source.
+
+### `shading?`
+
+Darkening toward the sphere's silhouette, from `0` to `1`. Defaults to `0.35`. Set to `0` to preserve source colors.
+
+### `disabled?`
+
+When `true`, skips the effect. Defaults to `false`.
+
+## Requirements
+
+`sphere()` requires WebGPU. See [Using WebGL and WebGPU during renders](/docs/webgl) for rendering configuration.
+
+## See also
+
+- [`cylinder()`](/docs/effects/cylinder)
+- [`fisheye()`](/docs/effects/fisheye)
+- [`@remotion/effects`](/docs/effects/api)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/sphere/index.ts)

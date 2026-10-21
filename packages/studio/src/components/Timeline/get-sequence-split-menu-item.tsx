@@ -65,7 +65,7 @@ export const getSequenceSplitMenuItem = ({
 				}}
 				aria-label={disabledReason ?? 'Split at the playhead'}
 			>
-				Split clip
+				Split
 			</span>
 		),
 		value: 'split-sequence',
