@@ -2,7 +2,7 @@ import type {CodemodProject} from './codemod-project';
 import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
-	getUpdatedNodeReference,
+	getUpdatedNodeReferences,
 	type NodeReference,
 } from './node-references';
 import {reorderSequences} from './reorder-sequence';
@@ -53,8 +53,6 @@ export const reorderNodes = async <Project extends CodemodProject>({
 				logLine: edit.logLine,
 			},
 		],
-		updatedNodes: nodes.map((node) =>
-			getUpdatedNodeReference({project, ...result, node}),
-		),
+		updatedNodes: getUpdatedNodeReferences({project, ...result, nodes}),
 	};
 };
