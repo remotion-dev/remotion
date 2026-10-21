@@ -2,6 +2,7 @@ import {
 	elementDefinitions,
 	type ElementDefinition,
 } from './element-definitions';
+import {elementCategories as registeredCategories} from './element-registry';
 
 type RegisteredElementDefinition = (typeof elementDefinitions)[number];
 
@@ -18,15 +19,13 @@ const elementCategories = Array.from(
 );
 
 export const getElementCategoryLabel = (category: ElementCategory) => {
-	if (category === 'youtube') {
-		return 'YouTube';
-	}
-
-	return category
-		.split('-')
-		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-		.join(' ');
+	return (
+		registeredCategories.find((entry) => entry.category === category)?.label ??
+		category
+	);
 };
+
+export {getElementCategoryHeadingId} from './element-registry';
 
 export const isElementCategory = (
 	category: string,

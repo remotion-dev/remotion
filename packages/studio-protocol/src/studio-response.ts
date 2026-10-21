@@ -5,6 +5,7 @@ const awaitingConfirmationResponseSchema = z.object({
 	protocolVersion: z.literal(1),
 	status: z.literal('awaiting-confirmation'),
 });
+
 const studioProtocolErrorSchema = z.object({
 	status: z.literal('error'),
 	error: z.object({
@@ -20,6 +21,7 @@ export const parseStudioProtocolError = (
 	value: unknown,
 ): {readonly code: string; readonly message: string} | null => {
 	const parsed = z.safeParse(studioProtocolErrorSchema, value);
+
 	return parsed.success
 		? {code: parsed.data.error.code, message: parsed.data.error.message}
 		: null;

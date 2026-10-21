@@ -44,6 +44,7 @@ test('a long frame duration can satisfy requests beyond the jump threshold', asy
 		logLevel: 'error',
 		src: 'long-duration-frame.mp4',
 		videoSampleSink: makeVideoSampleSink(samples),
+		timeResolution: 1000,
 		initialTimestampRequest: 0,
 	});
 
@@ -91,6 +92,7 @@ test('releases old frames before requesting more decoder output', async () => {
 		logLevel: 'error',
 		src: 'limited-decoder-surfaces.mp4',
 		videoSampleSink: sink,
+		timeResolution: 1000,
 		initialTimestampRequest: 0,
 	});
 
@@ -114,6 +116,7 @@ test('uses next sample timestamp instead of reported duration while rendering', 
 		logLevel: 'error',
 		src: 'wrong-duration-frame.mp4',
 		videoSampleSink: makeVideoSampleSink(samples),
+		timeResolution: 1000,
 		initialTimestampRequest: 0,
 	});
 

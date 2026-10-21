@@ -2,15 +2,14 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {Readable} from 'node:stream';
 // eslint-disable-next-line no-restricted-imports
 import {CliInternals} from '@remotion/cli';
-import {LambdaClientInternals} from '@remotion/lambda-client';
 import {parsedLambdaCli} from '../../cli/args';
 import {renderCommand} from '../../cli/commands/render/render';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {fakeAws, useFakeAws, type FakeAwsDefaults} from '../mocks/fake-aws';
 import {doAfter, doBefore, getProcessWriteOutput} from './console-hooks';
 
+useFakeAws();
+
 const enableCancellationOption = CliInternals.parsedCli['enable-cancellation'];
-const originalCallFunctionSync =
-	LambdaClientInternals.awsImplementation.callFunctionSync;
 const originalFunctionName = parsedLambdaCli['function-name'];
 const originalRegion = parsedLambdaCli.region;
 
@@ -22,8 +21,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	LambdaClientInternals.awsImplementation.callFunctionSync =
-		originalCallFunctionSync;
 	CliInternals.parsedCli['enable-cancellation'] = enableCancellationOption;
 	parsedLambdaCli['function-name'] = originalFunctionName;
 	parsedLambdaCli.region = originalRegion;
@@ -38,7 +35,7 @@ test('Ctrl+C cancels an opted-in Lambda CLI render', async () => {
 	const pendingStatus = new Promise<never>(() => undefined);
 	const enableCancellationInPayloads: boolean[] = [];
 
-	LambdaClientInternals.awsImplementation.callFunctionSync = ((input) => {
+	fakeAws().callFunctionSync.mockImplementation(((input) => {
 		if (input.type === 'start') {
 			enableCancellationInPayloads.push(
 				(input.payload as {enableCancellation: boolean}).enableCancellation,
@@ -54,25 +51,20 @@ test('Ctrl+C cancels an opted-in Lambda CLI render', async () => {
 		return Promise.reject(
 			new Error(`Unexpected Lambda routine: ${input.type}`),
 		);
-	}) as typeof originalCallFunctionSync;
+	}) as FakeAwsDefaults['callFunctionSync']);
 
 	let cancellationWrites = 0;
-	const providerSpecifics = {
-		...mockImplementation,
-		readFile: ({key}: {key: string}) => {
-			expect(key).toBe('renders/render-id/progress.json');
-			return Promise.resolve(
-				Readable.from([
-					Buffer.from(JSON.stringify({cancellationEnabled: true})),
-				]),
-			);
-		},
-		writeFile: (input: {key: string}) => {
-			expect(input.key).toBe('renders/render-id/cancel.json');
-			cancellationWrites++;
-			return Promise.resolve();
-		},
-	} as typeof mockImplementation;
+	fakeAws().readFile.mockImplementation(({key}) => {
+		expect(key).toBe('renders/render-id/progress.json');
+		return Promise.resolve(
+			Readable.from([Buffer.from(JSON.stringify({cancellationEnabled: true}))]),
+		);
+	});
+	fakeAws().writeFile.mockImplementation((input) => {
+		expect(input.key).toBe('renders/render-id/cancel.json');
+		cancellationWrites++;
+		return Promise.resolve();
+	});
 
 	let resolveExit: (exitCode: number) => void = () => undefined;
 	const exitCode = new Promise<number>((resolve) => {
@@ -88,7 +80,6 @@ test('Ctrl+C cancels an opted-in Lambda CLI render', async () => {
 		args: ['https://example.com', 'composition-id'],
 		remotionRoot: process.cwd(),
 		logLevel: 'info',
-		providerSpecifics,
 	}).catch(() => undefined);
 
 	try {
@@ -114,7 +105,7 @@ test('Ctrl+C leaves a Lambda CLI render running without the flag', async () => {
 	const pendingStatus = new Promise<never>(() => undefined);
 	const enableCancellationInPayloads: boolean[] = [];
 
-	LambdaClientInternals.awsImplementation.callFunctionSync = ((input) => {
+	fakeAws().callFunctionSync.mockImplementation(((input) => {
 		if (input.type === 'start') {
 			enableCancellationInPayloads.push(
 				(input.payload as {enableCancellation: boolean}).enableCancellation,
@@ -130,16 +121,13 @@ test('Ctrl+C leaves a Lambda CLI render running without the flag', async () => {
 		return Promise.reject(
 			new Error(`Unexpected Lambda routine: ${input.type}`),
 		);
-	}) as typeof originalCallFunctionSync;
+	}) as FakeAwsDefaults['callFunctionSync']);
 
 	let cancellationWrites = 0;
-	const providerSpecifics = {
-		...mockImplementation,
-		writeFile: () => {
-			cancellationWrites++;
-			return Promise.resolve();
-		},
-	} as typeof mockImplementation;
+	fakeAws().writeFile.mockImplementation(() => {
+		cancellationWrites++;
+		return Promise.resolve();
+	});
 
 	let resolveExit: (exitCode: number) => void = () => undefined;
 	const exitCode = new Promise<number>((resolve) => {
@@ -155,7 +143,6 @@ test('Ctrl+C leaves a Lambda CLI render running without the flag', async () => {
 		args: ['https://example.com', 'composition-id'],
 		remotionRoot: process.cwd(),
 		logLevel: 'info',
-		providerSpecifics,
 	}).catch(() => undefined);
 
 	try {

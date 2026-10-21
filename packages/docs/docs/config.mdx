@@ -271,6 +271,19 @@ Config.setInteractivityEnabled(false);
 
 The [`--disable-interactivity`](/docs/options/disable-interactivity) flag takes precedence over this option.
 
+## `setPreservePitchOnPlayback()`<AvailableFrom v="4.0.538" />
+
+<Options id="preserve-pitch-on-playback" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPreservePitchOnPlayback(false);
+```
+
+The [`--preserve-pitch-on-playback`](/docs/options/preserve-pitch-on-playback) flag takes precedence over this option.
+You can also change this setting in the Studio settings dialog under Playback.
+
 ## `setCanvasTabsEnabled()`<AvailableFrom v="4.0.530" />
 
 Show or hide the tabs above the canvas in the Studio. The tabs are shown by default.

@@ -1,6 +1,6 @@
 import {beforeAll, expect, mock, test} from 'bun:test';
 import {Readable} from 'node:stream';
-import {OutputFileAccessDeniedError} from '@remotion/serverless-client';
+import {OutputFileAccessDeniedError} from '../find-output-file-in-bucket';
 import {lambdaHeadFileImplementation} from '../head-file';
 import type {lambdaWriteFileImplementation as LambdaWriteFileImplementation} from '../write-file';
 
