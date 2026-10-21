@@ -52,3 +52,42 @@ test('Should be able to "import" frontend in node', async () => {
 		),
 	).toThrow();
 });
+
+test('Google font ESM entries share loaded font faces with from-info', () => {
+	execSync(`node --input-type=module -e "
+		import assert from 'node:assert/strict';
+		import {getAvailableFonts} from '@remotion/google-fonts';
+		import {getInfo, loadFont, loadVariableFont} from '@remotion/google-fonts/Montserrat';
+		import {loadFontFromInfo, loadVariableFontFromInfo} from '@remotion/google-fonts/from-info';
+
+		const added = new Set();
+		const document = {fonts: {add: (face) => added.add(face)}};
+		let constructed = 0;
+		globalThis.FontFace = class {
+			constructor() { constructed++; }
+			load() { return Promise.resolve(this); }
+		};
+		globalThis.fetch = async () => new Response(new Uint8Array([0]));
+
+		const options = {document, weights: ['400'], subsets: ['latin']};
+		const info = getInfo();
+		assert.equal(info.fontFamily, 'Montserrat');
+		await Promise.all([
+			loadFont('normal', options).waitUntilDone(),
+			loadFontFromInfo(info, 'normal', options).waitUntilDone(),
+		]);
+		assert.equal(constructed, 1);
+		assert.equal(added.size, 1);
+
+		const fromPicker = await getAvailableFonts().find((font) => font.importName === 'Montserrat').load();
+		await fromPicker.loadFont('normal', options).waitUntilDone();
+		assert.equal(constructed, 1);
+
+		await Promise.all([
+			loadVariableFont('normal', options).waitUntilDone(),
+			loadVariableFontFromInfo(info, 'normal', options).waitUntilDone(),
+		]);
+		assert.equal(constructed, 2);
+		assert.equal(added.size, 2);
+	"`);
+});
