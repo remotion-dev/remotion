@@ -266,14 +266,12 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 			const next = i + 1 < flattened.length ? i + 1 : null;
 			const previous = i > 0 ? i - 1 : null;
-			const connector =
-				next !== null && isConnector(flattened[next]) && !deleted[next]
-					? next
-					: previous !== null && isConnector(flattened[previous])
-						? previous
-						: null;
-			if (connector !== null) {
-				deleted[connector] = true;
+			if (next !== null && isConnector(flattened[next])) {
+				// Same choice as the codemod: the following connector goes, and if
+				// it is part of the deletion already, nothing else is removed.
+				deleted[next] = true;
+			} else if (previous !== null && isConnector(flattened[previous])) {
+				deleted[previous] = true;
 			}
 		});
 		return flattened.filter((_, i) => !deleted[i]);
