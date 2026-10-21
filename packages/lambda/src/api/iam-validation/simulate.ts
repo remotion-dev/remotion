@@ -1,6 +1,9 @@
 import {GetCallerIdentityCommand} from '@aws-sdk/client-sts';
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsRegion,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {resolveCallerArnForSimulation} from './resolve-caller-arn';
 import type {EvalDecision, SimulationResult} from './simulate-rule';
 import {simulateRule} from './simulate-rule';

@@ -415,9 +415,7 @@ const YouTubeSubscribeNudgeInner: React.FC<
 	);
 };
 
-export const YouTubeSubscribeNudge = Interactive.withSchema({
+export const YouTubeSubscribeNudge = Interactive.create({
 	Component: YouTubeSubscribeNudgeInner,
 	componentName: '<YouTubeSubscribeNudge>',
-	schema: {},
-	wrapInSequence: true,
 });

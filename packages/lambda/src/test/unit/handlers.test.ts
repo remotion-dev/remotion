@@ -1,9 +1,14 @@
 import {expect, test} from 'bun:test';
-import {ServerlessRoutines} from '@remotion/serverless';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
+import {useFakeAws} from '../mocks/fake-aws';
+
+useFakeAws();
 
 test('Info handler should return version', async () => {
-	const response = await mockImplementation.callFunctionSync({
+	const response = await LambdaClientInternals.callFunctionSyncImplementation({
 		type: ServerlessRoutines.info,
 		payload: {
 			logLevel: 'info',

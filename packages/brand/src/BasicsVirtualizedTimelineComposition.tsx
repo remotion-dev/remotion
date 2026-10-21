@@ -508,7 +508,7 @@ const BasicsVirtualizedTimelineInner = ({
 		>
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
-					name="Radial focus"
+					name="Canvas Capture"
 					width={2542}
 					height={1440}
 					effects={[
@@ -535,7 +535,7 @@ const BasicsVirtualizedTimelineInner = ({
 				</HtmlInCanvas>
 			) : (
 				<AbsoluteFill
-					name="Radial focus"
+					name="Canvas Capture"
 					durationInFrames={1189}
 					premountFor={fps}
 					style={{

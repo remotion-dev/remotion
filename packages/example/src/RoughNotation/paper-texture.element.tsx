@@ -25,10 +25,7 @@ const PaperTextureInner: React.FC = () => {
 	);
 };
 
-export const PaperTexture = Interactive.withSchema({
+export const PaperTexture = Interactive.create({
 	Component: PaperTextureInner,
-	componentName: 'PaperTexture',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

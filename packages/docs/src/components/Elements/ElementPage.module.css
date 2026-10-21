@@ -7,6 +7,11 @@
 	margin-bottom: 28px;
 }
 
+.catalogLink {
+	flex-basis: 100%;
+	font-size: 0.875rem;
+}
+
 .previewColumn {
 	flex: 3 1 700px;
 	min-width: 0;

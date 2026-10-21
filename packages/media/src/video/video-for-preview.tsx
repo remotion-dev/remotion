@@ -57,6 +57,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
+	readonly preservePitch: boolean | null;
 	readonly toneFrequency: number;
 	readonly logLevel: LogLevel;
 	readonly className: string | undefined;
@@ -94,6 +95,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	style,
 	playbackRate,
 	toneFrequency,
+	preservePitch,
 	logLevel,
 	className,
 	muted,
@@ -140,6 +142,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
+	const preservePitchOnPlayback = useContext(Internals.PlaybackPitchContext);
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
@@ -198,6 +201,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
 	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
+	const effectiveToneFrequency =
+		(toneFrequency ?? 1) /
+		(preservePitch ? effectivePlaybackRate : 1) /
+		(preservePitchOnPlayback && globalPlaybackRate > 0
+			? globalPlaybackRate
+			: 1);
 	const sequenceDurationInFrames =
 		videoConfig.durationInFrames / sequencePlaybackRate;
 	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
@@ -223,7 +232,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(effectivePlaybackRate);
-	const initialToneFrequency = useRef(toneFrequency);
+	const initialToneFrequency = useRef(effectiveToneFrequency);
 	const initialMuted = useRef(mediaPlayerMuted);
 	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(sequenceDurationInFrames);
@@ -508,7 +517,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		effectiveMuted: mediaPlayerMuted,
 		userPreferredVolume,
 		playbackRate: effectivePlaybackRate,
-		toneFrequency,
+		toneFrequency: effectiveToneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
@@ -589,6 +598,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 				showInTimeline={showInTimeline}
 				_remotionInternalStack={_remotionInternalStack ?? undefined}
 				{...fallbackOffthreadVideoProps}
+				preservePitch={
+					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch ?? true
+				}
 			/>
 		);
 	}

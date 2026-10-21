@@ -23,6 +23,7 @@ import type {
 	RenameFolderRequest,
 	RenderJob,
 	RequiredChromiumOptions,
+	SymbolicatedStackFrame,
 	UnwrapFolderRequest,
 	UpdateCompositionMetadataRequest,
 	VisualControlChange,
@@ -480,6 +481,7 @@ export const callUpdateDefaultPropsApi = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
 	enumPaths: EnumPath[],
+	symbolicatedStack: SymbolicatedStackFrame | null,
 ) => {
 	const body = {
 		compositionId,
@@ -489,6 +491,7 @@ export const callUpdateDefaultPropsApi = (
 			staticBase: window.remotion_staticBase,
 		}).serializedString,
 		enumPaths,
+		symbolicatedStack,
 	};
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (browserStudioOperations !== null) {

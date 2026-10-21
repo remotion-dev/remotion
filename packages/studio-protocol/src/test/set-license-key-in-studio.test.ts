@@ -57,9 +57,11 @@ test('requests confirmation in the most recently focused Studio project', async 
 		readonly options?: RequestInit;
 		readonly url: string;
 	}> = [];
+
 	const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
 		const url = String(input);
 		requests.push({options, url});
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse(
@@ -123,10 +125,12 @@ test('requests confirmation in the most recently focused Studio project', async 
 
 test('returns an actionable result when no Studio is running', async () => {
 	const requests: string[] = [];
+
 	const result = await setLicenseKeyInStudioWithDependencies(licenseKey, {
 		...dependencies,
 		fetchFn: (input) => {
 			requests.push(String(input));
+
 			return Promise.resolve(new Response(null, {status: 404}));
 		},
 	});
@@ -144,8 +148,10 @@ test('returns an actionable result when no Studio is running', async () => {
 
 test('rejects malformed keys before discovery', async () => {
 	let requests = 0;
+
 	const fetchFn = () => {
 		requests++;
+
 		return Promise.resolve(new Response(null, {status: 404}));
 	};
 
@@ -174,6 +180,7 @@ test('distinguishes old Studios from a Studio without a focused target', async (
 				),
 			),
 	});
+
 	expect(oldStudio).toMatchObject({
 		success: false,
 		code: 'studio-upgrade-required',
@@ -202,6 +209,7 @@ test('distinguishes old Studios from a Studio without a focused target', async (
 				}),
 			),
 	});
+
 	expect(noTarget).toMatchObject({
 		success: false,
 		code: 'no-configurable-target',

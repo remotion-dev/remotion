@@ -186,9 +186,8 @@ const AudioWaveformProgressInner: React.FC<AudioWaveformProgressProps> = ({
 	);
 };
 
-export const AudioWaveformProgress = Interactive.withSchema({
+export const AudioWaveformProgress = Interactive.create({
 	Component: AudioWaveformProgressInner,
 	componentName: '<AudioWaveformProgress>',
 	schema: audioWaveformProgressSchema,
-	wrapInSequence: true,
 });

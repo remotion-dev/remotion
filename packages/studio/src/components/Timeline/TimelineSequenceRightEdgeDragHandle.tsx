@@ -75,11 +75,13 @@ import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	getTimelineSequenceSelectionKey,
 	shouldSelectTimelineRowOnPointerDown,
+	TIMELINE_MARQUEE_ITEM_ATTR,
 	useCurrentTimelineSelectionStateAsRef,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
 } from './TimelineSelection';
 import {TimelineSnapIndicatorContext} from './TimelineSnapIndicator';
+import {TimelineUnclippedTrimContent} from './TimelineTrimOutline';
 import {
 	TimelineTrimTooltip,
 	type TimelineTrimTooltipState,
@@ -2820,29 +2822,40 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		}
 	};
 
+	const rollingHandle =
+		rollingEnabled && (fillTarget || handleLayout.rolling !== null) ? (
+			<div
+				role="separator"
+				aria-orientation="vertical"
+				aria-label="Drag to roll edit"
+				data-trim-mode="rolling"
+				{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
+				style={{
+					...baseStyle,
+					left: fillTarget ? 0 : (handleLayout.rolling ?? 0),
+					width: fillTarget ? '100%' : TIMELINE_TRIM_HANDLE_WIDTH,
+					minWidth: TIMELINE_TRIM_HANDLE_WIDTH,
+					cursor,
+					background: TRANSPARENT,
+					pointerEvents: 'auto',
+				}}
+				onPointerEnter={() => onHover('rolling')}
+				onPointerLeave={onLeave}
+				onPointerDown={onPointerDown}
+				onClick={fillTarget ? undefined : (e) => e.stopPropagation()}
+			/>
+		) : null;
+
 	return (
 		<>
-			{rollingEnabled && (fillTarget || handleLayout.rolling !== null) ? (
-				<div
-					role="separator"
-					aria-orientation="vertical"
-					aria-label="Drag to roll edit"
-					data-trim-mode="rolling"
-					style={{
-						...baseStyle,
-						left: fillTarget ? 0 : (handleLayout.rolling ?? 0),
-						width: fillTarget ? '100%' : TIMELINE_TRIM_HANDLE_WIDTH,
-						minWidth: TIMELINE_TRIM_HANDLE_WIDTH,
-						cursor,
-						background: TRANSPARENT,
-						pointerEvents: 'auto',
-					}}
-					onPointerEnter={() => onHover('rolling')}
-					onPointerLeave={onLeave}
-					onPointerDown={onPointerDown}
-					onClick={fillTarget ? undefined : (e) => e.stopPropagation()}
-				/>
-			) : null}
+			{/* Only the shared cut handle may extend into the preceding scene. */}
+			{fillTarget || rollingHandle === null ? (
+				rollingHandle
+			) : (
+				<TimelineUnclippedTrimContent>
+					{rollingHandle}
+				</TimelineUnclippedTrimContent>
+			)}
 			{edgeEnabled && handleLayout.leftTrim !== null ? (
 				<div
 					role="separator"

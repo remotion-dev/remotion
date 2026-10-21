@@ -1,7 +1,6 @@
 import type React from 'react';
 import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
-	cancelRender,
 	Html5Audio,
 	Internals,
 	random,
@@ -33,6 +32,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	name,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	preservePitch,
 	trimAfter,
 	trimBefore,
 	onError,
@@ -64,7 +64,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	const {fps} = videoConfig;
 
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
 	const [initialRequestInit] = useState(requestInit);
 
@@ -257,7 +257,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						startInVideo,
 						timestamp: audio.timestamp,
 						duration: audio.durationInMicroSeconds,
-						toneFrequency: toneFrequency ?? 1,
+						toneFrequency:
+							(toneFrequency ?? 1) /
+							(preservePitch ? (playbackRate ?? 1) * sequencePlaybackRate : 1),
 					});
 				}
 
@@ -280,6 +282,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		sampleRate,
 		absoluteFrame,
 		continueRender,
+		cancelRender,
 		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
@@ -302,6 +305,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		volumeProp,
 		audioStreamIndex,
 		toneFrequency,
+		preservePitch,
 		trimAfter,
 		trimBefore,
 		replaceWithHtml5Audio,
@@ -331,7 +335,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				acceptableTimeShiftInSeconds={
 					fallbackHtml5AudioProps?.acceptableTimeShiftInSeconds
 				}
-				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? true}
+				preservePitch={
+					fallbackHtml5AudioProps?.preservePitch ?? preservePitch ?? true
+				}
 				name={name}
 				showInTimeline={showInTimeline}
 			/>

@@ -58,10 +58,8 @@ const speedLinesSchema = {
 	color: {type: 'color', default: '#ffffff', description: 'Color'},
 } as const satisfies InteractivitySchema;
 
-export const SpeedLines = Interactive.withSchema({
+export const SpeedLines = Interactive.create({
 	Component: SpeedLinesInner,
-	componentName: 'SpeedLines',
 	schema: speedLinesSchema,
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

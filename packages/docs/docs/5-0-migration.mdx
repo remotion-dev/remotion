@@ -198,7 +198,7 @@ This prevents the Player from continuing while media or images are still loading
 
 **Required action**: If you want to keep the old behavior, set `pauseWhenBuffering={false}` on video and audio components and `pauseWhenLoading={false}` on `<Img>` explicitly.
 
-## Four packages are no longer published
+## Five packages are no longer published
 
 The following packages stop receiving releases after the 4.x line:
 
@@ -206,6 +206,7 @@ The following packages stop receiving releases after the 4.x line:
 - Replace `@remotion/starburst` with [`starburst()` from `@remotion/effects`](/docs/effects/starburst).
 - Replace `@remotion/media-parser` with [Mediabunny](/docs/mediabunny).
 - Replace `@remotion/webcodecs` with [Mediabunny](/docs/mediabunny).
+- Replace `@remotion/whisper-web` with [`@remotion/whisper-webgpu`](/docs/whisper-webgpu), which uses WebGPU and does not require cross-origin isolation.
 
 **Required action**: Migrate usages and remove these packages from your dependencies before upgrading. Existing 4.x versions remain available, but no 5.x versions will be published.
 

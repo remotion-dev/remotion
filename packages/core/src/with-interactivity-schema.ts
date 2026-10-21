@@ -35,7 +35,7 @@ import {
 	useDragOverridesForNodePath,
 	VisualModePropStatusesContext,
 } from './SequenceManager.js';
-import {useCurrentFrame} from './use-current-frame.js';
+import {useCurrentFrameWithOptionalSubscription} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
@@ -259,8 +259,6 @@ export const withInteractivitySchema = <
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const frame = useCurrentFrame();
-		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const videoConfig = useUnsafeVideoConfig();
 		const durationInFrames = videoConfig?.durationInFrames;
 		const fps = videoConfig?.fps;
@@ -334,6 +332,26 @@ export const withInteractivitySchema = <
 			: (nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const dragOverrides = useDragOverridesForNodePath(nodePath);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const propStatus = useMemo(
+			() =>
+				nodePath === null
+					? undefined
+					: getPropStatusesCtx(propStatuses, {
+							...nodePath,
+							videoConfigValues,
+						}),
+			[nodePath, propStatuses, videoConfigValues],
+		);
+		// Runtime props already update through their owner. Only overrides with
+		// keyframes need this wrapper to subscribe to the advancing clock.
+		const needsFrame = flatKeys.some(
+			(key) =>
+				propStatus?.[key]?.status === 'keyframed' ||
+				dragOverrides[key]?.type === 'keyframed',
+		);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const frame = useCurrentFrameWithOptionalSubscription(needsFrame);
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable
@@ -404,23 +422,10 @@ export const withInteractivitySchema = <
 				schema: schemaWithSequenceName,
 				currentValue: currentRuntimeValueDotNotation,
 				overrideValues: dragOverrides,
-				propStatus:
-					nodePath === null
-						? undefined
-						: getPropStatusesCtx(propStatuses, {
-								...nodePath,
-								videoConfigValues,
-							}),
+				propStatus,
 				frame,
 			});
-		}, [
-			currentRuntimeValueDotNotation,
-			dragOverrides,
-			nodePath,
-			propStatuses,
-			videoConfigValues,
-			frame,
-		]);
+		}, [currentRuntimeValueDotNotation, dragOverrides, propStatus, frame]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.
 		const activeKeys = selectActiveKeys(

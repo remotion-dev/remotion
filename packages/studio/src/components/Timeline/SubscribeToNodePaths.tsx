@@ -15,7 +15,7 @@ export const SubscribeToNodePaths: FC<{
 	readonly getStack: () => string | null;
 	readonly effects: readonly EffectDefinition<unknown>[];
 }> = ({overrideId, componentIdentity, schema, getStack, effects}) => {
-	const {resolvedLocation, stack, preferMappedNodePath} =
+	const {resolvedLocation, stack, preferMappedNodePath, stackIsResolved} =
 		useResolveStackAndReactToChange(getStack, overrideId);
 
 	const effectSubscriptions = useMemo<InteractivitySchema[]>(() => {
@@ -31,7 +31,9 @@ export const SubscribeToNodePaths: FC<{
 		componentIdentity,
 		schema,
 		effects: effectSubscriptions,
-		originalLocation: resolvedLocation,
+		// The inspector can retain its old location during refresh, but subscribing
+		// with it could target a different JSX node in the updated source.
+		originalLocation: stackIsResolved ? resolvedLocation : null,
 		preferMappedNodePath,
 		stack,
 	});

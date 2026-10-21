@@ -65,13 +65,21 @@ export type CompositionManagerContext = {
 	canvasContent: CanvasContent | null;
 };
 
-export const CompositionManager = createContext<CompositionManagerContext>({
+const defaultCompositionManagerContext: CompositionManagerContext = {
 	compositions: [],
 	folders: [],
 	currentCompositionMetadata: null,
 	currentAssetMetadata: null,
 	canvasContent: null,
-});
+};
+
+export const CompositionManager = createContext<CompositionManagerContext>(
+	defaultCompositionManagerContext,
+);
+
+export const CompositionManagerRefContext = createContext<{
+	readonly current: CompositionManagerContext;
+}>({current: defaultCompositionManagerContext});
 
 export const CompositionSetters = createContext<CompositionManagerSetters>({
 	setCanvasContent: () => undefined,

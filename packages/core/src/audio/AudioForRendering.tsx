@@ -52,7 +52,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		pauseWhenBuffering,
 		audioStreamIndex,
-		preservePitch: _preservePitch,
+		preservePitch,
 		...nativeProps
 	} = props;
 
@@ -123,6 +123,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			toneFrequency: toneFrequency ?? 1,
 			audioStartFrame,
 			audioStreamIndex: audioStreamIndex ?? 0,
+			preservePitch: preservePitch ?? true,
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
@@ -141,6 +142,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		audioStartFrame,
 		sequencePlaybackRate,
 		audioStreamIndex,
+		preservePitch,
 	]);
 
 	const {src} = props;

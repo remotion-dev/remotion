@@ -15,7 +15,9 @@ export const RenderQueueRemoveItem: React.FC<{
 }> = ({job}) => {
 	const isClientJob = isClientRenderJob(job);
 	const {removeClientJob} = useContext(RenderQueueContext);
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const onClick: React.MouseEventHandler = useCallback(
@@ -23,6 +25,7 @@ export const RenderQueueRemoveItem: React.FC<{
 			e.stopPropagation();
 
 			if (isClientJob) {
+				const {canvasContent} = compositionManagerRef.current;
 				if (
 					canvasContent &&
 					canvasContent.type === 'output' &&
@@ -41,7 +44,13 @@ export const RenderQueueRemoveItem: React.FC<{
 				showNotification(`Could not remove item: ${err.message}`, 2000);
 			});
 		},
-		[job, isClientJob, removeClientJob, canvasContent, setCanvasContent],
+		[
+			job,
+			isClientJob,
+			removeClientJob,
+			compositionManagerRef,
+			setCanvasContent,
+		],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

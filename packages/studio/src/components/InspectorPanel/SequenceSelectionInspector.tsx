@@ -49,6 +49,7 @@ import {
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
+import {SequenceUnwrapAction} from './SequenceUnwrapAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
@@ -113,7 +114,7 @@ const SplitSequenceQuickAction: React.FC<{
 				<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 			)}
 		>
-			Split clip
+			Split
 		</InspectorQuickAction>
 	);
 };
@@ -366,6 +367,12 @@ const SequenceSourceQuickActions: React.FC<{
 				track={track}
 				sourceActionsDisabled={sourceActionsDisabled}
 				sourceLocation={validatedLocation}
+			/>
+			<SequenceUnwrapAction
+				sequence={track.sequence}
+				sourceLocation={validatedLocation}
+				nodePathInfo={selection.nodePathInfo}
+				sourceActionsDisabled={sourceActionsDisabled || isTransition}
 			/>
 			<SequencePrecomposeAction
 				targets={[

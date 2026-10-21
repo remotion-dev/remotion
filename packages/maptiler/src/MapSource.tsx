@@ -29,7 +29,7 @@ const MapSourceContent = ({children, id, source}: MapSourceProps) => {
 	sourceRef.current = source;
 
 	useEffect(() => {
-		if (!map) {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -55,6 +55,10 @@ const MapSourceContent = ({children, id, source}: MapSourceProps) => {
 			map.off('idle', finish);
 			finish();
 
+			if (!map.style) {
+				return;
+			}
+
 			for (const layer of map.getStyle().layers ?? []) {
 				if (
 					'source' in layer &&
@@ -74,7 +78,7 @@ const MapSourceContent = ({children, id, source}: MapSourceProps) => {
 	}, [continueRender, delayRender, id, map, styleRevision]);
 
 	useEffect(() => {
-		if (!map || source.type !== 'geojson') {
+		if (!map || !map.style || source.type !== 'geojson') {
 			return;
 		}
 

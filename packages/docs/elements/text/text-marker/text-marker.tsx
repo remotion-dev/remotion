@@ -64,9 +64,7 @@ const TextMarkerInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	);
 };
 
-export const TextMarker = Interactive.withSchema({
+export const TextMarker = Interactive.create({
 	Component: TextMarkerInner,
 	componentName: '<TextMarker>',
-	schema: {},
-	wrapInSequence: true,
 });
