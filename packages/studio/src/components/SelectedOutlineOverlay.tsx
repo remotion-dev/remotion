@@ -695,8 +695,8 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 		key: string,
 	) => SelectedOutlineTarget | undefined;
 	readonly getSelectableOutlines: (
-		timelinePosition: number,
-	) => ReturnType<typeof getCanvasSelectableOutlines>;
+		timelinePosition: number | null,
+	) => SelectableOutlines;
 	readonly hoveredTimelineNodePathKey: string | null;
 	readonly measureAllOutlines: boolean;
 	readonly onDraggingChange: (dragging: boolean) => void;
@@ -732,9 +732,9 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const selectableOutlines = useMemo(() => {
-		return getSelectableOutlines(timelinePosition);
-	}, [getSelectableOutlines, timelinePosition]);
-	const selectableOutlinesForLayout = useMemo(
+		return getSelectableOutlines(null);
+	}, [getSelectableOutlines]);
+	const activeOutlineCandidates = useMemo(
 		() =>
 			getCanvasActiveOutlineTargets({
 				targets: selectableOutlines,
@@ -751,8 +751,32 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			sequenceKeysContainingSelection,
 		],
 	);
+	const selectableOutlinesForLayout = useMemo(
+		() =>
+			// A selected instance outside the current frame must not activate its
+			// visible siblings. Recheck only the cached active sources after visibility.
+			getCanvasActiveOutlineTargets({
+				targets: getCanvasVisibleOutlineTargets({
+					targets: activeOutlineCandidates,
+					timelinePosition,
+				}),
+				selectedSequenceKeys,
+				sequenceKeysContainingSelection,
+				hoveredNodePathKey: hoveredTimelineNodePathKey,
+				measureAll: measureAllOutlines,
+			}),
+		[
+			activeOutlineCandidates,
+			hoveredTimelineNodePathKey,
+			measureAllOutlines,
+			selectedSequenceKeys,
+			sequenceKeysContainingSelection,
+			timelinePosition,
+		],
+	);
 	const outlineRuntimeControls = useMemo(() => {
-		return selectableOutlinesForLayout.flatMap(({key, sequence}) => {
+		// Keep subscriptions stable while the playhead moves in and out of a layer.
+		return activeOutlineCandidates.flatMap(({key, sequence}) => {
 			if (
 				!selectedSequenceKeys.has(key) &&
 				!sequenceKeysContainingSelection.has(key)
@@ -763,7 +787,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			return sequence.controls ? [sequence.controls] : [];
 		});
 	}, [
-		selectableOutlinesForLayout,
+		activeOutlineCandidates,
 		selectedSequenceKeys,
 		sequenceKeysContainingSelection,
 	]);
@@ -919,7 +943,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		}
 
 		let candidates: SelectableOutlines | null = null;
-		return (timelinePosition: number) => {
+		return (timelinePosition: number | null) => {
 			if (candidates === null) {
 				const outlines = getSelectableOutlines(null);
 				const rotatingSequenceIds = new Set(
@@ -945,10 +969,12 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 				});
 			}
 
-			return getCanvasVisibleOutlineTargets({
-				targets: candidates,
-				timelinePosition,
-			});
+			return timelinePosition === null
+				? candidates
+				: getCanvasVisibleOutlineTargets({
+						targets: candidates,
+						timelinePosition,
+					});
 		};
 	}, [getSelectableOutlines, selectedRotationKey, sequences]);
 
