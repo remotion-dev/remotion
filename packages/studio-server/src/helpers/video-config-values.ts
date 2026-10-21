@@ -100,6 +100,23 @@ export const getVideoConfigIdentifiers = ({
 	return bindings;
 };
 
+export const resolveVideoConfigIdentifierValues = ({
+	identifiers,
+	videoConfigValues,
+}: {
+	identifiers: ReadonlyMap<Identifier, VideoConfigNumericBinding>;
+	videoConfigValues: VideoConfigValues | null;
+}): VideoConfigIdentifierValues =>
+	new Map(
+		[...identifiers].flatMap(([identifier, binding]) => {
+			if (binding.type === 'constant') return [[identifier, binding]];
+			const value = videoConfigValues?.[binding.field];
+			return value === undefined || !Number.isFinite(value)
+				? []
+				: [[identifier, {type: 'constant', value}]];
+		}),
+	);
+
 // Editing uses the current instance's configuration supplied with the mutation.
 export const getVideoConfigIdentifierValues = ({
 	ast,
@@ -108,12 +125,7 @@ export const getVideoConfigIdentifierValues = ({
 	ast: File;
 	videoConfigValues: VideoConfigValues | null;
 }): VideoConfigIdentifierValues =>
-	new Map(
-		[...getVideoConfigIdentifiers({ast})].flatMap(([identifier, binding]) => {
-			if (binding.type === 'constant') return [[identifier, binding]];
-			const value = videoConfigValues?.[binding.field];
-			return value === undefined || !Number.isFinite(value)
-				? []
-				: [[identifier, {type: 'constant', value}]];
-		}),
-	);
+	resolveVideoConfigIdentifierValues({
+		identifiers: getVideoConfigIdentifiers({ast}),
+		videoConfigValues,
+	});
