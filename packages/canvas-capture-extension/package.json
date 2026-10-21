@@ -21,7 +21,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/node": "catalog:",
 		"eslint": "catalog:",
-		"vite": "7.3.6",
+		"vite": "7.3.7",
 		"web-ext": "10.6.0",
 		"wxt": "0.21.4"
 	}
