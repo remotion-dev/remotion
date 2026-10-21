@@ -121,6 +121,10 @@ export const serveStatic = async function ({
 		return;
 	}
 
+	if (res.destroyed) {
+		return;
+	}
+
 	const hasRange = req.headers.range && lstat.size;
 	if (!hasRange) {
 		res.setHeader(
@@ -135,6 +139,9 @@ export const serveStatic = async function ({
 		}
 
 		const readStream = createReadStream(path);
+		res.once('close', () => {
+			readStream.destroy();
+		});
 		readStream.pipe(res);
 		return;
 	}
@@ -166,6 +173,9 @@ export const serveStatic = async function ({
 		const readStream = createReadStream(path, {
 			start,
 			end,
+		});
+		res.once('close', () => {
+			readStream.destroy();
 		});
 		readStream.pipe(res);
 		return;
