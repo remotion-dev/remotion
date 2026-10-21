@@ -55,6 +55,8 @@ export type EffectDefinition<P, S = unknown> = {
 	 * reference each render.
 	 */
 	readonly calculateKey: (params: P) => string;
+	/** Opt into composition-frame redraws on otherwise static canvases. */
+	readonly frameDependent?: (params: P) => boolean;
 	readonly setup: (target: HTMLCanvasElement) => S;
 	readonly apply: (params: EffectApplyParams<P, S>) => void;
 	readonly cleanup: (state: S) => void;
