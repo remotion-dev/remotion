@@ -13,6 +13,7 @@ import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
+import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
 import {refreshSequencePropsSubscription} from './sequence-props-subscription-store';
 import {useTimelineSelection} from './TimelineSelection';
 
@@ -65,7 +66,11 @@ export const SequencePropsObserver = () => {
 				return;
 			}
 
-			setPropStatuses(event.nodePath, () => event.result);
+			// Every save re-sends all subscribed nodes of the file. Keep unchanged
+			// statuses so their consumers do not rerender.
+			setPropStatuses(event.nodePath, (prev) =>
+				deepEqual(prev, event.result) ? prev : event.result,
+			);
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
