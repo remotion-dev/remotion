@@ -48,6 +48,7 @@ const effectEntrypoints = [
 	'src/light-trail.ts',
 	'src/lens-blur.ts',
 	'src/levels.ts',
+	'src/long-shadows.ts',
 	'src/lut.ts',
 	'src/mirror.ts',
 	'src/noise.ts',

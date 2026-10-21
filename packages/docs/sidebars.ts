@@ -322,6 +322,7 @@ const sidebars: SidebarsConfig = {
 				'effects/light-trail',
 				'effects/lines',
 				'effects/liquid-contours',
+				'effects/long-shadows',
 				'effects/lut',
 				'effects/mirror',
 				'effects/noise',
