@@ -7,7 +7,6 @@ export const rotateFrame = async ({
 }): Promise<ImageBitmap> => {
 	if (rotation === 0) {
 		const directBitmap = await createImageBitmap(frame);
-		frame.close();
 		return directBitmap;
 	}
 
@@ -41,6 +40,5 @@ export const rotateFrame = async ({
 	ctx.drawImage(frame, 0, 0);
 
 	const bitmap = await createImageBitmap(canvas);
-	frame.close();
 	return bitmap;
 };
