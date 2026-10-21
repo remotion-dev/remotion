@@ -113,6 +113,7 @@ export const loadFonts = (
 	const styles = style ? [style] : Object.keys(meta.fonts);
 
 	let fontsLoaded = 0;
+	let previousAdded: Promise<void> = Promise.resolve();
 
 	for (const style of styles) {
 		// Don't load fonts on server
@@ -199,7 +200,10 @@ export const loadFonts = (
 
 				let attempts = 2;
 
-				const tryToLoad = (): Promise<void> => {
+				const tryToLoad = (): Promise<{
+					fontFace: FontFace;
+					fontData: ArrayBuffer;
+				}> => {
 					return NoReactInternals.fetchFontData(font)
 						.then((fontData) => {
 							const fontFace = new FontFace(meta.fontFamily, fontData, {
@@ -208,11 +212,10 @@ export const loadFonts = (
 								unicodeRange: meta.unicodeRanges[subset],
 							});
 
-							return loadFontFaceOrTimeoutAfter20Seconds(fontFace).then(() => {
-								(options?.document ?? document).fonts.add(fontFace);
-								registerFont(fontData);
-								continueRender(handle);
-							});
+							return loadFontFaceOrTimeoutAfter20Seconds(fontFace).then(() => ({
+								fontFace,
+								fontData,
+							}));
 						})
 						.catch((err) => {
 							if (attempts === 0) {
@@ -225,7 +228,14 @@ export const loadFonts = (
 						});
 				};
 
-				const promise = tryToLoad();
+				const promise = Promise.all([tryToLoad(), previousAdded]).then(
+					([{fontFace, fontData}]) => {
+						(options?.document ?? document).fonts.add(fontFace);
+						registerFont(fontData);
+						continueRender(handle);
+					},
+				);
+				previousAdded = promise.catch(() => undefined);
 				loadedFonts[fontKey] = promise;
 				promises.push(promise);
 			}
@@ -287,6 +297,7 @@ export const loadVariableFonts = (
 		),
 	];
 	const promises: Promise<void>[] = [];
+	let previousAdded: Promise<void> = Promise.resolve();
 
 	for (const subset of subsets) {
 		if (typeof FontFace === 'undefined') {
@@ -353,16 +364,18 @@ export const loadVariableFonts = (
 		};
 		let attempts = 2;
 
-		const tryToLoad = (): Promise<void> => {
+		const tryToLoad = (): Promise<{
+			fontFace: FontFace;
+			fontData: ArrayBuffer;
+		}> => {
 			return NoReactInternals.fetchFontData(font.src)
 				.then((fontData) => {
 					const fontFace = new FontFace(meta.fontFamily, fontData, descriptors);
 
-					return loadFontFaceOrTimeoutAfter20Seconds(fontFace).then(() => {
-						(options.document ?? document).fonts.add(fontFace);
-						registerFont(fontData);
-						continueRender(handle);
-					});
+					return loadFontFaceOrTimeoutAfter20Seconds(fontFace).then(() => ({
+						fontFace,
+						fontData,
+					}));
 				})
 				.catch((err) => {
 					if (attempts === 0) {
@@ -375,7 +388,14 @@ export const loadVariableFonts = (
 				});
 		};
 
-		const promise = tryToLoad();
+		const promise = Promise.all([tryToLoad(), previousAdded]).then(
+			([{fontFace, fontData}]) => {
+				(options.document ?? document).fonts.add(fontFace);
+				registerFont(fontData);
+				continueRender(handle);
+			},
+		);
+		previousAdded = promise.catch(() => undefined);
 		loadedFonts[fontKey] = promise;
 		promises.push(promise);
 	}
