@@ -720,7 +720,7 @@ const findNodePath = (
 		visitNode(p) {
 			if (p.node === target) {
 				found = p as unknown as recast.types.NodePath;
-				return false;
+				return this.abort();
 			}
 
 			return this.traverse(p);
