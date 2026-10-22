@@ -1,12 +1,14 @@
 import {
 	AudioBufferSink,
 	CanvasSink,
+	Input,
 	InputAudioTrack,
 	InputVideoTrack,
 } from 'mediabunny';
 import type {EffectDefinitionAndStack} from 'remotion';
 import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
+import {acquireSharedInput} from '../get-shared-input';
 import {MediaPlayer} from '../media-player';
 import type {SharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
 
@@ -53,7 +55,7 @@ const makeAudioPlayer = (
 				Partial<
 					Pick<
 						ConstructorParameters<typeof MediaPlayer>[0],
-						'getEffects' | 'getEffectChainState'
+						'getEffects' | 'getEffectChainState' | 'bufferState'
 					>
 				>)
 		| null = null,
@@ -74,7 +76,7 @@ const makeAudioPlayer = (
 		audioStreamIndex: null,
 		fps: 30,
 		debugOverlay: false,
-		bufferState: makeBufferState(),
+		bufferState: options?.bufferState ?? makeBufferState(),
 		isPremounting: false,
 		isPostmounting: false,
 		durationInFrames: 300,
@@ -529,3 +531,96 @@ test('draws muted video with unsupported audio and reports it on unmute', async 
 		support.mockRestore();
 	}
 });
+
+test.each([
+	{shared: false, boundary: 'format'},
+	{shared: true, boundary: 'format'},
+	{shared: false, boundary: 'tracks'},
+	{shared: true, boundary: 'tracks'},
+])(
+	'disposing during $boundary releases buffering and only its input lease (shared: $shared)',
+	async ({shared, boundary}) => {
+		let release = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let reached = () => {};
+		const held = new Promise<void>((resolve) => {
+			reached = resolve;
+		});
+		let activeBlocks = 0;
+		const src = `/voice-note.m4a?dispose-shared=${shared}`;
+		const lease = shared
+			? acquireSharedInput({
+					src,
+					credentials: undefined,
+					requestInit: undefined,
+					logLevel: 'error',
+				})
+			: null;
+		let input: Input | null = null;
+		const {getFormat, getAudioTracks} = Input.prototype;
+		const pause = async (value: Input) => {
+			input = value;
+			reached();
+			await gate;
+		};
+
+		const spy =
+			boundary === 'format'
+				? vi
+						.spyOn(Input.prototype, 'getFormat')
+						.mockImplementationOnce(async function (this: Input) {
+							await pause(this);
+							return getFormat.call(this);
+						})
+				: vi
+						.spyOn(Input.prototype, 'getAudioTracks')
+						.mockImplementationOnce(async function (this: Input) {
+							await pause(this);
+							return getAudioTracks.call(this);
+						});
+		const player = makeAudioPlayer(null, null, 'audio', {
+			canvas: null,
+			onVideoFrameCallback: null,
+			src,
+			bufferState: {
+				delayPlayback: () => {
+					activeBlocks++;
+					let unblocked = false;
+					return {
+						unblock: () => {
+							if (!unblocked) {
+								unblocked = true;
+								activeBlocks--;
+							}
+						},
+					};
+				},
+			},
+		});
+		const initialization = player.initialize(0, true, 1);
+		let disposal: Promise<void> | null = null;
+		try {
+			await held;
+			expect(activeBlocks).toBe(1);
+			disposal = player.dispose();
+			expect(activeBlocks).toBe(0);
+			await Promise.resolve();
+			expect(input!.disposed).toBe(!shared);
+			release();
+			expect((await initialization).type).toBe('disposed');
+			await disposal;
+			if (lease) {
+				expect(await lease.input.getFormat()).not.toBeNull();
+			}
+		} finally {
+			release();
+			await initialization;
+			await disposal;
+			await player.dispose();
+			lease?.release();
+			spy.mockRestore();
+		}
+	},
+);
