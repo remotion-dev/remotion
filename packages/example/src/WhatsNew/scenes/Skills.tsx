@@ -2,7 +2,8 @@ import {Audio, Video} from '@remotion/media';
 import {useWindowedAudioData, visualizeAudio} from '@remotion/media-utils';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
+	Interactive,
 	interpolate,
 	Sequence,
 	Series,
@@ -310,14 +311,17 @@ const SkillGrid: React.FC = () => {
 	);
 };
 
-export const SkillsScene: React.FC = () => {
+const SkillsSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const captions = getCaptionPlacement(frame, layout);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<Backdrop accent={accents.skills} />
-			<Stage keyframes={layout}>
+			<Stage
+				style={{overflow: 'visible', flexDirection: 'column'}}
+				keyframes={layout}
+			>
 				<Series>
 					<Series.Sequence
 						name="New skills"
@@ -765,48 +769,62 @@ export const SkillsScene: React.FC = () => {
 				]}
 			/>
 
-			<Audio
-				name="Sticker whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={0}
-				volume={0.3}
-			/>
-			<Audio
-				name="Split whip"
-				src="https://remotion.media/whip.wav"
-				from={90}
-				volume={0.16}
-			/>
-			<Audio
-				name="Card 1"
-				src="https://remotion.media/mouse-click.wav"
-				from={166}
-				volume={0.3}
-			/>
-			<Audio
-				name="Card 2"
-				src="https://remotion.media/mouse-click.wav"
-				from={288}
-				volume={0.3}
-			/>
-			<Audio
-				name="Card 3"
-				src="https://remotion.media/mouse-click.wav"
-				from={371}
-				volume={0.3}
-			/>
-			<Audio
-				name="Card 4"
-				src="https://remotion.media/mouse-click.wav"
-				from={447}
-				volume={0.3}
-			/>
-			<Audio
-				name="All checked"
-				src="https://remotion.media/ding.wav"
-				from={527}
-				volume={0.22}
-			/>
-		</AbsoluteFill>
+			<Track name="Sound effects">
+				<Audio
+					durationInFrames={5}
+					name="Sticker whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={0}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Split whip"
+					src="https://remotion.media/whip.wav"
+					from={90}
+					volume={0.16}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Card 1"
+					src="https://remotion.media/mouse-click.wav"
+					from={166}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Card 2"
+					src="https://remotion.media/mouse-click.wav"
+					from={288}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Card 3"
+					src="https://remotion.media/mouse-click.wav"
+					from={371}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Card 4"
+					src="https://remotion.media/mouse-click.wav"
+					from={447}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="All checked"
+					src="https://remotion.media/ding.wav"
+					from={527}
+					volume={0.22}
+				/>
+			</Track>
+		</>
 	);
 };
+
+export const SkillsScene = Interactive.create({
+	Component: SkillsSceneInner,
+	layout: 'absolute-fill',
+});

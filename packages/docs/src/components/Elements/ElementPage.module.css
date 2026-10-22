@@ -7,6 +7,11 @@
 	margin-bottom: 28px;
 }
 
+/* Element details have their own actions instead of the generic docs footer. */
+:global(article):has(.workbench) > :global(.theme-doc-footer) {
+	display: none;
+}
+
 .previewColumn {
 	flex: 3 1 700px;
 	min-width: 0;

@@ -3,7 +3,7 @@ import type {
 	TransitionPresentationComponentProps,
 } from '@remotion/transitions';
 import React from 'react';
-import {AbsoluteFill, Easing} from 'remotion';
+import {Easing} from 'remotion';
 
 export type CircleRevealProps = {
 	readonly x: number;
@@ -25,11 +25,18 @@ const CircleRevealPresentation: React.FC<
 
 	if (presentationDirection === 'exiting') {
 		return (
-			<AbsoluteFill
-				style={{scale: 1 + 0.14 * progress, transformOrigin: `${x}px ${y}px`}}
+			<div
+				style={{
+					position: 'absolute',
+					inset: 0,
+					display: 'flex',
+					flexDirection: 'column',
+					scale: 1 + 0.14 * progress,
+					transformOrigin: `${x}px ${y}px`,
+				}}
 			>
 				{children}
-			</AbsoluteFill>
+			</div>
 		);
 	}
 
@@ -43,10 +50,18 @@ const CircleRevealPresentation: React.FC<
 	const radius = (maxRadius + ringWidth) * progress;
 
 	return (
-		<AbsoluteFill>
-			<AbsoluteFill style={{clipPath: `circle(${radius}px at ${x}px ${y}px)`}}>
+		<>
+			<div
+				style={{
+					position: 'absolute',
+					inset: 0,
+					display: 'flex',
+					flexDirection: 'column',
+					clipPath: `circle(${radius}px at ${x}px ${y}px)`,
+				}}
+			>
 				{children}
-			</AbsoluteFill>
+			</div>
 			<div
 				style={{
 					position: 'absolute',
@@ -59,7 +74,7 @@ const CircleRevealPresentation: React.FC<
 					boxSizing: 'border-box',
 				}}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
 

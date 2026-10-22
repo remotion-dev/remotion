@@ -10,7 +10,7 @@ import {AnimatingProperties, EasingDemo, PosterizationDemo} from '../components/
 Animation works by changing properties over time.  
 For example: To fade the text in over two seconds, gradually change its `opacity` from `0` to `1`.
 
-```tsx twoslash {3, 9-12, 20-26} title="FadeIn.tsx"
+```tsx twoslash {3, 9-12, 20-23} title="FadeIn.tsx"
 import { interpolate, Interactive, useCurrentFrame, useVideoConfig } from "remotion";
 // ---cut---
 const FadeInInner = () => {
@@ -32,11 +32,8 @@ const FadeInInner = () => {
   );
 };
 
-export const FadeIn = Interactive.withSchema({
+export const FadeIn = Interactive.create({
   Component: FadeInInner,
-  componentName: "FadeIn",
-  schema: {},
-  wrapInSequence: true,
   layout: "absolute-fill",
 });
 ```

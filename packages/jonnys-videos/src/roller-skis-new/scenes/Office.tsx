@@ -1,21 +1,19 @@
-import {Audio, Video} from '@remotion/media';
+import {Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {Interactive, Series, useVideoConfig} from 'remotion';
-import {Callout} from '../elements/Callout';
+import {Interactive} from 'remotion';
+import {CalloutWithSound} from '../elements/Callout';
 import {NameLowerThird} from '../elements/NameLowerThird';
 import {PoppingWordCaptions} from '../elements/popping-word-captions';
 
 const OfficeInner: React.FC = () => {
-	const {fps} = useVideoConfig();
-
 	return (
 		<>
-			<Series>
-				<Series.Sequence
+			<TransitionSeries name="Office shots">
+				<TransitionSeries.Sequence
 					name="Mehmet"
 					trimBefore={1324}
 					durationInFrames={38}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0475"
@@ -23,14 +21,12 @@ const OfficeInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -43,12 +39,11 @@ const OfficeInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Would you try it"
 					trimBefore={1378}
 					durationInFrames={32}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0475"
@@ -56,14 +51,12 @@ const OfficeInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -97,12 +90,11 @@ const OfficeInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Scared to be honest"
 					trimBefore={1502}
 					durationInFrames={244}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0475"
@@ -110,14 +102,12 @@ const OfficeInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 						}
 						volume={4.5}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -263,12 +253,11 @@ const OfficeInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="No brakes"
 					trimBefore={1844}
 					durationInFrames={51}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0475"
@@ -276,14 +265,12 @@ const OfficeInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -324,12 +311,11 @@ const OfficeInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Brake tomorrow"
 					trimBefore={2346}
 					durationInFrames={209}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0475"
@@ -337,14 +323,12 @@ const OfficeInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -469,12 +453,11 @@ const OfficeInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Rolls on one side"
 					trimBefore={2771}
 					durationInFrames={183}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0475"
@@ -482,14 +465,12 @@ const OfficeInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -614,12 +595,11 @@ const OfficeInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Go up a hill"
 					trimBefore={2957}
 					durationInFrames={246}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0475"
@@ -627,14 +607,12 @@ const OfficeInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 						}
 						volume={1}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -787,12 +765,11 @@ const OfficeInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Yeah I see"
 					trimBefore={3254}
 					durationInFrames={78}
-					premountFor={fps}
 				>
 					<Video
 						name="IMG_0475"
@@ -800,14 +777,12 @@ const OfficeInner: React.FC = () => {
 							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0475.MOV'
 						}
 						volume={2.5}
-						premountFor={fps}
 						objectFit="cover"
 						style={{width: '100%', height: '100%'}}
 					/>
 					<PoppingWordCaptions
 						combineTokensWithinMilliseconds={null}
 						name="Captions"
-						premountFor={fps}
 						width={1600}
 						style={{position: 'absolute', bottom: 56, translate: '160px 0px'}}
 						captions={[
@@ -876,44 +851,35 @@ const OfficeInner: React.FC = () => {
 							},
 						]}
 					/>
-				</Series.Sequence>
-			</Series>
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
 			<NameLowerThird
 				name="Mehmet"
 				from={6}
 				durationInFrames={284}
-				premountFor={fps}
 				personName="Mehmet"
 				title="Already at work"
 				accentColor="#2563eb"
 				style={{position: 'absolute', left: 80, top: 70}}
 			/>
-			<Callout
+			<CalloutWithSound
 				name="Confirmed callout"
 				from={314}
 				durationInFrames={101}
-				premountFor={fps}
 				label="Confirmed"
 				text="Still no brakes"
 				icon="cross"
 				accentColor="#dc2626"
 				style={{position: 'absolute', left: 80, top: 70}}
-			/>
-			<Audio
-				name="Error"
-				src="https://remotion.media/windows-xp-error.wav"
-				from={316}
-				volume={0.35}
-				premountFor={fps}
+				sound="https://remotion.media/windows-xp-error.wav"
+				soundVolume={0.35}
+				soundFrom={2}
 			/>
 		</>
 	);
 };
 
-export const Office = Interactive.withSchema({
+export const Office = Interactive.create({
 	Component: OfficeInner,
-	componentName: 'Office',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

@@ -1,13 +1,14 @@
 import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
+import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import type {CodemodProject, CodemodResult} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
 import {
-	captureJsxNodePaths,
+	getJsxNodesWithPaths,
 	type CapturedJsxNodePath,
 } from './get-node-path-remappings';
 import {findProjectFile} from './internals';
-import {parseAst} from './sequence-props/parse-ast';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 
 export type NodeReference = {
 	filePath: string;
@@ -90,15 +91,18 @@ export const getUnchangedStructureRemappings = ({
 	input: string;
 	output: string;
 }): NodeSourceEdit['nodePathRemappings'] => {
-	const before = captureJsxNodePaths(parseAst(input));
-	const after = captureJsxNodePaths(parseAst(output));
+	const before = getJsxNodesWithPaths(getReadOnlySourceSnapshot(input).ast);
+	const after = getJsxNodesWithPaths(getReadOnlySourceSnapshot(output).ast);
 	if (before.length !== after.length) {
 		throw new Error('The edit unexpectedly changed the JSX structure');
 	}
 
 	return before.flatMap((node, index) => {
 		const next = after[index];
-		return isUnchangedNode(node, next)
+		const unchanged =
+			JSON.stringify(node.nodePath) === JSON.stringify(next.nodePath) &&
+			recast.prettyPrint(node.node).code === recast.prettyPrint(next.node).code;
+		return unchanged
 			? []
 			: [{oldNodePath: node.nodePath, newNodePath: next.nodePath}];
 	});
@@ -188,6 +192,51 @@ export const getUpdatedNodeReference = ({
 	return {filePath, nodePath: remapping?.newNodePath ?? node.nodePath};
 };
 
+export const getUpdatedNodeReferences = ({
+	project,
+	nodes,
+	nodePathRemappings,
+}: {
+	project: CodemodProject;
+	nodes: readonly NodeReference[];
+	nodePathRemappings: NodePathRemapping[];
+}): NodeReference[] => {
+	if (nodes.length === 1) {
+		return [
+			getUpdatedNodeReference({project, node: nodes[0], nodePathRemappings}),
+		];
+	}
+
+	const pathsByFile = new Map<string, Map<string, SequenceNodePath | null>>();
+	for (const {filePath, oldNodePath, newNodePath} of nodePathRemappings) {
+		if (oldNodePath === null) {
+			continue;
+		}
+
+		const paths =
+			pathsByFile.get(filePath) ?? new Map<string, SequenceNodePath | null>();
+		const key = JSON.stringify(oldNodePath);
+		// Match the first remapping, as the single-node lookup does.
+		if (!paths.has(key)) {
+			paths.set(key, newNodePath);
+		}
+
+		pathsByFile.set(filePath, paths);
+	}
+
+	return nodes.map((node) => {
+		const filePath = findProjectFile({project, filePath: node.filePath});
+		const nodePath = pathsByFile
+			.get(filePath)
+			?.get(JSON.stringify(node.nodePath));
+		if (nodePath === null) {
+			throw new Error('The JSX node was removed');
+		}
+
+		return {filePath, nodePath: nodePath ?? node.nodePath};
+	});
+};
+
 export const groupNodeReferencesByFile = ({
 	project,
 	nodes,
@@ -200,18 +249,19 @@ export const groupNodeReferencesByFile = ({
 	}
 
 	const groups = new Map<string, SequenceNodePath[]>();
+	const seenPathsByFile = new Map<string, Set<string>>();
 	for (const node of nodes) {
 		const filePath = findProjectFile({project, filePath: node.filePath});
 		const paths = groups.get(filePath) ?? [];
-		if (
-			!paths.some(
-				(path) => JSON.stringify(path) === JSON.stringify(node.nodePath),
-			)
-		) {
+		const seenPaths = seenPathsByFile.get(filePath) ?? new Set<string>();
+		const key = JSON.stringify(node.nodePath);
+		if (!seenPaths.has(key)) {
 			paths.push(node.nodePath);
+			seenPaths.add(key);
 		}
 
 		groups.set(filePath, paths);
+		seenPathsByFile.set(filePath, seenPaths);
 	}
 
 	return groups;

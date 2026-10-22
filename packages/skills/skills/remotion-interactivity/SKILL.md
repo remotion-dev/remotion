@@ -1,73 +1,25 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
-version: 4.0.535
+version: 4.0.538
 ---
 
-By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:
+Studio edits the JSX nodes that create timeline items. Structure the code around
+what the user should be able to select, move, trim, or style independently.
+Keep editable values inline on each instance.
 
-- Allowing items to be selected by clicking on them
-- Allowing drag+drop, resizing and rotation
-- Editing the CSS styles
-- Making keyframes and easing values editable
+Before writing a scene or refactoring its layers, read
+[editable timeline structure](timeline-structure.md). It covers editing units,
+tracks, shared timing, plain layout containers, and a complete component-to-root
+example. For a timeline built from footage, also read
+[editable video timelines](../remotion-markup/video-editing.md).
 
-If the markup is too complex for the Studio to make it interactive, then the values become grayed out.
+Use [connected compositions](../remotion-markup/connected-compositions.md) when
+a scene or reusable group needs its own timeline. Validate both its standalone
+view and the full parent timeline; a connection alone does not guarantee fewer
+visible rows.
 
-## Prefer interactive components with their own timelines
-
-Use `Interactive.withSchema({wrapInSequence: true, layout: 'absolute-fill'})` for components that fill their parent. The wrapper provides their visual root and timeline item, and clips overflow by default, so the inner component can return a fragment. Put timing, dimensions, and per-instance styles on the exported component.
-
-Keep visuals that belong together in the same component, so they move and trim together. An inner layout container can still provide alignment, clipping within a smaller area, or an animated group; a container that only fills the scene is usually unnecessary. Cards, text boxes, and SVGs with their own bounds can keep the default `layout: 'none'` and forward `style` to their visual root.
-
-```tsx title="Scene.tsx"
-import {Video} from '@remotion/media';
-import type React from 'react';
-import {Interactive, type InteractivitySchema} from 'remotion';
-
-type SceneProps = {
-  readonly title: string;
-};
-
-const SceneInner: React.FC<SceneProps> = ({title}) => {
-  return (
-    <>
-      <Video
-        name="Background footage"
-        src="https://remotion.media/video.mp4"
-        objectFit="cover"
-        style={{width: '100%', height: '100%'}}
-      />
-      <Interactive.Div
-        name="Scene title"
-        style={{
-          position: 'absolute',
-          left: 80,
-          bottom: 80,
-          color: 'white',
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          fontSize: 80,
-        }}
-      >
-        {title}
-      </Interactive.Div>
-    </>
-  );
-};
-
-const sceneSchema = {
-  title: {type: 'string', default: '', description: 'Title'},
-} as const satisfies InteractivitySchema;
-
-export const Scene = Interactive.withSchema({
-  Component: SceneInner,
-  componentName: 'Scene',
-  schema: sceneSchema,
-  wrapInSequence: true,
-  layout: 'absolute-fill',
-});
-```
-
-### Choose schema fields
+## Choose schema fields
 
 Each key in the schema is a prop that Studio can read and edit at the call site.
 Props that are not in the schema still work, but are not editable in Studio.
@@ -94,7 +46,7 @@ Every field needs a `default` and should have a `description`, which Studio show
 Set `keyframable: false` to show a static control.
 
 Expose content and per-instance appearance, such as the text and an accent color.
-Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `wrapInSequence: true` already adds them.
+Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `Interactive.create()` adds them automatically.
 
 To make CSS properties of the root editable per instance, spread the built-in schema fragments:
 
@@ -117,108 +69,6 @@ Nested markup and computed children are currently read-only.
 `text-content` is a deprecated alias for the `string` field type.
 See [`InteractivitySchema`](https://www.remotion.dev/docs/interactivity-schema) for all options.
 
-### Register reusable components as connected compositions
-
-Register substantial scenes and reusable components with their own layers or
-animation as standalone compositions. Studio calls these **connected
-compositions**: they can be opened in their own timeline while sharing the same
-component implementation with the parent video.
-
-Define required styles and load fonts inside the component so it works without
-its parent. See
-[parent independence](../remotion-markup/connected-compositions.md#make-the-component-independent-of-its-parent).
-
-Register the same exported component reference that the parent renders. For the
-example above, use `component={Scene}`, not `SceneInner` or an inline wrapper.
-With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
-
-```tsx title="src/Root.tsx"
-import {Composition} from 'remotion';
-import {Scene} from './Scene';
-
-export const RemotionRoot = () => (
-  <Composition
-    id="Scene"
-    component={Scene}
-    width={1280}
-    height={720}
-    fps={30}
-    durationInFrames={30}
-    defaultProps={{
-      title: 'A new perspective',
-    }}
-  />
-);
-```
-
-Choose a unique ID, representative inline defaults, and dimensions, fps, and
-duration suitable for previewing the component. Registration defaults do not
-automatically copy props from a parent instance. See
-[connected compositions](../remotion-markup/connected-compositions.md) for
-registration and extraction details.
-
-### Put timing directly on the component
-
-Avoid a separate `<Sequence>` around one component that already accepts timing
-props. Built-in interactive components and custom components made with
-`wrapInSequence: true` can receive `name`, `from`, `durationInFrames`,
-`trimBefore`, and `playbackRate` directly.
-
-```tsx
-<Scene
-  name="Opening scene"
-  from={30}
-  durationInFrames={90}
-  style={{opacity: 0.9}}
-  title="A new perspective"
-/>
-```
-
-When removing a redundant sequence, move its timing and name to the child.
-Preserve any existing child timing; do not overwrite or double-apply offsets.
-A `useCurrentFrame()` call inside the component reads its local frame, while a
-style expression at the call site still uses the caller's frame. Preserve that
-distinction when moving animation styles.
-
-Keep a `<Sequence>` when it provides shared timing for multiple siblings,
-wraps a component that does not handle timing, or supplies dimensions the child
-cannot accept directly. Managed roots also accept `width` and `height` for
-`useVideoConfig()`. Keep `<TransitionSeries.Sequence>` for consecutive layout,
-with or without transitions; direct `from` props do not replace those behaviors.
-
-## Give every independently editable item its own JSX node
-
-The Studio edits the JSX source node that created an item. If multiple runtime
-items come from the same JSX node, they share one source-editing target.
-
-For every composition registration, clip, scene, layer or sequence that should
-be editable on its own, write a separate JSX node and keep its editable props
-on that node. This applies to `<Composition>`, `<Still>`, built-in media
-components, `<Sequence>`, `<TransitionSeries.Sequence>`
-and custom components.
-
-For example, author an editable timeline like this:
-
-```tsx title="Separate source nodes"
-import { TransitionSeries } from "@remotion/transitions";
-
-<TransitionSeries>
-  <TransitionSeries.Sequence name="Introduction" durationInFrames={90}>
-    <Introduction />
-  </TransitionSeries.Sequence>
-  <TransitionSeries.Sequence name="Demo" durationInFrames={150}>
-    <Demo />
-  </TransitionSeries.Sequence>
-</TransitionSeries>
-```
-
-A `.map()` or another programmatic loop would create multiple runtime items
-from one JSX source node. That is appropriate for repeated output that is
-intentionally controlled as one template, such as visualization bars or
-particles. It is not appropriate when the instances need independent IDs or
-names, props, metadata, timing, ordering, deletion or duplication in the
-Studio.
-
 ## Make an HTML element interactive using `Interactive`
 
 Every HTML and SVG element (except `<Img>`, it already is interactive) such as `<div>` can be turned interactive using `Interactive`:
@@ -232,7 +82,9 @@ Every HTML and SVG element (except `<Img>`, it already is interactive) such as `
 </Interactive.Div>
 ```
 
-This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
+Use this for text or graphics that need independent controls. Keep layout-only
+containers and decorative internals as plain HTML; an interactive component
+already provides controls for its root.
 
 ## Prefer inline text
 

@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {getHtmlInCanvasWrapperTiming} from '../components/InspectorPanel/get-html-in-canvas-wrapper-timing';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 import {makeRuntimeValueStore} from './make-runtime-value-store';
 
 const nodePath: SequencePropsSubscriptionKey = {
@@ -64,7 +64,8 @@ const makeSequence = ({
 });
 
 test('converts nested playback and trim into the parent clock', () => {
-	const nestedTracks = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const nestedTracks = calculate({
 		sequences: [
 			makeSequence({
 				id: 'outer',
@@ -84,7 +85,7 @@ test('converts nested playback and trim into the parent clock', () => {
 			}),
 		],
 		overrideIdsToNodePaths: {selected: nodePath},
-	});
+	}).tracks;
 
 	expect(
 		getHtmlInCanvasWrapperTiming({
@@ -95,7 +96,8 @@ test('converts nested playback and trim into the parent clock', () => {
 });
 
 test('clips wrapper timing to the parent visible range', () => {
-	const parentClippedTracks = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const parentClippedTracks = calculate({
 		sequences: [
 			makeSequence({
 				id: 'parent',
@@ -111,7 +113,7 @@ test('clips wrapper timing to the parent visible range', () => {
 			}),
 		],
 		overrideIdsToNodePaths: {selected: nodePath},
-	});
+	}).tracks;
 
 	expect(
 		getHtmlInCanvasWrapperTiming({

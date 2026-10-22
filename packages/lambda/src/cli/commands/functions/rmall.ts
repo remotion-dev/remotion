@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, deleteFunction} from '@remotion/lambda-client';
+import {deleteFunction, LambdaClientInternals} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
-import {ProviderSpecifics} from '@remotion/serverless';
 import {getFunctionInfo} from '../../../api/get-function-info';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
@@ -11,13 +10,11 @@ const LEFT_COL = 16;
 
 export const functionsRmallCommand = async ({
 	logLevel,
-	providerSpecifics,
 }: {
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }) => {
 	const region = getAwsRegion();
-	const functions = await providerSpecifics.getFunctions({
+	const functions = await LambdaClientInternals.getFunctions({
 		region,
 		compatibleOnly: false,
 	});

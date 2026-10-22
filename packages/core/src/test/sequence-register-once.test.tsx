@@ -31,6 +31,7 @@ import {
 	VisualModeBatchSettersContext,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModePropStatusesSubscriptionContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
 import {Series} from '../series/index.js';
@@ -157,6 +158,15 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 		[visualModeOverrides],
 	);
 
+	const visualPropStatusesSubscription = useMemo(
+		() => ({
+			subscribe: () => () => undefined,
+			getSnapshot: (key: string | null) =>
+				key === null ? null : (visualModeOverrides?.propStatuses[key] ?? null),
+		}),
+		[visualModeOverrides],
+	);
+
 	const overrideIdToNodePathContext = useMemo(
 		() => ({
 			overrideIdToNodePathMappings:
@@ -199,11 +209,17 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 						<ObserveSequenceRegistrations
 							onRegisterSequence={registerSequence}
 						/>
-						<VisualModePropStatusesContext.Provider value={visualPropStatuses}>
-							<VisualModeSettersContext.Provider value={visualSetters}>
-								{children}
-							</VisualModeSettersContext.Provider>
-						</VisualModePropStatusesContext.Provider>
+						<VisualModePropStatusesSubscriptionContext.Provider
+							value={visualPropStatusesSubscription}
+						>
+							<VisualModePropStatusesContext.Provider
+								value={visualPropStatuses}
+							>
+								<VisualModeSettersContext.Provider value={visualSetters}>
+									{children}
+								</VisualModeSettersContext.Provider>
+							</VisualModePropStatusesContext.Provider>
+						</VisualModePropStatusesSubscriptionContext.Provider>
 					</SequenceManagerProvider>
 				</OverrideIdsToNodePathsGettersContext.Provider>
 			</Internals.RemotionEnvironmentContext>

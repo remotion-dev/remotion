@@ -61,7 +61,9 @@ const assertDimensions = (metadata: DragPreviewMetadata) => {
 		return;
 	}
 
-	const {height, width} = metadata as Dimensions;
+	const width = 'width' in metadata ? metadata.width : undefined;
+	const height = 'height' in metadata ? metadata.height : undefined;
+
 	if (width === undefined && height === undefined) {
 		return;
 	}
@@ -132,6 +134,7 @@ export const makeDragMimeType = (metadata: DragPreviewMetadata): string => {
 	}
 
 	const duration = getDuration(metadata);
+
 	if (duration !== undefined) {
 		segments.push(`duration=${duration}`);
 	}
@@ -145,6 +148,7 @@ const parsePositiveInteger = (value: string, max: number): number | null => {
 	}
 
 	const parsed = Number(value);
+
 	return isBoundedInteger(parsed, max) ? parsed : null;
 };
 
@@ -154,12 +158,11 @@ const parsePositiveNumber = (value: string, max: number): number | null => {
 	}
 
 	const parsed = Number(value);
+
 	return Number.isFinite(parsed) && parsed > 0 && parsed <= max ? parsed : null;
 };
 
-export const parseDragMimeType = (
-	mimeType: string,
-): DragPreviewMetadata | null => {
+const parseMimeParameters = (mimeType: string): Map<string, string> | null => {
 	if (
 		mimeType.length > MAX_MIME_TYPE_LENGTH ||
 		!mimeType.startsWith(`${REMOTION_DRAG_MIME_TYPE};`)
@@ -168,19 +171,23 @@ export const parseDragMimeType = (
 	}
 
 	const segments = mimeType.split(';');
+
 	if (segments.shift() !== REMOTION_DRAG_MIME_TYPE) {
 		return null;
 	}
 
 	const values = new Map<string, string>();
+
 	for (const segment of segments) {
 		const separator = segment.indexOf('=');
+
 		if (separator === -1) {
 			return null;
 		}
 
 		const key = segment.slice(0, separator);
 		const value = segment.slice(separator + 1);
+
 		if (
 			!['v', 'type', 'width', 'height', 'duration'].includes(key) ||
 			value === '' ||
@@ -196,81 +203,97 @@ export const parseDragMimeType = (
 		return null;
 	}
 
-	const type = values.get('type');
-	if (
-		type !== 'asset' &&
-		type !== 'component' &&
-		type !== 'effect' &&
-		type !== 'element' &&
-		type !== 'render-output' &&
-		type !== 'sfx'
-	) {
-		return null;
-	}
+	return values;
+};
 
+const parseMimeDimensions = (
+	values: Map<string, string>,
+): Dimensions | null => {
 	const widthValue = values.get('width');
 	const heightValue = values.get('height');
-	if ((widthValue === undefined) !== (heightValue === undefined)) {
+
+	if (widthValue === undefined && heightValue === undefined) {
+		return {};
+	}
+
+	if (widthValue === undefined || heightValue === undefined) {
 		return null;
 	}
 
-	if (
-		(type === 'effect' || type === 'render-output' || type === 'sfx') &&
-		(widthValue !== undefined || values.has('duration'))
-	) {
-		return null;
-	}
+	const width = parsePositiveNumber(widthValue, MAX_DIMENSION);
+	const height = parsePositiveNumber(heightValue, MAX_DIMENSION);
 
-	const width =
-		widthValue === undefined
-			? undefined
-			: parsePositiveNumber(widthValue, MAX_DIMENSION);
-	const height =
-		heightValue === undefined
-			? undefined
-			: parsePositiveNumber(heightValue, MAX_DIMENSION);
 	if (width === null || height === null) {
 		return null;
 	}
 
+	return {width, height};
+};
+
+export const parseDragMimeType = (
+	mimeType: string,
+): DragPreviewMetadata | null => {
+	const values = parseMimeParameters(mimeType);
+
+	if (values === null) {
+		return null;
+	}
+
+	const dimensions = parseMimeDimensions(values);
+
+	if (dimensions === null) {
+		return null;
+	}
+
+	const type = values.get('type');
 	const durationValue = values.get('duration');
-	if (durationValue !== undefined && type !== 'asset' && type !== 'element') {
-		return null;
-	}
 
-	const duration =
-		durationValue === undefined
-			? undefined
-			: type === 'asset'
-				? parsePositiveNumber(durationValue, MAX_DURATION_IN_SECONDS)
-				: parsePositiveInteger(durationValue, MAX_DURATION_IN_FRAMES);
-	if (duration === null) {
-		return null;
-	}
+	switch (type) {
+		case 'asset': {
+			if (durationValue === undefined) {
+				return {type, ...dimensions};
+			}
 
-	const dimensions =
-		width === undefined ? {} : {width, height: height as number};
-	if (type === 'asset') {
-		return {
-			type,
-			...dimensions,
-			...(duration === undefined ? {} : {durationInSeconds: duration}),
-		};
-	}
+			const durationInSeconds = parsePositiveNumber(
+				durationValue,
+				MAX_DURATION_IN_SECONDS,
+			);
 
-	if (type === 'element') {
-		if (duration === undefined) {
-			return null;
+			if (durationInSeconds === null) {
+				return null;
+			}
+
+			return {type, ...dimensions, durationInSeconds};
 		}
 
-		return {
-			type,
-			...dimensions,
-			durationInFrames: duration,
-		};
-	}
+		case 'element': {
+			if (durationValue === undefined) {
+				return null;
+			}
 
-	return {type, ...dimensions};
+			const durationInFrames = parsePositiveInteger(
+				durationValue,
+				MAX_DURATION_IN_FRAMES,
+			);
+
+			if (durationInFrames === null) {
+				return null;
+			}
+
+			return {type, ...dimensions, durationInFrames};
+		}
+
+		case 'component':
+			return durationValue === undefined ? {type, ...dimensions} : null;
+		case 'effect':
+		case 'render-output':
+		case 'sfx':
+			return dimensions.width === undefined && durationValue === undefined
+				? {type}
+				: null;
+		default:
+			return null;
+	}
 };
 
 export const getDragPreviewMetadata = (
@@ -279,6 +302,7 @@ export const getDragPreviewMetadata = (
 	for (let index = 0; index < mimeTypes.length; index++) {
 		const mimeType = mimeTypes[index];
 		const parsed = parseDragMimeType(mimeType);
+
 		if (parsed !== null) {
 			return {...parsed, mimeType};
 		}

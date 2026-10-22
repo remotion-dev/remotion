@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {TSequence} from 'remotion';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 
 const getStack = () => null;
 
@@ -33,10 +33,11 @@ const withoutKeyframeDisplayOffset = <
 	);
 
 test('Should calculate sequences correctly', () => {
-	const timeline = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const timeline = calculate({
 		sequences,
 		overrideIdsToNodePaths: {},
-	});
+	}).tracks;
 
 	expect(withoutKeyframeDisplayOffset(timeline)).toEqual([
 		{

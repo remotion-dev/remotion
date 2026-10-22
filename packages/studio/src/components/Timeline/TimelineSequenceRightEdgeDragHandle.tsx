@@ -1,8 +1,5 @@
 import {CanvasInternals} from '@remotion/sdk';
-import {
-	stringifySequenceExpandedRowKey,
-	stringifySequenceSubscriptionKey,
-} from '@remotion/studio-shared';
+import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -22,27 +19,35 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TRANSPARENT} from '../../helpers/colors';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	isPointerSessionRelease,
 	startDeferredCapturedPointerSession,
 } from '../../helpers/pointer-session';
-import {startPreparedPointerSession} from '../../helpers/start-prepared-pointer-session';
+import {startThresholdPointerSession} from '../../helpers/start-threshold-pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {getCachedMediaMetadata} from '../../helpers/use-media-metadata';
 import {EditorSnappingContext} from '../../state/editor-snapping';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {showNotification} from '../Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import type {
 	MoveEffectKeyframeChange,
 	MoveSequenceKeyframeChange,
 } from './call-move-keyframe';
+import {
+	createTrackLookupForNodePathInfo,
+	findTrackForNodePathInfo,
+} from './find-track-for-node-path-info';
+import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {
 	getKeyframedSequenceDragTargets,
 	type TimelineSequenceEffectKeyframeDragTarget,
@@ -56,7 +61,10 @@ import {
 	getTimelineSequenceTimingLimits,
 } from './get-timeline-sequence-timing-limits';
 import {getTimelineTransitionNeighbors} from './get-timeline-transition-neighbors';
-import {loadKeyframeTrimConstraints} from './load-keyframe-trim-constraints';
+import {
+	TIMELINE_TRIM_HANDLE_WIDTH,
+	type getTimelineTrimHandleLayout,
+} from './get-timeline-trim-handle-layout';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
@@ -70,24 +78,20 @@ import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
 	getTimelineSequenceSelectionKey,
 	shouldSelectTimelineRowOnPointerDown,
+	TIMELINE_MARQUEE_ITEM_ATTR,
 	useCurrentTimelineSelectionStateAsRef,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
 } from './TimelineSelection';
 import {TimelineSnapIndicatorContext} from './TimelineSnapIndicator';
+import {TimelineUnclippedTrimContent} from './TimelineTrimOutline';
 import {
 	TimelineTrimTooltip,
 	type TimelineTrimTooltipState,
 } from './TimelineTrimTooltip';
 
-const {getParentSequencePlaybackRate, sortItemsByCommitOrder} = CanvasInternals;
+const {sortItemsByCommitOrder} = CanvasInternals;
 
-const HANDLE_INSET = 6;
-const HANDLE_OUTSET = 8;
-const LEFT_EDGE_HANDLE_INSET = 4;
-const LEFT_EDGE_HANDLE_OUTSET = 4;
-const TRANSITION_RIGHT_HANDLE_INSET =
-	HANDLE_INSET + HANDLE_OUTSET + LEFT_EDGE_HANDLE_OUTSET + 1;
 const timelineSequenceEdgeDragThresholdPx = 4;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
 
@@ -218,8 +222,7 @@ const baseStyle: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	bottom: 0,
-	// Keep the middle half of narrow layers available for moving.
-	width: `calc(${HANDLE_OUTSET}px + min(${HANDLE_INSET}px, 25%))`,
+	width: TIMELINE_TRIM_HANDLE_WIDTH,
 	zIndex: 1,
 	touchAction: 'none',
 };
@@ -264,8 +267,17 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly positionField: 'from' | null;
 	// Series trims resize the previous clip; positioned Track clips roll both edges.
 	readonly ripplePrevious: TimelineSequenceDurationDragTarget | null;
-	// A transition roll preserves the incoming source out by moving its source in.
+	// A cascading roll preserves the incoming source out by moving its source in.
 	readonly rollingDuration: TimelineSequenceDurationDragTarget | null;
+	readonly sourceOnlyLimits: {
+		// Negative offsets use the hidden prefix by moving the child's start.
+		readonly minimumSourceOffset: number;
+		readonly maximumSourceOffset: number;
+		readonly minimumReason: TimelineTrimLimitReason;
+		readonly maximumReason: TimelineTrimLimitReason;
+		readonly adjustDuration: boolean;
+		readonly requiresExplicitDuration: boolean;
+	} | null;
 	readonly timingLimits: ReturnType<
 		typeof getTimelineSequenceTimingLimits
 	> | null;
@@ -308,7 +320,7 @@ const queueStaticDragOverrideIfChanged = ({
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly key: string;
 	readonly value: number;
-	readonly initialValue: number;
+	readonly initialValue: number | null;
 }) => {
 	const nodeKey = stringifySequenceSubscriptionKey(nodePath);
 	const previousForNode = previousValues.get(nodeKey);
@@ -574,6 +586,25 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 		};
 	}
 
+	if (trimBeforeOnly && target.sourceOnlyLimits) {
+		const limits = target.sourceOnlyLimits;
+		const sourceOffset = Math.max(
+			limits.minimumSourceOffset,
+			Math.min(
+				limits.maximumSourceOffset,
+				target.initialTrimBefore -
+					deltaFrames * target.parentPlaybackRate * target.playbackRate,
+			),
+		);
+		const fromShift = Math.max(0, -sourceOffset / target.playbackRate);
+		return {
+			from: target.initialFrom + fromShift,
+			durationInFrames:
+				target.initialDuration - (limits.adjustDuration ? fromShift : 0),
+			trimBefore: Math.max(0, sourceOffset),
+		};
+	}
+
 	if (target.rollingDuration && target.ripplePrevious) {
 		const outgoing = target.ripplePrevious;
 		// The incoming source out and timeline end stay fixed. Its duration limits
@@ -619,7 +650,7 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
 		: deltaFrames;
 	const localDeltaFrames = sharedDeltaFrames * target.parentPlaybackRate;
 	// Only trims that started inside the parent are constrained to its start.
-	// Source-only and cascading trims do not change `from`.
+	// Other source-only and cascading trims do not change `from`.
 	let clampedDeltaFrames =
 		!trimBeforeOnly && target.positionField !== null && target.initialFrom >= 0
 			? Math.max(-target.initialFrom, localDeltaFrames)
@@ -724,7 +755,13 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 			});
 		}
 
-		if (nextValues.durationInFrames !== target.initialDuration) {
+		if (
+			nextValues.durationInFrames !== target.initialDuration ||
+			(trimBeforeOnly &&
+				target.sourceOnlyLimits?.requiresExplicitDuration &&
+				(nextValues.from !== target.initialFrom ||
+					nextValues.trimBefore !== target.initialTrimBefore))
+		) {
 			changes.push({
 				fileName: target.fileName,
 				nodePath: target.nodePath,
@@ -963,37 +1000,13 @@ export const getTimelineSequenceFromDragKeyframeMoves = ({
 	};
 };
 
-const findSequenceTrack = ({
-	tracks,
-	nodePathInfo,
-}: {
-	readonly tracks: ReturnType<typeof calculateTimeline>;
-	readonly nodePathInfo: SequenceNodePathInfo;
-}) => {
-	const key = stringifySequenceExpandedRowKey(
-		nodePathInfo.sequenceSubscriptionKey,
-	);
-
-	return tracks.find((candidate) => {
-		if (candidate.nodePathInfo === null) {
-			return false;
-		}
-
-		return (
-			stringifySequenceExpandedRowKey(
-				candidate.nodePathInfo.sequenceSubscriptionKey,
-			) === key && candidate.nodePathInfo.index === nodePathInfo.index
-		);
-	});
-};
-
 export const getTimelineSequenceDurationDragTargets = ({
 	draggedNodePathInfo,
 	draggedSequenceMediaDurationDragLimits,
 	selectedSequenceMediaDurationDragLimits,
 	selectedItems,
 	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 	timelineDurationInFrames,
 }: {
@@ -1005,7 +1018,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 	> | null;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 	readonly timelineDurationInFrames: number;
 }): TimelineSequenceDurationDragTarget[] | null => {
@@ -1032,11 +1045,15 @@ export const getTimelineSequenceDurationDragTargets = ({
 		draggedItemIsSelected && selectedSequenceItems.length > 1
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
 	const targets = new Map<string, TimelineSequenceDurationDragTarget>();
+	const findTrack =
+		targetNodePathInfos.length > 1
+			? createTrackLookupForNodePathInfo(tracks)
+			: (nodePathInfo: SequenceNodePathInfo) =>
+					findTrackForNodePathInfo({tracks, nodePathInfo});
 
 	for (const nodePathInfo of targetNodePathInfos) {
-		const track = findSequenceTrack({tracks, nodePathInfo});
+		const track = findTrack(nodePathInfo);
 		const originalSequence = track
 			? sequences.find((sequence) => sequence.id === track.sequence.id)
 			: null;
@@ -1170,10 +1187,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 			);
 
 			targets.set(key, {
-				parentPlaybackRate: getParentSequencePlaybackRate(
-					originalSequence,
-					sequences,
-				),
+				parentPlaybackRate: track.keyframePlaybackRate,
 				fileName: nodePath.absolutePath,
 				initialDuration,
 				maximumDuration,
@@ -1207,7 +1221,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 	draggedNodePathInfo,
 	selectedItems,
 	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 	timelineDurationInFrames = Infinity,
 	trimBeforeOnly = false,
@@ -1216,7 +1230,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 	readonly draggedNodePathInfo: SequenceNodePathInfo;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 	readonly timelineDurationInFrames?: number;
 	readonly trimBeforeOnly?: boolean;
@@ -1241,8 +1255,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		return null;
 	}
 
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
-	const draggedTrack = findSequenceTrack({
+	const draggedTrack = findTrackForNodePathInfo({
 		tracks,
 		nodePathInfo: draggedNodePathInfo,
 	});
@@ -1255,9 +1268,14 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				? selectedSequenceItems.map((item) => item.nodePathInfo)
 				: [draggedNodePathInfo];
 	const targets = new Map<string, TimelineSequenceLeftEdgeDragTarget>();
+	const findTrack =
+		targetNodePathInfos.length > 1
+			? createTrackLookupForNodePathInfo(tracks)
+			: (nodePathInfo: SequenceNodePathInfo) =>
+					findTrackForNodePathInfo({tracks, nodePathInfo});
 
 	for (const nodePathInfo of targetNodePathInfos) {
-		const track = findSequenceTrack({tracks, nodePathInfo});
+		const track = findTrack(nodePathInfo);
 		const originalSequence = track
 			? sequences.find((sequence) => sequence.id === track.sequence.id)
 			: null;
@@ -1319,7 +1337,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 						selectedSequenceMediaDurationDragLimits: null,
 						selectedItems: [],
 						sequences,
-						overrideIdsToNodePaths,
+						tracks,
 						propStatuses,
 						timelineDurationInFrames,
 					})?.[0] ?? null;
@@ -1385,11 +1403,129 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 					? (track.sequence.from - track.cascadedStart) *
 						track.keyframePlaybackRate
 					: 0;
+			const timingLimits = getTimelineSequenceTimingLimits({
+				propStatuses,
+				movingSequenceIds: null,
+				track,
+				tracks,
+				sequences,
+				timelineDurationInFrames,
+			});
+			let sourceOnlyLimits: TimelineSequenceLeftEdgeDragTarget['sourceOnlyLimits'] =
+				null;
+			if (trimBeforeOnly && trimsMedia && positionField === 'from') {
+				const hiddenPrefix = Math.max(
+					0,
+					(track.sequence.from - track.cascadedStart) *
+						track.keyframePlaybackRate,
+				);
+				const hasExplicitDuration =
+					typeof runtimeDuration === 'number' &&
+					Number.isFinite(runtimeDuration);
+				const visibleEnd =
+					(track.sequence.from +
+						track.sequence.duration -
+						track.cascadedStart) *
+					track.keyframePlaybackRate;
+				const initialDuration = hasExplicitDuration
+					? (runtimeDuration as number) / playbackRate
+					: visibleEnd;
+				// Parent bounds constrain the visible window, not the source inside it.
+				const minimumTrimBefore = Math.min(
+					ownTrimBefore,
+					Math.max(
+						0,
+						ownTrimBefore +
+							(timingLimits.keyframes.minimumDuration - initialDuration) *
+								originalSequence.sequencePlaybackRate,
+					),
+				);
+				const endsAtParentBoundary =
+					track.sequence.from + track.sequence.duration >=
+					Math.min(
+						track.parentVisibleEnd ?? Infinity,
+						timelineDurationInFrames,
+					);
+				const adjustDuration =
+					(hasExplicitDuration || !endsAtParentBoundary) &&
+					canUpdateDurationInFrames({propStatuses, nodePath});
+				const canShiftFrom =
+					canUpdateFrom({propStatuses, nodePath}) &&
+					(endsAtParentBoundary || adjustDuration);
+				const maximumFromShift = canShiftFrom
+					? Math.min(
+							hiddenPrefix,
+							adjustDuration
+								? Math.max(
+										0,
+										initialDuration -
+											timingLimits.keyframes.minimumDuration -
+											ownTrimBefore / playbackRate,
+									)
+								: Infinity,
+						)
+					: 0;
+				const metadata = getCachedMediaMetadata(originalSequence.src);
+				const fps = controls.videoConfigValues?.fps;
+				const sourceEnd = Math.min(
+					metadata && fps ? Math.ceil(metadata.duration * fps) : Infinity,
+					typeof runtimeValues.trimAfter === 'number'
+						? runtimeValues.trimAfter
+						: Infinity,
+				);
+				const maximumSourceOffsetFromEnd =
+					originalSequence.loopDisplay || runtimeValues.loop === true
+						? Infinity
+						: sourceEnd - visibleEnd * playbackRate;
+				sourceOnlyLimits = {
+					minimumSourceOffset:
+						minimumTrimBefore > 0
+							? minimumTrimBefore
+							: -maximumFromShift * playbackRate,
+					maximumSourceOffset: Math.max(
+						ownTrimBefore,
+						Math.min(
+							timingLimits.maximumTrimBefore,
+							maximumSourceOffsetFromEnd,
+						),
+					),
+					minimumReason:
+						minimumTrimBefore > 0
+							? (timingLimits.keyframes.minimumReason ?? 'Keyframe constraint')
+							: hiddenPrefix > 0 && !canShiftFrom
+								? 'Computed value'
+								: maximumFromShift < hiddenPrefix
+									? 'Keyframe constraint'
+									: 'Source start',
+					maximumReason:
+						maximumSourceOffsetFromEnd <= timingLimits.maximumTrimBefore
+							? 'Source end'
+							: timingLimits.limitReasons.maximumTrimBefore,
+					adjustDuration,
+					requiresExplicitDuration:
+						!hasExplicitDuration && !endsAtParentBoundary,
+				};
+			}
+
+			if (!trimBeforeOnly && positionField === 'from') {
+				// This handle edits the visible edge, not the compressed negative-time
+				// gutter. Moving clips may preserve authored clipping, but trimming
+				// cannot extend the visible edge behind its parent's visible start.
+				const minimumVisibleFrom =
+					originalSequence.from +
+					(track.parentVisibleStart - track.cascadedStart) *
+						track.keyframePlaybackRate;
+				if (minimumVisibleFrom > timingLimits.minimumFrom) {
+					timingLimits.minimumFrom = minimumVisibleFrom;
+					timingLimits.limitReasons.minimumFrom =
+						originalSequence.parent === null
+							? 'Composition edge'
+							: 'Parent edge';
+				}
+			}
+
 			targets.set(key, {
-				parentPlaybackRate: getParentSequencePlaybackRate(
-					originalSequence,
-					sequences,
-				),
+				parentPlaybackRate: track.keyframePlaybackRate,
 				fileName: nodePath.absolutePath,
 				initialDuration:
 					(originalSequence.autoDuration
@@ -1397,8 +1533,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 								track.sequence.duration -
 								track.cascadedStart) *
 							track.keyframePlaybackRate
-						: isSeriesSequence(originalSequence) ||
-							  typeof runtimeDuration !== 'number' ||
+						: typeof runtimeDuration !== 'number' ||
 							  !Number.isFinite(runtimeDuration)
 							? originalSequence.duration
 							: runtimeDuration / playbackRate) - hiddenStartInParentFrames,
@@ -1411,7 +1546,12 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 						? ownTrimBefore
 						: trimsMedia
 							? (originalSequence.trimBefore ??
-								Math.max(0, originalSequence.startMediaFrom))
+								Math.max(
+									0,
+									// The media start already includes frames hidden by ancestors.
+									originalSequence.startMediaFrom -
+										hiddenStartInParentFrames * playbackRate,
+								))
 							: (originalSequence.trimBefore ?? 0)) +
 					hiddenStartInParentFrames * playbackRate,
 				minimumDuration: getMinimumSequenceDuration({
@@ -1423,14 +1563,8 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				positionField,
 				ripplePrevious,
 				rollingDuration: null,
-				timingLimits: getTimelineSequenceTimingLimits({
-					propStatuses,
-					movingSequenceIds: null,
-					track,
-					tracks,
-					sequences,
-					timelineDurationInFrames,
-				}),
+				sourceOnlyLimits,
+				timingLimits,
 				schema: controls.schema,
 			});
 		}
@@ -1442,14 +1576,14 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 export const getTimelineSequenceRollingEditTargets = ({
 	draggedNodePathInfo,
 	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 	timelineDurationInFrames,
 	mediaDurationDragLimits,
 }: {
 	readonly draggedNodePathInfo: SequenceNodePathInfo;
 	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 	readonly timelineDurationInFrames: number;
 	readonly mediaDurationDragLimits: ReadonlyMap<
@@ -1457,20 +1591,46 @@ export const getTimelineSequenceRollingEditTargets = ({
 		TimelineSequenceMediaDurationDragLimits | null
 	> | null;
 }): TimelineSequenceLeftEdgeDragTarget[] | null => {
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
-	const rightTrack = findSequenceTrack({
+	const rightTrack = findTrackForNodePathInfo({
 		tracks,
 		nodePathInfo: draggedNodePathInfo,
 	});
 	if (
 		rightTrack &&
 		(rightTrack.sequence.timelineTrack?.role === 'transition' ||
-			isTransitionSeriesSequence(rightTrack.sequence))
+			isCascadingSequence(rightTrack.sequence))
 	) {
-		const neighbors = getTimelineTransitionNeighbors({
+		let neighbors = getTimelineTransitionNeighbors({
 			sequenceId: rightTrack.sequence.id,
 			sequences,
 		});
+		if (isSeriesSequence(rightTrack.sequence)) {
+			// Timeline tracks use composition time; registrations use their parent clock.
+			const originalSequence = sequences.find(
+				(sequence) => sequence.id === rightTrack.sequence.id,
+			)!;
+			const siblings = sortItemsByCommitOrder(
+				sequences.filter(
+					(sequence) =>
+						sequence.parent === originalSequence.parent &&
+						isSeriesSequence(sequence),
+				),
+				(sequence) => sequence.timelineOrder,
+			);
+			const preceding =
+				siblings[
+					siblings.findIndex(
+						(sequence) => sequence.id === rightTrack.sequence.id,
+					) - 1
+				];
+			neighbors =
+				preceding &&
+				Math.abs(preceding.from + preceding.duration - originalSequence.from) <
+					0.000001
+					? {previous: preceding, next: originalSequence}
+					: null;
+		}
+
 		const previous = neighbors
 			? tracks.find((track) => track.sequence.id === neighbors.previous.id)
 			: null;
@@ -1484,8 +1644,8 @@ export const getTimelineSequenceRollingEditTargets = ({
 				propStatuses,
 				nodePath: next.nodePathInfo.sequenceSubscriptionKey,
 			}) ||
-			!isTransitionSeriesSequence(previous.sequence) ||
-			!isTransitionSeriesSequence(next.sequence)
+			!isCascadingSequence(previous.sequence) ||
+			!isCascadingSequence(next.sequence)
 		) {
 			return null;
 		}
@@ -1498,7 +1658,7 @@ export const getTimelineSequenceRollingEditTargets = ({
 					selectedSequenceMediaDurationDragLimits: null,
 					selectedItems: [],
 					sequences,
-					overrideIdsToNodePaths,
+					tracks,
 					propStatuses,
 					timelineDurationInFrames,
 				})?.[0],
@@ -1521,6 +1681,7 @@ export const getTimelineSequenceRollingEditTargets = ({
 				positionField: null,
 				ripplePrevious: outgoing,
 				rollingDuration: incoming,
+				sourceOnlyLimits: null,
 				timingLimits: getTimelineSequenceTimingLimits({
 					track: next,
 					tracks,
@@ -1581,7 +1742,7 @@ export const getTimelineSequenceRollingEditTargets = ({
 		draggedNodePathInfo,
 		selectedItems: [],
 		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		propStatuses,
 		timelineDurationInFrames,
 		trimBeforeOnly: false,
@@ -1596,7 +1757,7 @@ export const getTimelineSequenceRollingEditTargets = ({
 		selectedSequenceMediaDurationDragLimits: mediaDurationDragLimits,
 		selectedItems: [],
 		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		propStatuses,
 		timelineDurationInFrames,
 	})?.[0];
@@ -1677,12 +1838,14 @@ export const getTimelineSequenceFromDragTargets = ({
 	draggedNodePathInfo,
 	selectedItems,
 	sequences,
+	tracks,
 	overrideIdsToNodePaths,
 	propStatuses,
 }: {
 	readonly draggedNodePathInfo: SequenceNodePathInfo;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: TSequence[];
+	readonly tracks: readonly TimelineTrackData[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 	readonly propStatuses: PropStatuses;
 }): TimelineSequenceFromDragTarget[] | null => {
@@ -1709,12 +1872,16 @@ export const getTimelineSequenceFromDragTargets = ({
 		draggedItemIsSelected && selectedSequenceItems.length > 1
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
 	const sequencesById = new Map(
 		sequences.map((sequence) => [sequence.id, sequence]),
 	);
+	const findTrack =
+		targetNodePathInfos.length > 1
+			? createTrackLookupForNodePathInfo(tracks)
+			: (nodePathInfo: SequenceNodePathInfo) =>
+					findTrackForNodePathInfo({tracks, nodePathInfo});
 	const selectedSequences = targetNodePathInfos.flatMap((nodePathInfo) => {
-		const track = findSequenceTrack({tracks, nodePathInfo});
+		const track = findTrack(nodePathInfo);
 		const originalSequence = track
 			? sequencesById.get(track.sequence.id)
 			: undefined;
@@ -1813,13 +1980,10 @@ export const getTimelineSequenceFromDragTargets = ({
 			const sequenceKeyframes = descendantKeyframes.flatMap(
 				(descendant) => descendant.sequenceKeyframes,
 			);
-			const parentPlaybackRate = getParentSequencePlaybackRate(
-				originalSequence,
-				sequences,
-			);
 			const track = tracks.find(
 				(candidate) => candidate.sequence.id === originalSequence.id,
 			)!;
+			const parentPlaybackRate = track.keyframePlaybackRate;
 			const timingLimits = getTimelineSequenceTimingLimits({
 				propStatuses,
 				track,
@@ -1926,15 +2090,16 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly trimBeforeCursor: string;
 	readonly sourceOnlyCursor: string;
 	readonly edgeEnabled: boolean;
-	readonly edgeMode: Exclude<TimelineSequenceLeftEdgeDragMode, 'head-trim'>;
+	readonly edgeBlockedReason: TimelineTrimLimitReason | null;
+	readonly sourceTrimBlockedReason: TimelineTrimLimitReason | null;
+	readonly edgeMode: TimelineSequenceLeftEdgeDragMode;
 	readonly rollingEnabled: boolean;
-	readonly rollingOutset: number;
+	readonly handleLayout: ReturnType<typeof getTimelineTrimHandleLayout>;
+	readonly edgeOffset: number;
 	readonly fillTarget: boolean;
 	readonly isTransitionSeries: boolean;
-	readonly touchingPrevious: boolean;
 	readonly onHoverEnd: () => void;
 	readonly secondaryAction: 'source-only' | 'self-trim' | null;
-	readonly transitionEndOffset: number | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
@@ -1954,15 +2119,16 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	trimBeforeCursor,
 	sourceOnlyCursor,
 	edgeEnabled,
+	edgeBlockedReason,
+	sourceTrimBlockedReason,
 	edgeMode,
 	rollingEnabled,
-	rollingOutset,
+	handleLayout,
+	edgeOffset,
 	fillTarget,
 	isTransitionSeries,
-	touchingPrevious,
 	onHoverEnd,
 	secondaryAction,
-	transitionEndOffset,
 	nodePathInfo,
 	windowWidth,
 	timelineDurationInFrames,
@@ -1981,6 +2147,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -1992,21 +2159,6 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [trimTooltip, setTrimTooltip] =
 		useState<TimelineTrimTooltipState | null>(null);
-	const [altKey, setAltKey] = useState(false);
-	const [hovered, setHovered] = useState(false);
-	useEffect(() => {
-		if (edgeMode !== 'rolling' || !hovered) return;
-		const onKey = (event: KeyboardEvent) => setAltKey(event.altKey);
-		const onBlur = () => setAltKey(false);
-		window.addEventListener('keydown', onKey);
-		window.addEventListener('keyup', onKey);
-		window.addEventListener('blur', onBlur);
-		return () => {
-			window.removeEventListener('keydown', onKey);
-			window.removeEventListener('keyup', onKey);
-			window.removeEventListener('blur', onBlur);
-		};
-	}, [edgeMode, hovered]);
 
 	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
@@ -2083,6 +2235,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 		if (
 			!commit ||
+			!dragState.didMove ||
 			latestServerState.type !== 'connected' ||
 			changes.length === 0
 		) {
@@ -2143,17 +2296,14 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				return;
 			}
 
-			const mode =
-				e.currentTarget.dataset.trimMode === 'rolling'
-					? e.altKey && !fillTarget && isTransitionSeries
-						? 'head-trim'
-						: 'rolling'
-					: e.currentTarget.dataset.trimMode === 'source-only'
-						? 'source-only'
-						: e.currentTarget.dataset.trimMode === 'self-trim'
-							? 'self-trim'
-							: 'ripple';
+			const mode = e.currentTarget.dataset
+				.trimMode as TimelineSequenceLeftEdgeDragMode;
 			const trimBeforeOnly = mode === 'source-only';
+			const blockedReason = trimBeforeOnly
+				? sourceTrimBlockedReason
+				: mode === edgeMode
+					? edgeBlockedReason
+					: null;
 			const activeCursor =
 				mode === 'ripple' || mode === 'rolling'
 					? cursor
@@ -2187,24 +2337,24 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const downEvent = e.nativeEvent;
 			const sequences = sequencesRef.current;
 			const overrideIdsToNodePaths = overrideIdToNodePathMappingsRef.current;
+			const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
 			const propStatuses = propStatusesRef.current;
 			const handleRect = captureTarget.getBoundingClientRect();
-			const initialEdgeClientX = fillTarget
-				? handleRect.left + handleRect.width / 2
-				: captureTarget.parentElement!.getBoundingClientRect().left +
-					(mode === 'source-only' || mode === 'self-trim'
-						? (transitionEndOffset ?? 0)
-						: 0);
+			const initialEdgeClientX =
+				captureTarget.parentElement!.getBoundingClientRect().left +
+				(fillTarget
+					? captureTarget.parentElement!.getBoundingClientRect().width / 2
+					: edgeOffset);
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
 			const getTargets = (statuses: PropStatuses) =>
-				canCalculateDelta
+				canCalculateDelta && blockedReason === null
 					? ((mode === 'rolling'
 							? getTimelineSequenceRollingEditTargets({
 									draggedNodePathInfo: latestNodePathInfo,
 									sequences,
-									overrideIdsToNodePaths,
+									tracks,
 									propStatuses: statuses,
 									timelineDurationInFrames,
 									mediaDurationDragLimits:
@@ -2214,7 +2364,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 									draggedNodePathInfo: latestNodePathInfo,
 									selectedItems: latestSelectedItems,
 									sequences,
-									overrideIdsToNodePaths,
+									tracks,
 									propStatuses: statuses,
 									timelineDurationInFrames,
 									trimBeforeOnly,
@@ -2222,36 +2372,32 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								})) ?? [])
 					: [];
 			stopPointerSessionRef.current?.();
-			stopPointerSessionRef.current = startPreparedPointerSession({
+			stopPointerSessionRef.current = startThresholdPointerSession({
 				event: downEvent,
 				captureTarget,
-				minimumMovement: isTransitionSeries
-					? timelineSequenceEdgeDragThresholdPx
-					: null,
-				prepare: () =>
-					loadKeyframeTrimConstraints({
-						propStatuses,
-						overrideIdsToNodePaths,
-						sequences,
-						affectedNodePaths: getTargets(propStatuses).flatMap((target) =>
-							target.ripplePrevious
-								? target.positionField === null &&
-									target.rollingDuration === null
-									? [target.ripplePrevious.nodePath]
-									: [target.nodePath, target.ripplePrevious.nodePath]
-								: [target.nodePath],
-						),
-					}),
+				minimumMovement: null,
 				onCancel: () => {
 					stopPointerSessionRef.current = null;
 					finishDrag(false);
 				},
-				onError: (error) =>
-					showNotification(
-						`Could not check trim constraints: ${(error as Error).message}`,
-						3000,
-					),
-				onReady: (preparedPropStatuses) => {
+				onStart: () => {
+					const preparedPropStatuses =
+						blockedReason === null
+							? getKeyframeTrimConstraints({
+									propStatuses,
+									overrideIdsToNodePaths,
+									sequences,
+									affectedNodePaths: getTargets(propStatuses).flatMap(
+										(target) =>
+											target.ripplePrevious
+												? target.positionField === null &&
+													target.rollingDuration === null
+													? [target.ripplePrevious.nodePath]
+													: [target.nodePath, target.ripplePrevious.nodePath]
+												: [target.nodePath],
+									),
+								})
+							: propStatuses;
 					const targets = getTargets(preparedPropStatuses);
 					const draggedKey = stringifySequenceSubscriptionKey(
 						latestNodePathInfo.sequenceSubscriptionKey,
@@ -2262,13 +2408,13 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								stringifySequenceSubscriptionKey(target.nodePath) ===
 								draggedKey,
 						) ?? (fillTarget ? targets[0] : undefined);
-					if (!isTransitionSeries) {
-						onDragStart(
-							mode,
-							true,
-							targets.map((target) => target.nodePath),
-						);
-					}
+					onDragStart(
+						mode,
+						blockedReason === null,
+						blockedReason === null
+							? targets.map((target) => target.nodePath)
+							: [latestNodePathInfo.sequenceSubscriptionKey],
+					);
 
 					dragStateRef.current = {
 						initialClientX: downEvent.clientX,
@@ -2289,6 +2435,16 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					document.body.style.userSelect = 'none';
 					document.body.style.webkitUserSelect = 'none';
 					forceSpecificCursor(activeCursor);
+					if (blockedReason !== null) {
+						latestRef.current.onLimitChange(true);
+						setTrimTooltip({
+							limitReason: blockedReason,
+							deltaFrames: 0,
+							edgeFrame: initialTimelineEdge,
+							x: initialEdgeClientX,
+							y: initialEdgeClientY,
+						});
+					}
 
 					const onMove = (pointerEvent: PointerEvent) => {
 						const dragState = dragStateRef.current;
@@ -2297,24 +2453,21 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						}
 
 						const dx = pointerEvent.clientX - dragState.initialClientX;
-						if (isTransitionSeries && !dragState.didMove) {
-							if (Math.abs(dx) < timelineSequenceEdgeDragThresholdPx) {
-								return;
-							}
-
-							onDragStart(
-								dragState.mode,
-								true,
-								dragState.targets.map((target) => target.nodePath),
-							);
+						if (blockedReason !== null) {
+							dragState.didMove ||=
+								Math.abs(dx) >= timelineSequenceEdgeDragThresholdPx;
+							return;
 						}
 
-						const pointerDeltaFrames = Math.round(dx / dragState.pxPerFrame);
-						const deltaFrames =
-							dragState.mode === 'self-trim' &&
-							draggedTarget?.positionField === null
-								? -pointerDeltaFrames
-								: pointerDeltaFrames;
+						if (
+							isTransitionSeries &&
+							!dragState.didMove &&
+							Math.abs(dx) < timelineSequenceEdgeDragThresholdPx
+						) {
+							return;
+						}
+
+						const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 						dragState.latestDeltaFrames = deltaFrames;
 						if (
 							Math.abs(dx) >= timelineSequenceEdgeDragThresholdPx ||
@@ -2417,16 +2570,29 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								const limits = target.timingLimits;
 								const targetLimitReason =
 									dragState.mode === 'source-only'
-										? getTimelineTrimLimitReason(nextValues.trimBefore, [
+										? getTimelineTrimLimitReason(
+												nextValues.trimBefore -
+													(nextValues.from - target.initialFrom) *
+														target.playbackRate,
 												[
-													limits?.minimumTrimBefore ?? NaN,
-													limits?.limitReasons.minimumTrimBefore ?? null,
+													[
+														target.sourceOnlyLimits?.minimumSourceOffset ??
+															limits?.minimumTrimBefore ??
+															NaN,
+														target.sourceOnlyLimits?.minimumReason ??
+															limits?.limitReasons.minimumTrimBefore ??
+															null,
+													],
+													[
+														target.sourceOnlyLimits?.maximumSourceOffset ??
+															limits?.maximumTrimBefore ??
+															NaN,
+														target.sourceOnlyLimits?.maximumReason ??
+															limits?.limitReasons.maximumTrimBefore ??
+															null,
+													],
 												],
-												[
-													limits?.maximumTrimBefore ?? NaN,
-													limits?.limitReasons.maximumTrimBefore ?? null,
-												],
-											])
+											)
 										: (getTimelineTrimLimitReason(nextValues.durationInFrames, [
 												[
 													limits?.keyframes.minimumDuration ?? NaN,
@@ -2452,13 +2618,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 														],
 													])));
 								limitReason ??=
-									getVisibleTimelineTrimLimitReason(targetLimitReason);
+									dragState.mode === 'source-only'
+										? targetLimitReason
+										: getVisibleTimelineTrimLimitReason(targetLimitReason);
 							}
 
-							if (
-								dragState.mode !== 'source-only' &&
-								target.positionField !== null
-							) {
+							if (target.positionField !== null) {
 								queueStaticDragOverrideIfChanged({
 									updates,
 									previousValues: dragState.previousPreviewValues,
@@ -2469,16 +2634,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								});
 							}
 
-							if (dragState.mode !== 'source-only') {
-								queueStaticDragOverrideIfChanged({
-									updates,
-									previousValues: dragState.previousPreviewValues,
-									nodePath: target.nodePath,
-									key: 'durationInFrames',
-									value: nextValues.durationInFrames * target.playbackRate,
-									initialValue: target.initialDuration * target.playbackRate,
-								});
-							}
+							queueStaticDragOverrideIfChanged({
+								updates,
+								previousValues: dragState.previousPreviewValues,
+								nodePath: target.nodePath,
+								key: 'durationInFrames',
+								value: nextValues.durationInFrames * target.playbackRate,
+								initialValue:
+									dragState.mode === 'source-only' &&
+									target.sourceOnlyLimits?.requiresExplicitDuration
+										? null
+										: target.initialDuration * target.playbackRate,
+							});
 
 							queueStaticDragOverrideIfChanged({
 								updates,
@@ -2537,8 +2704,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 								});
 								appliedDelta =
 									dragState.mode === 'source-only'
-										? (values.trimBefore - draggedTarget.initialTrimBefore) /
-											draggedTarget.playbackRate
+										? ((values.trimBefore - draggedTarget.initialTrimBefore) /
+												draggedTarget.playbackRate -
+												(values.from - draggedTarget.initialFrom)) /
+											draggedTarget.parentPlaybackRate
 										: (values.from - draggedTarget.initialFrom) /
 											draggedTarget.parentPlaybackRate;
 							}
@@ -2609,6 +2778,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		[
 			currentSelection,
 			mediaDurationDragLimitsRegistry,
+			calculateTimeline,
 			overrideIdToNodePathMappingsRef,
 			cursor,
 			finishDrag,
@@ -2621,8 +2791,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			sourceOnlyCursor,
 			windowWidth,
 			fillTarget,
+			edgeOffset,
 			isTransitionSeries,
-			transitionEndOffset,
+			edgeMode,
+			edgeBlockedReason,
+			sourceTrimBlockedReason,
 		],
 	);
 
@@ -2635,54 +2808,14 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	const edgeStyle: React.CSSProperties = {
 		...baseStyle,
-		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		left:
-			rollingEnabled && edgeMode !== 'rolling'
-				? 'min(2px, 12.5%)'
-				: touchingPrevious
-					? 0
-					: -LEFT_EDGE_HANDLE_OUTSET,
-		width:
-			rollingEnabled || touchingPrevious
-				? 'min(10px, 12.5%)'
-				: edgeMode === 'source-only'
-					? `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(14px, 25%))`
-					: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${LEFT_EDGE_HANDLE_INSET}px, 12.5%))`,
-		cursor:
-			edgeMode === 'rolling'
-				? altKey
-					? trimBeforeCursor
-					: cursor
-				: edgeMode === 'ripple'
-					? cursor
-					: edgeMode === 'source-only'
-						? sourceOnlyCursor
-						: trimBeforeCursor,
+		left: handleLayout.leftTrim ?? 0,
+		cursor: edgeMode === 'source-only' ? sourceOnlyCursor : trimBeforeCursor,
 		background: TRANSPARENT,
 		pointerEvents: 'auto',
 	};
 	const trimBeforeStyle: React.CSSProperties = {
 		...baseStyle,
-		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		// Keep the incoming head trim inside the solid clip, beyond the overlap.
-		left:
-			transitionEndOffset !== null
-				? transitionEndOffset + HANDLE_INSET
-				: edgeEnabled
-					? rollingEnabled
-						? edgeMode === 'rolling'
-							? 'min(6px, 12.5%)'
-							: 'calc(min(2px, 12.5%) + min(10px, 12.5%))'
-						: touchingPrevious
-							? 'min(10px, 12.5%)'
-							: 'min(4px, 12.5%)'
-					: 0,
-		width:
-			transitionEndOffset !== null
-				? 10
-				: edgeEnabled
-					? 'min(10px, 12.5%)'
-					: 'min(14px, 25%)',
+		left: handleLayout.secondary ?? 0,
 		cursor:
 			secondaryAction === 'source-only' ? sourceOnlyCursor : trimBeforeCursor,
 		background: TRANSPARENT,
@@ -2691,77 +2824,74 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const onHover = (mode: TimelineSequenceLeftEdgeDragMode) => {
 		if (dragStateRef.current === null) {
 			onDragStart(mode, false, [nodePathInfo.sequenceSubscriptionKey]);
+			onLimitChange(
+				(mode === 'source-only'
+					? sourceTrimBlockedReason
+					: mode === edgeMode
+						? edgeBlockedReason
+						: null) !== null,
+			);
 		}
 	};
 
 	const onLeave = () => {
-		setHovered(false);
-		setAltKey(false);
 		if (dragStateRef.current === null) {
 			onHoverEnd();
 		}
 	};
 
+	const rollingHandle =
+		rollingEnabled && (fillTarget || handleLayout.rolling !== null) ? (
+			<div
+				role="separator"
+				aria-orientation="vertical"
+				aria-label="Drag to roll edit"
+				data-trim-mode="rolling"
+				{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
+				style={{
+					...baseStyle,
+					left: fillTarget ? 0 : (handleLayout.rolling ?? 0),
+					width: fillTarget ? '100%' : TIMELINE_TRIM_HANDLE_WIDTH,
+					minWidth: TIMELINE_TRIM_HANDLE_WIDTH,
+					cursor,
+					background: TRANSPARENT,
+					pointerEvents: 'auto',
+				}}
+				onPointerEnter={() => onHover('rolling')}
+				onPointerLeave={onLeave}
+				onPointerDown={onPointerDown}
+				onClick={fillTarget ? undefined : (e) => e.stopPropagation()}
+			/>
+		) : null;
+
 	return (
 		<>
-			{rollingEnabled && edgeMode !== 'rolling' ? (
-				<div
-					role="separator"
-					aria-orientation="vertical"
-					aria-label="Drag to roll edit"
-					data-trim-mode="rolling"
-					style={{
-						...baseStyle,
-						left: fillTarget ? 0 : -rollingOutset,
-						width: fillTarget
-							? '100%'
-							: `calc(${rollingOutset}px + min(2px, 12.5%))`,
-						cursor,
-						background: TRANSPARENT,
-						pointerEvents: 'auto',
-					}}
-					onPointerEnter={() => onHover('rolling')}
-					onPointerLeave={onLeave}
-					onPointerDown={onPointerDown}
-					onClick={fillTarget ? undefined : (e) => e.stopPropagation()}
-				/>
-			) : null}
-			{edgeEnabled ? (
+			{/* Only the shared cut handle may extend into the preceding scene. */}
+			{fillTarget || rollingHandle === null ? (
+				rollingHandle
+			) : (
+				<TimelineUnclippedTrimContent>
+					{rollingHandle}
+				</TimelineUnclippedTrimContent>
+			)}
+			{edgeEnabled && handleLayout.leftTrim !== null ? (
 				<div
 					role="separator"
 					aria-orientation="vertical"
 					aria-label={
-						edgeMode === 'rolling'
-							? altKey
-								? 'Drag to trim start'
-								: 'Drag to roll edit'
-							: edgeMode === 'source-only'
-								? 'Drag to adjust source start'
-								: 'Drag to trim start'
+						edgeMode === 'source-only'
+							? 'Drag to adjust source start'
+							: 'Drag to trim start'
 					}
 					data-trim-mode={edgeMode}
-					title={
-						edgeMode === 'rolling'
-							? 'Drag to roll edit. Option/Alt-drag to trim start.'
-							: undefined
-					}
 					style={edgeStyle}
-					onPointerEnter={(event) => {
-						if (edgeMode === 'rolling') {
-							setHovered(true);
-							setAltKey(event.altKey);
-						}
-
-						onHover(
-							edgeMode === 'rolling' && event.altKey ? 'head-trim' : edgeMode,
-						);
-					}}
+					onPointerEnter={() => onHover(edgeMode)}
 					onPointerLeave={onLeave}
 					onPointerDown={onPointerDown}
 					onClick={(e) => e.stopPropagation()}
 				/>
 			) : null}
-			{secondaryAction ? (
+			{secondaryAction && handleLayout.secondary !== null ? (
 				<div
 					role="separator"
 					aria-orientation="vertical"
@@ -2781,7 +2911,11 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				/>
 			) : null}
 			{trimTooltip === null ? null : (
-				<TimelineTrimTooltip state={trimTooltip} fps={fps} />
+				<TimelineTrimTooltip
+					state={trimTooltip}
+					fps={fps}
+					showSourceLimits={dragStateRef.current?.mode === 'source-only'}
+				/>
 			)}
 		</>
 	);
@@ -2813,6 +2947,7 @@ export const useTimelineSequenceFromDrag = ({
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -2993,7 +3128,12 @@ export const useTimelineSequenceFromDrag = ({
 				return;
 			}
 
+			const {tracks} = calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			});
 			const targets = getTimelineSequenceFromDragTargets({
+				tracks,
 				draggedNodePathInfo: latestNodePathInfo,
 				selectedItems: latestSelectedItems,
 				sequences: sequencesRef.current,
@@ -3179,6 +3319,7 @@ export const useTimelineSequenceFromDrag = ({
 		},
 		[
 			currentSelection,
+			calculateTimeline,
 			overrideIdToNodePathMappingsRef,
 			finishDrag,
 			propStatusesRef,
@@ -3205,8 +3346,8 @@ export const useTimelineSequenceFromDrag = ({
 const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly cursor: string;
 	readonly isTransitionSeries: boolean;
-	readonly transitionStartOffset: number | null;
-	readonly touchingNext: boolean;
+	readonly handleLeft: number;
+	readonly edgeOffset: number;
 	readonly onHoverEnd: () => void;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly mediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
@@ -3225,8 +3366,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 }> = ({
 	cursor,
 	isTransitionSeries,
-	transitionStartOffset,
-	touchingNext,
+	handleLeft,
+	edgeOffset,
 	onHoverEnd,
 	nodePathInfo,
 	mediaDurationDragLimits,
@@ -3248,6 +3389,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
@@ -3339,6 +3481,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 		if (
 			!commit ||
+			!dragState.didMove ||
 			latestServerState.type !== 'connected' ||
 			changes.length === 0
 		) {
@@ -3414,13 +3557,11 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const downEvent = e.nativeEvent;
 			const sequences = sequencesRef.current;
 			const overrideIdsToNodePaths = overrideIdToNodePathMappingsRef.current;
+			const {tracks} = calculateTimeline({sequences, overrideIdsToNodePaths});
 			const propStatuses = propStatusesRef.current;
 			const handleRect = captureTarget.getBoundingClientRect();
 			const initialEdgeClientX =
-				transitionStartOffset !== null
-					? handleRect.left + TRANSITION_RIGHT_HANDLE_INSET
-					: (captureTarget.parentElement?.getBoundingClientRect().right ??
-						handleRect.right - HANDLE_OUTSET);
+				captureTarget.parentElement!.getBoundingClientRect().left + edgeOffset;
 			const initialEdgeClientY = handleRect.top;
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
@@ -3434,37 +3575,29 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 								mediaDurationDragLimitsRegistry?.current ?? null,
 							selectedItems: latestSelectedItems,
 							sequences,
-							overrideIdsToNodePaths,
+							tracks,
 							propStatuses: statuses,
 							timelineDurationInFrames,
 						}) ?? [])
 					: [];
 			stopPointerSessionRef.current?.();
-			stopPointerSessionRef.current = startPreparedPointerSession({
+			stopPointerSessionRef.current = startThresholdPointerSession({
 				event: downEvent,
 				captureTarget,
-				minimumMovement: isTransitionSeries
-					? timelineSequenceEdgeDragThresholdPx
-					: null,
-				prepare: () =>
-					loadKeyframeTrimConstraints({
+				minimumMovement: null,
+				onCancel: () => {
+					stopPointerSessionRef.current = null;
+					finishDrag(false);
+				},
+				onStart: () => {
+					const preparedPropStatuses = getKeyframeTrimConstraints({
 						propStatuses,
 						overrideIdsToNodePaths,
 						sequences,
 						affectedNodePaths: getTargets(propStatuses).map(
 							(target) => target.nodePath,
 						),
-					}),
-				onCancel: () => {
-					stopPointerSessionRef.current = null;
-					finishDrag(false);
-				},
-				onError: (error) =>
-					showNotification(
-						`Could not check trim constraints: ${(error as Error).message}`,
-						3000,
-					),
-				onReady: (preparedPropStatuses) => {
+					});
 					const targets = getTargets(preparedPropStatuses);
 					const draggedKey = stringifySequenceSubscriptionKey(
 						latestNodePathInfo.sequenceSubscriptionKey,
@@ -3503,6 +3636,14 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						}
 
 						const dx = pointerEvent.clientX - dragState.initialClientX;
+						if (
+							isTransitionSeries &&
+							!dragState.didMove &&
+							Math.abs(dx) < timelineSequenceEdgeDragThresholdPx
+						) {
+							return;
+						}
+
 						const deltaFrames = Math.round(dx / dragState.pxPerFrame);
 						dragState.latestDeltaFrames = deltaFrames;
 						if (
@@ -3649,6 +3790,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		},
 		[
 			currentSelection,
+			calculateTimeline,
 			overrideIdToNodePathMappingsRef,
 			cursor,
 			finishDrag,
@@ -3659,7 +3801,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			sequencesRef,
 			timelineDurationInFrames,
 			windowWidth,
-			transitionStartOffset,
+			edgeOffset,
 			isTransitionSeries,
 			updateSnapFrameRef,
 		],
@@ -3674,26 +3816,10 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		// Keep the outgoing trim inside the solid clip, clear of the incoming edge.
-		zIndex: isTransitionSeries ? 2 : baseStyle.zIndex,
-		left:
-			transitionStartOffset !== null
-				? transitionStartOffset - TRANSITION_RIGHT_HANDLE_INSET
-				: undefined,
-		right:
-			transitionStartOffset !== null
-				? undefined
-				: touchingNext
-					? 'min(2px, 12.5%)'
-					: -HANDLE_OUTSET,
-		width:
-			transitionStartOffset !== null
-				? baseStyle.width
-				: touchingNext
-					? 'min(10px, 12.5%)'
-					: baseStyle.width,
+		left: handleLeft,
 		cursor,
 		background: TRANSPARENT,
+		pointerEvents: 'auto',
 	};
 
 	return (
@@ -3717,7 +3843,11 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				onClick={(e) => e.stopPropagation()}
 			/>
 			{trimTooltip === null ? null : (
-				<TimelineTrimTooltip state={trimTooltip} fps={fps} />
+				<TimelineTrimTooltip
+					state={trimTooltip}
+					fps={fps}
+					showSourceLimits={false}
+				/>
 			)}
 		</>
 	);

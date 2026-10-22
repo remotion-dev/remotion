@@ -218,6 +218,7 @@ export type AudioOrVideoAsset = {
 	toneFrequency: number;
 	audioStartFrame: number;
 	audioStreamIndex: number;
+	preservePitch: boolean | null;
 };
 
 export type InlineAudioAsset = {

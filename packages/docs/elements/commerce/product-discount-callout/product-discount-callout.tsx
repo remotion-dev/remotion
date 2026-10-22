@@ -99,9 +99,7 @@ const ProductDiscountCalloutInner: React.FC<InteractiveTransformProps> = ({
 	);
 };
 
-export const ProductDiscountCallout = Interactive.withSchema({
+export const ProductDiscountCallout = Interactive.create({
 	Component: ProductDiscountCalloutInner,
 	componentName: '<ProductDiscountCallout>',
-	schema: {},
-	wrapInSequence: true,
 });

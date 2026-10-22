@@ -142,6 +142,7 @@ const {
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	showLayerFrameNumbersOption,
+	preservePitchOnPlaybackOption,
 	showPremountingOption,
 	askAIOption,
 	publicLicenseKeyOption,
@@ -150,8 +151,7 @@ const {
 	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalSequenceActivityOption,
-	experimentalSequenceActivityLimitOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -660,10 +660,8 @@ type FlatConfig = RemotionConfigObject &
 		 * Omitted actions use their default shortcut. Set an action to null to disable it.
 		 */
 		setKeyboardShortcuts: (shortcuts: StudioKeyboardShortcuts) => void;
-		/** Enable experimental Sequence Activity in Studio. Default: false. */
-		setExperimentalSequenceActivityEnabled: (enabled: boolean) => void;
-		/** Set the hidden Sequence Activity limit in Studio. Default: 20. */
-		setExperimentalSequenceActivityLimit: (limit: number) => void;
+		/** Set the hidden Sequence Activity limit in Studio. Default: Infinity. Set to 0 to disable. */
+		setSequenceActivityLimit: (limit: number) => void;
 		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
@@ -762,6 +760,12 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setPreviewSampleRate: (sampleRate: number | null) => void;
 		/**
+		 * Preserve @remotion/media audio pitch when changing the Studio playback speed.
+		 * Does not affect clip-level speed changes or rendered output.
+		 * @default true
+		 */
+		setPreservePitchOnPlayback: (enabled: boolean) => void;
+		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
 		Bundling: void;
@@ -823,11 +827,9 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
+	setPreservePitchOnPlayback: preservePitchOnPlaybackOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
-	setExperimentalSequenceActivityEnabled:
-		experimentalSequenceActivityOption.setConfig,
-	setExperimentalSequenceActivityLimit:
-		experimentalSequenceActivityLimitOption.setConfig,
+	setSequenceActivityLimit: sequenceActivityLimitOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,

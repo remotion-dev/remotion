@@ -8,11 +8,11 @@ crumb: 'Remotion Studio'
 
 Remotion's default components are already interactive, meaning they can be selected and edited in the Studio.
 
-To make your component interactive too, wrap it with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+To make your component interactive too, wrap it with [`Interactive.create()`](/docs/interactive-create).
 
 ## Create the component
 
-For a scene that fills its parent, use [`layout: 'absolute-fill'`](/docs/interactive-with-schema#layout) when wrapping it with `Interactive.withSchema()`. Its inner component can return a fragment; the wrapper handles styles, transforms, premounting, and cropping.
+For a scene that fills its parent, use [`layout: 'absolute-fill'`](/docs/interactive-create#layout) when wrapping it with `Interactive.create()`. Its inner component can return a fragment; the wrapper handles styles, transforms, premounting, and cropping.
 
 A component with its own size, like the badge below, keeps the default layout and forwards `style` to its visual root.
 
@@ -30,13 +30,13 @@ export const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', p
   return (
     <div
       style={{
-        ...style,
         display: 'inline-flex',
         borderRadius: 999,
         backgroundColor: color,
         color: 'white',
         fontWeight: 700,
         padding,
+        ...style,
       }}
     >
       {children}
@@ -69,7 +69,7 @@ const badgeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-`Interactive.withSchema()` includes these schemas:
+`Interactive.create()` includes these schemas:
 
 - [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 - [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema): [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor).
@@ -92,7 +92,7 @@ Captions will become editable in the Studio.
 
 ## Turn on interactivity
 
-Call `Interactive.withSchema()` to link the schema to the component.
+Call `Interactive.create()` to link the schema to the component.
 
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
@@ -109,13 +109,13 @@ const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', padding 
   return (
     <div
       style={{
-        ...style,
         display: 'inline-flex',
         borderRadius: 999,
         backgroundColor: color,
         color: 'white',
         fontWeight: 700,
         padding,
+        ...style,
       }}
     >
       {children}
@@ -139,11 +139,9 @@ const badgeSchema = {
   },
 } as const satisfies InteractivitySchema;
 
-export const Badge = Interactive.withSchema({
+export const Badge = Interactive.create({
   Component: BadgeInner,
-  componentName: 'Badge',
   schema: badgeSchema,
-  wrapInSequence: true,
 });
 ```
 
@@ -168,7 +166,7 @@ export const MyComp = () => {
 ## See also
 
 - [Interactivity best practices](/docs/studio/interactivity-best-practices)
-- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [`Interactive.create()`](/docs/interactive-create)
 - [`InteractivitySchema`](/docs/interactivity-schema)
 - [`Interactive`](/docs/interactive)
 - [Studio interactivity](/docs/studio/interactivity)

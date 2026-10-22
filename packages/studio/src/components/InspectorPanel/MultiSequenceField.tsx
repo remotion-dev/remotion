@@ -46,6 +46,7 @@ export const MultiSequenceField: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const batchSetters = useContext(Internals.VisualModeBatchSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [editingMixed, setEditingMixed] = useState(false);
 	const statuses = targets.map(
@@ -84,9 +85,7 @@ export const MultiSequenceField: React.FC<{
 		isStudioInteractivityEnabled() &&
 		previewServerState.type === 'connected' &&
 		staticValues;
-	const previewGeneration = useRef(0);
 	const clear = useCallback(() => {
-		previewGeneration.current++;
 		clearTimingLimits();
 		for (const target of targets) {
 			clearDragOverrides(target.nodePath);
@@ -95,47 +94,42 @@ export const MultiSequenceField: React.FC<{
 	const targetsRef = useRef(targets);
 	targetsRef.current = targets;
 	useEffect(() => {
-		const generation = previewGeneration;
 		return () => {
-			generation.current++;
 			for (const target of targetsRef.current) {
 				clearDragOverrides(target.nodePath);
 			}
 		};
 	}, [clearDragOverrides]);
 	const preview = useCallback(
-		async (nextValues: unknown[]) => {
-			if (!editable) {
+		(nextValues: unknown[]) => {
+			if (!editable || targets.length === 0) {
 				return;
 			}
 
-			const generation = ++previewGeneration.current;
-			let clamped: unknown[];
-			try {
-				clamped = await Promise.all(
-					targets.map((target, index) =>
-						clampTimingValue(target.nodePath, field.key, nextValues[index]),
-					),
-				);
-			} catch (error) {
-				if (generation === previewGeneration.current)
-					showNotification(
-						`Could not check timing constraints: ${(error as Error).message}`,
-						3000,
-					);
-				return;
-			}
-
-			if (generation !== previewGeneration.current) return;
-			for (const [index, target] of targets.entries()) {
-				setDragOverrides(
-					target.nodePath,
-					field.key,
-					Internals.makeStaticDragOverride(clamped[index]),
-				);
+			const clamped = targets.map((target, index) =>
+				clampTimingValue(target.nodePath, field.key, nextValues[index]),
+			);
+			const updates = targets.map((target, index) => ({
+				nodePath: target.nodePath,
+				key: field.key,
+				value: Internals.makeStaticDragOverride(clamped[index]),
+			}));
+			if (batchSetters) {
+				batchSetters.setDragOverridesBatch(updates);
+			} else {
+				for (const update of updates) {
+					setDragOverrides(update.nodePath, update.key, update.value);
+				}
 			}
 		},
-		[clampTimingValue, editable, field.key, setDragOverrides, targets],
+		[
+			batchSetters,
+			clampTimingValue,
+			editable,
+			field.key,
+			setDragOverrides,
+			targets,
+		],
 	);
 	const save = useCallback(
 		async (
@@ -147,10 +141,8 @@ export const MultiSequenceField: React.FC<{
 			}
 
 			try {
-				const clamped = await Promise.all(
-					targets.map((target, index) =>
-						clampTimingValue(target.nodePath, field.key, nextValues[index]),
-					),
+				const clamped = targets.map((target, index) =>
+					clampTimingValue(target.nodePath, field.key, nextValues[index]),
 				);
 				await saveSequenceProps({
 					changes: targets.map((target, index) => ({

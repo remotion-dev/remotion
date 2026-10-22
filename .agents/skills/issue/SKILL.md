@@ -37,6 +37,18 @@ gh issue view <number> --json title,body
 
 Confirm that the content is correct and multiline Markdown contains real newlines rather than literal `\n` sequences.
 
+## Attachments
+
+When the user provides an image or video, upload it with `--attach` on `gh issue create`, `edit`, or `comment`:
+
+```bash
+gh issue edit <number> --attach '/tmp/screenshot.png#Description of the screenshot'
+```
+
+Repeat the flag for multiple files. Images support alt text after `#`; videos do not. Attachments are appended, or matching local Markdown references are rewritten to uploaded URLs. Editing with only `--attach` preserves the existing body.
+
+If an upload partially fails, inspect the issue before retrying to avoid duplicates. See `gh issue <command> --help` for details.
+
 ## Relationships
 
 For parent issues, sub-issues, blocked-by, and blocking relationships, use the [`issue-management`](../issue-management/SKILL.md) skill.

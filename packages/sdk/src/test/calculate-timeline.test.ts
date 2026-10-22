@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import type {TSequence} from 'remotion';
-import {calculateTimeline} from '../calculate-timeline';
+import {createTimelineCalculator} from '../calculate-timeline';
 
 const makeSequence = ({
 	id,
@@ -36,13 +36,15 @@ const makeSequence = ({
 });
 
 test('returns an empty timeline when there are no sequences', () => {
+	const calculateTimeline = createTimelineCalculator();
 	expect(
-		calculateTimeline({overrideIdsToNodePaths: {}, sequences: []}),
+		calculateTimeline({overrideIdsToNodePaths: {}, sequences: []}).tracks,
 	).toEqual([]);
 });
 
 test('normalizes nesting and visible starts', () => {
-	const timeline = calculateTimeline({
+	const calculateTimeline = createTimelineCalculator();
+	const {tracks: timeline} = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			makeSequence({id: 'child', parent: 'parent', from: -10}),
@@ -88,6 +90,7 @@ test('normalizes nesting and visible starts', () => {
 });
 
 test('committed Fiber order takes precedence over internal order', () => {
+	const calculateTimeline = createTimelineCalculator();
 	const right = makeSequence({
 		id: 'right',
 		parent: null,
@@ -101,7 +104,7 @@ test('committed Fiber order takes precedence over internal order', () => {
 	right.timelineOrder = 1;
 	left.timelineOrder = 0;
 
-	const timeline = calculateTimeline({
+	const {tracks: timeline} = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [right, left],
 	});
@@ -110,6 +113,7 @@ test('committed Fiber order takes precedence over internal order', () => {
 });
 
 test('retimed nested tracks use composition geometry and local media clocks', () => {
+	const calculateTimeline = createTimelineCalculator();
 	const outer: TSequence = {
 		...makeSequence({id: 'outer', parent: null, from: 10}),
 		sequencePlaybackRate: 1.5,
@@ -133,7 +137,7 @@ test('retimed nested tracks use composition geometry and local media clocks', ()
 		muted: false,
 		loopDisplay: {durationInFrames: 30, startOffset: 0, numberOfTimes: 6},
 	};
-	const tracks = calculateTimeline({
+	const {tracks} = calculateTimeline({
 		sequences: [outer, inner, video],
 		overrideIdsToNodePaths: {},
 	});

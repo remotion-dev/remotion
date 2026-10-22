@@ -64,6 +64,7 @@ const Component: React.FC = () => {
 					loop
 					trimBefore={3}
 					playbackRate={1.25}
+					preservePitch
 				/>
 			</Sequence>
 			<Sequence from={45} durationInFrames={9}>

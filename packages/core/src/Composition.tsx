@@ -1,11 +1,5 @@
 import type {ComponentType} from 'react';
-import React, {
-	Suspense,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-} from 'react';
+import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
 import type {z} from 'zod';
 import type {AnyZodObject} from './any-zod-type.js';
@@ -244,18 +238,9 @@ const InnerComposition = <
 
 	const resolved = useResolvedVideoConfig(id);
 
-	const {setError, clearError} = useContext(CompositionRenderErrorContext);
-
-	const onError = useCallback(
-		(error: Error) => {
-			setError(error);
-		},
-		[setError],
+	const {setError: onError, clearError: onClear} = useContext(
+		CompositionRenderErrorContext,
 	);
-
-	const onClear = useCallback(() => {
-		clearError();
-	}, [clearError]);
 	const wrapRegistration = (content: React.ReactNode) => (
 		<CommittedMetadataProvider value={null} _remotionCommitMetadata={metadata}>
 			{content}

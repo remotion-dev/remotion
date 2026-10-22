@@ -1,81 +1,42 @@
 ---
 name: remotion-new-markup
-description: Write or refactor Remotion markup using components that inherit timing props and managed absolute-fill layouts. Use when choosing scene wrappers, replacing redundant Sequence or AbsoluteFill components, or reducing unnecessary Studio timeline layers.
+description: Write or refactor editable Remotion markup with appropriate tracks, shared timing boundaries, and connected compositions.
 ---
 
-# New Remotion Markup
+# New Remotion markup
 
-## Put timing on the content component
+Read [editable timeline structure](../../../packages/skills/skills/remotion-interactivity/timeline-structure.md)
+before choosing components and wrappers. Start with what should be edited
+together, then choose independent tracks or consecutive sequences. The guide
+includes the complete interactive element, scene, parent, and registration.
 
-Discourage direct use of `<Sequence>` in new markup. It provides timing
-primitives that other components should inherit, rather than requiring an
-additional wrapper around the content.
+For footage with synchronized captions or overlays, also read
+[editable video timelines](../../../packages/skills/skills/remotion-markup/video-editing.md).
+For extracting a group into its own timeline, use
+[connected compositions](../../../packages/skills/skills/remotion-markup/connected-compositions.md).
 
-Use built-in interactive components, media components that support timing, or
-custom components created with `Interactive.withSchema({wrapInSequence: true})`.
-Pass `from`, `durationInFrames`, `trimBefore`, `playbackRate`, and
-`name` directly to the component that supports them.
+## Keep frame subscriptions local
 
-Avoid wrapping one timing-aware component in a `<Sequence>` just to schedule
-or name it. For custom components, prefer adding timing through
-`Interactive.withSchema()` instead of introducing another sequence at each
-call site. Keep a direct `<Sequence>` only when a necessary timing boundary
-cannot be expressed by the content components. Specialized containers such as
-`<TransitionSeries.Sequence>` still serve their own sequencing behavior.
+Call `useCurrentFrame()` in the smallest component that needs the frame to
+render. Keep composition and scene components that arrange clips and tracks
+free of frame subscriptions when only a soundtrack volume, animated title, or
+overlay needs to change. Extract that item into a component defined at module
+scope, and read the frame there instead of passing it down from the parent.
+This prevents that animation from re-rendering unrelated clips and scenes on
+every frame.
 
-When removing an existing wrapper, preserve its timing, dimensions, and
-premount behavior. Account for any timing already on the child; do not overwrite
-it or apply offsets twice. Preserve the distinction between the component's
-local frame and animation expressions evaluated in its parent.
+Keep editable `interpolate()` calls inline on the animated item's props. For
+example, a `Soundtrack` component can read `useCurrentFrame()` and return an
+`Audio` with `volume={interpolate(frame, ...)}`, while the composition only
+renders `<Soundtrack />` alongside its scenes. Prefer a static value when the
+output does not actually vary with the frame.
 
-## Use a managed full-size layout
+Preserve the existing timing boundary when extracting: placing the hook inside
+a `Sequence` or a timed component changes its frame coordinates. Keep trims,
+offsets, volume envelopes, and animation keyframes on the same clock, or adjust
+the keyframes deliberately to preserve the edit. A plain React component is
+enough for this render boundary; add timeline wrappers only for editing needs.
 
-Discourage `<AbsoluteFill>` as a scene or component wrapper. It often creates
-an additional timeline layer that does not represent useful content. Prefer
-`Interactive.withSchema()` with `wrapInSequence: true` and
-`layout: 'absolute-fill'`: the full-size container shares the component's
-timeline item.
-
-The inner component can return a fragment. Put instance styles, timing,
-`width`, and `height` on the exported interactive component. Do not
-declare `style`, `width`, or `height` props on the inner component when using
-this layout; the wrapper owns them.
-
-```tsx
-import {Interactive, useVideoConfig} from 'remotion';
-
-const SceneInner = ({title}: {readonly title: string}) => (
-  <>
-    <Interactive.H1 name="Title" style={{color: 'white', fontSize: 80}}>
-      {title}
-    </Interactive.H1>
-  </>
-);
-
-export const Scene = Interactive.withSchema({
-  Component: SceneInner,
-  componentName: 'Scene',
-  schema: {
-    title: {type: 'string', default: '', description: 'Title'},
-    ...Interactive.backgroundSchema,
-  },
-  wrapInSequence: true,
-  layout: 'absolute-fill',
-});
-
-export const MyVideo = () => {
-  const {fps} = useVideoConfig();
-
-  return <Scene name="Opening scene" from={fps} durationInFrames={3 * fps} title="A new perspective" style={{backgroundColor: '#111111'}} />;
-};
-```
-
-The managed container clips overflow by default. Use
-`style={{overflow: 'visible'}}` on the exported component when needed. Keep
-additional layout containers only when they provide useful alignment, clipping,
-or grouping that the managed root does not supply. Components with their own
-bounds, such as text boxes or SVGs, can use the default `layout: 'none'` and
-forward `style` to their visual root.
-
-For further guidance, see [Remotion Interactivity](../remotion-interactivity/SKILL.md)
-and the [Interactive.withSchema() API](../../../packages/docs/docs/interactive-with-schema.mdx).
+Verify a structural change in the full composition and any standalone views.
+Preserve the existing edit, and distinguish useful markup grouping from Studio's
+row expansion and layout behavior.

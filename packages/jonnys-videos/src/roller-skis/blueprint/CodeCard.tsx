@@ -151,9 +151,8 @@ const codeCardSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const CodeCard = Interactive.withSchema({
+export const CodeCard = Interactive.create({
 	Component: CodeCardInner,
 	componentName: '<CodeCard>',
 	schema: codeCardSchema,
-	wrapInSequence: true,
 });

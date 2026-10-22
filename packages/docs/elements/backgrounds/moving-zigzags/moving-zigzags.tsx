@@ -27,10 +27,7 @@ const MovingZigzagsInner: React.FC = () => {
 	);
 };
 
-export const MovingZigzags = Interactive.withSchema({
+export const MovingZigzags = Interactive.create({
 	Component: MovingZigzagsInner,
-	componentName: 'MovingZigzags',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

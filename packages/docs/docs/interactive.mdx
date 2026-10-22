@@ -66,7 +66,7 @@ therefore removes the stroke.
 
 `Interactive` also exposes reusable schema fragments for component controls.
 
-Use them with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+Use them with [`Interactive.create()`](/docs/interactive-create).
 
 ### `Interactive.baseSchema`<AvailableFrom v="4.0.479" />
 
@@ -74,7 +74,7 @@ Controls inherited from [`<Sequence>`](/docs/sequence):
 
 `durationInFrames`, `from`, `trimBefore`, `playbackRate`, `freeze`, `hidden`, `name` and `showInTimeline`.
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema and uses it for its [`<Sequence>`](/docs/sequence).
+[`Interactive.create()`](/docs/interactive-create) includes this schema and uses it for its [`<Sequence>`](/docs/sequence).
 
 ### `Interactive.transformSchema`<AvailableFrom v="4.0.479" />
 
@@ -82,7 +82,7 @@ Controls for transform-related style props:
 
 `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema.
+[`Interactive.create()`](/docs/interactive-create) includes this schema.
 Keep these values inline in JSX if the Studio should edit or keyframe them.
 
 ### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
@@ -91,7 +91,7 @@ Controls for cropping an element from each edge:
 
 [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema. With [`layout: 'absolute-fill'`](/docs/interactive-with-schema#layout), the crop applies to its container; with the default layout, it applies through the component's `style` prop.
+[`Interactive.create()`](/docs/interactive-create) includes this schema. With [`layout: 'absolute-fill'`](/docs/interactive-create#layout), the crop applies to its container; with the default layout, it applies through the component's `style` prop.
 
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
@@ -166,7 +166,7 @@ Controls for mounting behavior:
 
 `premountFor` and `postmountFor`.
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this schema and uses the props for its [`<Sequence>`](/docs/sequence).
+[`Interactive.create()`](/docs/interactive-create) includes this schema and uses the props for its [`<Sequence>`](/docs/sequence).
 
 ### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
 
@@ -174,11 +174,17 @@ The schema used by [`<Sequence>`](/docs/sequence).
 
 It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema`, `Interactive.borderRadiusSchema` and `Interactive.premountSchema`.
 
-### `Interactive.withSchema()`<AvailableFrom v="4.0.479" />
+### `Interactive.create()`<AvailableFrom v="4.0.536" />
 
-Wraps a custom component so Remotion Studio can expose its props as timeline controls.
+Wraps a custom component with timing props and editable Studio controls. The component is always wrapped in a sequence; `schema` and `componentName` are optional.
 
-See [`Interactive.withSchema()`](/docs/interactive-with-schema).
+See [`Interactive.create()`](/docs/interactive-create).
+
+### ~~`Interactive.withSchema()`~~<AvailableFrom v="4.0.479" />
+
+:::info Deprecated
+Use [`Interactive.create()`](/docs/interactive-create) instead. See the [migration guide](/docs/interactive-create#migrating-from-interactivewithschema) for the changed defaults.
+:::
 
 ## Types
 

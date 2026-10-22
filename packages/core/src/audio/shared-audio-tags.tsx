@@ -865,6 +865,15 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	);
 };
 
+const unregisterSharedAudio = (
+	tagsContext: SharedAudioTagsContextValue | null,
+	id: number,
+) => {
+	if (tagsContext && tagsContext.numberOfAudioTags > 0) {
+		tagsContext.unregisterAudio(id);
+	}
+};
+
 export const useSharedAudio = ({
 	aud,
 	audioId,
@@ -933,11 +942,7 @@ export const useSharedAudio = ({
 		}, [aud, tagsCtx, elem.id, audioId, premounting, postmounting]);
 
 		effectToUse(() => {
-			return () => {
-				if (tagsCtx && tagsCtx.numberOfAudioTags > 0) {
-					tagsCtx.unregisterAudio(elem.id);
-				}
-			};
+			return unregisterSharedAudio.bind(null, tagsCtx, elem.id);
 		}, [tagsCtx, elem.id]);
 	}
 

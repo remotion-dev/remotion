@@ -22,7 +22,6 @@ const EntireCommitsBrollContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/screenshots/entire-planesight-commits.png'
 				}
-				premountFor={fps}
 				style={{
 					width: '100%',
 					height: '100%',
@@ -40,9 +39,7 @@ const EntireCommitsBrollContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const EntireCommitsBroll = Interactive.withSchema({
+export const EntireCommitsBroll = Interactive.create({
 	Component: EntireCommitsBrollContent,
 	componentName: 'EntireCommitsBroll',
-	schema: {},
-	wrapInSequence: true,
 });

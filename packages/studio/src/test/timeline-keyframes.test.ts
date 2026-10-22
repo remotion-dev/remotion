@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
@@ -13,7 +14,6 @@ import {
 	getTimelineKeyframes,
 } from '../components/Timeline/get-timeline-keyframes';
 import {getTimelineKeyframeDragKey} from '../components/Timeline/TimelineKeyframeDragState';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 import {
 	getSchemaFieldGroup,
 	type TimelineTreeNode,
@@ -128,7 +128,6 @@ const makeSequenceFieldNode = (key: string): TimelineTreeNode => ({
 		fieldSchema: numberFieldSchema,
 		group: getSchemaFieldGroup(key),
 	},
-	runtimeValue: null,
 	runtimeValueStore: null,
 });
 
@@ -158,7 +157,6 @@ const makeEffectFieldNode = (
 		},
 		group: getSchemaFieldGroup(key),
 	},
-	runtimeValue: null,
 	runtimeValueStore: null,
 });
 
@@ -186,7 +184,8 @@ const makePropStatuses = (
 });
 
 test('keyframe display offsets follow the parent sequence context', () => {
-	const timeline = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const timeline = calculate({
 		sequences: [
 			makeSequence({
 				id: 'root-style',
@@ -233,7 +232,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 			'own-from': makeNodePath('own-from'),
 			grandchild: makeNodePath('grandchild'),
 		},
-	});
+	}).tracks;
 
 	const getOffset = (id: string): number => {
 		const track = timeline.find((t) => t.sequence.id === id);
@@ -276,8 +275,9 @@ test('keyframe display offsets follow the parent sequence context', () => {
 });
 
 test('keyframes retain their source frames across nested rates and trimmed clocks', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const nodePath = makeNodePath('child');
-	const timeline = calculateTimeline({
+	const timeline = calculate({
 		sequences: [
 			{
 				...makeSequence({
@@ -311,7 +311,7 @@ test('keyframes retain their source frames across nested rates and trimmed clock
 			},
 		],
 		overrideIdsToNodePaths: {child: nodePath},
-	});
+	}).tracks;
 	const track = timeline.find(
 		(candidate) => candidate.sequence.id === 'child',
 	)!;
@@ -356,6 +356,7 @@ test('keyframes retain their source frames across nested rates and trimmed clock
 });
 
 test('track lookup survives effect key changes', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const sequences = [
 		makeSequence({
 			id: 'sequence',
@@ -372,10 +373,12 @@ test('track lookup survives effect key changes', () => {
 	const staleNodePath = makeNodePathWithEffectKeys('sequence', [['blur']]);
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths: {
-			sequence: currentNodePath,
-		},
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				sequence: currentNodePath,
+			},
+		}).tracks,
 		nodePathInfo: {
 			sequenceSubscriptionKey: staleNodePath,
 			auxiliaryKeys: [],
@@ -389,7 +392,8 @@ test('track lookup survives effect key changes', () => {
 });
 
 test('keyframe display offsets account for parent trimBefore', () => {
-	const timeline = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const timeline = calculate({
 		sequences: [
 			makeSequence({
 				id: 'parent',
@@ -409,7 +413,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 		overrideIdsToNodePaths: {
 			child: makeNodePath('child'),
 		},
-	});
+	}).tracks;
 
 	const child = timeline.find((t) => t.sequence.id === 'child');
 	expect(child?.keyframeDisplayOffset).toBe(-20);
@@ -437,7 +441,8 @@ test('keyframe display offsets account for parent trimBefore', () => {
 });
 
 test('keyframe display offsets respect the useCurrentFrame coordinate space', () => {
-	const timeline = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const timeline = calculate({
 		sequences: [
 			makeSequence({
 				id: 'timing-wrapper',
@@ -457,7 +462,7 @@ test('keyframe display offsets respect the useCurrentFrame coordinate space', ()
 		overrideIdsToNodePaths: {
 			'controlled-element': makeNodePath('controlled-element'),
 		},
-	});
+	}).tracks;
 	const controlledElement = timeline.find(
 		(track) => track.sequence.id === 'controlled-element',
 	);

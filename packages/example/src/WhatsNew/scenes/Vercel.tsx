@@ -1,7 +1,8 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
+	Interactive,
 	interpolate,
 	Sequence,
 	Series,
@@ -484,14 +485,17 @@ const FirstClass: React.FC = () => (
 	</div>
 );
 
-export const VercelScene: React.FC = () => {
+const VercelSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const captions = getCaptionPlacement(frame, layout);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<Backdrop accent="#6B7280" />
-			<Stage keyframes={layout}>
+			<Stage
+				style={{overflow: 'visible', flexDirection: 'column'}}
+				keyframes={layout}
+			>
 				<Series>
 					<Series.Sequence
 						name="Render on Vercel"
@@ -1231,54 +1235,69 @@ export const VercelScene: React.FC = () => {
 				]}
 			/>
 
-			<Audio
-				name="Sticker whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={0}
-				volume={0.3}
-			/>
-			<Audio
-				name="Logos click"
-				src="https://remotion.media/mouse-click.wav"
-				from={76}
-				volume={0.3}
-			/>
-			<Audio
-				name="Typing"
-				src="https://remotion.media/switch.wav"
-				from={300}
-				volume={0.2}
-			/>
-			<Audio
-				name="Template page turn"
-				src="https://remotion.media/page-turn.wav"
-				from={512}
-				volume={0.28}
-			/>
-			<Audio
-				name="First-class stamp"
-				src="https://remotion.media/shutter-modern.wav"
-				from={666}
-				volume={0.22}
-			/>
-			<Audio
-				name="Split whip"
-				src="https://remotion.media/whip.wav"
-				from={798}
-				volume={0.16}
-			/>
-			<Audio
-				name="Easiest ding"
-				src="https://remotion.media/ding.wav"
-				from={846}
-				volume={0.2}
-			/>
-			<Audio
-				name="Tutorial pop"
-				src="https://remotion.media/mouse-click.wav"
-				from={972}
-				volume={0.3}
-			/>
-		</AbsoluteFill>
+			<Track name="Sound effects">
+				<Audio
+					durationInFrames={5}
+					name="Sticker whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={0}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Logos click"
+					src="https://remotion.media/mouse-click.wav"
+					from={76}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={10}
+					name="Typing"
+					src="https://remotion.media/switch.wav"
+					from={300}
+					volume={0.2}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Template page turn"
+					src="https://remotion.media/page-turn.wav"
+					from={512}
+					volume={0.28}
+				/>
+				<Audio
+					durationInFrames={15}
+					name="First-class stamp"
+					src="https://remotion.media/shutter-modern.wav"
+					from={666}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Split whip"
+					src="https://remotion.media/whip.wav"
+					from={798}
+					volume={0.16}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="Easiest ding"
+					src="https://remotion.media/ding.wav"
+					from={846}
+					volume={0.2}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Tutorial pop"
+					src="https://remotion.media/mouse-click.wav"
+					from={972}
+					volume={0.3}
+				/>
+			</Track>
+		</>
 	);
 };
+
+export const VercelScene = Interactive.create({
+	Component: VercelSceneInner,
+	layout: 'absolute-fill',
+});

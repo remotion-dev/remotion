@@ -14,19 +14,10 @@ export const SequenceActivitySettingsProvider: React.FC<{
 				return;
 			}
 
-			const {
-				experimentalSequenceActivityEnabled,
-				experimentalSequenceActivityLimit,
-			} = event.studioRuntimeConfig;
-			setSettings((current) =>
-				current.enabled === experimentalSequenceActivityEnabled &&
-				current.limit === experimentalSequenceActivityLimit
-					? current
-					: {
-							enabled: experimentalSequenceActivityEnabled,
-							limit: experimentalSequenceActivityLimit,
-						},
-			);
+			const limit =
+				event.studioRuntimeConfig.sequenceActivityLimit ??
+				Internals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT;
+			setSettings((current) => (current.limit === limit ? current : {limit}));
 		});
 	}, []);
 

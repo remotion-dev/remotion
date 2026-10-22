@@ -6,14 +6,15 @@ import {
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	DragOverrideValue,
-	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
-	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {callBatchUpdateKeyframeSettings} from './call-update-keyframe-settings';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
@@ -59,13 +60,11 @@ const isEasingSelection = (
 
 export const getSelectedEasingUpdate = ({
 	selection,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	selection: EasingSelection;
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	tracks: readonly TimelineTrackData[];
 	propStatuses: PropStatuses;
 }): SelectedEasingUpdate | null => {
 	const field = parseKeyframeFieldFromNodePath(
@@ -76,8 +75,7 @@ export const getSelectedEasingUpdate = ({
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo: selection.nodePathInfo,
 	});
 	const sequence = track?.sequence ?? null;
@@ -166,21 +164,18 @@ export const getSelectedEasingUpdate = ({
 
 export const getSelectedEasingUpdates = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	readonly selections: readonly TimelineSelection[];
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }): SelectedEasingUpdate[] => {
 	return getEasingSelections(selections)
 		.map((selection) =>
 			getSelectedEasingUpdate({
 				selection,
-				sequences,
-				overrideIdsToNodePaths,
+				tracks,
 				propStatuses,
 			}),
 		)
@@ -216,20 +211,17 @@ export const getEasingSelections = (
 
 export const getTimelineEasingValueForSelection = ({
 	selection,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	selection: EasingSelection;
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	tracks: readonly TimelineTrackData[];
 	propStatuses: PropStatuses;
 }): TimelineEasingValue | null => {
 	return (
 		getSelectedEasingUpdate({
 			selection,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			propStatuses,
 		})?.currentEasing ?? null
 	);
@@ -237,16 +229,14 @@ export const getTimelineEasingValueForSelection = ({
 
 export const updateSelectedTimelineEasings = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 	setPropStatuses,
 	clientId,
 	easing,
 }: {
 	selections: readonly TimelineSelection[];
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	tracks: readonly TimelineTrackData[];
 	propStatuses: PropStatuses;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
@@ -259,8 +249,7 @@ export const updateSelectedTimelineEasings = ({
 
 	const updates = getSelectedEasingUpdates({
 		selections: easingSelections,
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		propStatuses,
 	});
 

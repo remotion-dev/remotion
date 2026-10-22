@@ -239,6 +239,24 @@ export const TimelineEffectItem: React.FC<{
 		}
 
 		const items: ComboboxValue[] = [
+			...(previewConnected && documentationLink
+				? [
+						{
+							type: 'item' as const,
+							id: 'open-effect-docs',
+							keyHint: null,
+							label: 'Open effect docs',
+							leftItem: null,
+							disabled: false,
+							onClick: () => {
+								window.open(documentationLink, '_blank', 'noopener,noreferrer');
+							},
+							quickSwitcherLabel: null,
+							subMenu: null,
+							value: 'open-effect-docs',
+						},
+					]
+				: []),
 			getCopyContextForAgentsMenuItem({
 				contextForAgents: formatContextForAgents({
 					location: validatedLocation,
@@ -272,27 +290,6 @@ export const TimelineEffectItem: React.FC<{
 			type: 'divider',
 			id: 'copy-context-for-agents-divider',
 		});
-
-		if (documentationLink) {
-			items.push({
-				type: 'item',
-				id: 'open-effect-docs',
-				keyHint: null,
-				label: 'Open effect docs',
-				leftItem: null,
-				disabled: false,
-				onClick: () => {
-					window.open(documentationLink, '_blank', 'noopener,noreferrer');
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'open-effect-docs',
-			});
-			items.push({
-				type: 'divider',
-				id: 'open-effect-docs-divider',
-			});
-		}
 
 		items.push({
 			type: 'item',

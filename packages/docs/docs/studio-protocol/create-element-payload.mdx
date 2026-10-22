@@ -63,7 +63,7 @@ A lowercase Element identifier. Its final path segment is used to create the `.e
 
 A string containing the complete Element source code. It must contain exactly one exported named component.
 
-See [Integrating an Element Library with Studio](/docs/studio-protocol/component-library-integration) for recommended ways to preview a component and represent it as Element source in Vite-based projects and Next.js.
+See [Building Element Libraries](/docs/elements/libraries) for recommended ways to preview a component and represent it as Element source in Vite-based projects and Next.js.
 
 ### dependencies
 
@@ -115,13 +115,13 @@ With `'wrapped'`, Studio generates a [`<Sequence>`](/docs/sequence) around the c
 
 With `'component-owned-sequence'`, Studio puts timing, name, and absolute positioning props on the component call without adding an outer Sequence. The component must provide its own Studio-editable Sequence and rendered dimensions.
 
-See [Design it for composition](/elements/guidelines#design-it-for-composition) for guidance on choosing a mode and wiring the component.
+See [Choose an installation mode](/docs/elements#choose-an-installation-mode) for guidance on choosing a mode and wiring the component.
 
 ### isCaptionStyle?<AvailableFrom v="4.0.535" />
 
 Set to `true` to let the Element be selected in the Styles tab when generating captions for a video or audio element. The default is `false`.
 
-Caption styles must use `installationMode: 'component-owned-sequence'`, accept a `captions` prop containing [`Caption[]`](/docs/captions/caption), and expose it through [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema). Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` to support `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `premountFor`, and `postmountFor`.
+Caption styles must use `installationMode: 'component-owned-sequence'`, accept a `captions` prop containing [`Caption[]`](/docs/captions/caption), and expose it through [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema). Use [`Interactive.create()`](/docs/interactive-create) to support `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `premountFor`, and `postmountFor`.
 
 Studio replaces preview captions with the generated transcript. Timing props in `initialProps` are ignored: Studio copies timing from the selected media so the captions stay in sync. To place the captions at the bottom center, Studio adds `bottom: 120`, `left: '50%'`, and `transform: 'translateX(-50%)'` to `style`; values from `initialProps.style` take precedence. Other initial props are preserved. Choosing a style does not install it; clicking Generate captions starts transcription, after which Studio installs its source, dependencies, and assets. The flag describes compatibility, not trust: an Element can execute arbitrary code.
 

@@ -2,12 +2,15 @@ import {Player} from '@remotion/player';
 import React from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
+import {Sequence} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {Audio} from '../audio/audio';
 import {Video} from '../video/video';
 
 type ToneFrequencyProps = {
 	readonly toneFrequency: number;
+	readonly playbackRate: number;
+	readonly preservePitch: boolean | undefined;
 };
 
 const makeSineWaveUrl = ({
@@ -84,7 +87,8 @@ const estimateFrequency = ({
 	return positiveCrossings / (audio.length / sampleRate);
 };
 
-test('Audio and Video update toneFrequency during preview', async () => {
+// KINO-7177: authored and viewing speeds have independent pitch controls.
+test('Audio and Video independently control authored and viewing-speed pitch', async () => {
 	const src = makeSineWaveUrl({
 		frequency: 440,
 		sampleRate: 48_000,
@@ -103,6 +107,15 @@ test('Audio and Video update toneFrequency during preview', async () => {
 	const verify = async (
 		component: React.ComponentType<ToneFrequencyProps>,
 		sampleRate: number,
+		{
+			playbackRate,
+			parentRate,
+			preservePitch,
+		}: {
+			playbackRate: number;
+			parentRate: number;
+			preservePitch: boolean | undefined;
+		},
 	) => {
 		createdNodes.length = 0;
 		const container = document.createElement('div');
@@ -110,28 +123,53 @@ test('Audio and Video update toneFrequency during preview', async () => {
 		const root = createRoot(container);
 		let setToneFrequency: React.Dispatch<React.SetStateAction<number>> | null =
 			null;
+		let setPlayerSpeed: React.Dispatch<React.SetStateAction<number>> | null =
+			null;
+		let setPlayerPreservePitch: React.Dispatch<
+			React.SetStateAction<boolean | undefined>
+		> | null = null;
 		const StatefulComposition: React.FC = () => {
 			const [toneFrequency, setCurrentToneFrequency] = React.useState(1);
 			setToneFrequency = setCurrentToneFrequency;
-			return React.createElement(component, {toneFrequency});
+			return (
+				<Sequence playbackRate={parentRate}>
+					{React.createElement(component, {
+						toneFrequency,
+						playbackRate,
+						preservePitch,
+					})}
+				</Sequence>
+			);
 		};
 
-		root.render(
-			<Player
-				acknowledgeRemotionLicense
-				component={StatefulComposition}
-				compositionHeight={100}
-				compositionWidth={100}
-				durationInFrames={30}
-				fps={30}
-				sampleRate={sampleRate}
-				inputProps={{}}
-			/>,
-		);
+		const StatefulPlayer = () => {
+			const [playerSpeed, setSpeed] = React.useState(1);
+			const [playerPreservePitch, setPitch] = React.useState<
+				boolean | undefined
+			>(undefined);
+			setPlayerSpeed = setSpeed;
+			setPlayerPreservePitch = setPitch;
+			return (
+				<Player
+					playbackRate={playerSpeed}
+					preservePitch={playerPreservePitch}
+					acknowledgeRemotionLicense
+					component={StatefulComposition}
+					compositionHeight={100}
+					compositionWidth={100}
+					durationInFrames={30}
+					fps={30}
+					sampleRate={sampleRate}
+					inputProps={{}}
+				/>
+			);
+		};
+
+		root.render(<StatefulPlayer />);
 
 		try {
 			await waitFor(
-				() => createdNodes.filter((node) => node.buffer !== null).length >= 20,
+				() => createdNodes.filter((node) => node.buffer !== null).length >= 8,
 			);
 			const getScheduledFrequency = () => {
 				for (const node of createdNodes) {
@@ -156,7 +194,10 @@ test('Audio and Video update toneFrequency during preview', async () => {
 				});
 			};
 
-			expect(getScheduledFrequency()).toBeCloseTo(440, -1);
+			expect(getScheduledFrequency() * playbackRate * parentRate).toBeCloseTo(
+				440 * (preservePitch ? 1 : playbackRate * parentRate),
+				-1,
+			);
 			createdNodes.length = 0;
 			if (!setToneFrequency) {
 				throw new Error('Composition did not mount.');
@@ -164,37 +205,78 @@ test('Audio and Video update toneFrequency during preview', async () => {
 
 			flushSync(() => setToneFrequency?.(1.5));
 			await waitFor(
-				() => createdNodes.filter((node) => node.buffer !== null).length >= 20,
+				() => createdNodes.filter((node) => node.buffer !== null).length >= 8,
 			);
-			expect(getScheduledFrequency()).toBeCloseTo(660, -1);
+			expect(getScheduledFrequency() * playbackRate * parentRate).toBeCloseTo(
+				660 * (preservePitch ? 1 : playbackRate * parentRate),
+				-1,
+			);
+
+			createdNodes.length = 0;
+			flushSync(() => setPlayerSpeed?.(1.5));
+			await waitFor(
+				() => createdNodes.filter((node) => node.buffer !== null).length >= 8,
+			);
+			expect(
+				getScheduledFrequency() * playbackRate * parentRate * 1.5,
+			).toBeCloseTo(990 * (preservePitch ? 1 : playbackRate * parentRate), -1);
+
+			createdNodes.length = 0;
+			flushSync(() => setPlayerPreservePitch?.(true));
+			await waitFor(
+				() => createdNodes.filter((node) => node.buffer !== null).length >= 8,
+			);
+			expect(
+				getScheduledFrequency() * playbackRate * parentRate * 1.5,
+			).toBeCloseTo(660 * (preservePitch ? 1 : playbackRate * parentRate), -1);
 		} finally {
 			root.unmount();
 			container.remove();
 		}
 	};
 
-	const AudioComposition: React.FC<ToneFrequencyProps> = ({toneFrequency}) => (
+	const AudioComposition: React.FC<ToneFrequencyProps> = ({
+		toneFrequency,
+		playbackRate,
+		preservePitch,
+	}) => (
 		<Audio
 			disallowFallbackToHtml5Audio
 			logLevel="error"
 			src={src}
 			toneFrequency={toneFrequency}
+			playbackRate={playbackRate}
+			preservePitch={preservePitch}
 		/>
 	);
-	const VideoComposition: React.FC<ToneFrequencyProps> = ({toneFrequency}) => (
+	const VideoComposition: React.FC<ToneFrequencyProps> = ({
+		toneFrequency,
+		playbackRate,
+		preservePitch,
+	}) => (
 		<Video
 			disallowFallbackToOffthreadVideo
 			headless
 			logLevel="error"
 			src={src}
 			toneFrequency={toneFrequency}
+			playbackRate={playbackRate}
+			preservePitch={preservePitch}
 		/>
 	);
 
 	try {
 		for (const sampleRate of [48000, 44100]) {
-			await verify(AudioComposition, sampleRate);
-			await verify(VideoComposition, sampleRate);
+			for (const options of [
+				{playbackRate: 1, parentRate: 1, preservePitch: undefined},
+				{playbackRate: 1.4, parentRate: 1, preservePitch: undefined},
+				{playbackRate: 1.4, parentRate: 1, preservePitch: false},
+				{playbackRate: 0.5, parentRate: 1, preservePitch: true},
+				{playbackRate: 1.4, parentRate: 1.5, preservePitch: true},
+			]) {
+				await verify(AudioComposition, sampleRate, options);
+				await verify(VideoComposition, sampleRate, options);
+			}
 		}
 	} finally {
 		createBufferSourceSpy.mockRestore();

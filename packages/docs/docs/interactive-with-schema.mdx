@@ -5,7 +5,11 @@ title: Interactive.withSchema()
 crumb: 'API'
 ---
 
-# Interactive.withSchema()<AvailableFrom v="4.0.530" />
+# ~~Interactive.withSchema()~~<AvailableFrom v="4.0.530" />
+
+:::info Deprecated
+Use [`Interactive.create()`](/docs/interactive-create) instead, available from <AvailableFrom v="4.0.536" inline />. It always wraps the component in a sequence and makes `schema` and `componentName` optional. See the [migration guide](/docs/interactive-create#migrating-from-interactivewithschema) before replacing calls that omit `wrapInSequence`.
+:::
 
 Wraps a React component so Remotion Studio shows it as interactive.
 
@@ -39,11 +43,11 @@ const CircleInner: React.FC<CircleProps> = ({radius = 80, color = '#0b84ff', sty
   return (
     <div
       style={{
-        ...style,
         width: radius * 2,
         height: radius * 2,
         borderRadius: '50%',
         backgroundColor: color,
+        ...style,
       }}
     />
   );

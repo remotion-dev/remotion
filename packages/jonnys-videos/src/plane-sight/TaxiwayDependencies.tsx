@@ -20,7 +20,6 @@ const TaxiwayDependenciesContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/screenshots/five-agent-airport.png'
 				}
-				premountFor={fps}
 				style={{
 					width: '100%',
 					height: '100%',
@@ -38,9 +37,7 @@ const TaxiwayDependenciesContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const TaxiwayDependencies = Interactive.withSchema({
+export const TaxiwayDependencies = Interactive.create({
 	Component: TaxiwayDependenciesContent,
 	componentName: 'TaxiwayDependencies',
-	schema: {},
-	wrapInSequence: true,
 });

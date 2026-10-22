@@ -1,0 +1,92 @@
+---
+image: /generated/articles-docs-effects-long-shadows.png
+slug: /effects/long-shadows
+title: longShadows()
+sidebar_label: longShadows()
+crumb: '@remotion/effects'
+---
+
+# longShadows()<AvailableFrom v="4.0.537" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Extends the alpha silhouette of a canvas-based component into a solid directional shadow. Use it for long shadows behind text, logos, and shapes, or for a faux 3D extrusion.
+
+## Preview
+
+<EffectsDemo type="effects-long-shadows" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+import {longShadows} from '@remotion/effects/long-shadows';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill style={{backgroundColor: '#b8b8b8'}}>
+      <HtmlInCanvas
+        width={1280}
+        height={720}
+        effects={[
+          longShadows({
+            length: 240,
+            angle: 45,
+            color: '#777777',
+            opacity: 1,
+          }),
+        ]}
+      >
+        <div
+          style={{
+            color: 'white',
+            fontSize: 160,
+            fontWeight: 900,
+            padding: 100,
+          }}
+        >
+          LONG SHADOWS
+        </div>
+      </HtmlInCanvas>
+    </AbsoluteFill>
+  );
+};
+```
+
+Keep the background outside the component receiving the effect so the shadow follows the text's transparency. Shadows are clipped to the component's canvas bounds; leave room around the source for the shadow.
+
+## API
+
+Pass an object with the following properties. You can also call `longShadows()` without arguments.
+
+### `length?`
+
+Length of the shadow in pixels. Defaults to `240`. Must be at least `0`. A value of `0` leaves the source unchanged.
+
+### `angle?`
+
+Direction of the shadow in degrees, clockwise from the right. Defaults to `45`, pointing down and right. `90` points down, `180` points left, and `270` points up.
+
+### `color?`
+
+CSS color of the shadow. Defaults to `'#777777'`. The color's alpha is multiplied by `opacity`.
+
+### `opacity?`
+
+Opacity of the shadow from `0` to `1`. Defaults to `1`. Source transparency is preserved in the shadow, and overlapping shadow regions do not accumulate opacity.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`longShadows()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`dropShadow()`](/docs/effects/drop-shadow)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Jake In Motion's Minimax & Long Shadows tutorial](https://www.youtube.com/watch?v=ibfYiy--9Hs&t=235s)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/long-shadows.ts)

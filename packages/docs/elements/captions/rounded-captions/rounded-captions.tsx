@@ -195,9 +195,8 @@ const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
 	);
 };
 
-export const RoundedCaptions = Interactive.withSchema({
+export const RoundedCaptions = Interactive.create({
 	Component: RoundedCaptionsContent,
 	componentName: '<RoundedCaptions>',
 	schema: roundedCaptionsSchema,
-	wrapInSequence: true,
 });

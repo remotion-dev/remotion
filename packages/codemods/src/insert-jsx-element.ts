@@ -22,6 +22,7 @@ import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getInteractiveComponent} from './get-interactive-component';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
@@ -1464,11 +1465,38 @@ export const getDeclarationByExportName = ({
 	ast: File;
 	exportName: string | 'default';
 }): LocalComponentDeclaration | DefaultExportDeclaration | null => {
-	if (exportName === 'default') {
-		return getDefaultExportDeclaration(ast);
+	let declaration =
+		exportName === 'default'
+			? getDefaultExportDeclaration(ast)
+			: findLocalComponentDeclaration({ast, name: exportName});
+	const visited = new Set<typeof declaration>();
+	while (declaration) {
+		if (visited.has(declaration)) {
+			throw new Error('Circular Interactive component reference');
+		}
+
+		visited.add(declaration);
+		const component = getInteractiveComponent({
+			ast,
+			declaration: declaration as never,
+		});
+		if (!component) {
+			break;
+		}
+
+		if (component.type === 'Identifier') {
+			const inner = findLocalComponentDeclaration({ast, name: component.name});
+			if (!inner) {
+				break;
+			}
+
+			declaration = inner;
+		} else {
+			declaration = component as DefaultExportDeclaration;
+		}
 	}
 
-	return findLocalComponentDeclaration({ast, name: exportName});
+	return declaration;
 };
 
 export const addElementToComponentRoot = ({
@@ -1784,10 +1812,12 @@ const getComponentLocationInFile = async ({
 }): Promise<ResolvedCompositionComponentWithFile> => {
 	const ast =
 		providedAst ?? parseAst(await readSourceFile({environment, fileName}));
+	const declaration = getDeclarationByExportName({ast, exportName});
 	const location =
-		exportName === 'default'
+		(declaration ? locationFromNode(declaration) : null) ??
+		(exportName === 'default'
 			? findDefaultExportLocation(ast)
-			: findLocalSymbolLocation({ast, name: exportName});
+			: findLocalSymbolLocation({ast, name: exportName}));
 	const canAddSequence = canAddSequenceToComponent({
 		ast,
 		exportName,
@@ -1830,6 +1860,27 @@ const getComponentLocationRecursively = async ({
 			exportName,
 		});
 		if (localDeclaration) {
+			const component = getInteractiveComponent({
+				ast,
+				declaration: localDeclaration as never,
+			});
+			const imported =
+				component?.type === 'Identifier'
+					? findImportTarget({ast, componentName: component.name})
+					: null;
+			if (imported) {
+				return await getComponentLocationRecursively({
+					environment,
+					fileName: resolveImportPath({
+						environment,
+						importPath: imported.importPath,
+						fromFile: fileName,
+					}),
+					exportName: imported.exportName,
+					visited,
+				});
+			}
+
 			return await getComponentLocationInFile({
 				environment,
 				fileName,
@@ -1925,10 +1976,11 @@ export async function resolveCompositionComponentWithFile({
 
 	const importTarget = findImportTarget({ast, componentName});
 	if (!importTarget) {
-		return getComponentLocationInFile({
+		return getComponentLocationRecursively({
 			environment,
 			fileName: compositionFileName,
 			exportName: componentName,
+			visited: new Set(),
 		});
 	}
 

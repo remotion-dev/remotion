@@ -1,0 +1,36 @@
+---
+image: /generated/articles-docs-miscellaneous-no-remotion-app.png
+title: Why is there no Remotion App?
+---
+
+Remotion does not have a desktop or mobile app.
+
+Instead, Remotion needs to be started from the command line and runs directly in the browser preview.
+
+## We can do everything already
+
+Remotion can already take advantage of all the capabilities that it needs. Because a server is being started, it can read all files from the filesystem and spawn processes. There is no additional functionality that we seek to add that we cannot support with our current architecture.
+
+## Give your agent the most power
+
+A Remotion project is a folder, which includes all the source code of your video and Remotion itself. Everything that you need is fully contained in just that folder.
+
+By giving your agent full access to that folder, it can search, modify, and write to all of these files directly, without having to go through an intermediary protocol. We see that this is incredibly powerful.
+
+Making a desktop app inherently means taking some of these files and removing the agent's ability to edit them directly. This functionality can be restored by exposing it through something like MCP, but it means that you then have to install an additional tool.
+
+If you give an agent full control over the contents of a folder, it always finds a way. Even if it has to upgrade or downgrade Remotion on your behalf, or hack its internals.
+
+## Embrace the developer workflow
+
+Remotion is based on code, and its workflow is inspired by how developers work. That means using the terminal, spawning processes, and using Git for version control.
+
+Like a developer would make a website, is what we want to bring to video creation.
+
+This might be overkill if you just want to create a video. Fortunately, with agents, this workflow gets easier and becomes accessible to more people. That's why we are doubling down on it.
+
+## No lock-in
+
+This is not the case for every tool, but a desktop app is often just an excuse to add a proprietary feature: a login, a paywall, a limit, a gated feature, a hosted service, or to hide some of the code.
+
+We are not into any of that.

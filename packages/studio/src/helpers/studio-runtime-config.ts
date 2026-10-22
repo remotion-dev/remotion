@@ -4,13 +4,12 @@ import {NoReactInternals} from 'remotion/no-react';
 export const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
 const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
+	preservePitchOnPlayback: true,
 	showLayerFrameNumbers: false,
 	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: false,
-	experimentalSequenceActivityEnabled: false,
-	experimentalSequenceActivityLimit:
-		NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	sequenceActivityLimit: null,
 	bufferStateDelayInMilliseconds: null,
 	defaultCodingAgent: null,
 	defaultEditor: null,
@@ -75,9 +74,8 @@ export const getStudioShowLayerFrameNumbers = () => {
 export const getStudioSequenceActivitySettings = () => {
 	const config = getStudioRuntimeConfig();
 	return {
-		enabled: config.experimentalSequenceActivityEnabled ?? false,
 		limit:
-			config.experimentalSequenceActivityLimit ??
+			config.sequenceActivityLimit ??
 			NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	};
 };

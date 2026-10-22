@@ -21,6 +21,10 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {
+	useRuntimeValue,
+	useRuntimeValueSelector,
+} from '../helpers/use-runtime-values';
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
@@ -42,6 +46,7 @@ import {
 	getBorderRadiusConversion,
 	getBorderRadiusConversionChanges,
 } from './Timeline/border-radius-representation';
+import {requestFocusInspectorField} from './Timeline/focus-inspector-field';
 import {getCurrentFps, getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {
@@ -317,14 +322,18 @@ export const InspectorSequenceSection: React.FC<{
 	sequenceFrameOffset,
 	renderTransformControls,
 }) => {
-	const {tree, propStatuses, runtimeValues} = useTimelineExpandedTree({
+	const {tree, propStatuses} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
 		includeSourceControls: true,
 	});
-	const {inspectorRevealRequest, selectedItems, selectItems} =
-		useTimelineSelection();
+	const {
+		consumeInspectorRevealRequest,
+		inspectorRevealRequest,
+		selectedItems,
+		selectItems,
+	} = useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -376,10 +385,15 @@ export const InspectorSequenceSection: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
-	const mediaSrc = getTimelineAssetSrcFromSchema(
-		sequence.controls,
-		runtimeValues,
+	const selectMediaSrc = useCallback(
+		(values: Readonly<Record<string, unknown>>) =>
+			getTimelineAssetSrcFromSchema(sequence.controls, values),
+		[sequence.controls],
 	);
+	const mediaSrc = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectMediaSrc,
+	});
 	const getSourceAction = useCallback(
 		(src: string): InspectorSourceAction | null => {
 			const linkInfo = getTimelineAssetLinkInfo(src);
@@ -607,20 +621,26 @@ export const InspectorSequenceSection: React.FC<{
 		propStatuses,
 		nodePathInfo.sequenceSubscriptionKey,
 	);
-	const automaticallyEnabled3DTransform = useMemo(() => {
-		return [
-			'style.translate',
-			'style.scale',
-			'style.rotate',
-			'style.transformOrigin',
-		].some((fieldKey) =>
-			propStatusHas3DTransformValue({
-				fieldKey,
-				propStatus: sequencePropStatuses?.[fieldKey],
-				runtimeValue: runtimeValues[fieldKey],
-			}),
-		);
-	}, [runtimeValues, sequencePropStatuses]);
+	const selectAutomaticallyEnabled3DTransform = useCallback(
+		(values: Readonly<Record<string, unknown>>) =>
+			[
+				'style.translate',
+				'style.scale',
+				'style.rotate',
+				'style.transformOrigin',
+			].some((fieldKey) =>
+				propStatusHas3DTransformValue({
+					fieldKey,
+					propStatus: sequencePropStatuses?.[fieldKey],
+					runtimeValue: values[fieldKey],
+				}),
+			),
+		[sequencePropStatuses],
+	);
+	const automaticallyEnabled3DTransform = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectAutomaticallyEnabled3DTransform,
+	});
 	const show3DTransformControls =
 		automaticallyEnabled3DTransform || manuallyEnabled3DTransform;
 	const onToggle3DTransform = useCallback(() => {
@@ -699,6 +719,64 @@ export const InspectorSequenceSection: React.FC<{
 			sectionExpansionOverrides,
 		],
 	);
+	useEffect(() => {
+		if (
+			readOnlyStudio ||
+			!isStudioInteractivityEnabled() ||
+			inspectorRevealRequest?.item.type !== 'sequence-prop' ||
+			inspectorRevealRequest.item.key !== 'children' ||
+			selectedItems.length !== 1 ||
+			getTimelineSelectionKey(selectedItems[0]) !==
+				getTimelineSelectionKey(inspectorRevealRequest.item) ||
+			getTimelineSequenceSelectionKey(
+				inspectorRevealRequest.item.nodePathInfo,
+			) !== sequenceKey
+		) {
+			return;
+		}
+
+		const group = controlGroups.find((candidate) =>
+			candidate.rows.some(
+				({node}) => node.kind === 'field' && node.field?.key === 'children',
+			),
+		);
+		if (!group) {
+			return;
+		}
+
+		if (!isControlGroupExpanded(group)) {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId: group.id,
+			});
+			setSectionExpansionOverrides((previous) => {
+				const next = {...previous, [expansionKey]: true};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+			return;
+		}
+
+		// Ref registration happens during commit, including when expanding Text
+		// mounted the textarea. Consume the request so later remounts do not focus it.
+		if (
+			requestFocusInspectorField({
+				fieldKey: 'children',
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+			})
+		) {
+			consumeInspectorRevealRequest(inspectorRevealRequest.token);
+		}
+	}, [
+		consumeInspectorRevealRequest,
+		controlGroups,
+		inspectorRevealRequest,
+		isControlGroupExpanded,
+		nodePathInfo,
+		readOnlyStudio,
+		selectedItems,
+		sequenceKey,
+	]);
 	const toggleControlGroup = useCallback(
 		(group: InspectorControlGroup) => {
 			const expansionKey = getInspectorSectionExpansionKey({
@@ -740,14 +818,18 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const runtimeCaptions = useRuntimeValue(
+		hasCaptionsSchema ? sequence.controls : null,
+		'captions',
+	);
 	const inlineCaptions = useMemo(
 		() =>
 			hasCaptionsSchema
-				? Array.isArray(runtimeValues.captions)
-					? (runtimeValues.captions as Caption[])
+				? Array.isArray(runtimeCaptions)
+					? (runtimeCaptions as Caption[])
 					: []
 				: null,
-		[hasCaptionsSchema, runtimeValues.captions],
+		[hasCaptionsSchema, runtimeCaptions],
 	);
 	const {
 		getCurrentFrame: getCommittedSequenceFrame,

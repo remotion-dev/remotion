@@ -1,7 +1,6 @@
 import {noise3D} from '@remotion/noise';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
@@ -164,11 +163,11 @@ const Readout: React.FC = () => {
 	);
 };
 
-export const Generative: React.FC = () => {
+const GenerativeInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#0B0B0F'}}>
+		<>
 			<RidgeField />
 			<div
 				style={{
@@ -239,6 +238,12 @@ export const Generative: React.FC = () => {
 				color={colors.paper}
 				start={8}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const Generative = Interactive.create({
+	Component: GenerativeInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});

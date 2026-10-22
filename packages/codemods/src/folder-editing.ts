@@ -21,6 +21,7 @@ import {
 	getCompositionIdFromJSXElement,
 	getFolderNameFromJSXElement,
 } from './registration-source-edits';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {parseAst} from './sequence-props/parse-ast';
 import {applySourceEdits} from './source-edits';
 
@@ -117,8 +118,8 @@ export const getRegistrationInsertionResult = ({
 		| CompositionTreeItem
 		| {type: 'last-child'; folder: FolderReference | null};
 }): CodemodInsertionResult => {
-	const before = captureJsxNodePaths(parseAst(input));
-	const nextAst = parseAst(output);
+	const before = captureJsxNodePaths(getReadOnlySourceSnapshot(input).ast);
+	const {ast: nextAst} = getReadOnlySourceSnapshot(output);
 	const after = captureJsxNodePaths(nextAst);
 	let element: JSXElement;
 	if (inserted.type === 'last-child') {

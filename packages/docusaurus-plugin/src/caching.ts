@@ -1,9 +1,12 @@
 /* eslint-disable no-console */
 import {createRequire} from 'module';
 import {resolve} from 'path';
-import {rendererClassic, transformerTwoslash} from '@shikijs/twoslash';
+import {
+	rendererClassic,
+	transformerTwoslash,
+} from '@remotion/typescript-tools/shiki-twoslash';
+import {createTwoslasher} from '@remotion/typescript-tools/twoslash';
 import type {HighlighterGeneric} from 'shiki/core';
-import {createTwoslasher} from 'twoslash';
 import {
 	createTwoslashCacheContext,
 	getTwoslashCacheKey,

@@ -1,6 +1,6 @@
 import type React from 'react';
 import type {ImageFit} from '../calculate-image-fit.js';
-import type {EffectsProp} from '../effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -24,6 +24,7 @@ export type CanvasImageProps = CanvasImageSequenceProps &
 		readonly height?: number;
 		readonly fit?: ImageFit;
 		readonly effects?: EffectsProp;
+		readonly effectsOutputSize?: EffectsOutputSize;
 		readonly className?: string;
 		readonly style?: React.CSSProperties;
 		readonly id?: string;

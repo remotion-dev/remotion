@@ -36,12 +36,12 @@ const {
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	showLayerFrameNumbersOption,
+	preservePitchOnPlaybackOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalSequenceActivityOption,
-	experimentalSequenceActivityLimitOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -92,7 +92,7 @@ const {
 	previewSampleRateOption,
 	rspackOption,
 	skipSkillsOption,
-} = BrowserSafeApis.options;
+}: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
 	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
@@ -118,6 +118,9 @@ export type CommandLineOptions = {
 	[defaultPremountInSecondsOption.cliFlag]: TypeOfOption<
 		typeof defaultPremountInSecondsOption
 	>;
+	[preservePitchOnPlaybackOption.cliFlag]: TypeOfOption<
+		typeof preservePitchOnPlaybackOption
+	> | null;
 	[showLayerFrameNumbersOption.cliFlag]: TypeOfOption<
 		typeof showLayerFrameNumbersOption
 	> | null;
@@ -135,11 +138,8 @@ export type CommandLineOptions = {
 	[experimentalKeepAudioContextAliveOption.cliFlag]: TypeOfOption<
 		typeof experimentalKeepAudioContextAliveOption
 	> | null;
-	[experimentalSequenceActivityOption.cliFlag]: TypeOfOption<
-		typeof experimentalSequenceActivityOption
-	> | null;
-	[experimentalSequenceActivityLimitOption.cliFlag]: TypeOfOption<
-		typeof experimentalSequenceActivityLimitOption
+	[sequenceActivityLimitOption.cliFlag]: TypeOfOption<
+		typeof sequenceActivityLimitOption
 	>;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
@@ -243,6 +243,7 @@ export type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
+	preservePitchOnPlaybackOption.cliFlag,
 	showLayerFrameNumbersOption.cliFlag,
 	showPremountingOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
@@ -271,7 +272,6 @@ export const BooleanFlags = [
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
 	experimentalKeepAudioContextAliveOption.cliFlag,
-	experimentalSequenceActivityOption.cliFlag,
 	bundleCacheOption.cliFlag,
 	rspackOption.cliFlag,
 	skipSkillsOption.cliFlag,
@@ -280,6 +280,7 @@ export const BooleanFlags = [
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
+		[preservePitchOnPlaybackOption.cliFlag]: null,
 		[showLayerFrameNumbersOption.cliFlag]: null,
 		[showPremountingOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
@@ -301,7 +302,6 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[isProductionOption.cliFlag]: null,
 		[forceNewStudioOption.cliFlag]: null,
 		[experimentalKeepAudioContextAliveOption.cliFlag]: null,
-		[experimentalSequenceActivityOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
 		[enableCancellationOption.cliFlag]: null,
 		[rspackOption.cliFlag]: null,

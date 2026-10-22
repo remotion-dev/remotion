@@ -22,6 +22,7 @@ import {
 } from '../NewComposition/InputDragger';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {updateCompositionMetadata} from '../RenderQueue/actions';
+import {getCurrentFrame} from '../Timeline/imperative-state';
 import {timelineDurationRef} from '../Timeline/timeline-refs';
 import {TimelineTickFormatContext} from '../Timeline/TimelineTickFormatProvider';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
@@ -631,6 +632,7 @@ export const CompositionMetadata: React.FC<{
 												timelineDurationRef.current?.getDuration(
 													video.durationInFrames,
 												) ?? null;
+											const currentFrame = getCurrentFrame();
 
 											return [
 												{
@@ -646,6 +648,20 @@ export const CompositionMetadata: React.FC<{
 														if (timelineEnd !== null) {
 															saveMetadata({durationInFrames: timelineEnd});
 														}
+													},
+													keyHint: null,
+													leftItem: null,
+													subMenu: null,
+													quickSwitcherLabel: null,
+												},
+												{
+													type: 'item',
+													id: 'match-current-time',
+													label: `Match current time (${showFrames ? `${currentFrame} ${currentFrame === 1 ? 'frame' : 'frames'}` : renderFrame(currentFrame, video.fps)})`,
+													value: 'match-current-time',
+													disabled: currentFrame < 1,
+													onClick: () => {
+														saveMetadata({durationInFrames: currentFrame});
 													},
 													keyHint: null,
 													leftItem: null,

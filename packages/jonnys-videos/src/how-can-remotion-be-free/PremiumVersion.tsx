@@ -155,10 +155,7 @@ const PremiumVersionInner: React.FC = () => {
 	);
 };
 
-export const PremiumVersion = Interactive.withSchema({
+export const PremiumVersion = Interactive.create({
 	Component: PremiumVersionInner,
-	componentName: 'PremiumVersion',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

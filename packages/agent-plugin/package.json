@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/agent-plugin",
-	"version": "4.0.535",
+	"version": "4.0.538",
 	"private": true,
 	"type": "module",
 	"repository": {
@@ -21,7 +21,7 @@
 	"devDependencies": {
 		"@microsoft/vally": "0.12.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@typescript/native-preview": "catalog:",
+		"typescript": "catalog:",
 		"eslint": "catalog:"
 	},
 	"keywords": [

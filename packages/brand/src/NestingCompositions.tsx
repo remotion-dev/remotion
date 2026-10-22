@@ -13,14 +13,15 @@ const PrecompositionInner = () => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			durationInFrames={438}
 			trimBefore={323}
 			premountFor={60}
 			style={{
 				width: 3126,
 				height: 2958,
-				translate: '-603px -939px',
-				scale: 0.716,
+				translate: '-1190px -492px',
+				scale: 1,
 			}}
 		>
 			<Video

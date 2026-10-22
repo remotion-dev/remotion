@@ -469,7 +469,18 @@ const parseStringInterpolationValue = (
 
 	const parts = output.trim().split(/\s+/);
 	if (parts.length < 1 || parts.length > 3 || parts[0] === '') {
-		throw new TypeError(
+		// Long text values (for example custom cursor CSS) may use hold easing.
+		// Malformed numeric transforms must still fail instead of becoming text.
+		const ErrorType =
+			outputType === undefined &&
+			parts.some(
+				(part) =>
+					!cssNumberRegex.test(part) &&
+					!transformOriginKeywords.has(part.toLowerCase()),
+			)
+				? UnsupportedStringInterpolationValueError
+				: TypeError;
+		throw new ErrorType(
 			`String outputRange values must contain 1 to 3 components, but got "${output}"`,
 		);
 	}

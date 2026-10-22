@@ -1,11 +1,8 @@
-import type {
-	GetLoggingUrlForRendererFunction,
-	ServerlessRoutines,
-} from '@remotion/serverless-client';
-import type {AwsProvider} from './aws-provider';
+import type {GetLoggingUrlForRendererFunction} from './aws-operations';
 import {getAwsRegionMetadata} from './aws-region-metadata';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
 import type {AwsRegion} from './regions';
+import type {ServerlessRoutines} from './shared-constants';
 
 const cloudWatchUrlWithQuery = ({
 	region,
@@ -52,9 +49,13 @@ export const getLambdaInsightsUrl = ({
 	return `https://${region}.${consoleDomain}/cloudwatch/home?region=${region}#lambda-insights:functions/${functionName}`;
 };
 
-export const getCloudwatchRendererUrl: GetLoggingUrlForRendererFunction<
-	AwsProvider
-> = ({region, functionName, renderId, rendererFunctionName, chunk}) => {
+export const getCloudwatchRendererUrl: GetLoggingUrlForRendererFunction = ({
+	region,
+	functionName,
+	renderId,
+	rendererFunctionName,
+	chunk,
+}) => {
 	const functionNameToUse = rendererFunctionName ?? functionName;
 	const query = `"method=renderer,renderId=${renderId}${
 		chunk === null ? '' : `,chunk=${chunk},`

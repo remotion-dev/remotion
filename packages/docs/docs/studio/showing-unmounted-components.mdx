@@ -1,0 +1,73 @@
+---
+image: /generated/articles-docs-studio-showing-unmounted-components.png
+title: Showing unmounted components
+crumb: 'Remotion Studio'
+---
+
+# Showing unmounted components<AvailableFrom v="4.0.536" />
+
+By design, Remotion renders only the current frame.  
+This keeps previews fast even when a video is long.
+
+In the [Remotion Studio](/docs/studio), Remotion also evaluates [components](/docs/components) outside their active time range to better visualize the timeline:
+
+- Items that are not visible at the current frame can still be shown.
+- The timeline stays stable as you scroll and seek through the video and doesn't jump.
+
+This discovery only runs in Studio, if you use React 19.2 or later.
+
+## Keeping discovery fast
+
+Remotion reduces the cost of evaluating these components:
+
+- Actual content such as videos and audio is disabled where possible and only metadata is being registered.
+- Components are wrapped in React's [`<Activity>`](https://react.dev/reference/react/Activity) with `mode="hidden"`, which keeps their content invisible in the DOM.
+- React Effects do not run while the components are hidden inside `<Activity>`.
+- The components' frame stays fixed during discovery, avoiding updates on every playback frame.
+
+Your component's render function still runs.  
+Expensive calculations during rendering can therefore slow down discovery.
+
+## Setting a maximum number of components to discover
+
+Open Settings → Studio → Timeline and change "Visualize unmounted components".  
+The default is unlimited discovery.
+
+Set a lower number if discovering all components makes a large composition slow.  
+Remotion prioritizes components closest to the current time.
+
+You can also set the limit in your [config file](/docs/config#setsequenceactivitylimit):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+Config.setSequenceActivityLimit(20);
+```
+
+Or use the [`--sequence-activity-limit`](/docs/options/sequence-activity-limit) CLI flag:
+
+```bash title="Terminal"
+bunx remotion studio --sequence-activity-limit=20
+```
+
+## Disabling the discovery of unmounted components
+
+Set "Visualize unmounted components" to `0` in Settings → Studio → Timeline.
+
+To disable discovery in your config file:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+Config.setSequenceActivityLimit(0);
+```
+
+Or pass the CLI flag:
+
+```bash title="Terminal"
+bunx remotion studio --sequence-activity-limit=0
+```
+
+## See also
+
+- [Premounting](/docs/player/premounting)
+- [Components](/docs/components)
+- [Sequence Activity limit](/docs/options/sequence-activity-limit)

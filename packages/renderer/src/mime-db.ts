@@ -7266,6 +7266,11 @@ export const mimeDb: Record<
 		compressible: false,
 		extensions: ['jpx', 'jpf'],
 	},
+	'image/jxl': {
+		source: 'iana',
+		compressible: false,
+		extensions: ['jxl'],
+	},
 	'image/jxr': {
 		source: 'iana',
 		extensions: ['jxr'],

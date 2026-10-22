@@ -54,27 +54,29 @@ export const MakeVideosAgentically: React.FC<{
 
 	return (
 		<div ref={ref} className={'flex min-w-0 basis-0 flex-col flex-1'}>
-			<div className="flex aspect-square w-full items-start">
-				{showVideo && src ? (
-					<video
-						ref={videoRef}
-						src={src}
-						muted
-						autoPlay
-						playsInline
-						loop
-						preload="metadata"
-						style={{
-							width: 400,
-							maxWidth: '100%',
-							maxHeight: '100%',
-							borderRadius: 7,
-							overflow: 'hidden',
-						}}
-						className="cursor-default! relative object-contain"
-					/>
-				) : null}
-			</div>
+			{showVideo ? (
+				<div className="flex aspect-square w-full items-start">
+					{src ? (
+						<video
+							ref={videoRef}
+							src={src}
+							muted
+							autoPlay
+							playsInline
+							loop
+							preload="metadata"
+							style={{
+								width: 400,
+								maxWidth: '100%',
+								maxHeight: '100%',
+								borderRadius: 7,
+								overflow: 'hidden',
+							}}
+							className="cursor-default! relative object-contain"
+						/>
+					) : null}
+				</div>
+			) : null}
 			<div className="font-brand">
 				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
 					{title}

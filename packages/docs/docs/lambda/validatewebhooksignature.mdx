@@ -20,7 +20,9 @@ The same webhook secret that was passed to [`renderMediaOnLambda()`](/docs/lambd
 
 ### `body`
 
-The body that was received by the endpoint - takes a parsed JSON object, not a `string`.
+The body that was received by the endpoint.
+
+Pass the raw request body - a `string` or a `Buffer` - to check the exact bytes that were signed. A parsed JSON object is accepted as well, but it is serialized again before it gets hashed, which only produces the same signature if parsing and serializing round-trips exactly. The [Go](/docs/lambda/go#verifying-webhooks), [Python](/docs/lambda/python#verifying-webhooks), [PHP](/docs/lambda/php#verifying-webhooks) and [Ruby](/docs/lambda/ruby#verifying-webhooks) helpers take the raw request body.
 
 ### `signatureHeader`
 
@@ -64,6 +66,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 See [Webhooks](/docs/lambda/webhooks) for an Express example.
 
+## Verifying the raw body<AvailableFrom v="4.0.538" />
+
+The signature covers the exact bytes that were sent, so the most reliable way to verify a request is to read the body first and verify it before decoding it. Parsing the JSON and serializing it again can reorder keys and change whitespace, which would make a genuine request fail the check.
+
+The following Express endpoint keeps the raw bytes around for that:
+
+```javascript title="server.js"
+import express from 'express';
+import {validateWebhookSignature} from '@remotion/lambda/client';
+
+const router = express();
+
+// Keep the raw bytes so they can be checked against the signature.
+const rawParser = express.raw({type: 'application/json'});
+
+router.post('/webhook', rawParser, (req, res) => {
+  validateWebhookSignature({
+    secret: process.env.REMOTION_WEBHOOK_SECRET,
+    body: req.body,
+    signatureHeader: req.header('X-Remotion-Signature'),
+  });
+
+  // The request is authentic. Parse the body only now.
+  const payload = JSON.parse(req.body.toString());
+  if (payload.type === 'success') {
+    // ...
+  }
+
+  res.status(200).json({success: true});
+});
+```
+
+Passing a parsed JSON object still works, and keeps the examples above short. The body is then serialized again before it gets hashed, so it only matches the signature if parsing and serializing round-trips exactly.
+
 ## Compatibility
 
 <CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions="Node.js runtime" clientSideRendering="" serverSideRendering="" player="" studio="" hideBrowsers />
@@ -73,4 +109,8 @@ For serverless functions, use the [light client](/docs/lambda/light-client).
 ## See also
 
 - [Webhooks](/docs/lambda/webhooks)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/validate-webhook-signature.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/validate-webhook-signature.ts)
+- [Verifying webhooks in Go](/docs/lambda/go#verifying-webhooks)
+- [Verifying webhooks in Python](/docs/lambda/python#verifying-webhooks)
+- [Verifying webhooks in PHP](/docs/lambda/php#verifying-webhooks)
+- [Verifying webhooks in Ruby](/docs/lambda/ruby#verifying-webhooks)

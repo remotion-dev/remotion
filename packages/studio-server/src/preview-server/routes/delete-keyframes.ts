@@ -6,18 +6,13 @@ import type {
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteSequenceKeyframe,
-	SaveEffectPropsResponse,
-	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
-import {getAllSchemaKeys} from '@remotion/studio-shared';
-import {parseAst} from '../../codemods/parse-ast';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
 } from '../../codemods/update-keyframes/update-keyframes';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
-import {getVideoConfigIdentifierValues} from '../../helpers/video-config-values';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -25,29 +20,19 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {computeEffectPropStatus} from './can-update-effect-props';
-import {
-	computeSequencePropsStatusFromContent,
-	findJsxElementAtNodePath,
-} from './can-update-sequence-props';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 type ResolvedSequenceKeyframe = DeleteSequenceKeyframe & {
-	index: number;
-	absolutePath: string;
 	fileRelativeToRoot: string;
 };
 
 type ResolvedEffectKeyframe = DeleteEffectKeyframe & {
-	index: number;
-	absolutePath: string;
 	fileRelativeToRoot: string;
 };
 
 type FileGroup = {
-	fileRelativeToRoot: string;
 	sequenceKeyframes: ResolvedSequenceKeyframe[];
 	effectKeyframes: ResolvedEffectKeyframe[];
 };
@@ -122,55 +107,43 @@ export const deleteKeyframes = async ({
 	clientId: string;
 	remotionRoot: string;
 	logLevel: LogLevel;
-}): Promise<{
-	sequenceResults: SaveSequencePropsResult[];
-	effectResults: SaveEffectPropsResponse[];
-}> => {
+}): Promise<void> => {
 	const totalKeyframes = sequenceKeyframes.length + effectKeyframes.length;
 	if (totalKeyframes === 0) {
 		throw new Error('No keyframes were specified for deletion');
 	}
 
 	const fileGroups = new Map<string, FileGroup>();
-	const resolvedSequenceKeyframes: ResolvedSequenceKeyframe[] = [];
-	const resolvedEffectKeyframes: ResolvedEffectKeyframe[] = [];
 
-	for (const [index, keyframe] of sequenceKeyframes.entries()) {
+	for (const keyframe of sequenceKeyframes) {
 		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 			remotionRoot,
 			fileName: keyframe.fileName,
 			action: 'modify',
 		});
 		const group = fileGroups.get(absolutePath) ?? {
-			fileRelativeToRoot,
 			sequenceKeyframes: [],
 			effectKeyframes: [],
 		};
-		const resolved = {...keyframe, index, absolutePath, fileRelativeToRoot};
-		group.sequenceKeyframes.push(resolved);
-		resolvedSequenceKeyframes.push(resolved);
+		group.sequenceKeyframes.push({...keyframe, fileRelativeToRoot});
 		fileGroups.set(absolutePath, group);
 	}
 
-	for (const [index, keyframe] of effectKeyframes.entries()) {
+	for (const keyframe of effectKeyframes) {
 		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 			remotionRoot,
 			fileName: keyframe.fileName,
 			action: 'modify',
 		});
 		const group = fileGroups.get(absolutePath) ?? {
-			fileRelativeToRoot,
 			sequenceKeyframes: [],
 			effectKeyframes: [],
 		};
-		const resolved = {...keyframe, index, absolutePath, fileRelativeToRoot};
-		group.effectKeyframes.push(resolved);
-		resolvedEffectKeyframes.push(resolved);
+		group.effectKeyframes.push({...keyframe, fileRelativeToRoot});
 		fileGroups.set(absolutePath, group);
 	}
 
 	const snapshots: UndoSnapshot[] = [];
-	const outputByPath = new Map<string, string>();
 	const sequenceLogs: SequenceLog[] = [];
 	const effectLogs: EffectLog[] = [];
 
@@ -266,7 +239,6 @@ export const deleteKeyframes = async ({
 			newContents: output,
 			logLine: Number.isFinite(firstLogLine) ? firstLogLine : 1,
 		});
-		outputByPath.set(absolutePath, output);
 	}
 
 	const [firstKeyframe] =
@@ -336,62 +308,6 @@ export const deleteKeyframes = async ({
 	}
 
 	printUndoHint(logLevel);
-
-	const sequenceResults = resolvedSequenceKeyframes.map((keyframe) => {
-		const output = outputByPath.get(keyframe.absolutePath);
-		if (!output) {
-			throw new Error('Could not compute sequence keyframe deletion status');
-		}
-
-		const status = computeSequencePropsStatusFromContent({
-			fileContents: output,
-			keys: getAllSchemaKeys(keyframe.schema),
-			nodePath: keyframe.nodePath.nodePath,
-			componentIdentity: null,
-			effects: [],
-		});
-
-		return {
-			fileName: keyframe.fileName,
-			nodePath: keyframe.nodePath,
-			props: status.props,
-		};
-	});
-
-	const astByPath = new Map<string, ReturnType<typeof parseAst>>();
-	const effectResults = resolvedEffectKeyframes.map((keyframe) => {
-		const output = outputByPath.get(keyframe.absolutePath);
-		if (!output) {
-			throw new Error('Could not compute effect keyframe deletion status');
-		}
-
-		const ast = astByPath.get(keyframe.absolutePath) ?? parseAst(output);
-		astByPath.set(keyframe.absolutePath, ast);
-		const jsx = findJsxElementAtNodePath(
-			ast,
-			keyframe.sequenceNodePath.nodePath,
-		);
-		if (!jsx) {
-			return {
-				canUpdate: false as const,
-				effectIndex: keyframe.effectIndex,
-				reason: 'not-found' as const,
-			};
-		}
-
-		return computeEffectPropStatus({
-			ast,
-			jsx,
-			effectIndex: keyframe.effectIndex,
-			keys: getAllSchemaKeys(keyframe.schema),
-			videoConfigValues: getVideoConfigIdentifierValues({
-				ast,
-				videoConfigValues: keyframe.sequenceNodePath.videoConfigValues,
-			}),
-		});
-	});
-
-	return {sequenceResults, effectResults};
 };
 
 export const deleteKeyframesHandler: ApiHandler<

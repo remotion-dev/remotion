@@ -21,6 +21,7 @@ import {
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
+import {resolveNodePathsFromLocations} from './resolve-node-paths-from-locations';
 import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
 import {computeEffectPropsStatusesFromContent} from './sequence-props/can-update-effect-props';
 import {getDurationDependentKeyframesFromContent} from './sequence-props/duration-dependent-keyframes';
@@ -136,6 +137,7 @@ export type {
 } from './codemod-project';
 export {applyCodemodChanges} from './codemod-project';
 export {deleteNodes, type DeleteNodesOptions} from './delete-nodes';
+export {canUnwrapNode, unwrapNode, type UnwrapNodeOptions} from './unwrap-node';
 export {canWrapNode, wrapNode, type WrapNodeOptions} from './wrap-node';
 export {
 	canPrecomposeJsxNodes,
@@ -196,6 +198,7 @@ export const CodemodsInternals = {
 	pasteEffects,
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
+	resolveNodePathsFromLocations,
 	updateInlineCaptionPatches,
 };
 

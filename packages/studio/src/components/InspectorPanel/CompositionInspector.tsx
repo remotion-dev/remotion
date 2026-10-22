@@ -11,6 +11,7 @@ import type {_InternalTypes} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {CloudDownloadIcon} from '../../icons/cloud-download';
+import {FontFileIcon} from '../../icons/font';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {SparklesIcon} from '../../icons/sparkles';
@@ -65,12 +66,15 @@ const CompositionActions: React.FC = () => {
 		canInsertAsset,
 		canInsertComposition,
 		canInsertSolid,
+		canInsertText,
 		canShowInsertAsset,
 		canShowInsertComposition,
 		canShowInsertSolid,
+		canShowInsertText,
 		insertAsset,
 		insertComposition,
 		insertSolid,
+		insertText,
 		generateWithAgent,
 		canShowGenerateWithAgent,
 	} = useCompositionActions();
@@ -80,6 +84,7 @@ const CompositionActions: React.FC = () => {
 		!canShowInsertAsset &&
 		!canShowInsertComposition &&
 		!canShowInsertSolid &&
+		!canShowInsertText &&
 		!canShowGenerateWithAgent &&
 		downloadProject === null
 	) {
@@ -88,6 +93,7 @@ const CompositionActions: React.FC = () => {
 
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
 			collapsible
 			label="Actions"
 			sectionId="composition-actions"
@@ -102,6 +108,17 @@ const CompositionActions: React.FC = () => {
 						)}
 					>
 						Add Solid
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertText ? (
+					<InspectorQuickAction
+						disabled={!canInsertText}
+						onClick={insertText}
+						renderIcon={(color) => (
+							<FontFileIcon color={color} style={inspectorActionIconStyle} />
+						)}
+					>
+						Add text
 					</InspectorQuickAction>
 				) : null}
 				{canShowInsertAsset ? (
@@ -280,7 +297,7 @@ const CompositionDefaultPropsSection: React.FC<{
 					onToggle={() => setExpanded(!expanded)}
 				/>
 			</InspectorSectionHeader>
-			<InspectorSectionBody expanded={expanded}>
+			<InspectorSectionBody expanded={expanded} paddingBottom={8}>
 				{defaultPropsWarnings.length > 0 && showWarning ? (
 					<div style={defaultPropsWarningContainer}>
 						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
@@ -322,6 +339,7 @@ const CompositionVisualControlsSection: React.FC<{
 
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
 			collapsible
 			label="Visual Controls"
 			sectionId="composition-visual-controls"
@@ -344,6 +362,7 @@ export const CompositionInspector: React.FC<{
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
 				<CollapsibleInspectorSection
+					bodyPaddingBottom={8}
 					collapsible
 					label="Metadata"
 					sectionId="composition-metadata"

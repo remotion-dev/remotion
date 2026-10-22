@@ -19,7 +19,6 @@ const AirportLayoutContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/airport/airport-terrain-v2.png'
 				}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					width: '100%',
@@ -168,9 +167,7 @@ const AirportLayoutContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const AirportLayout = Interactive.withSchema({
+export const AirportLayout = Interactive.create({
 	Component: AirportLayoutContent,
 	componentName: 'AirportLayout',
-	schema: {},
-	wrapInSequence: true,
 });

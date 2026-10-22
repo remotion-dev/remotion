@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.535",
+	"version": "4.0.538",
 	"private": true,
 	"type": "module",
 	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
@@ -69,7 +69,7 @@
 		"eslint": "catalog:",
 		"postcss": "8.5.23",
 		"tailwindcss": "4.2.0",
-		"vite": "6.4.3",
+		"vite": "6.4.4",
 		"vite-tsconfig-paths": "4.3.2"
 	},
 	"engines": {

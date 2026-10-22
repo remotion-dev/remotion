@@ -35,6 +35,16 @@ type TDurationsContext = {
 	setDurations: React.Dispatch<DurationAction>;
 };
 
+// Bind this function outside component render scopes so the stable duration
+// callback cannot keep unrelated, replaced media props alive.
+export const onMediaDuration = (
+	setDurations: TDurationsContext['setDurations'],
+	src: string,
+	durationInSeconds: number,
+) => {
+	setDurations({type: 'got-duration', durationInSeconds, src});
+};
+
 export const DurationsContext = createContext<TDurationsContext>({
 	durations: {},
 	setDurations: () => {

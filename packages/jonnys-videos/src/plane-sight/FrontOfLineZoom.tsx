@@ -20,7 +20,6 @@ const FrontOfLineZoomContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/screenshots/five-agent-airport.png'
 				}
-				premountFor={fps}
 				style={{
 					width: '100%',
 					height: '100%',
@@ -54,9 +53,7 @@ const FrontOfLineZoomContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const FrontOfLineZoom = Interactive.withSchema({
+export const FrontOfLineZoom = Interactive.create({
 	Component: FrontOfLineZoomContent,
 	componentName: 'FrontOfLineZoom',
-	schema: {},
-	wrapInSequence: true,
 });

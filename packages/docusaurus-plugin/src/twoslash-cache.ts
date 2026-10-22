@@ -9,6 +9,7 @@ import {
 	rmSync,
 	writeFileSync,
 } from 'fs';
+import {createRequire} from 'module';
 import {dirname, join, relative, resolve} from 'path';
 
 export const TWOSLASH_CACHE_SCHEMA_VERSION = 2;
@@ -91,11 +92,17 @@ const findPackageVersion = (
 export const getTwoslashVersions = (
 	resolvePackage: (packageName: string) => string,
 ): TwoslashVersions => {
+	const toolingRequire = createRequire(
+		resolvePackage('@remotion/typescript-tools/package.json'),
+	);
 	return {
-		twoslash: findPackageVersion('twoslash', resolvePackage),
+		twoslash: findPackageVersion('twoslash', toolingRequire.resolve),
 		shiki: findPackageVersion('shiki', resolvePackage),
-		typescript: findPackageVersion('typescript', resolvePackage),
-		shikiTwoslash: findPackageVersion('@shikijs/twoslash', resolvePackage),
+		typescript: findPackageVersion('typescript', toolingRequire.resolve),
+		shikiTwoslash: findPackageVersion(
+			'@shikijs/twoslash',
+			toolingRequire.resolve,
+		),
 	};
 };
 

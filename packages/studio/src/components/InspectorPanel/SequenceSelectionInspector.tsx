@@ -49,6 +49,7 @@ import {
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
+import {SequenceUnwrapAction} from './SequenceUnwrapAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
@@ -113,7 +114,7 @@ const SplitSequenceQuickAction: React.FC<{
 				<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 			)}
 		>
-			Split clip
+			Split
 		</InspectorQuickAction>
 	);
 };
@@ -367,6 +368,12 @@ const SequenceSourceQuickActions: React.FC<{
 				sourceActionsDisabled={sourceActionsDisabled}
 				sourceLocation={validatedLocation}
 			/>
+			<SequenceUnwrapAction
+				sequence={track.sequence}
+				sourceLocation={validatedLocation}
+				nodePathInfo={selection.nodePathInfo}
+				sourceActionsDisabled={sourceActionsDisabled || isTransition}
+			/>
 			<SequencePrecomposeAction
 				targets={[
 					{
@@ -479,6 +486,7 @@ const SequenceExpandedInspector: React.FC<{
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
 					<CollapsibleInspectorSection
+						bodyPaddingBottom={8}
 						collapsible
 						label="Actions"
 						sectionId="sequence-actions"
@@ -500,6 +508,7 @@ const SequenceExpandedInspector: React.FC<{
 				<>
 					<InspectorMessage>Source controls unavailable</InspectorMessage>
 					<CollapsibleInspectorSection
+						bodyPaddingBottom={8}
 						collapsible
 						label="Actions"
 						sectionId="sequence-actions"

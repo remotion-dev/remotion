@@ -46,6 +46,7 @@ import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {
 	CompositionManager,
+	CompositionManagerRefContext,
 	CompositionSetters,
 } from './CompositionManagerContext.js';
 import {CompositionManagerProvider} from './CompositionManagerProvider.js';
@@ -105,6 +106,8 @@ import {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useHtmlInCanvasUnsupportedMessage} from './HtmlInCanvas.js';
+import {HtmlInCanvasFallback} from './HtmlInCanvasFallback.js';
 import {
 	getInputPropsOverride,
 	setInputPropsOverride,
@@ -154,6 +157,7 @@ import {
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
 import {playbackLogging} from './playback-logging.js';
+import {PlaybackPitchContext} from './playback-pitch-context';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -225,6 +229,7 @@ import {
 	VisualModeDragOverridesRefContext,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModePropStatusesSubscriptionContext,
 	VisualModeSettersContext,
 	type CanUpdateEffectPropsResponse,
 	type CanUpdateEffectPropsResponseFalse,
@@ -352,6 +357,8 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	HtmlInCanvasFallback,
+	useHtmlInCanvasUnsupportedMessage,
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 	createElementSourceProxy,
@@ -386,9 +393,11 @@ export const Internals = {
 	resolveTrimProps,
 	VideoForPreview,
 	CompositionManager,
+	CompositionManagerRefContext,
 	CompositionSetters,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModePropStatusesSubscriptionContext,
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModeDragOverridesRefContext,
@@ -526,6 +535,7 @@ export const Internals = {
 	DelayRenderContextType,
 	TimelineContext,
 	usePlaying,
+	PlaybackPitchContext,
 	PlaybackRateContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
