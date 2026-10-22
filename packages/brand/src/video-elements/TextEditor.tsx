@@ -39,9 +39,8 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	const titleBarHeight = 28 * scale;
 	const tabBarHeight = 34 * scale;
 	const breadcrumbHeight = 22 * scale;
-	const statusBarHeight = 32 * scale;
 	const editorTop = titleBarHeight + tabBarHeight + breadcrumbHeight;
-	const editorHeight = height - editorTop - statusBarHeight;
+	const editorHeight = height - editorTop;
 	const [highlighted, setHighlighted] = useState<HighlightedCode | null>(null);
 	const {cancelRender, continueRender, delayRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Highlighting text editor code'));
@@ -336,81 +335,12 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 								lineHeight: `${18 * scale}px`,
 								margin: 0,
 								minWidth: '100%',
+								overflow: 'hidden',
 								position: 'relative',
 								tabSize: 4,
 							}}
 						/>
 					) : null}
-					<div
-						style={{
-							backgroundColor: '#131414',
-							bottom: 0,
-							position: 'absolute',
-							right: 4 * scale,
-							top: 0,
-							width: 14 * scale,
-						}}
-					>
-						<div
-							style={{
-								backgroundColor: '#5c5d5e',
-								borderRadius: 5 * scale,
-								height: Math.min(707 * scale, editorHeight - 4 * scale),
-								left: scale,
-								position: 'absolute',
-								top: 0,
-								width: 13 * scale,
-							}}
-						/>
-					</div>
-				</Interactive.Div>
-
-				<Interactive.Div
-					name="Status bar"
-					style={{
-						alignItems: 'center',
-						backgroundColor: '#181919',
-						borderTop: `${scale}px solid #2b2b2b`,
-						bottom: 0,
-						boxSizing: 'border-box',
-						color: '#9a9a9a',
-						display: 'flex',
-						fontSize: 12 * scale,
-						height: statusBarHeight,
-						left: 0,
-						paddingLeft: 13 * scale,
-						position: 'absolute',
-						right: 0,
-					}}
-				>
-					<VscodeIcon name="error" size={13 * scale} />
-					<span style={{marginLeft: 4 * scale}}>0</span>
-					<span style={{display: 'flex', marginLeft: 7 * scale}}>
-						<VscodeIcon name="warning" size={13 * scale} />
-					</span>
-					<span style={{marginLeft: 3 * scale}}>0</span>
-					<div
-						style={{
-							alignItems: 'center',
-							display: 'flex',
-							gap: 16 * scale,
-							marginLeft: 'auto',
-							paddingRight: 14 * scale,
-						}}
-					>
-						<span>Ln {codeLines.length}, Col 1</span>
-						<span>Tab Size: 4</span>
-						<span>UTF-8</span>
-						<span>LF</span>
-						<span>{'{ }'}&nbsp; TypeScript JSX</span>
-						<span style={{display: 'flex'}}>
-							<VscodeIcon name="copilot" size={14 * scale} />
-						</span>
-						<span>✓ oxc</span>
-						<span style={{display: 'flex'}}>
-							<VscodeIcon name="bell" size={14 * scale} />
-						</span>
-					</div>
 				</Interactive.Div>
 			</Interactive.Div>
 		</Interactive.Div>
