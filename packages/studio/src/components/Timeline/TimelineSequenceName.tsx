@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {BLACK, TRANSPARENT, WHITE_ALPHA_72} from '../../helpers/colors';
-import {ActionTooltip} from '../ActionTooltip';
+import {ClippedTextTooltip} from '../ActionTooltip';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
@@ -56,6 +56,7 @@ export const TimelineSequenceName: React.FC<{
 	chevronSlot,
 }) => {
 	const inputRef = useRef<HTMLInputElement>(null);
+	const nameTextRef = useRef<HTMLSpanElement>(null);
 	const [draftName, setDraftName] = useState(displayName);
 	const cancelNextBlurRef = useRef(false);
 	const style = useMemo((): React.CSSProperties => {
@@ -184,7 +185,8 @@ export const TimelineSequenceName: React.FC<{
 					clipPath: chevronSlot === 'occupied' ? 'inset(0)' : undefined,
 				}}
 			>
-				<ActionTooltip
+				<ClippedTextTooltip
+					overflowTarget={nameTextRef}
 					label={editableDisplayName}
 					shortcut={null}
 					delay={800}
@@ -212,23 +214,31 @@ export const TimelineSequenceName: React.FC<{
 						width: 'max-content',
 					}}
 				>
-					<span style={nameTextStyle}>{text}</span>
-				</ActionTooltip>
+					<span ref={nameTextRef} style={nameTextStyle}>
+						{text}
+					</span>
+				</ClippedTextTooltip>
 			</div>
 		);
 	}
 
 	return (
-		<ActionTooltip
+		<ClippedTextTooltip
+			overflowTarget={nameTextRef}
 			label={editableDisplayName}
 			shortcut={null}
 			delay={800}
 			dismissOnClick
 			triggerStyle={style}
 		>
-			<span role="group" aria-label={text} style={nameTextStyle}>
+			<span
+				ref={nameTextRef}
+				role="group"
+				aria-label={text}
+				style={nameTextStyle}
+			>
 				{text}
 			</span>
-		</ActionTooltip>
+		</ClippedTextTooltip>
 	);
 };
