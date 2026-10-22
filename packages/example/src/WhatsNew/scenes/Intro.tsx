@@ -281,11 +281,12 @@ const IntroSceneInner: React.FC = () => {
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
+				showInTimeline={false}
 			>
 				<Series>
 					<Series.Sequence
 						name="Opening line"
-						durationInFrames={112}
+						durationInFrames={208}
 						premountFor={30}
 					>
 						<Punch zoom={1.1}>
@@ -300,15 +301,11 @@ const IntroSceneInner: React.FC = () => {
 				</Series>
 			</Stage>
 
-			<Sequence name="Title card" from={2} durationInFrames={110}>
-				<TitleCard />
-			</Sequence>
-
 			<PunchyCaptions
 				width={captions.width}
 				fontSize={captions.fontSize}
 				style={captions.style}
-				durationInFrames={112}
+				durationInFrames={208}
 				keywords={['improved', 'remotion']}
 				captions={[
 					// @captions whats1

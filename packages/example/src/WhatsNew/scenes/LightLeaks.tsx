@@ -391,10 +391,11 @@ const LightLeaksSceneInner: React.FC = () => {
 
 	return (
 		<>
-			<Backdrop accent={accents.lightLeaks} />
+			<Backdrop accent={accents.lightLeaks} showInTimeline={false} />
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
+				showInTimeline={false}
 			>
 				<Series>
 					<Series.Sequence
@@ -441,29 +442,6 @@ const LightLeaksSceneInner: React.FC = () => {
 					</Series.Sequence>
 				</Series>
 			</Stage>
-
-			<Sequence name="Light leak over footage" from={24} durationInFrames={72}>
-				<LightLeakFx seed={2} hueShift={0} />
-			</Sequence>
-			<Sequence name="Chapter sticker" from={6} durationInFrames={118}>
-				<ChapterSticker
-					index="01"
-					title="Light leaks"
-					accent={accents.lightLeaks}
-				/>
-			</Sequence>
-			<Sequence name="Native component" from={146} durationInFrames={80}>
-				<NativeComponent />
-			</Sequence>
-			<Sequence name="Variations" from={226} durationInFrames={226}>
-				<Variations />
-			</Sequence>
-			<Sequence name="Direct or skill" from={452} durationInFrames={184}>
-				<DirectOrSkill />
-			</Sequence>
-			<Sequence name="Transition demo" from={636} durationInFrames={84}>
-				<TransitionDemo />
-			</Sequence>
 
 			<PunchyCaptions
 				width={captions.width}
