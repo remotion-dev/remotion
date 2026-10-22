@@ -66,6 +66,7 @@ import {
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 
 const {
+	createCanvasOutlineLayoutTargetLookup,
 	getCanvasSelectableOutlines,
 	getCanvasVisibleOutlineTargets,
 	getCanvasActiveOutlineTargets,
@@ -192,6 +193,9 @@ type SelectableOutlines = Readonly<
 >;
 
 type CalculateOutlineTargetsOptions = {
+	readonly getCanvasLayoutTargets:
+		| (() => ReturnType<typeof getCanvasOutlineLayoutTargets>)
+		| null;
 	readonly mode: 'controls' | 'layout';
 	readonly runtimeValuesByStore: ReadonlyMap<
 		RuntimeValueStore,
@@ -209,6 +213,7 @@ type CalculateOutlineTargets = (
 const calculateOutlineTargets = ({
 	connectedClientId,
 	editorShowOutlines,
+	getCanvasLayoutTargets,
 	getDragOverrides,
 	getScaleLockState,
 	isFullscreen,
@@ -266,12 +271,16 @@ const calculateOutlineTargets = ({
 	const previewInteractive =
 		connectedClientId !== null && studioInteractivityEnabled;
 
-	return getCanvasOutlineLayoutTargets({
-		selectableOutlines,
-		selectedSequenceKeys,
-		sequenceKeysContainingSelection,
-		targetKey,
-	}).flatMap((canvasLayoutTarget) => {
+	const canvasLayoutTargets =
+		getCanvasLayoutTargets === null
+			? getCanvasOutlineLayoutTargets({
+					selectableOutlines,
+					selectedSequenceKeys,
+					sequenceKeysContainingSelection,
+					targetKey,
+				})
+			: getCanvasLayoutTargets();
+	return canvasLayoutTargets.flatMap((canvasLayoutTarget) => {
 		const {
 			key,
 			keyframeDisplayOffset,
@@ -808,6 +817,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	const outlineTargets = useMemo(
 		() =>
 			calculateOutlineTargetsForCurrentState({
+				getCanvasLayoutTargets: null,
 				mode: 'layout',
 				runtimeValuesByStore: outlineRuntimeValuesByStore,
 				selectableOutlines: selectableOutlinesForLayout,
@@ -1050,24 +1060,43 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		},
 		[],
 	);
-	const getLatestOutlineTargetByKey = useCallback(
-		(key: string) => {
+	const getLatestOutlineTargetByKey = useMemo(() => {
+		let cachedOutlines: SelectableOutlines | null = null;
+		let cachedLookup: ReturnType<
+			typeof createCanvasOutlineLayoutTargetLookup
+		> | null = null;
+		return (key: string) => {
 			const timelinePosition = getCurrentFrame();
+			const selectableOutlines = getSelectableOutlinesAtFrame(timelinePosition);
 			const target = calculateOutlineTargetsForCurrentState({
+				getCanvasLayoutTargets: () => {
+					// Share only source metadata; controls below still read live values.
+					if (cachedOutlines !== selectableOutlines || cachedLookup === null) {
+						cachedLookup = createCanvasOutlineLayoutTargetLookup({
+							selectableOutlines,
+							selectedSequenceKeys,
+							sequenceKeysContainingSelection,
+						});
+						cachedOutlines = selectableOutlines;
+					}
+
+					return cachedLookup(key);
+				},
 				mode: 'controls',
 				runtimeValuesByStore: new Map(),
-				selectableOutlines: getSelectableOutlinesAtFrame(timelinePosition),
+				selectableOutlines,
 				targetKey: key,
 				targetTimelinePosition: timelinePosition,
 			})[0];
 			return target as SelectedOutlineTarget | undefined;
-		},
-		[
-			calculateOutlineTargetsForCurrentState,
-			getCurrentFrame,
-			getSelectableOutlinesAtFrame,
-		],
-	);
+		};
+	}, [
+		calculateOutlineTargetsForCurrentState,
+		getCurrentFrame,
+		getSelectableOutlinesAtFrame,
+		selectedSequenceKeys,
+		sequenceKeysContainingSelection,
+	]);
 	const getAllDragTargets = useCallback((): SelectedOutlineDragTarget[] => {
 		// Selected layers can be outside the current frame and have no mounted DOM.
 		// Only outline measurement and snapping need to be restricted to visible layers.
@@ -1082,6 +1111,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 			selectedKeys.has(key),
 		);
 		const targets = calculateOutlineTargetsForCurrentState({
+			getCanvasLayoutTargets: null,
 			mode: 'controls',
 			runtimeValuesByStore: new Map(),
 			selectableOutlines,
