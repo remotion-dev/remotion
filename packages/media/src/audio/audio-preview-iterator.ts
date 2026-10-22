@@ -5,11 +5,7 @@ export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
-	buffer: AudioBuffer;
 	sourceDurationInSeconds: number;
-	scheduledTime: number;
-	playbackRate: number;
-	scheduledAtAnchor: number;
 };
 
 export type QueuedPeriod = {
@@ -29,11 +25,24 @@ export const makeAudioIterator = ({
 	unscheduleAudioNode,
 }: MakeAudioIteratorOptions) => {
 	let destroyed = false;
-	const queuedAudioNodes: QueuedNode[] = [];
+	const queuedAudioNodes = new Set<AudioBufferSourceNode>();
+	// Seek deduplication needs the scheduling history, including ended audio and
+	// silent gaps. Keep its bounds without retaining the historical nodes.
+	let queuedFrom = Infinity;
+	let queuedUntil = -Infinity;
+	const onEnded = (event: Event) => {
+		const node = event.currentTarget as AudioBufferSourceNode;
+		queuedAudioNodes.delete(node);
+		node.disconnect();
+	};
+
 	let mostRecentTimestamp = -Infinity;
 
 	const cleanupAudioQueue = () => {
-		for (const {node} of queuedAudioNodes) {
+		for (const node of queuedAudioNodes) {
+			// Pending nodes may never emit ended; remove their listener synchronously.
+			node.removeEventListener('ended', onEnded);
+			node.disconnect();
 			if (unscheduleAudioNode(node) === true) {
 				continue;
 			}
@@ -46,7 +55,9 @@ export const makeAudioIterator = ({
 			}
 		}
 
-		queuedAudioNodes.length = 0;
+		queuedAudioNodes.clear();
+		queuedFrom = Infinity;
+		queuedUntil = -Infinity;
 	};
 
 	const getNextFn = async () => {
@@ -77,7 +88,13 @@ export const makeAudioIterator = ({
 		},
 
 		addQueuedAudioNode: (queuedNode: QueuedNode) => {
-			queuedAudioNodes.push(queuedNode);
+			queuedFrom = Math.min(queuedFrom, queuedNode.timestamp);
+			queuedUntil = Math.max(
+				queuedUntil,
+				queuedNode.timestamp + queuedNode.sourceDurationInSeconds,
+			);
+			queuedAudioNodes.add(queuedNode.node);
+			queuedNode.node.addEventListener('ended', onEnded, {once: true});
 		},
 		guessNextTimestamp: () => {
 			return !Number.isFinite(mostRecentTimestamp)
@@ -85,13 +102,8 @@ export const makeAudioIterator = ({
 				: mostRecentTimestamp;
 		},
 		getQueuedPeriod: () => {
-			let until = -Infinity;
-			let from = Infinity;
-
-			for (const node of queuedAudioNodes) {
-				until = Math.max(until, node.timestamp + node.sourceDurationInSeconds);
-				from = Math.min(from, node.timestamp);
-			}
+			const from = queuedFrom;
+			const until = queuedUntil;
 
 			if (!Number.isFinite(from) || !Number.isFinite(until)) {
 				return null;

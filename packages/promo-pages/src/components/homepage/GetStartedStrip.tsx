@@ -2,11 +2,16 @@ import {Button} from '@remotion/design';
 import React, {useState} from 'react';
 import {GithubButton} from './GitHubButton';
 
-export const GetStarted: React.FC = () => {
+export const GetStarted: React.FC<{
+	readonly alignRight: boolean;
+	readonly command: string;
+}> = ({alignRight, command}) => {
 	const [clicked, setClicked] = useState<number | null>(null);
 
 	return (
-		<div className="flex flex-col min-[900px]:flex-row items-center justify-center text-center w-full">
+		<div
+			className={`flex flex-col min-[900px]:flex-row items-center text-center w-full ${alignRight ? 'justify-start lg:justify-end' : 'justify-center'}`}
+		>
 			<div className="w-full min-[900px]:w-auto">
 				<div className="flex flex-row w-full relative">
 					{clicked ? (
@@ -24,13 +29,13 @@ export const GetStarted: React.FC = () => {
 					<Button
 						className="bg-[#333] text-white rounded-lg px-4 font-mono hover:[#444] cursor-pointer w-full"
 						onClick={() => {
-							navigator.clipboard.writeText('npx create-video@latest');
+							navigator.clipboard.writeText(command);
 
 							setClicked(Date.now());
 						}}
 						title="Click to copy"
 					>
-						$ npx create-video@latest
+						$ {command}
 					</Button>
 				</div>
 			</div>

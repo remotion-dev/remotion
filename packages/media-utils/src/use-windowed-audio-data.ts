@@ -15,7 +15,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import {cancelRender, Internals, useDelayRender} from 'remotion';
+import {Internals, useDelayRender} from 'remotion';
 import {combineFloat32Arrays} from './combine-float32-arrays';
 import {getPartialAudioData} from './get-partial-audio-data';
 import {isRemoteAsset} from './is-remote-asset';
@@ -97,7 +97,7 @@ export const useWindowedAudioData = ({
 		};
 	}, [audioUtils]);
 
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const fetchMetadata = useCallback(
 		async (signal: AbortSignal) => {
@@ -200,7 +200,14 @@ export const useWindowedAudioData = ({
 				signal.removeEventListener('abort', onAbort);
 			}
 		},
-		[src, delayRender, continueRender, channelIndex, initialRequestInit],
+		[
+			src,
+			delayRender,
+			continueRender,
+			cancelRender,
+			channelIndex,
+			initialRequestInit,
+		],
 	);
 
 	useLayoutEffect(() => {
@@ -394,6 +401,7 @@ export const useWindowedAudioData = ({
 			cancelRender(err);
 		});
 	}, [
+		cancelRender,
 		fetchAndSetWaveformData,
 		audioUtils,
 		windowsToFetch,

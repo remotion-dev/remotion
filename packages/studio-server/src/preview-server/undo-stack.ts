@@ -218,11 +218,16 @@ export function pushTransactionToUndoStack({
 		undoRedoNavigation,
 	});
 	undoStack.push(entry);
+	const discardedEntries =
+		undoStack.length > MAX_ENTRIES || redoStack.length > 0;
 	if (undoStack.length > MAX_ENTRIES) {
 		undoStack.shift();
 	}
 
 	redoStack.length = 0;
+	if (discardedEntries) {
+		cleanupWatchers();
+	}
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel},
@@ -284,6 +289,7 @@ export function pushToRedoStack({
 	redoStack.push(entry);
 	if (redoStack.length > MAX_ENTRIES) {
 		redoStack.shift();
+		cleanupWatchers();
 	}
 
 	RenderInternals.Log.verbose(
@@ -390,6 +396,7 @@ function cleanupWatchers() {
 		if (!filesInStacks.has(filePath)) {
 			watcher.unwatch();
 			watchers.delete(filePath);
+			suppressedWrites.delete(filePath);
 		}
 	}
 }
@@ -453,6 +460,7 @@ export function popUndo(): UndoResponse {
 	);
 	if (redoStack.length > MAX_ENTRIES) {
 		redoStack.shift();
+		cleanupWatchers();
 	}
 
 	const files = entry.snapshots.flatMap((snapshot) => {
@@ -542,6 +550,7 @@ export function popRedo(): RedoResponse {
 	> = [];
 	for (const snapshot of entry.snapshots) {
 		if (snapshot.newContents === null) {
+			cleanupWatchers();
 			return {success: false, reason: 'Redo entry is incomplete'};
 		}
 
@@ -562,6 +571,7 @@ export function popRedo(): RedoResponse {
 	);
 	if (undoStack.length > MAX_ENTRIES) {
 		undoStack.shift();
+		cleanupWatchers();
 	}
 
 	const files = snapshotsWithNewContents.flatMap((snapshot) => {

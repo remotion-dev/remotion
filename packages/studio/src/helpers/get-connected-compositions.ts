@@ -1,2 +1,3 @@
 import {CanvasInternals} from '@remotion/sdk';
-export const {getConnectedCompositions} = CanvasInternals;
+export const {getConnectedCompositions}: typeof CanvasInternals =
+	CanvasInternals;

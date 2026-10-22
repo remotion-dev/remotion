@@ -45,6 +45,14 @@ export const waitForReady = ({
 		if (scope.remotion_cancelledError !== undefined) {
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
+			// No serialization is needed for browser rendering. Reject with the
+			// original Error so its identity, cause chain and custom fields survive.
+			if (scope.remotion_cancelledErrorObject) {
+				reject(scope.remotion_cancelledErrorObject);
+				return;
+			}
+
+			// Keep accepting cancellations from core versions that only store a stack.
 			const stack = scope.remotion_cancelledError;
 			const message = stack.split('\n')[0].replace(/^Error: /, '');
 			const error = new Error(message);

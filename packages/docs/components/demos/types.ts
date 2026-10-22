@@ -1,4 +1,10 @@
 import type {LogLevel} from 'remotion';
+import {BevelAlphaDemo} from '../effects/effects-bevel-alpha-preview';
+import {FractalNoiseDemo} from '../effects/effects-fractal-noise-preview';
+import {LensBlurDemo} from '../effects/effects-lens-blur-preview';
+import {PageTurnDemo} from '../effects/effects-page-turn-preview';
+import {SpinningGlobeDemo} from '../effects/effects-sphere-preview';
+import {TurbulentDisplaceDemo} from '../effects/effects-turbulent-displace-preview';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -19,6 +25,7 @@ import {CalloutDemo} from './Callout';
 import {CircleDemo} from './Circle';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
 import {CrossZoomDocsDemo} from './CrossZoomDemo';
+import {CylinderTextDemo} from './CylinderTextDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
 import {DreamyZoomDocsDemo} from './DreamyZoomDemo';
 import {EllipseDemo} from './Ellipse';
@@ -1738,6 +1745,97 @@ export const motionBlurHtmlInCanvasDemo: DemoType = {
 	durationInFrames: 60,
 	fps: 30,
 	id: 'motion-blur-html-in-canvas',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const cylinderTextDemo: DemoType = {
+	comp: CylinderTextDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	durationInFrames: 180,
+	fps: 30,
+	id: 'cylinder-text',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const sphereGlobeDemo: DemoType = {
+	comp: SpinningGlobeDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	durationInFrames: 240,
+	fps: 30,
+	id: 'sphere-globe',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const pageTurnDemo: DemoType = {
+	comp: PageTurnDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	durationInFrames: 180,
+	fps: 30,
+	id: 'page-turn-demo',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const fractalNoiseDemo: DemoType = {
+	comp: FractalNoiseDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	fps: 30,
+	durationInFrames: 180,
+	id: 'fractal-noise',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const turbulentDisplaceDemo: DemoType = {
+	comp: TurbulentDisplaceDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	fps: 30,
+	durationInFrames: 120,
+	id: 'turbulent-displace',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const lensBlurDemo: DemoType = {
+	comp: LensBlurDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	fps: 30,
+	durationInFrames: 120,
+	id: 'lens-blur',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const bevelAlphaDemo: DemoType = {
+	comp: BevelAlphaDemo,
+	compWidth: 1280,
+	compHeight: 720,
+	fps: 30,
+	durationInFrames: 120,
+	id: 'bevel-alpha',
 	autoPlay: true,
 	controls: true,
 	logLevel: 'info',

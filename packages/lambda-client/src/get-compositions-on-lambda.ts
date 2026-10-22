@@ -1,19 +1,16 @@
-import type {
-	BrowserSafeApis,
-	ChromiumOptions,
-	ToOptions,
-	VideoConfig,
-} from '@remotion/serverless-client';
+import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {VideoConfig} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {
-	ServerlessRoutines,
-	VERSION,
 	compressInputProps,
 	getNeedsToUpload,
-	getSizeInBytes,
 	serializeOrThrow,
-} from '@remotion/serverless-client';
-import {awsImplementation} from './aws-provider';
+} from './compress-props';
+import {getSizeInBytes} from './get-size-in-bytes';
 import type {AwsRegion} from './regions';
+import {ServerlessRoutines} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type GetCompositionsOnLambdaInput = {
@@ -69,9 +66,7 @@ export const getCompositionsOnLambda = async ({
 				getSizeInBytes(stringifiedInputProps),
 				getSizeInBytes(JSON.stringify(envVariables ?? {})),
 			],
-			providerSpecifics: awsImplementation,
 		}),
-		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: false,
 		requestHandler,
@@ -79,7 +74,7 @@ export const getCompositionsOnLambda = async ({
 	});
 
 	try {
-		const res = await awsImplementation.callFunctionSync({
+		const res = await callFunctionSyncImplementation({
 			functionName,
 			type: ServerlessRoutines.compositions,
 			payload: {

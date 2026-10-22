@@ -62,6 +62,7 @@ declare global {
 		};
 		remotion_delayRenderHandles: number[];
 		remotion_cancelledError: string | undefined;
+		remotion_cancelledErrorObject: Error | undefined;
 		remotion_getCompositionNames: () => string[];
 		// Fallback list of seen composition IDs, populated as early as possible by <Composition>
 		remotion_seenCompositionIds: string[];

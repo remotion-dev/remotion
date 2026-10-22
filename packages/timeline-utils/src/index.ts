@@ -35,6 +35,7 @@ export {
 	getFrameDatabaseKeyPrefix,
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
+	mediaDurationCache,
 } from './frame-database';
 export type {FrameDatabaseKey} from './frame-database';
 export {
@@ -44,6 +45,12 @@ export {
 } from './loop-display';
 export type {LoopDisplaySegment, TimelineLoopDisplay} from './loop-display';
 export {
+	hydrateThumbnailsFromPersistentCache,
+	readMediaMetadataFromPersistentCache,
+	writeMediaMetadataToPersistentCache,
+	writeThumbnailToPersistentCache,
+} from './persistent-cache/persistent-cache';
+export {
 	WEBCODECS_TIMESCALE,
 	calculateTimestampSlots,
 	drawSlot,
@@ -51,6 +58,7 @@ export {
 	fillFrameWhereItFits,
 	fillWithCachedFrames,
 	getDurationOfOneFrame,
+	getSlotsToExtract,
 } from './render-frame-strip';
 export {renderFrameStripToCanvas} from './render-frame-strip-to-canvas';
 export type {RenderFrameStripToCanvasOptions} from './render-frame-strip-to-canvas';

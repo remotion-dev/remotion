@@ -30,6 +30,21 @@ const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
 	);
 };
 
+// The start timestamp and the frames already advanced within the current
+// frame are kept across re-runs of the playback effect, so that a re-run
+// (e.g. because durationInFrames changed, see issue #12279) does not
+// restart the clock from the current frame and lose the already elapsed
+// portion of the frame.
+// A fresh clock is created only where a restart is correct: when starting
+// playback, or when the composition, fps or playback rate changed mid-playback.
+type PlaybackClock = {
+	compositionId: string;
+	startedTime: number;
+	framesAdvanced: number;
+	fps: number;
+	playbackRate: number;
+};
+
 export const usePlayback = ({
 	loop,
 	playbackRate,
@@ -50,6 +65,9 @@ export const usePlayback = ({
 	muted: boolean;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
+	const fps = config?.fps ?? null;
+	const durationInFrames = config?.durationInFrames ?? null;
+	const compositionId = config?.id ?? null;
 	const frame = Internals.Timeline.useTimelinePosition();
 	const playing = Internals.usePlaying();
 	const {pause, emitter, isPlaying} = usePlayerMethods();
@@ -72,6 +90,17 @@ export const usePlayback = ({
 	const anchorSeekRevision = useRef(seekRevisionAtRender);
 	const audioLoopRevision = useRef(0);
 	const loopRevision = audioLoopRevision.current;
+	const playbackClockRef = useRef<PlaybackClock | null>(null);
+	const previousAudioBoundary = useRef<{
+		audioContext: AudioContext | null;
+		compositionId: string | null;
+		fps: number | null;
+		playbackRate: number;
+		muted: boolean;
+		playing: boolean;
+		seekRevision: number | null;
+		loopRevision: number;
+	} | null>(null);
 
 	useBrowserMediaSession({
 		browserMediaControlsBehavior,
@@ -81,14 +110,14 @@ export const usePlayback = ({
 
 	const updateAudioAnchor = useCallback(
 		(absoluteFrame: number) => {
-			if (!sharedAudioContext?.audioContext || !config || muted) {
-				return;
+			if (!sharedAudioContext?.audioContext || fps === null || muted) {
+				return false;
 			}
 
 			const changed = setGlobalTimeAnchor({
 				audioContext: sharedAudioContext.audioContext,
 				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-				absoluteTimeInSeconds: absoluteFrame / config.fps,
+				absoluteTimeInSeconds: absoluteFrame / fps,
 				globalPlaybackRate: playbackRate,
 				logLevel,
 				force: true,
@@ -96,16 +125,55 @@ export const usePlayback = ({
 			if (changed) {
 				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 			}
+
+			return changed;
 		},
-		[config, logLevel, muted, playbackRate, sharedAudioContext],
+		[fps, logLevel, muted, playbackRate, sharedAudioContext],
 	);
 
 	// Re-anchor only at playback boundaries. A late React commit during ordinary
 	// playback must not move the audio clock and discard already scheduled audio.
 	useLayoutEffect(() => {
+		const boundary = {
+			audioContext: sharedAudioContext?.audioContext ?? null,
+			compositionId,
+			fps,
+			playbackRate,
+			muted,
+			playing,
+			seekRevision: seekRevisionAtRender,
+			loopRevision,
+		};
+		const previous = previousAudioBoundary.current;
+		previousAudioBoundary.current = boundary;
 		anchorSeekRevision.current = seekRevisionAtRender;
-		updateAudioAnchor(getCurrentFrame());
+		if (
+			previous !== null &&
+			Object.keys(boundary).every(
+				(key) =>
+					boundary[key as keyof typeof boundary] ===
+					previous[key as keyof typeof boundary],
+			)
+		) {
+			return;
+		}
+
+		const changed = updateAudioAnchor(getCurrentFrame());
+		if (
+			!changed &&
+			playing &&
+			!muted &&
+			sharedAudioContext?._experimentalKeepAudioContextAlive
+		) {
+			// A changed timebase can invalidate queued audio even at the same anchor.
+			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+		}
 	}, [
+		compositionId,
+		fps,
+		playbackRate,
+		muted,
+		sharedAudioContext,
 		getCurrentFrame,
 		loopRevision,
 		playing,
@@ -120,7 +188,7 @@ export const usePlayback = ({
 			return;
 		}
 
-		if (!config) {
+		if (fps === null) {
 			return;
 		}
 
@@ -139,17 +207,38 @@ export const usePlayback = ({
 		return () => {
 			audioContext?.removeEventListener('statechange', callback);
 		};
-	}, [config, getCurrentFrame, muted, sharedAudioContext, updateAudioAnchor]);
+	}, [fps, getCurrentFrame, muted, sharedAudioContext, updateAudioAnchor]);
 
 	useEffect(() => {
-		if (!config) {
+		if (fps === null || durationInFrames === null || compositionId === null) {
+			playbackClockRef.current = null;
 			return;
 		}
 
 		if (!playing) {
+			playbackClockRef.current = null;
 			sharedAudioContext?.suspend?.();
 			return;
 		}
+
+		// Duration and range changes update the endpoint without losing elapsed
+		// sub-frame time. A different composition or timebase needs a fresh clock.
+		const previousClock = playbackClockRef.current;
+		const shouldRestartClock =
+			previousClock === null ||
+			previousClock.compositionId !== compositionId ||
+			previousClock.fps !== fps ||
+			previousClock.playbackRate !== playbackRate;
+		const clock: PlaybackClock = shouldRestartClock
+			? {
+					compositionId,
+					startedTime: performance.now(),
+					framesAdvanced: 0,
+					fps,
+					playbackRate,
+				}
+			: previousClock;
+		playbackClockRef.current = clock;
 
 		let hasBeenStopped = false;
 		let audioContextFailed = false;
@@ -163,8 +252,6 @@ export const usePlayback = ({
 					id: Timer;
 			  }
 			| null = null;
-		let startedTime = performance.now();
-		let framesAdvanced = 0;
 		let playbackFrame = getCurrentFrame();
 		let lastSeekRevision = seek?.revision.current ?? null;
 
@@ -197,8 +284,8 @@ export const usePlayback = ({
 				sharedAudioContext?.resume?.();
 			}
 
-			const time = performance.now() - startedTime;
-			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
+			const time = performance.now() - clock.startedTime;
+			const actualLastFrame = outFrame ?? durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
 			const seekRevision = seek?.revision.current ?? null;
@@ -218,14 +305,14 @@ export const usePlayback = ({
 				time,
 				currentFrame,
 				playbackSpeed: playbackRate,
-				fps: config.fps,
+				fps,
 				actualFirstFrame,
 				actualLastFrame,
-				framesAdvanced,
+				framesAdvanced: clock.framesAdvanced,
 				shouldLoop: loop,
 			});
 
-			framesAdvanced += framesToAdvance;
+			clock.framesAdvanced += framesToAdvance;
 
 			// A late callback can skip the endpoint. Hold that exact frame on end.
 			const frameToDisplay =
@@ -244,7 +331,10 @@ export const usePlayback = ({
 
 				if (frameToDisplay !== currentFrame) {
 					playbackFrame = frameToDisplay;
-					setFrameFromPlayback((c) => ({...c, [config.id]: frameToDisplay}));
+					setFrameFromPlayback((c) => ({
+						...c,
+						[compositionId]: frameToDisplay,
+					}));
 				} else if (didLoop) {
 					// A loop can wrap back to the same frame without a React commit.
 					updateAudioAnchor(frameToDisplay);
@@ -281,8 +371,9 @@ export const usePlayback = ({
 						setPlayerMuted(true);
 					}
 
-					startedTime = performance.now();
-					framesAdvanced = 0;
+					// The audio context is being re-established; start a fresh clock.
+					clock.startedTime = performance.now();
+					clock.framesAdvanced = 0;
 					queueNextFrame();
 				});
 
@@ -315,10 +406,12 @@ export const usePlayback = ({
 						sharedAudioContext.resume();
 					}
 
-					startedTime = performance.now();
-					framesAdvanced = 0;
+					// Buffered media became reachable; start a fresh clock.
+					clock.startedTime = performance.now();
+					clock.framesAdvanced = 0;
 					queueNextFrame();
 				});
+
 				return;
 			}
 
@@ -326,7 +419,7 @@ export const usePlayback = ({
 				reqAnimFrameCall = {
 					type: 'timeout',
 					// Note: Most likely, this will not be 1000 / fps, but the browser will throttle it to ~1/sec.
-					id: setTimeout(callback, 1000 / config.fps),
+					id: setTimeout(callback, 1000 / fps),
 				};
 				return;
 			}
@@ -354,7 +447,9 @@ export const usePlayback = ({
 			stop();
 		};
 	}, [
-		config,
+		compositionId,
+		durationInFrames,
+		fps,
 		loop,
 		pause,
 		playing,

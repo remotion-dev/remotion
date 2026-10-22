@@ -59,6 +59,7 @@ const {
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	showLayerFrameNumbersOption,
+	preservePitchOnPlaybackOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	beepOnFinishOption,
@@ -181,6 +182,9 @@ export const studioCommand = async (
 			showPremounting: showPremountingOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			preservePitchOnPlayback: preservePitchOnPlaybackOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			showLayerFrameNumbers: showLayerFrameNumbersOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -211,6 +215,7 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			configFileStudioSettings: {
+				preservePitchOnPlayback: preservePitchOnPlaybackOption.getConfigValue(),
 				showLayerFrameNumbers: showLayerFrameNumbersOption.getConfigValue(),
 				showPremounting: showPremountingOption.getConfigValue(),
 				defaultPremountInSeconds:

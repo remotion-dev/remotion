@@ -93,6 +93,34 @@ res = client.render_media_on_lambda(function_name, payload)
 client.cancel_render_on_lambda(res["bucketName"], res["renderId"])
 ```
 
+## Verifying webhooks<AvailableFrom v="4.0.537" />
+
+If you [set up a webhook](/docs/lambda/webhooks) with a secret, Remotion signs every request so you can confirm it was sent by Remotion and that the body was not modified. The Ruby client ships `validate_webhook_signature()`, the equivalent of [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) in the JavaScript client.
+
+Pass the webhook secret, the raw request body exactly as it was received, and the `X-Remotion-Signature` header. It raises if the request cannot be verified and returns `nil` if it is authentic.
+
+```ruby title="webhook.rb"
+require 'sinatra'
+require 'json'
+require 'remotion_lambda'
+
+post '/webhook' do
+  body = request.body.read
+
+  RemotionLambda.validate_webhook_signature(
+    ENV.fetch('REMOTION_WEBHOOK_SECRET'),
+    body,
+    request.env['HTTP_X_REMOTION_SIGNATURE']
+  )
+
+  # The request is authentic. Parse the body only now.
+  payload = JSON.parse(body)
+  status 200
+end
+```
+
+Read the body first and verify before parsing it. The signature covers the exact bytes that were sent, so parsing the JSON and regenerating it can change whitespace or number formatting, which would make a genuine request fail the check. Pass the body as it arrived (`request.body.read` in Sinatra, `request.raw_post` in Rails) rather than a parsed hash.
+
 ## Rendering a still
 
 ```ruby title="Rendering a still from Ruby"

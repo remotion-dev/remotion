@@ -6,7 +6,7 @@ import {
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../api/deploy-function';
 import {lambdaInsightsExtensions} from '../../shared/lambda-insights-extensions';
-import {mockFullClientSpecifics} from '../mock-implementation';
+import {fakeAws, useFakeAws} from '../mocks/fake-aws';
 import {
 	clearMockCreateFunctionCalls,
 	getMockCreateFunctionCalls,
@@ -15,7 +15,8 @@ import {
 	cleanFnStore,
 	markFunctionAsIncompatible,
 } from '../mocks/mock-functions';
-import {mockImplementation} from '../mocks/mock-implementation';
+
+useFakeAws();
 
 const {DEFAULT_EPHEMERAL_STORAGE_IN_MB} = LambdaClientInternals;
 
@@ -35,8 +36,6 @@ test('Should be able to deploy function', async () => {
 		enableLambdaInsights: true,
 		indent: false,
 		logLevel: 'info',
-		providerSpecifics: mockImplementation,
-		fullClientSpecifics: mockFullClientSpecifics,
 		runtimePreference: 'default',
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
@@ -66,8 +65,6 @@ test('Should be able to get the function afterwards', async () => {
 		enableLambdaInsights: true,
 		indent: false,
 		logLevel: 'info',
-		providerSpecifics: mockImplementation,
-		fullClientSpecifics: mockFullClientSpecifics,
 		runtimePreference: 'default',
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
@@ -81,7 +78,7 @@ test('Should be able to get the function afterwards', async () => {
 			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		}),
 	);
-	const fns = await mockImplementation.getFunctions({
+	const fns = await LambdaClientInternals.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
@@ -98,7 +95,7 @@ test('Should be able to get the function afterwards', async () => {
 			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		},
 	]);
-	const foreignFunctions = await mockImplementation.getFunctions({
+	const foreignFunctions = await LambdaClientInternals.getFunctions({
 		region: 'us-east-2',
 		compatibleOnly: true,
 	});
@@ -119,8 +116,6 @@ test('Should be able to delete the function', async () => {
 		enableLambdaInsights: true,
 		indent: false,
 		logLevel: 'info',
-		providerSpecifics: mockImplementation,
-		fullClientSpecifics: mockFullClientSpecifics,
 		runtimePreference: 'default',
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
@@ -134,7 +129,7 @@ test('Should be able to delete the function', async () => {
 			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		}),
 	);
-	mockImplementation.deleteFunction({
+	LambdaClientInternals.deleteFunction({
 		region: 'us-east-1',
 		functionName: speculateFunctionName({
 			memorySizeInMb: 2048,
@@ -142,7 +137,7 @@ test('Should be able to delete the function', async () => {
 			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		}),
 	});
-	const fns = await mockImplementation.getFunctions({
+	const fns = await LambdaClientInternals.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
@@ -163,8 +158,6 @@ test('Should apply custom Layers when creating and reusing a function', async ()
 		enableLambdaInsights: false,
 		indent: false,
 		logLevel: 'info' as const,
-		providerSpecifics: mockImplementation,
-		fullClientSpecifics: mockFullClientSpecifics,
 		runtimePreference: 'default' as const,
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
@@ -198,13 +191,10 @@ test('Should apply custom Layers when creating and reusing a function', async ()
 
 test('Should validate custom Layers before calling the Provider', async () => {
 	let providerCalls = 0;
-	const providerSpecifics = {
-		...mockImplementation,
-		getAccountId: () => {
-			providerCalls++;
-			return Promise.resolve('123456789012');
-		},
-	};
+	fakeAws().getAccountId.mockImplementation(() => {
+		providerCalls++;
+		return Promise.resolve('123456789012');
+	});
 	const invalidInputs = [
 		{customLayerArns: [chromiumLayer.slice(0, -2)]},
 		{customLayerArns: [chromiumLayer.replace(':lambda:', ':s3:')]},
@@ -233,8 +223,6 @@ test('Should validate custom Layers before calling the Provider', async () => {
 				enableLambdaInsights: invalidInput.enableLambdaInsights ?? false,
 				indent: false,
 				logLevel: 'info',
-				providerSpecifics,
-				fullClientSpecifics: mockFullClientSpecifics,
 				runtimePreference: invalidInput.runtimePreference ?? 'default',
 				vpcSecurityGroupIds: undefined,
 				vpcSubnetIds: undefined,
@@ -250,13 +238,10 @@ test('Should validate custom Layers before calling the Provider', async () => {
 test('AWS China requires partition-matching custom Layers before Provider calls', async () => {
 	for (const region of ['cn-north-1', 'cn-northwest-1'] as const) {
 		let providerCalls = 0;
-		const providerSpecifics = {
-			...mockImplementation,
-			getAccountId: () => {
-				providerCalls++;
-				return Promise.resolve('123456789012');
-			},
-		};
+		fakeAws().getAccountId.mockImplementation(() => {
+			providerCalls++;
+			return Promise.resolve('123456789012');
+		});
 		const input = {
 			memorySizeInMb: 2048,
 			region,
@@ -267,8 +252,6 @@ test('AWS China requires partition-matching custom Layers before Provider calls'
 			enableLambdaInsights: true,
 			indent: false,
 			logLevel: 'info' as const,
-			providerSpecifics,
-			fullClientSpecifics: mockFullClientSpecifics,
 			runtimePreference: 'default' as const,
 			vpcSecurityGroupIds: undefined,
 			vpcSubnetIds: undefined,
@@ -322,8 +305,6 @@ test('Should pass null to the hosted Layer path by default', async () => {
 		enableLambdaInsights: false,
 		indent: false,
 		logLevel: 'info',
-		providerSpecifics: mockImplementation,
-		fullClientSpecifics: mockFullClientSpecifics,
 		runtimePreference: 'default',
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
@@ -348,8 +329,6 @@ test('Should be able to get the function afterwards', async () => {
 		enableLambdaInsights: true,
 		indent: false,
 		logLevel: 'info',
-		providerSpecifics: mockImplementation,
-		fullClientSpecifics: mockFullClientSpecifics,
 		runtimePreference: 'default',
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
@@ -363,7 +342,7 @@ test('Should be able to get the function afterwards', async () => {
 			diskSizeInMb: 10240,
 		}),
 	);
-	const fns = await mockImplementation.getFunctions({
+	const fns = await LambdaClientInternals.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
@@ -387,11 +366,11 @@ test('Should be able to get the function afterwards', async () => {
 			diskSizeInMb: 10240,
 		}),
 	);
-	const compatibleFns = await mockImplementation.getFunctions({
+	const compatibleFns = await LambdaClientInternals.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
-	const incompatibleFns = await mockImplementation.getFunctions({
+	const incompatibleFns = await LambdaClientInternals.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: false,
 	});

@@ -14,6 +14,10 @@ export const elementCategories = [
 
 export type ElementCategory = (typeof elementCategories)[number]['category'];
 
+export const getElementCategoryHeadingId = (category: ElementCategory) => {
+	return `element-category-${category}`;
+};
+
 export const elementRegistry = {
 	'audio/oscilloscope': {
 		category: 'audio',
@@ -79,6 +83,10 @@ export const elementRegistry = {
 		category: 'commerce',
 		displayName: 'Wiggling Callout',
 	},
+	'commerce/peel': {
+		category: 'commerce',
+		displayName: 'Peel',
+	},
 	'commerce/shine': {
 		category: 'commerce',
 		displayName: 'Shine',
@@ -119,6 +127,10 @@ export const elementRegistry = {
 		category: 'maps',
 		displayName: 'A-to-B Map Flyover',
 	},
+	'maps/spinning-globe': {
+		category: 'maps',
+		displayName: 'Spinning Globe',
+	},
 	'maps/watercolor-map': {
 		category: 'maps',
 		displayName: 'Watercolor Map',
@@ -158,6 +170,10 @@ export const elementRegistry = {
 	'text/crossed-off': {
 		category: 'text',
 		displayName: 'Crossed Off',
+	},
+	'text/cylinder-text': {
+		category: 'text',
+		displayName: 'Cylinder Text',
 	},
 	'text/spinning-text-wheel': {
 		category: 'text',

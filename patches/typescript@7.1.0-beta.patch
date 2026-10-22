@@ -1,0 +1,15 @@
+diff --git a/node_modules/typescript/bin/package.json b/bin/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..729ac4d93b7f2d9be36b44525f02ff6555f9383a
+--- /dev/null
++++ b/bin/package.json
+@@ -0,0 +1 @@
++{"type":"commonjs"}
+diff --git a/bin/tsc b/bin/tsc
+index 34638f82f78ad0641bd169a41a598ed3a73b63d5..9c40c9513819c516832bde152f38804a4a7f8a1c 100755
+--- a/bin/tsc
++++ b/bin/tsc
+@@ -1,2 +1,2 @@
+ #!/usr/bin/env node
+-import "../lib/tsc.js";
++import("../lib/tsc.js");

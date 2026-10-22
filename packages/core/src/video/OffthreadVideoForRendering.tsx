@@ -12,7 +12,6 @@ import {
 	Html5MediaTrimContext,
 } from '../audio/use-audio-frame.js';
 import {useMediaAudioState} from '../audio/use-media-audio-state.js';
-import {cancelRender} from '../cancel-render.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from '../default-css.js';
 import type {delayRender as delayRenderGlobal} from '../delay-render.js';
 import {Img} from '../Img.js';
@@ -55,7 +54,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
 	crossOrigin,
 	audioStreamIndex,
-	preservePitch: _preservePitch,
+	preservePitch,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -129,6 +128,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			toneFrequency,
 			audioStartFrame,
 			audioStreamIndex,
+			preservePitch: preservePitch ?? true,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -146,6 +146,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		audioStartFrame,
 		sequencePlaybackRate,
 		audioStreamIndex,
+		preservePitch,
 	]);
 
 	const currentTime = useMemo(() => {
@@ -168,7 +169,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	}, [toneMapped, currentTime, src, transparent]);
 
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	useLayoutEffect(() => {
 		if (!window.remotion_videoEnabled) {
@@ -264,6 +265,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		delayRenderTimeoutInMilliseconds,
 		onError,
 		continueRender,
+		cancelRender,
 		delayRender,
 	]);
 
@@ -274,7 +276,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			} else {
 				cancelRender('Failed to load image with src ' + imageSrc);
 			}
-		}, [imageSrc, onError]);
+		}, [imageSrc, onError, cancelRender]);
 
 	const className = useMemo(() => {
 		return [OBJECTFIT_CONTAIN_CLASS_NAME, props.className]

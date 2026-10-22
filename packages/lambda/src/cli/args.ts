@@ -1,7 +1,7 @@
 import {StorageClass} from '@aws-sdk/client-s3';
 import {CliInternals} from '@remotion/cli';
+import type {Privacy} from '@remotion/lambda-client';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {Privacy} from '@remotion/serverless';
 import type {AwsRegion, DeleteAfter, RuntimePreference} from '../client';
 
 const LambdaBooleanFlags = [

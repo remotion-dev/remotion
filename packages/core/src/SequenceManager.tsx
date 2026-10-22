@@ -235,6 +235,17 @@ export const VisualModePropStatusesRefContext =
 		current: {},
 	});
 
+export type VisualModePropStatusesSubscription = {
+	subscribe: (key: string | null, listener: () => void) => () => void;
+	getSnapshot: (key: string | null) => CanUpdateSequencePropsResponse | null;
+};
+
+export const VisualModePropStatusesSubscriptionContext =
+	React.createContext<VisualModePropStatusesSubscription>({
+		subscribe: () => () => undefined,
+		getSnapshot: () => null,
+	});
+
 const defaultVisualModeDragOverrides: VisualModeDragOverrides = {
 	getDragOverrides: () => {
 		throw new Error('VisualModeDragOverridesContext not initialized');
@@ -251,7 +262,7 @@ export const VisualModeDragOverridesRefContext = React.createContext<
 	React.RefObject<VisualModeDragOverrides>
 >({current: defaultVisualModeDragOverrides});
 
-const useDragOverrideSnapshot = <T,>(
+const useVisualModeSnapshot = <T,>(
 	subscribe: (listener: () => void) => () => void,
 	getSnapshot: () => T,
 ): T => {
@@ -288,7 +299,26 @@ export const useDragOverridesForNodePath = (
 		() => scopedSubscription?.getSnapshot(key) ?? emptyDragOverrides,
 		[key, scopedSubscription],
 	);
-	return useDragOverrideSnapshot(subscribe, getSnapshot);
+	return useVisualModeSnapshot(subscribe, getSnapshot);
+};
+
+// Every visual element reads its own status. Subscribing to the whole map would
+// rerender all of them whenever any status in the project changes.
+export const usePropStatusForNodePath = (
+	nodePath: SequencePropsSubscriptionKey | null,
+): CanUpdateSequencePropsResponse | null => {
+	const subscription = useContext(VisualModePropStatusesSubscriptionContext);
+	const key =
+		nodePath === null ? null : makeSequencePropsSubscriptionKey(nodePath);
+	const subscribe = useCallback(
+		(listener: () => void) => subscription.subscribe(key, listener),
+		[key, subscription],
+	);
+	const getSnapshot = useCallback(
+		() => subscription.getSnapshot(key),
+		[key, subscription],
+	);
+	return useVisualModeSnapshot(subscribe, getSnapshot);
 };
 
 export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
@@ -316,7 +346,7 @@ export const useEffectDragOverridesForNodePath = (
 			scopedSubscription?.getEffectSnapshot(key) ?? emptyEffectDragOverrides,
 		[key, scopedSubscription],
 	);
-	return useDragOverrideSnapshot(subscribe, getSnapshot);
+	return useVisualModeSnapshot(subscribe, getSnapshot);
 };
 
 export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
@@ -384,8 +414,21 @@ export const SequenceManagerProvider: React.FC<{
 	});
 	const [propStatuses, setPropStatusesMapState] = useState<PropStatuses>({});
 	const propStatusesRef = useRef(propStatuses);
+	// Elements read their own status from the latest requested map, so one that
+	// rerenders together with a status update never renders the previous status.
+	// The layout effect wakes up the elements that did not rerender.
+	const requestedPropStatusesRef = useRef(propStatuses);
+	const propStatusListeners = useRef(new Map<string, Set<() => void>>());
 	useIsomorphicLayoutEffect(() => {
+		const previous = propStatusesRef.current;
 		propStatusesRef.current = propStatuses;
+		for (const [key, listeners] of propStatusListeners.current) {
+			if (previous[key] !== propStatuses[key]) {
+				for (const listener of listeners) {
+					listener();
+				}
+			}
+		}
 	}, [propStatuses]);
 
 	const setDragOverridesBatch = useCallback(
@@ -649,6 +692,19 @@ export const SequenceManagerProvider: React.FC<{
 		[],
 	);
 
+	const updatePropStatuses = useCallback(
+		(update: (prev: PropStatuses) => PropStatuses) => {
+			const previous = requestedPropStatusesRef.current;
+			const next = update(previous);
+			if (next === previous) {
+				return;
+			}
+
+			requestedPropStatusesRef.current = next;
+			setPropStatusesMapState(next);
+		},
+		[],
+	);
 	const setPropStatuses = useCallback(
 		(
 			nodePath: SequencePropsSubscriptionKey,
@@ -656,7 +712,7 @@ export const SequenceManagerProvider: React.FC<{
 				prev: CanUpdateSequencePropsResponse,
 			) => CanUpdateSequencePropsResponse,
 		) => {
-			setPropStatusesMapState((prev) => {
+			updatePropStatuses((prev) => {
 				const key = makeSequencePropsSubscriptionKey(nodePath);
 
 				const prevKey = prev[key];
@@ -669,11 +725,11 @@ export const SequenceManagerProvider: React.FC<{
 				return {...prev, [key]: newKey};
 			});
 		},
-		[],
+		[updatePropStatuses],
 	);
 	const remapPropStatuses = useCallback(
 		(remappings: readonly SequencePropsStatusRemapping[]) => {
-			setPropStatusesMapState((prev) => {
+			updatePropStatuses((prev) => {
 				const next = {...prev};
 				for (const remapping of remappings) {
 					delete next[
@@ -691,7 +747,7 @@ export const SequenceManagerProvider: React.FC<{
 				return next;
 			});
 		},
-		[],
+		[updatePropStatuses],
 	);
 
 	const dragOverridesSubscription = useMemo<
@@ -734,6 +790,32 @@ export const SequenceManagerProvider: React.FC<{
 			propStatuses,
 		};
 	}, [propStatuses]);
+	const propStatusesSubscription = useMemo<VisualModePropStatusesSubscription>(
+		() => ({
+			subscribe: (key, listener) => {
+				if (key === null) {
+					return () => undefined;
+				}
+
+				let listeners = propStatusListeners.current.get(key);
+				if (!listeners) {
+					listeners = new Set();
+					propStatusListeners.current.set(key, listeners);
+				}
+
+				listeners.add(listener);
+				return () => {
+					listeners.delete(listener);
+					if (listeners.size === 0) {
+						propStatusListeners.current.delete(key);
+					}
+				};
+			},
+			getSnapshot: (key) =>
+				key === null ? null : (requestedPropStatusesRef.current[key] ?? null),
+		}),
+		[],
+	);
 
 	const dragOverridesContext: VisualModeDragOverrides = useMemo(() => {
 		return {
@@ -772,28 +854,32 @@ export const SequenceManagerProvider: React.FC<{
 	return (
 		<SequenceRegistryProvider>
 			<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
-				<VisualModePropStatusesContext.Provider value={propStatusesContext}>
-					<SequenceManagerScopeProviders
-						dragOverridesSubscription={dragOverridesSubscription}
-						fromKeys={dragOverrideState.fromKeys}
-					>
-						<VisualModeDragOverridesContext.Provider
-							value={dragOverridesContext}
+				<VisualModePropStatusesSubscriptionContext.Provider
+					value={propStatusesSubscription}
+				>
+					<VisualModePropStatusesContext.Provider value={propStatusesContext}>
+						<SequenceManagerScopeProviders
+							dragOverridesSubscription={dragOverridesSubscription}
+							fromKeys={dragOverrideState.fromKeys}
 						>
-							<VisualModeDragOverridesRefContext.Provider
-								value={dragOverridesRef}
+							<VisualModeDragOverridesContext.Provider
+								value={dragOverridesContext}
 							>
-								<VisualModeSettersContext.Provider value={settersContext}>
-									<VisualModeBatchSettersContext.Provider
-										value={batchSettersContext}
-									>
-										{children}
-									</VisualModeBatchSettersContext.Provider>
-								</VisualModeSettersContext.Provider>
-							</VisualModeDragOverridesRefContext.Provider>
-						</VisualModeDragOverridesContext.Provider>
-					</SequenceManagerScopeProviders>
-				</VisualModePropStatusesContext.Provider>
+								<VisualModeDragOverridesRefContext.Provider
+									value={dragOverridesRef}
+								>
+									<VisualModeSettersContext.Provider value={settersContext}>
+										<VisualModeBatchSettersContext.Provider
+											value={batchSettersContext}
+										>
+											{children}
+										</VisualModeBatchSettersContext.Provider>
+									</VisualModeSettersContext.Provider>
+								</VisualModeDragOverridesRefContext.Provider>
+							</VisualModeDragOverridesContext.Provider>
+						</SequenceManagerScopeProviders>
+					</VisualModePropStatusesContext.Provider>
+				</VisualModePropStatusesSubscriptionContext.Provider>
 			</VisualModePropStatusesRefContext.Provider>
 		</SequenceRegistryProvider>
 	);

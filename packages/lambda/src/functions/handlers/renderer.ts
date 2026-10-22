@@ -1,0 +1,621 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+	type ObjectChunkTimingData,
+	type OnStream,
+	type ServerlessPayload,
+} from '@remotion/lambda-client';
+import type {
+	AudioCodec,
+	BrowserLog,
+	CancelSignal,
+	Codec,
+	OnArtifact,
+} from '@remotion/renderer';
+import {makeCancelSignal, RenderInternals} from '@remotion/renderer';
+import {NoReactAPIs} from '@remotion/renderer/pure';
+import {VERSION} from 'remotion/version';
+import {startCancellationPolling} from '../cancellation-polling';
+import {
+	closeBrowserInstance,
+	forgetBrowserEventLoop,
+	getBrowserInstance,
+} from '../get-browser-instance';
+import type {LaunchedBrowser} from '../get-browser-instance';
+import {getChromiumPath} from '../helpers/get-chromium-path';
+import {getCurrentRegionInFunction} from '../helpers/get-current-region';
+import {getTmpDirStateIfENoSp} from '../helpers/get-tmp-dir';
+import {startLeakDetection} from '../helpers/leak-detection';
+import {normalizeChromiumOptions} from '../helpers/normalize-chromium-options';
+import {timer} from '../helpers/timer';
+import {enableNodeIntrospection} from '../helpers/why-is-node-running';
+import {onDownloadsHelper} from '../on-downloads-helpers';
+import {renderImageSequenceChunk} from '../render-image-sequence-chunk';
+
+const ENABLE_SLOW_LEAK_DETECTION = false;
+
+type Options = {
+	expectedBucketOwner: string | null;
+	isWarm: boolean;
+};
+
+export type RequestContext = {
+	expectedBucketOwner: string | null;
+	getRemainingTimeInMillis: () => number;
+	requestId: string;
+};
+
+const renderHandler = async ({
+	params,
+	options,
+	logs,
+	onStream,
+	onBrowserInstance,
+	onMediaFiles,
+	cancelSignal,
+}: {
+	params: ServerlessPayload;
+	options: Options;
+	logs: BrowserLog[];
+	onStream: OnStream;
+	onBrowserInstance: (browserInstance: LaunchedBrowser) => void;
+	onMediaFiles:
+		| ((options: {
+				videoOutputLocation: string;
+				audioOutputLocation: string | null;
+				isAudioOnly: boolean;
+				completedAt: number;
+		  }) => Promise<void>)
+		| null;
+	cancelSignal: CancelSignal | null;
+}): Promise<{}> => {
+	if (params.type !== ServerlessRoutines.renderer) {
+		throw new Error('Params must be renderer');
+	}
+
+	const chromiumOptions = normalizeChromiumOptions({
+		chromiumOptions: params.chromiumOptions,
+		logLevel: params.logLevel,
+	});
+
+	if (params.launchFunctionConfig.version !== VERSION) {
+		throw new Error(
+			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`,
+		);
+	}
+
+	const inputPropsPromise = LambdaClientInternals.decompressInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.inputProps,
+		propsType: 'input-props',
+		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
+	});
+
+	const resolvedPropsPromise = LambdaClientInternals.decompressInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.resolvedProps,
+		propsType: 'resolved-props',
+		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
+	});
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		`Waiting for browser instance`,
+	);
+
+	const browserInstance = await getBrowserInstance({
+		logLevel: params.logLevel,
+		indent: false,
+		chromiumOptions,
+	});
+
+	onBrowserInstance(browserInstance);
+
+	if (params.output.type === 'sequence') {
+		await renderImageSequenceChunk({
+			params,
+			browser: browserInstance.instance,
+			chromiumOptions,
+			serializedInputProps: await inputPropsPromise,
+			serializedResolvedProps: await resolvedPropsPromise,
+			expectedBucketOwner: options.expectedBucketOwner,
+			onStream,
+			logs,
+			cancelSignal,
+		});
+		return {};
+	}
+
+	if (params.codec === null) {
+		throw new Error('Media renders require a codec');
+	}
+
+	const outputPath = RenderInternals.tmpDir('remotion-render-');
+
+	if (typeof params.chunk !== 'number') {
+		throw new Error('must pass chunk');
+	}
+
+	if (!params.frameRange) {
+		throw new Error('must pass framerange');
+	}
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} (chunk ${params.chunk}) in this function`,
+	);
+
+	const start = Date.now();
+	const chunkTimingData: ObjectChunkTimingData = {
+		timings: {},
+		chunk: params.chunk,
+		frameRange: params.frameRange,
+		startDate: start,
+	};
+
+	const outdir = RenderInternals.tmpDir(
+		LambdaClientInternals.RENDERER_PATH_TOKEN,
+	);
+
+	const chunk = `localchunk-${String(params.chunk).padStart(8, '0')}`;
+	const defaultAudioCodec =
+		params.audioCodec ??
+		RenderInternals.getDefaultAudioCodec({
+			codec: params.codec,
+			preferLossless: params.preferLossless,
+		});
+
+	const seamlessAudio = RenderInternals.canConcatAudioSeamlessly(
+		defaultAudioCodec,
+		params.framesPerLambda,
+	);
+	const seamlessVideo = RenderInternals.canConcatVideoSeamlessly(params.codec);
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		`Preparing for rendering a chunk. Audio = ${
+			seamlessAudio ? 'seamless' : 'normal'
+		}, Video = ${seamlessVideo ? 'seamless' : 'normal'}`,
+		params.logLevel,
+	);
+
+	const chunkCodec: Codec =
+		seamlessVideo && params.codec === 'h264'
+			? 'h264-ts'
+			: params.codec === 'gif'
+				? 'h264-ts'
+				: params.codec;
+	const audioCodec: AudioCodec | null =
+		defaultAudioCodec === null
+			? null
+			: seamlessAudio
+				? defaultAudioCodec
+				: 'pcm-16';
+
+	const videoExtension = RenderInternals.getFileExtensionFromCodec(
+		chunkCodec,
+		audioCodec,
+	);
+	const audioExtension = audioCodec
+		? RenderInternals.getExtensionFromAudioCodec(audioCodec)
+		: null;
+
+	const videoOutputLocation = path.join(outdir, `${chunk}.${videoExtension}`);
+
+	const willRenderAudioEval = RenderInternals.getShouldRenderAudio({
+		assetsInfo: null,
+		codec: params.codec,
+		enforceAudioTrack: true,
+		muted: params.muted,
+	});
+
+	if (willRenderAudioEval === 'maybe') {
+		throw new Error('Cannot determine whether to render audio or not');
+	}
+
+	const audioOutputLocation =
+		willRenderAudioEval === 'no'
+			? null
+			: NoReactAPIs.isAudioCodec(params.codec)
+				? null
+				: audioExtension
+					? path.join(outdir, `${chunk}.${audioExtension}`)
+					: null;
+
+	const resolvedProps = await resolvedPropsPromise;
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
+
+	const allFrames = RenderInternals.getFramesToRender(
+		params.frameRange,
+		params.everyNthFrame,
+	);
+
+	const onArtifact: OnArtifact = (artifact) => {
+		RenderInternals.Log.info(
+			{indent: false, logLevel: params.logLevel},
+			`Received artifact on frame ${artifact.frame}:`,
+			artifact.filename,
+			artifact.content.length + 'bytes. Streaming to main function',
+		);
+		const startTimestamp = Date.now();
+		onStream({
+			type: 'artifact-emitted',
+			payload: {
+				artifact: LambdaClientInternals.serializeArtifact(artifact),
+			},
+		})
+			.then(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					`Streaming artifact ${artifact.filename} to main function took ${Date.now() - startTimestamp}ms`,
+				);
+			})
+			.catch((e) => {
+				RenderInternals.Log.error(
+					{indent: false, logLevel: params.logLevel},
+					`Error streaming artifact ${artifact.filename} to main function`,
+					e,
+				);
+			});
+	};
+
+	await new Promise<void>((resolve, reject) => {
+		RenderInternals.internalRenderMedia({
+			repro: false,
+			composition: {
+				id: params.composition,
+				durationInFrames: params.durationInFrames,
+				fps: params.fps,
+				height: params.height,
+				width: params.width,
+				defaultCodec: null,
+				defaultOutName: null,
+				defaultPixelFormat: null,
+				defaultProResProfile: null,
+				defaultVideoImageFormat: null,
+				defaultSampleRate: null,
+			},
+			imageFormat: params.imageFormat,
+			serializedInputPropsWithCustomSchema,
+			frameRange: params.frameRange,
+			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: params.logLevel},
+					`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
+				);
+
+				const allFramesRendered = allFrames.length === renderedFrames;
+				const allFramesEncoded = allFrames.length === encodedFrames;
+
+				const frameReportPoint =
+					(renderedFrames % params.progressEveryNthFrame === 0 ||
+						allFramesRendered) &&
+					!allFramesEncoded;
+				const encodedFramesReportPoint =
+					(encodedFrames % params.progressEveryNthFrame === 0 ||
+						allFramesEncoded) &&
+					allFramesRendered;
+
+				if (frameReportPoint || encodedFramesReportPoint) {
+					onStream({
+						type: 'frames-rendered',
+						payload: {rendered: renderedFrames, encoded: encodedFrames},
+					});
+				}
+
+				if (renderedFrames === allFrames.length) {
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel: params.logLevel},
+						'Rendered all frames!',
+					);
+				}
+
+				chunkTimingData.timings[renderedFrames] = Date.now() - start;
+			},
+			concurrency: params.concurrencyPerLambda,
+			onStart: () => {
+				onStream({
+					type: 'lambda-invoked',
+					payload: {
+						attempt: params.attempt,
+					},
+				});
+			},
+			puppeteerInstance: browserInstance.instance,
+			serveUrl: params.serveUrl,
+			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+			envVariables: params.envVariables ?? {},
+			logLevel: params.logLevel,
+			onBrowserLog: (log) => {
+				logs.push(log);
+			},
+			outputLocation: videoOutputLocation,
+			codec: chunkCodec,
+			crf: params.crf ?? null,
+			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
+			proResProfile: params.proResProfile ?? undefined,
+			x264Preset: params.x264Preset,
+			gopSize: params.gopSize ?? null,
+			onDownload: onDownloadsHelper(params.logLevel),
+			overwrite: false,
+			chromiumOptions,
+			scale: params.scale,
+			timeoutInMilliseconds: params.timeoutInMilliseconds,
+			port: null,
+			everyNthFrame: params.everyNthFrame,
+			numberOfGifLoops: null,
+			muted: params.muted,
+			enforceAudioTrack: true,
+			audioBitrate: params.audioBitrate,
+			videoBitrate: params.videoBitrate,
+			encodingBufferSize: params.encodingBufferSize,
+			encodingMaxRate: params.encodingMaxRate,
+			audioCodec,
+			preferLossless: params.preferLossless,
+			browserExecutable: getChromiumPath(),
+			cancelSignal: cancelSignal ?? undefined,
+			disallowParallelEncoding: false,
+			disableSharedMemoryCapture: params.disableSharedMemoryCapture,
+			ffmpegOverride: ({args}) => args,
+			indent: false,
+			onCtrlCExit: () => undefined,
+			server: undefined,
+			serializedResolvedPropsWithCustomSchema: resolvedProps,
+			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+			colorSpace: params.colorSpace,
+			binariesDirectory: null,
+			separateAudioTo: audioOutputLocation,
+			forSeamlessAacConcatenation: seamlessAudio,
+			compositionStart: params.compositionStart,
+			onBrowserDownload: () => {
+				throw new Error('Should not download a browser in Lambda');
+			},
+			onArtifact,
+			metadata: params.metadata,
+			hardwareAcceleration: 'disable',
+			chromeMode: 'headless-shell',
+			offthreadVideoThreads: params.offthreadVideoThreads,
+			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			onLog: RenderInternals.defaultOnLog,
+			// Not doing telemetry for the individual chunks
+			licenseKey: null,
+			isProduction: false,
+			sampleRate: params.sampleRate,
+		})
+			.then(({slowestFrames}) => {
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: params.logLevel},
+					`Slowest frames:`,
+				);
+				slowestFrames.forEach(({frame, time}) => {
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel: params.logLevel},
+						`  Frame ${frame} (${time.toFixed(3)}ms)`,
+					);
+				});
+				resolve();
+			})
+			.catch((err) => reject(err));
+	});
+
+	const streamTimer = timer(
+		'Streaming chunk to the main function',
+		params.logLevel,
+	);
+
+	const endRendered = Date.now();
+	if (onMediaFiles) {
+		await onMediaFiles({
+			videoOutputLocation,
+			audioOutputLocation,
+			isAudioOnly: NoReactAPIs.isAudioCodec(params.codec),
+			completedAt: endRendered,
+		});
+	} else {
+		if (audioOutputLocation) {
+			const audioChunkTimer = timer('Sending audio chunk', params.logLevel);
+			await onStream({
+				type: 'audio-chunk-rendered',
+				payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
+			});
+			audioChunkTimer.end();
+		}
+
+		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
+		await onStream({
+			type: NoReactAPIs.isAudioCodec(params.codec)
+				? 'audio-chunk-rendered'
+				: 'video-chunk-rendered',
+			payload: new Uint8Array(fs.readFileSync(videoOutputLocation)),
+		});
+		videoChunkTimer.end();
+	}
+
+	await onStream({
+		type: 'chunk-complete',
+		payload: {
+			rendered: endRendered,
+			start,
+		},
+	});
+
+	streamTimer.end();
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		'Cleaning up and writing timings',
+	);
+
+	await Promise.all(
+		[
+			fs.promises.rm(videoOutputLocation, {recursive: true, force: true}),
+			audioOutputLocation
+				? fs.promises.rm(audioOutputLocation, {recursive: true, force: true})
+				: null,
+			fs.promises.rm(outputPath, {recursive: true}),
+		].filter(LambdaClientInternals.truthy),
+	);
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		'Done!',
+	);
+
+	return {};
+};
+
+export const rendererHandler = async ({
+	onStream,
+	options,
+	params,
+	requestContext,
+	onMediaFiles,
+	executionMode,
+}: {
+	params: ServerlessPayload;
+	options: Options;
+	onStream: OnStream;
+	requestContext: RequestContext;
+	onMediaFiles:
+		| ((options: {
+				videoOutputLocation: string;
+				audioOutputLocation: string | null;
+				isAudioOnly: boolean;
+				completedAt: number;
+		  }) => Promise<void>)
+		| null;
+	executionMode: 'invoked' | 'direct';
+}): Promise<void> => {
+	if (params.type !== ServerlessRoutines.renderer) {
+		throw new Error('Params must be renderer');
+	}
+
+	const logs: BrowserLog[] = [];
+
+	const nodeIntrospection = ENABLE_SLOW_LEAK_DETECTION
+		? enableNodeIntrospection(true)
+		: null;
+	let shouldKeepBrowserOpen = true;
+	let instance: LaunchedBrowser | undefined;
+	let cancellationRequested = false;
+	const {cancel, cancelSignal} = makeCancelSignal();
+	const stopCancellationPolling = params.enableCancellation
+		? startCancellationPolling({
+				bucketName: params.bucketName,
+				renderId: params.renderId,
+				region: getCurrentRegionInFunction(),
+				forcePathStyle: params.forcePathStyle,
+				intervalInMilliseconds: 1000,
+				logLevel: params.logLevel,
+				onCancelled: () => {
+					cancellationRequested = true;
+					cancel();
+				},
+			})
+		: () => undefined;
+
+	try {
+		await renderHandler({
+			params,
+			options,
+			logs,
+			onStream,
+			onBrowserInstance: (browserInstance) => {
+				instance = browserInstance;
+			},
+			onMediaFiles,
+			cancelSignal: params.enableCancellation ? cancelSignal : null,
+		});
+	} catch (err) {
+		if (process.env.NODE_ENV === 'test') {
+			// eslint-disable-next-line no-console
+			console.log({err});
+			throw err;
+		}
+
+		// If this error is encountered, we can just retry as it
+		// is a very rare error to occur
+		const isRetryableError = LambdaClientInternals.isFlakyError(err as Error);
+		if (isRetryableError) {
+			shouldKeepBrowserOpen = false;
+		}
+
+		const shouldNotRetry =
+			cancellationRequested || (err as Error).name === 'CancelledError';
+
+		const shouldRetry =
+			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
+
+		RenderInternals.Log.error(
+			{indent: false, logLevel: params.logLevel},
+			`Error occurred (will retry = ${String(shouldRetry)})`,
+		);
+		RenderInternals.Log.error(
+			{indent: false, logLevel: params.logLevel},
+			(err as Error).stack,
+		);
+
+		await onStream({
+			type: 'error-occurred',
+			payload: {
+				error: (err as Error).stack as string,
+				shouldRetry,
+				errorInfo: {
+					name: (err as Error).name as string,
+					message: (err as Error).message as string,
+					stack: (err as Error).stack as string,
+					chunk: params.chunk,
+					frame: null,
+					type: 'renderer',
+					isFatal: !shouldRetry,
+					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+					attempt: params.attempt,
+					totalAttempts: params.retriesLeft + params.attempt,
+					willRetry: shouldRetry,
+				},
+			},
+		});
+	} finally {
+		stopCancellationPolling();
+		if (!shouldKeepBrowserOpen && instance) {
+			try {
+				await closeBrowserInstance({
+					launchedBrowser: instance,
+				});
+			} catch (err) {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					'Could not close browser instance after flaky error',
+					err,
+				);
+			}
+		} else if (
+			executionMode === 'invoked' &&
+			shouldKeepBrowserOpen &&
+			instance
+		) {
+			forgetBrowserEventLoop({
+				logLevel: params.logLevel,
+				launchedBrowser: instance,
+			});
+		}
+
+		if (!shouldKeepBrowserOpen) {
+			RenderInternals.Log.info(
+				{indent: false, logLevel: params.logLevel},
+				'Function did not succeed with flaky error, not keeping browser open.',
+			);
+		}
+
+		if (nodeIntrospection) {
+			startLeakDetection(nodeIntrospection, requestContext.requestId);
+		}
+	}
+};

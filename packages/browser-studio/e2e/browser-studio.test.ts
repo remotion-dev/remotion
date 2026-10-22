@@ -329,7 +329,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await expect(
 				studio.getByRole('button', {name: 'Remove', exact: true}),
 			).toHaveCount(0);
-			const inspector = studio.getByRole('button', {name: 'Inspector'});
+			const inspector = studio
+				.getByRole('button', {name: 'Composition', exact: true})
+				.last();
 			await expect(inspector).toBeVisible();
 			await inspector.click();
 			await studio.getByRole('button', {name: 'Add Solid'}).click();
