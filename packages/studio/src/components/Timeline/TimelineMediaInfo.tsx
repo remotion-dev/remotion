@@ -59,27 +59,21 @@ export const TimelineMediaInfo: React.FC<{
 	const onPointerEnter = useCallback(() => setRequestedSrc(src), [src]);
 	const metadataLines: string[] = [];
 	if (mediaMetadata && Number.isFinite(mediaMetadata.duration)) {
-		metadataLines.push(
-			`Duration: ${formatMediaDuration(mediaMetadata.duration)}`,
-		);
+		metadataLines.push(formatMediaDuration(mediaMetadata.duration));
 	}
 
 	const dimensions = isImage ? imageMetadata : mediaMetadata;
 	if (dimensions?.width && dimensions.height) {
-		metadataLines.push(
-			`Dimensions: ${dimensions.width} × ${dimensions.height}`,
-		);
+		metadataLines.push(`${dimensions.width} × ${dimensions.height}`);
 	}
 
 	if (mediaMetadata?.fps && Number.isFinite(mediaMetadata.fps)) {
-		metadataLines.push(
-			`Frame rate: ${Number(mediaMetadata.fps.toFixed(2))} fps`,
-		);
+		metadataLines.push(`${Number(mediaMetadata.fps.toFixed(2))} fps`);
 	}
 
 	const format = isImage ? imageMetadata?.format : mediaMetadata?.format;
 	if (format) {
-		metadataLines.push(`Format: ${format}`);
+		metadataLines.push(format);
 	}
 
 	const source =
